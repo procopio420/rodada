@@ -374,23 +374,64 @@ Lançamento positivo no ledger, normalmente derivado de OrderItem confirmado.
 
 ## Payment
 
-Valor recebido.
+Valor recebido ou em processo de recebimento contra uma Tab. Payment nunca pertence à Table.
+
+Estados conceituais:
 
 ```text
+CREATED
 PENDING
+PROCESSING
+AUTHORIZED
+CONFIRMATION_PENDING
 CONFIRMED
 FAILED
-REVERSED
+CANCELLED
+PARTIALLY_REFUNDED
+REFUNDED
 ```
 
 Métodos iniciais:
 
 ```text
+TAP_TO_PAY
 PIX
-CARD
+CARD_ONLINE
 CASH
+EXTERNAL_TERMINAL
 OTHER
 ```
+
+Campos conceituais incluem valor/moeda, método, provider opcional, referência externa, timestamps de lifecycle, ator e separação entre principal e gorjeta quando aplicável.
+
+Regras:
+
+- uma Tab pode receber múltiplos Payments;
+- pagamento parcial é nativo;
+- saldo deriva do ledger, não de booleano `paid`;
+- frontend não confirma pagamento por conta própria;
+- `CONFIRMATION_PENDING` representa estado externo ambíguo e bloqueia retry cego equivalente;
+- provider/adquirente fica atrás de adapter/porta própria;
+- pagar/fechar a última Tab não libera TableOccupancy;
+- Payment confirmado não é apagado para representar estorno.
+
+## PaymentAttempt
+
+Tentativa idempotente de execução de um Payment por provider/método.
+
+Mantém pelo menos `payment_id`, `idempotency_key`, referência do provider, status, timestamps e erro normalizado quando houver.
+
+Retries não podem duplicar cobrança já confirmada.
+
+## ProviderEvent
+
+Inbox idempotente de webhook/evento externo, identificada por provider + provider_event_id e protegida contra processamento duplicado.
+
+## Refund
+
+Estorno total ou parcial de Payment confirmado.
+
+Refund preserva o Payment original, registra valor/ator/status/referência externa e produz o efeito financeiro reverso no ledger.
 
 ## Adjustment
 
