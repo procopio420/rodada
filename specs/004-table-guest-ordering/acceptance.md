@@ -1,8 +1,17 @@
 # Acceptance — Spec 004
 
 - [ ] Mesa possui QR com token opaco não sequencial.
+- [ ] QR permanece o mesmo quando a mesa muda de lugar.
 - [ ] Scan do QR resolve a Table sem expor PK interno.
+- [ ] Table pode existir AVAILABLE sem placement ativo.
 - [ ] Guest abre PWA sem instalar app ou criar conta.
+- [ ] Ao escanear Table sem placement, guest pode selecionar posição aproximada num floorplan 2D sanitizado.
+- [ ] Staff pode posicionar ou arrastar uma Table no floorplan.
+- [ ] Staff pode retirar uma Table do mapa encerrando apenas o placement, sem apagar a Table ou trocar o QR.
+- [ ] Reposicionar Table preserva TableOccupancy, Tabs, Orders, ledger, GuestSession válida e QR.
+- [ ] Update concorrente com versão stale não sobrescreve placement silenciosamente.
+- [ ] Floorplan guest não expõe estados operacionais de outras mesas, staff ou filas internas.
+- [ ] Staff pode agrupar/desagrupar Tables sem fundir suas identidades ou contas.
 - [ ] Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.
 - [ ] Em `JOIN_ACTIVE`, guest não inicia ocupação nova.
 - [ ] Em `DISABLED`, guest não envia pedido.
@@ -18,6 +27,11 @@
 - [ ] Staff conclui limpeza `CLEANING → AVAILABLE`.
 - [ ] Concluir limpeza incrementa `access_generation`.
 - [ ] GuestSession de geração anterior não consegue criar novos pedidos.
+- [ ] Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.
+- [ ] Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.
+- [ ] Guest vê status simplificado RECEBIDO / PREPARANDO / PRONTO-CHEGANDO derivado do fulfillment.
+- [ ] Guest consegue pedir novamente um item anterior ainda disponível.
+- [ ] Guest consegue criar solicitação estruturada de atendimento/conta que entra no Dispatch.
 - [ ] Guest pode assumir Tab por código curto.
 - [ ] Uma Tab pode receber e revogar associação NFC.
 - [ ] NFC pode ser reutilizado em outra Tab após revogação/fechamento.

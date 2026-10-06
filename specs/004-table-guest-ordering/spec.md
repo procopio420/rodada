@@ -19,7 +19,10 @@ Permitir que mesas selecionadas tenham ciclo operacional explícito e que client
 - TableOccupancy pode conter várias Tabs;
 - Tab pode existir sem TableOccupancy;
 - fechar Tab não encerra ocupação automaticamente;
-- QR físico resolve Table, não Tab;
+- QR físico resolve Table, não Tab nem posição;
+- Table e TablePlacement são entidades distintas;
+- Table pode existir sem placement ativo;
+- mover/posicionar mesa não muda Tab, Order, ledger ou QR;
 - identificadores públicos não são sequenciais/adivinháveis;
 - GuestSession é revogável;
 - pedidos `GUEST` entram na mesma pipeline de fulfillment dos pedidos do staff;
@@ -86,7 +89,51 @@ Registrar dados suficientes para calcular:
 - saída → início da limpeza;
 - duração da limpeza;
 - saída → mesa disponível;
-- throughput/giro por mesa.
+- throughput/giro por mesa;
+- histórico de movimentações/placements por atendimento quando útil.
+
+### TABLE-006 — Mesa física sem posição
+
+Uma Table pode existir e estar `AVAILABLE` sem `TablePlacement` ativo. O QR permanente continua resolvendo a mesma Table.
+
+### TABLE-007 — Posicionamento no mapa 2D
+
+Ao iniciar uso de uma mesa sem placement, guest ou staff pode selecionar aproximadamente sua posição em um `FloorPlan` 2D.
+
+O placement registra Table, FloorPlan, coordenadas normalizadas, origem (`GUEST | STAFF`) e auditoria.
+
+### TABLE-008 — Movimento durante atendimento
+
+Staff pode arrastar/reposicionar a mesa no mapa durante uma ocupação. Guest pode propor/confirmar posição apenas conforme política do Venue.
+
+Mover a mesa:
+
+- encerra o placement anterior;
+- cria nova posição ativa;
+- não recria TableOccupancy;
+- não altera Tabs, Orders, ledger, QR ou GuestSession válida.
+
+Quando uma mesa for fisicamente guardada/retirada do layout, staff pode encerrar o placement sem criar outro. Isso não exclui a Table nem invalida seu QR.
+
+### TABLE-009 — Concorrência de placement
+
+Se guest e staff tentarem posicionar a mesma Table ao mesmo tempo, a API usa versão/optimistic locking. O segundo cliente recebe o placement atual e deve confirmar antes de sobrescrever.
+
+### TABLE-010 — Floorplan guest sanitizado
+
+Guest recebe apenas mapa e referências necessárias para reconhecer onde está. Estados de outras mesas, nomes de funcionários, filas e informações operacionais internas não são expostos.
+
+### TABLE-011 — Agrupamento de mesas
+
+Staff pode representar duas ou mais Tables juntas como `TableGroup` temporário.
+
+Agrupar:
+
+- não funde QR;
+- não funde Table;
+- não exige fundir TableOccupancy;
+- não funde Tabs/ledger;
+- pode fornecer label operacional e contexto para dispatch.
 
 ## Guest ordering
 
@@ -106,7 +153,9 @@ Scan abre experiência web mobile-first. Login e instalação não são obrigat�
 
 ### GUEST-003 — Resolver contexto físico
 
-Após scan válido, UI mostra a mesa/área resolvida e cria ou recupera GuestSession.
+Após scan válido, UI resolve a Table e cria ou recupera GuestSession.
+
+Se não houver placement ativo, o fluxo pode pedir **Onde vocês estão?** e abrir o floorplan guest para o cliente posicionar a mesa antes de criar/assumir a Tab. Se staff já tiver posicionado, guest apenas vê/confirma o contexto atual.
 
 ### GUEST-004 — Criar comanda
 
@@ -139,9 +188,13 @@ O menu consome `ProductAvailability` compartilhado. Itens `UNAVAILABLE` permanec
 Guest vê apenas informações autorizadas da própria Tab:
 
 - pedidos;
-- estados relevantes;
+- estados relevantes e simplificados para o cliente;
 - total/exposure apropriado;
 - ações permitidas.
+
+A UX guest não deve fingir precisão operacional inexistente. O baseline visível é `RECEBIDO → PREPARANDO → PRONTO/CHEGANDO`, derivado dos estados internos existentes.
+
+Depois do primeiro pedido, Cardápio continua sendo a home principal. O cliente pode pedir novamente durante toda a sessão, repetir itens anteriores e acompanhar pedidos sem encerrar a experiência.
 
 ### GUEST-009 — Bloqueio operacional
 
@@ -171,6 +224,32 @@ DIRECT
 - `DISABLED`: QR não aceita pedido.
 - `JOIN_ACTIVE`: guest só entra quando há ocupação ativa.
 - `DIRECT`: guest pode iniciar fluxo numa mesa disponível.
+
+### GUEST-012 — Navegação contínua
+
+A navegação base da experiência guest possui no máximo três destinos primários:
+
+- **Cardápio**;
+- **Pedidos**;
+- **Conta**.
+
+O cardápio prioriza quick-add e uso com uma mão; detalhes/modificadores aparecem somente quando necessários. Pedidos anteriores oferecem **Pedir novamente** quando o item continua disponível.
+
+### GUEST-013 — Solicitações de atendimento
+
+Em vez de uma chamada genérica sempre que possível, guest pode abrir solicitações estruturadas, inicialmente:
+
+- `BILL_REQUEST` — quero pagar;
+- `SERVICE_REQUEST` com motivo, como talheres/gelo;
+- falar com alguém.
+
+Essas ações criam DispatchTask sem exigir que o garçom marque manualmente cada microestado do pedido.
+
+### GUEST-014 — Conta
+
+Guest pode consultar sua Tab em tempo real. Quando houver identidade de participante suficiente, a UI pode distinguir `minha parte` do total do grupo e preparar futuros fluxos de divisão/pagamento sem transformar Table em conta.
+
+Pagamento online e regras avançadas de split permanecem fora do escopo inicial desta spec.
 
 ## Identificadores de Tab
 
@@ -220,3 +299,5 @@ Após join/claim, dispositivo mantém sessão segura para evitar redigitar códi
 - ordering sem internet totalmente offline pelo cliente.
 
 Pagamento pelo celular poderá entrar depois sem alterar o princípio de que pedido pertence à Tab.
+
+A UX canônica está detalhada em `docs/product/guest-experience.md`.
