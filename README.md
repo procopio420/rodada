@@ -115,6 +115,23 @@ A camada de pagamento integrada à comanda:
 - estado ambíguo vira `CONFIRMATION_PENDING`, nunca retry cego;
 - estornos preservam o Payment original e geram efeito reverso rastreável.
 
+### 007 — Management Cockpit + Analytics
+
+A camada de gerência mobile-first:
+
+- **celular é o baseline**; tablet/desktop expandem a análise;
+- durante o serviço, a home é um cockpit de exceções em tempo real;
+- alertas acionáveis sobem antes de gráficos e relatórios;
+- operação detalhada cobre cozinha, bar, atendimento, mesas e pagamentos;
+- timeline pesquisável ajuda a investigar o que aconteceu;
+- vendas cruzam receita, ticket, origem do pedido, mix e ocupação;
+- fechamento diário é gerado a partir de ledger/eventos e revisado pelo gerente;
+- fechamento mensal começa por resumo executivo e comparações úteis;
+- insights distinguem fato, estimativa e hipótese;
+- métricas de equipe servem para diagnóstico, **não leaderboard simplista**;
+- read models/projeções são idempotentes, reconstruíveis e alimentados por fatos canônicos;
+- business date respeita o turno do bar e não precisa virar à meia-noite.
+
 ## O que NÃO queremos copiar
 
 Não queremos um ERP genérico com uma skin de bar. Fiscal, estoque profundo, delivery e contabilidade podem vir depois ou por integração.
@@ -134,7 +151,9 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 9. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
 10. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
 11. [`specs/006-payments-tap-on-phone/spec.md`](./specs/006-payments-tap-on-phone/spec.md) — pagamentos, Pix, Tap on Phone, idempotência e reconciliação.
-12. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
+12. [`specs/007-management-cockpit/spec.md`](./specs/007-management-cockpit/spec.md) — cockpit gerencial mobile-first, realtime, fechamentos e analytics.
+13. [`docs/adr/0008-management-cockpit-projections.md`](./docs/adr/0008-management-cockpit-projections.md) — projeções/read models e business date da Gerência.
+14. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
 13. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
 14. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
 15. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
@@ -150,7 +169,7 @@ Rodada é um único produto com superfícies especializadas por função, todas 
 - **Rodada Cozinha** — Web/PWA focada em produção, fila e disponibilidade;
 - **Rodada Bar** — Web/PWA focada em bebidas, fila e disponibilidade;
 - **Rodada Cliente** — Web/PWA via QR, sem instalação obrigatória;
-- **Rodada Gerência** — Web responsiva para operação, configuração, pessoas e relatórios.
+- **Rodada Gerência** — Web/PWA responsiva **mobile-first** para cockpit ao vivo, exceções, fechamento, pessoas e analytics.
 
 Não criar um único frontend com todas as funções escondidas por permissão. Compartilhar contratos, domínio e design tokens; cada superfície deve continuar extremamente focada no trabalho do seu usuário.
 
@@ -166,7 +185,7 @@ O protótipo usa [`prototype/design-system.css`](./prototype/design-system.css) 
 
 - **API:** Django + Django REST Framework
 - **Atendimento:** Android nativo — Kotlin + Jetpack Compose
-- **Cozinha/Bar/Cliente/Gerência:** Next.js + React / PWA conforme a superfície
+- **Cozinha/Bar/Cliente/Gerência:** Next.js + React / PWA conforme a superfície; Gerência é mobile-first
 - **Tap on Phone (MVP):** Paytime SDK, encapsulado por adapter
 - **DB:** PostgreSQL
 - **Realtime:** Redis + WebSocket quando dispatch entrar
