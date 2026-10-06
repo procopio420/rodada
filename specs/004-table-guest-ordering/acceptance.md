@@ -9,6 +9,8 @@
 - [ ] Uma TableOccupancy suporta duas ou mais Tabs independentes.
 - [ ] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
 - [ ] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
+- [ ] Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.
+- [ ] Guest não confirma item que ficou indisponível depois de entrar no carrinho.
 - [ ] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
 - [ ] Fechar a última Tab não libera a Table automaticamente.
 - [ ] `release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.
