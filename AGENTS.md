@@ -61,6 +61,10 @@ Antes de alterar comportamento:
 - Não chamar relacionamento de “score de crédito” na UX.
 - Não automatizar promoção/rebaixamento de relacionamento sem spec explícita.
 - Dispatch é parte do núcleo operacional, não um add-on cosmético.
+- Medição não pode virar trabalho do garçom: não exigir taps de `PICKED_UP`/`DELIVERED` no happy path apenas para produzir métricas.
+- Milestones inferidos devem registrar `source`, `confidence` e provenance; inferência nunca pode ser mascarada como confirmação manual.
+- Correção de inferência é por exceção e deve preservar o evento original para auditoria/calibração.
+- BLE/presença pode melhorar precisão, mas falha/ausência de sensor nunca bloqueia POS, fulfillment ou delivery.
 - Não acoplar pagamentos a um provider específico no domínio central.
 - Pagamentos devem ser idempotentes e auditáveis.
 - Override de limite deve registrar ator, horário, valor anterior, novo valor e motivo opcional.
@@ -128,6 +132,7 @@ Mudanças de estado em pedido/task devem registrar timestamps suficientes para m
 - aceito → pronto;
 - pronto → retirado;
 - retirado → entregue;
+- origem/confiança de retirada e entrega quando inferidas;
 - chamada → claim → concluída.
 
 Mudanças de mesa/ocupação devem registrar timestamps suficientes para medir:

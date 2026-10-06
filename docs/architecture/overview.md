@@ -86,7 +86,26 @@ Fulfillment prepara pedidos já confirmados. Indisponibilizar Product não cance
 
 ### dispatch
 
-Service requests, delivery tasks, claims, prioridades, DeliveryRuns e métricas de deslocamento/entrega.
+Service requests, delivery tasks, ownership explícito ou inferido, prioridades, DeliveryRuns e métricas de deslocamento/entrega.
+
+Dispatch também é dono da coordenação da **telemetria passiva** usada para inferir `PICKED_UP`/`DELIVERED`. Sinais de presença (por exemplo BLE no passe ou por Zone) entram por adapters e nunca viram dependência do domínio central.
+
+A fronteira é:
+
+```text
+presence/sensor adapters
+        |
+        v
+dispatch inference
+        |
+        v
+FulfillmentMilestone (source + confidence)
+        |
+        v
+fulfillment operational state
+```
+
+O happy path não exige taps de “peguei”/“entreguei”. Falha de sensor degrada confiança/métrica, não bloqueia serviço nem recria etapas obrigatórias.
 
 ### guest_access
 
@@ -151,7 +170,7 @@ Evitar:
 
 ## Realtime
 
-Catalog availability, fulfillment, table ops e dispatch se beneficiam de realtime.
+Catalog availability, fulfillment, table ops e dispatch se beneficiam de realtime. Telemetria passiva pode usar eventos de presença adicionais, mas esses sinais são auxiliares e não substituem PostgreSQL como fonte de verdade dos milestones persistidos.
 
 O socket só avisa que algo mudou. PostgreSQL continua sendo fonte de verdade e toda mutation crítica funciona por API mesmo se Redis/WebSocket cair.
 
