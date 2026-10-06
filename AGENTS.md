@@ -38,6 +38,10 @@ Antes de alterar comportamento:
 - **Identity optional, Tab mandatory.**
 - `Tab`/comanda é a unidade operacional/financeira; não depende de mesa física.
 - Pedido pertence a `Tab`, nunca diretamente a `Table`.
+- `Product.active` representa configuração/publicação de catálogo; indisponibilidade durante a operação é estado separado e auditável.
+- Disponibilidade operacional é uma fonte de verdade compartilhada: staff, caixa e guest não podem confirmar item indisponível.
+- A API deve validar disponibilidade novamente na confirmação do pedido; UI desabilitada sozinha não é garantia.
+- Tornar item indisponível não altera nem cancela `OrderItem` já confirmado.
 - Uma `TableOccupancy` pode conter várias Tabs.
 - Fechar a última Tab não deve, sozinho, encerrar `TableOccupancy`.
 - Mesa/localização é contexto mutável, não identidade financeira.
@@ -69,6 +73,9 @@ Antes de alterar comportamento:
 - **TableOccupancy**: período em que um grupo usa uma Table; pode conter várias Tabs.
 - **ServicePoint**: ponto/localização operacional genérico, opcional, especialmente para dispatch fora de mesa.
 - **Zone**: agrupamento operacional de pontos.
+- **FulfillmentStation**: destino operacional de preparo, como `BAR` ou `KITCHEN`.
+- **Product**: item configurado no catálogo com preço e routing.
+- **ProductAvailability**: estado operacional vendável/não vendável de Product, separado de ativação administrativa e auditável.
 - **Order**: solicitação operacional de itens sempre ligada a uma Tab.
 - **OrderItem**: item individual com rota/estado próprios quando necessário.
 - **Task**: unidade de trabalho despachável.
@@ -89,6 +96,8 @@ Toda regra financeira precisa de:
 - transação de banco quando alterar saldo/exposição.
 
 ## Qualidade operacional
+
+Mudanças de disponibilidade de produto devem registrar ator, horário, estado anterior, novo estado e motivo opcional.
 
 Mudanças de estado em pedido/task devem registrar timestamps suficientes para medir:
 
