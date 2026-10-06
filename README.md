@@ -154,12 +154,12 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 12. [`specs/007-management-cockpit/spec.md`](./specs/007-management-cockpit/spec.md) — cockpit gerencial mobile-first, realtime, fechamentos e analytics.
 13. [`docs/adr/0008-management-cockpit-projections.md`](./docs/adr/0008-management-cockpit-projections.md) — projeções/read models e business date da Gerência.
 14. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
-13. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-14. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-15. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
-16. [`docs/adr/0007-specialized-surfaces-and-paytime-tap.md`](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md) — apps especializados, Atendimento Android nativo e Paytime como primeiro adapter.
-17. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-18. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+15. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+16. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+17. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
+18. [`docs/adr/0007-specialized-surfaces-and-paytime-tap.md`](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md) — apps especializados, Atendimento Android nativo e Paytime como primeiro adapter.
+19. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+20. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Superfícies do produto
 
