@@ -425,7 +425,10 @@ Canonical audit records:
 - Specs 001/003/004/006 for domain mutation semantics.
 - Spec 008 session reauthorization.
 - Specs 009–013 for classification of newer commands.
-- Spec 015 production/receipt fallback integration.
+
+## Integrates with
+
+- Spec 015 consumes this degraded-operation contract for printer/production fallback behavior.
 
 ## Enables
 
