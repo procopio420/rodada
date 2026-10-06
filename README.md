@@ -98,6 +98,21 @@ A camada de criação rápida de cardápio:
 - regeneração excepcional, upload manual e placeholder são suportados;
 - autocomplete, staff e guest exibem o mesmo asset publicado.
 
+### 006 — Payments + Tap on Phone
+
+A camada de pagamento integrada à comanda:
+
+- Payment pertence à Tab, nunca à mesa;
+- pagamento parcial é nativo e saldo é derivado do ledger;
+- Staff paga direto da Tab sem redigitar valor;
+- Tap on Phone transforma aparelho compatível do garçom em terminal de aproximação;
+- provider fica atrás de uma abstração própria e não vaza para o domínio;
+- Pix e pagamento pelo Guest atualizam a mesma Tab;
+- dinheiro e maquininha externa existem como fallbacks auditáveis;
+- idempotência, webhooks e reconciliação evitam dupla cobrança;
+- estado ambíguo vira `CONFIRMATION_PENDING`, nunca retry cego;
+- estornos preservam o Payment original e geram efeito reverso rastreável.
+
 ## O que NÃO queremos copiar
 
 Não queremos um ERP genérico com uma skin de bar. Fiscal, estoque profundo, delivery e contabilidade podem vir depois ou por integração.
@@ -116,12 +131,13 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 8. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
 9. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
 10. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
-11. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
-12. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-13. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-14. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
-15. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-16. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+11. [`specs/006-payments-tap-on-phone/spec.md`](./specs/006-payments-tap-on-phone/spec.md) — pagamentos, Pix, Tap on Phone, idempotência e reconciliação.
+12. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
+13. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+14. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+15. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
+16. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+17. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Design system
 
