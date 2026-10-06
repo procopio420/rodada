@@ -7,7 +7,7 @@
 - [ ] Fechar uma Tab não encerra automaticamente a TableOccupancy.
 - [ ] Pedido com produtos ativos e operacionalmente disponíveis é confirmado com snapshot de preço.
 - [ ] Cozinha/Bar autorizado marca produto da estação como indisponível e a alteração é auditada.
-- [ ] Produto indisponível deixa de ser confirmável por staff, caixa e guest usando a mesma regra de domínio.
+- [ ] Produto indisponível deixa de ser confirmável por `STAFF`, `CASHIER` e `GUEST` na regra/API de Order; a UI guest completa fica na Spec 004.
 - [ ] Carrinho stale é rejeitado na confirmação se algum item ficou indisponível, com indicação dos itens afetados.
 - [ ] Tornar produto indisponível não altera OrderItem já confirmado.
 - [ ] Todo Order possui `tab_id`.
