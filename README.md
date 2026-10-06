@@ -132,6 +132,50 @@ A camada de gerência mobile-first:
 - read models/projeções são idempotentes, reconstruíveis e alimentados por fatos canônicos;
 - business date respeita o turno do bar e não precisa virar à meia-noite.
 
+### 008 — Staff Auth, Roles & Devices
+
+Fundação de identidade operacional: membership por Venue, roles/capabilities server-side, PIN/sessão, troca rápida de operador, devices confiáveis/revogáveis e autoria auditável.
+
+### 009 — Tab Operations
+
+Move localização, split/merge e transferência de responsabilidade aberta sem reescrever Order, Charge, Payment ou Refund confirmado. Pagamento confirmado bloqueia transferências financeiras no P0.
+
+### 010 — Product Modifiers & Variants
+
+Variants definem a forma-base vendável; modifiers estruturam sabores, adicionais, remoções e escolhas obrigatórias. Tudo é revalidado e snapshotado na confirmação do OrderItem.
+
+### 011 — Pricing, Discounts, Courtesy & Service Charge
+
+Descontos, cortesias e taxa de serviço são Adjustments append-only, em centavos, com alocação determinística, thresholds de autorização e interação explícita com pagamentos/refunds.
+
+### 012 — Cash Management
+
+CashPoint + CashShift + CashMovement: fundo inicial, dinheiro/troco, suprimento, sangria, conferência, divergência, review e correções tardias sem reescrever o fechamento original.
+
+### 013 — Venue Configuration
+
+Gerência configura o estabelecimento por contratos tipados, sem acesso ao banco e sem um settings JSON genérico. Mudanças ao vivo são validadas como seguras, versionadas para novo contexto ou bloqueadas até estado seguro.
+
+### 014 — Connectivity & Degraded Operation
+
+Distingue API de realtime e define ONLINE / RECONNECTING / STALE / OFFLINE. Rede ruim nunca autoriza dupla cobrança nem transforma cache/evidência local em verdade canônica.
+
+### 015 — Receipts, Printing & Production Fallbacks
+
+Conta, recibo digital/impresso e ticket de produção como saída derivada. PrintJob é idempotente, reprint é explícito e a operação continua sem impressora.
+
+### 016 — Covers / Party Size
+
+Covers pertencem primariamente à TableOccupancy, podem ser UNKNOWN e nunca são inferidos por quantidade de Tabs. Analytics por pessoa expõem cobertura dos dados.
+
+### 017 — Order Corrections & Exception Handling
+
+Cancelamento, item errado, remake, replacement e complaint preservam o OrderItem original. Correções operacionais/financeiras criam história compensatória, não “limpam” o passado.
+
+### 018 — Notifications & Operational Escalation
+
+OperationalAlert é a mesma exceção usada por Gerência, in-app e push: dedupe, cooldown, acknowledgement separado de resolução, auto-resolution, escalation e deep link para o contexto exato.
+
 ## O que NÃO queremos copiar
 
 Não queremos um ERP genérico com uma skin de bar. Fiscal, estoque profundo, delivery e contabilidade podem vir depois ou por integração.
@@ -153,14 +197,25 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 11. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
 12. [`specs/006-payments-tap-on-phone/spec.md`](./specs/006-payments-tap-on-phone/spec.md) — pagamentos, Pix, Tap on Phone, idempotência e reconciliação.
 13. [`specs/007-management-cockpit/spec.md`](./specs/007-management-cockpit/spec.md) — cockpit gerencial mobile-first, realtime, fechamentos e analytics.
-14. [`docs/adr/0008-management-cockpit-projections.md`](./docs/adr/0008-management-cockpit-projections.md) — projeções/read models e business date da Gerência.
-15. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
-16. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-17. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-18. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
-19. [`docs/adr/0007-specialized-surfaces-and-paytime-tap.md`](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md) — apps especializados, Atendimento Android nativo e Paytime como primeiro adapter.
-20. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-21. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+14. [`specs/008-staff-auth-roles-devices/spec.md`](./specs/008-staff-auth-roles-devices/spec.md) — identidade staff, capabilities, sessões e devices.
+15. [`specs/009-tab-operations/spec.md`](./specs/009-tab-operations/spec.md) — move/split/merge de Tab sem reescrever histórico.
+16. [`specs/010-product-modifiers-variants/spec.md`](./specs/010-product-modifiers-variants/spec.md) — variants/modifiers e snapshots de customização.
+17. [`specs/011-pricing-discounts-service-charge/spec.md`](./specs/011-pricing-discounts-service-charge/spec.md) — discounts, courtesy e service charge.
+18. [`specs/012-cash-management/spec.md`](./specs/012-cash-management/spec.md) — caixa físico, conferência e divergência.
+19. [`specs/013-venue-configuration/spec.md`](./specs/013-venue-configuration/spec.md) — configuração tipada do Venue.
+20. [`specs/014-connectivity-degraded-operation/spec.md`](./specs/014-connectivity-degraded-operation/spec.md) — reconnect, stale/offline e recovery.
+21. [`specs/015-receipts-printing-fallbacks/spec.md`](./specs/015-receipts-printing-fallbacks/spec.md) — recibos, impressão e fallback de produção.
+22. [`specs/016-covers-party-size/spec.md`](./specs/016-covers-party-size/spec.md) — covers/party size canônicos.
+23. [`specs/017-order-corrections-exceptions/spec.md`](./specs/017-order-corrections-exceptions/spec.md) — cancelamentos, remake, replacement e exceções.
+24. [`specs/018-notifications-operational-escalation/spec.md`](./specs/018-notifications-operational-escalation/spec.md) — alertas acionáveis, push e escalonamento.
+25. [`docs/adr/0008-management-cockpit-projections.md`](./docs/adr/0008-management-cockpit-projections.md) — projeções/read models e business date da Gerência.
+26. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
+27. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+28. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+29. [`docs/adr/0009-passive-fulfillment-telemetry.md`](./docs/adr/0009-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
+30. [`docs/adr/0007-specialized-surfaces-and-paytime-tap.md`](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md) — apps especializados, Atendimento Android nativo e Paytime como primeiro adapter.
+31. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+32. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Superfícies do produto
 
