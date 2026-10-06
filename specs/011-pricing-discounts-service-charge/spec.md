@@ -146,14 +146,14 @@ Total allocation must equal Adjustment effect exactly.
 
 ### Venue policy
 
-Venue configuration owns:
+Billing owns the typed service-charge/discount policy contract:
 - enabled;
 - default percentage basis points;
 - optional maximum;
 - whether guest-facing default is opt-out according to venue/legal policy;
 - capability/reason thresholds for reduction/removal.
 
-Spec 013 configures the policy; Billing owns calculation semantics.
+Spec 013 is the configuration surface for this policy; it does not own calculation semantics.
 
 ### Assessment
 
@@ -409,11 +409,11 @@ Migration adds kind/scope/calculation/allocation fields with historical mapping.
 - Spec 006 Payments/Refunds.
 - Spec 008 auth/capabilities.
 - Spec 009 transfer rules for adjusted responsibility.
-- Spec 013 for venue policy configuration.
 
 ## Enables
 
 - Spec 012 accurate cash/closing summaries;
+- Spec 013 typed pricing/service configuration UI;
 - Spec 017 comped replacement/correction;
 - Spec 007 reliable gross/net reporting and closing.
 
