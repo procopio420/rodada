@@ -109,6 +109,10 @@ Antes de alterar comportamento:
 - A experiência base é mobile-first (360–430 px), touch-first e otimizada para operação de pico.
 - Não depender de hover; alvo de toque mínimo de 44 px e estado de foco visível.
 - Evitar visual de SaaS genérico, glassmorphism, dashboards decorativos e cards sem função operacional.
+- Rodada Gerência é mobile-first; durante o serviço deve priorizar exceções e próxima ação antes de gráficos históricos.
+- Não criar leaderboard simplista de funcionários; métricas individuais exigem contexto e provenance quando houver inferência.
+- Analytics/fechamentos devem distinguir fato, estimativa e hipótese e nunca inventar precisão para telemetria inferida.
+- Relatórios operacionais usam business date/cutoff do Venue; não assumir que o dia termina à meia-noite.
 - Protótipos e implementação real compartilham o mesmo vocabulário de componentes e tokens.
 - Antes de aceitar uma nova tela, revisar consistência com pelo menos uma superfície adjacente do fluxo.
 

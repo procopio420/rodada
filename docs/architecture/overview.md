@@ -43,7 +43,7 @@ As superfícies são separadas por função operacional, não apenas por rota/pe
 | Rodada Cozinha | Web/PWA | produção, fila da cozinha e disponibilidade |
 | Rodada Bar | Web/PWA | produção, fila do bar e disponibilidade |
 | Rodada Cliente | Web/PWA | QR, pedido, acompanhamento e pagamento autorizado |
-| Rodada Gerência | Web responsiva | configuração, operação ao vivo, pessoas e relatórios |
+| Rodada Gerência | Web/PWA responsiva mobile-first | cockpit de exceções ao vivo, fechamento, pessoas e analytics |
 
 As superfícies compartilham API, contratos, semântica visual e domínio, mas **não precisam compartilhar implementação de UI**. Em especial, o Atendimento não deve depender de bridge web para capacidades centrais do device.
 
@@ -172,6 +172,43 @@ Nem todo provider implementa todas as operações.
 
 CashShift e reconciliação básica do PDV.
 
+### management
+
+Read models, alertas e relatórios gerenciais derivados dos fatos canônicos dos demais módulos.
+
+Management **não é dono** de Tab, Order, Payment, Table ou Product. Ele projeta esses fatos para leitura rápida e análise.
+
+Fluxo conceitual:
+
+```text
+domain transaction
+      |
+      v
+persisted fact / outbox
+      |
+      v
+management projection
+      |
+      +--> ManagementLiveSnapshot
+      +--> DailyOperationsSummary
+      +--> MonthlyManagementSummary
+      |
+      v
+API + realtime invalidation
+      |
+      v
+Rodada Gerência
+```
+
+Princípios:
+- PostgreSQL continua fonte de verdade;
+- projeções são idempotentes e reconstruíveis;
+- WebSocket/Redis não definem números financeiros;
+- métricas financeiras vêm do ledger/estado canônico;
+- milestones inferidos preservam provenance;
+- relatórios usam `business_date` configurável por Venue para não quebrar operações que atravessam meia-noite;
+- consultas da home não devem executar joins analíticos pesados em todos os módulos.
+
 ### audit
 
 Registro imutável de mutations relevantes, incluindo cancelamentos, overrides e mudanças de disponibilidade.
@@ -186,6 +223,14 @@ catalog -------> ordering
 ordering ------> fulfillment ------> dispatch
 ordering ------> billing ----------> payments
 billing -------> cash
+ordering ------> management
+fulfillment ---> management
+dispatch ------> management
+floor ---------> management
+catalog -------> management
+billing -------> management
+payments ------> management
+cash ----------> management
 guest_access --> ordering
 guest_access --> floor
 ```
@@ -200,7 +245,7 @@ Evitar:
 
 ## Realtime
 
-Catalog availability, fulfillment, table ops e dispatch se beneficiam de realtime. Telemetria passiva pode usar eventos de presença adicionais, mas esses sinais são auxiliares e não substituem PostgreSQL como fonte de verdade dos milestones persistidos.
+Catalog availability, fulfillment, table ops, dispatch e o cockpit de Gerência se beneficiam de realtime. Telemetria passiva pode usar eventos de presença adicionais, mas esses sinais são auxiliares e não substituem PostgreSQL como fonte de verdade dos milestones persistidos.
 
 O socket só avisa que algo mudou. PostgreSQL continua sendo fonte de verdade e toda mutation crítica funciona por API mesmo se Redis/WebSocket cair.
 
