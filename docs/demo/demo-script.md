@@ -25,21 +25,30 @@ Objetivo: mostrar que Rodada não é só “comanda digital”. Ele junta **PDV 
 6. Pedido aparece na mesma fila do Bar com `source=GUEST`.
 7. Mostrar botão do staff `Bloquear pedidos QR` sem fechar a Tab.
 
-## Cena 4 — vender pelo staff
+## Cena 4 — cozinha controla disponibilidade
+
+1. Na tela Cozinha, marcar `Fritas` como `UNAVAILABLE` porque acabou.
+2. Mostrar que o item muda imediatamente para "Indisponível" no catálogo do staff.
+3. Abrir o menu guest da Mesa 24 e mostrar a mesma indisponibilidade.
+4. Tentar confirmar um carrinho antigo com Fritas e mostrar a rejeição explícita do item.
+5. Reativar Fritas e mostrar retorno aos canais.
+6. Reforçar: isso não cancela pedido de Fritas que já estava confirmado/preparando.
+
+## Cena 5 — vender pelo staff
 
 1. Na Tab João, adicionar `4 Brahma` e `1 Fritas`.
 2. Confirmar pedido.
 3. Mostrar que Brahma roteia para Bar e Fritas para Cozinha.
 4. Charges aparecem no mesmo Tab/ledger.
 
-## Cena 5 — operar
+## Cena 6 — operar
 
 1. Brahmas ficam `READY`.
 2. Sistema cria/mostra entrega pendente para `Rua / Mesa 24`.
 3. Agrupar com outro pedido pronto na Rua em um `Run`.
 4. Garçom assume e conclui a entrega.
 
-## Cena 6 — acessar a mesma Tab de vários jeitos
+## Cena 7 — acessar a mesma Tab de vários jeitos
 
 Mostrar a Tab João sendo resolvida por caminhos equivalentes:
 
@@ -52,14 +61,14 @@ Mostrar a Tab João sendo resolvida por caminhos equivalentes:
 
 Reforçar: são identificadores/acessos; **a Tab é uma só**.
 
-## Cena 7 — controlar exposição
+## Cena 8 — controlar exposição
 
 1. Tab chega a R$ 420 / R$ 500.
 2. Mostrar aviso de proximidade do limite.
 3. Receber parcial de R$ 200.
 4. Exposure cai para R$ 220 sem fechar Tab.
 
-## Cena 8 — fechar sem confundir com liberar mesa
+## Cena 9 — fechar sem confundir com liberar mesa
 
 1. Receber restante da Tab João e fechá-la.
 2. Ana ainda está com Tab aberta: Mesa 24 continua `OCCUPIED`.
