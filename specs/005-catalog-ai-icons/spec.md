@@ -13,12 +13,14 @@ Caso principal:
 ## Usuários
 
 - Bar/Cozinha: cria item rápido da própria estação quando autorizado e controla disponibilidade.
-- Manager/Owner: cria/edita qualquer item, revisa/regenera ícones e faz upload manual.
+- Manager/Owner: cria/edita qualquer item, pode substituir o ícone e revisar/regenerar quando necessário.
 - Guest/Staff: apenas consome o asset publicado no catálogo.
 
 ## Invariantes
 
+- geração de imagem é automática a partir de nome/descrição/contexto quando um Product é criado sem ícone manual;
 - geração de imagem nunca bloqueia criação/edição do Product;
+- o fluxo primário não expõe botão/toggle “Gerar ícone”; isso é comportamento padrão do catálogo;
 - Product existe e pode ficar disponível mesmo sem ícone;
 - ícone não participa de preço, ledger, ordering ou fulfillment;
 - estação do quick create é herdada da superfície atual por padrão;
@@ -62,18 +64,24 @@ Campos mínimos:
 - descrição opcional;
 - disponibilidade inicial, default `AVAILABLE`.
 
-Salvar cria Product mesmo sem asset.
+Salvar cria Product imediatamente e, se não houver upload manual, enfileira automaticamente a geração do ProductIcon usando nome, descrição, categoria e style contract.
 
 ### CAT-002 — Gerar ícone automaticamente
 
-Na criação/edição, usuário pode habilitar **Gerar ícone com IA**.
+Ao criar um Product sem ícone manual, o Rodada gera o ícone automaticamente. Não existe toggle/botão de geração no fluxo primário.
 
-Rodada deriva prompt de:
+Rodada deriva o contexto de geração de:
 
 - nome;
 - descrição;
 - categoria;
+- fulfillment station quando útil;
 - style contract atual.
+
+Se nome, descrição ou categoria mudarem materialmente depois:
+- quando o ícone atual for `AI_GENERATED` ou `NONE`, o sistema pode gerar automaticamente um novo candidato;
+- o asset publicado atual permanece visível até o novo ficar pronto;
+- se o ícone atual for `UPLOADED`, a edição textual não o substitui automaticamente.
 
 Exemplo conceitual:
 
@@ -91,18 +99,17 @@ Se a geração demorar ou falhar:
 - Product continua salvo;
 - catálogo usa placeholder consistente;
 - status mostra `GENERATING` ou `FAILED`;
-- usuário pode tentar novamente.
+- o sistema pode executar retries limitados; depois mantém placeholder/ícone anterior e registra falha para revisão.
 
-### CAT-004 — Preview e regeneração
+### CAT-004 — Publicação e regeneração excepcional
 
-Manager ou staff autorizado pode:
+A primeira geração bem-sucedida pode ser publicada automaticamente quando não existe ícone anterior.
 
-- visualizar asset;
-- regenerar outra variação;
-- aceitar/publicar a nova imagem;
-- manter a atual enquanto uma nova é gerada.
+Em edição, uma nova geração automática é tratada como candidato e só substitui o asset publicado quando estiver pronta.
 
-Regenerar não deixa o produto temporariamente sem o ícone já publicado.
+Manager ou staff autorizado pode, numa ação secundária de edição, solicitar outra variação se o resultado estiver ruim. Essa ação não faz parte do fluxo rápido de criação.
+
+Regenerar nunca deixa o produto temporariamente sem o ícone já publicado.
 
 ### CAT-005 — Upload manual
 
@@ -175,6 +182,7 @@ O prompt real pode mudar por provider sem mudar o comportamento de produto.
 
 - geração exige autenticação e permissão;
 - rate limit por Venue/Staff;
+- deduplicar geração automática causada pelo mesmo conteúdo de Product;
 - evitar regeneração acidental repetida;
 - registrar custo/usage técnico quando provider fornecer;
 - validar MIME/dimensões de uploads;
