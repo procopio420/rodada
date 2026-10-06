@@ -26,7 +26,7 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 
 Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou acessar a mesma comanda. Nenhuma delas deve virar a própria comanda.
 
-## MVP em quatro slices
+## Roadmap por slices
 
 ### 001 — Core POS
 
@@ -81,6 +81,19 @@ A camada física + self-service:
 - código curto, perfil e NFC como caminhos adicionais para resolver uma comanda;
 - métricas de giro e limpeza.
 
+### 005 — Quick Catalog + AI Icons
+
+A camada de criação rápida de cardápio:
+
+- Bar/Cozinha pode usar **+ Item** na própria estação;
+- nome + preço bastam para salvar no fluxo rápido;
+- estação vem preenchida pelo contexto;
+- ícone pode ser gerado automaticamente por IA a partir do nome/descrição;
+- geração segue um style contract versionado do Rodada;
+- falha da IA nunca bloqueia criar ou vender o produto;
+- regeneração, upload manual e placeholder são suportados;
+- staff e guest exibem o mesmo asset publicado.
+
 ## O que NÃO queremos copiar
 
 Não queremos um ERP genérico com uma skin de bar. Fiscal, estoque profundo, delivery e contabilidade podem vir depois ou por integração.
@@ -97,10 +110,12 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 6. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
 7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
 8. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
-9. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-10. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-11. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-12. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+9. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
+10. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
+11. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+12. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+13. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+14. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Stack alvo
 
