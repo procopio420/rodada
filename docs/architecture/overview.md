@@ -2,69 +2,109 @@
 
 ## Decisão
 
-Começar como **modular monolith** com fronteiras claras de domínio.
+Começar como **modular monolith**. As fronteiras abaixo são capacidades de domínio, não microserviços e não exigem um app Django por tabela.
 
 ```text
 Next.js / PWA
-      |
-      v
-Django + DRF
-      |
-      +-- Catalog
-      +-- POS / Tabs / Orders
-      +-- Fulfillment
-      +-- Dispatch
-      +-- Customers / Relationships
-      +-- Ledger / Payments
-      +-- Cash / Shifts
-      +-- Audit
-      |
-  PostgreSQL
-      |
- Redis / WebSocket (dispatch/realtime)
+  /staff  /bar  /kitchen  /guest  /owner
+                 |
+                 v
+           Django + DRF
+                 |
+     +-----------+-----------+
+     |                       |
+  Venue/Floor              Catalog
+     |                       |
+     +-------> Ordering <-----+
+                  |
+             Fulfillment
+                  |
+               Dispatch
+
+ Customers/Relationships --> Ordering
+
+ Ordering --> Billing/Ledger --> Payments
+                    |
+                   Cash
+
+             Audit atravessa mutations relevantes
+
+ PostgreSQL = fonte de verdade
+ Redis/WebSocket = atualização realtime, nunca autoridade
 ```
 
-## Módulos
+## Regra de estrutura
+
+**PDV é o produto; não precisa ser um módulo que concentra tudo.**
+
+A versão anterior colocava Tab, Order e Charge juntos em `pos` ao mesmo tempo em que existia `ledger`. Isso cria ownership ambíguo. A divisão canônica passa a ser:
+
+### venue
+
+Venue, StaffMember e permissões operacionais.
+
+### floor
+
+Zone, ServicePoint, Table e TableOccupancy.
+
+Mesa/ocupação são contexto físico e ciclo operacional; nunca ledger.
 
 ### catalog
-Produtos, preços, disponibilidade e routing operacional (`BAR`, `KITCHEN`, etc.).
 
-### pos
-Tabs, orders, order items, charges e fechamento.
+Product, preço, ativação administrativa, disponibilidade operacional e routing para FulfillmentStation.
+
+`Product.active` responde "este produto faz parte/publica no catálogo?".
+`ProductAvailability` responde "podemos vender este produto agora?".
+
+Bar/Cozinha alteram disponibilidade uma vez; staff, caixa e guest consomem a mesma fonte de verdade.
+
+### ordering
+
+Tab, Order, OrderItem, snapshot de preço e regras de confirmação.
+
+Ordering não é dono de pagamento e não é dono de mesa. Ele referencia esses contextos.
+
+Na confirmação do Order, Ordering consulta/valida Catalog dentro da operação consistente. UI stale nunca pode vender item indisponível.
 
 ### fulfillment
-Estados operacionais de itens/pedidos: `NEW`, `ACCEPTED`, `PREPARING`, `READY`, `PICKED_UP`, `DELIVERED`, `CANCELLED`.
+
+Fila por estação e estados operacionais de OrderItem:
+
+```text
+NEW
+ACCEPTED
+PREPARING
+READY
+PICKED_UP
+DELIVERED
+CANCELLED
+```
+
+Fulfillment prepara pedidos já confirmados. Indisponibilizar Product não cancela item já confirmado.
 
 ### dispatch
-Zones, service points, tasks, claims, prioridades e delivery runs.
+
+Service requests, delivery tasks, claims, prioridades, DeliveryRuns e métricas de deslocamento/entrega.
+
+### guest_access
+
+GuestSession, TabIdentifier, QR de Table, QR dinâmico de Tab, código curto, NFC e autorização de guest ordering.
+
+Guest Access resolve **quem pode agir em qual Tab/contexto**; não duplica regra de catálogo, financeiro ou fulfillment.
 
 ### customers
-Identidade local e busca rápida.
 
-### relationships
-Status de relacionamento e políticas do venue.
+Customer + Relationship local do Venue.
 
-### ledger
-Charges, payments, adjustments, exposure e invariantes financeiras.
+### billing
+
+Charge, Payment, Adjustment, Exposure, OperatingLimit e invariantes financeiras.
+
+`OrderItem` confirmado pode originar Charge idempotente, mas Ordering não mantém saldo próprio.
 
 ### payments
+
 Adapters de PSP, intents/records, idempotência e webhooks.
-
-### cash
-Turnos/caixa e reconciliação básica do PDV.
-
-### audit
-Registro imutável das mutations relevantes.
-
-## Realtime
-
-Dispatch e fulfillment são naturalmente realtime. Entram com Redis/WebSocket quando `specs/003-dispatch` for implementada.
-
-O sistema deve continuar consistente mesmo se o socket cair; WebSocket é canal de atualização, PostgreSQL é fonte de verdade.
-
-## Payments
-
-O domínio não depende diretamente de um PSP.
 
 ```text
 PaymentProvider
@@ -77,6 +117,44 @@ PaymentProvider
 
 Nem todo provider implementa todas as operações.
 
+### cash
+
+CashShift e reconciliação básica do PDV.
+
+### audit
+
+Registro imutável de mutations relevantes, incluindo cancelamentos, overrides e mudanças de disponibilidade.
+
+## Dependências permitidas
+
+Preferir dependências direcionais:
+
+```text
+floor ---------> ordering <--------- customers
+catalog -------> ordering
+ordering ------> fulfillment ------> dispatch
+ordering ------> billing ----------> payments
+billing -------> cash
+guest_access --> ordering
+guest_access --> floor
+```
+
+Evitar:
+
+- Catalog depender de Ordering;
+- Floor depender de Billing;
+- Guest Access duplicar regras de Catalog;
+- Fulfillment alterar ledger diretamente;
+- Dispatch ser requisito para registrar venda.
+
+## Realtime
+
+Catalog availability, fulfillment, table ops e dispatch se beneficiam de realtime.
+
+O socket só avisa que algo mudou. PostgreSQL continua sendo fonte de verdade e toda mutation crítica funciona por API mesmo se Redis/WebSocket cair.
+
+Mudança de disponibilidade deve invalidar/atualizar menus conectados rapidamente, mas a garantia final é a revalidação server-side no confirm Order.
+
 ## Monetário
 
 - centavos, nunca float;
@@ -88,8 +166,9 @@ Nem todo provider implementa todas as operações.
 
 - Pix/adquirente;
 - WhatsApp;
-- NFC/tag;
 - impressão;
 - fiscal;
 - delivery;
-- estoque.
+- estoque por insumo.
+
+NFC/tag já pertence ao modelo de Guest Access/TabIdentifier e não precisa esperar integração externa para existir conceitualmente.
