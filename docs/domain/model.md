@@ -135,7 +135,7 @@ FAILED
 REVERSED
 ```
 
-Métodos inicialmente:
+Métodos iniciais:
 
 ```text
 PIX
@@ -158,35 +158,16 @@ REVERSAL
 open_exposure = confirmed_charges - confirmed_payments + adjustments_effect
 ```
 
-Garantias e pré-autorização ficam fora do P0. Quando entrarem, a fórmula evolui por spec.
+Garantia/pré-autorização entra em spec futura.
 
 ## Operating Limit
 
-Máxima exposição que pode continuar sem ação adicional.
+Máxima exposição permitida sem ação adicional. Pode vir do Relationship e receber override na Tab.
 
-O relacionamento fornece um default. A Tab pode receber override temporário.
+## CashShift
 
-Quando:
-
-```text
-open_exposure >= operating_limit
-```
-
-novos lançamentos devem exigir uma ação:
-
-- receber parcial;
-- aumentar limite com permissão;
-- encerrar/regularizar.
+Sessão de caixa usada para registrar abertura, recebimentos e fechamento/reconciliação básica.
 
 ## AuditEvent
 
-Evento imutável de auditoria para mutations relevantes.
-
-Exemplos:
-
-- relacionamento alterado;
-- limite alterado;
-- tab aberta/fechada;
-- charge criada/cancelada;
-- payment confirmado/revertido;
-- override realizado.
+Evento imutável para mutations relevantes.
