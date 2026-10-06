@@ -51,12 +51,14 @@ Mesa/ocupação são contexto físico e ciclo operacional; nunca ledger.
 
 ### catalog
 
-Product, preço, ativação administrativa, disponibilidade operacional e routing para FulfillmentStation.
+Product, preço, ativação administrativa, disponibilidade operacional, ProductIcon e routing para FulfillmentStation.
 
 `Product.active` responde "este produto faz parte/publica no catálogo?".
 `ProductAvailability` responde "podemos vender este produto agora?".
 
 Bar/Cozinha alteram disponibilidade uma vez; staff, caixa e guest consomem a mesma fonte de verdade.
+
+Criação rápida e ícones gerados por IA continuam dentro da capacidade de Catalog. O domínio expõe uma porta `CatalogIconGenerator`; adapters de geração de imagem/storage ficam em infraestrutura. Falha do provider não impede criar Product nem fazer pedido.
 
 ### ordering
 
