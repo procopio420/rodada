@@ -5,8 +5,8 @@
 Começar como **modular monolith**. As fronteiras abaixo são capacidades de domínio, não microserviços e não exigem um app Django por tabela.
 
 ```text
-Next.js / PWA
-  /staff  /bar  /kitchen  /guest  /owner
+Rodada Atendimento (Android nativo — Kotlin/Compose)
+Rodada Cozinha / Bar / Cliente / Gerência (Web/PWA)
                  |
                  v
            Django + DRF
@@ -32,6 +32,20 @@ Next.js / PWA
  PostgreSQL = fonte de verdade
  Redis/WebSocket = atualização realtime, nunca autoridade
 ```
+
+## Superfícies de aplicação
+
+As superfícies são separadas por função operacional, não apenas por rota/permissão de um frontend único:
+
+| Superfície | Tecnologia alvo | Responsabilidade principal |
+| --- | --- | --- |
+| Rodada Atendimento | Android nativo — Kotlin + Jetpack Compose | Tab, pedidos, mapa/atendimento e cobrança no próprio celular |
+| Rodada Cozinha | Web/PWA | produção, fila da cozinha e disponibilidade |
+| Rodada Bar | Web/PWA | produção, fila do bar e disponibilidade |
+| Rodada Cliente | Web/PWA | QR, pedido, acompanhamento e pagamento autorizado |
+| Rodada Gerência | Web responsiva | configuração, operação ao vivo, pessoas e relatórios |
+
+As superfícies compartilham API, contratos, semântica visual e domínio, mas **não precisam compartilhar implementação de UI**. Em especial, o Atendimento não deve depender de bridge web para capacidades centrais do device.
 
 ## Regra de estrutura
 
@@ -136,6 +150,22 @@ PaymentProvider
   get_status(...)
 ```
 
+Para Tap on Phone, o **primeiro adapter do MVP é Paytime**:
+
+```text
+Rodada Atendimento
+      |
+      v
+TapToPayProvider
+      |
+      +--> PaytimeTapProvider  (default inicial)
+      +--> outros adapters     (futuros)
+```
+
+O SDK Paytime roda integrado ao aplicativo Android do Atendimento: o happy path não entrega a cobrança para outro aplicativo. Marca/provider não entram nas entidades centrais de Tab, Charge ou Payment além de referências técnicas necessárias para operação e auditoria.
+
+A escolha é inicial, não exclusiva: a configuração de pagamentos é por Venue e a arquitetura deve permitir novos providers sem reescrever o fluxo do Atendimento.
+
 Nem todo provider implementa todas as operações.
 
 ### cash
@@ -185,7 +215,7 @@ Mudança de disponibilidade deve invalidar/atualizar menus conectados rapidament
 
 ## Integrações futuras
 
-- Pix/adquirente;
+- adapters adicionais de adquirência/Tap on Phone além de Paytime;
 - WhatsApp;
 - impressão;
 - fiscal;
