@@ -435,8 +435,11 @@ No existing domain record changes required beyond optional receipt/print referen
 - Spec 008 permissions.
 - Spec 010 customization snapshots.
 - Spec 011 pricing presentation.
-- Spec 013 printer/binding configuration.
 - Spec 014 degraded-mode rules.
+
+## Integrates with
+
+- Spec 013 may expose PrinterEndpoint and station-binding configuration through Gerência once Spec 015 contracts are available.
 
 ## Enables
 
