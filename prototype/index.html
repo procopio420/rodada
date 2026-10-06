@@ -1,75 +1,289 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rodada — Pilot</title>
-<style>
-:root{--bg:#10110f;--p:#1b1d19;--s:#262820;--t:#f7f4ea;--m:#aaa99a;--a:#f2c14e;--g:#79c783;--r:#e87566;--b:#7db5f4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.35 system-ui}
-.app{max-width:520px;margin:auto;padding:16px;min-height:100vh}.brand{display:flex;justify-content:space-between;align-items:center}.brand b{font-size:24px}
-.pill{padding:6px 9px;border-radius:999px;background:var(--a);color:#17160f;font-weight:900;font-size:11px}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:16px 0}.nav button,.btn{border:0;border-radius:13px;padding:11px 8px;background:var(--s);color:var(--t);font-weight:800}
-.nav button.active,.btn.primary{background:var(--a);color:#15150f}.card{background:var(--p);border:1px solid #31332b;border-radius:17px;padding:15px;margin:11px 0}
-.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #303228;align-items:center}.row:last-child{border:0}.muted{color:var(--m)}.small{font-size:12px}
-.money{font-size:29px;font-weight:900}.green{color:var(--g)}.red{color:var(--r)}.blue{color:var(--b)}.gold{color:var(--a)}.hidden{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.kpi{background:var(--s);padding:11px;border-radius:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{width:100%}.order{border-left:3px solid var(--a);padding-left:11px}
-.task{border-left:3px solid var(--r);padding-left:11px}.task.ready{border-color:var(--g)}.top{display:flex;justify-content:space-between;align-items:flex-start}
-.status{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;background:var(--s)}.status.off{color:var(--r)}.status.on{color:var(--g)}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0f100e">
+  <title>Rodada — Pilot</title>
+  <link rel="stylesheet" href="./design-system.css">
 </head>
 <body>
-<div class="app">
-  <div class="brand"><b>RODADA</b><span class="pill">PILOTO</span></div>
-  <div class="nav">
-    <button id="n-pos" class="active" onclick="show('pos')">PDV</button>
-    <button id="n-kitchen" onclick="show('kitchen')">Cozinha</button>
-    <button id="n-dispatch" onclick="show('dispatch')">Dispatch</button>
-    <button id="n-house" onclick="show('house')">Da Casa</button>
-  </div>
+  <main class="app-shell">
+    <header class="product-header">
+      <div class="product-mark">
+        <span class="product-mark__name">RODADA</span>
+        <span class="product-mark__context">Bar do Aderlan</span>
+      </div>
+      <span class="relationship-badge">Piloto</span>
+    </header>
 
-  <section id="pos">
-    <div class="top"><div><div class="muted small">TAB C-184 · RUA / P37</div><h1>João da Oficina</h1></div><span class="gold"><b>🏠 DA CASA</b></span></div>
-    <div class="card"><div class="money">R$ 184,00</div><div class="muted">aberto · limite R$ 500</div></div>
-    <div class="card order"><b>Novo pedido</b>
-      <div class="row"><span>4× Brahma</span><b>R$ 48</b></div>
-      <div class="row"><span id="pos-fries">1× Fritas</span><b id="pos-fries-price">R$ 72</b></div>
-      <div class="actions"><button class="btn primary" onclick="sendOrder()">Enviar pedido</button><button class="btn">+ item</button></div>
-    </div>
-    <div class="grid"><div class="kpi"><div class="small muted">Bar</div><b class="green">4 itens prontos</b></div><div class="kpi"><div class="small muted">Cozinha</div><b class="gold">1 preparando</b></div></div>
-    <button class="btn primary" onclick="show('house')">Receber / fechar</button>
-  </section>
+    <nav class="surface-nav" aria-label="Superfícies do Rodada">
+      <button id="n-pos" class="surface-nav__item is-active" aria-selected="true" onclick="showSurface('pos')">PDV</button>
+      <button id="n-kitchen" class="surface-nav__item" aria-selected="false" onclick="showSurface('kitchen')">Cozinha</button>
+      <button id="n-dispatch" class="surface-nav__item" aria-selected="false" onclick="showSurface('dispatch')">Dispatch</button>
+      <button id="n-house" class="surface-nav__item" aria-selected="false" onclick="showSurface('house')">Da Casa</button>
+    </nav>
 
-  <section id="kitchen" class="hidden">
-    <div class="top"><div><div class="muted small">ESTAÇÃO</div><h1>Cozinha</h1></div><span class="gold"><b>AO VIVO</b></span></div>
-    <div class="card">
-      <b>Cardápio da estação</b>
-      <div class="row"><div><b>Fritas</b><div class="small muted">R$ 72 · Kitchen</div></div><span id="fries-status" class="status on">DISPONÍVEL</span></div>
-      <button id="fries-toggle" class="btn" onclick="toggleFries()">Marcar Fritas indisponível</button>
-      <div class="small muted" style="margin-top:9px">A mudança vale para PDV, caixa e pedido por QR. Pedidos já confirmados não são alterados.</div>
-    </div>
-    <div class="card order"><b>#921 · Mesa 24 / João</b><div class="row"><span>1× Fritas</span><span class="gold">PREPARANDO</span></div><div class="small muted">Continua válido mesmo se Fritas for indisponibilizada agora.</div></div>
-  </section>
+    <section id="pos" class="surface" aria-labelledby="pos-title">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Tab C-184 · Rua / P37</div>
+          <h1 id="pos-title">João da Oficina</h1>
+        </div>
+        <span class="relationship-badge">Da Casa</span>
+      </div>
 
-  <section id="dispatch" class="hidden">
-    <h1>Agora</h1><div class="grid"><div class="kpi"><div class="small muted">Rua</div><b>3 pendências</b></div><div class="kpi"><div class="small muted">Prontos</div><b class="green">7 itens</b></div></div>
-    <div class="card task"><div class="top"><b>P42 chamou garçom</b><span class="red">3m12</span></div><div class="muted small">Rua · sem responsável</div><button class="btn primary" onclick="this.textContent='Assumido por você'">Assumir</button></div>
-    <div class="card task ready"><div class="top"><b>RUN RUA</b><span class="green">3 destinos</span></div><div class="row"><span>P37 · João</span><span>4 Brahma</span></div><div class="row"><span>P41</span><span>2 Heineken</span></div><div class="row"><span>P44</span><span>3 Brahma</span></div><button class="btn primary">Iniciar run</button></div>
-  </section>
+      <section class="panel" aria-label="Resumo financeiro da comanda">
+        <div class="money-value money-value--hero">R$ 184,00</div>
+        <div class="supporting-text">Aberto · limite operacional R$ 500</div>
+      </section>
 
-  <section id="house" class="hidden">
-    <div class="gold small"><b>🏠 JOÃO DA OFICINA</b></div><h1>Conta da Casa</h1>
-    <div class="card"><div class="money" id="exp">R$ 420,00</div><div class="muted">exposição · R$ 500 limite</div></div>
-    <div class="grid"><div class="kpi"><div class="small muted">Visitas</div><b>12</b></div><div class="kpi"><div class="small muted">Pendências antigas</div><b class="green">0</b></div></div>
-    <button class="btn primary" onclick="partial()">Receber R$ 200 parcial</button><button class="btn">Ajustar limite</button><button class="btn">Ver histórico</button>
-  </section>
-</div>
-<script>
-let friesAvailable=true;
-function show(id){['pos','kitchen','dispatch','house'].forEach(x=>{document.getElementById(x).classList.toggle('hidden',x!==id);document.getElementById('n-'+x).classList.toggle('active',x===id)})}
-function partial(){document.getElementById('exp').textContent='R$ 220,00';alert('Pix/parcial confirmado. A tab continua aberta.')}
-function toggleFries(){friesAvailable=!friesAvailable;const st=document.getElementById('fries-status');const bt=document.getElementById('fries-toggle');const item=document.getElementById('pos-fries');const price=document.getElementById('pos-fries-price');st.textContent=friesAvailable?'DISPONÍVEL':'INDISPONÍVEL';st.className='status '+(friesAvailable?'on':'off');bt.textContent=friesAvailable?'Marcar Fritas indisponível':'Reativar Fritas';item.className=friesAvailable?'':'red';price.textContent=friesAvailable?'R$ 72':'indisponível'}
-function sendOrder(){if(!friesAvailable){alert('Fritas ficou indisponível. Remova ou substitua o item antes de confirmar.');return}alert('Pedido #921 enviado: Bar + Cozinha')}
-</script>
+      <section class="panel panel--accent work-card" aria-label="Novo pedido">
+        <div class="split-row">
+          <div>
+            <div class="eyebrow">Pedido</div>
+            <div class="work-card__title">Novo pedido</div>
+          </div>
+          <span class="status-badge status-badge--info">Rascunho</span>
+        </div>
+
+        <div class="data-row">
+          <div class="data-row__main">
+            <div class="data-row__title">4× Brahma</div>
+            <div class="data-row__support">Bar</div>
+          </div>
+          <b class="data-row__trailing money-value">R$ 48</b>
+        </div>
+
+        <div class="data-row">
+          <div class="data-row__main">
+            <div id="pos-fries" class="data-row__title">1× Fritas</div>
+            <div class="data-row__support">Cozinha</div>
+          </div>
+          <b id="pos-fries-price" class="data-row__trailing money-value">R$ 72</b>
+        </div>
+
+        <div class="button-row">
+          <button class="button button--primary" onclick="sendOrder()">Enviar pedido</button>
+          <button class="button button--secondary">+ item</button>
+        </div>
+      </section>
+
+      <div class="metric-grid" aria-label="Status de produção">
+        <div class="metric">
+          <div class="metric__label">Bar</div>
+          <strong class="metric__value tone-success">4 itens prontos</strong>
+        </div>
+        <div class="metric">
+          <div class="metric__label">Cozinha</div>
+          <strong class="metric__value tone-warning">1 preparando</strong>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <button class="button button--primary" onclick="showSurface('house')">Receber / fechar</button>
+      </div>
+    </section>
+
+    <section id="kitchen" class="surface" aria-labelledby="kitchen-title" hidden>
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Estação</div>
+          <h1 id="kitchen-title">Cozinha</h1>
+        </div>
+        <span class="status-badge status-badge--success">Ao vivo</span>
+      </div>
+
+      <section class="panel" aria-label="Disponibilidade da estação">
+        <div class="panel__title">Cardápio da estação</div>
+
+        <div class="data-row">
+          <div class="data-row__main">
+            <div class="data-row__title">Fritas</div>
+            <div class="data-row__support">R$ 72 · Cozinha</div>
+          </div>
+          <span id="fries-status" class="status-badge status-badge--success">Disponível</span>
+        </div>
+
+        <button id="fries-toggle" class="button button--secondary" onclick="toggleFries()">Marcar Fritas indisponível</button>
+        <div class="inline-note">Vale para PDV, caixa e pedido por QR. Pedidos já confirmados continuam válidos.</div>
+      </section>
+
+      <section class="panel panel--warning work-card" aria-label="Pedido em preparo">
+        <div class="split-row">
+          <div>
+            <div class="eyebrow">#921 · Mesa 24 / João</div>
+            <div class="work-card__title">1× Fritas</div>
+          </div>
+          <span class="status-badge status-badge--warning">Preparando</span>
+        </div>
+        <div class="inline-note">Continua válido mesmo se Fritas for indisponibilizada agora.</div>
+      </section>
+    </section>
+
+    <section id="dispatch" class="surface" aria-labelledby="dispatch-title" hidden>
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Operação em tempo real</div>
+          <h1 id="dispatch-title">Agora</h1>
+        </div>
+        <span class="status-badge status-badge--warning">3 pendências</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric__label">Rua</div>
+          <strong class="metric__value">3 pendências</strong>
+        </div>
+        <div class="metric">
+          <div class="metric__label">Prontos</div>
+          <strong class="metric__value tone-success">7 itens</strong>
+        </div>
+      </div>
+
+      <section class="panel panel--danger work-card">
+        <div class="split-row">
+          <div>
+            <div class="eyebrow">Chamada · Rua</div>
+            <div class="work-card__title">P42 chamou garçom</div>
+          </div>
+          <span class="work-card__timer tone-danger">3m12</span>
+        </div>
+        <div class="work-card__meta">Sem responsável</div>
+        <div style="margin-top:12px">
+          <button id="claim-task" class="button button--primary" onclick="claimTask()">Assumir</button>
+        </div>
+      </section>
+
+      <section class="panel panel--success work-card">
+        <div class="split-row">
+          <div>
+            <div class="eyebrow">Run · Rua</div>
+            <div class="work-card__title">3 destinos prontos</div>
+          </div>
+          <span class="status-badge status-badge--success">Pronto</span>
+        </div>
+
+        <div class="data-row">
+          <div class="data-row__title">P37 · João</div>
+          <div class="data-row__trailing">4 Brahma</div>
+        </div>
+        <div class="data-row">
+          <div class="data-row__title">P41</div>
+          <div class="data-row__trailing">2 Heineken</div>
+        </div>
+        <div class="data-row">
+          <div class="data-row__title">P44</div>
+          <div class="data-row__trailing">3 Brahma</div>
+        </div>
+
+        <button class="button button--primary">Iniciar run</button>
+      </section>
+    </section>
+
+    <section id="house" class="surface" aria-labelledby="house-title" hidden>
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">João da Oficina</div>
+          <h1 id="house-title">Conta da Casa</h1>
+        </div>
+        <span class="relationship-badge">House</span>
+      </div>
+
+      <section class="panel" aria-label="Exposição do cliente">
+        <div id="exp" class="money-value money-value--hero">R$ 420,00</div>
+        <div class="supporting-text">Exposição aberta · R$ 500 de limite</div>
+      </section>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric__label">Visitas</div>
+          <strong class="metric__value">12</strong>
+        </div>
+        <div class="metric">
+          <div class="metric__label">Pendências antigas</div>
+          <strong class="metric__value tone-success">0</strong>
+        </div>
+      </div>
+
+      <div class="stack" style="margin-top:12px">
+        <button class="button button--primary" onclick="partialPayment()">Receber R$ 200 parcial</button>
+        <button class="button button--secondary">Ajustar limite</button>
+        <button class="button button--quiet">Ver histórico</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script>
+    let friesAvailable = true;
+
+    function showSurface(id) {
+      ['pos', 'kitchen', 'dispatch', 'house'].forEach((surfaceId) => {
+        const surface = document.getElementById(surfaceId);
+        const nav = document.getElementById('n-' + surfaceId);
+        const active = surfaceId === id;
+
+        surface.hidden = !active;
+        nav.classList.toggle('is-active', active);
+        nav.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+    }
+
+    function notify(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.hidden = false;
+      window.clearTimeout(notify.timeout);
+      notify.timeout = window.setTimeout(() => {
+        toast.hidden = true;
+      }, 2800);
+    }
+
+    function partialPayment() {
+      document.getElementById('exp').textContent = 'R$ 220,00';
+      notify('Pix/parcial confirmado. A Tab continua aberta.');
+    }
+
+    function claimTask() {
+      const button = document.getElementById('claim-task');
+      button.textContent = 'Assumido por você';
+      button.className = 'button button--secondary';
+      notify('Chamada P42 assumida.');
+    }
+
+    function toggleFries() {
+      friesAvailable = !friesAvailable;
+
+      const status = document.getElementById('fries-status');
+      const toggle = document.getElementById('fries-toggle');
+      const item = document.getElementById('pos-fries');
+      const price = document.getElementById('pos-fries-price');
+
+      status.textContent = friesAvailable ? 'Disponível' : 'Indisponível';
+      status.className = 'status-badge ' + (friesAvailable ? 'status-badge--success' : 'status-badge--danger');
+
+      toggle.textContent = friesAvailable ? 'Marcar Fritas indisponível' : 'Reativar Fritas';
+      toggle.className = 'button ' + (friesAvailable ? 'button--secondary' : 'button--primary');
+
+      item.classList.toggle('is-unavailable', !friesAvailable);
+      price.textContent = friesAvailable ? 'R$ 72' : 'Indisponível';
+      price.classList.toggle('tone-danger', !friesAvailable);
+
+      notify(friesAvailable
+        ? 'Fritas reativada em todos os canais.'
+        : 'Fritas indisponível em PDV, caixa e QR.');
+    }
+
+    function sendOrder() {
+      if (!friesAvailable) {
+        notify('Fritas ficou indisponível. Remova ou substitua antes de confirmar.');
+        return;
+      }
+
+      notify('Pedido #921 enviado para Bar + Cozinha.');
+    }
+  </script>
 </body>
 </html>
