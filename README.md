@@ -12,6 +12,7 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 - uma mesa pode ter várias comandas simultâneas;
 - uma comanda pode existir sem mesa e pode mudar de localização durante a noite;
 - pedido é uma unidade operacional que precisa ser produzido e entregue, não só registrado;
+- disponibilidade é uma regra operacional do catálogo, não um estado do pedido: se a cozinha esgotou um item, staff e guest enxergam a mesma verdade;
 - algumas mesas podem aceitar pedido direto pelo celular, sem exigir app instalado;
 - mesas possuem ciclo operacional de ocupação e limpeza, separado do fechamento das comandas;
 - atendimento pode ser despachado como trabalho;
@@ -31,7 +32,8 @@ Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou ac
 
 O mínimo para operar uma venda de ponta a ponta:
 
-- catálogo e preços;
+- catálogo, preços e disponibilidade operacional compartilhada;
+- cozinha/bar pode indisponibilizar ou reativar itens em tempo real para todos os canais;
 - comandas/tabs independentes de mesa;
 - pedido e itens;
 - status operacional;
@@ -95,9 +97,10 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 6. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
 7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
 8. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
-9. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — decisão de domínio.
-10. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-11. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+9. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+10. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+11. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+12. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Stack alvo
 
