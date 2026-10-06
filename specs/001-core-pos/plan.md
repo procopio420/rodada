@@ -2,7 +2,9 @@
 
 ## Slice 1 — Foundation
 
-Venue, staff roles, catalog, products e seed de demo.
+Venue, staff roles, catalog, products, `ProductAvailability` e seed de demo.
+
+Separar desde o início ativação administrativa (`Product.active`) de disponibilidade operacional (`AVAILABLE | UNAVAILABLE`).
 
 ## Slice 2 — Tabs + Orders
 
@@ -14,9 +16,11 @@ O modelo de Tab não deve exigir mesa/Customer e deve permanecer compatível com
 
 Charges derivadas, payments manuais, exposure e fechamento.
 
-## Slice 4 — Fulfillment states
+## Slice 4 — Fulfillment + station controls
 
-Estados/timestamps de OrderItem e tela operacional simples.
+Estados/timestamps de OrderItem, tela operacional simples de Bar/Cozinha e controle de disponibilidade dos produtos da estação.
+
+Toda confirmação de Order revalida disponibilidade no servidor; mudança posterior não altera OrderItem já confirmado.
 
 ## Slice 5 — Optional location context
 
