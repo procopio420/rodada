@@ -104,9 +104,11 @@ A camada de pagamento integrada à comanda:
 
 - Payment pertence à Tab, nunca à mesa;
 - pagamento parcial é nativo e saldo é derivado do ledger;
-- Staff paga direto da Tab sem redigitar valor;
-- Tap on Phone transforma aparelho compatível do garçom em terminal de aproximação;
-- provider fica atrás de uma abstração própria e não vaza para o domínio;
+- **Rodada Atendimento é Android nativo (Kotlin + Jetpack Compose)**;
+- Staff paga direto da Tab sem redigitar valor e sem sair do Rodada;
+- Tap on Phone transforma o próprio aparelho compatível do garçom em terminal de aproximação;
+- **Paytime Tap on Phone é o primeiro adapter do MVP**, atrás de uma abstração própria;
+- provider não vaza para o domínio e novos adapters podem coexistir por Venue;
 - Pix e pagamento pelo Guest atualizam a mesma Tab;
 - dinheiro e maquininha externa existem como fallbacks auditáveis;
 - idempotência, webhooks e reconciliação evitam dupla cobrança;
@@ -136,8 +138,21 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 13. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
 14. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
 15. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
-16. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-17. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+16. [`docs/adr/0007-specialized-surfaces-and-paytime-tap.md`](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md) — apps especializados, Atendimento Android nativo e Paytime como primeiro adapter.
+17. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+18. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+
+## Superfícies do produto
+
+Rodada é um único produto com superfícies especializadas por função, todas sobre o mesmo domínio e backend:
+
+- **Rodada Atendimento** — Android nativo em Kotlin + Jetpack Compose para garçom/caixa móvel, incluindo Tap on Phone;
+- **Rodada Cozinha** — Web/PWA focada em produção, fila e disponibilidade;
+- **Rodada Bar** — Web/PWA focada em bebidas, fila e disponibilidade;
+- **Rodada Cliente** — Web/PWA via QR, sem instalação obrigatória;
+- **Rodada Gerência** — Web responsiva para operação, configuração, pessoas e relatórios.
+
+Não criar um único frontend com todas as funções escondidas por permissão. Compartilhar contratos, domínio e design tokens; cada superfície deve continuar extremamente focada no trabalho do seu usuário.
 
 ## Design system
 
@@ -150,7 +165,9 @@ O protótipo usa [`prototype/design-system.css`](./prototype/design-system.css) 
 ## Stack alvo
 
 - **API:** Django + Django REST Framework
-- **Web/PWA:** Next.js + React
+- **Atendimento:** Android nativo — Kotlin + Jetpack Compose
+- **Cozinha/Bar/Cliente/Gerência:** Next.js + React / PWA conforme a superfície
+- **Tap on Phone (MVP):** Paytime SDK, encapsulado por adapter
 - **DB:** PostgreSQL
 - **Realtime:** Redis + WebSocket quando dispatch entrar
 - **Arquitetura:** modular monolith primeiro
