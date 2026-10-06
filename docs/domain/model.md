@@ -188,28 +188,40 @@ A fronteira importante é conceitual: routing diz **onde preparar**, não se o i
 
 ## Product
 
-Item configurado no catálogo.
+Item configurado no catálogo de um Venue.
 
 Campos conceituais mínimos:
 
 - `id`;
+- `venue_id`;
 - `name`;
+- `normalized_name`/chave equivalente de busca;
 - `price_cents`;
 - `active` para configuração/publicação administrativa;
 - `fulfillment_station`.
+
+Regras de identidade:
+
+- o campo de nome nas telas de criação usa autocomplete/typeahead do catálogo do Venue;
+- correspondência exata por nome normalizado resolve o Product existente;
+- se não houver correspondência exata, o Catalog pode criar automaticamente um novo Product ao confirmar a opção **Criar "{nome}"**;
+- `resolve_or_create` deve ser transacional para evitar duplicatas em corrida concorrente;
+- fuzzy search serve para sugerir, nunca para mesclar Products automaticamente;
+- itens realmente diferentes devem ser nomeados de forma distinta, por exemplo `Coca-Cola 350 ml` e `Coca-Cola 600 ml`.
 
 `active=false` não deve ser usado como botão de "acabou agora". Ativação administrativa e disponibilidade operacional têm ciclos de vida diferentes.
 
 ## ProductIcon
 
-Asset visual opcional publicado para um Product.
+Identidade visual estável **1:1** pertencente a um Product. O registro nasce junto com o Product, ainda que inicialmente esteja em placeholder/`GENERATING`.
 
 Campos conceituais:
 
-- `product_id`;
+- `product_id` único;
 - `source`: `AI_GENERATED | UPLOADED | NONE`;
 - `status`: `NONE | GENERATING | READY | FAILED`;
-- referência de storage/asset publicada;
+- referência do asset atualmente publicado;
+- referência opcional a candidato em geração/revisão;
 - `prompt` quando aplicável;
 - `style_version`;
 - provider/model quando gerado;
@@ -217,10 +229,14 @@ Campos conceituais:
 
 Regras:
 
-- Product pode existir e ser vendido sem ProductIcon;
-- geração nunca bloqueia criação/edição do Product;
-- regenerar preserva o ícone publicado até uma nova versão ser escolhida;
-- staff, Bar/Cozinha e Guest resolvem o mesmo asset publicado;
+- Product e ProductIcon mantêm o mesmo vínculo durante todo o lifecycle do item;
+- selecionar Product existente no autocomplete reutiliza seu ProductIcon;
+- renomear Product, alterar preço, estação ou disponibilidade não cria outro ProductIcon;
+- Product pode ser vendido enquanto o asset ainda não existe, usando placeholder;
+- criação sem upload manual dispara geração automaticamente; não existe botão obrigatório de "gerar";
+- regenerar preserva o asset publicado até a nova versão estar pronta;
+- autocomplete, staff, Bar/Cozinha e Guest resolvem o mesmo asset publicado;
+- ProductIcon não deve ser compartilhado entre Products distintos por padrão;
 - geração usa o style contract versionado em `docs/product/icon-style.md`;
 - dados de Customer, Tab ou Order não fazem parte do contexto de geração.
 
