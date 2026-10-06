@@ -15,7 +15,7 @@
 .money{font-size:29px;font-weight:900}.green{color:var(--g)}.red{color:var(--r)}.blue{color:var(--b)}.gold{color:var(--a)}.hidden{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .kpi{background:var(--s);padding:11px;border-radius:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{width:100%}.order{border-left:3px solid var(--a);padding-left:11px}
 .task{border-left:3px solid var(--r);padding-left:11px}.task.ready{border-color:var(--g)}.top{display:flex;justify-content:space-between;align-items:flex-start}
-.status{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;background:var(--s)}.status.off{color:var(--r)}.status.on{color:var(--g)}
+.status{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;background:var(--s)}.status.off{color:var(--r)}.status.on{color:var(--g)}.field{width:100%;border:1px solid #393b33;background:var(--s);color:var(--t);border-radius:12px;padding:12px;font:inherit}.suggest{padding:10px;border-radius:11px;background:var(--s);margin-top:7px;cursor:pointer}.suggest b{display:block}.suggest.create{border:1px dashed #545647}
 </style>
 </head>
 <body>
@@ -50,11 +50,14 @@
     </div>
     <div class="card">
       <div class="top"><div><b>Adicionar item</b><div class="small muted">Quick catalog · estação Cozinha</div></div><span class="status on">+ ITEM</span></div>
-      <div class="row"><span>Nome</span><b id="new-name">Omelete</b></div>
-      <div class="row"><span>Preço</span><b>R$ 18,00</b></div>
-      <div class="row"><span>Ícone</span><span id="ai-icon" class="muted">placeholder</span></div>
-      <div class="actions"><button id="ai-generate" class="btn" onclick="generateIcon()">Gerar ícone com IA</button><button class="btn primary" onclick="saveOmelete()">Salvar item</button></div>
-      <div id="ai-note" class="small muted" style="margin-top:9px">Salvar não depende da geração do ícone.</div>
+      <div style="margin-top:12px"><input id="product-name" class="field" value="Omelete" oninput="catalogSuggest()" placeholder="Comece a digitar o item"></div>
+      <div id="suggestions">
+        <div class="suggest"><b>🍳 Omelete da Casa</b><span class="small muted">R$ 22 · Cozinha · disponível</span></div>
+        <div class="suggest create" onclick="createTypedProduct()"><b>+ Criar “Omelete”</b><span class="small muted">nenhuma correspondência exata</span></div>
+      </div>
+      <div class="row"><span>Preço do novo item</span><b>R$ 18,00</b></div>
+      <div class="row"><span>Ícone</span><span id="ai-icon" class="muted">será criado automaticamente</span></div>
+      <div id="ai-note" class="small muted" style="margin-top:9px">Se você escolher um item existente, o Rodada reutiliza o mesmo Product e o mesmo ícone. Se criar um novo, Product + ProductIcon nascem juntos.</div>
     </div>
     <div class="card order"><b>#921 · Mesa 24 / João</b><div class="row"><span>1× Fritas</span><span class="gold">PREPARANDO</span></div><div class="small muted">Continua válido mesmo se Fritas for indisponibilizada agora.</div></div>
   </section>
@@ -78,8 +81,9 @@ function show(id){['pos','kitchen','dispatch','house'].forEach(x=>{document.getE
 function partial(){document.getElementById('exp').textContent='R$ 220,00';alert('Pix/parcial confirmado. A tab continua aberta.')}
 function toggleFries(){friesAvailable=!friesAvailable;const st=document.getElementById('fries-status');const bt=document.getElementById('fries-toggle');const item=document.getElementById('pos-fries');const price=document.getElementById('pos-fries-price');st.textContent=friesAvailable?'DISPONÍVEL':'INDISPONÍVEL';st.className='status '+(friesAvailable?'on':'off');bt.textContent=friesAvailable?'Marcar Fritas indisponível':'Reativar Fritas';item.className=friesAvailable?'':'red';price.textContent=friesAvailable?'R$ 72':'indisponível'}
 function sendOrder(){if(!friesAvailable){alert('Fritas ficou indisponível. Remova ou substitua o item antes de confirmar.');return}alert('Pedido #921 enviado: Bar + Cozinha')}
-function generateIcon(){document.getElementById('ai-icon').textContent='gerando…';document.getElementById('ai-note').textContent='Mock do protótipo: geração segue rodada-icon-v1 e não bloqueia o cadastro.';setTimeout(()=>{document.getElementById('ai-icon').textContent='🍳 pronto';document.getElementById('ai-generate').textContent='Regenerar ícone'},500)}
-function saveOmelete(){alert('Omelete salvo na Cozinha como AVAILABLE. O ícone pode terminar depois.')}
+function catalogSuggest(){const q=document.getElementById('product-name').value.trim();const box=document.getElementById('suggestions');if(!q){box.innerHTML='';return}const lower=q.toLowerCase();const existing=lower.includes('frit')?'<div class="suggest" onclick="selectExisting(\'Fritas\')"><b>🍟 Fritas</b><span class="small muted">R$ 72 · Cozinha · '+(friesAvailable?'disponível':'indisponível')+'</span></div>':'';box.innerHTML=existing+'<div class="suggest create" onclick="createTypedProduct()"><b>+ Criar “'+q.replace(/</g,'&lt;')+'”</b><span class="small muted">se não houver correspondência exata</span></div>'}
+function selectExisting(name){document.getElementById('product-name').value=name;document.getElementById('ai-icon').textContent='mesmo ícone do item';document.getElementById('ai-note').textContent='Product existente selecionado. Nada é duplicado e o ProductIcon é reutilizado.';document.getElementById('suggestions').innerHTML=''}
+function createTypedProduct(){const name=document.getElementById('product-name').value.trim()||'Novo item';document.getElementById('suggestions').innerHTML='';document.getElementById('ai-icon').textContent='gerando automaticamente…';document.getElementById('ai-note').textContent=name+' foi criado na Cozinha. Product + ProductIcon 1:1 nasceram juntos; a venda já pode acontecer.';setTimeout(()=>{document.getElementById('ai-icon').textContent='🍳 ícone publicado'},500)}
 </script>
 </body>
 </html>
