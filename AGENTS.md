@@ -15,10 +15,11 @@ Antes de alterar comportamento:
 1. `README.md`
 2. `docs/product/vision.md`
 3. `docs/product/principles.md`
-4. `docs/architecture/overview.md`
-5. `docs/domain/model.md`
-6. spec relevante em `specs/`
-7. ADRs relacionados em `docs/adr/`
+4. `docs/design/system.md`
+5. `docs/architecture/overview.md`
+6. `docs/domain/model.md`
+7. spec relevante em `specs/`
+8. ADRs relacionados em `docs/adr/`
 
 ## Workflow
 
@@ -85,6 +86,21 @@ Antes de alterar comportamento:
 - **Adjustment**: cortesia/correção/reversão.
 - **Open Exposure**: valor efetivamente aberto.
 - **Operating Limit**: exposição máxima sem ação adicional.
+
+## Guardrails de design
+
+- Toda superfície do produto deve seguir `docs/design/system.md`.
+- PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops e Guest Ordering são módulos do mesmo produto; não criar identidades visuais independentes.
+- Reutilizar tokens e componentes semânticos antes de introduzir novos padrões.
+- Estados de domínio devem manter a mesma semântica visual entre superfícies: neutral, info, warning, success e danger.
+- Quick Catalog/AI Icons deve usar os mesmos Field, Button, ProductIcon, StatusBadge e feedbacks do restante do Rodada.
+- Assets gerados por IA seguem `docs/product/icon-style.md`; estado visual de disponibilidade/seleção fica na UI.
+- Não usar hex, spacing, radius ou sombra ad hoc em componentes de produto sem atualizar o design system.
+- A experiência base é mobile-first (360–430 px), touch-first e otimizada para operação de pico.
+- Não depender de hover; alvo de toque mínimo de 44 px e estado de foco visível.
+- Evitar visual de SaaS genérico, glassmorphism, dashboards decorativos e cards sem função operacional.
+- Protótipos e implementação real devem compartilhar o mesmo vocabulário de componentes e tokens.
+- Antes de aceitar uma nova tela, revisar consistência com pelo menos uma superfície adjacente do fluxo.
 
 ## Qualidade financeira
 
