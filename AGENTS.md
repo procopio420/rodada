@@ -40,6 +40,10 @@ Antes de alterar comportamento:
 - `Tab`/comanda é a unidade operacional/financeira; não depende de mesa física.
 - Pedido pertence a `Tab`, nunca diretamente a `Table`.
 - `Product.active` representa configuração/publicação de catálogo; indisponibilidade durante a operação é estado separado e auditável.
+- Criação rápida de produto deve buscar/autocompletar o catálogo antes de criar; correspondência exata normalizada reutiliza o Product existente.
+- Se o nome não existir, usar `resolve-or-create` transacional; fuzzy match nunca pode mesclar itens automaticamente.
+- `ProductIcon` é identidade visual 1:1 do Product e é reutilizado em todas as superfícies; não gerar ícone novamente em cada tela/render.
+- Novo Product dispara geração de ícone automaticamente; falha de IA nunca bloqueia criação ou venda.
 - Disponibilidade operacional é uma fonte de verdade compartilhada: staff, caixa e guest não podem confirmar item indisponível.
 - A API deve validar disponibilidade novamente na confirmação do pedido; UI desabilitada sozinha não é garantia.
 - Tornar item indisponível não altera nem cancela `OrderItem` já confirmado.
