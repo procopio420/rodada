@@ -21,11 +21,15 @@ Criar porta `PaymentProvider`, idempotency keys, normalização de erros e capab
 
 Implementar primeiro adapter real sem vazar conceitos do provider para o domínio.
 
-## Slice 4 — Tap on Phone
+## Slice 4 — Rodada Atendimento Android + Paytime Tap on Phone
 
-Adicionar integração nativa no Staff app para devices suportados.
+Criar/usar a superfície **Rodada Atendimento** como app Android nativo em Kotlin + Jetpack Compose para o fluxo operacional do staff.
+
+Implementar `PaytimeTapProvider` como primeiro adapter real de Tap on Phone, integrando o SDK diretamente ao app, sem handoff para aplicativo externo.
 
 Fluxo deve usar amount/Tab já calculados pelo backend e tratar timeout/ambiguidade como `CONFIRMATION_PENDING`.
+
+A porta permanece provider-neutral para permitir adapters adicionais por Venue no futuro.
 
 ## Slice 5 — Pix + webhooks
 
