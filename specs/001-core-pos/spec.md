@@ -10,7 +10,8 @@ Entregar o núcleo de PDV próprio do Rodada: catálogo, Tab/comanda, pedido, co
 
 - Staff: cria/encontra Tabs, lança pedidos e recebe pagamentos.
 - Cashier: fecha Tabs e opera caixa.
-- Manager: cancela/ajusta com auditoria.
+- Manager: cancela/ajusta com auditoria e gerencia disponibilidade global.
+- Bar/Cozinha: acompanha produção e pode marcar itens da própria estação como disponíveis/indisponíveis quando autorizado.
 
 ## Invariantes
 
@@ -20,7 +21,10 @@ Entregar o núcleo de PDV próprio do Rodada: catálogo, Tab/comanda, pedido, co
 - Table nunca é dona do ledger;
 - várias Tabs podem compartilhar a mesma TableOccupancy;
 - fechar Tab não libera mesa automaticamente;
-- o domínio deve aceitar identificadores adicionais de Tab sem migrar ledger/pedidos.
+- o domínio deve aceitar identificadores adicionais de Tab sem migrar ledger/pedidos;
+- disponibilidade operacional de produto é separada de `Product.active`;
+- todos os canais revalidam a mesma disponibilidade na confirmação do pedido;
+- mudança de disponibilidade nunca reescreve pedido já confirmado.
 
 ## Histórias
 
@@ -30,7 +34,7 @@ Staff abre Tab anônima, com label/apelido ou ligada a Customer/Relationship. Lo
 
 ### POS-002 — Catálogo
 
-Produtos têm nome, preço, ativo/inativo e `fulfillment_station`.
+Produtos têm nome, preço, ativação administrativa e `fulfillment_station`. `active` controla configuração/publicação; não deve ser usado como indisponibilidade operacional de curto prazo.
 
 ### POS-003 — Criar pedido
 
@@ -72,10 +76,26 @@ Tab pode se associar/desassociar de ServicePoint ou TableOccupancy sem alterar p
 
 Duas ou mais Tabs podem coexistir no mesmo TableOccupancy sem compartilhar saldo, pagamentos ou fechamento.
 
+### POS-013 — Disponibilidade operacional
+
+Bar/Cozinha com permissão pode marcar Product da sua estação como `AVAILABLE` ou `UNAVAILABLE`. Manager pode alterar qualquer produto.
+
+A mutation registra ator, horário, valor anterior, novo valor e motivo opcional.
+
+### POS-014 — Uma fonte de verdade
+
+Menus de staff, caixa e guest usam a mesma disponibilidade operacional. Um Product indisponível aparece claramente como indisponível e não pode gerar novo item confirmado.
+
+### POS-015 — Revalidação na confirmação
+
+A API valida disponibilidade ao confirmar o Order. Se o produto ficou indisponível depois de entrar no carrinho, a confirmação falha para os itens afetados com resposta explícita para atualização do carrinho.
+
+OrderItem já confirmado não é cancelado ou alterado por mudança posterior de disponibilidade.
+
 ## Fora de escopo
 
 - fiscal/NFC-e;
-- estoque profundo;
+- estoque profundo e baixa automática por insumo;
 - delivery/iFood;
 - PSP real;
 - pré-autorização;
