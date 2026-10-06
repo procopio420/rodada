@@ -17,7 +17,9 @@ Não duplicar regras de domínio por superfície.
 
 Exemplo: ao marcar Fritas como indisponível em `/kitchen`, `/staff` e `/guest` devem refletir a mesma `ProductAvailability`. A API ainda revalida no submit para cobrir tela/carrinho stale.
 
-Bar/Cozinha também possuem **+ Item**. O fluxo rápido herda a estação, pede nome + preço e permite gerar o ícone por IA. A tela nunca espera a imagem para salvar o Product; usa placeholder/estado de geração e atualiza quando o asset estiver pronto.
+Bar/Cozinha também possuem **+ Item**. O campo de nome é autocomplete do catálogo: resultados existentes mostram o mesmo ProductIcon, preço, estação e disponibilidade. Selecionar um resultado reutiliza o Product; se não existir correspondência exata, aparece **Criar "{nome}"** e a confirmação faz resolve-or-create automaticamente.
+
+Para Product novo, a estação vem do contexto e o preço é informado no fluxo rápido. Não existe botão "Gerar ícone": Product + ProductIcon nascem juntos, a geração começa automaticamente e a tela usa placeholder até o asset ficar pronto.
 
 Primeira interface deve funcionar bem em celular Android, com botões grandes e fluxo rápido.
 
