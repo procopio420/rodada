@@ -86,13 +86,15 @@ A camada física + self-service:
 A camada de criação rápida de cardápio:
 
 - Bar/Cozinha pode usar **+ Item** na própria estação;
-- nome + preço bastam para salvar no fluxo rápido;
-- estação vem preenchida pelo contexto;
-- ícone pode ser gerado automaticamente por IA a partir do nome/descrição;
+- nome possui autocomplete do catálogo e reutiliza Product existente quando encontrado;
+- se não existir correspondência exata, **Criar "{nome}"** faz resolve-or-create automaticamente;
+- estação vem preenchida pelo contexto e preço completa o item novo;
+- Product e ProductIcon ficam vinculados 1:1 por todo o lifecycle;
+- o ícone é gerado automaticamente por IA a partir do nome/descrição, sem botão extra;
 - geração segue um style contract versionado do Rodada;
 - falha da IA nunca bloqueia criar ou vender o produto;
-- regeneração, upload manual e placeholder são suportados;
-- staff e guest exibem o mesmo asset publicado.
+- regeneração excepcional, upload manual e placeholder são suportados;
+- autocomplete, staff e guest exibem o mesmo asset publicado.
 
 ## O que NÃO queremos copiar
 
