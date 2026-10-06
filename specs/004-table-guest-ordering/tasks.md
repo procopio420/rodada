@@ -30,7 +30,9 @@
 - [ ] create anonymous/named Tab
 - [ ] join existing Tab by short code
 - [ ] optional login/profile path
-- [ ] menu/catalog
+- [ ] menu/catalog consumindo disponibilidade operacional compartilhada
+- [ ] item indisponível visualmente desabilitado
+- [ ] tratamento de carrinho stale quando disponibilidade muda antes do submit
 - [ ] add item / notes
 - [ ] submit order
 - [ ] order status
