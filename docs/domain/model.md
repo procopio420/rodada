@@ -308,9 +308,43 @@ CANCELLED
 
 Nem todo item precisa percorrer todos os estados; uma cerveja pode ir de `ACCEPTED` para `READY` imediatamente.
 
+`PICKED_UP` e `DELIVERED` não implicam necessariamente confirmação manual do staff. A origem da transição deve ser rastreável por milestone.
+
+## FulfillmentMilestone
+
+Registro auditável de um marco operacional observado, inferido ou corrigido.
+
+Tipos iniciais:
+
+```text
+PICKED_UP
+DELIVERED
+```
+
+Campos conceituais:
+
+- `order_item_id`;
+- `kind`;
+- `occurred_at`;
+- `source: MANUAL | INFERRED | CORRECTED`;
+- `confidence` opcional, obrigatório quando `source=INFERRED`;
+- `staff_member_id` opcional;
+- `inference_version` opcional;
+- `evidence_summary` opcional;
+- `supersedes_id` opcional para correção.
+
+Regras:
+
+- milestone inferido nunca deve ser indistinguível de confirmação humana;
+- correção cria novo registro e preserva o histórico anterior;
+- sinais brutos de presença não precisam ter a mesma retenção do milestone derivado;
+- `OrderItem.state` pode avançar automaticamente por política operacional, desde que a transição seja rastreável ao milestone;
+- ausência de telemetria não impede o fluxo de pedido/preparo/entrega;
+- métricas devem conseguir filtrar por `source` e `confidence`.
+
 ## DispatchTask
 
-Trabalho operacional que precisa ser assumido/concluído.
+Trabalho operacional que precisa ser coordenado/concluído. Claim explícito pode existir, mas não é obrigatório no happy path de delivery quando ownership/progresso puder ser inferido.
 
 Tipos iniciais:
 
