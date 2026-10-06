@@ -48,6 +48,14 @@
       <button id="fries-toggle" class="btn" onclick="toggleFries()">Marcar Fritas indisponível</button>
       <div class="small muted" style="margin-top:9px">A mudança vale para PDV, caixa e pedido por QR. Pedidos já confirmados não são alterados.</div>
     </div>
+    <div class="card">
+      <div class="top"><div><b>Adicionar item</b><div class="small muted">Quick catalog · estação Cozinha</div></div><span class="status on">+ ITEM</span></div>
+      <div class="row"><span>Nome</span><b id="new-name">Omelete</b></div>
+      <div class="row"><span>Preço</span><b>R$ 18,00</b></div>
+      <div class="row"><span>Ícone</span><span id="ai-icon" class="muted">placeholder</span></div>
+      <div class="actions"><button id="ai-generate" class="btn" onclick="generateIcon()">Gerar ícone com IA</button><button class="btn primary" onclick="saveOmelete()">Salvar item</button></div>
+      <div id="ai-note" class="small muted" style="margin-top:9px">Salvar não depende da geração do ícone.</div>
+    </div>
     <div class="card order"><b>#921 · Mesa 24 / João</b><div class="row"><span>1× Fritas</span><span class="gold">PREPARANDO</span></div><div class="small muted">Continua válido mesmo se Fritas for indisponibilizada agora.</div></div>
   </section>
 
@@ -70,6 +78,8 @@ function show(id){['pos','kitchen','dispatch','house'].forEach(x=>{document.getE
 function partial(){document.getElementById('exp').textContent='R$ 220,00';alert('Pix/parcial confirmado. A tab continua aberta.')}
 function toggleFries(){friesAvailable=!friesAvailable;const st=document.getElementById('fries-status');const bt=document.getElementById('fries-toggle');const item=document.getElementById('pos-fries');const price=document.getElementById('pos-fries-price');st.textContent=friesAvailable?'DISPONÍVEL':'INDISPONÍVEL';st.className='status '+(friesAvailable?'on':'off');bt.textContent=friesAvailable?'Marcar Fritas indisponível':'Reativar Fritas';item.className=friesAvailable?'':'red';price.textContent=friesAvailable?'R$ 72':'indisponível'}
 function sendOrder(){if(!friesAvailable){alert('Fritas ficou indisponível. Remova ou substitua o item antes de confirmar.');return}alert('Pedido #921 enviado: Bar + Cozinha')}
+function generateIcon(){document.getElementById('ai-icon').textContent='gerando…';document.getElementById('ai-note').textContent='Mock do protótipo: geração segue rodada-icon-v1 e não bloqueia o cadastro.';setTimeout(()=>{document.getElementById('ai-icon').textContent='🍳 pronto';document.getElementById('ai-generate').textContent='Regenerar ícone'},500)}
+function saveOmelete(){alert('Omelete salvo na Cozinha como AVAILABLE. O ícone pode terminar depois.')}
 </script>
 </body>
 </html>
