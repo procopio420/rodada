@@ -22,7 +22,8 @@ Permitir que mesas selecionadas tenham ciclo operacional explícito e que client
 - QR físico resolve Table, não Tab;
 - identificadores públicos não são sequenciais/adivinháveis;
 - GuestSession é revogável;
-- pedidos `GUEST` entram na mesma pipeline de fulfillment dos pedidos do staff.
+- pedidos `GUEST` entram na mesma pipeline de fulfillment dos pedidos do staff;
+- guest usa a mesma disponibilidade operacional de Product que staff/caixa e não pode contorná-la.
 
 ## Table lifecycle
 
@@ -127,9 +128,11 @@ Cliente autenticado pode resolver/assumir Tabs ligadas ao próprio Customer sem 
 
 ### GUEST-007 — Pedido direto
 
-Guest adiciona itens e confirma Order com `source=GUEST`.
+Guest adiciona itens disponíveis e confirma Order com `source=GUEST`.
 
 Order entra na mesma fila/estação de Bar/Cozinha usada por pedidos do staff.
+
+O menu consome `ProductAvailability` compartilhado. Itens `UNAVAILABLE` permanecem identificáveis como indisponíveis e não podem ser confirmados. Se a disponibilidade mudar enquanto o item estiver no carrinho, a API rejeita os itens afetados na confirmação e a UI pede atualização.
 
 ### GUEST-008 — Acompanhar
 
