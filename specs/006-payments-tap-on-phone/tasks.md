@@ -25,14 +25,20 @@
 - [ ] scheduled/manual reconciliation
 - [ ] realtime financial events
 
-## Staff
+## Rodada Atendimento — Android
 
+- [ ] app/surface Android nativo em Kotlin + Jetpack Compose
+- [ ] contratos/API compartilhados sem acoplar domínio ao Android
 - [ ] **Pagar** action on Tab
 - [ ] full balance option
 - [ ] custom/partial value
 - [ ] method picker
 - [ ] Tap on Phone capability detection
-- [ ] native Tap on Phone bridge/adapter
+- [ ] provider-neutral `TapToPayProvider`
+- [ ] `PaytimeTapProvider` como primeiro adapter
+- [ ] integração direta com Paytime Tap on Phone SDK
+- [ ] garantir happy path sem abrir aplicativo externo
+- [ ] lifecycle/cancelamento do SDK integrado ao lifecycle Android
 - [ ] processing UI
 - [ ] confirmation_pending UI blocking blind retry
 - [ ] confirmed UI
