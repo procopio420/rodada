@@ -92,15 +92,22 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 1. [`AGENTS.md`](./AGENTS.md) — contrato de desenvolvimento spec-driven.
 2. [`docs/product/vision.md`](./docs/product/vision.md) — visão e tese.
 3. [`docs/product/principles.md`](./docs/product/principles.md) — princípios de produto.
-4. [`docs/domain/model.md`](./docs/domain/model.md) — modelo canônico.
-5. [`specs/001-core-pos/spec.md`](./specs/001-core-pos/spec.md) — primeiro slice implementável.
-6. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
-7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
-8. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
-9. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-10. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-11. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-12. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+4. [`docs/design/system.md`](./docs/design/system.md) — design system compartilhado por todas as superfícies.
+5. [`docs/domain/model.md`](./docs/domain/model.md) — modelo canônico.
+6. [`specs/001-core-pos/spec.md`](./specs/001-core-pos/spec.md) — primeiro slice implementável.
+7. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
+8. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
+9. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
+10. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+11. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+12. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+13. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável que consome o mesmo design system.
+
+## Design system
+
+As superfícies operacionais não possuem skins próprias. PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops e Guest Ordering compartilham tokens, semântica de estados e componentes definidos em [`docs/design/system.md`](./docs/design/system.md).
+
+O protótipo usa a referência executável em [`prototype/design-system.css`](./prototype/design-system.css). A implementação Next.js deve preservar o mesmo contrato em componentes reutilizáveis, em vez de copiar o HTML do protótipo.
 
 ## Stack alvo
 
