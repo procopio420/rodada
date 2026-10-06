@@ -4,9 +4,19 @@
 
 Adicionar ProductIcon, placeholder padrão, storage de asset e referência única publicada no Catalog.
 
-## Slice 2 — Quick create
+## Slice 2 — Catalog autocomplete + resolve-or-create
 
-Adicionar **+ Item** nas superfícies Bar/Cozinha com estação herdada, nome, preço e disponibilidade inicial.
+Adicionar **+ Item** nas superfícies Bar/Cozinha.
+
+Implementar typeahead de Product por Venue com ícone, preço, estação e disponibilidade.
+
+Adicionar normalização de nome e `resolve_or_create_product` transacional para:
+- reutilizar Product existente;
+- impedir duplicata por correspondência exata normalizada;
+- criar automaticamente quando o nome não existir;
+- convergir corretamente em corrida concorrente.
+
+Para criação nova, estação é herdada e preço é informado no fluxo rápido.
 
 ## Slice 3 — Generator port
 
@@ -14,15 +24,21 @@ Criar `CatalogIconGenerator` e um adapter de geração de imagem desacoplado do 
 
 Persistir `GENERATING | READY | FAILED`, prompt, style version e metadata técnica.
 
-## Slice 4 — Creation flow
+## Slice 4 — Automatic icon lifecycle
 
-Permitir **Gerar ícone com IA** durante criação/edição sem bloquear save do Product.
+Criar ProductIcon 1:1 junto com Product.
 
-Exibir placeholder enquanto gera e atualizar preview via polling ou realtime.
+Ao criar Product sem upload manual, enfileirar geração automaticamente usando nome/descrição/contexto. Não expor botão/toggle no quick create.
 
-## Slice 5 — Review + regenerate + upload
+Exibir placeholder enquanto gera e atualizar o asset via polling ou realtime.
 
-Permitir manter ícone atual, regenerar, publicar nova geração, upload manual e remoção.
+Persistir fingerprint do conteúdo relevante + style version para deduplicar gerações equivalentes.
+
+## Slice 5 — Review + replacement
+
+Publicar automaticamente a primeira geração quando não existir asset.
+
+Em edição, permitir upload manual e regeneração excepcional, mantendo sempre o ProductIcon estável e o asset publicado atual até o candidato novo ficar pronto.
 
 ## Slice 6 — Cross-surface rendering
 
