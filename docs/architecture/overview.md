@@ -58,7 +58,7 @@ Product, preço, ativação administrativa, disponibilidade operacional, Product
 
 Bar/Cozinha alteram disponibilidade uma vez; staff, caixa e guest consomem a mesma fonte de verdade.
 
-Criação rápida e ícones gerados por IA continuam dentro da capacidade de Catalog. O domínio expõe uma porta `CatalogIconGenerator`; adapters de geração de imagem/storage ficam em infraestrutura. Falha do provider não impede criar Product nem fazer pedido.
+Criação rápida, autocomplete/resolve-or-create e ícones gerados por IA continuam dentro da capacidade de Catalog. O catálogo resolve primeiro um Product existente por busca normalizada; só cria quando não houver match exato. O ProductIcon é 1:1 e estável com o Product. O domínio expõe uma porta `CatalogIconGenerator`; adapters de geração de imagem/storage ficam em infraestrutura. Novo Product dispara a geração automaticamente e falha do provider não impede criar Product nem fazer pedido.
 
 ### ordering
 
