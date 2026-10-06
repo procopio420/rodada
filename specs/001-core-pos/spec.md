@@ -4,19 +4,29 @@
 
 ## Objetivo
 
-Entregar o núcleo de PDV próprio do Rodada: catálogo, tab/comanda, pedido, cobrança, pagamento manual e fechamento, sem depender de mesa fixa.
+Entregar o núcleo de PDV próprio do Rodada: catálogo, Tab/comanda, pedido, cobrança, pagamento manual e fechamento, sem depender de mesa fixa e sem codificar localização como identidade financeira.
 
 ## Usuários
 
-- Staff: lança pedidos e recebe pagamentos.
-- Cashier: fecha tabs e opera caixa.
+- Staff: cria/encontra Tabs, lança pedidos e recebe pagamentos.
+- Cashier: fecha Tabs e opera caixa.
 - Manager: cancela/ajusta com auditoria.
+
+## Invariantes
+
+- todo Order pertence a uma Tab;
+- Tab pode existir sem Customer, Table ou ServicePoint;
+- Tab pode ter `display_label` humano sem que isso seja identidade forte;
+- Table nunca é dona do ledger;
+- várias Tabs podem compartilhar a mesma TableOccupancy;
+- fechar Tab não libera mesa automaticamente;
+- o domínio deve aceitar identificadores adicionais de Tab sem migrar ledger/pedidos.
 
 ## Histórias
 
-### POS-001 — Abrir tab
+### POS-001 — Abrir Tab
 
-Staff abre Tab anônima ou ligada a Customer/Relationship. ServicePoint é opcional.
+Staff abre Tab anônima, com label/apelido ou ligada a Customer/Relationship. Localização é opcional.
 
 ### POS-002 — Catálogo
 
@@ -32,7 +42,7 @@ OrderItem captura preço no momento da confirmação; alteração posterior no c
 
 ### POS-005 — Gerar charges
 
-Itens confirmados geram charges idempotentes no ledger.
+Itens confirmados geram charges idempotentes no ledger da Tab.
 
 ### POS-006 — Estados operacionais
 
@@ -46,7 +56,7 @@ Cancelamento após confirmação exige permissão e trilha de auditoria; ledger 
 
 Registrar `CASH`, `CARD`, `PIX` ou `OTHER`; P0 aceita confirmação manual.
 
-### POS-009 — Fechar tab
+### POS-009 — Fechar Tab
 
 Tab fecha normalmente com exposure zero. Divergência exige manager action.
 
@@ -56,7 +66,11 @@ CashShift registra abertura, recebimentos por método, ajustes e fechamento resu
 
 ### POS-011 — Localização flexível
 
-Tab pode mudar de ServicePoint/Zone sem alterar pedidos, ledger ou customer.
+Tab pode se associar/desassociar de ServicePoint ou TableOccupancy sem alterar pedidos, ledger ou Customer.
+
+### POS-012 — Múltiplas Tabs no mesmo contexto físico
+
+Duas ou mais Tabs podem coexistir no mesmo TableOccupancy sem compartilhar saldo, pagamentos ou fechamento.
 
 ## Fora de escopo
 
@@ -66,7 +80,12 @@ Tab pode mudar de ServicePoint/Zone sem alterar pedidos, ledger ou customer.
 - PSP real;
 - pré-autorização;
 - dispatch automático;
+- guest ordering completo;
+- lifecycle/limpeza de mesa;
+- NFC/QR de acesso;
 - loyalty.
+
+Esses comportamentos de mesa/guest são detalhados em `specs/004-table-guest-ordering/`.
 
 ## Requisitos não funcionais
 
@@ -75,4 +94,5 @@ Tab pode mudar de ServicePoint/Zone sem alterar pedidos, ledger ou customer.
 - mutations transacionais;
 - auditoria para cancelamento/ajuste;
 - pedido comum deve ser lançável em poucos toques;
-- API desenhada para realtime posterior.
+- API desenhada para realtime posterior;
+- não expor IDs sequenciais como credenciais públicas.
