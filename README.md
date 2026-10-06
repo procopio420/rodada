@@ -59,11 +59,13 @@ A camada de coordenação em tempo real:
 
 - zonas e pontos de atendimento;
 - chamadas de atendimento;
-- ownership/claim de tarefas;
+- ownership explícito ou inferido de tarefas;
 - pedidos prontos aguardando retirada;
 - fila operacional por prioridade;
+- happy path de entrega sem exigir taps de “peguei”/“entreguei”;
+- telemetria passiva opcional com source/confidence;
 - runs de entrega agrupados por zona;
-- métricas de tempo entre pedido, preparo, retirada e entrega.
+- métricas de tempo entre pedido, preparo, retirada e entrega separando observado/inferido/corrigido.
 
 ### 004 — Table Ops + Guest Ordering
 
@@ -117,8 +119,9 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 11. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
 12. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
 13. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-14. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-15. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+14. [`docs/adr/0006-passive-fulfillment-telemetry.md`](./docs/adr/0006-passive-fulfillment-telemetry.md) — retirada/entrega inferidas sem taps obrigatórios.
+15. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+16. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Design system
 
