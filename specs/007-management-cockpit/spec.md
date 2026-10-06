@@ -56,7 +56,7 @@ Mapeamento:
 - **Gestão**: fechamento, exceções financeiras, aprovações e configuração operacional;
 - **Mais**: cardápio, clientes, equipe, relatórios e configurações.
 
-No desktop a IA pode redistribuir a navegação, mas deve preservar a mesma arquitetura de informação.
+No desktop, a navegação pode ganhar mais densidade, mas deve preservar a mesma arquitetura de informação.
 
 ## MGM-001 — Home “Agora”
 
