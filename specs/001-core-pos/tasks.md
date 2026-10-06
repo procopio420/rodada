@@ -4,6 +4,10 @@
 
 - [ ] Venue / StaffMember / permissions
 - [ ] Product / catalog
+- [ ] ProductAvailability separado de `Product.active`
+- [ ] availability mutation com auditoria + permissão por estação/manager
+- [ ] availability query compartilhada por todos os canais
+- [ ] validação transacional de disponibilidade no confirm Order
 - [ ] Zone / ServicePoint mínimo
 - [ ] Tab com `display_label` opcional e sem dependência de mesa/Customer
 - [ ] associação opcional Tab ↔ TableOccupancy preparada para Spec 004
@@ -27,6 +31,8 @@
 - [ ] receber pagamento
 - [ ] fechar tab
 - [ ] tela simples Bar/Cozinha
+- [ ] ação rápida `Disponível / Indisponível` por produto na estação
+- [ ] catálogo mostra estado indisponível sem permitir confirmação
 - [ ] caixa básico
 
 ## Quality
@@ -35,6 +41,11 @@
 - [ ] tests duas Tabs independentes no mesmo TableOccupancy
 - [ ] tests fechar Tab não encerra TableOccupancy
 - [ ] tests snapshot de preço
+- [ ] tests separar `active` de disponibilidade operacional
+- [ ] tests indisponível bloqueia STAFF/CASHIER/GUEST na confirmação
+- [ ] tests carrinho stale / corrida de disponibilidade
+- [ ] tests mudança não altera OrderItem confirmado
+- [ ] tests permissão + audit de disponibilidade
 - [ ] tests charge idempotente
 - [ ] tests cancelamento/reversal
 - [ ] tests fechamento
