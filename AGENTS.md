@@ -35,13 +35,22 @@ Antes de alterar comportamento:
 
 - Rodada **é um PDV próprio**, não apenas uma integração com PDV existente.
 - Não transformar Rodada num ERP genérico antes de validar o núcleo operacional.
-- `Tab`/comanda não deve depender de mesa física.
+- **Identity optional, Tab mandatory.**
+- `Tab`/comanda é a unidade operacional/financeira; não depende de mesa física.
+- Pedido pertence a `Tab`, nunca diretamente a `Table`.
+- Uma `TableOccupancy` pode conter várias Tabs.
+- Fechar a última Tab não deve, sozinho, encerrar `TableOccupancy`.
 - Mesa/localização é contexto mutável, não identidade financeira.
-- Dispatch é parte do núcleo operacional, não um add-on cosmético.
-- Não exigir app do cliente no MVP.
+- QR físico de mesa identifica a mesa por token opaco; nunca usar IDs sequenciais públicos como `/mesa/24`.
+- Uma foto/URL antiga não deve manter uma sessão guest válida depois que a ocupação for liberada; usar geração/epoch e revogação.
+- Guest ordering precisa poder ser bloqueado imediatamente pelo staff sem bloquear pedidos internos.
+- Cliente não deve precisar instalar app ou criar conta para pedir no fluxo básico.
+- Perfil Rodada, NFC, código curto e sessão do dispositivo são identificadores/acessos à mesma Tab, não novos tipos de conta.
+- NFC é conveniência operacional; não tratar UID simples como prova forte de identidade.
 - Não exigir CPF no fluxo básico.
 - Não chamar relacionamento de “score de crédito” na UX.
 - Não automatizar promoção/rebaixamento de relacionamento sem spec explícita.
+- Dispatch é parte do núcleo operacional, não um add-on cosmético.
 - Não acoplar pagamentos a um provider específico no domínio central.
 - Pagamentos devem ser idempotentes e auditáveis.
 - Override de limite deve registrar ator, horário, valor anterior, novo valor e motivo opcional.
@@ -54,11 +63,14 @@ Antes de alterar comportamento:
 - **StaffMember**: usuário operacional.
 - **Customer**: pessoa identificada opcionalmente.
 - **Relationship**: relação Customer ↔ Venue.
-- **Tab**: sessão operacional/financeira de consumo.
-- **Order**: solicitação operacional de itens.
-- **OrderItem**: item individual com rota/estado próprios quando necessário.
-- **ServicePoint**: localização efêmera (mesa/tag/ponto), opcional.
+- **Tab**: sessão operacional/financeira de consumo; unidade obrigatória para pedidos.
+- **TabIdentifier**: identificador técnico opcional para resolver/acessar uma Tab, como código curto, guest session, QR dinâmico ou NFC.
+- **Table**: recurso físico do salão com estado operacional e QR próprio.
+- **TableOccupancy**: período em que um grupo usa uma Table; pode conter várias Tabs.
+- **ServicePoint**: ponto/localização operacional genérico, opcional, especialmente para dispatch fora de mesa.
 - **Zone**: agrupamento operacional de pontos.
+- **Order**: solicitação operacional de itens sempre ligada a uma Tab.
+- **OrderItem**: item individual com rota/estado próprios quando necessário.
 - **Task**: unidade de trabalho despachável.
 - **Charge**: lançamento financeiro positivo derivado ou manual.
 - **Payment**: valor recebido.
@@ -85,6 +97,13 @@ Mudanças de estado em pedido/task devem registrar timestamps suficientes para m
 - pronto → retirado;
 - retirado → entregue;
 - chamada → claim → concluída.
+
+Mudanças de mesa/ocupação devem registrar timestamps suficientes para medir:
+
+- ocupação iniciada;
+- mesa liberada;
+- início de limpeza;
+- mesa novamente disponível.
 
 Toda mutation relevante deve responder:
 

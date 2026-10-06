@@ -1,0 +1,23 @@
+# Acceptance — Spec 004
+
+- [ ] Mesa possui QR com token opaco não sequencial.
+- [ ] Scan do QR resolve a Table sem expor PK interno.
+- [ ] Guest abre PWA sem instalar app ou criar conta.
+- [ ] Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.
+- [ ] Em `JOIN_ACTIVE`, guest não inicia ocupação nova.
+- [ ] Em `DISABLED`, guest não envia pedido.
+- [ ] Uma TableOccupancy suporta duas ou mais Tabs independentes.
+- [ ] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
+- [ ] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
+- [ ] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
+- [ ] Fechar a última Tab não libera a Table automaticamente.
+- [ ] `release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.
+- [ ] Staff inicia limpeza `DIRTY → CLEANING`.
+- [ ] Staff conclui limpeza `CLEANING → AVAILABLE`.
+- [ ] Concluir limpeza incrementa `access_generation`.
+- [ ] GuestSession de geração anterior não consegue criar novos pedidos.
+- [ ] Guest pode assumir Tab por código curto.
+- [ ] Uma Tab pode receber e revogar associação NFC.
+- [ ] NFC pode ser reutilizado em outra Tab após revogação/fechamento.
+- [ ] Perfil Customer é opcional e pode ser ligado depois sem migrar a Tab.
+- [ ] Sistema registra timestamps para ocupação, liberação, início e fim da limpeza.

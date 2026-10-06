@@ -1,32 +1,43 @@
 # Rodada
 
-**Rodada é um PDV operacional para bares cheios — com dispatch, identidade de cliente e pagamentos no núcleo.**
+**Rodada é um PDV operacional para bares cheios — com dispatch, comandas flexíveis, identidade opcional e pagamentos no núcleo.**
 
 O primeiro piloto é o Bar do Aderlan: operação de alto fluxo, ambiente físico flexível, muitos clientes recorrentes e atendimento que não cabe bem no modelo tradicional de “mesa fixa + pedido + conta no fim”.
 
 A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **reinventar o PDV para esse tipo de operação** e usar o piloto para testar novas primitivas de hospitality:
 
-- a comanda pertence à pessoa/grupo, não necessariamente à mesa;
-- a localização pode mudar durante a noite;
+- **comanda é a unidade financeira; mesa é contexto físico**;
+- identidade do cliente é opcional, mas todo pedido pertence a uma comanda;
+- uma comanda pode ser encontrada por nome/apelido, perfil, código, sessão do dispositivo, QR dinâmico ou NFC;
+- uma mesa pode ter várias comandas simultâneas;
+- uma comanda pode existir sem mesa e pode mudar de localização durante a noite;
 - pedido é uma unidade operacional que precisa ser produzido e entregue, não só registrado;
+- algumas mesas podem aceitar pedido direto pelo celular, sem exigir app instalado;
+- mesas possuem ciclo operacional de ocupação e limpeza, separado do fechamento das comandas;
 - atendimento pode ser despachado como trabalho;
 - relacionamento (“da casa”) influencia a experiência e a política financeira;
 - pagamento pode ocorrer antes, durante ou depois da visita;
 - o sistema deve funcionar melhor no pico, não pior.
 
-## MVP em três slices
+## Princípio de domínio
+
+> **Identity optional, Tab mandatory.**
+
+Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou acessar a mesma comanda. Nenhuma delas deve virar a própria comanda.
+
+## MVP em quatro slices
 
 ### 001 — Core POS
 
 O mínimo para operar uma venda de ponta a ponta:
 
 - catálogo e preços;
-- comandas/tabs;
+- comandas/tabs independentes de mesa;
 - pedido e itens;
 - status operacional;
 - recebimento e fechamento;
 - caixa básico e auditoria;
-- suporte a ponto/localização opcional, sem depender de mesa fixa.
+- suporte a localização opcional e múltiplas comandas na mesma ocupação.
 
 ### 002 — Conta da Casa
 
@@ -44,7 +55,7 @@ A camada de relacionamento + dinheiro:
 
 A camada de coordenação em tempo real:
 
-- zonas e pontos efêmeros;
+- zonas e pontos de atendimento;
 - chamadas de atendimento;
 - ownership/claim de tarefas;
 - pedidos prontos aguardando retirada;
@@ -52,11 +63,27 @@ A camada de coordenação em tempo real:
 - runs de entrega agrupados por zona;
 - métricas de tempo entre pedido, preparo, retirada e entrega.
 
+### 004 — Table Ops + Guest Ordering
+
+A camada física + self-service:
+
+- mesa como recurso físico, não conta;
+- ocupação da mesa separada das comandas;
+- estados `AVAILABLE → OCCUPIED → DIRTY → CLEANING → AVAILABLE`;
+- várias comandas por ocupação;
+- QR opaco por mesa;
+- PWA guest sem instalação obrigatória;
+- cliente cria/assume comanda e pede direto;
+- bloqueio imediato de guest ordering pelo staff;
+- invalidação das sessões antigas ao liberar/limpar a mesa;
+- código curto, perfil e NFC como caminhos adicionais para resolver uma comanda;
+- métricas de giro e limpeza.
+
 ## O que NÃO queremos copiar
 
 Não queremos um ERP genérico com uma skin de bar. Fiscal, estoque profundo, delivery e contabilidade podem vir depois ou por integração.
 
-O foco inicial é construir o melhor **sistema transacional e operacional do salão/bar** para ambientes de alto fluxo.
+Também não queremos transformar QR em “conta da mesa”. **Pedido sempre pertence a uma Tab.**
 
 ## Comece por aqui
 
@@ -67,8 +94,10 @@ O foco inicial é construir o melhor **sistema transacional e operacional do sal
 5. [`specs/001-core-pos/spec.md`](./specs/001-core-pos/spec.md) — primeiro slice implementável.
 6. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
 7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
-8. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-9. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+8. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
+9. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — decisão de domínio.
+10. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+11. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
 
 ## Stack alvo
 
