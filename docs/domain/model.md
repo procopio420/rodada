@@ -175,9 +175,62 @@ Pode:
 
 Não exige Customer.
 
+## FulfillmentStation
+
+Destino operacional de preparo. No P0 pode começar com identificadores simples como:
+
+```text
+BAR
+KITCHEN
+```
+
+A fronteira importante é conceitual: routing diz **onde preparar**, não se o item está disponível para venda.
+
 ## Product
 
-Item vendável com preço e estação de fulfillment.
+Item configurado no catálogo.
+
+Campos conceituais mínimos:
+
+- `id`;
+- `name`;
+- `price_cents`;
+- `active` para configuração/publicação administrativa;
+- `fulfillment_station`.
+
+`active=false` não deve ser usado como botão de "acabou agora". Ativação administrativa e disponibilidade operacional têm ciclos de vida diferentes.
+
+## ProductAvailability
+
+Estado operacional atual de venda de um Product no Venue.
+
+Estados iniciais:
+
+```text
+AVAILABLE
+UNAVAILABLE
+```
+
+Campos conceituais:
+
+- `product_id`;
+- `state`;
+- `changed_at`;
+- `changed_by`;
+- `reason` opcional;
+- `version`/mecanismo equivalente para concorrência quando necessário.
+
+Regras:
+
+- cozinha/bar com permissão pode alternar disponibilidade dos produtos da estação;
+- manager pode gerenciar disponibilidade de qualquer estação;
+- staff, caixa e guest consomem a mesma fonte de verdade;
+- item `UNAVAILABLE` não pode ser confirmado em novo Order, independentemente de `source`;
+- a API revalida disponibilidade no momento da confirmação do Order;
+- carrinho aberto pode ficar stale; a confirmação deve retornar quais itens deixaram de estar disponíveis;
+- OrderItem já confirmado preserva histórico, preço e fulfillment mesmo se o Product ficar indisponível depois;
+- toda mudança é auditável e deve propagar para as superfícies operacionais em realtime quando o canal existir.
+
 
 ## Order
 
@@ -194,6 +247,8 @@ GUEST
 ```
 
 Origem não altera o modelo financeiro nem a fila de fulfillment.
+
+A confirmação do Order valida a disponibilidade operacional de todos os produtos. Um item que ficou indisponível depois de ser adicionado ao carrinho deve ser rejeitado explicitamente antes de gerar OrderItem/Charge.
 
 ## OrderItem
 
