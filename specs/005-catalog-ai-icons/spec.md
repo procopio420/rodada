@@ -18,6 +18,11 @@ Caso principal:
 
 ## Invariantes
 
+- o campo de nome funciona como autocomplete/typeahead do catálogo do Venue;
+- selecionar sugestão existente resolve o Product existente; nunca cria cópia silenciosa;
+- confirmar um nome sem correspondência exata faz `resolve-or-create` atômico do Product;
+- cada Product possui uma identidade visual própria: seu ProductIcon é 1:1 e permanece atrelado ao item ao longo do tempo;
+- autocomplete, staff, Bar/Cozinha e Guest sempre resolvem o mesmo ProductIcon publicado daquele Product;
 - geração de imagem é automática a partir de nome/descrição/contexto quando um Product é criado sem ícone manual;
 - geração de imagem nunca bloqueia criação/edição do Product;
 - o fluxo primário não expõe botão/toggle “Gerar ícone”; isso é comportamento padrão do catálogo;
@@ -34,12 +39,15 @@ Caso principal:
 
 ### ProductIcon
 
+Relação estável **1:1 com Product**. O ProductIcon nasce junto com o Product, mesmo que inicialmente só represente placeholder/`GENERATING`.
+
 Campos mínimos:
 
-- `product_id`;
+- `product_id` único;
 - `source`: `AI_GENERATED | UPLOADED | NONE`;
 - `status`: `NONE | GENERATING | READY | FAILED`;
-- `asset_url` ou referência de storage;
+- `published_asset_url` ou referência de storage;
+- referência opcional a asset candidato enquanto uma nova geração está em andamento;
 - `prompt` quando gerado;
 - `style_version`;
 - `provider` e `model` quando aplicável;
@@ -47,24 +55,52 @@ Campos mínimos:
 - `created_at`;
 - `updated_at`.
 
-Product mantém no máximo um ícone publicado por vez. Histórico de assets antigos pode ser preservado para auditoria/reuso sem aparecer no menu.
+O vínculo Product ↔ ProductIcon não muda quando o nome, preço, disponibilidade ou asset mudam. O mesmo ícone publicado é reutilizado em todas as superfícies. Histórico/revisões de assets podem ser preservados internamente, mas pertencem sempre ao mesmo ProductIcon.
 
 ## Histórias
 
-### CAT-001 — Adicionar item rápido
+### CAT-001 — Nome com autocomplete + resolve-or-create
 
 Bar/Cozinha autorizado toca **+ Item** na tela da estação.
 
-Campos mínimos:
+O primeiro campo é um typeahead de Product do Venue. Enquanto o operador digita, o Rodada retorna itens existentes relevantes com:
 
+- ícone publicado/placeholder;
 - nome;
+- preço atual;
+- estação;
+- disponibilidade.
+
+Comportamento:
+
+- selecionar um resultado reutiliza o Product existente e seu ProductIcon;
+- correspondência exata normalizada nunca cria duplicata;
+- se não houver correspondência exata, a última opção é **Criar "{nome digitado}"**;
+- confirmar essa opção executa `resolve_or_create_product` de forma atômica;
+- em corrida concorrente, dois operadores tentando criar o mesmo nome normalizado convergem para um único Product.
+
+Para Product novo, completar:
+
 - preço;
 - estação preenchida automaticamente;
 - categoria opcional;
 - descrição opcional;
 - disponibilidade inicial, default `AVAILABLE`.
 
-Salvar cria Product imediatamente e, se não houver upload manual, enfileira automaticamente a geração do ProductIcon usando nome, descrição, categoria e style contract.
+A criação gera Product + ProductIcon juntos. Se não houver upload manual, a geração do asset é enfileirada automaticamente a partir do nome/descrição/contexto.
+
+### CAT-001A — Normalização e busca
+
+Para evitar duplicatas óbvias, Catalog mantém uma chave normalizada de busca/identidade dentro do Venue, por exemplo:
+
+- trim;
+- espaços internos normalizados;
+- comparação case-insensitive;
+- comparação accent-insensitive quando tecnicamente viável.
+
+Autocomplete pode usar prefixo + busca tolerante/fuzzy, mas **fuzzy match nunca cria/mescla Product automaticamente**. Só uma correspondência exata normalizada impede a criação.
+
+Produtos realmente distintos devem ter nomes suficientemente distintos, por exemplo `Coca-Cola 350 ml` e `Coca-Cola 600 ml`.
 
 ### CAT-002 — Gerar ícone automaticamente
 
@@ -136,16 +172,17 @@ Todos os ícones gerados devem seguir o contrato visual do Rodada:
 
 O contrato é versionado. Alterar o design system não exige regenerar automaticamente ícones existentes.
 
-### CAT-008 — Superfícies
+### CAT-008 — Superfícies e identidade visual
 
-O mesmo asset publicado aparece em:
+O mesmo ProductIcon/asset publicado aparece em:
 
+- autocomplete;
 - catálogo do staff;
 - Bar/Cozinha;
 - menu guest/QR;
 - telas gerenciais que exibam Product.
 
-Não manter cópias independentes por canal.
+Não manter cópias independentes por canal e não gerar ícone a partir do nome em cada render. O ícone é dado persistente do Product, não decoração calculada pela tela.
 
 ## Integração de IA
 
@@ -177,6 +214,18 @@ Product context: {description/category}.
 ```
 
 O prompt real pode mudar por provider sem mudar o comportamento de produto.
+
+## API/concorrência
+
+Portas/comandos conceituais:
+
+```text
+suggest_products(venue_id, query, station?) -> ProductSuggestion[]
+resolve_or_create_product(venue_id, normalized_name, defaults) -> Product
+CatalogIconGenerator.generate(product_context, style_contract) -> GeneratedAsset
+```
+
+`resolve_or_create_product` precisa de proteção transacional/constraint para evitar duplicatas por corrida.
 
 ## Segurança e custo
 
