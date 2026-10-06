@@ -1,18 +1,28 @@
 # Acceptance — Spec 005
 
 - [ ] Staff autorizado em Bar/Cozinha possui ação **+ Item**.
+- [ ] Campo de nome oferece autocomplete de Products existentes do Venue.
+- [ ] Sugestões mostram nome, preço, estação, disponibilidade e ProductIcon.
+- [ ] Selecionar sugestão existente reutiliza o mesmo Product e o mesmo ProductIcon.
+- [ ] Correspondência exata normalizada não cria Product duplicado.
+- [ ] Sem correspondência exata, UI oferece **Criar "{nome}"**.
+- [ ] Confirmar nome novo executa resolve-or-create atômico e converge para um único Product em corrida concorrente.
 - [ ] Quick create herda a FulfillmentStation atual.
-- [ ] Nome e preço são suficientes para salvar o Product no fluxo rápido.
+- [ ] Nome e preço são suficientes para concluir Product novo no fluxo rápido.
+- [ ] Product e ProductIcon 1:1 são criados juntos.
 - [ ] Criar Product não depende da disponibilidade do provider de IA.
-- [ ] Usuário pode solicitar geração de ícone durante criação ou edição.
+- [ ] Salvar Product novo sem upload manual inicia geração de ícone automaticamente, sem botão/toggle de geração.
 - [ ] Enquanto gera, Product continua utilizável com placeholder ou ícone anterior.
 - [ ] Falha de geração não altera disponibilidade nem impede pedidos.
 - [ ] Asset gerado segue contrato 1:1, sem texto e adequado a tamanho pequeno.
-- [ ] Usuário pode regenerar sem remover o ícone publicado atual.
-- [ ] Usuário pode publicar a nova geração.
+- [ ] Primeira geração bem-sucedida é publicada automaticamente quando ainda não existe asset.
+- [ ] Regeneração excepcional em edição não remove o ícone publicado atual até o novo ficar pronto.
 - [ ] Usuário pode substituir por upload manual.
 - [ ] Usuário pode remover o ícone e voltar ao placeholder.
-- [ ] Staff, Bar/Cozinha e Guest usam a mesma referência de ícone publicada.
+- [ ] Autocomplete, Staff, Bar/Cozinha e Guest usam a mesma referência de ProductIcon publicada.
+- [ ] Renomear Product não cria outro ProductIcon nem perde o vínculo 1:1.
+- [ ] Alterar preço/disponibilidade não altera a identidade visual do Product.
 - [ ] Provider/model/prompt/style_version ficam rastreáveis para geração.
 - [ ] Nenhum dado de Customer/Tab/Order é enviado ao gerador.
-- [ ] Geração possui rate limit e proteção contra duplo clique/requisição duplicada.
+- [ ] Geração possui rate limit, idempotência e deduplicação por conteúdo relevante + style version.
+- [ ] Fuzzy match nunca mescla dois Products automaticamente.
