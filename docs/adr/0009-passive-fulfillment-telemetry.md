@@ -1,4 +1,4 @@
-# ADR 0006 — Telemetria passiva de retirada e entrega
+# ADR 0009 — Telemetria passiva de retirada e entrega
 
 **Status:** Accepted for product direction  
 **Date:** 2026-10-06
