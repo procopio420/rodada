@@ -240,9 +240,11 @@ discrepancy_cents = counted_amount_cents - expected_amount_cents_snapshot
 
 Positive = surplus. Negative = shortage.
 
-Venue policy from Spec 013 defines:
+Cash owns the typed reconciliation policy:
 - threshold requiring manager review;
 - whether zero/small discrepancy can close without manager at the device.
+
+Spec 013 provides the configuration surface for this policy.
 
 A discrepancy does not create a CORRECTION automatically.
 
@@ -398,12 +400,12 @@ Existing basic CashShift rows migrate to one default CashPoint per Venue. Histor
 - Spec 006 Payments/Refunds.
 - Spec 008 roles/capabilities.
 - Spec 011 pricing only for correct daily closing definitions.
-- Spec 013 cash policy thresholds.
 - Spec 007 closing/read models.
 
 ## Enables
 
 - reliable pilot cash operation;
+- Spec 013 typed cash-policy configuration;
 - cash discrepancy alerts in Spec 018;
 - trustworthy daily/monthly closing.
 
