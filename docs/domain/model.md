@@ -200,6 +200,30 @@ Campos conceituais mínimos:
 
 `active=false` não deve ser usado como botão de "acabou agora". Ativação administrativa e disponibilidade operacional têm ciclos de vida diferentes.
 
+## ProductIcon
+
+Asset visual opcional publicado para um Product.
+
+Campos conceituais:
+
+- `product_id`;
+- `source`: `AI_GENERATED | UPLOADED | NONE`;
+- `status`: `NONE | GENERATING | READY | FAILED`;
+- referência de storage/asset publicada;
+- `prompt` quando aplicável;
+- `style_version`;
+- provider/model quando gerado;
+- ator/timestamps.
+
+Regras:
+
+- Product pode existir e ser vendido sem ProductIcon;
+- geração nunca bloqueia criação/edição do Product;
+- regenerar preserva o ícone publicado até uma nova versão ser escolhida;
+- staff, Bar/Cozinha e Guest resolvem o mesmo asset publicado;
+- geração usa o style contract versionado em `docs/product/icon-style.md`;
+- dados de Customer, Tab ou Order não fazem parte do contexto de geração.
+
 ## ProductAvailability
 
 Estado operacional atual de venda de um Product no Venue.
