@@ -15,9 +15,10 @@ Antes de alterar comportamento:
 1. `README.md`
 2. `docs/product/vision.md`
 3. `docs/product/principles.md`
-4. `docs/domain/model.md`
-5. spec relevante em `specs/`
-6. ADRs relacionados em `docs/adr/`
+4. `docs/architecture/overview.md`
+5. `docs/domain/model.md`
+6. spec relevante em `specs/`
+7. ADRs relacionados em `docs/adr/`
 
 ## Workflow
 
