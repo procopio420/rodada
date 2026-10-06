@@ -26,7 +26,7 @@ Não criar um app Django por tabela e não transformar essas fronteiras em micro
 
 - `venue`: estabelecimento, staff e permissões;
 - `floor`: zonas, pontos, mesas e ocupações;
-- `catalog`: produto, preço, disponibilidade operacional e routing;
+- `catalog`: produto, preço, disponibilidade operacional, autocomplete/resolve-or-create, ProductIcon e routing;
 - `ordering`: Tab, Order, OrderItem e confirmação;
 - `fulfillment`: preparo/estados por estação;
 - `dispatch`: tasks, claims e runs;
@@ -38,5 +38,14 @@ Não criar um app Django por tabela e não transformar essas fronteiras em micro
 - `audit`: trilha imutável de mutations.
 
 A Spec 001 deve começar por `venue + catalog + ordering + billing + cash`, com fulfillment mínimo.
+
+Catalog deve expor operações equivalentes a:
+
+```text
+suggest_products(venue_id, query, station?) -> ProductSuggestion[]
+resolve_or_create_product(venue_id, name, defaults) -> Product
+```
+
+`resolve_or_create_product` precisa ser transacional e respeitar a chave de nome normalizada do Venue. Product existente sempre mantém seu ProductIcon; Product novo cria sua identidade visual 1:1 e dispara geração assíncrona automaticamente.
 
 Ver `docs/architecture/overview.md` e ADR 0005 antes de criar novos módulos.
