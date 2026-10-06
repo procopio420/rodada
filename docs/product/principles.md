@@ -25,3 +25,5 @@
 23. **Disponibilidade é operacional, não exclusão de catálogo.** “Acabou a fritas” não é o mesmo que desativar o produto administrativamente.
 24. **Uma disponibilidade, todos os canais.** Cozinha/bar altera uma vez; staff, caixa e guest passam a respeitar a mesma verdade.
 25. **Servidor decide se pode vender.** A UI pode esconder/desabilitar, mas a confirmação do pedido sempre revalida disponibilidade e preserva pedidos já confirmados.
+26. **Medição não pode virar trabalho.** No happy path, o garçom não deve precisar tocar em “peguei”, “saí para entrega” ou “entreguei” só para alimentar telemetria. O sistema observa, infere e pede ação humana apenas para exceções ou correções.
+27. **Inferência não é confirmação.** Todo marco inferido deve preservar origem, confiança e evidência suficiente para que métricas não tratem estimativa como fato confirmado.
