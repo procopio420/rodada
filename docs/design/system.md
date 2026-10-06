@@ -269,6 +269,32 @@ Usa a mesma identidade, mas menor densidade:
 - status do pedido reaproveita a semântica operacional;
 - CTA primário único por etapa.
 
+### Gerência
+
+Prioridade durante o serviço: **exceção → contexto → próxima ação → pulso da operação**.
+
+Gerência é mobile-first de verdade:
+- baseline 360–430 px;
+- bottom navigation: **Agora / Operação / Vendas / Gestão / Mais**;
+- números grandes e poucos por viewport;
+- um gráfico por contexto no celular, não mosaico de mini-gráficos;
+- alertas acionáveis aparecem antes de analytics histórico;
+- mapa 2D é drill-down de Mesas/Ambientes, não a home;
+- timeline usa DataRow e filtros simples;
+- “Ver só problemas” reduz ruído durante o pico.
+
+A home **Agora** deve reutilizar `Metric`, `MoneyValue`, `Panel`, `DataRow`, `StatusBadge` e `InlineNotice`. Evitar criar cards decorativos apenas para “encher dashboard”.
+
+Durante operação, Gerência funciona como cockpit. Fora do pico, a mesma superfície pode aumentar densidade para fechamento e analytics.
+
+Estados de conectividade precisam ser explícitos:
+- realtime saudável;
+- atualizando;
+- stale;
+- offline.
+
+Métricas de equipe podem apoiar diagnóstico, mas o design não deve gamificar nem criar leaderboard simplista de velocidade/performance.
+
 ## Estados interativos
 
 Todo controle deve cobrir:
