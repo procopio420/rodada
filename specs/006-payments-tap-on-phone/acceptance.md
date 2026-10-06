@@ -7,7 +7,10 @@
 - [ ] Pagar a última Tab não libera automaticamente TableOccupancy.
 - [ ] Staff consegue iniciar **Pagar** diretamente da Tab.
 - [ ] No happy path integrado, valor não é digitado novamente em outra maquininha.
+- [ ] Rodada Atendimento executa o fluxo operacional em app Android nativo Kotlin + Jetpack Compose.
 - [ ] Device compatível oferece Tap on Phone sem acoplar o domínio a uma marca.
+- [ ] Paytime é o primeiro adapter real de Tap on Phone do MVP.
+- [ ] Cobrança Tap on Phone acontece dentro do Rodada Atendimento, sem abrir aplicativo externo no happy path.
 - [ ] Device/provider incompatível não oferece Tap on Phone como disponível.
 - [ ] Double tap/retry com a mesma intenção não cria cobrança duplicada.
 - [ ] Timeout após envio entra em estado reconciliável e não libera retry cego.
