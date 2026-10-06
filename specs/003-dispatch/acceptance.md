@@ -1,9 +1,16 @@
 # Acceptance — Spec 003
 
 - [ ] Ponto pode trocar de zona durante a noite.
-- [ ] Duas pessoas não conseguem assumir a mesma task simultaneamente.
 - [ ] READY cria/atualiza uma delivery task idempotentemente.
-- [ ] Staff vê idade e responsável da task.
+- [ ] Staff vê idade, destino e responsável provável/confirmado quando existir.
+- [ ] Fluxo normal de entrega não exige botões obrigatórios “peguei”, “saí” ou “entreguei”.
+- [ ] Sistema consegue registrar PICKED_UP/DELIVERED inferidos com source e confidence.
+- [ ] Evento inferido não é apresentado como confirmação manual.
+- [ ] Staff consegue corrigir uma inferência errada com ação curta e auditável.
+- [ ] Correção não apaga o milestone/evento original.
+- [ ] Ausência/falha de BLE ou outro sensor não impede venda, preparo ou entrega.
+- [ ] Falha de telemetria degrada precisão da métrica, não recria passos obrigatórios.
 - [ ] DeliveryRun agrupa entregas sem perder associação a cada Tab/OrderItem.
-- [ ] Conclusão registra tempos necessários para métricas.
+- [ ] Métricas conseguem separar MANUAL, INFERRED e CORRECTED.
+- [ ] É possível medir taxa de correção dos eventos inferidos para calibrar confidence.
 - [ ] POS continua funcional sem conexão realtime.
