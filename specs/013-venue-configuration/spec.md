@@ -465,7 +465,6 @@ Current hardcoded/default values become typed records with behavior-preserving d
 
 ## Enables
 
-- Spec 015 printer/binding configuration without DB edits;
 - production operation without DB edits;
 - consistent alerting/closing/payment setup;
 - pilot onboarding and repeatable Venue provisioning.
