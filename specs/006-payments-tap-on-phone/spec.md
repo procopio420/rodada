@@ -30,6 +30,8 @@ Pagamento pertence à **Tab/comanda**, nunca à mesa.
 - fechar/pagar a última Tab não libera automaticamente a mesa;
 - o domínio central não depende de Cielo, Stone, Adyen ou qualquer provider específico;
 - Tap on Phone deve ser exposto por uma porta/adaptador de provider;
+- **Paytime Tap on Phone é o primeiro adapter do MVP**, sem tornar Paytime parte do domínio central;
+- a cobrança Tap on Phone do happy path acontece dentro do Rodada Atendimento, sem handoff obrigatório para aplicativo externo;
 - o valor da cobrança nasce da Tab e não deve ser digitado novamente em outro dispositivo no happy path;
 - toda tentativa de pagamento possui idempotência;
 - estados ambíguos nunca podem ser tratados como falha segura para nova cobrança;
@@ -226,7 +228,10 @@ Tab
 
 Requisitos:
 
-- integração deve ficar atrás de `PaymentProvider`/porta equivalente;
+- integração deve ficar atrás de `PaymentProvider`/`TapToPayProvider` ou porta equivalente;
+- o primeiro adapter implementado será `PaytimeTapProvider`;
+- o SDK Paytime deve ser integrado diretamente ao Rodada Atendimento;
+- não abrir aplicativo externo para concluir o happy path de aproximação;
 - Staff app detecta capability do device;
 - backend conhece capabilities do provider;
 - device incompatível não oferece ação como disponível;
@@ -497,13 +502,46 @@ Métrica norte operacional:
 
 > **Tempo entre o cliente decidir pagar e o pagamento estar confirmado.**
 
-## Staff app
+## Rodada Atendimento
 
-Tap on Phone exige que a superfície Staff possa integrar recursos nativos do device.
+A superfície de atendimento é um **aplicativo Android nativo em Kotlin + Jetpack Compose**.
 
-Arquitetura alvo pode manter UI em React/TypeScript, mas a camada Staff deve aceitar bridge/module nativo para NFC/payment SDK quando necessário.
+Motivos principais:
 
-Isso não obriga todas as superfícies do Rodada a virarem app nativo.
+- Tap on Phone é capacidade central, não integração periférica;
+- acesso direto e previsível a NFC, lifecycle Android e SDKs de pagamento;
+- menos dependência de bridge/webview para operações financeiras;
+- espaço para futuras integrações nativas de câmera, impressão, Bluetooth e dispositivos operacionais;
+- UX touch-first otimizada para o garçom em operação de pico.
+
+No MVP:
+
+```text
+Rodada Atendimento (Android)
+        |
+        v
+TapToPayProvider
+        |
+        v
+PaytimeTapProvider
+        |
+        v
+Paytime Tap on Phone SDK
+        |
+        v
+NFC do próprio aparelho
+```
+
+O usuário permanece no Rodada durante a cobrança. A tela pode usar componentes obrigatórios do SDK quando exigido por certificação/segurança, mas não deve exigir troca para outro aplicativo.
+
+As demais superfícies não são obrigadas a usar Android nativo:
+
+- Cozinha: Web/PWA;
+- Bar: Web/PWA;
+- Cliente: Web/PWA via QR, sem instalação obrigatória;
+- Gerência: Web responsiva.
+
+Todas usam o mesmo backend e o mesmo modelo de domínio. Compartilhamos contratos e design tokens; não forçamos compartilhamento de componentes de UI entre Compose e React.
 
 ## Segurança
 
