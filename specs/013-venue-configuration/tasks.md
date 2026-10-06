@@ -13,6 +13,7 @@
 - [ ] Service charge policy config.
 - [ ] SLA/alert threshold config.
 - [ ] Payment provider binding config.
+- [ ] Printer endpoint + station binding configuration via Spec 015 contracts.
 - [ ] Catalog defaults.
 - [ ] Named feature switches only.
 - [ ] Validate/preview impacted active resources.
@@ -31,6 +32,7 @@
 - [ ] Pricing/service config.
 - [ ] Alert/SLA config.
 - [ ] Payment provider status/setup.
+- [ ] Printer endpoints/bindings/status.
 - [ ] Staff/device entry points.
 - [ ] Effective-now/next-context/blocker messaging.
 
