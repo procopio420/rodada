@@ -27,6 +27,7 @@ Typed configuration for:
 - service-charge policy;
 - SLA/alert thresholds;
 - payment-provider bindings;
+- printer endpoints/station bindings;
 - catalog defaults;
 - limited feature/capability switches;
 - validation, audit and safe live changes.
@@ -264,6 +265,18 @@ Changing/disabling provider:
 - new attempts may be blocked/redirected only after validation;
 - outstanding reconciliation remains tied to original provider.
 
+## Printer configuration
+
+Spec 015 owns receipt/printing semantics. Venue Configuration exposes typed setup for:
+
+- PrinterEndpoint label/type/enablement;
+- network/Bluetooth connection reference without exposing secrets;
+- station → primary/fallback printer bindings;
+- permitted print purposes;
+- health/status readout.
+
+Changing a printer binding never changes historical Order routing or makes printing the source of truth. Disabling/removing the last printer is allowed when KDS/digital operation remains healthy; the UI must state the resulting fallback capability.
+
 ## Catalog defaults
 
 Typed defaults may include:
@@ -357,6 +370,7 @@ Commands call domain owners:
 - update_service_charge_policy;
 - update_sla_alert_policy;
 - configure_payment_provider_binding;
+- configure_printer_endpoint / station_printer_binding;
 - update_catalog_defaults.
 
 All mutation responses include effective_at/version and blockers/warnings where relevant.
@@ -366,7 +380,8 @@ All mutation responses include effective_at/version and blockers/warnings where 
 Immediate-safe changes may invalidate affected clients:
 - catalog/floor/guest policy;
 - alert rules;
-- provider capability availability.
+- provider capability availability;
+- printer/binding configuration where connected clients consume it.
 
 Clients re-fetch canonical config. Realtime payload need not contain secret/sensitive config.
 
@@ -445,11 +460,12 @@ Current hardcoded/default values become typed records with behavior-preserving d
 - Specs 001–008 domain foundations.
 - Spec 011 service-charge semantics.
 - Spec 012 cash thresholds.
-- Spec 018 alert policy consumer.
+- Spec 018 alert rule/routing semantics.
 - ADRs 0004/0005/0007/0008.
 
 ## Enables
 
+- Spec 015 printer/binding configuration without DB edits;
 - production operation without DB edits;
 - consistent alerting/closing/payment setup;
 - pilot onboarding and repeatable Venue provisioning.
