@@ -107,17 +107,26 @@ Também não queremos transformar QR em “conta da mesa”. **Pedido sempre per
 1. [`AGENTS.md`](./AGENTS.md) — contrato de desenvolvimento spec-driven.
 2. [`docs/product/vision.md`](./docs/product/vision.md) — visão e tese.
 3. [`docs/product/principles.md`](./docs/product/principles.md) — princípios de produto.
-4. [`docs/domain/model.md`](./docs/domain/model.md) — modelo canônico.
-5. [`specs/001-core-pos/spec.md`](./specs/001-core-pos/spec.md) — primeiro slice implementável.
-6. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
-7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
-8. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
-9. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
-10. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
-11. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
-12. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
-13. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
-14. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+4. [`docs/design/system.md`](./docs/design/system.md) — design system compartilhado por todas as superfícies.
+5. [`docs/domain/model.md`](./docs/domain/model.md) — modelo canônico.
+6. [`specs/001-core-pos/spec.md`](./specs/001-core-pos/spec.md) — primeiro slice implementável.
+7. [`specs/002-house-account/spec.md`](./specs/002-house-account/spec.md) — relacionamento e exposição.
+8. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
+9. [`specs/004-table-guest-ordering/spec.md`](./specs/004-table-guest-ordering/spec.md) — mesa, ocupação, QR e guest ordering.
+10. [`specs/005-catalog-ai-icons/spec.md`](./specs/005-catalog-ai-icons/spec.md) — criação rápida de item e ícones gerados por IA.
+11. [`docs/product/icon-style.md`](./docs/product/icon-style.md) — style contract dos ícones de catálogo.
+12. [`docs/adr/0004-tab-identity-and-table-occupancy.md`](./docs/adr/0004-tab-identity-and-table-occupancy.md) — Tab, identidade e ocupação.
+13. [`docs/adr/0005-domain-boundaries-and-operational-availability.md`](./docs/adr/0005-domain-boundaries-and-operational-availability.md) — fronteiras de domínio e indisponibilidade operacional.
+14. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
+15. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+
+## Design system
+
+PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops, Guest Ordering e Quick Catalog compartilham um único sistema visual definido em [`docs/design/system.md`](./docs/design/system.md).
+
+O Quick Catalog também segue esse contrato: autocomplete-first, reuse de Product/ProductIcon existente e geração automática do ícone apenas para Product novo. O asset segue [`docs/product/icon-style.md`](./docs/product/icon-style.md); estados como `GENERATING`, `FAILED`, selecionado e indisponível pertencem à UI.
+
+O protótipo usa [`prototype/design-system.css`](./prototype/design-system.css) como referência executável. O app Next.js deve portar esses tokens e componentes para primitives reutilizáveis, não copiar cada tela como CSS isolado.
 
 ## Stack alvo
 
