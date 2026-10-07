@@ -4,12 +4,13 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
-from modules.ordering.models import Tab
+from modules.ordering.models import OrderItem, Tab
 from modules.ordering.serializers import OrderConfirmSerializer, TabCreateSerializer
 from modules.ordering.services import (
     OrderingServiceError,
     confirm_order,
     open_tab,
+    transition_order_item,
 )
 
 
@@ -21,6 +22,7 @@ def _error_response(error: OrderingServiceError) -> Response:
 
 
 def _tab_payload(tab: Tab) -> dict:
+    from modules.ledger.services import totals
     return {
         "id": str(tab.id),
         "display_label": tab.display_label,
@@ -28,6 +30,7 @@ def _tab_payload(tab: Tab) -> dict:
         "version": tab.version,
         "opened_at": tab.opened_at,
         "closed_at": tab.closed_at,
+        **totals(tab),
     }
 
 
@@ -111,3 +114,25 @@ class OrderConfirmView(APIView):
             return _error_response(error)
         order = order.__class__.objects.prefetch_related("items").get(pk=order.pk)
         return Response(_order_payload(order), status=201)
+
+
+class OrderItemTransitionView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.ORDER_CONFIRM
+
+    def post(self, request, item_id):
+        try:
+            item = transition_order_item(item_id=item_id, target_state=request.data.get("state", ""), actor=request.actor_context)
+        except OrderingServiceError as error:
+            return _error_response(error)
+        return Response({"id": str(item.id), "state": item.state, "ready_at": item.ready_at})
+
+
+class ProductionQueueView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, station):
+        if station not in ("BAR", "KITCHEN"):
+            return Response({"code": "INVALID_STATION", "message": "Estação inválida."}, status=400)
+        rows = OrderItem.objects.filter(order__tab__venue=request.auth.venue, order__status="CONFIRMED", product__fulfillment_station=station).exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").order_by("created_at")
+        return Response({"results": [{"id": str(item.id), "state": item.state, "quantity": item.quantity, "product_name": item.product_name_snapshot, "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})

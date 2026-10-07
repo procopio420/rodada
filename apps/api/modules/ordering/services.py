@@ -159,4 +159,38 @@ def confirm_order(
             },
         )
 
+    # The financial effect is derived from the confirmed snapshots, never from
+    # a mutable catalog price. One-to-one Charge makes retries exactly-once.
+    from modules.ledger.services import create_charges_for_order
+    create_charges_for_order(order, actor)
+
     return order
+
+
+_TRANSITIONS = {
+    "NEW": {"ACCEPTED"},
+    "ACCEPTED": {"PREPARING", "READY"},
+    "PREPARING": {"READY"},
+    "READY": {"PICKED_UP", "DELIVERED"},
+    "PICKED_UP": {"DELIVERED"},
+}
+_TIMESTAMP_FIELDS = {
+    "ACCEPTED": "accepted_at", "PREPARING": "preparing_at", "READY": "ready_at",
+    "PICKED_UP": "picked_up_at", "DELIVERED": "delivered_at",
+}
+
+
+@transaction.atomic
+def transition_order_item(*, item_id, target_state, actor):
+    item = OrderItem.objects.select_for_update().select_related("order__tab").filter(pk=item_id, order__tab__venue_id=actor.venue_id).first()
+    if not item:
+        raise OrderingServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
+    if item.order.tab.state == TabState.CLOSED:
+        raise OrderingServiceError("TAB_CLOSED", "Comanda fechada não aceita operação.", 409)
+    if target_state not in _TRANSITIONS.get(item.state, set()):
+        raise OrderingServiceError("INVALID_ITEM_TRANSITION", "Transição operacional inválida.", 409)
+    item.state = target_state
+    setattr(item, _TIMESTAMP_FIELDS[target_state], timezone.now())
+    item.save(update_fields=["state", _TIMESTAMP_FIELDS[target_state]])
+    record_audit_event(actor=actor, event_type="order_item.transitioned", entity_type="OrderItem", entity_id=str(item.id), metadata={"state": target_state})
+    return item

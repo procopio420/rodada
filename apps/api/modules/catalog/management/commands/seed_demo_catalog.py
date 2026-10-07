@@ -6,9 +6,10 @@ from modules.venue.models import Venue
 
 
 DEMO_PRODUCTS = (
+    ("Brahma 600ml", 1200, FulfillmentStation.BAR),
+    ("Fritas", 2800, FulfillmentStation.KITCHEN),
     ("Água 500 ml", 500, FulfillmentStation.BAR),
     ("Refrigerante lata", 700, FulfillmentStation.BAR),
-    ("Batata frita", 2800, FulfillmentStation.KITCHEN),
 )
 
 

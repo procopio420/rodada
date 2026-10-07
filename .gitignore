@@ -5,6 +5,8 @@ node_modules/
 .next/
 __pycache__/
 *.pyc
+*.sqlite3
+*.tsbuildinfo
 .venv/
 dist/
 build/

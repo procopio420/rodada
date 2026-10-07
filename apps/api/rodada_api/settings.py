@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "modules.access",
     "modules.catalog",
     "modules.ordering",
+    "modules.ledger",
     "modules.audit",
 ]
 

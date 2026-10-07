@@ -2,7 +2,9 @@ from django.db import connection
 from django.http import JsonResponse
 from django.urls import path
 
-from modules.ordering.views import OrderConfirmView, TabDetailView, TabListCreateView
+from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
+from modules.ledger.views import PaymentCollectView, TabCloseView
+from modules.catalog.views import ProductAvailabilityView, ProductListView
 
 from modules.access.views import (
     AccessAuditListView,
@@ -55,4 +57,10 @@ urlpatterns = [
     path("tabs/", TabListCreateView.as_view(), name="tab-list-create"),
     path("tabs/<uuid:tab_id>/", TabDetailView.as_view(), name="tab-detail"),
     path("tabs/<uuid:tab_id>/orders/confirm/", OrderConfirmView.as_view(), name="order-confirm"),
+    path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),
+    path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
+    path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
+    path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
+    path("catalog/products/", ProductListView.as_view(), name="product-list"),
+    path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
 ]
