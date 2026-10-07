@@ -276,6 +276,30 @@ class StaffSwitchAndReauthAPITests(TestCase):
         assert current.status_code == 200
         assert current.json()["staff"]["id"] == str(self.ana.id)
 
+    def test_switch_pin_failures_are_throttled_without_replacing_operator(self):
+        self.trust_current_device()
+        self.bearer(self.ana_tokens["access_token"])
+
+        for _ in range(5):
+            response = self.client.post(
+                "/auth/switch-operator/",
+                {"login_identifier": self.bruno.login_identifier, "pin": "9999"},
+                format="json",
+            )
+            assert response.status_code == 401
+
+        response = self.client.post(
+            "/auth/switch-operator/",
+            {"login_identifier": self.bruno.login_identifier, "pin": "9999"},
+            format="json",
+        )
+        assert response.status_code == 429
+        assert response.json()["code"] == "AUTH_THROTTLED"
+
+        current = self.client.get("/auth/me/")
+        assert current.status_code == 200
+        assert current.json()["staff"]["id"] == str(self.ana.id)
+
     def test_reauthentication_requires_current_actors_own_pin(self):
         self.bearer(self.ana_tokens["access_token"])
 
