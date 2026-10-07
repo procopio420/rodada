@@ -1,27 +1,27 @@
 # Tasks — Spec 012
 
 ## Domain/API
-- [ ] CashPoint.
-- [ ] Expand CashShift lifecycle.
-- [ ] CashMovement kinds and invariants.
-- [ ] CashTenderDetail.
+- [x] CashPoint.
+- [x] Expand CashShift lifecycle.
+- [x] CashMovement kinds and invariants.
+- [x] CashTenderDetail.
 - [ ] Active-shift selection for CASH Payment.
-- [ ] Supply command.
-- [ ] Withdrawal/sangria command.
+- [x] Supply command.
+- [x] Withdrawal/sangria command.
 - [ ] Cash refund movement.
-- [ ] Start count.
-- [ ] Close with expected/count/discrepancy.
-- [ ] Manager discrepancy review.
-- [ ] Late correction command.
+- [x] Start count.
+- [x] Close with expected/count/discrepancy.
+- [x] Manager discrepancy review.
+- [x] Late correction command.
 - [ ] Unclosed/carryover policy.
-- [ ] Cash close preview/query.
+- [x] Cash close preview/query.
 
 ## Persistence
-- [ ] Unique active shift per CashPoint.
-- [ ] Unique Payment/Refund cash movement linkage.
-- [ ] Movement idempotency.
-- [ ] Immutable close snapshot.
-- [ ] Review/correction provenance.
+- [x] Unique active shift per CashPoint.
+- [x] Unique Payment/Refund cash movement linkage.
+- [x] Movement idempotency.
+- [x] Immutable close snapshot.
+- [x] Review/correction provenance.
 - [ ] Legacy migration to default CashPoint.
 
 ## Android
@@ -52,10 +52,10 @@
 - [ ] Operational runbook for emergency cash capture when API unavailable.
 
 ## Quality/tests
-- [ ] Opening float applied exactly once.
+- [x] Opening float applied exactly once.
 - [ ] Tender - change = Payment amount.
 - [ ] Concurrent payment vs close is consistent.
-- [ ] Retry cannot duplicate movement.
-- [ ] Closed shift rejects ordinary movement.
-- [ ] Late correction preserves original snapshot.
+- [x] Retry cannot duplicate movement.
+- [x] Closed shift rejects ordinary movement.
+- [x] Late correction preserves original snapshot.
 - [ ] Daily close cannot silently claim reconciled with unresolved shift.
