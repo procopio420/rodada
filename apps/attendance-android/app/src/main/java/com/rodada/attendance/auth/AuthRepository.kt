@@ -21,22 +21,12 @@ class AuthRepository(context: Context) {
                 secureStore.save(updated)
                 updated
             } catch (error: AuthApiException) {
-                if (error.status != 401) {
-                    if (error.status == 403) secureStore.clear()
+                if (error.code != "ACCESS_TOKEN_EXPIRED") {
+                    if (error.status == 401 || error.status == 403) secureStore.clear()
                     throw error
                 }
 
-                val nextTokens =
-                    try {
-                        client.refresh(stored.tokens.refreshToken)
-                    } catch (refreshError: AuthApiException) {
-                        if (refreshError.status == 401 || refreshError.status == 403) {
-                            secureStore.clear()
-                        }
-                        throw refreshError
-                    }
-
-                val refreshed = stored.withTokens(nextTokens)
+                val refreshed = refreshStoredSession(stored)
                 val me = client.me(refreshed.tokens.accessToken)
                 val updated = refreshed.merge(me)
                 secureStore.save(updated)
@@ -69,13 +59,17 @@ class AuthRepository(context: Context) {
         pin: String,
     ): StoredSession =
         withContext(Dispatchers.IO) {
-            val next = client.switchOperator(current.tokens.accessToken, loginIdentifier, pin)
+            val next =
+                withAccessRefresh(current) { accessToken ->
+                    client.switchOperator(accessToken, loginIdentifier, pin)
+                }
+            val latest = secureStore.load() ?: current
             val hydrated =
                 if (next.venueId.isBlank()) {
                     next.copy(
-                        venueId = current.venueId,
-                        venueSlug = current.venueSlug,
-                        venueName = current.venueName,
+                        venueId = latest.venueId,
+                        venueSlug = latest.venueSlug,
+                        venueName = latest.venueName,
                     )
                 } else {
                     next
@@ -86,13 +80,17 @@ class AuthRepository(context: Context) {
 
     suspend fun reauthenticate(current: StoredSession, pin: String): ReauthReceipt =
         withContext(Dispatchers.IO) {
-            client.reauthenticate(current.tokens.accessToken, pin)
+            withAccessRefresh(current) { accessToken ->
+                client.reauthenticate(accessToken, pin)
+            }
         }
 
     suspend fun lock(current: StoredSession) =
         withContext(Dispatchers.IO) {
             try {
-                client.lock(current.tokens.accessToken)
+                withAccessRefresh(current) { accessToken ->
+                    client.lock(accessToken)
+                }
             } finally {
                 secureStore.clear()
             }
@@ -101,7 +99,9 @@ class AuthRepository(context: Context) {
     suspend fun logout(current: StoredSession) =
         withContext(Dispatchers.IO) {
             try {
-                client.logout(current.tokens.accessToken)
+                withAccessRefresh(current) { accessToken ->
+                    client.logout(accessToken)
+                }
             } finally {
                 secureStore.clear()
             }
@@ -109,6 +109,31 @@ class AuthRepository(context: Context) {
 
     fun clearLocalSession() {
         secureStore.clear()
+    }
+
+    private fun refreshStoredSession(session: StoredSession): StoredSession {
+        val nextTokens =
+            try {
+                client.refresh(session.tokens.refreshToken)
+            } catch (error: AuthApiException) {
+                if (error.status == 401 || error.status == 403) secureStore.clear()
+                throw error
+            }
+        return session.withTokens(nextTokens).also(secureStore::save)
+    }
+
+    private fun <T> withAccessRefresh(
+        fallback: StoredSession,
+        action: (String) -> T,
+    ): T {
+        var current = secureStore.load() ?: fallback
+        return try {
+            action(current.tokens.accessToken)
+        } catch (error: AuthApiException) {
+            if (error.code != "ACCESS_TOKEN_EXPIRED") throw error
+            current = refreshStoredSession(current)
+            action(current.tokens.accessToken)
+        }
     }
 
     private fun StoredSession.merge(me: MeSnapshot): StoredSession =
