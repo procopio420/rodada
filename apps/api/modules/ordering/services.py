@@ -85,17 +85,17 @@ def confirm_order(
 
     locked_products = {
         product.id: product
-        for product in Product.objects.select_for_update()
-        .select_related("availability")
-        .filter(id__in=product_ids, venue_id=tab.venue_id)
+        for product in Product.objects.select_for_update().filter(
+            id__in=product_ids,
+            venue_id=tab.venue_id,
+        )
     }
-    # Lock availability rows independently; select_related() does not make that
-    # locking contract explicit across all supported databases.
-    list(
-        ProductAvailability.objects.select_for_update().filter(
+    locked_availability = {
+        availability.product_id: availability
+        for availability in ProductAvailability.objects.select_for_update().filter(
             product_id__in=locked_products.keys()
         )
-    )
+    }
 
     invalid_products = []
     for product_id, _quantity in normalized_lines:
@@ -110,7 +110,8 @@ def confirm_order(
                 {"product_id": str(product.id), "reason": "INACTIVE"}
             )
             continue
-        if product.availability.state != AvailabilityState.AVAILABLE:
+        availability = locked_availability.get(product.id)
+        if availability is None or availability.state != AvailabilityState.AVAILABLE:
             invalid_products.append(
                 {"product_id": str(product.id), "reason": "UNAVAILABLE"}
             )
