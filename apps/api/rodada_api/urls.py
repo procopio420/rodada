@@ -1,6 +1,6 @@
 from django.db import connection
 from django.http import JsonResponse
-from django.urls import path
+from django.urls import include, path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
@@ -70,6 +70,7 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
     path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
+    path("dispatch/", include("modules.dispatch.urls")),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),

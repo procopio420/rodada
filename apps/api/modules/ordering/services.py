@@ -228,4 +228,11 @@ def transition_order_item(*, item_id, target_state, actor):
     setattr(item, _TIMESTAMP_FIELDS[target_state], timezone.now())
     item.save(update_fields=["state", _TIMESTAMP_FIELDS[target_state]])
     record_audit_event(actor=actor, event_type="order_item.transitioned", entity_type="OrderItem", entity_id=str(item.id), metadata={"state": target_state})
+    if target_state == OrderItemState.READY:
+        # Dispatch is derived from canonical per-item readiness.  It is safe to
+        # replay and remains inside this transaction, so a READY item cannot
+        # commit without its corresponding delivery work.
+        from modules.dispatch.services import ensure_delivery_task_for_ready_order_item
+
+        ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=actor)
     return item
