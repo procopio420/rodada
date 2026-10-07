@@ -45,6 +45,18 @@ USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+RODADA_ACCESS_TOKEN_TTL_SECONDS = int(os.environ.get("RODADA_ACCESS_TOKEN_TTL_SECONDS", "900"))
+RODADA_REFRESH_TOKEN_TTL_SECONDS = int(os.environ.get("RODADA_REFRESH_TOKEN_TTL_SECONDS", "43200"))
+RODADA_PIN_FAILURE_THRESHOLD = int(os.environ.get("RODADA_PIN_FAILURE_THRESHOLD", "5"))
+RODADA_PIN_BACKOFF_BASE_SECONDS = int(os.environ.get("RODADA_PIN_BACKOFF_BASE_SECONDS", "15"))
+RODADA_PIN_BACKOFF_MAX_SECONDS = int(os.environ.get("RODADA_PIN_BACKOFF_MAX_SECONDS", "300"))
+
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "modules.access.authentication.StaffBearerAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
