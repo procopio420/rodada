@@ -167,3 +167,135 @@ class StaffAuthAPITests(TestCase):
         assert self.login_payload["pin"] not in serialized
         assert tokens["access_token"] not in serialized
         assert tokens["refresh_token"] not in serialized
+
+
+class StaffSwitchAndReauthAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.venue = Venue.objects.create(name="Bar do Aderlan", slug="aderlan-switch")
+
+        self.ana = StaffMember.objects.create(display_name="Ana", login_identifier="ana-switch")
+        self.ana.set_pin("1111")
+        self.ana.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue,
+            staff_member=self.ana,
+            role=StaffRole.CASHIER,
+        )
+
+        self.bruno = StaffMember.objects.create(display_name="Bruno", login_identifier="bruno-switch")
+        self.bruno.set_pin("2222")
+        self.bruno.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue,
+            staff_member=self.bruno,
+            role=StaffRole.MANAGER,
+        )
+
+        response = self.client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": self.ana.login_identifier,
+                "pin": "1111",
+                "installation_id": "shared-terminal-1",
+                "platform": "WEB",
+                "friendly_label": "Caixa compartilhado",
+            },
+            format="json",
+        )
+        assert response.status_code == 200, response.json()
+        self.ana_tokens = response.json()
+
+    def bearer(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+    def trust_current_device(self):
+        device = DeviceRegistration.objects.get(venue=self.venue)
+        device.trust_state = DeviceTrustState.TRUSTED
+        device.save(update_fields=["trust_state"])
+        return device
+
+    def test_untrusted_device_cannot_fast_switch(self):
+        self.bearer(self.ana_tokens["access_token"])
+
+        response = self.client.post(
+            "/auth/switch-operator/",
+            {"login_identifier": self.bruno.login_identifier, "pin": "2222"},
+            format="json",
+        )
+
+        assert response.status_code == 403
+        assert response.json()["code"] == "TRUSTED_DEVICE_REQUIRED"
+
+    def test_trusted_device_switches_actor_and_supersedes_previous_session(self):
+        device = self.trust_current_device()
+        self.bearer(self.ana_tokens["access_token"])
+
+        response = self.client.post(
+            "/auth/switch-operator/",
+            {"login_identifier": self.bruno.login_identifier, "pin": "2222"},
+            format="json",
+        )
+
+        assert response.status_code == 200, response.json()
+        bruno_tokens = response.json()
+        assert bruno_tokens["staff"]["id"] == str(self.bruno.id)
+        assert bruno_tokens["device"]["id"] == str(device.id)
+        assert bruno_tokens["role"] == StaffRole.MANAGER
+
+        self.bearer(self.ana_tokens["access_token"])
+        stale = self.client.get("/auth/me/")
+        assert stale.status_code == 401
+        assert stale.json()["code"] == "SESSION_SUPERSEDED"
+
+        self.bearer(bruno_tokens["access_token"])
+        current = self.client.get("/auth/me/")
+        assert current.status_code == 200
+        assert current.json()["staff"]["id"] == str(self.bruno.id)
+
+        event = AuditEvent.objects.get(venue=self.venue, event_type="auth.operator_switched")
+        assert event.actor_staff_id == self.bruno.id
+        assert event.device_id == device.id
+        assert event.metadata["previous_staff_id"] == str(self.ana.id)
+
+    def test_wrong_switch_pin_keeps_current_operator_active(self):
+        self.trust_current_device()
+        self.bearer(self.ana_tokens["access_token"])
+
+        response = self.client.post(
+            "/auth/switch-operator/",
+            {"login_identifier": self.bruno.login_identifier, "pin": "9999"},
+            format="json",
+        )
+
+        assert response.status_code == 401
+        assert response.json()["code"] == "INVALID_CREDENTIALS"
+
+        current = self.client.get("/auth/me/")
+        assert current.status_code == 200
+        assert current.json()["staff"]["id"] == str(self.ana.id)
+
+    def test_reauthentication_requires_current_actors_own_pin(self):
+        self.bearer(self.ana_tokens["access_token"])
+
+        wrong = self.client.post(
+            "/auth/reauthenticate/",
+            {"pin": "2222"},
+            format="json",
+        )
+        assert wrong.status_code == 401
+        assert wrong.json()["code"] == "INVALID_CREDENTIALS"
+
+        response = self.client.post(
+            "/auth/reauthenticate/",
+            {"pin": "1111"},
+            format="json",
+        )
+
+        assert response.status_code == 200
+        assert response.json()["reauthenticated_at"]
+        assert response.json()["valid_until"]
+
+        event = AuditEvent.objects.get(venue=self.venue, event_type="auth.reauth_succeeded")
+        assert event.actor_staff_id == self.ana.id
