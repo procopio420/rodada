@@ -1,12 +1,12 @@
 # Tasks — Spec 002
 
-- [ ] Customer
-- [ ] Relationship
-- [ ] VenueRelationshipPolicy
-- [ ] busca por nome/apelido/telefone
-- [ ] limite herdado na Tab
-- [ ] REQUIRES_ACTION
-- [ ] pagamento parcial
-- [ ] override manager
-- [ ] histórico do cliente
-- [ ] tests de política/limite/auditoria
+- [x] Customer
+- [x] Relationship
+- [x] VenueRelationshipPolicy
+- [x] busca por nome/apelido/telefone
+- [x] limite herdado na Tab
+- [x] REQUIRES_ACTION
+- [x] pagamento parcial
+- [x] override manager
+- [x] histórico do cliente
+- [x] tests de política/limite/auditoria

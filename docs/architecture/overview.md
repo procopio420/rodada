@@ -62,6 +62,11 @@ Dispatch e fulfillment são naturalmente realtime. Entram com Redis/WebSocket qu
 
 O sistema deve continuar consistente mesmo se o socket cair; WebSocket é canal de atualização, PostgreSQL é fonte de verdade.
 
+O canal operacional usa Django Channels. Em produção, `REDIS_URL` configura o
+channel layer Redis; desenvolvimento local usa o layer em memória. Após reconnect,
+o cliente refaz o snapshot HTTP e pode recuperar eventos incrementais em
+`GET /api/dispatch/events/?after=<id>`.
+
 ## Payments
 
 O domínio não depende diretamente de um PSP.

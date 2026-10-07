@@ -71,6 +71,11 @@ Tab pode mudar de ServicePoint/Zone sem alterar pedidos, ledger ou customer.
 ## Requisitos não funcionais
 
 - fluxo mobile-first;
+- interface operacional de alto contraste, legível sob baixa luz e com alvos de toque generosos;
+- superfícies principais organizadas como `Agora`, `Pedir`, `Contas` e `Caixa`;
+- modo pico reduz a fila operacional ao essencial, priorizando itens mais antigos;
+- perda de conectividade deve ficar explícita; pedidos e recebimentos em dinheiro ficam em fila persistente e sincronizam com idempotência, enquanto Pix e cartão aguardam conexão;
+- tela de produção deve evidenciar idade, destino e estado de cada item, com visão dedicada de cozinha;
 - dinheiro em centavos;
 - mutations transacionais;
 - auditoria para cancelamento/ajuste;

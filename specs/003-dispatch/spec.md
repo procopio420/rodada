@@ -48,3 +48,12 @@ Sistema calcula tempos:
 ## Regra importante
 
 Dispatch nunca pode ser requisito para registrar venda. Se realtime falhar, o POS continua operando; tarefas podem ser reconstruídas da fonte de verdade.
+
+## Regras de operação
+
+- uma transição de item para `READY` cria no máximo uma delivery task para o item;
+- a task guarda o destino observado na criação, mas continua ligada à Tab e ao item;
+- claim é atômico: somente uma pessoa pode vencer a transição `OPEN -> CLAIMED`;
+- concluir delivery marca a task e os itens associados como entregues dentro da mesma transação;
+- cancelamento e retries não apagam histórico;
+- clientes podem recuperar atualizações perdidas consultando a fila e um feed incremental persistido no banco; realtime é apenas aceleração.

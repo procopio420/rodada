@@ -9,3 +9,9 @@ __pycache__/
 dist/
 build/
 .DS_Store
+apps/api/db.sqlite3
+apps/api/.venv/
+__pycache__/
+*.pyc
+apps/web/.next/
+apps/web/node_modules/

@@ -69,6 +69,8 @@ O foco inicial é construir o melhor **sistema transacional e operacional do sal
 7. [`specs/003-dispatch/spec.md`](./specs/003-dispatch/spec.md) — coordenação operacional.
 8. [`docs/demo/demo-script.md`](./docs/demo/demo-script.md) — roteiro para mostrar ao Aderlan.
 9. [`prototype/index.html`](./prototype/index.html) — protótipo estático navegável.
+10. [`docs/implementation-status.md`](./docs/implementation-status.md) — mapa do que está implementado e lacunas ainda sem spec.
+11. [`docs/demo/local-runbook.md`](./docs/demo/local-runbook.md) — reset, credenciais e verificação local do demo.
 
 ## Stack alvo
 
@@ -77,6 +79,50 @@ O foco inicial é construir o melhor **sistema transacional e operacional do sal
 - **DB:** PostgreSQL
 - **Realtime:** Redis + WebSocket quando dispatch entrar
 - **Arquitetura:** modular monolith primeiro
+
+## Desenvolvimento local com Docker
+
+O ambiente canônico sobe API, PostgreSQL, Redis/Channels, worker de ícones e web:
+
+```bash
+docker compose up --build
+```
+
+Abra `http://localhost:3000`. A API é `http://localhost:8000/api/`; o seed cria
+o Bar do Aderlan, usuários operacionais com PIN local, caixa, mesas fixas e
+temporária, QR codes e catálogo. O fluxo local completo, incluindo credenciais e
+smoke test, está em [`docs/demo/local-runbook.md`](./docs/demo/local-runbook.md).
+
+## Rodar sem Docker
+
+API (Django + DRF):
+
+```bash
+cd apps/api
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_demo
+daphne -b 0.0.0.0 -p 8000 config.asgi:application
+```
+
+Em outro terminal, inicie a interface staff:
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+Abra `http://localhost:3000`. A API local fica em `http://localhost:8000/api/` e o
+seed cria o Bar do Aderlan, um caixa aberto, pontos P37/P41/P44 e o catálogo de demo.
+Consulte o [runbook do demo](./docs/demo/local-runbook.md) para as credenciais e o
+comando verificável do fluxo de ponta a ponta.
+
+Variáveis opcionais: `REDIS_URL` habilita o channel layer compartilhado em produção;
+`NEXT_PUBLIC_API_URL` e `NEXT_PUBLIC_WS_URL` apontam a interface para a API e
+WebSocket. A sessão do operador vem do login local por PIN; clientes devem enviar o
+token retornado como `Authorization: Bearer <session_token>`.
 
 ## Norte do produto
 

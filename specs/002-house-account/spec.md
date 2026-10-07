@@ -28,6 +28,16 @@ Adicionar identidade, relacionamento e política de exposição ao Core POS.
 | House | R$ 500 |
 | Restricted | R$ 0 |
 
+## Regras de operação
+
+- o limite é capturado na abertura da Tab e não muda se o Relationship mudar depois;
+- Tab anônima herda a política `VISITOR` do Venue;
+- confirmar consumo que faça a exposição atingir ou ultrapassar o limite é permitido, mas move a Tab para `REQUIRES_ACTION`;
+- `REQUIRES_ACTION` bloqueia novos pedidos até pagamento reduzir a exposição abaixo do limite ou manager conceder override;
+- pagamento parcial abaixo do limite devolve a Tab para `OPEN`, sem fechá-la;
+- override é temporário na Tab, exige manager/owner e registra ator, valor anterior, valor novo, horário e motivo opcional;
+- limites e valores financeiros são inteiros em centavos.
+
 ## Fora de escopo
 
 - score externo;
