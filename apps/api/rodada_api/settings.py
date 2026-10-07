@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "modules.venue",
     "modules.access",
+    "modules.catalog",
     "modules.audit",
 ]
 

@@ -120,3 +120,23 @@ Device em estado `REVOKED` não pode ser promovido novamente para `TRUSTED`; um 
 Toda request autenticada continua revalidando membership, device e session no PostgreSQL. Comandos capturados para replay devem usar `authorize_replayed_command(...)`, que recarrega o estado atual e reavalia capability antes da execução.
 
 Tokens staff usam namespace `rat_`; credenciais de guest não são aceitas pelo authenticator de staff. O logging padrão aplica redaction de PIN, access token, refresh token e Authorization Bearer.
+
+
+## Catalog foundation
+
+O módulo `catalog` mantém `Product` e `ProductAvailability` separados desde o início:
+
+- `Product.active` controla publicação/configuração;
+- `ProductAvailability.state` controla disponibilidade operacional;
+- preço usa centavos inteiros;
+- nome normalizado é único por Venue;
+- todo Product novo recebe estado operacional `AVAILABLE`;
+- `catalog_for_venue(...)` é a query canônica compartilhada para catálogo ativo.
+
+Seed local idempotente:
+
+```bash
+python manage.py seed_demo_catalog
+```
+
+A mutation de disponibilidade entra em slice posterior, depois do contrato de escopo por estação.

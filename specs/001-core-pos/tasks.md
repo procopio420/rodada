@@ -2,11 +2,11 @@
 
 ## API/Domain
 
-- [ ] Venue / StaffMember / permissions
-- [ ] Product / catalog
-- [ ] ProductAvailability separado de `Product.active`
+- [x] Venue / StaffMember / permissions
+- [x] Product / catalog
+- [x] ProductAvailability separado de `Product.active`
 - [ ] availability mutation com auditoria + permissão por estação/manager
-- [ ] availability query compartilhada por todos os canais
+- [x] availability query compartilhada por todos os canais
 - [ ] validação transacional de disponibilidade no confirm Order
 - [ ] Zone / ServicePoint mínimo
 - [ ] Tab com `display_label` opcional e sem dependência de mesa/Customer
@@ -16,7 +16,7 @@
 - [ ] `Order.source` preparado para `STAFF | CASHIER | GUEST`
 - [ ] Charge / Payment / Adjustment
 - [ ] CashShift
-- [ ] AuditEvent
+- [x] AuditEvent
 - [ ] exposure service
 - [ ] cancellation/reversal service
 - [ ] tab close rules sem side effect de liberar mesa
@@ -41,7 +41,7 @@
 - [ ] tests duas Tabs independentes no mesmo TableOccupancy
 - [ ] tests fechar Tab não encerra TableOccupancy
 - [ ] tests snapshot de preço
-- [ ] tests separar `active` de disponibilidade operacional
+- [x] tests separar `active` de disponibilidade operacional
 - [ ] tests indisponível bloqueia STAFF/CASHIER/GUEST na confirmação
 - [ ] tests carrinho stale / corrida de disponibilidade
 - [ ] tests mudança não altera OrderItem confirmado
@@ -50,4 +50,4 @@
 - [ ] tests cancelamento/reversal
 - [ ] tests fechamento
 - [ ] tests cash summary
-- [ ] seed demo
+- [x] seed demo
