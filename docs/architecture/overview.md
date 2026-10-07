@@ -30,7 +30,7 @@ Rodada Cozinha / Bar / Cliente / Gerência (Web/PWA)
              Audit atravessa mutations relevantes
 
  PostgreSQL = fonte de verdade
- Redis/WebSocket = atualização realtime, nunca autoridade
+ SSE/event delivery = atualização realtime, nunca autoridade
 ```
 
 ## Superfícies de aplicação
@@ -203,7 +203,7 @@ Rodada Gerência
 Princípios:
 - PostgreSQL continua fonte de verdade;
 - projeções são idempotentes e reconstruíveis;
-- WebSocket/Redis não definem números financeiros;
+- SSE/Redis/event delivery não definem números financeiros;
 - métricas financeiras vêm do ledger/estado canônico;
 - milestones inferidos preservam provenance;
 - relatórios usam `business_date` configurável por Venue para não quebrar operações que atravessam meia-noite;
@@ -247,7 +247,16 @@ Evitar:
 
 Catalog availability, fulfillment, table ops, dispatch e o cockpit de Gerência se beneficiam de realtime. Telemetria passiva pode usar eventos de presença adicionais, mas esses sinais são auxiliares e não substituem PostgreSQL como fonte de verdade dos milestones persistidos.
 
-O socket só avisa que algo mudou. PostgreSQL continua sendo fonte de verdade e toda mutation crítica funciona por API mesmo se Redis/WebSocket cair.
+O contrato padrão é:
+- comandos/mutations canônicas por HTTP;
+- atualização server -> client por SSE (`text/event-stream`);
+- snapshot inicial + cursor de resume/replay;
+- transactional outbox gravada na mesma transação da mudança de domínio;
+- Redis opcional para fan-out/coordenação efêmera, nunca como registro único do evento.
+
+PostgreSQL continua sendo fonte de verdade. Se SSE/Redis cair e a API estiver saudável, mutations críticas continuam funcionando e os clientes degradam para revalidation/polling bounded. Ao reconectar, o cliente retoma do cursor quando possível; se a continuidade não puder ser provada, busca snapshot canônico antes de confiar em novos deltas.
+
+WebSocket só deve ser introduzido para uma necessidade contínua realmente bidirecional que HTTP + SSE não atenda de forma limpa.
 
 Mudança de disponibilidade deve invalidar/atualizar menus conectados rapidamente, mas a garantia final é a revalidação server-side no confirm Order.
 
