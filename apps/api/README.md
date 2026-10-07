@@ -17,7 +17,7 @@ A fundação executável cobre os primeiros slices da Spec 008:
 - health/readiness;
 - autenticação DRF protegida por padrão.
 
-Switch Operator, reauth privilegiada, management endpoints e UI entram nos próximos slices.
+Management endpoints, realtime invalidation e UI entram nos próximos slices. Fast operator switch e privileged reauthentication já estão disponíveis no backend.
 
 ## Auth API
 
@@ -27,6 +27,8 @@ POST /auth/refresh/
 GET  /auth/me/
 POST /auth/lock/
 POST /auth/logout/
+POST /auth/switch-operator/
+POST /auth/reauthenticate/
 ```
 
 Login recebe `venue_slug`, `login_identifier`, `pin`, `installation_id`, `platform` e label opcional.
@@ -79,7 +81,8 @@ Configuração relevante:
 - `RODADA_REFRESH_TOKEN_TTL_SECONDS` — default 43200;
 - `RODADA_PIN_FAILURE_THRESHOLD` — default 5;
 - `RODADA_PIN_BACKOFF_BASE_SECONDS` — default 15;
-- `RODADA_PIN_BACKOFF_MAX_SECONDS` — default 300.
+- `RODADA_PIN_BACKOFF_MAX_SECONDS` — default 300;
+- `RODADA_REAUTH_WINDOW_SECONDS` — default 300.
 
 ## Testes
 

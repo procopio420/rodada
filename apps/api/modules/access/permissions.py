@@ -22,3 +22,20 @@ class RequireCapability(BasePermission):
                 capability=capability,
             )
         return True
+
+
+class RequireRecentReauthentication(BasePermission):
+    def has_permission(self, request, view):
+        session = getattr(request, "auth", None)
+        if not isinstance(session, StaffSession):
+            raise AccessAuthenticationFailed("AUTH_REQUIRED", "Autenticação de staff necessária.")
+
+        from modules.access.services import recent_reauthentication_valid, record_reauth_required
+
+        if not recent_reauthentication_valid(session):
+            record_reauth_required(session)
+            raise AccessPermissionDenied(
+                "REAUTH_REQUIRED",
+                "Confirme seu PIN novamente para continuar.",
+            )
+        return True
