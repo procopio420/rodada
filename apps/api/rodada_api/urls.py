@@ -9,9 +9,17 @@ from modules.hospitality.views import (
     OccupancyAssignTabView,
     TableCleaningCompleteView,
     TableCleaningStartView,
+    TableGuestOrderingBlockView,
     TableListCreateView,
     TableOccupyView,
     TableReleaseView,
+)
+from modules.guest_access.views import (
+    GuestCatalogView,
+    GuestContextView,
+    GuestOrderConfirmView,
+    GuestQrResolveView,
+    GuestTabCreateView,
 )
 
 from modules.access.views import (
@@ -75,8 +83,14 @@ urlpatterns = [
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
     path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),
+    path("hospitality/tables/<uuid:table_id>/guest-ordering/", TableGuestOrderingBlockView.as_view(), name="table-guest-ordering"),
     path("hospitality/tables/<uuid:table_id>/release/", TableReleaseView.as_view(), name="table-release"),
     path("hospitality/tables/<uuid:table_id>/cleaning/start/", TableCleaningStartView.as_view(), name="table-cleaning-start"),
     path("hospitality/tables/<uuid:table_id>/cleaning/complete/", TableCleaningCompleteView.as_view(), name="table-cleaning-complete"),
     path("hospitality/occupancies/<uuid:occupancy_id>/tabs/", OccupancyAssignTabView.as_view(), name="occupancy-assign-tab"),
+    path("guest/qr/resolve/", GuestQrResolveView.as_view(), name="guest-qr-resolve"),
+    path("guest/context/", GuestContextView.as_view(), name="guest-context"),
+    path("guest/tabs/", GuestTabCreateView.as_view(), name="guest-tab-create"),
+    path("guest/catalog/", GuestCatalogView.as_view(), name="guest-catalog"),
+    path("guest/orders/confirm/", GuestOrderConfirmView.as_view(), name="guest-order-confirm"),
 ]

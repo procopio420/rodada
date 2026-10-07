@@ -22,3 +22,7 @@ class OccupyTableSerializer(serializers.Serializer):
 
 class AssignTabSerializer(serializers.Serializer):
     tab_id = serializers.UUIDField()
+
+
+class GuestOrderingBlockSerializer(serializers.Serializer):
+    blocked = serializers.BooleanField()

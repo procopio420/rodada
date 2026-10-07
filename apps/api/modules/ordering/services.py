@@ -8,7 +8,7 @@ from django.utils import timezone
 from modules.access.context import ActorContext
 from modules.audit.services import record_audit_event
 from modules.catalog.models import AvailabilityState, Product, ProductAvailability
-from modules.ordering.models import Order, OrderItem, OrderSource, Tab, TabState
+from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab, TabState
 
 
 @dataclass(frozen=True)

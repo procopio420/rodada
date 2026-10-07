@@ -46,6 +46,25 @@ def create_table(*, label: str, guest_ordering_mode: str, actor: ActorContext) -
     return table
 
 
+@transaction.atomic
+def set_guest_ordering_blocked(*, table_id, blocked: bool, actor: ActorContext) -> Table:
+    """Immediately gate new guest mutations without touching staff workflows."""
+    table = _table_for_actor(table_id, actor)
+    if table.guest_ordering_blocked == blocked:
+        return table
+    previous = table.guest_ordering_blocked
+    table.guest_ordering_blocked = blocked
+    table.save(update_fields=["guest_ordering_blocked", "updated_at"])
+    record_audit_event(
+        actor=actor,
+        event_type="table.guest_ordering_block_changed",
+        entity_type="Table",
+        entity_id=str(table.id),
+        metadata={"previous": previous, "blocked": blocked},
+    )
+    return table
+
+
 def _active_occupancy(table: Table) -> TableOccupancy:
     occupancy = (
         TableOccupancy.objects.select_for_update()

@@ -173,3 +173,23 @@ class HospitalityTableApiTests(TestCase):
     def test_table_creation_requires_venue_configuration(self):
         response = self.client.post("/hospitality/tables/", {"label": "Criação"}, format="json")
         assert response.status_code == 403
+
+    def test_staff_can_immediately_block_and_restore_guest_ordering_with_audit(self):
+        table = Table.objects.create(
+            venue=self.venue,
+            label="QR 12",
+            guest_ordering_mode="DIRECT",
+        )
+
+        blocked = self.client.post(
+            f"/hospitality/tables/{table.id}/guest-ordering/", {"blocked": True}, format="json"
+        )
+        assert blocked.status_code == 200, blocked.json()
+        assert blocked.json()["guest_ordering_blocked"] is True
+        restored = self.client.post(
+            f"/hospitality/tables/{table.id}/guest-ordering/", {"blocked": False}, format="json"
+        )
+        assert restored.status_code == 200, restored.json()
+        assert AuditEvent.objects.filter(
+            event_type="table.guest_ordering_block_changed", entity_id=str(table.id)
+        ).count() == 2

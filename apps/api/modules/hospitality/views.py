@@ -7,6 +7,7 @@ from modules.access.permissions import RequireCapability
 from modules.hospitality.models import Table, TableOccupancy
 from modules.hospitality.serializers import (
     AssignTabSerializer,
+    GuestOrderingBlockSerializer,
     OccupyTableSerializer,
     TableCreateSerializer,
 )
@@ -17,6 +18,7 @@ from modules.hospitality.services import (
     create_table,
     occupy_table,
     release_table,
+    set_guest_ordering_blocked,
     start_cleaning,
 )
 
@@ -92,6 +94,24 @@ class TableOccupyView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response(_occupancy_payload(occupancy), status=201)
+
+
+class TableGuestOrderingBlockView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.TABLE_MANAGE
+
+    def post(self, request, table_id):
+        serializer = GuestOrderingBlockSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            table = set_guest_ordering_blocked(
+                table_id=table_id,
+                blocked=serializer.validated_data["blocked"],
+                actor=request.actor_context,
+            )
+        except HospitalityServiceError as error:
+            return _error_response(error)
+        return Response(_table_payload(table))
 
 
 class OccupancyAssignTabView(APIView):
