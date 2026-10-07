@@ -44,17 +44,33 @@ npm run typecheck
 npm run build
 ```
 
-## Superfícies
+## Superfícies e hosts
 
-Continuam conceitualmente separadas por função:
+Em produção, as superfícies Web/PWA usam os hosts canônicos definidos na ADR 0010:
 
 ```text
-/staff      PDV, Tabs, pedidos, mesas
+app.rodada.ai       Gerência
+cozinha.rodada.ai   Cozinha
+bar.rodada.ai       Bar
+pedido.rodada.ai    Cliente / QR
+api.rodada.ai       API
+```
+
+`rodada.ai` é o site institucional. **Rodada Atendimento** continua Android nativo.
+
+Durante desenvolvimento, rotas locais podem continuar servindo como entrypoints:
+
+```text
+/staff      sessão/base de staff
 /bar        produção + disponibilidade
 /kitchen    produção + disponibilidade
 /guest      QR/PWA do cliente
 /owner      gerência e configuração
 ```
+
+Rotas locais são detalhe de implementação e não definem URLs públicas. O runtime/deploy pode resolver a superfície pelo hostname mantendo um único codebase/deploy Next.js.
+
+Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai` ou `guest.rodada.ai` sem atualizar a ADR 0010.
 
 Compartilhar auth, contratos e design primitives não significa transformar todas as funções em um único frontend escondido por role.
 
