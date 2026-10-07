@@ -111,3 +111,12 @@ As rotas de management exigem `staff.manage`; por default isso fica no role OWNE
 Mutações administrativas também exigem reautenticação recente. Atualização de membership usa `expected_version` para evitar last-write-wins silencioso. Suspender/revogar membership e revogar device encerram as sessões afetadas imediatamente.
 
 Device em estado `REVOKED` não pode ser promovido novamente para `TRUSTED`; um aparelho revogado deve se registrar como nova instalação após o fluxo administrativo apropriado.
+
+
+## Access invalidation e replay
+
+`GET /auth/invalidation-events/?after=<cursor>` expõe um feed durável e escopado ao staff/session/device atual. Ele acelera atualização de role/device e limpeza de estado privilegiado nos clientes, mas nunca substitui a autorização da API.
+
+Toda request autenticada continua revalidando membership, device e session no PostgreSQL. Comandos capturados para replay devem usar `authorize_replayed_command(...)`, que recarrega o estado atual e reavalia capability antes da execução.
+
+Tokens staff usam namespace `rat_`; credenciais de guest não são aceitas pelo authenticator de staff. O logging padrão aplica redaction de PIN, access token, refresh token e Authorization Bearer.

@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
+  AccessInvalidationFeed,
   ApiError,
   ReauthReceipt,
   StaffSessionView,
@@ -71,6 +72,62 @@ export function StaffAuthScreen() {
   useEffect(() => {
     void loadSession();
   }, [loadSession]);
+
+  const sessionId = session?.session.id ?? null;
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let cancelled = false;
+    let cursor = 0;
+
+    async function pollInvalidations() {
+      try {
+        const result = await apiCall<AccessInvalidationFeed>(
+          "/api/auth/invalidation-events?after=" + cursor,
+        );
+        if (cancelled) return;
+
+        if (result.response.ok && result.body) {
+          const feed = result.body as AccessInvalidationFeed;
+          cursor = feed.cursor;
+
+          if (feed.results.length > 0) {
+            setReauthValidUntil(null);
+            await loadSession();
+          }
+          return;
+        }
+
+        const apiError = asApiError(result.body);
+        if (
+          apiError.code === "SESSION_REVOKED" ||
+          apiError.code === "SESSION_SUPERSEDED" ||
+          apiError.code === "SESSION_EXPIRED" ||
+          apiError.code === "MEMBERSHIP_REVOKED" ||
+          apiError.code === "MEMBERSHIP_SUSPENDED" ||
+          apiError.code === "DEVICE_REVOKED" ||
+          apiError.code === "STAFF_INACTIVE"
+        ) {
+          setSession(null);
+          setReauthValidUntil(null);
+          setError(apiError);
+        }
+      } catch {
+        // Realtime invalidation is advisory. Normal API auth remains authoritative.
+      }
+    }
+
+    void pollInvalidations();
+    const timer = window.setInterval(() => {
+      void pollInvalidations();
+    }, 15_000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [sessionId, loadSession]);
 
   async function submitJson<T>(
     path: string,

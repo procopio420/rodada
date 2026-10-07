@@ -37,7 +37,7 @@
 
 ## Realtime
 - [x] Session/role/device invalidation event.
-- [ ] Client clears privileged state on invalidation.
+- [x] Client clears privileged state on invalidation.
 - [x] API remains authoritative if realtime is unavailable.
 
 ## Management
@@ -54,6 +54,6 @@
 - [x] Revoked membership cannot refresh.
 - [x] Revoked device cannot continue mutations.
 - [x] Fast switch never attributes action to previous operator.
-- [ ] Replayed queued command is reauthorized.
-- [ ] Guest credential cannot satisfy staff auth.
-- [ ] Sensitive credentials never appear in logs.
+- [x] Replayed queued command is reauthorized.
+- [x] Guest credential cannot satisfy staff auth.
+- [x] Sensitive credentials never appear in logs.

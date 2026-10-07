@@ -98,6 +98,35 @@ class AuthHttpClient(baseUrl: String) {
         )
     }
 
+    fun invalidationEvents(
+        accessToken: String,
+        after: Long,
+    ): AccessInvalidationFeed {
+        val response =
+            request(
+                method = "GET",
+                path = "/auth/invalidation-events/?after=" + after,
+                accessToken = accessToken,
+            ) ?: error("Resposta vazia no feed de invalidação")
+        val resultsJson = response.getJSONArray("results")
+        val results =
+            buildList {
+                for (index in 0 until resultsJson.length()) {
+                    val item = resultsJson.getJSONObject(index)
+                    add(
+                        AccessInvalidationEvent(
+                            id = item.getLong("id"),
+                            eventType = item.getString("event_type"),
+                        ),
+                    )
+                }
+            }
+        return AccessInvalidationFeed(
+            cursor = response.getLong("cursor"),
+            results = results,
+        )
+    }
+
     private fun parseSession(response: JSONObject): StoredSession {
         val staff = response.getJSONObject("staff")
         val venue = response.optJSONObject("venue")

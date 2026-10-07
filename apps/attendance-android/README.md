@@ -58,3 +58,8 @@ Tokens são serializados juntos com o contexto da sessão e cifrados antes de en
 ## Próximos slices
 
 Este app ainda não implementa Tab, pedidos, catálogo, dispatch nem Tap on Phone. Esses fluxos entram conforme as specs operacionais forem implementadas.
+
+
+## Invalidação de acesso
+
+Com sessão ativa, o app consulta o invalidation feed em intervalo bounded. Eventos de membership/device forçam revalidação canônica e zeram a janela de reauth. Revogação/supersede continua sendo detectada pela própria API e remove imediatamente a sessão cifrada local.
