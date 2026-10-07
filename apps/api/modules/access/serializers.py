@@ -12,3 +12,12 @@ class LoginSerializer(serializers.Serializer):
 
 class RefreshSerializer(serializers.Serializer):
     refresh_token = serializers.CharField(max_length=512, write_only=True, trim_whitespace=False)
+
+
+class SwitchOperatorSerializer(serializers.Serializer):
+    login_identifier = serializers.CharField(max_length=120)
+    pin = serializers.CharField(max_length=128, write_only=True, trim_whitespace=False)
+
+
+class ReauthenticateSerializer(serializers.Serializer):
+    pin = serializers.CharField(max_length=128, write_only=True, trim_whitespace=False)
