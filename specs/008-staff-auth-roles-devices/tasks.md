@@ -6,7 +6,7 @@
 - [x] Implement effective-capability resolution per Venue.
 - [x] Define StaffSession lifecycle and revocation.
 - [x] Define PIN authentication and lockout/backoff policy.
-- [ ] Define privileged reauthentication window/policy.
+- [x] Define privileged reauthentication window/policy.
 - [x] Add shared server-side authorization policy layer.
 - [x] Normalize authorization error codes.
 - [ ] Propagate actor/session/device context to domain commands and AuditEvent.
@@ -53,7 +53,7 @@
 - [x] PIN brute-force/rate-limit tests.
 - [x] Revoked membership cannot refresh.
 - [x] Revoked device cannot continue mutations.
-- [ ] Fast switch never attributes action to previous operator.
+- [x] Fast switch never attributes action to previous operator.
 - [ ] Replayed queued command is reauthorized.
 - [ ] Guest credential cannot satisfy staff auth.
 - [ ] Sensitive credentials never appear in logs.
