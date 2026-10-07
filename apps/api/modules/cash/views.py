@@ -20,6 +20,7 @@ from modules.cash.services import (
     cash_shift_movements,
     cash_shift_position,
     close_cash_shift,
+    create_cash_point,
     open_cash_shift,
     record_late_cash_correction,
     review_cash_discrepancy,
@@ -90,6 +91,22 @@ class CashPointListView(APIView):
                 }
             )
         return Response({"results": data})
+
+
+class CashPointCreateView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.VENUE_CONFIGURE
+
+    def post(self, request):
+        try:
+            point = create_cash_point(
+                label=request.data.get("label", ""),
+                device_id=request.data.get("device_id"),
+                actor=request.actor_context,
+            )
+        except CashServiceError as error:
+            return _error(error)
+        return Response({"id": str(point.id), "label": point.label, "active": point.active}, status=201)
 
 
 class CashPointActiveShiftView(APIView):
@@ -220,7 +237,7 @@ class CashCloseView(APIView):
 
 class CashReviewView(APIView):
     permission_classes = [IsAuthenticated, RequireCapability]
-    required_capability = Capability.CASH_ADJUSTMENT_CREATE
+    required_capability = Capability.CASH_REVIEW
 
     def post(self, request, shift_id):
         try:
@@ -239,7 +256,7 @@ class CashReviewView(APIView):
 
 class CashLateCorrectionView(APIView):
     permission_classes = [IsAuthenticated, RequireCapability]
-    required_capability = Capability.CASH_ADJUSTMENT_CREATE
+    required_capability = Capability.CASH_REVIEW
 
     def post(self, request, shift_id):
         try:

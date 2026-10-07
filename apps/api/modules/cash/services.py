@@ -9,10 +9,11 @@ from dataclasses import dataclass
 from datetime import date
 
 from django.db import IntegrityError, transaction
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.utils import timezone
 
 from modules.access.context import ActorContext
+from modules.access.models import DeviceRegistration
 from modules.audit.services import record_audit_event
 from modules.cash.models import (
     CashMovement,
@@ -60,6 +61,35 @@ def _cash_point_for_actor(*, cash_point_id, actor: ActorContext, lock: bool = Fa
     point = points.filter(pk=cash_point_id, venue_id=actor.venue_id).first()
     if not point:
         raise CashServiceError("CASH_POINT_NOT_FOUND", "Ponto de caixa não encontrado.", 404)
+    return point
+
+
+@transaction.atomic
+def create_cash_point(*, label: str, actor: ActorContext, device_id=None) -> CashPoint:
+    label = label.strip()
+    if not label:
+        raise CashServiceError("INVALID_CASH_POINT", "Informe o nome do ponto de caixa.")
+    if len(label) > 120:
+        raise CashServiceError("INVALID_CASH_POINT", "Nome do ponto de caixa é longo demais.")
+    if device_id and not DeviceRegistration.objects.filter(pk=device_id, venue_id=actor.venue_id).exists():
+        raise CashServiceError("DEVICE_NOT_FOUND", "Dispositivo não encontrado.", 404)
+    try:
+        point, created = CashPoint.objects.get_or_create(
+            venue_id=actor.venue_id,
+            label=label,
+            defaults={"device_id": device_id},
+        )
+    except IntegrityError:
+        point = CashPoint.objects.get(venue_id=actor.venue_id, label=label)
+        created = False
+    if created:
+        record_audit_event(
+            actor=actor,
+            event_type="cash.point_created",
+            entity_type="CashPoint",
+            entity_id=str(point.id),
+            metadata={"label": point.label, "device_id": str(device_id) if device_id else None},
+        )
     return point
 
 
@@ -570,6 +600,9 @@ def cash_close_preview(*, shift_id, actor: ActorContext) -> dict:
 def unresolved_cash_exceptions(*, business_date, actor: ActorContext) -> list[CashShift]:
     return list(
         CashShift.objects.filter(venue_id=actor.venue_id, business_date=business_date)
-        .exclude(status=CashShiftStatus.CLOSED, review_status=CashReviewStatus.REVIEWED)
+        .filter(
+            Q(status__in=(CashShiftStatus.OPEN, CashShiftStatus.COUNTING))
+            | Q(review_status=CashReviewStatus.PENDING)
+        )
         .order_by("cash_point__label", "opened_at")
     )

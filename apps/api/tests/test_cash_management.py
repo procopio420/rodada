@@ -17,6 +17,7 @@ from modules.cash.services import (
     CashServiceError,
     cash_shift_position,
     close_cash_shift,
+    create_cash_point,
     open_cash_shift,
     record_cash_payment_movement,
     record_cash_refund_movement,
@@ -254,3 +255,11 @@ class CashManagementTests(TestCase):
                 actor=ActorContext.from_session(other_session),
             )
         self.assertEqual(inaccessible.exception.code, "CASH_SHIFT_NOT_FOUND")
+
+    def test_cash_point_creation_is_venue_scoped_and_audited(self):
+        created = create_cash_point(label="Gaveta do bar", actor=self.actor)
+        replay = create_cash_point(label="Gaveta do bar", actor=self.actor)
+        self.assertEqual(created.id, replay.id)
+        self.assertTrue(
+            AuditEvent.objects.filter(event_type="cash.point_created", entity_id=str(created.id)).exists()
+        )
