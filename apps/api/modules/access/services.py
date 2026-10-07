@@ -412,6 +412,7 @@ def revoke_session(session: StaffSession, reason: str) -> None:
     )
 
 
+
 def recent_reauthentication_valid(session: StaffSession) -> bool:
     if not session.recently_reauthenticated_at:
         return False
@@ -430,16 +431,16 @@ def record_reauth_required(session: StaffSession) -> None:
 
 
 @transaction.atomic
-def switch_operator(
+def _complete_operator_switch(
     *,
-    current_session: StaffSession,
-    login_identifier: str,
-    pin: str,
+    current_session_id,
+    target_staff: StaffMember,
+    normalized_login: str,
 ) -> dict:
     locked = (
         StaffSession.objects.select_for_update()
         .select_related("venue", "staff_member", "membership", "device")
-        .get(pk=current_session.pk)
+        .get(pk=current_session_id)
     )
     failure = _session_failure(locked)
     if failure:
@@ -450,46 +451,6 @@ def switch_operator(
             "Troca rápida exige um dispositivo confiável.",
             403,
         )
-
-    normalized_login = login_identifier.strip().casefold()
-    target_staff = StaffMember.objects.filter(login_identifier__iexact=normalized_login).first()
-    if not target_staff:
-        raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
-    if target_staff.pk == locked.staff_member_id:
-        raise AccessServiceError(
-            "OPERATOR_ALREADY_ACTIVE",
-            "Este operador já está ativo.",
-            409,
-        )
-
-    retry_after = _retry_after_seconds(
-        venue=locked.venue,
-        login_identifier=normalized_login,
-        installation_key_hash=locked.device.installation_key_hash,
-    )
-    if retry_after:
-        raise AccessServiceError(
-            "AUTH_THROTTLED",
-            "Muitas tentativas. Tente novamente em instantes.",
-            429,
-            retry_after,
-        )
-
-    if not target_staff.check_pin(pin):
-        _register_pin_failure(
-            venue=locked.venue,
-            login_identifier=normalized_login,
-            installation_key_hash=locked.device.installation_key_hash,
-        )
-        _audit(
-            venue=locked.venue,
-            event_type="auth.operator_switch_failed",
-            actor_staff=locked.staff_member,
-            actor_session=locked,
-            device=locked.device,
-            metadata={"failure_class": "INVALID_PIN"},
-        )
-        raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
 
     target_membership = (
         VenueStaffMembership.objects.select_for_update()
@@ -550,26 +511,37 @@ def switch_operator(
     }
 
 
-@transaction.atomic
-def reauthenticate_staff(*, session: StaffSession, pin: str) -> dict:
-    locked = (
-        StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "membership", "device")
-        .get(pk=session.pk)
-    )
-    failure = _session_failure(locked)
+def switch_operator(
+    *,
+    current_session: StaffSession,
+    login_identifier: str,
+    pin: str,
+) -> dict:
+    failure = _session_failure(current_session)
     if failure:
         raise failure
+    if not current_session.device_id or current_session.device.trust_state != DeviceTrustState.TRUSTED:
+        raise AccessServiceError(
+            "TRUSTED_DEVICE_REQUIRED",
+            "Troca rápida exige um dispositivo confiável.",
+            403,
+        )
 
-    login_identifier = locked.staff_member.login_identifier.strip().casefold()
-    installation_key_hash = (
-        locked.device.installation_key_hash if locked.device_id else ""
-    )
+    normalized_login = login_identifier.strip().casefold()
+    target_staff = StaffMember.objects.filter(login_identifier__iexact=normalized_login).first()
+    if not target_staff:
+        raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
+    if target_staff.pk == current_session.staff_member_id:
+        raise AccessServiceError(
+            "OPERATOR_ALREADY_ACTIVE",
+            "Este operador já está ativo.",
+            409,
+        )
 
     retry_after = _retry_after_seconds(
-        venue=locked.venue,
-        login_identifier=login_identifier,
-        installation_key_hash=installation_key_hash,
+        venue=current_session.venue,
+        login_identifier=normalized_login,
+        installation_key_hash=current_session.device.installation_key_hash,
     )
     if retry_after:
         raise AccessServiceError(
@@ -579,22 +551,42 @@ def reauthenticate_staff(*, session: StaffSession, pin: str) -> dict:
             retry_after,
         )
 
-    if not locked.staff_member.check_pin(pin):
+    if not target_staff.check_pin(pin):
         _register_pin_failure(
-            venue=locked.venue,
-            login_identifier=login_identifier,
-            installation_key_hash=installation_key_hash,
+            venue=current_session.venue,
+            login_identifier=normalized_login,
+            installation_key_hash=current_session.device.installation_key_hash,
         )
         _audit(
-            venue=locked.venue,
-            event_type="auth.reauth_failed",
-            actor_staff=locked.staff_member,
-            actor_session=locked,
-            device=locked.device,
+            venue=current_session.venue,
+            event_type="auth.operator_switch_failed",
+            actor_staff=current_session.staff_member,
+            actor_session=current_session,
+            device=current_session.device,
             metadata={"failure_class": "INVALID_PIN"},
         )
         raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
 
+    return _complete_operator_switch(
+        current_session_id=current_session.pk,
+        target_staff=target_staff,
+        normalized_login=normalized_login,
+    )
+
+
+@transaction.atomic
+def _complete_reauthentication(session_id) -> dict:
+    locked = (
+        StaffSession.objects.select_for_update()
+        .select_related("venue", "staff_member", "membership", "device")
+        .get(pk=session_id)
+    )
+    failure = _session_failure(locked)
+    if failure:
+        raise failure
+
+    login_identifier = locked.staff_member.login_identifier.strip().casefold()
+    installation_key_hash = locked.device.installation_key_hash if locked.device_id else ""
     _clear_pin_failures(
         venue=locked.venue,
         login_identifier=login_identifier,
@@ -618,3 +610,43 @@ def reauthenticate_staff(*, session: StaffSession, pin: str) -> dict:
         "reauthenticated_at": now,
         "valid_until": now + window,
     }
+
+
+def reauthenticate_staff(*, session: StaffSession, pin: str) -> dict:
+    failure = _session_failure(session)
+    if failure:
+        raise failure
+
+    login_identifier = session.staff_member.login_identifier.strip().casefold()
+    installation_key_hash = session.device.installation_key_hash if session.device_id else ""
+
+    retry_after = _retry_after_seconds(
+        venue=session.venue,
+        login_identifier=login_identifier,
+        installation_key_hash=installation_key_hash,
+    )
+    if retry_after:
+        raise AccessServiceError(
+            "AUTH_THROTTLED",
+            "Muitas tentativas. Tente novamente em instantes.",
+            429,
+            retry_after,
+        )
+
+    if not session.staff_member.check_pin(pin):
+        _register_pin_failure(
+            venue=session.venue,
+            login_identifier=login_identifier,
+            installation_key_hash=installation_key_hash,
+        )
+        _audit(
+            venue=session.venue,
+            event_type="auth.reauth_failed",
+            actor_staff=session.staff_member,
+            actor_session=session,
+            device=session.device,
+            metadata={"failure_class": "INVALID_PIN"},
+        )
+        raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
+
+    return _complete_reauthentication(session.pk)
