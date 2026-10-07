@@ -3,11 +3,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import effective_capabilities
-from modules.access.errors import (
-    AccessPermissionDenied,
-    AccessThrottled,
-    AccessUnauthorized,
-)
 from modules.access.serializers import LoginSerializer, RefreshSerializer
 from modules.access.services import (
     AccessServiceError,
@@ -17,12 +12,14 @@ from modules.access.services import (
 )
 
 
-def _raise_api_error(exc: AccessServiceError) -> None:
-    if exc.status_code == 429:
-        raise AccessThrottled(exc.retry_after_seconds or 1)
-    if exc.status_code == 403:
-        raise AccessPermissionDenied(exc.code, exc.message)
-    raise AccessUnauthorized(exc.code, exc.message)
+def _service_error_response(exc: AccessServiceError) -> Response:
+    payload = {"code": exc.code, "message": exc.message}
+    headers = {}
+    if exc.retry_after_seconds is not None:
+        retry_after = max(1, int(exc.retry_after_seconds))
+        payload["retry_after_seconds"] = retry_after
+        headers["Retry-After"] = str(retry_after)
+    return Response(payload, status=exc.status_code, headers=headers)
 
 
 class StaffLoginView(APIView):
@@ -35,7 +32,7 @@ class StaffLoginView(APIView):
         try:
             payload = authenticate_staff(**serializer.validated_data)
         except AccessServiceError as exc:
-            _raise_api_error(exc)
+            return _service_error_response(exc)
         return Response(payload, status=200)
 
 
