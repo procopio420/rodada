@@ -69,7 +69,13 @@ class OperationsHttpClient(baseUrl: String) {
         intentId: String,
     ) {
         val lineJson = JSONArray()
-        lines.forEach { lineJson.put(JSONObject().put("product_id", line.product.id).put("quantity", line.quantity)) }
+        lines.forEach { line ->
+            lineJson.put(
+                JSONObject()
+                    .put("product_id", line.product.id)
+                    .put("quantity", line.quantity),
+            )
+        }
         // The backend persists this UUID per Tab and returns the existing Order on a retry.
         request(
             "POST",
