@@ -4,6 +4,7 @@ from django.urls import path
 
 from modules.access.views import (
     AccessAuditListView,
+    AccessInvalidationFeedView,
     CurrentStaffView,
     DeviceDetailView,
     DeviceListView,
@@ -41,6 +42,7 @@ urlpatterns = [
     path("auth/logout/", StaffLogoutView.as_view(), name="staff-logout"),
     path("auth/switch-operator/", StaffSwitchOperatorView.as_view(), name="staff-switch-operator"),
     path("auth/reauthenticate/", StaffReauthenticateView.as_view(), name="staff-reauthenticate"),
+    path("auth/invalidation-events/", AccessInvalidationFeedView.as_view(), name="access-invalidation-events"),
     path("manage/access/memberships/", StaffMembershipListView.as_view(), name="access-memberships"),
     path("manage/access/memberships/<uuid:membership_id>/", StaffMembershipDetailView.as_view(), name="access-membership-detail"),
     path("manage/access/devices/", DeviceListView.as_view(), name="access-devices"),
