@@ -4,9 +4,9 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import effective_capabilities
 from modules.access.errors import (
-    AccessAuthenticationFailed,
     AccessPermissionDenied,
     AccessThrottled,
+    AccessUnauthorized,
 )
 from modules.access.serializers import LoginSerializer, RefreshSerializer
 from modules.access.services import (
@@ -22,7 +22,7 @@ def _raise_api_error(exc: AccessServiceError) -> None:
         raise AccessThrottled(exc.retry_after_seconds or 1)
     if exc.status_code == 403:
         raise AccessPermissionDenied(exc.code, exc.message)
-    raise AccessAuthenticationFailed(exc.code, exc.message)
+    raise AccessUnauthorized(exc.code, exc.message)
 
 
 class StaffLoginView(APIView):
