@@ -124,6 +124,8 @@ class TabOccupancyAssignment(models.Model):
         StaffMember,
         on_delete=models.PROTECT,
         related_name="tab_occupancy_assignments",
+        null=True,
+        blank=True,
     )
 
     class Meta:
