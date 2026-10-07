@@ -12,6 +12,7 @@ from modules.access.serializers import (
     SessionRevokeSerializer,
     SwitchOperatorSerializer,
 )
+from modules.access.invalidation import relevant_invalidations
 from modules.access.models import DeviceRegistration, StaffSession, VenueStaffMembership
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.access.services import (
@@ -332,5 +333,40 @@ class AccessAuditListView(AccessManagementBaseView):
                     }
                     for event in events
                 ]
+            }
+        )
+
+
+class AccessInvalidationFeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            after_id = max(0, int(request.query_params.get("after", "0")))
+        except ValueError:
+            after_id = 0
+
+        events = list(
+            relevant_invalidations(
+                session=request.auth,
+                after_id=after_id,
+                limit=100,
+            )
+        )
+        cursor = events[-1].id if events else after_id
+
+        return Response(
+            {
+                "cursor": cursor,
+                "results": [
+                    {
+                        "id": event.id,
+                        "event_type": event.event_type,
+                        "reason": event.reason,
+                        "metadata": event.metadata,
+                        "occurred_at": event.occurred_at,
+                    }
+                    for event in events
+                ],
             }
         )
