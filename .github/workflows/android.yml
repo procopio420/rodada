@@ -4,10 +4,12 @@ on:
   pull_request:
     paths:
       - "apps/attendance-android/**"
+      - ".github/workflows/android.yml"
   push:
     branches: [main]
     paths:
       - "apps/attendance-android/**"
+      - ".github/workflows/android.yml"
 
 jobs:
   test:
@@ -21,10 +23,10 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-
       - name: Install Android SDK
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-37" "build-tools;36.0.0"
 
       - uses: gradle/actions/setup-gradle@v4
         with:
