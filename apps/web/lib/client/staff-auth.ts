@@ -79,3 +79,17 @@ export function asApiError(body: unknown): ApiError {
     message: "Não foi possível concluir a operação.",
   };
 }
+
+
+export type AccessInvalidationEvent = {
+  id: number;
+  event_type: string;
+  reason: string;
+  metadata: Record<string, unknown>;
+  occurred_at: string;
+};
+
+export type AccessInvalidationFeed = {
+  cursor: number;
+  results: AccessInvalidationEvent[];
+};
