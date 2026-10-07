@@ -212,6 +212,74 @@ h2 {
   text-align: right;
 }
 
+.guestShell {
+  padding-bottom: 100px;
+}
+
+.panelGuestBalance {
+  border-color: var(--color-accent);
+}
+
+.guestBalance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.guestBalance strong {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.guestProducts {
+  display: grid;
+  gap: 8px;
+}
+
+.guestProduct {
+  min-height: 62px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  background: var(--color-surface-2);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.guestProduct span:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.guestProduct small {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.guestCart {
+  position: fixed;
+  z-index: 1;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, 520px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.guestCart .buttonPrimary {
+  flex: 0 0 auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
