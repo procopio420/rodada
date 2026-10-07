@@ -1,0 +1,36 @@
+name: Web
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/**"
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Install
+        working-directory: apps/web
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        working-directory: apps/web
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: apps/web
+        env:
+          RODADA_API_BASE_URL: http://127.0.0.1:8000
+        run: npm run build
