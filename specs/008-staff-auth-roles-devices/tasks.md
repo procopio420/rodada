@@ -9,7 +9,7 @@
 - [x] Define privileged reauthentication window/policy.
 - [x] Add shared server-side authorization policy layer.
 - [x] Normalize authorization error codes.
-- [ ] Propagate actor/session/device context to domain commands and AuditEvent.
+- [x] Propagate actor/session/device context to domain commands and AuditEvent.
 
 ## Persistence
 - [x] Membership constraints and role/status migration.
@@ -36,9 +36,9 @@
 - [x] Reauth flow for sensitive manager actions.
 
 ## Realtime
-- [ ] Session/role/device invalidation event.
+- [x] Session/role/device invalidation event.
 - [ ] Client clears privileged state on invalidation.
-- [ ] API remains authoritative if realtime is unavailable.
+- [x] API remains authoritative if realtime is unavailable.
 
 ## Management
 - [x] Staff membership list.

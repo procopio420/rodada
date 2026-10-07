@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.utils import timezone
 
 from modules.access.capabilities import effective_capabilities
+from modules.access.context import ActorContext
+from modules.access.invalidation import AccessInvalidationType, publish_access_invalidation
 from modules.access.models import (
     DeviceRegistration,
     DeviceTrustState,
@@ -19,6 +21,7 @@ from modules.access.models import (
     VenueStaffMembership,
 )
 from modules.audit.models import AuditEvent
+from modules.audit.services import record_audit_event
 from modules.venue.models import Venue
 
 
@@ -55,11 +58,18 @@ def _audit(
     device: DeviceRegistration | None = None,
     metadata: dict | None = None,
 ) -> None:
+    if actor_session is not None:
+        record_audit_event(
+            actor=ActorContext.from_session(actor_session),
+            event_type=event_type,
+            metadata=metadata,
+        )
+        return
+
     AuditEvent.objects.create(
         venue=venue,
         event_type=event_type,
         actor_staff=actor_staff,
-        actor_session=actor_session,
         device=device,
         metadata=metadata or {},
     )
@@ -402,6 +412,11 @@ def revoke_session(session: StaffSession, reason: str) -> None:
     locked.revoked_at = timezone.now()
     locked.revocation_reason = reason
     locked.save(update_fields=["revoked_at", "revocation_reason"])
+    publish_access_invalidation(
+        session=locked,
+        event_type=AccessInvalidationType.SESSION_REVOKED,
+        reason=reason,
+    )
     _audit(
         venue=locked.venue,
         event_type="auth.session_revoked",
@@ -475,6 +490,12 @@ def _complete_operator_switch(
     now = timezone.now()
     locked.superseded_at = now
     locked.save(update_fields=["superseded_at"])
+    publish_access_invalidation(
+        session=locked,
+        event_type=AccessInvalidationType.SESSION_SUPERSEDED,
+        reason="OPERATOR_SWITCH",
+        metadata={"next_staff_id": str(target_staff.id)},
+    )
 
     refresh_ttl = timedelta(seconds=_seconds_setting("RODADA_REFRESH_TOKEN_TTL_SECONDS", 43200))
     next_session = StaffSession.objects.create(
@@ -733,6 +754,18 @@ def update_membership_admin(
     changed_fields.append("version")
     membership.save(update_fields=changed_fields)
 
+    publish_access_invalidation(
+        venue_id=membership.venue_id,
+        staff_member_id=membership.staff_member_id,
+        event_type=AccessInvalidationType.MEMBERSHIP_CHANGED,
+        reason=reason,
+        metadata={
+            "role": membership.role,
+            "status": membership.status,
+            "version": membership.version,
+        },
+    )
+
     if status in (MembershipStatus.SUSPENDED, MembershipStatus.REVOKED):
         now = timezone.now()
         _active_session_queryset_for_membership(membership).update(
@@ -797,6 +830,14 @@ def update_device_trust_admin(
         fields.extend(["revoked_at", "revoked_by", "revocation_reason"])
     device.save(update_fields=fields)
 
+    publish_access_invalidation(
+        venue_id=device.venue_id,
+        device_id=device.id,
+        event_type=AccessInvalidationType.DEVICE_CHANGED,
+        reason=reason,
+        metadata={"trust_state": device.trust_state},
+    )
+
     if trust_state == DeviceTrustState.REVOKED:
         now = timezone.now()
         _active_session_queryset_for_device(device).update(
@@ -844,6 +885,11 @@ def revoke_session_admin(
         target.revoked_at = timezone.now()
         target.revocation_reason = reason or "ADMIN_REVOKE"
         target.save(update_fields=["revoked_at", "revocation_reason"])
+        publish_access_invalidation(
+            session=target,
+            event_type=AccessInvalidationType.SESSION_REVOKED,
+            reason=target.revocation_reason,
+        )
 
     _audit(
         venue=actor_session.venue,

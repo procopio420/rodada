@@ -191,3 +191,42 @@ class PinLoginThrottle(models.Model):
                 name="access_pin_v_login_idx",
             ),
         ]
+
+
+class AccessInvalidationEvent(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name="access_invalidation_events")
+    event_type = models.CharField(max_length=64)
+    staff_member = models.ForeignKey(
+        StaffMember,
+        on_delete=models.CASCADE,
+        related_name="access_invalidation_events",
+        null=True,
+        blank=True,
+    )
+    session = models.ForeignKey(
+        StaffSession,
+        on_delete=models.CASCADE,
+        related_name="invalidation_events",
+        null=True,
+        blank=True,
+    )
+    device = models.ForeignKey(
+        DeviceRegistration,
+        on_delete=models.CASCADE,
+        related_name="invalidation_events",
+        null=True,
+        blank=True,
+    )
+    reason = models.CharField(max_length=240, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    occurred_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("id",)
+        indexes = [
+            models.Index(fields=("venue", "id"), name="access_inv_venue_id_idx"),
+            models.Index(fields=("staff_member", "id"), name="access_inv_staff_id_idx"),
+            models.Index(fields=("session", "id"), name="access_inv_session_id_idx"),
+            models.Index(fields=("device", "id"), name="access_inv_device_id_idx"),
+        ]
