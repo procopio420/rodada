@@ -19,14 +19,14 @@
 - [x] Preserve immutable historical actor references.
 
 ## Android
-- [ ] Register installation/device.
-- [ ] Secure credential/session storage.
-- [ ] Login flow.
-- [ ] Session refresh.
-- [ ] Lock and Switch Operator.
-- [ ] Privileged action reauthentication.
-- [ ] Revoked/expired session UX.
-- [ ] Remote lost-device revocation response.
+- [x] Register installation/device.
+- [x] Secure credential/session storage.
+- [x] Login flow.
+- [x] Session refresh.
+- [x] Lock and Switch Operator.
+- [x] Privileged action reauthentication.
+- [x] Revoked/expired session UX.
+- [x] Remote lost-device revocation response.
 
 ## Staff Web/PWA
 - [ ] Secure session mechanism.
