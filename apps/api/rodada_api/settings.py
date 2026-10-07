@@ -17,10 +17,8 @@ INSTALLED_APPS = [
     "modules.catalog",
     "modules.ordering",
     "modules.hospitality",
-    "modules.guest_access",
     "modules.dispatch",
     "modules.ledger",
-    "modules.cash",
     "modules.audit",
 ]
 
