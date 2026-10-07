@@ -13,7 +13,7 @@ Rodada Cozinha / Bar / Cliente / Gerência (Web/PWA)
                  |
      +-----------+-----------+
      |                       |
-  Venue/Floor              Catalog
+ Venue/Floor               Catalog
      |                       |
      +-------> Ordering <-----+
                   |
@@ -27,7 +27,11 @@ Rodada Cozinha / Bar / Cliente / Gerência (Web/PWA)
                     |
                    Cash
 
-             Audit atravessa mutations relevantes
+ Access autoriza mutations em todos os módulos
+ Documents/Printing deriva de Ordering/Payments
+ Notifications deriva de fatos canônicos
+ Management projeta fatos/alerts para leitura
+ Audit atravessa mutations relevantes
 
  PostgreSQL = fonte de verdade
  Redis/WebSocket = atualização realtime, nunca autoridade
@@ -55,7 +59,13 @@ A versão anterior colocava Tab, Order e Charge juntos em `pos` ao mesmo tempo e
 
 ### venue
 
-Venue, StaffMember e permissões operacionais.
+Venue e configuração operacional tipada/orquestrada. O módulo não vira um bucket arbitrário de settings e não toma ownership das regras de Pricing, Cash, Payments ou Notifications.
+
+### access
+
+StaffMember, VenueStaffMembership, StaffSession, DeviceRegistration, roles/capabilities e reautenticação.
+
+Access valida autorização server-side; trust de device e visibilidade de UI nunca substituem capability.
 
 ### floor
 
@@ -65,7 +75,7 @@ Mesa/ocupação são contexto físico e ciclo operacional; nunca ledger.
 
 ### catalog
 
-Product, preço, ativação administrativa, disponibilidade operacional, ProductIcon e routing para FulfillmentStation.
+Product, preço, ProductVariant, ModifierGroup/ModifierOption, ativação administrativa, disponibilidade operacional, ProductIcon e routing para FulfillmentStation.
 
 `Product.active` responde "este produto faz parte/publica no catálogo?".
 `ProductAvailability` responde "podemos vender este produto agora?".
@@ -76,9 +86,9 @@ Criação rápida, autocomplete/resolve-or-create e ícones gerados por IA conti
 
 ### ordering
 
-Tab, Order, OrderItem, snapshot de preço e regras de confirmação.
+Tab, TabTransfer, Order, OrderItem, snapshots de preço/customização e regras de confirmação/correção operacional.
 
-Ordering não é dono de pagamento e não é dono de mesa. Ele referencia esses contextos.
+Ordering não é dono de pagamento e não é dono de mesa. TabTransfer move responsabilidade aberta por efeitos balanceados sem reescrever origem histórica; OrderCorrection preserva o OrderItem original e coordena efeitos com Billing/Payments quando necessário.
 
 Na confirmação do Order, Ordering consulta/valida Catalog dentro da operação consistente. UI stale nunca pode vender item indisponível.
 
@@ -133,9 +143,9 @@ Customer + Relationship local do Venue.
 
 ### billing
 
-Charge, Payment, Adjustment, Exposure, OperatingLimit e invariantes financeiras.
+Charge, Adjustment, AdjustmentAllocation, Exposure, OperatingLimit e invariantes financeiras.
 
-`OrderItem` confirmado pode originar Charge idempotente, mas Ordering não mantém saldo próprio.
+Discount, courtesy e service charge são efeitos append-only. Taxa de serviço não é Product. `OrderItem` confirmado pode originar Charge idempotente, mas Ordering não mantém saldo próprio.
 
 ### payments
 
@@ -170,13 +180,27 @@ Nem todo provider implementa todas as operações.
 
 ### cash
 
-CashShift e reconciliação básica do PDV.
+CashPoint, CashShift, CashMovement, contagem, divergência/review e correções tardias append-only.
+
+Cash não é contabilidade geral; controla a posição física operacional derivada de pagamentos em dinheiro e movimentos explícitos.
+
+### documents_printing
+
+ReceiptDocument, PrinterEndpoint, StationPrinterBinding e PrintJob.
+
+Documentos/impressão são derivados de fatos canônicos. Falha/retry de printer nunca cria Order/Payment nem define fulfillment; production ticket é fallback.
+
+### notifications
+
+AlertRule, OperationalAlert, NotificationDelivery e preferências de entrega.
+
+Notifications é dono do lifecycle/dedupe/cooldown/escalation do alerta. O source domain continua dono da condição que causou o alerta.
 
 ### management
 
-Read models, alertas e relatórios gerenciais derivados dos fatos canônicos dos demais módulos.
+Read models e relatórios gerenciais derivados dos fatos canônicos dos demais módulos, incluindo a projeção dos mesmos OperationalAlerts usados por in-app/push.
 
-Management **não é dono** de Tab, Order, Payment, Table ou Product. Ele projeta esses fatos para leitura rápida e análise.
+Management **não é dono** de Tab, Order, Payment, Table, Product nem do lifecycle de Notifications. Ele projeta esses fatos para leitura rápida e análise.
 
 Fluxo conceitual:
 
@@ -231,6 +255,10 @@ catalog -------> management
 billing -------> management
 payments ------> management
 cash ----------> management
+notifications -> management
+ordering ------> documents_printing
+payments ------> documents_printing
+fulfillment ---> documents_printing
 guest_access --> ordering
 guest_access --> floor
 ```
@@ -258,11 +286,14 @@ Mudança de disponibilidade deve invalidar/atualizar menus conectados rapidament
 - mudanças de exposure dentro de transação;
 - idempotency key em comandos externos e webhooks.
 
-## Integrações futuras
+## Contratos transversais e integrações futuras
+
+Connectivity/degraded operation é um contrato transversal: API saudável continua canônica mesmo sem WebSocket; cache/pending intent nunca vira verdade financeira por conta própria.
+
+Integrações futuras:
 
 - adapters adicionais de adquirência/Tap on Phone além de Paytime;
 - WhatsApp;
-- impressão;
 - fiscal;
 - delivery;
 - estoque por insumo.
