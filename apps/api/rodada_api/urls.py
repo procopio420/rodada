@@ -2,6 +2,14 @@ from django.db import connection
 from django.http import JsonResponse
 from django.urls import path
 
+from modules.access.views import (
+    CurrentStaffView,
+    StaffLockView,
+    StaffLoginView,
+    StaffLogoutView,
+    StaffRefreshView,
+)
+
 
 def health(request):
     return JsonResponse({"status": "ok"})
@@ -17,4 +25,9 @@ def readiness(request):
 urlpatterns = [
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
+    path("auth/login/", StaffLoginView.as_view(), name="staff-login"),
+    path("auth/refresh/", StaffRefreshView.as_view(), name="staff-refresh"),
+    path("auth/me/", CurrentStaffView.as_view(), name="staff-me"),
+    path("auth/lock/", StaffLockView.as_view(), name="staff-lock"),
+    path("auth/logout/", StaffLogoutView.as_view(), name="staff-logout"),
 ]
