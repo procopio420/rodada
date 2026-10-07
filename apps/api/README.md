@@ -1,51 +1,66 @@
-# API
+# Rodada API
 
-Target: Django + DRF em **modular monolith**.
+Django + Django REST Framework em **modular monolith**.
 
-A organização sugerida por capacidade é:
+## Estado atual
+
+O primeiro slice executável implementa a fundação da Spec 008:
+
+- `Venue`;
+- `StaffMember`;
+- `VenueStaffMembership`;
+- roles/capabilities server-side;
+- `DeviceRegistration`;
+- `StaffSession`;
+- `AuditEvent`;
+- health/readiness endpoints.
+
+Login/PIN HTTP, refresh, operator switching, reauth e UI entram no slice 008.2.
+
+## Estrutura
 
 ```text
-apps/
+modules/
   venue/
-  floor/
-  catalog/
-  ordering/
-  fulfillment/
-  dispatch/
-  guest_access/
-  customers/
-  billing/
-  payments/
-  cash/
+  access/
   audit/
+rodada_api/
+tests/
 ```
 
-Não criar um app Django por tabela e não transformar essas fronteiras em microserviços prematuramente.
+Novas capacidades devem seguir as fronteiras de `docs/architecture/overview.md`; não criar um app Django por tabela.
 
-## Ownership principal
+## Ambiente local
 
-- `venue`: estabelecimento, staff e permissões;
-- `floor`: zonas, pontos, mesas e ocupações;
-- `catalog`: produto, preço, disponibilidade operacional, autocomplete/resolve-or-create, ProductIcon e routing;
-- `ordering`: Tab, Order, OrderItem e confirmação;
-- `fulfillment`: preparo/estados por estação;
-- `dispatch`: tasks, claims e runs;
-- `guest_access`: GuestSession, QR, short code e NFC;
-- `customers`: Customer + Relationship;
-- `billing`: ledger, charges, payments de domínio, adjustments e exposure;
-- `payments`: adapters/integrações de PSP;
-- `cash`: turnos e reconciliação;
-- `audit`: trilha imutável de mutations.
+Python 3.12+.
 
-A Spec 001 deve começar por `venue + catalog + ordering + billing + cash`, com fulfillment mínimo.
+```bash
+cd apps/api
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
 
-Catalog deve expor operações equivalentes a:
+export POSTGRES_DB=rodada
+export POSTGRES_USER=rodada
+export POSTGRES_PASSWORD=rodada
+export POSTGRES_HOST=localhost
 
-```text
-suggest_products(venue_id, query, station?) -> ProductSuggestion[]
-resolve_or_create_product(venue_id, name, defaults) -> Product
+python manage.py migrate
+python manage.py runserver
 ```
 
-`resolve_or_create_product` precisa ser transacional e respeitar a chave de nome normalizada do Venue. Product existente sempre mantém seu ProductIcon; Product novo cria sua identidade visual 1:1 e dispara geração assíncrona automaticamente.
+Endpoints iniciais:
 
-Ver `docs/architecture/overview.md` e ADR 0005 antes de criar novos módulos.
+- `GET /health/` — processo está vivo;
+- `GET /ready/` — processo consegue consultar o banco.
+
+## Testes
+
+A suíte usa SQLite em memória apenas para testes rápidos de domínio/foundation:
+
+```bash
+pytest
+python manage.py makemigrations --check --dry-run --settings=rodada_api.settings_test
+```
+
+PostgreSQL continua sendo o banco principal da aplicação.

@@ -2,8 +2,8 @@
 
 ## Domain/API
 - [ ] Define VenueStaffMembership and lifecycle.
-- [ ] Define capability vocabulary and baseline STAFF/CASHIER/MANAGER/OWNER bundles.
-- [ ] Implement effective-capability resolution per Venue.
+- [x] Define capability vocabulary and baseline STAFF/CASHIER/MANAGER/OWNER bundles.
+- [x] Implement effective-capability resolution per Venue.
 - [ ] Define StaffSession lifecycle and revocation.
 - [ ] Define PIN authentication and lockout/backoff policy.
 - [ ] Define privileged reauthentication window/policy.
@@ -12,11 +12,11 @@
 - [ ] Propagate actor/session/device context to domain commands and AuditEvent.
 
 ## Persistence
-- [ ] Membership constraints and role/status migration.
-- [ ] DeviceRegistration persistence and trust state.
+- [x] Membership constraints and role/status migration.
+- [x] DeviceRegistration persistence and trust state.
 - [ ] Session/refresh token persistence or revocation index.
-- [ ] Index active sessions by staff/device/venue.
-- [ ] Preserve immutable historical actor references.
+- [x] Index active sessions by staff/device/venue.
+- [x] Preserve immutable historical actor references.
 
 ## Android
 - [ ] Register installation/device.
@@ -48,8 +48,8 @@
 - [ ] Audit trail views.
 
 ## Quality/tests
-- [ ] Role/capability matrix tests.
-- [ ] Cross-Venue isolation tests.
+- [x] Role/capability matrix tests.
+- [x] Cross-Venue isolation tests.
 - [ ] PIN brute-force/rate-limit tests.
 - [ ] Revoked membership cannot refresh.
 - [ ] Revoked device cannot continue mutations.
