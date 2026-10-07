@@ -4,18 +4,42 @@ Django + Django REST Framework em **modular monolith**.
 
 ## Estado atual
 
-O primeiro slice executável implementa a fundação da Spec 008:
+A fundação executável cobre os primeiros slices da Spec 008:
 
 - `Venue`;
-- `StaffMember`;
+- `StaffMember` + PIN com verifier do Django;
 - `VenueStaffMembership`;
-- roles/capabilities server-side;
+- STAFF / CASHIER / MANAGER / OWNER + capabilities server-side;
 - `DeviceRegistration`;
-- `StaffSession`;
+- `StaffSession` com access/refresh opacos e revogáveis;
+- throttle/backoff de PIN por Venue + conta + device;
 - `AuditEvent`;
-- health/readiness endpoints.
+- health/readiness;
+- autenticação DRF protegida por padrão.
 
-Login/PIN HTTP, refresh, operator switching, reauth e UI entram no slice 008.2.
+Switch Operator, reauth privilegiada, management endpoints e UI entram nos próximos slices.
+
+## Auth API
+
+```text
+POST /auth/login/
+POST /auth/refresh/
+GET  /auth/me/
+POST /auth/lock/
+POST /auth/logout/
+```
+
+Login recebe `venue_slug`, `login_identifier`, `pin`, `installation_id`, `platform` e label opcional.
+
+O backend retorna access token curto e refresh token com expiração absoluta de sessão. Apenas hashes SHA-256 dos tokens aleatórios de alta entropia são persistidos; refresh rotaciona access + refresh.
+
+Rotas protegidas usam:
+
+```http
+Authorization: Bearer rat_...
+```
+
+Erros de autorização usam códigos estáveis como `AUTH_REQUIRED`, `ACCESS_TOKEN_EXPIRED`, `MEMBERSHIP_REVOKED`, `DEVICE_REVOKED`, `CAPABILITY_REQUIRED` e `AUTH_THROTTLED`.
 
 ## Estrutura
 
@@ -49,14 +73,17 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Endpoints iniciais:
+Configuração relevante:
 
-- `GET /health/` — processo está vivo;
-- `GET /ready/` — processo consegue consultar o banco.
+- `RODADA_ACCESS_TOKEN_TTL_SECONDS` — default 900;
+- `RODADA_REFRESH_TOKEN_TTL_SECONDS` — default 43200;
+- `RODADA_PIN_FAILURE_THRESHOLD` — default 5;
+- `RODADA_PIN_BACKOFF_BASE_SECONDS` — default 15;
+- `RODADA_PIN_BACKOFF_MAX_SECONDS` — default 300.
 
 ## Testes
 
-A suíte usa SQLite em memória apenas para testes rápidos de domínio/foundation:
+A suíte usa SQLite em memória apenas para testes rápidos de domínio/API:
 
 ```bash
 pytest

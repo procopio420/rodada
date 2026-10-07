@@ -22,6 +22,10 @@ class StaffMember(models.Model):
     def check_pin(self, pin: str) -> bool:
         return bool(self.pin_hash) and check_password(pin, self.pin_hash)
 
+    @property
+    def is_authenticated(self) -> bool:
+        return True
+
     def __str__(self) -> str:
         return self.display_name
 
@@ -133,6 +137,9 @@ class StaffSession(models.Model):
         null=True,
         blank=True,
     )
+    access_token_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    refresh_token_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    access_expires_at = models.DateTimeField(null=True, blank=True)
     issued_at = models.DateTimeField(default=timezone.now)
     last_seen_at = models.DateTimeField(default=timezone.now)
     expires_at = models.DateTimeField()
@@ -161,3 +168,26 @@ class StaffSession(models.Model):
         if self.device_id and self.device.trust_state == DeviceTrustState.REVOKED:
             return False
         return True
+
+
+class PinLoginThrottle(models.Model):
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name="pin_login_throttles")
+    login_identifier = models.CharField(max_length=120)
+    installation_key_hash = models.CharField(max_length=64, blank=True)
+    failure_count = models.PositiveIntegerField(default=0)
+    blocked_until = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("venue", "login_identifier", "installation_key_hash"),
+                name="access_unique_pin_throttle",
+            )
+        ]
+        indexes = [
+            models.Index(
+                fields=("venue", "login_identifier"),
+                name="access_pin_v_login_idx",
+            ),
+        ]
