@@ -4,9 +4,25 @@
 
 Estabelecimento. Piloto: Bar do Aderlan.
 
+Mantém configuração operacional tipada, como timezone/business-date cutoff e referências às políticas dos domínios que as possuem. Não existe um "settings JSON" arbitrário capaz de contornar validações de domínio.
+
 ## StaffMember
 
-Funcionário autenticado com papel/permissões, por exemplo `STAFF`, `CASHIER`, `MANAGER`, `OWNER`.
+Identidade humana de um funcionário. Papel e autorização são definidos por membership no Venue, não por confiança na UI nem pelo dispositivo.
+
+## VenueStaffMembership
+
+Relação StaffMember ↔ Venue, com status `ACTIVE | SUSPENDED | REVOKED`, papel-base `STAFF | CASHIER | MANAGER | OWNER` e overrides explícitos de capability quando realmente necessários.
+
+## StaffSession
+
+Sessão autenticada e revogável de StaffMember, opcionalmente ligada a um DeviceRegistration. Comandos pendentes capturados durante perda de rede são reautorizados no servidor antes de aplicação.
+
+## DeviceRegistration
+
+Instalação/dispositivo operacional conhecido por um Venue, com trust state `UNTRUSTED | TRUSTED | REVOKED`.
+
+Device trust acelera a operação e a troca de operador, mas **não substitui autenticação nem concede capability**.
 
 ## Zone
 
@@ -71,6 +87,12 @@ Regras:
 - concluir limpeza move para `AVAILABLE` e incrementa `access_generation`;
 - sessões guest da geração anterior deixam de autorizar pedidos.
 
+## PartySizeObservation
+
+Observação explícita e versionada da quantidade de pessoas/covers. O alvo canônico é `TableOccupancy`; uma `Tab` sem ocupação pode receber a observação como fallback.
+
+Ausência de observação significa `UNKNOWN`, nunca 0 ou 1 inferido. Múltiplas Tabs na mesma ocupação compartilham o mesmo contexto de covers, e analytics por cover devem expor a cobertura de dados conhecidos/desconhecidos.
+
 ## Customer
 
 Pessoa opcionalmente identificada pelo bar.
@@ -127,6 +149,12 @@ Regras:
 - uma Tab pode mudar de localização/ocupação sem mudar de identidade financeira;
 - fechar uma Tab não implica liberar a mesa;
 - identidade do cliente pode ser adicionada depois sem migrar pedidos/ledger.
+
+## TabTransfer
+
+Operação imutável que move **responsabilidade financeira aberta** entre Tabs sem reescrever a origem histórica de Order, OrderItem, Charge, Payment ou Refund.
+
+Split, movimento de itens/responsabilidade e merge de duplicatas geram efeitos balanceados entre source/destination. No P0, Payment ou Refund confirmado bloqueia transferências financeiras de Tab.
 
 ## TabIdentifier
 
@@ -272,6 +300,18 @@ Regras:
 - toda mudança é auditável e deve propagar para as superfícies operacionais em realtime quando o canal existir.
 
 
+## ProductVariant
+
+Escolha única da forma-base vendável de um Product, por exemplo tamanho 300/500 ml ou normal/duplo. Pode possuir delta de preço e disponibilidade operacional próprios.
+
+## ModifierGroup
+
+Grupo estruturado de customização de Product com modo `SINGLE | MULTI`, limites mínimo/máximo, ordenação e defaults.
+
+## ModifierOption
+
+Escolha dentro de ModifierGroup, com delta de preço em centavos, ativação e disponibilidade operacional. Adicionais, sabores e remoções como `SEM cebola` são modifiers; trabalho independente em outra estação deve virar OrderItem próprio.
+
 ## Order
 
 Solicitação operacional **sempre associada a uma Tab**.
@@ -309,6 +349,16 @@ CANCELLED
 Nem todo item precisa percorrer todos os estados; uma cerveja pode ir de `ACCEPTED` para `READY` imediatamente.
 
 `PICKED_UP` e `DELIVERED` não implicam necessariamente confirmação manual do staff. A origem da transição deve ser rastreável por milestone.
+
+## OrderCorrection
+
+Registro imutável de correção após confirmação: cancelamento, item errado, mudança do cliente, remake, replacement, rejeição, complaint ou outra exceção.
+
+Nunca edita o snapshot original. Remake/replacement gera **novo OrderItem** ligado ao original; efeitos financeiros são append-only via Adjustment/Refund.
+
+## WasteMarker
+
+Marcador operacional opcional para item preparado e não servido, remake descartado, spoilage ou exceção similar. Não representa automaticamente baixa de estoque nem lançamento contábil.
 
 ## FulfillmentMilestone
 
@@ -435,11 +485,25 @@ Refund preserva o Payment original, registra valor/ator/status/referência exter
 
 ## Adjustment
 
+Efeito financeiro append-only que altera responsabilidade da Tab sem reescrever Charge/Product/OrderItem.
+
+Kinds canônicos:
+
 ```text
+ITEM_DISCOUNT
+TAB_DISCOUNT
 COURTESY
+SERVICE_CHARGE
+SERVICE_CHARGE_REDUCTION
 CORRECTION
 REVERSAL
 ```
+
+Percentuais usam basis points inteiros e valores monetários usam centavos. Taxa de serviço **não é Product**.
+
+## AdjustmentAllocation
+
+Alocação persistida e determinística de Adjustment de Tab entre Charges elegíveis, usada para reporting, transferências e refunds.
 
 ## Exposure
 
@@ -453,9 +517,58 @@ Garantia/pré-autorização entra em spec futura.
 
 Máxima exposição permitida sem ação adicional. Pode vir do Relationship e receber override na Tab.
 
+## CashPoint
+
+Ponto físico/gaveta onde dinheiro é mantido. Um Venue pode começar com um único CashPoint.
+
 ## CashShift
 
-Sessão de caixa usada para registrar abertura, recebimentos e fechamento/reconciliação básica.
+Período de custódia operacional de um CashPoint, com estados `OPEN | COUNTING | CLOSED`, fundo inicial, snapshot de valor esperado, contagem, divergência e estado de revisão.
+
+Há no máximo um shift ativo por CashPoint.
+
+## CashMovement
+
+Movimento físico append-only ligado a CashShift:
+
+```text
+OPENING_FLOAT
+CASH_PAYMENT
+CASH_REFUND
+SUPPLY
+WITHDRAWAL
+CORRECTION
+```
+
+Troco não infla valor esperado: `amount_tendered - change_given = payment amount`. Fechamento histórico não é reescrito por correção tardia.
+
+## ReceiptDocument
+
+Snapshot/referência reproduzível de documento derivado de fatos canônicos: `CUSTOMER_CHECK | PAYMENT_RECEIPT | DIGITAL_RECEIPT | PRODUCTION_TICKET`.
+
+No P0 é não fiscal. Recibo definitivo de pagamento exige Payment canonicamente confirmado.
+
+## PrinterEndpoint
+
+Dispositivo de impressão atrás de adapter. Impressora nunca é fonte de verdade de Order, Fulfillment ou Payment.
+
+## PrintJob
+
+Entrega idempotente de ReceiptDocument a PrinterEndpoint. Retry preserva a mesma identidade lógica; reprint explícito cria novo job ligado ao anterior e é marcado como reimpressão.
+
+## OperationalAlert
+
+Episódio persistido de condição acionável derivada de fatos canônicos.
+
+Severidade: `INFO | WARNING | DANGER`.
+
+Lifecycle: `ACTIVE | ACKNOWLEDGED | RESOLVED | EXPIRED`.
+
+Acknowledgement não resolve a condição. Dedupe/cooldown evitam ruído; auto-resolution depende da condição canônica deixar de existir. Gerência, alertas in-app e push usam o mesmo OperationalAlert.
+
+## NotificationDelivery
+
+Tentativa idempotente de entregar um OperationalAlert por `IN_APP` ou `PUSH`. Falha/supressão de entrega nunca altera o estado canônico do alerta.
 
 ## AuditEvent
 
