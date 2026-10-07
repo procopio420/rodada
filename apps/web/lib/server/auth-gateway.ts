@@ -130,14 +130,28 @@ async function backendRequest(
     headers.set("Authorization", "Bearer " + options.accessToken);
   }
 
-  const response = await fetch(API_BASE_URL + path, {
-    method: options.method ?? "GET",
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-    cache: "no-store",
-  });
+  try {
+    const response = await fetch(API_BASE_URL + path, {
+      method: options.method ?? "GET",
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      cache: "no-store",
+    });
 
-  return { response, payload: await responseJson(response) };
+    return { response, payload: await responseJson(response) };
+  } catch {
+    const payload = {
+      code: "UPSTREAM_UNAVAILABLE",
+      message: "A API Rodada está indisponível no momento.",
+    };
+    return {
+      response: new Response(JSON.stringify(payload), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      }),
+      payload,
+    };
+  }
 }
 
 function jsonResponse(
