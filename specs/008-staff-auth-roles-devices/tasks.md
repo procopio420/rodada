@@ -29,11 +29,11 @@
 - [x] Remote lost-device revocation response.
 
 ## Staff Web/PWA
-- [ ] Secure session mechanism.
-- [ ] Shared-terminal switch when enabled.
-- [ ] Expired/revoked state.
-- [ ] Permission-denied messaging.
-- [ ] Reauth flow for sensitive manager actions.
+- [x] Secure session mechanism.
+- [x] Shared-terminal switch when enabled.
+- [x] Expired/revoked state.
+- [x] Permission-denied messaging.
+- [x] Reauth flow for sensitive manager actions.
 
 ## Realtime
 - [ ] Session/role/device invalidation event.
