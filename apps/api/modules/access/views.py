@@ -3,12 +3,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import effective_capabilities
-from modules.access.serializers import LoginSerializer, RefreshSerializer
+from modules.access.serializers import (
+    LoginSerializer,
+    ReauthenticateSerializer,
+    RefreshSerializer,
+    SwitchOperatorSerializer,
+)
 from modules.access.services import (
     AccessServiceError,
     authenticate_staff,
+    reauthenticate_staff,
     refresh_staff_session,
     revoke_session,
+    switch_operator,
 )
 
 
@@ -108,3 +115,35 @@ class StaffLogoutView(APIView):
     def post(self, request):
         revoke_session(request.auth, "LOGOUT")
         return Response(status=204)
+
+
+class StaffSwitchOperatorView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SwitchOperatorSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            payload = switch_operator(
+                current_session=request.auth,
+                **serializer.validated_data,
+            )
+        except AccessServiceError as exc:
+            return _service_error_response(exc)
+        return Response(payload, status=200)
+
+
+class StaffReauthenticateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ReauthenticateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            payload = reauthenticate_staff(
+                session=request.auth,
+                **serializer.validated_data,
+            )
+        except AccessServiceError as exc:
+            return _service_error_response(exc)
+        return Response(payload, status=200)
