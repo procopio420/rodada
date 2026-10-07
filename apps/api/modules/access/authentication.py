@@ -20,6 +20,9 @@ class StaffBearerAuthentication(BaseAuthentication):
         except UnicodeError as exc:
             raise AccessAuthenticationFailed("AUTH_REQUIRED", "Token de acesso inválido.") from exc
 
+        if not raw_token.startswith("rat_"):
+            raise AccessAuthenticationFailed("AUTH_REQUIRED", "Token de staff inválido.")
+
         try:
             session = session_for_access_token(raw_token)
         except AccessServiceError as exc:
