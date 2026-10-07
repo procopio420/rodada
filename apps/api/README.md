@@ -80,6 +80,7 @@ export POSTGRES_PASSWORD=rodada
 export POSTGRES_HOST=localhost
 
 python manage.py migrate
+python manage.py seed_demo
 python manage.py runserver
 ```
 
@@ -133,11 +134,14 @@ O módulo `catalog` mantém `Product` e `ProductAvailability` separados desde o 
 - todo Product novo recebe estado operacional `AVAILABLE`;
 - `catalog_for_venue(...)` é a query canônica compartilhada para catálogo ativo.
 
-Seed local idempotente:
+Seed local idempotente completo (Venue, staff e catálogo):
 
 ```bash
-python manage.py seed_demo_catalog
+python manage.py seed_demo
 ```
+
+Credenciais apenas para ambiente local: `bar-do-aderlan` / `ana` / `0420` (gerente)
+ou `bia` / `1234` (staff).
 
 A mutation de disponibilidade entra em slice posterior, depois do contrato de escopo por estação.
 
