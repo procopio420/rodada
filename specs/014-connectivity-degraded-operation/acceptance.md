@@ -1,10 +1,10 @@
-# Acceptance — Spec 014
+# Acceptance — Spec 014 — Realtime, Connectivity & Degraded Operation
 
 ## Realtime outage only
 
-**Given** Redis/WebSocket is unavailable but API is healthy  
+**Given** SSE/event delivery is unavailable but the HTTP API is healthy  
 **When** staff confirms an Order  
-**Then** Order confirms through API exactly once, UI shows realtime degraded/stale state, and other surfaces can recover via polling/revalidation.
+**Then** the Order confirms through the API exactly once, UI shows realtime degraded/stale state, and other surfaces recover via bounded revalidation/polling without treating the realtime transport as canonical.
 
 ## API outage
 
@@ -100,3 +100,64 @@
 **Given** a recovery record is reconciled manually  
 **When** audit is inspected  
 **Then** original captured_at, applied_at, device, actor, recovery_id, reviewer and reason are recoverable.
+
+## Cross-surface propagation
+
+**Given** Atendimento confirms an Order through the canonical HTTP command path  
+**When** the backend commits the Order and its outbox fact  
+**Then** every authorized affected surface can receive the resulting state change through the shared realtime contract without calling another frontend.
+
+## Atomic event publication
+
+**Given** a domain mutation that must be published  
+**When** its database transaction commits  
+**Then** the canonical domain state and corresponding outbox record either both exist or neither exists.
+
+**And** restarting Redis/realtime fan-out after that commit cannot erase the fact that still needs delivery.
+
+## Cached startup
+
+**Given** Cozinha, Bar or Gerência has a previously persisted safe projection  
+**And** the network is slow or temporarily unavailable  
+**When** the app opens  
+**Then** it renders the cached operational projection and freshness state without waiting for the network request to complete.
+
+## SSE resume
+
+**Given** a client accepted events through cursor C  
+**And** the SSE connection disconnects while later events are retained  
+**When** it reconnects using C  
+**Then** the client receives/reconciles the missed events and reaches the same projection as a fresh canonical snapshot.
+
+## Duplicate realtime delivery
+
+**Given** an event is delivered more than once  
+**When** the client/projection consumer processes the duplicate  
+**Then** final projected state is unchanged and no duplicate canonical mutation, task, charge or payment is created.
+
+## Cursor gap
+
+**Given** the client reconnects with an expired, unknown or discontinuous resume cursor  
+**When** continuity cannot be proven  
+**Then** the server/client requires a fresh canonical snapshot before later incremental events are trusted.
+
+## HTTP command independence
+
+**Given** realtime delivery is reconnecting or stale  
+**And** the HTTP API is healthy  
+**When** a permitted user performs a canonical mutation  
+**Then** the mutation succeeds or fails solely according to server/domain rules and does not wait for SSE/WebSocket recovery.
+
+## Lightweight PWA runtime
+
+**Given** an operational PWA is already installed/cached  
+**When** it starts during peak service  
+**Then** its live operation does not require SSR availability, and realtime updates do not require full-page reloads.
+
+## WebSocket exception
+
+**Given** a proposed feature asks to introduce WebSocket  
+**When** HTTP commands + SSE can satisfy the interaction  
+**Then** WebSocket is not introduced.
+
+**And** if WebSocket is introduced, the feature documents the continuous bidirectional requirement and preserves PostgreSQL/API authority.
