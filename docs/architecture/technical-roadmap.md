@@ -445,13 +445,169 @@ Todos os números P0 exibidos pela Gerência devem possuir:
 
 ---
 
-# Milestone 8 — Pilot hardening
+# Milestone 8 — Production readiness / Pilot hardening
+
+**Specs principais:** 008–018.
 
 ## Objetivo
 
-Transformar uma demo funcional em sistema no qual o bar pode realmente depender.
+Transformar a vertical slice funcional em um sistema no qual o bar pode realmente depender, cobrindo identidade/autorização, correções operacionais, preço/caixa, configuração, degradação de rede, impressão, covers e escalonamento de exceções.
 
-## Reliability
+As Specs 008–018 são contratos de produção; não devem virar onze projetos isolados.
+
+## Ordem de dependência das specs de hardening
+
+```text
+008 Staff Auth / Roles / Devices
+   |
+   +--> 009 Tab Operations
+   |       |
+   |       +------------------+
+   |                          |
+   +--> 010 Modifiers         |
+   |       |                  |
+   |       +------> 017 <-----+------ 011 Pricing / Adjustments
+   |                              ^         |
+   |                              |         v
+   |                              |       012 Cash
+   |                              |         |
+   +--> 016 Covers                |         v
+                                  |       018 Alerts
+                                  |         |
+                                  |         v
+                                  +------ 013 Venue Configuration
+                                            |
+                                            v
+                                          014 Degraded Operation
+                                            |
+                                      +-----+-----+
+                                      v           v
+                                    015         017
+                                  Printing   Corrections
+```
+
+O desenho acima é de **dependência de contrato**, não de ownership circular:
+
+- Pricing (011), Cash (012), Notifications (018) e Printing (015) possuem suas próprias regras;
+- Venue Configuration (013) apenas expõe configuração tipada dos domínios;
+- Connectivity (014) define o contrato transversal de degradação;
+- Printing (015) e Corrections (017) consomem esse contrato;
+- Gerência (007) consome fatos/projeções, sem possuir a verdade transacional desses módulos.
+
+## 8A — Access foundation — Spec 008
+
+Antes de abrir operação real para múltiplas pessoas/dispositivos:
+
+- VenueStaffMembership;
+- roles/capabilities server-side;
+- login/PIN;
+- StaffSession;
+- DeviceRegistration;
+- revogação;
+- troca rápida de operador;
+- reautenticação de ação privilegiada;
+- actor/session/device em auditoria.
+
+**Gate:** chamada direta à API não consegue executar mutation sem capability mesmo quando a UI estiver adulterada; sessão/device revogados deixam de autorizar novas mutations.
+
+## 8B — Transactional correction and pricing — Specs 009, 010, 011, 017
+
+Completar as situações inevitáveis de um turno real:
+
+- mover localização sem mover história financeira;
+- split/merge/movimento de responsabilidade aberto por TabTransfer;
+- variants/modifiers estruturados e snapshotados;
+- descontos/cortesia/taxa de serviço por Adjustment;
+- alocação determinística em centavos;
+- cancelamento/remake/replacement sem editar o passado;
+- refund/courtesy explícitos quando dinheiro ou produção já aconteceram.
+
+**Gate:** nenhuma correção operacional precisa apagar/reparentear Payment, Order ou Charge confirmado para “ficar certo”.
+
+## 8C — Cash control — Spec 012
+
+- CashPoint;
+- opening float;
+- CashMovement;
+- dinheiro/troco;
+- suprimento;
+- sangria;
+- conferência;
+- expected × counted;
+- discrepância/review;
+- correção tardia append-only;
+- turno não fechado como exceção.
+
+**Gate:** valor esperado do caixa é reconstruível e uma divergência não é transformada silenciosamente em venda/ajuste.
+
+## 8D — Covers and management semantics — Specs 016 + 018
+
+### Covers — 016
+
+- covers pertencem primariamente a TableOccupancy;
+- várias Tabs na mesma ocupação não multiplicam pessoas;
+- UNKNOWN é valor válido de ausência de dado;
+- revenue/ticket per cover expõe data coverage.
+
+### Operational alerts — 018
+
+- um OperationalAlert canônico para Cockpit/in-app/push;
+- dedupe;
+- cooldown;
+- acknowledgement ≠ resolution;
+- auto-resolution;
+- escalation;
+- deep link;
+- push apenas para exceção acionável.
+
+**Gate:** Gerência não publica métricas por pessoa com precisão inventada e a operação não recebe push para eventos normais.
+
+## 8E — Venue configuration — Spec 013
+
+Gerência precisa operar sem editar banco:
+
+- estabelecimento/business date;
+- staff/devices;
+- stations/zones/service points/tables/floorplan;
+- guest policy;
+- pricing/service policy;
+- cash policy;
+- alert/SLA policy;
+- payment provider binding;
+- catalog defaults;
+- feature switches tipados.
+
+Mudanças são classificadas como `IMMEDIATE_SAFE`, `VERSIONED_NEW_CONTEXT` ou `REQUIRES_QUIET_STATE`.
+
+**Gate:** uma mudança de configuração não consegue reescrever contexto ativo/histórico nem expor segredo de provider.
+
+## 8F — Connectivity / degraded operation — Spec 014
+
+- distinguir API de realtime;
+- estados ONLINE / RECONNECTING / STALE / OFFLINE;
+- idempotency envelope;
+- cache/draft/pending intent visualmente separados de estado confirmado;
+- WebSocket down + API healthy continua operacional;
+- nenhuma confirmação financeira offline fictícia;
+- recovery/reconciliation explícitos para dinheiro/terminal externo;
+- runbook de outage.
+
+**Gate:** timeout/retry não duplica Order/Payment e nenhum client apresenta evidência local como verdade financeira canônica.
+
+## 8G — Receipts / printing — Spec 015
+
+- customer check;
+- payment/digital receipt;
+- PrinterEndpoint;
+- PrintJob;
+- retry idempotente;
+- reprint marcado;
+- station → printer;
+- produção impressa apenas como fallback.
+
+**Gate:** impressora offline nunca derruba o PDV e retry/reprint não cria segunda instrução lógica de produção.
+
+## Reliability transversal
 
 - migrations seguras;
 - backup automático;
@@ -466,9 +622,9 @@ Transformar uma demo funcional em sistema no qual o bar pode realmente depender.
 - rate limits;
 - secrets fora do repo.
 
-## Security
+## Security transversal
 
-- RBAC server-side;
+- RBAC/capabilities server-side;
 - sessão expirada/revogada;
 - device/session audit;
 - proteção de endpoints guest;
@@ -476,118 +632,52 @@ Transformar uma demo funcional em sistema no qual o bar pode realmente depender.
 - redaction de dados sensíveis;
 - dependency/security scanning.
 
-## Operação
-
-- seed/configuração de produção;
-- runbook;
-- rollback;
-- modo de manutenção;
-- suporte a reconnect;
-- UX clara para backend/realtime indisponível;
-- procedimento manual de contingência para pagamentos.
-
-## Gate de saída
+## Gate de saída do Milestone 8
 
 Executar pelo menos uma simulação de turno com:
 
-- múltiplos aparelhos;
+- múltiplos aparelhos e troca de operador;
 - Bar e Cozinha simultâneos;
-- perda/reconexão de rede;
-- Product ficando indisponível;
+- perda/reconexão de realtime e de API;
+- Product/modifier ficando indisponível;
 - duas Tabs na mesma mesa;
+- split/move/correção de Tab sem pagamento confirmado;
 - guest ordering;
+- desconto/cortesia/taxa de serviço;
 - pagamento parcial;
 - Pix;
 - Tap on Phone;
+- dinheiro com troco + conferência de caixa;
 - refund;
+- cancelamento/remake;
+- impressão indisponível sem parar a operação;
+- alerta operacional escalando e resolvendo;
 - fechamento diário;
 - backup/restore de teste.
 
+Nenhum cenário pode depender de editar banco/manual state para concluir o turno.
+
 ---
 
-# Gaps que exigem spec antes de implementação
+# Specs 008–018: contratos agora definidos
 
-As Specs 001–007 cobrem a tese central, mas alguns comportamentos de PDV de produção ainda não possuem contrato suficiente.
+Os antigos gaps de produção foram promovidos a specs implementáveis:
 
-Não implementar por improviso. Criar specs dedicadas quando entrarem no milestone correspondente.
+| Spec | Capability | Papel no piloto |
+| --- | --- | --- |
+| 008 | Staff Auth, Roles & Devices | fundação de autorização e autoria |
+| 009 | Tab Operations | correções estruturais sem reescrever histórico |
+| 010 | Product Modifiers & Variants | customização real de bar/restaurante |
+| 011 | Pricing, Discounts, Courtesy & Service Charge | preço realizado e taxa de serviço auditáveis |
+| 012 | Cash Management | controle físico/reconciliação do caixa |
+| 013 | Venue Configuration | operação sem acesso ao banco |
+| 014 | Connectivity & Degraded Operation | segurança sob rede ruim |
+| 015 | Receipts, Printing & Production Fallbacks | papel como saída/fallback, não verdade |
+| 016 | Covers / Party Size | denominador canônico de pessoas |
+| 017 | Order Corrections & Exception Handling | erros/remakes/replacements append-only |
+| 018 | Notifications & Operational Escalation | exceções acionáveis, dedupe e escalonamento |
 
-## Staff identity, auth e devices
-
-Precisamos especificar:
-
-- login/PIN;
-- sessão;
-- troca rápida de operador;
-- device registration;
-- revogação;
-- roles/permissões;
-- autorização offline/degradada, se existir.
-
-## Tab operations
-
-Precisamos decidir comportamento para:
-
-- mover itens entre Tabs;
-- split de Tab;
-- merge de Tabs duplicadas;
-- correção de lançamento;
-- cancelamento depois de preparo;
-- reabrir Tab fechada;
-- transferir ownership/localização.
-
-## Modifiers
-
-Precisamos modelar sem depender de texto livre:
-
-- tamanho;
-- sabor;
-- adicionais;
-- remoções;
-- escolhas obrigatórias;
-- impacto de preço;
-- routing;
-- disponibilidade de modifier.
-
-## Discounts, service charge e courtesy
-
-`Adjustment` existe no domínio, mas falta contrato de UX/política para:
-
-- desconto percentual;
-- desconto fixo;
-- cortesia;
-- taxa de serviço;
-- remoção da taxa;
-- autorização de manager;
-- motivo obrigatório em determinados limites;
-- efeito em fechamento/analytics.
-
-## Cash operations
-
-O `CashShift` P0 precisa evoluir para:
-
-- fundo inicial;
-- suprimento;
-- sangria;
-- contagem;
-- divergência;
-- múltiplos caixas;
-- fechamento por operador/device quando necessário.
-
-## Receipts and printing
-
-Precisamos decidir:
-
-- recibo digital;
-- impressão de conta;
-- impressão de produção como fallback;
-- Bluetooth/rede;
-- política quando impressora estiver offline.
-
-Impressão não deve virar dependência do fulfillment normal se as telas estiverem saudáveis.
-
-## Covers / quantidade de pessoas
-
-Antes de Gerência publicar ticket/consumo “por pessoa”, definir uma fonte canônica para covers/quantidade de pessoas e quando esse dado é opcional.
+Não implementar esses comportamentos por improviso fora dos contratos das respectivas specs.
 
 ---
 
@@ -614,7 +704,7 @@ Não puxar para P0 sem evidência operacional:
 ```text
 0. foundation
       |
-1. Core POS walking skeleton
+1. Core POS walking skeleton + 008 access foundation
       |
 2. realtime + dispatch básico
       |
@@ -628,7 +718,8 @@ Não puxar para P0 sem evidência operacional:
       |
 7. Management Cockpit
       |
-8. pilot hardening
+8. production readiness
+   009/010 -> 011 -> 012/016 -> 018 -> 013 -> 014 -> 015/017
 ```
 
 Alguns trabalhos podem ocorrer em paralelo depois que contratos estejam estáveis, mas **nenhuma trilha deve furar os gates financeiros e de domínio**.
