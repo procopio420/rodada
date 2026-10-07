@@ -168,6 +168,28 @@ class OrderingFoundationTests(TestCase):
         assert response.status_code == 409
         assert response.json()["products"][0]["reason"] == "INACTIVE"
 
+    def test_unavailable_rule_is_source_agnostic_for_staff_cashier_and_guest(self):
+        product = self.product(name="Sem estoque")
+        product.availability.state = AvailabilityState.UNAVAILABLE
+        product.availability.version += 1
+        product.availability.save(
+            update_fields=["state", "version", "changed_at"],
+        )
+
+        for source in (OrderSource.STAFF, OrderSource.CASHIER, OrderSource.GUEST):
+            with self.subTest(source=source):
+                tab = Tab.objects.create(venue=self.venue)
+                with self.assertRaises(OrderingServiceError) as captured:
+                    confirm_order(
+                        tab_id=tab.id,
+                        source=source,
+                        lines=[{"product_id": product.id, "quantity": 1}],
+                        actor=None,
+                    )
+
+                assert captured.exception.code == "PRODUCTS_NOT_CONFIRMABLE"
+                assert tab.orders.count() == 0
+
     def test_stale_cart_revalidates_at_confirmation_time(self):
         tab = self.open_tab()
         product = self.product(name="Última porção")
