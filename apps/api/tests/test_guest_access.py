@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.utils import timezone
+from rest_framework.test import APIClient
 
+from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
 from modules.catalog.models import AvailabilityState, FulfillmentStation, Product
 from modules.guest_access.models import GuestSession
@@ -169,3 +171,68 @@ class GuestAccessServiceTests(TestCase):
         assert captured.exception.code == "GUEST_ORDERING_BLOCKED"
         assert not tab.orders.exists()
         assert guest_session_context(session_token=resolution.token).tab_id == tab.id
+
+
+class GuestAccessApiTests(TestCase):
+    def setUp(self):
+        self.guest_client = APIClient()
+        self.staff_client = APIClient()
+        self.venue = Venue.objects.create(name="Guest API Bar", slug="guest-api-bar")
+        self.table = Table.objects.create(
+            venue=self.venue,
+            label="9",
+            guest_ordering_mode=GuestOrderingMode.DIRECT,
+        )
+        self.product = Product.objects.create(
+            venue=self.venue,
+            name="Caipirinha",
+            price_cents=2200,
+            fulfillment_station=FulfillmentStation.BAR,
+        )
+        staff = StaffMember.objects.create(display_name="Bia", login_identifier="guest-api-bia")
+        staff.set_pin("1234")
+        staff.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue, staff_member=staff, role=StaffRole.STAFF
+        )
+        login = self.staff_client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": staff.login_identifier,
+                "pin": "1234",
+                "installation_id": "guest-api-test-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        assert login.status_code == 200, login.json()
+        self.staff_client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+
+    def test_guest_http_flow_uses_only_guest_endpoints_and_feeds_production(self):
+        resolved = self.guest_client.post(
+            "/guest/qr/resolve/", {"token": self.table.public_token}, format="json"
+        )
+        assert resolved.status_code == 201, resolved.json()
+        session_token = resolved.json()["guest_session_token"]
+        self.guest_client.credentials(HTTP_X_GUEST_SESSION=session_token)
+
+        assert self.guest_client.get("/guest/catalog/").status_code == 200
+        tab = self.guest_client.post("/guest/tabs/", {"display_label": "Ana"}, format="json")
+        assert tab.status_code == 201, tab.json()
+        order = self.guest_client.post(
+            "/guest/orders/confirm/",
+            {
+                "idempotency_key": "guest-http-order",
+                "lines": [{"product_id": str(self.product.id), "quantity": 1}],
+            },
+            format="json",
+        )
+        assert order.status_code == 201, order.json()
+        assert order.json()["source"] == OrderSource.GUEST
+
+        # A guest bearer is not accepted by staff-authenticated surfaces.
+        assert self.guest_client.get(f"/tabs/{tab.json()['id']}/").status_code == 401
+        queue = self.staff_client.get("/production/BAR/")
+        assert queue.status_code == 200, queue.json()
+        assert [item["id"] for item in queue.json()["results"]] == [order.json()["items"][0]["id"]]
