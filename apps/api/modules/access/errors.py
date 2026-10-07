@@ -1,6 +1,17 @@
 from rest_framework.exceptions import APIException, AuthenticationFailed, PermissionDenied
 
 
+class AccessUnauthorized(APIException):
+    status_code = 401
+    default_code = "AUTH_REQUIRED"
+
+    def __init__(self, code: str, message: str, **extra):
+        super().__init__(
+            detail={"code": code, "message": message, **extra},
+            code=code,
+        )
+
+
 class AccessAuthenticationFailed(AuthenticationFailed):
     def __init__(self, code: str, message: str, **extra):
         detail = {"code": code, "message": message, **extra}
