@@ -97,6 +97,7 @@ def _retry_after_seconds(
     return max(1, int((blocked_until - now).total_seconds()))
 
 
+@transaction.atomic
 def _register_pin_failure(
     *,
     venue: Venue,
@@ -207,6 +208,90 @@ def _issue_tokens(session: StaffSession) -> dict:
 
 
 @transaction.atomic
+def _complete_login(
+    *,
+    venue: Venue,
+    staff: StaffMember,
+    normalized_login: str,
+    installation_key_hash: str,
+    platform: str,
+    friendly_label: str,
+) -> dict:
+    membership = (
+        VenueStaffMembership.objects.select_for_update()
+        .filter(venue=venue, staff_member=staff)
+        .first()
+    )
+    if not membership:
+        raise AccessServiceError("MEMBERSHIP_REQUIRED", "Sem acesso a este estabelecimento.", 403)
+    if membership.status == MembershipStatus.REVOKED:
+        raise AccessServiceError("MEMBERSHIP_REVOKED", "Acesso ao estabelecimento revogado.", 403)
+    if membership.status != MembershipStatus.ACTIVE:
+        raise AccessServiceError("MEMBERSHIP_SUSPENDED", "Acesso ao estabelecimento suspenso.", 403)
+    if not staff.is_active:
+        raise AccessServiceError("STAFF_INACTIVE", "Acesso do operador desativado.", 403)
+
+    device, created = DeviceRegistration.objects.get_or_create(
+        venue=venue,
+        installation_key_hash=installation_key_hash,
+        defaults={"platform": platform, "friendly_label": friendly_label},
+    )
+    if device.trust_state == DeviceTrustState.REVOKED:
+        raise AccessServiceError("DEVICE_REVOKED", "Dispositivo revogado.", 403)
+
+    changed = []
+    if device.platform != platform:
+        device.platform = platform
+        changed.append("platform")
+    if friendly_label and device.friendly_label != friendly_label:
+        device.friendly_label = friendly_label
+        changed.append("friendly_label")
+    if not created:
+        device.last_seen_at = timezone.now()
+        changed.append("last_seen_at")
+    if changed:
+        device.save(update_fields=changed)
+
+    _clear_pin_failures(
+        venue=venue,
+        login_identifier=normalized_login,
+        installation_key_hash=installation_key_hash,
+    )
+
+    now = timezone.now()
+    refresh_ttl = timedelta(seconds=_seconds_setting("RODADA_REFRESH_TOKEN_TTL_SECONDS", 43200))
+    session = StaffSession.objects.create(
+        venue=venue,
+        staff_member=staff,
+        membership=membership,
+        device=device,
+        expires_at=now + refresh_ttl,
+    )
+    tokens = _issue_tokens(session)
+
+    _audit(
+        venue=venue,
+        event_type="auth.login_succeeded",
+        actor_staff=staff,
+        actor_session=session,
+        device=device,
+        metadata={"device_created": created},
+    )
+
+    return {
+        **tokens,
+        "staff": {"id": str(staff.id), "display_name": staff.display_name},
+        "venue": {"id": str(venue.id), "slug": venue.slug, "name": venue.name},
+        "role": membership.role,
+        "capabilities": sorted(effective_capabilities(membership)),
+        "device": {
+            "id": str(device.id),
+            "trust_state": device.trust_state,
+            "platform": device.platform,
+        },
+    }
+
+
 def authenticate_staff(
     *,
     venue_slug: str,
@@ -259,82 +344,23 @@ def authenticate_staff(
         )
         raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
 
-    membership = (
-        VenueStaffMembership.objects.select_for_update()
-        .filter(venue=venue, staff_member=staff)
-        .first()
-    )
-    if not membership:
+    try:
+        return _complete_login(
+            venue=venue,
+            staff=staff,
+            normalized_login=normalized_login,
+            installation_key_hash=installation_key_hash,
+            platform=platform,
+            friendly_label=friendly_label,
+        )
+    except AccessServiceError as exc:
         _audit(
             venue=venue,
             event_type="auth.login_failed",
             actor_staff=staff,
-            metadata={"failure_class": "NO_MEMBERSHIP"},
+            metadata={"failure_class": exc.code},
         )
-        raise AccessServiceError("MEMBERSHIP_REQUIRED", "Sem acesso a este estabelecimento.", 403)
-    if membership.status == MembershipStatus.REVOKED:
-        raise AccessServiceError("MEMBERSHIP_REVOKED", "Acesso ao estabelecimento revogado.", 403)
-    if membership.status != MembershipStatus.ACTIVE:
-        raise AccessServiceError("MEMBERSHIP_SUSPENDED", "Acesso ao estabelecimento suspenso.", 403)
-    if not staff.is_active:
-        raise AccessServiceError("STAFF_INACTIVE", "Acesso do operador desativado.", 403)
-
-    device, created = DeviceRegistration.objects.get_or_create(
-        venue=venue,
-        installation_key_hash=installation_key_hash,
-        defaults={"platform": platform, "friendly_label": friendly_label},
-    )
-    if device.trust_state == DeviceTrustState.REVOKED:
-        raise AccessServiceError("DEVICE_REVOKED", "Dispositivo revogado.", 403)
-    if not created:
-        changed = []
-        if device.platform != platform:
-            device.platform = platform
-            changed.append("platform")
-        if friendly_label and device.friendly_label != friendly_label:
-            device.friendly_label = friendly_label
-            changed.append("friendly_label")
-        if changed:
-            device.save(update_fields=changed + ["last_seen_at"])
-
-    _clear_pin_failures(
-        venue=venue,
-        login_identifier=normalized_login,
-        installation_key_hash=installation_key_hash,
-    )
-
-    now = timezone.now()
-    refresh_ttl = timedelta(seconds=_seconds_setting("RODADA_REFRESH_TOKEN_TTL_SECONDS", 43200))
-    session = StaffSession.objects.create(
-        venue=venue,
-        staff_member=staff,
-        membership=membership,
-        device=device,
-        expires_at=now + refresh_ttl,
-    )
-    tokens = _issue_tokens(session)
-
-    _audit(
-        venue=venue,
-        event_type="auth.login_succeeded",
-        actor_staff=staff,
-        actor_session=session,
-        device=device,
-        metadata={"device_created": created},
-    )
-
-    return {
-        **tokens,
-        "staff": {"id": str(staff.id), "display_name": staff.display_name},
-        "venue": {"id": str(venue.id), "slug": venue.slug, "name": venue.name},
-        "role": membership.role,
-        "capabilities": sorted(effective_capabilities(membership)),
-        "device": {
-            "id": str(device.id),
-            "trust_state": device.trust_state,
-            "platform": device.platform,
-        },
-    }
+        raise
 
 
 @transaction.atomic
