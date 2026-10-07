@@ -375,16 +375,7 @@ def revoke_session(session: StaffSession, reason: str) -> None:
         return
     locked.revoked_at = timezone.now()
     locked.revocation_reason = reason
-    locked.access_token_hash = None
-    locked.refresh_token_hash = None
-    locked.save(
-        update_fields=[
-            "revoked_at",
-            "revocation_reason",
-            "access_token_hash",
-            "refresh_token_hash",
-        ]
-    )
+    locked.save(update_fields=["revoked_at", "revocation_reason"])
     _audit(
         venue=locked.venue,
         event_type="auth.session_revoked",
