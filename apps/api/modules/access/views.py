@@ -46,7 +46,7 @@ class StaffRefreshView(APIView):
         try:
             payload = refresh_staff_session(serializer.validated_data["refresh_token"])
         except AccessServiceError as exc:
-            _raise_api_error(exc)
+            return _service_error_response(exc)
         return Response(payload, status=200)
 
 
