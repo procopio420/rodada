@@ -78,6 +78,39 @@ class AuthRepository(context: Context) {
             hydrated
         }
 
+    suspend fun pollInvalidations(
+        current: StoredSession,
+        after: Long,
+    ): InvalidationPollResult =
+        withContext(Dispatchers.IO) {
+            val feed =
+                withAccessRefresh(current) { accessToken ->
+                    client.invalidationEvents(accessToken, after)
+                }
+
+            val latest = secureStore.load() ?: current
+            if (feed.results.isEmpty()) {
+                return@withContext InvalidationPollResult(
+                    session = latest,
+                    cursor = feed.cursor,
+                    changed = false,
+                )
+            }
+
+            val me =
+                withAccessRefresh(latest) { accessToken ->
+                    client.me(accessToken)
+                }
+            val hydrated = (secureStore.load() ?: latest).merge(me)
+            secureStore.save(hydrated)
+
+            InvalidationPollResult(
+                session = hydrated,
+                cursor = feed.cursor,
+                changed = true,
+            )
+        }
+
     suspend fun reauthenticate(current: StoredSession, pin: String): ReauthReceipt =
         withContext(Dispatchers.IO) {
             withAccessRefresh(current) { accessToken ->
