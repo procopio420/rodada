@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
@@ -152,6 +153,7 @@ class LedgerPaymentTests(TestCase):
             method=PaymentMethod.CASH,
             idempotency_key="confirmed-manual",
             status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(),
             received_by=self.cashier,
         )
         Refund.objects.create(

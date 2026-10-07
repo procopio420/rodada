@@ -66,7 +66,16 @@ class Payment(models.Model):
     cancelled_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=("tab", "idempotency_key"), name="ledger_payment_tab_key_unique")]
+        constraints = [
+            models.UniqueConstraint(fields=("tab", "idempotency_key"), name="ledger_payment_tab_key_unique"),
+            models.CheckConstraint(
+                condition=(
+                    ~models.Q(status__in=PaymentStatus.confirmed_money_values())
+                    | models.Q(confirmed_at__isnull=False)
+                ),
+                name="ledger_confirmed_payment_has_timestamp",
+            ),
+        ]
 
 
 class Refund(models.Model):
