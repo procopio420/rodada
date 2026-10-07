@@ -63,3 +63,8 @@ Compartilhar auth, contratos e design primitives não significa transformar toda
 A implementação consome os tokens semânticos de `docs/design/system.md`: fundo/superfícies quentes, alto contraste, acento âmbar, estados semanticamente consistentes e targets de toque de pelo menos 44 px.
 
 O protótipo continua como referência visual, não como fonte de regra de domínio.
+
+
+## Invalidação de acesso
+
+Enquanto uma sessão staff está ativa, o Web/PWA consulta o invalidation feed em intervalo bounded. Mudança de role/device força nova leitura de `/auth/me` e limpa qualquer janela de reauth recente. Falha do feed não bloqueia operação: a API continua autoritativa em todas as mutations.
