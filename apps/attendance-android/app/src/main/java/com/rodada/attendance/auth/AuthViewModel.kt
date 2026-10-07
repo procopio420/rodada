@@ -110,6 +110,25 @@ class AuthViewModel(
                 is IOException -> "Sem conexão com o Rodada."
                 else -> error.message ?: "Falha inesperada."
             }
+
+        if (
+            error is AuthApiException &&
+                error.code in
+                    setOf(
+                        "SESSION_REVOKED",
+                        "SESSION_SUPERSEDED",
+                        "SESSION_EXPIRED",
+                        "MEMBERSHIP_REVOKED",
+                        "MEMBERSHIP_SUSPENDED",
+                        "DEVICE_REVOKED",
+                        "STAFF_INACTIVE",
+                    )
+        ) {
+            repository.clearLocalSession()
+            state = AuthUiState(loading = false, errorMessage = message)
+            return
+        }
+
         state = state.copy(loading = false, errorMessage = message)
     }
 
