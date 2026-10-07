@@ -20,6 +20,28 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 - pagamento pode ocorrer antes, durante ou depois da visita;
 - o sistema deve funcionar melhor no pico, não pior.
 
+## Marca e domínios canônicos
+
+A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
+
+Hosts públicos oficiais:
+
+| Superfície | Host |
+| --- | --- |
+| Site institucional | `rodada.ai` |
+| Gerência | `app.rodada.ai` |
+| Cozinha | `cozinha.rodada.ai` |
+| Bar | `bar.rodada.ai` |
+| Cliente / QR | `pedido.rodada.ai` |
+| API | `api.rodada.ai` |
+| Atendimento | app Android nativo |
+
+A frase **“Me vê uma rodada aí.”** pode ser usada como assinatura/campanha da marca.
+
+Os subdomínios são superfícies do mesmo produto e não implicam backends separados. Paths como `/owner`, `/kitchen` e `/guest` podem existir internamente, mas não são o contrato público de URL.
+
+Ver [ADR 0010](./docs/adr/0010-brand-and-canonical-domains.md).
+
 ## Princípio de domínio
 
 > **Identity optional, Tab mandatory.**
