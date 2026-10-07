@@ -7,7 +7,9 @@ from modules.access.views import (
     StaffLockView,
     StaffLoginView,
     StaffLogoutView,
+    StaffReauthenticateView,
     StaffRefreshView,
+    StaffSwitchOperatorView,
 )
 
 
@@ -30,4 +32,6 @@ urlpatterns = [
     path("auth/me/", CurrentStaffView.as_view(), name="staff-me"),
     path("auth/lock/", StaffLockView.as_view(), name="staff-lock"),
     path("auth/logout/", StaffLogoutView.as_view(), name="staff-logout"),
+    path("auth/switch-operator/", StaffSwitchOperatorView.as_view(), name="staff-switch-operator"),
+    path("auth/reauthenticate/", StaffReauthenticateView.as_view(), name="staff-reauthenticate"),
 ]
