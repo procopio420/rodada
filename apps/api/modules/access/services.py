@@ -8,7 +8,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from modules.access.capabilities import effective_capabilities
+from modules.access.capabilities import effective_capabilities, has_capability
 from modules.access.context import ActorContext
 from modules.access.invalidation import AccessInvalidationType, publish_access_invalidation
 from modules.access.models import (
@@ -904,3 +904,30 @@ def revoke_session_admin(
         },
     )
     return target
+
+
+def authorize_replayed_command(
+    *,
+    session_id,
+    required_capability: str,
+) -> ActorContext:
+    session = (
+        StaffSession.objects.select_related("venue", "staff_member", "membership", "device")
+        .filter(pk=session_id)
+        .first()
+    )
+    if not session:
+        raise AccessServiceError("AUTH_REQUIRED", "Sessão não encontrada.", 401)
+
+    failure = _session_failure(session)
+    if failure:
+        raise failure
+
+    if not has_capability(session.membership, required_capability):
+        raise AccessServiceError(
+            "CAPABILITY_REQUIRED",
+            "Ação reprocessada não é mais autorizada para este operador.",
+            403,
+        )
+
+    return ActorContext.from_session(session)
