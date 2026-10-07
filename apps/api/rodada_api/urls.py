@@ -2,6 +2,8 @@ from django.db import connection
 from django.http import JsonResponse
 from django.urls import path
 
+from modules.ordering.views import OrderConfirmView, TabDetailView, TabListCreateView
+
 from modules.access.views import (
     AccessAuditListView,
     AccessInvalidationFeedView,
@@ -50,4 +52,7 @@ urlpatterns = [
     path("manage/access/sessions/", SessionListView.as_view(), name="access-sessions"),
     path("manage/access/sessions/<uuid:session_id>/revoke/", SessionRevokeView.as_view(), name="access-session-revoke"),
     path("manage/access/audit/", AccessAuditListView.as_view(), name="access-audit"),
+    path("tabs/", TabListCreateView.as_view(), name="tab-list-create"),
+    path("tabs/<uuid:tab_id>/", TabDetailView.as_view(), name="tab-detail"),
+    path("tabs/<uuid:tab_id>/orders/confirm/", OrderConfirmView.as_view(), name="order-confirm"),
 ]

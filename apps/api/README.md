@@ -140,3 +140,28 @@ python manage.py seed_demo_catalog
 ```
 
 A mutation de disponibilidade entra em slice posterior, depois do contrato de escopo por estação.
+
+
+## Tabs e Orders
+
+O módulo `ordering` introduz o núcleo de consumo sem dependência de mesa/Customer:
+
+- `Tab` pode ser anônima ou ter `display_label`;
+- `Tab.version` prepara optimistic concurrency dos fluxos estruturais;
+- todo `Order` pertence a uma Tab;
+- `Order.source` suporta STAFF, CASHIER e GUEST;
+- `OrderItem` captura nome/preço do Product no momento da confirmação;
+- confirmação é transacional e revalida `Product.active` + `ProductAvailability` sob lock;
+- um único item inválido rejeita o pedido inteiro;
+- alteração posterior de catálogo/availability não reescreve item confirmado.
+
+Endpoints staff iniciais:
+
+```text
+GET  /tabs/
+POST /tabs/
+GET  /tabs/{id}/
+POST /tabs/{id}/orders/confirm/
+```
+
+Ledger/Charge/Payment entram no próximo slice.
