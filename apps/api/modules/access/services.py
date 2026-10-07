@@ -650,3 +650,211 @@ def reauthenticate_staff(*, session: StaffSession, pin: str) -> dict:
         raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
 
     return _complete_reauthentication(session.pk)
+
+
+def _active_session_queryset_for_membership(membership: VenueStaffMembership):
+    return StaffSession.objects.filter(
+        membership=membership,
+        revoked_at__isnull=True,
+        superseded_at__isnull=True,
+        expires_at__gt=timezone.now(),
+    )
+
+
+def _active_session_queryset_for_device(device: DeviceRegistration):
+    return StaffSession.objects.filter(
+        device=device,
+        revoked_at__isnull=True,
+        superseded_at__isnull=True,
+        expires_at__gt=timezone.now(),
+    )
+
+
+@transaction.atomic
+def update_membership_admin(
+    *,
+    actor_session: StaffSession,
+    membership_id,
+    expected_version: int,
+    role: str | None = None,
+    status: str | None = None,
+    reason: str = "",
+) -> VenueStaffMembership:
+    membership = (
+        VenueStaffMembership.objects.select_for_update()
+        .select_related("venue", "staff_member")
+        .filter(pk=membership_id, venue=actor_session.venue)
+        .first()
+    )
+    if not membership:
+        raise AccessServiceError("NOT_FOUND", "Vínculo de staff não encontrado.", 404)
+
+    if membership.staff_member_id == actor_session.staff_member_id and role is not None:
+        raise AccessServiceError(
+            "SELF_ROLE_CHANGE_FORBIDDEN",
+            "Altere sua própria função usando outro OWNER autorizado.",
+            409,
+        )
+
+    if membership.version != expected_version:
+        raise AccessServiceError(
+            "VERSION_CONFLICT",
+            "O vínculo foi alterado por outra operação.",
+            409,
+        )
+
+    before = {
+        "role": membership.role,
+        "status": membership.status,
+        "version": membership.version,
+    }
+    changed_fields: list[str] = []
+
+    if role is not None and role != membership.role:
+        membership.role = role
+        changed_fields.append("role")
+
+    if status is not None and status != membership.status:
+        membership.status = status
+        changed_fields.append("status")
+        if status == MembershipStatus.REVOKED:
+            membership.revoked_at = timezone.now()
+            membership.revoked_by = actor_session.staff_member
+            changed_fields.extend(["revoked_at", "revoked_by"])
+        elif membership.revoked_at is not None:
+            membership.revoked_at = None
+            membership.revoked_by = None
+            changed_fields.extend(["revoked_at", "revoked_by"])
+
+    if not changed_fields:
+        return membership
+
+    membership.version += 1
+    changed_fields.append("version")
+    membership.save(update_fields=changed_fields)
+
+    if status in (MembershipStatus.SUSPENDED, MembershipStatus.REVOKED):
+        now = timezone.now()
+        _active_session_queryset_for_membership(membership).update(
+            revoked_at=now,
+            revocation_reason=f"MEMBERSHIP_{status}",
+        )
+
+    _audit(
+        venue=actor_session.venue,
+        event_type="membership.role_changed" if role is not None else "membership.status_changed",
+        actor_staff=actor_session.staff_member,
+        actor_session=actor_session,
+        device=actor_session.device,
+        metadata={
+            "membership_id": str(membership.id),
+            "target_staff_id": str(membership.staff_member_id),
+            "before": before,
+            "after": {
+                "role": membership.role,
+                "status": membership.status,
+                "version": membership.version,
+            },
+            "reason": reason,
+        },
+    )
+    return membership
+
+
+@transaction.atomic
+def update_device_trust_admin(
+    *,
+    actor_session: StaffSession,
+    device_id,
+    trust_state: str,
+    reason: str = "",
+) -> DeviceRegistration:
+    device = (
+        DeviceRegistration.objects.select_for_update()
+        .filter(pk=device_id, venue=actor_session.venue)
+        .first()
+    )
+    if not device:
+        raise AccessServiceError("NOT_FOUND", "Dispositivo não encontrado.", 404)
+
+    if device.trust_state == DeviceTrustState.REVOKED and trust_state != DeviceTrustState.REVOKED:
+        raise AccessServiceError(
+            "DEVICE_REVOKED",
+            "Dispositivo revogado não pode voltar a ser confiável.",
+            409,
+        )
+
+    before = device.trust_state
+    if before == trust_state:
+        return device
+
+    device.trust_state = trust_state
+    fields = ["trust_state"]
+    if trust_state == DeviceTrustState.REVOKED:
+        device.revoked_at = timezone.now()
+        device.revoked_by = actor_session.staff_member
+        device.revocation_reason = reason
+        fields.extend(["revoked_at", "revoked_by", "revocation_reason"])
+    device.save(update_fields=fields)
+
+    if trust_state == DeviceTrustState.REVOKED:
+        now = timezone.now()
+        _active_session_queryset_for_device(device).update(
+            revoked_at=now,
+            revocation_reason="DEVICE_REVOKED",
+        )
+
+    _audit(
+        venue=actor_session.venue,
+        event_type=(
+            "auth.device_revoked"
+            if trust_state == DeviceTrustState.REVOKED
+            else "auth.device_trusted"
+        ),
+        actor_staff=actor_session.staff_member,
+        actor_session=actor_session,
+        device=actor_session.device,
+        metadata={
+            "target_device_id": str(device.id),
+            "before": before,
+            "after": trust_state,
+            "reason": reason,
+        },
+    )
+    return device
+
+
+@transaction.atomic
+def revoke_session_admin(
+    *,
+    actor_session: StaffSession,
+    target_session_id,
+    reason: str = "",
+) -> StaffSession:
+    target = (
+        StaffSession.objects.select_for_update()
+        .select_related("venue", "staff_member", "device")
+        .filter(pk=target_session_id, venue=actor_session.venue)
+        .first()
+    )
+    if not target:
+        raise AccessServiceError("NOT_FOUND", "Sessão não encontrada.", 404)
+
+    if target.revoked_at is None:
+        target.revoked_at = timezone.now()
+        target.revocation_reason = reason or "ADMIN_REVOKE"
+        target.save(update_fields=["revoked_at", "revocation_reason"])
+
+    _audit(
+        venue=actor_session.venue,
+        event_type="auth.session_revoked",
+        actor_staff=actor_session.staff_member,
+        actor_session=actor_session,
+        device=actor_session.device,
+        metadata={
+            "target_session_id": str(target.id),
+            "target_staff_id": str(target.staff_member_id),
+            "reason": reason,
+        },
+    )
+    return target
