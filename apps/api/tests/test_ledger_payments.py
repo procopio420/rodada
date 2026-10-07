@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
 from modules.catalog.models import FulfillmentStation, Product
+from modules.cash.models import CashMovement, CashPoint
 from modules.ledger.models import Charge, Payment, PaymentMethod, PaymentStatus, Refund, RefundStatus
 from modules.ordering.models import Tab, TabState
 from modules.venue.models import Venue
@@ -39,7 +40,7 @@ class LedgerPaymentTests(TestCase):
         tab = self.order_tab()
         early = self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json")
         self.assertEqual(early.status_code, 409)
-        partial = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1000, "method": "CASH", "idempotency_key": "p1"}, format="json")
+        partial = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1000, "method": "CARD", "idempotency_key": "p1"}, format="json")
         self.assertEqual(partial.status_code, 201)
         self.assertEqual(partial.json()["exposure_cents"], 1400)
         final = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1400, "method": "CARD", "idempotency_key": "p2"}, format="json")
@@ -93,7 +94,7 @@ class LedgerPaymentTests(TestCase):
         tab = self.order_tab()
         collected = self.client.post(
             f"/tabs/{tab['id']}/payments/",
-            {"amount_cents": 1200, "method": "CASH", "idempotency_key": "cash-1"},
+            {"amount_cents": 1200, "method": "OTHER", "idempotency_key": "manual-1"},
             format="json",
         )
         self.assertEqual(collected.status_code, 201)
@@ -144,6 +145,46 @@ class LedgerPaymentTests(TestCase):
         )
         self.assertEqual(over_refund.status_code, 409)
         self.assertEqual(over_refund.json()["code"], "REFUND_EXCEEDS_PAYMENT")
+
+    def test_cash_payment_requires_active_drawer_and_creates_movement_atomically(self):
+        tab = self.order_tab()
+        missing = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 1200, "method": "CASH", "idempotency_key": "cash-missing"},
+            format="json",
+        )
+        self.assertEqual(missing.status_code, 409)
+        self.assertEqual(missing.json()["code"], "CASH_POINT_REQUIRED")
+        self.assertEqual(Payment.objects.count(), 0)
+
+        point = CashPoint.objects.create(venue=self.venue, label="Gaveta")
+        opened = self.client.post(
+            "/cash/shifts/",
+            {
+                "cash_point_id": str(point.id),
+                "opening_float_cents": 5000,
+                "business_date": "2026-10-07",
+                "idempotency_key": "open-gaveta",
+            },
+            format="json",
+        )
+        self.assertEqual(opened.status_code, 201, opened.json())
+        paid = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {
+                "amount_cents": 1200,
+                "amount_tendered_cents": 2000,
+                "cash_point_id": str(point.id),
+                "method": "CASH",
+                "idempotency_key": "cash-drawer",
+            },
+            format="json",
+        )
+        self.assertEqual(paid.status_code, 201, paid.json())
+        payment = Payment.objects.get(pk=paid.json()["id"])
+        movement = CashMovement.objects.get(payment=payment)
+        self.assertEqual(movement.amount_cents, 1200)
+        self.assertEqual(payment.cash_tender_detail.change_given_cents, 800)
 
     def test_pending_refund_does_not_change_exposure(self):
         tab = self.order_tab()

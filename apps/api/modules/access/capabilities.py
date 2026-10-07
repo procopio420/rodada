@@ -12,6 +12,7 @@ class Capability:
     REFUND_CREATE = "refund.create"
     CASH_SHIFT_OPEN = "cash.shift.open"
     CASH_ADJUSTMENT_CREATE = "cash.adjustment.create"
+    CASH_REVIEW = "cash.review"
     TAB_REOPEN = "tab.reopen"
     DISCOUNT_OVERRIDE = "discount.override"
     STAFF_MANAGE = "staff.manage"
@@ -33,12 +34,14 @@ _STAFF = {
 _CASHIER = _STAFF | {
     Capability.PAYMENT_COLLECT,
     Capability.CASH_SHIFT_OPEN,
+    Capability.CASH_ADJUSTMENT_CREATE,
 }
 _MANAGER = _CASHIER | {
     Capability.REFUND_CREATE,
     Capability.CASH_ADJUSTMENT_CREATE,
     Capability.TAB_REOPEN,
     Capability.DISCOUNT_OVERRIDE,
+    Capability.CASH_REVIEW,
     Capability.VENUE_CONFIGURE,
 }
 

@@ -23,6 +23,12 @@ class PaymentCollectView(APIView):
                 amount_cents=amount_cents,
                 method=request.data.get("method", ""),
                 idempotency_key=request.data.get("idempotency_key", ""),
+                cash_point_id=request.data.get("cash_point_id"),
+                amount_tendered_cents=(
+                    int(request.data["amount_tendered_cents"])
+                    if request.data.get("amount_tendered_cents") is not None
+                    else None
+                ),
                 actor=request.actor_context,
             )
         except (TypeError, ValueError):
@@ -53,6 +59,7 @@ class PaymentRefundView(APIView):
                 amount_cents=amount_cents,
                 idempotency_key=request.data.get("idempotency_key", ""),
                 reason=request.data.get("reason", ""),
+                cash_point_id=request.data.get("cash_point_id"),
                 actor=request.actor_context,
             )
         except (TypeError, ValueError):

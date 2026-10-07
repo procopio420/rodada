@@ -50,7 +50,16 @@ def create_charges_for_order(order, actor):
 
 
 @transaction.atomic
-def collect_payment(*, tab_id, amount_cents, method, idempotency_key, actor):
+def collect_payment(
+    *,
+    tab_id,
+    amount_cents,
+    method,
+    idempotency_key,
+    actor,
+    cash_point_id=None,
+    amount_tendered_cents=None,
+):
     tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=actor.venue_id).first()
     if not tab:
         raise LedgerServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
@@ -71,6 +80,13 @@ def collect_payment(*, tab_id, amount_cents, method, idempotency_key, actor):
         return existing, totals(tab)
     if amount_cents > exposure_cents(tab):
         raise LedgerServiceError("PAYMENT_EXCEEDS_EXPOSURE", "Pagamento excede o saldo em aberto.", 409)
+    amount_due_cents = exposure_cents(tab)
+    if method == PaymentMethod.CASH and not cash_point_id:
+        raise LedgerServiceError(
+            "CASH_POINT_REQUIRED",
+            "Selecione um caixa aberto para registrar dinheiro.",
+            409,
+        )
     confirmed_at = timezone.now()
     try:
         with transaction.atomic():
@@ -85,6 +101,20 @@ def collect_payment(*, tab_id, amount_cents, method, idempotency_key, actor):
             )
     except IntegrityError:
         payment = Payment.objects.get(tab=tab, idempotency_key=idempotency_key)
+    if method == PaymentMethod.CASH:
+        from modules.cash.services import CashServiceError, record_cash_payment_movement
+
+        try:
+            record_cash_payment_movement(
+                payment_id=payment.id,
+                cash_point_id=cash_point_id,
+                amount_due_cents=amount_due_cents,
+                amount_tendered_cents=amount_tendered_cents,
+                idempotency_key=f"payment:{idempotency_key}",
+                actor=actor,
+            )
+        except CashServiceError as error:
+            raise LedgerServiceError(error.code, error.message, error.status_code) from error
     result = totals(tab)
     record_audit_event(
         actor=actor,
@@ -101,7 +131,7 @@ def _confirmed_refunds_cents(payment: Payment) -> int:
 
 
 @transaction.atomic
-def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor):
+def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, cash_point_id=None):
     payment = (
         Payment.objects.select_for_update()
         .select_related("tab")
@@ -143,6 +173,25 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor):
             )
     except IntegrityError:
         refund = Refund.objects.get(payment=payment, idempotency_key=idempotency_key)
+
+    if payment.method == PaymentMethod.CASH:
+        if not cash_point_id:
+            raise LedgerServiceError(
+                "CASH_POINT_REQUIRED",
+                "Selecione o caixa que pagará o estorno em dinheiro.",
+                409,
+            )
+        from modules.cash.services import CashServiceError, record_cash_refund_movement
+
+        try:
+            record_cash_refund_movement(
+                refund_id=refund.id,
+                cash_point_id=cash_point_id,
+                idempotency_key=f"refund:{idempotency_key}",
+                actor=actor,
+            )
+        except CashServiceError as error:
+            raise LedgerServiceError(error.code, error.message, error.status_code) from error
 
     total_refunded = _confirmed_refunds_cents(payment)
     payment.status = (

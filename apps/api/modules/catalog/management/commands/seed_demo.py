@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
+from modules.cash.models import CashPoint
 from modules.venue.models import Venue
 
 
@@ -22,4 +23,5 @@ class Command(BaseCommand):
             staff.set_pin(pin)
             staff.save(update_fields=["display_name", "pin_hash"])
             VenueStaffMembership.objects.update_or_create(venue=venue, staff_member=staff, defaults={"role": role})
+        CashPoint.objects.get_or_create(venue=venue, label="Caixa principal")
         self.stdout.write(self.style.SUCCESS("Demo ready: bar-do-aderlan; Ana Gerente/0420, Bia Staff/1234."))

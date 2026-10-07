@@ -21,6 +21,19 @@ from modules.guest_access.views import (
     GuestQrResolveView,
     GuestTabCreateView,
 )
+from modules.cash.views import (
+    CashCloseView,
+    CashCountStartView,
+    CashLateCorrectionView,
+    CashPointActiveShiftView,
+    CashPointCreateView,
+    CashPointListView,
+    CashReviewView,
+    CashShiftDetailView,
+    CashShiftOpenView,
+    CashSupplyView,
+    CashWithdrawalView,
+)
 
 from modules.access.views import (
     AccessAuditListView,
@@ -93,4 +106,15 @@ urlpatterns = [
     path("guest/tabs/", GuestTabCreateView.as_view(), name="guest-tab-create"),
     path("guest/catalog/", GuestCatalogView.as_view(), name="guest-catalog"),
     path("guest/orders/confirm/", GuestOrderConfirmView.as_view(), name="guest-order-confirm"),
+    path("cash/points/", CashPointListView.as_view(), name="cash-point-list"),
+    path("cash/points/create/", CashPointCreateView.as_view(), name="cash-point-create"),
+    path("cash/points/<uuid:cash_point_id>/active-shift/", CashPointActiveShiftView.as_view(), name="cash-point-active-shift"),
+    path("cash/shifts/", CashShiftOpenView.as_view(), name="cash-shift-open"),
+    path("cash/shifts/<uuid:shift_id>/", CashShiftDetailView.as_view(), name="cash-shift-detail"),
+    path("cash/shifts/<uuid:shift_id>/supply/", CashSupplyView.as_view(), name="cash-supply"),
+    path("cash/shifts/<uuid:shift_id>/withdrawal/", CashWithdrawalView.as_view(), name="cash-withdrawal"),
+    path("cash/shifts/<uuid:shift_id>/count/start/", CashCountStartView.as_view(), name="cash-count-start"),
+    path("cash/shifts/<uuid:shift_id>/close/", CashCloseView.as_view(), name="cash-close"),
+    path("cash/shifts/<uuid:shift_id>/review/", CashReviewView.as_view(), name="cash-review"),
+    path("cash/shifts/<uuid:shift_id>/late-corrections/", CashLateCorrectionView.as_view(), name="cash-late-correction"),
 ]
