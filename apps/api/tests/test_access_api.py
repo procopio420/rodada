@@ -78,6 +78,7 @@ class StaffAuthAPITests(TestCase):
         assert response.status_code == 429
         assert response.json()["code"] == "AUTH_THROTTLED"
         assert response.json()["retry_after_seconds"] >= 1
+        assert int(response["Retry-After"]) == response.json()["retry_after_seconds"]
 
     def test_refresh_rotates_tokens_and_old_refresh_token_stops_working(self):
         first = self.login()
