@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -14,6 +16,9 @@ class AuthViewModel(
 ) : ViewModel() {
     var state by mutableStateOf(AuthUiState())
         private set
+
+    private var invalidationJob: Job? = null
+    private var invalidationCursor: Long = 0
 
     init {
         restore()
@@ -25,6 +30,7 @@ class AuthViewModel(
             runCatching { repository.restoreSession() }
                 .onSuccess { session ->
                     state = AuthUiState(loading = false, session = session)
+                    if (session != null) startInvalidationPolling()
                 }
                 .onFailure(::showFailure)
         }
@@ -38,6 +44,7 @@ class AuthViewModel(
         launchAction {
             val session = repository.login(venueSlug, loginIdentifier, pin)
             state = AuthUiState(loading = false, session = session)
+            startInvalidationPolling()
         }
     }
 
@@ -49,6 +56,7 @@ class AuthViewModel(
         launchAction {
             val next = repository.switchOperator(current, loginIdentifier, pin)
             state = AuthUiState(loading = false, session = next)
+            startInvalidationPolling()
         }
     }
 
@@ -69,6 +77,7 @@ class AuthViewModel(
         val current = state.session ?: return
         launchAction(clearOnFailure = true) {
             repository.lock(current)
+            stopInvalidationPolling()
             state = AuthUiState(loading = false)
         }
     }
@@ -77,6 +86,7 @@ class AuthViewModel(
         val current = state.session ?: return
         launchAction(clearOnFailure = true) {
             repository.logout(current)
+            stopInvalidationPolling()
             state = AuthUiState(loading = false)
         }
     }
@@ -84,6 +94,60 @@ class AuthViewModel(
     fun dismissError() {
         state = state.copy(errorMessage = null)
     }
+
+    private fun startInvalidationPolling() {
+        stopInvalidationPolling()
+        invalidationCursor = 0
+        invalidationJob =
+            viewModelScope.launch {
+                while (true) {
+                    delay(15_000)
+                    val current = state.session ?: return@launch
+
+                    runCatching {
+                        repository.pollInvalidations(
+                            current = current,
+                            after = invalidationCursor,
+                        )
+                    }
+                        .onSuccess { result ->
+                            invalidationCursor = result.cursor
+                            if (result.changed) {
+                                state =
+                                    state.copy(
+                                        session = result.session,
+                                        reauthValidUntil = null,
+                                        errorMessage = null,
+                                    )
+                            }
+                        }
+                        .onFailure { error ->
+                            if (error is AuthApiException && isTerminalAuthCode(error.code)) {
+                                showFailure(error)
+                                return@launch
+                            }
+                        }
+                }
+            }
+    }
+
+    private fun stopInvalidationPolling() {
+        invalidationJob?.cancel()
+        invalidationJob = null
+        invalidationCursor = 0
+    }
+
+    private fun isTerminalAuthCode(code: String): Boolean =
+        code in
+            setOf(
+                "SESSION_REVOKED",
+                "SESSION_SUPERSEDED",
+                "SESSION_EXPIRED",
+                "MEMBERSHIP_REVOKED",
+                "MEMBERSHIP_SUSPENDED",
+                "DEVICE_REVOKED",
+                "STAFF_INACTIVE",
+            )
 
     private fun launchAction(
         clearOnFailure: Boolean = false,
@@ -111,19 +175,8 @@ class AuthViewModel(
                 else -> error.message ?: "Falha inesperada."
             }
 
-        if (
-            error is AuthApiException &&
-                error.code in
-                    setOf(
-                        "SESSION_REVOKED",
-                        "SESSION_SUPERSEDED",
-                        "SESSION_EXPIRED",
-                        "MEMBERSHIP_REVOKED",
-                        "MEMBERSHIP_SUSPENDED",
-                        "DEVICE_REVOKED",
-                        "STAFF_INACTIVE",
-                    )
-        ) {
+        if (error is AuthApiException && isTerminalAuthCode(error.code)) {
+            stopInvalidationPolling()
             repository.clearLocalSession()
             state = AuthUiState(loading = false, errorMessage = message)
             return
