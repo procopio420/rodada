@@ -49,13 +49,13 @@ export async function apiCall<T>(
   input: string,
   init?: RequestInit,
 ): Promise<{ response: Response; body: T | ApiError | null }> {
+  const headers = new Headers(init?.headers);
+  headers.set("Accept", "application/json");
+  if (init?.body) headers.set("Content-Type", "application/json");
+
   const response = await fetch(input, {
     ...init,
-    headers: {
-      Accept: "application/json",
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
-      ...init?.headers,
-    },
+    headers,
     cache: "no-store",
   });
 
