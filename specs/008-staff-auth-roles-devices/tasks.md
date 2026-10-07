@@ -1,7 +1,7 @@
 # Tasks — Spec 008
 
 ## Domain/API
-- [ ] Define VenueStaffMembership and lifecycle.
+- [x] Define VenueStaffMembership and lifecycle.
 - [x] Define capability vocabulary and baseline STAFF/CASHIER/MANAGER/OWNER bundles.
 - [x] Implement effective-capability resolution per Venue.
 - [x] Define StaffSession lifecycle and revocation.
@@ -41,11 +41,11 @@
 - [ ] API remains authoritative if realtime is unavailable.
 
 ## Management
-- [ ] Staff membership list.
-- [ ] Change role/status with authorization.
-- [ ] Device/session list.
-- [ ] Revoke session/device.
-- [ ] Audit trail views.
+- [x] Staff membership list.
+- [x] Change role/status with authorization.
+- [x] Device/session list.
+- [x] Revoke session/device.
+- [x] Audit trail views.
 
 ## Quality/tests
 - [x] Role/capability matrix tests.

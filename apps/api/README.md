@@ -29,6 +29,14 @@ POST /auth/lock/
 POST /auth/logout/
 POST /auth/switch-operator/
 POST /auth/reauthenticate/
+
+GET   /manage/access/memberships/
+PATCH /manage/access/memberships/{id}/
+GET   /manage/access/devices/
+PATCH /manage/access/devices/{id}/
+GET   /manage/access/sessions/
+POST  /manage/access/sessions/{id}/revoke/
+GET   /manage/access/audit/
 ```
 
 Login recebe `venue_slug`, `login_identifier`, `pin`, `installation_id`, `platform` e label opcional.
@@ -94,3 +102,12 @@ python manage.py makemigrations --check --dry-run --settings=rodada_api.settings
 ```
 
 PostgreSQL continua sendo o banco principal da aplicação.
+
+
+## Access management
+
+As rotas de management exigem `staff.manage`; por default isso fica no role OWNER.
+
+Mutações administrativas também exigem reautenticação recente. Atualização de membership usa `expected_version` para evitar last-write-wins silencioso. Suspender/revogar membership e revogar device encerram as sessões afetadas imediatamente.
+
+Device em estado `REVOKED` não pode ser promovido novamente para `TRUSTED`; um aparelho revogado deve se registrar como nova instalação após o fluxo administrativo apropriado.

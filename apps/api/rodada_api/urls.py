@@ -3,7 +3,14 @@ from django.http import JsonResponse
 from django.urls import path
 
 from modules.access.views import (
+    AccessAuditListView,
     CurrentStaffView,
+    DeviceDetailView,
+    DeviceListView,
+    SessionListView,
+    SessionRevokeView,
+    StaffMembershipDetailView,
+    StaffMembershipListView,
     StaffLockView,
     StaffLoginView,
     StaffLogoutView,
@@ -34,4 +41,11 @@ urlpatterns = [
     path("auth/logout/", StaffLogoutView.as_view(), name="staff-logout"),
     path("auth/switch-operator/", StaffSwitchOperatorView.as_view(), name="staff-switch-operator"),
     path("auth/reauthenticate/", StaffReauthenticateView.as_view(), name="staff-reauthenticate"),
+    path("manage/access/memberships/", StaffMembershipListView.as_view(), name="access-memberships"),
+    path("manage/access/memberships/<uuid:membership_id>/", StaffMembershipDetailView.as_view(), name="access-membership-detail"),
+    path("manage/access/devices/", DeviceListView.as_view(), name="access-devices"),
+    path("manage/access/devices/<uuid:device_id>/", DeviceDetailView.as_view(), name="access-device-detail"),
+    path("manage/access/sessions/", SessionListView.as_view(), name="access-sessions"),
+    path("manage/access/sessions/<uuid:session_id>/revoke/", SessionRevokeView.as_view(), name="access-session-revoke"),
+    path("manage/access/audit/", AccessAuditListView.as_view(), name="access-audit"),
 ]
