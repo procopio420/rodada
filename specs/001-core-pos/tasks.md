@@ -17,7 +17,7 @@
 - [ ] Charge / Payment / Adjustment
 - [ ] CashShift
 - [x] AuditEvent
-- [ ] exposure service
+- [x] exposure service
 - [ ] cancellation/reversal service
 - [ ] tab close rules sem side effect de liberar mesa
 
@@ -26,13 +26,13 @@
 - [ ] tela de tabs abertas
 - [ ] abrir tab anônima ou por nome/apelido
 - [ ] catálogo rápido
-- [ ] lançar pedido
-- [ ] tela da tab
-- [ ] receber pagamento
-- [ ] fechar tab
-- [ ] tela simples Bar/Cozinha
-- [ ] ação rápida `Disponível / Indisponível` por produto na estação
-- [ ] catálogo mostra estado indisponível sem permitir confirmação
+- [x] lançar pedido
+- [x] tela da tab
+- [x] receber pagamento
+- [x] fechar tab
+- [x] tela simples Bar/Cozinha
+- [x] ação rápida `Disponível / Indisponível` por produto na estação
+- [x] catálogo mostra estado indisponível sem permitir confirmação
 - [ ] caixa básico
 
 ## Quality
@@ -46,8 +46,8 @@
 - [x] tests carrinho stale / corrida de disponibilidade
 - [x] tests mudança não altera OrderItem confirmado
 - [ ] tests permissão + audit de disponibilidade
-- [ ] tests charge idempotente
+- [x] tests charge idempotente
 - [ ] tests cancelamento/reversal
-- [ ] tests fechamento
+- [x] tests fechamento
 - [ ] tests cash summary
 - [x] seed demo

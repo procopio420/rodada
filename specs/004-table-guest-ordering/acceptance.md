@@ -15,17 +15,17 @@
 - [ ] Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.
 - [ ] Em `JOIN_ACTIVE`, guest não inicia ocupação nova.
 - [ ] Em `DISABLED`, guest não envia pedido.
-- [ ] Uma TableOccupancy suporta duas ou mais Tabs independentes.
+- [x] Uma TableOccupancy suporta duas ou mais Tabs independentes.
 - [ ] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
 - [ ] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
 - [ ] Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.
 - [ ] Guest não confirma item que ficou indisponível depois de entrar no carrinho.
 - [ ] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
-- [ ] Fechar a última Tab não libera a Table automaticamente.
-- [ ] `release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.
-- [ ] Staff inicia limpeza `DIRTY → CLEANING`.
-- [ ] Staff conclui limpeza `CLEANING → AVAILABLE`.
-- [ ] Concluir limpeza incrementa `access_generation`.
+- [x] Fechar a última Tab não libera a Table automaticamente.
+- [x] `release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.
+- [x] Staff inicia limpeza `DIRTY → CLEANING`.
+- [x] Staff conclui limpeza `CLEANING → AVAILABLE`.
+- [x] Concluir limpeza incrementa `access_generation`.
 - [ ] GuestSession de geração anterior não consegue criar novos pedidos.
 - [ ] Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.
 - [ ] Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.
@@ -36,4 +36,4 @@
 - [ ] Uma Tab pode receber e revogar associação NFC.
 - [ ] NFC pode ser reutilizado em outra Tab após revogação/fechamento.
 - [ ] Perfil Customer é opcional e pode ser ligado depois sem migrar a Tab.
-- [ ] Sistema registra timestamps para ocupação, liberação, início e fim da limpeza.
+- [x] Sistema registra timestamps para ocupação, liberação, início e fim da limpeza.

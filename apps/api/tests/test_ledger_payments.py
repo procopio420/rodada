@@ -2,8 +2,9 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
+from modules.audit.models import AuditEvent
 from modules.catalog.models import FulfillmentStation, Product
-from modules.ledger.models import Charge, Payment
+from modules.ledger.models import Charge, Payment, PaymentMethod, PaymentStatus, Refund, RefundStatus
 from modules.ordering.models import Tab, TabState
 from modules.venue.models import Venue
 
@@ -22,7 +23,7 @@ class LedgerPaymentTests(TestCase):
 
     def order_tab(self):
         tab = self.client.post("/tabs/", {"display_label": "Financeiro"}, format="json").json()
-        order = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", {"lines": [{"product_id": str(self.product.id), "quantity": 2}]}, format="json")
+        order = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", {"idempotency_key": f"order-{tab['id']}", "lines": [{"product_id": str(self.product.id), "quantity": 2}]}, format="json")
         self.assertEqual(order.status_code, 201)
         return tab
 
@@ -55,3 +56,112 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(Payment.objects.count(), 1)
         excess = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1300, "method": "CASH", "idempotency_key": "excess"}, format="json")
         self.assertEqual(excess.status_code, 409)
+
+    def test_provider_payment_method_cannot_be_manually_confirmed(self):
+        tab = self.order_tab()
+        response = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 1000, "method": "TAP_TO_PAY", "idempotency_key": "tap-1"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["code"], "PAYMENT_METHOD_UNAVAILABLE")
+        self.assertEqual(Payment.objects.count(), 0)
+
+    def manager_client(self):
+        manager = StaffMember.objects.create(display_name="Gerente", login_identifier="gerente")
+        manager.set_pin("4321")
+        manager.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(venue=self.venue, staff_member=manager, role=StaffRole.MANAGER)
+        client = APIClient()
+        response = client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": "gerente",
+                "pin": "4321",
+                "installation_id": "refund-manager-test",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + response.json()["access_token"])
+        return manager, client
+
+    def test_only_confirmed_money_counts_and_authorized_refund_is_append_only(self):
+        tab = self.order_tab()
+        collected = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 1200, "method": "CASH", "idempotency_key": "cash-1"},
+            format="json",
+        )
+        self.assertEqual(collected.status_code, 201)
+        self.assertEqual(collected.json()["status"], PaymentStatus.CONFIRMED)
+
+        Payment.objects.create(
+            tab_id=tab["id"],
+            amount_cents=500,
+            method=PaymentMethod.TAP_TO_PAY,
+            idempotency_key="provider-pending",
+            status=PaymentStatus.CONFIRMATION_PENDING,
+            received_by=self.cashier,
+        )
+        before_refund = self.client.get(f"/tabs/{tab['id']}/").json()
+        self.assertEqual(before_refund["payments_cents"], 1200)
+        self.assertEqual(before_refund["refunds_cents"], 0)
+        self.assertEqual(before_refund["exposure_cents"], 1200)
+
+        forbidden = self.client.post(
+            f"/payments/{collected.json()['id']}/refunds/",
+            {"amount_cents": 500, "idempotency_key": "r1", "reason": "Item indisponível"},
+            format="json",
+        )
+        self.assertEqual(forbidden.status_code, 403)
+
+        manager, manager_client = self.manager_client()
+        payload = {"amount_cents": 500, "idempotency_key": "r1", "reason": "Item indisponível"}
+        first = manager_client.post(f"/payments/{collected.json()['id']}/refunds/", payload, format="json")
+        replay = manager_client.post(f"/payments/{collected.json()['id']}/refunds/", payload, format="json")
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(first.json()["id"], replay.json()["id"])
+        self.assertEqual(Refund.objects.count(), 1)
+        self.assertEqual(first.json()["payments_cents"], 1200)
+        self.assertEqual(first.json()["refunds_cents"], 500)
+        self.assertEqual(first.json()["exposure_cents"], 1700)
+
+        payment = Payment.objects.get(pk=collected.json()["id"])
+        self.assertEqual(payment.status, PaymentStatus.PARTIALLY_REFUNDED)
+        audit = AuditEvent.objects.get(event_type="payment.refunded")
+        self.assertEqual(audit.actor_staff_id, manager.id)
+        self.assertIsNotNone(audit.actor_session_id)
+        self.assertEqual(audit.metadata["payment_id"], str(payment.id))
+
+        over_refund = manager_client.post(
+            f"/payments/{payment.id}/refunds/",
+            {"amount_cents": 701, "idempotency_key": "r2", "reason": "too much"},
+            format="json",
+        )
+        self.assertEqual(over_refund.status_code, 409)
+        self.assertEqual(over_refund.json()["code"], "REFUND_EXCEEDS_PAYMENT")
+
+    def test_pending_refund_does_not_change_exposure(self):
+        tab = self.order_tab()
+        payment = Payment.objects.create(
+            tab_id=tab["id"],
+            amount_cents=1000,
+            method=PaymentMethod.CASH,
+            idempotency_key="confirmed-manual",
+            status=PaymentStatus.CONFIRMED,
+            received_by=self.cashier,
+        )
+        Refund.objects.create(
+            payment=payment,
+            amount_cents=400,
+            idempotency_key="provider-refund-pending",
+            status=RefundStatus.PENDING,
+            created_by=self.cashier,
+        )
+        detail = self.client.get(f"/tabs/{tab['id']}/").json()
+        self.assertEqual(detail["payments_cents"], 1000)
+        self.assertEqual(detail["refunds_cents"], 0)
+        self.assertEqual(detail["exposure_cents"], 1400)

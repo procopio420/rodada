@@ -16,3 +16,4 @@ class OrderLineSerializer(serializers.Serializer):
 
 class OrderConfirmSerializer(serializers.Serializer):
     lines = OrderLineSerializer(many=True, allow_empty=False)
+    idempotency_key = serializers.CharField(max_length=120)

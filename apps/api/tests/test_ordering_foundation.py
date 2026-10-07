@@ -96,6 +96,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "snapshot-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 2},
                 ]
@@ -135,6 +136,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "unavailable-order",
                 "lines": [
                     {"product_id": str(available.id), "quantity": 1},
                     {"product_id": str(unavailable.id), "quantity": 1},
@@ -158,6 +160,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "inactive-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 1},
                 ]
@@ -205,6 +208,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "stale-cart-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 1},
                 ]
@@ -223,6 +227,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "confirmed-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 1},
                 ]
@@ -250,6 +255,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab['id']}/orders/confirm/",
             {
+                "idempotency_key": "other-venue-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 1},
                 ]
@@ -276,6 +282,7 @@ class OrderingFoundationTests(TestCase):
         response = self.client.post(
             f"/tabs/{tab.id}/orders/confirm/",
             {
+                "idempotency_key": "closed-tab-order",
                 "lines": [
                     {"product_id": str(product.id), "quantity": 1},
                 ]
@@ -300,3 +307,37 @@ class OrderingFoundationTests(TestCase):
         assert order.source == OrderSource.GUEST
         assert order.confirmed_by_id is None
         assert order.tab_id == tab.id
+
+    def test_http_confirmation_replay_creates_one_order_and_one_charge(self):
+        tab = self.open_tab()
+        product = self.product(name="Replay-safe")
+        payload = {
+            "idempotency_key": "retry-after-timeout",
+            "lines": [{"product_id": str(product.id), "quantity": 2}],
+        }
+
+        first = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", payload, format="json")
+        replay = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", payload, format="json")
+
+        assert first.status_code == 201, first.json()
+        assert replay.status_code == 200, replay.json()
+        assert replay.json()["id"] == first.json()["id"]
+        assert Tab.objects.get(pk=tab["id"]).orders.count() == 1
+        assert Tab.objects.get(pk=tab["id"]).charges.count() == 1
+
+    def test_order_idempotency_key_rejects_different_cart(self):
+        tab = self.open_tab()
+        product = self.product(name="No duplicate")
+        first = self.client.post(
+            f"/tabs/{tab['id']}/orders/confirm/",
+            {"idempotency_key": "fixed-key", "lines": [{"product_id": str(product.id), "quantity": 1}]},
+            format="json",
+        )
+        conflict = self.client.post(
+            f"/tabs/{tab['id']}/orders/confirm/",
+            {"idempotency_key": "fixed-key", "lines": [{"product_id": str(product.id), "quantity": 2}]},
+            format="json",
+        )
+        assert first.status_code == 201
+        assert conflict.status_code == 409
+        assert conflict.json()["code"] == "IDEMPOTENCY_CONFLICT"

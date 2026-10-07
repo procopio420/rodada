@@ -1,35 +1,35 @@
 # Acceptance — Spec 006
 
-- [ ] Payment pertence a Tab e nunca depende de Table.
-- [ ] Uma Tab aceita múltiplos Payments.
-- [ ] Pagamento parcial reduz saldo sem exigir "dividir conta".
-- [ ] Saldo é derivado do ledger e não de `tab.paid`.
-- [ ] Pagar a última Tab não libera automaticamente TableOccupancy.
-- [ ] Staff consegue iniciar **Pagar** diretamente da Tab.
+- [x] Payment pertence a Tab e nunca depende de Table.
+- [x] Uma Tab aceita múltiplos Payments.
+- [x] Pagamento parcial reduz saldo sem exigir "dividir conta".
+- [x] Saldo é derivado do ledger e não de `tab.paid`.
+- [x] Pagar a última Tab não libera automaticamente TableOccupancy.
+- [x] Staff consegue iniciar **Pagar** diretamente da Tab.
 - [ ] No happy path integrado, valor não é digitado novamente em outra maquininha.
-- [ ] Rodada Atendimento executa o fluxo operacional em app Android nativo Kotlin + Jetpack Compose.
+- [x] Rodada Atendimento executa o fluxo operacional em app Android nativo Kotlin + Jetpack Compose.
 - [ ] Device compatível oferece Tap on Phone sem acoplar o domínio a uma marca.
 - [ ] Paytime é o primeiro adapter real de Tap on Phone do MVP.
 - [ ] Cobrança Tap on Phone acontece dentro do Rodada Atendimento, sem abrir aplicativo externo no happy path.
 - [ ] Device/provider incompatível não oferece Tap on Phone como disponível.
-- [ ] Double tap/retry com a mesma intenção não cria cobrança duplicada.
+- [x] Double tap/retry com a mesma intenção não cria cobrança duplicada.
 - [ ] Timeout após envio entra em estado reconciliável e não libera retry cego.
 - [ ] `CONFIRMATION_PENDING` impede nova cobrança equivalente até resolução.
-- [ ] Frontend sozinho nunca é fonte de verdade de confirmação.
+- [x] Frontend sozinho nunca é fonte de verdade de confirmação.
 - [ ] Webhook duplicado é idempotente.
 - [ ] Evento externo é rastreável por provider_event_id/payload_hash.
 - [ ] Pix confirmado pelo provider atualiza automaticamente a Tab.
 - [ ] Staff não precisa marcar Pix como pago no fluxo normal.
 - [ ] Guest autorizado pode pagar a mesma Tab, sem criar conta paralela.
 - [ ] Pagamento Guest aparece no Staff em realtime quando conectado.
-- [ ] Dinheiro registra quem confirmou o recebimento.
-- [ ] Terminal externo existe como fallback explícito e auditável.
-- [ ] Payment confirmado nunca é apagado para representar estorno.
-- [ ] Estorno total/parcial cria Refund/efeito reverso rastreável.
-- [ ] Apenas papéis autorizados executam estorno/reconciliação manual.
+- [x] Dinheiro registra quem confirmou o recebimento.
+- [x] Terminal externo existe como fallback explícito e auditável.
+- [x] Payment confirmado nunca é apagado para representar estorno.
+- [x] Estorno total/parcial cria Refund/efeito reverso rastreável.
+- [x] Apenas papéis autorizados executam estorno/reconciliação manual.
 - [ ] Payment Provider é abstraído por porta/adaptador.
 - [ ] Capabilities de provider/device guiam a UI sem hardcode de marca.
 - [ ] PAN/CVV nunca são persistidos pelo Rodada.
 - [ ] Logs não expõem credenciais nem dados sensíveis de cartão.
 - [ ] Métrica de tempo entre intenção de pagar e confirmação é registrada.
-- [ ] Fluxo P0 continua funcional quando Tap on Phone estiver indisponível, usando método alternativo.
+- [x] Fluxo P0 continua funcional quando Tap on Phone estiver indisponível, usando método alternativo.

@@ -144,6 +144,19 @@ class AuthRepository(context: Context) {
         secureStore.clear()
     }
 
+    /**
+     * Runs an operational request with a current access token.  The refresh remains owned by
+     * the auth repository so all authenticated Rodada surfaces get the same revocation and
+     * token-rotation behaviour.
+     */
+    suspend fun <T> withAuthorizedAccess(
+        current: StoredSession,
+        action: (String) -> T,
+    ): T =
+        withContext(Dispatchers.IO) {
+            withAccessRefresh(current, action)
+        }
+
     private fun refreshStoredSession(session: StoredSession): StoredSession {
         val nextTokens =
             try {

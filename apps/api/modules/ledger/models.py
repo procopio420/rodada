@@ -15,20 +15,76 @@ class Charge(models.Model):
 
 
 class PaymentMethod(models.TextChoices):
+    TAP_TO_PAY = "TAP_TO_PAY", "Tap to pay"
+    CARD_ONLINE = "CARD_ONLINE", "Card online"
     CASH = "CASH", "Cash"
+    EXTERNAL_TERMINAL = "EXTERNAL_TERMINAL", "External terminal"
     CARD = "CARD", "Card"
     PIX = "PIX", "Pix"
     OTHER = "OTHER", "Other"
+
+
+class PaymentStatus(models.TextChoices):
+    CREATED = "CREATED", "Created"
+    PENDING = "PENDING", "Pending"
+    PROCESSING = "PROCESSING", "Processing"
+    AUTHORIZED = "AUTHORIZED", "Authorized"
+    CONFIRMATION_PENDING = "CONFIRMATION_PENDING", "Confirmation pending"
+    CONFIRMED = "CONFIRMED", "Confirmed"
+    FAILED = "FAILED", "Failed"
+    CANCELLED = "CANCELLED", "Cancelled"
+    PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED", "Partially refunded"
+    REFUNDED = "REFUNDED", "Refunded"
+
+    @classmethod
+    def confirmed_money_values(cls):
+        return (cls.CONFIRMED, cls.PARTIALLY_REFUNDED, cls.REFUNDED)
+
+
+class RefundStatus(models.TextChoices):
+    PENDING = "PENDING", "Pending"
+    CONFIRMED = "CONFIRMED", "Confirmed"
+    FAILED = "FAILED", "Failed"
 
 
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tab = models.ForeignKey(Tab, on_delete=models.PROTECT, related_name="payments")
     amount_cents = models.PositiveIntegerField()
-    method = models.CharField(max_length=12, choices=PaymentMethod.choices)
+    method = models.CharField(max_length=24, choices=PaymentMethod.choices)
     idempotency_key = models.CharField(max_length=120)
+    currency = models.CharField(max_length=3, default="BRL")
+    provider = models.CharField(max_length=80, blank=True)
+    provider_payment_id = models.CharField(max_length=160, blank=True)
+    status = models.CharField(max_length=24, choices=PaymentStatus.choices, default=PaymentStatus.CONFIRMED)
+    tip_amount_cents = models.PositiveIntegerField(default=0)
+    metadata = models.JSONField(default=dict, blank=True)
     received_by = models.ForeignKey(StaffMember, on_delete=models.PROTECT, related_name="payments_received")
     received_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    failed_at = models.DateTimeField(null=True, blank=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=("tab", "idempotency_key"), name="ledger_payment_tab_key_unique")]
+
+
+class Refund(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    payment = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name="refunds")
+    amount_cents = models.PositiveIntegerField()
+    idempotency_key = models.CharField(max_length=120)
+    provider_refund_id = models.CharField(max_length=160, blank=True)
+    status = models.CharField(max_length=16, choices=RefundStatus.choices, default=RefundStatus.CONFIRMED)
+    reason = models.CharField(max_length=240, blank=True)
+    created_by = models.ForeignKey(StaffMember, on_delete=models.PROTECT, related_name="refunds_created")
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("payment", "idempotency_key"),
+                name="ledger_refund_payment_key_unique",
+            )
+        ]

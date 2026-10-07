@@ -2,22 +2,22 @@
 
 ## API/Domain
 
-- [ ] Table model + status
+- [x] Table model + status
 - [ ] FloorPlan model + guest/staff projections
 - [ ] TablePlacement model + active-placement invariant
 - [ ] normalized x/y coordinates + placement history
 - [ ] optimistic locking/version on placement mutation
 - [ ] TableGroup temporary grouping
-- [ ] TableOccupancy model + invariants
+- [x] TableOccupancy model + invariants
 - [ ] TablePlacement ↔ ServicePoint/Zone integration
-- [ ] Tab ↔ TableOccupancy optional association
-- [ ] enforce multiple Tabs per occupancy
-- [ ] release table service
-- [ ] cleaning start/complete services
-- [ ] increment `access_generation` on cleaning completion
+- [x] Tab ↔ TableOccupancy optional association
+- [x] enforce multiple Tabs per occupancy
+- [x] release table service
+- [x] cleaning start/complete services
+- [x] increment `access_generation` on cleaning completion
 - [ ] GuestSession model
 - [ ] TabIdentifier model
-- [ ] opaque Table public token
+- [x] opaque Table public token
 - [ ] short code identifier
 - [ ] dynamic Tab QR identifier
 - [ ] NFC_TAG association/revocation
@@ -25,7 +25,7 @@
 - [ ] guest block/unblock
 - [ ] server-side generation validation
 - [ ] rate limiting
-- [ ] audit events
+- [x] audit events
 - [ ] metrics queries
 
 ## Guest PWA
@@ -75,7 +75,7 @@
 - [ ] old GuestSession rejected after occupancy release/generation change
 - [ ] guest block rejects guest mutation but staff still orders
 - [ ] two Tabs on same occupancy remain financially independent
-- [ ] closing last Tab does not release table
+- [x] closing last Tab does not release table
 - [ ] cleaning timestamps produce deterministic metrics
 - [ ] NFC reassignment revokes previous association
 - [ ] moving a Table preserves occupancy, Tabs, Orders, ledger and QR
@@ -83,4 +83,4 @@
 - [ ] concurrent placement update rejects stale version
 - [ ] grouping Tables never merges financial identity
 - [ ] rate limit tests
-- [ ] authorization tests
+- [x] authorization tests

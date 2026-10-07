@@ -1,3 +1,5 @@
+import hashlib
+import json
 from dataclasses import dataclass
 
 from django.db import transaction
@@ -45,6 +47,7 @@ def confirm_order(
     source: str,
     lines: list[dict],
     actor: ActorContext | None = None,
+    idempotency_key: str = "",
 ) -> Order:
     if source not in OrderSource.values:
         raise OrderingServiceError("INVALID_ORDER_SOURCE", "Origem do pedido inválida.", 400)
@@ -82,6 +85,21 @@ def confirm_order(
             )
         normalized_lines.append((product_id, quantity))
         product_ids.append(product_id)
+
+    request_fingerprint = _order_fingerprint(source=source, lines=normalized_lines)
+    if idempotency_key:
+        existing = Order.objects.filter(tab=tab, idempotency_key=idempotency_key).first()
+        if existing:
+            if existing.request_fingerprint != request_fingerprint:
+                raise OrderingServiceError(
+                    "IDEMPOTENCY_CONFLICT",
+                    "A chave já foi usada para outro pedido.",
+                    409,
+                )
+            # The tab row is locked above, so a second request cannot race past
+            # this point and create a second order or financial effect.
+            existing._idempotency_replay = True
+            return existing
 
     locked_products = {
         product.id: product
@@ -128,6 +146,8 @@ def confirm_order(
         tab=tab,
         source=source,
         confirmed_by_id=actor.staff_id if actor else None,
+        idempotency_key=idempotency_key,
+        request_fingerprint=request_fingerprint if idempotency_key else "",
     )
     OrderItem.objects.bulk_create(
         [
@@ -165,6 +185,21 @@ def confirm_order(
     create_charges_for_order(order, actor)
 
     return order
+
+
+def _order_fingerprint(*, source: str, lines: list[tuple[object, int]]) -> str:
+    """Stable intent identity, insensitive to line ordering in a cart."""
+    quantities: dict[str, int] = {}
+    for product_id, quantity in lines:
+        product_key = str(product_id)
+        quantities[product_key] = quantities.get(product_key, 0) + quantity
+    payload = {
+        "source": source,
+        "lines": sorted(quantities.items()),
+    }
+    return hashlib.sha256(
+        json.dumps(payload, separators=(",", ":"), ensure_ascii=True).encode()
+    ).hexdigest()
 
 
 _TRANSITIONS = {

@@ -108,12 +108,17 @@ class OrderConfirmView(APIView):
                 tab_id=tab_id,
                 source="STAFF",
                 lines=serializer.validated_data["lines"],
+                idempotency_key=serializer.validated_data["idempotency_key"],
                 actor=request.actor_context,
             )
         except OrderingServiceError as error:
             return _error_response(error)
+        replayed = getattr(order, "_idempotency_replay", False)
         order = order.__class__.objects.prefetch_related("items").get(pk=order.pk)
-        return Response(_order_payload(order), status=201)
+        return Response(
+            _order_payload(order),
+            status=200 if replayed else 201,
+        )
 
 
 class OrderItemTransitionView(APIView):

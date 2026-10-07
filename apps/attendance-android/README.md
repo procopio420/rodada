@@ -2,7 +2,7 @@
 
 Aplicativo nativo do garçom/caixa móvel, em Kotlin + Jetpack Compose.
 
-## Slice atual — Spec 008
+## Slices atuais — Specs 008 e 001 (loop operacional)
 
 Este primeiro app executável cobre a fundação de autenticação:
 
@@ -19,6 +19,17 @@ Este primeiro app executável cobre a fundação de autenticação:
 - limpeza local imediata para sessão/membership/device revogados.
 
 PIN nunca é persistido.
+
+Após autenticação, o Atendimento também executa o loop operacional persistido:
+
+- lista e abre Tabs;
+- consulta catálogo e disponibilidade canônicos;
+- compõe e confirma pedidos na mesma pipeline de produção;
+- mostra cobrança, recebido e saldo da Tab;
+- registra pagamento parcial manual (`CASH`, cartão, terminal externo, Pix/outro) com chave de idempotência;
+- fecha Tab somente quando o saldo canônico chega a zero.
+
+Pedidos e pagamentos recebem uma UUID de intenção por submissão. Repetir a mesma ação depois de falha de rede reutiliza a chave; a API confirma/reconcilia em vez de duplicar o efeito. O app nunca apresenta pagamento externo como confirmado antes de o operador confirmar que o terminal/provedor concluiu a cobrança.
 
 ## Backend local
 
@@ -55,9 +66,9 @@ Tokens são serializados juntos com o contexto da sessão e cifrados antes de en
 
 `EncryptedSharedPreferences` não é usado porque está deprecated. O installation id não é credencial e fica em storage comum.
 
-## Próximos slices
+## Limites atuais
 
-Este app ainda não implementa Tab, pedidos, catálogo, dispatch nem Tap on Phone. Esses fluxos entram conforme as specs operacionais forem implementadas.
+Dispatch, produção, Tap on Phone e o fluxo provider/webhook de pagamento ainda não pertencem a esta superfície. O terminal externo permanece uma confirmação manual do operador; não existe confirmação falsa pelo app.
 
 
 ## Invalidação de acesso

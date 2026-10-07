@@ -31,24 +31,36 @@ import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.AuthUiState
 import com.rodada.attendance.auth.AuthViewModel
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.operations.AttendanceScreen
+import com.rodada.attendance.operations.OperationsViewModel
 
 @Composable
-fun AuthApp(viewModel: AuthViewModel) {
+fun AuthApp(viewModel: AuthViewModel, operationsViewModel: OperationsViewModel) {
     val state = viewModel.state
+    var accountVisible by rememberSaveable { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.session == null) {
                 LoginScreen(state = state, onLogin = viewModel::login)
             } else {
-                SessionScreen(
-                    state = state,
-                    session = state.session,
-                    onSwitchOperator = viewModel::switchOperator,
-                    onReauthenticate = viewModel::reauthenticate,
-                    onLock = viewModel::lock,
-                    onLogout = viewModel::logout,
-                )
+                if (accountVisible) {
+                    SessionScreen(
+                        state = state,
+                        session = state.session,
+                        onBackToOperations = { accountVisible = false },
+                        onSwitchOperator = viewModel::switchOperator,
+                        onReauthenticate = viewModel::reauthenticate,
+                        onLock = viewModel::lock,
+                        onLogout = viewModel::logout,
+                    )
+                } else {
+                    AttendanceScreen(
+                        session = state.session,
+                        viewModel = operationsViewModel,
+                        onOpenAccount = { accountVisible = true },
+                    )
+                }
             }
 
             state.errorMessage?.let { message ->
@@ -160,6 +172,7 @@ private fun LoginScreen(
 private fun SessionScreen(
     state: AuthUiState,
     session: StoredSession,
+    onBackToOperations: () -> Unit,
     onSwitchOperator: (String, String) -> Unit,
     onReauthenticate: (String) -> Unit,
     onLock: () -> Unit,
@@ -178,6 +191,9 @@ private fun SessionScreen(
                 .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        TextButton(onClick = onBackToOperations, enabled = !state.loading) {
+            Text("← Atendimento")
+        }
         Text("Operador ativo", style = MaterialTheme.typography.labelLarge)
         Text(session.staffDisplayName, style = MaterialTheme.typography.headlineMedium)
         Text(session.venueName.ifBlank { session.venueSlug })

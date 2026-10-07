@@ -2,24 +2,24 @@
 
 ## Domain/API
 
-- [ ] expand Payment methods/statuses
+- [x] expand Payment methods/statuses
 - [ ] PaymentAttempt model
-- [ ] idempotency key uniqueness/semantics
+- [x] idempotency key uniqueness/semantics
 - [ ] ProviderEvent inbox
-- [ ] Refund model
-- [ ] balance/exposure projection from ledger
-- [ ] prevent Table/TableOccupancy coupling
+- [x] Refund model
+- [x] balance/exposure projection from ledger
+- [x] prevent Table/TableOccupancy coupling
 - [ ] provider-neutral PaymentProvider port
 - [ ] provider capabilities
-- [ ] normalized payment errors
-- [ ] create payment command
+- [x] normalized payment errors
+- [x] create payment command
 - [ ] confirm payment transition rules
 - [ ] confirmation_pending reconciliation
 - [ ] cancel rules
-- [ ] refund total
-- [ ] refund partial
-- [ ] audit financial mutations
-- [ ] permissions/RBAC
+- [x] refund total
+- [x] refund partial
+- [x] audit financial mutations
+- [x] permissions/RBAC
 - [ ] webhook signature validation per adapter
 - [ ] webhook idempotency
 - [ ] scheduled/manual reconciliation
@@ -27,12 +27,12 @@
 
 ## Rodada Atendimento — Android
 
-- [ ] app/surface Android nativo em Kotlin + Jetpack Compose
+- [x] app/surface Android nativo em Kotlin + Jetpack Compose
 - [ ] contratos/API compartilhados sem acoplar domínio ao Android
-- [ ] **Pagar** action on Tab
-- [ ] full balance option
-- [ ] custom/partial value
-- [ ] method picker
+- [x] **Pagar** action on Tab
+- [x] full balance option
+- [x] custom/partial value
+- [x] method picker
 - [ ] Tap on Phone capability detection
 - [ ] provider-neutral `TapToPayProvider`
 - [ ] `PaytimeTapProvider` como primeiro adapter
@@ -44,7 +44,7 @@
 - [ ] confirmed UI
 - [ ] failed UI with retry/alternate method
 - [ ] Cash received + change calculation
-- [ ] External terminal fallback
+- [x] External terminal fallback
 - [ ] Payment history on Tab
 - [ ] Refund action for authorized roles
 
@@ -76,16 +76,16 @@
 ## Security/quality
 
 - [ ] backend owns amount/currency
-- [ ] no PAN/CVV persistence
-- [ ] redact provider secrets/sensitive fields from logs
-- [ ] double tap cannot double-charge
-- [ ] frontend retry cannot double-charge
+- [x] no PAN/CVV persistence
+- [x] redact provider secrets/sensitive fields from logs
+- [x] double tap cannot double-charge
+- [x] frontend retry cannot double-charge
 - [ ] webhook duplicate cannot double-apply
 - [ ] provider timeout cannot auto-retry ambiguous charge
-- [ ] cash/manual payment records actor
-- [ ] external terminal is visually/auditably distinct
+- [x] cash/manual payment records actor
+- [x] external terminal is visually/auditably distinct
 - [ ] closing Tab never frees TableOccupancy
-- [ ] tests for partial payment
-- [ ] tests for refunds
+- [x] tests for partial payment
+- [x] tests for refunds
 - [ ] tests for reconciliation
 - [ ] metrics: time-to-pay, approval/failure, method/provider, confirmation_pending

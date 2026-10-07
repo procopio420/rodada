@@ -69,6 +69,11 @@ class Order(models.Model):
         choices=OrderStatus.choices,
         default=OrderStatus.CONFIRMED,
     )
+    # Commands can be retried after a client-side timeout.  This key identifies
+    # the command, rather than a cart or a tab, and is deliberately scoped to a
+    # tab so independent Tabs can use the same client-generated UUID.
+    idempotency_key = models.CharField(max_length=120, blank=True)
+    request_fingerprint = models.CharField(max_length=64, blank=True)
     confirmed_by = models.ForeignKey(
         StaffMember,
         on_delete=models.PROTECT,
@@ -82,6 +87,13 @@ class Order(models.Model):
         ordering = ("confirmed_at", "id")
         indexes = [
             models.Index(fields=("tab", "confirmed_at"), name="ordering_ord_tab_time_idx"),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=("tab", "idempotency_key"),
+                condition=~Q(idempotency_key=""),
+                name="ordering_order_tab_idempotency_unique",
+            ),
         ]
 
 

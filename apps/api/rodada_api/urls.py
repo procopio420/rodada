@@ -3,8 +3,16 @@ from django.http import JsonResponse
 from django.urls import path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
-from modules.ledger.views import PaymentCollectView, TabCloseView
+from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
 from modules.catalog.views import ProductAvailabilityView, ProductListView
+from modules.hospitality.views import (
+    OccupancyAssignTabView,
+    TableCleaningCompleteView,
+    TableCleaningStartView,
+    TableListCreateView,
+    TableOccupyView,
+    TableReleaseView,
+)
 
 from modules.access.views import (
     AccessAuditListView,
@@ -58,9 +66,16 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/", TabDetailView.as_view(), name="tab-detail"),
     path("tabs/<uuid:tab_id>/orders/confirm/", OrderConfirmView.as_view(), name="order-confirm"),
     path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),
+    path("payments/<uuid:payment_id>/refunds/", PaymentRefundView.as_view(), name="payment-refund"),
     path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
     path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
+    path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
+    path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),
+    path("hospitality/tables/<uuid:table_id>/release/", TableReleaseView.as_view(), name="table-release"),
+    path("hospitality/tables/<uuid:table_id>/cleaning/start/", TableCleaningStartView.as_view(), name="table-cleaning-start"),
+    path("hospitality/tables/<uuid:table_id>/cleaning/complete/", TableCleaningCompleteView.as_view(), name="table-cleaning-complete"),
+    path("hospitality/occupancies/<uuid:occupancy_id>/tabs/", OccupancyAssignTabView.as_view(), name="occupancy-assign-tab"),
 ]

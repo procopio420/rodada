@@ -161,7 +161,46 @@ Endpoints staff iniciais:
 GET  /tabs/
 POST /tabs/
 GET  /tabs/{id}/
-POST /tabs/{id}/orders/confirm/
+POST /tabs/{id}/orders/confirm/  # requires idempotency_key
 ```
 
-Ledger/Charge/Payment entram no próximo slice.
+Order confirmation is an idempotent command scoped to its Tab. A replay of the same
+`idempotency_key` and cart returns the original order; reusing a key for a different
+cart is rejected. Confirmed order-item price snapshots create Charges exactly once.
+
+## Ledger and manual payments (partial Spec 006)
+
+The canonical balance is derived from confirmed Charges, Payments and Refunds; no
+mutable `paid` field exists on `Tab`. Manual cash, external terminal and other
+fallback methods are confirmed only by the authenticated staff command and carry
+actor/session/device audit provenance. Provider-backed Tap/card-online methods are
+explicitly rejected until a provider adapter and server reconciliation exist.
+
+```text
+POST /tabs/{id}/payments/                 # payment.collect, idempotency_key
+POST /payments/{payment_id}/refunds/      # refund.create, idempotency_key
+POST /tabs/{id}/close/                    # payment.collect, only exposure zero
+```
+
+Refunds are append-only compensating records. Only confirmed money changes exposure;
+pending provider records do not.
+
+## Table operations (partial Spec 004)
+
+`hospitality` mantém a mesa como contexto físico, fora do ledger. Uma ocupação pode
+ter várias Tabs através de associações históricas; a Tab não recebe uma FK de mesa.
+Fechar uma Tab, portanto, nunca libera uma mesa.
+
+```text
+GET  /hospitality/tables/
+POST /hospitality/tables/                         # venue.configure
+POST /hospitality/tables/{id}/occupy/             # table.manage, tab_id opcional
+POST /hospitality/occupancies/{id}/tabs/          # table.manage
+POST /hospitality/tables/{id}/release/            # table.manage
+POST /hospitality/tables/{id}/cleaning/start/     # table.manage
+POST /hospitality/tables/{id}/cleaning/complete/  # table.manage
+```
+
+O ciclo persistido é `AVAILABLE → OCCUPIED → DIRTY → CLEANING → AVAILABLE`.
+`public_token` é aleatório/opaco para o QR físico; o resolver público e GuestSession
+ainda pertencem ao próximo slice. A geração de acesso só aumenta no fim da limpeza.

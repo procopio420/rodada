@@ -3,7 +3,14 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from modules.audit.services import record_audit_event
-from modules.ledger.models import Charge, Payment, PaymentMethod
+from modules.ledger.models import (
+    Charge,
+    Payment,
+    PaymentMethod,
+    PaymentStatus,
+    Refund,
+    RefundStatus,
+)
 from modules.ordering.models import OrderItem, Tab, TabState
 
 
@@ -14,15 +21,24 @@ class LedgerServiceError(Exception):
 
 
 def exposure_cents(tab: Tab) -> int:
-    charges = tab.charges.aggregate(total=Sum("amount_cents"))["total"] or 0
-    payments = tab.payments.aggregate(total=Sum("amount_cents"))["total"] or 0
-    return charges - payments
+    return totals(tab)["exposure_cents"]
 
 
 def totals(tab: Tab) -> dict:
     charges = tab.charges.aggregate(total=Sum("amount_cents"))["total"] or 0
-    payments = tab.payments.aggregate(total=Sum("amount_cents"))["total"] or 0
-    return {"charges_cents": charges, "payments_cents": payments, "exposure_cents": charges - payments}
+    payments = tab.payments.filter(status__in=PaymentStatus.confirmed_money_values()).aggregate(
+        total=Sum("amount_cents")
+    )["total"] or 0
+    refunds = Refund.objects.filter(
+        payment__tab=tab,
+        status=RefundStatus.CONFIRMED,
+    ).aggregate(total=Sum("amount_cents"))["total"] or 0
+    return {
+        "charges_cents": charges,
+        "payments_cents": payments,
+        "refunds_cents": refunds,
+        "exposure_cents": charges - payments + refunds,
+    }
 
 
 @transaction.atomic
@@ -42,6 +58,12 @@ def collect_payment(*, tab_id, amount_cents, method, idempotency_key, actor):
         raise LedgerServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     if amount_cents <= 0 or method not in PaymentMethod.values or not idempotency_key:
         raise LedgerServiceError("INVALID_PAYMENT", "Pagamento inválido.")
+    if method in (PaymentMethod.TAP_TO_PAY, PaymentMethod.CARD_ONLINE):
+        raise LedgerServiceError(
+            "PAYMENT_METHOD_UNAVAILABLE",
+            "Este método exige confirmação por um provedor configurado.",
+            409,
+        )
     existing = Payment.objects.filter(tab=tab, idempotency_key=idempotency_key).first()
     if existing:
         if existing.amount_cents != amount_cents or existing.method != method:
@@ -49,13 +71,101 @@ def collect_payment(*, tab_id, amount_cents, method, idempotency_key, actor):
         return existing, totals(tab)
     if amount_cents > exposure_cents(tab):
         raise LedgerServiceError("PAYMENT_EXCEEDS_EXPOSURE", "Pagamento excede o saldo em aberto.", 409)
+    confirmed_at = timezone.now()
     try:
-        payment = Payment.objects.create(tab=tab, amount_cents=amount_cents, method=method, idempotency_key=idempotency_key, received_by_id=actor.staff_id)
+        with transaction.atomic():
+            payment = Payment.objects.create(
+                tab=tab,
+                amount_cents=amount_cents,
+                method=method,
+                idempotency_key=idempotency_key,
+                status=PaymentStatus.CONFIRMED,
+                confirmed_at=confirmed_at,
+                received_by_id=actor.staff_id,
+            )
     except IntegrityError:
         payment = Payment.objects.get(tab=tab, idempotency_key=idempotency_key)
     result = totals(tab)
-    record_audit_event(actor=actor, event_type="payment.collected", entity_type="Payment", entity_id=str(payment.id), metadata={**result, "method": method})
+    record_audit_event(
+        actor=actor,
+        event_type="payment.collected",
+        entity_type="Payment",
+        entity_id=str(payment.id),
+        metadata={**result, "method": method, "status": payment.status},
+    )
     return payment, result
+
+
+def _confirmed_refunds_cents(payment: Payment) -> int:
+    return payment.refunds.filter(status=RefundStatus.CONFIRMED).aggregate(total=Sum("amount_cents"))["total"] or 0
+
+
+@transaction.atomic
+def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor):
+    payment = (
+        Payment.objects.select_for_update()
+        .select_related("tab")
+        .filter(pk=payment_id, tab__venue_id=actor.venue_id)
+        .first()
+    )
+    if not payment:
+        raise LedgerServiceError("PAYMENT_NOT_FOUND", "Pagamento não encontrado.", 404)
+    if payment.tab.state == TabState.CLOSED:
+        raise LedgerServiceError(
+            "TAB_CLOSED",
+            "Reabra a comanda antes de registrar um estorno.",
+            409,
+        )
+    if amount_cents <= 0 or not idempotency_key:
+        raise LedgerServiceError("INVALID_REFUND", "Estorno inválido.")
+    existing = Refund.objects.filter(payment=payment, idempotency_key=idempotency_key).first()
+    if existing:
+        if existing.amount_cents != amount_cents or existing.reason != reason:
+            raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro estorno.", 409)
+        return existing, totals(payment.tab)
+    if payment.status not in PaymentStatus.confirmed_money_values():
+        raise LedgerServiceError("PAYMENT_NOT_CONFIRMED", "Só é possível estornar pagamento confirmado.", 409)
+    refunded_cents = _confirmed_refunds_cents(payment)
+    if amount_cents > payment.amount_cents - refunded_cents:
+        raise LedgerServiceError("REFUND_EXCEEDS_PAYMENT", "Estorno excede o valor ainda reembolsável.", 409)
+
+    confirmed_at = timezone.now()
+    try:
+        with transaction.atomic():
+            refund = Refund.objects.create(
+                payment=payment,
+                amount_cents=amount_cents,
+                idempotency_key=idempotency_key,
+                reason=reason,
+                status=RefundStatus.CONFIRMED,
+                confirmed_at=confirmed_at,
+                created_by_id=actor.staff_id,
+            )
+    except IntegrityError:
+        refund = Refund.objects.get(payment=payment, idempotency_key=idempotency_key)
+
+    total_refunded = _confirmed_refunds_cents(payment)
+    payment.status = (
+        PaymentStatus.REFUNDED
+        if total_refunded == payment.amount_cents
+        else PaymentStatus.PARTIALLY_REFUNDED
+    )
+    payment.save(update_fields=["status"])
+    result = totals(payment.tab)
+    record_audit_event(
+        actor=actor,
+        event_type="payment.refunded",
+        entity_type="Refund",
+        entity_id=str(refund.id),
+        reason=reason,
+        metadata={
+            **result,
+            "payment_id": str(payment.id),
+            "amount_cents": amount_cents,
+            "payment_status": payment.status,
+        },
+    )
+    return refund, result
 
 
 @transaction.atomic
