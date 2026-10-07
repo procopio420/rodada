@@ -1,5 +1,6 @@
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
 
+from modules.access.context import ActorContext
 from modules.access.errors import AccessAuthenticationFailed, AccessPermissionDenied
 from modules.access.services import AccessServiceError, session_for_access_token
 
@@ -26,6 +27,7 @@ class StaffBearerAuthentication(BaseAuthentication):
                 raise AccessPermissionDenied(exc.code, exc.message) from exc
             raise AccessAuthenticationFailed(exc.code, exc.message) from exc
 
+        request.actor_context = ActorContext.from_session(session)
         return session.staff_member, session
 
     def authenticate_header(self, request):
