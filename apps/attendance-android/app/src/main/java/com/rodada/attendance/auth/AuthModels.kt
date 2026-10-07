@@ -57,3 +57,20 @@ data class AuthUiState(
     val errorMessage: String? = null,
     val reauthValidUntil: String? = null,
 )
+
+
+data class AccessInvalidationEvent(
+    val id: Long,
+    val eventType: String,
+)
+
+data class AccessInvalidationFeed(
+    val cursor: Long,
+    val results: List<AccessInvalidationEvent>,
+)
+
+data class InvalidationPollResult(
+    val session: StoredSession,
+    val cursor: Long,
+    val changed: Boolean,
+)
