@@ -1,6 +1,6 @@
 # Spec 005 — Quick Catalog + AI Icons
 
-**Status:** Implementation in progress; verification recorded in acceptance.md
+**Status:** Implemented and verified; real generated-art approval pending provider credentials. See acceptance.md.
 
 ## Objetivo
 

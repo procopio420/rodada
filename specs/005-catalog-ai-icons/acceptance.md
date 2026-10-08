@@ -36,3 +36,5 @@
 - Deterministic fixtures are injected only in tests. No fake imagery is available as a runtime provider.
 - **Requires provider credentials:** a real generated icon's visual adherence (no lettering/logos, safe area, 48 px legibility) remains unverified. Direct OpenAI or HTTPS gateway configuration and worker/shared persistent asset storage are documented in `apps/api/modules/catalog/README.md`.
 - Manual upload and editing preview are implemented and backend-tested; live visual review of a real generated product asset remains pending credentials.
+
+Final regression results: **167 API tests passed, 3 PostgreSQL-only tests skipped in SQLite**; Catalog PostgreSQL suite separately passed all 15. **90 visual/accessibility tests passed**, including Quick Catalog at 360/390/430 px. Browser integration: 5 passed. No tests claim real generated artwork approval.
