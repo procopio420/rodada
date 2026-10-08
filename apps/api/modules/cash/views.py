@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
-from modules.access.permissions import RequireCapability
+from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.cash.models import CashPoint
 from modules.cash.services import (
     CashServiceError,
@@ -236,7 +236,9 @@ class CashCloseView(APIView):
 
 
 class CashReviewView(APIView):
-    permission_classes = [IsAuthenticated, RequireCapability]
+    # Accepting a discrepancy is a manager action with financial impact.
+    # The server, rather than the cashier UI, owns the recent-PIN requirement.
+    permission_classes = [IsAuthenticated, RequireCapability, RequireRecentReauthentication]
     required_capability = Capability.CASH_REVIEW
 
     def post(self, request, shift_id):

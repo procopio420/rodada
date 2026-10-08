@@ -193,6 +193,43 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(movement.amount_cents, 1200)
         self.assertEqual(payment.cash_tender_detail.change_given_cents, 800)
 
+    def test_cash_discrepancy_review_requires_manager_reauthentication(self):
+        point = CashPoint.objects.create(venue=self.venue, label="Gaveta revisão")
+        opened = self.client.post(
+            "/cash/shifts/",
+            {
+                "cash_point_id": str(point.id),
+                "opening_float_cents": 5000,
+                "business_date": "2026-10-07",
+                "idempotency_key": "open-review",
+            },
+            format="json",
+        )
+        self.assertEqual(opened.status_code, 201, opened.json())
+        shift_id = opened.json()["id"]
+        counting = self.client.post(f"/cash/shifts/{shift_id}/count/start/", {}, format="json")
+        self.assertEqual(counting.status_code, 200, counting.json())
+        closed = self.client.post(
+            f"/cash/shifts/{shift_id}/close/",
+            {"counted_amount_cents": 4900, "expected_version": counting.json()["version"]},
+            format="json",
+        )
+        self.assertEqual(closed.status_code, 200, closed.json())
+        self.assertEqual(closed.json()["review_status"], "PENDING")
+
+        _, manager_client = self.manager_client()
+        payload = {"reason": "Diferença conferida com o cofre."}
+        required = manager_client.post(f"/cash/shifts/{shift_id}/review/", payload, format="json")
+        self.assertEqual(required.status_code, 403)
+        self.assertEqual(required.json()["code"], "REAUTH_REQUIRED")
+        self.assertEqual(
+            manager_client.post("/auth/reauthenticate/", {"pin": "4321"}, format="json").status_code,
+            200,
+        )
+        reviewed = manager_client.post(f"/cash/shifts/{shift_id}/review/", payload, format="json")
+        self.assertEqual(reviewed.status_code, 200, reviewed.json())
+        self.assertEqual(reviewed.json()["review_status"], "REVIEWED")
+
     def test_pending_refund_does_not_change_exposure(self):
         tab = self.order_tab()
         payment = Payment.objects.create(
