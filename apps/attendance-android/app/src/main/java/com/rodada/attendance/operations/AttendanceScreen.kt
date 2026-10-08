@@ -87,6 +87,8 @@ fun AttendanceScreen(
             connectivity.unregisterNetworkCallback(callback)
         }
     }
+    var operatingTab by remember { mutableStateOf(false) }
+    LaunchedEffect(state.operationCompleted) { if (state.operationCompleted) operatingTab = false }
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
@@ -107,7 +109,7 @@ fun AttendanceScreen(
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
     LaunchedEffect(session.staffId, session.venueId) {
-        while (true) { delay(15_000); viewModel.refresh(session) }
+        while (true) { delay(15_000); if (!operatingTab) viewModel.refresh(session) }
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -160,6 +162,7 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
+                    onOperations = { operatingTab = true; viewModel.loadTabOperations(session) },
                     onResolveLimit = { resolvingLimit = true },
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
@@ -172,6 +175,13 @@ fun AttendanceScreen(
             }
         }
     }
+
+    if (operatingTab) TabOperationsDialog(session, state,
+        onDismiss = { operatingTab = false },
+        onPreview = { viewModel.previewTabOperation(session, it) },
+        onCommit = { viewModel.commitTabOperation(session, it) },
+        onEdit = viewModel::clearOperationPreview,
+        onRefresh = { viewModel.loadTabOperations(session) })
 
     if (openingTab) {
         OpenTabDialog(
@@ -350,6 +360,7 @@ private fun TabWorkspace(
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
     onClose: () -> Unit,
+    onOperations: () -> Unit,
     onResolveLimit: () -> Unit,
     onCorrectItem: (OrderItem) -> Unit,
     onRefundPayment: (TabPayment) -> Unit,
@@ -369,6 +380,7 @@ private fun TabWorkspace(
             TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
             Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
+            OutlinedButton(onClick = onOperations, enabled = !state.submitting) { Text("Operações da comanda") }
             BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
             if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
                 Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
@@ -487,6 +499,7 @@ private fun BalanceCard(
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
+            if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
             Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
             tab.percentageUsed?.let { Text("$it% do limite utilizado") }
             if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")

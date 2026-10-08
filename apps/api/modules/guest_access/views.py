@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.catalog.models import AvailabilityState
-from modules.catalog.services import product_payload
+from modules.catalog.serializers import icon_payload
 from modules.ordering.views import _order_payload, _tab_payload
 
 from .serializers import GuestOrderConfirmSerializer, GuestTabCreateSerializer, QrResolveSerializer
@@ -143,7 +143,7 @@ class GuestCatalogView(APIView):
                         "price_cents": product.price_cents,
                         "fulfillment_station": product.fulfillment_station,
                         "available": product.availability.state == AvailabilityState.AVAILABLE,
-                        "icon": product_payload(product)["icon"],
+                        "icon": icon_payload(product),
                     }
                     for product in products
                 ]

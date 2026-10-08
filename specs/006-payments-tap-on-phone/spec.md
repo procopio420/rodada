@@ -570,3 +570,21 @@ Todas usam o mesmo backend e o mesmo modelo de domínio. Compartilhamos contrato
 - adquirência própria.
 
 Esses temas exigem specs próprias quando virarem prioridade.
+
+## Live integration slice (2026-10-08)
+
+Paytime Pix uses authenticated REST transaction creation with a persisted Payment UUID
+as `reference_id`. No provider idempotency guarantee is assumed: a failed/ambiguous
+create is reconciled and never submitted again. Config is scoped by Venue, held in
+server settings/secrets, and disabled unless complete. Webhooks require configured
+HTTP Basic credentials and an authenticated provider lookup; incoming callback
+status/amount alone never confirms money. Amount, transaction ID, method and
+establishment must match before applying a provider fact. QR/EMV is retained for
+recovery after restart. Provider cancellation/refunds are unavailable until their
+contracts are integrated; manual refunds must not pretend to refund provider money.
+
+Tap SDK activation remains blocked by the private Maven artifact, license,
+application registration and merchant/device provisioning. The native port must
+support lifecycle and capability checks and treat local completion as evidence for
+backend reconciliation, never as confirmed receipt. Unknown expiration or missing
+provider reference retains confirmation pending; local clocks cannot authorize retry.

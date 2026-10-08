@@ -122,10 +122,11 @@ for (const width of widths) {
     await page.setViewportSize(viewports.find(viewport => viewport.width === width)!);
     await fixture(page);
     await page.goto("/kitchen");
-    await page.getByLabel("Buscar produto por nome").fill("Produto novo de teste");
-    await page.getByRole("button", { name: 'Criar "Produto novo de teste"', exact: true }).click();
-    await page.getByLabel("Preço do novo produto (R$)").fill("18,00");
-    await expect(page.getByRole("button", { name: "Salvar novo produto", exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "+ Item", exact: true }).click();
+  await page.getByLabel("Nome do produto").fill("Produto novo de teste");
+    await page.getByRole("option", { name: 'Criar “Produto novo de teste”', exact: true }).click();
+    await page.getByLabel("Preço (R$)").fill("18,00");
+    await expect(page.getByRole("button", { name: "Criar item", exact: true })).toBeVisible();
     await stable(page);
     await layoutAndA11y(page);
     await page.screenshot({ path: path.join(artifactRoot, `quick-catalog-${width}.png`), fullPage: true });

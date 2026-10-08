@@ -2,7 +2,7 @@ import re
 import unicodedata
 import uuid
 
-from django.db import models
+from django.db import models, transaction
 
 from modules.access.models import StaffMember
 from modules.venue.models import Venue
@@ -10,6 +10,7 @@ from modules.venue.models import Venue
 
 def normalize_product_name(value: str) -> str:
     normalized = unicodedata.normalize("NFKC", value).casefold().strip()
+    normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", normalized)
 
 
@@ -28,6 +29,8 @@ class Product(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="products")
     name = models.CharField(max_length=160)
     normalized_name = models.CharField(max_length=180, editable=False)
+    description = models.CharField(max_length=600, blank=True)
+    category = models.CharField(max_length=100, blank=True)
     price_cents = models.PositiveIntegerField()
     active = models.BooleanField(default=True)
     fulfillment_station = models.CharField(max_length=16, choices=FulfillmentStation.choices)
@@ -52,10 +55,15 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         self.normalized_name = normalize_product_name(self.name)
         creating = self._state.adding
-        super().save(*args, **kwargs)
-        if creating:
-            ProductAvailability.objects.get_or_create(product=self)
-            ProductIcon.objects.get_or_create(product=self)
+        if kwargs.get("update_fields") and "name" in kwargs["update_fields"]:
+            kwargs["update_fields"] = set(kwargs["update_fields"]) | {"normalized_name"}
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if creating:
+                ProductAvailability.objects.get_or_create(product=self)
+                ProductIcon.objects.get_or_create(product=self)
+                from modules.catalog.services import enqueue_icon
+                enqueue_icon(product=self)
 
     def __str__(self) -> str:
         return self.name
@@ -91,7 +99,7 @@ class ProductAvailability(models.Model):
 
 
 class ProductIcon(models.Model):
-    """Stable identity; no configured generator means an honest reusable fallback."""
+    """Stable product-keyed identity, extended with durable generation and revisions."""
     product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True, related_name="icon")
     source = models.CharField(max_length=24, default="NONE")
     status = models.CharField(max_length=16, default="FAILED")
@@ -100,3 +108,46 @@ class ProductIcon(models.Model):
     error_code = models.CharField(max_length=80, default="GENERATOR_NOT_CONFIGURED")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    published_asset = models.CharField(max_length=240, blank=True)
+    revision = models.PositiveIntegerField(default=0)
+
+    @property
+    def id(self):
+        return self.pk
+
+
+class IconGeneration(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    icon = models.ForeignKey(ProductIcon, on_delete=models.CASCADE, related_name="generations")
+    fingerprint = models.CharField(max_length=64)
+    request_key = models.CharField(max_length=160)
+    revision = models.PositiveIntegerField()
+    context = models.JSONField()
+    prompt = models.TextField()
+    style_version = models.CharField(max_length=40)
+    provider = models.CharField(max_length=100, blank=True)
+    model = models.CharField(max_length=100, blank=True)
+    usage = models.JSONField(default=dict)
+    asset = models.CharField(max_length=240, blank=True)
+    status = models.CharField(max_length=16, default="PENDING")
+    attempts = models.PositiveIntegerField(default=0)
+    available_at = models.DateTimeField()
+    lease_until = models.DateTimeField(null=True)
+    claim_token = models.UUIDField(null=True)
+    error = models.CharField(max_length=100, blank=True)
+    created_by = models.ForeignKey(StaffMember, on_delete=models.PROTECT, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=("icon", "request_key"), name="catalog_icon_request_unique")]
+        indexes = [models.Index(fields=("status", "available_at"), name="catalog_icon_jobs_idx")]
+
+
+class IconGenerationRequest(models.Model):
+    icon = models.ForeignKey(ProductIcon, on_delete=models.CASCADE)
+    key = models.CharField(max_length=160)
+    generation = models.ForeignKey(IconGeneration, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=("icon", "key"), name="catalog_icon_alias_unique")]

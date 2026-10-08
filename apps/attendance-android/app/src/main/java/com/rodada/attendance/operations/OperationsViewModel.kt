@@ -24,6 +24,11 @@ import java.io.IOException
 import java.util.UUID
 
 data class OperationsUiState(
+    val operationState: org.json.JSONObject? = null,
+    val operationPoints: List<Pair<String, String>> = emptyList(),
+    val operationPreview: org.json.JSONObject? = null,
+    val pendingTabOperation: RecoveryIntent.TabStructure? = null,
+    val operationCompleted: Boolean = false,
     val loading: Boolean = false,
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
@@ -57,6 +62,54 @@ class OperationsViewModel(
         private set
 
     private var loadedSessionKey: String? = null
+
+    fun loadTabOperations(session: StoredSession) = action {
+        state = state.copy(operationState = null, operationPreview = null, operationCompleted = false)
+        val id = state.selectedTab?.summary?.id ?: return@action
+        val pending = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TabStructure>().firstOrNull { it.tabId == id }
+        val points = repository.servicePoints(session).getJSONArray("results")
+        state = state.copy(operationState = repository.operationState(session, id),
+            operationPoints = List(points.length()) { points.getJSONObject(it).let { p -> p.getString("id") to p.getString("label") } },
+            operationPreview = null, pendingTabOperation = pending, operationCompleted = false,
+            tabs = repository.tabs(session), tables = repository.tables(session), connectivity = ConnectivityState.ONLINE,
+            lastSyncedAtMillis = System.currentTimeMillis())
+    }
+
+    fun clearOperationPreview() { state = state.copy(operationPreview = null) }
+
+    fun previewTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+        if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
+        val id = state.selectedTab?.summary?.id ?: return@action
+        state = state.copy(operationPreview = repository.tabOperation(session, id, command, preview = true))
+    }
+
+    fun commitTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+        if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
+        val id = state.selectedTab?.summary?.id ?: return@action
+        val pending = state.pendingTabOperation
+        val intent = pending ?: RecoveryIntent.TabStructure(
+            id = java.util.UUID.randomUUID().toString(), staffId = session.staffId, venueId = session.venueId,
+            deviceId = session.deviceId, idempotencyKey = command.getString("idempotency_key"),
+            createdAtMillis = System.currentTimeMillis(), state = RecoveryState.PENDING, tabId = id, commandJson = command.toString())
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(pendingTabOperation = intent)
+        try {
+            repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson))
+        } catch (error: OperationsApiException) {
+            // Deterministic server rejection means no commit. Network ambiguity retains the exact command.
+            if (error.status in 400..499) {
+                pendingMutationIntentStore.remove(intent.id)
+                state = state.copy(pendingTabOperation = null, operationPreview = null)
+                state = state.copy(operationState = repository.operationState(session, id), tabs = repository.tabs(session))
+            }
+            throw error
+        }
+        pendingMutationIntentStore.remove(intent.id)
+        state = state.copy(pendingTabOperation = null, operationPreview = null, operationCompleted = true,
+            operationState = null, noticeMessage = "Operação confirmada pelo servidor.")
+        replaceDetail(repository.tabDetail(session, id))
+        state = state.copy(tabs = repository.tabs(session), tables = repository.tables(session))
+    }
 
     fun ensureLoaded(session: StoredSession) {
         val key = session.staffId + ":" + session.venueId

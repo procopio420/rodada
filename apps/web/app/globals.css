@@ -276,3 +276,19 @@ h2 { font-weight: 800; }
   .stationTicket { grid-template-columns: 84px minmax(0, 1fr) 116px; }
   .stationTicket .stationTab { font-size: 26px; }
 }
+.quickCatalog { margin-bottom: var(--space-4); }
+.quickCatalogPanel { margin-top: var(--space-3); }
+.catalogHeading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.catalogHeading h2 { margin-bottom: 0; }
+.catalogOptions { display: grid; gap: var(--space-2); }
+.catalogOption { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); width: 100%; text-align: left; background: var(--color-surface-2); color: var(--color-text); border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+.catalogOption[aria-selected="true"] { border-color: var(--color-info); }
+.catalogOption > span { min-width: 0; overflow-wrap: anywhere; }
+.catalogOption small { display: block; color: var(--color-text-muted); font-size: var(--text-sm); margin: var(--space-1) 0; }
+.catalogIdentity { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.statusBadge[data-state="info"] { color: var(--color-info); }
+.statusBadge[data-state="warning"] { color: var(--color-warning); }
+details > summary { min-height: var(--catalog-icon-size); display: flex; align-items: center; cursor: pointer; }
+summary:focus-visible { outline: 3px solid var(--color-info); }
+
+.guestProduct > span:last-child { margin-left: auto; }

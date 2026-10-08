@@ -11,7 +11,7 @@ from modules.corrections.views import (
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
-from modules.catalog.views import ProductAvailabilityView, ProductListView, ProductResolveView
+from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
 from modules.management.views import CalendarView, ReportView
 from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
@@ -76,8 +76,13 @@ def readiness(request):
     return JsonResponse({"status": "ready"})
 
 
+from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
+
 urlpatterns = [
-    path("catalog/products/resolve/", ProductResolveView.as_view()),
+    path("tabs/<uuid:tab_id>/operations/", OperationView.as_view()),
+    path("tabs/<uuid:tab_id>/operations/preview/", PreviewView.as_view()),
+    path("service-points/", ServicePointView.as_view()),
+    path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
     path("cash/shifts/history/", CashShiftListView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
@@ -118,6 +123,11 @@ urlpatterns = [
     path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
+    path("catalog/suggestions/", ProductSuggestView.as_view()),
+    path("catalog/resolve-or-create/", ProductResolveView.as_view()),
+    path("catalog/products/<uuid:product_id>/", ProductEditView.as_view()),
+    path("catalog/products/<uuid:product_id>/icon/", ProductIconManageView.as_view()),
+    path("catalog/assets/<uuid:icon_id>/<str:filename>/", PublishedIconAssetView.as_view()),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),

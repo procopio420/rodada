@@ -6,6 +6,8 @@ import { ManagementNav } from "@/components/management-nav";
 import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
+import { CatalogIconEditor } from "@/components/catalog-icon-editor";
+
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
 type TabDetail = Tab & {
   refund_required_corrections?: { id: string; item_name: string; refund_required_cents: number }[];
@@ -132,6 +134,7 @@ export default function ManagementPage() {
     </section>
 
     <HouseAccount />
+    <CatalogIconEditor />
     </div>
     <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
     {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">Indisponível</strong></div>)}</section> : null}

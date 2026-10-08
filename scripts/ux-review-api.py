@@ -24,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-ux-review-") as directory:
         settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(Path(directory) / "review.sqlite3")}}
     elif settings.DATABASES["default"]["NAME"] != "rodada_ux_review":
         raise RuntimeError("Use only the dedicated rodada_ux_review PostgreSQL database")
-    settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost", "10.0.2.2"]
     settings.DEBUG = False
     import django
     django.setup()

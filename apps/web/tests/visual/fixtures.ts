@@ -7,7 +7,7 @@ export const viewports = [
 ] as const;
 export const widths = viewports.map(viewport => viewport.width);
 export const products = [
-  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true, icon: { status: "READY", asset_url: "/product-icons/material-fries.svg", style_version: "provided-reference-v1" } },
+  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true, icon: { id: "fries", source: "PROVIDED_REFERENCE", status: "READY", published_asset_url: "/product-icons/material-fries.svg" } },
   { id: "omelette", name: "Omelete", price_cents: 1800, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
   { id: "beer", name: "Bebida de teste", price_cents: 1200, fulfillment_station: "BAR", availability: "AVAILABLE", available: true, active: true },
 ];
@@ -43,7 +43,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;
     } else if (url.pathname.startsWith("/api/auth/invalidation-events")) body = { cursor: 0, results: [] };
-    else if (url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
+    else if (url.pathname === "/api/pos/catalog/suggestions/" || url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
     else if (url.pathname.startsWith("/api/pos/production/")) body = { results: items };
     else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail], next_offset: null };
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;
