@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q
 
 from modules.access.models import StaffMember
+from modules.ledger.models import LedgerAdjustment
 from modules.ordering.models import OrderItem
 from modules.venue.models import Venue
 
@@ -85,6 +86,13 @@ class OrderCorrection(models.Model):
         OrderItem,
         on_delete=models.PROTECT,
         related_name="replacement_correction",
+        null=True,
+        blank=True,
+    )
+    financial_adjustment = models.OneToOneField(
+        LedgerAdjustment,
+        on_delete=models.PROTECT,
+        related_name="correction",
         null=True,
         blank=True,
     )

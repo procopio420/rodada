@@ -8,24 +8,20 @@ not a replacement ledger and never edits `OrderItem` snapshots, `Charge`,
 
 `cancel_before_fulfillment` only accepts `NEW` and `ACCEPTED` items and
 requires a reason plus idempotency key. Its mandatory
-`financial_reversal_hook(correction, item, actor)` must run in the same
-transaction and append the real open-responsibility reversal against the
-current financial owner. If it raises, neither the correction nor the item
-cancellation commits.
+`financial_reversal_hook(correction, item, actor)` runs in the same
+transaction and appends an immutable `LedgerAdjustment` against the existing
+`Charge`. If it raises, neither the correction nor the item cancellation
+commits. The original charge, snapshot and production history remain intact.
 
-The current ledger has no append-only Adjustment/reversal primitive yet, so
-callers must not expose this command until the hook is supplied by that owner.
-It deliberately rejects any Tab with confirmed money because item-level payment
-allocation is not yet canonical; that path belongs to manager-approved refund
-or courtesy orchestration.
+`POST /order-items/<id>/corrections/cancel/` is the staff command for this
+path. It is capability-protected (`order.correct`) and always uses the ledger
+reversal hook. If the Tab already has confirmed money, it deliberately leaves
+the item unchanged and records a `REFUND_REQUIRED` correction request instead;
+it must be resolved by the manager refund/courtesy workflow, never by guessing
+item-level payment allocation.
 
 ## Future hooks
 
-- **Ordering:** route a staff cancellation command to this service with the
-  actor and idempotency key; never add direct `CANCELLED` mutation that bypasses
-  the correction fact.
-- **Ledger/Spec 011:** implement the reversal hook as an append-only
-  Adjustment against current responsibility, then pass it into this service.
 - **Dispatch:** cancelling a READY item is intentionally excluded here; the
   manager stage-aware path must cancel/resolve its delivery task by exception
   without deleting it.

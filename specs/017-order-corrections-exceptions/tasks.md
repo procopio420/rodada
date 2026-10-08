@@ -7,13 +7,13 @@
 - [x] Replacement/remake linkage.
 - [ ] Correction options/preview.
 - [ ] Stage-aware authorization.
-- [ ] Cancel confirmed item command.
+- [x] Cancel confirmed item command for unpaid NEW/ACCEPTED work.
 - [ ] Current financial-owner resolution.
-- [ ] Open responsibility reversal integration.
+- [x] Open responsibility reversal integration.
 - [ ] Create remake.
 - [ ] Create replacement.
 - [ ] Comped replacement via Spec 011.
-- [ ] Paid/refund-required orchestration.
+- [x] Paid/refund-required correction request orchestration (manager settlement remains pending).
 - [x] Structured reason codes.
 
 ## Persistence

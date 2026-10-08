@@ -6,6 +6,7 @@ from modules.access.models import MembershipStatus, StaffRole, VenueStaffMembers
 class Capability:
     TAB_OPEN = "tab.open"
     ORDER_CONFIRM = "order.confirm"
+    ORDER_CORRECT = "order.correct"
     TABLE_MANAGE = "table.manage"
     CATALOG_AVAILABILITY_MANAGE_STATION = "catalog.availability.manage_station"
     PAYMENT_COLLECT = "payment.collect"
@@ -28,6 +29,7 @@ ALL_CAPABILITIES = frozenset(
 _STAFF = {
     Capability.TAB_OPEN,
     Capability.ORDER_CONFIRM,
+    Capability.ORDER_CORRECT,
     Capability.TABLE_MANAGE,
     Capability.CATALOG_AVAILABILITY_MANAGE_STATION,
 }

@@ -1,7 +1,7 @@
 # Tasks — Spec 011
 
 ## Domain/API
-- [ ] Expand Adjustment kinds/scopes/calculation metadata.
+- [x] Add immutable item-cancellation reversal adjustment kind.
 - [ ] Define AdjustmentAllocation.
 - [ ] Implement canonical pricing order.
 - [ ] Implement percentage/fixed cents calculator.
@@ -19,7 +19,7 @@
 
 ## Persistence
 - [ ] Adjustment allocation rows.
-- [ ] Idempotency constraints.
+- [x] Idempotency constraints for item-cancellation reversals.
 - [ ] Pricing version / optimistic lock.
 - [ ] Supersedes/reversal links.
 - [ ] Reason code/text fields.
@@ -60,4 +60,4 @@
 - [ ] Retry cannot duplicate Adjustment.
 - [ ] Partial-payment repricing guard.
 - [ ] Service charge never calculated on itself/tip/payment/refund.
-- [ ] Historical OrderItem price snapshot unchanged.
+- [x] Historical OrderItem price snapshot unchanged for cancellation reversal.

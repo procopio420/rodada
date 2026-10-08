@@ -14,6 +14,55 @@ class Charge(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class AdjustmentKind(models.TextChoices):
+    ORDER_ITEM_CANCELLATION = "ORDER_ITEM_CANCELLATION", "Order item cancellation"
+
+
+class LedgerAdjustment(models.Model):
+    """An immutable financial fact which compensates, but never edits, a charge."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tab = models.ForeignKey(Tab, on_delete=models.PROTECT, related_name="ledger_adjustments")
+    order_item = models.ForeignKey(
+        OrderItem,
+        on_delete=models.PROTECT,
+        related_name="ledger_adjustments",
+    )
+    kind = models.CharField(max_length=40, choices=AdjustmentKind.choices)
+    # Adjustments are signed minor-unit facts. A cancellation is negative and
+    # offsets the original positive Charge without destroying either record.
+    amount_cents = models.IntegerField()
+    idempotency_key = models.CharField(max_length=120)
+    reason_code = models.CharField(max_length=80)
+    created_by = models.ForeignKey(
+        StaffMember,
+        on_delete=models.PROTECT,
+        related_name="ledger_adjustments_created",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("tab", "idempotency_key"),
+                name="ledger_adjustment_tab_key_unique",
+            ),
+            models.UniqueConstraint(
+                fields=("order_item", "kind"),
+                name="ledger_adjustment_item_kind_unique",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(kind=AdjustmentKind.ORDER_ITEM_CANCELLATION, amount_cents__lt=0)
+                ),
+                name="ledger_adjustment_cancellation_negative",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("tab", "created_at"), name="ledger_adjustment_tab_time_idx"),
+        ]
+
+
 class PaymentMethod(models.TextChoices):
     TAP_TO_PAY = "TAP_TO_PAY", "Tap to pay"
     CARD_ONLINE = "CARD_ONLINE", "Card online"

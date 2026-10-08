@@ -71,6 +71,7 @@ def cancel_before_fulfillment(
     idempotency_key: str,
     actor: ActorContext,
     financial_reversal_hook: OpenResponsibilityReversal | None,
+    record_paid_request: bool = False,
 ) -> OrderCorrection:
     """Cancel a NEW/ACCEPTED item without erasing its snapshot or charge.
 
@@ -138,6 +139,33 @@ def cancel_before_fulfillment(
         )
 
     if _has_confirmed_money(tab_id=item.order.tab_id):
+        if record_paid_request:
+            correction = OrderCorrection.objects.create(
+                venue_id=item.order.tab.venue_id,
+                original_order_item=item,
+                kind=kind,
+                stage_at_request=item.state,
+                reason_code=reason_code,
+                reason_text=reason_text,
+                financial_disposition=FinancialDisposition.REFUND_REQUIRED,
+                idempotency_key=idempotency_key,
+                request_fingerprint=fingerprint,
+                requested_by_id=actor.staff_id,
+            )
+            correction._idempotency_replay = False
+            record_audit_event(
+                actor=actor,
+                event_type="order_item.refund_required",
+                entity_type="OrderCorrection",
+                entity_id=str(correction.id),
+                reason=reason_code,
+                metadata={
+                    "order_item_id": str(item.id),
+                    "tab_id": str(item.order.tab_id),
+                    "financial_disposition": correction.financial_disposition,
+                },
+            )
+            return correction
         raise CorrectionServiceError(
             "PAID_CORRECTION_REQUIRES_REFUND",
             "Item com dinheiro confirmado exige fluxo de estorno/cortesia.",
@@ -180,7 +208,10 @@ def cancel_before_fulfillment(
 
     # This handler is intentionally invoked before operational mutation. Its
     # exception aborts the correction and preserves the item as actionable.
-    financial_reversal_hook(correction, item, actor)
+    adjustment = financial_reversal_hook(correction, item, actor)
+    if adjustment is not None:
+        correction.financial_adjustment = adjustment
+        correction.save(update_fields=["financial_adjustment"])
 
     now = timezone.now()
     item.state = OrderItemState.CANCELLED

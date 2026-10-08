@@ -17,7 +17,8 @@ from modules.corrections.models import (
     WasteMarker,
 )
 from modules.corrections.services import CorrectionServiceError, cancel_before_fulfillment
-from modules.ledger.models import Payment, PaymentMethod, PaymentStatus
+from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentMethod, PaymentStatus
+from modules.ledger.services import reverse_open_responsibility, totals
 from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab
 from modules.venue.models import Venue
 
@@ -142,6 +143,69 @@ class CorrectionFoundationTests(TestCase):
         assert item.state == OrderItemState.ACCEPTED
         assert not OrderCorrection.objects.filter(original_order_item=item).exists()
 
+    def test_real_reversal_is_append_only_and_offsets_open_exposure_once(self):
+        item = self.item()
+        charge = Charge.objects.create(
+            tab=item.order.tab,
+            order_item=item,
+            amount_cents=item.line_total_cents,
+        )
+
+        correction = self.cancel(item, key="real-reversal", hook=reverse_open_responsibility)
+        item.refresh_from_db()
+
+        adjustment = LedgerAdjustment.objects.get(pk=correction.financial_adjustment_id)
+        assert adjustment.order_item_id == item.id
+        assert adjustment.amount_cents == -1200
+        assert adjustment.created_by_id == self.staff.id
+        assert Charge.objects.get(pk=charge.id).amount_cents == 1200
+        assert totals(item.order.tab)["charges_cents"] == 1200
+        assert totals(item.order.tab)["adjustments_cents"] == -1200
+        assert totals(item.order.tab)["exposure_cents"] == 0
+        assert item.state == OrderItemState.CANCELLED
+        assert AuditEvent.objects.filter(
+            event_type="charge.reversed", entity_id=str(adjustment.id)
+        ).exists()
+
+        replay = self.cancel(item, key="real-reversal", hook=reverse_open_responsibility)
+        assert replay.id == correction.id
+        assert LedgerAdjustment.objects.filter(order_item=item).count() == 1
+
+    def test_staff_endpoint_cancels_unpaid_item_with_canonical_reversal(self):
+        item = self.item()
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=1200)
+        login = self.client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": self.staff.login_identifier,
+                "pin": "1234",
+                "installation_id": "corrections-unpaid-api-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        body = {
+            "kind": CorrectionKind.CANCEL_ITEM,
+            "reason_code": "DUPLICATE_ENTRY",
+            "reason_text": "Pedido repetido",
+            "idempotency_key": "unpaid-cancel-request",
+        }
+
+        first = self.client.post(f"/order-items/{item.id}/corrections/cancel/", body, format="json")
+        replay = self.client.post(f"/order-items/{item.id}/corrections/cancel/", body, format="json")
+        item.refresh_from_db()
+
+        assert first.status_code == 201, first.json()
+        assert replay.status_code == 200, replay.json()
+        assert first.json()["id"] == replay.json()["id"]
+        assert first.json()["order_item_state"] == OrderItemState.CANCELLED
+        assert first.json()["adjustments_cents"] == -1200
+        assert first.json()["exposure_cents"] == 0
+        assert item.state == OrderItemState.CANCELLED
+        assert LedgerAdjustment.objects.filter(order_item=item).count() == 1
+
     def test_failed_reversal_rolls_back_correction_and_operational_cancellation(self):
         item = self.item()
 
@@ -184,6 +248,49 @@ class CorrectionFoundationTests(TestCase):
         assert captured.exception.code == "PAID_CORRECTION_REQUIRES_REFUND"
         item.refresh_from_db()
         assert item.state == OrderItemState.ACCEPTED
+
+    def test_staff_endpoint_records_refund_required_without_mutating_paid_item(self):
+        item = self.item()
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=1200)
+        Payment.objects.create(
+            tab=item.order.tab,
+            amount_cents=1200,
+            method=PaymentMethod.CASH,
+            idempotency_key="paid-endpoint-correction",
+            status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(),
+            received_by=self.staff,
+        )
+        login = self.client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": self.staff.login_identifier,
+                "pin": "1234",
+                "installation_id": "corrections-api-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        body = {
+            "kind": CorrectionKind.WRONG_ITEM_ENTERED,
+            "reason_code": "WRONG_ENTRY",
+            "reason_text": "Cliente recebeu o item errado",
+            "idempotency_key": "paid-cancel-request",
+        }
+
+        first = self.client.post(f"/order-items/{item.id}/corrections/cancel/", body, format="json")
+        replay = self.client.post(f"/order-items/{item.id}/corrections/cancel/", body, format="json")
+        item.refresh_from_db()
+
+        assert first.status_code == 202, first.json()
+        assert replay.status_code == 200, replay.json()
+        assert first.json()["id"] == replay.json()["id"]
+        assert first.json()["financial_disposition"] == FinancialDisposition.REFUND_REQUIRED
+        assert item.state == OrderItemState.ACCEPTED
+        assert LedgerAdjustment.objects.count() == 0
+        assert AuditEvent.objects.filter(event_type="order_item.refund_required").exists()
 
     def test_other_venue_cannot_cancel_item(self):
         other_item = self.item(venue=self.other_venue)

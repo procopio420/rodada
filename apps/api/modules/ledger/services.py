@@ -4,7 +4,9 @@ from django.utils import timezone
 
 from modules.audit.services import record_audit_event
 from modules.ledger.models import (
+    AdjustmentKind,
     Charge,
+    LedgerAdjustment,
     Payment,
     PaymentMethod,
     PaymentStatus,
@@ -26,6 +28,7 @@ def exposure_cents(tab: Tab) -> int:
 
 def totals(tab: Tab) -> dict:
     charges = tab.charges.aggregate(total=Sum("amount_cents"))["total"] or 0
+    adjustments = tab.ledger_adjustments.aggregate(total=Sum("amount_cents"))["total"] or 0
     payments = tab.payments.filter(status__in=PaymentStatus.confirmed_money_values()).aggregate(
         total=Sum("amount_cents")
     )["total"] or 0
@@ -35,9 +38,10 @@ def totals(tab: Tab) -> dict:
     ).aggregate(total=Sum("amount_cents"))["total"] or 0
     return {
         "charges_cents": charges,
+        "adjustments_cents": adjustments,
         "payments_cents": payments,
         "refunds_cents": refunds,
-        "exposure_cents": charges - payments + refunds,
+        "exposure_cents": charges + adjustments - payments + refunds,
     }
 
 
@@ -47,6 +51,64 @@ def create_charges_for_order(order, actor):
         Charge.objects.get_or_create(tab=order.tab, order_item=item, defaults={"amount_cents": item.line_total_cents})
     if actor is not None:
         record_audit_event(actor=actor, event_type="order.charged", entity_type="Order", entity_id=str(order.id), metadata={"tab_id": str(order.tab_id)})
+
+
+def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdjustment:
+    """Append the financial counterpart of an unpaid item cancellation.
+
+    Payments are intentionally not touched here. Callers must first establish
+    that the Tab has no confirmed money that would need a separate refund.
+    """
+    charge = (
+        Charge.objects.select_for_update()
+        .filter(order_item=item, tab=item.order.tab)
+        .first()
+    )
+    if charge is None:
+        raise LedgerServiceError(
+            "CHARGE_NOT_FOUND",
+            "O item confirmado não possui cobrança para reverter.",
+            409,
+        )
+
+    key = f"correction:{correction.id}"
+    adjustment, created = LedgerAdjustment.objects.get_or_create(
+        tab=charge.tab,
+        idempotency_key=key,
+        defaults={
+            "order_item": item,
+            "kind": AdjustmentKind.ORDER_ITEM_CANCELLATION,
+            "amount_cents": -charge.amount_cents,
+            "reason_code": correction.reason_code,
+            "created_by_id": actor.staff_id,
+        },
+    )
+    expected = (
+        adjustment.order_item_id == item.id
+        and adjustment.kind == AdjustmentKind.ORDER_ITEM_CANCELLATION
+        and adjustment.amount_cents == -charge.amount_cents
+    )
+    if not expected:
+        raise LedgerServiceError(
+            "ADJUSTMENT_IDEMPOTENCY_CONFLICT",
+            "A reversão financeira existente não corresponde à correção.",
+            409,
+        )
+    if created:
+        record_audit_event(
+            actor=actor,
+            event_type="charge.reversed",
+            entity_type="LedgerAdjustment",
+            entity_id=str(adjustment.id),
+            reason=correction.reason_code,
+            metadata={
+                "correction_id": str(correction.id),
+                "charge_id": str(charge.id),
+                "order_item_id": str(item.id),
+                "amount_cents": adjustment.amount_cents,
+            },
+        )
+    return adjustment
 
 
 @transaction.atomic
