@@ -44,7 +44,24 @@ class OperationsHttpClient(baseUrl: String) {
                         },
                 )
             }
-        return TabDetail(tabSummary(response), orders)
+        val payments = response.optJSONArray("payments")?.toObjects()?.map { payment ->
+            TabPayment(
+                id = payment.getString("id"),
+                amountCents = payment.getLong("amount_cents"),
+                method = payment.getString("method"),
+                status = payment.getString("status"),
+                refundedCents = payment.optLong("refunded_cents"),
+            )
+        }.orEmpty()
+        val refundRequired = response.optJSONArray("refund_required_corrections")?.toObjects()?.map { correction ->
+            RefundRequiredCorrection(
+                id = correction.getString("id"),
+                orderItemId = correction.getString("order_item_id"),
+                itemName = correction.getString("item_name"),
+                refundRequiredCents = correction.getLong("refund_required_cents"),
+            )
+        }.orEmpty()
+        return TabDetail(tabSummary(response), orders, payments, refundRequired)
     }
 
     fun products(accessToken: String): List<Product> =

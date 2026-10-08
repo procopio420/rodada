@@ -21,7 +21,7 @@ class CashModelsTest {
 
         assertEquals(12_345, withdrawal.amountCents)
         assertFalse(withdrawal.allowNegativeExpected)
-        assertEquals(7, close.expectedVersion)
+        assertEquals(7L, close.expectedVersion)
     }
 
     @Test

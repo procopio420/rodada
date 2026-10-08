@@ -30,6 +30,23 @@ data class TabOrder(
 data class TabDetail(
     val summary: TabSummary,
     val orders: List<TabOrder>,
+    val payments: List<TabPayment> = emptyList(),
+    val refundRequiredCorrections: List<RefundRequiredCorrection> = emptyList(),
+)
+
+data class TabPayment(
+    val id: String,
+    val amountCents: Long,
+    val method: String,
+    val status: String,
+    val refundedCents: Long,
+)
+
+data class RefundRequiredCorrection(
+    val id: String,
+    val orderItemId: String,
+    val itemName: String,
+    val refundRequiredCents: Long,
 )
 
 data class Product(
