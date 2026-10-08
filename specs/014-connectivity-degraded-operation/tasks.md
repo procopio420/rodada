@@ -34,6 +34,7 @@
 - [ ] API + realtime state machine.
 - [ ] Persist safe cached projections and latest accepted resume cursor.
 - [ ] Persistent pending queue.
+- [ ] Persist encrypted, typed recovery envelopes for already idempotent Order, Payment, Correction, Refund, CashMovement and DeliveryCompletion commands; no untyped command dump or secrets.
 - [ ] Pending/syncing/conflict/confirmed UI.
 - [ ] Pending order draft.
 - [ ] Emergency cash evidence capture.

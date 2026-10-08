@@ -86,7 +86,17 @@ class PendingMutationIntentStore(context: Context) {
     }
 }
 
-enum class RecoveryState { PENDING, CHECKING, CONFIRMED, SAFE_TO_RETRY, ACTION_REQUIRED }
+enum class RecoveryState { PENDING, CHECKING, CONFIRMED, SAFE_TO_RETRY, ACTION_REQUIRED, FAILED_TERMINAL }
+
+/**
+ * These enums describe the command captured by the app, not client-side policy. The
+ * server remains authoritative when a recovered command is checked or retried.
+ */
+enum class CorrectionRecoveryAction { CANCEL, REMAKE, REPLACEMENT }
+
+enum class RefundRecoveryKind { DIRECT, SETTLE_CORRECTION }
+
+enum class CashMovementRecoveryKind { SUPPLY, WITHDRAWAL, LATE_CORRECTION }
 
 sealed interface RecoveryIntent {
     val id: String
@@ -128,23 +138,186 @@ sealed interface RecoveryIntent {
         override fun toJson() = baseJson("START_PAYMENT").put("tab_id", tabId).put("amount_cents", amountCents).put("method", method.name).apply { if (cashPointId != null) put("cash_point_id", cashPointId) }
     }
 
+    /**
+     * Fields are sufficient to rebuild the original correction request with its original
+     * idempotency key. They deliberately contain no approval or authentication material.
+     */
+    data class Correction(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val orderItemId: String,
+        val itemState: String,
+        val action: CorrectionRecoveryAction,
+        val reasonCode: String,
+        val reasonText: String?,
+        val replacementProductId: String?,
+    ) : RecoveryIntent {
+        override fun toJson() =
+            baseJson("CORRECTION")
+                .put("order_item_id", orderItemId)
+                .put("item_state", itemState)
+                .put("action", action.name)
+                .put("reason_code", reasonCode)
+                .apply { if (reasonText != null) put("reason_text", reasonText) }
+                .apply { if (replacementProductId != null) put("replacement_product_id", replacementProductId) }
+    }
+
+    /** A refund is recovered by checking the original payment/correction, never by creating a new key. */
+    data class Refund(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val kind: RefundRecoveryKind,
+        val paymentId: String,
+        val correctionId: String?,
+        val amountCents: Long,
+        val reason: String?,
+        val cashPointId: String?,
+    ) : RecoveryIntent {
+        override fun toJson() =
+            baseJson("REFUND")
+                .put("kind", kind.name)
+                .put("payment_id", paymentId)
+                .put("amount_cents", amountCents)
+                .apply { if (correctionId != null) put("correction_id", correctionId) }
+                .apply { if (reason != null) put("reason", reason) }
+                .apply { if (cashPointId != null) put("cash_point_id", cashPointId) }
+    }
+
+    /**
+     * A movement is retried only against the recorded shift. Current cash authority,
+     * opening state and permissions are revalidated by the API at recovery time.
+     */
+    data class CashMovement(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val shiftId: String,
+        val kind: CashMovementRecoveryKind,
+        val amountCents: Long,
+        val reason: String,
+        val allowNegativeExpected: Boolean,
+        val correctionOfId: String?,
+    ) : RecoveryIntent {
+        override fun toJson() =
+            baseJson("CASH_MOVEMENT")
+                .put("shift_id", shiftId)
+                .put("kind", kind.name)
+                .put("amount_cents", amountCents)
+                .put("reason", reason)
+                .put("allow_negative_expected", allowNegativeExpected)
+                .apply { if (correctionOfId != null) put("correction_of_id", correctionOfId) }
+    }
+
+    /** Close has no provider-style client idempotency key; the snapshot/version pins recovery to one count. */
+    data class CashClose(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val shiftId: String,
+        val countedAmountCents: Long,
+        val reviewThresholdCents: Long,
+        val expectedVersion: Long?,
+    ) : RecoveryIntent {
+        override fun toJson() =
+            baseJson("CASH_CLOSE")
+                .put("shift_id", shiftId)
+                .put("counted_amount_cents", countedAmountCents)
+                .put("review_threshold_cents", reviewThresholdCents)
+                .apply { if (expectedVersion != null) put("expected_version", expectedVersion) }
+    }
+
+    /**
+     * Dispatch completion is server-idempotent by task state. The local key keeps the
+     * recovery record stable while the app re-reads the canonical task outcome.
+     */
+    data class CompleteDelivery(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val deliveryTaskId: String,
+    ) : RecoveryIntent {
+        override fun toJson() = baseJson("COMPLETE_DELIVERY").put("delivery_task_id", deliveryTaskId)
+    }
+
     fun baseJson(type: String) = JSONObject().put("type", type).put("id", id).put("staff_id", staffId).put("venue_id", venueId).put("device_id", deviceId).put("idempotency_key", idempotencyKey).put("created_at_millis", createdAtMillis).put("state", state.name)
 
     companion object {
         fun fromJson(json: JSONObject): RecoveryIntent? = try {
-            val common = { state: RecoveryState -> arrayOf(json.getString("id"), json.getString("staff_id"), json.getString("venue_id"), json.getString("device_id"), json.getString("idempotency_key"), json.getLong("created_at_millis"), state) }
+            val common = RecoveryIntentCommon(
+                id = json.getString("id"),
+                staffId = json.getString("staff_id"),
+                venueId = json.getString("venue_id"),
+                deviceId = json.getString("device_id"),
+                idempotencyKey = json.getString("idempotency_key"),
+                createdAtMillis = json.getLong("created_at_millis"),
+                state = RecoveryState.valueOf(json.getString("state")),
+            )
             when (json.getString("type")) {
                 "CONFIRM_ORDER" -> {
-                    val values = common(RecoveryState.valueOf(json.getString("state")))
                     val lines = json.getJSONArray("lines")
-                    ConfirmOrder(values[0] as String, values[1] as String, values[2] as String, values[3] as String, values[4] as String, values[5] as Long, values[6] as RecoveryState, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity")) } })
+                    ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity")) } })
                 }
                 "START_PAYMENT" -> {
-                    val values = common(RecoveryState.valueOf(json.getString("state")))
-                    StartPayment(values[0] as String, values[1] as String, values[2] as String, values[3] as String, values[4] as String, values[5] as Long, values[6] as RecoveryState, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null })
+                    StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null })
                 }
+                "CORRECTION" -> Correction(
+                    common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
+                    json.getString("order_item_id"), json.getString("item_state"), CorrectionRecoveryAction.valueOf(json.getString("action")),
+                    json.getString("reason_code"), json.optString("reason_text").ifBlank { null }, json.optString("replacement_product_id").ifBlank { null },
+                )
+                "REFUND" -> Refund(
+                    common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
+                    RefundRecoveryKind.valueOf(json.getString("kind")), json.getString("payment_id"), json.optString("correction_id").ifBlank { null },
+                    json.getLong("amount_cents"), json.optString("reason").ifBlank { null }, json.optString("cash_point_id").ifBlank { null },
+                )
+                "CASH_MOVEMENT" -> CashMovement(
+                    common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
+                    json.getString("shift_id"), CashMovementRecoveryKind.valueOf(json.getString("kind")), json.getLong("amount_cents"),
+                    json.getString("reason"), json.optBoolean("allow_negative_expected"), json.optString("correction_of_id").ifBlank { null },
+                )
+                "CASH_CLOSE" -> CashClose(
+                    common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
+                    json.getString("shift_id"), json.getLong("counted_amount_cents"), json.getLong("review_threshold_cents"),
+                    if (json.has("expected_version") && !json.isNull("expected_version")) json.getLong("expected_version") else null,
+                )
+                "COMPLETE_DELIVERY" -> CompleteDelivery(
+                    common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
+                    json.getString("delivery_task_id"),
+                )
                 else -> null
             }
         } catch (_: Exception) { null }
     }
 }
+
+private data class RecoveryIntentCommon(
+    val id: String,
+    val staffId: String,
+    val venueId: String,
+    val deviceId: String,
+    val idempotencyKey: String,
+    val createdAtMillis: Long,
+    val state: RecoveryState,
+)

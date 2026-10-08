@@ -14,8 +14,10 @@ import com.rodada.attendance.corrections.CorrectionResult
 import com.rodada.attendance.corrections.CorrectionsRepository
 import com.rodada.attendance.corrections.correctionConsequence
 import com.rodada.attendance.corrections.requiresPostProductionEndpoint
+import com.rodada.attendance.refunds.DirectRefundCommand
 import com.rodada.attendance.refunds.RefundCommand
 import com.rodada.attendance.refunds.RefundsRepository
+import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import com.rodada.attendance.refunds.refundStatusLabel
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -116,6 +118,8 @@ class OperationsViewModel(
         val detail = repository.tabDetail(session, tabId)
         val retained = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId }
         val retainedPayment = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId }
+        val retainedCorrection = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId in detail.orders.flatMap { order -> order.items }.map { item -> item.id } }
+        val retainedRefund = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Refund>().firstOrNull { refund -> detail.payments.any { it.id == refund.paymentId } }
         val retainedCart = retained?.toCart(state.products).orEmpty()
         state = state.copy(
             selectedTab = detail,
@@ -126,6 +130,8 @@ class OperationsViewModel(
             noticeMessage = when {
                 retained != null -> "Pedido pendente encontrado. Verifique o resultado antes de adicionar novos itens."
                 retainedPayment != null -> "Pagamento pendente encontrado. Não tente cobrar novamente; reconcilie a mesma cobrança."
+                retainedCorrection != null -> "Correção pendente encontrada. Atualize a comanda antes de repetir a ação."
+                retainedRefund != null -> "Estorno pendente encontrado. Verifique o pagamento antes de tentar novamente."
                 else -> null
             },
         )
@@ -265,6 +271,22 @@ class OperationsViewModel(
     fun submitCorrection(session: StoredSession, command: CorrectionCommand, reauthPin: String?) {
         val tabId = state.selectedTab?.summary?.id ?: return
         if (state.submitting) return
+        val intent = RecoveryIntent.Correction(
+            id = command.idempotencyKey,
+            staffId = session.staffId,
+            venueId = session.venueId,
+            deviceId = session.deviceId,
+            idempotencyKey = command.idempotencyKey,
+            createdAtMillis = System.currentTimeMillis(),
+            state = RecoveryState.CHECKING,
+            orderItemId = command.itemId,
+            itemState = command.itemState,
+            action = CorrectionRecoveryAction.valueOf(command.action.name),
+            reasonCode = command.reasonCode,
+            reasonText = command.reasonText.takeIf(String::isNotBlank),
+            replacementProductId = command.replacementProductId,
+        )
+        pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
@@ -282,6 +304,7 @@ class OperationsViewModel(
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
+                pendingMutationIntentStore.remove(intent.id)
             }.onFailure { error ->
                 state = state.copy(submitting = false)
                 showFailure(error, "A correção não foi confirmada. Atualize a comanda antes de repetir a ação.")
@@ -293,6 +316,21 @@ class OperationsViewModel(
     fun submitRefund(session: StoredSession, command: RefundCommand, reauthPin: String) {
         val tabId = state.selectedTab?.summary?.id ?: return
         if (state.submitting) return
+        val intent = when (command) {
+            is DirectRefundCommand -> RecoveryIntent.Refund(
+                command.idempotencyKey, session.staffId, session.venueId, session.deviceId,
+                command.idempotencyKey, System.currentTimeMillis(), RecoveryState.CHECKING,
+                RefundRecoveryKind.DIRECT, command.paymentId, null, command.amountCents,
+                command.reason, command.cashPointId,
+            )
+            is SettleCorrectionRefundCommand -> RecoveryIntent.Refund(
+                command.idempotencyKey, session.staffId, session.venueId, session.deviceId,
+                command.idempotencyKey, System.currentTimeMillis(), RecoveryState.CHECKING,
+                RefundRecoveryKind.SETTLE_CORRECTION, command.paymentId, command.correctionId,
+                command.amountCents, null, command.cashPointId,
+            )
+        }
+        pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
@@ -308,6 +346,7 @@ class OperationsViewModel(
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
+                pendingMutationIntentStore.remove(intent.id)
             }.onFailure { error ->
                 state = state.copy(submitting = false)
                 showFailure(error, "O estorno não foi confirmado. Não tente estornar novamente antes de verificar o pagamento.")
@@ -315,12 +354,27 @@ class OperationsViewModel(
         }
     }
 
-    fun completeDelivery(session: StoredSession, taskId: String) = action {
-        repository.completeDelivery(session, taskId)
-        state = state.copy(
-            deliveryTasks = repository.deliveryTasks(session),
-            noticeMessage = "Entrega concluída.",
+    fun completeDelivery(session: StoredSession, taskId: String) {
+        if (state.submitting) return
+        val key = UUID.randomUUID().toString()
+        val intent = RecoveryIntent.CompleteDelivery(
+            key, session.staffId, session.venueId, session.deviceId, key,
+            System.currentTimeMillis(), RecoveryState.CHECKING, taskId,
         )
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
+        viewModelScope.launch {
+            runCatching {
+                repository.completeDelivery(session, taskId)
+                repository.deliveryTasks(session)
+            }.onSuccess { deliveries ->
+                state = state.copy(submitting = false, deliveryTasks = deliveries, noticeMessage = "Entrega concluída.")
+                pendingMutationIntentStore.remove(intent.id)
+            }.onFailure { error ->
+                state = state.copy(submitting = false)
+                showFailure(error, "Verificando entrega. Atualize antes de tentar concluir novamente.")
+            }
+        }
     }
 
     fun occupyTable(session: StoredSession, tableId: String, tabId: String?) = tableAction(session) {
