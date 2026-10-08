@@ -125,6 +125,9 @@ class Payment(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=("tab", "idempotency_key"), name="ledger_payment_tab_key_unique"),
+            models.UniqueConstraint(fields=("provider", "provider_payment_id"),
+                                    condition=~models.Q(provider_payment_id=""),
+                                    name="ledger_provider_reference_unique"),
             models.CheckConstraint(
                 condition=(
                     ~models.Q(status__in=PaymentStatus.confirmed_money_values())

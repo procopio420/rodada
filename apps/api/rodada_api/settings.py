@@ -92,3 +92,7 @@ LOGGING = {
         "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
     },
 }
+
+# JSON is injected by the deployment secret manager, keyed by Venue UUID.
+import json
+RODADA_PAYMENT_PROVIDERS = json.loads(os.environ.get("RODADA_PAYMENT_PROVIDERS", "{}"))

@@ -191,6 +191,15 @@ def collect_payment(
         if existing.amount_cents != amount_cents or existing.method != method:
             raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro pagamento.", 409)
         return existing, totals(tab)
+    if Payment.objects.filter(tab=tab, provider__gt="", status__in=(
+        PaymentStatus.CREATED, PaymentStatus.PENDING, PaymentStatus.PROCESSING,
+        PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING,
+    )).exists():
+        raise LedgerServiceError("PAYMENT_ALREADY_PENDING", "Confirme o pagamento integrado antes de cobrar novamente.", 409)
+    if method == PaymentMethod.PIX:
+        from django.conf import settings
+        if str(actor.venue_id) in getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}):
+            raise LedgerServiceError("PROVIDER_CONFIRMATION_REQUIRED", "Pix exige confirmação do provedor.", 409)
     if amount_cents > exposure_cents(tab):
         raise LedgerServiceError("PAYMENT_EXCEEDS_EXPOSURE", "Pagamento excede o saldo em aberto.", 409)
     amount_due_cents = exposure_cents(tab)
@@ -274,6 +283,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
         return existing, totals(payment.tab)
     if payment.status not in PaymentStatus.confirmed_money_values():
         raise LedgerServiceError("PAYMENT_NOT_CONFIRMED", "Só é possível estornar pagamento confirmado.", 409)
+    if payment.provider:
+        raise LedgerServiceError("PROVIDER_REFUND_REQUIRED", "Estorno integrado exige confirmação do provedor.", 409)
     refunded_cents = _confirmed_refunds_cents(payment)
     if amount_cents > payment.amount_cents - refunded_cents:
         raise LedgerServiceError("REFUND_EXCEEDS_PAYMENT", "Estorno excede o valor ainda reembolsável.", 409)

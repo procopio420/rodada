@@ -1,3 +1,4 @@
+from modules.payment_provider.views import (PaymentCapabilitiesView, IntegratedPaymentCreateView, IntegratedPaymentDetailView, PaytimeWebhookView)
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
@@ -75,6 +76,10 @@ def readiness(request):
 
 
 urlpatterns = [
+    path("payments/capabilities/", PaymentCapabilitiesView.as_view()),
+    path("tabs/<uuid:tab_id>/payments/integrated/", IntegratedPaymentCreateView.as_view()),
+    path("payments/<uuid:payment_id>/integrated/", IntegratedPaymentDetailView.as_view()),
+    path("payments/webhooks/paytime/<uuid:venue_id>/", PaytimeWebhookView.as_view()),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),
