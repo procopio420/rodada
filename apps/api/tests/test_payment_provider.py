@@ -6,7 +6,7 @@ from modules.catalog.models import FulfillmentStation, Product
 from modules.ledger.models import Charge, PaymentStatus
 from modules.ledger.services import totals
 from modules.ordering.models import Order, OrderItem, OrderSource, Tab
-from modules.payment_provider.adapters import ProviderResult, TestPaymentProvider
+from modules.payment_provider.adapters import DeterministicPaymentProvider, ProviderResult
 from modules.payment_provider.models import (
     PaymentAttempt,
     PaymentAttemptStatus,
@@ -73,7 +73,7 @@ class PaymentProviderServiceTests(TestCase):
         }
 
     def test_initiation_is_idempotent_and_pending_money_does_not_reduce_exposure(self):
-        provider = TestPaymentProvider(
+        provider = DeterministicPaymentProvider(
             start_result=ProviderResult(
                 status=PaymentStatus.PENDING,
                 provider_payment_id="provider-payment-1",
@@ -93,7 +93,7 @@ class PaymentProviderServiceTests(TestCase):
         assert totals(self.tab)["exposure_cents"] == 3000
 
     def test_ambiguous_start_stays_confirmation_pending_and_reconciliation_confirms_once(self):
-        class TimeoutProvider(TestPaymentProvider):
+        class TimeoutProvider(DeterministicPaymentProvider):
             def start_payment(self, input):
                 self.start_calls.append(input)
                 raise TimeoutError("provider timed out after accepting request")
@@ -129,7 +129,7 @@ class PaymentProviderServiceTests(TestCase):
         assert totals(self.tab)["exposure_cents"] == 0
 
     def test_duplicate_and_reordered_provider_events_are_safe(self):
-        provider = TestPaymentProvider(
+        provider = DeterministicPaymentProvider(
             start_result=ProviderResult(
                 status=PaymentStatus.PENDING,
                 provider_payment_id="provider-payment-1",
@@ -168,7 +168,7 @@ class PaymentProviderServiceTests(TestCase):
         assert totals(self.tab)["payments_cents"] == 3000
 
     def test_event_id_with_different_payload_is_rejected_and_bad_signature_never_enters_inbox(self):
-        provider = TestPaymentProvider()
+        provider = DeterministicPaymentProvider()
         payment, _attempt, _ = self.initiate(provider)
         payload = self.webhook_payload(payment, event_id="reused-event", status=PaymentStatus.PENDING)
         ingest_provider_webhook(provider=provider, payload=payload, signature="test-valid-signature")
@@ -184,7 +184,7 @@ class PaymentProviderServiceTests(TestCase):
         assert ProviderEvent.objects.count() == 1
 
     def test_provider_pending_payment_blocks_a_second_blind_integrated_charge(self):
-        provider = TestPaymentProvider()
+        provider = DeterministicPaymentProvider()
         self.initiate(provider, key="first-provider-intent")
         with self.assertRaises(ProviderServiceError) as captured:
             self.initiate(provider, key="second-provider-intent")

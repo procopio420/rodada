@@ -70,7 +70,7 @@ class PaymentProvider(Protocol):
     def parse_webhook(self, *, payload: dict) -> NormalizedProviderEvent: ...
 
 
-class TestPaymentProvider:
+class DeterministicPaymentProvider:
     """Deterministic test double, intentionally unavailable as an app provider."""
 
     provider_key = "test-provider"
