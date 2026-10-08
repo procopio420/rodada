@@ -566,11 +566,11 @@ private fun CorrectionDialog(
                     enabled = !busy,
                 )
                 if (requiresReauth) {
-                    Text("Esta ação preserva o histórico de produção e requer confirmação gerencial.", color = MaterialTheme.colorScheme.error)
+                    Text("Esta ação preserva o histórico de produção e requer a confirmação do operador autorizado.", color = MaterialTheme.colorScheme.error)
                     OutlinedTextField(
                         value = pin,
                         onValueChange = { pin = it },
-                        label = { Text("PIN do gerente") },
+                        label = { Text("Seu PIN") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = !busy,
@@ -660,8 +660,8 @@ private fun RefundDialog(
                         }
                     }
                 }
-                Text("Confirme sua identidade; o PIN não é salvo.", color = MaterialTheme.colorScheme.error)
-                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("PIN do gerente") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, visualTransformation = PasswordVisualTransformation())
+                Text("Confirme sua identidade como operador autorizado; o PIN não é salvo.", color = MaterialTheme.colorScheme.error)
+                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, visualTransformation = PasswordVisualTransformation())
                 if (!valid) Text("Informe um valor válido e um pagamento disponível.", color = MaterialTheme.colorScheme.error)
             }
         },

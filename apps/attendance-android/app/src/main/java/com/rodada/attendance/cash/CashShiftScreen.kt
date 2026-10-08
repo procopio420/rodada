@@ -240,8 +240,8 @@ private fun ReasonDialog(busy: Boolean, onDismiss: () -> Unit, onConfirm: (Pair<
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(reason, { reason = it }, label = { Text("Motivo da revisão") }, modifier = Modifier.fillMaxWidth())
-                Text("Confirme a identidade do gerente; o PIN não é salvo.", style = MaterialTheme.typography.bodySmall)
-                OutlinedTextField(pin, { pin = it }, label = { Text("PIN do gerente") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
+                Text("Confirme a identidade do operador autorizado; o PIN não é salvo.", style = MaterialTheme.typography.bodySmall)
+                OutlinedTextField(pin, { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
             }
         },
         confirmButton = { Button(onClick = { onConfirm(reason to pin); pin = "" }, enabled = !busy && reason.isNotBlank() && pin.isNotBlank()) { Text("Confirmar revisão") } },
