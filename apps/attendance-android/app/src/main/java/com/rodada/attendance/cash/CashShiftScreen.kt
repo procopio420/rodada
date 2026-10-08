@@ -71,23 +71,32 @@ fun CashShiftScreen(session: StoredSession, viewModel: CashShiftViewModel) {
             }
             else -> {
                 item {
-                    ActiveCashCard(
-                        shift = shift,
-                        point = state.selectedCashPoint,
-                        enabled = !state.submitting,
-                        onSupply = { dialog = CashDialog.SUPPLY },
-                        onWithdrawal = { dialog = CashDialog.WITHDRAWAL },
-                        onCount = {
-                            if (shift.status == "COUNTING") dialog = CashDialog.CLOSE
-                            else viewModel.startCount(session)
-                        },
-                    )
+                    if (shift.status == "CLOSED") {
+                        ClosedReviewCard(
+                            shift = shift,
+                            point = state.selectedCashPoint,
+                            enabled = !state.submitting,
+                            onReview = { dialog = CashDialog.REVIEW },
+                        )
+                    } else {
+                        ActiveCashCard(
+                            shift = shift,
+                            point = state.selectedCashPoint,
+                            enabled = !state.submitting,
+                            onSupply = { dialog = CashDialog.SUPPLY },
+                            onWithdrawal = { dialog = CashDialog.WITHDRAWAL },
+                            onCount = {
+                                if (shift.status == "COUNTING") dialog = CashDialog.CLOSE
+                                else viewModel.startCount(session)
+                            },
+                        )
+                    }
                 }
                 state.detail?.movements?.take(20)?.let { movements ->
                     item { Text("Movimentos recentes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
                     items(movements, key = { it.id }) { movement -> MovementCard(movement) }
                 }
-                if (shift.reviewStatus != "NOT_REQUIRED" && shift.status != "OPEN") {
+                if (shift.reviewStatus != "NOT_REQUIRED" && shift.status != "OPEN" && shift.status != "CLOSED") {
                     item {
                         OutlinedButton(onClick = { dialog = CashDialog.REVIEW }, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) {
                             Text("Revisar divergência")
@@ -125,6 +134,27 @@ fun CashShiftScreen(session: StoredSession, viewModel: CashShiftViewModel) {
     }
     state.errorMessage?.let { CashMessageDialog("Atenção", it, viewModel::dismissMessage) }
     state.noticeMessage?.let { CashMessageDialog("Caixa", it, viewModel::dismissMessage) }
+}
+
+@Composable
+private fun ClosedReviewCard(
+    shift: CashShiftSnapshot,
+    point: CashPointSnapshot?,
+    enabled: Boolean,
+    onReview: () -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(point?.label ?: "Caixa", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("Fechado · divergência pendente", color = MaterialTheme.colorScheme.error)
+            shift.expectedAmountCentsSnapshot?.let { MoneyRow("Esperado", it) }
+            shift.countedAmountCents?.let { MoneyRow("Contado", it) }
+            shift.discrepancyCents?.let { MoneyRow("Diferença", it, emphasis = true) }
+            Button(onClick = onReview, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                Text("Revisar divergência")
+            }
+        }
+    }
 }
 
 private enum class CashDialog { OPEN, SUPPLY, WITHDRAWAL, CLOSE, REVIEW }

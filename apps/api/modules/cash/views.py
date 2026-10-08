@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
-from modules.cash.models import CashPoint, CashShift
+from modules.cash.models import CashPoint, CashReviewStatus, CashShift, CashShiftStatus
 from modules.cash.services import (
     CashServiceError,
     active_cash_shift,
@@ -83,11 +83,25 @@ class CashPointListView(APIView):
                 if error.code != "ACTIVE_CASH_SHIFT_REQUIRED":
                     return _error(error)
                 shift = None
+            # A discrepancy remains operational work after the drawer closes.
+            # Return only the current pending review for this point so a native
+            # cashier/manager can finish the canonical review without falling
+            # back to a separate financial surface.
+            pending_review_shift = (
+                CashShift.objects.filter(
+                    cash_point=point,
+                    status=CashShiftStatus.CLOSED,
+                    review_status=CashReviewStatus.PENDING,
+                )
+                .order_by("-closed_at", "-id")
+                .first()
+            )
             data.append(
                 {
                     "id": str(point.id),
                     "label": point.label,
                     "active_shift": _shift_payload(shift) if shift else None,
+                    "pending_review_shift": _shift_payload(pending_review_shift) if pending_review_shift else None,
                 }
             )
         return Response({"results": data})

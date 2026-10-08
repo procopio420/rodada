@@ -30,7 +30,7 @@ data class CashShiftUiState(
     val selectedCashPoint: CashPointSnapshot?
         get() = cashPoints.firstOrNull { it.id == selectedCashPointId }
     val activeShift: CashShiftSnapshot?
-        get() = detail?.shift ?: selectedCashPoint?.activeShift
+        get() = detail?.shift ?: selectedCashPoint?.activeShift ?: selectedCashPoint?.pendingReviewShift
 }
 
 /**
@@ -63,7 +63,9 @@ class CashShiftViewModel(
                 val selectedId = state.selectedCashPointId.takeIf { id -> points.any { it.id == id } }
                     ?: points.firstOrNull { it.activeShift != null }?.id
                     ?: points.firstOrNull()?.id
-                val detail = points.firstOrNull { it.id == selectedId }?.activeShift?.id
+                val detail = points.firstOrNull { it.id == selectedId }
+                    ?.let { point -> point.activeShift ?: point.pendingReviewShift }
+                    ?.id
                     ?.let { gateway.shiftDetail(session, it) }
                 LoadedCash(points, selectedId, detail)
             }.onSuccess { loaded ->
@@ -83,7 +85,7 @@ class CashShiftViewModel(
         viewModelScope.launch {
             runCatching {
                 val point = state.cashPoints.firstOrNull { it.id == cashPointId }
-                point?.activeShift?.id?.let { gateway.shiftDetail(session, it) }
+                point?.let { it.activeShift ?: it.pendingReviewShift }?.id?.let { gateway.shiftDetail(session, it) }
             }.onSuccess { detail -> state = state.copy(loading = false, detail = detail) }
                 .onFailure { fail(it) }
         }
@@ -176,7 +178,10 @@ class CashShiftViewModel(
     private suspend fun reloadSelected(session: StoredSession, notice: String) {
         val points = gateway.cashPoints(session)
         val id = state.selectedCashPointId
-        val detail = points.firstOrNull { it.id == id }?.activeShift?.id?.let { gateway.shiftDetail(session, it) }
+        val detail = points.firstOrNull { it.id == id }
+            ?.let { point -> point.activeShift ?: point.pendingReviewShift }
+            ?.id
+            ?.let { gateway.shiftDetail(session, it) }
         state = state.copy(cashPoints = points, detail = detail, noticeMessage = notice)
     }
 

@@ -120,6 +120,7 @@ class CashHttpClient(baseUrl: String) {
             id = json.getString("id"),
             label = json.getString("label"),
             activeShift = json.optJSONObject("active_shift")?.let(::cashShift),
+            pendingReviewShift = json.optJSONObject("pending_review_shift")?.let(::cashShift),
         )
 
     private fun cashShift(json: JSONObject) =

@@ -8,6 +8,8 @@ data class CashPointSnapshot(
     val id: String,
     val label: String,
     val activeShift: CashShiftSnapshot?,
+    /** Closed discrepancies remain visible until an authorized review settles them. */
+    val pendingReviewShift: CashShiftSnapshot?,
 )
 
 data class CashShiftSnapshot(

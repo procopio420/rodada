@@ -243,6 +243,12 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(closed.status_code, 200, closed.json())
         self.assertEqual(closed.json()["review_status"], "PENDING")
 
+        points = self.client.get("/cash/points/")
+        self.assertEqual(points.status_code, 200, points.json())
+        review_shift = points.json()["results"][0]["pending_review_shift"]
+        self.assertEqual(review_shift["id"], shift_id)
+        self.assertEqual(review_shift["review_status"], "PENDING")
+
         _, manager_client = self.manager_client()
         payload = {"reason": "Diferença conferida com o cofre."}
         required = manager_client.post(f"/cash/shifts/{shift_id}/review/", payload, format="json")
