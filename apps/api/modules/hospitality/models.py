@@ -28,12 +28,41 @@ class GuestOrderingMode(models.TextChoices):
     DIRECT = "DIRECT", "Direct"
 
 
+class Zone(models.Model):
+    """A venue-scoped textual operational area, not a financial owner."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="hospitality_zones")
+    label = models.CharField(max_length=80)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("label", "id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("venue", "label"), name="hospitality_zone_venue_label_uniq"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("venue", "is_active"), name="hospitality_zone_active_idx"),
+        ]
+
+
 class Table(models.Model):
     """A physical resource. It deliberately has no financial relationships."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="tables")
     label = models.CharField(max_length=80)
+    zone = models.ForeignKey(
+        Zone,
+        on_delete=models.SET_NULL,
+        related_name="tables",
+        null=True,
+        blank=True,
+    )
     public_token = models.CharField(max_length=64, unique=True, default=generate_public_token)
     access_generation = models.PositiveIntegerField(default=1)
     guest_ordering_mode = models.CharField(

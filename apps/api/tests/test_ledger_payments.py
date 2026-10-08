@@ -193,6 +193,32 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(movement.amount_cents, 1200)
         self.assertEqual(payment.cash_tender_detail.change_given_cents, 800)
 
+    def test_cash_shift_detail_is_a_complete_recovery_snapshot(self):
+        point = CashPoint.objects.create(venue=self.venue, label="Gaveta de recuperação")
+        opened = self.client.post(
+            "/cash/shifts/",
+            {
+                "cash_point_id": str(point.id),
+                "opening_float_cents": 5000,
+                "business_date": "2026-10-07",
+                "idempotency_key": "open-recovery-snapshot",
+            },
+            format="json",
+        )
+        self.assertEqual(opened.status_code, 201, opened.json())
+
+        # A client that loses the open response must be able to parse this as
+        # the same snapshot returned by the opening command, not just a close
+        # preview. This is the native recovery boundary after process death.
+        detail = self.client.get(f"/cash/shifts/{opened.json()['id']}/")
+        self.assertEqual(detail.status_code, 200, detail.json())
+        payload = detail.json()
+        self.assertEqual(payload["id"], opened.json()["id"])
+        self.assertEqual(payload["cash_point_id"], str(point.id))
+        self.assertEqual(payload["opening_float_cents"], 5000)
+        self.assertEqual(payload["expected_cents"], 5000)
+        self.assertEqual(payload["movements"][0]["kind"], "OPENING_FLOAT")
+
     def test_cash_discrepancy_review_requires_manager_reauthentication(self):
         point = CashPoint.objects.create(venue=self.venue, label="Gaveta revisão")
         opened = self.client.post(
@@ -216,6 +242,12 @@ class LedgerPaymentTests(TestCase):
         )
         self.assertEqual(closed.status_code, 200, closed.json())
         self.assertEqual(closed.json()["review_status"], "PENDING")
+
+        points = self.client.get("/cash/points/")
+        self.assertEqual(points.status_code, 200, points.json())
+        review_shift = points.json()["results"][0]["pending_review_shift"]
+        self.assertEqual(review_shift["id"], shift_id)
+        self.assertEqual(review_shift["review_status"], "PENDING")
 
         _, manager_client = self.manager_client()
         payload = {"reason": "Diferença conferida com o cofre."}

@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
-from modules.cash.models import CashPoint
+from modules.cash.models import CashPoint, CashReviewStatus, CashShift, CashShiftStatus
 from modules.cash.services import (
     CashServiceError,
     active_cash_shift,
@@ -83,11 +83,25 @@ class CashPointListView(APIView):
                 if error.code != "ACTIVE_CASH_SHIFT_REQUIRED":
                     return _error(error)
                 shift = None
+            # A discrepancy remains operational work after the drawer closes.
+            # Return only the current pending review for this point so a native
+            # cashier/manager can finish the canonical review without falling
+            # back to a separate financial surface.
+            pending_review_shift = (
+                CashShift.objects.filter(
+                    cash_point=point,
+                    status=CashShiftStatus.CLOSED,
+                    review_status=CashReviewStatus.PENDING,
+                )
+                .order_by("-closed_at", "-id")
+                .first()
+            )
             data.append(
                 {
                     "id": str(point.id),
                     "label": point.label,
                     "active_shift": _shift_payload(shift) if shift else None,
+                    "pending_review_shift": _shift_payload(pending_review_shift) if pending_review_shift else None,
                 }
             )
         return Response({"results": data})
@@ -150,11 +164,18 @@ class CashShiftDetailView(APIView):
     def get(self, request, shift_id):
         try:
             preview = cash_close_preview(shift_id=shift_id, actor=request.actor_context)
-            preview["movements"] = [
+            # The native client uses this endpoint to reconcile an operation after a
+            # timeout/restart.  A close preview alone lacks the immutable shift
+            # identity and cash-point context, so it cannot be parsed as the same
+            # canonical snapshot returned by open/list endpoints.
+            shift = CashShift.objects.get(pk=shift_id, cash_point__venue_id=request.actor_context.venue_id)
+            payload = _shift_payload(shift)
+            payload.update(preview)
+            payload["movements"] = [
                 _movement_payload(movement)
                 for movement in cash_shift_movements(shift_id=shift_id, actor=request.actor_context)
             ]
-            return Response(preview)
+            return Response(payload)
         except CashServiceError as error:
             return _error(error)
 

@@ -1,6 +1,6 @@
 # Tasks — Spec 003
 
-- [ ] Zone CRUD/config
+- [x] Zone CRUD/config (P0: criação/listagem por Venue e associação auditada da mesa)
 - [ ] ServicePoint ativar/mover/desativar
 - [x] DispatchTask
 - [ ] SLA/severity

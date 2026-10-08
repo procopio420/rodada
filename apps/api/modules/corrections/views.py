@@ -49,6 +49,7 @@ class OrderItemCancelView(APIView):
             "financial_adjustment_id": (
                 str(correction.financial_adjustment_id) if correction.financial_adjustment_id else None
             ),
+            "refund_required_cents": correction.refund_required_cents,
             "order_item_id": str(item.id),
             "order_item_state": item.state,
             **totals(item.order.tab),
@@ -83,6 +84,7 @@ class CorrectionRefundSettlementView(APIView):
                 "status": correction.status,
                 "financial_disposition": correction.financial_disposition,
                 "refund_id": str(refund.id),
+                "refund_status": refund.status,
                 "financial_adjustment_id": str(correction.financial_adjustment_id),
                 **result,
             },
@@ -113,6 +115,9 @@ class PostProductionCorrectionView(APIView):
                 payload.update(error.details)
             return Response(payload, status=error.status_code)
         item = OrderItem.objects.select_related("order__tab").get(pk=item_id)
+        replacement = correction.replacement_order_item
+        original_total_cents = item.line_total_cents
+        replacement_total_cents = replacement.line_total_cents if replacement is not None else None
         return Response(
             {
                 "id": str(correction.id),
@@ -130,6 +135,15 @@ class PostProductionCorrectionView(APIView):
                 "refund_required_cents": correction.refund_required_cents,
                 "order_item_id": str(item.id),
                 "order_item_state": item.state,
+                # Financial presentation stays server-authoritative.  The native
+                # client must not infer a replacement delta from its stale catalog.
+                "original_line_total_cents": original_total_cents,
+                "replacement_line_total_cents": replacement_total_cents,
+                "financial_delta_cents": (
+                    replacement_total_cents - original_total_cents
+                    if replacement_total_cents is not None
+                    else -original_total_cents
+                ),
                 **totals(item.order.tab),
             },
             status=200 if getattr(correction, "_idempotency_replay", False) else 201,

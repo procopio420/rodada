@@ -96,6 +96,14 @@ Registrar dados suficientes para calcular:
 
 Uma Table pode existir e estar `AVAILABLE` sem `TablePlacement` ativo. O QR permanente continua resolvendo a mesma Table.
 
+#### Contexto textual P0
+
+Enquanto o `FloorPlan` não é implementado, uma Table pode apontar
+opcionalmente para uma `Zone` textual do mesmo Venue (como `Salão`, `Rua` ou
+`Varanda`). Staff autorizado pode trocar ou remover essa associação. É uma
+mudança de contexto físico auditada e não altera `TableOccupancy`, Tabs,
+Orders, ledger, Payments, GuestSession ou QR.
+
 ### TABLE-007 — Posicionamento no mapa 2D
 
 Ao iniciar uso de uma mesa sem placement, guest ou staff pode selecionar aproximadamente sua posição em um `FloorPlan` 2D.

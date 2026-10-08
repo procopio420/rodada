@@ -3,6 +3,7 @@
 ## API/Domain
 
 - [x] Table model + status
+- [x] Zone textual P0 + associação auditada Table -> Zone
 - [ ] FloorPlan model + guest/staff projections
 - [ ] TablePlacement model + active-placement invariant
 - [ ] normalized x/y coordinates + placement history

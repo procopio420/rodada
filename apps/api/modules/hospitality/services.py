@@ -10,6 +10,7 @@ from modules.hospitality.models import (
     TableOccupancy,
     TableStatus,
     TabOccupancyAssignment,
+    Zone,
 )
 from modules.ordering.models import Tab
 
@@ -42,6 +43,55 @@ def create_table(*, label: str, guest_ordering_mode: str, actor: ActorContext) -
         entity_type="Table",
         entity_id=str(table.id),
         metadata={"label": table.label, "guest_ordering_mode": table.guest_ordering_mode},
+    )
+    return table
+
+
+@transaction.atomic
+def create_zone(*, label: str, actor: ActorContext) -> Zone:
+    zone = Zone.objects.create(venue_id=actor.venue_id, label=label.strip())
+    record_audit_event(
+        actor=actor,
+        event_type="zone.created",
+        entity_type="Zone",
+        entity_id=str(zone.id),
+        metadata={"label": zone.label},
+    )
+    return zone
+
+
+@transaction.atomic
+def set_table_location(*, table_id, zone_id, actor: ActorContext) -> Table:
+    """Move only the physical table context; financial and occupancy state stay put."""
+    table = _table_for_actor(table_id, actor)
+    zone = None
+    if zone_id is not None:
+        zone = (
+            Zone.objects.select_for_update()
+            .filter(pk=zone_id, venue_id=actor.venue_id, is_active=True)
+            .first()
+        )
+        if zone is None:
+            raise HospitalityServiceError("ZONE_NOT_FOUND", "Zona ativa não encontrada.", 404)
+
+    if table.zone_id == (zone.id if zone else None):
+        return table
+
+    previous_zone_id = table.zone_id
+    previous_zone_label = table.zone.label if table.zone_id else None
+    table.zone = zone
+    table.save(update_fields=["zone", "updated_at"])
+    record_audit_event(
+        actor=actor,
+        event_type="table.location_changed",
+        entity_type="Table",
+        entity_id=str(table.id),
+        metadata={
+            "previous_zone_id": str(previous_zone_id) if previous_zone_id else None,
+            "previous_zone_label": previous_zone_label,
+            "zone_id": str(zone.id) if zone else None,
+            "zone_label": zone.label if zone else None,
+        },
     )
     return table
 

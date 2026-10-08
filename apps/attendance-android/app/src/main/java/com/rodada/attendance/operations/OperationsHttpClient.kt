@@ -113,11 +113,26 @@ class OperationsHttpClient(baseUrl: String) {
             .toObjects()
             .map(::tableSummary)
 
+    fun zones(accessToken: String): List<ZoneSummary> =
+        request("GET", "/hospitality/zones/", accessToken = accessToken)
+            .getJSONArray("results")
+            .toObjects()
+            .map { ZoneSummary(it.getString("id"), it.getString("label")) }
+
     fun occupyTable(accessToken: String, tableId: String, tabId: String?) {
         request(
             "POST",
             "/hospitality/tables/$tableId/occupy/",
             JSONObject().apply { if (tabId != null) put("tab_id", tabId) },
+            accessToken,
+        )
+    }
+
+    fun moveTableToZone(accessToken: String, tableId: String, zoneId: String?) {
+        request(
+            "POST",
+            "/hospitality/tables/$tableId/location/",
+            JSONObject().put("zone_id", zoneId),
             accessToken,
         )
     }
@@ -216,6 +231,7 @@ class OperationsHttpClient(baseUrl: String) {
             status = json.getString("status"),
             guestOrderingMode = json.optString("guest_ordering_mode"),
             guestOrderingBlocked = json.optBoolean("guest_ordering_blocked"),
+            zone = json.optJSONObject("zone")?.let { ZoneSummary(it.getString("id"), it.getString("label")) },
             activeOccupancy = active?.let { occupancy ->
                 TableOccupancy(
                     id = occupancy.getString("id"),

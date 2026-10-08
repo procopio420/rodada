@@ -38,6 +38,7 @@ import com.rodada.attendance.cash.CashShiftScreen
 import com.rodada.attendance.cash.CashShiftViewModel
 import com.rodada.attendance.corrections.CorrectionAction
 import com.rodada.attendance.corrections.CorrectionCommand
+import com.rodada.attendance.corrections.correctionActionsFor
 import com.rodada.attendance.corrections.requiresPostProductionEndpoint
 import com.rodada.attendance.refunds.DirectRefundCommand
 import com.rodada.attendance.refunds.RefundCommand
@@ -55,8 +56,18 @@ fun AttendanceScreen(
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
-    var correctionItem by remember { mutableStateOf<OrderItem?>(null) }
+    var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
+    val correctionItem = correctionItemId?.let { itemId ->
+        state.selectedTab?.orders?.asSequence()?.flatMap { it.items.asSequence() }?.firstOrNull { it.id == itemId }
+    }
+
+    LaunchedEffect(state.completedCorrectionItemId) {
+        if (state.completedCorrectionItemId == correctionItemId) correctionItemId = null
+    }
+    LaunchedEffect(correctionItemId, correctionItem) {
+        if (correctionItemId != null && correctionItem == null) correctionItemId = null
+    }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
 
@@ -108,7 +119,7 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
-                    onCorrectItem = { correctionItem = it },
+                    onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                 )
@@ -143,7 +154,7 @@ fun AttendanceScreen(
             item = item,
             products = state.products,
             busy = state.submitting,
-            onDismiss = { correctionItem = null },
+            onDismiss = { correctionItemId = null },
             onSubmit = { command, pin -> viewModel.submitCorrection(session, command, pin) },
         )
     }
@@ -346,10 +357,15 @@ private fun TabWorkspace(
                                     Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
                                     Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
                                 }
-                                OutlinedButton(
-                                    onClick = { onCorrectItem(item) },
-                                    enabled = !state.submitting && tab.summary.state != "CLOSED" && item.state !in setOf("CANCELLED"),
-                                ) { Text("Corrigir") }
+                                // A cancelled line is retained as operational history, not an
+                                // actionable item.  Keeping a disabled "Corrigir" beside it made
+                                // the next valid action ambiguous during a live shift.
+                                if (item.state != "CANCELLED") {
+                                    OutlinedButton(
+                                        onClick = { onCorrectItem(item) },
+                                        enabled = !state.submitting && tab.summary.state != "CLOSED",
+                                    ) { Text("Corrigir") }
+                                }
                             }
                         }
                     }
@@ -535,6 +551,10 @@ private fun CorrectionDialog(
     var replacementId by remember(item.id) { mutableStateOf("") }
     // Retain this key while the dialog remains open. A timeout retry is therefore the same command.
     val idempotencyKey = remember(item.id, action, replacementId) { UUID.randomUUID().toString() }
+    // The canonical post-production command intentionally rejects remake and
+    // replacement before work begins. Do not offer an action that the server
+    // can never accept for a NEW/ACCEPTED item.
+    val availableActions = correctionActionsFor(item.state)
     val replacementProducts = products.filter { it.active && it.availability == "AVAILABLE" && it.id != replacementId }
     val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }).requiresPostProductionEndpoint()
     val replacementValid = action != CorrectionAction.REPLACEMENT || replacementId.isNotBlank()
@@ -544,7 +564,7 @@ private fun CorrectionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
-                CorrectionAction.entries.forEach { candidate ->
+                availableActions.forEach { candidate ->
                     OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
                         Text(if (action == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
@@ -620,8 +640,18 @@ private fun RefundDialog(
     onSubmit: (RefundCommand, String) -> Unit,
 ) {
     val eligiblePayments = payments.filter { it.amountCents > it.refundedCents }
-    var paymentId by remember(target) { mutableStateOf((target as? RefundTarget.Payment)?.payment?.id ?: eligiblePayments.firstOrNull()?.id.orEmpty()) }
+    val correctionRequired = (target as? RefundTarget.Correction)?.correction?.refundRequiredCents
+    var paymentId by remember(target) {
+        mutableStateOf(
+            (target as? RefundTarget.Payment)?.payment?.id
+                ?: eligiblePayments.firstOrNull { payment ->
+                    correctionRequired == null || payment.amountCents - payment.refundedCents >= correctionRequired
+                }?.id
+                ?: eligiblePayments.firstOrNull()?.id.orEmpty(),
+        )
+    }
     val selectedPayment = eligiblePayments.firstOrNull { it.id == paymentId }
+    val selectedPaymentAvailable = selectedPayment?.let { it.amountCents - it.refundedCents } ?: 0
     val maximum = when (target) {
         is RefundTarget.Payment -> target.payment.amountCents - target.payment.refundedCents
         is RefundTarget.Correction -> target.correction.refundRequiredCents
@@ -632,7 +662,7 @@ private fun RefundDialog(
     var cashPointId by remember(target) { mutableStateOf(cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty()) }
     val key = remember(target, paymentId) { UUID.randomUUID().toString() }
     val amount = parseCents(rawAmount)
-    val valid = amount != null && amount > 0 && amount <= maximum && selectedPayment != null
+    val valid = amount != null && amount > 0 && amount <= maximum && amount <= selectedPaymentAvailable && selectedPayment != null
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },
