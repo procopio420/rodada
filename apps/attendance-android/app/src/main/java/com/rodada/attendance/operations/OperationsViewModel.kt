@@ -17,6 +17,7 @@ data class OperationsUiState(
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
     val products: List<Product> = emptyList(),
+    val deliveryTasks: List<DeliveryTask> = emptyList(),
     val selectedTab: TabDetail? = null,
     val cart: List<CartLine> = emptyList(),
     val errorMessage: String? = null,
@@ -49,12 +50,19 @@ class OperationsViewModel(private val repository: OperationsRepository) : ViewMo
             runCatching {
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
+                val deliveries = repository.deliveryTasks(session)
                 val detail = state.selectedTab?.summary?.id?.let { id ->
                     runCatching { repository.tabDetail(session, id) }.getOrNull()
                 }
-                Triple(tabs, products, detail)
-            }.onSuccess { (tabs, products, detail) ->
-                state = state.copy(loading = false, tabs = tabs, products = products, selectedTab = detail ?: state.selectedTab)
+                RefreshSnapshot(tabs, products, deliveries, detail)
+            }.onSuccess { snapshot ->
+                state = state.copy(
+                    loading = false,
+                    tabs = snapshot.tabs,
+                    products = snapshot.products,
+                    deliveryTasks = snapshot.deliveryTasks,
+                    selectedTab = snapshot.detail ?: state.selectedTab,
+                )
             }.onFailure {
                 state = state.copy(loading = false)
                 showFailure(it)
@@ -169,6 +177,14 @@ class OperationsViewModel(private val repository: OperationsRepository) : ViewMo
         }
     }
 
+    fun completeDelivery(session: StoredSession, taskId: String) = action {
+        repository.completeDelivery(session, taskId)
+        state = state.copy(
+            deliveryTasks = repository.deliveryTasks(session),
+            noticeMessage = "Entrega concluída.",
+        )
+    }
+
     fun dismissMessage() {
         state = state.copy(errorMessage = null, noticeMessage = null)
     }
@@ -211,4 +227,11 @@ class OperationsViewModel(private val repository: OperationsRepository) : ViewMo
                 override fun <T : ViewModel> create(modelClass: Class<T>): T = OperationsViewModel(repository) as T
             }
     }
+
+    private data class RefreshSnapshot(
+        val tabs: List<TabSummary>,
+        val products: List<Product>,
+        val deliveryTasks: List<DeliveryTask>,
+        val detail: TabDetail?,
+    )
 }

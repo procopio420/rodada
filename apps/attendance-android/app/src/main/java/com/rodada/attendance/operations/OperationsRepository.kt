@@ -17,6 +17,11 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun products(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::products)
 
+    suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
+
+    suspend fun completeDelivery(session: StoredSession, taskId: String) =
+        authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
+
     suspend fun confirmOrder(
         session: StoredSession,
         tabId: String,

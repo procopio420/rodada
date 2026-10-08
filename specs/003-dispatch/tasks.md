@@ -6,7 +6,7 @@
 - [ ] SLA/severity
 - [ ] WebSocket updates
 - [x] READY -> delivery task idempotente
-- [ ] remover dependência de claim/pickup/delivery manual no happy path
+- [x] happy path READY -> entrega concluída em uma ação explícita.
 - [ ] FulfillmentMilestone com source/confidence/provenance
 - [ ] correção auditável de milestone inferido
 - [ ] inferência P0 sem hardware com semântica de baixa confiança

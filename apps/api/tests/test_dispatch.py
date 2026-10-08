@@ -187,6 +187,9 @@ class DispatchFoundationTests(TestCase):
                 "completed_at": None,
                 "completed_by_id": None,
                 "completion_source": "",
+                "product_name": "Cerveja",
+                "quantity": 1,
+                "tab_label": "Ana",
                 "age_seconds": queue.json()["results"][0]["age_seconds"],
             }
         ]

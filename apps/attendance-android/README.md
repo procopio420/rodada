@@ -28,6 +28,8 @@ Após autenticação, o Atendimento também executa o loop operacional persistid
 - mostra cobrança, recebido e saldo da Tab;
 - registra pagamento parcial manual (`CASH`, cartão, terminal externo, Pix/outro) com chave de idempotência;
 - fecha Tab somente quando o saldo canônico chega a zero.
+- mostra a fila canônica de entregas READY, com item, comanda, destino e idade;
+- conclui a entrega com uma única ação idempotente, persistida no servidor.
 
 Pedidos e pagamentos recebem uma UUID de intenção por submissão. Repetir a mesma ação depois de falha de rede reutiliza a chave; a API confirma/reconcilia em vez de duplicar o efeito. O app nunca apresenta pagamento externo como confirmado antes de o operador confirmar que o terminal/provedor concluiu a cobrança.
 
@@ -68,7 +70,7 @@ Tokens são serializados juntos com o contexto da sessão e cifrados antes de en
 
 ## Limites atuais
 
-Dispatch, produção, Tap on Phone e o fluxo provider/webhook de pagamento ainda não pertencem a esta superfície. O terminal externo permanece uma confirmação manual do operador; não existe confirmação falsa pelo app.
+Produção, Tap on Phone e o fluxo provider/webhook de pagamento ainda não pertencem a esta superfície. A fila de entrega usa polling manual/atualização; não há transporte realtime ainda. O terminal externo permanece uma confirmação manual do operador; não existe confirmação falsa pelo app.
 
 
 ## Invalidação de acesso

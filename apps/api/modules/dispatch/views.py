@@ -35,7 +35,7 @@ class DeliveryQueueView(APIView):
                 task_type=DispatchTaskType.DELIVERY,
                 state__in=(DispatchTaskState.OPEN, DispatchTaskState.CLAIMED),
             )
-            .select_related("destination_table", "order_item")
+            .select_related("destination_table", "order_item__order__tab")
             .order_by("-priority", "ready_at", "created_at", "id")[:200]
         )
         return Response({"results": [_task_payload(task) for task in tasks]})

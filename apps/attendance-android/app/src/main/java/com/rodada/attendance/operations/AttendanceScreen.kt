@@ -50,7 +50,12 @@ fun AttendanceScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             Header(session, state.loading || state.submitting, onOpenAccount) { viewModel.refresh(session) }
             when (val selected = state.selectedTab) {
-                null -> TabList(state, onOpenTab = { openingTab = true }) { viewModel.selectTab(session, it) }
+                null -> TabList(
+                    state = state,
+                    onOpenTab = { openingTab = true },
+                    onSelect = { viewModel.selectTab(session, it) },
+                    onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                )
                 else -> TabWorkspace(
                     state = state,
                     tab = selected,
@@ -116,6 +121,7 @@ private fun TabList(
     state: OperationsUiState,
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
+    onCompleteDelivery: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -125,6 +131,31 @@ private fun TabList(
             Button(onClick = onOpenTab, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) {
                 Text("Abrir nova comanda")
             }
+            Spacer(Modifier.height(12.dp))
+            Text("Entregas prontas", style = MaterialTheme.typography.headlineSmall)
+        }
+        if (!state.loading && state.deliveryTasks.isEmpty()) {
+            item { Text("Nenhuma entrega aguardando.") }
+        }
+        items(state.deliveryTasks, key = { it.id }) { task ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(task.destinationLabel.ifBlank { "Destino não informado" }, fontWeight = FontWeight.Bold)
+                    Text("${task.quantity}× ${task.productName}")
+                    if (task.tabLabel.isNotBlank()) Text("Comanda: ${task.tabLabel}")
+                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall)
+                    Button(
+                        onClick = { onCompleteDelivery(task.id) },
+                        enabled = !state.submitting,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Entregue") }
+                }
+            }
+        }
+        item {
             Spacer(Modifier.height(12.dp))
             Text("Comandas", style = MaterialTheme.typography.headlineSmall)
         }
@@ -148,6 +179,9 @@ private fun TabList(
         item { Spacer(Modifier.height(20.dp)) }
     }
 }
+
+private fun deliveryAge(seconds: Long): String =
+    if (seconds < 60) "agora" else "${seconds / 60} min"
 
 @Composable
 private fun TabWorkspace(

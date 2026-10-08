@@ -41,6 +41,17 @@ data class Product(
     val availability: String,
 )
 
+/** Server-authoritative READY work; it is never synthesized from a local order cart. */
+data class DeliveryTask(
+    val id: String,
+    val state: String,
+    val destinationLabel: String,
+    val productName: String,
+    val quantity: Int,
+    val tabLabel: String,
+    val ageSeconds: Long,
+)
+
 data class CartLine(
     val product: Product,
     val quantity: Int,

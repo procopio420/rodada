@@ -62,6 +62,26 @@ class OperationsHttpClient(baseUrl: String) {
                 )
             }
 
+    fun deliveryTasks(accessToken: String): List<DeliveryTask> =
+        request("GET", "/dispatch/delivery/", accessToken = accessToken)
+            .getJSONArray("results")
+            .toObjects()
+            .map {
+                DeliveryTask(
+                    id = it.getString("id"),
+                    state = it.getString("state"),
+                    destinationLabel = it.optString("destination_label"),
+                    productName = it.optString("product_name", "Item pronto"),
+                    quantity = it.optInt("quantity", 1),
+                    tabLabel = it.optString("tab_label"),
+                    ageSeconds = it.optLong("age_seconds", 0),
+                )
+            }
+
+    fun completeDelivery(accessToken: String, taskId: String) {
+        request("POST", "/dispatch/delivery/$taskId/complete/", JSONObject(), accessToken)
+    }
+
     fun confirmOrder(
         accessToken: String,
         tabId: String,
