@@ -1,5 +1,11 @@
 package com.rodada.attendance.operations
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Color
+import com.rodada.attendance.ui.RodadaVisual
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,11 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import com.rodada.attendance.ui.RodadaButton as Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.rodada.attendance.ui.RodadaOutlinedButton as OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,6 +91,7 @@ fun AttendanceScreen(
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
+    var peak by rememberSaveable { mutableStateOf(false) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
     val correctionItem = correctionItemId?.let { itemId ->
@@ -109,16 +116,18 @@ fun AttendanceScreen(
                 session = session,
                 connectivity = state.connectivity,
                 busy = state.loading || state.submitting,
+                peak = peak,
+                onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
+            Box(modifier = Modifier.weight(1f)) {
             when (val selected = state.selectedTab) {
                 null -> {
-                    val canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }
-                    FrontlineNavigation(section = section, canUseCash = canUseCash, onSelect = { section = it })
                     when (section) {
                         FrontlineSection.NOW -> TabList(
                             state = state,
                             showDeliveries = true,
+                            peak = peak,
                             onOpenTab = { openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
@@ -156,6 +165,10 @@ fun AttendanceScreen(
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                 )
+            }
+            }
+            if (state.selectedTab == null) {
+                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it }, onOpenTab = { openingTab = true }, busy = state.submitting)
             }
         }
     }
@@ -226,20 +239,17 @@ fun AttendanceScreen(
 private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Comandas"), TABLES("Mesas"), CASH("Caixa") }
 
 @Composable
-private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        val sections = buildList {
-            add(FrontlineSection.NOW)
-            add(FrontlineSection.TABS)
-            add(FrontlineSection.TABLES)
-            if (canUseCash) add(FrontlineSection.CASH)
+private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit, onOpenTab: () -> Unit, busy: Boolean) {
+    Column(modifier = Modifier.fillMaxWidth().background(RodadaVisual.Surface)) {
+        HorizontalDivider(color = RodadaVisual.Border)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            TextButton(onClick = { onSelect(FrontlineSection.TABLES) }) { Text("Mesas") }
+            if (canUseCash) TextButton(onClick = { onSelect(FrontlineSection.CASH) }) { Text("Caixa") }
         }
-        sections.forEach { candidate ->
-            if (candidate == section) Button(onClick = {}, enabled = false, modifier = Modifier.weight(1f)) { Text(candidate.label) }
-            else OutlinedButton(onClick = { onSelect(candidate) }, modifier = Modifier.weight(1f)) { Text(candidate.label) }
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = { onSelect(FrontlineSection.NOW) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) { Text("AGORA", color = if (section == FrontlineSection.NOW) RodadaVisual.Paper else RodadaVisual.Muted) }
+            Button(onClick = onOpenTab, enabled = !busy, modifier = Modifier.weight(1.2f)) { Text("+ PEDIR") }
+            TextButton(onClick = { onSelect(FrontlineSection.TABS) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) { Text("CONTAS", color = if (section == FrontlineSection.TABS) RodadaVisual.Paper else RodadaVisual.Muted) }
         }
     }
 }
@@ -249,6 +259,8 @@ private fun Header(
     session: StoredSession,
     connectivity: ConnectivityState,
     busy: Boolean,
+    peak: Boolean,
+    onTogglePeak: () -> Unit,
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
 ) {
@@ -258,14 +270,15 @@ private fun Header(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("RODADA / ATENDIMENTO", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-            Text(session.venueName.ifBlank { session.venueSlug }, style = MaterialTheme.typography.titleMedium)
+            Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+            Text(session.staffDisplayName, style = MaterialTheme.typography.bodySmall)
             Text(
                 connectivity.label(),
                 style = MaterialTheme.typography.labelSmall,
-                color = if (connectivity == ConnectivityState.ONLINE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                color = if (connectivity == ConnectivityState.ONLINE) RodadaVisual.Success else RodadaVisual.Amber,
             )
         }
+        TextButton(onClick = onTogglePeak) { Text(if (peak) "Sair do pico" else "Pico", color = RodadaVisual.Amber) }
         TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
         OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
     }
@@ -275,56 +288,50 @@ private fun Header(
 private fun TabList(
     state: OperationsUiState,
     showDeliveries: Boolean,
+    peak: Boolean = false,
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        if (showDeliveries) item { Text("Entregas prontas", style = MaterialTheme.typography.headlineSmall) }
-        if (showDeliveries && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando.") }
-        if (showDeliveries) items(state.deliveryTasks, key = { it.id }) { task ->
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text(task.destinationLabel.ifBlank { "Destino não informado" }, fontWeight = FontWeight.Bold)
-                    Text("${task.quantity}× ${task.productName}")
-                    if (task.tabLabel.isNotBlank()) Text("Comanda: ${task.tabLabel}")
-                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall)
-                    Button(
-                        onClick = { onCompleteDelivery(task.id) },
-                        enabled = !state.submitting,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Entregue") }
+    LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        if (showDeliveries) item {
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                Text(if (peak) "MODO PICO" else "AGORA", style = MaterialTheme.typography.headlineLarge)
+                if (peak) Text("Só entregas · mais antigo primeiro", color = RodadaVisual.Amber)
+                Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("${state.deliveryTasks.size} PRONTOS", color = RodadaVisual.Success, style = MaterialTheme.typography.labelLarge)
+                    Text("${state.tabs.size} CONTAS", color = RodadaVisual.Money, style = MaterialTheme.typography.labelLarge)
                 }
             }
+            HorizontalDivider(color = RodadaVisual.Border)
         }
-        item {
-            Spacer(Modifier.height(12.dp))
-            Button(onClick = onOpenTab, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Abrir nova comanda") }
-            Spacer(Modifier.height(12.dp))
-            Text(if (showDeliveries) "Comandas" else "Comandas abertas", style = MaterialTheme.typography.headlineSmall)
+        if (showDeliveries && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
+            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.background(RodadaVisual.Control).padding(horizontal = 10.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("PRONTO", color = RodadaVisual.Success, style = MaterialTheme.typography.labelSmall)
+                    Text(deliveryAge(task.ageSeconds), fontFamily = RodadaVisual.Number, fontWeight = FontWeight.ExtraBold, color = RodadaVisual.Success)
+                }
+                Column(modifier = Modifier.weight(1f).padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(task.destinationLabel.ifBlank { "Destino não informado" }, style = MaterialTheme.typography.headlineSmall)
+                    Text("${task.quantity} ${task.productName}", style = MaterialTheme.typography.titleMedium)
+                    if (task.tabLabel.isNotBlank()) Text(task.tabLabel, color = RodadaVisual.Muted, style = MaterialTheme.typography.bodySmall)
+                }
+                Button(onClick = { onCompleteDelivery(task.id) }, enabled = !state.submitting, modifier = Modifier.padding(end = 16.dp)) { Text("ENTREGUE") }
+            }
+            HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (state.loading && state.tabs.isEmpty()) {
-            item { LoadingRow() }
-        }
-        if (!state.loading && state.tabs.isEmpty()) {
-            item { Text("Nenhuma comanda aberta neste dispositivo.") }
-        }
-        items(state.tabs, key = { it.id }) { tab ->
-            OutlinedButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth(), enabled = !state.submitting) {
-                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(tab.displayLabel, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(tab.stateLabel())
-                    }
-                    Text("Em aberto: ${formatCents(tab.exposureCents)}", style = MaterialTheme.typography.bodyLarge)
+        if (!peak) item { Text(if (showDeliveries) "CONTAS ABERTAS" else "CONTAS", modifier = Modifier.padding(20.dp), style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Muted) }
+        if (state.loading && state.tabs.isEmpty()) item { LoadingRow() }
+        if (!peak && !state.loading && state.tabs.isEmpty()) item { Text("Nenhuma comanda aberta neste dispositivo.", modifier = Modifier.padding(20.dp)) }
+        if (!peak) items(state.tabs, key = { it.id }) { tab ->
+            TextButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp), enabled = !state.submitting) {
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(tab.displayLabel.ifBlank { "Sem identificação" }, style = MaterialTheme.typography.headlineSmall, color = RodadaVisual.Paper)
+                    Text("${tab.stateLabel()} · ${formatCents(tab.exposureCents)} em aberto", fontFamily = RodadaVisual.Number, color = if (tab.consumptionBlocked) RodadaVisual.Danger else RodadaVisual.Money)
                 }
             }
+            HorizontalDivider(color = RodadaVisual.Border)
         }
         item { Spacer(Modifier.height(20.dp)) }
     }
