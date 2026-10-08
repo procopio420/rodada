@@ -136,9 +136,6 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       </div>)}
       {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
     </section>
-    <aside className="notice" data-state="warning" aria-label="Quick Catalog indisponível">
-      <strong>Criação rápida indisponível</strong>
-      <p className="inlineNote">Adicionar produtos e gerar ícones ainda não estão conectados nesta superfície. Use o catálogo existente.</p>
-    </aside>
+
   </main>;
 }

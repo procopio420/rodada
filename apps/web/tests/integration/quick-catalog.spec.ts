@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("quick create, exact reuse, manager upload and shared guest asset", async ({ page }) => {
+test("quick create, exact reuse and manager icon lifecycle", async ({ page }) => {
   await page.goto("/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");

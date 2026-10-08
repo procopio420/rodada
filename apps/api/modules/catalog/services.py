@@ -71,6 +71,7 @@ def resolve_or_create_product(
             category=category,
         ),
     )
+    product.refresh_from_db()
     if created:
         job = product.icon.generations.first()
         job.created_by_id = actor.staff_id
@@ -114,7 +115,8 @@ def enqueue_icon(*, product, actor=None, request_key=None, force=False):
     if existing:
         return existing.generation
     equivalent = icon.generations.filter(
-        fingerprint=fingerprint, status__in=(["PENDING", "RUNNING"] if force else ["PENDING", "RUNNING", "READY"])
+        fingerprint=fingerprint,
+        status__in=(["PENDING", "RUNNING"] if force else ["PENDING", "RUNNING", "READY"]),
     ).first()
     if equivalent and (not force or equivalent.status != "READY"):
         IconGenerationRequest.objects.create(icon=icon, key=key, generation=equivalent)

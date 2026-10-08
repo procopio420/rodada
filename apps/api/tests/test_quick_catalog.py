@@ -137,6 +137,7 @@ class QuickCatalogTests(TestCase):
         ) as provider:
             p, created = self.create()
             assert created and provider.call_count == 0
+            assert p.icon.status == "GENERATING"
             for _ in range(3):
                 IconGeneration.objects.update(available_at=timezone.now())
                 run_icon_job()
