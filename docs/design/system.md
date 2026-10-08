@@ -367,3 +367,9 @@ Ele não é a implementação final do frontend, mas mudanças visuais de alto n
 Quick Catalog combina Field, CatalogCombobox, ProductIcon, StatusBadge/semântica de estado e Button. Resultados mostram preço, destino e ativação/disponibilidade; selecionar reutiliza o produto. Criação é ação explícita com preço e destino, após a busca. Ícone de fallback usa as iniciais no mesmo espaço do asset e não representa disponibilidade. A fila de produção continua antes do cadastro.
 
 Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV, Panel para grupos de fatos e estados semânticos para conferência/divergência. Valores históricos e exposição atual são rotulados separadamente. Histórico de caixa usa seletor com data/estado e retorno explícito ao turno ativo; consultar histórico não altera estado financeiro. Todas as superfícies mantêm foco visível, targets 44 px e tokens existentes. Ver [Spec 020](../../specs/020-web-operational-completion/spec.md).
+
+## Hierarquia operacional — Spec 021
+
+Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
+
+Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.

@@ -4,7 +4,7 @@ import { PNG } from "pngjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { fixture, layoutAndA11y, stable, widths, type State } from "./fixtures";
+import { fixture, layoutAndA11y, stable, widths, viewports, type State } from "./fixtures";
 
 const artifactRoot = path.resolve(process.cwd(), "../../visual-artifacts");
 const prototypeUrl = pathToFileURL(path.resolve(process.cwd(), "../../prototype/index.html")).href;
@@ -82,7 +82,7 @@ const surfaces = [
 
 for (const width of widths) {
   test(`Quick Catalog: creation form accessibility at ${width}px`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 844 });
+    await page.setViewportSize(viewports.find(viewport => viewport.width === width)!);
     await fixture(page);
     await page.goto("/kitchen");
     await page.getByLabel("Buscar produto por nome").fill("Produto novo de teste");
@@ -100,7 +100,7 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     const errors: string[] = [];
     page.on("pageerror", error => errors.push(error.message));
     page.on("console", message => { if (message.type() === "error" && !message.text().includes("Failed to load resource")) errors.push(message.text()); });
-    await page.setViewportSize({ width, height: 844 });
+    await page.setViewportSize(viewports.find(viewport => viewport.width === width)!);
     await fixture(page);
     await page.goto(route);
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
@@ -109,6 +109,14 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     if (name === "reports") { await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible(); await page.getByText("Configurar dia operacional", { exact: true }).click(); }
     if (name === "bar" || name === "kitchen") await expect(page.getByRole("button", { name: /Indisponibilizar/ }).first()).toBeVisible();
     if (name === "pos") await page.getByRole("button", { name: /Comanda de teste/ }).click();
+    if (name === "guest") {
+      const icon = (await page.locator(".guestProduct > .productIcon").first().boundingBox())!;
+      expect({ width: icon.width, height: icon.height }).toEqual({ width: 58, height: 58 });
+      const details = (await page.locator(".guestProductDetails").first().boundingBox())!;
+      const price = (await page.locator(".guestProductPrice").first().boundingBox())!;
+      expect(details.x).toBeGreaterThan(icon.x + icon.width);
+      expect(price.x).toBeGreaterThanOrEqual(details.x + details.width);
+    }
     if (name === "refunds") { await page.getByLabel("Comanda", { exact: true }).selectOption("tab-test"); await expect(page.getByLabel("Valor a estornar")).toBeVisible(); }
     await stable(page);
     await layoutAndA11y(page);
@@ -135,6 +143,11 @@ for (const state of ["empty", "loading", "error", "long", "warnings"] as State[]
         if (name === "guest") await expect(page.getByText("Abrindo sua mesa…")).toHaveCount(0);
         if (name === "manage") await expect(page.getByText("Atualizando operação…")).toHaveCount(0);
         if (state !== "error" && state !== "empty" && name === "refunds") { await page.getByLabel("Comanda", { exact: true }).selectOption("tab-test"); await expect(page.getByText("Restante reembolsável")).toBeVisible(); }
+        if (state === "warnings" && name === "pos") {
+          await page.getByRole("button", { name: /Comanda de teste/ }).click();
+          await expect(page.getByRole("button", { name: /Fritas.*Indisponível/ })).toBeDisabled();
+        }
+        if (state === "warnings" && name === "guest") await expect(page.locator(".guestProduct").first()).toBeDisabled();
         if (state === "warnings" && name === "cash") await expect(page.getByText("Divergência aguardando revisão de gerente.")).toBeVisible();
         if (state === "warnings" && name === "manage") await expect(page.getByRole("heading", { name: "Divergências de caixa pendentes" })).toBeVisible();
         if (state === "error" && (name === "bar" || name === "kitchen")) { await expect(page.locator(".notice[role=alert]")).toContainText("CAPABILITY_REQUIRED"); await expect(page.getByText("Nada no passe.")).toHaveCount(0); }
@@ -153,6 +166,42 @@ test("management hash navigation selects each real section", async ({ page }) =>
     const link = page.getByRole("navigation").getByRole("link", { name, exact: true });
     await link.click(); await expect(link).toHaveAttribute("aria-current", "page");
   }
+});
+
+for (const route of ["/bar", "/kitchen"]) for (const viewport of viewports) {
+  test(`${route}: production is first and expands at ${viewport.width}px`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await fixture(page); await page.goto(route);
+    const queue = page.locator('section[aria-labelledby="queue-title"]');
+    const ready = page.locator('section[aria-labelledby="ready-title"]');
+    const catalog = page.locator('section[aria-labelledby="availability-title"]');
+    await expect(queue.getByText("1 item", { exact: true })).toBeVisible();
+    await expect(ready.getByText("1 item", { exact: true })).toBeVisible();
+    const action = queue.getByRole("button", { name: /^Pronto:/ });
+    const q = (await queue.boundingBox())!, r = (await ready.boundingBox())!, c = (await catalog.boundingBox())!;
+    const button = (await action.boundingBox())!;
+    expect(button.y + button.height).toBeLessThan(viewport.height);
+    expect(c.y).toBeGreaterThan(q.y + q.height);
+    expect(c.y).toBeGreaterThan(r.y + r.height);
+    if (viewport.width >= 768) { expect(r.y).toBe(q.y); expect(r.x).toBeGreaterThan(q.x); }
+    else expect(r.y).toBeGreaterThan(q.y);
+  });
+}
+
+test("management prioritizes current work and distinguishes preparation from ready", async ({ page }) => {
+  await fixture(page, "warnings"); await page.goto("/manage");
+  const pulse = page.getByRole("heading", { name: "Agora", exact: true });
+  const house = page.getByRole("heading", { name: "Conta da casa", exact: true });
+  await expect(pulse).toBeVisible(); await expect(house).toBeVisible();
+  const y = async (locator: typeof pulse) => (await locator.boundingBox())!.y;
+  expect(await y(page.getByRole("heading", { name: "Divergências de caixa pendentes" }))).toBeLessThan(await y(pulse));
+  expect(await y(page.getByRole("heading", { name: "Comandas precisam de atenção" }))).toBeLessThan(await y(pulse));
+  expect(await y(pulse)).toBeLessThan(await y(house));
+  expect(await y(page.getByRole("heading", { name: "Produção e entrega" }))).toBeLessThan(await y(house));
+  await expect(page.locator(".dataRow").filter({ hasText: "Bar em preparo" })).toHaveText("Bar em preparo1");
+  await expect(page.locator(".dataRow").filter({ hasText: "Cozinha em preparo" })).toHaveText("Cozinha em preparo1");
+  await page.getByRole("link", { name: "Gestão", exact: true }).click();
+  await expect(page.getByLabel("Inspecionar comanda")).toBeVisible();
 });
 
 for (const route of ["/bar", "/kitchen"]) {

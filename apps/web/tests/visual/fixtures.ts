@@ -1,7 +1,11 @@
 import { expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-export const widths = [360, 390, 430, 768, 1280] as const;
+export const viewports = [
+  { width: 360, height: 800 }, { width: 390, height: 844 }, { width: 430, height: 932 },
+  { width: 768, height: 1024 }, { width: 1280, height: 800 }, { width: 1440, height: 900 },
+] as const;
+export const widths = viewports.map(viewport => viewport.width);
 export const products = [
   { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
   { id: "omelette", name: "Omelete", price_cents: 1800, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },

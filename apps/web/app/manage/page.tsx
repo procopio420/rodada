@@ -81,6 +81,7 @@ export default function ManagementPage() {
   const activeCash = cashPoints.filter((point) => point.active_shift);
   const activeTables = tables.filter((table) => table.status === "OCCUPIED");
   const pendingCash = cashPoints.filter(point => point.pending_review_shift);
+  const attentionTabs = openTabs.filter(tab => tab.state === "REQUIRES_ACTION");
 
   return <main className="appShell managementShell">
     <header className="productHeader">
@@ -100,7 +101,11 @@ export default function ManagementPage() {
     </section>}
     {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
-    <HouseAccount />
+    {attentionTabs.length > 0 && <section className="panel panelWarning" aria-labelledby="tab-attention-title">
+      <h2 id="tab-attention-title">Comandas precisam de atenção</h2>
+      {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tab.display_label || "Comanda sem nome"}</strong><small>Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
+      <Link className="backLink" href="/manage#gestao">Ver comandas em Gestão →</Link>
+    </section>}
     <section className="panel"><h2>Agora</h2>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
@@ -111,23 +116,26 @@ export default function ManagementPage() {
     </section>
 
     <section className="panel" id="operacao"><h2>Produção e entrega</h2>
-      <div className="dataRow"><span>Bar em fila</span><strong>{bar.length}</strong></div>
-      <div className="dataRow"><span>Cozinha em fila</span><strong>{kitchen.length}</strong></div>
+      <div className="dataRow"><span>Bar em preparo</span><strong>{bar.filter(item => item.state !== "READY").length}</strong></div>
+      <div className="dataRow"><span>Cozinha em preparo</span><strong>{kitchen.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
       {deliveries.slice(0, 5).map((task) => <div className="movement" key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></div>)}
       <div className="actions"><Link className="backLink" href="/bar">Abrir Bar</Link><Link className="backLink" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <section className="panel" id="gestao"><h2>Caixa e salão</h2>
-      {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
+    <div id="gestao">
+    <section className="panel"><h2>Caixa e salão</h2>
+      {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
       <div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div>
       <div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter((table) => table.status === "CLEANING").length}</strong></div>
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
+    <HouseAccount />
+    </div>
     <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
-    {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">{product.availability}</strong></div>)}</section> : null}
-    <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Cardápio, equipe e relatórios entrarão aqui sem transformar Gerência em navegação de domínio.</p></section>
+    {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">Indisponível</strong></div>)}</section> : null}
+    <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Consulte o cardápio nas estações e os relatórios em Vendas. Para trocar de operador ou encerrar a sessão, abra Atendimento.</p><Link className="backLink" href="/staff">Abrir sessão de atendimento →</Link></section>
     </>}
   </main>;
 }
