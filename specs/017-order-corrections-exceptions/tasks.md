@@ -13,7 +13,7 @@
 - [ ] Create remake.
 - [ ] Create replacement.
 - [ ] Comped replacement via Spec 011.
-- [x] Paid/refund-required correction request orchestration (manager settlement remains pending).
+- [x] Paid/refund-required orchestration with reauthenticated manager settlement.
 - [x] Structured reason codes.
 
 ## Persistence

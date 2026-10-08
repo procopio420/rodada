@@ -4,7 +4,7 @@ from django.urls import include, path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
-from modules.corrections.views import OrderItemCancelView
+from modules.corrections.views import CorrectionRefundSettlementView, OrderItemCancelView
 from modules.catalog.views import ProductAvailabilityView, ProductListView
 from modules.hospitality.views import (
     OccupancyAssignTabView,
@@ -92,6 +92,7 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
     path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
     path("order-items/<uuid:item_id>/corrections/cancel/", OrderItemCancelView.as_view(), name="order-item-cancel"),
+    path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),

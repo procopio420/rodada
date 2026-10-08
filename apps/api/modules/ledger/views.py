@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
-from modules.access.permissions import RequireCapability
+from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.ledger.services import LedgerServiceError, close_tab, collect_payment, create_refund
 
 
@@ -48,7 +48,7 @@ class PaymentCollectView(APIView):
 
 
 class PaymentRefundView(APIView):
-    permission_classes = [IsAuthenticated, RequireCapability]
+    permission_classes = [IsAuthenticated, RequireCapability, RequireRecentReauthentication]
     required_capability = Capability.REFUND_CREATE
 
     def post(self, request, payment_id):

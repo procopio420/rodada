@@ -122,6 +122,13 @@ class LedgerPaymentTests(TestCase):
 
         manager, manager_client = self.manager_client()
         payload = {"amount_cents": 500, "idempotency_key": "r1", "reason": "Item indisponível"}
+        reauth_required = manager_client.post(
+            f"/payments/{collected.json()['id']}/refunds/", payload, format="json"
+        )
+        self.assertEqual(reauth_required.status_code, 403)
+        self.assertEqual(reauth_required.json()["code"], "REAUTH_REQUIRED")
+        reauth = manager_client.post("/auth/reauthenticate/", {"pin": "4321"}, format="json")
+        self.assertEqual(reauth.status_code, 200, reauth.json())
         first = manager_client.post(f"/payments/{collected.json()['id']}/refunds/", payload, format="json")
         replay = manager_client.post(f"/payments/{collected.json()['id']}/refunds/", payload, format="json")
         self.assertEqual(first.status_code, 201)

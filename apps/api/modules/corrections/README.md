@@ -16,9 +16,14 @@ commits. The original charge, snapshot and production history remain intact.
 `POST /order-items/<id>/corrections/cancel/` is the staff command for this
 path. It is capability-protected (`order.correct`) and always uses the ledger
 reversal hook. If the Tab already has confirmed money, it deliberately leaves
-the item unchanged and records a `REFUND_REQUIRED` correction request instead;
-it must be resolved by the manager refund/courtesy workflow, never by guessing
-item-level payment allocation.
+the item unchanged and records a `REFUND_REQUIRED` correction request instead.
+`POST /corrections/<id>/settle-refund/` is the manager-only,
+recently-reauthenticated settlement command. It selects an eligible confirmed
+payment explicitly, appends its Refund and the charge reversal in one
+transaction, then applies the item cancellation. It works for a partial paid
+Tab without fabricating item-level payment allocations: the selected refund may
+be smaller than the original Charge, while the full negative adjustment removes
+the original responsibility.
 
 ## Future hooks
 

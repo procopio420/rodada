@@ -14,7 +14,7 @@ from modules.corrections.models import (
     FinancialDisposition,
     OrderCorrection,
 )
-from modules.ordering.models import OrderItem, OrderItemState
+from modules.ordering.models import OrderItem, OrderItemState, TabState
 
 
 @dataclass(frozen=True)
@@ -99,6 +99,12 @@ def cancel_before_fulfillment(
     )
     if item is None:
         raise CorrectionServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
+    if item.order.tab.state == TabState.CLOSED:
+        raise CorrectionServiceError(
+            "TAB_CLOSED",
+            "Reabra a comanda antes de registrar uma correção.",
+            409,
+        )
 
     fingerprint = _fingerprint(kind=kind, reason_code=reason_code, reason_text=reason_text)
     existing = OrderCorrection.objects.filter(
@@ -237,3 +243,130 @@ def cancel_before_fulfillment(
         },
     )
     return correction
+
+
+@transaction.atomic
+def settle_refund_required_cancellation(
+    *,
+    correction_id,
+    payment_id,
+    amount_cents: int,
+    refund_idempotency_key: str,
+    cash_point_id,
+    actor: ActorContext,
+):
+    """Settle a paid cancellation through an explicit refund plus reversal.
+
+    A confirmed payment is never rewritten. The result is three independent,
+    inspectable facts: the original Charge, a negative LedgerAdjustment and a
+    Refund against the manager-selected confirmed Payment.
+    """
+    correction = (
+        OrderCorrection.objects.select_for_update()
+        .select_related("original_order_item__order__tab", "refund", "financial_adjustment")
+        .filter(pk=correction_id, venue_id=actor.venue_id)
+        .first()
+    )
+    if correction is None:
+        raise CorrectionServiceError("CORRECTION_NOT_FOUND", "Correção não encontrada.", 404)
+
+    item = correction.original_order_item
+    if correction.status == CorrectionStatus.APPLIED:
+        if (
+            correction.refund_id
+            and str(correction.refund.payment_id) == str(payment_id)
+            and correction.refund.idempotency_key == refund_idempotency_key
+        ):
+            correction._idempotency_replay = True
+            from modules.ledger.services import totals
+
+            return correction, correction.refund, totals(item.order.tab)
+        raise CorrectionServiceError(
+            "CORRECTION_ALREADY_SETTLED",
+            "Esta correção já foi concluída.",
+            409,
+        )
+    if (
+        correction.status != CorrectionStatus.REQUESTED
+        or correction.financial_disposition != FinancialDisposition.REFUND_REQUIRED
+    ):
+        raise CorrectionServiceError(
+            "CORRECTION_NOT_REFUND_REQUIRED",
+            "Esta correção não aguarda estorno.",
+            409,
+        )
+    if item.state not in _CANCELLABLE_STATES:
+        raise CorrectionServiceError(
+            "CORRECTION_STAGE_REQUIRES_APPROVAL",
+            "O item mudou de estágio e exige tratamento operacional específico.",
+            409,
+            {"state": item.state},
+        )
+    if item.order.tab.state == TabState.CLOSED:
+        raise CorrectionServiceError("TAB_CLOSED", "Comanda fechada não aceita estorno de correção.", 409)
+    if not isinstance(amount_cents, int) or isinstance(amount_cents, bool) or amount_cents <= 0:
+        raise CorrectionServiceError("INVALID_REFUND", "Valor de estorno inválido.")
+
+    from modules.ledger.models import Charge, Payment
+    from modules.ledger.services import LedgerServiceError, create_refund, reverse_open_responsibility, totals
+
+    charge = Charge.objects.select_for_update().filter(order_item=item, tab=item.order.tab).first()
+    if charge is None:
+        raise CorrectionServiceError("CHARGE_NOT_FOUND", "Item sem cobrança canônica.", 409)
+    if amount_cents > charge.amount_cents:
+        raise CorrectionServiceError(
+            "REFUND_EXCEEDS_ITEM_VALUE",
+            "Estorno excede o valor original do item.",
+            409,
+        )
+    if not Payment.objects.filter(pk=payment_id, tab=item.order.tab).exists():
+        raise CorrectionServiceError("PAYMENT_NOT_FOUND", "Pagamento não pertence à comanda.", 404)
+
+    try:
+        refund, _ = create_refund(
+            payment_id=payment_id,
+            amount_cents=amount_cents,
+            idempotency_key=refund_idempotency_key,
+            reason=f"correction:{correction.reason_code}",
+            actor=actor,
+            cash_point_id=cash_point_id,
+        )
+        adjustment = reverse_open_responsibility(correction, item, actor)
+    except LedgerServiceError as error:
+        raise CorrectionServiceError(error.code, error.message, error.status_code) from error
+
+    now = timezone.now()
+    item.state = OrderItemState.CANCELLED
+    item.cancelled_at = now
+    item.save(update_fields=["state", "cancelled_at"])
+    correction.refund = refund
+    correction.financial_adjustment = adjustment
+    correction.status = CorrectionStatus.APPLIED
+    correction.approved_by_id = actor.staff_id
+    correction.applied_at = now
+    correction.save(
+        update_fields=[
+            "refund",
+            "financial_adjustment",
+            "status",
+            "approved_by",
+            "applied_at",
+        ]
+    )
+    correction._idempotency_replay = False
+    result = totals(item.order.tab)
+    record_audit_event(
+        actor=actor,
+        event_type="order_item.cancelled_after_refund",
+        entity_type="OrderCorrection",
+        entity_id=str(correction.id),
+        reason=correction.reason_code,
+        metadata={
+            "order_item_id": str(item.id),
+            "refund_id": str(refund.id),
+            "financial_adjustment_id": str(adjustment.id),
+            "refund_amount_cents": amount_cents,
+            **result,
+        },
+    )
+    return correction, refund, result

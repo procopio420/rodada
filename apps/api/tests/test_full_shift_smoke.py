@@ -169,11 +169,36 @@ class FullShiftSmokeTests(TestCase):
                 "idempotency_key": "joao-cash",
             },
         )
-        self.post(
+        joao_card = self.post(
             self.staff,
             f"/tabs/{joao['id']}/payments/",
             {"amount_cents": 2400, "method": "CARD", "idempotency_key": "joao-card"},
         )
+        # A later paid mistake does not rewrite either the card payment or the
+        # item. It first becomes an explicit refund-required correction, then
+        # a recently reauthenticated manager settles its refund and reversal.
+        paid_correction = self.post(
+            self.staff,
+            f"/order-items/{staff_order['items'][1]['id']}/corrections/cancel/",
+            {
+                "kind": "CUSTOMER_CHANGED_MIND",
+                "reason_code": "CUSTOMER_LEFT",
+                "reason_text": "Cliente desistiu antes da cozinha iniciar",
+                "idempotency_key": "joao-paid-kitchen-cancel",
+            },
+        )
+        self.assertEqual(paid_correction["financial_disposition"], "REFUND_REQUIRED")
+        self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
+        settled = self.post(
+            self.staff,
+            f"/corrections/{paid_correction['id']}/settle-refund/",
+            {
+                "payment_id": joao_card["id"],
+                "amount_cents": 2400,
+                "refund_idempotency_key": "joao-paid-kitchen-refund",
+            },
+        )
+        self.assertEqual(settled["exposure_cents"], 0)
         self.post(self.staff, f"/tabs/{joao['id']}/close/")
         self.post(
             self.staff,

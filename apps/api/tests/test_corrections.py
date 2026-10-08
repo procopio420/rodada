@@ -292,6 +292,75 @@ class CorrectionFoundationTests(TestCase):
         assert LedgerAdjustment.objects.count() == 0
         assert AuditEvent.objects.filter(event_type="order_item.refund_required").exists()
 
+    def test_manager_settles_partial_paid_cancellation_with_refund_and_reversal(self):
+        item = self.item()
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=1200)
+        payment = Payment.objects.create(
+            tab=item.order.tab,
+            amount_cents=500,
+            method=PaymentMethod.OTHER,
+            idempotency_key="partial-paid-correction",
+            status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(),
+            received_by=self.staff,
+        )
+        pending = cancel_before_fulfillment(
+            item_id=item.id,
+            kind=CorrectionKind.CANCEL_ITEM,
+            reason_code="CUSTOMER_LEFT",
+            reason_text="Cliente desistiu antes da produção",
+            idempotency_key="partial-paid-cancel",
+            actor=self.actor,
+            financial_reversal_hook=reverse_open_responsibility,
+            record_paid_request=True,
+        )
+        manager = StaffMember.objects.create(display_name="Gerente", login_identifier="corrections-manager")
+        manager.set_pin("4321")
+        manager.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue, staff_member=manager, role=StaffRole.MANAGER
+        )
+        manager_client = APIClient()
+        login = manager_client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": manager.login_identifier,
+                "pin": "4321",
+                "installation_id": "corrections-settlement-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        manager_client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        body = {
+            "payment_id": str(payment.id),
+            "amount_cents": 500,
+            "refund_idempotency_key": "partial-paid-refund",
+        }
+
+        denied = manager_client.post(f"/corrections/{pending.id}/settle-refund/", body, format="json")
+        assert denied.status_code == 403
+        assert denied.json()["code"] == "REAUTH_REQUIRED"
+        reauth = manager_client.post("/auth/reauthenticate/", {"pin": "4321"}, format="json")
+        assert reauth.status_code == 200, reauth.json()
+        settled = manager_client.post(f"/corrections/{pending.id}/settle-refund/", body, format="json")
+        replay = manager_client.post(f"/corrections/{pending.id}/settle-refund/", body, format="json")
+        item.refresh_from_db()
+        pending.refresh_from_db()
+
+        assert settled.status_code == 201, settled.json()
+        assert replay.status_code == 200, replay.json()
+        assert settled.json()["refund_id"] == replay.json()["refund_id"]
+        assert settled.json()["adjustments_cents"] == -1200
+        assert settled.json()["refunds_cents"] == 500
+        assert settled.json()["exposure_cents"] == 0
+        assert item.state == OrderItemState.CANCELLED
+        assert pending.status == CorrectionStatus.APPLIED
+        assert pending.refund_id is not None
+        assert pending.financial_adjustment_id is not None
+        assert AuditEvent.objects.filter(event_type="order_item.cancelled_after_refund").exists()
+
     def test_other_venue_cannot_cancel_item(self):
         other_item = self.item(venue=self.other_venue)
 
