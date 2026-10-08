@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ManagementNav } from "@/components/management-nav";
+import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
@@ -85,6 +86,7 @@ export default function ManagementPage() {
       <div className="actions"><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
     <ManagementNav />
+    <HouseAccount />
     {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
 
     <section className="panel"><h2>Agora</h2>

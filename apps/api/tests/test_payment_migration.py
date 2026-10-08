@@ -6,7 +6,8 @@ from django.test import TransactionTestCase
 class PaymentConfirmationTimestampMigrationTests(TransactionTestCase):
     """Exercise an upgrade from the last schema before lifecycle timestamps."""
 
-    migrate_from = [("ledger", "0001_initial")]
+    migrate_from = [("ledger", "0001_initial"), ("ordering", "0002_order_idempotency"),
+                    ("house_account", None)]
     migrate_to = [("ledger", "0004_payment_confirmation_timestamp_invariant")]
 
     @property
@@ -16,7 +17,7 @@ class PaymentConfirmationTimestampMigrationTests(TransactionTestCase):
     def setUp(self):
         super().setUp()
         self.executor.migrate(self.migrate_from)
-        old_apps = self.executor.loader.project_state(self.migrate_from).apps
+        old_apps = self.executor.loader.project_state([node for node in self.migrate_from if node[1] is not None]).apps
         Venue = old_apps.get_model("venue", "Venue")
         StaffMember = old_apps.get_model("access", "StaffMember")
         Tab = old_apps.get_model("ordering", "Tab")

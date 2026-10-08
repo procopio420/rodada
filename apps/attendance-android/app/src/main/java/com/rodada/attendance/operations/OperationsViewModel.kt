@@ -27,6 +27,7 @@ data class OperationsUiState(
     val loading: Boolean = false,
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
+    val customers: List<CustomerSummary> = emptyList(),
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
     val deliveryTasks: List<DeliveryTask> = emptyList(),
@@ -69,6 +70,7 @@ class OperationsViewModel(
     }
 
     fun refresh(session: StoredSession) {
+        if (state.loading || state.submitting) return
         state = state.copy(
             loading = true,
             errorMessage = null,
@@ -83,7 +85,7 @@ class OperationsViewModel(
                 val cashPoints = runCatching { repository.cashPoints(session) }.getOrDefault(emptyList())
                 val tables = runCatching { repository.tables(session) }.getOrDefault(emptyList())
                 val detail = state.selectedTab?.summary?.id?.let { id ->
-                    runCatching { repository.tabDetail(session, id) }.getOrNull()
+                    repository.tabDetail(session, id)
                 }
                 RefreshSnapshot(tabs, products, cashPoints, deliveries, tables, detail)
             }.onSuccess { snapshot ->
@@ -105,8 +107,16 @@ class OperationsViewModel(
         }
     }
 
-    fun openTab(session: StoredSession, label: String) = action {
-        val opened = repository.openTab(session, label)
+    fun revalidateConnection(session: StoredSession) {
+        viewModelScope.launch { refresh(session) }
+    }
+
+    fun markConnectionStale() {
+        viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE) }
+    }
+
+    fun openTab(session: StoredSession, label: String, customerId: String? = null) = action {
+        val opened = repository.openTab(session, label, customerId)
         val detail = repository.tabDetail(session, opened.id)
         state = state.copy(
             tabs = listOf(opened) + state.tabs.filterNot { it.id == opened.id },
@@ -114,6 +124,10 @@ class OperationsViewModel(
             cart = emptyList(),
             noticeMessage = "Comanda aberta.",
         )
+    }
+
+    fun searchCustomers(session: StoredSession, query: String) = action {
+        state = state.copy(customers = repository.customers(session, query))
     }
 
     fun selectTab(session: StoredSession, tabId: String) = action {
@@ -202,6 +216,13 @@ class OperationsViewModel(
                 // Retrying this exact cart retains the same intent UUID. The API returns the
                 // original Order instead of creating a second order after an ambiguous timeout.
                 state = state.copy(submitting = false, orderIntentId = intentId)
+                if (error is OperationsApiException && error.status in 400..499) {
+                    pendingMutationIntentStore.remove(intent.id)
+                    state = state.copy(orderIntentId = null)
+                    runCatching { repository.tabDetail(session, tab.id) }.onSuccess(::replaceDetail)
+                    showFailure(error)
+                    return@onFailure
+                }
                 showFailure(error, "Verificando pedido. Não envie outro pedido; confirme novamente para reconciliar esta mesma intenção.")
             }
         }
@@ -419,6 +440,18 @@ class OperationsViewModel(
 
     fun dismissMessage() {
         state = state.copy(errorMessage = null, noticeMessage = null)
+    }
+
+    fun resolveLimit(session: StoredSession, limitCents: Long?, reason: String, pin: String,
+                     expiresAt: String, key: String) = action {
+        val tabId = state.selectedTab?.summary?.id ?: return@action
+        if (limitCents == null) repository.requestApproval(session, tabId, reason, key)
+        else {
+            authRepository.reauthenticate(session, pin)
+            repository.approveLimit(session, tabId, limitCents, reason, expiresAt, key)
+        }
+        replaceDetail(repository.tabDetail(session, tabId))
+        state = state.copy(noticeMessage = if (limitCents == null) "Solicitação enviada à gerência." else "Limite temporário aprovado.")
     }
 
     private fun replaceDetail(detail: TabDetail) {

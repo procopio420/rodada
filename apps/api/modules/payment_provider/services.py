@@ -224,6 +224,8 @@ def apply_provider_result(
     audit_event: str = "payment.provider_reconciled",
 ) -> tuple[Payment, PaymentAttempt, bool]:
     """Apply only provider-normalized facts; a confirmed Payment never regresses."""
+    tab_id = Payment.objects.values_list("tab_id", flat=True).get(pk=payment_id)
+    Tab.objects.select_for_update().get(pk=tab_id)
     payment = Payment.objects.select_for_update().select_related("tab").get(pk=payment_id)
     attempt = PaymentAttempt.objects.select_for_update().get(pk=attempt_id, payment=payment)
     incoming = result.status
@@ -301,6 +303,8 @@ def apply_provider_result(
 
     if payment_updates:
         payment.save(update_fields=sorted(set(payment_updates)))
+        from modules.house_account.services import sync_attention
+        sync_attention(payment.tab, actor)
     if attempt_updates:
         attempt.save(update_fields=sorted(set(attempt_updates)))
     metadata = {
@@ -347,12 +351,11 @@ def ingest_provider_webhook(
             )
         return existing, True
 
-    payment = (
-        Payment.objects.select_for_update()
-        .select_related("tab")
-        .filter(pk=normalized.merchant_reference, provider=provider.provider_key)
-        .first()
-    )
+    payment = Payment.objects.filter(pk=normalized.merchant_reference,
+                                     provider=provider.provider_key).first()
+    if payment:
+        Tab.objects.select_for_update().get(pk=payment.tab_id)
+        payment = Payment.objects.select_for_update().select_related("tab").get(pk=payment.pk)
     event = ProviderEvent.objects.create(
         provider=provider.provider_key,
         provider_event_id=normalized.provider_event_id,

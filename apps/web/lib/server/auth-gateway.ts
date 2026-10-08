@@ -22,7 +22,7 @@ const TERMINAL_AUTH_CODES = new Set([
 type JsonObject = Record<string, unknown>;
 
 type ForwardOptions = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   body?: JsonObject;
   clearAfter?: boolean;
 };
