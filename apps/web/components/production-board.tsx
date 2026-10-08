@@ -12,11 +12,31 @@ const next: Record<string, { state: string; label: string }> = {
   PREPARING: { state: "READY", label: "Pronto" },
 };
 
+function itemState(state: string): "info" | "warning" | "success" {
+  if (state === "READY") return "success";
+  if (state === "PREPARING") return "warning";
+  return "info";
+}
+
+function QuickCatalogUnavailable({ station }: { station: string }) {
+  return <section className="panel" aria-labelledby="quick-catalog-title">
+    <div className="eyebrow">Quick Catalog · {station}</div>
+    <h2 id="quick-catalog-title">Adicionar item</h2>
+    <div className="formGrid" aria-describedby="quick-catalog-limitation">
+      <label className="field"><span className="fieldLabel">Nome</span><input disabled placeholder="Buscar no catálogo" /></label>
+      <label className="field"><span className="fieldLabel">Preço</span><input disabled placeholder="R$ 0,00" /></label>
+      <div className="productIconRow"><div className="productIcon" aria-hidden="true">Auto</div><div><strong>Ícone automático</strong><p className="muted">Product novo gera um ProductIcon após criar.</p></div></div>
+    </div>
+    <div id="quick-catalog-limitation" className="notice" data-state="warning">A criação rápida ainda não está conectada ao catálogo nesta superfície. Disponibilidade e fila continuam operacionais.</div>
+  </section>;
+}
+
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {
   const [items, setItems] = useState<Item[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState("");
   const [changingProductId, setChangingProductId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     const [queue, catalog] = await Promise.all([
@@ -25,9 +45,9 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     ]);
     if (queue.response.ok) setItems((queue.body as { results: Item[] }).results);
     else setMessage(asApiError(queue.body).message);
-    if (catalog.response.ok) {
-      setProducts((catalog.body as { results: Product[] }).results.filter((product) => product.fulfillment_station === station));
-    } else setMessage(asApiError(catalog.body).message);
+    if (catalog.response.ok) setProducts((catalog.body as { results: Product[] }).results.filter((product) => product.fulfillment_station === station));
+    else setMessage(asApiError(catalog.body).message);
+    setLoading(false);
   }, [station]);
 
   useEffect(() => {
@@ -56,5 +76,44 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const waiting = items.filter((item) => item.state !== "READY");
   const ready = items.filter((item) => item.state === "READY");
 
-  return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / {title.toUpperCase()}</div><h1>Produção {title}</h1><p className="muted">Fila persistida · atualiza a cada 5 segundos</p></header>{message && <div className="notice" data-state="danger">{message}</div>}<section className="panel"><h2>Disponibilidade agora</h2>{products.map((product) => { const available = product.availability === "AVAILABLE"; return <article className="dataRow" key={product.id}><span><strong>{product.name}</strong><br />{available ? "Disponível para vender" : "Indisponível"}</span><button className={available ? "buttonQuiet" : "buttonPrimary"} disabled={changingProductId === product.id} onClick={() => void toggleAvailability(product)}>{changingProductId === product.id ? "Salvando…" : available ? "Indisponibilizar" : "Reativar"}</button></article>; })}{!products.length && <p className="muted">Nenhum produto roteado para esta estação.</p>}</section><section className="panel"><h2>Em produção</h2>{waiting.map((item) => <article className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><br />{item.tab_label || "Sem identificação"} · {item.state}</span><button className="buttonPrimary" onClick={() => void advance(item)}>{next[item.state]?.label || item.state}</button></article>)}{!waiting.length && <p className="muted">Nenhum item aguardando preparo.</p>}</section><section className="panel"><h2>Pronto</h2>{ready.map((item) => <div className="dataRow" key={item.id}><span>{item.quantity}× {item.product_name}</span><strong>{item.tab_label || "Sem identificação"}</strong></div>)}{!ready.length && <p className="muted">Nada no passe.</p>}</section></main>;
+  return <main className="appShell">
+    <header className="productHeader">
+      <div className="eyebrow">RODADA / {title.toUpperCase()}</div>
+      <h1>{title}</h1>
+      <p className="muted">Fila da estação · atualiza a cada 5 segundos</p>
+    </header>
+    {message && <div className="notice" data-state="danger" role="alert">{message}</div>}
+
+    <section className="panel" aria-labelledby="availability-title">
+      <div className="eyebrow">Cardápio da estação</div>
+      <h2 id="availability-title">Disponibilidade agora</h2>
+      {loading ? <div className="loadingState">Carregando disponibilidade…</div> : products.map((product) => {
+        const available = product.availability === "AVAILABLE";
+        return <article className="dataRow" key={product.id}>
+          <span><strong>{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></span>
+          <div className="actions"><span className="statusBadge" data-state={available ? "success" : "danger"}>{available ? "Disponível" : "Indisponível"}</span><button className={available ? "buttonSecondary" : "buttonPrimary"} disabled={changingProductId === product.id} onClick={() => void toggleAvailability(product)}>{changingProductId === product.id ? "Salvando…" : available ? "Indisponibilizar" : "Reativar"}</button></div>
+        </article>;
+      })}
+      {!loading && !products.length && <div className="emptyState">Nenhum produto roteado para esta estação.</div>}
+    </section>
+
+    <QuickCatalogUnavailable station={title} />
+
+    <section className="panel panelWarning" aria-labelledby="queue-title">
+      <div className="eyebrow">Fila de produção</div>
+      <h2 id="queue-title">Em produção</h2>
+      {loading ? <div className="loadingState">Carregando fila…</div> : waiting.map((item) => <article className="dataRow" key={item.id}>
+        <span><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small></span>
+        <div className="actions"><span className="statusBadge" data-state={itemState(item.state)}>{item.state}</span><button className="buttonPrimary" onClick={() => void advance(item)}>{next[item.state]?.label || item.state}</button></div>
+      </article>)}
+      {!loading && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
+    </section>
+
+    <section className="panel panelSuccess" aria-labelledby="ready-title">
+      <div className="eyebrow">Passe</div>
+      <h2 id="ready-title">Pronto para retirada</h2>
+      {ready.map((item) => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong></span><span className="statusBadge" data-state="success">{item.tab_label || "Sem identificação"}</span></div>)}
+      {!loading && !ready.length && <div className="emptyState">Nada no passe.</div>}
+    </section>
+  </main>;
 }

@@ -77,7 +77,7 @@ export default function ManagementPage() {
   const activeCash = cashPoints.filter((point) => point.active_shift);
   const activeTables = tables.filter((table) => table.status === "OCCUPIED");
 
-  return <main className="appShell">
+  return <main className="appShell managementShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>

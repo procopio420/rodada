@@ -11,6 +11,9 @@ __pycache__/
 .venv/
 dist/
 build/
+visual-artifacts/
+apps/web/test-results/
+apps/web/playwright-report/
 .DS_Store
 .gradle/
 .kotlin/
