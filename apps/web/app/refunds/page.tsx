@@ -24,19 +24,25 @@ export default function RefundsPage() {
   const [pin, setPin] = useState("");
   const [message, setMessage] = useState("");
   const [working, setWorking] = useState(false);
+  const [loading, setLoading] = useState(true);
   const intentRef = useRef<string | null>(null);
 
   const load = useCallback(async () => {
+    setLoading(true);
+    try {
     const [tabsResult, cashResult] = await Promise.all([
       apiCall<{ results: TabSummary[] }>("/api/pos/tabs/"),
       apiCall<{ results: CashPoint[] }>("/api/pos/cash/points/"),
     ]);
     if (tabsResult.response.ok) setTabs((tabsResult.body as { results: TabSummary[] }).results);
+    else setMessage(asApiError(tabsResult.body).message);
     if (cashResult.response.ok) {
       const open = (cashResult.body as { results: CashPoint[] }).results.filter((point) => point.active_shift);
       setCashPoints(open);
       setCashPointId((current) => open.some((point) => point.id === current) ? current : (open[0]?.id || ""));
-    }
+    } else setMessage(asApiError(cashResult.body).message);
+    } catch { setMessage("Não foi possível atualizar os estornos. Confira a conexão."); }
+    finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load]);
 
@@ -95,14 +101,15 @@ export default function RefundsPage() {
   };
 
   return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><h1>Estornos</h1><p className="muted">Pagamento, saldo reembolsável e histórico sem apagar a venda original.</p></header>
-    {message ? <div className="notice" data-state="danger">{message}</div> : null}
-    <section className="panel"><h2>Confirmar gerente</h2><div className="field"><input inputMode="numeric" type="password" value={pin} onChange={(event) => setPin(event.target.value)} placeholder="PIN do gerente" /></div><button className="buttonSecondary" onClick={() => void reauthenticate()}>Confirmar PIN</button></section>
-    <section className="panel"><h2>Comanda</h2><div className="field"><select value={detail?.id || ""} onChange={(event) => void selectTab(event.target.value)}><option value="">Selecione uma comanda</option>{tabs.filter((tab) => tab.state !== "CLOSED").map((tab) => <option key={tab.id} value={tab.id}>{tab.display_label || "Sem identificação"} · {money(tab.exposure_cents)}</option>)}</select></div></section>
-    {detail ? <section className="panel"><h2>Pagamento elegível</h2><div className="field"><select value={paymentId} onChange={(event) => setPaymentId(event.target.value)}>{detail.payments.map((payment) => <option key={payment.id} value={payment.id}>{payment.method} · {payment.status} · {money(payment.amount_cents - payment.refunded_cents)} disponível</option>)}</select></div>
+    {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
+    {loading && <div className="loadingState" role="status">Carregando estornos…</div>}
+    <section className="panel"><h2>Confirmar gerente</h2><div className="field"><input aria-label="PIN do gerente" inputMode="numeric" type="password" value={pin} onChange={(event) => setPin(event.target.value)} placeholder="PIN do gerente" /></div><button className="buttonSecondary" onClick={() => void reauthenticate()}>Confirmar PIN</button></section>
+    <section className="panel"><h2>Comanda</h2><div className="field"><select aria-label="Comanda" value={detail?.id || ""} onChange={(event) => void selectTab(event.target.value)}><option value="">Selecione uma comanda</option>{tabs.filter((tab) => tab.state !== "CLOSED").map((tab) => <option key={tab.id} value={tab.id}>{tab.display_label || "Sem identificação"} · {money(tab.exposure_cents)}</option>)}</select></div></section>
+    {detail ? <section className="panel"><h2>Pagamento elegível</h2><div className="field"><select aria-label="Pagamento elegível" value={paymentId} onChange={(event) => setPaymentId(event.target.value)}>{detail.payments.map((payment) => <option key={payment.id} value={payment.id}>{payment.method} · {payment.status} · {money(payment.amount_cents - payment.refunded_cents)} disponível</option>)}</select></div>
       {selectedPayment ? <><div className="dataRow"><span>Pagamento original</span><strong>{money(selectedPayment.amount_cents)}</strong></div><div className="dataRow"><span>Já estornado</span><strong>{money(selectedPayment.refunded_cents)}</strong></div><div className="dataRow"><span>Restante reembolsável</span><strong>{money(refundable)}</strong></div>{selectedPayment.refunds.map((item) => <p className="muted" key={item.id}>{money(item.amount_cents)} · {item.status} · {item.reason || "Sem motivo"}</p>)}</> : null}
-      {detail.refund_required_corrections.length ? <div className="field"><label>Correção pendente (opcional)</label><select value={correctionId} onChange={(event) => setCorrectionId(event.target.value)}><option value="">Estorno avulso</option>{detail.refund_required_corrections.map((item) => <option key={item.id} value={item.id}>{item.item_name} · exige {money(item.refund_required_cents)}</option>)}</select></div> : null}
-      {correction ? <div className="notice">Correção pendente: estorno exato de {money(correction.refund_required_cents)}.</div> : <><div className="field"><input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="Valor a estornar" /></div><div className="field"><input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Motivo" /></div></>}
-      {selectedPayment?.method === "CASH" ? <div className="field"><select value={cashPointId} onChange={(event) => setCashPointId(event.target.value)}><option value="">Caixa que devolverá o dinheiro</option>{cashPoints.map((point) => <option key={point.id} value={point.id}>{point.label}</option>)}</select></div> : null}
+      {detail.refund_required_corrections.length ? <div className="field"><label>Correção pendente (opcional)</label><select aria-label="Correção pendente (opcional)" value={correctionId} onChange={(event) => setCorrectionId(event.target.value)}><option value="">Estorno avulso</option>{detail.refund_required_corrections.map((item) => <option key={item.id} value={item.id}>{item.item_name} · exige {money(item.refund_required_cents)}</option>)}</select></div> : null}
+      {correction ? <div className="notice">Correção pendente: estorno exato de {money(correction.refund_required_cents)}.</div> : <><div className="field"><input aria-label="Valor a estornar" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="Valor a estornar" /></div><div className="field"><input aria-label="Motivo do estorno" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Motivo" /></div></>}
+      {selectedPayment?.method === "CASH" ? <div className="field"><select aria-label="Caixa que devolverá o dinheiro" value={cashPointId} onChange={(event) => setCashPointId(event.target.value)}><option value="">Caixa que devolverá o dinheiro</option>{cashPoints.map((point) => <option key={point.id} value={point.id}>{point.label}</option>)}</select></div> : null}
       <button className="buttonPrimary" disabled={working || !selectedPayment || refundable <= 0} onClick={() => void refund()}>{working ? "Confirmando…" : correction ? `Estornar ${money(correction.refund_required_cents)}` : "Confirmar estorno"}</button></section> : null}
   </main>;
 }

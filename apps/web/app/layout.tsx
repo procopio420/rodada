@@ -23,7 +23,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        {children}
+        <footer className="siteFooter">
+          <a href="https://wa.me/5521999353530" target="_blank" rel="noopener noreferrer">
+            desenvolvido por Erick Grotz
+          </a>
+        </footer>
+      </body>
     </html>
   );
 }

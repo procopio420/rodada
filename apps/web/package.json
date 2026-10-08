@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:visual": "playwright test",
+    "test:integration": "playwright test --config playwright.integration.config.ts",
     "test:visual:report": "playwright show-report"
   },
   "dependencies": {

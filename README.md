@@ -22,6 +22,10 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 
 ## Marca e domínios canônicos
 
+### Estado Web verificável
+
+Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API, com sessão de staff, estados de erro/carregamento e operações de caixa/estorno existentes. A base visual usa o protótipo e possui testes responsivos, de acessibilidade e de integração real. Consulte o [relatório de implementação e limites](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). Quick Catalog e acompanhamento completo ao vivo do pedido do cliente continuam pendentes; o roadmap abaixo inclui capacidades planejadas.
+
 A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
 
 Hosts públicos oficiais:

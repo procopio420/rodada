@@ -19,6 +19,7 @@ function messageFor(error: ApiError, fallback: string) {
 }
 
 async function guestApi<T>(path: string, token: string, init: RequestInit = {}): Promise<{ ok: boolean; status: number; body: T | ApiError }> {
+  try {
   const response = await fetch(`/api/guest/${path}`, {
     ...init,
     headers: {
@@ -28,6 +29,9 @@ async function guestApi<T>(path: string, token: string, init: RequestInit = {}):
   });
   const body = await response.json().catch(() => ({}));
   return { ok: response.ok, status: response.status, body };
+  } catch {
+    return { ok: false, status: 503, body: { code: "UPSTREAM_UNAVAILABLE", message: "Não foi possível falar com o Rodada. Tente novamente para conferir a mesma operação." } };
+  }
 }
 
 export function GuestOrdering({ qrToken }: { qrToken: string }) {
@@ -50,12 +54,14 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
 
   const resolve = useCallback(async () => {
     setLoading(true);
+    setNotice("");
     const stored = sessionStorage.getItem(storageKey) || "";
     const result = await guestApi<Context>("qr/resolve/", stored, {
       method: "POST",
       body: JSON.stringify({ token: qrToken }),
     });
     if (!result.ok) {
+      if ((result.body as ApiError).code === "GUEST_SESSION_REVOKED") sessionStorage.removeItem(storageKey);
       setNotice(messageFor(result.body as ApiError, "Não foi possível abrir esta mesa."));
       setLoading(false);
       return;
@@ -96,10 +102,16 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       body: JSON.stringify({ idempotency_key: idempotencyKey, lines: rows.map(({ product, quantity }) => ({ product_id: product.id, quantity })) }),
     });
     if (result.ok) {
+      const confirmed = result.body as Order;
+      setContext(current => current?.tab ? { ...current, tab: { ...current.tab, orders: [...(current.tab.orders ?? []).filter(order => order.id !== confirmed.id), confirmed] } } : current);
       orderIntent.current = null;
       setCart({});
       const contextResult = await guestApi<{ tab: Tab | null }>("context/", guestToken);
-      if (contextResult.ok) setContext((current) => current ? { ...current, tab: (contextResult.body as { tab: Tab | null }).tab } : current);
+      if (contextResult.ok) setContext((current) => {
+        const tab = (contextResult.body as { tab: Tab | null }).tab;
+        return current ? { ...current, tab: tab ? { ...tab, orders: tab.orders ?? current.tab?.orders } : null } : current;
+      });
+      else setNotice("Pedido confirmado. Não foi possível atualizar o saldo da comanda agora.");
       await loadCatalog(guestToken);
     } else {
       setNotice(messageFor(result.body as ApiError, "Não foi possível enviar o pedido."));
@@ -113,12 +125,12 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
 
   return <main className="appShell guestShell">
     <header className="productHeader"><div className="eyebrow">RODADA / PEDIDO</div><h1>Mesa {context.table.label}</h1><p className="muted">Peça quando quiser. Sua comanda continua separada da mesa.</p></header>
-    {notice && <div className="notice" data-state="danger">{notice}</div>}
+    {notice && <div className="notice" data-state="danger" role="alert">{notice}</div>}
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" onClick={() => void createTab()}>Abrir minha comanda</button></section> : <>
       <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><div className="guestBalance"><span>Em aberto</span><strong>{money(context.tab.exposure_cents)}</strong></div></section>
       <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
       <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={!rows.length || sending} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>
-      {!!context.tab.orders?.length && <section className="panel"><h2>Pedidos</h2>{context.tab.orders.map((order) => <div className="dataRow" key={order.id}><span>{order.items.map((item) => `${item.quantity} ${item.product_name}`).join(", ")}</span><strong>{order.items.every((item) => item.state === "DELIVERED") ? "Entregue" : "Em preparo"}</strong></div>)}</section>}
+      {!!context.tab.orders?.length && <section className="panel"><h2>Pedidos confirmados nesta sessão</h2>{context.tab.orders.map((order) => <div className="dataRow" key={order.id}><span>{order.items.map((item) => `${item.quantity} ${item.product_name}`).join(", ")}</span><strong>{order.items.every((item) => item.state === "DELIVERED") ? "Entregue" : order.items.every(item => item.state === "READY") ? "Pronto" : order.items.some(item => item.state === "PREPARING") ? "Em preparo" : "Confirmado"}</strong></div>)}</section>}
     </>}
   </main>;
 }

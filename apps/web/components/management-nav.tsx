@@ -15,16 +15,17 @@ export function ManagementNav() {
   const [active, setActive] = useState("Agora");
 
   useEffect(() => {
-    const sync = () => setActive(items.find(([, href]) => href.slice(1) === window.location.hash)?.[0] ?? "Agora");
+    const sync = () => setActive(items.find(([, href]) => href.includes("#") && href.slice(href.indexOf("#")) === window.location.hash)?.[0] ?? "Agora");
     sync();
     window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
+    window.addEventListener("popstate", sync);
+    return () => { window.removeEventListener("hashchange", sync); window.removeEventListener("popstate", sync); };
   }, []);
 
   return (
     <nav className="surfaceNav" aria-label="Navegação da Gerência">
       {items.map(([label, href]) => (
-        <Link key={label} href={href} className={label === active ? "surfaceNavActive" : ""} aria-current={label === active ? "page" : undefined}>
+        <Link key={label} href={href} onClick={() => setActive(label)} className={label === active ? "surfaceNavActive" : ""} aria-current={label === active ? "page" : undefined}>
           {label}
         </Link>
       ))}
