@@ -9,6 +9,7 @@ class HousePolicyMigrationTests(TransactionTestCase):
         executor = MigrationExecutor(connection)
         before = [
             ("house_account", None),
+            ("catalog", "0001_initial"),
             ("ordering", "0002_order_idempotency"),
             (
                 "ledger",
