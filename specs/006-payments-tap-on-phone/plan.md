@@ -60,3 +60,11 @@ provider contracts with injected HTTP transport and API workflows separately fro
 live activation. Extend native Tap port and canonical payment presentation; run
 backend financial gates and Android tests/build/lint. Document unverified provider
 activation gates explicitly.
+
+## SumUp slice
+
+Reuse payment orchestration; add exact-decimal SumUp Checkout and Tap verification
+adapters, persistent deterministic simulator, merchant credentials and authorization
+models, refund request/reconciliation, Android SumUp boundary/event states and debug
+simulator UI. Add provider contract/tenant/refund/PostgreSQL race tests and onboarding
+matrix/checklist. PR depends on the existing Paytime PR until it is merged.

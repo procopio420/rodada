@@ -584,3 +584,29 @@ application registration and merchant/device provisioning. The native port must
 support lifecycle and capability checks and treat local completion as evidence for
 backend reconciliation, never as confirmed receipt. Unknown expiration or missing
 provider reference retains confirmation pending; local clocks cannot authorize retry.
+
+## SumUp candidate integration (credential-free slice)
+
+SumUp is the primary candidate for embedded Android Tap and Pix; Paytime Pix remains
+an alternative. Neither provider is activated, homologated or live-tested.
+Existing Payment is the durable intent; PaymentAttempt is the provider interaction;
+provider transaction IDs are evidence; confirmed Payment is settlement against Tab,
+not bank payout. Keep existing Refund and Cash ledger records. MerchantConnection
+owns a Venue's provider merchant and encrypted OAuth credentials. DeviceAuthorization
+binds merchant, device and operator; it is separate from provider attestation.
+
+SumUp Pix uses Checkout create, checkout-specific APM discovery and process PUT;
+only authenticated lookup establishes receipt. UUID checkout_reference and Tap
+clientUniqueTransactionId are persisted before provider work. Money stays in cents,
+with exact decimal serialization for SumUp major-unit JSON amounts. Expiration is
+provider-authoritative, not a local-clock retry permission. Refund requests reserve
+refundable amount before external I/O and require authoritative refund evidence.
+Unknown outcomes block retry. No provider secrets are issued to BYOD pending SumUp
+approval of the employee token model.
+
+Simulation must require DEBUG and explicit server opt-in per Venue. A simulator
+cannot be selected implicitly or used by production configuration. Simulated
+outcomes persist on the backend, survive restart and are labeled in all payment
+responses/UI. Native fake capture cannot establish receipt by itself. Real SumUp
+SDK artifacts are opt-in and isolated from the standard build; fake compilation is
+not proof of SDK compilation. No external payment application is launched.
