@@ -24,8 +24,7 @@ test("quick create, exact reuse and manager icon lifecycle", async ({ page }) =>
   await page.getByRole("combobox").press("Enter");
   await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
   expect(await page.locator("body").evaluate(el => el.scrollWidth <= innerWidth)).toBe(true);
-  const catalog = await page.request.get("/api/pos/catalog/products/");
-  const products = (await catalog.json()).results;
+  const products = await page.evaluate(async () => (await (await fetch("/api/pos/catalog/products/")).json()).results);
   expect(products.filter((p: { name: string }) => p.name === name)).toHaveLength(1);
   const product = products.find((p: { name: string }) => p.name === name);
   expect(product.price_cents).toBe(1250);
