@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ManagementNav } from "@/components/management-nav";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+
+import { projectionCache } from "@/lib/client/projection-cache";
+import { useRealtime } from "@/lib/client/use-realtime";
+import { ConnectivityNotice } from "@/components/connectivity-notice";
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
 type TabDetail = Tab & {
@@ -37,7 +41,11 @@ export default function ManagementPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const cache = useMemo(() => projectionCache<{ tabs: Tab[]; products: Product[]; bar: QueueItem[]; kitchen: QueueItem[]; deliveries: Delivery[]; cash: CashPoint[]; tables: Table[] }>("management"), []);
+  const [cachedAt, setCachedAt] = useState<number>();
   const load = useCallback(async () => {
+    const cached = await cache.restore();
+    if (cached) { const data = cached.data; setTabs(data.tabs); setProducts(data.products); setBar(data.bar); setKitchen(data.kitchen); setDeliveries(data.deliveries); setCashPoints(data.cash); setTables(data.tables); setCachedAt(cached.fetchedAt); }
     setLoading(true);
     setMessage("");
     try {
@@ -52,6 +60,7 @@ export default function ManagementPage() {
       ]);
       setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
       setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
+      cache.save({ tabs: nextTabs.map((tab) => ({ ...tab, display_label: "" })), products: nextProducts, bar: nextBar.map((item) => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map((item) => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
       const openTabs = nextTabs.filter((tab) => tab.state !== "CLOSED");
       const details = await Promise.all(openTabs.map(async (tab) => {
         const result = await apiCall<TabDetail>(`/api/pos/tabs/${tab.id}/`);
@@ -65,12 +74,13 @@ export default function ManagementPage() {
       }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Não foi possível atualizar o painel.");
+      throw error;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cache]);
 
-  useEffect(() => { void load(); }, [load]);
+  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); } });
   const openTabs = useMemo(() => tabs.filter((tab) => tab.state !== "CLOSED"), [tabs]);
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
@@ -82,8 +92,9 @@ export default function ManagementPage() {
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
-      <div className="actions"><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
+      <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
+    <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     <ManagementNav />
     {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
 

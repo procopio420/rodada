@@ -25,6 +25,7 @@ type ForwardOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: JsonObject;
   clearAfter?: boolean;
+  stream?: boolean;
 };
 
 function secureCookies(): boolean {
@@ -122,9 +123,11 @@ async function backendRequest(
     method?: string;
     body?: JsonObject;
     accessToken?: string;
+    stream?: boolean;
+    signal?: AbortSignal;
   } = {},
 ): Promise<{ response: Response; payload: JsonObject | null }> {
-  const headers = new Headers({ Accept: "application/json" });
+  const headers = new Headers({ Accept: options.stream ? "text/event-stream" : "application/json" });
   if (options.body) headers.set("Content-Type", "application/json");
   if (options.accessToken) {
     headers.set("Authorization", "Bearer " + options.accessToken);
@@ -136,9 +139,10 @@ async function backendRequest(
       headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
       cache: "no-store",
+      signal: options.signal,
     });
 
-    return { response, payload: await responseJson(response) };
+    return { response, payload: options.stream && response.ok ? null : await responseJson(response) };
   } catch {
     const payload = {
       code: "UPSTREAM_UNAVAILABLE",
@@ -314,6 +318,8 @@ export async function forwardAuthenticated(
     method,
     body: options.body,
     accessToken,
+    stream: options.stream,
+    signal: request.signal,
   });
 
   if (
@@ -334,10 +340,14 @@ export async function forwardAuthenticated(
       method,
       body: options.body,
       accessToken,
+      stream: options.stream,
+      signal: request.signal,
     });
   }
 
-  const response = jsonResponse(sanitized(result.payload), result.response.status);
+  const response = options.stream && result.response.ok
+    ? new NextResponse(result.response.body, { status: result.response.status, headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" } })
+    : jsonResponse(sanitized(result.payload), result.response.status);
 
   if (rotated) setTokenCookies(response, rotated);
   if (result.response.ok && result.payload) setTokenCookies(response, result.payload);

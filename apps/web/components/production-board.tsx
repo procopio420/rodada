@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+
+import { projectionCache } from "@/lib/client/projection-cache";
+import { useRealtime } from "@/lib/client/use-realtime";
+import { ConnectivityNotice } from "@/components/connectivity-notice";
 
 type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
 type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE" };
@@ -18,30 +22,34 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const [message, setMessage] = useState("");
   const [changingProductId, setChangingProductId] = useState<string | null>(null);
 
+  const cache = useMemo(() => projectionCache<{ items: Item[]; products: Product[] }>(station), [station]);
+  const [cachedAt, setCachedAt] = useState<number>();
+
   const load = useCallback(async () => {
+    const cached = await cache.restore();
+    if (cached) { setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); }
     const [queue, catalog] = await Promise.all([
       apiCall<{ results: Item[] }>(`/api/pos/production/${station}/`),
       apiCall<{ results: Product[] }>("/api/pos/catalog/products/"),
     ]);
-    if (queue.response.ok) setItems((queue.body as { results: Item[] }).results);
+    if (queue.response.ok) setItems((previous) => { const result = (queue.body as { results: Item[] }).results; return JSON.stringify(previous) === JSON.stringify(result) ? previous : result; });
     else setMessage(asApiError(queue.body).message);
     if (catalog.response.ok) {
-      setProducts((catalog.body as { results: Product[] }).results.filter((product) => product.fulfillment_station === station));
+      setProducts((previous) => { const result = (catalog.body as { results: Product[] }).results.filter((product) => product.fulfillment_station === station); return JSON.stringify(previous) === JSON.stringify(result) ? previous : result; });
     } else setMessage(asApiError(catalog.body).message);
-  }, [station]);
+    if ([queue.response.status, catalog.response.status].some((status) => status === 401 || status === 403)) { cache.clear(); setItems([]); setProducts([]); }
+    if (!queue.response.ok || !catalog.response.ok) throw new Error("Projection unavailable");
+    cache.save({ items: (queue.body as { results: Item[] }).results.map((item) => ({ ...item, tab_label: "" })), products: (catalog.body as { results: Product[] }).results.filter((product) => product.fulfillment_station === station) });
+  }, [station, cache]);
 
-  useEffect(() => {
-    void load();
-    const timer = window.setInterval(() => void load(), 5000);
-    return () => window.clearInterval(timer);
-  }, [load]);
+  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setItems([]); setProducts([]); }, relevant: (event) => ["order", "order_item", "orderitem", "product", "product_availability"].includes(event.aggregate_type.toLowerCase()) });
 
   const advance = async (item: Item) => {
     const action = next[item.state];
     if (!action) return;
     const result = await apiCall(`/api/pos/order-items/${item.id}/transition/`, { method: "POST", body: JSON.stringify({ state: action.state }) });
     if (!result.response.ok) setMessage(asApiError(result.body).message);
-    await load();
+    await load().catch(() => setMessage("API indisponível. Verifique o estado antes de repetir a ação."));
   };
 
   const toggleAvailability = async (product: Product) => {
@@ -49,12 +57,12 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     setChangingProductId(product.id);
     const result = await apiCall(`/api/pos/catalog/products/${product.id}/availability/`, { method: "POST", body: JSON.stringify({ state }) });
     if (!result.response.ok) setMessage(asApiError(result.body).message);
-    await load();
+    await load().catch(() => setMessage("API indisponível. Verifique o estado antes de repetir a ação."));
     setChangingProductId(null);
   };
 
   const waiting = items.filter((item) => item.state !== "READY");
   const ready = items.filter((item) => item.state === "READY");
 
-  return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / {title.toUpperCase()}</div><h1>Produção {title}</h1><p className="muted">Fila persistida · atualiza a cada 5 segundos</p></header>{message && <div className="notice" data-state="danger">{message}</div>}<section className="panel"><h2>Disponibilidade agora</h2>{products.map((product) => { const available = product.availability === "AVAILABLE"; return <article className="dataRow" key={product.id}><span><strong>{product.name}</strong><br />{available ? "Disponível para vender" : "Indisponível"}</span><button className={available ? "buttonQuiet" : "buttonPrimary"} disabled={changingProductId === product.id} onClick={() => void toggleAvailability(product)}>{changingProductId === product.id ? "Salvando…" : available ? "Indisponibilizar" : "Reativar"}</button></article>; })}{!products.length && <p className="muted">Nenhum produto roteado para esta estação.</p>}</section><section className="panel"><h2>Em produção</h2>{waiting.map((item) => <article className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><br />{item.tab_label || "Sem identificação"} · {item.state}</span><button className="buttonPrimary" onClick={() => void advance(item)}>{next[item.state]?.label || item.state}</button></article>)}{!waiting.length && <p className="muted">Nenhum item aguardando preparo.</p>}</section><section className="panel"><h2>Pronto</h2>{ready.map((item) => <div className="dataRow" key={item.id}><span>{item.quantity}× {item.product_name}</span><strong>{item.tab_label || "Sem identificação"}</strong></div>)}{!ready.length && <p className="muted">Nada no passe.</p>}</section></main>;
+  return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / {title.toUpperCase()}</div><h1>Produção {title}</h1><p className="muted">Fila persistida · atualizações ao vivo</p></header><ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />{message && <div className="notice" data-state="danger">{message}</div>}<section className="panel"><h2>Disponibilidade agora</h2>{products.map((product) => { const available = product.availability === "AVAILABLE"; return <article className="dataRow" key={product.id}><span><strong>{product.name}</strong><br />{available ? "Disponível para vender" : "Indisponível"}</span><button className={available ? "buttonQuiet" : "buttonPrimary"} disabled={connectivity.state === "OFFLINE" || changingProductId === product.id} onClick={() => void toggleAvailability(product)}>{changingProductId === product.id ? "Salvando…" : available ? "Indisponibilizar" : "Reativar"}</button></article>; })}{!products.length && <p className="muted">Nenhum produto roteado para esta estação.</p>}</section><section className="panel"><h2>Em produção</h2>{waiting.map((item) => <article className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><br />{item.tab_label || "Sem identificação"} · {item.state}</span><button className="buttonPrimary" disabled={connectivity.state === "OFFLINE"} onClick={() => void advance(item)}>{next[item.state]?.label || item.state}</button></article>)}{!waiting.length && <p className="muted">Nenhum item aguardando preparo.</p>}</section><section className="panel"><h2>Pronto</h2>{ready.map((item) => <div className="dataRow" key={item.id}><span>{item.quantity}× {item.product_name}</span><strong>{item.tab_label || "Sem identificação"}</strong></div>)}{!ready.length && <p className="muted">Nada no passe.</p>}</section></main>;
 }
