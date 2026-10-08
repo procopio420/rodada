@@ -49,6 +49,12 @@ class FullShiftSmokeTests(TestCase):
             price_cents=2400,
             fulfillment_station=FulfillmentStation.KITCHEN,
         )
+        self.cancelled = Product.objects.create(
+            venue=self.venue,
+            name="Petisco lançado em duplicidade",
+            price_cents=600,
+            fulfillment_station=FulfillmentStation.KITCHEN,
+        )
 
     def post(self, client, path, body=None):
         response = client.post(path, body or {}, format="json")
@@ -88,6 +94,7 @@ class FullShiftSmokeTests(TestCase):
                 "lines": [
                     {"product_id": str(self.bar.id), "quantity": 1},
                     {"product_id": str(self.kitchen.id), "quantity": 1},
+                    {"product_id": str(self.cancelled.id), "quantity": 1},
                 ],
             },
         )
@@ -133,6 +140,22 @@ class FullShiftSmokeTests(TestCase):
         )
         self.assertEqual(stale.status_code, 409)
         self.assertEqual(stale.json()["code"], "PRODUCTS_NOT_CONFIRMABLE")
+
+        # A pre-production staff mistake appends an immutable negative ledger
+        # fact. The original 600-cent Charge remains historical and the Tab
+        # retains the rest of its independently payable responsibility.
+        cancelled = self.post(
+            self.staff,
+            f"/order-items/{staff_order['items'][2]['id']}/corrections/cancel/",
+            {
+                "kind": "WRONG_ITEM_ENTERED",
+                "reason_code": "DUPLICATE_ENTRY",
+                "reason_text": "Lançado duas vezes no atendimento",
+                "idempotency_key": "joao-duplicate-item",
+            },
+        )
+        self.assertEqual(cancelled["adjustments_cents"], -600)
+        self.assertEqual(cancelled["exposure_cents"], 3600)
 
         # Partial cash records net drawer effects; the remaining staff payment is canonical too.
         self.post(
