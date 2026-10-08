@@ -30,9 +30,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.corrections.CorrectionAction
+import com.rodada.attendance.corrections.CorrectionCommand
+import com.rodada.attendance.corrections.requiresPostProductionEndpoint
+import com.rodada.attendance.refunds.DirectRefundCommand
+import com.rodada.attendance.refunds.RefundCommand
+import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
+import java.util.UUID
 
 @Composable
 fun AttendanceScreen(
@@ -44,6 +52,8 @@ fun AttendanceScreen(
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var showingTables by rememberSaveable { mutableStateOf(false) }
+    var correctionItem by remember { mutableStateOf<OrderItem?>(null) }
+    var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
 
@@ -86,6 +96,9 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
+                    onCorrectItem = { correctionItem = it },
+                    onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
+                    onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                 )
             }
         }
@@ -112,6 +125,28 @@ fun AttendanceScreen(
                 takingPayment = false
             },
         )
+    }
+    correctionItem?.let { item ->
+        CorrectionDialog(
+            item = item,
+            products = state.products,
+            busy = state.submitting,
+            onDismiss = { correctionItem = null },
+            onSubmit = { command, pin -> viewModel.submitCorrection(session, command, pin) },
+        )
+    }
+    refundTarget?.let { target ->
+        val tab = state.selectedTab
+        if (tab != null) {
+            RefundDialog(
+                target = target,
+                payments = tab.payments,
+                cashPoints = state.cashPoints,
+                busy = state.submitting,
+                onDismiss = { refundTarget = null },
+                onSubmit = { command, pin -> viewModel.submitRefund(session, command, pin) },
+            )
+        }
     }
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
@@ -237,6 +272,9 @@ private fun TabWorkspace(
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
     onClose: () -> Unit,
+    onCorrectItem: (OrderItem) -> Unit,
+    onRefundPayment: (TabPayment) -> Unit,
+    onSettleCorrection: (RefundRequiredCorrection) -> Unit,
 ) {
     var query by rememberSaveable(tab.summary.id) { mutableStateOf("") }
     val availableProducts = remember(state.products, query) {
@@ -291,8 +329,53 @@ private fun TabWorkspace(
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("Pedido", fontWeight = FontWeight.Bold)
                         order.items.forEach { item ->
-                            Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)} · ${item.state}")
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
+                                    Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
+                                }
+                                OutlinedButton(
+                                    onClick = { onCorrectItem(item) },
+                                    enabled = !state.submitting && tab.summary.state != "CLOSED" && item.state !in setOf("CANCELLED"),
+                                ) { Text("Corrigir") }
+                            }
                         }
+                    }
+                }
+            }
+        }
+        if (tab.payments.isNotEmpty()) {
+            item { Text("Pagamentos", style = MaterialTheme.typography.titleLarge) }
+            items(tab.payments, key = { it.id }) { payment ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
+                        Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
+                        if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
+                        val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
+                        if (available > 0) {
+                            OutlinedButton(
+                                onClick = { onRefundPayment(payment) },
+                                enabled = !state.submitting,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { Text("Estornar ${formatCents(available)}") }
+                        }
+                    }
+                }
+            }
+        }
+        if (tab.refundRequiredCorrections.isNotEmpty()) {
+            item { Text("Estorno necessário", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error) }
+            items(tab.refundRequiredCorrections, key = { it.id }) { correction ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(correction.itemName, fontWeight = FontWeight.Bold)
+                        Text("A correção ainda precisa de ${formatCents(correction.refundRequiredCents)} em estorno.")
+                        OutlinedButton(
+                            onClick = { onSettleCorrection(correction) },
+                            enabled = tab.payments.any { it.amountCents > it.refundedCents } && !state.submitting,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text("Resolver estorno") }
                     }
                 }
             }
@@ -425,6 +508,168 @@ private fun PaymentDialog(
     )
 }
 
+/** A correction dialog deliberately collects an operational reason but leaves policy to the API. */
+@Composable
+private fun CorrectionDialog(
+    item: OrderItem,
+    products: List<Product>,
+    busy: Boolean,
+    onDismiss: () -> Unit,
+    onSubmit: (CorrectionCommand, String?) -> Unit,
+) {
+    var action by remember(item.id) { mutableStateOf(CorrectionAction.CANCEL) }
+    var reason by remember(item.id) { mutableStateOf("") }
+    var pin by remember(item.id) { mutableStateOf("") }
+    var replacementId by remember(item.id) { mutableStateOf("") }
+    // Retain this key while the dialog remains open. A timeout retry is therefore the same command.
+    val idempotencyKey = remember(item.id, action, replacementId) { UUID.randomUUID().toString() }
+    val replacementProducts = products.filter { it.active && it.availability == "AVAILABLE" && it.id != replacementId }
+    val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }).requiresPostProductionEndpoint()
+    val replacementValid = action != CorrectionAction.REPLACEMENT || replacementId.isNotBlank()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Corrigir ${item.productName}") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
+                CorrectionAction.entries.forEach { candidate ->
+                    OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                        Text(if (action == candidate) "✓ ${candidate.label}" else candidate.label)
+                    }
+                }
+                if (action == CorrectionAction.REPLACEMENT) {
+                    Text("Novo item", style = MaterialTheme.typography.labelLarge)
+                    replacementProducts.forEach { product ->
+                        OutlinedButton(onClick = { replacementId = product.id }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (replacementId == product.id) "✓ ${product.name} · ${formatCents(product.priceCents)}" else "${product.name} · ${formatCents(product.priceCents)}")
+                        }
+                    }
+                    if (replacementProducts.isEmpty()) Text("Não há item disponível para troca.", color = MaterialTheme.colorScheme.error)
+                }
+                OutlinedTextField(
+                    value = reason,
+                    onValueChange = { reason = it },
+                    label = { Text("Motivo") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                )
+                if (requiresReauth) {
+                    Text("Esta ação preserva o histórico de produção e requer confirmação gerencial.", color = MaterialTheme.colorScheme.error)
+                    OutlinedTextField(
+                        value = pin,
+                        onValueChange = { pin = it },
+                        label = { Text("PIN do gerente") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        enabled = !busy,
+                        visualTransformation = PasswordVisualTransformation(),
+                    )
+                } else {
+                    Text("O valor será atualizado pela comanda canônica.", style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSubmit(
+                        CorrectionCommand(
+                            itemId = item.id,
+                            itemState = item.state,
+                            action = action,
+                            reasonCode = "OPERATIONAL_CORRECTION",
+                            reasonText = reason.trim(),
+                            idempotencyKey = idempotencyKey,
+                            replacementProductId = replacementId.ifBlank { null },
+                        ),
+                        pin.takeIf { requiresReauth },
+                    )
+                    pin = ""
+                },
+                enabled = !busy && reason.isNotBlank() && replacementValid && (!requiresReauth || pin.isNotBlank()),
+            ) { Text(action.label) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Voltar") } },
+    )
+}
+
+private sealed interface RefundTarget {
+    data class Payment(val payment: TabPayment) : RefundTarget
+    data class Correction(val correction: RefundRequiredCorrection) : RefundTarget
+}
+
+@Composable
+private fun RefundDialog(
+    target: RefundTarget,
+    payments: List<TabPayment>,
+    cashPoints: List<CashPoint>,
+    busy: Boolean,
+    onDismiss: () -> Unit,
+    onSubmit: (RefundCommand, String) -> Unit,
+) {
+    val eligiblePayments = payments.filter { it.amountCents > it.refundedCents }
+    var paymentId by remember(target) { mutableStateOf((target as? RefundTarget.Payment)?.payment?.id ?: eligiblePayments.firstOrNull()?.id.orEmpty()) }
+    val selectedPayment = eligiblePayments.firstOrNull { it.id == paymentId }
+    val maximum = when (target) {
+        is RefundTarget.Payment -> target.payment.amountCents - target.payment.refundedCents
+        is RefundTarget.Correction -> target.correction.refundRequiredCents
+    }.coerceAtLeast(0)
+    var rawAmount by remember(target) { mutableStateOf("${maximum / 100},${(maximum % 100).toString().padStart(2, '0')}") }
+    var reason by remember(target) { mutableStateOf("") }
+    var pin by remember(target) { mutableStateOf("") }
+    var cashPointId by remember(target) { mutableStateOf(cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty()) }
+    val key = remember(target, paymentId) { UUID.randomUUID().toString() }
+    val amount = parseCents(rawAmount)
+    val valid = amount != null && amount > 0 && amount <= maximum && selectedPayment != null
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Disponível para estorno: ${formatCents(maximum)}")
+                if (target is RefundTarget.Correction) {
+                    Text("Correção: ${target.correction.itemName}")
+                    Text("Escolha o pagamento original.", style = MaterialTheme.typography.bodySmall)
+                    eligiblePayments.forEach { payment ->
+                        OutlinedButton(onClick = { paymentId = payment.id }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (payment.id == paymentId) "✓ ${formatCents(payment.amountCents - payment.refundedCents)} · ${paymentMethodLabel(payment.method)}" else "${formatCents(payment.amountCents - payment.refundedCents)} · ${paymentMethodLabel(payment.method)}")
+                        }
+                    }
+                } else selectedPayment?.let { Text("Pagamento: ${paymentMethodLabel(it.method)}") }
+                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor do estorno") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
+                if (target is RefundTarget.Payment) {
+                    OutlinedTextField(value = reason, onValueChange = { reason = it }, label = { Text("Motivo") }, modifier = Modifier.fillMaxWidth(), enabled = !busy)
+                }
+                if (cashPoints.any { it.activeShiftId != null }) {
+                    Text("Caixa para devolução em dinheiro", style = MaterialTheme.typography.labelLarge)
+                    cashPoints.filter { it.activeShiftId != null }.forEach { point ->
+                        OutlinedButton(onClick = { cashPointId = point.id }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (point.id == cashPointId) "✓ ${point.label}" else point.label)
+                        }
+                    }
+                }
+                Text("Confirme sua identidade; o PIN não é salvo.", color = MaterialTheme.colorScheme.error)
+                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("PIN do gerente") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, visualTransformation = PasswordVisualTransformation())
+                if (!valid) Text("Informe um valor válido e um pagamento disponível.", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val command = when (target) {
+                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
+                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
+                    }
+                    onSubmit(command, pin)
+                    pin = ""
+                },
+                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
+            ) { Text("Confirmar estorno") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+    )
+}
+
 @Composable
 private fun MessageDialog(title: String, message: String, onDismiss: () -> Unit) {
     AlertDialog(onDismissRequest = onDismiss, title = { Text(title) }, text = { Text(message) }, confirmButton = { Button(onClick = onDismiss) { Text("Entendi") } })
@@ -442,6 +687,33 @@ private fun TabSummary.stateLabel(): String =
         "SETTLING" -> "PAGAMENTO"
         "CLOSED" -> "FECHADA"
         else -> state
+    }
+
+private fun itemStateLabel(state: String): String =
+    when (state) {
+        "NEW" -> "Novo"
+        "ACCEPTED" -> "Aceito"
+        "PREPARING" -> "Em preparo"
+        "READY" -> "Pronto"
+        "DELIVERED" -> "Entregue"
+        "CANCELLED" -> "Cancelado"
+        else -> state
+    }
+
+private fun paymentMethodLabel(method: String): String =
+    when (method) {
+        "CASH" -> "Dinheiro"
+        "EXTERNAL_TERMINAL" -> "Maquininha externa"
+        else -> method
+    }
+
+private fun paymentStatusLabel(status: String): String =
+    when (status) {
+        "CONFIRMED" -> "Pago"
+        "PENDING" -> "Pendente"
+        "CONFIRMATION_PENDING" -> "Verificando"
+        "FAILED" -> "Falhou"
+        else -> status
     }
 
 private fun ConnectivityState.label(): String =

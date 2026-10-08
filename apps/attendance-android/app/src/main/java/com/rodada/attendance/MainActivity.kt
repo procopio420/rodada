@@ -7,9 +7,11 @@ import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.AuthViewModel
+import com.rodada.attendance.corrections.CorrectionsRepository
 import com.rodada.attendance.operations.OperationsRepository
 import com.rodada.attendance.operations.OperationsViewModel
 import com.rodada.attendance.operations.PendingMutationIntentStore
+import com.rodada.attendance.refunds.RefundsRepository
 import com.rodada.attendance.ui.AuthApp
 
 class MainActivity : ComponentActivity() {
@@ -21,6 +23,9 @@ class MainActivity : ComponentActivity() {
         OperationsViewModel.factory(
             repository = OperationsRepository(authRepository),
             pendingMutationIntentStore = PendingMutationIntentStore(applicationContext),
+            authRepository = authRepository,
+            correctionsRepository = CorrectionsRepository(authRepository),
+            refundsRepository = RefundsRepository(authRepository),
         )
     }
 

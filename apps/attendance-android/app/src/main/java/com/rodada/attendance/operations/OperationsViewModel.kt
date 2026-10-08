@@ -7,7 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.rodada.attendance.auth.AuthApiException
+import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.corrections.CorrectionCommand
+import com.rodada.attendance.corrections.CorrectionResult
+import com.rodada.attendance.corrections.CorrectionsRepository
+import com.rodada.attendance.corrections.correctionConsequence
+import com.rodada.attendance.corrections.requiresPostProductionEndpoint
+import com.rodada.attendance.refunds.RefundCommand
+import com.rodada.attendance.refunds.RefundsRepository
+import com.rodada.attendance.refunds.refundStatusLabel
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.UUID
@@ -35,6 +44,9 @@ data class OperationsUiState(
 class OperationsViewModel(
     private val repository: OperationsRepository,
     private val pendingMutationIntentStore: PendingMutationIntentStore,
+    private val authRepository: AuthRepository,
+    private val correctionsRepository: CorrectionsRepository,
+    private val refundsRepository: RefundsRepository,
 ) : ViewModel() {
     var state by mutableStateOf(OperationsUiState())
         private set
@@ -246,6 +258,63 @@ class OperationsViewModel(
         }
     }
 
+    /**
+     * Corrections never reproduce financial policy locally.  The native client asks the
+     * canonical service for the result, then reloads the affected Tab.
+     */
+    fun submitCorrection(session: StoredSession, command: CorrectionCommand, reauthPin: String?) {
+        val tabId = state.selectedTab?.summary?.id ?: return
+        if (state.submitting) return
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
+        viewModelScope.launch {
+            runCatching {
+                if (command.requiresPostProductionEndpoint()) {
+                    authRepository.reauthenticate(session, reauthPin.orEmpty())
+                }
+                val result = correctionsRepository.submit(session, command)
+                val detail = repository.tabDetail(session, tabId)
+                result to detail
+            }.onSuccess { (result, detail) ->
+                replaceDetail(detail)
+                state = state.copy(
+                    submitting = false,
+                    noticeMessage = correctionNotice(result),
+                    connectivity = ConnectivityState.ONLINE,
+                    lastSyncedAtMillis = System.currentTimeMillis(),
+                )
+            }.onFailure { error ->
+                state = state.copy(submitting = false)
+                showFailure(error, "A correção não foi confirmada. Atualize a comanda antes de repetir a ação.")
+            }
+        }
+    }
+
+    /** Refunds are always preceded by a fresh server-backed privileged reauthentication. */
+    fun submitRefund(session: StoredSession, command: RefundCommand, reauthPin: String) {
+        val tabId = state.selectedTab?.summary?.id ?: return
+        if (state.submitting) return
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
+        viewModelScope.launch {
+            runCatching {
+                authRepository.reauthenticate(session, reauthPin)
+                val result = refundsRepository.create(session, command)
+                val detail = repository.tabDetail(session, tabId)
+                result to detail
+            }.onSuccess { (result, detail) ->
+                replaceDetail(detail)
+                state = state.copy(
+                    submitting = false,
+                    noticeMessage = "Estorno ${refundStatusLabel(result.status).lowercase()}.",
+                    connectivity = ConnectivityState.ONLINE,
+                    lastSyncedAtMillis = System.currentTimeMillis(),
+                )
+            }.onFailure { error ->
+                state = state.copy(submitting = false)
+                showFailure(error, "O estorno não foi confirmado. Não tente estornar novamente antes de verificar o pagamento.")
+            }
+        }
+    }
+
     fun completeDelivery(session: StoredSession, taskId: String) = action {
         repository.completeDelivery(session, taskId)
         state = state.copy(
@@ -330,11 +399,20 @@ class OperationsViewModel(
         fun factory(
             repository: OperationsRepository,
             pendingMutationIntentStore: PendingMutationIntentStore,
+            authRepository: AuthRepository,
+            correctionsRepository: CorrectionsRepository,
+            refundsRepository: RefundsRepository,
         ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    OperationsViewModel(repository, pendingMutationIntentStore) as T
+                    OperationsViewModel(
+                        repository,
+                        pendingMutationIntentStore,
+                        authRepository,
+                        correctionsRepository,
+                        refundsRepository,
+                    ) as T
             }
     }
 
@@ -347,6 +425,12 @@ class OperationsViewModel(
         val detail: TabDetail?,
     )
 }
+
+private fun correctionNotice(result: CorrectionResult): String =
+    when (result.financialDisposition) {
+        "REFUND_REQUIRED" -> "Estorno necessário: abra o pagamento desta comanda para resolver ${formatCents(result.refundRequiredCents)}."
+        else -> correctionConsequence(result)
+    }
 
 private fun RecoveryIntent.ConfirmOrder.toCart(products: List<Product>): List<CartLine> =
     lines.mapNotNull { line ->
