@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.AuthViewModel
+import com.rodada.attendance.cash.CashRepository
+import com.rodada.attendance.cash.CashShiftViewModel
 import com.rodada.attendance.corrections.CorrectionsRepository
 import com.rodada.attendance.operations.OperationsRepository
 import com.rodada.attendance.operations.OperationsViewModel
@@ -16,24 +18,28 @@ import com.rodada.attendance.ui.AuthApp
 
 class MainActivity : ComponentActivity() {
     private val authRepository by lazy { AuthRepository(applicationContext) }
+    private val pendingMutationIntentStore by lazy { PendingMutationIntentStore(applicationContext) }
     private val authViewModel: AuthViewModel by viewModels {
         AuthViewModel.factory(authRepository)
     }
     private val operationsViewModel: OperationsViewModel by viewModels {
         OperationsViewModel.factory(
             repository = OperationsRepository(authRepository),
-            pendingMutationIntentStore = PendingMutationIntentStore(applicationContext),
+            pendingMutationIntentStore = pendingMutationIntentStore,
             authRepository = authRepository,
             correctionsRepository = CorrectionsRepository(authRepository),
             refundsRepository = RefundsRepository(authRepository),
         )
+    }
+    private val cashShiftViewModel: CashShiftViewModel by viewModels {
+        CashShiftViewModel.factory(CashRepository(authRepository), authRepository, pendingMutationIntentStore)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                AuthApp(authViewModel, operationsViewModel)
+                AuthApp(authViewModel, operationsViewModel, cashShiftViewModel)
             }
         }
     }

@@ -34,6 +34,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.cash.CashShiftScreen
+import com.rodada.attendance.cash.CashShiftViewModel
 import com.rodada.attendance.corrections.CorrectionAction
 import com.rodada.attendance.corrections.CorrectionCommand
 import com.rodada.attendance.corrections.requiresPostProductionEndpoint
@@ -46,12 +48,13 @@ import java.util.UUID
 fun AttendanceScreen(
     session: StoredSession,
     viewModel: OperationsViewModel,
+    cashShiftViewModel: CashShiftViewModel,
     onOpenAccount: () -> Unit,
 ) {
     val state = viewModel.state
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
-    var showingTables by rememberSaveable { mutableStateOf(false) }
+    var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     var correctionItem by remember { mutableStateOf<OrderItem?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
 
@@ -67,9 +70,24 @@ fun AttendanceScreen(
             ) { viewModel.refresh(session) }
             when (val selected = state.selectedTab) {
                 null -> {
-                    FrontlineNavigation(showingTables = showingTables, onShowTables = { showingTables = it })
-                    if (showingTables) {
-                        TablesScreen(
+                    val canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }
+                    FrontlineNavigation(section = section, canUseCash = canUseCash, onSelect = { section = it })
+                    when (section) {
+                        FrontlineSection.NOW -> TabList(
+                            state = state,
+                            showDeliveries = true,
+                            onOpenTab = { openingTab = true },
+                            onSelect = { viewModel.selectTab(session, it) },
+                            onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                        )
+                        FrontlineSection.TABS -> TabList(
+                            state = state,
+                            showDeliveries = false,
+                            onOpenTab = { openingTab = true },
+                            onSelect = { viewModel.selectTab(session, it) },
+                            onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                        )
+                        FrontlineSection.TABLES -> TablesScreen(
                             state = state,
                             canManageTables = "table.manage" in session.capabilities,
                             onOccupy = { tableId, tabId -> viewModel.occupyTable(session, tableId, tabId) },
@@ -78,13 +96,7 @@ fun AttendanceScreen(
                             onStartCleaning = { viewModel.startTableCleaning(session, it) },
                             onCompleteCleaning = { viewModel.completeTableCleaning(session, it) },
                         )
-                    } else {
-                        TabList(
-                            state = state,
-                            onOpenTab = { openingTab = true },
-                            onSelect = { viewModel.selectTab(session, it) },
-                            onCompleteDelivery = { viewModel.completeDelivery(session, it) },
-                        )
+                        FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
                 }
                 else -> TabWorkspace(
@@ -152,18 +164,23 @@ fun AttendanceScreen(
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
 }
 
+private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Comandas"), TABLES("Mesas"), CASH("Caixa") }
+
 @Composable
-private fun FrontlineNavigation(showingTables: Boolean, onShowTables: (Boolean) -> Unit) {
+private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (showingTables) {
-            OutlinedButton(onClick = { onShowTables(false) }, modifier = Modifier.weight(1f)) { Text("Comandas") }
-            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text("Mesas") }
-        } else {
-            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text("Comandas") }
-            OutlinedButton(onClick = { onShowTables(true) }, modifier = Modifier.weight(1f)) { Text("Mesas") }
+        val sections = buildList {
+            add(FrontlineSection.NOW)
+            add(FrontlineSection.TABS)
+            add(FrontlineSection.TABLES)
+            if (canUseCash) add(FrontlineSection.CASH)
+        }
+        sections.forEach { candidate ->
+            if (candidate == section) Button(onClick = {}, enabled = false, modifier = Modifier.weight(1f)) { Text(candidate.label) }
+            else OutlinedButton(onClick = { onSelect(candidate) }, modifier = Modifier.weight(1f)) { Text(candidate.label) }
         }
     }
 }
@@ -198,6 +215,7 @@ private fun Header(
 @Composable
 private fun TabList(
     state: OperationsUiState,
+    showDeliveries: Boolean,
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
@@ -206,17 +224,9 @@ private fun TabList(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item {
-            Button(onClick = onOpenTab, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) {
-                Text("Abrir nova comanda")
-            }
-            Spacer(Modifier.height(12.dp))
-            Text("Entregas prontas", style = MaterialTheme.typography.headlineSmall)
-        }
-        if (!state.loading && state.deliveryTasks.isEmpty()) {
-            item { Text("Nenhuma entrega aguardando.") }
-        }
-        items(state.deliveryTasks, key = { it.id }) { task ->
+        if (showDeliveries) item { Text("Entregas prontas", style = MaterialTheme.typography.headlineSmall) }
+        if (showDeliveries && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando.") }
+        if (showDeliveries) items(state.deliveryTasks, key = { it.id }) { task ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -236,7 +246,9 @@ private fun TabList(
         }
         item {
             Spacer(Modifier.height(12.dp))
-            Text("Comandas", style = MaterialTheme.typography.headlineSmall)
+            Button(onClick = onOpenTab, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Abrir nova comanda") }
+            Spacer(Modifier.height(12.dp))
+            Text(if (showDeliveries) "Comandas" else "Comandas abertas", style = MaterialTheme.typography.headlineSmall)
         }
         if (state.loading && state.tabs.isEmpty()) {
             item { LoadingRow() }
@@ -399,7 +411,7 @@ private fun BalanceCard(
             Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
-                    Text("Receber")
+                    Text("Pagar")
                 }
                 OutlinedButton(onClick = onClose, enabled = tab.exposureCents == 0L && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
                     Text(if (tab.state == "CLOSED") "Fechada" else "Fechar")
@@ -473,10 +485,10 @@ private fun PaymentDialog(
     val valid = amount != null && amount > 0 && amount <= tab.exposureCents
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Receber pagamento") },
+        title = { Text("Pagar comanda") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Em aberto: ${formatCents(tab.exposureCents)}")
+                Text("Total em aberto: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 PaymentMethod.entries.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
@@ -502,7 +514,7 @@ private fun PaymentDialog(
             Button(
                 onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
                 enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text("Registrar") }
+            ) { Text("Confirmar pagamento") }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )

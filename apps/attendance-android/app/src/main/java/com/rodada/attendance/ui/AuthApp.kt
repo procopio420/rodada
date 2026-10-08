@@ -31,11 +31,16 @@ import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.AuthUiState
 import com.rodada.attendance.auth.AuthViewModel
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.cash.CashShiftViewModel
 import com.rodada.attendance.operations.AttendanceScreen
 import com.rodada.attendance.operations.OperationsViewModel
 
 @Composable
-fun AuthApp(viewModel: AuthViewModel, operationsViewModel: OperationsViewModel) {
+fun AuthApp(
+    viewModel: AuthViewModel,
+    operationsViewModel: OperationsViewModel,
+    cashShiftViewModel: CashShiftViewModel,
+) {
     val state = viewModel.state
     var accountVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -58,6 +63,7 @@ fun AuthApp(viewModel: AuthViewModel, operationsViewModel: OperationsViewModel) 
                     AttendanceScreen(
                         session = state.session,
                         viewModel = operationsViewModel,
+                        cashShiftViewModel = cashShiftViewModel,
                         onOpenAccount = { accountVisible = true },
                     )
                 }
