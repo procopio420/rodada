@@ -14,6 +14,8 @@ from modules.corrections.models import (
     CorrectionStatus,
     FinancialDisposition,
     OrderCorrection,
+    WasteKind,
+    WasteMarker,
 )
 from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, TabState
 
@@ -319,7 +321,7 @@ def create_post_production_correction(
     original responsibility and adds the replacement's normal charge, making
     equal/cheaper/more-expensive outcomes deterministic from the ledger.
     """
-    if kind not in (CorrectionKind.REMAKE, CorrectionKind.REPLACEMENT):
+    if kind not in (*_CANCEL_KINDS, CorrectionKind.REMAKE, CorrectionKind.REPLACEMENT):
         raise CorrectionServiceError("INVALID_CORRECTION_KIND", "Tipo de correção inválido.")
     reason_code, reason_text, idempotency_key = (
         reason_code.strip(),
@@ -354,9 +356,14 @@ def create_post_production_correction(
             raise CorrectionServiceError("IDEMPOTENCY_CONFLICT", "A chave já foi usada para outra correção.", 409)
         existing._idempotency_replay = True
         return existing
-    if item.state not in _POST_PRODUCTION_STATES:
+    allowed_states = (
+        frozenset((OrderItemState.PREPARING, OrderItemState.READY))
+        if kind in _CANCEL_KINDS
+        else _POST_PRODUCTION_STATES
+    )
+    if item.state not in allowed_states:
         raise CorrectionServiceError(
-            "CORRECTION_STAGE_REQUIRES_PRODUCTION", "Remake ou substituição exige item em produção ou concluído.", 409,
+            "CORRECTION_STAGE_REQUIRES_PRODUCTION", "Esta correção exige item em produção ou concluído.", 409,
             {"state": item.state},
         )
     _manager_approval_required(actor)
@@ -377,7 +384,7 @@ def create_post_production_correction(
         product = item.product
         unit_price_cents = item.unit_price_cents
         quantity = item.quantity
-    else:
+    elif kind == CorrectionKind.REPLACEMENT:
         if not replacement_product_id:
             raise CorrectionServiceError("REPLACEMENT_PRODUCT_REQUIRED", "Escolha o item de substituição.")
         product = Product.objects.select_for_update().filter(
@@ -405,24 +412,26 @@ def create_post_production_correction(
         requested_by_id=actor.staff_id,
         approved_by_id=actor.staff_id,
     )
-    replacement_order = Order.objects.create(
-        tab=item.order.tab,
-        source=OrderSource.STAFF,
-        confirmed_by_id=actor.staff_id,
-        idempotency_key=f"correction:{correction.id}",
-        request_fingerprint=fingerprint,
-    )
-    replacement = OrderItem.objects.create(
-        order=replacement_order,
-        product=product,
-        product_name_snapshot=product.name if kind == CorrectionKind.REPLACEMENT else item.product_name_snapshot,
-        unit_price_cents=unit_price_cents,
-        quantity=quantity,
-    )
-    create_charges_for_order(replacement_order, actor)
-    item.order.tab.version += 1
-    item.order.tab.save(update_fields=["version"])
-    correction.replacement_order_item = replacement
+    replacement = None
+    if kind in (CorrectionKind.REMAKE, CorrectionKind.REPLACEMENT):
+        replacement_order = Order.objects.create(
+            tab=item.order.tab,
+            source=OrderSource.STAFF,
+            confirmed_by_id=actor.staff_id,
+            idempotency_key=f"correction:{correction.id}",
+            request_fingerprint=fingerprint,
+        )
+        replacement = OrderItem.objects.create(
+            order=replacement_order,
+            product=product,
+            product_name_snapshot=product.name if kind == CorrectionKind.REPLACEMENT else item.product_name_snapshot,
+            unit_price_cents=unit_price_cents,
+            quantity=quantity,
+        )
+        create_charges_for_order(replacement_order, actor)
+        item.order.tab.version += 1
+        item.order.tab.save(update_fields=["version"])
+        correction.replacement_order_item = replacement
 
     if kind == CorrectionKind.REMAKE:
         correction.financial_adjustment = courtesy_replacement(correction, replacement, actor)
@@ -437,6 +446,19 @@ def create_post_production_correction(
             correction.status = CorrectionStatus.APPLIED
 
     _cancel_item_operationally(item=item, actor=actor, correction=correction)
+    if kind in _CANCEL_KINDS:
+        # Once preparation started, discarded work is operational evidence. It
+        # does not alter stock/accounting and remains linked to the correction.
+        WasteMarker.objects.create(
+            venue_id=item.order.tab.venue_id,
+            order_item=item,
+            correction=correction,
+            kind=WasteKind.PREPARED_NOT_SERVED,
+            quantity=item.quantity,
+            reason=reason_text or reason_code,
+            created_by_id=actor.staff_id,
+            occurred_at=timezone.now(),
+        )
     if correction.status == CorrectionStatus.APPLIED:
         correction.applied_at = timezone.now()
     correction.save(
@@ -446,7 +468,13 @@ def create_post_production_correction(
         ]
     )
     correction._idempotency_replay = False
-    event_type = "order_item.remake_created" if kind == CorrectionKind.REMAKE else "order_item.replacement_created"
+    event_type = (
+        "order_item.remake_created"
+        if kind == CorrectionKind.REMAKE
+        else "order_item.replacement_created"
+        if kind == CorrectionKind.REPLACEMENT
+        else "order_item.cancelled_after_production"
+    )
     record_audit_event(
         actor=actor,
         event_type=event_type,
@@ -455,7 +483,7 @@ def create_post_production_correction(
         reason=reason_code,
         metadata={
             "order_item_id": str(item.id),
-            "replacement_order_item_id": str(replacement.id),
+            "replacement_order_item_id": str(replacement.id) if replacement else None,
             "stage_at_request": correction.stage_at_request,
             "financial_disposition": correction.financial_disposition,
             "refund_required_cents": correction.refund_required_cents,

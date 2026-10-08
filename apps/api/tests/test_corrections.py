@@ -462,6 +462,119 @@ class CorrectionFoundationTests(TestCase):
         self.assertEqual(replay.id, correction.id)
         self.assertEqual(OrderCorrection.objects.filter(original_order_item=original).count(), 1)
 
+    def test_manager_can_cancel_preparing_item_with_reversal_and_waste_history(self):
+        original = self.item(state=OrderItemState.PREPARING)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+
+        correction = create_post_production_correction(
+            item_id=original.id,
+            kind=CorrectionKind.CANCEL_ITEM,
+            reason_code="CUSTOMER_LEFT",
+            reason_text="Cliente cancelou durante o preparo",
+            idempotency_key="cancel-preparing",
+            actor=self.manager_actor(),
+        )
+        original.refresh_from_db()
+
+        self.assertEqual(correction.status, CorrectionStatus.APPLIED)
+        self.assertEqual(correction.financial_disposition, FinancialDisposition.REVERSE_OPEN_RESPONSIBILITY)
+        self.assertEqual(original.state, OrderItemState.CANCELLED)
+        self.assertEqual(totals(original.order.tab)["exposure_cents"], 0)
+        waste = WasteMarker.objects.get(correction=correction)
+        self.assertEqual(waste.kind, WasteKind.PREPARED_NOT_SERVED)
+        self.assertEqual(waste.quantity, 1)
+        self.assertTrue(AuditEvent.objects.filter(event_type="order_item.cancelled_after_production").exists())
+
+    def test_ready_cancellation_cancels_delivery_and_requires_exact_refund_when_paid(self):
+        from modules.dispatch.models import DispatchTask, DispatchTaskState, DispatchTaskType
+        from modules.corrections.services import settle_refund_required_cancellation
+
+        original = self.item(state=OrderItemState.READY)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+        payment = Payment.objects.create(
+            tab=original.order.tab,
+            amount_cents=500,
+            method=PaymentMethod.OTHER,
+            idempotency_key="ready-cancel-payment",
+            status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(),
+            received_by=self.staff,
+        )
+        task = DispatchTask.objects.create(
+            venue=self.venue,
+            task_type=DispatchTaskType.DELIVERY,
+            order_item=original,
+            state=DispatchTaskState.OPEN,
+            ready_at=timezone.now(),
+        )
+        manager_actor = self.manager_actor()
+        correction = create_post_production_correction(
+            item_id=original.id,
+            kind=CorrectionKind.CANCEL_ITEM,
+            reason_code="CUSTOMER_REJECTED",
+            reason_text="Cliente desistiu antes da entrega",
+            idempotency_key="cancel-ready-paid",
+            actor=manager_actor,
+        )
+        original.refresh_from_db()
+        task.refresh_from_db()
+        self.assertEqual(original.state, OrderItemState.CANCELLED)
+        self.assertEqual(task.state, DispatchTaskState.CANCELLED)
+        self.assertEqual(correction.status, CorrectionStatus.REQUESTED)
+        self.assertEqual(correction.financial_disposition, FinancialDisposition.REFUND_REQUIRED)
+        self.assertEqual(correction.refund_required_cents, 500)
+        self.assertEqual(totals(original.order.tab)["exposure_cents"], -500)
+
+        settled, refund, result = settle_refund_required_cancellation(
+            correction_id=correction.id,
+            payment_id=payment.id,
+            amount_cents=500,
+            refund_idempotency_key="ready-cancel-refund",
+            cash_point_id=None,
+            actor=manager_actor,
+        )
+        self.assertEqual(settled.status, CorrectionStatus.APPLIED)
+        self.assertEqual(refund.amount_cents, 500)
+        self.assertEqual(result["exposure_cents"], 0)
+
+    def test_post_production_cancel_endpoint_requires_recent_manager_reauthentication(self):
+        original = self.item(state=OrderItemState.PREPARING)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+        self.manager_actor()
+        manager_client = APIClient()
+        login = manager_client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": "corrections-post-production-manager",
+                "pin": "4321",
+                "installation_id": "post-production-correction-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        manager_client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        payload = {
+            "kind": CorrectionKind.CANCEL_ITEM,
+            "reason_code": "CUSTOMER_LEFT",
+            "reason_text": "Desistiu durante o preparo",
+            "idempotency_key": "endpoint-post-production-cancel",
+        }
+        denied = manager_client.post(
+            f"/order-items/{original.id}/corrections/post-production/", payload, format="json"
+        )
+        self.assertEqual(denied.status_code, 403)
+        self.assertEqual(denied.json()["code"], "REAUTH_REQUIRED")
+        self.assertEqual(
+            manager_client.post("/auth/reauthenticate/", {"pin": "4321"}, format="json").status_code,
+            200,
+        )
+        accepted = manager_client.post(
+            f"/order-items/{original.id}/corrections/post-production/", payload, format="json"
+        )
+        self.assertEqual(accepted.status_code, 201, accepted.json())
+        self.assertEqual(accepted.json()["order_item_state"], OrderItemState.CANCELLED)
+
     def test_replacement_price_difference_is_append_only_and_deterministic(self):
         for price, expected in ((1200, 1200), (900, 900), (1500, 1500)):
             with self.subTest(price=price):
