@@ -88,3 +88,7 @@ Do not enable broad offline queues with a generic “retry all”.
 ## Dependencies first
 
 Server idempotency and canonical mutation semantics from Specs 001/006/008. Payment recovery must not ship before reconciliation is tested.
+
+## Implementation slice
+
+Implement a database outbox/publication log and async SSE endpoints first; adapt existing audit facts through a named allowlist, with explicit emission for guest/staff order confirmation. Add header-authenticated Web/native transports which invalidate canonical reads, guest-scoped history, and fault/replay tests. Verify existing full-shift suite before integration and PR.

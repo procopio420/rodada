@@ -64,6 +64,15 @@ def _context_payload(session, *, token: str | None = None) -> dict:
         "expires_at": session.expires_at,
         "tab": _tab_payload(session.tab) if session.tab_id else None,
     }
+    if session.tab_id:
+        payload["tab"]["orders"] = [
+            _order_payload(order) for order in session.tab.orders.order_by("confirmed_at", "id")
+        ]
+        # Only persisted canonical/manual states exist in this slice. Future
+        # inferred milestones must expose source/confidence explicitly.
+        for order in payload["tab"]["orders"]:
+            for item in order["items"]:
+                item["state_source"] = "CANONICAL"
     if token is not None:
         payload["guest_session_token"] = token
     return payload

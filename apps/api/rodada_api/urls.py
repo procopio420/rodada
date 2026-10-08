@@ -73,6 +73,7 @@ def readiness(request):
 
 
 urlpatterns = [
+    path("", include("modules.realtime.urls")),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),

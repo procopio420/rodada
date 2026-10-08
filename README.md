@@ -266,7 +266,7 @@ O protótipo usa [`prototype/design-system.css`](./prototype/design-system.css) 
 - **Cozinha/Bar/Cliente/Gerência:** Next.js + React / PWA conforme a superfície; Gerência é mobile-first
 - **Tap on Phone (MVP):** Paytime SDK, encapsulado por adapter
 - **DB:** PostgreSQL
-- **Realtime:** Redis + WebSocket quando dispatch entrar
+- **Realtime:** SSE + transactional outbox PostgreSQL; Redis opcional para fan-out
 - **Arquitetura:** modular monolith primeiro
 
 ## Norte do produto
