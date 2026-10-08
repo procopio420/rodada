@@ -23,8 +23,13 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun tables(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tables)
 
+    suspend fun zones(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::zones)
+
     suspend fun occupyTable(session: StoredSession, tableId: String, tabId: String?) =
         authRepository.withAuthorizedAccess(session) { client.occupyTable(it, tableId, tabId) }
+
+    suspend fun moveTableToZone(session: StoredSession, tableId: String, zoneId: String?) =
+        authRepository.withAuthorizedAccess(session) { client.moveTableToZone(it, tableId, zoneId) }
 
     suspend fun attachTabToOccupancy(session: StoredSession, occupancyId: String, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.attachTabToOccupancy(it, occupancyId, tabId) }

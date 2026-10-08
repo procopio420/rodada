@@ -88,6 +88,8 @@ enum class PaymentMethod(val apiValue: String, val label: String) {
 
 data class CashPoint(val id: String, val label: String, val activeShiftId: String?)
 
+data class ZoneSummary(val id: String, val label: String)
+
 /** Physical context only: balances and payments continue to belong to each Tab. */
 data class TableSummary(
     val id: String,
@@ -95,6 +97,7 @@ data class TableSummary(
     val status: String,
     val guestOrderingMode: String,
     val guestOrderingBlocked: Boolean,
+    val zone: ZoneSummary?,
     val activeOccupancy: TableOccupancy?,
 )
 
