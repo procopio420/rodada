@@ -77,27 +77,47 @@ cd apps/attendance-android
 ./gradlew lintDebug
 ```
 
-### Emulador
+### Emulador e smoke com API local
 
-Instale adicionalmente `emulator` e uma imagem API 37 compatível com a
-arquitetura local usando `sdkmanager`; por exemplo, em Linux x86_64:
+O caminho reproduzível de desenvolvimento usa a imagem **Google APIs API 36
+x86_64** com renderização SwiftShader em modo headless. Ela evita a
+instabilidade de SurfaceFlinger observada na primeira imagem API 37 neste
+ambiente. A aplicação continua compilando com API 37; o nível do emulador não
+altera o `compileSdk`.
 
-```bash
-sdkmanager "emulator" "system-images;android-37.0;google_apis;x86_64"
-avdmanager create avd --name rodada-api-37 --package "system-images;android-37.0;google_apis;x86_64"
-emulator -avd rodada-api-37
-```
-
-Com o emulador pronto, o debug já usa `http://10.0.2.2:8000/` para alcançar a
-API local da máquina host. Inicie a API em `0.0.0.0:8000`, depois rode:
+Em um terminal, prepare e inicie a API local com dados demo. Ela deve escutar
+em `0.0.0.0`, não apenas em `127.0.0.1`, para ficar visível como `10.0.2.2`
+dentro do emulador:
 
 ```bash
-ANDROID_SMOKE=1 ./scripts/android-check.sh
+cd apps/api
+# Configure PostgreSQL conforme apps/api/README.md, depois:
+python manage.py migrate
+python manage.py seed_demo
+python manage.py runserver 0.0.0.0:8000
 ```
 
-Isso instala o APK e abre `MainActivity` no primeiro dispositivo autorizado.
-O manifest de produção não permite HTTP em cleartext; essa exceção existe
-somente no manifest `debug` para desenvolvimento local.
+Em outro terminal, a partir da raiz do repositório, provisione uma única vez e
+execute o smoke:
+
+```bash
+./scripts/android-emulator-smoke.sh --provision
+./scripts/android-emulator-smoke.sh
+```
+
+O script cria `rodada-api-36`, inicia `emulator-5556` com
+`-gpu swiftshader_indirect`, espera o boot, prova a conexão Android →
+`10.0.2.2:8000`, monta/instala o APK debug e abre `MainActivity`. Para
+reaproveitar um APK já montado, use `RODADA_SMOKE_SKIP_BUILD=1`; para salvar
+logcat no fim, use `RODADA_SMOKE_LOGCAT=1`.
+
+Conclua na tela de login a verificação canônica: `bar-do-aderlan` / `bia` /
+`1234`, confirme Comandas e catálogo, abra uma comanda e atualize o estado. A
+credencial de gerente local é `ana` / `0420`. Elas são apenas do `seed_demo`.
+
+O debug usa `http://10.0.2.2:8000/` para a API da máquina host. O manifest de
+produção não permite HTTP em cleartext; essa exceção existe somente no
+manifest `debug` para desenvolvimento local.
 
 ### Dispositivo físico
 
