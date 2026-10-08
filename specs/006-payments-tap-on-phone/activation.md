@@ -52,3 +52,12 @@ without integrated configuration; configured venues require provider confirmatio
 - https://docs-parceiro.paytime.com.br/docs/gerar-token-de-autentica%C3%A7%C3%A3o
 - https://docs-parceiro.paytime.com.br/docs/estorno-de-transa%C3%A7%C3%A3o
 - https://docs-parceiro.paytime.com.br/docs/tap-on-phone-desenvolvimento-implementacao
+
+## Validation evidence
+
+- Payment API/provider/ledger suite: 21 passed.
+- Expanded payment, ledger, House Account, cash, migration and full-shift suite:
+  49 passed, 2 skipped (PostgreSQL-specific tests under SQLite).
+- Android: 23 unit tests, zero failures/errors/skips; assembleDebug and lintDebug pass.
+- Provider Python lint, migration drift and diff whitespace checks pass.
+- PostgreSQL concurrency and live Paytime sandbox/device validation are not claimed.
