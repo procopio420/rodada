@@ -19,7 +19,9 @@ INSTALLED_APPS = [
     "modules.hospitality",
     "modules.guest_access",
     "modules.dispatch",
+    "modules.corrections",
     "modules.ledger",
+    "modules.payment_provider",
     "modules.cash",
     "modules.audit",
 ]
