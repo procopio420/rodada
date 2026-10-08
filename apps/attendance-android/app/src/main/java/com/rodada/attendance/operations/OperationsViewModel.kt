@@ -24,6 +24,8 @@ import java.io.IOException
 import java.util.UUID
 
 data class OperationsUiState(
+    val pixEnabled: Boolean = false,
+    val integratedPayment: com.rodada.attendance.payments.IntegratedPayment? = null,
     val loading: Boolean = false,
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
@@ -79,6 +81,8 @@ class OperationsViewModel(
         )
         viewModelScope.launch {
             runCatching {
+                val pixEnabled = runCatching { repository.paymentCapabilities(session) }.getOrDefault(false)
+                state = state.copy(pixEnabled = pixEnabled)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
@@ -139,6 +143,7 @@ class OperationsViewModel(
         val retainedCart = retained?.toCart(state.products).orEmpty()
         state = state.copy(
             selectedTab = detail,
+            integratedPayment = null,
             cart = retainedCart,
             orderIntentId = retained?.idempotencyKey,
             paymentIntentId = retainedPayment?.idempotencyKey,
@@ -154,7 +159,7 @@ class OperationsViewModel(
     }
 
     fun clearSelection() {
-        state = state.copy(selectedTab = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
+        state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
     }
 
     fun addProduct(product: Product) {
@@ -228,12 +233,73 @@ class OperationsViewModel(
         }
     }
 
+    fun startPix(session: StoredSession, amountCents: Long) {
+        val tab = state.selectedTab?.summary ?: return
+        if (!state.pixEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
+        if (amountCents <= 0 || amountCents > tab.exposureCents) return
+        val pending = state.pendingPayment
+        if (pending != null && (pending.method != PaymentMethod.PIX || pending.amountCents != amountCents)) return
+        val key = pending?.idempotencyKey ?: UUID.randomUUID().toString()
+        val intent = pending ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
+            tab.id, amountCents, PaymentMethod.PIX, null)
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
+        viewModelScope.launch {
+            runCatching { repository.integratedPayment(session, tab.id, amountCents, key) }
+                .onSuccess { acceptIntegrated(session, it) }
+                .onFailure {
+                    state = state.copy(submitting = false)
+                    showFailure(it, "Confirmando Pix. Verifique a mesma intenção; não cobre novamente.")
+                }
+        }
+    }
+
+    fun reconcilePix(session: StoredSession) {
+        if (state.submitting) return
+        val payment = state.integratedPayment
+        if (payment == null) {
+            val pending = state.pendingPayment
+            val persisted = state.selectedTab?.payments?.lastOrNull { it.method == "PIX" && it.status !in setOf("FAILED", "CANCELLED") }
+            if (persisted != null) {
+                reconcilePixId(session, persisted.id)
+            } else if (pending?.method == PaymentMethod.PIX) startPix(session, pending.amountCents)
+            return
+        }
+        reconcilePixId(session, payment.id)
+    }
+
+    private fun reconcilePixId(session: StoredSession, id: String) {
+        state = state.copy(submitting = true, errorMessage = null)
+        viewModelScope.launch {
+            runCatching { repository.reconcileIntegrated(session, id) }
+                .onSuccess { acceptIntegrated(session, it) }
+                .onFailure {
+                    state = state.copy(submitting = false)
+                    showFailure(it, "Pagamento ainda não verificado. Não cobre novamente.")
+                }
+        }
+    }
+
+    private suspend fun acceptIntegrated(session: StoredSession, payment: com.rodada.attendance.payments.IntegratedPayment) {
+        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message)
+        if (!payment.blocksNewCharge) {
+            state.pendingPayment?.let { pendingMutationIntentStore.remove(it.id) }
+            state = state.copy(pendingPayment = null, paymentIntentId = null)
+        }
+        runCatching { repository.tabDetail(session, payment.tabId) }.onSuccess(::replaceDetail)
+    }
+
     fun collectPayment(
         session: StoredSession,
         amountCents: Long,
         method: PaymentMethod,
         cashPointId: String?,
     ) {
+        if (method == PaymentMethod.PIX) {
+            startPix(session, amountCents)
+            return
+        }
         val tab = state.selectedTab?.summary ?: return
         if (amountCents <= 0 || amountCents > tab.exposureCents || state.submitting) return
         state.pendingPayment?.let { pending ->

@@ -83,6 +83,15 @@ fun AttendanceScreen(
     }
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
+    var viewingIntegrated by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.integratedPayment?.id, state.integratedPayment?.status) {
+        val payment = state.integratedPayment
+        if (payment != null) viewingIntegrated = true
+        while (payment?.blocksNewCharge == true) {
+            delay(5000)
+            viewModel.reconcilePix(session)
+        }
+    }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
@@ -178,11 +187,24 @@ fun AttendanceScreen(
             tab = state.selectedTab.summary,
             cashPoints = state.cashPoints,
             busy = state.submitting,
+            pixEnabled = state.pixEnabled,
+            onCheckPix = {
+                viewModel.reconcilePix(session)
+                viewingIntegrated = true
+                takingPayment = false
+            },
             onDismiss = { takingPayment = false },
             onPay = { amount, method, cashPointId ->
                 viewModel.collectPayment(session, amount, method, cashPointId)
                 takingPayment = false
             },
+        )
+    }
+    if (viewingIntegrated && state.integratedPayment != null) {
+        com.rodada.attendance.payments.IntegratedPaymentPanel(
+            state.integratedPayment, state.submitting,
+            onCheck = { viewModel.reconcilePix(session) },
+            onDismiss = { viewingIntegrated = false },
         )
     }
     if (resolvingLimit && state.selectedTab != null) {
@@ -605,6 +627,8 @@ private fun PaymentDialog(
     tab: TabSummary,
     cashPoints: List<CashPoint>,
     busy: Boolean,
+    pixEnabled: Boolean,
+    onCheckPix: () -> Unit,
     onDismiss: () -> Unit,
     onPay: (Long, PaymentMethod, String?) -> Unit,
 ) {
@@ -622,7 +646,7 @@ private fun PaymentDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Total em aberto: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                PaymentMethod.entries.forEach { candidate ->
+                PaymentMethod.entries.filter { it != PaymentMethod.PIX || pixEnabled }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
@@ -638,15 +662,17 @@ private fun PaymentDialog(
                         Text("Abra ou selecione um caixa com turno ativo antes de receber dinheiro.", color = MaterialTheme.colorScheme.error)
                     }
                 }
+                if (pixEnabled) TextButton(onClick = onCheckPix, enabled = !busy) { Text("Verificar Pix existente") }
+                Text("Aproximação: " + (com.rodada.attendance.payments.PaytimeTapProvider(com.rodada.attendance.payments.detectTapDevice(LocalContext.current)).availability() as com.rodada.attendance.payments.TapToPayAvailability.Unavailable).operationalMessage)
                 if (!valid) Text("Informe um valor entre R$ 0,01 e o saldo em aberto.", color = MaterialTheme.colorScheme.error)
-                if (method != PaymentMethod.CASH) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
+                if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
             }
         },
         confirmButton = {
             Button(
                 onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
                 enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text("Confirmar pagamento") }
+            ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )

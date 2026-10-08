@@ -90,6 +90,7 @@ enum class ConnectivityState {
 }
 
 enum class PaymentMethod(val apiValue: String, val label: String) {
+    PIX("PIX", "Pix integrado"),
     CASH("CASH", "Dinheiro"),
     EXTERNAL_TERMINAL("EXTERNAL_TERMINAL", "Terminal externo"),
 }

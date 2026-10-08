@@ -219,6 +219,21 @@ class OperationsHttpClient(baseUrl: String) {
         )
     }
 
+    fun paymentCapabilities(accessToken: String): Boolean =
+        request("GET", "/payments/capabilities/", accessToken = accessToken).optBoolean("pix")
+
+    fun integratedPayment(accessToken: String, tabId: String, amountCents: Long, key: String): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/tabs/$tabId/payments/integrated/",
+            JSONObject().put("amount_cents", amountCents).put("method", "PIX").put("idempotency_key", key), accessToken))
+
+    fun reconcileIntegrated(accessToken: String, paymentId: String): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/payments/$paymentId/integrated/", JSONObject(), accessToken))
+
+    private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
+        json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"),
+    )
+
     fun closeTab(accessToken: String, tabId: String) {
         request("POST", "/tabs/$tabId/close/", JSONObject(), accessToken)
     }

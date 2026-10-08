@@ -67,6 +67,15 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         client.collectPayment(it, tabId, amountCents, method, idempotencyKey, cashPointId)
     }
 
+    suspend fun paymentCapabilities(session: StoredSession) =
+        authRepository.withAuthorizedAccess(session, client::paymentCapabilities)
+
+    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String) =
+        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key) }
+
+    suspend fun reconcileIntegrated(session: StoredSession, paymentId: String) =
+        authRepository.withAuthorizedAccess(session) { client.reconcileIntegrated(it, paymentId) }
+
     suspend fun closeTab(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.closeTab(it, tabId) }
 
