@@ -45,15 +45,67 @@ http://10.0.2.2:8000/
 
 O manifest principal não libera cleartext; somente o manifest de debug permite HTTP local.
 
-## Build
+## Ambiente reproduzível
 
-Requer JDK 17, Android SDK 37 e Gradle 9.6.
+Requer JDK 17 e o Android SDK `platforms;android-37.0` com
+`build-tools;37.0.0`. O repositório traz o Gradle Wrapper 9.6.0; não use uma
+instalação global de Gradle.
+
+Em uma máquina Linux nova, instale um JDK 17, exporte `JAVA_HOME` quando o
+gerenciador de JDK não fizer isso automaticamente e execute, a partir da raiz
+do repositório:
+
+```bash
+./scripts/android-setup.sh
+./scripts/android-check.sh
+```
+
+`android-setup.sh` baixa as ferramentas públicas de linha de comando caso não
+existam, aceita as licenças e instala os mesmos pacotes que a CI. Por padrão o
+SDK fica em `$HOME/Android/Sdk`; defina `ANDROID_HOME` antes do comando para
+usar outro local. O `local.properties` criado localmente aponta para esse SDK,
+é ignorado por Git e nunca deve ser commitado.
+
+O segundo comando executa os gates locais de paridade: testes unitários,
+`assembleDebug` e `lintDebug`. Os comandos individuais são:
 
 ```bash
 cd apps/attendance-android
-gradle testDebugUnitTest
-gradle assembleDebug
+./gradlew testDebugUnitTest
+./gradlew assembleDebug
+./gradlew lintDebug
 ```
+
+### Emulador
+
+Instale adicionalmente `emulator` e uma imagem API 37 compatível com a
+arquitetura local usando `sdkmanager`; por exemplo, em Linux x86_64:
+
+```bash
+sdkmanager "emulator" "system-images;android-37.0;google_apis;x86_64"
+avdmanager create avd --name rodada-api-37 --package "system-images;android-37.0;google_apis;x86_64"
+emulator -avd rodada-api-37
+```
+
+Com o emulador pronto, o debug já usa `http://10.0.2.2:8000/` para alcançar a
+API local da máquina host. Inicie a API em `0.0.0.0:8000`, depois rode:
+
+```bash
+ANDROID_SMOKE=1 ./scripts/android-check.sh
+```
+
+Isso instala o APK e abre `MainActivity` no primeiro dispositivo autorizado.
+O manifest de produção não permite HTTP em cleartext; essa exceção existe
+somente no manifest `debug` para desenvolvimento local.
+
+### Dispositivo físico
+
+Ative Opções do desenvolvedor e Depuração USB, conecte o aparelho e confirme
+com `adb devices`. Para uma API local no mesmo Wi-Fi, faça o build debug com
+uma base URL de desenvolvimento LAN configurada por variante/propriedade — não
+altere o manifest de release para liberar HTTP. O aparelho precisa de NFC e
+ser compatível com o provider para a futura verificação Tap on Phone; emulador
+não valida aproximação.
 
 Stack do bootstrap:
 

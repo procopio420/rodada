@@ -21,6 +21,23 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun cashPoints(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::cashPoints)
 
+    suspend fun tables(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tables)
+
+    suspend fun occupyTable(session: StoredSession, tableId: String, tabId: String?) =
+        authRepository.withAuthorizedAccess(session) { client.occupyTable(it, tableId, tabId) }
+
+    suspend fun attachTabToOccupancy(session: StoredSession, occupancyId: String, tabId: String) =
+        authRepository.withAuthorizedAccess(session) { client.attachTabToOccupancy(it, occupancyId, tabId) }
+
+    suspend fun releaseTable(session: StoredSession, tableId: String) =
+        authRepository.withAuthorizedAccess(session) { client.releaseTable(it, tableId) }
+
+    suspend fun startTableCleaning(session: StoredSession, tableId: String) =
+        authRepository.withAuthorizedAccess(session) { client.startTableCleaning(it, tableId) }
+
+    suspend fun completeTableCleaning(session: StoredSession, tableId: String) =
+        authRepository.withAuthorizedAccess(session) { client.completeTableCleaning(it, tableId) }
+
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 

@@ -191,5 +191,6 @@ class AuthRepository(context: Context) {
             venueName = me.venueName,
             role = me.role,
             deviceTrustState = me.deviceTrustState.ifBlank { deviceTrustState },
+            capabilities = me.capabilities,
         )
 }

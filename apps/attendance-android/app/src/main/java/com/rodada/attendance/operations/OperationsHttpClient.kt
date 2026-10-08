@@ -90,6 +90,37 @@ class OperationsHttpClient(baseUrl: String) {
                 )
             }
 
+    fun tables(accessToken: String): List<TableSummary> =
+        request("GET", "/hospitality/tables/", accessToken = accessToken)
+            .getJSONArray("results")
+            .toObjects()
+            .map(::tableSummary)
+
+    fun occupyTable(accessToken: String, tableId: String, tabId: String?) {
+        request(
+            "POST",
+            "/hospitality/tables/$tableId/occupy/",
+            JSONObject().apply { if (tabId != null) put("tab_id", tabId) },
+            accessToken,
+        )
+    }
+
+    fun attachTabToOccupancy(accessToken: String, occupancyId: String, tabId: String) {
+        request("POST", "/hospitality/occupancies/$occupancyId/tabs/", JSONObject().put("tab_id", tabId), accessToken)
+    }
+
+    fun releaseTable(accessToken: String, tableId: String) {
+        request("POST", "/hospitality/tables/$tableId/release/", JSONObject(), accessToken)
+    }
+
+    fun startTableCleaning(accessToken: String, tableId: String) {
+        request("POST", "/hospitality/tables/$tableId/cleaning/start/", JSONObject(), accessToken)
+    }
+
+    fun completeTableCleaning(accessToken: String, tableId: String) {
+        request("POST", "/hospitality/tables/$tableId/cleaning/complete/", JSONObject(), accessToken)
+    }
+
     fun completeDelivery(accessToken: String, taskId: String) {
         request("POST", "/dispatch/delivery/$taskId/complete/", JSONObject(), accessToken)
     }
@@ -159,6 +190,26 @@ class OperationsHttpClient(baseUrl: String) {
             paymentsCents = json.getLong("payments_cents"),
             exposureCents = json.getLong("exposure_cents"),
         )
+
+    private fun tableSummary(json: JSONObject): TableSummary {
+        val active = json.optJSONObject("active_occupancy")
+        return TableSummary(
+            id = json.getString("id"),
+            label = json.getString("label"),
+            status = json.getString("status"),
+            guestOrderingMode = json.optString("guest_ordering_mode"),
+            guestOrderingBlocked = json.optBoolean("guest_ordering_blocked"),
+            activeOccupancy = active?.let { occupancy ->
+                TableOccupancy(
+                    id = occupancy.getString("id"),
+                    generation = occupancy.optInt("generation"),
+                    tabs = occupancy.getJSONArray("tabs").toObjects().map {
+                        TableOccupancyTab(it.getString("id"), it.optString("display_label", "Comanda sem nome"))
+                    },
+                )
+            },
+        )
+    }
 
     private fun JSONArray.toObjects(): List<JSONObject> = List(length()) { index -> getJSONObject(index) }
 

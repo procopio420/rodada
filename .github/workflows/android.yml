@@ -29,9 +29,11 @@ jobs:
           sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
 
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.6.0"
 
       - name: Unit tests
         working-directory: apps/attendance-android
-        run: gradle testDebugUnitTest --stacktrace
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Debug build
+        working-directory: apps/attendance-android
+        run: ./gradlew assembleDebug --stacktrace

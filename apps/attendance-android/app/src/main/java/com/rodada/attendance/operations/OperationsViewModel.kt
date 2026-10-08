@@ -19,6 +19,7 @@ data class OperationsUiState(
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
     val deliveryTasks: List<DeliveryTask> = emptyList(),
+    val tables: List<TableSummary> = emptyList(),
     val selectedTab: TabDetail? = null,
     val cart: List<CartLine> = emptyList(),
     val errorMessage: String? = null,
@@ -63,10 +64,11 @@ class OperationsViewModel(
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
                 val cashPoints = runCatching { repository.cashPoints(session) }.getOrDefault(emptyList())
+                val tables = runCatching { repository.tables(session) }.getOrDefault(emptyList())
                 val detail = state.selectedTab?.summary?.id?.let { id ->
                     runCatching { repository.tabDetail(session, id) }.getOrNull()
                 }
-                RefreshSnapshot(tabs, products, cashPoints, deliveries, detail)
+                RefreshSnapshot(tabs, products, cashPoints, deliveries, tables, detail)
             }.onSuccess { snapshot ->
                 state = state.copy(
                     loading = false,
@@ -74,6 +76,7 @@ class OperationsViewModel(
                     products = snapshot.products,
                     cashPoints = snapshot.cashPoints,
                     deliveryTasks = snapshot.deliveryTasks,
+                    tables = snapshot.tables,
                     selectedTab = snapshot.detail ?: state.selectedTab,
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
@@ -231,6 +234,31 @@ class OperationsViewModel(
         )
     }
 
+    fun occupyTable(session: StoredSession, tableId: String, tabId: String?) = tableAction(session) {
+        repository.occupyTable(session, tableId, tabId)
+        "Mesa ocupada."
+    }
+
+    fun attachTabToOccupancy(session: StoredSession, occupancyId: String, tabId: String) = tableAction(session) {
+        repository.attachTabToOccupancy(session, occupancyId, tabId)
+        "Comanda associada à ocupação."
+    }
+
+    fun releaseTable(session: StoredSession, tableId: String) = tableAction(session) {
+        repository.releaseTable(session, tableId)
+        "Mesa liberada para limpeza."
+    }
+
+    fun startTableCleaning(session: StoredSession, tableId: String) = tableAction(session) {
+        repository.startTableCleaning(session, tableId)
+        "Limpeza iniciada."
+    }
+
+    fun completeTableCleaning(session: StoredSession, tableId: String) = tableAction(session) {
+        repository.completeTableCleaning(session, tableId)
+        "Mesa disponível."
+    }
+
     fun dismissMessage() {
         state = state.copy(errorMessage = null, noticeMessage = null)
     }
@@ -253,6 +281,11 @@ class OperationsViewModel(
                     showFailure(it)
                 }
         }
+    }
+
+    private fun tableAction(session: StoredSession, block: suspend () -> String) = action {
+        val notice = block()
+        state = state.copy(tables = repository.tables(session), noticeMessage = notice)
     }
 
     private fun showFailure(error: Throwable, suffix: String = "") {
@@ -290,6 +323,7 @@ class OperationsViewModel(
         val products: List<Product>,
         val cashPoints: List<CashPoint>,
         val deliveryTasks: List<DeliveryTask>,
+        val tables: List<TableSummary>,
         val detail: TabDetail?,
     )
 }

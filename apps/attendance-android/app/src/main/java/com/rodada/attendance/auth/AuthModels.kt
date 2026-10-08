@@ -17,6 +17,7 @@ data class StoredSession(
     val role: String,
     val deviceId: String,
     val deviceTrustState: String,
+    val capabilities: Set<String> = emptySet(),
 ) {
     fun withTokens(next: AuthTokens): StoredSession = copy(tokens = next)
 }
@@ -38,6 +39,7 @@ data class MeSnapshot(
     val venueName: String,
     val role: String,
     val deviceTrustState: String,
+    val capabilities: Set<String> = emptySet(),
 )
 
 data class ReauthReceipt(

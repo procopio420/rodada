@@ -71,6 +71,24 @@ enum class PaymentMethod(val apiValue: String, val label: String) {
 
 data class CashPoint(val id: String, val label: String, val activeShiftId: String?)
 
+/** Physical context only: balances and payments continue to belong to each Tab. */
+data class TableSummary(
+    val id: String,
+    val label: String,
+    val status: String,
+    val guestOrderingMode: String,
+    val guestOrderingBlocked: Boolean,
+    val activeOccupancy: TableOccupancy?,
+)
+
+data class TableOccupancy(
+    val id: String,
+    val generation: Int,
+    val tabs: List<TableOccupancyTab>,
+)
+
+data class TableOccupancyTab(val id: String, val displayLabel: String)
+
 data class PaymentResult(
     val id: String,
     val method: String,

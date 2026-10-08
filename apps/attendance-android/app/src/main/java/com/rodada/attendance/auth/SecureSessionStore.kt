@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import org.json.JSONArray
 import org.json.JSONObject
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -30,6 +31,7 @@ class SecureSessionStore(context: Context) {
                 .put("role", session.role)
                 .put("device_id", session.deviceId)
                 .put("device_trust_state", session.deviceTrustState)
+                .put("capabilities", JSONArray(session.capabilities.toList()))
                 .toString()
 
         preferences.edit().putString(KEY_PAYLOAD, encrypt(json)).apply()
@@ -55,6 +57,9 @@ class SecureSessionStore(context: Context) {
                 role = json.getString("role"),
                 deviceId = json.getString("device_id"),
                 deviceTrustState = json.getString("device_trust_state"),
+                capabilities = json.optJSONArray("capabilities")?.let { capabilities ->
+                    buildSet { for (index in 0 until capabilities.length()) add(capabilities.getString(index)) }
+                }.orEmpty(),
             )
         } catch (_: Exception) {
             clear()

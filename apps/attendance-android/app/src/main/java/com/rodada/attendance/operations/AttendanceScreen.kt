@@ -43,6 +43,7 @@ fun AttendanceScreen(
     val state = viewModel.state
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
+    var showingTables by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
 
@@ -55,12 +56,27 @@ fun AttendanceScreen(
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
             when (val selected = state.selectedTab) {
-                null -> TabList(
-                    state = state,
-                    onOpenTab = { openingTab = true },
-                    onSelect = { viewModel.selectTab(session, it) },
-                    onCompleteDelivery = { viewModel.completeDelivery(session, it) },
-                )
+                null -> {
+                    FrontlineNavigation(showingTables = showingTables, onShowTables = { showingTables = it })
+                    if (showingTables) {
+                        TablesScreen(
+                            state = state,
+                            canManageTables = "table.manage" in session.capabilities,
+                            onOccupy = { tableId, tabId -> viewModel.occupyTable(session, tableId, tabId) },
+                            onAttachTab = { occupancyId, tabId -> viewModel.attachTabToOccupancy(session, occupancyId, tabId) },
+                            onRelease = { viewModel.releaseTable(session, it) },
+                            onStartCleaning = { viewModel.startTableCleaning(session, it) },
+                            onCompleteCleaning = { viewModel.completeTableCleaning(session, it) },
+                        )
+                    } else {
+                        TabList(
+                            state = state,
+                            onOpenTab = { openingTab = true },
+                            onSelect = { viewModel.selectTab(session, it) },
+                            onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                        )
+                    }
+                }
                 else -> TabWorkspace(
                     state = state,
                     tab = selected,
@@ -99,6 +115,22 @@ fun AttendanceScreen(
     }
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
+}
+
+@Composable
+private fun FrontlineNavigation(showingTables: Boolean, onShowTables: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (showingTables) {
+            OutlinedButton(onClick = { onShowTables(false) }, modifier = Modifier.weight(1f)) { Text("Comandas") }
+            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text("Mesas") }
+        } else {
+            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text("Comandas") }
+            OutlinedButton(onClick = { onShowTables(true) }, modifier = Modifier.weight(1f)) { Text("Mesas") }
+        }
+    }
 }
 
 @Composable

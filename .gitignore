@@ -12,6 +12,7 @@ dist/
 build/
 .DS_Store
 .gradle/
+.kotlin/
 local.properties
 .idea/
 *.iml

@@ -45,6 +45,7 @@ class AuthHttpClient(baseUrl: String) {
         val venue = response.getJSONObject("venue")
         val membership = response.getJSONObject("membership")
         val device = response.optJSONObject("device")
+        val capabilities = response.optJSONArray("capabilities")
 
         return MeSnapshot(
             staffId = staff.getString("id"),
@@ -54,6 +55,9 @@ class AuthHttpClient(baseUrl: String) {
             venueName = venue.getString("name"),
             role = membership.getString("role"),
             deviceTrustState = device?.optString("trust_state").orEmpty(),
+            capabilities = capabilities?.let { json ->
+                buildSet { for (index in 0 until json.length()) add(json.getString(index)) }
+            }.orEmpty(),
         )
     }
 
@@ -142,6 +146,9 @@ class AuthHttpClient(baseUrl: String) {
             role = response.getString("role"),
             deviceId = device.getString("id"),
             deviceTrustState = device.getString("trust_state"),
+            capabilities = response.optJSONArray("capabilities")?.let { json ->
+                buildSet { for (index in 0 until json.length()) add(json.getString(index)) }
+            }.orEmpty(),
         )
     }
 
