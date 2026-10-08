@@ -8,6 +8,9 @@
 - [x] Staff consegue iniciar **Pagar** diretamente da Tab.
 - [ ] No happy path integrado, valor não é digitado novamente em outra maquininha.
 - [x] Rodada Atendimento executa o fluxo operacional em app Android nativo Kotlin + Jetpack Compose.
+- [ ] Staff com membership ativa consegue operar pedidos em celular BYOD UNTRUSTED sem aprovação administrativa do aparelho.
+- [ ] Celular sem NFC ou não provisionado pelo PSP continua com comandas e pedidos, além dos fallbacks de pagamento autorizados.
+- [ ] Habilitação/homologação de Tap on Phone pelo PSP é verificada separadamente de login e DeviceRegistration do Rodada.
 - [ ] Device compatível oferece Tap on Phone sem acoplar o domínio a uma marca.
 - [ ] Paytime é o primeiro adapter real de Tap on Phone do MVP.
 - [ ] Cobrança Tap on Phone acontece dentro do Rodada Atendimento, sem abrir aplicativo externo no happy path.
