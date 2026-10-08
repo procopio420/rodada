@@ -7,13 +7,30 @@ from modules.access.permissions import RequireCapability
 from modules.audit.services import record_audit_event
 from modules.catalog.models import AvailabilityState, ProductAvailability
 from modules.catalog.queries import catalog_for_venue
+from modules.catalog.models import normalize_product_name
+from modules.catalog.services import ResolveProductInput, product_payload, resolve_or_create_product
 
 
 class ProductListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"results": [{"id": str(product.id), "name": product.name, "price_cents": product.price_cents, "active": product.active, "fulfillment_station": product.fulfillment_station, "availability": product.availability.state} for product in catalog_for_venue(venue_id=request.auth.venue_id)]})
+        products = catalog_for_venue(venue_id=request.auth.venue_id, include_inactive=request.query_params.get("include_inactive") == "true").select_related("icon")
+        query = normalize_product_name(request.query_params.get("q", ""))
+        if query:
+            products = products.filter(normalized_name__contains=query)
+        return Response({"results": [product_payload(product) for product in products]})
+
+
+class ProductResolveView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.CATALOG_PRODUCT_CREATE
+
+    def post(self, request):
+        data = ResolveProductInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        product, created = resolve_or_create_product(actor=request.actor_context, **data.validated_data)
+        return Response({"product": product_payload(product), "created": created}, status=201 if created else 200)
 
 
 class ProductAvailabilityView(APIView):

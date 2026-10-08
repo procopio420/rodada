@@ -55,6 +55,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
         if creating:
             ProductAvailability.objects.get_or_create(product=self)
+            ProductIcon.objects.get_or_create(product=self)
 
     def __str__(self) -> str:
         return self.name
@@ -87,3 +88,15 @@ class ProductAvailability(models.Model):
         indexes = [
             models.Index(fields=("state", "changed_at"), name="catalog_avail_state_idx"),
         ]
+
+
+class ProductIcon(models.Model):
+    """Stable identity; no configured generator means an honest reusable fallback."""
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True, related_name="icon")
+    source = models.CharField(max_length=24, default="NONE")
+    status = models.CharField(max_length=16, default="FAILED")
+    published_asset_url = models.URLField(blank=True)
+    style_version = models.CharField(max_length=40, default="rodada-icon-v1")
+    error_code = models.CharField(max_length=80, default="GENERATOR_NOT_CONFIGURED")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
