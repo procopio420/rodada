@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Sistema Rodada</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../fonts.css">
+<style>
+body{margin:0;background:#120F0C}
+.ds button{font-family:inherit}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.sh{margin:0 0 6px;font-size:15px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#F5A524}
+.h2{margin:0;font-size:52px;line-height:.95;font-weight:900;font-stretch:66%;text-transform:uppercase}
+.lead{margin:10px 0 0;font-size:18px;line-height:1.5;color:#BBAE9B;max-width:760px}
+.sec{padding:56px 0;border-top:1px solid #3A3228;display:flex;flex-direction:column;gap:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
+.sw{display:flex;flex-direction:column;gap:10px}
+.chipc{height:96px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.sw b{font-size:20px;font-weight:800}
+.sw span{font-size:15px;color:#BBAE9B;line-height:1.45}
+.sw code{font-family:'JetBrains Mono',monospace;font-size:14px;color:#A39686}
+.row{display:grid;grid-template-columns:80px minmax(0,1fr) 104px;border-bottom:1px solid #3A3228;min-height:112px;background:#120F0C}
+.age{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-right:1px solid #3A3228}
+.age .k{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.age .t{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:22px}
+.rb{padding:12px 6px 12px 14px;display:flex;flex-direction:column;justify-content:center;gap:5px}
+.pl{font-size:30px;line-height:1;font-weight:850;font-stretch:76%}
+.pl span{color:#BBAE9B;font-weight:700}
+.wh{font-size:18px;font-weight:650}
+.nm{font-size:15px;color:#BBAE9B;display:flex;gap:6px;align-items:center}
+.ra{display:flex;align-items:center;padding-right:12px}
+.btn{border:0;border-radius:8px;height:56px;padding:0 16px;background:#F3ECE1;color:#17130F;font-size:18px;font-weight:850;font-stretch:84%;letter-spacing:.06em;text-transform:uppercase;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);white-space:nowrap}
+.btn.s2{background:#252019;color:#F3ECE1;box-shadow:inset 0 0 0 1.5px #4D4335,inset 0 -4px 0 rgba(0,0,0,.3)}
+.ramp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:0;border:1px solid #3A3228;border-radius:8px;overflow:hidden}
+.ramp div{padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px;justify-content:space-between}
+.ramp .t{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:800}
+.ramp span{font-size:15px;font-weight:700}
+.ty{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:24px;align-items:baseline;padding:16px 0;border-bottom:1px solid #3A3228}
+.ty .m{font-size:15px;color:#A39686;line-height:1.5}
+.ty .m b{display:block;color:#F3ECE1;font-size:17px}
+.panel{background:#1B1713;border-radius:12px;padding:24px;box-shadow:inset 0 0 0 1px #3A3228;display:flex;flex-direction:column;gap:16px}
+.panel h4{margin:0;font-size:14px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#A39686}
+.casa{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:4px;background:#4A2617;color:#F2CFA4;font-size:14px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.rel{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:4px;box-shadow:inset 0 0 0 1.5px #4D4335;color:#BBAE9B;font-size:14px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.rule{font-size:16px;line-height:1.5;color:#BBAE9B}
+.rule b{color:#F3ECE1}
+</style>
+</helmet>
+<div class="ds" style="background: #120F0C; color: #F3ECE1; font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif; padding: 72px 40px 96px">
+<div style="max-width: 1280px; margin: 0 auto">
+
+  <header style="display: flex; flex-direction: column; gap: 18px; padding-bottom: 56px">
+    <div style="display: flex; align-items: center; gap: 14px"><span style="width: 44px; height: 44px; border-radius: 50%; background: #F5A524; box-shadow: inset 0 0 0 7px #B9740C, inset 0 0 0 11px #F5A524"></span><b style="font-size: 56px; font-weight: 900; letter-spacing: -0.03em; font-stretch: 88%">rodada</b></div>
+    <h1 style="margin: 0; font-size: 88px; line-height: .9; font-weight: 900; font-stretch: 64%; text-transform: uppercase; max-width: 1000px">O painel de controle de um bar lotado</h1>
+    <p class="lead">Um sistema pequeno de propósito. Fundo de bar à noite, papel creme para o que se toca, âmbar de lâmpada para o que pede atenção. Cor só aparece quando quer dizer alguma coisa.</p>
+  </header>
+
+  <!-- COLOR -->
+  <section class="sec">
+    <div><p class="sh">01 · Cor</p><h2 class="h2">Fundo quente, sinais com significado</h2><p class="lead">Seis sinais, cada um com um trabalho só. Eles também diferem em claridade, não só em matiz, para funcionar com daltonismo e sob luz ruim.</p></div>
+    <div class="grid">
+      <div class="sw"><div class="chipc" style="background: #120F0C"></div><b>Chão</b><code>#120F0C · #1B1713 · #252019 · #312A21</code><span>Quatro degraus de superfície. Nada é preto puro.</span></div>
+      <div class="sw"><div class="chipc" style="background: #F3ECE1"></div><b>Papel</b><code>#F3ECE1</code><span>Texto e botão principal. O que você toca é claro como uma comanda.</span></div>
+      <div class="sw"><div class="chipc" style="background: #93DB8C"></div><b>Pronto · ok</b><code>#93DB8C</code><span>Está pronto, foi entregue, foi pago.</span></div>
+      <div class="sw"><div class="chipc" style="background: #F5A524"></div><b>Atenção</b><code>#F5A524</code><span>Alguém chamou, está demorando, algo novo chegou. Também é a marca.</span></div>
+      <div class="sw"><div class="chipc" style="background: #FF5D47"></div><b>Atrasado</b><code>#FF5D47</code><span>Passou do tempo ou está travado. Sempre um bloco cheio, nunca só texto.</span></div>
+      <div class="sw"><div class="chipc" style="background: #C3A6FF"></div><b>Dinheiro</b><code>#C3A6FF</code><span>Quer pagar, perto do limite. Separado de "atrasado" de propósito.</span></div>
+      <div class="sw"><div class="chipc" style="background: #82B8FF"></div><b>Em andamento</b><code>#82B8FF</code><span>Alguém pegou. Azul = já tem dono, não vá junto.</span></div>
+      <div class="sw"><div class="chipc" style="background: #4A2617; display: flex; align-items: center; justify-content: center"><span class="casa">Da Casa</span></div><b>Da Casa</b><code>#4A2617 · #F2CFA4</code><span>Relação, não alerta. Cor de madeira de balcão, nunca vermelho.</span></div>
+    </div>
+  </section>
+
+  <!-- URGENCY -->
+  <section class="sec">
+    <div><p class="sh">02 · Tempo</p><h2 class="h2">A idade é o sinal mais alto da tela</h2><p class="lead">Toda tarefa carrega um relógio à esquerda. A coluna esquenta aos poucos: o olho vai sozinho para o que está esperando há mais tempo.</p></div>
+    <div class="ramp">
+      <div style="background: #1B1713; color: #BBAE9B"><span class="t">0:48</span><span>Novo · neutro</span></div>
+      <div style="background: #3A2A10; color: #F5A524"><span class="t">2:20</span><span>Pronto há 2 min</span></div>
+      <div style="background: #F5A524; color: #17130F"><span class="t">4:10</span><span>Pronto há 4 min</span></div>
+      <div style="background: #FF5D47; color: #17130F"><span class="t">5:18</span><span>Atrasado · 5 min</span></div>
+      <div style="background: #FF5D47; color: #17130F; box-shadow: inset 0 0 0 4px #FFB3A8"><span class="t">8:12</span><span>8 min · pulsa devagar</span></div>
+    </div>
+    <p class="rule"><b>Chamou atendimento</b> esquenta duas vezes mais rápido (1 e 2 min). <b>Perto do limite</b> não esquenta — dinheiro não é emergência.</p>
+  </section>
+
+  <!-- TYPE -->
+  <section class="sec">
+    <div><p class="sh">03 · Tipo</p><h2 class="h2">Estreito para ler de longe, mono para o relógio</h2><p class="lead">Archivo em largura variável: condensada para nomes e lugares, normal para corpo. JetBrains Mono só para tempo, quantidade e código de lugar — os números não pulam quando mudam. Nada abaixo de 14 px.</p></div>
+    <div>
+      <div class="ty"><div class="m"><b>Tela</b>Archivo 900 · 46 · largura 68</div><div style="font-size: 46px; line-height: .9; font-weight: 900; font-stretch: 68%; text-transform: uppercase">Agora</div></div>
+      <div class="ty"><div class="m"><b>Nome</b>Archivo 900 · 40 · largura 68</div><div style="font-size: 40px; line-height: .92; font-weight: 900; font-stretch: 68%; text-transform: uppercase">João da Oficina</div></div>
+      <div class="ty"><div class="m"><b>Lugar</b>Archivo 850 · 30 · largura 76</div><div style="font-size: 30px; font-weight: 850; font-stretch: 76%">P37 <span style="color: #BBAE9B; font-weight: 700">· Rua</span></div></div>
+      <div class="ty"><div class="m"><b>Dinheiro</b>Archivo 800 · 58 · tabular</div><div style="display: flex; align-items: baseline; gap: 6px; font-weight: 800; font-variant-numeric: tabular-nums"><span style="font-size: 22px; color: #BBAE9B">R$</span><span style="font-size: 58px; line-height: .85">420</span><span style="font-size: 15px; color: #BBAE9B; letter-spacing: .1em; text-transform: uppercase; margin-left: 4px">aberto</span></div></div>
+      <div class="ty"><div class="m"><b>Relógio</b>JetBrains Mono 800 · 22–28</div><div class="mono" style="font-size: 28px; font-weight: 800">3:42 · P37 · ×4</div></div>
+      <div class="ty"><div class="m"><b>Corpo</b>Archivo 600 · 18</div><div style="font-size: 18px; font-weight: 600">4 Brahma prontas</div></div>
+      <div class="ty"><div class="m"><b>Rótulo</b>Archivo 800 · 14 · caixa alta · +0,1em</div><div style="font-size: 14px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #A39686">Com a equipe</div></div>
+    </div>
+  </section>
+
+  <!-- SPACE & TOUCH -->
+  <section class="sec">
+    <div><p class="sh">04 · Espaço e toque</p><h2 class="h2">Denso na informação, largo nas ações</h2></div>
+    <div class="grid">
+      <div class="panel"><h4>Escala</h4><div style="display: flex; align-items: flex-end; gap: 10px"><span style="width: 4px; height: 4px; background: #F5A524"></span><span style="width: 8px; height: 8px; background: #F5A524"></span><span style="width: 12px; height: 12px; background: #F5A524"></span><span style="width: 16px; height: 16px; background: #F5A524"></span><span style="width: 20px; height: 20px; background: #F5A524"></span><span style="width: 24px; height: 24px; background: #F5A524"></span><span style="width: 32px; height: 32px; background: #F5A524"></span></div><span class="rule">4 · 8 · 12 · 16 · 20 · 24 · 32. Margem lateral do celular: 20.</span></div>
+      <div class="panel"><h4>Alvos</h4><span class="rule"><b>56</b> ação de linha · <b>68</b> ação principal · <b>112</b> ENTREGUE na rodada. Nunca menos de 44.</span></div>
+      <div class="panel"><h4>Superfícies</h4><span class="rule">Linhas separadas por fio, não cartões. Cartão só para o que flutua: sugestão de rodada, folhas e contadores do pico. Cantos 8 em botões, 0 em listas.</span></div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="sec">
+    <div><p class="sh">05 · Peças</p><h2 class="h2">Doze peças fazem o produto inteiro</h2></div>
+    <div class="grid">
+      <div class="panel"><h4>Botões</h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="btn">Pegar</button><button class="btn s2">Mover</button><button class="btn" style="background: #82B8FF">Montar · 3</button><button class="btn" style="background: #93DB8C">Entregue</button><button class="btn" style="background: #C3A6FF">Cobrar</button></div>
+        <span class="rule">Papel = faça agora. Escuro = secundário. Cor no botão só quando ela já é o significado da linha. A base mais escura dá sensação de tecla.</span></div>
+      <div class="panel"><h4>Relacionamento</h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center"><span class="casa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</span><span class="rel">Regular</span><span class="rel">Conhecido</span><span class="rel" style="box-shadow: inset 0 0 0 1.5px #C3A6FF; color: #C3A6FF">Paga na hora</span><span style="font-size: 15px; color: #A39686">Visitante: sem selo</span></div>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; font-size: 16px; color: #BBAE9B"><span>Visitante</span><b style="color: #F3ECE1">R$ 30</b><span>Conhecido</span><b style="color: #F3ECE1">R$ 80</b><span>Regular</span><b style="color: #F3ECE1">R$ 200</b><span>Da Casa</span><b style="color: #F3ECE1">R$ 500</b><span>Paga na hora</span><b style="color: #F3ECE1">R$ 0</b></div>
+        <span class="rule">Limite herdado ao abrir a conta. "Paga na hora" é como o RESTRICTED aparece para a equipe — nunca "bloqueado" ou "risco". Na fila, Da Casa vira só a casinha ao lado do nome.</span></div>
+      <div class="panel"><h4>Dinheiro e limite</h4>
+        <div style="display: flex; align-items: baseline; gap: 6px; font-weight: 800"><span style="font-size: 20px; color: #BBAE9B">R$</span><span style="font-size: 48px; line-height: .85">420</span><span style="margin-left: auto; font-size: 14px; color: #BBAE9B; letter-spacing: .08em; text-transform: uppercase">limite R$ 500</span></div>
+        <div style="height: 14px; border-radius: 3px; background: #312A21; display: flex; overflow: hidden"><span style="width: 84%; background: #C3A6FF"></span></div>
+        <span style="font-size: 18px; font-weight: 750; color: #C3A6FF">Faltam R$ 80 para o limite</span>
+        <span class="rule">Aberto = consumo confirmado − pagamentos. No limite a conta pede ação: receber antes ou um gerente libera — com nome, valor antes/depois e hora na trilha. Sem nota, sem risco, sem score.</span></div>
+    </div>
+    <div class="panel" style="padding: 0; overflow: hidden">
+      <div class="row"><div class="age" style="color: #93DB8C; background: #1B1713"><span class="k">Pronto</span><span class="t" style="color: #BBAE9B">1:38</span></div><div class="rb"><div class="pl">P41 <span>· Rua</span></div><div class="wh">2 Heineken</div><div class="nm">Carlos Mecânico <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2CFA4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg></div></div><div class="ra"><button class="btn" style="width: 100%">Pegar</button></div></div>
+      <div class="row" style="background: #15253B"><div class="age" style="color: #BBAE9B"><span class="k" style="color: #93DB8C">Pronto</span><span class="t">0:40</span></div><div class="rb"><div class="pl">P37 <span>· Rua</span></div><div class="wh">4 Brahma</div><div class="nm">João da Oficina</div></div><div class="ra" style="flex-direction: column; justify-content: center; gap: 6px"><button class="btn" style="width: 100%; background: #82B8FF">Levar</button><span style="font-size: 14px; color: #82B8FF; font-weight: 700">✓ confirmado</span></div></div>
+      <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 0 20px; min-height: 56px; color: #BBAE9B; font-size: 16px"><span class="mono" style="font-weight: 700">1:10</span><span><b style="color: #F3ECE1">P29</b> · 3 Caipirinha</span><span style="display: flex; align-items: center; gap: 6px; color: #82B8FF; font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase"><span style="width: 28px; height: 28px; border-radius: 50%; background: #82B8FF; color: #17130F; display: flex; align-items: center; justify-content: center">C</span>Carlos</span></div>
+    </div>
+    <p class="rule"><b>Linha de tarefa</b> em três estados: livre (botão papel), sua (fundo azul, botão muda de verbo) e da equipe (uma linha só, apagada, com o nome de quem pegou). Ninguém precisa perguntar "alguém já levou?".</p>
+  </section>
+
+  <!-- STATES -->
+  <section class="sec">
+    <div><p class="sh">06 · Estados</p><h2 class="h2">Nada trava o atendimento</h2></div>
+    <div class="grid">
+      <div class="panel"><h4>Sem sinal</h4><div style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #312A21; border-radius: 6px; font-size: 15px"><b style="color: #F5A524">Sem sinal</b>3 ações aguardando envio</div><span class="rule">Faixa fina, não tela de erro. Tudo continua; o que não foi aparece como <b style="color: #F5A524">na fila</b>.</span></div>
+      <div class="panel"><h4>Sincronizado</h4><div style="height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #16301A; color: #93DB8C; border-radius: 6px; font-size: 15px"><b>Sincronizado</b>tudo foi enviado</div><span class="rule">Aparece por 3 segundos quando o sinal volta e some sozinho.</span></div>
+      <div class="panel"><h4>Não foi</h4><div style="height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 6px 0 14px; background: #3D1712; color: #FFB3A8; border-radius: 6px; font-size: 15px"><span><b>Bar não recebeu</b> · P37</span><button class="btn" style="height: 32px; font-size: 14px; padding: 0 10px">Tentar</button></div><span class="rule">Só quando o servidor recusa. Diz o que falhou e oferece uma ação.</span></div>
+      <div class="panel"><h4>Vazio</h4><div style="text-align: center; padding: 8px 0"><b style="font-size: 26px; font-stretch: 80%; font-weight: 850">Tudo em dia</b><div style="color: #BBAE9B; margin-top: 4px">Ninguém esperando por você agora.</div></div><span class="rule">Vazio é bom notícia; dizemos isso em uma linha.</span></div>
+    </div>
+  </section>
+
+  <!-- IMAGERY -->
+  <section class="sec">
+    <div><p class="sh">07 · Ícones e imagens</p><h2 class="h2">Desenhado para o bar, não tirado de banco de imagem</h2><p class="lead">Ícones de traço 2,2 px, cantos redondos, sempre ao lado de uma palavra — nunca sozinhos num botão que importa. Ilustrações chapadas nas cores da casa: produtos sem marca registrada, retratos no lugar das fotos até o bar ter as reais.</p></div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(110px, 100%), 1fr)); gap: 10px"><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9.5 2.5h5"></path></svg>Agora</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18.5 14.5a6.5 6.5 0 0 1 3 5.5"></path></svg>Contas</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>Pedir</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>Buscar</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.8 2.8L16.5 9.5"></path></svg>Pronto</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg>Chamou</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>Dinheiro</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1"></rect><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 19h1M19.5 14v2"></path></svg>Pix</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"></rect><path d="M2.5 10h19M6 15h4"></path></svg>Cartão</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>Lugar</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.2"></circle><circle cx="18" cy="5" r="2.2"></circle><path d="M8.2 19h8.3a3.5 3.5 0 0 0 0-7h-9a3.5 3.5 0 0 1 0-7H15.8"></path></svg>Rodada</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Fechar</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h10v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"></path><path d="M15 11h2.5a2.5 2.5 0 0 1 0 5H15"></path><path d="M5 8c0-2.5 1.5-4 4-4 1 0 1.5.5 2 1 .5-.5 1.5-1 2.5-1 1.5 0 2 1.5 1.5 4"></path></svg>Bar</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z"></path></svg>Cozinha</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>Pico</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M8.5 16.4a5 5 0 0 1 7 0"></path><path d="M5 12.6a10 10 0 0 1 4.3-2.4"></path><path d="M19 12.6a10 10 0 0 0-2.6-1.8"></path><path d="M12 20h.01"></path></svg>Sem sinal</div><div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 16px 8px; background: #1B1713; border-radius: 8px; box-shadow: inset 0 0 0 1px #3A3228; font-size: 14px; font-weight: 700; color: #BBAE9B"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F3ECE1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 4v5h-5"></path></svg>Na fila</div></div>
+    <div class="panel"><h4>Produtos · tiles do Pedir, lista da conta, lote do Bar</h4><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(96px, 100%), 1fr)); gap: 16px"><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/79bc3499c17dd7e97ec7dede3be27064.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Brahma 600</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/613ae5d0e5e09693aae169934b7733bd.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Original 600</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/455633b3820dce97baf3f0ed53e9e36c.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Heineken 600</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/4a475e1753a0fa1728c530b141d33673.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Caipirinha</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/74144d23a9c81fd7765e2bf13493db9f.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Dose</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/8e73c10d2aeb988382c5efa276f9452f.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Coca lata</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/fb7922d25a03026482c8fd320a511fd2.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Guaraná</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/2d80f66be0c4840f19b91dec3ff83973.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Água</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/c74be2bf7ae8d32da5f77ec39f311a18.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Fritas</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/431ed6655f8c54cccf2eea5b7faf92ca.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Calabresa</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/1e9830bdd3cf72f57dc17c0bd356214f.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Bolinho</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/73ba944a476ce094605977a1b0205ec9.svg" alt="" style="width: 64px; height: 80px; object-fit: contain">Torresmo</div></div></div>
+    <div class="panel"><h4>Pessoas · anel azul = equipe</h4><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(110px, 100%), 1fr)); gap: 16px"><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/624b89158eeb8ff63f5da114a1ff41e6.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #82B8FF">Dani · equipe</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/da647361752c6e97c88066964a7f7259.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #82B8FF">Carlos · equipe</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #82B8FF">Rê · equipe</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/4abc79c894255d9789137207c31a5c48.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #82B8FF">Aderlan · gerente</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/96e215812a1b3ea02b223e6d6c3668cd.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">João da Oficina</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/80a30e1a3c4171ef83cdecc7f238af50.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">Dona Cida</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">Carlos Mecânico</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/a5621f6e42a924061406ba5edcf2e0df.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">Juninho</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/d10e0813adca92638a2d61b5c8091ba6.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">Bia</div><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #BBAE9B"><img src="./assets/5eeb028ca51cb9caedd9e8647ff87e15.svg" alt="" style="width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #4D4335">Seu Zé</div></div><span class="rule">Rosto ajuda a achar o regular mais rápido que o nome. Sem foto, a inicial no mesmo círculo.</span></div>
+    <div class="panel"><h4>Planta do bar · escolher lugar e traçar a rodada</h4><img src="./assets/629a684aef42620febf07d65568ee00d.svg" alt="Planta do Bar do Aderlan" style="width: 100%; max-width: 720px; border-radius: 10px"><span class="rule">Bar principal e Imóvel 2 em cima, calçada no meio, rua embaixo — como o garçom anda. O balcão é a saída de toda rodada.</span></div>
+  </section>
+
+  <!-- MOTION -->
+  <section class="sec">
+    <div><p class="sh">08 · Movimento</p><h2 class="h2">Só quando o estado muda</h2></div>
+    <div class="grid">
+      <div class="panel"><h4>Pegou</h4><span class="rule">A linha pisca azul e sobe para "Com você". Embaixo: <b>enviando…</b> → <b>✓ confirmado</b>.</span></div>
+      <div class="panel"><h4>Enviou</h4><span class="rule">Folha mostra Bar e Cozinha recebendo, um por um. Fecha sozinha.</span></div>
+      <div class="panel"><h4>Chegou no Bar</h4><span class="rule">O número do lote pula e fica âmbar; o pedido entra com etiqueta NOVO.</span></div>
+      <div class="panel"><h4>Pagou</h4><span class="rule">Círculo verde cresce uma vez. A barra do limite desce em meio segundo.</span></div>
+    </div>
+  </section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":5200}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

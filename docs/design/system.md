@@ -35,7 +35,7 @@ Use tokens semânticos; não use hex diretamente em componentes de produto.
 | `--color-border` | divisores e bordas |
 | `--color-text` | texto principal |
 | `--color-text-muted` | metadado/apoio |
-| `--color-accent` | ação primária, seleção e marca Rodada |
+| `--color-accent` | seleção, trabalho pendente e marca Rodada |
 | `--color-success` | disponível, pronto, confirmado |
 | `--color-danger` | indisponível, erro, bloqueio, atraso crítico |
 | `--color-info` | informação, claim/ownership e estado neutro ativo |
@@ -55,13 +55,21 @@ Não reutilizar `success` para “da casa” ou `danger` para decoração.
 
 ## Tipografia
 
-Fonte de sistema é aceitável no protótipo e no MVP. Prioridades:
+Archivo variável (peso 400–900, largura 62–125%) é a fonte do produto. JetBrains Mono é usada para quantidades, tempos e valores. Ambas são locais e licenciadas sob OFL. Prioridades:
 
 - títulos curtos e pesados;
 - números financeiros com peso forte e `font-variant-numeric: tabular-nums`;
 - metadados em caixa alta apenas quando funcionarem como label operacional;
 - corpo nunca menor que 14 px em informação importante;
 - evitar blocos longos de texto em telas operacionais.
+
+### Referência aprovada em 08/10/2026
+
+Os cinco HTMLs fornecidos pelo usuário estão preservados em `prototype/material-reference`; a spec 022 adota sua identidade. Tokens canônicos: fundo `#120F0C`, estação `#0A0806`, passe `#100D0A`, superfícies `#1B1713 / #252019 / #312A21`, bordas `#3A3228 / #4D4335`, papel `#F3ECE1`, apoio `#BBAE9B`, sutil `#A39686`, ink `#17130F`, âmbar `#F5A524`, success `#93DB8C`, danger `#FF5D47`, info `#82B8FF`, financeiro `#C3A6FF`.
+
+Button primário usa papel/ink, altura 56px, raio 8px, Archivo 18px/850 com largura 84%, uppercase e tracking .06em; sombra interna inferior de 4px a 20%. Seleção continua âmbar. Badge e chip usam raio 4px. Painéis usam raio 12px; filas usam divisórias e não cards individuais. Cabeçalho operacional desktop usa 72px. Títulos de estação usam 38px/900 e largura 66%; pratos 44px/900 e largura 64%; quantidades 52px/800 mono. Mobile reduz títulos quando necessário, preservando nomes completos e alvos 44px.
+
+Contadores financeiros nunca recebem a cor de atraso apenas por representar dinheiro. A identidade visual não autoriza inventar SLA, responsável, equipamento, cliente ou sucesso de sincronização.
 
 Escala base:
 
