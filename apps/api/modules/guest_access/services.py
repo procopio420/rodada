@@ -93,7 +93,11 @@ def resolve_table_qr(*, public_token: str, existing_session_token: str = "") -> 
     if existing_session_token:
         session = (
             GuestSession.objects.select_for_update()
-            .select_related("table", "occupancy")
+            # `occupancy` is nullable. PostgreSQL rejects FOR UPDATE on the
+            # nullable side of the outer join introduced by select_related.
+            # The session itself is the row we must serialize here; load an
+            # optional occupancy lazily when it is actually needed.
+            .select_related("table")
             .filter(token_digest=_token_digest(existing_session_token))
             .first()
         )
@@ -138,7 +142,11 @@ def _locked_authorized_session(
         raise GuestAccessError("GUEST_SESSION_REQUIRED", "Sessão guest obrigatória.", 401)
     session = (
         GuestSession.objects.select_for_update()
-        .select_related("table", "occupancy", "tab")
+        # GuestSession is the lock boundary. Both occupancy and tab are
+        # nullable, so joining them would make PostgreSQL attempt to lock an
+        # outer-join nullable relation.  Resolving those optional relations
+        # below preserves the lock and works on PostgreSQL and SQLite.
+        .select_related("table")
         .filter(token_digest=_token_digest(token))
         .first()
     )
