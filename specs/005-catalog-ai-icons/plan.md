@@ -47,3 +47,7 @@ Consumir o mesmo asset publicado em Staff, Bar/Cozinha e Guest.
 ## Slice 7 — Hardening
 
 Rate limit, idempotência de request de geração, upload validation, testes de fallback e telemetria de custo/erro.
+
+## Integração com main
+
+Preservar a migração 0002 já publicada e a identidade ProductIcon por Product. Acrescentar geração/revisões com migrações sequenciais; normalizar nomes antigos com bloqueio explícito de colisões. Manter o endpoint legado autorizado e filtros de busca. Validar upgrade com asset existente, criação concorrente, fluxos web e acessibilidade.

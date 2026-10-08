@@ -56,3 +56,8 @@ Do not silently migrate historical Orders/Payments.
 ## Dependencies first
 
 Specs 001, 004, 006 and 008 authorization. Spec 011 must define how adjusted lines report transferability before broad rollout of discounted-item moves.
+
+## Execution
+Dedicated `tab_operations` module, transfer lines as balanced responsibility facts, narrow
+ledger totals and correction guard integrations, authenticated preview/commit API and native
+Attendance operation sheet. Preserve existing transport; AuditEvent is the durable event contract.

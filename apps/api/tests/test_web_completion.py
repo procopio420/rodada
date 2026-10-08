@@ -28,12 +28,12 @@ class WebCompletionTests(HouseFixture, TestCase):
         assert replay["product"]["id"] == created["product"]["id"]
         assert replay["product"]["price_cents"] == 1800
         assert Product.objects.filter(normalized_name="omelete especial").count() == 1
-        assert ProductIcon.objects.get(product_id=created["product"]["id"]).error_code == "GENERATOR_NOT_CONFIGURED"
+        assert ProductIcon.objects.get(product_id=created["product"]["id"]).generations.filter(status="PENDING").count() == 1
         assert AuditEvent.objects.filter(event_type="catalog.product_created").count() == 1
         for invalid in [{"price_cents": -1}, {"price_cents": 1.5}, {"name": " "}, {"fulfillment_station": "OTHER"}, {"name": "ß" * 160}]:
             self.post(self.manager, "/catalog/products/resolve/", {**body, **invalid}, status=400)
         found = self.manager.get("/catalog/products/?q=omelete").json()["results"]
-        assert len(found) == 1 and found[0]["icon"]["status"] == "FAILED"
+        assert len(found) == 1 and found[0]["icon"]["status"] == "GENERATING"
         other = Venue.objects.create(name="Other", slug="other-web-completion")
         Product.objects.create(venue=other, name="Omelete outro", price_cents=100, fulfillment_station="BAR")
         assert len(self.manager.get("/catalog/products/?q=omelete").json()["results"]) == 1

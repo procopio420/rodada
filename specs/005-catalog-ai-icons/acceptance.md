@@ -26,3 +26,7 @@
 - [ ] Nenhum dado de Customer/Tab/Order é enviado ao gerador.
 - [ ] Geração possui rate limit, idempotência e deduplicação por conteúdo relevante + style version.
 - [ ] Fuzzy match nunca mescla dois Products automaticamente.
+
+## Upgrade de main
+
+Ao migrar um catálogo com ProductIcon existente e asset publicado, preservar chave, asset e estado; acrescentar geração/revisões sem duplicar o ícone. O alias `catalog/products/resolve/` mantém autorização server-side e reutiliza correspondência exata. Busca `q` e `include_inactive` continuam disponíveis.

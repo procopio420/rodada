@@ -39,7 +39,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;
     } else if (url.pathname.startsWith("/api/auth/invalidation-events")) body = { cursor: 0, results: [] };
-    else if (url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
+    else if (url.pathname === "/api/pos/catalog/suggestions/" || url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
     else if (url.pathname.startsWith("/api/pos/production/")) body = { results: items };
     else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail], next_offset: null };
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;

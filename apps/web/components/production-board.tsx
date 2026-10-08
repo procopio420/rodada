@@ -5,6 +5,7 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
 
+
 type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
 type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
