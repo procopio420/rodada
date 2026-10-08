@@ -14,4 +14,4 @@
 - [ ] Confirm GitHub checks on the final commit (recorded in PR delivery).
 - [ ] Merge only after verified checks and a fresh head/main comparison.
 
-Delivery is blocked: Git push and connector PR update returned HTTP 403 for connected identity `evgrotz`. Grant write access to `procopio420/rodada` or connect an authorized account before pushing and checking CI. Local commits are preserved; remote PR #40 remains unchanged and unmerged.
+The initial HTTP 403 delivery blocker was resolved: normal Git push succeeded on retry. Web/API CI and the final merge result are recorded in the PR delivery; the gates above remain pending until verified on the final pushed head.

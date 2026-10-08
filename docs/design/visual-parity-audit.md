@@ -71,6 +71,6 @@ Web CI runs typecheck, build, all visual gates and real PostgreSQL integration, 
 
 Future equivalent full-screen references should receive strict image gates. Update prototype and Web tokens together and keep fixtures separate from real integration evidence.
 
-## Delivery blocker
+## Delivery status
 
-The connected Git/connector identity is `evgrotz`. Git push to `procopio420/rodada` returned HTTP 403 (write permission denied); updating PR metadata through the GitHub connector also returned 403. Local commits are preserved, but the remote PR has not received them. CI on the completed branch and merge are therefore unverified and blocked. Grant repository write access or connect an authorized account, then push `feat/web-pixel-perfect`, check the exact resulting head and merge only after green checks. No merge SHA or deployment is claimed.
+The first delivery attempt returned HTTP 403 for Git push and connector metadata updates. The normal Git push succeeded on retry after access was resolved. The completed work is now on `feat/web-pixel-perfect`, with Web and API CI triggered. Verify CI on the final pushed head and merge only after green checks; the PR delivery records the final check conclusions and merge SHA. No deployment is claimed.
