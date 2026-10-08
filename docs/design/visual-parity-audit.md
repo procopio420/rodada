@@ -1,4 +1,6 @@
-# Web visual foundation audit — PR #40
+# Web visual foundation audit — PR #40 e conclusão Spec 020
+
+**Leitura atual:** as seções do PR #40 abaixo são histórico daquela entrega. Quick Catalog, histórico guest, seleção de fechamentos antigos e relatórios operacionais foram implementados posteriormente na Spec 020, conforme seção final. Não tratar a lista histórica de pendências como estado atual.
 
 Date: 2026-10-08. Reference: `prototype/index.html` and `prototype/design-system.css`.
 
@@ -78,3 +80,13 @@ The first delivery attempt returned HTTP 403. Normal Git push succeeded on retry
 ### Follow-up: remove personal attribution
 
 At the user's request, the shared developer credit and personal contact link were removed, along with their unused CSS. Spec 019, acceptance criteria, plan, task history and Web README now reflect the removal. The existing visual suite checks that neither attribution nor its link appears on any of the eight surfaces at all five widths. Follow-up validation: typecheck and production build passed; all 87 visual/accessibility tests passed. The refreshed Kitchen viewport comparison remains 10.3387%; equivalent primitives remain within their strict gates. Product workflows and API behavior were not changed.
+
+## Estado atual — Spec 020, 2026-10-08
+
+Quick Catalog tem busca, seleção e criação real com permissão e auditoria, depois das filas de produção. ProductIcon usa fallback explícito; integração IA adiada pelo usuário. O cliente lê histórico persistido de sua Tab após reload, estados por item e atualizações de cinco segundos; revogação remove o acesso. Caixa tem histórico paginado e revisão de fechamento antigo com turno novo ativo. Gerência inclui relatórios operacionais por período/calendário, produtos, pagamentos/estornos, pedidos, fechamentos e CSV.
+
+A matriz passou **102 testes visuais/acessibilidade**, nove telas nas cinco larguras, estados operacionais e formulário de criação de produto. Typecheck e build passaram. Os sete componentes equivalentes mediram **0%**, mantendo gate de 0,1%. A composição Kitchen 390 × 844 no Windows mediu **9,8964% (32.575 / 329.160 pixels)**; continua artefato de auditoria, sem declaração de paridade total. Relatórios 390 px foram inspecionados visualmente e revisados junto da Gerência/caixa; catálogo utiliza as mesmas primitivas de produção/guest.
+
+**5 testes reais de navegador** passaram com BFF e Django, incluindo criação/reuso do catálogo, histórico guest após reload/transição, revogação, revisão antiga com novo caixa aberto e exportação CSV protegida. API local: **159 passaram, 3 casos PostgreSQL-only ignorados no SQLite**. Os jobs de CI executam a corrida de criação e testes financeiros em PostgreSQL, além do E2E real. Fontes, contrato, reprodução e limites estão na [Spec 020](../../specs/020-web-operational-completion/spec.md) e no [registro da entrega](../development/web-operational-completion.md).
+
+Permanecem fora desta slice: geração de imagens por IA, analytics avançado/insights da Spec 007, referências executáveis equivalentes para todas as telas, validação física do piloto e publicação em produção. O crédito pessoal permanece removido.

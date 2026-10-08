@@ -24,7 +24,7 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 
 ### Estado Web verificável
 
-Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API, com sessão de staff, estados de erro/carregamento e operações de caixa/estorno existentes. A base visual usa o protótipo e possui testes responsivos, de acessibilidade e de integração real. Consulte o [relatório de implementação e limites](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). Quick Catalog e acompanhamento completo ao vivo do pedido do cliente continuam pendentes; o roadmap abaixo inclui capacidades planejadas.
+Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API. A [Spec 020](specs/020-web-operational-completion/spec.md) entrega Quick Catalog com busca/reutilização e criação auditada, histórico da comanda do cliente com atualização a cada cinco segundos, seleção/revisão de fechamentos antigos mesmo com turno ativo e relatórios operacionais por período com CSV. Os ícones usam fallback; a integração de IA foi adiada pelo usuário. Consulte a [entrega e validação](docs/development/web-operational-completion.md), o [relatório visual](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). O roadmap abaixo também descreve capacidades futuras; não implica que todo módulo esteja implementado. Paridade visual total e publicação em produção não são declaradas.
 
 A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
 

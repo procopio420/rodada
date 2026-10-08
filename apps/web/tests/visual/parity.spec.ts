@@ -41,7 +41,7 @@ test("documents the full kitchen comparison without equating different workflows
     await reference.screenshot({ path: path.join(artifactRoot, "kitchen-390.reference.png") }),
     await actual.screenshot({ path: path.join(artifactRoot, "kitchen-390.actual.png") }), "kitchen-390",
   );
-  // Different header/navigation, live queues and absent Quick Catalog make this an
+  // Different header/navigation, live queues and the connected Quick Catalog make this an
   // audit artifact, not a legitimate pixel-equivalence gate. Matching primitives
   // below have a strict threshold; all real surfaces also have layout/a11y gates.
   await reference.close(); await actual.close();
@@ -77,7 +77,23 @@ const surfaces = [
   ["staff", "/staff", "Entrar no atendimento"], ["bar", "/bar", "Bar"], ["kitchen", "/kitchen", "Cozinha"],
   ["guest", "/guest/visual-test", "Mesa 24"], ["manage", "/manage", "O que precisa de atenção"],
   ["cash", "/cash", "Turno de caixa"], ["refunds", "/refunds", "Estornos"], ["pos", "/pos", "Comandas e pedidos"],
+  ["reports", "/reports", "Relatórios operacionais"],
 ] as const;
+
+for (const width of widths) {
+  test(`Quick Catalog: creation form accessibility at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await fixture(page);
+    await page.goto("/kitchen");
+    await page.getByLabel("Buscar produto por nome").fill("Produto novo de teste");
+    await page.getByRole("button", { name: 'Criar "Produto novo de teste"', exact: true }).click();
+    await page.getByLabel("Preço do novo produto (R$)").fill("18,00");
+    await expect(page.getByRole("button", { name: "Salvar novo produto", exact: true })).toBeVisible();
+    await stable(page);
+    await layoutAndA11y(page);
+    await page.screenshot({ path: path.join(artifactRoot, `quick-catalog-${width}.png`), fullPage: true });
+  });
+}
 
 for (const width of widths) for (const [name, route, heading] of surfaces) {
   test(`${name}: responsive layout and accessibility at ${width}px`, async ({ page }) => {
@@ -90,6 +106,7 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
     if (name === "manage") await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
     if (name === "cash") await expect(page.getByText("Caixa aberto", { exact: true })).toBeVisible();
+    if (name === "reports") { await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible(); await page.getByText("Configurar dia operacional", { exact: true }).click(); }
     if (name === "bar" || name === "kitchen") await expect(page.getByRole("button", { name: /Indisponibilizar/ }).first()).toBeVisible();
     if (name === "pos") await page.getByRole("button", { name: /Comanda de teste/ }).click();
     if (name === "refunds") { await page.getByLabel("Comanda", { exact: true }).selectOption("tab-test"); await expect(page.getByLabel("Valor a estornar")).toBeVisible(); }

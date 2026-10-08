@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+import { QuickCatalog } from "./quick-catalog";
+import { ProductIcon, type IconData } from "./product-icon";
 
 type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
-type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE" };
+type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
   ACCEPTED: { state: "PREPARING", label: "Preparar" },
@@ -95,7 +97,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       {loading ? <div className="loadingState" role="status">Carregando disponibilidade…</div> : products.map(product => {
         const available = product.availability === "AVAILABLE";
         return <article className="dataRow productionRow" key={product.id}>
-          <div><strong>{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></div>
+          <div className="productIconRow"><ProductIcon name={product.name} icon={product.icon} /><div><strong>{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></div></div>
           <div className="actions">
             <span className="statusBadge" data-state={available ? "success" : "danger"}>{available ? "Disponível" : "Indisponível"}</span>
             <button className={available ? "buttonSecondary" : "buttonPrimary"} disabled={disabled}
@@ -133,9 +135,6 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       </div>)}
       {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
     </section>
-    <aside className="notice" data-state="warning" aria-label="Quick Catalog indisponível">
-      <strong>Criação rápida indisponível</strong>
-      <p className="inlineNote">Adicionar produtos e gerar ícones ainda não estão conectados nesta superfície. Use o catálogo existente.</p>
-    </aside>
+    <QuickCatalog station={station} onChanged={() => load(true)} />
   </main>;
 }
