@@ -78,6 +78,18 @@ class OperationsHttpClient(baseUrl: String) {
                 )
             }
 
+    fun cashPoints(accessToken: String): List<CashPoint> =
+        request("GET", "/cash/points/", accessToken = accessToken)
+            .getJSONArray("results")
+            .toObjects()
+            .map {
+                CashPoint(
+                    id = it.getString("id"),
+                    label = it.getString("label"),
+                    activeShiftId = it.optJSONObject("active_shift")?.optString("id")?.ifBlank { null },
+                )
+            }
+
     fun completeDelivery(accessToken: String, taskId: String) {
         request("POST", "/dispatch/delivery/$taskId/complete/", JSONObject(), accessToken)
     }
@@ -111,6 +123,7 @@ class OperationsHttpClient(baseUrl: String) {
         amountCents: Long,
         method: PaymentMethod,
         idempotencyKey: String,
+        cashPointId: String?,
     ): PaymentResult {
         val response =
             request(
@@ -119,7 +132,8 @@ class OperationsHttpClient(baseUrl: String) {
                 JSONObject()
                     .put("amount_cents", amountCents)
                     .put("method", method.apiValue)
-                    .put("idempotency_key", idempotencyKey),
+                    .put("idempotency_key", idempotencyKey)
+                    .apply { if (cashPointId != null) put("cash_point_id", cashPointId) },
                 accessToken,
             )
         return PaymentResult(

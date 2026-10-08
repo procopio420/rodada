@@ -48,7 +48,12 @@ fun AttendanceScreen(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(session, state.loading || state.submitting, onOpenAccount) { viewModel.refresh(session) }
+            Header(
+                session = session,
+                connectivity = state.connectivity,
+                busy = state.loading || state.submitting,
+                onOpenAccount = onOpenAccount,
+            ) { viewModel.refresh(session) }
             when (val selected = state.selectedTab) {
                 null -> TabList(
                     state = state,
@@ -83,10 +88,11 @@ fun AttendanceScreen(
     if (takingPayment && state.selectedTab != null) {
         PaymentDialog(
             tab = state.selectedTab.summary,
+            cashPoints = state.cashPoints,
             busy = state.submitting,
             onDismiss = { takingPayment = false },
-            onPay = { amount, method ->
-                viewModel.collectPayment(session, amount, method)
+            onPay = { amount, method, cashPointId ->
+                viewModel.collectPayment(session, amount, method, cashPointId)
                 takingPayment = false
             },
         )
@@ -98,6 +104,7 @@ fun AttendanceScreen(
 @Composable
 private fun Header(
     session: StoredSession,
+    connectivity: ConnectivityState,
     busy: Boolean,
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
@@ -110,6 +117,11 @@ private fun Header(
         Column(modifier = Modifier.weight(1f)) {
             Text("RODADA / ATENDIMENTO", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             Text(session.venueName.ifBlank { session.venueSlug }, style = MaterialTheme.typography.titleMedium)
+            Text(
+                connectivity.label(),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (connectivity == ConnectivityState.ONLINE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+            )
         }
         TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
         OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
@@ -208,7 +220,7 @@ private fun TabWorkspace(
             TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
             Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
-            BalanceCard(tab.summary, onPay, onClose, state.submitting)
+            BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
         }
         item {
             Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
@@ -258,14 +270,20 @@ private fun TabWorkspace(
 }
 
 @Composable
-private fun BalanceCard(tab: TabSummary, onPay: () -> Unit, onClose: () -> Unit, busy: Boolean) {
+private fun BalanceCard(
+    tab: TabSummary,
+    onPay: () -> Unit,
+    onClose: () -> Unit,
+    busy: Boolean,
+    canInitiatePayment: Boolean,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
+                Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
                     Text("Receber")
                 }
                 OutlinedButton(onClick = onClose, enabled = tab.exposureCents == 0L && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
@@ -324,9 +342,18 @@ private fun OpenTabDialog(busy: Boolean, onDismiss: () -> Unit, onOpen: (String)
 }
 
 @Composable
-private fun PaymentDialog(tab: TabSummary, busy: Boolean, onDismiss: () -> Unit, onPay: (Long, PaymentMethod) -> Unit) {
+private fun PaymentDialog(
+    tab: TabSummary,
+    cashPoints: List<CashPoint>,
+    busy: Boolean,
+    onDismiss: () -> Unit,
+    onPay: (Long, PaymentMethod, String?) -> Unit,
+) {
     var rawAmount by rememberSaveable(tab.id) { mutableStateOf("${tab.exposureCents / 100},${(tab.exposureCents % 100).toString().padStart(2, '0')}") }
     var method by rememberSaveable(tab.id) { mutableStateOf(PaymentMethod.CASH) }
+    var cashPointId by rememberSaveable(tab.id) {
+        mutableStateOf(cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty())
+    }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= tab.exposureCents
     AlertDialog(
@@ -341,11 +368,27 @@ private fun PaymentDialog(tab: TabSummary, busy: Boolean, onDismiss: () -> Unit,
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
                 }
+                if (method == PaymentMethod.CASH) {
+                    Text("Caixa aberto", style = MaterialTheme.typography.labelLarge)
+                    cashPoints.filter { it.activeShiftId != null }.forEach { point ->
+                        OutlinedButton(onClick = { cashPointId = point.id }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
+                            Text(if (cashPointId == point.id) "✓ ${point.label}" else point.label)
+                        }
+                    }
+                    if (cashPoints.none { it.activeShiftId != null }) {
+                        Text("Abra ou selecione um caixa com turno ativo antes de receber dinheiro.", color = MaterialTheme.colorScheme.error)
+                    }
+                }
                 if (!valid) Text("Informe um valor entre R$ 0,01 e o saldo em aberto.", color = MaterialTheme.colorScheme.error)
                 if (method != PaymentMethod.CASH) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
             }
         },
-        confirmButton = { Button(onClick = { onPay(amount ?: 0, method) }, enabled = valid && !busy) { Text("Registrar") } },
+        confirmButton = {
+            Button(
+                onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
+                enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
+            ) { Text("Registrar") }
+        },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }
@@ -367,4 +410,12 @@ private fun TabSummary.stateLabel(): String =
         "SETTLING" -> "PAGAMENTO"
         "CLOSED" -> "FECHADA"
         else -> state
+    }
+
+private fun ConnectivityState.label(): String =
+    when (this) {
+        ConnectivityState.ONLINE -> "ONLINE · API atualizada por consulta"
+        ConnectivityState.RECONNECTING -> "RECONECTANDO · verificando a API"
+        ConnectivityState.STALE -> "DESATUALIZADO · última leitura preservada"
+        ConnectivityState.OFFLINE -> "OFFLINE · não inicie cobranças"
     }

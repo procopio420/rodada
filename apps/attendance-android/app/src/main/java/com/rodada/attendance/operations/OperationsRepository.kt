@@ -19,6 +19,8 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
 
+    suspend fun cashPoints(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::cashPoints)
+
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 
@@ -35,8 +37,9 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         amountCents: Long,
         method: PaymentMethod,
         idempotencyKey: String,
+        cashPointId: String?,
     ) = authRepository.withAuthorizedAccess(session) {
-        client.collectPayment(it, tabId, amountCents, method, idempotencyKey)
+        client.collectPayment(it, tabId, amountCents, method, idempotencyKey, cashPointId)
     }
 
     suspend fun closeTab(session: StoredSession, tabId: String) =

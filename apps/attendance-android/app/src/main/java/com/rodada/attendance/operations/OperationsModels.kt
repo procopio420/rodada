@@ -57,13 +57,19 @@ data class CartLine(
     val quantity: Int,
 )
 
+enum class ConnectivityState {
+    ONLINE,
+    RECONNECTING,
+    STALE,
+    OFFLINE,
+}
+
 enum class PaymentMethod(val apiValue: String, val label: String) {
     CASH("CASH", "Dinheiro"),
-    CARD("CARD", "Cartão manual"),
     EXTERNAL_TERMINAL("EXTERNAL_TERMINAL", "Terminal externo"),
-    PIX("PIX", "Pix"),
-    OTHER("OTHER", "Pagamento externo"),
 }
+
+data class CashPoint(val id: String, val label: String, val activeShiftId: String?)
 
 data class PaymentResult(
     val id: String,
