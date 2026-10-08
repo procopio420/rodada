@@ -104,6 +104,40 @@ python manage.py makemigrations --check --dry-run --settings=rodada_api.settings
 
 PostgreSQL continua sendo o banco principal da aplicação.
 
+## Backup e ensaio de restore
+
+O ensaio usa `pg_dump`/`pg_restore` em formato custom e **nunca** restaura sobre
+o banco configurado como `POSTGRES_DB`. Instale os PostgreSQL client tools no
+host que executará os scripts.
+
+```bash
+cd apps/api
+export POSTGRES_DB=rodada
+export POSTGRES_USER=rodada
+export POSTGRES_PASSWORD=rodada
+export POSTGRES_HOST=localhost
+export RODADA_RESTORE_DB=rodada_restore_rehearsal
+./scripts/rehearse_restore.sh
+```
+
+O comando cria uma fixture persistida e idempotente com pedidos, produção e
+delivery, charge/payment/refund/reversal, ocupação/sessão guest e CashShift
+aberto e fechado. Em seguida, ele faz backup, descarta/cria apenas
+`RODADA_RESTORE_DB`, restaura e executa `verify_restore` mais o smoke canônico.
+
+Para operações separadas:
+
+```bash
+./scripts/backup_postgres.sh
+RODADA_RESTORE_DB=rodada_restore_rehearsal ./scripts/restore_postgres_fresh.sh backups/rodada-*.dump
+RODADA_RESTORE_DB=rodada_restore_rehearsal ./scripts/verify_restore.sh
+```
+
+`verify_restore` prova exposição da Tab, vínculo de refund/reversal, snapshots
+de CashShift e movimentos, ocupação/sessão guest e delivery concluído. O banco
+de restore deve ser descartável; o script se recusa a usar `POSTGRES_DB` como
+destino.
+
 
 ## Access management
 
