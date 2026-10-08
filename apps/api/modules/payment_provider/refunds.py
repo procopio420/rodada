@@ -136,6 +136,9 @@ def apply_refund_evidence(*, refund_id, event, actor):
         else PaymentStatus.PARTIALLY_REFUNDED
     )
     payment.save(update_fields=["status"])
+    from modules.house_account.services import sync_attention
+
+    sync_attention(payment.tab, actor)
     record_audit_event(
         actor=actor,
         event_type="payment.refunded",

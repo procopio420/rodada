@@ -150,7 +150,7 @@ class PaytimeWebhookView(APIView):
     def post(self, request, venue_id):
         try:
             event, replayed = ingest_provider_webhook(
-                provider=provider_for_venue(venue_id),
+                provider=provider_for_venue(venue_id, provider_key=f"paytime:{venue_id}"),
                 payload=request.data,
                 signature=request.headers.get("Authorization", ""),
             )

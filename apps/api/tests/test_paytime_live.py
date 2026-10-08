@@ -184,3 +184,37 @@ class PaytimeLiveTests(TestCase):
         payment = Payment.objects.get(pk=first.data["id"])
         self.assertNotIn("sensitive", str(payment.provider_attempts.first().metadata))
         self.assertNotIn("secret", str(payment.provider_attempts.first().metadata))
+
+    def test_paytime_callback_remains_usable_after_primary_switch_to_sumup(self):
+        from django.conf import settings
+
+        first = self.create()
+        paytime_config = settings.RODADA_PAYMENT_PROVIDERS[str(self.venue.pk)]
+        with override_settings(
+            RODADA_PAYMENT_PROVIDERS={str(self.venue.pk): {"provider": "sumup", "connection_id": "not-used"}},
+            RODADA_PAYTIME_PROVIDERS={str(self.venue.pk): paytime_config},
+        ):
+            self.remote["status"] = "PAID"
+            self.assertEqual(self.webhook().status_code, 200)
+            payment = Payment.objects.get(pk=first.data["id"])
+            self.assertEqual(payment.status, "CONFIRMED")
+
+    @override_settings(DEBUG=True, RODADA_PAYMENT_SIMULATION=True)
+    def test_simulated_api_split_settlement_history_and_close(self):
+        from modules.access.models import DeviceRegistration
+
+        DeviceRegistration.objects.filter(venue=self.venue).update(trust_state="TRUSTED")
+        with override_settings(RODADA_PAYMENT_PROVIDERS={str(self.venue.pk): {"provider": "simulator"}}):
+            for method, amount in (("PIX", 1000), ("TAP_TO_PAY", 2000)):
+                result = self.create(method=method, amount_cents=amount, idempotency_key=method)
+                self.assertEqual(result.status_code, 201, result.data)
+                self.assertTrue(result.data["simulated"])
+                self.assertEqual(result.data["exposure_cents"], 3000 if method == "PIX" else 2000)
+                for _ in range(2):
+                    response = self.client.post(f"/payments/{result.data['id']}/integrated/", {}, format="json")
+                    self.assertEqual(response.status_code, 200, response.data)
+                self.assertEqual(response.data["status"], "CONFIRMED")
+            history = self.client.get(f"/tabs/{self.tab}/").data
+            self.assertTrue(all(payment["simulated"] for payment in history["payments"]))
+            closed = self.client.post(f"/tabs/{self.tab}/close/", {}, format="json")
+            self.assertEqual(closed.status_code, 200, closed.data)

@@ -130,13 +130,15 @@ class SumUpPixProvider:
             ids = {tx.get("id") for tx in transactions if tx.get("id")}
             if len(ids) != 1:
                 raise ValueError("Paid checkout requires one authoritative transaction")
+            transaction_id = ids.pop()
             tx = self.transport(
                 "GET",
                 f"/v2.1/merchants/{quote(self.merchant_code, safe='')}/transactions?"
-                + urlencode({"id": ids.pop()}),
+                + urlencode({"id": transaction_id}),
             )
             if (
-                minor(tx.get("amount")) != payment.amount_cents
+                tx.get("id") != transaction_id
+                or minor(tx.get("amount")) != payment.amount_cents
                 or tx.get("currency") != payment.currency
                 or tx.get("merchant_code") != self.merchant_code
                 or tx.get("status", tx.get("simple_status")) not in ("SUCCESSFUL", "PAID_OUT")

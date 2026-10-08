@@ -24,10 +24,10 @@ from modules.payment_provider.services import (
     reconcile_provider_payment,
 )
 from modules.payment_provider.sumup import SumUpPixProvider, encode_body, major, minor
-from tests.test_payment_provider import PaymentProviderServiceTests
+from tests import test_payment_provider as provider_tests
 
 
-class SumUpContractTests(PaymentProviderServiceTests):
+class SumUpContractTests(provider_tests.PaymentProviderServiceTests):
     def provider(self, *, payment_type="qr_code_pix"):
         self.calls = []
         self.remote_state = "PENDING"
@@ -183,9 +183,8 @@ class SumUpContractTests(PaymentProviderServiceTests):
     def test_production_refuses_simulator(self):
         with override_settings(
             RODADA_PAYMENT_PROVIDERS={str(self.venue.pk): {"provider": "simulator"}}
-        ):
-            with self.assertRaises(ProviderServiceError):
-                provider_for_venue(self.venue.pk)
+        ), self.assertRaises(ProviderServiceError):
+            provider_for_venue(self.venue.pk)
 
     def test_refund_reservation_and_duplicate_evidence_preserve_history(self):
         provider = self.provider()
@@ -356,3 +355,33 @@ class SumUpContractTests(PaymentProviderServiceTests):
         refund = reconcile_provider_refund(refund_id=refund.pk, actor=self.actor, provider=provider)
         self.assertEqual(refund.status, "CONFIRMED")
         self.assertEqual(totals(self.tab)["refunds_cents"], 500)
+
+    def test_paytime_alternative_selection_when_sumup_is_primary(self):
+        config = {
+            "base_url": "https://sandbox.paytime.com.br",
+            "integration_key": "test", "x_token": "test", "bearer_token": "test",
+            "establishment_id": "merchant-a", "webhook_user": "test", "webhook_password": "test",
+        }
+        with override_settings(
+            RODADA_PAYMENT_PROVIDERS={str(self.venue.pk): {"provider": "sumup", "connection_id": "not-used"}},
+            RODADA_PAYTIME_PROVIDERS={str(self.venue.pk): config},
+        ):
+            adapter = provider_for_venue(self.venue.pk, provider_key=f"paytime:{self.venue.pk}")
+            self.assertEqual(adapter.provider_key, f"paytime:{self.venue.pk}")
+            with self.assertRaises(ProviderServiceError):
+                provider_for_venue(self.venue.pk, provider_key="paytime:another-venue")
+
+    def test_paid_checkout_with_mismatched_transaction_identity_never_settles(self):
+        provider = self.provider()
+        payment = self.start(provider)
+        original = provider.transport
+        self.remote_state = "PAID"
+        def transport(method, path, body=None):
+            result = original(method, path, body)
+            if "/transactions?" in path:
+                result["id"] = "wrong-transaction"
+            return result
+        provider.transport = transport
+        payment, _ = reconcile_provider_payment(payment_id=payment.pk, provider=provider, actor=self.actor)
+        self.assertEqual(payment.status, "CONFIRMATION_PENDING")
+        self.assertEqual(totals(self.tab)["payments_cents"], 0)
