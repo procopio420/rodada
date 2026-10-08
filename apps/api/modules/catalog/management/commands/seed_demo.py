@@ -18,10 +18,16 @@ class Command(BaseCommand):
             ("Ana Gerente", "ana", "0420", StaffRole.MANAGER),
             ("Bia Staff", "bia", "1234", StaffRole.STAFF),
         ):
-            staff, _ = StaffMember.objects.get_or_create(login_identifier=identifier, defaults={"display_name": name})
+            staff, _ = StaffMember.objects.get_or_create(
+                login_identifier=identifier, defaults={"display_name": name}
+            )
             staff.display_name = name
             staff.set_pin(pin)
             staff.save(update_fields=["display_name", "pin_hash"])
-            VenueStaffMembership.objects.update_or_create(venue=venue, staff_member=staff, defaults={"role": role})
+            VenueStaffMembership.objects.update_or_create(
+                venue=venue, staff_member=staff, defaults={"role": role}
+            )
         CashPoint.objects.get_or_create(venue=venue, label="Caixa principal")
-        self.stdout.write(self.style.SUCCESS("Demo ready: bar-do-aderlan; Ana Gerente/0420, Bia Staff/1234."))
+        self.stdout.write(
+            self.style.SUCCESS("Demo ready: bar-do-aderlan; Ana Gerente/0420, Bia Staff/1234.")
+        )

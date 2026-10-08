@@ -4,7 +4,6 @@ from django.db import transaction
 from modules.catalog.models import FulfillmentStation, Product, normalize_product_name
 from modules.venue.models import Venue
 
-
 DEMO_PRODUCTS = (
     ("Brahma 600ml", 1200, FulfillmentStation.BAR),
     ("Fritas", 2800, FulfillmentStation.KITCHEN),
