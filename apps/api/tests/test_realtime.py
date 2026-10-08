@@ -83,7 +83,12 @@ class RealtimeTests(TestCase):
     def stream(self, cursor):
         dispatch_pending()
         return frames(
-            self.client.get("/realtime/stream/", {"once": "1"}, HTTP_LAST_EVENT_ID=str(cursor))
+            self.client.get(
+                "/realtime/stream/",
+                {"once": "1"},
+                HTTP_LAST_EVENT_ID=str(cursor),
+                HTTP_ACCEPT="text/event-stream",
+            )
         )
 
     def test_domain_mutation_and_outbox_rollback_together(self):
