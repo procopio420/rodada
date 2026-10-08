@@ -30,8 +30,9 @@ Após autenticação, o Atendimento também executa o loop operacional persistid
 - fecha Tab somente quando o saldo canônico chega a zero.
 - mostra a fila canônica de entregas READY, com item, comanda, destino e idade;
 - conclui a entrega com uma única ação idempotente, persistida no servidor.
+- lista Mesas e executa ocupar, associar múltiplas comandas, liberar e limpar sem tratar a mesa como dona do saldo.
 
-Pedidos e pagamentos recebem uma UUID de intenção por submissão. Um pedido cujo resultado ficou ambíguo é persistido com o operador, Tab, linhas e UUID originais; após reinício, ele só pode ser reconciliado pela mesma intenção e pelo mesmo operador/venue. O app não possui uma fila genérica de mutações offline.
+Pedidos e pagamentos recebem uma UUID de intenção por submissão. Resultado ambíguo é guardado cifrado com operador, Venue, device, payload mínimo e UUID original; após reinício, ele só pode ser reconciliado pela mesma intenção e pelo mesmo contexto. O app não possui uma fila genérica de mutações offline.
 
 O estado de conectividade da API é explícito: `ONLINE`, `RECONECTANDO`, `DESATUALIZADO` ou `OFFLINE`. Cobrança é bloqueada quando o saldo exibido não está `ONLINE`; um resultado ambíguo mostra “Verificando pagamento”, nunca “falhou, tente cobrar novamente”. O app nunca apresenta pagamento externo como confirmado antes de o operador confirmar que o terminal/provedor concluiu a cobrança.
 
