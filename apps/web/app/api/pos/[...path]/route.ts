@@ -7,7 +7,7 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   if (request.method !== "GET") {
     try { body = await request.json(); } catch { body = {}; }
   }
-  return forwardAuthenticated(request, "/" + path.join("/") + "/", {
+  return forwardAuthenticated(request, "/" + path.join("/") + "/" + request.nextUrl.search, {
     method: request.method as "GET" | "POST" | "PATCH" | "PUT",
     body,
   });

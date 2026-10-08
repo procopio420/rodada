@@ -1,15 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ProductIcon, type IconData } from "./product-icon";
 
-type Product = { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean };
-type OrderItem = { id: string; product_name: string; quantity: number; line_total_cents: number; state: string };
+type Product = { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean; icon?: IconData };
+type OrderItem = { id: string; product_name: string; quantity: number; line_total_cents: number; state: string; ready_at?: string | null; delivered_at?: string | null };
 type Order = { id: string; status: string; items: OrderItem[] };
 type Tab = { id: string; display_label: string; exposure_cents: number; consumption_blocked: boolean; remaining_capacity_cents: number; orders?: Order[] };
 type Context = { table: { label: string }; occupancy_active: boolean; can_start_occupancy: boolean; guest_session_token?: string; tab: Tab | null };
 type ApiError = { code?: string; message?: string };
 
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
+const itemStates: Record<string, string> = { NEW: "Confirmado", ACCEPTED: "Aceito", PREPARING: "Em preparo", READY: "Pronto", PICKED_UP: "Retirado", DELIVERED: "Entregue", CANCELLED: "Cancelado" };
 
 function messageFor(error: ApiError, fallback: string) {
   if (error.code === "GUEST_SESSION_REVOKED") return "Esta visita terminou. Escaneie o QR novamente para pedir na nova ocupação.";
@@ -49,8 +51,9 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
 
   const loadCatalog = useCallback(async (token: string) => {
     const result = await guestApi<{ results: Product[] }>("catalog/", token);
-    if (result.ok) setProducts((result.body as { results: Product[] }).results);
-    else setNotice(messageFor(result.body as ApiError, "Não foi possível atualizar o cardápio."));
+    if (result.ok) { setProducts((result.body as { results: Product[] }).results); return true; }
+    setNotice(messageFor(result.body as ApiError, "Não foi possível atualizar o cardápio."));
+    return false;
   }, []);
 
   const resolve = useCallback(async () => {
@@ -89,14 +92,17 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     if (result.ok) {
       const next = result.body as Context;
       setContext(current => ({ ...next, tab: next.tab ? { ...next.tab, orders: next.tab.orders ?? (current?.tab?.id === next.tab.id ? current.tab.orders : undefined) } : null }));
-      setStale(false); await loadCatalog(guestToken);
+      setNotice(""); setStale(!(await loadCatalog(guestToken)));
     }
-    else { setStale(true); setNotice(messageFor(result.body as ApiError, "Atualize sua comanda antes de continuar.")); }
-  }, [guestToken, loadCatalog]);
+    else {
+      setStale(true); setNotice(messageFor(result.body as ApiError, "Atualize sua comanda antes de continuar."));
+      if (["GUEST_SESSION_REVOKED", "GUEST_SESSION_EXPIRED", "GUEST_SESSION_INVALID", "GUEST_SESSION_REQUIRED"].includes((result.body as ApiError).code ?? "")) { setContext(null); sessionStorage.removeItem(storageKey); }
+    }
+  }, [guestToken, loadCatalog, storageKey]);
   useEffect(() => {
     void refresh();
     const offline = () => setStale(true);
-    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void refresh(); }, 15000);
+    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void refresh(); }, 5000);
     window.addEventListener("online", refresh); window.addEventListener("focus", refresh); window.addEventListener("offline", offline);
     return () => { clearInterval(timer); window.removeEventListener("online", refresh); window.removeEventListener("focus", refresh); window.removeEventListener("offline", offline); };
   }, [refresh]);
@@ -155,9 +161,9 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" disabled={sending || stale} onClick={() => void createTab()}>{sending ? "Abrindo…" : "Abrir minha comanda"}</button></section> : <>
       <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><div className="guestBalance"><span>Em aberto</span><strong>{money(context.tab.exposure_cents)}</strong></div></section>
       {context.tab.consumption_blocked && <div className="notice" data-state="warning" role="alert">Para continuar consumindo, peça ajuda à equipe. Você pode pagar uma parte da comanda ou solicitar aprovação.</div>}
-      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
+      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><ProductIcon name={product.name} icon={product.icon} /><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
       <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={!rows.length || sending || stale || (context.tab.consumption_blocked && !orderIntent.current)} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>
-      {!!context.tab.orders?.length && <section className="panel"><h2>Pedidos confirmados nesta sessão</h2>{context.tab.orders.map((order) => <div className="dataRow" key={order.id}><span>{order.items.map((item) => `${item.quantity} ${item.product_name}`).join(", ")}</span><strong>{order.items.every((item) => item.state === "DELIVERED") ? "Entregue" : order.items.every(item => item.state === "READY") ? "Pronto" : order.items.some(item => item.state === "PREPARING") ? "Em preparo" : "Confirmado"}</strong></div>)}</section>}
+      <section className="panel"><h2>Meus pedidos</h2><p className="muted">Estado registrado pela operação. Atualiza a cada 5 segundos enquanto esta tela estiver aberta.</p>{!context.tab.orders?.length && <p>Nenhum pedido confirmado.</p>}{context.tab.orders?.map(order => <div key={order.id}>{order.items.map(item => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><small className="muted"> · {money(item.line_total_cents)}{item.ready_at ? ` · pronto às ${new Date(item.ready_at).toLocaleTimeString("pt-BR")}` : ""}</small></span><span className="statusBadge" data-state={item.state === "CANCELLED" ? "danger" : ["READY", "DELIVERED"].includes(item.state) ? "success" : "info"}>{itemStates[item.state] ?? item.state}</span></div>)}</div>)}</section>
     </>}
   </main>;
 }

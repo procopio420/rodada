@@ -246,3 +246,7 @@ CatalogIconGenerator.generate(product_context, style_contract) -> GeneratedAsset
 - remoção automática de fundo de uploads se exigir pipeline complexo;
 - regeneração em massa de todo catálogo;
 - cobrança do cliente por geração.
+
+## Entrega executável Web — Spec 020
+
+O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).

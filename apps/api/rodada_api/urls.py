@@ -11,7 +11,9 @@ from modules.corrections.views import (
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
-from modules.catalog.views import ProductAvailabilityView, ProductListView
+from modules.catalog.views import ProductAvailabilityView, ProductListView, ProductResolveView
+from modules.management.views import CalendarView, ReportView
+from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -75,6 +77,10 @@ def readiness(request):
 
 
 urlpatterns = [
+    path("catalog/products/resolve/", ProductResolveView.as_view()),
+    path("cash/shifts/history/", CashShiftListView.as_view()),
+    path("management/calendar/", CalendarView.as_view()),
+    path("management/reports/", ReportView.as_view()),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),

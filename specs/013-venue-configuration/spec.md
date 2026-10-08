@@ -476,3 +476,7 @@ Current hardcoded/default values become typed records with behavior-preserving d
 - corporate multi-Venue inheritance;
 - fiscal/accounting settings;
 - generic feature-flag platform.
+
+## Entrega executável Web — Spec 020
+
+O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).

@@ -309,3 +309,7 @@ Após join/claim, dispositivo mantém sessão segura para evitar redigitar códi
 Pagamento pelo celular poderá entrar depois sem alterar o princípio de que pedido pertence à Tab.
 
 A UX canônica está detalhada em `docs/product/guest-experience.md`.
+
+## Entrega executável Web — Spec 020
+
+O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).

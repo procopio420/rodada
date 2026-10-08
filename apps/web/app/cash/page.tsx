@@ -6,6 +6,7 @@ import { apiCall, asApiError, type ApiError, type StaffSessionView } from "@/lib
 
 type CashShift = {
   id: string;
+  business_date?: string;
   cash_point_id?: string;
   status: "OPEN" | "COUNTING" | "CLOSED";
   opening_float_cents?: number;
@@ -19,7 +20,7 @@ type CashShift = {
   movements?: CashMovement[];
 };
 
-type CashPoint = { id: string; label: string; active_shift: CashShift | null; pending_review_shift?: CashShift | null };
+type CashPoint = { id: string; label: string; active_shift: CashShift | null; pending_review_shift?: CashShift | null; current_business_date?: string };
 type CashMovement = {
   id: string;
   kind: string;
@@ -31,12 +32,6 @@ type CashMovement = {
 
 const money = (value: number | null | undefined) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format((value ?? 0) / 100);
-
-const localBusinessDate = () => {
-  const now = new Date();
-  const offset = now.getTimezoneOffset();
-  return new Date(now.getTime() - offset * 60_000).toISOString().slice(0, 10);
-};
 
 function cents(value: string): number | null {
   const normalized = value.trim().replace(/\./g, "").replace(",", ".");
@@ -74,8 +69,11 @@ export default function CashPage() {
   const [reauthPin, setReauthPin] = useState("");
   const openKey = useRef<string | null>(null);
   const movementKey = useRef<string | null>(null);
+  const currentPointId = useRef("");
+  const [history, setHistory] = useState<CashShift[]>([]);
+  const [historyOffset, setHistoryOffset] = useState<number | null>(null);
 
-  const load = useCallback(async (preferredPointId?: string) => {
+  const load = useCallback(async (preferredPointId?: string, preferredShiftId?: string) => {
     setLoading(true);
     setNotice(null);
     setConfirmation("");
@@ -93,18 +91,28 @@ export default function CashPage() {
     setPoints(result);
     const nextPointId = preferredPointId && result.some((point) => point.id === preferredPointId)
       ? preferredPointId
-      : pointId && result.some((point) => point.id === pointId)
-        ? pointId
+      : currentPointId.current && result.some((point) => point.id === currentPointId.current)
+        ? currentPointId.current
         : result[0]?.id ?? "";
     setPointId(nextPointId);
+    currentPointId.current = nextPointId;
     const selected = result.find((point) => point.id === nextPointId);
+    if (selected) {
+      const rows = await apiCall<{ results: CashShift[]; next_offset: number | null }>(`/api/pos/cash/shifts/history/?cash_point_id=${nextPointId}`);
+      if (!rows.response.ok) { setNotice(asApiError(rows.body)); return; }
+      const body = rows.body as { results: CashShift[]; next_offset: number | null };
+      setHistory(body.results); setHistoryOffset(body.next_offset);
+    } else { setHistory([]); setHistoryOffset(null); }
     const active = selected?.active_shift ?? selected?.pending_review_shift ?? null;
-    if (!active) {
+    if (!active && !preferredShiftId) {
       setShift(null);
       return;
     }
-    const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${active.id}/`);
-    if (detail.response.ok && detail.body) setShift(detail.body as CashShift);
+    const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${preferredShiftId ?? active?.id}/`);
+    if (detail.response.ok && detail.body) {
+      const loaded = detail.body as CashShift; setShift(loaded);
+      setHistory(rows => rows.some(row => row.id === loaded.id) ? rows : [...rows, loaded]);
+    }
     else setNotice(asApiError(detail.body));
     } catch { setNotice({ code: "NETWORK_ERROR", message: "Não foi possível atualizar o caixa. Confira a conexão." }); }
     finally { setLoading(false); }
@@ -134,7 +142,7 @@ export default function CashPage() {
     openKey.current ??= crypto.randomUUID();
     const result = await apiCall<CashShift>("/api/pos/cash/shifts/", {
       method: "POST",
-      body: JSON.stringify({ cash_point_id: pointId, opening_float_cents: amount, business_date: localBusinessDate(), idempotency_key: openKey.current }),
+      body: JSON.stringify({ cash_point_id: pointId, opening_float_cents: amount, idempotency_key: openKey.current }),
     });
     setBusy(false);
     if (result.response.ok) {
@@ -255,7 +263,7 @@ export default function CashPage() {
     <section className="panel">
       <div className="field">
         <label htmlFor="cash-point">Ponto de caixa</label>
-        <select id="cash-point" value={pointId} onChange={(event) => void load(event.target.value)} disabled={busy}>
+        <select id="cash-point" value={pointId} onChange={(event) => void load(event.target.value)} disabled={busy || loading}>
           {!points.length ? <option value="">Nenhum ponto disponível</option> : null}
           {points.map((point) => <option value={point.id} key={point.id}>{point.label}{point.active_shift ? " · turno ativo" : ""}</option>)}
         </select>
@@ -263,9 +271,23 @@ export default function CashPage() {
       {!loading && !notice && !selectedPoint ? <p className="muted">Sem ponto de caixa ativo para este operador.</p> : null}
     </section>
 
+    {selectedPoint && <section className="panel"><h2>Histórico de turnos</h2>
+      <div className="field"><label htmlFor="cash-history">Selecionar turno atual ou fechamento antigo</label><select id="cash-history" value={shift?.id ?? ""} disabled={busy || loading} onChange={e => void load(pointId, e.target.value)}>
+        <option value="">Selecione um turno</option>{history.map(row => <option key={row.id} value={row.id}>{row.business_date ?? "Data não informada"} · {row.status === "CLOSED" ? "Fechado" : row.status === "COUNTING" ? "Em conferência" : "Aberto"}{row.review_status === "PENDING" ? " · revisão pendente" : ""} · {row.id.slice(0, 8)}</option>)}
+      </select></div>
+      {historyOffset !== null && <button className="buttonSecondary" disabled={busy || loading} onClick={() => void (async () => {
+        setLoading(true);
+        try { const r = await apiCall<{ results: CashShift[]; next_offset: number | null }>(`/api/pos/cash/shifts/history/?cash_point_id=${pointId}&offset=${historyOffset}`);
+          if (!r.response.ok) { setNotice(asApiError(r.body)); return; }
+          const body = r.body as { results: CashShift[]; next_offset: number | null }; setHistory(rows => [...new Map([...rows, ...body.results].map(row => [row.id, row])).values()]); setHistoryOffset(body.next_offset);
+        } catch { setNotice({ code: "NETWORK_ERROR", message: "Não foi possível carregar turnos antigos." }); } finally { setLoading(false); }
+      })()}>Carregar turnos mais antigos</button>}
+      {selectedPoint.active_shift && shift?.id !== selectedPoint.active_shift.id && <button className="buttonQuiet" disabled={busy || loading} onClick={() => void load(pointId)}>Voltar ao turno ativo</button>}
+    </section>}
+
     {!shift && selectedPoint ? <section className="panel">
       <h2>Abrir turno</h2>
-      <p className="muted">{selectedPoint.label} · {localBusinessDate().split("-").reverse().join("/")}</p>
+      <p className="muted">{selectedPoint.label} · {selectedPoint.current_business_date ?? "Data operacional definida pelo estabelecimento"}</p>
       <div className="field"><label htmlFor="opening">Fundo inicial</label><input id="opening" inputMode="decimal" value={openingFloat} onChange={(event) => setOpeningFloat(event.target.value)} placeholder="Ex.: 200,00" /></div>
       <p className="muted">Você está abrindo o caixa com este valor físico. Confirme somente depois de conferir.</p>
       <button className="buttonPrimary" style={{ width: "100%" }} disabled={busy || !canOpenOrClose} onClick={() => void openShift()}>{busy ? "Abrindo…" : "Confirmar abertura"}</button>

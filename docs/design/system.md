@@ -361,3 +361,9 @@ Pode usar layout split para operação, sem transformar cada módulo em dashboar
 O protótipo em `prototype/index.html` consome `prototype/design-system.css` e serve como referência visual inicial.
 
 Ele não é a implementação final do frontend, mas mudanças visuais de alto nível devem primeiro preservar este contrato para evitar drift entre protótipo, Codex/Claude e o futuro app Next.js.
+
+## Implementação Web — Spec 020
+
+Quick Catalog combina Field, CatalogCombobox, ProductIcon, StatusBadge/semântica de estado e Button. Resultados mostram preço, destino e ativação/disponibilidade; selecionar reutiliza o produto. Criação é ação explícita com preço e destino, após a busca. Ícone de fallback usa as iniciais no mesmo espaço do asset e não representa disponibilidade. A fila de produção continua antes do cadastro.
+
+Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV, Panel para grupos de fatos e estados semânticos para conferência/divergência. Valores históricos e exposição atual são rotulados separadamente. Histórico de caixa usa seletor com data/estado e retorno explícito ao turno ativo; consultar histórico não altera estado financeiro. Todas as superfícies mantêm foco visível, targets 44 px e tokens existentes. Ver [Spec 020](../../specs/020-web-operational-completion/spec.md).
