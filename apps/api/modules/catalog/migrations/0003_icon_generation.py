@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('access', '0003_access_invalidation_event'),
-        ('catalog', '0001_initial'),
+        ('catalog', '0002_producticon'),
     ]
 
     operations = [
@@ -23,19 +23,8 @@ class Migration(migrations.Migration):
             name='description',
             field=models.CharField(blank=True, max_length=600),
         ),
-        migrations.CreateModel(
-            name='ProductIcon',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('source', models.CharField(choices=[('NONE', 'NONE'), ('AI_GENERATED', 'AI_GENERATED'), ('UPLOADED', 'UPLOADED')], default='NONE', max_length=16)),
-                ('status', models.CharField(choices=[('NONE', 'NONE'), ('GENERATING', 'GENERATING'), ('READY', 'READY'), ('FAILED', 'FAILED')], default='NONE', max_length=16)),
-                ('published_asset', models.CharField(blank=True, max_length=240)),
-                ('revision', models.PositiveIntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('product', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='icon', to='catalog.product')),
-            ],
-        ),
+        migrations.AddField(model_name='producticon', name='published_asset', field=models.CharField(blank=True, max_length=240)),
+        migrations.AddField(model_name='producticon', name='revision', field=models.PositiveIntegerField(default=0)),
         migrations.CreateModel(
             name='IconGeneration',
             fields=[

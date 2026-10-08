@@ -8,13 +8,19 @@ from modules.audit.services import record_audit_event
 from modules.catalog.models import AvailabilityState, ProductAvailability
 from modules.catalog.queries import catalog_for_venue
 from modules.catalog.serializers import product_payload
+from modules.catalog.models import normalize_product_name
 
 
 class ProductListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"results": [product_payload(product) for product in catalog_for_venue(venue_id=request.auth.venue_id)]})
+        products = catalog_for_venue(venue_id=request.auth.venue_id, include_inactive=request.query_params.get("include_inactive") == "true").select_related("icon")
+        query = normalize_product_name(request.query_params.get("q", ""))
+        if query:
+            products = products.filter(normalized_name__contains=query)
+        return Response({"results": [product_payload(product) for product in products]})
+
 
 
 class ProductAvailabilityView(APIView):
@@ -63,6 +69,11 @@ class ProductResolveView(APIView):
             name=values["name"], price_cents=values["price_cents"], station=values["fulfillment_station"],
             description=values["description"], category=values["category"])
         return Response({"product": product_payload(product), "created": created}, status=201 if created else 200)
+
+
+class LegacyProductResolveView(ProductResolveView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.CATALOG_PRODUCT_CREATE
 
 
 class ProductEditView(APIView):

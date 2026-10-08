@@ -216,6 +216,12 @@ Prioridade: **Tab → pedido → total → próxima ação**.
 
 Prioridade: **fila de produção + disponibilidade da estação**.
 
+No Web, nomes longos podem ocupar várias linhas: conteúdo e ações usam duas
+linhas no celular e colunas quando houver espaço. Sem truncar o produto ou
+reduzir o alvo de toque. A fila e o passe ficam antes do aviso compacto de
+Quick Catalog indisponível enquanto Spec 005 não estiver conectada. Esse aviso
+não contém formulário de criação aparentemente funcional.
+
 Quick Catalog usa os mesmos componentes da superfície: Button, Field, CatalogCombobox, ProductIcon, StatusBadge e InlineNotice. Não existe botão obrigatório de “Gerar ícone”: ao criar Product novo, o ProductIcon nasce junto e a geração começa automaticamente. Criar item não deve parecer um mini-app separado dentro da cozinha.
 
 - item indisponível usa danger;
@@ -285,6 +291,12 @@ Gerência é mobile-first de verdade:
 
 A home **Agora** deve reutilizar `Metric`, `MoneyValue`, `Panel`, `DataRow`, `StatusBadge` e `InlineNotice`. Evitar criar cards decorativos apenas para “encher dashboard”.
 
+Divergências de caixa e estornos pendentes aparecem antes do pulso operacional.
+Antes do primeiro snapshot confirmado, mostrar carregamento ou erro, sem números
+que aparentem zero medido. Falha de atualização preserva o último snapshot com
+aviso explícito. Rodapé discreto usa texto muted de 12 px, link com alvo de 44 px
+e espaço suficiente para não ficar atrás da navegação ou carrinho fixos.
+
 Durante operação, Gerência funciona como cockpit. Fora do pico, a mesma superfície pode aumentar densidade para fechamento e analytics.
 
 Estados de conectividade precisam ser explícitos:
@@ -349,3 +361,9 @@ Pode usar layout split para operação, sem transformar cada módulo em dashboar
 O protótipo em `prototype/index.html` consome `prototype/design-system.css` e serve como referência visual inicial.
 
 Ele não é a implementação final do frontend, mas mudanças visuais de alto nível devem primeiro preservar este contrato para evitar drift entre protótipo, Codex/Claude e o futuro app Next.js.
+
+## Implementação Web — Spec 020
+
+Quick Catalog combina Field, CatalogCombobox, ProductIcon, StatusBadge/semântica de estado e Button. Resultados mostram preço, destino e ativação/disponibilidade; selecionar reutiliza o produto. Criação é ação explícita com preço e destino, após a busca. Ícone de fallback usa as iniciais no mesmo espaço do asset e não representa disponibilidade. A fila de produção continua antes do cadastro.
+
+Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV, Panel para grupos de fatos e estados semânticos para conferência/divergência. Valores históricos e exposição atual são rotulados separadamente. Histórico de caixa usa seletor com data/estado e retorno explícito ao turno ativo; consultar histórico não altera estado financeiro. Todas as superfícies mantêm foco visível, targets 44 px e tokens existentes. Ver [Spec 020](../../specs/020-web-operational-completion/spec.md).

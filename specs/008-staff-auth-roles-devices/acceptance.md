@@ -2,9 +2,44 @@
 
 ## Authentication happy path
 
-**Given** an ACTIVE StaffMember membership in a Venue and a registered Android device  
+**Given** an ACTIVE StaffMember membership in a Venue and a new Android app installation never registered with Rodada  
 **When** the staff member enters a valid PIN  
-**Then** the backend issues a staff session scoped to that Venue and the app shows the current operator.
+**Then** the backend registers the installation automatically as UNTRUSTED, issues a staff session scoped to that Venue and the app shows the current operator without manager approval.
+
+## BYOD device trust does not block routine work
+
+**Given** an authenticated waiter on a personal Android installation with trust state UNTRUSTED  
+**When** they view Tabs, confirm orders or perform another ordinary operation their membership authorizes  
+**Then** the server evaluates staff capabilities and succeeds without a device-trust promotion or approval screen.
+
+**And given** a valid login on another previously unknown installation  
+**Then** it also succeeds without manager intervention; previous installations are not required to be removed first.
+
+## Revocation scope and reinstall
+
+**Given** a registered installation is REVOKED  
+**When** its existing sessions refresh or mutate  
+**Then** they are denied, regardless of the employee's role.
+
+**And given** the same employee still has an ACTIVE membership and authenticates from a distinct, newly registered installation  
+**Then** the new session is evaluated normally; the old device revocation is not falsely treated as a physical-device ban.
+
+**And given** the membership is SUSPENDED or REVOKED  
+**Then** login and mutations are denied from every installation.
+
+## Payment eligibility is independent
+
+**Given** a waiter authenticated on an Android phone lacking NFC, a supported PSP SDK or required provider provisioning  
+**When** they use Rodada Atendimento  
+**Then** normal orders and Tabs still work, while Tap on Phone is unavailable and supported payment fallbacks remain discoverable.
+
+## BYOD privacy and fallback
+
+**Given** an employee uses their personal phone  
+**Then** the POS does not require MDM enrollment, access to unrelated personal content or continuous location tracking to authenticate and serve orders.
+
+**And given** the personal device is unavailable or unsuitable  
+**Then** the Venue can serve the same customer via an authorized shared/loaner device or cashier flow.
 
 ## Permission denial
 

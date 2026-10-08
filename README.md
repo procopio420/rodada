@@ -22,6 +22,10 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 
 ## Marca e domínios canônicos
 
+### Estado Web verificável
+
+Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API. A [Spec 020](specs/020-web-operational-completion/spec.md) entrega Quick Catalog com busca/reutilização e criação auditada, histórico da comanda do cliente com atualização a cada cinco segundos, seleção/revisão de fechamentos antigos mesmo com turno ativo e relatórios operacionais por período com CSV. Os ícones usam fallback; a integração de IA foi adiada pelo usuário. Consulte a [entrega e validação](docs/development/web-operational-completion.md), o [relatório visual](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). O roadmap abaixo também descreve capacidades futuras; não implica que todo módulo esteja implementado. Paridade visual total e publicação em produção não são declaradas.
+
 A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
 
 Hosts públicos oficiais:
@@ -250,6 +254,14 @@ Rodada é um único produto com superfícies especializadas por função, todas 
 - **Rodada Gerência** — Web/PWA responsiva **mobile-first** para cockpit ao vivo, exceções, fechamento, pessoas e analytics.
 
 Não criar um único frontend com todas as funções escondidas por permissão. Compartilhar contratos, domínio e design tokens; cada superfície deve continuar extremamente focada no trabalho do seu usuário.
+
+## Dispositivos e implantação do piloto
+
+O Bar do Aderlan pode reaproveitar seus computadores: **caixa e gerência** no PC do caixa; **cozinha e bar** no PC da produção, preservando filas distintas. O **Atendimento Android** usa por padrão celulares pessoais dos garçons (BYOD), com alternativa de aparelho compartilhado/de reserva ou atendimento pelo caixa. O **Cliente** utiliza o próprio celular pelo QR/PWA.
+
+**Autorizamos pessoas, não celulares:** login válido registra automaticamente a instalação e permite as operações do funcionário sem aprovação do gerente nem promoção para `TRUSTED`. Gestão de sessões/dispositivos existe para segurança, e `TRUSTED` atende capacidades específicas de terminais compartilhados. Tap on Phone requer elegibilidade/provisionamento separados pelo provider e não é condição para operar o PDV.
+
+Detalhes: [Spec 008](./specs/008-staff-auth-roles-devices/spec.md), [Spec 006](./specs/006-payments-tap-on-phone/spec.md) e [ADR 0007](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md).
 
 ## Design system
 

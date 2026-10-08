@@ -67,6 +67,11 @@ def _context_payload(session, *, token: str | None = None) -> dict:
     }
     if token is not None:
         payload["guest_session_token"] = token
+    if session.tab_id:
+        payload["tab"]["orders"] = [
+            _order_payload(order) for order in session.tab.orders.order_by("confirmed_at", "id")
+            .prefetch_related("items__product")
+        ]
     return payload
 
 

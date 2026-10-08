@@ -61,7 +61,7 @@ class Product(models.Model):
             super().save(*args, **kwargs)
             if creating:
                 ProductAvailability.objects.get_or_create(product=self)
-                ProductIcon.objects.create(product=self)
+                ProductIcon.objects.get_or_create(product=self)
                 from modules.catalog.services import enqueue_icon
                 enqueue_icon(product=self)
 
@@ -99,14 +99,22 @@ class ProductAvailability(models.Model):
 
 
 class ProductIcon(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.OneToOneField(Product, on_delete=models.CASCADE, related_name="icon")
-    source = models.CharField(max_length=16, default="NONE", choices=[(s, s) for s in ("NONE", "AI_GENERATED", "UPLOADED")])
-    status = models.CharField(max_length=16, default="NONE", choices=[(s, s) for s in ("NONE", "GENERATING", "READY", "FAILED")])
-    published_asset = models.CharField(max_length=240, blank=True)
-    revision = models.PositiveIntegerField(default=0)
+    """Stable product-keyed identity, extended with durable generation and revisions."""
+    product = models.OneToOneField(Product, on_delete=models.CASCADE, primary_key=True, related_name="icon")
+    source = models.CharField(max_length=24, default="NONE")
+    status = models.CharField(max_length=16, default="FAILED")
+    published_asset_url = models.URLField(blank=True)
+    style_version = models.CharField(max_length=40, default="rodada-icon-v1")
+    error_code = models.CharField(max_length=80, default="GENERATOR_NOT_CONFIGURED")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    published_asset = models.CharField(max_length=240, blank=True)
+    revision = models.PositiveIntegerField(default=0)
+
+    @property
+    def id(self):
+        return self.pk
 
 
 class IconGeneration(models.Model):

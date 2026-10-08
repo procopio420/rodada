@@ -257,3 +257,7 @@ CatalogIconGenerator.generate(product_context, style_contract) -> GeneratedAsset
 - Runtime uses a configurable HTTPS image-provider gateway (documented in Catalog README), with no fake adapter fallback. CI supplies an injected deterministic generator only.
 - PNG/JPEG/WebP uploads: maximum 5 MB; square 128–2048 px; decoded and normalized to PNG. Only published assets are served publicly by opaque icon/asset identifiers.
 - Migration stops on accent-normalization collisions for explicit operator reconciliation; it never merges existing products or rewrites historical order references.
+
+## Compatibilidade com Spec 020
+
+A geração durável desta entrega substitui o fallback estático da Spec 020. O endpoint `catalog/products/resolve/` permanece como alias autenticado que exige `catalog.product.create`; essa capability permite criar nas duas estações. O endpoint `catalog/resolve-or-create/` mantém autorização por estação. A identidade ProductIcon já publicada em main permanece vinculada à chave UUID do Product; migrações posteriores adicionam jobs e revisões sem recriar os registros existentes.

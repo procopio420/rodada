@@ -11,7 +11,9 @@ from modules.corrections.views import (
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
-from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
+from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
+from modules.management.views import CalendarView, ReportView
+from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -80,6 +82,10 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/operations/", OperationView.as_view()),
     path("tabs/<uuid:tab_id>/operations/preview/", PreviewView.as_view()),
     path("service-points/", ServicePointView.as_view()),
+    path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
+    path("cash/shifts/history/", CashShiftListView.as_view()),
+    path("management/calendar/", CalendarView.as_view()),
+    path("management/reports/", ReportView.as_view()),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),

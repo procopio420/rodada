@@ -30,13 +30,17 @@ def authorize_station(session, station):
     capability = {"BAR": Capability.CATALOG_CREATE_BAR, "KITCHEN": Capability.CATALOG_CREATE_KITCHEN}.get(station)
     if not capability:
         raise ValidationError("Estação inválida.")
-    if not has_capability(session.membership, capability):
+    if not (has_capability(session.membership, capability) or has_capability(session.membership, Capability.CATALOG_PRODUCT_CREATE)):
         raise PermissionDenied("Criação não autorizada nesta estação.")
 
 
 @transaction.atomic
-def resolve_or_create_product(*, session, actor, name, price_cents, station, description="", category=""):
+def resolve_or_create_product(*, actor, name, price_cents, session=None, station=None, fulfillment_station=None, description="", category=""):
+    from modules.access.models import StaffSession
+    session = session or StaffSession.objects.select_related("membership").get(pk=actor.session_id)
+    station = station or fulfillment_station
     authorize_station(session, station)
+    Venue.objects.select_for_update().get(pk=actor.venue_id)
     product, created = Product.objects.get_or_create(venue_id=actor.venue_id,
         normalized_name=normalize_product_name(name), defaults=dict(name=name.strip(), price_cents=price_cents,
         fulfillment_station=station, description=description, category=category))
@@ -83,7 +87,9 @@ def enqueue_icon(*, product, actor=None, request_key=None, force=False):
         raise Throttled(detail="Limite de geração atingido. Tente mais tarde.")
     icon.revision += 1
     icon.status = "GENERATING"
-    icon.save(update_fields=["revision", "status", "updated_at"])
+    icon.error_code = ""
+    icon.style_version = STYLE_VERSION
+    icon.save(update_fields=["revision", "status", "error_code", "style_version", "updated_at"])
     job = IconGeneration.objects.create(icon=icon, fingerprint=fingerprint, request_key=key,
         revision=icon.revision, context=context, prompt=STYLE_CONTRACT + "\nSubject data: " + json.dumps(context, ensure_ascii=False),
         style_version=STYLE_VERSION, available_at=timezone.now(), created_by_id=actor.staff_id if actor else None)
@@ -127,6 +133,7 @@ def run_icon_job(generator=None):
             current.save()
             if icon.revision == job.revision:
                 icon.published_asset, icon.source, icon.status = path, "AI_GENERATED", "READY"
+                icon.published_asset_url, icon.error_code = "", ""
                 icon.save()
                 audit(icon.product, "catalog.icon_published", job_id=str(job.id), asset=path)
             else:
@@ -144,6 +151,7 @@ def run_icon_job(generator=None):
             current.save()
             if current.status == "FAILED" and icon.revision == job.revision:
                 icon.status = "FAILED"
+                icon.error_code = current.error
                 icon.save()
             audit(icon.product, "catalog.icon_generation_failed", job_id=str(job.id), attempt=current.attempts, error=current.error)
     return True
@@ -156,6 +164,7 @@ def replace_icon(*, product, actor, content=None, mime=None):
     icon.revision += 1  # In-flight jobs cannot overwrite an upload/reset.
     icon.published_asset = default_storage.save(f"catalog/icons/{icon.id}/{uuid.uuid4()}.png", ContentFile(validated)) if validated else ""
     icon.source, icon.status = ("UPLOADED", "READY") if validated else ("NONE", "NONE")
+    icon.published_asset_url, icon.error_code = "", ""
     icon.save()
     audit(product, "catalog.icon_uploaded" if validated else "catalog.icon_removed", actor, asset=icon.published_asset)
     return icon

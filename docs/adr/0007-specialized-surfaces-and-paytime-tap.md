@@ -43,6 +43,23 @@ Tap on Phone é uma capacidade central do app e justifica integração direta co
 
 Compartilhamos semântica, tokens e contratos com as superfícies web; não forçamos compartilhamento de componentes de UI entre Compose e React.
 
+### 2A. BYOD por padrão e hardware reaproveitado no piloto
+
+No piloto do Bar do Aderlan, o modelo operacional padrão é:
+
+| Pessoa/estação | Dispositivo | Superfície |
+| --- | --- | --- |
+| Garçons | Celular Android pessoal, quando disponível e adequado | Rodada Atendimento |
+| Caixa/gerência | Computador já existente no caixa | Rodada Caixa e Gerência |
+| Cozinha e bar | Computador já existente na produção | Rodada Cozinha e Rodada Bar, em views/abas distintas ou simultâneas |
+| Cliente | Próprio celular, sem instalar app | Rodada Cliente via QR/PWA |
+
+Não exigir aquisição de celulares, computadores ou terminais de cartão adicionais como condição de entrada no piloto. A implantação deve verificar conectividade, ergonomia e capacidade dos equipamentos existentes. Prever alternativa para funcionário que não possa ou não deseje usar celular pessoal, bem como contingência para bateria, rede ou aparelho indisponível.
+
+**Identidade é de pessoa, não de aparelho.** No Atendimento Android, após login válido, registrar automaticamente a instalação sem aprovação do gerente; `UNTRUSTED` não bloqueia operações normais autorizadas. `TRUSTED` fica reservado a capacidades específicas de terminais compartilhados, como troca rápida de operador. `REVOKED` invalida sessões daquela instalação, enquanto bloquear o funcionário requer revogar sua membership.
+
+Registrar a instalação não significa acesso a dados privados do celular, rastreamento do funcionário ou gestão MDM do dispositivo. Habilitar Tap on Phone exige verificação e eventual autorização **separadas pelo PSP**, sem prejudicar uso normal de pedidos em celulares sem NFC.
+
 ### 3. Paytime é o primeiro provider de Tap on Phone
 
 O primeiro adapter do MVP será:
@@ -113,7 +130,8 @@ Timeout ou perda de conectividade depois do envio pode produzir `CONFIRMATION_PE
 - Android passa a ter codebase própria;
 - design system precisa ter implementação equivalente em Compose e Web;
 - contratos de API ganham ainda mais importância;
-- homologação/certificação do SDK Paytime entra na entrega do app Android.
+- homologação/certificação do SDK Paytime entra na entrega do app Android;
+- BYOD exige política operacional e alternativa para quem não usar aparelho pessoal, além de Wi-Fi confiável e contingência.
 
 ## Não decidido por esta ADR
 

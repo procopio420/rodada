@@ -16,7 +16,7 @@ type TabDetail = Tab & {
 type Product = { id: string; name: string; availability: string; active: boolean };
 type QueueItem = { id: string; product_name: string; state: string; tab_label: string };
 type Delivery = { id: string; product_name: string; destination_label: string; age_seconds: number };
-type CashPoint = { id: string; label: string; active_shift: { id: string; status: string; expected_cents?: number } | null };
+type CashPoint = { id: string; label: string; active_shift: { id: string; status: string; expected_cents?: number } | null; pending_review_shift?: { id: string; discrepancy_cents: number } | null };
 type Table = { id: string; label: string; status: string; active_occupancy: { id: string } | null };
 
 const money = (value = 0) =>
@@ -39,6 +39,7 @@ export default function ManagementPage() {
   const [refunds, setRefunds] = useState<{ tab: string; item: string; cents: number }[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [hasSnapshot, setHasSnapshot] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,13 +54,15 @@ export default function ManagementPage() {
         getResults<CashPoint>("/api/pos/cash/points/"),
         getResults<Table>("/api/pos/hospitality/tables/"),
       ]);
-      setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
-      setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
       const openTabs = nextTabs.filter((tab) => tab.state !== "CLOSED");
       const details = await Promise.all(openTabs.map(async (tab) => {
         const result = await apiCall<TabDetail>(`/api/pos/tabs/${tab.id}/`);
-        return result.response.ok ? result.body as TabDetail : null;
+        if (!result.response.ok) throw new Error(asApiError(result.body).message);
+        return result.body as TabDetail;
       }));
+      setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
+      setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
+      setHasSnapshot(true);
       setRefunds(details.flatMap((detail) => {
         if (!detail) return [];
         return (detail.refund_required_corrections ?? []).map((row) => ({
@@ -79,8 +82,9 @@ export default function ManagementPage() {
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
   const activeCash = cashPoints.filter((point) => point.active_shift);
   const activeTables = tables.filter((table) => table.status === "OCCUPIED");
+  const pendingCash = cashPoints.filter(point => point.pending_review_shift);
 
-  return <main className="appShell">
+  return <main className="appShell managementShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>
@@ -88,18 +92,27 @@ export default function ManagementPage() {
       <div className="actions"><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
     <ManagementNav />
+    {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
+    {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
+    {hasSnapshot && <>
+    {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
+      <h2 id="cash-review-title">Divergências de caixa pendentes</h2>
+      {pendingCash.map(point => <div className="movement" key={point.id}><div><strong>{point.label}</strong><small>Fechamento aguardando revisão</small></div><strong className="cashDifference">{money(point.pending_review_shift?.discrepancy_cents)}</strong></div>)}
+      <Link className="backLink" href="/cash">Revisar caixa →</Link>
+    </section>}
+    {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
+
     <HouseAccount />
     <CatalogIconEditor />
-    {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
 
     <section className="panel"><h2>Agora</h2>
-      <div className="dataRow"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
-      <div className="dataRow"><span>Exposição em aberto</span><strong>{money(exposure)}</strong></div>
-      <div className="dataRow"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
-      <div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
+      <div className="metricGrid">
+        <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
+        <div className="operationalMetric"><span>Exposição em aberto</span><strong>{money(exposure)}</strong></div>
+        <div className="operationalMetric"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
+        <div className="operationalMetric"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
+      </div>
     </section>
-
-    {refunds.length ? <section className="panel"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
     <section className="panel" id="operacao"><h2>Produção e entrega</h2>
       <div className="dataRow"><span>Bar em fila</span><strong>{bar.length}</strong></div>
@@ -116,8 +129,9 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
-    <section className="panel" id="vendas"><h2>Vendas</h2><p className="muted">O detalhamento de vendas permanece em evolução; esta superfície prioriza exceções operacionais durante o serviço.</p></section>
+    <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
     {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">{product.availability}</strong></div>)}</section> : null}
     <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Cardápio, equipe e relatórios entrarão aqui sem transformar Gerência em navegação de domínio.</p></section>
+    </>}
   </main>;
 }
