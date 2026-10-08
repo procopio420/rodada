@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type Product = { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean };
+import { ProductIcon, IconReference } from "./product-icon";
+
+type Product = { icon: IconReference; id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean };
 type OrderItem = { id: string; product_name: string; quantity: number; line_total_cents: number; state: string };
 type Order = { id: string; status: string; items: OrderItem[] };
 type Tab = { id: string; display_label: string; exposure_cents: number; consumption_blocked: boolean; remaining_capacity_cents: number; orders?: Order[] };
@@ -143,7 +145,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" disabled={sending || stale} onClick={() => void createTab()}>{sending ? "Abrindo…" : "Abrir minha comanda"}</button></section> : <>
       <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><div className="guestBalance"><span>Em aberto</span><strong>{money(context.tab.exposure_cents)}</strong></div></section>
       {context.tab.consumption_blocked && <div className="notice" data-state="warning" role="alert">Para continuar consumindo, peça ajuda à equipe. Você pode pagar uma parte da comanda ou solicitar aprovação.</div>}
-      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
+      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><ProductIcon icon={product.icon} /><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
       <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={!rows.length || sending || stale || (context.tab.consumption_blocked && !orderIntent.current)} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>
       {!!context.tab.orders?.length && <section className="panel"><h2>Pedidos</h2>{context.tab.orders.map((order) => <div className="dataRow" key={order.id}><span>{order.items.map((item) => `${item.quantity} ${item.product_name}`).join(", ")}</span><strong>{order.items.every((item) => item.state === "DELIVERED") ? "Entregue" : "Em preparo"}</strong></div>)}</section>}
     </>}

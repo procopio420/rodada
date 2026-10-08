@@ -6,6 +6,8 @@ import { ManagementNav } from "@/components/management-nav";
 import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
+import { CatalogIconEditor } from "@/components/catalog-icon-editor";
+
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
 type TabDetail = Tab & {
   refund_required_corrections?: { id: string; item_name: string; refund_required_cents: number }[];
@@ -87,6 +89,7 @@ export default function ManagementPage() {
     </header>
     <ManagementNav />
     <HouseAccount />
+    <CatalogIconEditor />
     {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
 
     <section className="panel"><h2>Agora</h2>

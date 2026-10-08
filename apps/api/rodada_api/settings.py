@@ -93,3 +93,10 @@ LOGGING = {
         "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
     },
 }
+
+# Configure a real HTTPS provider gateway; missing credentials produce retriable job failure.
+RODADA_ICON_PROVIDER_URL = os.environ.get("RODADA_ICON_PROVIDER_URL", "")
+RODADA_ICON_PROVIDER_KEY = os.environ.get("RODADA_ICON_PROVIDER_KEY", "")
+RODADA_ICON_PROVIDER_MODEL = os.environ.get("RODADA_ICON_PROVIDER_MODEL", "")
+MEDIA_ROOT = os.environ.get("RODADA_ASSET_ROOT", "/tmp/rodada-assets")
+DATA_UPLOAD_MAX_MEMORY_SIZE = 8 * 1024 * 1024

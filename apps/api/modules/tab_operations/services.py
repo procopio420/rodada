@@ -39,7 +39,9 @@ def payment_blocker(tab, *, confirmed=True):
     if confirmed and (tab.payments.filter(status__in=PaymentStatus.confirmed_money_values()).exists()
                       or Refund.objects.filter(payment__tab=tab, status=RefundStatus.CONFIRMED).exists()):
         return "CONFIRMED_PAYMENT", "Esta comanda já tem pagamento confirmado. Use o fluxo de correção/estorno."
-    if tab.payments.exclude(status__in=(*PaymentStatus.confirmed_money_values(), PaymentStatus.FAILED, PaymentStatus.CANCELLED)).exists() or Refund.objects.filter(payment__tab=tab, status=RefundStatus.PENDING).exists():
+    from modules.payment_provider.models import PaymentAttempt
+    active_attempt = PaymentAttempt.objects.filter(payment__tab=tab, status__in=("CREATED", "PROCESSING", "CONFIRMATION_PENDING")).exists()
+    if active_attempt or tab.payments.exclude(status__in=(*PaymentStatus.confirmed_money_values(), PaymentStatus.FAILED, PaymentStatus.CANCELLED)).exists() or Refund.objects.filter(payment__tab=tab, status=RefundStatus.PENDING).exists():
         return "PAYMENT_IN_FLIGHT", "Pagamento/estorno em andamento. Aguarde a reconciliação."
     return None
 

@@ -175,3 +175,53 @@ class TabOperationConcurrency(OperationFixture, TransactionTestCase):
             results = list(pool.map(worker, ("a", "b")))
         assert sorted(results) == ["OK", "VERSION_CONFLICT"]
         assert TabTransferLine.objects.count() == 1
+
+class TabOperationEdgeTests(OperationFixture, TestCase):
+    def test_active_attempt_blocks_even_if_payment_status_is_terminal(self):
+        from modules.payment_provider.models import PaymentAttempt
+        source, dest = self.tab(), self.tab()
+        self.order(source)
+        payment = self.payment(source, 100)
+        Payment.objects.filter(pk=payment["id"]).update(status="FAILED")
+        PaymentAttempt.objects.create(payment_id=payment["id"], provider="test", idempotency_key="attempt", status="CONFIRMATION_PENDING")
+        assert self.commit(source, self.command(source, dest, lines=[self.line(source, quantity=1)]), 409)["code"] == "PAYMENT_IN_FLIGHT"
+
+    def test_refund_blocks_and_cross_venue_rejects(self):
+        from modules.ledger.models import Refund
+        from modules.venue.models import Venue
+        source, dest = self.tab(), self.tab()
+        self.order(source)
+        payment = self.payment(source, 100)
+        actor = StaffSession.objects.get(staff_member__login_identifier="house-manager")
+        Refund.objects.create(payment_id=payment["id"], amount_cents=100, idempotency_key="refund", created_by_id=actor.staff_member_id)
+        Payment.objects.filter(pk=payment["id"]).update(status="FAILED")
+        assert self.commit(source, self.command(source, dest, lines=[self.line(source, quantity=1)]), 409)["code"] == "CONFIRMED_PAYMENT"
+        other = Tab.objects.create(venue=Venue.objects.create(name="Other", slug="other"))
+        body = self.command(source, lines=[self.line(source, quantity=1)], destination_tab_id=str(other.id), destination_version=1)
+        assert self.commit(source, body, 404)["code"] == "TAB_NOT_FOUND"
+
+    def test_transferred_charge_cannot_be_reversed_by_legacy_correction(self):
+        source, dest = self.tab(), self.tab()
+        order = self.order(source)
+        self.commit(source, self.command(source, dest, lines=[self.line(source, quantity=1)]))
+        response = self.staff.post(f"/order-items/{order['items'][0]['id']}/corrections/cancel/",
+            {"kind": "CANCEL_ITEM", "reason_code": "WRONG_ITEM", "idempotency_key": "correction"}, format="json")
+        assert response.status_code == 409, response.json()
+        assert response.json()["code"] == "TRANSFERRED_RESPONSIBILITY"
+        assert self.detail(source)["exposure_cents"] == 0 and self.detail(dest)["exposure_cents"] == 1000
+
+    def test_completed_dispatch_preserves_destination_history_and_invalid_occupancy(self):
+        from modules.dispatch.models import DispatchTask
+        from modules.hospitality.models import Table, TableOccupancy
+        source = self.tab()
+        order = self.order(source)
+        task = DispatchTask.objects.create(venue=self.venue, task_type="DELIVERY", order_item_id=order["items"][0]["id"], destination_label="Mesa anterior", state="DONE")
+        point = ServicePoint.objects.create(venue=self.venue, label="Balcão")
+        self.commit(source, self.command(source, kind="MOVE_LOCATION", service_point_id=str(point.id)), client=self.staff)
+        task.refresh_from_db()
+        assert task.destination_label == "Mesa anterior"
+        table = Table.objects.create(venue=self.venue, label="B", status="OCCUPIED")
+        occ = TableOccupancy.objects.create(table=table, generation=1)
+        self.commit(source, self.command(source, kind="MOVE_LOCATION", occupancy_id=str(occ.id), idempotency_key="table"), client=self.staff)
+        assert self.operations(source)["tab"]["occupancy_id"] == str(occ.id)
+        assert self.operations(source)["tab"]["service_point_id"] is None

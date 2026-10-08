@@ -108,6 +108,20 @@ sealed interface RecoveryIntent {
     val state: RecoveryState
     fun toJson(): JSONObject
 
+    data class TabStructure(
+        override val id: String,
+        override val staffId: String,
+        override val venueId: String,
+        override val deviceId: String,
+        override val idempotencyKey: String,
+        override val createdAtMillis: Long,
+        override val state: RecoveryState,
+        val tabId: String,
+        val commandJson: String,
+    ) : RecoveryIntent {
+        override fun toJson() = baseJson("TAB_STRUCTURE").put("tab_id", tabId).put("command_json", commandJson)
+    }
+
     data class ConfirmOrder(
         override val id: String,
         override val staffId: String,
@@ -275,6 +289,7 @@ sealed interface RecoveryIntent {
                 state = RecoveryState.valueOf(json.getString("state")),
             )
             when (json.getString("type")) {
+                "TAB_STRUCTURE" -> TabStructure(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "CONFIRM_ORDER" -> {
                     val lines = json.getJSONArray("lines")
                     ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity")) } })

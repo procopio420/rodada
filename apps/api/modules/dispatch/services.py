@@ -207,7 +207,7 @@ def refresh_tab_destination(tab, actor):
     table = assignment.occupancy.table if assignment else None
     occupancy = assignment.occupancy if assignment else None
     label = table.label if table else (tab.service_point.label if tab.service_point_id else tab.display_label)
-    for task in DispatchTask.objects.select_for_update().filter(order_item__order__tab=tab, state__in=("OPEN", "CLAIMED")):
+    for task in DispatchTask.objects.select_for_update(of=("self",)).filter(order_item__order__tab=tab, state__in=("OPEN", "CLAIMED")):
         before = {"table_id": str(task.destination_table_id) if task.destination_table_id else None, "label": task.destination_label}
         task.destination_table, task.destination_occupancy, task.destination_label = table, occupancy, label
         task.save(update_fields=["destination_table", "destination_occupancy", "destination_label", "updated_at"])

@@ -11,7 +11,7 @@ from modules.corrections.views import (
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
-from modules.catalog.views import ProductAvailabilityView, ProductListView
+from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
 from modules.hospitality.views import (
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -117,6 +117,11 @@ urlpatterns = [
     path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
+    path("catalog/suggestions/", ProductSuggestView.as_view()),
+    path("catalog/resolve-or-create/", ProductResolveView.as_view()),
+    path("catalog/products/<uuid:product_id>/", ProductEditView.as_view()),
+    path("catalog/products/<uuid:product_id>/icon/", ProductIconManageView.as_view()),
+    path("catalog/assets/<uuid:icon_id>/<str:filename>/", PublishedIconAssetView.as_view()),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
