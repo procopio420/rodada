@@ -38,9 +38,10 @@ with long names and crowded content at 360–430 px; important controls retain
 authorization, network error and stale states must not imply successful mutations
 or measured zero values before a canonical response exists.
 
-Quick Catalog remains explicitly unavailable until Spec 005's API exists; its
-placeholder must not displace the production queue or offer a working-looking
-creation form. Management preserves exception-first ordering, including pending
+Spec 020 completes the executable Quick Catalog API and connected creation form
+after operational queues, with explicit icon fallback and no configured AI provider.
+Guest history, historical cash selection and operational reports follow Spec 020.
+Management preserves exception-first ordering, including pending
 cash discrepancy reviews and correction refunds, without invented analytics.
 
 The shared shell contains no personal developer credit or personal contact link.
