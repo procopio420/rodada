@@ -111,6 +111,57 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     return adjustment
 
 
+def courtesy_replacement(correction, item: OrderItem, actor) -> LedgerAdjustment:
+    """Comp the newly produced remake without inventing a zero-price item."""
+    charge = (
+        Charge.objects.select_for_update()
+        .filter(order_item=item, tab=item.order.tab)
+        .first()
+    )
+    if charge is None:
+        raise LedgerServiceError(
+            "CHARGE_NOT_FOUND",
+            "O item de reposição não possui cobrança canônica.",
+            409,
+        )
+    adjustment, created = LedgerAdjustment.objects.get_or_create(
+        tab=charge.tab,
+        idempotency_key=f"courtesy-replacement:{correction.id}",
+        defaults={
+            "order_item": item,
+            "kind": AdjustmentKind.COURTESY_REPLACEMENT,
+            "amount_cents": -charge.amount_cents,
+            "reason_code": correction.reason_code,
+            "created_by_id": actor.staff_id,
+        },
+    )
+    if (
+        adjustment.order_item_id != item.id
+        or adjustment.kind != AdjustmentKind.COURTESY_REPLACEMENT
+        or adjustment.amount_cents != -charge.amount_cents
+    ):
+        raise LedgerServiceError(
+            "ADJUSTMENT_IDEMPOTENCY_CONFLICT",
+            "A cortesia existente não corresponde à correção.",
+            409,
+        )
+    if created:
+        record_audit_event(
+            actor=actor,
+            event_type="replacement.courtesy_applied",
+            entity_type="LedgerAdjustment",
+            entity_id=str(adjustment.id),
+            reason=correction.reason_code,
+            metadata={
+                "correction_id": str(correction.id),
+                "order_item_id": str(item.id),
+                "charge_id": str(charge.id),
+                "amount_cents": adjustment.amount_cents,
+            },
+        )
+    return adjustment
+
+
 @transaction.atomic
 def collect_payment(
     *,
@@ -214,6 +265,7 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
     if existing:
         if existing.amount_cents != amount_cents or existing.reason != reason:
             raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro estorno.", 409)
+        existing._idempotency_replay = True
         return existing, totals(payment.tab)
     if payment.status not in PaymentStatus.confirmed_money_values():
         raise LedgerServiceError("PAYMENT_NOT_CONFIRMED", "Só é possível estornar pagamento confirmado.", 409)
@@ -235,6 +287,7 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
             )
     except IntegrityError:
         refund = Refund.objects.get(payment=payment, idempotency_key=idempotency_key)
+        refund._idempotency_replay = True
 
     if payment.method == PaymentMethod.CASH:
         if not cash_point_id:
@@ -276,6 +329,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
             "payment_status": payment.status,
         },
     )
+    if not hasattr(refund, "_idempotency_replay"):
+        refund._idempotency_replay = False
     return refund, result
 
 

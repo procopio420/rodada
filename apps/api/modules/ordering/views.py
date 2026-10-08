@@ -93,6 +93,49 @@ class TabDetailView(APIView):
             _order_payload(order)
             for order in tab.orders.prefetch_related("items").all()
         ]
+        from modules.corrections.models import OrderCorrection
+        from modules.ledger.models import RefundStatus
+
+        payments = tab.payments.prefetch_related("refunds").order_by("received_at", "id")
+        payload["payments"] = [
+            {
+                "id": str(payment.id),
+                "amount_cents": payment.amount_cents,
+                "method": payment.method,
+                "status": payment.status,
+                "confirmed_at": payment.confirmed_at,
+                "refunded_cents": sum(
+                    refund.amount_cents
+                    for refund in payment.refunds.all()
+                    if refund.status == RefundStatus.CONFIRMED
+                ),
+                "refunds": [
+                    {
+                        "id": str(refund.id),
+                        "amount_cents": refund.amount_cents,
+                        "status": refund.status,
+                        "reason": refund.reason,
+                        "confirmed_at": refund.confirmed_at,
+                    }
+                    for refund in payment.refunds.all()
+                ],
+            }
+            for payment in payments
+        ]
+        payload["refund_required_corrections"] = [
+            {
+                "id": str(correction.id),
+                "order_item_id": str(correction.original_order_item_id),
+                "item_name": correction.original_order_item.product_name_snapshot,
+                "reason_code": correction.reason_code,
+                "refund_required_cents": correction.refund_required_cents,
+            }
+            for correction in OrderCorrection.objects.filter(
+                original_order_item__order__tab=tab,
+                status="REQUESTED",
+                financial_disposition="REFUND_REQUIRED",
+            ).select_related("original_order_item")
+        ]
         return Response(payload)
 
 

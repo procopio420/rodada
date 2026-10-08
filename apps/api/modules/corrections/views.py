@@ -8,6 +8,7 @@ from modules.corrections.models import CorrectionKind
 from modules.corrections.services import (
     CorrectionServiceError,
     cancel_before_fulfillment,
+    create_post_production_correction,
     settle_refund_required_cancellation,
 )
 from modules.ledger.services import LedgerServiceError, reverse_open_responsibility, totals
@@ -84,6 +85,52 @@ class CorrectionRefundSettlementView(APIView):
                 "refund_id": str(refund.id),
                 "financial_adjustment_id": str(correction.financial_adjustment_id),
                 **result,
+            },
+            status=200 if getattr(correction, "_idempotency_replay", False) else 201,
+        )
+
+
+class PostProductionCorrectionView(APIView):
+    """Manager command for a real remake/replacement after work has started."""
+
+    permission_classes = [IsAuthenticated, RequireCapability, RequireRecentReauthentication]
+    required_capability = Capability.ORDER_CORRECT
+
+    def post(self, request, item_id):
+        try:
+            correction = create_post_production_correction(
+                item_id=item_id,
+                kind=request.data.get("kind", ""),
+                reason_code=request.data.get("reason_code", ""),
+                reason_text=request.data.get("reason_text", ""),
+                idempotency_key=request.data.get("idempotency_key", ""),
+                replacement_product_id=request.data.get("replacement_product_id"),
+                actor=request.actor_context,
+            )
+        except CorrectionServiceError as error:
+            payload = {"code": error.code, "message": error.message}
+            if error.details:
+                payload.update(error.details)
+            return Response(payload, status=error.status_code)
+        item = OrderItem.objects.select_related("order__tab").get(pk=item_id)
+        return Response(
+            {
+                "id": str(correction.id),
+                "status": correction.status,
+                "kind": correction.kind,
+                "financial_disposition": correction.financial_disposition,
+                "financial_adjustment_id": (
+                    str(correction.financial_adjustment_id) if correction.financial_adjustment_id else None
+                ),
+                "replacement_order_item_id": (
+                    str(correction.replacement_order_item_id)
+                    if correction.replacement_order_item_id
+                    else None
+                ),
+                "refund_required_cents": correction.refund_required_cents,
+                "order_item_id": str(item.id),
+                "order_item_state": item.state,
+                **totals(item.order.tab),
             },
             status=200 if getattr(correction, "_idempotency_replay", False) else 201,
         )

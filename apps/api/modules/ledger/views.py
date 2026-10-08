@@ -75,7 +75,7 @@ class PaymentRefundView(APIView):
                 "confirmed_at": refund.confirmed_at,
                 **result,
             },
-            status=201,
+            status=200 if getattr(refund, "_idempotency_replay", False) else 201,
         )
 
 

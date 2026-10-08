@@ -16,7 +16,11 @@ from modules.corrections.models import (
     WasteKind,
     WasteMarker,
 )
-from modules.corrections.services import CorrectionServiceError, cancel_before_fulfillment
+from modules.corrections.services import (
+    CorrectionServiceError,
+    cancel_before_fulfillment,
+    create_post_production_correction,
+)
 from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentMethod, PaymentStatus
 from modules.ledger.services import reverse_open_responsibility, totals
 from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab
@@ -402,3 +406,123 @@ class CorrectionFoundationTests(TestCase):
         assert correction.replacement_order_item_id == replacement.id
         assert waste.correction_id == correction.id
         assert original.product_name_snapshot == "Cerveja"
+
+    def manager_actor(self):
+        if hasattr(self, "_manager_actor"):
+            return self._manager_actor
+        manager = StaffMember.objects.create(
+            display_name="Gerente correções", login_identifier="corrections-post-production-manager"
+        )
+        manager.set_pin("4321")
+        manager.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue, staff_member=manager, role=StaffRole.MANAGER
+        )
+        session = StaffSession.objects.create(
+            venue=self.venue,
+            staff_member=manager,
+            membership=VenueStaffMembership.objects.get(venue=self.venue, staff_member=manager),
+            expires_at=timezone.now() + timedelta(hours=1),
+        )
+        self._manager_actor = ActorContext.from_session(session)
+        return self._manager_actor
+
+    def test_remake_after_preparing_creates_new_work_and_courtesy_without_second_exposure(self):
+        original = self.item(state=OrderItemState.PREPARING)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+
+        correction = create_post_production_correction(
+            item_id=original.id,
+            kind=CorrectionKind.REMAKE,
+            reason_code="STATION_MISTAKE",
+            reason_text="Copo quebrou no passe",
+            idempotency_key="remake-preparing",
+            actor=self.manager_actor(),
+        )
+        original.refresh_from_db()
+        replacement = correction.replacement_order_item
+
+        self.assertEqual(correction.status, CorrectionStatus.APPLIED)
+        self.assertEqual(correction.financial_disposition, FinancialDisposition.COURTESY_REPLACEMENT)
+        self.assertEqual(original.state, OrderItemState.CANCELLED)
+        self.assertEqual(replacement.state, OrderItemState.NEW)
+        self.assertEqual(replacement.product_name_snapshot, "Cerveja")
+        self.assertEqual(totals(original.order.tab)["exposure_cents"], 1200)
+        self.assertEqual(correction.financial_adjustment.amount_cents, -1200)
+        self.assertTrue(AuditEvent.objects.filter(event_type="order_item.remake_created").exists())
+
+        replay = create_post_production_correction(
+            item_id=original.id,
+            kind=CorrectionKind.REMAKE,
+            reason_code="STATION_MISTAKE",
+            reason_text="Copo quebrou no passe",
+            idempotency_key="remake-preparing",
+            actor=self.manager_actor(),
+        )
+        self.assertEqual(replay.id, correction.id)
+        self.assertEqual(OrderCorrection.objects.filter(original_order_item=original).count(), 1)
+
+    def test_replacement_price_difference_is_append_only_and_deterministic(self):
+        for price, expected in ((1200, 1200), (900, 900), (1500, 1500)):
+            with self.subTest(price=price):
+                original = self.item(state=OrderItemState.READY, name=f"Cerveja original {price}")
+                Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+                target = Product.objects.create(
+                    venue=self.venue,
+                    name=f"Substituto {price}",
+                    price_cents=price,
+                    fulfillment_station=FulfillmentStation.BAR,
+                )
+                correction = create_post_production_correction(
+                    item_id=original.id,
+                    kind=CorrectionKind.REPLACEMENT,
+                    reason_code="WRONG_ITEM",
+                    reason_text="Cliente pediu outra bebida",
+                    idempotency_key=f"replacement-{price}",
+                    replacement_product_id=target.id,
+                    actor=self.manager_actor(),
+                )
+                original.refresh_from_db()
+                self.assertEqual(correction.status, CorrectionStatus.APPLIED)
+                self.assertEqual(correction.replacement_order_item.unit_price_cents, price)
+                self.assertEqual(original.state, OrderItemState.CANCELLED)
+                self.assertEqual(totals(original.order.tab)["exposure_cents"], expected)
+                self.assertEqual(correction.financial_adjustment.amount_cents, -1200)
+
+    def test_paid_cheaper_replacement_requires_exact_refund_without_rewriting_payment(self):
+        original = self.item(state=OrderItemState.READY)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+        payment = Payment.objects.create(
+            tab=original.order.tab,
+            amount_cents=1200,
+            method=PaymentMethod.OTHER,
+            idempotency_key="paid-replacement",
+            status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(),
+            received_by=self.staff,
+        )
+        cheaper = Product.objects.create(
+            venue=self.venue, name="Suco", price_cents=900, fulfillment_station=FulfillmentStation.BAR
+        )
+        manager_actor = self.manager_actor()
+        correction = create_post_production_correction(
+            item_id=original.id,
+            kind=CorrectionKind.REPLACEMENT,
+            reason_code="CUSTOMER_REJECTED",
+            reason_text="Produto indisponível",
+            idempotency_key="paid-cheaper-replacement",
+            replacement_product_id=cheaper.id,
+            actor=manager_actor,
+        )
+        self.assertEqual(correction.status, CorrectionStatus.REQUESTED)
+        self.assertEqual(correction.financial_disposition, FinancialDisposition.REFUND_REQUIRED)
+        self.assertEqual(correction.refund_required_cents, 300)
+        self.assertEqual(totals(original.order.tab)["exposure_cents"], -300)
+
+        with self.assertRaises(CorrectionServiceError) as captured:
+            from modules.corrections.services import settle_refund_required_cancellation
+            settle_refund_required_cancellation(
+                correction_id=correction.id, payment_id=payment.id, amount_cents=200,
+                refund_idempotency_key="wrong-paid-replacement-refund", cash_point_id=None, actor=manager_actor,
+            )
+        self.assertEqual(captured.exception.code, "REFUND_AMOUNT_MISMATCH")

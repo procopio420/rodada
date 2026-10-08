@@ -104,6 +104,10 @@ class OrderCorrection(models.Model):
         null=True,
         blank=True,
     )
+    # When a correction has already changed the append-only responsibility but
+    # confirmed money now exceeds it, this is the exact canonical refund still
+    # required.  It prevents a UI or retry from guessing a partial amount.
+    refund_required_cents = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     applied_at = models.DateTimeField(null=True, blank=True)
 

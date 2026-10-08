@@ -16,6 +16,7 @@ class Charge(models.Model):
 
 class AdjustmentKind(models.TextChoices):
     ORDER_ITEM_CANCELLATION = "ORDER_ITEM_CANCELLATION", "Order item cancellation"
+    COURTESY_REPLACEMENT = "COURTESY_REPLACEMENT", "Courtesy replacement"
 
 
 class LedgerAdjustment(models.Model):
@@ -53,9 +54,16 @@ class LedgerAdjustment(models.Model):
             ),
             models.CheckConstraint(
                 condition=(
-                    models.Q(kind=AdjustmentKind.ORDER_ITEM_CANCELLATION, amount_cents__lt=0)
+                    models.Q(
+                        kind=AdjustmentKind.ORDER_ITEM_CANCELLATION,
+                        amount_cents__lt=0,
+                    )
+                    | models.Q(
+                        kind=AdjustmentKind.COURTESY_REPLACEMENT,
+                        amount_cents__lt=0,
+                    )
                 ),
-                name="ledger_adjustment_cancellation_negative",
+                name="ledger_adjustment_negative_supported_kind",
             ),
         ]
         indexes = [
