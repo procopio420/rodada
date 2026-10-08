@@ -2,73 +2,73 @@
 
 ## Catalog/API
 
-- [ ] ProductIcon stable 1:1 model/reference
-- [ ] create ProductIcon shell with every new Product
-- [ ] source/status enums
-- [ ] published icon invariant
-- [ ] placeholder fallback
-- [ ] normalized Product name/search key per Venue
-- [ ] product autocomplete/suggest query
-- [ ] resolve-or-create Product command
-- [ ] DB/transaction guard against exact normalized-name races
-- [ ] inherit FulfillmentStation from station context
-- [ ] permissions for station quick create
-- [ ] CatalogIconGenerator port
-- [ ] provider adapter
-- [ ] style contract version field
-- [ ] automatic generation enqueue on Product create
-- [ ] content/style fingerprint for generation deduplication
-- [ ] generation request idempotency
-- [ ] generation rate limit
-- [ ] storage/CDN integration
-- [ ] upload validation
-- [ ] audit generation/regeneration/publish/upload/remove
+- [x] ProductIcon stable 1:1 model/reference
+- [x] create ProductIcon shell with every new Product
+- [x] source/status enums
+- [x] published icon invariant
+- [x] placeholder fallback
+- [x] normalized Product name/search key per Venue
+- [x] product autocomplete/suggest query
+- [x] resolve-or-create Product command
+- [x] DB/transaction guard against exact normalized-name races
+- [x] inherit FulfillmentStation from station context
+- [x] permissions for station quick create
+- [x] CatalogIconGenerator port
+- [x] provider adapter
+- [x] style contract version field
+- [x] automatic generation enqueue on Product create
+- [x] content/style fingerprint for generation deduplication
+- [x] generation request idempotency
+- [x] generation rate limit
+- [x] storage/CDN integration
+- [x] upload validation
+- [x] audit generation/regeneration/publish/upload/remove
 
 ## Staff / Bar / Kitchen
 
-- [ ] **+ Item** action
-- [ ] Product name typeahead/autocomplete
-- [ ] existing result row with icon + price + station + availability
-- [ ] **Criar "{nome}"** fallback when no exact match
-- [ ] selecting existing Product never duplicates it
-- [ ] compact price form only when creating a new Product
-- [ ] station prefilled for new Product
-- [ ] category/description optional
-- [ ] no generate button/toggle in quick-create flow
-- [ ] automatic generating state + placeholder after create
-- [ ] automatic publish of first generated asset
+- [x] **+ Item** action
+- [x] Product name typeahead/autocomplete
+- [x] existing result row with icon + price + station + availability
+- [x] **Criar "{nome}"** fallback when no exact match
+- [x] selecting existing Product never duplicates it
+- [x] compact price form only when creating a new Product
+- [x] station prefilled for new Product
+- [x] category/description optional
+- [x] no generate button/toggle in quick-create flow
+- [x] automatic generating state + placeholder after create
+- [x] automatic publish of first generated asset
 - [ ] preview in edit/detail
-- [ ] secondary regenerate action only in advanced edit/review
+- [x] secondary regenerate action only in advanced edit/review
 - [ ] upload manual asset
-- [ ] remove/reset to placeholder
+- [x] remove/reset to placeholder
 
 ## Guest
 
-- [ ] render published ProductIcon
-- [ ] graceful placeholder
-- [ ] no guest dependency on generation status
+- [x] render published ProductIcon
+- [x] graceful placeholder
+- [x] no guest dependency on generation status
 
 ## Design system
 
-- [ ] define Rodada icon style v1
-- [ ] square/safe-area contract
-- [ ] transparent-background preference
-- [ ] no-text/no-logo rule
+- [x] define Rodada icon style v1
+- [x] square/safe-area contract
+- [x] transparent-background preference
+- [x] no-text/no-logo rule
 - [ ] small-size legibility check
-- [ ] shared ProductIcon component across catalog surfaces
+- [x] shared ProductIcon component across catalog surfaces
 
 ## Quality
 
-- [ ] Product saves when AI provider is unavailable
-- [ ] autocomplete exact match prevents obvious duplicate Product
-- [ ] concurrent resolve-or-create yields one Product
-- [ ] fuzzy suggestion never silently merges Products
-- [ ] duplicate/automatic generation command is idempotent
-- [ ] unchanged generation fingerprint does not create duplicate assets
-- [ ] regeneration preserves currently published icon
-- [ ] failed generation preserves Product and ordering
-- [ ] unauthorized station cannot create/manage another station's products
-- [ ] uploaded invalid MIME/dimensions rejected
-- [ ] Customer/Tab/Order data never enters generation payload
-- [ ] rename/price/availability changes preserve the ProductIcon 1:1 identity
-- [ ] all surfaces and autocomplete resolve the same published asset
+- [x] Product saves when AI provider is unavailable
+- [x] autocomplete exact match prevents obvious duplicate Product
+- [x] concurrent resolve-or-create yields one Product
+- [x] fuzzy suggestion never silently merges Products
+- [x] duplicate/automatic generation command is idempotent
+- [x] unchanged generation fingerprint does not create duplicate assets
+- [x] regeneration preserves currently published icon
+- [x] failed generation preserves Product and ordering
+- [x] unauthorized station cannot create/manage another station's products
+- [x] uploaded invalid MIME/dimensions rejected
+- [x] Customer/Tab/Order data never enters generation payload
+- [x] rename/price/availability changes preserve the ProductIcon 1:1 identity
+- [x] all surfaces and autocomplete resolve the same published asset

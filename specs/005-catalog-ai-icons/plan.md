@@ -47,3 +47,7 @@ Consumir o mesmo asset publicado em Staff, Bar/Cozinha e Guest.
 ## Slice 7 — Hardening
 
 Rate limit, idempotência de request de geração, upload validation, testes de fallback e telemetria de custo/erro.
+
+## Implemented slices
+
+Persistent icon identity, transactional name resolution, durable worker, provider adapters, shared published assets, isolated QuickCatalog and manager icon editor are implemented. Runtime setup and permission policy: `apps/api/modules/catalog/README.md`; architectural decision: ADR 0012. Verification results are recorded in acceptance.md. Live generated-art validation requires provider credentials.
