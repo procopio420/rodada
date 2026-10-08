@@ -97,14 +97,8 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await layoutAndA11y(page);
     const first = await page.screenshot({ path: path.join(artifactRoot, `${name}-${width}.png`), fullPage: true });
     expect(await page.screenshot({ fullPage: true })).toEqual(first); // Same deterministic state, no timer/layout drift.
-    const credit = page.getByRole("link", { name: "desenvolvido por Erick Grotz" });
-    await expect(credit).toHaveAttribute("href", "https://wa.me/5521999353530");
-    await credit.scrollIntoViewIfNeeded();
-    await page.keyboard.press("Tab");
-    await credit.focus();
-    await expect(credit).toBeFocused();
-    expect(await credit.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe("none");
-    expect(await credit.evaluate(el => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest("a") === el; })).toBe(true);
+    await expect(page.getByRole("link", { name: /desenvolvido por/i })).toHaveCount(0);
+    await expect(page.locator('a[href="https://wa.me/5521999353530"]')).toHaveCount(0);
     expect(errors).toEqual([]);
   });
 }

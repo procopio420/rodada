@@ -12,5 +12,4 @@
   production deviations have explicit operational and functional explanations.
 - Real Web/BFF/API tests exercise staff login, queues, availability, production
   transitions, guest ordering, management, cash/refund navigation and auth failures.
-- The discreet developer footer opens `https://wa.me/5521999353530` and is not
-  covered by fixed controls.
+- No personal developer credit or personal WhatsApp link is rendered on any Web surface.

@@ -6,12 +6,12 @@
 - [x] Handle long names, accessible form labels and fixed control clearance.
 - [x] Fix management hash selection and expose canonical pending cash reviews.
 - [x] Preserve confirmed guest order receipts without inventing live tracking.
-- [x] Add shared developer credit linked to the specified Brazilian WhatsApp.
+- [x] Remove personal developer attribution and contact link from the shared shell.
 - [x] Add strict equivalent primitive comparisons and five-width surface coverage.
 - [x] Add test-only real API harness and CI PostgreSQL service.
 - [x] Run final local visual (87), integration (4), build, typecheck and API (153 passed, 2 PostgreSQL-only skipped) checks after latest-main reconciliation.
 - [x] Update measured audit with reproducible comparisons and explicit limitations.
-- [ ] Confirm GitHub checks on the final commit (recorded in PR delivery).
-- [ ] Merge only after verified checks and a fresh head/main comparison.
+- [x] Confirm GitHub checks on PR #40 final commit 8349f74 (Web/API passed).
+- [x] Merge PR #40 after verified checks and a fresh head/main comparison (982775e).
 
-The initial HTTP 403 delivery blocker was resolved: normal Git push succeeded on retry. Web/API CI and the final merge result are recorded in the PR delivery; the gates above remain pending until verified on the final pushed head.
+The initial HTTP 403 delivery blocker was resolved. PR #40 was merged as 982775e after Web/API CI passed on 8349f74, including 23 PostgreSQL tests. Main was synchronized locally. The follow-up removes personal attribution and updates its spec, acceptance, CSS, visual assertions and documentation.

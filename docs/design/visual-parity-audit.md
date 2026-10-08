@@ -15,7 +15,7 @@ This prepares the shared Web visual foundation, not every planned product capabi
 | Cash `/cash` | Closed pending review inaccessible through normal point selection | Canonical pending shift loaded when no active shift exists, inline manager PIN and explicit review success |
 | Refunds `/refunds` | Missing labels and invisible initial failures | Labeled controls, explicit loading/auth/network failures |
 | Legacy POS `/pos` | Missing labels; long names stressed layout | Shared responsive contract and labeled controls; Atendimento remains Android |
-| Shared shell | Token drift and no requested credit | Prototype semantic tokens, contrast-safe disabled text, discreet WhatsApp developer footer with fixed-control clearance |
+| Shared shell | Token drift | Prototype semantic tokens and contrast-safe disabled text; personal attribution removed |
 
 Hosts are `gerencia`, `cozinha`, `bar`, `cliente` under `rodada.ai`; `app` and `pedido` remain compatibility aliases. Manifest and ADR 0010 now agree with the runtime.
 
@@ -23,7 +23,7 @@ Hosts are `gerencia`, `cozinha`, `bar`, `cliente` under `rodada.ai`; `app` and `
 
 The original audit reported an 8.8893% full Kitchen mismatch with a 9.5% cap. On this Windows machine the original development composition measured approximately 10.0857%. The completed production composition measures **10.3387% (34,031 / 329,160 pixels)** at 390 × 844. These are different environments/build modes and are not a valid improvement percentage.
 
-Full-page Kitchen comparison remains a generated audit artifact, not a pixel-perfect assertion: production has real auth/navigation, queue actions, passe, the requested footer and a compact unavailable catalog notice; the reference has a different static composition and unconnected creation flow. Increasing the old threshold would conceal these differences.
+Full-page Kitchen comparison remains a generated audit artifact, not a pixel-perfect assertion: production has real auth/navigation, queue actions, passe, a compact unavailable catalog notice; the reference has a different static composition and unconnected creation flow. Increasing the old threshold would conceal these differences.
 
 Instead, seven equivalent reference/production primitives have strict **0.1% maximum mismatch** gates: primary, secondary, danger, disabled button, field, badge and panel. All seven measured **0%** locally. Their reference uses the actual prototype CSS; production uses actual Web CSS. This does not assert full-screen pixel identity for screens with no matching reference.
 
@@ -33,7 +33,7 @@ The 87-test suite covers eight surfaces at **360, 390, 430, 768 and 1280 px**, p
 
 Fixtures intercept APIs only in visual tests. Chromium, locale, timezone, clock start, device scale and data are controlled; animations are removed and fonts awaited. Every main surface is captured twice and checked for identical pixels. Screenshots, diffs, pairs and statistics are generated under ignored `visual-artifacts/` and uploaded by CI.
 
-Checks include zero horizontal overflow, important control targets at least 44 × 44 px, keyboard focus, footer URL and clearance from fixed controls, and no detected axe WCAG A/AA/2.1 violations in covered states. No JavaScript/hydration errors are allowed in the main surface matrix. Kitchen 360 px and Management 390 px were also visually inspected. Automated checks do not replace a human audit on physical devices.
+Checks include zero horizontal overflow, important control targets at least 44 × 44 px, keyboard focus and and no detected axe WCAG A/AA/2.1 violations in covered states. No JavaScript/hydration errors are allowed in the main surface matrix. Kitchen 360 px and Management 390 px were also visually inspected. Automated checks do not replace a human audit on physical devices.
 
 ## Real API verification
 
@@ -73,4 +73,8 @@ Future equivalent full-screen references should receive strict image gates. Upda
 
 ## Delivery status
 
-The first delivery attempt returned HTTP 403 for Git push and connector metadata updates. The normal Git push succeeded on retry after access was resolved. The completed work is now on `feat/web-pixel-perfect`, with Web and API CI triggered. Verify CI on the final pushed head and merge only after green checks; the PR delivery records the final check conclusions and merge SHA. No deployment is claimed.
+The first delivery attempt returned HTTP 403. Normal Git push succeeded on retry. PR #40 was merged into main as `982775ead1cef622c46ccb07f543bc938a828e1d`, after CI passed on head `8349f74`: Web run 37851669363 (87 visual/accessibility tests, 4 real PostgreSQL integration tests, typecheck/build) and API run 37851669378 (153 tests passed, 2 PostgreSQL-only cases skipped in SQLite, plus 23 dedicated PostgreSQL tests passed). The local main was synchronized. No deployment is claimed.
+
+### Follow-up: remove personal attribution
+
+At the user's request, the shared developer credit and personal contact link were removed, along with their unused CSS. Spec 019, acceptance criteria, plan, task history and Web README now reflect the removal. The existing visual suite checks that neither attribution nor its link appears on any of the eight surfaces at all five widths. Follow-up validation: typecheck and production build passed; all 87 visual/accessibility tests passed. The refreshed Kitchen viewport comparison remains 10.3387%; equivalent primitives remain within their strict gates. Product workflows and API behavior were not changed.

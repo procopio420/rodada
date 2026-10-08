@@ -62,7 +62,7 @@ export async function stable(page: Page) {
 export async function layoutAndA11y(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow, "horizontal overflow").toBe(false);
-  const smallControls = await page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a, .siteFooter a").evaluateAll(elements => elements.filter(el => {
+  const smallControls = await page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => elements.filter(el => {
     const box = el.getBoundingClientRect(); return box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44);
   }).map(el => el.outerHTML));
   expect(smallControls, "important controls must be at least 44 × 44 px").toEqual([]);

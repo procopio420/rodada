@@ -157,10 +157,6 @@ h2 { margin-bottom: var(--space-3); font-size: var(--text-md); line-height: 1.2;
 .operationalMetric strong { display: block; margin-top: var(--space-1); font-size: var(--text-lg); font-variant-numeric: tabular-nums; }
 .backLink { display: inline-flex; min-height: var(--touch-min); align-items: center; }
 .panel[id] { scroll-margin-bottom: calc(var(--touch-min) + var(--space-6)); }
-.siteFooter { width: 100%; max-width: 760px; margin: 0 auto; padding: var(--space-4) var(--space-4) var(--space-6); text-align: center; }
-.siteFooter a { display: inline-flex; min-height: var(--touch-min); align-items: center; color: var(--color-text-muted); font-size: var(--text-xs); text-decoration: none; }
-.siteFooter a:hover { text-decoration: underline; }
-body:has(.managementShell) .siteFooter, body:has(.guestShell) .siteFooter { padding-bottom: calc(var(--touch-primary) + var(--space-6) + env(safe-area-inset-bottom)); }
 
 @media (min-width: 620px) { .appShell { padding-inline: var(--space-5); } .productionRow { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } .surfaceNav { right: 50%; left: auto; width: 472px; transform: translateX(50%); } }
 @media (min-width: 768px) { .appShell { max-width: 760px; } .metricGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

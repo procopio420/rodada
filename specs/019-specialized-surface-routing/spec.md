@@ -43,9 +43,8 @@ placeholder must not displace the production queue or offer a working-looking
 creation form. Management preserves exception-first ordering, including pending
 cash discrepancy reviews and correction refunds, without invented analytics.
 
-The shared footer contains a discreet, keyboard-accessible "desenvolvido por
-Erick Grotz" link to `https://wa.me/5521999353530`. It must remain reachable
-above/beyond fixed navigation and cart controls.
+The shared shell contains no personal developer credit or personal contact link.
+The developer attribution added in PR #40 was removed at the user's request.
 
 Visual fixtures are test-only. CI checks all existing surfaces at 360, 390, 430,
 768 and 1280 px, accessibility and matching prototype primitives. Full-screen

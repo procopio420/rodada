@@ -51,7 +51,7 @@ Os testes iniciam servidores de produção próprios: execute o build antes. A s
 
 Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. O banco local é SQLite temporário; CI usa PostgreSQL 17 isolado. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. No PowerShell: `$env:RODADA_TEST_PYTHON='C:\caminho\python.exe'`. Reserve as portas 3100 (visual), 3110 e 8100 (integração).
 
-O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. Quick Catalog continua indisponível. O cliente vê os pedidos confirmados nesta sessão; a API atual não fornece histórico completo nem acompanhamento ao vivo após recarregar. O rodapé compartilhado contém o crédito discreto “desenvolvido por Erick Grotz”, ligado a `https://wa.me/5521999353530`.
+O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. Quick Catalog continua indisponível. O cliente vê os pedidos confirmados nesta sessão; a API atual não fornece histórico completo nem acompanhamento ao vivo após recarregar. O crédito pessoal do desenvolvedor foi removido do rodapé.
 
 ## Superfícies e hosts
 
