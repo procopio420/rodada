@@ -8,10 +8,12 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
     try { body = await request.json(); } catch { body = {}; }
   }
   return forwardAuthenticated(request, "/" + path.join("/") + "/", {
-    method: request.method as "GET" | "POST",
+    method: request.method as "GET" | "POST" | "PATCH" | "PUT",
     body,
   });
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
 export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
+export async function PATCH(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
+export async function PUT(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
