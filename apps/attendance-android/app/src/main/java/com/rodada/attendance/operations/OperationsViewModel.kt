@@ -25,6 +25,8 @@ import java.util.UUID
 
 data class OperationsUiState(
     val pixEnabled: Boolean = false,
+    val tapSimulationEnabled: Boolean = false,
+    val tapPhase: String? = null,
     val integratedPayment: com.rodada.attendance.payments.IntegratedPayment? = null,
     val loading: Boolean = false,
     val submitting: Boolean = false,
@@ -81,8 +83,8 @@ class OperationsViewModel(
         )
         viewModelScope.launch {
             runCatching {
-                val pixEnabled = runCatching { repository.paymentCapabilities(session) }.getOrDefault(false)
-                state = state.copy(pixEnabled = pixEnabled)
+                val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
+                state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
@@ -233,6 +235,38 @@ class OperationsViewModel(
         }
     }
 
+    private fun startTapSimulation(session: StoredSession, amountCents: Long, method: PaymentMethod) {
+        val tab = state.selectedTab?.summary ?: return
+        if (!state.tapSimulationEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
+        if (amountCents <= 0 || amountCents > tab.exposureCents || state.pendingPayment != null) return
+        val key = UUID.randomUUID().toString()
+        val intent = RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId,
+            key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null)
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
+            tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
+        viewModelScope.launch {
+            runCatching {
+                val prepared = repository.integratedPayment(session, tab.id, amountCents, key, "TAP_TO_PAY")
+                require(prepared.simulated) // Never run fake capture against a real merchant.
+                state = state.copy(integratedPayment = prepared)
+                val provider = com.rodada.attendance.payments.SumUpTapToPayProvider(
+                    com.rodada.attendance.payments.TapDeviceCapabilities(30, true, true, true), true,
+                    com.rodada.attendance.payments.DeterministicSumUpSdk(), simulated = true,
+                    onEvent = { event -> state = state.copy(tapPhase = com.rodada.attendance.payments.tapEventMessage(event, true)) },
+                )
+                provider.cardProcessing = if (method == PaymentMethod.TAP_DEBIT) com.rodada.attendance.payments.CardProcessing.DEBIT else com.rodada.attendance.payments.CardProcessing.CREDIT
+                provider.initialize()
+                provider.collect(com.rodada.attendance.payments.TapPaymentRequest(prepared.id, prepared.amountCents))
+                provider.tearDown()
+                repository.reconcileIntegrated(session, prepared.id)
+            }.onSuccess { acceptIntegrated(session, it) }.onFailure {
+                state = state.copy(submitting = false, tapPhase = "SIMULAÇÃO — resultado desconhecido; reconcilie sem cobrar novamente")
+                showFailure(it)
+            }
+        }
+    }
+
     fun startPix(session: StoredSession, amountCents: Long) {
         val tab = state.selectedTab?.summary ?: return
         if (!state.pixEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
@@ -260,10 +294,18 @@ class OperationsViewModel(
         val payment = state.integratedPayment
         if (payment == null) {
             val pending = state.pendingPayment
-            val persisted = state.selectedTab?.payments?.lastOrNull { it.method == "PIX" && it.status !in setOf("FAILED", "CANCELLED") }
+            val persisted = state.selectedTab?.payments?.lastOrNull { it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED") }
             if (persisted != null) {
                 reconcilePixId(session, persisted.id)
-            } else if (pending?.method == PaymentMethod.PIX) startPix(session, pending.amountCents)
+            } else if (pending != null) {
+                state = state.copy(submitting = true)
+                viewModelScope.launch {
+                    runCatching { repository.integratedPayment(session, pending.tabId, pending.amountCents,
+                        pending.idempotencyKey, pending.method.apiValue) }
+                        .onSuccess { acceptIntegrated(session, it) }
+                        .onFailure { state = state.copy(submitting = false); showFailure(it) }
+                }
+            }
             return
         }
         reconcilePixId(session, payment.id)
@@ -296,6 +338,10 @@ class OperationsViewModel(
         method: PaymentMethod,
         cashPointId: String?,
     ) {
+        if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
+            startTapSimulation(session, amountCents, method)
+            return
+        }
         if (method == PaymentMethod.PIX) {
             startPix(session, amountCents)
             return

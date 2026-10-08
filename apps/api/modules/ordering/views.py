@@ -115,6 +115,7 @@ class TabDetailView(APIView):
                 "method": payment.method,
                 "status": payment.status,
                 "confirmed_at": payment.confirmed_at,
+                "simulated": payment.provider.startswith("simulator:"),
                 "refunded_cents": sum(
                     refund.amount_cents
                     for refund in payment.refunds.all()

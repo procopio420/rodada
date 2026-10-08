@@ -27,7 +27,7 @@ fun IntegratedPaymentPanel(payment: IntegratedPayment, busy: Boolean, onCheck: (
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (payment.confirmed) "Pagamento confirmado" else "Pagamento Pix") },
+        title = { Text(if (payment.simulated) "SIMULAÇÃO de pagamento" else if (payment.confirmed) "Pagamento confirmado" else "Pagamento Pix") },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(payment.message)

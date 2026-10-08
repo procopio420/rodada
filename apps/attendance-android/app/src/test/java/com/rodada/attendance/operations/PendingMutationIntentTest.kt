@@ -113,6 +113,19 @@ class PendingMutationIntentTest {
     }
 
     @Test
+    fun `tap recovery preserves backend intent and never changes collection key`() {
+        for (method in listOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT)) {
+            val intent = RecoveryIntent.StartPayment(
+                id = "tap", staffId = "staff", venueId = "venue", deviceId = "device",
+                idempotencyKey = "original-collection", createdAtMillis = 1L,
+                state = RecoveryState.CHECKING, tabId = "tab", amountCents = 1250L,
+                method = method, cashPointId = null,
+            )
+            assertEquals(intent, RecoveryIntent.fromJson(intent.toJson()))
+        }
+    }
+
+    @Test
     fun `reads the existing persisted payment shape`() {
         val legacy =
             JSONObject()

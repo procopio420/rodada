@@ -70,8 +70,8 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun paymentCapabilities(session: StoredSession) =
         authRepository.withAuthorizedAccess(session, client::paymentCapabilities)
 
-    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String) =
-        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key) }
+    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String, method: String = "PIX") =
+        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key, method) }
 
     suspend fun reconcileIntegrated(session: StoredSession, paymentId: String) =
         authRepository.withAuthorizedAccess(session) { client.reconcileIntegrated(it, paymentId) }

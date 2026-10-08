@@ -188,6 +188,7 @@ fun AttendanceScreen(
             cashPoints = state.cashPoints,
             busy = state.submitting,
             pixEnabled = state.pixEnabled,
+            tapSimulationEnabled = state.tapSimulationEnabled,
             onCheckPix = {
                 viewModel.reconcilePix(session)
                 viewingIntegrated = true
@@ -200,7 +201,7 @@ fun AttendanceScreen(
             },
         )
     }
-    if (viewingIntegrated && state.integratedPayment != null) {
+    if (viewingIntegrated && !state.submitting && state.integratedPayment != null) {
         com.rodada.attendance.payments.IntegratedPaymentPanel(
             state.integratedPayment, state.submitting,
             onCheck = { viewModel.reconcilePix(session) },
@@ -242,6 +243,7 @@ fun AttendanceScreen(
         }
     }
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
+    state.tapPhase?.takeIf { state.submitting }?.let { MessageDialog("Simulação de aproximação", it) {} }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
 }
 
@@ -454,7 +456,7 @@ private fun TabWorkspace(
             items(tab.payments, key = { it.id }) { payment ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
+                        Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
                         Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
                         if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
                         val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
@@ -628,6 +630,7 @@ private fun PaymentDialog(
     cashPoints: List<CashPoint>,
     busy: Boolean,
     pixEnabled: Boolean,
+    tapSimulationEnabled: Boolean,
     onCheckPix: () -> Unit,
     onDismiss: () -> Unit,
     onPay: (Long, PaymentMethod, String?) -> Unit,
@@ -646,7 +649,7 @@ private fun PaymentDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Total em aberto: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                PaymentMethod.entries.filter { it != PaymentMethod.PIX || pixEnabled }.forEach { candidate ->
+                PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
@@ -662,8 +665,8 @@ private fun PaymentDialog(
                         Text("Abra ou selecione um caixa com turno ativo antes de receber dinheiro.", color = MaterialTheme.colorScheme.error)
                     }
                 }
-                if (pixEnabled) TextButton(onClick = onCheckPix, enabled = !busy) { Text("Verificar Pix existente") }
-                Text("Aproximação: " + (com.rodada.attendance.payments.PaytimeTapProvider(com.rodada.attendance.payments.detectTapDevice(LocalContext.current)).availability() as com.rodada.attendance.payments.TapToPayAvailability.Unavailable).operationalMessage)
+                if (pixEnabled || tapSimulationEnabled) TextButton(onClick = onCheckPix, enabled = !busy) { Text("Verificar pagamento existente") }
+                Text(if (tapSimulationEnabled) "SIMULAÇÃO de aproximação. Não recebe dinheiro e não exige cartão." else "Aproximação SumUp aguarda SDK e ativação. Terminal externo disponível.")
                 if (!valid) Text("Informe um valor entre R$ 0,01 e o saldo em aberto.", color = MaterialTheme.colorScheme.error)
                 if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
             }
