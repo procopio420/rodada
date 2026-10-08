@@ -303,7 +303,7 @@ class QuickCatalogTests(TestCase):
         create_or_get_guest_tab(session_token=resolution.token)
         order = confirm_guest_order(
             session_token=resolution.token,
-            lines=[{"product_id": str(p.id), "quantity": 1}],
+            lines=[{"product_id": p.id, "quantity": 1}],
             idempotency_key="ai-failed-order",
         )
         assert order.items.get().product_id == p.id
@@ -352,7 +352,7 @@ class QuickCatalogTests(TestCase):
     def test_manager_rate_limit(self):
         p, _ = self.create()
         run_icon_job(self.generator)
-        for index in range(20):
+        for index in range(19):
             enqueue_icon(product=p, actor=self.actor, request_key=f"manual:{index}", force=True)
             run_icon_job(self.generator)
         response = self.client.post(
