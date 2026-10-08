@@ -24,7 +24,8 @@
 
 4. **Android**
    - secure session storage;
-   - device registration;
+   - automatic device registration after authenticated first login, with UNTRUSTED allowed for normal authorized operations;
+   - BYOD personal phones without manager approval; separate shared-terminal TRUSTED fast switch;
    - login;
    - lock/switch operator;
    - privileged reauth.
@@ -77,6 +78,10 @@ Do not rely on UI rollout order for security.
 - integration tests for each baseline role;
 - session expiry/revocation tests;
 - device revocation propagation;
+- first-login auto-registration and normal order placement on UNTRUSTED personal device;
+- phone replacement/reinstall versus revoked installation and revoked staff membership;
+- Android without NFC can take orders; payment-provider onboarding remains separate;
+- shared/loaner fallback and no compulsory MDM/personal data access;
 - Android secure-storage/session recovery tests;
 - Web CSRF/session tests;
 - replay after offline with expired/revoked actor;

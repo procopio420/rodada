@@ -478,7 +478,11 @@ Staff app também avalia capability do device:
 - plataforma/versão suportada;
 - provider provisionado;
 - conectividade;
-- autorização do device.
+- autorização/provisionamento do aparelho **pelo provider de pagamento**, quando requerido.
+
+O registro automático do dispositivo em Access (Spec 008) e seu estado `UNTRUSTED | TRUSTED | REVOKED` **não são** o provisionamento/homologação do PSP. Um garçom com membership ativa pode usar o Rodada Atendimento no celular pessoal, mesmo `UNTRUSTED`, sem aprovação manual do gerente para operar pedidos e comandas.
+
+Apenas o fluxo Tap on Phone exige compatibilidade e eventuais requisitos adicionais do provider. Se NFC/SDK/provisionamento não estiver disponível, o botão de aproximação fica indisponível, com fallback explícito para outros meios autorizados; login, pedidos e consultas continuam funcionando.
 
 A UI deriva disponibilidade dessas capabilities, não de hardcode de marca.
 
