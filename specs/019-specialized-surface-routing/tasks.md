@@ -9,7 +9,9 @@
 - [x] Add shared developer credit linked to the specified Brazilian WhatsApp.
 - [x] Add strict equivalent primitive comparisons and five-width surface coverage.
 - [x] Add test-only real API harness and CI PostgreSQL service.
-- [x] Run final local visual (87), integration (4), build, typecheck and API (132) checks.
+- [x] Run final local visual (87), integration (4), build, typecheck and API (153 passed, 2 PostgreSQL-only skipped) checks after latest-main reconciliation.
 - [x] Update measured audit with reproducible comparisons and explicit limitations.
 - [ ] Confirm GitHub checks on the final commit (recorded in PR delivery).
 - [ ] Merge only after verified checks and a fresh head/main comparison.
+
+Delivery is blocked: Git push and connector PR update returned HTTP 403 for connected identity `evgrotz`. Grant write access to `procopio420/rodada` or connect an authorized account before pushing and checking CI. Local commits are preserved; remote PR #40 remains unchanged and unmerged.

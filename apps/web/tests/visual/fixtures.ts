@@ -11,12 +11,12 @@ export const queue = [
   { id: "order-921", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
   { id: "order-922", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
 ];
-const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200 };
+const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
 const shift = { id: "shift-test", cash_point_id: "cash-test", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };
 const session = {
   staff: { id: "operator-test", display_name: "Operador de teste" }, venue: { id: "venue-test", slug: "web-test", name: "Estabelecimento de teste" },
   membership: { id: "member-test", role: "MANAGER", status: "ACTIVE", version: 1 },
-  capabilities: ["cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create"],
+  capabilities: ["cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create", "tab.limit.override", "customer.manage", "venue.configure"],
   session: { id: "session-test", expires_at: "2026-10-09T08:00:00Z", access_expires_at: "2026-10-08T21:15:00Z" }, device: null,
 };
 export type State = "normal" | "empty" | "loading" | "error" | "long" | "warnings";
@@ -33,7 +33,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     const items = state === "empty" ? [] : state === "long" ? Array.from({ length: 12 }, (_, i) => ({ ...queue[i % 2], id: `item-${i}`, product_name: longName, tab_label: `Comanda ${i} ${longName}` })) : queue;
     const pending = { ...shift, status: "CLOSED", counted_amount_cents: 9000, expected_at_close_cents: 10000, corrected_expected_cents: 10000, discrepancy_cents: -1000, review_status: "PENDING" };
     const cash = state === "empty" ? [] : [{ id: "cash-test", label: state === "long" ? longName : "Caixa de teste", active_shift: state === "warnings" ? null : shift, pending_review_shift: state === "warnings" ? pending : null }];
-    const detail = { ...tab, display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
+    const detail = { ...tab, ...(state === "warnings" ? { state: "REQUIRES_ACTION", action_reasons: ["SPENDING_LIMIT"], approval_requested: true, consumption_blocked: true } : {}), display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
     let body: unknown;
     if (url.pathname === "/api/auth/me") {
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });

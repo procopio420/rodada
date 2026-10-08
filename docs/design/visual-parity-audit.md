@@ -4,7 +4,7 @@ Date: 2026-10-08. Reference: `prototype/index.html` and `prototype/design-system
 
 ## Scope and evidence
 
-This completes the shared Web visual foundation, not every planned product capability. The original author's work is preserved on `feat/web-pixel-perfect`; current main was merged before completion. No Android implementation or backend business rule was expanded.
+This prepares the shared Web visual foundation, not every planned product capability. The original author's work is preserved on `feat/web-pixel-perfect`; current main (including PRs #41/#42) was merged and conflicts reconciled without removing House Account limits, guest stale safeguards or BYOD documentation. No Android implementation or backend business rule was expanded by PR #40.
 
 | Surface | Before completion | Current implementation |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Instead, seven equivalent reference/production primitives have strict **0.1% max
 
 ## Deterministic visual and accessibility coverage
 
-The 87-test suite covers eight surfaces at **360, 390, 430, 768 and 1280 px**, plus empty, held loading, explicit error, long/crowded content and warning states for seven operational screens. Separate tests cover navigation, failed login, saving/failure/retry and the reference comparisons.
+The 87-test suite covers eight surfaces at **360, 390, 430, 768 and 1280 px**, plus empty, held loading, explicit error, long/crowded content and warning states for seven operational screens. Management fixtures include manager House Account controls and spending-limit attention inherited from main. Separate tests cover navigation, failed login, saving/failure/retry and the reference comparisons.
 
 Fixtures intercept APIs only in visual tests. Chromium, locale, timezone, clock start, device scale and data are controlled; animations are removed and fonts awaited. Every main surface is captured twice and checked for identical pixels. Screenshots, diffs, pairs and statistics are generated under ignored `visual-artifacts/` and uploaded by CI.
 
@@ -39,7 +39,7 @@ Checks include zero horizontal overflow, important control targets at least 44 Ã
 
 Four separate browser tests use actual Next BFF and Django, with no intercepted product responses: staff login/secure cookies, idempotent order replay, production availability and transitions, guest QR/order confirmation, revoked visit, management navigation, cash opening/count/close/divergence review with inline reauthentication, absent refund eligibility, capability denial, expired session cookie cleanup, canonical/alias host routing and manifest.
 
-Local integration uses disposable SQLite. CI uses an isolated PostgreSQL 17 database named `rodada_web_e2e`; the harness refuses other database names. Test accounts/catalog exist only in that isolated harness, never as production defaults. Backend validation passed **132 tests**, with no migration changes. Two fixture/rehearsal lookups were made deterministic by product ID rather than timestamp/UUID order; no business semantics changed.
+Local integration uses disposable SQLite. CI is configured for an isolated PostgreSQL 17 database named `rodada_web_e2e`; the harness refuses other database names. Test accounts/catalog exist only in that isolated harness, never as production defaults. Before the final main reconciliation, backend validation passed 132 tests. After incorporating PRs #41/#42, the full suite passed **153 tests, 2 skipped**, with clean Django checks and no migration drift. The two PostgreSQL-only concurrency cases are skipped under local SQLite; their CI execution is not claimed. The new HTTP tests required local socket access outside the sandbox. Two fixture/rehearsal lookups were made deterministic by product ID rather than timestamp/UUID order; no business semantics changed.
 
 ## Reproduction and CI
 
@@ -66,7 +66,11 @@ Web CI runs typecheck, build, all visual gates and real PostgreSQL integration, 
 - Production updates use the existing five-second polling model. Stale snapshots show failure and pause mutations; older polls cannot overwrite a post-mutation snapshot.
 - Cash selection prioritizes an active shift over an older pending review; the dashboard still flags that pending review. A dedicated selector for historical pending shifts remains future work.
 - Management shows existing operational data, not invented revenue/analytics. Initial failures do not become successful zero metrics.
-- No direct prototype exists for Staff, Bar, Guest, Management, Cash or Refunds. Dispatch/Conta da Casa concepts are not newly implemented Web screens.
+- No direct prototype exists for Staff, Bar, Guest, Management, Cash or Refunds. Dispatch is not a new Web screen; the House Account panel is inherited from main, not implemented by this visual PR.
 - No physical Android/browser pilot, deployment or production-data acceptance is claimed by this PR.
 
 Future equivalent full-screen references should receive strict image gates. Update prototype and Web tokens together and keep fixtures separate from real integration evidence.
+
+## Delivery blocker
+
+The connected Git/connector identity is `evgrotz`. Git push to `procopio420/rodada` returned HTTP 403 (write permission denied); updating PR metadata through the GitHub connector also returned 403. Local commits are preserved, but the remote PR has not received them. CI on the completed branch and merge are therefore unverified and blocked. Grant repository write access or connect an authorized account, then push `feat/web-pixel-perfect`, check the exact resulting head and merge only after green checks. No merge SHA or deployment is claimed.
