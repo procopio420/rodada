@@ -229,6 +229,8 @@ def collect_payment(
         except CashServiceError as error:
             raise LedgerServiceError(error.code, error.message, error.status_code) from error
     result = totals(tab)
+    from modules.house_account.services import sync_attention
+    sync_attention(tab, actor)
     record_audit_event(
         actor=actor,
         event_type="payment.collected",
@@ -245,6 +247,9 @@ def _confirmed_refunds_cents(payment: Payment) -> int:
 
 @transaction.atomic
 def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, cash_point_id=None):
+    tab_id = Payment.objects.filter(pk=payment_id, tab__venue_id=actor.venue_id).values_list("tab_id", flat=True).first()
+    if tab_id:
+        Tab.objects.select_for_update().get(pk=tab_id)
     payment = (
         Payment.objects.select_for_update()
         .select_related("tab")
@@ -316,6 +321,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
     )
     payment.save(update_fields=["status"])
     result = totals(payment.tab)
+    from modules.house_account.services import sync_attention
+    sync_attention(payment.tab, actor)
     record_audit_event(
         actor=actor,
         event_type="payment.refunded",

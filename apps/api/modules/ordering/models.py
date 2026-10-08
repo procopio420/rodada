@@ -41,6 +41,11 @@ class Tab(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="tabs")
     display_label = models.CharField(max_length=120, blank=True)
+    customer = models.ForeignKey("house_account.Customer", on_delete=models.PROTECT, null=True, blank=True, related_name="tabs")
+    relationship_snapshot = models.CharField(max_length=16, default="VISITOR")
+    policy_version_snapshot = models.PositiveIntegerField(default=1)
+    operating_limit_cents = models.PositiveIntegerField(default=3000)
+    action_reasons = models.JSONField(default=list, blank=True)
     state = models.CharField(max_length=24, choices=TabState.choices, default=TabState.OPEN)
     version = models.PositiveIntegerField(default=1)
     opened_by = models.ForeignKey(
