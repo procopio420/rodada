@@ -21,3 +21,12 @@ Data: 2026-10-08. [Contrato e aceite](../../specs/020-web-operational-completion
 ## Limites explícitos
 
 Paridade de telas inteiras com o protótipo continua parcial; os sete componentes equivalentes mantêm o limite estrito de 0,1%. API em SQLite não comprova concorrência PostgreSQL; essa validação pertence ao CI. Relatórios são leitura de fatos atuais, sem snapshot transacional entre consultas, estimativas, insights automáticos ou rankings. Há polling, não feed de eventos instantâneo. Sem IA externa configurada e sem publicação em produção. Atualizar o ambiente real requer aplicar as duas novas migrações no banco configurado; os testes não alteram dados de produção.
+
+## Entrega no GitHub
+
+[PR #43](https://github.com/procopio420/rodada/pull/43) incorporado à main após todos os jobs aprovados no código `cc0c85415237a4cd062bf131168ae3bb4f0f389c`:
+
+- [API — run 37856005720](https://github.com/procopio420/rodada/actions/runs/37856005720): 159 testes gerais aprovados, 3 PostgreSQL-only ignorados no SQLite; **30 testes PostgreSQL aprovados**, incluindo resolve-or-create concorrente e regras financeiras.
+- [Web — run 37856005710](https://github.com/procopio420/rodada/actions/runs/37856005710): typecheck/build, **102 visuais/acessibilidade** e **5 fluxos reais com PostgreSQL aprovados**.
+
+Commits separados de contrato (`bbf88ca`), API (`9d532bc`) e Web (`cc0c854`). Merge: `bd6b39fb2976aac693cc9603f31b3572af7486c7`. A atualização posterior deste registro e do checklist altera somente documentação, sem modificar o código validado. Main local sincronizada; publicação em produção não realizada.
