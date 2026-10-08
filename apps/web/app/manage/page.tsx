@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ManagementNav } from "@/components/management-nav";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
@@ -81,8 +82,9 @@ export default function ManagementPage() {
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
-      <div className="actions"><Link className="backLink" href="/pos">← Atendimento</Link><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
+      <div className="actions"><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
+    <ManagementNav />
     {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
 
     <section className="panel"><h2>Agora</h2>
@@ -94,7 +96,7 @@ export default function ManagementPage() {
 
     {refunds.length ? <section className="panel"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
-    <section className="panel"><h2>Produção e entrega</h2>
+    <section className="panel" id="operacao"><h2>Produção e entrega</h2>
       <div className="dataRow"><span>Bar em fila</span><strong>{bar.length}</strong></div>
       <div className="dataRow"><span>Cozinha em fila</span><strong>{kitchen.length}</strong></div>
       <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
@@ -102,13 +104,15 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/bar">Abrir Bar</Link><Link className="backLink" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <section className="panel"><h2>Caixa e salão</h2>
+    <section className="panel" id="gestao"><h2>Caixa e salão</h2>
       {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
       <div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div>
       <div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter((table) => table.status === "CLEANING").length}</strong></div>
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
+    <section className="panel" id="vendas"><h2>Vendas</h2><p className="muted">O detalhamento de vendas permanece em evolução; esta superfície prioriza exceções operacionais durante o serviço.</p></section>
     {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">{product.availability}</strong></div>)}</section> : null}
+    <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Cardápio, equipe e relatórios entrarão aqui sem transformar Gerência em navegação de domínio.</p></section>
   </main>;
 }

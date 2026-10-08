@@ -46,13 +46,13 @@ npm run build
 
 ## Superfícies e hosts
 
-Em produção, as superfícies Web/PWA usam os hosts canônicos definidos na ADR 0010:
+Em produção, as superfícies Web/PWA usam os hosts canônicos definidos na arquitetura de superfícies:
 
 ```text
-app.rodada.ai       Gerência
+gerencia.rodada.ai  Gerência
 cozinha.rodada.ai   Cozinha
 bar.rodada.ai       Bar
-pedido.rodada.ai    Cliente / QR
+cliente.rodada.ai   Cliente / QR
 api.rodada.ai       API
 ```
 
@@ -65,12 +65,12 @@ Durante desenvolvimento, rotas locais podem continuar servindo como entrypoints:
 /bar        produção + disponibilidade
 /kitchen    produção + disponibilidade
 /guest      QR/PWA do cliente
-/owner      gerência e configuração
+/manage     gerência
 ```
 
 Rotas locais são detalhe de implementação e não definem URLs públicas. O runtime/deploy pode resolver a superfície pelo hostname mantendo um único codebase/deploy Next.js.
 
-Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai` ou `guest.rodada.ai` sem atualizar a ADR 0010.
+`app.rodada.ai` e `pedido.rodada.ai` são aliases de compatibilidade durante a migração. Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai` ou `guest.rodada.ai` sem decisão arquitetural.
 
 Compartilhar auth, contratos e design primitives não significa transformar todas as funções em um único frontend escondido por role.
 

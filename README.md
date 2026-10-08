@@ -29,10 +29,10 @@ Hosts públicos oficiais:
 | Superfície | Host |
 | --- | --- |
 | Site institucional | `rodada.ai` |
-| Gerência | `app.rodada.ai` |
+| Gerência | `gerencia.rodada.ai` |
 | Cozinha | `cozinha.rodada.ai` |
 | Bar | `bar.rodada.ai` |
-| Cliente / QR | `pedido.rodada.ai` |
+| Cliente / QR | `cliente.rodada.ai` |
 | API | `api.rodada.ai` |
 | Atendimento | app Android nativo |
 

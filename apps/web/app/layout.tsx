@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
+import { surfaceForHost, surfaceForId } from "@/lib/surfaces";
 
-export const metadata: Metadata = {
-  title: "Rodada",
-  description: "PDV operacional para bares cheios",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const requestHeaders = await headers();
+  const surface =
+    surfaceForId(requestHeaders.get("x-rodada-surface")) ??
+    surfaceForHost(requestHeaders.get("host"));
+  return {
+    title: surface.title,
+    description: surface.description,
+    manifest: "/manifest.webmanifest",
+    applicationName: surface.title,
+  };
+}
 
 export default function RootLayout({
   children,
