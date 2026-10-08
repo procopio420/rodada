@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "modules.access",
     "modules.catalog",
     "modules.ordering",
+    "modules.tab_operations",
     "modules.house_account",
     "modules.hospitality",
     "modules.guest_access",

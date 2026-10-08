@@ -74,7 +74,12 @@ def readiness(request):
     return JsonResponse({"status": "ready"})
 
 
+from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
+
 urlpatterns = [
+    path("tabs/<uuid:tab_id>/operations/", OperationView.as_view()),
+    path("tabs/<uuid:tab_id>/operations/preview/", PreviewView.as_view()),
+    path("service-points/", ServicePointView.as_view()),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),
