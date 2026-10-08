@@ -37,7 +37,10 @@ import java.util.Locale
 fun CashShiftScreen(session: StoredSession, viewModel: CashShiftViewModel) {
     val state = viewModel.state
     var dialog by rememberSaveable { mutableStateOf<CashDialog?>(null) }
-    LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
+    // Re-entering Caixa is also the recovery boundary after an opening/movement
+    // response was lost.  A cached closed cash point must not hide a shift that
+    // the server has already committed.
+    LaunchedEffect(session.staffId, session.venueId) { viewModel.refresh(session) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
