@@ -41,7 +41,10 @@ class RefundsHttpClient(baseUrl: String) {
     private fun parseSettlement(json: JSONObject, command: SettleCorrectionRefundCommand) =
         RefundResult(
             id = json.getString("refund_id"), paymentId = command.paymentId, correctionId = json.getString("id"),
-            status = json.getString("status"), amountCents = command.amountCents,
+            // Settlement responses carry both correction and refund state. The
+            // frontline notice is about the money movement, never the internal
+            // correction lifecycle (which otherwise surfaced as "applied").
+            status = json.getString("refund_status"), amountCents = command.amountCents,
             chargesCents = json.optLong("charges_cents"), paymentsCents = json.optLong("payments_cents"),
             refundsCents = json.optLong("refunds_cents"), exposureCents = json.optLong("exposure_cents"),
         )

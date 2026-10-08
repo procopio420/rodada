@@ -21,7 +21,7 @@ from modules.corrections.services import (
     cancel_before_fulfillment,
     create_post_production_correction,
 )
-from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentMethod, PaymentStatus
+from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentMethod, PaymentStatus, RefundStatus
 from modules.ledger.services import reverse_open_responsibility, totals
 from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab
 from modules.venue.models import Venue
@@ -292,6 +292,7 @@ class CorrectionFoundationTests(TestCase):
         assert replay.status_code == 200, replay.json()
         assert first.json()["id"] == replay.json()["id"]
         assert first.json()["financial_disposition"] == FinancialDisposition.REFUND_REQUIRED
+        assert first.json()["refund_required_cents"] == 1200
         assert item.state == OrderItemState.ACCEPTED
         assert LedgerAdjustment.objects.count() == 0
         assert AuditEvent.objects.filter(event_type="order_item.refund_required").exists()
@@ -318,6 +319,7 @@ class CorrectionFoundationTests(TestCase):
             financial_reversal_hook=reverse_open_responsibility,
             record_paid_request=True,
         )
+        self.assertEqual(pending.refund_required_cents, 500)
         manager = StaffMember.objects.create(display_name="Gerente", login_identifier="corrections-manager")
         manager.set_pin("4321")
         manager.save(update_fields=["pin_hash"])
@@ -356,6 +358,7 @@ class CorrectionFoundationTests(TestCase):
         assert settled.status_code == 201, settled.json()
         assert replay.status_code == 200, replay.json()
         assert settled.json()["refund_id"] == replay.json()["refund_id"]
+        assert settled.json()["refund_status"] == RefundStatus.CONFIRMED
         assert settled.json()["adjustments_cents"] == -1200
         assert settled.json()["refunds_cents"] == 500
         assert settled.json()["exposure_cents"] == 0

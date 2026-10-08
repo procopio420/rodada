@@ -640,8 +640,18 @@ private fun RefundDialog(
     onSubmit: (RefundCommand, String) -> Unit,
 ) {
     val eligiblePayments = payments.filter { it.amountCents > it.refundedCents }
-    var paymentId by remember(target) { mutableStateOf((target as? RefundTarget.Payment)?.payment?.id ?: eligiblePayments.firstOrNull()?.id.orEmpty()) }
+    val correctionRequired = (target as? RefundTarget.Correction)?.correction?.refundRequiredCents
+    var paymentId by remember(target) {
+        mutableStateOf(
+            (target as? RefundTarget.Payment)?.payment?.id
+                ?: eligiblePayments.firstOrNull { payment ->
+                    correctionRequired == null || payment.amountCents - payment.refundedCents >= correctionRequired
+                }?.id
+                ?: eligiblePayments.firstOrNull()?.id.orEmpty(),
+        )
+    }
     val selectedPayment = eligiblePayments.firstOrNull { it.id == paymentId }
+    val selectedPaymentAvailable = selectedPayment?.let { it.amountCents - it.refundedCents } ?: 0
     val maximum = when (target) {
         is RefundTarget.Payment -> target.payment.amountCents - target.payment.refundedCents
         is RefundTarget.Correction -> target.correction.refundRequiredCents
@@ -652,7 +662,7 @@ private fun RefundDialog(
     var cashPointId by remember(target) { mutableStateOf(cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty()) }
     val key = remember(target, paymentId) { UUID.randomUUID().toString() }
     val amount = parseCents(rawAmount)
-    val valid = amount != null && amount > 0 && amount <= maximum && selectedPayment != null
+    val valid = amount != null && amount > 0 && amount <= maximum && amount <= selectedPaymentAvailable && selectedPayment != null
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },

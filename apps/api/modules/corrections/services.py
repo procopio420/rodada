@@ -204,6 +204,16 @@ def cancel_before_fulfillment(
 
     if _has_confirmed_money(tab_id=item.order.tab_id):
         if record_paid_request:
+            # The adjustment is deliberately deferred until the manager settles
+            # the refund.  Still, the client must receive the exact canonical
+            # amount that will bring the tab back to zero once that adjustment
+            # is appended.  Leaving this at the model default made a paid
+            # cancellation look like a R$ 0,00 refund and blocked native
+            # settlement validation.
+            from modules.ledger.services import totals
+
+            current_exposure = totals(item.order.tab)["exposure_cents"]
+            refund_required_cents = max(0, item.line_total_cents - current_exposure)
             correction = OrderCorrection.objects.create(
                 venue_id=item.order.tab.venue_id,
                 original_order_item=item,
@@ -212,6 +222,7 @@ def cancel_before_fulfillment(
                 reason_code=reason_code,
                 reason_text=reason_text,
                 financial_disposition=FinancialDisposition.REFUND_REQUIRED,
+                refund_required_cents=refund_required_cents,
                 idempotency_key=idempotency_key,
                 request_fingerprint=fingerprint,
                 requested_by_id=actor.staff_id,

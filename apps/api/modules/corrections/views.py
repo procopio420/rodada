@@ -49,6 +49,7 @@ class OrderItemCancelView(APIView):
             "financial_adjustment_id": (
                 str(correction.financial_adjustment_id) if correction.financial_adjustment_id else None
             ),
+            "refund_required_cents": correction.refund_required_cents,
             "order_item_id": str(item.id),
             "order_item_state": item.state,
             **totals(item.order.tab),
@@ -83,6 +84,7 @@ class CorrectionRefundSettlementView(APIView):
                 "status": correction.status,
                 "financial_disposition": correction.financial_disposition,
                 "refund_id": str(refund.id),
+                "refund_status": refund.status,
                 "financial_adjustment_id": str(correction.financial_adjustment_id),
                 **result,
             },
