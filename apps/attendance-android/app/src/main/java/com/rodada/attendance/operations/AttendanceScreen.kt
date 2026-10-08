@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleEventObserver
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +52,8 @@ import com.rodada.attendance.refunds.DirectRefundCommand
 import com.rodada.attendance.refunds.RefundCommand
 import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import java.util.UUID
+import java.time.Instant
+import kotlinx.coroutines.delay
 
 @Composable
 fun AttendanceScreen(
@@ -53,8 +63,27 @@ fun AttendanceScreen(
     onOpenAccount: () -> Unit,
 ) {
     val state = viewModel.state
+    val context = LocalContext.current
+    val lifecycleOwner = LocalActivity.current as? LifecycleOwner
+    DisposableEffect(lifecycleOwner, session.staffId, session.venueId) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.revalidateConnection(session)
+        }
+        lifecycleOwner?.lifecycle?.addObserver(observer)
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) { viewModel.revalidateConnection(session) }
+            override fun onLost(network: Network) { viewModel.markConnectionStale() }
+        }
+        connectivity.registerDefaultNetworkCallback(callback)
+        onDispose {
+            lifecycleOwner?.lifecycle?.removeObserver(observer)
+            connectivity.unregisterNetworkCallback(callback)
+        }
+    }
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
+    var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
@@ -70,6 +99,9 @@ fun AttendanceScreen(
     }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
+    LaunchedEffect(session.staffId, session.venueId) {
+        while (true) { delay(15_000); viewModel.refresh(session) }
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -119,6 +151,7 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
+                    onResolveLimit = { resolvingLimit = true },
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
@@ -130,9 +163,12 @@ fun AttendanceScreen(
     if (openingTab) {
         OpenTabDialog(
             busy = state.submitting,
+            customers = state.customers,
+            message = state.errorMessage,
+            onSearch = { viewModel.searchCustomers(session, it) },
             onDismiss = { openingTab = false },
-            onOpen = {
-                viewModel.openTab(session, it)
+            onOpen = { label, customerId ->
+                viewModel.openTab(session, label, customerId)
                 openingTab = false
             },
         )
@@ -146,6 +182,18 @@ fun AttendanceScreen(
             onPay = { amount, method, cashPointId ->
                 viewModel.collectPayment(session, amount, method, cashPointId)
                 takingPayment = false
+            },
+        )
+    }
+    if (resolvingLimit && state.selectedTab != null) {
+        LimitResolutionDialog(
+            tab = state.selectedTab.summary,
+            canApprove = "tab.limit.override" in session.capabilities,
+            busy = state.submitting || state.connectivity != ConnectivityState.ONLINE,
+            message = state.errorMessage ?: state.noticeMessage,
+            onDismiss = { resolvingLimit = false },
+            onSubmit = { amount, reason, pin, expiry, key ->
+                viewModel.resolveLimit(session, amount, reason, pin, expiry, key)
             },
         )
     }
@@ -295,6 +343,7 @@ private fun TabWorkspace(
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
     onClose: () -> Unit,
+    onResolveLimit: () -> Unit,
     onCorrectItem: (OrderItem) -> Unit,
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
@@ -314,6 +363,12 @@ private fun TabWorkspace(
             Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
             BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
+            if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
+                Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
+            }
+            if (tab.summary.state != "CLOSED") {
+                OutlinedButton(onClick = onResolveLimit, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE) { Text("Solicitar / aprovar limite") }
+            }
         }
         item {
             Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
@@ -425,6 +480,9 @@ private fun BalanceCard(
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
+            Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
+            tab.percentageUsed?.let { Text("$it% do limite utilizado") }
+            if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
                     Text("Pagar")
@@ -435,6 +493,49 @@ private fun BalanceCard(
             }
         }
     }
+}
+
+@Composable
+private fun LimitResolutionDialog(
+    tab: TabSummary,
+    canApprove: Boolean,
+    busy: Boolean,
+    message: String?,
+    onDismiss: () -> Unit,
+    onSubmit: (Long?, String, String, String, String) -> Unit,
+) {
+    var amount by rememberSaveable(tab.id) { mutableStateOf("") }
+    var reason by rememberSaveable(tab.id) { mutableStateOf("") }
+    var pin by remember { mutableStateOf("") }
+    val key = rememberSaveable(tab.id) { UUID.randomUUID().toString() }
+    val expiry = rememberSaveable(tab.id) { Instant.now().plusSeconds(3600).toString() }
+    var submitted by rememberSaveable(tab.id) { mutableStateOf(false) }
+    val cents = parseCents(amount)
+    AlertDialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        title = { Text(if (canApprove) "Aprovar limite temporário" else "Solicitar aprovação") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Em aberto ${formatCents(tab.exposureCents)} · limite ${formatCents(tab.effectiveLimitCents)}")
+                message?.let { Text(it) }
+                if (canApprove) {
+                    Text("Aprovação operacional válida por uma hora. Não registra pagamento ou garantia financeira.")
+                    OutlinedTextField(value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, label = { Text("Novo limite total (R$)") })
+                    OutlinedTextField(value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, visualTransformation = PasswordVisualTransformation())
+                } else Text("A gerência receberá a solicitação. Para pagar, volte à comanda e toque em Pagar; um operador autorizado confirma o recebimento.")
+                OutlinedTextField(value = reason, onValueChange = { reason = it.take(240) }, enabled = !busy && !submitted, label = { Text("Motivo") })
+                if (submitted) Text("Confira a mensagem na comanda. Em caso de perda de conexão, repita esta mesma solicitação após atualizar.")
+            }
+        },
+        confirmButton = {
+            TextButton(enabled = !busy && reason.isNotBlank() && (!canApprove || (pin.isNotBlank() && cents != null && cents > tab.effectiveLimitCents)), onClick = {
+                submitted = true
+                onSubmit(if (canApprove) cents else null, reason, pin, expiry, key)
+                pin = ""
+            }) { Text(if (busy) "Confirmando…" else if (canApprove) "Aprovar" else "Solicitar") }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text("Voltar à comanda") } },
+    )
 }
 
 @Composable
@@ -471,15 +572,30 @@ private fun OrderCart(
 }
 
 @Composable
-private fun OpenTabDialog(busy: Boolean, onDismiss: () -> Unit, onOpen: (String) -> Unit) {
+private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, message: String?, onSearch: (String) -> Unit,
+                          onDismiss: () -> Unit, onOpen: (String, String?) -> Unit) {
     var label by rememberSaveable { mutableStateOf("") }
+    var customerId by rememberSaveable { mutableStateOf<String?>(null) }
+    var searched by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Abrir comanda") },
         text = {
-            OutlinedTextField(value = label, onValueChange = { label = it }, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = label, onValueChange = { label = it; customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
+                TextButton(enabled = !busy && label.isNotBlank(), onClick = { searched = true; onSearch(label) }) { Text(if (busy) "Buscando…" else "Buscar cliente existente") }
+                if (searched && !busy) {
+                    if (customers.isEmpty()) Text("Nenhum cliente encontrado. Você pode abrir sem cadastro.")
+                    customers.take(5).forEach { customer ->
+                        OutlinedButton(enabled = !busy, onClick = { customerId = customer.id; label = customer.displayName }) {
+                            Text("${customer.displayName} · ${customer.kind}${if (customerId == customer.id) " ✓" else ""}")
+                        }
+                    }
+                }
+                message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            }
         },
-        confirmButton = { Button(onClick = { onOpen(label.trim()) }, enabled = !busy) { Text("Abrir") } },
+        confirmButton = { Button(onClick = { onOpen(label.trim(), customerId) }, enabled = !busy) { Text("Abrir") } },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }

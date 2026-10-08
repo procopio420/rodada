@@ -206,7 +206,10 @@ def create_or_get_guest_tab(*, session_token: str, display_label: str = "") -> T
         table.save(update_fields=["status", "updated_at"])
         session.occupancy = occupancy
 
-    tab = Tab.objects.create(venue_id=table.venue_id, display_label=display_label.strip())
+    from modules.house_account.services import snapshot, sync_attention
+    tab = Tab.objects.create(venue_id=table.venue_id, display_label=display_label.strip(),
+                             **snapshot(table.venue_id))
+    sync_attention(tab)
     TabOccupancyAssignment.objects.create(occupancy=occupancy, tab=tab, assigned_by=None)
     session.tab = tab
     session.save(update_fields=["occupancy", "tab", "last_seen_at"])

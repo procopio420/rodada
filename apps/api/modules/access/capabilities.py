@@ -18,6 +18,8 @@ class Capability:
     DISCOUNT_OVERRIDE = "discount.override"
     STAFF_MANAGE = "staff.manage"
     VENUE_CONFIGURE = "venue.configure"
+    CUSTOMER_MANAGE = "customer.manage"
+    LIMIT_OVERRIDE = "tab.limit.override"
 
 
 ALL_CAPABILITIES = frozenset(
@@ -39,6 +41,8 @@ _CASHIER = _STAFF | {
     Capability.CASH_ADJUSTMENT_CREATE,
 }
 _MANAGER = _CASHIER | {
+    Capability.CUSTOMER_MANAGE,
+    Capability.LIMIT_OVERRIDE,
     Capability.REFUND_CREATE,
     Capability.CASH_ADJUSTMENT_CREATE,
     Capability.TAB_REOPEN,

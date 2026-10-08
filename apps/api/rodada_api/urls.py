@@ -4,6 +4,8 @@ from django.urls import include, path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
+from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView,
+    TabLimitOverrideView, TabCustomerView, TabReassessView, TabApprovalRequestView, TabHouseHistoryView)
 from modules.corrections.views import (
     CorrectionRefundSettlementView,
     OrderItemCancelView,
@@ -91,6 +93,14 @@ urlpatterns = [
     path("manage/access/sessions/<uuid:session_id>/revoke/", SessionRevokeView.as_view(), name="access-session-revoke"),
     path("manage/access/audit/", AccessAuditListView.as_view(), name="access-audit"),
     path("tabs/", TabListCreateView.as_view(), name="tab-list-create"),
+    path("customers/", CustomerListView.as_view(), name="house-customers"),
+    path("customers/<uuid:customer_id>/", CustomerDetailView.as_view(), name="house-customer-detail"),
+    path("house-account/policies/", PolicyView.as_view(), name="house-policies"),
+    path("tabs/<uuid:tab_id>/limit-override/", TabLimitOverrideView.as_view(), name="tab-limit-override"),
+    path("tabs/<uuid:tab_id>/customer/", TabCustomerView.as_view(), name="tab-customer"),
+    path("tabs/<uuid:tab_id>/reassess-policy/", TabReassessView.as_view(), name="tab-reassess"),
+    path("tabs/<uuid:tab_id>/approval-request/", TabApprovalRequestView.as_view(), name="tab-approval-request"),
+    path("tabs/<uuid:tab_id>/house-history/", TabHouseHistoryView.as_view(), name="tab-house-history"),
     path("tabs/<uuid:tab_id>/", TabDetailView.as_view(), name="tab-detail"),
     path("tabs/<uuid:tab_id>/orders/confirm/", OrderConfirmView.as_view(), name="order-confirm"),
     path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),

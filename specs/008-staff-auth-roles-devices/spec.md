@@ -120,6 +120,21 @@ Fields conceptually include:
 
 Device trust never replaces user authentication.
 
+### Personal devices (BYOD) versus shared terminals
+
+**Rodada Atendimento adopts BYOD as the default:** a waiter may install the native Android app on their own phone and log in with their own staff identity. The Venue authorizes the **person** through an ACTIVE membership and server-side capabilities, not the phone.
+
+- On first successful staff authentication, automatically create a Venue-scoped `DeviceRegistration` for the app installation, initially `UNTRUSTED`, without an owner/manager approval queue.
+- An `UNTRUSTED` device **must be allowed** to create/refresh staff sessions and execute ordinary operations permitted to that staff member (e.g. view Tabs, confirm orders, perform authorized non-provider payment flows). Only `REVOKED` devices block those sessions.
+- `TRUSTED` is an optional elevated device context for **shared Venue terminals**, notably fast operator switching; it is not a prerequisite for personal-phone login or routine service.
+- Installation identity is an app-generated random identifier, not a hardware fingerprint. Store only its hash server-side and minimal metadata necessary for security and support; do not inspect personal contacts, photos, messages, location or unrelated apps.
+- Replacing a personal phone requires only another successful staff login and automatic registration of the new installation. The old session/installation can be revoked independently.
+- Revoking one installation invalidates its current sessions, **not the person's membership**. Reinstallation may produce a new installation identity; device revocation alone must never be described as permanent physical-device blocking. To disable a staff member across installations, suspend/revoke their Venue membership and invalidate sessions.
+- No employee is required to hand over their personal phone, enroll in MDM, or accept continuous tracking. Venue onboarding must provide an operational fallback (e.g. a shared/loaner device or cashier workflow) for unavailable or unsuitable personal phones.
+- Tap on Phone onboarding and provider device certification are **separate payment capabilities**; any additional PSP authorization/provisioning must not prevent ordinary POS login and orders.
+
+Staff UX must not expose `UNTRUSTED` as a pending-approval state for a personal device.
+
 ## Authentication strategy
 
 ### Primary login
@@ -185,6 +200,7 @@ Rodada Atendimento:
 - requires PIN/reauth on policy-defined privileged actions;
 - supports explicit Lock/Switch Operator;
 - device capability/payment provisioning is separate from login;
+- personal phone login and regular POS use do not require device trust promotion or manager approval;
 - lost/stolen device can be remotely revoked.
 
 A device may stay registered while no staff session is active.
@@ -213,6 +229,9 @@ A guest token can never satisfy a staff capability check. A staff session does n
 6. Revoked membership cannot refresh or create new staff sessions for that Venue.
 7. A mutation cannot attribute itself to whichever user was previously active on a shared device.
 8. System/background actors are explicit and never impersonate staff.
+9. A first-time authenticated personal installation registers automatically without approval and can perform operations allowed by its actor's capabilities while UNTRUSTED.
+10. Device TRUSTED never substitutes for staff identity; payment-provider provisioning is independent from staff/device trust.
+11. Revocation of an installation is not a permanent ban on that physical phone; staff-wide revocation uses membership/session controls.
 
 ## Persisted vs derived
 
@@ -293,6 +312,8 @@ Never log PIN, password, access token, refresh token or payment credentials.
 ## UX rules
 
 ### Atendimento Android
+- after an authorized first login, start normal operation immediately; do not show a device-approval waiting screen;
+- device without NFC continues to use the POS normally, with Tap on Phone disabled/fallback as appropriate;
 - lock/switch is reachable in one or two taps;
 - active operator name/avatar/initials visible in operational header;
 - no full credential ceremony between ordinary tasks on a trusted active session;

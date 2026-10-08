@@ -41,13 +41,14 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     } else if (url.pathname.startsWith("/api/auth/invalidation-events")) body = { cursor: 0, results: [] };
     else if (url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
     else if (url.pathname.startsWith("/api/pos/production/")) body = { results: items };
-    else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail] };
+    else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail], next_offset: null };
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;
     else if (url.pathname === "/api/pos/cash/points/") body = { results: cash };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
     else if (url.pathname === "/api/pos/dispatch/delivery/") body = { results: state === "empty" ? [] : [{ id: "delivery-test", product_name: "Fritas", destination_label: "Mesa 24", age_seconds: 120 }] };
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };
+    else if (url.pathname === "/api/guest/context/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, tab: state === "empty" ? null : detail };
     else throw new Error(`Missing visual fixture: ${route.request().method()} ${url.pathname}`);
     await route.fulfill({ json: body });
   });

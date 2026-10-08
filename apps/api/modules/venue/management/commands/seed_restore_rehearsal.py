@@ -99,7 +99,10 @@ class Command(BaseCommand):
             )
             return
 
-        tab = open_tab(actor=actor, display_label="Restore history")
+        from modules.house_account.models import Customer, Relationship
+        customer = Customer.objects.create(display_name="Restore customer")
+        Relationship.objects.create(venue=venue, customer=customer, kind="HOUSE")
+        tab = open_tab(actor=actor, display_label="Restore history", customer_id=customer.id)
         assign_tab(occupancy_id=occupancy.id, tab_id=tab.id, actor=actor)
         order = confirm_order(
             tab_id=tab.id,

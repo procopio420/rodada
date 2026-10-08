@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ManagementNav } from "@/components/management-nav";
+import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
@@ -99,6 +100,7 @@ export default function ManagementPage() {
     </section>}
     {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
+    <HouseAccount />
     <section className="panel"><h2>Agora</h2>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>

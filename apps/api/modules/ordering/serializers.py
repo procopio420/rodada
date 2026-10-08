@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 
 class TabCreateSerializer(serializers.Serializer):
+    customer_id = serializers.UUIDField(required=False, allow_null=True)
     display_label = serializers.CharField(
         max_length=120,
         required=False,

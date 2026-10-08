@@ -24,12 +24,16 @@ def open_tab(
     *,
     actor: ActorContext,
     display_label: str = "",
+    customer_id=None,
 ) -> Tab:
+    from modules.house_account.services import snapshot, sync_attention
     tab = Tab.objects.create(
         venue_id=actor.venue_id,
         display_label=display_label.strip(),
         opened_by_id=actor.staff_id,
+        **snapshot(actor.venue_id, customer_id),
     )
+    sync_attention(tab, actor)
     record_audit_event(
         actor=actor,
         event_type="tab.opened",
@@ -55,7 +59,7 @@ def confirm_order(
         raise OrderingServiceError("EMPTY_ORDER", "Pedido precisa ter ao menos um item.", 400)
 
     tab = (
-        Tab.objects.select_for_update()
+        Tab.objects.select_for_update(of=("self",))
         .select_related("venue")
         .filter(pk=tab_id)
         .first()
@@ -64,14 +68,6 @@ def confirm_order(
         raise OrderingServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
     if actor is not None and actor.venue_id != tab.venue_id:
         raise OrderingServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
-    if tab.state not in (TabState.OPEN, TabState.REQUIRES_ACTION):
-        raise OrderingServiceError(
-            "TAB_NOT_OPEN",
-            "Esta comanda não aceita novos pedidos.",
-            409,
-            {"state": tab.state},
-        )
-
     normalized_lines: list[tuple[object, int]] = []
     product_ids = []
     for line in lines:
@@ -101,12 +97,16 @@ def confirm_order(
             existing._idempotency_replay = True
             return existing
 
+    if tab.state not in (TabState.OPEN, TabState.REQUIRES_ACTION):
+        raise OrderingServiceError("TAB_NOT_OPEN", "Esta comanda não aceita novos pedidos.", 409,
+                                   {"state": tab.state})
+
     locked_products = {
         product.id: product
         for product in Product.objects.select_for_update().filter(
             id__in=product_ids,
             venue_id=tab.venue_id,
-        )
+        ).order_by("id")
     }
     locked_availability = {
         availability.product_id: availability
@@ -141,6 +141,14 @@ def confirm_order(
             409,
             {"products": invalid_products},
         )
+
+    from modules.house_account.services import financial_position, sync_attention
+    position = financial_position(tab)
+    order_total = sum(locked_products[pid].price_cents * qty for pid, qty in normalized_lines)
+    if position["exposure_cents"] + order_total > position["effective_limit_cents"]:
+        raise OrderingServiceError("SPENDING_LIMIT_EXCEEDED",
+            "Consumo acima do limite. Receba um pagamento parcial ou solicite aprovação da gerência.",
+            409, {**position, "requested_cents": order_total})
 
     order = Order.objects.create(
         tab=tab,
@@ -183,6 +191,7 @@ def confirm_order(
     # a mutable catalog price. One-to-one Charge makes retries exactly-once.
     from modules.ledger.services import create_charges_for_order
     create_charges_for_order(order, actor)
+    sync_attention(tab, actor)
 
     return order
 

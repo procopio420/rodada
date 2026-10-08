@@ -17,6 +17,8 @@ from modules.venue.models import Venue
 class FullShiftSmokeTests(TestCase):
     def setUp(self):
         self.venue = Venue.objects.create(name="Shift smoke", slug="shift-smoke")
+        from modules.house_account.models import VenueRelationshipPolicy
+        VenueRelationshipPolicy.objects.create(venue=self.venue, kind="VISITOR", limit_cents=20000)
         self.manager = StaffMember.objects.create(display_name="Ana", login_identifier="shift-ana")
         self.manager.set_pin("0420")
         self.manager.save(update_fields=["pin_hash"])

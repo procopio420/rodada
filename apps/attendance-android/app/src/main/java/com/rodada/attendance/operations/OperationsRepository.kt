@@ -9,8 +9,11 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tabs)
 
-    suspend fun openTab(session: StoredSession, label: String) =
-        authRepository.withAuthorizedAccess(session) { client.openTab(it, label) }
+    suspend fun openTab(session: StoredSession, label: String, customerId: String? = null) =
+        authRepository.withAuthorizedAccess(session) { client.openTab(it, label, customerId) }
+
+    suspend fun customers(session: StoredSession, query: String) =
+        authRepository.withAuthorizedAccess(session) { client.customers(it, query) }
 
     suspend fun tabDetail(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.tabDetail(it, tabId) }
@@ -66,4 +69,10 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun closeTab(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.closeTab(it, tabId) }
+
+    suspend fun requestApproval(session: StoredSession, tabId: String, reason: String, key: String) =
+        authRepository.withAuthorizedAccess(session) { client.requestApproval(it, tabId, reason, key) }
+
+    suspend fun approveLimit(session: StoredSession, tabId: String, limitCents: Long, reason: String, expiresAt: String, key: String) =
+        authRepository.withAuthorizedAccess(session) { client.approveLimit(it, tabId, limitCents, reason, expiresAt, key) }
 }
