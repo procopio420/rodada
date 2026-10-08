@@ -22,6 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,6 +75,22 @@ fun AttendanceScreen(
     }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
+    val activity = LocalContext.current as? ComponentActivity
+    DisposableEffect(session.staffId, session.venueId, activity) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> { viewModel.refresh(session); viewModel.startRealtime(session) }
+                Lifecycle.Event.ON_STOP -> viewModel.stopRealtime()
+                else -> Unit
+            }
+        }
+        activity?.lifecycle?.addObserver(observer)
+        if (activity == null || activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) viewModel.startRealtime(session)
+        onDispose {
+            activity?.lifecycle?.removeObserver(observer)
+            viewModel.stopRealtime()
+        }
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {

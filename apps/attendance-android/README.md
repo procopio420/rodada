@@ -166,3 +166,23 @@ Correções, estornos e a operação completa de CashShift ainda não pertencem 
 ## Invalidação de acesso
 
 Com sessão ativa, o app consulta o invalidation feed em intervalo bounded. Eventos de membership/device forçam revalidação canônica e zeram a janela de reauth. Revogação/supersede continua sendo detectada pela própria API e remove imediatamente a sessão cifrada local.
+
+### Operational realtime (Spec 014)
+
+`OperationalRealtime` exposes read-model invalidation signals; operational business logic
+never parses SSE or applies domain mutations from events. Its native adapter uses
+Bearer-authenticated `/realtime/snapshot/` and `/realtime/stream/`, resumes with the
+accepted venue cursor, ignores duplicated/reordered cursors and takes a new snapshot
+when replay continuity is lost. Streams close when Atendimento leaves the foreground.
+Foreground return revalidates canonical reads before resuming.
+
+Invalidations coalesce over 200 ms and never replay pending financial commands. Failed
+subscriptions reconnect with jitter (0.5–30 seconds) while active reads revalidate at
+most once every 30 seconds through the fallback. Cached in-memory projections keep
+their existing timestamp and connectivity label. HTTP remains the only command path;
+encrypted pending order/payment/correction/refund records retain their existing rules.
+
+This slice does not persist operational projections or cursors across process death:
+new subscriptions deliberately bootstrap from a fresh canonical snapshot. The existing
+payment CTA remains conservative when realtime is stale. Auth invalidation polling
+and CashShift standalone reads remain separate from this operational subscription.

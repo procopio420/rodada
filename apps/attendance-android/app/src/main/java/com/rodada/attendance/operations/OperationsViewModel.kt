@@ -20,6 +20,11 @@ import com.rodada.attendance.refunds.RefundsRepository
 import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import com.rodada.attendance.refunds.refundStatusLabel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import com.rodada.attendance.BuildConfig
+import com.rodada.attendance.realtime.SseOperationalRealtime
+import com.rodada.attendance.realtime.RealtimeSignal
 import java.io.IOException
 import java.util.UUID
 
@@ -56,6 +61,52 @@ class OperationsViewModel(
         private set
 
     private var loadedSessionKey: String? = null
+    private var realtimeJob: Job? = null
+    private var refreshJob: Job? = null
+    private var streamConnected = false
+    private var invalidationJob: Job? = null
+    private var refreshRequested = false
+
+    fun startRealtime(session: StoredSession) {
+        stopRealtime()
+        realtimeJob = viewModelScope.launch {
+            SseOperationalRealtime(BuildConfig.RODADA_API_BASE_URL, authRepository).subscribe(session).collect { signal ->
+                when (signal) {
+                    RealtimeSignal.Connected -> {
+                        streamConnected = true
+                        if (state.connectivity != ConnectivityState.OFFLINE) state = state.copy(connectivity = ConnectivityState.ONLINE)
+                    }
+                    RealtimeSignal.Reconnecting -> {
+                        streamConnected = false
+                        state = state.copy(connectivity = if (state.lastSyncedAtMillis == null || System.currentTimeMillis() - state.lastSyncedAtMillis!! < 30_000) ConnectivityState.RECONNECTING else ConnectivityState.STALE)
+                    }
+                    RealtimeSignal.Refresh -> {
+                        // Coalesce bursts while retaining one revalidation after an in-flight read.
+                        refreshRequested = true
+                        if (invalidationJob?.isActive != true) {
+                            invalidationJob = viewModelScope.launch {
+                                while (refreshRequested) {
+                                    refreshRequested = false
+                                    delay(200)
+                                    refreshJob?.join()
+                                    refresh(session)
+                                    refreshJob?.join()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun stopRealtime() {
+        realtimeJob?.cancel()
+        realtimeJob = null
+        invalidationJob?.cancel()
+        refreshRequested = false
+        streamConnected = false
+    }
 
     fun ensureLoaded(session: StoredSession) {
         val key = session.staffId + ":" + session.venueId
@@ -69,13 +120,14 @@ class OperationsViewModel(
     }
 
     fun refresh(session: StoredSession) {
+        if (refreshJob?.isActive == true) return
         state = state.copy(
             loading = true,
             errorMessage = null,
             noticeMessage = null,
             connectivity = if (state.tabs.isEmpty()) ConnectivityState.RECONNECTING else ConnectivityState.STALE,
         )
-        viewModelScope.launch {
+        refreshJob = viewModelScope.launch {
             runCatching {
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
@@ -95,7 +147,7 @@ class OperationsViewModel(
                     deliveryTasks = snapshot.deliveryTasks,
                     tables = snapshot.tables,
                     selectedTab = snapshot.detail ?: state.selectedTab,
-                    connectivity = ConnectivityState.ONLINE,
+                    connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
             }.onFailure {
