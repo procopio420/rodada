@@ -308,6 +308,28 @@ class OrderingFoundationTests(TestCase):
         assert order.confirmed_by_id is None
         assert order.tab_id == tab.id
 
+    def test_production_projection_preserves_identity_and_venue_isolation(self):
+        product = self.product(name="Porção", price_cents=500)
+        tab = Tab.objects.create(venue=self.venue, display_label="P37")
+        order = confirm_order(tab_id=tab.id, source=OrderSource.GUEST,
+                              lines=[{"product_id": product.id, "quantity": 2}], actor=None)
+        foreign_product = self.product(venue=self.other_venue, name="Outra porção", price_cents=500)
+        foreign_tab = Tab.objects.create(venue=self.other_venue)
+        confirm_order(tab_id=foreign_tab.id, source=OrderSource.GUEST,
+                      lines=[{"product_id": foreign_product.id, "quantity": 1}], actor=None)
+        response = self.client.get("/production/BAR/")
+        assert response.status_code == 200, response.json()
+        rows = response.json()["results"]
+        assert len(rows) == 1
+        assert rows[0]["product_id"] == str(product.id)
+        assert rows[0]["order_id"] == str(order.id)
+        assert rows[0]["quantity"] == 2
+        assert rows[0]["tab_label"] == "P37"
+        item = order.items.get()
+        item.state = "DELIVERED"
+        item.save(update_fields=["state"])
+        assert self.client.get("/production/BAR/").json()["results"] == []
+
     def test_http_confirmation_replay_creates_one_order_and_one_charge(self):
         tab = self.open_tab()
         product = self.product(name="Replay-safe")

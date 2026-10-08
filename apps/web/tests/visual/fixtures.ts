@@ -7,13 +7,13 @@ export const viewports = [
 ] as const;
 export const widths = viewports.map(viewport => viewport.width);
 export const products = [
-  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
+  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true, icon: { status: "READY", asset_url: "/product-icons/material-fries.svg", style_version: "provided-reference-v1" } },
   { id: "omelette", name: "Omelete", price_cents: 1800, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
   { id: "beer", name: "Bebida de teste", price_cents: 1200, fulfillment_station: "BAR", availability: "AVAILABLE", available: true, active: true },
 ];
 export const queue = [
-  { id: "order-921", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
-  { id: "order-922", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
+  { id: "order-921", product_id: "fries", order_id: "ticket-1", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
+  { id: "order-922", product_id: "mandioca", order_id: "ticket-2", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
 ];
 const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
 const shift = { id: "shift-test", cash_point_id: "cash-test", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };

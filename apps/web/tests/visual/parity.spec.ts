@@ -10,6 +10,43 @@ const artifactRoot = path.resolve(process.cwd(), "../../visual-artifacts");
 const prototypeUrl = pathToFileURL(path.resolve(process.cwd(), "../../prototype/index.html")).href;
 test.beforeAll(async () => { await mkdir(artifactRoot, { recursive: true }); });
 
+test("primary control matches the supplied unchanged kitchen material", async ({ browser }) => {
+  const reference = await browser.newPage(), actual = await browser.newPage();
+  await reference.goto(pathToFileURL(path.resolve(process.cwd(), "../../prototype/material-reference/kitchen/local.html")).href);
+  await fixture(actual); await actual.goto("/kitchen");
+  await actual.getByRole("heading", { name: "Em produção", exact: true }).waitFor();
+  // Equivalent geometry/text only. Reference CSS is the supplied original, never rewritten.
+  for (const control of [reference.locator(".btn").first(), actual.locator(".stationTicket .buttonPrimary").first()]) {
+    await control.evaluate(el => { Object.assign((el as HTMLElement).style, { position: "fixed", left: "0px", top: "0px", width: "116px", height: "56px", margin: "0" }); });
+  }
+  await stable(reference); await stable(actual);
+  const stats = await comparison(await reference.locator(".btn").first().screenshot(), await actual.locator(".stationTicket .buttonPrimary").first().screenshot(), "material-primary");
+  expect(stats.changedPercent).toBeLessThanOrEqual(0.1);
+  await reference.close(); await actual.close();
+});
+
+test("kitchen material geometry and Product identity aggregation", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await fixture(page);
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+    { id: "a", product_id: "fries", order_id: "first", quantity: 2, product_name: "Fritas", tab_label: "P37", state: "PREPARING", created_at: "2026-10-08T20:50:00Z" },
+    { id: "b", product_id: "fries", order_id: "second", quantity: 1, product_name: "Fritas", tab_label: "P08", state: "NEW", created_at: "2026-10-08T20:55:00Z" },
+    { id: "c", product_id: "different", order_id: "third", quantity: 1, product_name: "Fritas", tab_label: "P22", state: "ACCEPTED", created_at: "2026-10-08T20:56:00Z" },
+    { id: "d", product_id: "fries", order_id: "fourth", quantity: 5, product_name: "Fritas", tab_label: "P44", state: "READY", created_at: "2026-10-08T20:40:00Z", ready_at: "2026-10-08T20:58:00Z" },
+    { id: "e", product_id: "fries", order_id: "fifth", quantity: 7, product_name: "Fritas", tab_label: "P46", state: "PICKED_UP", created_at: "2026-10-08T20:30:00Z" },
+  ] } }));
+  await page.goto("/kitchen");
+  await expect(page.locator(".stationQuantity")).toHaveText(["3", "1"]);
+  await expect(page.locator(".stationPass > .stationPassRow .stationPassMeta")).toHaveText("Pronto · 2:00");
+  await expect(page.locator(".stationTransit")).toContainText("Retirada registrada");
+  await expect(page.getByRole("button", { name: /^Aceitar:/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Preparar:/ })).toBeVisible();
+  const boxes = await Promise.all([".stationHeader", ".stationBatches", ".stationTickets", ".stationPass"].map(selector => page.locator(selector).boundingBox()));
+  expect(boxes.map(box => box!.width)).toEqual([1280, 420, 520, 340]);
+  expect(boxes[0]!.height).toBe(72);
+  await stable(page); await page.screenshot({ path: path.join(artifactRoot, "material-kitchen-1280.png"), fullPage: true });
+});
+
 async function comparison(left: Buffer, right: Buffer, name: string) {
   const reference = PNG.sync.read(left), actual = PNG.sync.read(right);
   expect({ width: actual.width, height: actual.height }).toEqual({ width: reference.width, height: reference.height });

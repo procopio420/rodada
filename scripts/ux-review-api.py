@@ -31,5 +31,12 @@ with tempfile.TemporaryDirectory(prefix="rodada-ux-review-") as directory:
     from django.core.management import call_command
     call_command("migrate", verbosity=0)
     call_command("seed_demo", verbosity=0)
+    # Explicit authored assignment in this disposable review fixture, never a name resolver.
+    from modules.catalog.models import ProductIcon, Product
+    from modules.audit.models import AuditEvent
+    for name, asset in (("Fritas", "material-fries"), ("Brahma 600ml", "material-brahma")):
+        product = Product.objects.get(venue__slug="bar-do-aderlan", name=name)
+        ProductIcon.objects.update_or_create(product=product, defaults={"source": "PROVIDED_REFERENCE", "status": "READY", "published_asset_url": f"http://127.0.0.1:3000/product-icons/{asset}.svg", "style_version": "provided-reference-v1", "error_code": ""})
+        AuditEvent.objects.create(venue=product.venue, event_type="product.icon_reference_assigned", entity_type="Product", entity_id=str(product.id), metadata={"source": "PROVIDED_REFERENCE", "asset": asset, "context": "disposable UX review fixture"})
     print("Isolated UX review API: http://127.0.0.1:8000 (demo data only)", flush=True)
     call_command("runserver", "127.0.0.1:8000", use_reloader=False, verbosity=0)
