@@ -27,13 +27,14 @@ data class OperationsUiState(
     /** Kept for the complete UI/ViewModel lifecycle and reused by a retry of this cart. */
     val orderIntentId: String? = null,
     val paymentIntentId: String? = null,
+    val pendingPayment: RecoveryIntent.StartPayment? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
     val lastSyncedAtMillis: Long? = null,
 )
 
 class OperationsViewModel(
     private val repository: OperationsRepository,
-    private val pendingOrderIntentStore: PendingOrderIntentStore,
+    private val pendingMutationIntentStore: PendingMutationIntentStore,
 ) : ViewModel() {
     var state by mutableStateOf(OperationsUiState())
         private set
@@ -101,20 +102,25 @@ class OperationsViewModel(
 
     fun selectTab(session: StoredSession, tabId: String) = action {
         val detail = repository.tabDetail(session, tabId)
-        val retained = pendingOrderIntentStore.load(session)?.takeIf { it.tabId == tabId }
+        val retained = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId }
+        val retainedPayment = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId }
         val retainedCart = retained?.toCart(state.products).orEmpty()
         state = state.copy(
             selectedTab = detail,
             cart = retainedCart,
             orderIntentId = retained?.idempotencyKey,
-            noticeMessage = retained?.let {
-                "Pedido pendente encontrado. Verifique o resultado antes de adicionar novos itens."
+            paymentIntentId = retainedPayment?.idempotencyKey,
+            pendingPayment = retainedPayment,
+            noticeMessage = when {
+                retained != null -> "Pedido pendente encontrado. Verifique o resultado antes de adicionar novos itens."
+                retainedPayment != null -> "Pagamento pendente encontrado. Não tente cobrar novamente; reconcilie a mesma cobrança."
+                else -> null
             },
         )
     }
 
     fun clearSelection() {
-        state = state.copy(selectedTab = null, cart = emptyList(), orderIntentId = null)
+        state = state.copy(selectedTab = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
     }
 
     fun addProduct(product: Product) {
@@ -144,14 +150,18 @@ class OperationsViewModel(
         val tab = state.selectedTab?.summary ?: return
         if (state.cart.isEmpty() || tab.state == "CLOSED" || state.submitting) return
         val intentId = state.orderIntentId ?: UUID.randomUUID().toString()
-        pendingOrderIntentStore.save(
-            session,
-            PendingOrderIntent(
-                tabId = tab.id,
+        val intent = RecoveryIntent.ConfirmOrder(
+                id = intentId,
+                staffId = session.staffId,
+                venueId = session.venueId,
+                deviceId = session.deviceId,
                 idempotencyKey = intentId,
+                createdAtMillis = System.currentTimeMillis(),
+                state = RecoveryState.CHECKING,
+                tabId = tab.id,
                 lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity) },
-            ),
         )
+        pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, orderIntentId = intentId)
         viewModelScope.launch {
             runCatching {
@@ -167,7 +177,7 @@ class OperationsViewModel(
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
-                pendingOrderIntentStore.clear()
+                pendingMutationIntentStore.remove(intent.id)
             }.onFailure { error ->
                 // Retrying this exact cart retains the same intent UUID. The API returns the
                 // original Order instead of creating a second order after an ambiguous timeout.
@@ -185,8 +195,16 @@ class OperationsViewModel(
     ) {
         val tab = state.selectedTab?.summary ?: return
         if (amountCents <= 0 || amountCents > tab.exposureCents || state.submitting) return
+        state.pendingPayment?.let { pending ->
+            if (pending.amountCents != amountCents || pending.method != method || pending.cashPointId != cashPointId) {
+                state = state.copy(errorMessage = "Há um pagamento pendente nesta comanda. Refaça somente a mesma cobrança de ${formatCents(pending.amountCents)}.")
+                return
+            }
+        }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key)
+        val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId)
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
         viewModelScope.launch {
             runCatching {
                 repository.collectPayment(session, tab.id, amountCents, method, key, cashPointId)
@@ -196,10 +214,12 @@ class OperationsViewModel(
                 state = state.copy(
                     submitting = false,
                     paymentIntentId = null,
+                    pendingPayment = null,
                     noticeMessage = "Pagamento registrado.",
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
+                pendingMutationIntentStore.remove(intent.id)
             }.onFailure { error ->
                 // Retrying this same action uses the same idempotency key and is safe server-side.
                 state = state.copy(submitting = false)
@@ -309,12 +329,12 @@ class OperationsViewModel(
     companion object {
         fun factory(
             repository: OperationsRepository,
-            pendingOrderIntentStore: PendingOrderIntentStore,
+            pendingMutationIntentStore: PendingMutationIntentStore,
         ): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    OperationsViewModel(repository, pendingOrderIntentStore) as T
+                    OperationsViewModel(repository, pendingMutationIntentStore) as T
             }
     }
 
@@ -328,7 +348,7 @@ class OperationsViewModel(
     )
 }
 
-private fun PendingOrderIntent.toCart(products: List<Product>): List<CartLine> =
+private fun RecoveryIntent.ConfirmOrder.toCart(products: List<Product>): List<CartLine> =
     lines.mapNotNull { line ->
         products.firstOrNull { it.id == line.productId }?.let { product ->
             CartLine(product = product, quantity = line.quantity)

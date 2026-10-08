@@ -9,7 +9,7 @@ import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.AuthViewModel
 import com.rodada.attendance.operations.OperationsRepository
 import com.rodada.attendance.operations.OperationsViewModel
-import com.rodada.attendance.operations.PendingOrderIntentStore
+import com.rodada.attendance.operations.PendingMutationIntentStore
 import com.rodada.attendance.ui.AuthApp
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
     private val operationsViewModel: OperationsViewModel by viewModels {
         OperationsViewModel.factory(
             repository = OperationsRepository(authRepository),
-            pendingOrderIntentStore = PendingOrderIntentStore(applicationContext),
+            pendingMutationIntentStore = PendingMutationIntentStore(applicationContext),
         )
     }
 
