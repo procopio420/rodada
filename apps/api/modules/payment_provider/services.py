@@ -100,12 +100,22 @@ def _create_or_replay_provider_payment(
     actor: ActorContext,
 ) -> tuple[Payment, PaymentAttempt, bool]:
     _assert_provider_method(method)
-    if type(amount_cents) is not int or amount_cents <= 0 or not isinstance(idempotency_key, str) or not 0 < len(idempotency_key) <= 120:
+    if (
+        type(amount_cents) is not int
+        or amount_cents <= 0
+        or not isinstance(idempotency_key, str)
+        or not 0 < len(idempotency_key) <= 120
+    ):
         raise ProviderServiceError("INVALID_PAYMENT", "Pagamento inválido.")
-    capability = {PaymentMethod.PIX: "pix", PaymentMethod.TAP_TO_PAY: "tap_to_pay",
-                  PaymentMethod.CARD_ONLINE: "card_online"}[method]
+    capability = {
+        PaymentMethod.PIX: "pix",
+        PaymentMethod.TAP_TO_PAY: "tap_to_pay",
+        PaymentMethod.CARD_ONLINE: "card_online",
+    }[method]
     if not getattr(provider.capabilities, capability):
-        raise ProviderServiceError("PROVIDER_METHOD_UNAVAILABLE", "Método integrado indisponível.", 409)
+        raise ProviderServiceError(
+            "PROVIDER_METHOD_UNAVAILABLE", "Método integrado indisponível.", 409
+        )
     tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=actor.venue_id).first()
     if tab is None:
         raise ProviderServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
@@ -233,7 +243,11 @@ def apply_provider_result(
     payment = Payment.objects.select_for_update().select_related("tab").get(pk=payment_id)
     attempt = PaymentAttempt.objects.select_for_update().get(pk=attempt_id, payment=payment)
     incoming = result.status
-    valid_statuses = _PENDING_STATUSES | {PaymentStatus.CONFIRMED, PaymentStatus.FAILED, PaymentStatus.CANCELLED}
+    valid_statuses = _PENDING_STATUSES | {
+        PaymentStatus.CONFIRMED,
+        PaymentStatus.FAILED,
+        PaymentStatus.CANCELLED,
+    }
     if incoming not in valid_statuses:
         raise ProviderServiceError("INVALID_PROVIDER_STATUS", "Status de provedor inválido.", 409)
     if result.provider_payment_id and payment.provider_payment_id not in (
@@ -257,7 +271,10 @@ def apply_provider_result(
     ):
         return payment, attempt, True
 
-    if payment.status in (PaymentStatus.FAILED, PaymentStatus.CANCELLED) and incoming in _PENDING_STATUSES:
+    if (
+        payment.status in (PaymentStatus.FAILED, PaymentStatus.CANCELLED)
+        and incoming in _PENDING_STATUSES
+    ):
         return payment, attempt, True
 
     now = timezone.now()
@@ -312,6 +329,7 @@ def apply_provider_result(
     if payment_updates:
         payment.save(update_fields=sorted(set(payment_updates)))
         from modules.house_account.services import sync_attention
+
         sync_attention(payment.tab, actor)
     if attempt_updates:
         attempt.save(update_fields=sorted(set(attempt_updates)))
@@ -345,11 +363,17 @@ def ingest_provider_webhook(
     try:
         normalized = provider.parse_webhook(payload=payload)
     except Exception as error:
-        raise ProviderServiceError("PROVIDER_EVENT_UNVERIFIED", "Evento não verificado; reenvie para reconciliação.", 503) from error
+        raise ProviderServiceError(
+            "PROVIDER_EVENT_UNVERIFIED", "Evento não verificado; reenvie para reconciliação.", 503
+        ) from error
     if transaction.get_connection().vendor == "postgresql":
-        lock_key = int.from_bytes(hashlib.sha256(
-            f"{provider.provider_key}:{normalized.provider_event_id}".encode()).digest()[:8],
-            "big", signed=True)
+        lock_key = int.from_bytes(
+            hashlib.sha256(
+                f"{provider.provider_key}:{normalized.provider_event_id}".encode()
+            ).digest()[:8],
+            "big",
+            signed=True,
+        )
         with transaction.get_connection().cursor() as cursor:
             cursor.execute("SELECT pg_advisory_xact_lock(%s)", [lock_key])
     if not normalized.provider_event_id:
@@ -369,8 +393,9 @@ def ingest_provider_webhook(
             )
         return existing, True
 
-    payment = Payment.objects.filter(pk=normalized.merchant_reference,
-                                     provider=provider.provider_key).first()
+    payment = Payment.objects.filter(
+        pk=normalized.merchant_reference, provider=provider.provider_key
+    ).first()
     if payment:
         Tab.objects.select_for_update().get(pk=payment.tab_id)
         payment = Payment.objects.select_for_update().select_related("tab").get(pk=payment.pk)
@@ -424,7 +449,8 @@ def reconcile_provider_payment(
             payment = _payment_for_actor(payment_id=payment_id, actor=actor)
         else:
             payment = Payment.objects.select_related("tab").get(
-                pk=payment_id, provider=provider.provider_key)
+                pk=payment_id, provider=provider.provider_key
+            )
         if payment.provider != provider.provider_key:
             raise ProviderServiceError(
                 "PROVIDER_MISMATCH", "Provedor não corresponde ao pagamento.", 409

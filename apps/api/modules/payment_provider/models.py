@@ -93,6 +93,4 @@ class ProviderEvent(models.Model):
                 name="provider_event_provider_id_uniq",
             ),
         )
-        indexes = (
-            models.Index(fields=("payment", "received_at"), name="payprov_event_time_idx"),
-        )
+        indexes = (models.Index(fields=("payment", "received_at"), name="payprov_event_time_idx"),)
