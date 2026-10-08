@@ -29,6 +29,7 @@ def payment_response(payment, *, replayed=False):
         "method": payment.method,
         "status": payment.status,
         "confirmed_at": payment.confirmed_at,
+        "simulated": metadata.get("simulated", payment.provider.startswith("simulator:")),
         "replayed": replayed,
         "pix_copy_paste": metadata.get("pix_copy_paste", ""),
         "pix_qr_code": metadata.get("pix_qr_code", ""),
@@ -57,7 +58,15 @@ class PaymentCapabilitiesView(APIView):
                     "tips": False,
                 }
             )
-        return Response(asdict(provider.capabilities))
+        capabilities = asdict(provider.capabilities)
+        capabilities["simulated"] = getattr(provider, "simulated", False)
+        try:
+            tap = provider_for_venue(request.actor_context.venue_id, "TAP_TO_PAY")
+            assert_tap_authorized(request.actor_context, tap)
+            capabilities["tap_to_pay"] = tap.capabilities.tap_to_pay
+        except ProviderServiceError:
+            capabilities["tap_to_pay"] = False
+        return Response(capabilities)
 
 
 class IntegratedPaymentCreateView(APIView):
@@ -66,7 +75,11 @@ class IntegratedPaymentCreateView(APIView):
 
     def post(self, request, tab_id):
         try:
-            provider = provider_for_venue(request.actor_context.venue_id)
+            provider = provider_for_venue(
+                request.actor_context.venue_id, request.data.get("method", "PIX")
+            )
+            if request.data.get("method") == "TAP_TO_PAY" and provider.capabilities.tap_to_pay:
+                assert_tap_authorized(request.actor_context, provider)
             payment, attempt, replayed = initiate_provider_payment(
                 tab_id=tab_id,
                 actor=request.actor_context,
@@ -113,10 +126,17 @@ class IntegratedPaymentDetailView(APIView):
 
     def post(self, request, payment_id):
         try:
+            existing = Payment.objects.filter(
+                pk=payment_id, tab__venue_id=request.actor_context.venue_id
+            ).first()
+            if existing is None:
+                return Response({"code": "PAYMENT_NOT_FOUND"}, status=404)
             payment, _ = reconcile_provider_payment(
                 payment_id=payment_id,
                 actor=request.actor_context,
-                provider=provider_for_venue(request.actor_context.venue_id),
+                provider=provider_for_venue(
+                    request.actor_context.venue_id, existing.method, existing.provider
+                ),
             )
         except ProviderServiceError as error:
             return error_response(error)
@@ -137,3 +157,32 @@ class PaytimeWebhookView(APIView):
         except ProviderServiceError as error:
             return error_response(error)
         return Response({"id": str(event.id), "replayed": replayed})
+
+
+def assert_tap_authorized(actor, provider):
+    from modules.access.models import DeviceRegistration
+
+    from .models import DeviceAuthorization
+
+    device = DeviceRegistration.objects.filter(pk=actor.device_id, venue_id=actor.venue_id).first()
+    if device is None or device.trust_state != "TRUSTED":
+        raise ProviderServiceError(
+            "PAYMENT_DEVICE_UNAUTHORIZED", "Autorize este aparelho para cobrança.", 403
+        )
+    if getattr(provider, "simulated", False):
+        return
+    if not DeviceAuthorization.objects.filter(
+        connection__venue_id=actor.venue_id,
+        connection__merchant_code=provider.merchant_code,
+        connection__active=True,
+        device_id=actor.device_id,
+        staff_id=actor.staff_id,
+        active=True,
+    ).exists():
+        raise ProviderServiceError(
+            "PAYMENT_DEVICE_UNAUTHORIZED", "Aparelho não autorizado pelo estabelecimento.", 403
+        )
+    # No token issuance until SumUp approves employee/BYOD delegation.
+    raise ProviderServiceError(
+        "SUMUP_SDK_ACTIVATION_BLOCKED", "Aproximação aguarda aprovação SumUp.", 409
+    )

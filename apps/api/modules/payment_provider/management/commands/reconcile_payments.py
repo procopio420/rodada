@@ -27,12 +27,14 @@ class Command(BaseCommand):
             tab__venue_id__in=getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}).keys(),
         )
         ids = list(
-            pending.order_by("received_at").values_list("id", "tab__venue_id")[: options["limit"]]
+            pending.order_by("received_at").values_list(
+                "id", "tab__venue_id", "method", "provider"
+            )[: options["limit"]]
         )
         resolved = 0
-        for payment_id, venue_id in ids:
+        for payment_id, venue_id, method, provider_key in ids:
             payment, _ = reconcile_provider_payment(
-                payment_id=payment_id, provider=provider_for_venue(venue_id)
+                payment_id=payment_id, provider=provider_for_venue(venue_id, method, provider_key)
             )
             resolved += payment.status not in (
                 PaymentStatus.CREATED,

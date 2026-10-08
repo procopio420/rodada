@@ -247,6 +247,7 @@ def apply_provider_result(
         PaymentStatus.CONFIRMED,
         PaymentStatus.FAILED,
         PaymentStatus.CANCELLED,
+        PaymentStatus.EXPIRED,
     }
     if incoming not in valid_statuses:
         raise ProviderServiceError("INVALID_PROVIDER_STATUS", "Status de provedor inválido.", 409)
@@ -272,7 +273,7 @@ def apply_provider_result(
         return payment, attempt, True
 
     if (
-        payment.status in (PaymentStatus.FAILED, PaymentStatus.CANCELLED)
+        payment.status in (PaymentStatus.FAILED, PaymentStatus.CANCELLED, PaymentStatus.EXPIRED)
         and incoming in _PENDING_STATUSES
     ):
         return payment, attempt, True
@@ -300,17 +301,28 @@ def apply_provider_result(
         attempt.status, attempt.finished_at = PaymentAttemptStatus.CONFIRMED, now
         payment_updates.extend(["status", "confirmed_at"])
         attempt_updates.extend(["status", "finished_at"])
-    elif incoming in (PaymentStatus.FAILED, PaymentStatus.CANCELLED):
+    elif incoming in (PaymentStatus.FAILED, PaymentStatus.CANCELLED, PaymentStatus.EXPIRED):
         payment.status = incoming
-        setattr(payment, "failed_at" if incoming == PaymentStatus.FAILED else "cancelled_at", now)
+        setattr(
+            payment,
+            "failed_at"
+            if incoming in (PaymentStatus.FAILED, PaymentStatus.EXPIRED)
+            else "cancelled_at",
+            now,
+        )
         attempt.status = (
             PaymentAttemptStatus.FAILED
-            if incoming == PaymentStatus.FAILED
+            if incoming in (PaymentStatus.FAILED, PaymentStatus.EXPIRED)
             else PaymentAttemptStatus.CANCELLED
         )
         attempt.finished_at = now
         payment_updates.extend(
-            ["status", "failed_at" if incoming == PaymentStatus.FAILED else "cancelled_at"]
+            [
+                "status",
+                "failed_at"
+                if incoming in (PaymentStatus.FAILED, PaymentStatus.EXPIRED)
+                else "cancelled_at",
+            ]
         )
         attempt_updates.extend(["status", "finished_at"])
     elif incoming == PaymentStatus.CONFIRMATION_PENDING:

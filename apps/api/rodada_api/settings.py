@@ -96,3 +96,7 @@ LOGGING = {
 # JSON is injected by the deployment secret manager, keyed by Venue UUID.
 import json
 RODADA_PAYMENT_PROVIDERS = json.loads(os.environ.get("RODADA_PAYMENT_PROVIDERS", "{}"))
+RODADA_PAYMENT_CREDENTIAL_KEY = os.environ.get("RODADA_PAYMENT_CREDENTIAL_KEY", "")
+RODADA_SUMUP_OAUTH = json.loads(os.environ.get("RODADA_SUMUP_OAUTH", "{}"))
+RODADA_PAYTIME_PROVIDERS = json.loads(os.environ.get("RODADA_PAYTIME_PROVIDERS", "{}"))
+RODADA_PAYMENT_SIMULATION = os.environ.get("RODADA_PAYMENT_SIMULATION", "false").lower() == "true"

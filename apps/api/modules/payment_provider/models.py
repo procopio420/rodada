@@ -94,3 +94,66 @@ class ProviderEvent(models.Model):
             ),
         )
         indexes = (models.Index(fields=("payment", "received_at"), name="payprov_event_time_idx"),)
+
+
+class MerchantConnection(models.Model):
+    """One immutable merchant identity per connection; tokens are AEAD encrypted."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    provider = models.CharField(max_length=24)
+    merchant_code = models.CharField(max_length=80)
+    active = models.BooleanField(default=True)
+    simulated = models.BooleanField(default=False)
+    capabilities = models.JSONField(default=dict)
+    encrypted_credentials = models.TextField(blank=True)
+    token_expires_at = models.DateTimeField(null=True)
+    scopes = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    disconnected_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=("venue", "provider", "merchant_code"), name="payprov_merchant_venue_unique"
+            ),
+        )
+
+
+class DeviceAuthorization(models.Model):
+    connection = models.ForeignKey(MerchantConnection, on_delete=models.PROTECT)
+    device = models.ForeignKey("access.DeviceRegistration", on_delete=models.PROTECT)
+    staff = models.ForeignKey("access.StaffMember", on_delete=models.PROTECT)
+    active = models.BooleanField(default=True)
+    authorized_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=("connection", "device", "staff"), name="payprov_device_operator_unique"
+            ),
+        )
+
+
+class OAuthAuthorization(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    staff = models.ForeignKey("access.StaffMember", on_delete=models.PROTECT)
+    state_hash = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True)
+
+
+class SimulatedTransaction(models.Model):
+    payment = models.OneToOneField(Payment, on_delete=models.PROTECT)
+    status = models.CharField(max_length=24, default="PENDING")
+    scenario = models.CharField(max_length=24, default="success")
+    lookup_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ProviderRefundRequest(models.Model):
+    refund = models.OneToOneField("ledger.Refund", on_delete=models.PROTECT)
+    transaction_id = models.CharField(max_length=160)
+    baseline_event_ids = models.JSONField(default=list)
+    submitted_at = models.DateTimeField(auto_now_add=True)

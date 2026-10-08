@@ -88,6 +88,7 @@ class PaymentStatus(models.TextChoices):
     AUTHORIZED = "AUTHORIZED", "Authorized"
     CONFIRMATION_PENDING = "CONFIRMATION_PENDING", "Confirmation pending"
     CONFIRMED = "CONFIRMED", "Confirmed"
+    EXPIRED = "EXPIRED", "Expired"
     FAILED = "FAILED", "Failed"
     CANCELLED = "CANCELLED", "Cancelled"
     PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED", "Partially refunded"
