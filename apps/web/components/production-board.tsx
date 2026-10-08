@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
+import { QuickCatalog } from "./quick-catalog";
+import { ProductIcon, IconReference } from "./product-icon";
+
 type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
-type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE" };
+type Product = { icon: IconReference; id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE" };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
   ACCEPTED: { state: "PREPARING", label: "Preparar" },
@@ -91,11 +94,11 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     </div>}
     <section className="panel" aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
-      <h2 id="availability-title">Disponibilidade agora</h2>
+      <h2 id="availability-title">Disponibilidade agora</h2><QuickCatalog station={station} onResolved={() => void load(true)} />
       {loading ? <div className="loadingState" role="status">Carregando disponibilidade…</div> : products.map(product => {
         const available = product.availability === "AVAILABLE";
         return <article className="dataRow productionRow" key={product.id}>
-          <div><strong>{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></div>
+          <div><strong><ProductIcon icon={product.icon} />{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></div>
           <div className="actions">
             <span className="statusBadge" data-state={available ? "success" : "danger"}>{available ? "Disponível" : "Indisponível"}</span>
             <button className={available ? "buttonSecondary" : "buttonPrimary"} disabled={disabled}
