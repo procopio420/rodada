@@ -39,6 +39,8 @@ data class OperationsUiState(
     val orderIntentId: String? = null,
     val paymentIntentId: String? = null,
     val pendingPayment: RecoveryIntent.StartPayment? = null,
+    /** Lets the composable close only the correction sheet that the server accepted. */
+    val completedCorrectionItemId: String? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
     val lastSyncedAtMillis: Long? = null,
 )
@@ -249,7 +251,7 @@ class OperationsViewModel(
     fun closeTab(session: StoredSession) {
         val tab = state.selectedTab?.summary ?: return
         if (state.submitting) return
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
                 repository.closeTab(session, tab.id)
@@ -287,7 +289,7 @@ class OperationsViewModel(
             replacementProductId = command.replacementProductId,
         )
         pendingMutationIntentStore.save(intent)
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
                 if (command.requiresPostProductionEndpoint()) {
@@ -301,13 +303,26 @@ class OperationsViewModel(
                 state = state.copy(
                     submitting = false,
                     noticeMessage = correctionNotice(result),
+                    completedCorrectionItemId = command.itemId,
                     connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
                 pendingMutationIntentStore.remove(intent.id)
             }.onFailure { error ->
                 state = state.copy(submitting = false)
-                showFailure(error, "A correção não foi confirmada. Atualize a comanda antes de repetir a ação.")
+                if (error is OperationsApiException && error.code == "CORRECTION_STAGE_REQUIRES_APPROVAL") {
+                    // The production state advanced between the cached Tab read and the command.
+                    // Reload it so the next native attempt uses the manager-authorized endpoint,
+                    // instead of repeatedly replaying a known-invalid early-cancel intent.
+                    pendingMutationIntentStore.remove(intent.id)
+                    viewModelScope.launch {
+                        runCatching { repository.tabDetail(session, tabId) }.onSuccess(::replaceDetail)
+                    }
+                    showFailure(error, "O item avançou na produção. A comanda foi atualizada; confirme a correção autorizada.")
+                } else {
+                    if (error is OperationsApiException && error.status in 400..499) pendingMutationIntentStore.remove(intent.id)
+                    showFailure(error, "A correção não foi confirmada. Atualize a comanda antes de repetir a ação.")
+                }
             }
         }
     }

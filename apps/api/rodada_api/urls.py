@@ -16,8 +16,10 @@ from modules.hospitality.views import (
     TableCleaningStartView,
     TableGuestOrderingBlockView,
     TableListCreateView,
+    TableLocationView,
     TableOccupyView,
     TableReleaseView,
+    ZoneListCreateView,
 )
 from modules.guest_access.views import (
     GuestCatalogView,
@@ -103,7 +105,9 @@ urlpatterns = [
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
+    path("hospitality/zones/", ZoneListCreateView.as_view(), name="zone-list-create"),
     path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),
+    path("hospitality/tables/<uuid:table_id>/location/", TableLocationView.as_view(), name="table-location"),
     path("hospitality/tables/<uuid:table_id>/guest-ordering/", TableGuestOrderingBlockView.as_view(), name="table-guest-ordering"),
     path("hospitality/tables/<uuid:table_id>/release/", TableReleaseView.as_view(), name="table-release"),
     path("hospitality/tables/<uuid:table_id>/cleaning/start/", TableCleaningStartView.as_view(), name="table-cleaning-start"),

@@ -4,20 +4,24 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
-from modules.hospitality.models import Table, TableOccupancy
+from modules.hospitality.models import Table, TableOccupancy, Zone
 from modules.hospitality.serializers import (
     AssignTabSerializer,
     GuestOrderingBlockSerializer,
     OccupyTableSerializer,
     TableCreateSerializer,
+    TableLocationSerializer,
+    ZoneCreateSerializer,
 )
 from modules.hospitality.services import (
     HospitalityServiceError,
     assign_tab,
     complete_cleaning,
     create_table,
+    create_zone,
     occupy_table,
     release_table,
+    set_table_location,
     set_guest_ordering_blocked,
     start_cleaning,
 )
@@ -52,6 +56,11 @@ def _table_payload(table: Table) -> dict:
     return {
         "id": str(table.id),
         "label": table.label,
+        "zone": (
+            {"id": str(table.zone_id), "label": table.zone.label}
+            if table.zone_id
+            else None
+        ),
         "public_token": table.public_token,
         "access_generation": table.access_generation,
         "guest_ordering_mode": table.guest_ordering_mode,
@@ -65,8 +74,10 @@ class TableListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        tables = Table.objects.filter(venue=request.auth.venue).prefetch_related(
-            "occupancies__tab_assignments__tab"
+        tables = (
+            Table.objects.filter(venue=request.auth.venue)
+            .select_related("zone")
+            .prefetch_related("occupancies__tab_assignments__tab")
         )
         return Response({"results": [_table_payload(table) for table in tables]})
 
@@ -78,6 +89,32 @@ class TableListCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         table = create_table(actor=request.actor_context, **serializer.validated_data)
         return Response(_table_payload(table), status=201)
+
+
+class ZoneListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        zones = Zone.objects.filter(venue=request.auth.venue, is_active=True)
+        return Response(
+            {
+                "results": [
+                    {"id": str(zone.id), "label": zone.label, "is_active": zone.is_active}
+                    for zone in zones
+                ]
+            }
+        )
+
+    def post(self, request):
+        permission = RequireCapability()
+        self.required_capability = Capability.VENUE_CONFIGURE
+        permission.has_permission(request, self)
+        serializer = ZoneCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        zone = create_zone(actor=request.actor_context, **serializer.validated_data)
+        return Response(
+            {"id": str(zone.id), "label": zone.label, "is_active": zone.is_active}, status=201
+        )
 
 
 class TableOccupyView(APIView):
@@ -94,6 +131,24 @@ class TableOccupyView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response(_occupancy_payload(occupancy), status=201)
+
+
+class TableLocationView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.TABLE_MANAGE
+
+    def post(self, request, table_id):
+        serializer = TableLocationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            table = set_table_location(
+                table_id=table_id,
+                zone_id=serializer.validated_data["zone_id"],
+                actor=request.actor_context,
+            )
+        except HospitalityServiceError as error:
+            return _error_response(error)
+        return Response(_table_payload(table))
 
 
 class TableGuestOrderingBlockView(APIView):

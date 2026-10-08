@@ -16,6 +16,20 @@ class TableCreateSerializer(serializers.Serializer):
         return value
 
 
+class ZoneCreateSerializer(serializers.Serializer):
+    label = serializers.CharField(max_length=80)
+
+    def validate_label(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Nome da zona é obrigatório.")
+        return value
+
+
+class TableLocationSerializer(serializers.Serializer):
+    zone_id = serializers.UUIDField(allow_null=True)
+
+
 class OccupyTableSerializer(serializers.Serializer):
     tab_id = serializers.UUIDField(required=False)
 

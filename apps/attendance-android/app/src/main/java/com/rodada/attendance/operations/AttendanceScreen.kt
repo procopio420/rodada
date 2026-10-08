@@ -55,8 +55,18 @@ fun AttendanceScreen(
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
-    var correctionItem by remember { mutableStateOf<OrderItem?>(null) }
+    var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
+    val correctionItem = correctionItemId?.let { itemId ->
+        state.selectedTab?.orders?.asSequence()?.flatMap { it.items.asSequence() }?.firstOrNull { it.id == itemId }
+    }
+
+    LaunchedEffect(state.completedCorrectionItemId) {
+        if (state.completedCorrectionItemId == correctionItemId) correctionItemId = null
+    }
+    LaunchedEffect(correctionItemId, correctionItem) {
+        if (correctionItemId != null && correctionItem == null) correctionItemId = null
+    }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
 
@@ -108,7 +118,7 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
-                    onCorrectItem = { correctionItem = it },
+                    onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                 )
@@ -143,7 +153,7 @@ fun AttendanceScreen(
             item = item,
             products = state.products,
             busy = state.submitting,
-            onDismiss = { correctionItem = null },
+            onDismiss = { correctionItemId = null },
             onSubmit = { command, pin -> viewModel.submitCorrection(session, command, pin) },
         )
     }
@@ -346,10 +356,15 @@ private fun TabWorkspace(
                                     Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
                                     Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
                                 }
-                                OutlinedButton(
-                                    onClick = { onCorrectItem(item) },
-                                    enabled = !state.submitting && tab.summary.state != "CLOSED" && item.state !in setOf("CANCELLED"),
-                                ) { Text("Corrigir") }
+                                // A cancelled line is retained as operational history, not an
+                                // actionable item.  Keeping a disabled "Corrigir" beside it made
+                                // the next valid action ambiguous during a live shift.
+                                if (item.state != "CANCELLED") {
+                                    OutlinedButton(
+                                        onClick = { onCorrectItem(item) },
+                                        enabled = !state.submitting && tab.summary.state != "CLOSED",
+                                    ) { Text("Corrigir") }
+                                }
                             }
                         }
                     }

@@ -17,6 +17,18 @@ O sistema deve continuar sabendo — ou estimando com honestidade — quando um 
 ### DSP-001 — Zonas e pontos
 Manager define Zones e ativa/move ServicePoints durante a noite.
 
+#### P0 de contexto físico
+
+Antes de um floorplan ou de pontos móveis, o piloto precisa ao menos expor um
+contexto textual e mutável para a mesa física, por exemplo `Salão`, `Rua` ou
+`Varanda`. Uma `Zone` é isolada por Venue, possui identificador estável, label
+e estado ativo. A associação `Table -> Zone` é contexto operacional: movê-la
+não recria ocupação, não transfere Tabs e não altera Order, ledger, Payment ou
+QR. A mudança é auditada.
+
+`ServicePoint` continua sendo a próxima primitiva para destinos sem mesa; não
+é substituído por uma Zone nem é requisito para este P0.
+
 ### DSP-002 — Service request
 Staff registra chamada de atendimento/conta para um ponto/tab.
 

@@ -3,7 +3,7 @@ from rest_framework.test import APIClient
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
-from modules.hospitality.models import Table, TableStatus
+from modules.hospitality.models import Table, TableStatus, Zone
 from modules.ordering.models import Tab, TabState
 from modules.venue.models import Venue
 
@@ -40,6 +40,31 @@ class HospitalityTableApiTests(TestCase):
 
     def tab(self, label=""):
         return Tab.objects.create(venue=self.venue, display_label=label)
+
+    def manager_client(self):
+        manager = StaffMember.objects.create(
+            display_name="Gerente", login_identifier="hospitality-manager"
+        )
+        manager.set_pin("0420")
+        manager.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.venue, staff_member=manager, role=StaffRole.MANAGER
+        )
+        client = APIClient()
+        login = client.post(
+            "/auth/login/",
+            {
+                "venue_slug": self.venue.slug,
+                "login_identifier": manager.login_identifier,
+                "pin": "0420",
+                "installation_id": "hospitality-manager-device",
+                "platform": "WEB",
+            },
+            format="json",
+        )
+        assert login.status_code == 200, login.json()
+        client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        return client
 
     def test_table_has_opaque_stable_public_token(self):
         table = self.table()
@@ -173,6 +198,63 @@ class HospitalityTableApiTests(TestCase):
     def test_table_creation_requires_venue_configuration(self):
         response = self.client.post("/hospitality/tables/", {"label": "Criação"}, format="json")
         assert response.status_code == 403
+
+    def test_zone_context_moves_a_table_without_touching_occupancy_or_tab_identity(self):
+        table = self.table("24")
+        tab = self.tab("João")
+        occupied = self.client.post(
+            f"/hospitality/tables/{table.id}/occupy/", {"tab_id": str(tab.id)}, format="json"
+        )
+        assert occupied.status_code == 201, occupied.json()
+        manager = self.manager_client()
+
+        assert manager.post("/hospitality/zones/", {"label": "Rua"}, format="json").status_code == 201
+        zones = self.client.get("/hospitality/zones/")
+        assert zones.status_code == 200, zones.json()
+        zone = zones.json()["results"][0]
+
+        moved = self.client.post(
+            f"/hospitality/tables/{table.id}/location/", {"zone_id": zone["id"]}, format="json"
+        )
+        assert moved.status_code == 200, moved.json()
+        assert moved.json()["zone"] == {"id": zone["id"], "label": "Rua"}
+        assert moved.json()["active_occupancy"]["id"] == occupied.json()["id"]
+        assert moved.json()["active_occupancy"]["tabs"] == [
+            {"id": str(tab.id), "display_label": "João"}
+        ]
+        table.refresh_from_db()
+        assert table.status == TableStatus.OCCUPIED
+        assert table.access_generation == 1
+        assert table.public_token
+        event = AuditEvent.objects.get(
+            venue=self.venue,
+            event_type="table.location_changed",
+            entity_id=str(table.id),
+        )
+        assert event.metadata["zone_id"] == zone["id"]
+        assert event.metadata["zone_label"] == "Rua"
+
+        cleared = self.client.post(
+            f"/hospitality/tables/{table.id}/location/", {"zone_id": None}, format="json"
+        )
+        assert cleared.status_code == 200, cleared.json()
+        assert cleared.json()["zone"] is None
+        assert cleared.json()["active_occupancy"]["id"] == occupied.json()["id"]
+
+    def test_zone_is_venue_scoped_and_creation_requires_manager_capability(self):
+        table = self.table()
+        other_zone = Zone.objects.create(venue=self.other_venue, label="Outro salão")
+        assert self.client.post("/hospitality/zones/", {"label": "Rua"}, format="json").status_code == 403
+
+        response = self.client.post(
+            f"/hospitality/tables/{table.id}/location/",
+            {"zone_id": str(other_zone.id)},
+            format="json",
+        )
+        assert response.status_code == 404
+        assert response.json()["code"] == "ZONE_NOT_FOUND"
+        table.refresh_from_db()
+        assert table.zone_id is None
 
     def test_staff_can_immediately_block_and_restore_guest_ordering_with_audit(self):
         table = Table.objects.create(
