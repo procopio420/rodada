@@ -55,3 +55,7 @@ Nesta máquina `npm` não está no PATH. Foram executados os entrypoints Node eq
 ## Validação
 
 Typecheck e build passaram. Integração final: **5 testes passaram**, incluindo item indisponível na estação/disabled no POS, idempotência, histórico guest, revogação, permissões, caixa histórico e CSV. Os sete primitives equivalentes mantêm **0% de diferença** com gate de 0,1%. A comparação Kitchen inteira mede **9,8171%** e continua artefato de workflows distintos, sem alegação de paridade total. Matriz visual completa: **125 testes passaram**; após o destaque final de comandas REQUIRES_ACTION, os **13 testes de Gerência** foram repetidos e passaram, junto de build e integração real. A documentação distingue essa revalidação focada de uma execução completa adicional. Nenhum deploy, cobrança de provider, validação física ou concorrência PostgreSQL local é alegado.
+
+## Entrega para revisão
+
+Commits de implementação `e9d8761` e ferramentas/evidência `8cb83df`, publicados na branch dedicada. [PR draft #45](https://github.com/procopio420/rodada/pull/45) aberto para revisão humana, sem merge. O main remoto foi conferido e correspondia à base local. A primeira tentativa combinada de commit/push foi bloqueada pela revisão automática de permissões; após verificar o destino e a autorização explícita no pedido, o push separado foi autorizado e concluído. Artefatos de screenshot permaneceram locais/ignorados. CI final deve ser conferida no PR; resultado local não substitui CI.

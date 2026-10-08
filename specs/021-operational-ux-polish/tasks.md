@@ -5,4 +5,4 @@
 - [x] Ampliar matriz visual e gerar galeria.
 - [x] Exercitar aplicação real e inspecionar capturas.
 - [x] Executar gates e registrar audit/limites.
-- [ ] Criar commits e PR.
+- [x] Criar commits e PR draft #45 para revisão humana; sem merge/deploy.
