@@ -40,6 +40,7 @@ class CorrectionsHttpClient(baseUrl: String) {
             replacementOrderItemId = json.optString("replacement_order_item_id").ifBlank { null },
             orderItemId = json.getString("order_item_id"),
             orderItemState = json.getString("order_item_state"),
+            financialDeltaCents = json.optLong("financial_delta_cents", 0),
             chargesCents = json.optLong("charges_cents"),
             paymentsCents = json.optLong("payments_cents"),
             refundsCents = json.optLong("refunds_cents"),

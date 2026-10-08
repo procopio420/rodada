@@ -1,6 +1,7 @@
 package com.rodada.attendance.corrections
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -14,5 +15,34 @@ class CorrectionModelsTest {
         assertFalse(early.requiresPostProductionEndpoint())
         assertTrue(preparing.requiresPostProductionEndpoint())
         assertTrue(remake.requiresPostProductionEndpoint())
+    }
+
+    @Test
+    fun `early items expose only the correction the API accepts`() {
+        assertEquals(listOf(CorrectionAction.CANCEL), correctionActionsFor("NEW"))
+        assertEquals(listOf(CorrectionAction.CANCEL), correctionActionsFor("ACCEPTED"))
+        assertEquals(CorrectionAction.entries, correctionActionsFor("PREPARING"))
+        assertEquals(CorrectionAction.entries, correctionActionsFor("READY"))
+    }
+
+    @Test
+    fun `replacement consequence states the canonical positive delta`() {
+        val result = CorrectionResult(
+            id = "correction",
+            status = "APPLIED",
+            kind = CorrectionAction.REPLACEMENT.apiKind,
+            financialDisposition = "REVERSE_OPEN_RESPONSIBILITY",
+            refundRequiredCents = 0,
+            replacementOrderItemId = "replacement",
+            orderItemId = "item",
+            orderItemState = "CANCELLED",
+            financialDeltaCents = 500,
+            chargesCents = 1_900,
+            paymentsCents = 0,
+            refundsCents = 0,
+            exposureCents = 2_400,
+        )
+
+        assertEquals("Diferença a cobrar: + R$ 5,00.", correctionConsequence(result))
     }
 }

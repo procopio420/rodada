@@ -38,6 +38,7 @@ import com.rodada.attendance.cash.CashShiftScreen
 import com.rodada.attendance.cash.CashShiftViewModel
 import com.rodada.attendance.corrections.CorrectionAction
 import com.rodada.attendance.corrections.CorrectionCommand
+import com.rodada.attendance.corrections.correctionActionsFor
 import com.rodada.attendance.corrections.requiresPostProductionEndpoint
 import com.rodada.attendance.refunds.DirectRefundCommand
 import com.rodada.attendance.refunds.RefundCommand
@@ -550,6 +551,10 @@ private fun CorrectionDialog(
     var replacementId by remember(item.id) { mutableStateOf("") }
     // Retain this key while the dialog remains open. A timeout retry is therefore the same command.
     val idempotencyKey = remember(item.id, action, replacementId) { UUID.randomUUID().toString() }
+    // The canonical post-production command intentionally rejects remake and
+    // replacement before work begins. Do not offer an action that the server
+    // can never accept for a NEW/ACCEPTED item.
+    val availableActions = correctionActionsFor(item.state)
     val replacementProducts = products.filter { it.active && it.availability == "AVAILABLE" && it.id != replacementId }
     val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }).requiresPostProductionEndpoint()
     val replacementValid = action != CorrectionAction.REPLACEMENT || replacementId.isNotBlank()
@@ -559,7 +564,7 @@ private fun CorrectionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
-                CorrectionAction.entries.forEach { candidate ->
+                availableActions.forEach { candidate ->
                     OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
                         Text(if (action == candidate) "✓ ${candidate.label}" else candidate.label)
                     }

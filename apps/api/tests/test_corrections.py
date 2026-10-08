@@ -574,6 +574,9 @@ class CorrectionFoundationTests(TestCase):
         )
         self.assertEqual(accepted.status_code, 201, accepted.json())
         self.assertEqual(accepted.json()["order_item_state"], OrderItemState.CANCELLED)
+        self.assertEqual(accepted.json()["original_line_total_cents"], 1200)
+        self.assertIsNone(accepted.json()["replacement_line_total_cents"])
+        self.assertEqual(accepted.json()["financial_delta_cents"], -1200)
 
     def test_replacement_price_difference_is_append_only_and_deterministic(self):
         for price, expected in ((1200, 1200), (900, 900), (1500, 1500)):
