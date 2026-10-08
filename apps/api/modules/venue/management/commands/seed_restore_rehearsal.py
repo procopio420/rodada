@@ -112,12 +112,13 @@ class Command(BaseCommand):
                 {"product_id": duplicate.id, "quantity": 1},
             ],
         )
-        items = list(order.items.order_by("created_at", "id"))
+        # Timestamps can tie in a bulk insert; identify fixture items by Product.
+        items = {item.product_id: item for item in order.items.all()}
         for state in (OrderItemState.ACCEPTED, OrderItemState.READY):
-            transition_order_item(item_id=items[0].id, target_state=state, actor=actor)
-        complete_delivery_task(task_id=items[0].delivery_task.id, actor=actor)
+            transition_order_item(item_id=items[bar.id].id, target_state=state, actor=actor)
+        complete_delivery_task(task_id=items[bar.id].delivery_task.id, actor=actor)
         cancelled = cancel_before_fulfillment(
-            item_id=items[2].id,
+            item_id=items[duplicate.id].id,
             kind="WRONG_ITEM_ENTERED",
             reason_code="DUPLICATE_ENTRY",
             reason_text="Backup rehearsal duplicate item",
@@ -151,7 +152,7 @@ class Command(BaseCommand):
             actor=actor,
         )
         paid_correction = cancel_before_fulfillment(
-            item_id=items[1].id,
+            item_id=items[kitchen.id].id,
             kind="CUSTOMER_CHANGED_MIND",
             reason_code="CUSTOMER_LEFT",
             reason_text="Backup rehearsal paid correction",

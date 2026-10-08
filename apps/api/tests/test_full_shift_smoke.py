@@ -121,7 +121,8 @@ class FullShiftSmokeTests(TestCase):
         self.assertEqual(guest_order["source"], "GUEST")
 
         # Per-item readiness creates per-item delivery work; no order-wide READY fiction.
-        bar_item = staff_order["items"][0]
+        staff_items = {row["product_id"]: row for row in staff_order["items"]}
+        bar_item = staff_items[str(self.bar.id)]
         self.post(self.staff, f"/order-items/{bar_item['id']}/transition/", {"state": "ACCEPTED"})
         self.post(self.staff, f"/order-items/{bar_item['id']}/transition/", {"state": "READY"})
         deliveries = self.staff.get("/dispatch/delivery/")
@@ -134,7 +135,7 @@ class FullShiftSmokeTests(TestCase):
         # Once production has begun, an exception remains visible in both
         # operational and financial history. It requires manager reauth and
         # does not pretend the work never happened.
-        prepared_item = staff_order["items"][3]
+        prepared_item = staff_items[str(self.post_production.id)]
         self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "ACCEPTED"})
         self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "PREPARING"})
         self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
@@ -187,7 +188,7 @@ class FullShiftSmokeTests(TestCase):
         # retains the rest of its independently payable responsibility.
         cancelled = self.post(
             self.staff,
-            f"/order-items/{staff_order['items'][2]['id']}/corrections/cancel/",
+            f"/order-items/{staff_items[str(self.cancelled.id)]['id']}/corrections/cancel/",
             {
                 "kind": "WRONG_ITEM_ENTERED",
                 "reason_code": "DUPLICATE_ENTRY",
@@ -220,7 +221,7 @@ class FullShiftSmokeTests(TestCase):
         # a recently reauthenticated manager settles its refund and reversal.
         paid_correction = self.post(
             self.staff,
-            f"/order-items/{staff_order['items'][1]['id']}/corrections/cancel/",
+            f"/order-items/{staff_items[str(self.kitchen.id)]['id']}/corrections/cancel/",
             {
                 "kind": "CUSTOMER_CHANGED_MIND",
                 "reason_code": "CUSTOMER_LEFT",
