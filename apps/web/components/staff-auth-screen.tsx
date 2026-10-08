@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useId, useState } from "react";
 import {
   AccessInvalidationFeed,
   ApiError,
@@ -23,10 +23,12 @@ function Field({
   type?: string;
   autoComplete?: string;
 }) {
+  const id = useId();
   return (
     <div className="field">
-      <label>{label}</label>
+      <label htmlFor={id}>{label}</label>
       <input
+        id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         type={type}

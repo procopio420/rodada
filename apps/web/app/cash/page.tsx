@@ -19,7 +19,7 @@ type CashShift = {
   movements?: CashMovement[];
 };
 
-type CashPoint = { id: string; label: string; active_shift: CashShift | null };
+type CashPoint = { id: string; label: string; active_shift: CashShift | null; pending_review_shift?: CashShift | null };
 type CashMovement = {
   id: string;
   kind: string;
@@ -68,13 +68,18 @@ export default function CashPage() {
   const [reviewReason, setReviewReason] = useState("");
   const [notice, setNotice] = useState<ApiError | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [confirmation, setConfirmation] = useState("");
   const [pendingReauth, setPendingReauth] = useState<(() => Promise<void>) | null>(null);
   const [reauthPin, setReauthPin] = useState("");
   const openKey = useRef<string | null>(null);
   const movementKey = useRef<string | null>(null);
 
   const load = useCallback(async (preferredPointId?: string) => {
+    setLoading(true);
     setNotice(null);
+    setConfirmation("");
+    try {
     const [me, pointsResult] = await Promise.all([
       apiCall<StaffSessionView>("/api/auth/me"),
       apiCall<{ results: CashPoint[] }>("/api/pos/cash/points/"),
@@ -92,7 +97,8 @@ export default function CashPage() {
         ? pointId
         : result[0]?.id ?? "";
     setPointId(nextPointId);
-    const active = result.find((point) => point.id === nextPointId)?.active_shift ?? null;
+    const selected = result.find((point) => point.id === nextPointId);
+    const active = selected?.active_shift ?? selected?.pending_review_shift ?? null;
     if (!active) {
       setShift(null);
       return;
@@ -100,6 +106,8 @@ export default function CashPage() {
     const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${active.id}/`);
     if (detail.response.ok && detail.body) setShift(detail.body as CashShift);
     else setNotice(asApiError(detail.body));
+    } catch { setNotice({ code: "NETWORK_ERROR", message: "Não foi possível atualizar o caixa. Confira a conexão." }); }
+    finally { setLoading(false); }
   // pointId is deliberately read as the current selection when no preference is supplied.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -205,6 +213,7 @@ export default function CashPage() {
     if (result.response.ok) {
       setReviewReason("");
       await load(pointId);
+      setConfirmation("Divergência revisada.");
     } else handleError(result.body, review);
   };
 
@@ -240,6 +249,8 @@ export default function CashPage() {
     </header>
 
     {notice ? <div className="notice" data-state="danger" role="alert"><strong>{notice.code}</strong><br />{notice.message}</div> : null}
+    {loading && <div className="loadingState" role="status">Carregando caixa…</div>}
+    {confirmation && <div className="notice" data-state="success" role="status">{confirmation}</div>}
 
     <section className="panel">
       <div className="field">
@@ -249,7 +260,7 @@ export default function CashPage() {
           {points.map((point) => <option value={point.id} key={point.id}>{point.label}{point.active_shift ? " · turno ativo" : ""}</option>)}
         </select>
       </div>
-      {!selectedPoint ? <p className="muted">Sem ponto de caixa ativo para este operador.</p> : null}
+      {!loading && !notice && !selectedPoint ? <p className="muted">Sem ponto de caixa ativo para este operador.</p> : null}
     </section>
 
     {!shift && selectedPoint ? <section className="panel">

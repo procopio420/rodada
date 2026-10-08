@@ -115,6 +115,7 @@ Antes de alterar comportamento:
 - Relatórios operacionais usam business date/cutoff do Venue; não assumir que o dia termina à meia-noite.
 - Protótipos e implementação real compartilham o mesmo vocabulário de componentes e tokens.
 - Antes de aceitar uma nova tela, revisar consistência com pelo menos uma superfície adjacente do fluxo.
+- Mudanças em Web/PWA que alterem UI devem executar `cd apps/web && npm run test:visual`; quando houver referência executável correspondente, atualizar a comparação com fixture determinística e corrigir diferenças em vez de aceitar baseline novo sem justificativa.
 
 ## Qualidade financeira
 
