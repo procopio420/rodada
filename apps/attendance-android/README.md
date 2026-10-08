@@ -107,6 +107,21 @@ altere o manifest de release para liberar HTTP. O aparelho precisa de NFC e
 ser compatível com o provider para a futura verificação Tap on Phone; emulador
 não valida aproximação.
 
+### Paytime Tap on Phone
+
+O boundary nativo `TapToPayProvider` existe, mas o SDK não é incluído até a
+Paytime disponibilizar e validar o artifact privado. Para habilitá-lo, o
+parceiro precisa fornecer por canal secreto: URL/usuário/senha Maven DEBUG,
+coordenadas e versão do SDK, registro do `applicationId`
+`com.rodada.attendance`, código de estabelecimento/ativação sandbox e aparelho
+físico Android 11+ com NFC, não-rootado e aceito pela Paytime.
+
+Guarde esses valores em `paytime.properties` local (há um exemplo sem
+segredos). Produção também exige homologação, credenciais Maven RELEASE e
+registro dos certificados de assinatura. Como o app atual tem `minSdk 26`, a
+variante que receber o SDK precisa subir para API 30 ou isolá-lo numa variante
+compatível antes da dependência ser adicionada.
+
 Stack do bootstrap:
 
 - Android Gradle Plugin 9.4;

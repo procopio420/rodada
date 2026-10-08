@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+paytime.properties
 node_modules/
 .next/
 __pycache__/
