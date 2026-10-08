@@ -55,6 +55,12 @@ class FullShiftSmokeTests(TestCase):
             price_cents=600,
             fulfillment_station=FulfillmentStation.KITCHEN,
         )
+        self.post_production = Product.objects.create(
+            venue=self.venue,
+            name="Prato preparado e cancelado",
+            price_cents=900,
+            fulfillment_station=FulfillmentStation.KITCHEN,
+        )
 
     def post(self, client, path, body=None):
         response = client.post(path, body or {}, format="json")
@@ -95,6 +101,7 @@ class FullShiftSmokeTests(TestCase):
                     {"product_id": str(self.bar.id), "quantity": 1},
                     {"product_id": str(self.kitchen.id), "quantity": 1},
                     {"product_id": str(self.cancelled.id), "quantity": 1},
+                    {"product_id": str(self.post_production.id), "quantity": 1},
                 ],
             },
         )
@@ -123,6 +130,40 @@ class FullShiftSmokeTests(TestCase):
         self.assertEqual(delivery["destination_label"], "Mesa 24")
         completed = self.post(self.staff, f"/dispatch/delivery/{delivery['id']}/complete/")
         self.assertEqual(completed["state"], "DONE")
+
+        # Once production has begun, an exception remains visible in both
+        # operational and financial history. It requires manager reauth and
+        # does not pretend the work never happened.
+        prepared_item = staff_order["items"][3]
+        self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "ACCEPTED"})
+        self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "PREPARING"})
+        self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
+        post_production_cancel = self.post(
+            self.staff,
+            f"/order-items/{prepared_item['id']}/corrections/post-production/",
+            {
+                "kind": "CANCEL_ITEM",
+                "reason_code": "CUSTOMER_LEFT",
+                "reason_text": "Preparado, mas cliente saiu",
+                "idempotency_key": "joao-preparing-cancel",
+            },
+        )
+        self.assertEqual(post_production_cancel["order_item_state"], "CANCELLED")
+        self.assertEqual(post_production_cancel["adjustments_cents"], -900)
+
+        # A remake creates a separate production item and compensating
+        # courtesy adjustment; the delivered original remains historical.
+        remake = self.post(
+            self.staff,
+            f"/order-items/{bar_item['id']}/corrections/post-production/",
+            {
+                "kind": "REMAKE",
+                "reason_code": "QUALITY_ISSUE",
+                "reason_text": "Bebida devolvida após entrega",
+                "idempotency_key": "joao-bar-remake",
+            },
+        )
+        self.assertIsNotNone(remake["replacement_order_item_id"])
 
         # The stale availability guard applies to the same guest catalog/order pipeline.
         self.post(
@@ -154,7 +195,7 @@ class FullShiftSmokeTests(TestCase):
                 "idempotency_key": "joao-duplicate-item",
             },
         )
-        self.assertEqual(cancelled["adjustments_cents"], -600)
+        self.assertEqual(cancelled["adjustments_cents"], -2700)
         self.assertEqual(cancelled["exposure_cents"], 3600)
 
         # Partial cash records net drawer effects; the remaining staff payment is canonical too.
@@ -221,14 +262,35 @@ class FullShiftSmokeTests(TestCase):
         listed = self.staff.get("/hospitality/tables/").json()["results"]
         self.assertEqual(next(row for row in listed if row["id"] == table["id"])["status"], TableStatus.AVAILABLE)
 
+        # Cash custody is append-only as well. Supply and withdrawal happen
+        # before the independent physical count; the deliberate difference is
+        # reviewed instead of hidden by a fabricated movement.
+        self.post(
+            self.staff,
+            f"/cash/shifts/{shift['id']}/supply/",
+            {"amount_cents": 500, "reason": "Troco para pico", "idempotency_key": "shift-supply"},
+        )
+        self.post(
+            self.staff,
+            f"/cash/shifts/{shift['id']}/withdrawal/",
+            {"amount_cents": 200, "reason": "Envio ao cofre", "idempotency_key": "shift-withdrawal"},
+        )
         counting = self.post(self.staff, f"/cash/shifts/{shift['id']}/count/start/")
         closed = self.post(
             self.staff,
             f"/cash/shifts/{shift['id']}/close/",
             {
-                "counted_amount_cents": 12_400,
+                "counted_amount_cents": 12_600,
                 "review_threshold_cents": 0,
                 "expected_version": counting["version"],
             },
         )
-        self.assertEqual(closed["discrepancy_cents"], 0)
+        self.assertEqual(closed["discrepancy_cents"], -100)
+        self.assertEqual(closed["review_status"], "PENDING")
+        self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
+        reviewed = self.post(
+            self.staff,
+            f"/cash/shifts/{shift['id']}/review/",
+            {"reason": "Diferença anotada no cofre"},
+        )
+        self.assertEqual(reviewed["review_status"], "REVIEWED")
