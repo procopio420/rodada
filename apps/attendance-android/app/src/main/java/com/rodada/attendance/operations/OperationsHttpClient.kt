@@ -8,21 +8,32 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun tabs(accessToken: String): List<TabSummary> =
-        request("GET", "/tabs/", accessToken = accessToken)
-            .getJSONArray("results")
-            .toObjects()
-            .map(::tabSummary)
+    fun tabs(accessToken: String): List<TabSummary> {
+        val tabs = mutableListOf<TabSummary>()
+        var offset = 0
+        while (true) {
+            val page = request("GET", "/tabs/?active=true&offset=$offset", accessToken = accessToken)
+            tabs += page.getJSONArray("results").toObjects().map(::tabSummary)
+            if (page.isNull("next_offset")) return tabs.distinctBy { it.id }
+            offset = page.getInt("next_offset")
+        }
+    }
 
-    fun openTab(accessToken: String, label: String): TabSummary =
+    fun openTab(accessToken: String, label: String, customerId: String? = null): TabSummary =
         tabSummary(
             request(
                 "POST",
                 "/tabs/",
-                JSONObject().put("display_label", label),
+                JSONObject().put("display_label", label).apply { if (customerId != null) put("customer_id", customerId) },
                 accessToken,
             ),
         )
+
+    fun customers(accessToken: String, query: String): List<CustomerSummary> =
+        request("GET", "/customers/?q=" + java.net.URLEncoder.encode(query, "UTF-8"), accessToken = accessToken)
+            .getJSONArray("results").toObjects().map {
+                CustomerSummary(it.getString("id"), it.getString("display_name"), it.getString("kind"))
+            }
 
     fun tabDetail(accessToken: String, tabId: String): TabDetail {
         val response = request("GET", "/tabs/$tabId/", accessToken = accessToken)
@@ -212,7 +223,7 @@ class OperationsHttpClient(baseUrl: String) {
         request("POST", "/tabs/$tabId/close/", JSONObject(), accessToken)
     }
 
-    private fun tabSummary(json: JSONObject) =
+    internal fun tabSummary(json: JSONObject) =
         TabSummary(
             id = json.getString("id"),
             displayLabel = json.optString("display_label").ifBlank { "Comanda sem nome" },
@@ -221,7 +232,23 @@ class OperationsHttpClient(baseUrl: String) {
             chargesCents = json.getLong("charges_cents"),
             paymentsCents = json.getLong("payments_cents"),
             exposureCents = json.getLong("exposure_cents"),
+            effectiveLimitCents = json.getLong("effective_limit_cents"),
+            remainingCapacityCents = json.getLong("remaining_capacity_cents"),
+            percentageUsed = if (json.isNull("percentage_used")) null else json.getInt("percentage_used"),
+            consumptionBlocked = json.getBoolean("consumption_blocked"),
+            limitWarning = json.getBoolean("limit_warning"),
+            actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
         )
+
+    fun requestApproval(accessToken: String, tabId: String, reason: String, key: String) {
+        request("POST", "/tabs/$tabId/approval-request/", JSONObject().put("reason", reason).put("idempotency_key", key), accessToken)
+    }
+
+    fun approveLimit(accessToken: String, tabId: String, limitCents: Long, reason: String, expiresAt: String, key: String) {
+        request("POST", "/tabs/$tabId/limit-override/", JSONObject()
+            .put("limit_cents", limitCents).put("reason", reason)
+            .put("expires_at", expiresAt).put("idempotency_key", key), accessToken)
+    }
 
     private fun tableSummary(json: JSONObject): TableSummary {
         val active = json.optJSONObject("active_occupancy")

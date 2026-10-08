@@ -2,6 +2,8 @@ package com.rodada.attendance.operations
 
 import java.util.Locale
 
+data class CustomerSummary(val id: String, val displayName: String, val kind: String)
+
 data class TabSummary(
     val id: String,
     val displayLabel: String,
@@ -10,6 +12,12 @@ data class TabSummary(
     val chargesCents: Long,
     val paymentsCents: Long,
     val exposureCents: Long,
+    val effectiveLimitCents: Long = 3000,
+    val remainingCapacityCents: Long = 3000,
+    val percentageUsed: Int? = null,
+    val consumptionBlocked: Boolean = false,
+    val limitWarning: Boolean = false,
+    val actionReasons: List<String> = emptyList(),
 )
 
 data class OrderItem(
