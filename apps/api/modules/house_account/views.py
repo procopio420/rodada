@@ -286,9 +286,13 @@ class TabHouseHistoryView(APIView):
     def get(self, request, tab_id):
         if not Tab.objects.filter(pk=tab_id, venue=request.auth.venue).exists():
             return Response({"code": "TAB_NOT_FOUND"}, status=404)
-        rows = AuditEvent.objects.filter(
-            venue=request.auth.venue, entity_type="Tab", entity_id=str(tab_id)
-        ).order_by("-occurred_at")[:100]
+        rows = (
+            AuditEvent.objects.filter(
+                venue=request.auth.venue, entity_type="Tab", entity_id=str(tab_id)
+            )
+            .select_related("actor_staff")
+            .order_by("-occurred_at")[:100]
+        )
         return Response(
             {
                 "results": [
@@ -296,6 +300,7 @@ class TabHouseHistoryView(APIView):
                         "id": str(r.id),
                         "event_type": r.event_type,
                         "actor": str(r.actor_staff_id) if r.actor_staff_id else None,
+                        "actor_name": r.actor_staff.display_name if r.actor_staff_id else "Sistema",
                         "reason": r.reason,
                         "occurred_at": r.occurred_at,
                         "metadata": r.metadata,

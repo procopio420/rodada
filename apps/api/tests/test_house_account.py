@@ -278,6 +278,14 @@ class HouseAccountTests(HouseFixture, TestCase):
         assert LimitOverride.objects.count() == 1
         assert Payment.objects.count() == 0
         assert AuditEvent.objects.filter(event_type="tab.limit_overridden").count() == 1
+        history = self.manager.get(f"/tabs/{tab_id}/house-history/").json()["results"]
+        event = next(row for row in history if row["event_type"] == "tab.limit_overridden")
+        assert event["actor_name"] == "manager"
+        assert event["actor"] is not None
+        assert event["reason"] == body["reason"]
+        assert event["metadata"]["previous_limit_cents"] == 3000
+        assert event["metadata"]["limit_cents"] == 5000
+        assert self.staff.get(f"/tabs/{tab_id}/house-history/").status_code == 403
         self.order(tab_id, key="approved")
         LimitOverride.objects.update(expires_at=timezone.now() - timedelta(seconds=1))
         assert self.detail(tab_id)["effective_limit_cents"] == 3000
