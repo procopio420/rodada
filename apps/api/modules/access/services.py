@@ -378,7 +378,9 @@ def refresh_staff_session(raw_refresh_token: str) -> dict:
     token_hash = hash_token(raw_refresh_token)
     session = (
         StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "membership", "device")
+        # `device` is optional. Do not lock its nullable outer join on
+        # PostgreSQL; StaffSession is the serialization boundary.
+        .select_related("venue", "staff_member", "membership")
         .filter(refresh_token_hash=token_hash)
         .first()
     )
@@ -404,7 +406,7 @@ def refresh_staff_session(raw_refresh_token: str) -> dict:
 def revoke_session(session: StaffSession, reason: str) -> None:
     locked = (
         StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "device")
+        .select_related("venue", "staff_member")
         .get(pk=session.pk)
     )
     if locked.revoked_at:
@@ -454,7 +456,7 @@ def _complete_operator_switch(
 ) -> dict:
     locked = (
         StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "membership", "device")
+        .select_related("venue", "staff_member", "membership")
         .get(pk=current_session_id)
     )
     failure = _session_failure(locked)
@@ -599,7 +601,7 @@ def switch_operator(
 def _complete_reauthentication(session_id) -> dict:
     locked = (
         StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "membership", "device")
+        .select_related("venue", "staff_member", "membership")
         .get(pk=session_id)
     )
     failure = _session_failure(locked)
@@ -874,7 +876,7 @@ def revoke_session_admin(
 ) -> StaffSession:
     target = (
         StaffSession.objects.select_for_update()
-        .select_related("venue", "staff_member", "device")
+        .select_related("venue", "staff_member")
         .filter(pk=target_session_id, venue=actor_session.venue)
         .first()
     )
