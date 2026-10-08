@@ -2,9 +2,9 @@
 
 - [ ] Mesa possui QR com token opaco não sequencial.
 - [ ] QR permanece o mesmo quando a mesa muda de lugar.
-- [ ] Scan do QR resolve a Table sem expor PK interno.
+- [x] Scan do QR resolve a Table sem expor PK interno.
 - [ ] Table pode existir AVAILABLE sem placement ativo.
-- [ ] Guest abre PWA sem instalar app ou criar conta.
+- [x] Guest abre PWA sem instalar app ou criar conta.
 - [ ] Ao escanear Table sem placement, guest pode selecionar posição aproximada num floorplan 2D sanitizado.
 - [ ] Staff pode posicionar ou arrastar uma Table no floorplan.
 - [ ] Staff pode retirar uma Table do mapa encerrando apenas o placement, sem apagar a Table ou trocar o QR.
@@ -12,21 +12,21 @@
 - [ ] Update concorrente com versão stale não sobrescreve placement silenciosamente.
 - [ ] Floorplan guest não expõe estados operacionais de outras mesas, staff ou filas internas.
 - [ ] Staff pode agrupar/desagrupar Tables sem fundir suas identidades ou contas.
-- [ ] Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.
-- [ ] Em `JOIN_ACTIVE`, guest não inicia ocupação nova.
-- [ ] Em `DISABLED`, guest não envia pedido.
+- [x] Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.
+- [x] Em `JOIN_ACTIVE`, guest não inicia ocupação nova.
+- [x] Em `DISABLED`, guest não envia pedido.
 - [x] Uma TableOccupancy suporta duas ou mais Tabs independentes.
-- [ ] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
-- [ ] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
+- [x] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
+- [x] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
 - [ ] Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.
-- [ ] Guest não confirma item que ficou indisponível depois de entrar no carrinho.
-- [ ] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
+- [x] Guest não confirma item que ficou indisponível depois de entrar no carrinho.
+- [x] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
 - [x] Fechar a última Tab não libera a Table automaticamente.
 - [x] `release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.
 - [x] Staff inicia limpeza `DIRTY → CLEANING`.
 - [x] Staff conclui limpeza `CLEANING → AVAILABLE`.
 - [x] Concluir limpeza incrementa `access_generation`.
-- [ ] GuestSession de geração anterior não consegue criar novos pedidos.
+- [x] GuestSession de geração anterior não consegue criar novos pedidos.
 - [ ] Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.
 - [ ] Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.
 - [ ] Guest vê status simplificado RECEBIDO / PREPARANDO / PRONTO-CHEGANDO derivado do fulfillment.

@@ -3,26 +3,26 @@
 ## Domain/API
 
 - [x] expand Payment methods/statuses
-- [ ] PaymentAttempt model
+- [x] PaymentAttempt model
 - [x] idempotency key uniqueness/semantics
-- [ ] ProviderEvent inbox
+- [x] ProviderEvent inbox
 - [x] Refund model
 - [x] balance/exposure projection from ledger
 - [x] prevent Table/TableOccupancy coupling
-- [ ] provider-neutral PaymentProvider port
-- [ ] provider capabilities
+- [x] provider-neutral PaymentProvider port
+- [x] provider capabilities
 - [x] normalized payment errors
 - [x] create payment command
-- [ ] confirm payment transition rules
-- [ ] confirmation_pending reconciliation
+- [x] confirm payment transition rules
+- [x] confirmation_pending reconciliation
 - [ ] cancel rules
 - [x] refund total
 - [x] refund partial
 - [x] audit financial mutations
 - [x] permissions/RBAC
-- [ ] webhook signature validation per adapter
-- [ ] webhook idempotency
-- [ ] scheduled/manual reconciliation
+- [x] webhook signature validation per adapter
+- [x] webhook idempotency
+- [x] manual reconciliation service
 - [ ] realtime financial events
 
 ## Rodada Atendimento — Android
@@ -80,12 +80,12 @@
 - [x] redact provider secrets/sensitive fields from logs
 - [x] double tap cannot double-charge
 - [x] frontend retry cannot double-charge
-- [ ] webhook duplicate cannot double-apply
-- [ ] provider timeout cannot auto-retry ambiguous charge
+- [x] webhook duplicate cannot double-apply
+- [x] provider timeout cannot auto-retry ambiguous charge
 - [x] cash/manual payment records actor
 - [x] external terminal is visually/auditably distinct
 - [ ] closing Tab never frees TableOccupancy
 - [x] tests for partial payment
 - [x] tests for refunds
-- [ ] tests for reconciliation
+- [x] tests for reconciliation
 - [ ] metrics: time-to-pay, approval/failure, method/provider, confirmation_pending

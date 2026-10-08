@@ -1,10 +1,10 @@
 # Tasks — Spec 017
 
 ## Domain/API
-- [ ] OrderCorrection model/kinds/status.
-- [ ] FinancialDisposition contract.
-- [ ] WasteMarker.
-- [ ] Replacement/remake linkage.
+- [x] OrderCorrection model/kinds/status.
+- [x] FinancialDisposition contract.
+- [x] WasteMarker.
+- [x] Replacement/remake linkage.
 - [ ] Correction options/preview.
 - [ ] Stage-aware authorization.
 - [ ] Cancel confirmed item command.
@@ -14,12 +14,12 @@
 - [ ] Create replacement.
 - [ ] Comped replacement via Spec 011.
 - [ ] Paid/refund-required orchestration.
-- [ ] Structured reason codes.
+- [x] Structured reason codes.
 
 ## Persistence
-- [ ] Correction idempotency.
-- [ ] Original/replacement indexes.
-- [ ] Waste provenance.
+- [x] Correction idempotency.
+- [x] Original/replacement indexes.
+- [x] Waste provenance.
 - [ ] Legacy cancelled-item compatibility.
 
 ## Android
@@ -53,11 +53,11 @@
 - [ ] No simplistic staff leaderboard.
 
 ## Quality/tests
-- [ ] Confirmed snapshot never edited.
-- [ ] Original fulfillment history preserved.
-- [ ] Double correction idempotent/conflicted.
-- [ ] Replacement is new OrderItem.
+- [x] Confirmed snapshot never edited.
+- [x] Original fulfillment history preserved.
+- [x] Double correction idempotent/conflicted.
+- [x] Replacement is new OrderItem.
 - [ ] Comped replacement net effect correct.
 - [ ] Transferred financial responsibility corrected on current owner.
-- [ ] Paid item requires refund/courtesy semantics.
+- [x] Paid item requires refund/courtesy semantics.
 - [ ] Offline correction not treated canonical.

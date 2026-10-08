@@ -15,34 +15,34 @@
 - [x] release table service
 - [x] cleaning start/complete services
 - [x] increment `access_generation` on cleaning completion
-- [ ] GuestSession model
+- [x] GuestSession model
 - [ ] TabIdentifier model
 - [x] opaque Table public token
 - [ ] short code identifier
 - [ ] dynamic Tab QR identifier
 - [ ] NFC_TAG association/revocation
-- [ ] guest ordering modes
-- [ ] guest block/unblock
-- [ ] server-side generation validation
-- [ ] rate limiting
+- [x] guest ordering modes
+- [x] guest block/unblock
+- [x] server-side generation validation
+- [x] rate limiting
 - [x] audit events
 - [ ] metrics queries
 
 ## Guest PWA
 
-- [ ] resolve QR
-- [ ] table context screen
+- [x] resolve QR
+- [x] table context screen
 - [ ] sanitized 2D floorplan
 - [ ] "Onde vocês estão?" placement flow for unplaced Table
 - [ ] handle placement conflict/stale version
-- [ ] create anonymous/named Tab
+- [x] create anonymous/named Tab
 - [ ] join existing Tab by short code
 - [ ] optional login/profile path
-- [ ] menu/catalog consumindo disponibilidade operacional compartilhada
-- [ ] item indisponível visualmente desabilitado
-- [ ] tratamento de carrinho stale quando disponibilidade muda antes do submit
+- [x] menu/catalog consumindo disponibilidade operacional compartilhada
+- [x] item indisponível visualmente desabilitado
+- [x] tratamento de carrinho stale quando disponibilidade muda antes do submit
 - [ ] add item / notes
-- [ ] submit order
+- [x] submit order
 - [ ] persistent navigation: Cardápio / Pedidos / Conta
 - [ ] quick-add item; modifiers only when required
 - [ ] live order summary
@@ -71,9 +71,9 @@
 
 ## Quality
 
-- [ ] cannot order against sequential/raw table id
-- [ ] old GuestSession rejected after occupancy release/generation change
-- [ ] guest block rejects guest mutation but staff still orders
+- [x] cannot order against sequential/raw table id
+- [x] old GuestSession rejected after occupancy release/generation change
+- [x] guest block rejects guest mutation but staff still orders
 - [ ] two Tabs on same occupancy remain financially independent
 - [x] closing last Tab does not release table
 - [ ] cleaning timestamps produce deterministic metrics

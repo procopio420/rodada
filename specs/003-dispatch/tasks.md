@@ -2,10 +2,10 @@
 
 - [ ] Zone CRUD/config
 - [ ] ServicePoint ativar/mover/desativar
-- [ ] DispatchTask
+- [x] DispatchTask
 - [ ] SLA/severity
 - [ ] WebSocket updates
-- [ ] READY -> delivery task idempotente
+- [x] READY -> delivery task idempotente
 - [ ] remover dependência de claim/pickup/delivery manual no happy path
 - [ ] FulfillmentMilestone com source/confidence/provenance
 - [ ] correção auditável de milestone inferido
@@ -15,11 +15,11 @@
 - [ ] Zone presence opcional
 - [ ] política configurável de auto-resolução por confidence
 - [ ] DeliveryRun
-- [ ] timeline/timestamps
+- [x] timeline/timestamps
 - [ ] dashboard operacional
 - [ ] métricas segmentadas por MANUAL/INFERRED/CORRECTED
 - [ ] métrica de correção/falso positivo da inferência
-- [ ] tests concorrência/idempotência de task
-- [ ] tests reconstrução/retry de eventos
+- [x] tests concorrência/idempotência de task
+- [x] tests reconstrução/retry de eventos
 - [ ] tests de inferência sem duplicar milestones
 - [ ] tests de correção preservando histórico
