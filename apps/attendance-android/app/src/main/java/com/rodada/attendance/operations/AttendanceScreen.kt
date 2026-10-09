@@ -315,30 +315,10 @@ private fun Header(
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-            Text(session.staffDisplayName, style = MaterialTheme.typography.bodySmall)
-            Text(
-                when (connectivity) {
-                    ConnectivityState.ONLINE -> "ONLINE"
-                    ConnectivityState.RECONNECTING -> "VERIFICANDO"
-                    ConnectivityState.STALE -> "DESATUALIZADO"
-                    ConnectivityState.OFFLINE -> "SEM SINAL"
-                },
-                modifier = Modifier.semantics { contentDescription = connectivity.label() },
-                style = MaterialTheme.typography.labelSmall,
-                color = if (connectivity == ConnectivityState.ONLINE) RodadaVisual.Success else RodadaVisual.Amber,
-            )
-        }
-        TextButton(onClick = onTogglePeak, modifier = Modifier.semantics { contentDescription = if (peak) "Sair do modo pico" else "Ativar modo pico" }) { Text(if (peak) "Pico ●" else "Pico", color = RodadaVisual.Amber) }
-        TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
-        OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
-    }
+    com.rodada.attendance.ui.AttendanceHeader(
+        staffName = session.staffDisplayName, connectivity = connectivity, busy = busy, peak = peak,
+        onTogglePeak = onTogglePeak, onOpenAccount = onOpenAccount, onRefresh = onRefresh,
+    )
 }
 
 @Composable
@@ -980,7 +960,7 @@ private fun paymentStatusLabel(status: String): String =
         else -> status
     }
 
-private fun ConnectivityState.label(): String =
+internal fun ConnectivityState.label(): String =
     when (this) {
         ConnectivityState.ONLINE -> "ONLINE · API atualizada por consulta"
         ConnectivityState.RECONNECTING -> "RECONECTANDO · verificando a API"

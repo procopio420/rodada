@@ -27,6 +27,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Android checks failed.' }
     $taskResults = Get-ChildItem 'app/build/outputs/androidTest-results/connected/debug' -Filter 'TEST-*.xml'
     $taskCount = 0
+    $taskHeaderCount = 0
     foreach ($taskResult in $taskResults) {
         [xml]$taskXml = Get-Content -LiteralPath $taskResult.FullName -Raw
         foreach ($taskSuite in $taskXml.testsuites.testsuite) {
@@ -34,7 +35,12 @@ try {
                 $taskCount += [int]$taskSuite.tests
                 if ([int]$taskSuite.failures -gt 0 -or [int]$taskSuite.errors -gt 0 -or [int]$taskSuite.skipped -gt 0) { throw 'Navigation tests did not all pass.' }
             }
+            if ($taskSuite.name -eq 'com.rodada.attendance.ui.AttendanceHeaderTest') {
+                $taskHeaderCount += [int]$taskSuite.tests
+                if ([int]$taskSuite.failures -gt 0 -or [int]$taskSuite.errors -gt 0 -or [int]$taskSuite.skipped -gt 0) { throw 'Header tests did not all pass.' }
+            }
         }
     }
     if ($taskCount -ne 2) { throw 'Expected exactly two executed navigation tests; build success alone is insufficient.' }
+    if ($taskHeaderCount -ne 2) { throw 'Expected exactly two executed header tests; build success alone is insufficient.' }
 } finally { Pop-Location }
