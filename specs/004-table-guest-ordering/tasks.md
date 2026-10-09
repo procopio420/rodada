@@ -85,3 +85,6 @@
 - [ ] grouping Tables never merges financial identity
 - [ ] rate limit tests
 - [x] authorization tests
+
+- [x] Round 2: guest service/bill buttons call persisted Dispatch requests without financial mutations.
+- [ ] Round 2: retain integrated browser/visual evidence at final release SHA.

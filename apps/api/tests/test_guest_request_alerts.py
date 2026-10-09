@@ -85,6 +85,7 @@ class GuestRequestAlertTests(TestCase):
         self.assertEqual(OperationalAlert.objects.get(pk=alert_id).status, 'ACKNOWLEDGED')
 
     def test_typed_policy_merged_validation_audit_and_legacy_patch_preservation(self):
+        DispatchTask.objects.filter(pk=self.task.pk).update(created_at=self.now - timedelta(seconds=15))
         values = {'expected_version': 1, 'fulfillment_warning_seconds': 600,
                   'fulfillment_danger_seconds': 1200, 'payment_pending_seconds': 300,
                   'guest_request_warning_seconds': 10, 'guest_request_danger_seconds': 20,
@@ -92,6 +93,11 @@ class GuestRequestAlertTests(TestCase):
         response = self.client.patch('/management/alert-policy/', values, format='json')
         self.assertEqual(response.status_code, 200, response.data)
         self.assertEqual(response.data['guest_request_warning_seconds'], 10)
+        activated = OperationalAlert.objects.get(venue=self.venue, subject_id=self.task.pk)
+        self.assertEqual(activated.severity, 'WARNING')
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.state, 'OPEN')
+        self.assertEqual(self.task.created_at, self.now - timedelta(seconds=15))
         audit = AuditEvent.objects.get(event_type='operational_threshold.changed')
         self.assertEqual(audit.metadata['before']['guest_request_warning_seconds'], 300)
         self.assertEqual(audit.metadata['after']['guest_request_danger_seconds'], 20)
