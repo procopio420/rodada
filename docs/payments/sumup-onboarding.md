@@ -174,3 +174,18 @@ Please confirm:
 
 We can share our architecture and non-sensitive test evidence. Please direct us to
 an approved secure portal for all credential provisioning.
+
+
+## Official references inspected
+
+- [Embedded Android Tap-to-Pay SDK](https://developer.sumup.com/terminal-payments/sdks/android-ttp)
+- [Official sample application](https://github.com/sumup/sumup-android-tap-to-pay)
+- [Pix/APM integration guide](https://developer.sumup.com/online-payments/apm/integration-guide)
+- [Authorization overview](https://developer.sumup.com/tools/authorization)
+- [OAuth authorization](https://developer.sumup.com/tools/authorization/oauth)
+- [Checkout endpoints](https://developer.sumup.com/api/checkouts/create)
+- [Transaction verification](https://developer.sumup.com/api/transactions/get)
+- [Refund API](https://developer.sumup.com/api/transactions/refund)
+
+Inspected 2026-10-08. Availability, commercial fees and merchant activation require
+provider confirmation; public documentation is not proof of Brazil account approval.
