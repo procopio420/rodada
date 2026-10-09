@@ -1,5 +1,20 @@
 import { test, expect } from "@playwright/test";
 import { fixture, stable, layoutAndA11y } from "./fixtures";
+test("pricing command waits for canonical pricing to finish loading", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000 }] } }));
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/pos/tabs/slow-tab/pricing/", async r => {
+    await gate;
+    await r.fulfill({ json: { version: 1, policy: { service_basis_points: 1000 }, history: [], charges: [] } });
+  });
+  await page.goto("/pos");
+  await page.getByRole("button", { name: /Slow pricing/ }).click();
+  await expect(page.getByRole("button", { name: "Conferir antes de aplicar" })).toBeDisabled();
+  release();
+  await expect(page.getByRole("button", { name: "Conferir antes de aplicar" })).toBeEnabled();
+});
 for (const width of [360, 390, 768]) {
   test(`commercial bill and preview accessible at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
