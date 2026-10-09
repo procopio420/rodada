@@ -92,6 +92,8 @@ class TabOperationTests(OperationFixture, TestCase):
         assert TabTransferLine.objects.count() == 0
         original.tab_id, original.status = source, "FAILED"
         original.save()
+        assert self.commit(source, command, 409)["code"] == "VERSION_CONFLICT"
+        command["expected_version"] = self.detail(source)["version"]
         self.commit(source, command)
 
     def test_limit_and_orders_use_transferred_balance(self):

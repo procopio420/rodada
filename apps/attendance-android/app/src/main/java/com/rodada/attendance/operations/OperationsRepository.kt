@@ -7,6 +7,13 @@ import com.rodada.attendance.auth.StoredSession
 class OperationsRepository(private val authRepository: AuthRepository) {
     private val client = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
 
+    suspend fun pricing(session: StoredSession, tabId: String, command: org.json.JSONObject? = null, action: String = "") =
+        authRepository.withAuthorizedAccess(session) {
+            client.request(if (command == null) "GET" else "POST", "/tabs/$tabId/pricing/$action", command, it)
+        }
+
+    suspend fun reauthenticatePricing(session: StoredSession, pin: String) = authRepository.reauthenticate(session, pin)
+
     suspend fun operationState(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.request("GET", "/tabs/$tabId/operations/", accessToken = it) }
 
@@ -74,15 +81,16 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         method: PaymentMethod,
         idempotencyKey: String,
         cashPointId: String?,
+        expectedVersion: Int? = null,
     ) = authRepository.withAuthorizedAccess(session) {
-        client.collectPayment(it, tabId, amountCents, method, idempotencyKey, cashPointId)
+        client.collectPayment(it, tabId, amountCents, method, idempotencyKey, cashPointId, expectedVersion)
     }
 
     suspend fun paymentCapabilities(session: StoredSession) =
         authRepository.withAuthorizedAccess(session, client::paymentCapabilities)
 
-    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String, method: String = "PIX") =
-        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key, method) }
+    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String, method: String = "PIX", expectedVersion: Int? = null) =
+        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key, method, expectedVersion) }
 
     suspend fun reconcileIntegrated(session: StoredSession, paymentId: String) =
         authRepository.withAuthorizedAccess(session) { client.reconcileIntegrated(it, paymentId) }

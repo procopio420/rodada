@@ -19,6 +19,7 @@ class PaymentCollectView(APIView):
     def post(self, request, tab_id):
         class Input(serializers.Serializer):
             amount_cents = serializers.IntegerField(min_value=1, max_value=2147483647)
+            expected_version = serializers.IntegerField(min_value=1, required=False)
             method = serializers.CharField(max_length=24)
             idempotency_key = serializers.CharField(max_length=120)
             cash_point_id = serializers.UUIDField(required=False, allow_null=True)

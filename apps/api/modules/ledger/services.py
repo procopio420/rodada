@@ -1,5 +1,5 @@
 from django.db import IntegrityError, transaction
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.utils import timezone
 
 from modules.audit.services import record_audit_event
@@ -38,7 +38,9 @@ def totals(tab: Tab) -> dict:
     ).aggregate(total=Sum("amount_cents"))["total"] or 0
     from modules.tab_operations.services import transfer_effect
     transfers = transfer_effect(tab)
+    from modules.ledger.pricing import commercial_summary
     return {
+        **commercial_summary(tab),
         "transfers_cents": transfers,
         "charges_cents": charges,
         "adjustments_cents": adjustments,
@@ -78,13 +80,25 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
         )
 
     key = f"correction:{correction.id}"
+    existing = LedgerAdjustment.objects.filter(tab=charge.tab, idempotency_key=key).first()
+    if existing:
+        if existing.order_item_id != item.id or existing.kind != AdjustmentKind.ORDER_ITEM_CANCELLATION:
+            raise LedgerServiceError("ADJUSTMENT_IDEMPOTENCY_CONFLICT", "Reversão não corresponde à correção.", 409)
+        return existing
+    from modules.ledger.pricing import components, net_consumption
+    net = net_consumption(components(charge.tab)[str(charge.id)])
+    if net == 0:
+        return None
+    if net < 0:
+        raise LedgerServiceError("INVALID_LEDGER_BASIS", "Consumo exige reconciliação.", 409)
+    key = f"correction:{correction.id}"
     adjustment, created = LedgerAdjustment.objects.get_or_create(
         tab=charge.tab,
         idempotency_key=key,
         defaults={
             "order_item": item,
             "kind": AdjustmentKind.ORDER_ITEM_CANCELLATION,
-            "amount_cents": -charge.amount_cents,
+            "amount_cents": -net,
             "reason_code": correction.reason_code,
             "created_by_id": actor.staff_id,
         },
@@ -92,7 +106,7 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     expected = (
         adjustment.order_item_id == item.id
         and adjustment.kind == AdjustmentKind.ORDER_ITEM_CANCELLATION
-        and adjustment.amount_cents == -charge.amount_cents
+        and adjustment.amount_cents == -net
     )
     if not expected:
         raise LedgerServiceError(
@@ -101,6 +115,7 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
             409,
         )
     if created:
+        Tab.objects.filter(pk=charge.tab_id).update(version=F("version") + 1)
         record_audit_event(
             actor=actor,
             event_type="charge.reversed",
@@ -152,6 +167,7 @@ def courtesy_replacement(correction, item: OrderItem, actor) -> LedgerAdjustment
             409,
         )
     if created:
+        Tab.objects.filter(pk=charge.tab_id).update(version=F("version") + 1)
         record_audit_event(
             actor=actor,
             event_type="replacement.courtesy_applied",
@@ -177,6 +193,7 @@ def collect_payment(
     idempotency_key,
     actor,
     cash_point_id=None,
+    expected_version=None,
     amount_tendered_cents=None,
 ):
     tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=actor.venue_id).first()
@@ -199,6 +216,13 @@ def collect_payment(
     # Replaying a committed identity is a read; only new money needs an open Tab.
     if tab.state == TabState.CLOSED:
         raise LedgerServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
+    from modules.ledger.pricing import assert_settleable, PricingError
+    if expected_version is not None and tab.version != expected_version:
+        raise LedgerServiceError("VERSION_CONFLICT", "Comanda mudou. Confira o pagamento.", 409)
+    try:
+        assert_settleable(tab)
+    except PricingError as error:
+        raise LedgerServiceError(error.code, error.message, error.status_code) from error
     if Payment.objects.filter(tab=tab, provider__gt="", status__in=(
         PaymentStatus.CREATED, PaymentStatus.PENDING, PaymentStatus.PROCESSING,
         PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING,
@@ -245,6 +269,8 @@ def collect_payment(
             )
         except CashServiceError as error:
             raise LedgerServiceError(error.code, error.message, error.status_code) from error
+    tab.version += 1
+    tab.save(update_fields=["version"])
     result = totals(tab)
     from modules.house_account.services import sync_attention
     sync_attention(tab, actor)
@@ -339,6 +365,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
         else PaymentStatus.PARTIALLY_REFUNDED
     )
     payment.save(update_fields=["status"])
+    payment.tab.version += 1
+    payment.tab.save(update_fields=["version"])
     result = totals(payment.tab)
     from modules.house_account.services import sync_attention
     sync_attention(payment.tab, actor)
@@ -367,6 +395,11 @@ def close_tab(*, tab_id, actor):
         raise LedgerServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
     if tab.state == TabState.CLOSED:
         return tab
+    from modules.ledger.pricing import assert_settleable, PricingError
+    try:
+        assert_settleable(tab)
+    except PricingError as error:
+        raise LedgerServiceError(error.code, error.message, error.status_code) from error
     if exposure_cents(tab) != 0:
         raise LedgerServiceError("TAB_HAS_OPEN_EXPOSURE", "Comanda só fecha com saldo zero.", 409)
     tab.state, tab.closed_at, tab.version = TabState.CLOSED, timezone.now(), tab.version + 1

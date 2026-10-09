@@ -93,6 +93,7 @@ fun AttendanceScreen(
     var operatingTab by remember { mutableStateOf(false) }
     LaunchedEffect(state.operationCompleted) { if (state.operationCompleted) operatingTab = false }
     var openingTab by rememberSaveable { mutableStateOf(false) }
+    var adjustingPricing by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var viewingIntegrated by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state.integratedPayment?.id, state.integratedPayment?.status) {
@@ -186,6 +187,7 @@ fun AttendanceScreen(
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
+                    onAdjustPricing = { adjustingPricing = true },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
                     onOperations = { operatingTab = true; viewModel.loadTabOperations(session) },
@@ -201,6 +203,9 @@ fun AttendanceScreen(
             }
         }
     }
+
+    if (adjustingPricing && state.selectedTab != null) PricingDialog(session, state.selectedTab!!.summary, viewModel,
+        onDismiss = { adjustingPricing = false })
 
     if (operatingTab) TabOperationsDialog(session, state,
         onDismiss = { operatingTab = false },
@@ -403,6 +408,7 @@ private fun TabWorkspace(
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
     onClose: () -> Unit,
+    onAdjustPricing: () -> Unit,
     onOperations: () -> Unit,
     onResolveLimit: () -> Unit,
     onCorrectItem: (OrderItem) -> Unit,
@@ -430,6 +436,7 @@ private fun TabWorkspace(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
         item {
             TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
             Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
@@ -553,16 +560,22 @@ private fun BalanceCard(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
+            Text("Subtotal original ${formatCents(tab.originalSubtotalCents)}")
+            Text("Descontos ${formatCents(tab.discountsCents)} · cortesias ${formatCents(tab.courtesyCents)}")
+            if (tab.correctionsCents != 0L) Text("Correções ${formatCents(tab.correctionsCents)}")
+            Text("Taxa de serviço ${formatCents(tab.serviceChargeCents)}")
+            Text("Total a pagar ${formatCents(tab.payableCents)}")
+            Text("Pagamentos recebidos ${formatCents(tab.paymentsCents)} · estornos ${formatCents(tab.refundsCents)}")
+            if (tab.serviceAssessmentStale) Text("Atualize a taxa de serviço no caixa antes de receber.")
             if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
             Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
             tab.percentageUsed?.let { Text("$it% do limite utilizado") }
             if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
+                Button(onClick = onPay, enabled = !tab.serviceAssessmentStale && tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
                     Text("Pagar")
                 }
-                OutlinedButton(onClick = onClose, enabled = tab.exposureCents == 0L && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
+                OutlinedButton(onClick = onClose, enabled = !tab.serviceAssessmentStale && tab.exposureCents == 0L && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
                     Text(if (tab.state == "CLOSED") "Fechada" else "Fechar")
                 }
             }
@@ -706,7 +719,11 @@ private fun PaymentDialog(
         title = { Text("Pagar comanda") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Total em aberto: ${formatCents(tab.exposureCents)}")
+                Text("Subtotal original: ${formatCents(tab.originalSubtotalCents)}")
+                Text("Descontos: ${formatCents(tab.discountsCents)} · Cortesias: ${formatCents(tab.courtesyCents)}")
+                Text("Serviço: ${formatCents(tab.serviceChargeCents)} · Total: ${formatCents(tab.payableCents)}")
+                Text("Recebido: ${formatCents(tab.paymentsCents)} · Estornado: ${formatCents(tab.refundsCents)}")
+                Text("Saldo restante: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {

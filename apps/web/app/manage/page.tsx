@@ -120,6 +120,7 @@ export default function ManagementPage() {
       {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tab.display_label || "Comanda sem nome"}</strong><small>Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
       <Link className="backLink" href="/manage#gestao">Ver comandas em Gestão →</Link>
     </section>}
+    <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
     <section className="panel"><h2>Agora</h2>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
