@@ -86,7 +86,14 @@ def seek(label, up=False):
         try:
             return find(label)
         except AssertionError:
-            adb('shell','input','swipe','195','250' if up else '690','195','690' if up else '250','350')
+            regions = [n for n in tree().iter('node') if n.get('scrollable') == 'true']
+            boxes = [list(map(int,re.findall(r'\d+',n.get('bounds')))) for n in regions]
+            boxes = [b for b in boxes if b[2]-b[0] > 44 and b[3]-b[1] > 100]
+            assert boxes, 'No observed scrollable viewport for ' + label
+            x1,y1,x2,y2 = max(boxes,key=lambda b:(b[2]-b[0])*(b[3]-b[1]))
+            x = str((x1+x2)//2)
+            low,high = str(y1+(y2-y1)*3//4),str(y1+(y2-y1)//4)
+            adb('shell','input','swipe',x,high if up else low,x,low if up else high,'350')
     raise AssertionError('Scrolled control absent: ' + label)
 
 if a.phase == 'login':
@@ -142,11 +149,12 @@ elif a.phase == 'payment-guard':
     seek('Pagar', up=True)
     tap('Pagar')
     wait('Pagar comanda')
-    find('Abra ou selecione um caixa com turno ativo antes de receber dinheiro.')
+    seek('Abra ou selecione um caixa com turno ativo antes de receber dinheiro.')
     capture('native-payment-guard')
     tap('Cancelar')
 elif a.phase == 'cash-open':
-    tap('CONTAS')
+    seek('← Comandas', up=True)
+    tap('← Comandas')
     tap('Caixa')
     wait('Caixa fechado')
     tap('Abrir caixa')

@@ -135,3 +135,5 @@ Esta entrega contém o plano. Nenhuma nova fidelidade de tela foi implementada o
 ## Validação atual da demo — main45c4742
 
 A sequência V01–V07 foi revalidada por escopo no [relatório atual](spec023-demo-validation.md). Contratos34, header responsivo, OFFLINE preservado, gates Web/Android/PostgreSQL e ensaio nativo têm evidências novas. Regiões de tickets continuam16,241%; matriz nativa verifica shell, não todas jornadas internas. Critérios de paridade global e hardware permanecem abertos. Não usar relatórios anteriores como validação do head atual.
+
+Continuação Android atual: [campos críticos, gates e limites](spec023-critical-fields.md). Não altera a pendência de paridade global V03.

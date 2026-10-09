@@ -4,6 +4,7 @@ Run with the separate cluster's PostgreSQL environment. No fixtures, SQL writes,
 tokens, provider interaction, migrations or reset occur here.
 """
 import json
+import argparse
 import os
 import sys
 from pathlib import Path
@@ -19,7 +20,11 @@ django.setup()
 from modules.ordering.models import Tab
 from modules.cash.models import CashShift
 
-out = root / 'docs/design/evidence/spec023-header/native'
+parser = argparse.ArgumentParser()
+parser.add_argument('--out', default='docs/design/evidence/spec023-header/native')
+args = parser.parse_args()
+out = (root / args.out).resolve()
+assert out.is_relative_to(root / 'docs/design/evidence'), 'Evidence must stay inside this worktree'
 nodes = json.loads((out / 'native-tab.json').read_text(encoding='utf-8'))
 labels = [n['text'] for n in nodes if n['text'].startswith('Spec023 test ')]
 assert len(labels) == 1

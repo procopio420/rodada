@@ -1,0 +1,191 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[16,102][74,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[29,113][62,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[94,113][161,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[205,113][249,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Limite R$ 200,00 · disponível R$ 200,00",
+    "content-desc": "",
+    "bounds": "[32,160][313,168]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "0% do limite utilizado",
+    "content-desc": "",
+    "bounds": "[32,176][184,198]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pagar",
+    "content-desc": "",
+    "bounds": "[90,223][132,245]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Fechar",
+    "content-desc": "",
+    "bounds": "[254,219][304,241]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Solicitar / aprovar limite",
+    "content-desc": "",
+    "bounds": "[40,291][213,313]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Novo pedido",
+    "content-desc": "",
+    "bounds": "[16,336][125,362]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "QA Wrong item",
+    "content-desc": "",
+    "bounds": "[16,362][374,428]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Buscar no catálogo",
+    "content-desc": "",
+    "bounds": "[32,362][153,382]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "QA Wrong item c87f49c59d",
+    "content-desc": "",
+    "bounds": "[40,446][350,468]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[40,468][350,490]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[40,490][109,512]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Carrinho",
+    "content-desc": "",
+    "bounds": "[32,546][109,572]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "QA Wrong item c87f49c59d",
+    "content-desc": "",
+    "bounds": "[32,595][231,617]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00 cada",
+    "content-desc": "",
+    "bounds": "[32,617][126,639]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Editar",
+    "content-desc": "",
+    "bounds": "[245,593][289,615]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "−",
+    "content-desc": "",
+    "bounds": "[257,641][267,663]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "1",
+    "content-desc": "",
+    "bounds": "[291,641][300,663]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "+",
+    "content-desc": "",
+    "bounds": "[324,641][334,663]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Total: R$ 6,00",
+    "content-desc": "",
+    "bounds": "[32,684][131,706]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Confirmar pedido",
+    "content-desc": "",
+    "bounds": "[133,731][257,753]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="1" failures="1" errors="0" skipped="0" time="0.000" timestamp="2026-10-09T23:17:59" hostname="localhost">
+  <testsuite name="com.rodada.attendance.operations.LoginAccessibilityTest" tests="1" failures="1" errors="0" skipped="0" time="3.999" timestamp="2026-10-09T23:17:59" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="completeLoginRemainsReachableAndClearsPin" classname="com.rodada.attendance.operations.LoginAccessibilityTest" time="3.999">
+      <failure>java.lang.AssertionError: Semantic Node has no parent layout with a Scroll SemanticsAction
+	at androidx.compose.ui.test.ActionsKt.scrollToNode(Actions.kt:98)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:83)
+	at com.rodada.attendance.operations.LoginAccessibilityTest.completeLoginRemainsReachableAndClearsPin(LoginAccessibilityTest.kt:41)
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
