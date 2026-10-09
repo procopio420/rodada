@@ -33,7 +33,7 @@ test("resolved alert keeps exact source reference and provenance history", async
 test("typed alert settings do not activate a failed or conflicted save", async ({ page }) => {
   await fixture(page);
   let version = 1;
-  const policy = () => ({ version, fulfillment_warning_seconds: 600, fulfillment_danger_seconds: 1200, payment_pending_seconds: 300 });
+  const policy = () => ({ version, fulfillment_warning_seconds: 600, fulfillment_danger_seconds: 1200, payment_pending_seconds: 300, guest_request_warning_seconds: 300, guest_request_danger_seconds: 600 });
   await page.route("**/api/pos/management/alert-policy/", route => {
     if (route.request().method() === "PATCH") { version = 2; return route.fulfill({ status: 409, json: { code: "STALE_VERSION", current: policy() } }); }
     return route.fulfill({ json: policy() });
@@ -49,3 +49,20 @@ test("typed alert settings do not activate a failed or conflicted save", async (
   await expect(page.getByLabel("Confirme seu PIN")).toHaveValue("");
   await layoutAndA11y(page);
 });
+
+for (const width of [360, 430, 768]) {
+  test(`aged service request exact source and accessible manager context ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 932 });
+    await fixture(page);
+    const alert = { ...base, rule_key: "GUEST_SERVICE_REQUEST_AGED",
+      source: { target: "DISPATCH_TASK", id: sourceId, task_type: "BILL_REQUEST",
+        destination_label: "Mesa 7 / área externa", age_seconds: 650, source: "CANONICAL_DISPATCH_TASK" } };
+    await page.route(`**/api/pos/management/alerts/${id}/`, route => route.fulfill({ json: { ...alert, history: [] } }));
+    await page.goto(`/manage/alerts/${id}`);
+    await expect(page.getByRole("heading", { name: "Solicitação de atendimento atrasada" })).toBeVisible();
+    await expect(page.getByText(`Contexto: Solicitação de atendimento · ${sourceId}`)).toBeVisible();
+    await expect(page.getByText("Destino: Mesa 7 / área externa · Solicitação de conta")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Abrir operação →" })).toHaveAttribute("href", "/manage");
+    await layoutAndA11y(page);
+  });
+}

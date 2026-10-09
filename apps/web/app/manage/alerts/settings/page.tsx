@@ -4,7 +4,7 @@ import { FormEvent, useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
-type Policy = { version: number; fulfillment_warning_seconds: number; fulfillment_danger_seconds: number; payment_pending_seconds: number };
+type Policy = { version: number; fulfillment_warning_seconds: number; fulfillment_danger_seconds: number; payment_pending_seconds: number; guest_request_warning_seconds: number; guest_request_danger_seconds: number };
 export default function AlertSettings() {
   const [policy, setPolicy] = useState<Policy>();
   const [pin, setPin] = useState("");
@@ -30,7 +30,8 @@ export default function AlertSettings() {
       if (!reauth.response.ok) throw new Error(asApiError(reauth.body).message);
       const result = await apiCall<Policy & { current?: Policy }>("/api/pos/management/alert-policy/", { method: "PATCH", body: JSON.stringify({
         expected_version: draft.version, fulfillment_warning_seconds: draft.fulfillment_warning_seconds,
-        fulfillment_danger_seconds: draft.fulfillment_danger_seconds, payment_pending_seconds: draft.payment_pending_seconds, reason,
+        fulfillment_danger_seconds: draft.fulfillment_danger_seconds, payment_pending_seconds: draft.payment_pending_seconds,
+        guest_request_warning_seconds: draft.guest_request_warning_seconds, guest_request_danger_seconds: draft.guest_request_danger_seconds, reason,
       }) });
       if (result.response.status === 409) {
         const current = (result.body as { current: Policy }).current;
@@ -54,7 +55,9 @@ export default function AlertSettings() {
         ["fulfillment_warning_seconds", "Produção: atenção após (segundos)"],
         ["fulfillment_danger_seconds", "Produção: crítico após (segundos)"],
         ["payment_pending_seconds", "Pagamento sem confirmação após (segundos)"],
-      ] as const).map(([key, label]) => <label className="field" key={key}><span>{label}</span><input type="number" min={1} max={key === "fulfillment_danger_seconds" ? 172800 : 86400} required value={draft[key]} disabled={saving} onChange={event => setDraft({ ...draft, [key]: Number(event.target.value) })} /></label>)}
+        ["guest_request_warning_seconds", "Atendimento: atenção após (segundos)"],
+        ["guest_request_danger_seconds", "Atendimento: crítico após (segundos)"],
+      ] as const).map(([key, label]) => <label className="field" key={key}><span>{label}</span><input type="number" min={1} max={key.endsWith("danger_seconds") ? 172800 : 86400} required value={draft[key]} disabled={saving} onChange={event => setDraft({ ...draft, [key]: Number(event.target.value) })} /></label>)}
       <label className="field"><span>Motivo da alteração</span><input maxLength={240} value={reason} disabled={saving} onChange={event => setReason(event.target.value)} /></label>
       <label className="field"><span>Confirme seu PIN</span><input type="password" inputMode="numeric" autoComplete="off" maxLength={12} value={pin} disabled={saving} onChange={event => setPin(event.target.value)} required /></label>
       <button className="buttonPrimary" type="submit" disabled={saving || connectivity.state === "OFFLINE"}>{saving ? "Confirmando…" : "Salvar política"}</button>

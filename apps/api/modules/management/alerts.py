@@ -9,6 +9,7 @@ from modules.venue.models import Venue, OperationalAlertPolicy, OperationalAlert
 from modules.ordering.models import OrderItem
 from modules.ledger.models import Payment
 from modules.cash.models import CashShift
+from modules.dispatch.models import DispatchTask
 from modules.realtime.services import emit_event
 
 
@@ -34,6 +35,20 @@ def evaluate_alerts(venue, now=None):
                 'DANGER' if age >= policy.fulfillment_danger_seconds else 'WARNING', stage_at,
                 {'target': 'FULFILLMENT_ITEM', 'id': str(item.id), 'station': item.fulfillment_station_snapshot or item.product.fulfillment_station,
                  'state': item.state, 'age_seconds': age, 'stage_started_at': stage_at.isoformat(), 'source': 'CANONICAL_TIMESTAMP'})
+    # Claim expresses ownership, not completion; preserve original request age.
+    for task in DispatchTask.objects.filter(venue=venue,
+            task_type__in=['BILL_REQUEST', 'SERVICE_REQUEST'], state__in=['OPEN', 'CLAIMED'],
+            created_at__lte=now - timedelta(seconds=policy.guest_request_warning_seconds)):
+        age = max(0, int((now - task.created_at).total_seconds()))
+        conditions[('GUEST_SERVICE_REQUEST_AGED', task.id)] = (
+            'DANGER' if age >= policy.guest_request_danger_seconds else 'WARNING', task.created_at,
+            {'target': 'DISPATCH_TASK', 'id': str(task.id), 'task_type': task.task_type,
+             'state': task.state, 'age_seconds': age, 'request_created_at': task.created_at.isoformat(),
+             'occupancy_id': str(task.destination_occupancy_id) if task.destination_occupancy_id else None,
+             'table_id': str(task.destination_table_id) if task.destination_table_id else None,
+             'destination_label': task.destination_label,
+             'claimed_by_id': str(task.claimed_by_id) if task.claimed_by_id else None,
+             'source': 'CANONICAL_DISPATCH_TASK'})
     for payment in Payment.objects.filter(tab__venue=venue, status='CONFIRMATION_PENDING',
                                           received_at__lte=now - timedelta(seconds=policy.payment_pending_seconds)):
         conditions[('PAYMENT_PENDING', payment.id)] = ('DANGER', payment.received_at,

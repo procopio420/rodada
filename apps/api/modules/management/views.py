@@ -152,7 +152,7 @@ class AlertPolicyView(APIView):
 
     @staticmethod
     def snapshot(policy):
-        return {**{name: getattr(policy, name) for name in ('version', 'fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds')}, 'strategic_product_ids': [str(value) for value in policy.strategic_products.values_list('id', flat=True)]}
+        return {**{name: getattr(policy, name) for name in ('version', 'fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds', 'guest_request_warning_seconds', 'guest_request_danger_seconds')}, 'strategic_product_ids': [str(value) for value in policy.strategic_products.values_list('id', flat=True)]}
 
     def get(self, request):
         from modules.venue.models import OperationalAlertPolicy
@@ -168,6 +168,8 @@ class AlertPolicyView(APIView):
             fulfillment_warning_seconds = serializers.IntegerField(min_value=1, max_value=86400)
             fulfillment_danger_seconds = serializers.IntegerField(min_value=2, max_value=172800)
             payment_pending_seconds = serializers.IntegerField(min_value=1, max_value=86400)
+            guest_request_warning_seconds = serializers.IntegerField(min_value=1, max_value=86400, required=False)
+            guest_request_danger_seconds = serializers.IntegerField(min_value=2, max_value=172800, required=False)
             strategic_product_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
             reason = serializers.CharField(max_length=240, required=False, default='', allow_blank=True)
             def validate(self, data):
@@ -184,8 +186,12 @@ class AlertPolicyView(APIView):
             if policy.version != data.validated_data['expected_version']:
                 return Response({'code': 'STALE_VERSION', 'current': self.snapshot(policy)}, status=409)
             before = self.snapshot(policy)
-            for name in ('fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds'):
-                setattr(policy, name, data.validated_data[name])
+            guest_warning = data.validated_data.get('guest_request_warning_seconds', policy.guest_request_warning_seconds)
+            guest_danger = data.validated_data.get('guest_request_danger_seconds', policy.guest_request_danger_seconds)
+            if guest_warning >= guest_danger:
+                raise serializers.ValidationError('O SLA crítico de atendimento deve ser maior que o SLA de atenção.')
+            for name in ('fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds', 'guest_request_warning_seconds', 'guest_request_danger_seconds'):
+                setattr(policy, name, data.validated_data.get(name, getattr(policy, name)))
             if 'strategic_product_ids' in data.validated_data:
                 from modules.catalog.models import Product
                 selected = set(data.validated_data['strategic_product_ids'])
