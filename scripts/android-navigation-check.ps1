@@ -16,6 +16,7 @@ if ($taskDisplay -notmatch "(?:Physical|Override) size: ${Width}x844") { throw '
 $taskDensity = @(& $taskAdb -s $taskSerial shell wm density)[-1].Trim()
 if ($taskDensity -notmatch '(?:Physical|Override) density: 160$') { throw 'Use density 160: one physical pixel per dp.' }
 if ((& $taskAdb -s $taskSerial shell settings get system font_scale).Trim() -ne $FontScale) { throw 'Font scale does not match the requested comparison.' }
+if ((& $taskAdb -s $taskSerial shell settings get secure show_ime_with_hard_keyboard).Trim() -ne '1') { throw 'Enable the real software keyboard on this isolated emulator before testing.' }
 Push-Location (Join-Path $taskRoot 'apps/attendance-android')
 try {
     # Discard only previous generated instrumentation XML, so an empty run cannot reuse old success.
@@ -28,6 +29,8 @@ try {
     $taskResults = Get-ChildItem 'app/build/outputs/androidTest-results/connected/debug' -Filter 'TEST-*.xml'
     $taskCount = 0
     $taskHeaderCount = 0
+    $taskCriticalCount = 0
+    $taskLoginCount = 0
     foreach ($taskResult in $taskResults) {
         [xml]$taskXml = Get-Content -LiteralPath $taskResult.FullName -Raw
         foreach ($taskSuite in $taskXml.testsuites.testsuite) {
@@ -39,8 +42,18 @@ try {
                 $taskHeaderCount += [int]$taskSuite.tests
                 if ([int]$taskSuite.failures -gt 0 -or [int]$taskSuite.errors -gt 0 -or [int]$taskSuite.skipped -gt 0) { throw 'Header tests did not all pass.' }
             }
+            if ($taskSuite.name -eq 'com.rodada.attendance.operations.CriticalFieldsTest') {
+                $taskCriticalCount += [int]$taskSuite.tests
+                if ([int]$taskSuite.failures -gt 0 -or [int]$taskSuite.errors -gt 0 -or [int]$taskSuite.skipped -gt 0) { throw 'Critical field tests did not all pass.' }
+            }
+            if ($taskSuite.name -eq 'com.rodada.attendance.operations.LoginAccessibilityTest') {
+                $taskLoginCount += [int]$taskSuite.tests
+                if ([int]$taskSuite.failures -gt 0 -or [int]$taskSuite.errors -gt 0 -or [int]$taskSuite.skipped -gt 0) { throw 'Login accessibility did not pass.' }
+            }
         }
     }
     if ($taskCount -ne 2) { throw 'Expected exactly two executed navigation tests; build success alone is insufficient.' }
     if ($taskHeaderCount -ne 2) { throw 'Expected exactly two executed header tests; build success alone is insufficient.' }
+    if ($taskCriticalCount -ne 3) { throw 'Expected exactly three executed critical field tests; build success alone is insufficient.' }
+    if ($taskLoginCount -ne 1) { throw 'Expected exactly one executed login accessibility test; build success alone is insufficient.' }
 } finally { Pop-Location }
