@@ -405,3 +405,14 @@ Merge revokes source guest sessions, never rebinds them. Location move retains s
 existing occupancy-scoped guest authorization continues to enforce its original context.
 ServicePoints are venue-scoped operational locations. Reopen emits a durable post-close
 exception fact containing the original closure timestamp; no daily-close model exists yet.
+
+Expired payments and terminal attempts do not block financial operations, provided no confirmed
+money, active attempt or pending refund remains. Operation detail is read under the Tab lock
+so its version, responsibility and balances describe the same committed state. Responsibility
+queries batch charge allocations rather than issuing queries per item during peak service.
+Android preserves the original server rejection even if the subsequent canonical refresh fails;
+it clears the preview and requires an explicit refresh before another financial submission.
+
+Management current open exposure includes committed incoming/outgoing transfer effects before
+clamping each Tab's balance. Transfers remain excluded from gross/net sales and product mix;
+merging into a survivor must not make unpaid consumption disappear from management reports.

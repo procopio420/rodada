@@ -98,6 +98,9 @@ class ReportView(APIView):
         ]:
             for row in rows.values(key).annotate(amount=Sum("amount_cents")):
                 balances[row[key]] = balances.get(row[key], 0) + sign * row["amount"]
+        from modules.tab_operations.services import transfer_effects
+        for tab_id, effect in transfer_effects(balances).items():
+            balances[tab_id] += effect
         exposure = sum(max(0, balance) for balance in balances.values())
         return Response({"generated_at": timezone.now(), "timezone": venue.timezone,
             "cutoff_hour": venue.business_day_cutoff_hour, "start": start, "end": end,

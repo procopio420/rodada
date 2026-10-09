@@ -1,9 +1,10 @@
 """Real HTTP full-service split, transfer, merge, payment, close and reopen."""
 from django.test import LiveServerTestCase, override_settings
-from tests.test_house_account_e2e import HouseAccountHttpE2E
-from tests.test_tab_operations import OperationFixture
+
 from modules.ledger.models import Charge, Payment
 from modules.tab_operations.models import TabTransferLine
+from tests.test_house_account_e2e import HouseAccountHttpE2E
+from tests.test_tab_operations import OperationFixture
 
 
 @override_settings(STATIC_URL="/static/")
@@ -45,3 +46,32 @@ class TabOperationHttpE2E(OperationFixture, LiveServerTestCase):
         assert detail(dest_id)["tab"]["exposure_cents"] == 0
         assert Payment.objects.count() == 2
         assert self.http(self.staff, f"/tabs/{source_id}/")["orders"][0]["id"] == order["id"]
+
+    def test_http_move_cancel_and_paid_reopen_leave_occupancies_active(self):
+        from modules.hospitality.models import TableOccupancy
+        from modules.ordering.models import Tab
+        source = self.http(self.staff, "/tabs/", {"display_label": "Mudança"}, expected=201)["id"]
+        occupancies = []
+        for label in ("A", "B"):
+            table = self.http(self.manager, "/hospitality/tables/", {"label": label}, expected=201)
+            body = {"tab_id": source} if label == "A" else {}
+            occupancies.append(self.http(self.staff, f"/hospitality/tables/{table['id']}/occupy/", body, expected=201))
+        def command(tab_id, kind, key, **extra):
+            state = self.http(self.cashier, f"/tabs/{tab_id}/operations/")["tab"]
+            return {"kind": kind, "expected_version": state["version"], "idempotency_key": key, **extra}
+        self.http(self.staff, f"/tabs/{source}/orders/confirm/", {
+            "idempotency_key": "consumption", "lines": [{"product_id": str(self.product.id), "quantity": 1}]}, expected=201)
+        self.http(self.cashier, f"/tabs/{source}/payments/", {
+            "idempotency_key": "paid", "amount_cents": 1000, "method": "EXTERNAL_TERMINAL"}, expected=201)
+        moved = self.http(self.staff, f"/tabs/{source}/operations/", command(source, "MOVE_LOCATION", "move", occupancy_id=occupancies[1]["id"]))
+        assert moved["source"]["occupancy_id"] == occupancies[1]["id"]
+        assert moved["source"]["exposure_cents"] == 0
+        self.http(self.cashier, f"/tabs/{source}/close/", {})
+        closed_at = Tab.objects.get(pk=source).closed_at
+        self.http(self.manager, f"/tabs/{source}/operations/", command(source, "REOPEN", "reopen", reason="Conferir serviço"))
+        assert Tab.objects.get(pk=source).closed_at == closed_at
+        accidental = self.http(self.staff, "/tabs/", {}, expected=201)["id"]
+        cancelled = self.http(self.staff, f"/tabs/{accidental}/operations/", command(accidental, "CANCEL_EMPTY", "cancel"))
+        assert cancelled["source"]["state"] == "CANCELLED"
+        assert TableOccupancy.objects.filter(released_at__isnull=True).count() == 2
+        assert str(Payment.objects.get().tab_id) == str(Charge.objects.get().tab_id) == source
