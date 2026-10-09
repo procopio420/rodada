@@ -1,6 +1,7 @@
 """Official SumUp Checkout/APM and merchant transaction contracts, no POST retries."""
 
 import base64
+import hashlib
 import json
 from decimal import Decimal
 from urllib.parse import quote, urlencode, urlparse
@@ -10,6 +11,12 @@ from modules.ledger.models import Payment, PaymentMethod, PaymentStatus
 
 from .adapters import ProviderCapabilities, ProviderResult
 from .paytime import NoRedirect
+
+
+def settlement_key(merchant_code, transaction_id):
+    return hashlib.sha256(
+        json.dumps(["sumup", merchant_code, transaction_id], separators=(",", ":")).encode()
+    ).hexdigest()
 
 
 def major(cents):
@@ -51,9 +58,21 @@ class SumUpPixProvider:
         expires_seconds=None,
         transport=None,
         simulated=False,
+        webhook_base_url=None,
     ):
         if not access_token or not merchant_code or payment_type not in ("pix", "qr_code_pix"):
             raise ValueError("Incomplete SumUp configuration")
+        if webhook_base_url:
+            parsed = urlparse(webhook_base_url)
+            if (
+                parsed.scheme != "https"
+                or not parsed.netloc
+                or parsed.username
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError("Invalid webhook base URL")
+        self.webhook_base_url = webhook_base_url
         self.venue_id = str(venue_id)
         self.merchant_code = merchant_code
         self.provider_key = f"sumup:{venue_id}:{merchant_code}"
@@ -146,6 +165,7 @@ class SumUpPixProvider:
                 raise ValueError("Unverified transaction settlement")
             status = PaymentStatus.CONFIRMED
             metadata["transaction_id"] = tx["id"]
+            metadata["settlement_key"] = settlement_key(self.merchant_code, tx["id"])
         return ProviderResult(status=status, provider_payment_id=data["id"], metadata=metadata)
 
     def start_payment(self, input):
@@ -159,6 +179,10 @@ class SumUpPixProvider:
             "currency": input.currency,
             "description": "Rodada comanda",
         }
+        if self.webhook_base_url:
+            body["return_url"] = (
+                self.webhook_base_url.rstrip("/") + f"/payments/webhooks/sumup/{self.venue_id}/"
+            )
         if self.expires_seconds is not None:
             from datetime import timedelta
 
@@ -293,5 +317,9 @@ class SumUpTapToPayProvider(SumUpPixProvider):
         return ProviderResult(
             status=status,
             provider_payment_id=tx["id"],
-            metadata={"transaction_id": tx["id"], "merchant_code": self.merchant_code},
+            metadata={
+                "transaction_id": tx["id"],
+                "merchant_code": self.merchant_code,
+                "settlement_key": settlement_key(self.merchant_code, tx["id"]),
+            },
         )

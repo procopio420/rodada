@@ -237,7 +237,7 @@ class SumUpContractTests(provider_tests.PaymentProviderServiceTests):
                 "access_token": "access-secret",
                 "refresh_token": "refresh-secret",
                 "expires_in": 3600,
-                "scope": "payments",
+                "scope": "payments transactions.history",
             }
 
         connection = complete_connection(

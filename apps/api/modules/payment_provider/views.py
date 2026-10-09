@@ -31,10 +31,32 @@ def payment_response(payment, *, replayed=False):
         "confirmed_at": payment.confirmed_at,
         "simulated": metadata.get("simulated", payment.provider.startswith("simulator:")),
         "replayed": replayed,
+        "provider_payment_id": payment.provider_payment_id,
+        "provider_transaction_id": metadata.get("transaction_id", ""),
+        "expires_at": metadata.get("expires_at", ""),
         "pix_copy_paste": metadata.get("pix_copy_paste", ""),
         "pix_qr_code": metadata.get("pix_qr_code", ""),
         **totals(payment.tab),
     }
+
+
+def cache_pix_qr(payment, attempt, provider):
+    """Repeat artifact fetch after network recovery; never repeat charge creation."""
+    if (
+        payment.method == "PIX"
+        and payment.provider_payment_id
+        and not attempt.metadata.get("pix_qr_code")
+    ):
+        try:
+            qr = provider.qr_code(payment.provider_payment_id)
+            from django.db import transaction
+
+            with transaction.atomic():
+                locked = type(attempt).objects.select_for_update().get(pk=attempt.pk)
+                locked.metadata = {**locked.metadata, "pix_qr_code": qr}
+                locked.save(update_fields=["metadata"])
+        except (OSError, ValueError, KeyError):
+            qr = None  # EMV remains usable; QR imagery never determines financial state.
 
 
 def error_response(error):
@@ -90,21 +112,7 @@ class IntegratedPaymentCreateView(APIView):
             )
         except ProviderServiceError as error:
             return error_response(error)
-        if (
-            payment.method == "PIX"
-            and payment.provider_payment_id
-            and not attempt.metadata.get("pix_qr_code")
-        ):
-            try:
-                qr = provider.qr_code(payment.provider_payment_id)
-                from django.db import transaction
-
-                with transaction.atomic():
-                    locked = type(attempt).objects.select_for_update().get(pk=attempt.pk)
-                    locked.metadata = {**locked.metadata, "pix_qr_code": qr}
-                    locked.save(update_fields=["metadata"])
-            except (OSError, ValueError, KeyError):
-                qr = None  # EMV remains usable; QR imagery never determines financial state.
+        cache_pix_qr(payment, attempt, provider)
         return Response(
             payment_response(payment, replayed=replayed), status=200 if replayed else 201
         )
@@ -131,15 +139,17 @@ class IntegratedPaymentDetailView(APIView):
             ).first()
             if existing is None:
                 return Response({"code": "PAYMENT_NOT_FOUND"}, status=404)
-            payment, _ = reconcile_provider_payment(
+            provider = provider_for_venue(
+                request.actor_context.venue_id, existing.method, existing.provider
+            )
+            payment, attempt = reconcile_provider_payment(
                 payment_id=payment_id,
                 actor=request.actor_context,
-                provider=provider_for_venue(
-                    request.actor_context.venue_id, existing.method, existing.provider
-                ),
+                provider=provider,
             )
         except ProviderServiceError as error:
             return error_response(error)
+        cache_pix_qr(payment, attempt, provider)
         return Response(payment_response(payment))
 
 
@@ -186,3 +196,50 @@ def assert_tap_authorized(actor, provider):
     raise ProviderServiceError(
         "SUMUP_SDK_ACTIVATION_BLOCKED", "Aproximação aguarda aprovação SumUp.", 409
     )
+
+
+class SumUpWebhookView(APIView):
+    """Unsigned checkout notifications are scheduling hints, never payment evidence."""
+
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    def post(self, request, venue_id):
+        from django.db import transaction
+        from django.utils import timezone
+
+        from .models import PaymentAttempt
+
+        if request.data.get("event_type") != "CHECKOUT_STATUS_CHANGED":
+            return Response(status=204)
+        checkout_id = request.data.get("id")
+        if not isinstance(checkout_id, str) or not 0 < len(checkout_id) <= 160:
+            return Response(status=204)
+        # Bind to the persisted checkout, provider and Venue. No caller status is read.
+        with transaction.atomic():
+            attempt = (
+                PaymentAttempt.objects.select_for_update()
+                .filter(
+                    payment__tab__venue_id=venue_id,
+                    payment__provider__startswith=f"sumup:{venue_id}:",
+                    payment__provider_payment_id=checkout_id,
+                    payment__status__in=(
+                        "CREATED",
+                        "PENDING",
+                        "PROCESSING",
+                        "AUTHORIZED",
+                        "CONFIRMATION_PENDING",
+                    ),
+                )
+                .order_by("started_at", "id")
+                .first()
+            )
+            if attempt:
+                attempt.metadata = {
+                    **attempt.metadata,
+                    "untrusted_lookup_requested_at": timezone.now().isoformat(),
+                }
+                attempt.save(update_fields=["metadata"])
+        # reconcile_payments supplies authenticated evidence asynchronously. Unknown
+        # checkouts recover through persisted-reference polling, not notification data.
+        return Response(status=204)

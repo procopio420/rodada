@@ -1,5 +1,7 @@
 """Reserve refunds before I/O; only verified provider events change the ledger."""
 
+from urllib.parse import quote, urlencode
+
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
@@ -34,7 +36,12 @@ def reserve_refund(*, payment_id, amount_cents, key, reason, actor):
         ]
         or 0
     )
-    if type(amount_cents) is not int or amount_cents <= 0 or not key or len(key) > 120:
+    if (
+        type(amount_cents) is not int
+        or amount_cents <= 0
+        or not isinstance(key, str)
+        or not 0 < len(key) <= 120
+    ):
         raise ProviderServiceError("INVALID_REFUND", "Estorno inválido.")
     if (
         payment.status not in PaymentStatus.confirmed_money_values()
@@ -76,7 +83,9 @@ def request_provider_refund(*, payment_id, amount_cents, key, reason, actor, pro
         )
     # Snapshot existing provider events before submitting. They cannot confirm this request.
     tx = provider.transport(
-        "GET", f"/v2.1/merchants/{provider.merchant_code}/transactions?id={tx_id}"
+        "GET",
+        f"/v2.1/merchants/{quote(provider.merchant_code, safe='')}/transactions?"
+        + urlencode({"id": tx_id}),
     )
     if tx.get("id") != tx_id or tx.get("merchant_code") != provider.merchant_code:
         raise ProviderServiceError("TRANSACTION_UNVERIFIED", "Estorno não verificado.", 409)
@@ -157,8 +166,6 @@ def reconcile_provider_refund(*, refund_id, actor, provider):
     )
     if request.refund.status == RefundStatus.CONFIRMED:
         return request.refund
-    from urllib.parse import quote, urlencode
-
     tx = provider.transport(
         "GET",
         f"/v2.1/merchants/{quote(provider.merchant_code, safe='')}/transactions?"
