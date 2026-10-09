@@ -1,6 +1,7 @@
 # Spec 015 — Receipts, Printing & Production Fallbacks
 
-**Status:** Draft for implementation  
+**Status:** Implemented P0; hardware verification pending
+
 **Owner capability:** Document rendering + print delivery adapters
 
 ## Objective
@@ -454,3 +455,49 @@ No existing domain record changes required beyond optional receipt/print referen
 - mandatory offline production printing;
 - direct messaging/email receipt delivery;
 - printer fleet management suite.
+
+## Implementation contract — 2026-10-09
+
+P0 supports staff-authorized immutable checks, partial/payment receipts, closed-Tab receipts,
+and station-scoped production snapshots. Canonical ledger `totals` supplies all financial
+values, including adjustments, refunds and transfers; Spec 011 pricing rules are not duplicated.
+Production starts ON_DEMAND. Automatic KDS-health fallback and Bluetooth remain disabled
+until trustworthy heartbeat/device contracts and real hardware verification exist.
+
+Delivery states distinguish QUEUED, SENDING, FAILED_RETRYABLE, FAILED_FINAL,
+DELIVERY_UNCERTAIN, SPOOL_ACCEPTED, OUTPUT_READY, PRINTED and CANCELLED.
+Only explicit operator paper confirmation marks PRINTED. Spool acceptance and file generation
+never prove paper output. Expired sending leases become uncertain, never automatically resent.
+Only definitive failure before submission permits bounded automatic retry. All other outcomes
+require explicit linked, watermarked reprint. Initial production dispatch is unique per
+order/station/endpoint; retries retain the same job. Each attempt has a fencing token.
+Browser HTML and portable text are supported at 58/80mm; ESC/POS uses sanitized ASCII
+transliteration by default, with cutting opt-in after device verification. Local worker
+configuration maps opaque connection references to LAN addresses or OS spool queues;
+credentials and network addresses never come from customer document data.
+Fiscal issuance requires separate Aderlan/accountant/provider approval and is excluded.
+
+
+### Implemented API and rollout boundary
+
+The module is `documents_printing`. Staff APIs under `/printing/` cover document creation,
+printer/binding configuration, job status/history/failure filtering, explicit linked reprint,
+safe retry, cancellation and audited paper confirmation. Outbound bridge claims/results
+are authenticated and fenced. Public receipt links expire after 24 hours and are revocable;
+GuestSession receipt reads are scoped to the authorized Tab. Digital delivery reuses the
+same immutable check/payment/closed-Tab snapshot rather than introducing competing totals.
+
+Financial item presentation reuses the existing Tab responsibility read model. A transferred
+share identifies the original item/quantity and the canonical transferred quantity or amount;
+printing never invents fractional quantities or reallocates discounts. PostgreSQL prohibits
+receipt UPDATE/DELETE even through raw SQL. Receipt token URLs are redacted by the existing
+credential logging boundary.
+
+Verified P0: browser/HTML/text, browser-generated PDF, sanitized ESC/POS, file/LAN/CUPS
+adapter boundaries, on-demand station ticket, durable queue/retry/recovery, permissions,
+audit, management configuration and failure pagination. Not enabled: automatic KDS-health
+fallback, Bluetooth/native Android printing, direct native Windows spooler, provider-specific
+mandatory receipt metadata and fiscal issuance. Existing Android ordering/payment flows
+remain canonical; printer integration is optional and outside their critical transactions.
+These deferred capabilities require explicit device/provider/heartbeat contracts; they are
+not inferred from an unverified Aderlan printer model.

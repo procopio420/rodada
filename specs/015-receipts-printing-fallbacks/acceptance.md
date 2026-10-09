@@ -87,3 +87,36 @@
 **Given** production reprint and printer binding change occur  
 **When** management timeline is inspected  
 **Then** actor, time, target and reprint/config provenance are available.
+
+## P0 implementation evidence — 2026-10-09
+
+| Gate | Observed evidence |
+| --- | --- |
+| API regression suite | 291 passed, 16 environment-dependent skips; no financial/provider rule changes |
+| Final printing/bridge/security PostgreSQL gate | 53 passed, including five PostgreSQL transaction/immutability cases |
+| Output snapshots | 20 original/copy/width/kind combinations, each checked as text, HTML and ESC/POS |
+| Existing Web visual regression | 144 passed; existing prototype primitives/baselines retained |
+| New printing visual/accessibility | 6 passed at 360, 390 and 1280px |
+| Real API/Web acceptance | Order → station ticket → explicit copy → partial receipt → share/revoke → final payment → closed receipt; passed |
+| Portable PDF | Chromium-generated 80mm PDF, valid `%PDF` artifact; no physical printing |
+| Build/types/schema | Production Web build, TypeScript check, Django check and migration drift check passed |
+| Hardware | Not tested; checklist remains pending |
+
+The final PostgreSQL gate also verifies immutable SQL history, cross-printer initial dedupe,
+SKIP LOCKED claims, simultaneous acknowledgement fencing, safe retry/backoff, lease expiry,
+late acknowledgement without a recovery poll, explicit copy audit, permission denial for
+another station, historical failure filtering/pagination, partial-payment refusal while
+confirmation is pending, guest scope/revocation, hashed/expired/revoked receipt links and
+local bridge refresh/lost-ack behavior. Confirmed Order/payment/closure continue while the
+print job fails. Transfers reuse the canonical responsibility projection and record original
+quantities plus actual transferred quantity/amount rather than inferred fractional quantities.
+
+Artifacts are reproducibly generated in `visual-artifacts/printing/` by
+`apps/web/tests/integration/printing.spec.ts`; they are local review evidence, not committed
+customer records or physical printer certification. Simulated operator confirmation in the
+test verifies audit behavior only. Receipt preview iframes prohibit scripts; accessibility
+checks inspect their parent controls and validate document content separately.
+
+Automatic KDS heartbeat fallback and Android Bluetooth acceptance above remain rollout
+criteria, not P0 claims. P0 does not expose an AUTO_FALLBACK configuration. Fiscal issuance
+and vendor-mandated payment receipt metadata are separate external decisions.

@@ -1,0 +1,9 @@
+{
+  "endpoints": {
+    "REPLACE_WITH_ENDPOINT_UUID": {
+      "adapter": "FILE",
+      "connection_ref": "cashier-local",
+      "directory": "./print-output"
+    }
+  }
+}
