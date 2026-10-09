@@ -408,3 +408,15 @@ Medição executável confirmou borda superior 1 px: laterais 127×75, botão ce
 Contrato de adaptação: fontScale acima de 1.3 usa AttendanceNavTokens.ExpandedHeight de 112 dp e Pedir com ícone acima do label. Até 1.3 mantém barra 84 dp. Centro 136 dp na fonte normal e 104 dp na ampliada; margens existentes permanecem, sem encolhimento artificial da fonte. Comparação HTML canônica segue em 390 dp/fontScale1. Testar 360/390/430 dp com fontScale 1 e 2 para overflow, ações e seleção.
 
 Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.
+
+## Gerência — hierarquia e ícones operacionais (V02 parcial023)
+
+OperationalIcon é SVG decorativo com viewBox24, stroke2.2, round caps/joins, currentColor e aria-hidden/focusable=false; size padrão24 para navegação e20 para sectionHeader. Agora reutiliza os paths do export night; operation/sales/settings/more/printer/wallet são extensões explícitas do mesmo vocabulário, sem alegação de referência literal. Label textual obrigatório; nunca usar este componente para substituir ProductIcon.
+
+SurfaceNav da Gerência tem exatamente cinco destinos, altura mínima84 + safe area, ícone acima do label14/800 com gap4 e marcador ativo3px. Fonte ampliada pode aumentar altura; reserva de conteúdo usa medida real da barra (ResizeObserver), mantendo mínimo84 e safe area. Impressoras fica em Mais. A seção usa sectionHeader existente, título20/800 e ícone20 em accent. Região financialMetric ocupa largura total no grid e valor34px/money; números auxiliares28px.
+
+Token --shadow-operational: 0 4px 12px rgb(0 0 0 / .2), para camada financeira; --shadow-navigation: 0 -4px 12px rgb(0 0 0 / .2), para limite de navegação. Sombras são extensões funcionais discretas, não copiadas do artboard. Cor/espaçamento/raios seguem tokens atuais. Sem alterar estilos das estações, caixa ou demais métricas globais.
+
+### Hierarquia compartilhada Web (Spec023)
+
+OperationalHeading conserva h1/h2 e atributos, adiciona ícone decorativo24/20px com stroke2.2/round/currentColor; identificação do título usa accent, seções usam text-muted salvo estados danger/warning já definidos. Título34px no telefone, seção20px, subseção16px; espaçamento existente8/12/16/24. Cabeçalho com separador border e espaço16; panel funcional reutiliza shadow-operational, sem sombra cumulativa em panel aninhado. Estações conservam SVGs da referência e zonas existentes: quantidade com font-number, destino legível e estado secundário. Não alterar geometria de Field/StatusBadge ou recibo canônico. Ícones contextualizam operação; produto continua usando seu ProductIcon. Navbar do Atendimento mantém labels/callbacks e ganha icon24 + texto, sem nova navegação.
