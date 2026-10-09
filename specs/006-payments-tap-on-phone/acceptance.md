@@ -36,3 +36,16 @@
 - [ ] Logs não expõem credenciais nem dados sensíveis de cartão.
 - [ ] Métrica de tempo entre intenção de pagar e confirmação é registrada.
 - [x] Fluxo P0 continua funcional quando Tap on Phone estiver indisponível, usando método alternativo.
+
+## Provider readiness — 2026-10-09
+
+- [x] Callback without its initiating browser cookie cannot exchange a code.
+- [x] Revoked staff/session or denied OAuth cannot create a connection.
+- [x] Lookup without artifacts retains the original Pix display data.
+- [x] One unavailable merchant does not prevent other scheduled lookups.
+- [x] TEST_DOUBLE/SIMULATED evidence is distinct from SANDBOX_CONFIRMED/LIVE_CONFIRMED.
+
+- [x] Unsigned SumUp checkout notifications only request authenticated lookup; duplicate/reordered hints cannot settle money.
+- [x] One provider merchant transaction has one canonical financial owner; a second settlement remains CONFIRMATION_PENDING (PostgreSQL race + migration checks).
+
+These checks prove TEST_DOUBLE and SIMULATED boundaries only. Private SDK, actual sandbox/live captures and merchant approval remain unchecked external gates.

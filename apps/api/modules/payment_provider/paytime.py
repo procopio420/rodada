@@ -114,7 +114,15 @@ class PaytimePixProvider:
             "PENDING": PaymentStatus.PENDING,
             "CREATED": PaymentStatus.PENDING,
         }.get(data.get("status"), PaymentStatus.CONFIRMATION_PENDING)
-        metadata = {"provider_state": data.get("status", "UNKNOWN")}
+        metadata = {
+            "provider_state": data.get("status", "UNKNOWN"),
+            "establishment_id": self.establishment_id,
+            "settlement_key": hashlib.sha256(
+                json.dumps(
+                    ["paytime", self.establishment_id, data["_id"]], separators=(",", ":")
+                ).encode()
+            ).hexdigest(),
+        }
         if isinstance(data.get("emv"), str) and data["emv"]:
             metadata["pix_copy_paste"] = data["emv"]
         return ProviderResult(status=status, provider_payment_id=data["_id"], metadata=metadata)
@@ -122,7 +130,9 @@ class PaytimePixProvider:
     def start_payment(self, input):
         if input.method != PaymentMethod.PIX or input.currency != "BRL":
             raise ValueError("Unsupported Paytime payment")
-        payment = Payment.objects.get(pk=input.payment_id, tab__venue_id=self.venue_id)
+        payment = Payment.objects.get(
+            pk=input.payment_id, tab__venue_id=self.venue_id, provider=self.provider_key
+        )
         data = self.transport(
             "POST",
             "/v1/marketplace/transactions",
@@ -138,7 +148,9 @@ class PaytimePixProvider:
         return result
 
     def lookup_payment(self, input):
-        payment = Payment.objects.get(pk=input.payment_id, tab__venue_id=self.venue_id)
+        payment = Payment.objects.get(
+            pk=input.payment_id, tab__venue_id=self.venue_id, provider=self.provider_key
+        )
         provider_id = input.provider_payment_id
         if not provider_id:
             # Query documented filters, then match the exact reference locally. An empty

@@ -1,3 +1,5 @@
+> Updated audit and executable callback/activation instructions: [2026-10-09 readiness](provider-readiness-2026-10-09.md).
+
 # SumUp onboarding — no live payments verified
 
 Rodada has no SumUp or Paytime account, credentials, SDK access or live payment
@@ -76,15 +78,14 @@ Refund POST `/v1.0/merchants/{merchant}/payments/{transaction}/refunds` supports
 amount/full or partial requests. Requests are reserved before I/O, never retried
 after ambiguity, and only a new successful matching REFUND event applies ledger
 reversal. Pix refund eligibility and eventual consistency still need sandbox proof.
-Webhook signature verification is not invented; SumUp adapter rejects direct inbox
-webhooks. Polling is the implemented authoritative path.
+Webhook signature verification is not invented; SumUp notifications only schedule authenticated lookup; polling supplies authoritative evidence.
 
 OAuth: `/authorize` + `/token`, authorization code and refresh grants. `payments`
 requires manual verification; `transactions.history` supports reconciliation.
 Client credentials alone are not assumed to authorize arbitrary merchant data.
 Use authenticated manager POST `/payments/merchant-connections/` to start, then
 submit returned code/state in the same staff/Venue context. State is single-use,
-expires in ten minutes and is stored hashed. No callback frontend is included yet.
+expires in ten minutes and is stored hashed. A browser-bound backend callback is included; manager GUI remains pending.
 Refresh rotates encrypted tokens. Disconnect deletes credentials, revokes local
 payment-device authorization and records audit. Remote token revocation is NOT
 implemented because the inspected docs do not establish a revocation endpoint;

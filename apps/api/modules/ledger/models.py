@@ -114,6 +114,7 @@ class Payment(models.Model):
     currency = models.CharField(max_length=3, default="BRL")
     provider = models.CharField(max_length=80, blank=True)
     provider_payment_id = models.CharField(max_length=160, blank=True)
+    provider_settlement_key = models.CharField(max_length=64, blank=True)
     status = models.CharField(max_length=24, choices=PaymentStatus.choices, default=PaymentStatus.CONFIRMED)
     tip_amount_cents = models.PositiveIntegerField(default=0)
     metadata = models.JSONField(default=dict, blank=True)
@@ -129,6 +130,7 @@ class Payment(models.Model):
             models.UniqueConstraint(fields=("provider", "provider_payment_id"),
                                     condition=~models.Q(provider_payment_id=""),
                                     name="ledger_provider_reference_unique"),
+            models.UniqueConstraint(fields=("provider_settlement_key",), condition=~models.Q(provider_settlement_key=""), name="ledger_provider_settlement_unique"),
             models.CheckConstraint(
                 condition=(
                     ~models.Q(status__in=PaymentStatus.confirmed_money_values())

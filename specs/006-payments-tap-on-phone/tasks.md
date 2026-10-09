@@ -111,3 +111,14 @@ SDK integration, Pix expiry/cancel/refund and realtime remain unchecked.
 
 The earlier provider-specific live tasks are not evidence of an activated merchant.
 See `docs/payments/sumup-onboarding.md` and the validation report for exact gates.
+
+## Provider readiness — 2026-10-09
+
+- [x] Browser-bound OAuth callback, denial and revoked-session tests.
+- [x] Durable Pix artifacts and reconciliation failure isolation tests.
+- [x] Android Pix copy action and provider expiry display.
+- [x] Current authoritative capability audit and fresh SQLite/PostgreSQL/Android evidence.
+- [x] Publish readiness PR; do not merge.
+
+- [x] Merchant transaction ownership guard and historical SumUp backfill.
+- [x] Unsigned SumUp checkout notification hints and optional return_url.
