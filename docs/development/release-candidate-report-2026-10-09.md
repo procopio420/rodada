@@ -1,5 +1,7 @@
 # Rodada release candidate — 2026-10-09
 
+Candidate: [draft PR #63](https://github.com/procopio420/rodada/pull/63), branch pushed; remote CI queued at publication. Local completed checks below are distinct from remote CI. Initial PR creation under the active `lprocopio-ml` account was rejected (`must be a collaborator`); scoped use of the already configured repository-owner account created the draft without changing the active account. No permission question or main merge followed.
+
 Decision: **DEMO_GO**, restricted to supervised local fixtures and explicitly manual test payments. **No pilot or production authorization.** Engineering scope is incomplete: 474 criteria audited, 285 PASS, 134 PARTIAL, 43 MISSING, 12 EXTERNAL_BLOCKED. Fiscal issuance is outside accepted scope; no fiscal criterion was invented or counted as completed.
 
 The [criterion matrix](spec-closure-matrix-2026-10-09.md) preserves every acceptance entry, source, implementation, evidence, owner and next action. Duplicate spec numbers remain distinct (`021-UX`, `022-MATERIAL`); damaged/repeated Spec 023 text remains visible. The final map is [machine readable](closure-final-2026-10-09.json). PASS is criterion-specific, not spec-wide certification.
@@ -16,7 +18,7 @@ Original operational baseline `7227f7d`; latest main documentation `23babc6` mer
 
 Latest visible PR #61 (Windows demo) was inspected after it appeared during this run; its four listed checks passed. It remains separate/unmerged, including an overlapping preview-button fix and additional Windows evidence. Those artifacts are not counted as this candidate's fresh evidence. PR #62 (Catalog/Auth/Customization) also appeared late: all three listed checks now passed; its evidence remains scoped rather than a final release-wide gate. Its access-conflict change overlaps this candidate and its distinct device-registration audit/selection-mix changes are not integrated or claimed here. Coordinate the overlapping files before merging these branches. No main merge, deployment, PSP activation or rollout was performed by this run. [PR inventory](rc-artifacts-2026-10-09/pr-inventory.json) and [worktree inventory](rc-artifacts-2026-10-09/worktree-inventory.json) preserve the observed state; pre-existing dirty worktrees were left intact.
 
-Candidate commits relative to latest main:
+[Commit inventory](rc-artifacts-2026-10-09/commit-inventory.txt) includes implementation and evidence-publication commit `3755409`; later publication metadata is documentation-only. Candidate implementation commits relative to latest main:
 
 ```text
 b88c347 docs(release): inventory every acceptance criterion and freeze ownership
