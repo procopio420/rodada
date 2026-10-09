@@ -231,9 +231,15 @@ def release_table(*, table_id, actor: ActorContext) -> TableOccupancy:
         event_type="table.released",
         entity_type="TableOccupancy",
         entity_id=str(occupancy.id),
-        metadata={"table_id": str(table.id)},
+        metadata={"table_id": str(table.id), "party_size": _released_party_size(occupancy)},
     )
     return occupancy
+
+
+def _released_party_size(occupancy):
+    from modules.hospitality.party_size import current_party_size
+    row = current_party_size(occupancy_id=occupancy.id)
+    return {"observation_id": str(row.id) if row else None, "covers_count": row.covers_count if row else None}
 
 
 @transaction.atomic

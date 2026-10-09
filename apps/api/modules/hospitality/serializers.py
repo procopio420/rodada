@@ -40,3 +40,10 @@ class AssignTabSerializer(serializers.Serializer):
 
 class GuestOrderingBlockSerializer(serializers.Serializer):
     blocked = serializers.BooleanField()
+
+
+class PartySizeSerializer(serializers.Serializer):
+    covers_count = serializers.IntegerField(min_value=1, max_value=2147483647)
+    expected_version = serializers.IntegerField(min_value=0)
+    idempotency_key = serializers.CharField(max_length=128)
+    reason = serializers.CharField(max_length=500, required=False, default="", allow_blank=True)

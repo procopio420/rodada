@@ -43,3 +43,9 @@ Start optional. Existing data remains UNKNOWN and reports show coverage from rol
 ## Dependencies first
 
 Spec 004 occupancy identity and Spec 007 reporting projection semantics.
+
+## Release candidate backend slice — 2026-10-09
+
+PartySizeObservation is append-only with exactly one occupancy/Tab target, explicit positive count, target-locked version conflict, unique request key, actor/source and supersedes history. Staff and guest commands use existing capabilities/current GuestSession context. Released occupancy corrections require manager/owner and reason. Release AuditEvent freezes the observation reference/count, preserving the original snapshot after correction. Table occupancy queries and guest context expose additive party_size; public guest responses omit private staff/session provenance.
+
+Metrics helper accepts only caller-provided canonical eligible revenue attribution, computes ratio-of-sums and coverage/exclusions, and never guesses revenue from a Tab's present location. It is not yet wired into management reporting. Native/staff/guest chooser UX and offline drafts remain open; task checkboxes are not comprehensive release evidence. PostgreSQL concurrency tests exercise guest/staff same-version writes.

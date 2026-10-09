@@ -176,3 +176,56 @@ class TabOccupancyAssignment(models.Model):
                 fields=("occupancy", "released_at"), name="hospitality_assignment_occ_idx"
             ),
         ]
+
+
+class PartySizeObservation(models.Model):
+    """Append-only explicit count. No row means UNKNOWN, never one Tab/person."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT)
+    occupancy = models.ForeignKey(
+        TableOccupancy,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="party_size_observations",
+    )
+    tab = models.ForeignKey(
+        Tab, null=True, blank=True, on_delete=models.PROTECT, related_name="party_size_observations"
+    )
+    covers_count = models.PositiveIntegerField()
+    version = models.PositiveIntegerField()
+    source = models.CharField(
+        max_length=8, choices=[("STAFF", "Staff"), ("GUEST", "Guest"), ("IMPORTED", "Imported")]
+    )
+    staff_member = models.ForeignKey(StaffMember, null=True, blank=True, on_delete=models.PROTECT)
+    guest_session = models.ForeignKey(
+        "guest_access.GuestSession", null=True, blank=True, on_delete=models.PROTECT
+    )
+    supersedes = models.OneToOneField(
+        "self", null=True, blank=True, on_delete=models.PROTECT, related_name="superseded_by"
+    )
+    reason = models.CharField(max_length=500, blank=True)
+    idempotency_key = models.CharField(max_length=128)
+    observed_at = models.DateTimeField()
+    recorded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-version",)
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    Q(occupancy__isnull=False, tab__isnull=True)
+                    | Q(occupancy__isnull=True, tab__isnull=False)
+                ),
+                name="party_size_one_target",
+            ),
+            models.CheckConstraint(
+                condition=Q(covers_count__gt=0), name="party_size_positive_count"
+            ),
+            models.UniqueConstraint(fields=("occupancy", "version"), name="party_size_occ_version"),
+            models.UniqueConstraint(fields=("tab", "version"), name="party_size_tab_version"),
+            models.UniqueConstraint(
+                fields=("venue", "idempotency_key"), name="party_size_request_unique"
+            ),
+        ]
