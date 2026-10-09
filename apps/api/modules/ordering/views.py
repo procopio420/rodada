@@ -47,6 +47,7 @@ def _order_payload(order) -> dict:
                 "id": str(item.id),
                 "product_id": str(item.product_id),
                 "product_name": item.product_name_snapshot,
+                "customization_snapshot": item.customization_snapshot,
                 "unit_price_cents": item.unit_price_cents,
                 "quantity": item.quantity,
                 "line_total_cents": item.line_total_cents,
@@ -197,5 +198,6 @@ class ProductionQueueView(APIView):
     def get(self, request, station):
         if station not in ("BAR", "KITCHEN"):
             return Response({"code": "INVALID_STATION", "message": "Estação inválida."}, status=400)
-        rows = OrderItem.objects.filter(order__tab__venue=request.auth.venue, order__status="CONFIRMED", product__fulfillment_station=station).exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").order_by("created_at")
-        return Response({"results": [{"id": str(item.id), "state": item.state, "quantity": item.quantity, "product_name": item.product_name_snapshot, "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})
+        from django.db.models import Q
+        rows = OrderItem.objects.filter(Q(fulfillment_station_snapshot=station) | Q(fulfillment_station_snapshot="", product__fulfillment_station=station), order__tab__venue=request.auth.venue, order__status="CONFIRMED").exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").order_by("created_at")
+        return Response({"results": [{"id": str(item.id), "state": item.state, "quantity": item.quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})

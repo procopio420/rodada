@@ -106,6 +106,8 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+    customization_snapshot = models.JSONField(default=dict, blank=True)
+    fulfillment_station_snapshot = models.CharField(max_length=16, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="order_items")

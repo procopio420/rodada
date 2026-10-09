@@ -1,3 +1,4 @@
+from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView
 from modules.payment_provider.views import (PaymentCapabilitiesView, IntegratedPaymentCreateView, IntegratedPaymentDetailView, PaytimeWebhookView)
@@ -82,6 +83,8 @@ def readiness(request):
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 
 urlpatterns = [
+    path("catalog/products/<uuid:product_id>/customization/", CustomizationView.as_view()),
+    path("catalog/products/<uuid:product_id>/customization/<str:kind>/<uuid:choice_id>/availability/", ChoiceAvailabilityView.as_view()),
     path("payments/device-authorizations/", PaymentDeviceAuthorizationView.as_view()),
     path("payments/<uuid:payment_id>/refunds/integrated/", IntegratedRefundView.as_view()),
     path("refunds/<uuid:refund_id>/reconcile/", IntegratedRefundReconcileView.as_view()),

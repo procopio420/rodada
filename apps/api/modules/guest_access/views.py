@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from modules.catalog.models import AvailabilityState
 from modules.catalog.serializers import icon_payload
+from modules.catalog.customization import ordering_schema
 from modules.ordering.views import _order_payload, _tab_payload
 
 from .serializers import GuestOrderConfirmSerializer, GuestTabCreateSerializer, QrResolveSerializer
@@ -144,6 +145,7 @@ class GuestCatalogView(APIView):
                         "fulfillment_station": product.fulfillment_station,
                         "available": product.availability.state == AvailabilityState.AVAILABLE,
                         "icon": icon_payload(product),
+                        **ordering_schema(product),
                     }
                     for product in products
                 ]
