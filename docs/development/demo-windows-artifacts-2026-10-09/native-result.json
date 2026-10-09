@@ -1,0 +1,14 @@
+{
+  "native_login": "PASS",
+  "native_tab": "PASS",
+  "native_confirm": "PASS",
+  "tab": "29238f71-4301-4b4a-9ccb-c6d671021244",
+  "order": "24440dd5-60e0-46ee-ab94-13a87ba1b39c",
+  "charges_cents": 1800,
+  "items": 2,
+  "production_ui": "READY",
+  "device": "API36 emulator, not physical",
+  "payment_classification": "MANUAL_TEST",
+  "native_delivery_ui": "PASS, queue zero",
+  "native_transport": "ONLINE via polling in observed UI"
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "database": "PostgreSQL17 persistente isolado",
+  "tab": "b3899bd6-e376-4be9-82a8-ff76d7725e33",
+  "label": "TESTE PRÁTICO · verificação 1791567851544",
+  "charges_cents": 4000,
+  "payments_cents": 4000,
+  "state": "CLOSED",
+  "ui_errors": [],
+  "scope": "Web UI + API real; Android verificado separadamente"
+}

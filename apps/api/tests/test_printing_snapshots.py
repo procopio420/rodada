@@ -23,8 +23,8 @@ ROOT = Path(__file__).parent / "fixtures" / "printing"
 def test_version_one_golden_outputs(kind, width, copy):
     document = receipt_fixture(kind)
     name = f"{kind}-{width}-{'copy' if copy else 'original'}"
-    assert render_text(document, width, copy) == (ROOT / (name + ".txt")).read_text()
-    assert render_html(document, width, copy) == (ROOT / (name + ".html")).read_text()
+    assert render_text(document, width, copy) == (ROOT / (name + ".txt")).read_text(encoding="utf-8")
+    assert render_html(document, width, copy) == (ROOT / (name + ".html")).read_text(encoding="utf-8")
     assert (
-        render_escpos(document, width, copy).hex() == (ROOT / (name + ".hex")).read_text().strip()
+        render_escpos(document, width, copy).hex() == (ROOT / (name + ".hex")).read_text(encoding="utf-8").strip()
     )

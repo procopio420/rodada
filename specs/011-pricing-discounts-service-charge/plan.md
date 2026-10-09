@@ -78,3 +78,7 @@ Web saves the pricing intent in session storage scoped to venue, operator and Ta
 Both reauthorize server-side and retry the same key after an ambiguous response.
 Daily/monthly reports share business-date range queries; transfer components do
 not create sales. Optional fiscal/GL integration remains outside this slice.
+
+## Preview após leitura canônica
+
+Desabilitar ação enquanto pricing for nulo; reutilizar teste visual de pricing para verificar leitura atrasada e habilitação após resposta, sem relaxar limites ou mockar aceite financeiro real.

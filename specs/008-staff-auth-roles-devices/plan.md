@@ -99,3 +99,10 @@ Do not rely on UI rollout order for security.
 ## Dependencies that must land first
 
 Spec 001 Venue/StaffMember/AuditEvent foundations. No later operational spec should invent its own role rules instead of consuming Spec 008.
+
+## Web refresh correction (2026-10-09)
+
+1. Reproduce parallel refresh with real BFF/API using an isolated session.
+2. Coordinate refresh in process-global bounded memory shared by route bundles; reuse successful rotations briefly and retry one rejected access credential. Preserve API authorization and terminal failures.
+3. Add coordinator tests and real PostgreSQL browser regression for parallel requests, late stale cookies, adjacent stations and revocation. Run typecheck, build, integration and existing visual suite.
+4. Rebuild/restart only the demo Web process, preserve PostgreSQL and operator data, document evidence and publish a small fix commit on the draft demo PR.

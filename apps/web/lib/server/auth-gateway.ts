@@ -1,6 +1,7 @@
 import "server-only";
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { SessionRefreshCoordinator } from "./session-refresh";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE_URL = (process.env.RODADA_API_BASE_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
@@ -177,15 +178,36 @@ function isTerminalAuthFailure(
   return (status === 401 || status === 403) && TERMINAL_AUTH_CODES.has(authCode(payload));
 }
 
-async function refreshFromCookie(
-  refreshToken: string,
-): Promise<
+type RefreshResult =
   | { ok: true; payload: JsonObject; accessToken: string }
-  | { ok: false; status: number; payload: JsonObject | null }
-> {
+  | { ok: false; status: number; payload: JsonObject | null };
+
+// Next route bundles must share coordination, not each keep their own token rotation.
+const refreshGlobal = globalThis as typeof globalThis & {
+  rodadaStaffRefresh?: SessionRefreshCoordinator<RefreshResult>;
+};
+const refreshCoordinator = refreshGlobal.rodadaStaffRefresh ??= new SessionRefreshCoordinator<RefreshResult>();
+
+async function refreshFromCookie(refreshToken: string): Promise<RefreshResult> {
+  const key = createHash("sha256").update(refreshToken).digest("hex");
+  try {
+    return await refreshCoordinator.run(key, () => performRefresh(refreshToken));
+  } catch {
+    return { ok: false, status: 503, payload: { code: "UPSTREAM_UNAVAILABLE", message: "Não foi possível renovar a sessão no momento. Tente novamente." } };
+  }
+}
+
+function refreshFailureResponse(refresh: Extract<RefreshResult, { ok: false }>): NextResponse {
+  const response = jsonResponse(refresh.payload, refresh.status);
+  if (refresh.status === 401 || isTerminalAuthFailure(refresh.status, refresh.payload)) clearStaffCookies(response);
+  return response;
+}
+
+async function performRefresh(refreshToken: string): Promise<RefreshResult> {
   const result = await backendRequest("/auth/refresh/", {
     method: "POST",
     body: { refresh_token: refreshToken },
+    signal: AbortSignal.timeout(10_000),
   });
 
   if (!result.response.ok || !result.payload) {
@@ -297,9 +319,7 @@ export async function forwardAuthenticated(
   if (!accessToken && refreshToken) {
     const refresh = await refreshFromCookie(refreshToken);
     if (!refresh.ok) {
-      const response = jsonResponse(refresh.payload, refresh.status);
-      clearStaffCookies(response);
-      return response;
+      return refreshFailureResponse(refresh);
     }
     rotated = refresh.payload;
     accessToken = refresh.accessToken;
@@ -324,14 +344,12 @@ export async function forwardAuthenticated(
 
   if (
     result.response.status === 401 &&
-    authCode(result.payload) === "ACCESS_TOKEN_EXPIRED" &&
+    ["ACCESS_TOKEN_EXPIRED", "AUTH_REQUIRED"].includes(authCode(result.payload)) &&
     refreshToken
   ) {
     const refresh = await refreshFromCookie(refreshToken);
     if (!refresh.ok) {
-      const response = jsonResponse(refresh.payload, refresh.status);
-      clearStaffCookies(response);
-      return response;
+      return refreshFailureResponse(refresh);
     }
 
     rotated = refresh.payload;

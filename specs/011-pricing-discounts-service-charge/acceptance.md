@@ -130,3 +130,7 @@ reversing transferred allocations requires an allocation-aware correction rather
 than guessing the current owner. Refund assistance never claims payment-to-item
 settlement allocation. Service is operationally classified as revenue or
 pass-through, without inventing a fiscal or general-ledger treatment.
+
+## Pricing ainda carregando
+
+Given pricing da comanda ainda sem resposta, When abrir ajuste, Then Conferir antes de aplicar fica desabilitado. Após resposta canônica válida, fica habilitado; preview/commit continuam sujeitos a versão, autorização e PIN.

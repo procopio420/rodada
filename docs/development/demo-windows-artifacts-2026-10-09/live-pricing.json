@@ -1,0 +1,11 @@
+{
+  "tab": "29238f71-4301-4b4a-9ccb-c6d671021244",
+  "charges_cents": 1800,
+  "discounts_cents": 100,
+  "service_charge_cents": 170,
+  "payments_cents": 1870,
+  "exposure_cents": 0,
+  "state": "CLOSED",
+  "payment_classification": "MANUAL_TEST",
+  "receipt": "digital preview, no paper"
+}

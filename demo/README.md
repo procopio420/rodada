@@ -68,3 +68,5 @@ is a failed run, even when earlier requests committed.
 Dependencies use the repository's bounded API requirements, locked Web package
 versions and PostgreSQL major image. Rebuilding later may resolve newer API patch
 versions; the release evidence records versions actually used.
+
+Windows sem Docker/WSL: [stack nativa isolada](WINDOWS.md), mesmos serviços/limites com evidência específica de ambiente.

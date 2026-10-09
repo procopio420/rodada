@@ -26,3 +26,7 @@ Fiscal, ERP, estoque profundo, delivery externo, loyalty, promoção automática
 ## Critérios de aceite
 
 Ver [acceptance.md](acceptance.md). A conclusão do documento de planejamento não implica conclusão da entrega do produto.
+
+## Demo integrada Windows — validação parcial
+
+Revalidar main 7227f7d isoladamente, sem ampliar módulos. Sem Docker/WSL, executar PostgreSQL17 portátil, ASGI, dispatcher e Web com contratos da demo, portas 55459/18764/3119 e banco rodada_demo. Preservar SQLite e serviços 8000/3000. Sem instalação global, apagar histórico, reduzir limites ou confirmação fictícia. Recorte não conclui produto/device físico.

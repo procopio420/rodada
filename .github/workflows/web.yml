@@ -60,6 +60,10 @@ jobs:
         working-directory: apps/web
         run: npm run typecheck
 
+      - name: Staff session coordination tests
+        working-directory: apps/web
+        run: npm run test:auth
+
       - name: Build
         working-directory: apps/web
         env:

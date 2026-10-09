@@ -501,3 +501,7 @@ mandatory receipt metadata and fiscal issuance. Existing Android ordering/paymen
 remain canonical; printer integration is optional and outside their critical transactions.
 These deferred capabilities require explicit device/provider/heartbeat contracts; they are
 not inferred from an unverified Aderlan printer model.
+
+## Fixtures em Windows
+
+Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.

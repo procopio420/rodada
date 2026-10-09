@@ -1,0 +1,18 @@
+{
+  "checks.json": "0684381f863b07a3f5376b24d6bc283b10bbbf1a3a7bba7c5675d460cee4f253",
+  "environment.json": "65375becd51170a5e030084bec77d5a4e697772dc01ccf44968db2c801cae9d7",
+  "live-pricing.json": "14472d22e54fdf7228a71c67dd0245b86065c8e9681f07b8c4486885afe905d8",
+  "native-confirmed.png": "db85d59a2c4c240d492cf254c9d67236d6270b2700cf56668f025b15227123cc",
+  "native-delivered.png": "8ba9650190866edce47867b5bcbd916a75662a387de51cb9dbdf8708ca4a5fe5",
+  "native-pricing-receipt.png": "37d73146c11f15bfeeb8f79f30ef296ca86792720ffb956f0053fc340e707038",
+  "native-ready.png": "da806a6d6ec513c85c0f2b12be5f10f37c06e9bef3fb318eb79f8b05331cfab5",
+  "native-result.json": "44944c1a733a95823c9c8eac710873f1d02c2a2db522b9cfc4051f3f6ccc08d6",
+  "native-web-bar.png": "711749e01e0192400996070e8003d6817aa41d5f8f9bca0dda36353866cdd6fc",
+  "native-web-kitchen.png": "d891d6e11324220de35e3cdf58a1eb44cbd50a12a2e9fd17a0b8e0b630560c69",
+  "printing-config.png": "18043134fd0f43c0af50aec5908ffde7e25891ff6ec48a9b96dc20647d085ac2",
+  "receipt.png": "0059c7004d8b307c98b83075fc34fdca5377414a2240278e77d35da49fa9ed2d",
+  "reconcile-final.txt": "80a263d1ed3a20a90a0334c03b32db1dba6a93fdd2f2f4e5e292ac58503064b9",
+  "result.json": "eb92256c87320fe9b0be30e18a1b2bf0913500afebd8b7639be0549bf80b79e2",
+  "shift-repeat.json": "2995f12d4e4760eebc6b362882186c55f2a61def89b71fe3ceab28fb2a9b117a",
+  "shift.json": "f6116c6783fcb7502b53efa7320ab3043d5596ab74fd54acabe36404e322217f"
+}

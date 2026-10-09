@@ -465,3 +465,7 @@ transport or provider SDK/printing changes are introduced. This PR stacks on Spe
 Service removal has a separate `service_removal_requires_manager` policy flag
 (default true); authorized opt-out remains governed by `service_opt_out`.
 Item adjustment selectors show the captured product name and original amount.
+
+## Leitura antes do preview — correção de integração
+
+Conferir antes de aplicar fica indisponível até carregar o pricing canônico da comanda. Um clique durante a leitura não deve ser ignorado silenciosamente. Falha mantém mensagem existente e não autoriza ajuste; contratos/limites permanecem iguais.

@@ -113,11 +113,14 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
   await evidence(page, "cash-success");
 
+  // Keep the old access for the explicit stale-session request; SSE may already clear storage.
+  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
+  expect(oldSession).toBeTruthy();
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
-  const revoked = await guest.evaluate(async token => {
-    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": sessionStorage.getItem(`rodada.guest.session.${token}`) ?? "" } });
+  const revoked = await guest.evaluate(async oldSession => {
+    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": oldSession ?? "" } });
     return { status: result.status, body: await result.json() };
-  }, table.public_token);
+  }, oldSession);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
   await guest.reload();
@@ -232,4 +235,33 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await expect(guest.getByText("Esta visita terminou.", { exact: false })).toBeVisible({ timeout: 10000 });
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toHaveCount(0);
   await guestContext.close();
+});
+
+
+test("parallel Web refresh preserves all operational screens and still enforces revocation", async ({ page, context }) => {
+  await login(page);
+  const original = await context.cookies();
+  const oldCookie = original.map(c => `${c.name}=${c.value}`).join("; ");
+  await context.clearCookies({ name: "rodada_staff_access" });
+  const paths = ["/api/auth/me", "/api/pos/tabs/", "/api/pos/catalog/products/", "/api/pos/cash/points/"];
+  const outcomes = await page.evaluate(async paths => Promise.all(paths.flatMap(path => [path, path]).map(async path => {
+    const response = await fetch(path);
+    const body = await response.json();
+    return { path, status: response.status, code: body.code, leaked: "access_token" in body || "refresh_token" in body };
+  })), paths);
+  expect(outcomes.map(r => r.status)).toEqual(Array(8).fill(200));
+  expect(outcomes.some(r => r.leaked)).toBe(false);
+  const late = await page.request.get("/api/auth/me", { headers: { Cookie: oldCookie } });
+  expect(late.status()).toBe(200);
+  for (const route of ["/pos", "/bar", "/kitchen", "/cash"]) {
+    await page.goto(route);
+    await expect(page.locator(".notice[role=alert]")).toHaveCount(0);
+    expect((await api(page, "/api/auth/me")).staff.display_name).toBe("test-manager");
+  }
+  const lock = await page.evaluate(async () => (await fetch("/api/auth/lock", { method: "POST" })).status);
+  expect(lock).toBeLessThan(300);
+  const revoked = await page.request.get("/api/auth/me", { headers: { Cookie: oldCookie } });
+  expect(revoked.status()).toBe(401);
+  expect((await revoked.json()).code).toBe("SESSION_REVOKED");
+  expect((await context.cookies()).filter(c => ["rodada_staff_access", "rodada_staff_refresh"].includes(c.name))).toEqual([]);
 });

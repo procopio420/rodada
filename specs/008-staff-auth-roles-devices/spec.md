@@ -387,3 +387,9 @@ No historical AuditEvent actor is rewritten.
 - biometric-first login;
 - centralized multi-venue corporate IAM.
 
+
+## Web refresh coordination — demo correction (2026-10-09)
+
+Concurrent Web requests and tabs using the same rotating refresh credential must share one refresh within a Web server process. A bounded five-second in-memory result window covers requests already sent with old cookies; keys are SHA-256 digests, credentials never enter logs, browser JavaScript or durable storage. Each retried request still authorizes against the API, including after revocation. Access tokens invalidated by rotation may refresh once using the existing refresh cookie, alongside ACCESS_TOKEN_EXPIRED. No lifetime, capability, device trust or API rotation changes.
+
+Transient refresh failure (e.g. API 503) preserves cookies and reports failure; invalid/revoked credentials clear them. This slice covers the existing single-process demo; coordinating multiple Web replicas remains outside this local acceptance and requires shared coordination before such deployment. No financial mutation is replayed after a successful response.
