@@ -2,16 +2,18 @@
 
 ## Continuação completa — demo importante
 
-- [ ] V01: contratos/jornadas principais dos cinco exports e fontes atuais.
-- [ ] V02: componentes essenciais com diferenças comprovadas e contrato.
-- [ ] V03–V04: comparação atual Cozinha/Bar e comandos individuais.
-- [ ] V05: jornadas existentes Android, header/contas/pedido/cobrança.
-- [ ] V06: pico/reconexão e feedback honesto.
-- [ ] Responsivo/acessibilidade internos360/390/430 e fonte1/2.
-- [ ] V07: gates atuais e roteiro integrado PostgreSQL/emulador.
-- [ ] Evidências/limites, commits pequenos e PR rascunho atualizado.
+- [x] V01:34 contratos/jornadas principais dos cinco exports, fontes/hashes e repetibilidade.
+- [x] V02 parcial: header Android acessível, diferenças comprovadas e contrato; componentes existentes revalidados.
+- [x] V03–V04: comparação atual Cozinha/Bar e comandos individuais; diferenças integrais ainda pendentes de paridade.
+- [x] V05 funcional: login/conta/pico/Tab/busca/carrinho/pedido/guarda de caixa/pagamento CASH manual/fechamentos em UI nativa e readback real.
+- [x] V06: pico real, OFFLINE preservado e retorno ONLINE somente com leitura confirmada.
+- [x] Responsivo/acessibilidade do header/navegação360/390/430 e fonte1/2,24 testes instrumentados.
+- [x] V07 local: gates atuais e roteiros PostgreSQL/emulador; unidade51, visual197, auth/realtime12, integração13.
+- [ ] Matriz de todas jornadas internas com fonte200%/teclado; estorno nativo; paridade global e hardware/provider.
+- [ ] Publicação final/CI do head e evidências por commit.
 
-## Recorte atual V01 — night/Agora e Bar
+Resultados, ambiente, reprodução e limites: [relatório atual](../../docs/design/spec023-demo-validation.md). Cada checkbox desta seção comprova apenas seu escopo discriminado; não substitui critérios globais de paridade.
+## Recorte anterior V01 — night/Agora e Bar
 
 - [x] Auditar V01–V07 e sobreposição de PRs contra main45c4742.
 - [x] Congelar contrato parcial antes de implementação; preservar fontes originais.
@@ -114,3 +116,5 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 - [x] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
 
 Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
+
+

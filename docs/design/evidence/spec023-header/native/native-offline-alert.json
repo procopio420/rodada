@@ -1,0 +1,23 @@
+[
+  {
+    "text": "Atenção",
+    "content-desc": "",
+    "bounds": "[79,346][169,380]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Sem conexão com o Rodada.",
+    "content-desc": "",
+    "bounds": "[79,396][278,418]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Entendi",
+    "content-desc": "",
+    "bounds": "[231,459][287,481]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

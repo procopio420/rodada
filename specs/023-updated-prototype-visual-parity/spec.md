@@ -1,6 +1,6 @@
 # 023 — Paridade visual com os protótipos atualizados
 
-Estado: planejado. Data: 2026-10-08.
+Estado: em implementação; demo validada nos fluxos discriminados, paridade global aberta. Data: 2026-10-08.
 
 ## Continuação autorizada — sequência completa da demo importante
 
@@ -12,7 +12,7 @@ O objetivo demonstrativo é concluir os gates verificáveis dos fluxos existente
 
 Validação desta sequência usa ambiente de teste isolado: PostgreSQL dedicado separado do55459 e do banco demonstrativo, serviços Web/API em portas livres, emulador API36 isolado. Sem reset de dados existentes, merge ou implantação. Hardware, SDK privado/provider e produção exigem evidência própria e não serão declarados comprovados.
 
-## Recorte atual — V01, night/Agora e Bar adjacente (09/10/2026)
+## Recorte anterior — V01, night/Agora e Bar adjacente (09/10/2026)
 
 Base isolada `origin/main` em `45c4742`. Prioridade: completar o contrato de referência ausente antes de novas alterações de composição. Inventariar somente o estado inicial Agora e o painel Bar simultâneo de `night/Main.dc.html`: seletores únicos, regiões, medidas, tipografia, assets, hashes e duas capturas determinísticas. Congelar o relógio no harness; não alterar dados, estilos, HTML ou ZIP original. Classificar moldura/status bar simulada separadamente do conteúdo.
 
@@ -105,3 +105,8 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 Aplicar o vocabulário já aceito na Gerência às superfícies Web existentes: entrada/sessão, Atendimento, PDV, Bar/Cozinha, Cliente, Caixa, Gerência e subpáginas de catálogo/preços/impressão/alertas, relatórios, estornos, recibo e documento histórico. Não criar ações/dados/rotas. Títulos conservam nível, texto, id, foco e nome acessível; ícones decorativos distinguem contexto operacional sem substituir ProductIcon ou rótulo. Hierarquia título/seção/subseção, bordas e sombras funcionais usam tokens. Estações conservam composição de lote/fila/passe e SVGs literais existentes; destaque de quantidade/destino/estado não muda transições. Impressos canônicos e HTML histórico no iframe permanecem intocados; só a moldura Web recebe acabamento. Nenhum contrato de API, regra financeira, autenticação ou auditoria muda. Não declarar paridade integral nas superfícies sem export. Android depende de confirmação de escopo e validação nativa própria.
 
 V06: perda real da API revelou SSE Reconnecting substituindo OFFLINE; o contrato e verificação da menor correção estão na Spec014. Manter SEM SINAL até leitura confirmada, sem executar/confirmar cobrança offline.
+
+
+## Evidência da demo atual
+
+[Relatório](../../docs/design/spec023-demo-validation.md) discrimina gates/artefatos e limites atuais. Núcleo da demo passou Web/PostgreSQL e UI Android real até fechamento de Tab/caixa de teste, incluindo OFFLINE/recovery. Paridade integral e todas jornadas internas ampliadas continuam fora do aceite comprovado; não declarar Spec023 concluída.

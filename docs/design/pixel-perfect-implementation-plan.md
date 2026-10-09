@@ -131,3 +131,7 @@ PRs pequenos por tela/estado: cada PR mostra referência/antes/depois/diff e reg
 [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) acompanha execução. Atualizar [audit](visual-parity-audit.md) com cobertura, métricas e diferenças abertas; atualizar [KB](prototype-integration.md) e design system quando promover padrões. Conclusão exige evidência por tela/estado, não apenas uma média de pixels do produto inteiro.
 
 Esta entrega contém o plano. Nenhuma nova fidelidade de tela foi implementada ou medida aqui; 11,2106% é evidência anterior, não resultado novo.
+
+## Validação atual da demo — main45c4742
+
+A sequência V01–V07 foi revalidada por escopo no [relatório atual](spec023-demo-validation.md). Contratos34, header responsivo, OFFLINE preservado, gates Web/Android/PostgreSQL e ensaio nativo têm evidências novas. Regiões de tickets continuam16,241%; matriz nativa verifica shell, não todas jornadas internas. Critérios de paridade global e hardware permanecem abertos. Não usar relatórios anteriores como validação do head atual.

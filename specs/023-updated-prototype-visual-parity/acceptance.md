@@ -2,15 +2,19 @@
 
 ## Continuação completa — gates da demo
 
-- [ ] Cinco fontes verificadas e contratos dos estados principais versionados, com crops/medidas/fontes/normalizações.
-- [ ] Alterações de componentes baseadas em medidas, callbacks e estados preservados; sem dados fictícios no produto.
-- [ ] Cozinha/Bar: testes de transição individual/disponibilidade e comparação atuais, diferenças integrais reportadas sem esconder regiões.
-- [ ] Android: header/jornadas existentes sem clipping em fonte1/2, alvos44dp, busy/capabilities e estado de conexão preservados, screenshots no API36.
-- [ ] Web types/build/auth/realtime/visual e integração PostgreSQL; Android unit/build/lint/instrumentação com resultados atuais.
-- [ ] Roteiro integrado distingue testes interceptados, emulador e API/PostgreSQL real; sem claim de hardware/provider/produção.
-- [ ] Publicação/limites documentados por commit; critérios globais de paridade só marcados com confronto correspondente.
+- [x] Cinco fontes verificadas e34 contratos dos estados principais versionados, crops/medidas/fontes/normalizações e hashes idênticos entre execuções.
+- [x] Alterações de componentes por clipping comprovado; callbacks/busy/targets/estados preservados, sem dados demonstrativos no produto.
+- [x] Cozinha/Bar: testes de transição individual/disponibilidade e comparação atuais; diferenças integrais reportadas, sem ocultar regiões ou aceitar paridade.
+- [x] Android: header/navegação sem clipping em fonte1/2, targets≥44dp, busy e callbacks; screenshots/matriz API36.
+- [x] UI nativa contra API real: login, conta, pico, Tab, busca/carrinho/pedido, dinheiro manual600centavos, fechamento Tab/caixa. Readback PostgreSQL exige exatamente uma Order e um CASH CONFIRMED, ator/timestamp, saldo0, caixa600/600/discrepância0.
+- [x] API offline: SSE reconnect conserva SEM SINAL; leitura confirmada após retorno produz ONLINE. Regra na Spec014, fronteira30s testada.
+- [x] Web typecheck/build/auth/realtime/visual e13 integrações PostgreSQL; Android51unit/build/lint e4×6 instrumentados, zero skips/failures.
+- [x] Roteiro distingue interceptação, emulador, protocolo HTTP e PostgreSQL real; sem claim de hardware/provider/produção.
+- [ ] Todas telas/jornadas internas nativas com fonte200%/teclado e estorno em UI nativa.
+- [ ] Publicação/CI final documentadas por head; critérios globais somente com confronto correspondente.
 
-## Recorte atual V01 — night/Agora e Bar
+Evidência atual: [relatório](../../docs/design/spec023-demo-validation.md), conteúdo dos commits41a42bd/20e3649/bb29b5d/1d22393. Critérios globais abaixo continuam independentes e abertos onde não comprovados.
+## Recorte anterior V01 — night/Agora e Bar
 
 - [x] ZIP corresponde ao manifesto; HTML/assets originais mantêm hashes antes/depois.
 - [x] Estado inicial Agora e painel Bar têm seletores únicos, dimensões/crops e estilos medidos; moldura/status bar simulada são classificados.
@@ -124,3 +128,5 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 - [x] Typecheck/build, suíte visual/realtime e integração PostgreSQL passam; comparação/regiões/limitações registradas sem baseline/tolerância novos.
 
 Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
+
+

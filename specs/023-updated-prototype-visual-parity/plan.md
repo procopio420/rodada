@@ -11,7 +11,7 @@
 7. Types/build/auth/realtime/visual/Web API PostgreSQL e Android unit/build/lint/instrumentação. Registrar falhas reais, correções e rodada final; ensaio integrado separado de fixture.
 8. Documentar critérios efetivamente comprovados, dependências e diferenças restantes; publicar commits/PR rascunho sem merge.
 
-## Recorte atual V01 — night/Agora
+## Recorte anterior V01 — night/Agora
 
 1. Conferir remotos/worktrees/PRs e isolar main45c4742, preservando branches e banco.
 2. Auditar V01–V07, código Android/ProductionBoard, manifesto e ADR de referências/fontes locais.
@@ -89,3 +89,8 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 Reutilizar branch isolada já atualizada com main ae416da e preservar PR65/trabalho anterior. Inventariar headings e componentes compartilhados; promover OperationalHeading baseado em OperationalIcon com nomes acessíveis inalterados. Evitar dupla iconografia onde a referência já tem SVG. Aplicar tokens compartilhados de hierarquia/profundidade, completar navegação do Atendimento e leitura dos tickets. Capturar antes/depois usando fixtures existentes, reaproveitar matriz visual/estados/fluxos e integrações PostgreSQL. Preservar stack3119 e banco ativo. Atualizar apenas prévia isolada após build/checks; versionar evidências e ampliar PR65, sem merge na main.
 
 Para disponibilizar o acabamento na demo3119, transpor somente mudanças de apresentação para a branch própria demo-functional: componentes compartilhados/títulos/CSS, sem absorver rotas ou contratos recentes de Atendimento/alertas ainda ausentes nessa base. Preservar autenticação entregue, backend e banco; revalidar build/visual/fluxo focado dessa composição antes de reconstruir somente Web. Essa adaptação é distinta da branch principal de revisão baseada na main e será documentada por commit. Serviços encontrados parados podem ser reabertos com os caminhos/dados existentes, sem reset.
+
+
+## Resultado da sequência atual
+
+Execução/reprodução e diferenças por etapa no [relatório atual](../../docs/design/spec023-demo-validation.md). Commitar contratos, header/matriz, OFFLINE/reconnect e gate guest em slices separados; ensaio real/readback e aceites em commit documental final. Próximo trabalho visual: região de tickets16,241% sem refazer acabamento entregue; próxima jornada nativa de verificação: estorno e adaptação interna200%/teclado. Nenhuma aprovação global por checkbox histórico.

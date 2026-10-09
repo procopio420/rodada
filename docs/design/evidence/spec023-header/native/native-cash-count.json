@@ -1,0 +1,93 @@
+[
+  {
+    "text": "Contar caixa",
+    "content-desc": "",
+    "bounds": "[59,253][193,287]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conte o dinheiro antes de consultar o esperado.",
+    "content-desc": "",
+    "bounds": "[59,303][331,347]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "6,00",
+    "content-desc": "",
+    "bounds": "[59,355][331,421]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Valor contado",
+    "content-desc": "",
+    "bounds": "[75,355][162,375]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ ",
+    "content-desc": "",
+    "bounds": "[75,382][98,404]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Esperado",
+    "content-desc": "",
+    "bounds": "[59,429][125,451]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[278,429][331,451]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Contado",
+    "content-desc": "",
+    "bounds": "[59,459][119,481]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[278,459][331,481]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Diferença",
+    "content-desc": "",
+    "bounds": "[59,489][124,511]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 0,00",
+    "content-desc": "",
+    "bounds": "[278,489][331,511]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Cancelar",
+    "content-desc": "",
+    "bounds": "[105,548][171,570]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Fechar caixa",
+    "content-desc": "",
+    "bounds": "[215,552][307,574]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]
