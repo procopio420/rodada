@@ -382,3 +382,11 @@ Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV
 Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
 
 Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.
+
+## V02 parcial — Field confortável e limites de StatusBadge
+
+`field fieldComfortable` reutiliza o Field no Quick Catalog de Cozinha/Bar. A variante compacta continua disponível nas demais telas. Fonte: `.inp` e `.fld` em `prototype/references/night/Main.dc.html`, ZIP registrado no manifest. Medidas do controle sem ícone: altura 56, padding horizontal 16, raio 10, Archivo 20/600, largura normal, borda interna 1,5 em border-strong; foco interno 2 em text; placeholder text-subtle. Label 14/800, tracking 0,1em, gap 6. O input não herda caixa alta/tracking do label: os valores digitados preservam sua leitura.
+
+Tokens específicos reutilizáveis: `--radius-field`, `--space-field-gap`, `--stroke-field`, `--stroke-field-focus`, `--tracking-field-label`; altura, padding, fontes e cores reutilizam tokens existentes. O foco interno em papel continua visível no teclado e no toque; o recorte de pixels mede o controle.
+
+StatusBadge de disponibilidade mantém seu contrato: raio 4, texto 12/900, padding 5/9, min-height 28, texto + estado. `.badge` do export é contador de navegação, `.rel`/`.casa` são relacionamento e NOVO é etiqueta de pedido. Não são referências equivalentes para Disponível/Indisponível; paridade completa desses badges permanece não verificada.

@@ -1,0 +1,126 @@
+[WebServer] (node:15740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:50] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 7 tests using 1 worker
+
+(node:5788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:51] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 1 tests\visual\field-status-updated.spec.ts:17:7 › updated Field normal: unchanged export CSS and real Quick Catalog control (891ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:52] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 2 tests\visual\field-status-updated.spec.ts:17:7 › updated Field focus: unchanged export CSS and real Quick Catalog control (796ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:14:53] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 3 tests\visual\field-status-updated.spec.ts:17:7 › updated Field placeholder: unchanged export CSS and real Quick Catalog control (836ms)
+  ok 4 tests\visual\field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 360px (3.0s)
+  ok 5 tests\visual\field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 430px (3.0s)
+  ok 6 tests\visual\field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 768px (3.0s)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:02] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/Sistema.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/613ae5d0e5e09693aae169934b7733bd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/74144d23a9c81fd7765e2bf13493db9f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/fb7922d25a03026482c8fd320a511fd2.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/2d80f66be0c4840f19b91dec3ff83973.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/96e215812a1b3ea02b223e6d6c3668cd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/d10e0813adca92638a2d61b5c8091ba6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/5eeb028ca51cb9caedd9e8647ff87e15.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 10:15:03] "GET /prototype/references/system/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+  ok 7 tests\visual\field-status-updated.spec.ts:99:5 › updated reference inventory: labels and non-equivalent badges (1.2s)
+
+  7 passed (14.9s)

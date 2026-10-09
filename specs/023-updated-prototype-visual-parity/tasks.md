@@ -17,3 +17,12 @@
 - [x] Registrar evidências e ajustes pequenos, sem concluir V01 dos cinco exports.
 
 Evidências e limites: [inventário](../../docs/design/v01-kitchen-inventory.md). Somente os itens desta subseção foram verificados; os critérios globais permanecem pendentes.
+
+## Recorte V02 — Field / StatusBadge
+
+- [x] Medir e registrar Field atual/atualizado e limites de equivalência de StatusBadge.
+- [x] Promover variante confortável com tokens e aplicar somente no Quick Catalog.
+- [x] Comparar normal/foco/placeholder do controle contra CSS atualizado imutável; conservar gates compactos.
+- [x] Verificar Cozinha e Bar adjacente e executar typecheck/build/test.
+
+Este checklist não conclui V02 global nem V01.
