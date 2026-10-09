@@ -20,7 +20,7 @@ from .views import error_response
 
 class MerchantConnectionView(APIView):
     permission_classes = (IsAuthenticated, RequireCapability, RequireRecentReauthentication)
-    required_capability = Capability.VENUE_CONFIGURE
+    required_capability = Capability.PAYMENT_PROVIDER_CONFIGURE
 
     def get(self, request):
         return Response(

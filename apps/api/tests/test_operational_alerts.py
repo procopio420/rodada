@@ -99,6 +99,16 @@ class OperationalAlertTests(AlertFixtures, TestCase):
         self.assertEqual(self.client.patch('/management/alert-policy/', values, format='json').status_code, 400)
         self.assertEqual(AuditEvent.objects.get(event_type='operational_threshold.changed').reason, 'Pico')
 
+    def test_optional_policy_reason_accepts_empty_manager_form_value(self):
+        response = self.client.patch('/management/alert-policy/', {
+            'expected_version': 1, 'fulfillment_warning_seconds': 600,
+            'fulfillment_danger_seconds': 1200, 'payment_pending_seconds': 300,
+            'reason': '',
+        }, format='json')
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data['version'], 2)
+        self.assertEqual(AuditEvent.objects.get(event_type='operational_threshold.changed').reason, '')
+
     def test_cross_venue_idor_and_revoked_capability(self):
         alert = OperationalAlert.objects.create(venue=self.other, rule_key='CASH_DISCREPANCY', rule_version=1,
             subject_id=self.item.id, severity='DANGER', source={}, first_detected_at=self.now, updated_at=self.now)

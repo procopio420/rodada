@@ -169,7 +169,7 @@ class AlertPolicyView(APIView):
             fulfillment_danger_seconds = serializers.IntegerField(min_value=2, max_value=172800)
             payment_pending_seconds = serializers.IntegerField(min_value=1, max_value=86400)
             strategic_product_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
-            reason = serializers.CharField(max_length=240, required=False, default='')
+            reason = serializers.CharField(max_length=240, required=False, default='', allow_blank=True)
             def validate(self, data):
                 if data['fulfillment_warning_seconds'] >= data['fulfillment_danger_seconds']:
                     raise serializers.ValidationError('O SLA crítico deve ser maior que o SLA de atenção.')

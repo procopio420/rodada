@@ -211,6 +211,38 @@ class MerchantCallbackTests(TestCase):
     login = access_tests.StaffAuthAPITests.login
     bearer = access_tests.StaffAuthAPITests.bearer
 
+    def test_manager_cannot_configure_provider_or_change_existing_binding(self):
+        self.membership.role = StaffRole.MANAGER
+        self.membership.save()
+        tokens = self.login()
+        self.bearer(tokens['access_token'])
+        self.client.post('/auth/reauthenticate/', {'pin': '1234'}, format='json')
+        binding = MerchantConnection.objects.create(
+            venue=self.venue, provider='SUMUP', merchant_code='EXISTING',
+            encrypted_credentials='sealed-existing-credential',
+        )
+        before = dict(MerchantConnection.objects.values().get(pk=binding.pk))
+        for method, path, body in (
+            ('post', '/payments/merchant-connections/', {'code': 'untrusted-code', 'state': 'fake'}),
+            ('delete', '/payments/merchant-connections/', {'connection_id': str(binding.pk)}),
+            ('post', '/payments/device-authorizations/', {'connection_id': str(binding.pk)}),
+        ):
+            response = getattr(self.client, method)(path, body, format='json')
+            self.assertEqual(response.status_code, 403, response.data)
+        self.assertEqual(dict(MerchantConnection.objects.values().get(pk=binding.pk)), before)
+        self.assertFalse(OAuthAuthorization.objects.exists())
+
+    def test_owner_downgrade_rejects_browser_bound_oauth_callback(self):
+        state = self.begin()
+        self.membership.role = StaffRole.MANAGER
+        self.membership.save()
+        with patch('modules.payment_provider.merchant_views.complete_connection') as exchange:
+            response = self.client.get('/payments/merchant-connections/callback/', {
+                'state': state, 'code': 'private-code',
+            })
+        self.assertEqual(response.status_code, 403, response.data)
+        exchange.assert_not_called()
+
     def begin(self):
         self.membership.role = StaffRole.OWNER
         self.membership.save()
