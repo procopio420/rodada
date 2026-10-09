@@ -76,14 +76,9 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                     }
                 } else if (source != null) {
                     item {
-                        val options = buildList {
-                            if ("tab.move" in session.capabilities) add("MOVE_LOCATION" to "Mover local")
-                            if ("tab.transfer" in session.capabilities) {
-                                add("SPLIT" to "Dividir conta"); add("MOVE_ITEMS" to "Transferir consumo"); add("MERGE" to "Juntar comandas")
-                            }
-                            if ("tab.cancel_empty" in session.capabilities) add("CANCEL_EMPTY" to "Cancelar comanda vazia")
-                            if ("tab.reopen" in session.capabilities && source.getJSONObject("tab").getString("state") == "CLOSED") add("REOPEN" to "Reabrir comanda")
-                        }
+                        val options = tabOperationOptions(session.capabilities,
+                            source.getJSONObject("tab").getString("state"))
+                        if (options.isEmpty()) Text("Nenhuma operação disponível para esta comanda.")
                         options.forEach { (value, label) ->
                             OutlinedButton(onClick = { kind = value; changed() }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (kind == value) "✓ $label" else label) }
                         }
@@ -133,12 +128,13 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                     }
                     item { OutlinedTextField(reason, { reason = it; changed() }, label = { Text(if (kind == "REOPEN") "Motivo obrigatório" else "Motivo (opcional)") }, enabled = !busy) }
                     item {
+                        Text("Saldo atual: ${formatCents(source.getJSONObject("tab").getLong("exposure_cents"))}")
                         state.operationPreview?.let { preview ->
                             Text("Transferir ${formatCents(preview.getLong("amount_cents"))}")
                             Text("Origem após: ${formatCents(preview.getLong("source_after_cents"))}")
                             Text("Destino após: ${formatCents(preview.getLong("destination_after_cents"))}")
                         }
-                        val valid = online && !busy && (!financial || source.optJSONObject("blocker") == null) && (kind != "MERGE" || destination != null) && (kind != "REOPEN" || reason.isNotBlank())
+                        val valid = online && !busy && tabOperationOptions(session.capabilities, source.getJSONObject("tab").getString("state")).any { it.first == kind } && (!financial || source.optJSONObject("blocker") == null) && (kind != "MERGE" || destination != null) && (kind != "REOPEN" || reason.isNotBlank())
                         if (financial && state.operationPreview == null) Button(onClick = { val cmd = command(); submitted = cmd; onPreview(cmd) }, enabled = valid) { Text("Conferir transferência") }
                         else Button(onClick = { val cmd = submitted ?: command().also { submitted = it }; onCommit(cmd) }, enabled = valid) { Text("Confirmar operação") }
                     }

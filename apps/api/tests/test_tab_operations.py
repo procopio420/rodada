@@ -1,15 +1,17 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from unittest import skipUnless
-from django.db import connection, close_old_connections
+
+from django.db import close_old_connections, connection
 from django.test import TestCase, TransactionTestCase
+
 from modules.access.context import ActorContext
 from modules.access.models import StaffSession
 from modules.audit.models import AuditEvent
 from modules.ledger.models import Charge, Payment
-from modules.ordering.models import Tab, Order
+from modules.ordering.models import Order, Tab
 from modules.tab_operations.models import ServicePoint, TabOperation, TabTransferLine
-from modules.tab_operations.services import execute, OperationError, transfer_effect
+from modules.tab_operations.services import OperationError, execute, transfer_effect
 from tests.test_house_account import HouseFixture
 
 
@@ -102,9 +104,11 @@ class TabOperationTests(OperationFixture, TestCase):
 
     def test_merge_preserves_source_and_revokes_guest(self):
         from datetime import timedelta
+
         from django.utils import timezone
-        from modules.hospitality.models import Table, TableOccupancy
+
         from modules.guest_access.models import GuestSession
+        from modules.hospitality.models import Table, TableOccupancy
         source, dest = self.tab(), self.tab()
         self.order(source)
         table = Table.objects.create(venue=self.venue, label="1", status="OCCUPIED")
@@ -119,8 +123,8 @@ class TabOperationTests(OperationFixture, TestCase):
         assert occ.released_at is None
 
     def test_location_refreshes_dispatch_and_preserves_balance(self):
-        from modules.hospitality.models import Table, TableOccupancy, TabOccupancyAssignment
         from modules.dispatch.models import DispatchTask
+        from modules.hospitality.models import Table, TableOccupancy, TabOccupancyAssignment
         source = self.tab()
         order = self.order(source)
         table = Table.objects.create(venue=self.venue, label="A", status="OCCUPIED")
@@ -225,3 +229,151 @@ class TabOperationEdgeTests(OperationFixture, TestCase):
         self.commit(source, self.command(source, kind="MOVE_LOCATION", occupancy_id=str(occ.id), idempotency_key="table"), client=self.staff)
         assert self.operations(source)["tab"]["occupancy_id"] == str(occ.id)
         assert self.operations(source)["tab"]["service_point_id"] is None
+
+class TabOperationRegressionTests(OperationFixture, TestCase):
+    def test_replay_returns_original_result_after_payment_but_reauthorizes(self):
+        from modules.access.models import VenueStaffMembership
+
+        source, dest = self.tab(), self.tab()
+        self.order(source, 2)
+        command = self.command(source, dest, lines=[self.line(source, quantity=1)])
+        original = self.commit(source, command)
+        self.payment(source, 100)
+        assert self.commit(source, command) == original
+        VenueStaffMembership.objects.filter(staff_member__login_identifier="house-cashier").update(
+            capability_overrides={"deny": ["tab.transfer"]}
+        )
+        assert self.commit(source, command, 403)["code"] == "CAPABILITY_REQUIRED"
+        assert TabTransferLine.objects.count() == 1
+        assert self.detail(source)["exposure_cents"] == 900
+
+    def test_expired_payment_allows_transfer_but_active_attempt_still_blocks(self):
+        from modules.payment_provider.models import PaymentAttempt
+        source, dest = self.tab(), self.tab()
+        self.order(source)
+        payment = self.payment(source, 100)
+        Payment.objects.filter(pk=payment["id"]).update(status="EXPIRED")
+        attempt = PaymentAttempt.objects.create(payment_id=payment["id"], provider="test",
+            idempotency_key="expired-attempt", status="CONFIRMATION_PENDING")
+        command = self.command(source, dest, lines=[self.line(source, quantity=1)])
+        assert self.commit(source, command, 409)["code"] == "PAYMENT_IN_FLIGHT"
+        attempt.status = "CANCELLED"
+        attempt.save(update_fields=["status"])
+        self.commit(source, command)
+        assert self.detail(source)["exposure_cents"] == 0
+        assert self.detail(dest)["exposure_cents"] == 1000
+        assert str(Payment.objects.get(pk=payment["id"]).tab_id) == source
+
+    def test_responsibility_queries_are_constant_with_charge_count(self):
+        from django.test.utils import CaptureQueriesContext
+
+        from modules.tab_operations.services import responsibility
+        source, dest = self.tab(), self.tab()
+        self.order(source)
+        self.commit(source, self.command(source, dest, lines=[self.line(source, quantity=1)]))
+        tab = Tab.objects.get(pk=source)
+        with CaptureQueriesContext(connection) as first:
+            responsibility(tab)
+        # Seed historic consumption without changing the venue policy under test.
+        Tab.objects.filter(pk=source).update(operating_limit_cents=10000)
+        for index in range(4):
+            self.order(source, key=f"extra-{index}")
+        with CaptureQueriesContext(connection) as many:
+            rows = responsibility(tab)
+        assert len(rows) == 5
+        assert len(many) == len(first) == 3
+        assert sum(row["available_cents"] for row in rows) == 4000
+
+    def test_paid_location_move_and_conflict_are_ledger_neutral(self):
+        source = self.tab()
+        self.order(source)
+        payment = self.payment(source, 100)
+        point = ServicePoint.objects.create(venue=self.venue, label="Varanda")
+        body = self.command(source, kind="MOVE_LOCATION", service_point_id=str(point.id))
+        self.commit(source, body, client=self.staff)
+        stale = self.commit(source, {**body, "idempotency_key": "stale"}, 409, self.staff)
+        assert stale["code"] == "VERSION_CONFLICT"
+        assert stale["current"]["tab"]["service_point_id"] == str(point.id)
+        assert self.detail(source)["exposure_cents"] == 900
+        assert str(Payment.objects.get(pk=payment["id"]).tab_id) == source
+        assert TabTransferLine.objects.count() == 0
+        event = next(row for row in self.operations(source)["history"] if row["event_type"] == "tab.location_changed")
+        assert event["actor_staff_id"] and event["actor_session_id"] and event["device_id"]
+
+
+@skipUnless(connection.vendor == "postgresql", "Real row locking requires PostgreSQL")
+class TabOperationRetryConcurrency(OperationFixture, TransactionTestCase):
+    def race(self, workers):
+        barrier = Barrier(2)
+        def run(worker):
+            close_old_connections()
+            barrier.wait(timeout=10)
+            try:
+                return worker()
+            finally:
+                close_old_connections()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            return list(pool.map(run, workers))
+
+    def actor(self):
+        return ActorContext.from_session(StaffSession.objects.get(staff_member__login_identifier="house-cashier"))
+
+    def test_concurrent_identical_split_creates_destination_once(self):
+        source = self.tab()
+        self.order(source)
+        command = self.command(source, lines=[self.line(source, quantity=1)], destination_label="Split")
+        actor = self.actor()
+        def commit():
+            return execute(tab_id=source, data=command, actor=actor)
+        results = self.race((commit, commit))
+        assert results[0] == results[1]
+        assert Tab.objects.count() == 2
+        assert TabOperation.objects.count() == TabTransferLine.objects.count() == 1
+
+    def test_payment_and_split_share_the_financial_aggregate_lock(self):
+        from modules.ledger.services import LedgerServiceError, collect_payment
+        source, dest = self.tab(), self.tab()
+        self.order(source)
+        command = self.command(source, dest, lines=[self.line(source, quantity=1)])
+        actor = self.actor()
+        def split():
+            try:
+                execute(tab_id=source, data=command, actor=actor)
+                return "SPLIT"
+            except OperationError as error:
+                return error.code
+        def pay():
+            try:
+                collect_payment(tab_id=source, amount_cents=1000, method="EXTERNAL_TERMINAL",
+                    idempotency_key="concurrent-pay", actor=actor)
+                return "PAID"
+            except LedgerServiceError as error:
+                return error.code
+        results = self.race((split, pay))
+        assert results in (["SPLIT", "PAYMENT_EXCEEDS_EXPOSURE"], ["VERSION_CONFLICT", "PAID"], ["CONFIRMED_PAYMENT", "PAID"])
+        assert self.detail(source)["exposure_cents"] == 0
+        assert TabTransferLine.objects.count() + Payment.objects.count() == 1
+
+class TabOperationReportingTests(OperationFixture, TestCase):
+    def test_merge_and_split_preserve_report_exposure_without_new_sales(self):
+        from modules.venue.calendar import business_date
+        source, dest = self.tab(), self.tab()
+        self.order(source, 2)
+        today = business_date(self.venue)
+        def report():
+            response = self.manager.get(f"/management/reports/?start={today}&end={today}")
+            assert response.status_code == 200, response.json()
+            return response.json()
+        before = report()
+        self.commit(source, self.command(source, dest, lines=[self.line(source, quantity=1)]))
+        split = report()
+        assert split["totals"]["current_open_exposure_cents"] == 2000
+        self.commit(source, self.command(source, dest, kind="MERGE", idempotency_key="merge"))
+        merged = report()
+        assert merged["totals"]["current_open_exposure_cents"] == 2000
+        assert merged["totals"]["current_open_tabs"] == 1
+        for field in ("gross_cents", "net_sales_cents", "paid_cents"):
+            assert merged["totals"][field] == split["totals"][field] == before["totals"][field]
+        assert merged["products"] == split["products"] == before["products"]
+        self.payment(dest, 1000)
+        assert report()["totals"]["current_open_exposure_cents"] == 1000

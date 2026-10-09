@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from rest_framework.views import APIView
 from modules.access.capabilities import Capability
 from modules.house_account.services import authorize
 from modules.ordering.models import Tab
+
 from .models import ServicePoint
 from .services import OperationError, execute, preview, transferability
 
@@ -34,17 +36,19 @@ def error_response(error):
 
 
 class OperationView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
+    @transaction.atomic
     def get(self, request, tab_id):
         authorize(request.actor_context, Capability.TAB_OPEN)
-        tab = Tab.objects.filter(pk=tab_id, venue_id=request.auth.venue_id).first()
+        tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=request.auth.venue_id).first()
         if not tab:
             return Response({"code": "TAB_NOT_FOUND", "message": "Comanda não encontrada."}, status=404)
         from modules.audit.models import AuditEvent
         payload = transferability(tab)
-        payload["history"] = list(AuditEvent.objects.filter(venue_id=tab.venue_id, entity_type="Tab", entity_id=str(tab.id)).order_by("occurred_at").values("event_type", "occurred_at", "reason", "metadata"))
+        payload["history"] = list(AuditEvent.objects.filter(venue_id=tab.venue_id, entity_type="Tab", entity_id=str(tab.id)).order_by("occurred_at").values("event_type", "occurred_at", "reason", "metadata", "actor_staff_id", "actor_session_id", "device_id"))
         from django.db.models import Q
+
         from .models import TabTransfer
         payload["transfers"] = [{"id": str(t.id), "kind": t.kind, "source_tab_id": str(t.source_tab_id),
             "destination_tab_id": str(t.destination_tab_id), "amount_cents": sum(l.amount_cents for l in t.lines.all())}
@@ -61,7 +65,7 @@ class OperationView(APIView):
 
 
 class PreviewView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, tab_id):
         serializer = Command(data=request.data)
@@ -75,7 +79,7 @@ class PreviewView(APIView):
 
 
 class ServicePointView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         return Response({"results": list(ServicePoint.objects.filter(venue_id=request.auth.venue_id, is_active=True).values("id", "label"))})
