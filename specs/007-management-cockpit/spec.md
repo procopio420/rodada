@@ -469,3 +469,7 @@ Visualizar uma métrica não concede capacidade de executar a mutation correspon
 - mapa é visão especializada, não home;
 - status nunca depende só de cor;
 - estado offline/stale precisa ser explícito.
+
+## Entrega executável Web — Spec 020
+
+O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).

@@ -1,6 +1,6 @@
 # Spec 009 — Tab Operations
 
-**Status:** Draft for implementation  
+**Status:** In implementation  
 **Owner capability:** Ordering, with Billing coordination
 
 ## Objective
@@ -388,3 +388,20 @@ Existing Tabs require no rewrite. Add transfer/provenance structures and version
 - moving confirmed payments between Tabs;
 - cross-Venue transfer;
 - retroactive rewrite of order ownership.
+
+## Implementation contract
+
+Atomic preview/commit uses current charge responsibility: original charge plus incoming
+minus outgoing transfer lines, with original adjustments subtracted. Cents are canonical;
+quantity selection is accepted only at the captured unit price and within remaining units.
+Both endpoints reject all non-terminal payment states, confirmed money and pending refunds.
+Destination responsibility may not exceed its effective House Account limit; use the existing
+audited limit override first. Transfers are not sales. Transferred charges cannot be reversed
+through the legacy whole-charge correction path until allocation-aware corrections exist.
+
+A durable operation record stores request fingerprint and immutable response for retries,
+including new-destination creation. Replays reauthorize before returning the original result.
+Merge revokes source guest sessions, never rebinds them. Location move retains sessions but
+existing occupancy-scoped guest authorization continues to enforce its original context.
+ServicePoints are venue-scoped operational locations. Reopen emits a durable post-close
+exception fact containing the original closure timestamp; no daily-close model exists yet.

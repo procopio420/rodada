@@ -36,12 +36,15 @@ def totals(tab: Tab) -> dict:
         payment__tab=tab,
         status=RefundStatus.CONFIRMED,
     ).aggregate(total=Sum("amount_cents"))["total"] or 0
+    from modules.tab_operations.services import transfer_effect
+    transfers = transfer_effect(tab)
     return {
+        "transfers_cents": transfers,
         "charges_cents": charges,
         "adjustments_cents": adjustments,
         "payments_cents": payments,
         "refunds_cents": refunds,
-        "exposure_cents": charges + adjustments - payments + refunds,
+        "exposure_cents": charges + adjustments - payments + refunds + transfers,
     }
 
 
@@ -59,6 +62,9 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     Payments are intentionally not touched here. Callers must first establish
     that the Tab has no confirmed money that would need a separate refund.
     """
+    from modules.tab_operations.models import TabTransferLine
+    if TabTransferLine.objects.filter(source_charge__order_item=item).exists():
+        raise LedgerServiceError("TRANSFERRED_RESPONSIBILITY", "Consumo transferido exige correção com alocação de responsabilidade.", 409)
     charge = (
         Charge.objects.select_for_update()
         .filter(order_item=item, tab=item.order.tab)

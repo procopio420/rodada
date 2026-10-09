@@ -14,10 +14,10 @@ A frase **“Me vê uma rodada aí.”** pode ser usada como assinatura/campanha
 | Superfície | Host |
 | --- | --- |
 | Institucional | `rodada.ai` |
-| Rodada Gerência | `app.rodada.ai` |
+| Rodada Gerência | `gerencia.rodada.ai` |
 | Rodada Cozinha | `cozinha.rodada.ai` |
 | Rodada Bar | `bar.rodada.ai` |
-| Rodada Cliente / QR | `pedido.rodada.ai` |
+| Rodada Cliente / QR | `cliente.rodada.ai` |
 | API | `api.rodada.ai` |
 | Rodada Atendimento | Android nativo; sem host web canônico |
 
@@ -25,7 +25,10 @@ Os subdomínios representam superfícies especializadas do mesmo produto, não b
 
 Paths internos como `/owner`, `/kitchen`, `/bar`, `/guest` e `/staff` podem continuar existindo para desenvolvimento, testes ou routing interno, mas não são o contrato público de URL.
 
-Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai`, `guest.rodada.ai`, `cliente.rodada.ai`, `management.rodada.ai` ou `staff.rodada.ai` sem nova decisão explícita.
+`app.rodada.ai` e `pedido.rodada.ai` são aliases de compatibilidade para Gerência
+e Cliente, respectivamente, conforme Spec 019 e o contrato já implementado.
+Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai`,
+`guest.rodada.ai`, `management.rodada.ai` ou `staff.rodada.ai` sem nova decisão explícita.
 
 ## Guardrail
 

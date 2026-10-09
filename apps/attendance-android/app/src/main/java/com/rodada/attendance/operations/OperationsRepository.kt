@@ -7,7 +7,18 @@ import com.rodada.attendance.auth.StoredSession
 class OperationsRepository(private val authRepository: AuthRepository) {
     private val client = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
 
-    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tabs)
+    suspend fun operationState(session: StoredSession, tabId: String) =
+        authRepository.withAuthorizedAccess(session) { client.request("GET", "/tabs/$tabId/operations/", accessToken = it) }
+
+    suspend fun servicePoints(session: StoredSession) =
+        authRepository.withAuthorizedAccess(session) { client.request("GET", "/service-points/", accessToken = it) }
+
+    suspend fun tabOperation(session: StoredSession, tabId: String, command: org.json.JSONObject, preview: Boolean = false) =
+        authRepository.withAuthorizedAccess(session) {
+            client.request("POST", "/tabs/$tabId/operations/" + if (preview) "preview/" else "", command, it)
+        }
+
+    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session) { client.tabs(it, "tab.reopen" in session.capabilities) }
 
     suspend fun openTab(session: StoredSession, label: String, customerId: String? = null) =
         authRepository.withAuthorizedAccess(session) { client.openTab(it, label, customerId) }

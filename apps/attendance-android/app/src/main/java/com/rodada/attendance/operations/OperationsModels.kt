@@ -12,6 +12,7 @@ data class TabSummary(
     val chargesCents: Long,
     val paymentsCents: Long,
     val exposureCents: Long,
+    val transfersCents: Long = 0,
     val effectiveLimitCents: Long = 3000,
     val remainingCapacityCents: Long = 3000,
     val percentageUsed: Int? = null,

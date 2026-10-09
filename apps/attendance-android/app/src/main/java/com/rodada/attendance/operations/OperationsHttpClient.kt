@@ -8,11 +8,11 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun tabs(accessToken: String): List<TabSummary> {
+    fun tabs(accessToken: String, includeClosed: Boolean = false): List<TabSummary> {
         val tabs = mutableListOf<TabSummary>()
         var offset = 0
         while (true) {
-            val page = request("GET", "/tabs/?active=true&offset=$offset", accessToken = accessToken)
+            val page = request("GET", "/tabs/?active=${!includeClosed}&offset=$offset", accessToken = accessToken)
             tabs += page.getJSONArray("results").toObjects().map(::tabSummary)
             if (page.isNull("next_offset")) return tabs.distinctBy { it.id }
             offset = page.getInt("next_offset")
@@ -248,6 +248,7 @@ class OperationsHttpClient(baseUrl: String) {
             chargesCents = json.getLong("charges_cents"),
             paymentsCents = json.getLong("payments_cents"),
             exposureCents = json.getLong("exposure_cents"),
+            transfersCents = json.optLong("transfers_cents"),
             effectiveLimitCents = json.getLong("effective_limit_cents"),
             remainingCapacityCents = json.getLong("remaining_capacity_cents"),
             percentageUsed = if (json.isNull("percentage_used")) null else json.getInt("percentage_used"),
@@ -289,7 +290,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun JSONArray.toObjects(): List<JSONObject> = List(length()) { index -> getJSONObject(index) }
 
-    private fun request(
+    internal fun request(
         method: String,
         path: String,
         body: JSONObject? = null,

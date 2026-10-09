@@ -261,5 +261,5 @@ def guest_catalog(*, session_token: str):
     from modules.catalog.models import Product
 
     return Product.objects.filter(venue_id=session.table.venue_id, active=True).select_related(
-        "availability"
+        "availability", "icon"
     )

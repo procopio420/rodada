@@ -2,6 +2,19 @@
 
 Aplicativo nativo do garçom/caixa móvel, em Kotlin + Jetpack Compose.
 
+## Uso em celulares pessoais (BYOD)
+
+O fluxo padrão é o garçom instalar o Rodada Atendimento no **seu Android**, escolher o estabelecimento e autenticar com a identidade/PIN de um funcionário ativo. **Não há aprovação manual do aparelho pelo gerente para trabalhar.**
+
+- No primeiro login válido, a API registra automaticamente a instalação com um identificador aleatório. O estado inicial `UNTRUSTED` **não impede** pedidos, comandas ou demais operações autorizadas para aquele funcionário.
+- `TRUSTED` é reservado a funções especiais em dispositivos compartilhados do bar, como troca rápida de operador, e não é requisito para uso individual.
+- Trocar de aparelho é fazer login no novo Android. O gerente pode revogar as sessões/instalações antigas; a revogação da instalação não bloqueia a pessoa em todos os aparelhos. Para bloquear a pessoa, suspender/revogar seu vínculo com o Venue.
+- **NFC não é requisito para usar o PDV.** Tap on Phone só fica habilitado quando o aparelho e o provedor satisfazem os requisitos próprios de pagamentos, independentes da autenticação Rodada.
+- O app não exige MDM, acesso a contatos, mensagens, fotos pessoais ou rastreamento contínuo. O estabelecimento deve oferecer alternativa (aparelho compartilhado/de reserva ou operação pelo caixa) quando BYOD não for adequado.
+- Queda de rede não permite novo login offline nem cobrança sem reconciliação; seguir os estados de conectividade e fallbacks já documentados.
+
+Referências: `specs/008-staff-auth-roles-devices/spec.md`, `specs/006-payments-tap-on-phone/spec.md` e ADR 0007.
+
 ## Slices atuais — Specs 008 e 001 (loop operacional)
 
 Este primeiro app executável cobre a fundação de autenticação:

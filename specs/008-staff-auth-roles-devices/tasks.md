@@ -47,6 +47,14 @@
 - [x] Revoke session/device.
 - [x] Audit trail views.
 
+## BYOD onboarding alignment
+- [x] Server automatically registers an unknown installation after authorized staff login.
+- [x] UNTRUSTED personal installation can hold a normal staff session; TRUSTED required only for specific shared-device behavior such as fast switch.
+- [ ] Add regression integration tests for BYOD first login, successful ordinary order on UNTRUSTED and phone replacement.
+- [ ] Add tests for revoked-installation scope versus revoked membership across installations.
+- [ ] Verify Android UX has no device-approval screen and works without NFC; payment provisioning must remain a separate feature gate.
+- [ ] Validate no compulsory MDM/personal-content permissions and document operational shared-device/cashier fallback.
+
 ## Quality/tests
 - [x] Role/capability matrix tests.
 - [x] Cross-Venue isolation tests.

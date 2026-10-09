@@ -1,6 +1,6 @@
 # Spec 005 — Quick Catalog + AI Icons
 
-**Status:** Draft for implementation after Catalog foundation
+**Status:** Implementation in progress; verification recorded in acceptance.md
 
 ## Objetivo
 
@@ -246,3 +246,18 @@ CatalogIconGenerator.generate(product_context, style_contract) -> GeneratedAsset
 - remoção automática de fundo de uploads se exigir pipeline complexo;
 - regeneração em massa de todo catálogo;
 - cobrança do cliente por geração.
+
+## Runtime contract (implementation)
+
+- Creation capabilities are `catalog.create.bar` and `catalog.create.kitchen`. Manager/Owner receive both; station operators require an explicit membership allow override. UI context never grants authorization.
+- Quick-created products are active and AVAILABLE immediately; exact matches retain their existing price, station, activation and availability.
+- A durable database outbox is created with Product + ProductIcon atomically. `process_icon_jobs` performs provider I/O outside the transaction, with leases, three bounded attempts and stable upstream idempotency keys.
+- Automatic requests coalesce by catalog content + `rodada-icon-v1`; manager variations require an idempotency key. Manual upload/reset increments revision so an older worker cannot overwrite it.
+- Rate limits: manager requests 20/operator/hour and 60/venue/hour; automatic jobs are queued and provider starts are capped at 60/venue/hour.
+- Runtime uses a configurable HTTPS image-provider gateway (documented in Catalog README), with no fake adapter fallback. CI supplies an injected deterministic generator only.
+- PNG/JPEG/WebP uploads: maximum 5 MB; square 128–2048 px; decoded and normalized to PNG. Only published assets are served publicly by opaque icon/asset identifiers.
+- Migration stops on accent-normalization collisions for explicit operator reconciliation; it never merges existing products or rewrites historical order references.
+
+## Compatibilidade com Spec 020
+
+A geração durável desta entrega substitui o fallback estático da Spec 020. O endpoint `catalog/products/resolve/` permanece como alias autenticado que exige `catalog.product.create`; essa capability permite criar nas duas estações. O endpoint `catalog/resolve-or-create/` mantém autorização por estação. A identidade ProductIcon já publicada em main permanece vinculada à chave UUID do Product; migrações posteriores adicionam jobs e revisões sem recriar os registros existentes.
