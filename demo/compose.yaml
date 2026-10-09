@@ -1,7 +1,7 @@
 name: rodada-demo
 services:
   db:
-    image: postgres:17
+    image: ${RODADA_DEMO_POSTGRES_IMAGE:-postgres:17}
     environment:
       POSTGRES_DB: rodada_demo
       POSTGRES_USER: rodada
