@@ -273,6 +273,8 @@ O Bar do Aderlan pode reaproveitar seus computadores: **caixa e gerência** no P
 
 Detalhes: [Spec 008](./specs/008-staff-auth-roles-devices/spec.md), [Spec 006](./specs/006-payments-tap-on-phone/spec.md) e [ADR 0007](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md).
 
+Credenciais, acesso ao SDK e aprovação dos providers: [plano de ativação em pequenos passos](./docs/payments/provider-activation-steps.md).
+
 ## Design system
 
 PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops, Guest Ordering e Quick Catalog compartilham um único sistema visual definido em [`docs/design/system.md`](./docs/design/system.md).

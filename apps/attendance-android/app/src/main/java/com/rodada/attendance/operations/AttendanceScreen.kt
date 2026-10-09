@@ -87,6 +87,15 @@ fun AttendanceScreen(
     LaunchedEffect(state.operationCompleted) { if (state.operationCompleted) operatingTab = false }
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
+    var viewingIntegrated by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.integratedPayment?.id, state.integratedPayment?.status) {
+        val payment = state.integratedPayment
+        if (payment != null) viewingIntegrated = true
+        while (payment?.blocksNewCharge == true) {
+            delay(5000)
+            viewModel.reconcilePix(session)
+        }
+    }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
@@ -190,11 +199,25 @@ fun AttendanceScreen(
             tab = state.selectedTab.summary,
             cashPoints = state.cashPoints,
             busy = state.submitting,
+            pixEnabled = state.pixEnabled,
+            tapSimulationEnabled = state.tapSimulationEnabled,
+            onCheckPix = {
+                viewModel.reconcilePix(session)
+                viewingIntegrated = true
+                takingPayment = false
+            },
             onDismiss = { takingPayment = false },
             onPay = { amount, method, cashPointId ->
                 viewModel.collectPayment(session, amount, method, cashPointId)
                 takingPayment = false
             },
+        )
+    }
+    if (viewingIntegrated && !state.submitting && state.integratedPayment != null) {
+        com.rodada.attendance.payments.IntegratedPaymentPanel(
+            state.integratedPayment, state.submitting,
+            onCheck = { viewModel.reconcilePix(session) },
+            onDismiss = { viewingIntegrated = false },
         )
     }
     if (resolvingLimit && state.selectedTab != null) {
@@ -232,6 +255,7 @@ fun AttendanceScreen(
         }
     }
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
+    state.tapPhase?.takeIf { state.submitting }?.let { MessageDialog("Simulação de aproximação", it) {} }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
 }
 
@@ -446,7 +470,7 @@ private fun TabWorkspace(
             items(tab.payments, key = { it.id }) { payment ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
+                        Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
                         Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
                         if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
                         val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
@@ -620,6 +644,9 @@ private fun PaymentDialog(
     tab: TabSummary,
     cashPoints: List<CashPoint>,
     busy: Boolean,
+    pixEnabled: Boolean,
+    tapSimulationEnabled: Boolean,
+    onCheckPix: () -> Unit,
     onDismiss: () -> Unit,
     onPay: (Long, PaymentMethod, String?) -> Unit,
 ) {
@@ -637,7 +664,7 @@ private fun PaymentDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Total em aberto: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                PaymentMethod.entries.forEach { candidate ->
+                PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
@@ -653,15 +680,17 @@ private fun PaymentDialog(
                         Text("Abra ou selecione um caixa com turno ativo antes de receber dinheiro.", color = MaterialTheme.colorScheme.error)
                     }
                 }
+                if (pixEnabled || tapSimulationEnabled) TextButton(onClick = onCheckPix, enabled = !busy) { Text("Verificar pagamento existente") }
+                Text(if (tapSimulationEnabled) "SIMULAÇÃO de aproximação. Não recebe dinheiro e não exige cartão." else "Aproximação SumUp aguarda SDK e ativação. Terminal externo disponível.")
                 if (!valid) Text("Informe um valor entre R$ 0,01 e o saldo em aberto.", color = MaterialTheme.colorScheme.error)
-                if (method != PaymentMethod.CASH) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
+                if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
             }
         },
         confirmButton = {
             Button(
                 onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
                 enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text("Confirmar pagamento") }
+            ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )

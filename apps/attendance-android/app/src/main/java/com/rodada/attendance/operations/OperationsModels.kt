@@ -49,6 +49,7 @@ data class TabPayment(
     val method: String,
     val status: String,
     val refundedCents: Long,
+    val simulated: Boolean = false,
 )
 
 data class RefundRequiredCorrection(
@@ -91,6 +92,9 @@ enum class ConnectivityState {
 }
 
 enum class PaymentMethod(val apiValue: String, val label: String) {
+    TAP_CREDIT("TAP_TO_PAY", "Aproximação crédito"),
+    TAP_DEBIT("TAP_TO_PAY", "Aproximação débito"),
+    PIX("PIX", "Pix integrado"),
     CASH("CASH", "Dinheiro"),
     EXTERNAL_TERMINAL("EXTERNAL_TERMINAL", "Terminal externo"),
 }
