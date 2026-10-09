@@ -90,7 +90,7 @@ class OperationsViewModel(
                     }
                     RealtimeSignal.Reconnecting -> {
                         streamConnected = false
-                        state = state.copy(connectivity = if (state.lastSyncedAtMillis == null || System.currentTimeMillis() - state.lastSyncedAtMillis!! < 30_000) ConnectivityState.RECONNECTING else ConnectivityState.STALE)
+                        state = state.copy(connectivity = state.connectivity.onRealtimeReconnect(state.lastSyncedAtMillis, System.currentTimeMillis()))
                     }
                     RealtimeSignal.Refresh -> {
                         // Coalesce bursts while retaining one revalidation after an in-flight read.
