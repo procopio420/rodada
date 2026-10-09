@@ -26,8 +26,8 @@ const session = {
 export type State = "normal" | "empty" | "loading" | "error" | "long" | "warnings";
 
 /** Only browser requests are intercepted here. These fixtures are never production data or E2E evidence. */
-export async function fixture(page: Page, state: State = "normal", staffSession = false) {
-  await page.clock.install({ time: new Date("2026-10-08T21:00:00Z") });
+export async function fixture(page: Page, state: State = "normal", staffSession = false, options: { now?: string } = {}) {
+  await page.clock.install({ time: new Date(options.now ?? "2026-10-08T21:00:00Z") });
   await page.route("**/api/**", async route => {
     const url = new URL(route.request().url());
     if (state === "loading") return; // Held until the page closes; no arbitrary sleep.
