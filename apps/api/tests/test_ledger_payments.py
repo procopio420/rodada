@@ -7,7 +7,7 @@ from modules.audit.models import AuditEvent
 from modules.catalog.models import FulfillmentStation, Product
 from modules.cash.models import CashMovement, CashPoint
 from modules.ledger.models import Charge, Payment, PaymentMethod, PaymentStatus, Refund, RefundStatus
-from modules.ordering.models import Tab, TabState
+from modules.ordering.models import TabState
 from modules.venue.models import Venue
 
 
