@@ -75,13 +75,17 @@ export async function stable(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-export async function layoutAndA11y(page: Page) {
+export async function layoutAndA11y(page: Page, receiptPreview = false) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow, "horizontal overflow").toBe(false);
   const smallControls = await page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => elements.filter(el => {
     const box = el.getBoundingClientRect(); return box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44);
   }).map(el => el.outerHTML));
   expect(smallControls, "important controls must be at least 44 × 44 px").toEqual([]);
-  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+  const builder = new AxeBuilder({ page });
+  // Receipt iframes deliberately prohibit scripts. Audit the surrounding controls here;
+  // their immutable document content is checked separately without injecting frame scripts.
+  if (receiptPreview) builder.exclude("iframe.receiptPreview").options({ iframes: false });
+  const results = await builder.withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
   expect(results.violations).toEqual([]);
 }
