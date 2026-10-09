@@ -219,3 +219,23 @@ class GuestPartySizeView(APIView):
         return Response(
             {key: data[key] for key in ("covers_count", "version", "source", "observation_id")}
         )
+
+
+class GuestServiceRequestView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        from modules.dispatch.serializers import ServiceRequestSerializer
+        from modules.dispatch.services import DispatchServiceError, create_service_request
+        limited = _rate_limit(request, "mutation")
+        if limited:
+            return limited
+        serializer = ServiceRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            task = create_service_request(session_token=_session_token(request), **serializer.validated_data)
+        except (GuestAccessError, DispatchServiceError) as error:
+            return _error_response(error)
+        # Guests never receive internal ownership, staff identity or queue data.
+        return Response({"id": str(task.id), "task_type": task.task_type, "state": task.state},
+                        status=200 if task._request_replay else 201)

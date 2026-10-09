@@ -213,3 +213,88 @@ def refresh_tab_destination(tab, actor):
         task.save(update_fields=["destination_table", "destination_occupancy", "destination_label", "updated_at"])
         record_audit_event(actor=actor, event_type="dispatch.destination_changed", entity_type="DispatchTask", entity_id=str(task.id), metadata={"tab_id": str(tab.id), "before": before, "label": label})
 
+
+
+@transaction.atomic
+def create_service_request(*, request_id, task_type, actor=None, table_id=None, session_token=None):
+    """Persist a structured call; identity makes retries safe after completion."""
+    from modules.hospitality.models import Table, TableOccupancy
+    from modules.guest_access.services import _locked_authorized_session, _record_guest_audit
+
+    if task_type not in (DispatchTaskType.SERVICE_REQUEST, DispatchTaskType.BILL_REQUEST):
+        raise DispatchServiceError("INVALID_REQUEST_TYPE", "Tipo de solicitação inválido.")
+    if session_token is not None:
+        session = _locked_authorized_session(token=session_token, require_ordering_enabled=False)
+        table = session.table
+        occupancy = session.occupancy
+    else:
+        session = None
+        table = Table.objects.select_for_update().filter(pk=table_id, venue_id=actor.venue_id).first()
+        if table is None:
+            raise DispatchServiceError("TABLE_NOT_FOUND", "Mesa não encontrada.", 404)
+        occupancy = TableOccupancy.objects.filter(table=table, released_at__isnull=True).first()
+    if occupancy is None or occupancy.released_at is not None:
+        raise DispatchServiceError("ACTIVE_OCCUPANCY_REQUIRED", "Atendimento ativo obrigatório.", 409)
+    # All callers lock the destination table before this lookup/create, so
+    # concurrent retries in a visit serialize without a second task.
+    existing = DispatchTask.objects.filter(pk=request_id).first()
+    if existing:
+        if (existing.venue_id != table.venue_id or existing.destination_occupancy_id != occupancy.id
+                or existing.task_type != task_type):
+            raise DispatchServiceError("REQUEST_ID_CONFLICT", "Solicitação já utilizada.", 409)
+        existing._request_replay = True
+        return existing
+    try:
+        with transaction.atomic():
+            task = DispatchTask.objects.create(
+                id=request_id, venue_id=table.venue_id, task_type=task_type,
+                destination_table=table, destination_occupancy=occupancy,
+                destination_label=f"Mesa {table.label}",
+            )
+    except IntegrityError:
+        # Different venues may concurrently submit the same externally chosen
+        # UUID. A conflict never reveals or returns the other venue's task.
+        raise DispatchServiceError("REQUEST_ID_CONFLICT", "Solicitação já utilizada.", 409)
+    metadata = {"task_type": task_type, "occupancy_id": str(occupancy.id)}
+    if session:
+        _record_guest_audit(session=session, event_type="dispatch.service_requested",
+                            entity_type="DispatchTask", entity_id=str(task.id), metadata=metadata)
+    else:
+        record_audit_event(actor=actor, event_type="dispatch.service_requested",
+                           entity_type="DispatchTask", entity_id=str(task.id), metadata=metadata)
+    task._request_replay = False
+    return task
+
+
+@transaction.atomic
+def update_service_request(*, task_id, actor, complete=False):
+    task = DispatchTask.objects.select_for_update().filter(
+        pk=task_id, venue_id=actor.venue_id,
+        task_type__in=(DispatchTaskType.SERVICE_REQUEST, DispatchTaskType.BILL_REQUEST),
+    ).first()
+    if task is None:
+        raise DispatchServiceError("SERVICE_TASK_NOT_FOUND", "Solicitação não encontrada.", 404)
+    if task.state == DispatchTaskState.CANCELLED:
+        raise DispatchServiceError("SERVICE_TASK_CANCELLED", "Solicitação cancelada.", 409)
+    if task.state == DispatchTaskState.DONE:
+        return task
+    if task.claimed_by_id and task.claimed_by_id != actor.staff_id:
+        raise DispatchServiceError("SERVICE_TASK_ALREADY_CLAIMED", "Solicitação tem responsável.", 409)
+    if not complete and task.state == DispatchTaskState.CLAIMED:
+        return task
+    now = timezone.now()
+    if complete:
+        task.state = DispatchTaskState.DONE
+        task.completed_at = now
+        task.completed_by_id = actor.staff_id
+        task.completion_source = DeliveryCompletionSource.MANUAL
+        event = "dispatch.service_completed"
+    else:
+        task.state = DispatchTaskState.CLAIMED
+        task.claimed_by_id = actor.staff_id
+        task.claimed_at = now
+        event = "dispatch.service_claimed"
+    task.save()
+    record_audit_event(actor=actor, event_type=event, entity_type="DispatchTask",
+                       entity_id=str(task.id), metadata={"task_type": task.task_type})
+    return task

@@ -172,3 +172,13 @@ Regras:
 Dispatch nunca pode ser requisito para registrar venda. Se realtime, BLE ou inferência falhar, o POS continua operando.
 
 Falha da telemetria também **não pode reintroduzir taps obrigatórios no happy path**. O sistema degrada a precisão da métrica e mantém mecanismos simples de exceção.
+
+### Round 2 — Solicitações estruturadas P0
+
+Solicitações SERVICE_REQUEST e BILL_REQUEST usam o contexto de ocupação ativa.
+O cliente fornece request_id UUID: retries recuperam a mesma tarefa, inclusive
+após conclusão; reutilizar o UUID com outro tipo/contexto retorna conflito.
+Claims são opcionais e exclusivos: outro staff não pode roubar um claim nem
+concluir tarefa já atribuída. Criar, claim e concluir persistem auditoria.
+O guest usa exclusivamente sua sessão autorizada e nunca informa destino/ator.
+Solicitações não lançam valores, não fecham Tabs e não confirmam pagamento.
