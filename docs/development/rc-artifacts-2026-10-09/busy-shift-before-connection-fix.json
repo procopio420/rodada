@@ -1,0 +1,569 @@
+{
+  "run_id": "busy-090fa834b4cf",
+  "started_at": "2026-10-09T17:48:50.523521+00:00",
+  "url": "http://127.0.0.1:18766",
+  "workers": 8,
+  "requested_tabs": 64,
+  "payment_classification": "MANUAL_TEST_EXTERNAL_TERMINAL_NO_PROVIDER_SETTLEMENT",
+  "native_android_ui": "NOT_RUN_HTTP_PROTOCOL_ONLY",
+  "mocked_calls": 0,
+  "business_date": "2026-10-09",
+  "workload_seconds": 16.295,
+  "workflow_failures": [
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)",
+    "Expecting value: line 2 column 1 (char 1)"
+  ],
+  "report_before": {
+    "item_discounts_cents": 0,
+    "tab_discounts_cents": 0,
+    "courtesy_cents": 0,
+    "service_assessed_cents": 0,
+    "service_reductions_cents": 0,
+    "corrections_cents": -600,
+    "service_revenue_cents": 0,
+    "service_pass_through_cents": 0,
+    "gross_cents": 8900,
+    "adjustments_cents": -600,
+    "net_consumption_cents": 8300,
+    "payable_cents": 8300,
+    "net_sales_cents": 8300,
+    "paid_cents": 8900,
+    "refunds_cents": 600,
+    "net_received_cents": 8300,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "report_after": {
+    "item_discounts_cents": 0,
+    "tab_discounts_cents": 0,
+    "courtesy_cents": 0,
+    "service_assessed_cents": 0,
+    "service_reductions_cents": 0,
+    "corrections_cents": -600,
+    "service_revenue_cents": 0,
+    "service_pass_through_cents": 0,
+    "gross_cents": 88900,
+    "adjustments_cents": -600,
+    "net_consumption_cents": 88300,
+    "payable_cents": 88300,
+    "net_sales_cents": 88300,
+    "paid_cents": 35500,
+    "refunds_cents": 600,
+    "net_received_cents": 34900,
+    "current_open_exposure_cents": 53400,
+    "current_open_tabs": 23
+  },
+  "expected_report_delta": {
+    "gross_cents": 204800,
+    "paid_cents": 204800,
+    "adjustments_cents": 0,
+    "refunds_cents": 0,
+    "net_received_cents": 204800,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "actual_report_delta": {
+    "gross_cents": 80000,
+    "paid_cents": 26600,
+    "adjustments_cents": 0,
+    "refunds_cents": 0,
+    "net_received_cents": 26600,
+    "current_open_exposure_cents": 53400,
+    "current_open_tabs": 23
+  },
+  "passed": false,
+  "failure": "One or more busy-shift workflows failed; incomplete tabs remain for inspection",
+  "completed_tabs": [
+    "f5ece696-3b0d-4045-bc17-2e8faf962232",
+    "af08844b-450a-4c11-9810-07b79c3ce2ab",
+    "aa846897-2255-487d-9b70-3ad7078a23da",
+    "b71d5591-9b8b-416f-bf10-20f4cb8e042d",
+    "e0b7a33f-eb28-4524-b28b-b85abf8e2756",
+    "3b768638-4a87-42a6-9aec-ccf4668a7034",
+    "ab35a3d5-161e-497b-825b-641c6467cb92",
+    "45982bbe-2a90-4888-a0ee-b3f27aa7fdaf"
+  ],
+  "total_seconds": 25.713,
+  "http_errors": [
+    {
+      "operation": "production.PREPARING",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.BAR",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "delivery.complete",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.ACCEPTED",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "delivery.complete",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.READY",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "payment.manual_test",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.READY",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.BAR",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.READY",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "production.PREPARING",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.confirm",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "tab.open",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    },
+    {
+      "operation": "order.exact_retry",
+      "http_status": 500,
+      "error": "Expecting value: line 2 column 1 (char 1)"
+    }
+  ],
+  "request_count": 349,
+  "mutation_count": 287,
+  "latency": {
+    "count": 349,
+    "p50_ms": 335.49,
+    "p95_ms": 963.88,
+    "p99_ms": 1450.16,
+    "max_ms": 2438.51
+  },
+  "latency_by_operation": {
+    "calendar": {
+      "count": 1,
+      "p50_ms": 42.95,
+      "p95_ms": 42.95,
+      "p99_ms": 42.95,
+      "max_ms": 42.95
+    },
+    "delivery.complete": {
+      "count": 22,
+      "p50_ms": 372.16,
+      "p95_ms": 621.16,
+      "p99_ms": 715.05,
+      "max_ms": 715.05
+    },
+    "delivery.queue": {
+      "count": 11,
+      "p50_ms": 125.14,
+      "p95_ms": 229.73,
+      "p99_ms": 229.73,
+      "max_ms": 229.73
+    },
+    "fixture.product": {
+      "count": 2,
+      "p50_ms": 111.23,
+      "p95_ms": 134.23,
+      "p99_ms": 134.23,
+      "max_ms": 134.23
+    },
+    "login": {
+      "count": 17,
+      "p50_ms": 480.5,
+      "p95_ms": 563.51,
+      "p99_ms": 563.51,
+      "max_ms": 563.51
+    },
+    "order.confirm": {
+      "count": 31,
+      "p50_ms": 766.62,
+      "p95_ms": 1932.37,
+      "p99_ms": 2438.51,
+      "max_ms": 2438.51
+    },
+    "order.exact_retry": {
+      "count": 25,
+      "p50_ms": 164.74,
+      "p95_ms": 277.31,
+      "p99_ms": 347.57,
+      "max_ms": 347.57
+    },
+    "payment.exact_retry": {
+      "count": 17,
+      "p50_ms": 326.4,
+      "p95_ms": 412.15,
+      "p99_ms": 412.15,
+      "max_ms": 412.15
+    },
+    "payment.manual_test": {
+      "count": 18,
+      "p50_ms": 944.24,
+      "p95_ms": 1139.27,
+      "p99_ms": 1139.27,
+      "max_ms": 1139.27
+    },
+    "production.ACCEPTED": {
+      "count": 29,
+      "p50_ms": 266.96,
+      "p95_ms": 514.8,
+      "p99_ms": 619.3,
+      "max_ms": 619.3
+    },
+    "production.BAR": {
+      "count": 19,
+      "p50_ms": 142.49,
+      "p95_ms": 226.4,
+      "p99_ms": 226.4,
+      "max_ms": 226.4
+    },
+    "production.KITCHEN": {
+      "count": 12,
+      "p50_ms": 121.04,
+      "p95_ms": 178.48,
+      "p99_ms": 178.48,
+      "max_ms": 178.48
+    },
+    "production.PREPARING": {
+      "count": 28,
+      "p50_ms": 312.92,
+      "p95_ms": 530.85,
+      "p99_ms": 531.23,
+      "max_ms": 531.23
+    },
+    "production.READY": {
+      "count": 26,
+      "p50_ms": 374.3,
+      "p95_ms": 654.76,
+      "p99_ms": 673.63,
+      "max_ms": 673.63
+    },
+    "report": {
+      "count": 2,
+      "p50_ms": 145.89,
+      "p95_ms": 638.14,
+      "p99_ms": 638.14,
+      "max_ms": 638.14
+    },
+    "tab.close": {
+      "count": 8,
+      "p50_ms": 446.92,
+      "p95_ms": 590.12,
+      "p99_ms": 590.12,
+      "max_ms": 590.12
+    },
+    "tab.open": {
+      "count": 64,
+      "p50_ms": 253.62,
+      "p95_ms": 747.42,
+      "p99_ms": 860.12,
+      "max_ms": 860.12
+    },
+    "tab.partial_balance": {
+      "count": 9,
+      "p50_ms": 430.71,
+      "p95_ms": 622.16,
+      "p99_ms": 622.16,
+      "max_ms": 622.16
+    },
+    "tab.reconcile": {
+      "count": 8,
+      "p50_ms": 395.61,
+      "p95_ms": 445.8,
+      "p99_ms": 445.8,
+      "max_ms": 445.8
+    }
+  },
+  "latency_budget": "No pre-agreed busy-shift latency SLA; measurements do not imply SLA approval. Any HTTP/invariant failure fails this harness.",
+  "http_requests_per_second": 13.57
+}

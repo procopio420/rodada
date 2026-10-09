@@ -4,14 +4,30 @@ on:
   pull_request:
     paths:
       - "apps/api/**"
+      - ".github/workflows/api.yml"
   push:
     branches: [main]
     paths:
       - "apps/api/**"
+      - ".github/workflows/api.yml"
 
 jobs:
   test:
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: rodada
+          POSTGRES_USER: rodada
+          POSTGRES_PASSWORD: rodada
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: apps/api
@@ -29,15 +45,15 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Django checks
-        run: python manage.py check --settings=rodada_api.settings_test
+        run: python manage.py check --settings=rodada_api.settings
 
       - name: Migration drift
-        run: python manage.py makemigrations --check --dry-run --settings=rodada_api.settings_test
+        run: python manage.py makemigrations --check --dry-run --settings=rodada_api.settings
 
-      - name: Tests
-        run: pytest
+      - name: Tests on PostgreSQL (including concurrency)
+        run: pytest --ds=rodada_api.settings
 
-  house-account-postgres:
+  full-postgres:
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -63,5 +79,5 @@ jobs:
           python-version: "3.13"
       - name: Install
         run: pip install -e ".[dev]"
-      - name: House Account row locking, migration and HTTP E2E
-        run: pytest tests/test_house_account.py tests/test_house_account_migration.py tests/test_house_account_e2e.py tests/test_web_completion.py tests/test_quick_catalog.py tests/test_catalog_upgrade.py tests/test_tab_operations.py tests/test_tab_operations_e2e.py --ds=rodada_api.settings
+      - name: Full PostgreSQL suite including row locks and financial reconciliation
+        run: pytest --ds=rodada_api.settings

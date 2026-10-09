@@ -324,6 +324,14 @@ def withdraw_cash(
         raise CashServiceError("INVALID_CASH_WITHDRAWAL", "Sangria exige valor positivo e motivo.")
     shift = _shift_for_actor(shift_id=shift_id, actor=actor, lock=True)
     _require_open(shift)
+    # Replay committed withdrawals before rechecking a now depleted drawer.
+    replay = _replay_or_conflict(
+        shift=shift, idempotency_key=idempotency_key,
+        kind=CashMovementKind.WITHDRAWAL, amount_cents=-amount_cents,
+        reason=reason.strip(),
+    )
+    if replay:
+        return replay
     if not allow_negative_expected and _movement_total(shift) - amount_cents < 0:
         raise CashServiceError(
             "CASH_WITHDRAWAL_EXCEEDS_EXPECTED",

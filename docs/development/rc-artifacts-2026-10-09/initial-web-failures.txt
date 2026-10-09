@@ -1,0 +1,1067 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts
+
+[WebServer] (node:2033344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:2033417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2033417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Not Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓  1 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (10.3s)
+[WebServer] /home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[WebServer]   async for part in content:
+  ✓  2 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (5.5s)
+[WebServer] Internal Server Error: /realtime/snapshot/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Internal Server Error: /auth/me/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Internal Server Error: /cash/points/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+  ✘  3 tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows (30.6s)
+(node:2038936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2038936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /management/alerts/
+[WebServer] Forbidden: /cash/points/
+  ✓  4 tests/integration/workflows.spec.ts:130:5 › real authorization failure is visible and never becomes an empty success (3.1s)
+[WebServer] Internal Server Error: /management/alerts/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Internal Server Error: /auth/me/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+  ✘  5 tests/integration/workflows.spec.ts:140:5 › real expired session clears privileged cookies (459ms)
+(node:2039676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2039676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/integration/workflows.spec.ts:154:5 › canonical and compatibility hosts select the correct surface and manifest (393ms)
+[WebServer] Internal Server Error: /auth/me/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 514, in dispatch
+[WebServer]     self.initial(request, *args, **kwargs)
+[WebServer]     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 419, in initial
+[WebServer]     self.perform_authentication(request)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 329, in perform_authentication
+[WebServer]     request.user
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 232, in user
+[WebServer]     self._authenticate()
+[WebServer]     ~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/request.py", line 389, in _authenticate
+[WebServer]     user_auth_tuple = authenticator.authenticate(self)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/authentication.py", line 27, in authenticate
+[WebServer]     session = session_for_access_token(raw_token)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 175, in session_for_access_token
+[WebServer]     .first()
+[WebServer]      ~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+  ✘  7 tests/integration/workflows.spec.ts:169:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (5.7s)
+(node:2040373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2040373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Internal Server Error: /auth/login/
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] psycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] 
+[WebServer] The above exception was the direct cause of the following exception:
+[WebServer] 
+[WebServer] Traceback (most recent call last):
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[WebServer]     response = await get_response(request)
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[WebServer]     raise exc_info[1]
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[WebServer]     response = await wrapped_callback(
+[WebServer]                ^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]         request, *callback_args, **callback_kwargs
+[WebServer]         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]     )
+[WebServer]     ^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[WebServer]     ret = await asyncio.shield(exec_coro)
+[WebServer]           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[WebServer]     result = self.fn(*self.args, **self.kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[WebServer]     return context.run(run_child)
+[WebServer]            ~~~~~~~~~~~^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[WebServer]     return child()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[WebServer]     return view_func(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[WebServer]     return self.dispatch(request, *args, **kwargs)
+[WebServer]            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[WebServer]     response = self.handle_exception(exc)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[WebServer]     self.raise_uncaught_exception(exc)
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[WebServer]     raise exc
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 523, in dispatch
+[WebServer]     response = handler(request, *args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/views.py", line 50, in post
+[WebServer]     payload = authenticate_staff(**serializer.validated_data)
+[WebServer]   File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/access/services.py", line 314, in authenticate_staff
+[WebServer]     venue = Venue.objects.filter(slug=venue_slug).first()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[WebServer]     for obj in queryset[:1]:
+[WebServer]                ~~~~~~~~^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[WebServer]     self._fetch_all()
+[WebServer]     ~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[WebServer]     self._result_cache = list(self._iterable_class(self))
+[WebServer]                          ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[WebServer]     results = compiler.execute_sql(
+[WebServer]         chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[WebServer]     )
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[WebServer]     cursor = self.connection.cursor()
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[WebServer]     return self._cursor()
+[WebServer]            ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[WebServer]     self.ensure_connection()
+[WebServer]     ~~~~~~~~~~~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[WebServer]     with self.wrap_database_errors:
+[WebServer]          ^^^^^^^^^^^^^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[WebServer]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[WebServer]     self.connect()
+[WebServer]     ~~~~~~~~~~~~^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[WebServer]     self.connection = self.get_new_connection(conn_params)
+[WebServer]                       ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[WebServer]     return func(*args, **kwargs)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[WebServer]     connection = self.Database.connect(**conn_params)
+[WebServer]   File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[WebServer]     raise new_ex.with_traceback(None)
+[WebServer] django.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+[WebServer] Multiple connection attempts failed. All failures were:
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '::1': connection failed: connection to server at "::1", port 55460 failed: Connection refused
+[WebServer] 	Is the server running on that host and accepting TCP/IP connections?
+[WebServer] - host: 'localhost', port: '55460', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55460 failed: FATAL:  sorry, too many clients already
+  ✘  8 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (4.5s)
+
+
+  1) tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Fundo inicial')
+
+
+      89 |   await page.getByRole("link", { name: "Abrir caixa", exact: true }).click();
+      90 |   await expect(page.getByRole("heading", { name: "Turno de caixa" })).toBeVisible();
+    > 91 |   await page.getByLabel("Fundo inicial").fill("100,00");
+         |                                          ^
+      92 |   await page.getByRole("button", { name: "Confirmar abertura" }).click();
+      93 |   await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
+      94 |   await evidence(page, "cash");
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/workflows.spec.ts:91:42
+
+    Error Context: test-results/integration/workflows-real-staff-produ-a35d0-t-and-cash-refund-workflows/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/workflows-real-staff-produ-a35d0-t-and-cash-refund-workflows/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/workflows-real-staff-produ-a35d0-t-and-cash-refund-workflows/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/workflows.spec.ts:140:5 › real expired session clears privileged cookies ────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 401
+    Received: 500
+
+      146 |   await page.goto("/staff");
+      147 |   const result = await response;
+    > 148 |   expect(result.status()).toBe(401);
+          |                           ^
+      149 |   expect((await result.json()).code).toBe("SESSION_EXPIRED");
+      150 |   await expect(page.getByRole("heading", { name: "Entrar no atendimento" })).toBeVisible();
+      151 |   expect((await context.cookies()).filter(c => c.name === "rodada_staff_access" || c.name === "rodada_staff_refresh")).toEqual([]);
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/workflows.spec.ts:148:27
+
+    Error Context: test-results/integration/workflows-real-expired-session-clears-privileged-cookies/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/workflows-real-expired-session-clears-privileged-cookies/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/workflows-real-expired-session-clears-privileged-cookies/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/integration/workflows.spec.ts:169:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Sessão operacional ativa')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('Sessão operacional ativa')
+
+
+      15 |   await page.getByLabel("PIN", { exact: true }).fill("2468");
+      16 |   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+    > 17 |   await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+         |                                                            ^
+      18 | }
+      19 |
+      20 | async function api(page: Page, path: string, data?: unknown) {
+        at login (/home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/workflows.spec.ts:17:60)
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/workflows.spec.ts:170:3
+
+    Error Context: test-results/integration/workflows-completed-catalo-afdc4-report-export-use-real-APIs/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/workflows-completed-catalo-afdc4-report-export-use-real-APIs/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/workflows-completed-catalo-afdc4-report-export-use-real-APIs/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability 
+
+    Test was interrupted.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Sessão operacional ativa')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('Sessão operacional ativa')
+
+
+      14 |   await page.getByLabel("PIN", { exact: true }).fill("2468");
+      15 |   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+    > 16 |   await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+         |                                                            ^
+      17 |   const { product } = await api(page, "/api/pos/catalog/resolve-or-create/", { name: "Hambúrguer configurável", price_cents: 1000, fulfillment_station: "KITCHEN" });
+      18 |   await page.goto("/manage/catalog");
+      19 |   await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/z-customization.spec.ts:16:60
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/z-customization-manager-co-e0264-shot-survive-unavailability/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/z-customization-manager-co-e0264-shot-survive-unavailability/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows 
+    tests/integration/workflows.spec.ts:140:5 › real expired session clears privileged cookies ─────
+    tests/integration/workflows.spec.ts:169:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs 
+  1 interrupted
+    tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability 
+  1 did not run
+  4 passed (1.5m)

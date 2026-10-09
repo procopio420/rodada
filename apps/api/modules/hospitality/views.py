@@ -35,11 +35,14 @@ def _error_response(error: HospitalityServiceError) -> Response:
 
 
 def _occupancy_payload(occupancy: TableOccupancy) -> dict:
+    from modules.hospitality.party_size import current_party_size, observation_payload
+
     assignments = occupancy.tab_assignments.select_related("tab").all()
     return {
         "id": str(occupancy.id),
         "table_id": str(occupancy.table_id),
         "generation": occupancy.generation,
+        "party_size": observation_payload(current_party_size(occupancy_id=occupancy.id)),
         "started_at": occupancy.started_at,
         "released_at": occupancy.released_at,
         "cleaning_started_at": occupancy.cleaning_started_at,
@@ -56,11 +59,7 @@ def _table_payload(table: Table) -> dict:
     return {
         "id": str(table.id),
         "label": table.label,
-        "zone": (
-            {"id": str(table.zone_id), "label": table.zone.label}
-            if table.zone_id
-            else None
-        ),
+        "zone": ({"id": str(table.zone_id), "label": table.zone.label} if table.zone_id else None),
         "public_token": table.public_token,
         "access_generation": table.access_generation,
         "guest_ordering_mode": table.guest_ordering_mode,
@@ -219,3 +218,49 @@ class TableCleaningCompleteView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response(_occupancy_payload(occupancy))
+
+
+class PartySizeView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.TABLE_MANAGE
+
+    def get(self, request, occupancy_id=None, tab_id=None):
+        from modules.hospitality.models import PartySizeObservation
+        from modules.hospitality.party_size import current_party_size, observation_payload
+        from modules.ordering.models import Tab
+
+        target = (
+            TableOccupancy.objects.filter(
+                pk=occupancy_id, table__venue_id=request.actor_context.venue_id
+            ).first()
+            if occupancy_id
+            else Tab.objects.filter(pk=tab_id, venue_id=request.actor_context.venue_id).first()
+        )
+        if target is None:
+            return Response({"code": "TARGET_NOT_FOUND"}, status=404)
+        history = PartySizeObservation.objects.filter(occupancy_id=occupancy_id, tab_id=tab_id)
+        return Response(
+            {
+                "current": observation_payload(
+                    current_party_size(occupancy_id=occupancy_id, tab_id=tab_id)
+                ),
+                "history": [observation_payload(row) for row in history],
+            }
+        )
+
+    def post(self, request, occupancy_id=None, tab_id=None):
+        from modules.hospitality.serializers import PartySizeSerializer
+        from modules.hospitality.party_size import record_party_size, observation_payload
+
+        serializer = PartySizeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            row = record_party_size(
+                actor=request.actor_context,
+                occupancy_id=occupancy_id,
+                tab_id=tab_id,
+                **serializer.validated_data,
+            )
+        except HospitalityServiceError as error:
+            return _error_response(error)
+        return Response(observation_payload(row))

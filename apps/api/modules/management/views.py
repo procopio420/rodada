@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from modules.access.capabilities import Capability
-from modules.access.permissions import RequireCapability
+from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.audit.services import record_audit_event
 from modules.venue.models import Venue
 from modules.venue.calendar import business_date, business_boundary
@@ -44,6 +44,19 @@ class CalendarView(APIView):
         with transaction.atomic():
             venue = Venue.objects.select_for_update().get(pk=request.actor_context.venue_id)
             before = {"timezone": venue.timezone, "cutoff_hour": venue.business_day_cutoff_hour}
+            changed = before != data.validated_data
+            if changed:
+                # Historical reports currently derive dates from the Venue policy.
+                # A quiet live service alone cannot protect that history: until
+                # effective-dated policy exists, reject edits once facts exist.
+                blockers = []
+                if Charge.objects.filter(tab__venue=venue).exists(): blockers.append('CHARGE_HISTORY')
+                if Payment.objects.filter(tab__venue=venue).exists(): blockers.append('PAYMENT_HISTORY')
+                if CashShift.objects.filter(venue=venue).exists(): blockers.append('CASH_SHIFT_HISTORY')
+                if blockers:
+                    return Response({'code': 'HISTORICAL_POLICY_CHANGE_BLOCKED',
+                        'message': 'O calendário possui histórico. Alteração exige política versionada.',
+                        'blockers': blockers, 'current': before}, status=409)
             venue.timezone = data.validated_data["timezone"]
             venue.business_day_cutoff_hour = data.validated_data["cutoff_hour"]
             venue.save(update_fields=["timezone", "business_day_cutoff_hour"])
@@ -131,3 +144,109 @@ class ReportView(APIView):
             "payment_methods": list(payments.values("method").annotate(amount_cents=Sum("amount_cents"), count=Count("id")).order_by("method")),
             "orders": list(orders.values("source", "status").annotate(count=Count("id")).order_by("source", "status")),
             "cash_shifts": [{**_shift_payload(shift), "cash_point_label": shift.cash_point.label} for shift in CashShift.objects.filter(venue=venue, business_date__range=(start, end)).select_related("cash_point").order_by("business_date", "opened_at")]})
+
+
+class AlertPolicyView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.VENUE_CONFIGURE
+
+    @staticmethod
+    def snapshot(policy):
+        return {**{name: getattr(policy, name) for name in ('version', 'fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds')}, 'strategic_product_ids': [str(value) for value in policy.strategic_products.values_list('id', flat=True)]}
+
+    def get(self, request):
+        from modules.venue.models import OperationalAlertPolicy
+        policy, _ = OperationalAlertPolicy.objects.get_or_create(venue=request.auth.venue)
+        return Response({'section': 'operational_alerts', **self.snapshot(policy)})
+
+    def patch(self, request):
+        RequireRecentReauthentication().has_permission(request, self)
+        from modules.venue.models import OperationalAlertPolicy
+        from modules.management.alerts import evaluate_alerts
+        class Input(serializers.Serializer):
+            expected_version = serializers.IntegerField(min_value=1)
+            fulfillment_warning_seconds = serializers.IntegerField(min_value=1, max_value=86400)
+            fulfillment_danger_seconds = serializers.IntegerField(min_value=2, max_value=172800)
+            payment_pending_seconds = serializers.IntegerField(min_value=1, max_value=86400)
+            strategic_product_ids = serializers.ListField(child=serializers.UUIDField(), required=False)
+            reason = serializers.CharField(max_length=240, required=False, default='', allow_blank=True)
+            def validate(self, data):
+                if data['fulfillment_warning_seconds'] >= data['fulfillment_danger_seconds']:
+                    raise serializers.ValidationError('O SLA crítico deve ser maior que o SLA de atenção.')
+                if set(self.initial_data) - set(self.fields):
+                    raise serializers.ValidationError('Configuração desconhecida.')
+                return data
+        data = Input(data=request.data)
+        data.is_valid(raise_exception=True)
+        with transaction.atomic():
+            venue = Venue.objects.select_for_update().get(pk=request.auth.venue_id)
+            policy, _ = OperationalAlertPolicy.objects.get_or_create(venue=venue)
+            if policy.version != data.validated_data['expected_version']:
+                return Response({'code': 'STALE_VERSION', 'current': self.snapshot(policy)}, status=409)
+            before = self.snapshot(policy)
+            for name in ('fulfillment_warning_seconds', 'fulfillment_danger_seconds', 'payment_pending_seconds'):
+                setattr(policy, name, data.validated_data[name])
+            if 'strategic_product_ids' in data.validated_data:
+                from modules.catalog.models import Product
+                selected = set(data.validated_data['strategic_product_ids'])
+                products = Product.objects.filter(venue=venue, id__in=selected)
+                if products.count() != len(selected):
+                    return Response({'code':'INVALID_STRATEGIC_PRODUCT', 'message':'Produto fora deste estabelecimento.'}, status=400)
+                policy.strategic_products.set(products)
+            policy.version += 1
+            policy.save()
+            applied_at = timezone.now()
+            record_audit_event(actor=request.actor_context, event_type='operational_threshold.changed',
+                entity_type='OperationalAlertPolicy', entity_id=str(venue.pk), reason=data.validated_data['reason'],
+                metadata={'before': before, 'after': self.snapshot(policy), 'applied_at': applied_at.isoformat(), 'change_mode': 'IMMEDIATE_SAFE'})
+            from modules.realtime.services import emit_event
+            emit_event(venue_id=venue.id, event_type='venue.configuration_changed', aggregate_type='OperationalAlertPolicy', aggregate_id=venue.id, payload={'section':'operational_alerts', 'version':policy.version})
+            evaluate_alerts(venue, applied_at)
+        return Response({'section': 'operational_alerts', **self.snapshot(policy), 'effective_at': applied_at, 'change_mode': 'IMMEDIATE_SAFE'})
+
+
+class AlertListView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request):
+        from modules.management.alerts import evaluate_alerts, payload
+        from django.db.models import Case, When, Value, IntegerField
+        alerts = evaluate_alerts(request.auth.venue).order_by(Case(When(severity='DANGER', then=Value(0)), default=Value(1), output_field=IntegerField()), 'first_detected_at')
+        return Response({'results': [payload(alert) for alert in alerts], 'evaluated_at': timezone.now()})
+
+
+class AlertDetailView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request, alert_id):
+        from django.shortcuts import get_object_or_404
+        from modules.venue.models import OperationalAlert
+        from modules.management.alerts import evaluate_alerts, payload
+        evaluate_alerts(request.auth.venue)
+        alert = get_object_or_404(OperationalAlert, venue=request.auth.venue, pk=alert_id)
+        return Response({**payload(alert), 'history': list(alert.history.values('kind', 'occurred_at', 'metadata'))})
+
+    def post(self, request, alert_id):
+        from django.shortcuts import get_object_or_404
+        from modules.access.capabilities import has_capability
+        from modules.venue.models import OperationalAlert
+        from modules.management.alerts import evaluate_alerts, payload, _event
+        if not has_capability(request.auth.membership, Capability.VENUE_CONFIGURE):
+            return Response({'code': 'CAPABILITY_REQUIRED'}, status=403)
+        with transaction.atomic():
+            venue = Venue.objects.select_for_update().get(pk=request.auth.venue_id)
+            evaluate_alerts(venue)
+            alert = get_object_or_404(OperationalAlert.objects.select_for_update(), venue=venue, pk=alert_id)
+            if alert.status == 'RESOLVED':
+                return Response({'code': 'ALERT_RESOLVED', 'current': payload(alert)}, status=409)
+            if alert.status == 'ACTIVE':
+                now = timezone.now()
+                alert.status, alert.acknowledged_at, alert.updated_at = 'ACKNOWLEDGED', now, now
+                alert.acknowledged_by_id = request.actor_context.staff_id
+                alert.save(update_fields=['status', 'acknowledged_at', 'updated_at', 'acknowledged_by'])
+                _event(alert, 'ACKNOWLEDGED', now, actor_id=str(request.actor_context.staff_id))
+                record_audit_event(actor=request.actor_context, event_type='alert.acknowledged',
+                    entity_type='OperationalAlert', entity_id=str(alert.pk))
+        return Response(payload(alert))

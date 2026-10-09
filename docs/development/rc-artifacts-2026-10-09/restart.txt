@@ -1,0 +1,4 @@
+2026-10-09T18:11:59Z
+rodada-rc-postgres
+/var/run/postgresql:5432 - rejecting connections
+/var/run/postgresql:5432 - accepting connections

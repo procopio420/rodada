@@ -1,0 +1,63 @@
+{
+  "id": "91461d42-f843-436d-afda-dc173f0cc144",
+  "display_label": "RC-Native-20261009",
+  "state": "CLOSED",
+  "version": 5,
+  "exposure_cents": 0,
+  "charges_cents": 2000,
+  "payments_cents": 2000,
+  "refunds_cents": 0,
+  "adjustments_cents": 0,
+  "passed": true,
+  "venue": "release-other",
+  "emulator": "API 36 emulator-5574",
+  "mocked_calls": 0,
+  "payment_classification": "MANUAL_TEST_EXTERNAL_TERMINAL_NO_SETTLEMENT",
+  "order_count": 1,
+  "payment_count": 2,
+  "order_id": "ec4e2a9f-d1dd-4921-ab9f-abd33512373f",
+  "items": [
+    {
+      "id": "734ced66-be6e-4b8c-adde-ced609bd0f55",
+      "state": "DELIVERED",
+      "snapshot": {
+        "variant": null,
+        "quantity": 1,
+        "modifiers": [],
+        "product_id": "1679b0eb-25e9-4adc-a6ec-b7ca02feb540",
+        "product_name": "RC Native Beer",
+        "base_price_cents": 1000,
+        "line_total_cents": 1000,
+        "unit_price_cents": 1000,
+        "fulfillment_station": "BAR",
+        "special_instructions": "Sem-gelo-RC"
+      }
+    },
+    {
+      "id": "523c6094-ddd5-4871-add9-feeeab907c1f",
+      "state": "DELIVERED",
+      "snapshot": {
+        "variant": null,
+        "quantity": 1,
+        "modifiers": [],
+        "product_id": "2921e53f-1f30-4831-9005-e0c6ee9c1ab9",
+        "product_name": "RC Native Food",
+        "base_price_cents": 1000,
+        "line_total_cents": 1000,
+        "unit_price_cents": 1000,
+        "fulfillment_station": "KITCHEN",
+        "special_instructions": ""
+      }
+    }
+  ],
+  "payment_amounts": [
+    500,
+    1500
+  ],
+  "entry": "Android UI",
+  "production": "Real Web BAR/KITCHEN",
+  "delivery": "Android UI",
+  "payment": "Android UI",
+  "closure": "Android UI",
+  "boundary": "No physical device/private SDK/NFC/real cash or provider settlement claim"
+}

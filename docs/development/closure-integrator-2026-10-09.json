@@ -1,0 +1,1507 @@
+{
+  "001-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_staff_opens_tab_without_table_customer_or_label; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_tab_can_have_simple_display_label; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_hospitality_tables.py; tests/test_tab_operations.py; tests/test_pr_integration.py; fresh full PostgreSQL suite and full-shift HTTP, see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_hospitality_tables.py; tests/test_tab_operations.py; tests/test_pr_integration.py; fresh full PostgreSQL suite and full-shift HTTP, see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_hospitality_tables.py; tests/test_tab_operations.py; tests/test_pr_integration.py; fresh full PostgreSQL suite and full-shift HTTP, see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_available_product_confirms_order_with_price_snapshot; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_hospitality_tables.py; tests/test_tab_operations.py; tests/test_pr_integration.py; fresh full PostgreSQL suite and full-shift HTTP, see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_unavailable_rule_is_source_agnostic_for_staff_cashier_and_guest; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_stale_cart_revalidates_at_confirmation_time; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_post_confirmation_availability_change_does_not_rewrite_item; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_http_confirmation_replay_creates_one_order_and_one_charge; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_confirmation_is_exactly_once_and_exposure_is_persisted; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_financial_close_does_not_strand_confirmed_production; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_corrections.py; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_partial_payment_then_close_requires_zero_balance; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_partial_payment_then_close_requires_zero_balance; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-017": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "test_report_totals_confirmed_money_and_historical_names; full PostgreSQL and HTTP/browser shift; see release report",
+    "owner": "Integrator",
+    "next_action": "Expose all-method cashier summary in cash UI; management reports already group methods"
+  },
+  "001-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_ordering_foundation.py; tests/test_ledger_payments.py; tests/test_hospitality_tables.py; tests/test_corrections.py; full-shift HTTP; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-019": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_ordering_foundation.py; tests/test_ledger_payments.py; tests/test_hospitality_tables.py; tests/test_corrections.py; full-shift HTTP; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "001-020": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ordering/services.py; apps/api/modules/ledger/services.py; apps/api/modules/hospitality/services.py",
+    "evidence": "tests/test_ordering_foundation.py; tests/test_ledger_payments.py; tests/test_hospitality_tables.py; tests/test_corrections.py; full-shift HTTP; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-001": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Verify native regular search/selection in device walkthrough; backend search passes"
+  },
+  "002-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "HOUSE; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-003": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Measure bounded 15s cross-surface updates on final physical devices; API exposure and realtime invalidation proven"
+  },
+  "002-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account.py; tests/test_house_account_e2e.py; tests/test_house_account_migration.py; release full-shift; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_anonymous_uses_venue_visitor_policy_and_snapshots_updates; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_house_and_restricted_snapshots; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_orders_below_limit_and_at_limit_then_no_effect_on_rejection; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "HouseConcurrencyTests.test_concurrent_orders_cannot_overspend; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_idempotent_replay_after_limit_policy_change_and_close; HouseConcurrencyTests.test_concurrent_replay_creates_one_order; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_partial_payment_restores_capacity_and_refund_increases_exposure; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_unauthorized_override_payload_and_recent_reauth; test_direct_override_service_cannot_trust_a_waiter_actor; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_override_idempotency_expiration_and_no_fake_money; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_override_cannot_clear_another_unresolved_reason; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-017": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_customer_association_relationship_change_explicit_reassessment_preserves_history; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_policy_update_preserves_existing_order; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-019": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_guest_and_staff_share_same_tab_enforcement; test_spending_limit_is_source_agnostic; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-020": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_staff_customer_search_is_venue_scoped; test_cross_venue_customer_cannot_be_associated; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-021": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_request_approval_is_audited_without_granting_capacity; test_warning_at_eighty_percent; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-022": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "test_active_tab_pagination_does_not_hide_old_attention_tabs; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-023": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account_migration.py; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-024": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "tests/test_house_account_e2e.py; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "002-025": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "scripts/house-account-browser-e2e.py; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Repeat dedicated house-account browser offline/override script; combined integration does not cover every recovery UI step"
+  },
+  "002-026": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/house_account/services.py; apps/api/modules/house_account/views.py",
+    "evidence": "HouseAccountContractTest.kt; fresh PostgreSQL/Android/Web gates; scope noted in release report",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-015": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "Deterministic fixtures validate pipeline only; no actual generated-art visual approval obtained",
+    "owner": "Integrator",
+    "next_action": "Configure image provider/storage/worker and approve real artwork at small sizes"
+  },
+  "005-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-017": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-019": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-020": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-021": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-022": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-023": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-024": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-025": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "005-026": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/services.py; apps/api/modules/catalog/generator.py; apps/web/components/production-board.tsx",
+    "evidence": "tests/test_quick_catalog.py; tests/test_catalog_upgrade.py; tests/integration/quick-catalog.spec.ts; visual/quick-catalog.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-006": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-007": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-008": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-009": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-010": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-011": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-012": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-013": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-014": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-015": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-017": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-019": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-020": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-021": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-022": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-023": {
+    "status": "EXTERNAL_BLOCKED",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Adapter and test-double contracts exist; no SDK/NFC/real Pix capture or settlement evidence",
+    "owner": "Integrator",
+    "next_action": "Obtain approved merchant/private SDK and verify actual sandbox/device capture/settlement"
+  },
+  "006-024": {
+    "status": "MISSING",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "No guest payment endpoint/surface; staff-only integrated routes inspected",
+    "owner": "Integrator",
+    "next_action": "Implement guest-scoped payment initiation and authoritative result invalidation"
+  },
+  "006-025": {
+    "status": "MISSING",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "No guest payment endpoint/surface; staff-only integrated routes inspected",
+    "owner": "Integrator",
+    "next_action": "Implement guest-scoped payment initiation and authoritative result invalidation"
+  },
+  "006-026": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-027": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-028": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-029": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-030": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-031": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-032": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Android builds/JVM contracts and real API ordinary BYOD proof; live provider unavailable",
+    "owner": "Integrator",
+    "next_action": "Complete device payment/eligibility walkthrough; preserve tested backend boundary"
+  },
+  "006-033": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-034": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-035": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "Payment/attempt timestamps persisted; no dedicated measured operational metric",
+    "owner": "Integrator",
+    "next_action": "Publish measured time-to-payment metric from canonical intent/confirmation timestamps"
+  },
+  "006-036": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-037": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-038": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-039": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-040": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-041": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-042": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "006-043": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/payment_provider/services.py; apps/api/modules/ledger/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/payments",
+    "evidence": "tests/test_payment_provider.py; tests/test_paytime_live.py; tests/test_sumup_payments.py; tests/test_payment_readiness.py; tests/test_payments_concurrency.py; tests/test_ledger_payments.py; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-001": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-002": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-004": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-007": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-008": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-012": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "tests/test_access_api.py; tests/test_access_management.py; tests/test_access_concurrency.py; tests/test_access_security.py; tests/integration/workflows.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-017": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "test_byod_unknown_installations_order_without_trust_or_approval; test_revoked_installation_does_not_ban_replacement_but_membership_does; test_replay_reloads_current_capabilities_instead_of_captured_role; PostgreSQL full suite",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "test_byod_unknown_installations_order_without_trust_or_approval; test_revoked_installation_does_not_ban_replacement_but_membership_does; test_replay_reloads_current_capabilities_instead_of_captured_role; PostgreSQL full suite",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-019": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "test_byod_unknown_installations_order_without_trust_or_approval; test_revoked_installation_does_not_ban_replacement_but_membership_does; test_replay_reloads_current_capabilities_instead_of_captured_role; PostgreSQL full suite",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "008-020": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "Backend authorization, revocation and new BYOD regressions pass; full native UX not proven by API alone",
+    "owner": "Integrator",
+    "next_action": "Complete final native session/switch/recovery/device UX journey"
+  },
+  "008-021": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/access/services.py; apps/api/modules/access/views.py; apps/web/lib/server/auth-gateway.ts; apps/attendance-android/app/src/main/AndroidManifest.xml",
+    "evidence": "test_byod_unknown_installations_order_without_trust_or_approval; test_revoked_installation_does_not_ban_replacement_but_membership_does; test_replay_reloads_current_capabilities_instead_of_captured_role; PostgreSQL full suite",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-013": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "Canonical authorization/audit and catalog replay tests pass; browser choice recovery proven, dedicated cross-client event not separately measured",
+    "owner": "Integrator",
+    "next_action": "Prove actual option availability invalidation across connected staff and guest SSE"
+  },
+  "010-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "010-016": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog/customization.py; apps/api/modules/ordering/services.py; apps/web/components/product-customization.tsx",
+    "evidence": "tests/test_customization.py; tests/test_customization_concurrency.py; tests/integration/z-customization.spec.ts; visual/customization.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "tests/test_pricing.py; tests/test_pricing_concurrency.py; tests/test_pricing_upgrade.py; tests/integration/zz-pricing.spec.ts; PricingContractTest; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "011-015": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/api/modules/ledger/pricing_views.py",
+    "evidence": "Canonical reports reconstruct categories; test_customized_bill_correction_and_management passes; immutable DailyClose is absent",
+    "owner": "Integrator",
+    "next_action": "Add immutable daily close snapshot and category reconciliation after subsequent correction"
+  },
+  "015-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-009": {
+    "status": "MISSING",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "ON_DEMAND jobs are implemented; AUTO_FALLBACK configuration/evaluator is disabled",
+    "owner": "Integrator",
+    "next_action": "Implement trustworthy KDS heartbeat and deduplicated AUTO_FALLBACK"
+  },
+  "015-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-011": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-014": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "015-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/documents_printing/services.py; apps/api/modules/documents_printing/renderers.py; tools/print-bridge",
+    "evidence": "tests/test_printing.py; tests/test_printing_concurrency.py; tests/test_printing_snapshots.py; tests/test_print_bridge.py; tests/integration/printing.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-001": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-002": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-003": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-004": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-005": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-006": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-007": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-008": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-009": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "019-010": {
+    "status": "PASS",
+    "implementation": "apps/web/proxy.ts; apps/web/lib/surfaces.ts; apps/web/app/manifest.webmanifest/route.ts",
+    "evidence": "tests/integration/workflows.spec.ts canonical and compatibility host/manifest test; visual/parity.spec.ts; production build; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-003": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "020-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/catalog; apps/api/modules/guest_access; apps/api/modules/management/views.py; apps/web/app/reports/page.tsx",
+    "evidence": "tests/test_web_completion.py; tests/integration/workflows.spec.ts completed catalog/guest/cash/report workflow; visual/parity.spec.ts; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-001": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-002": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-003": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-004": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-005": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-006": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-007": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-UX-008": {
+    "status": "PASS",
+    "implementation": "apps/web/components/production-board.tsx; apps/web/app/manage/page.tsx; apps/web/components/guest-ordering.tsx",
+    "evidence": "visual/parity.spec.ts responsive operational states/priority/focus/axe; tests/integration/workflows.spec.ts; strict equivalent primitives; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-001": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-002": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-003": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-004": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-005": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  },
+  "021-006": {
+    "status": "PASS",
+    "implementation": "prototype/references/manifest.json; apps/web/components/production-board.tsx; docs/design/prototype-integration.md; apps/attendance-android/app/src/main/java/com/rodada/attendance/ui/RodadaTheme.kt",
+    "evidence": "visual/parity.spec.ts imported local reference/strict primary control/production aggregation tests; Android JVM/build/lint; fresh PostgreSQL/full Web gates in rc-artifacts-2026-10-09 and release report; scope excludes physical/provider certification",
+    "owner": "Integrator",
+    "next_action": "Retain regression gate"
+  }
+}

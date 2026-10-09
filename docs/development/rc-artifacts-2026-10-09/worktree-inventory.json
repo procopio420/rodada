@@ -1,0 +1,149 @@
+[
+  {
+    "worktree": "/home/lucas/projects/rodada/rodada",
+    "HEAD": "79de2c36c901479fb8a83c1fcac60c3610d39b69",
+    "branch": "refs/heads/feat/pricing-adjustments-service-charge",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada-management",
+    "HEAD": "50732fdba9a0f253d1acdf318868747def418d1a",
+    "branch": "refs/heads/feat/management-parity",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada-quick-catalog",
+    "HEAD": "058fe46ec3463cb82290e2b1d4a5ed53e515cf79",
+    "branch": "refs/heads/feat/quick-catalog",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada-web-guest-parity",
+    "HEAD": "50732fdba9a0f253d1acdf318868747def418d1a",
+    "branch": "refs/heads/feat/web-guest-parity",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada-web-pixel-perfect",
+    "HEAD": "50732fdba9a0f253d1acdf318868747def418d1a",
+    "branch": "refs/heads/feat/web-pixel-perfect",
+    "status": [
+      " M apps/api/modules/access/capabilities.py",
+      " M apps/api/modules/catalog/models.py",
+      " M apps/api/modules/catalog/queries.py",
+      " M apps/api/modules/catalog/views.py",
+      " M apps/api/rodada_api/urls.py",
+      "?? apps/api/modules/catalog/migrations/0002_product_icon.py",
+      "?? apps/api/modules/catalog/services.py",
+      "?? apps/web/AGENTS.md",
+      "?? apps/web/CLAUDE.md"
+    ]
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada-web-staff-finance",
+    "HEAD": "50732fdba9a0f253d1acdf318868747def418d1a",
+    "branch": "refs/heads/feat/web-staff-finance",
+    "status": [
+      "?? apps/web/tests/visual/staff-finance-parity.spec.ts",
+      "?? prototype/cash.html",
+      "?? prototype/refunds.html",
+      "?? prototype/staff.html"
+    ]
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/demo-readiness",
+    "HEAD": "b9c251b3b83213f8fed7d052b5dcab8cd77288f3",
+    "branch": "refs/heads/release/2026-10-09-demo-readiness",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/payments-live",
+    "HEAD": "52ecd3c3d891e71ecb5844a31a47502778eb5590",
+    "branch": "refs/heads/feat/payments-live",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/payments-provider-readiness",
+    "HEAD": "ac7399f3f2ab00bf7ba09e01b320980e6a210df0",
+    "branch": "refs/heads/feat/payments-provider-readiness",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/pr-review",
+    "HEAD": "544e4a8a833277ca1cc1d675cbbac0e59dafc99e",
+    "branch": "refs/heads/review/all-open-prs",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/pr-review-spec023",
+    "HEAD": "d0834fe5e36345a5994e85b8394dc3f20dbb0437",
+    "branch": "refs/heads/review/spec023-integration",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/product-customization",
+    "HEAD": "4add70edbf61e7bd5efcfae665ef9995c5f67962",
+    "branch": "refs/heads/feat/product-modifiers-variants",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/realtime",
+    "HEAD": "1c5f928e474f145dc39d7f0e320c1ec98f38a9c7",
+    "branch": "refs/heads/feat/operational-realtime",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/receipts-printing",
+    "HEAD": "83dcda5a5b6a606cddc531ceeba9c4238c99b258",
+    "branch": "refs/heads/feat/receipts-printing-fallbacks",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/release-candidate",
+    "HEAD": "08c5f83e8ccd992e24bfad3857212465874242e5",
+    "branch": "refs/heads/release/spec-closure-2026-10-09",
+    "status": [
+      " M docs/development/spec-closure-matrix-2026-10-09.md",
+      "?? docs/development/closure-integrator-2026-10-09.json",
+      "?? docs/development/rc-artifacts-2026-10-09/"
+    ]
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/release-hospitality",
+    "HEAD": "2585d3264ac71b3bad690a8c46d122646b9ba3c8",
+    "branch": "refs/heads/release/hospitality-2026-10-09",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/release-management",
+    "HEAD": "b0b860a154c7abeb7fd8a0c45a5bc3f2eec7875c",
+    "branch": "refs/heads/release/management-2026-10-09",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/release-native",
+    "HEAD": "1dca288e648515f5496a387633eec1928faeb270",
+    "branch": "refs/heads/release/native-2026-10-09",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/release-qa",
+    "HEAD": "57604731a54799ebb217f6ed27e6ca6aa060d6f4",
+    "branch": "refs/heads/release/qa-2026-10-09",
+    "status": [
+      " M .github/workflows/api.yml"
+    ]
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/sumup-integration",
+    "HEAD": "75d0fc24b8f161e9beefea69804be6ea405928bd",
+    "branch": "refs/heads/docs/payments-provider-activation",
+    "status": []
+  },
+  {
+    "worktree": "/home/lucas/projects/rodada/tab-operations",
+    "HEAD": "dc3c706dcd49a0b6e2d9af6116cecff44f015477",
+    "branch": "refs/heads/feat/tab-operations",
+    "status": []
+  }
+]

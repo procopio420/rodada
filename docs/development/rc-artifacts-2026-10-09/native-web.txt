@@ -1,0 +1,1 @@
+{"passed": true, "mocked_calls": 0, "production_transitions": "Native confirmed order -> real Web BAR/KITCHEN -> READY"}

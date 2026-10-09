@@ -59,7 +59,15 @@ def _rate_limit(request, action: str) -> Response | None:
 
 def _context_payload(session, *, token: str | None = None) -> dict:
     table = session.table
+    from modules.hospitality.party_size import current_party_size
+
+    party = current_party_size(occupancy_id=session.occupancy_id) if session.occupancy_id else None
     payload = {
+        "party_size": {
+            "covers_count": party.covers_count if party else None,
+            "version": party.version if party else 0,
+            "source": party.source if party else None,
+        },
         "table": {"label": table.label},
         "occupancy_active": session.occupancy_id is not None,
         "can_start_occupancy": session.occupancy_id is None,
@@ -70,8 +78,10 @@ def _context_payload(session, *, token: str | None = None) -> dict:
         payload["guest_session_token"] = token
     if session.tab_id:
         payload["tab"]["orders"] = [
-            _order_payload(order) for order in session.tab.orders.order_by("confirmed_at", "id")
-            .prefetch_related("items__product")
+            _order_payload(order)
+            for order in session.tab.orders.order_by("confirmed_at", "id").prefetch_related(
+                "items__product"
+            )
         ]
         for order in payload["tab"]["orders"]:
             for item in order["items"]:
@@ -176,3 +186,36 @@ class GuestOrderConfirmView(APIView):
         replayed = getattr(order, "_idempotency_replay", False)
         order = order.__class__.objects.prefetch_related("items").get(pk=order.pk)
         return Response(_order_payload(order), status=200 if replayed else 201)
+
+
+class GuestPartySizeView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        from modules.hospitality.serializers import PartySizeSerializer
+        from modules.hospitality.party_size import record_party_size, observation_payload
+        from modules.hospitality.services import HospitalityServiceError
+
+        limited = _rate_limit(request, "mutation")
+        if limited:
+            return limited
+        serializer = PartySizeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            row = record_party_size(
+                session_token=_session_token(request), **serializer.validated_data
+            )
+        except (GuestAccessError, HospitalityServiceError) as error:
+            response = _error_response(error)
+            current = response.data.get("current")
+            if current:
+                response.data["current"] = {
+                    key: current[key]
+                    for key in ("covers_count", "version", "source", "observation_id")
+                }
+            return response
+        # Public guest payload excludes staff/device identifiers and private reasons.
+        data = observation_payload(row)
+        return Response(
+            {key: data[key] for key in ("covers_count", "version", "source", "observation_id")}
+        )

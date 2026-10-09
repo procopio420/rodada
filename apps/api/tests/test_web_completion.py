@@ -10,7 +10,7 @@ from modules.access.context import ActorContext
 from modules.access.models import StaffSession
 from modules.catalog.services import resolve_or_create_product
 from django.test import TransactionTestCase
-from django.db import connection, close_old_connections
+from django.db import connection, close_old_connections, connections
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from unittest import skipUnless
@@ -150,7 +150,7 @@ class CatalogConcurrencyTests(HouseFixture, TransactionTestCase):
                 barrier.wait(timeout=10)
                 product, created = resolve_or_create_product(actor=actor, name=name, price_cents=1500, fulfillment_station="KITCHEN")
                 return str(product.id), created
-            finally: close_old_connections()
+            finally: connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:
             rows = list(pool.map(create, ["Omelete", "  OMELETE  "]))
         assert rows[0][0] == rows[1][0] and sum(row[1] for row in rows) == 1

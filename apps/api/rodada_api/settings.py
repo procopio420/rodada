@@ -48,7 +48,9 @@ DATABASES = {
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "rodada"),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", "5432"),
-        "CONN_MAX_AGE": 60,
+        # ASGI uses short-lived thread contexts. Persistent per-thread connections
+        # accumulate across requests and can exhaust PostgreSQL during a shift.
+        "CONN_MAX_AGE": 0,
     }
 }
 

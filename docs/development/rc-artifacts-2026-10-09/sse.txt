@@ -1,0 +1,1 @@
+{"passed": true, "confirmation_to_event_ms": 1218, "redis_restart_verified": false, "verified": ["live_guest", "publication_process_restart", "duplicate_command", "replay", "reload_balance", "cursor_reset", "connected_revocation"]}

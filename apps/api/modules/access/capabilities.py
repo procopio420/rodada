@@ -31,6 +31,7 @@ class Capability:
     DISCOUNT_OVERRIDE = "discount.override"
     STAFF_MANAGE = "staff.manage"
     VENUE_CONFIGURE = "venue.configure"
+    PAYMENT_PROVIDER_CONFIGURE = "payment.provider.configure"
     CUSTOMER_MANAGE = "customer.manage"
     LIMIT_OVERRIDE = "tab.limit.override"
     CATALOG_PRODUCT_CREATE = "catalog.product.create"

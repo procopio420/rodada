@@ -1,0 +1,206 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ PaytimeLiveTests.test_committed_integrated_payment_replays_after_financial_close _
+
+self = <tests.test_paytime_live.PaytimeLiveTests testMethod=test_committed_integrated_payment_replays_after_financial_close>
+
+    def test_committed_integrated_payment_replays_after_financial_close(self):
+        self.remote["original_amount"] = 3000
+        first = self.create(amount_cents=3000)
+        self.assertEqual(first.status_code, 201, first.data)
+        self.remote["status"] = "PAID"
+        self.assertEqual(self.webhook().status_code, 200)
+        closed = self.client.post(f"/tabs/{self.tab}/close/", {}, format="json")
+        self.assertEqual(closed.status_code, 200, closed.data)
+        replay = self.create(amount_cents=3000, expected_version=1)
+>       self.assertEqual(replay.status_code, 200, replay.data)
+E       AssertionError: 409 != 200 : {'code': 'TAB_CLOSED', 'message': 'Comanda fechada não recebe pagamento.'}
+
+tests/test_paytime_live.py:186: AssertionError
+----------------------------- Captured stderr call -----------------------------
+Conflict: /tabs/cbb7e464-7f92-4dbe-83aa-517f51610726/payments/integrated/
+------------------------------ Captured log call -------------------------------
+WARNING  django.request:log.py:253 Conflict: /tabs/cbb7e464-7f92-4dbe-83aa-517f51610726/payments/integrated/
+_ PaytimeLiveTests.test_malformed_integrated_intents_create_no_payment_or_external_request _
+
+self = <tests.test_paytime_live.PaytimeLiveTests testMethod=test_malformed_integrated_intents_create_no_payment_or_external_request>
+
+    def test_malformed_integrated_intents_create_no_payment_or_external_request(self):
+        for changes in (
+            {"method": []}, {"method": {}}, {"method": True},
+            {"amount_cents": 2147483648}, {"expected_version": True},
+            {"expected_version": "1"}, {"expected_version": 0},
+        ):
+            with self.subTest(changes=changes):
+>               response = self.create(**changes)
+                           ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_paytime_live.py:202: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_paytime_live.py:87: in create
+    return self.client.post(
+../../../venv/lib/python3.13/site-packages/rest_framework/test.py:302: in post
+    response = super().post(
+../../../venv/lib/python3.13/site-packages/rest_framework/test.py:216: in post
+    return self.generic('POST', path, data, content_type, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/rest_framework/test.py:240: in generic
+    return super().generic(
+../../../venv/lib/python3.13/site-packages/django/test/client.py:671: in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/rest_framework/test.py:292: in request
+    return super().request(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/rest_framework/test.py:244: in request
+    request = super().request(**kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/django/test/client.py:1090: in request
+    self.check_exception(response)
+../../../venv/lib/python3.13/site-packages/django/test/client.py:805: in check_exception
+    raise exc_value
+../../../venv/lib/python3.13/site-packages/django/core/handlers/exception.py:55: in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/django/core/handlers/base.py:197: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/django/views/decorators/csrf.py:65: in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/django/views/generic/base.py:105: in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/rest_framework/views.py:526: in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.13/site-packages/rest_framework/views.py:474: in handle_exception
+    self.raise_uncaught_exception(exc)
+../../../venv/lib/python3.13/site-packages/rest_framework/views.py:485: in raise_uncaught_exception
+    raise exc
+../../../venv/lib/python3.13/site-packages/rest_framework/views.py:523: in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+modules/payment_provider/views.py:105: in post
+    payment, attempt, replayed = initiate_provider_payment(
+modules/payment_provider/services.py:203: in initiate_provider_payment
+    payment, attempt, replayed = _create_or_replay_provider_payment(
+/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/contextlib.py:85: in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+modules/payment_provider/services.py:103: in _create_or_replay_provider_payment
+    _assert_provider_method(method)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+method = []
+
+    def _assert_provider_method(method: str):
+>       if method not in _PROVIDER_METHODS:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: unhashable type: 'list'
+
+modules/payment_provider/services.py:86: TypeError
+----------------------------- Captured stderr call -----------------------------
+Internal Server Error: /tabs/26497a4b-5408-4faa-a48d-953b327ff496/payments/integrated/
+Traceback (most recent call last):
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+    response = self.handle_exception(exc)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+    raise exc
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 523, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/views.py", line 105, in post
+    payment, attempt, replayed = initiate_provider_payment(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tab_id=tab_id,
+        ^^^^^^^^^^^^^^
+    ...<5 lines>...
+        idempotency_key=request.data.get("idempotency_key", ""),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 203, in initiate_provider_payment
+    payment, attempt, replayed = _create_or_replay_provider_payment(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        amount_cents=amount_cents,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        expected_version=expected_version,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 103, in _create_or_replay_provider_payment
+    _assert_provider_method(method)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 86, in _assert_provider_method
+    if method not in _PROVIDER_METHODS:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'list'
+------------------------------ Captured log call -------------------------------
+ERROR    django.request:log.py:253 Internal Server Error: /tabs/26497a4b-5408-4faa-a48d-953b327ff496/payments/integrated/
+Traceback (most recent call last):
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+    response = self.handle_exception(exc)
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+    raise exc
+  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 523, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/views.py", line 105, in post
+    payment, attempt, replayed = initiate_provider_payment(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        tab_id=tab_id,
+        ^^^^^^^^^^^^^^
+    ...<5 lines>...
+        idempotency_key=request.data.get("idempotency_key", ""),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 203, in initiate_provider_payment
+    payment, attempt, replayed = _create_or_replay_provider_payment(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        amount_cents=amount_cents,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        expected_version=expected_version,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 103, in _create_or_replay_provider_payment
+    _assert_provider_method(method)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/modules/payment_provider/services.py", line 86, in _assert_provider_method
+    if method not in _PROVIDER_METHODS:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'list'
+=========================== short test summary info ============================
+FAILED tests/test_paytime_live.py::PaytimeLiveTests::test_committed_integrated_payment_replays_after_financial_close
+FAILED tests/test_paytime_live.py::PaytimeLiveTests::test_malformed_integrated_intents_create_no_payment_or_external_request
+2 failed, 9 deselected in 13.92s

@@ -5,10 +5,10 @@
 - [x] Expand CashShift lifecycle.
 - [x] CashMovement kinds and invariants.
 - [x] CashTenderDetail.
-- [ ] Active-shift selection for CASH Payment.
+- [x] Active-shift selection for CASH Payment.
 - [x] Supply command.
 - [x] Withdrawal/sangria command.
-- [ ] Cash refund movement.
+- [x] Cash refund movement.
 - [x] Start count.
 - [x] Close with expected/count/discrepancy.
 - [x] Manager discrepancy review.
@@ -53,9 +53,13 @@
 
 ## Quality/tests
 - [x] Opening float applied exactly once.
-- [ ] Tender - change = Payment amount.
-- [ ] Concurrent payment vs close is consistent.
+- [x] Tender - change = Payment amount.
+- [x] Concurrent payment vs close is consistent.
 - [x] Retry cannot duplicate movement.
 - [x] Closed shift rejects ordinary movement.
 - [x] Late correction preserves original snapshot.
 - [ ] Daily close cannot silently claim reconciled with unresolved shift.
+
+## Release verification 2026-10-09
+
+Implementation checkboxes are not release proof. See `docs/development/closure-native-2026-10-09.json` for PostgreSQL custody/concurrency evidence and unresolved manager projection, cutoff, emergency-runbook and device gates. Full-drawer withdrawal retries replay their original movement before validating current funds.

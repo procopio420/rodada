@@ -44,7 +44,12 @@ fun CorrectionCommand.requiresPostProductionEndpoint(): Boolean =
 
 /** Actions that the published correction contract can accept for this item state. */
 fun correctionActionsFor(itemState: String): List<CorrectionAction> =
-    if (itemState in setOf("NEW", "ACCEPTED")) listOf(CorrectionAction.CANCEL) else CorrectionAction.entries
+    when (itemState) {
+        "NEW", "ACCEPTED" -> listOf(CorrectionAction.CANCEL)
+        "PREPARING", "READY" -> CorrectionAction.entries
+        "PICKED_UP", "DELIVERED" -> listOf(CorrectionAction.REMAKE, CorrectionAction.REPLACEMENT)
+        else -> emptyList()
+    }
 
 fun correctionConsequence(result: CorrectionResult): String =
     when {

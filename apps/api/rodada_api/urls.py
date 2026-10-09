@@ -16,9 +16,10 @@ from modules.corrections.views import (
     PostProductionCorrectionView,
 )
 from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
-from modules.management.views import CalendarView, ReportView
+from modules.management.views import (CalendarView, ReportView, AlertListView, AlertDetailView, AlertPolicyView)
 from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
+    PartySizeView,
     OccupancyAssignTabView,
     TableCleaningCompleteView,
     TableCleaningStartView,
@@ -30,6 +31,7 @@ from modules.hospitality.views import (
     ZoneListCreateView,
 )
 from modules.guest_access.views import (
+    GuestPartySizeView,
     GuestCatalogView,
     GuestContextView,
     GuestOrderConfirmView,
@@ -115,6 +117,9 @@ urlpatterns = [
     path("service-points/", ServicePointView.as_view()),
     path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
     path("cash/shifts/history/", CashShiftListView.as_view()),
+    path("management/alerts/", AlertListView.as_view()),
+    path("management/alerts/<uuid:alert_id>/", AlertDetailView.as_view()),
+    path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
     path("health/", health, name="health"),
@@ -170,6 +175,9 @@ urlpatterns = [
     path("hospitality/tables/<uuid:table_id>/cleaning/start/", TableCleaningStartView.as_view(), name="table-cleaning-start"),
     path("hospitality/tables/<uuid:table_id>/cleaning/complete/", TableCleaningCompleteView.as_view(), name="table-cleaning-complete"),
     path("hospitality/occupancies/<uuid:occupancy_id>/tabs/", OccupancyAssignTabView.as_view(), name="occupancy-assign-tab"),
+    path("hospitality/occupancies/<uuid:occupancy_id>/party-size/", PartySizeView.as_view()),
+    path("hospitality/tabs/<uuid:tab_id>/party-size/", PartySizeView.as_view()),
+    path("guest/party-size/", GuestPartySizeView.as_view()),
     path("guest/qr/resolve/", GuestQrResolveView.as_view(), name="guest-qr-resolve"),
     path("guest/context/", GuestContextView.as_view(), name="guest-context"),
     path("guest/tabs/", GuestTabCreateView.as_view(), name="guest-tab-create"),

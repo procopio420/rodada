@@ -239,7 +239,14 @@ class StaffMembershipDetailView(AccessManagementBaseView):
                 **serializer.validated_data,
             )
         except AccessServiceError as exc:
-            return _service_error_response(exc)
+            response = _service_error_response(exc)
+            if exc.code == "VERSION_CONFLICT":
+                current = VenueStaffMembership.objects.select_related("staff_member").filter(
+                    pk=membership_id, venue=request.auth.venue
+                ).first()
+                if current is not None:
+                    response.data["current"] = _membership_payload(current)
+            return response
         membership = VenueStaffMembership.objects.select_related("staff_member").get(pk=membership.pk)
         return Response(_membership_payload(membership))
 

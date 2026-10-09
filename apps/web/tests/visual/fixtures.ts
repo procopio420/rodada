@@ -59,6 +59,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };
     else if (url.pathname === "/api/guest/context/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, tab: state === "empty" ? null : detail };
+    else if (url.pathname === "/api/pos/management/alerts/") body = { results: [] };
     else if (url.pathname === "/api/pos/management/calendar/") body = { timezone: "America/Sao_Paulo", cutoff_hour: 4, business_date: "2026-10-08" };
     else if (url.pathname === "/api/pos/management/reports/") body = {
       generated_at: "2026-10-08T21:00:00Z", timezone: "America/Sao_Paulo", cutoff_hour: 4, start: "2026-10-08", end: "2026-10-08",

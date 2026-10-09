@@ -54,7 +54,7 @@ class CorrectionFoundationTests(TestCase):
         assert login.status_code == 200, login.json()
         self.actor = ActorContext.from_session(StaffSession.objects.get(venue=self.venue))
 
-    def item(self, *, state=OrderItemState.ACCEPTED, venue=None, tab=None, name="Cerveja"):
+    def item(self, *, state=OrderItemState.ACCEPTED, venue=None, tab=None, name="Cerveja", customization=None):
         venue = venue or self.venue
         tab = tab or Tab.objects.create(venue=venue, display_label="Ana")
         product = Product.objects.create(
@@ -71,6 +71,7 @@ class CorrectionFoundationTests(TestCase):
             unit_price_cents=product.price_cents,
             quantity=1,
             state=state,
+            customization_snapshot=customization or {},
             accepted_at=timezone.now() if state == OrderItemState.ACCEPTED else None,
         )
 
@@ -645,3 +646,62 @@ class CorrectionFoundationTests(TestCase):
                 refund_idempotency_key="wrong-paid-replacement-refund", cash_point_id=None, actor=manager_actor,
             )
         self.assertEqual(captured.exception.code, "REFUND_AMOUNT_MISMATCH")
+
+    def test_served_remake_preserves_original_state_milestones_and_snapshot(self):
+        from modules.dispatch.models import DispatchTask, DispatchTaskState, DispatchTaskType
+        for state in (OrderItemState.PICKED_UP, OrderItemState.DELIVERED):
+            with self.subTest(state=state):
+                original = self.item(state=state, name=f"Cerveja {state}", customization={"note": "Sem gelo"})
+                occurred = timezone.now() - timedelta(minutes=3)
+                original.picked_up_at = occurred
+                original.delivered_at = occurred if state == OrderItemState.DELIVERED else None
+                original.save()
+                Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+                task = DispatchTask.objects.create(
+                    venue=self.venue, task_type=DispatchTaskType.DELIVERY,
+                    order_item=original, state=DispatchTaskState.DONE, ready_at=occurred,
+                )
+                correction = create_post_production_correction(
+                    item_id=original.id, kind=CorrectionKind.REMAKE,
+                    reason_code="CUSTOMER_COMPLAINT", reason_text="Bebida quente",
+                    idempotency_key=f"served-{state}", actor=self.manager_actor(),
+                )
+                original.refresh_from_db()
+                task.refresh_from_db()
+                self.assertEqual(original.state, state)
+                self.assertIsNone(original.cancelled_at)
+                self.assertEqual(original.picked_up_at, occurred)
+                self.assertEqual(task.state, DispatchTaskState.DONE)
+                self.assertEqual(correction.stage_at_request, state)
+                self.assertEqual(correction.replacement_order_item.customization_snapshot, {"note": "Sem gelo"})
+                self.assertEqual(totals(original.order.tab)["exposure_cents"], 1200)
+
+    def test_paid_delivered_replacement_refund_preserves_served_history(self):
+        from modules.corrections.services import settle_refund_required_cancellation
+        original = self.item(state=OrderItemState.DELIVERED)
+        Charge.objects.create(tab=original.order.tab, order_item=original, amount_cents=1200)
+        payment = Payment.objects.create(
+            tab=original.order.tab, amount_cents=1200, method=PaymentMethod.OTHER,
+            idempotency_key="served-payment", status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(), received_by=self.staff,
+        )
+        target = Product.objects.create(venue=self.venue, name="Suco servido", price_cents=900,
+                                       fulfillment_station=FulfillmentStation.BAR)
+        actor = self.manager_actor()
+        correction = create_post_production_correction(
+            item_id=original.id, kind=CorrectionKind.REPLACEMENT, reason_code="CUSTOMER_COMPLAINT",
+            reason_text="Cliente preferiu suco", idempotency_key="served-replacement",
+            actor=actor, replacement_product_id=target.id,
+        )
+        command = dict(correction_id=correction.id, payment_id=payment.id, amount_cents=300,
+                       refund_idempotency_key="served-refund", cash_point_id=None, actor=actor)
+        settled, refund, balance = settle_refund_required_cancellation(**command)
+        replay, replay_refund, _ = settle_refund_required_cancellation(**command)
+        original.refresh_from_db()
+        payment.refresh_from_db()
+        self.assertEqual(original.state, OrderItemState.DELIVERED)
+        self.assertIsNone(original.cancelled_at)
+        self.assertEqual(payment.amount_cents, 1200)
+        self.assertEqual(settled.status, CorrectionStatus.APPLIED)
+        self.assertEqual(replay_refund.id, refund.id)
+        self.assertEqual(balance["exposure_cents"], 0)

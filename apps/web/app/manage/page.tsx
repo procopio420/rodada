@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
+import { OperationalAlerts } from "@/components/operational-alerts";
 import { ManagementNav } from "@/components/management-nav";
 import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -107,6 +108,7 @@ export default function ManagementPage() {
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
     {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
+    <OperationalAlerts />
     {hasSnapshot && <>
     {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
       <h2 id="cash-review-title">Divergências de caixa pendentes</h2>

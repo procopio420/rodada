@@ -26,6 +26,15 @@ class CorrectionModelsTest {
     }
 
     @Test
+    fun `served items offer new work without cancellation and terminal items offer none`() {
+        val served = listOf(CorrectionAction.REMAKE, CorrectionAction.REPLACEMENT)
+        assertEquals(served, correctionActionsFor("PICKED_UP"))
+        assertEquals(served, correctionActionsFor("DELIVERED"))
+        assertTrue(correctionActionsFor("CANCELLED").isEmpty())
+        assertTrue(correctionActionsFor("UNKNOWN").isEmpty())
+    }
+
+    @Test
     fun `replacement consequence states the canonical positive delta`() {
         val result = CorrectionResult(
             id = "correction",

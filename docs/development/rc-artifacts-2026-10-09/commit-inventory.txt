@@ -1,0 +1,19 @@
+b88c347 docs(release): inventory every acceptance criterion and freeze ownership
+62d899b fix(payments): recover committed integrated intents after tab closure
+e8c33e5 docs(release): include plain criteria and disambiguate duplicate spec numbers
+471a3a5 docs(qa): map reliability and visual acceptance with initial real SSE evidence
+02ec1a3 feat(hospitality): record canonical versioned party size with audited corrections
+501feda test(qa): add concurrent real HTTP shift and independent reconciliation harness
+460e5fd docs(qa): record interrupted suites without claiming completion
+d31dbf7 test(qa): verify busy-shift canonical persistence after recorded restarts
+efa8c34 fix(access): return current membership on concurrent edit and verify BYOD isolation
+5d450b1 fix(hospitality): integrate covers routes and redact private guest conflict details
+a794882 fix(native): preserve served correction history and safe cash retry ordering
+d7be736 feat(management): add canonical operational alert episodes and typed policy controls
+7dcf03b fix(integration): register and verify canonical management alert routes
+6b7f051 fix(reliability): close per-request ASGI database connections to prevent shift exhaustion
+c7f5f00 fix(web): await canonical pricing before preview and verify real alert lifecycle
+08c5f83 fix(security): require explicit provider configuration capability and accept optional alert reason
+29fc43d Merge remote-tracking branch 'origin/main' into release/spec-closure-2026-10-09
+8c5fb8d ci(api): run all financial and concurrency regressions on PostgreSQL
+3755409 docs(release): publish criterion closure, real-service evidence and demo-only decision

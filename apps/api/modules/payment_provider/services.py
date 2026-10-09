@@ -83,6 +83,8 @@ def _payment_for_actor(*, payment_id, actor: ActorContext) -> Payment:
 
 
 def _assert_provider_method(method: str):
+    if not isinstance(method, str):
+        raise ProviderServiceError("INVALID_PAYMENT", "Método de pagamento inválido.")
     if method not in _PROVIDER_METHODS:
         raise ProviderServiceError(
             "PROVIDER_METHOD_REQUIRED", "Método não exige um provedor de pagamento.", 409
@@ -103,9 +105,13 @@ def _create_or_replay_provider_payment(
     _assert_provider_method(method)
     if (
         type(amount_cents) is not int
-        or amount_cents <= 0
+        or not 0 < amount_cents <= 2147483647
         or not isinstance(idempotency_key, str)
         or not 0 < len(idempotency_key) <= 120
+        or (
+            expected_version is not None
+            and (type(expected_version) is not int or expected_version < 1)
+        )
     ):
         raise ProviderServiceError("INVALID_PAYMENT", "Pagamento inválido.")
     capability = {
@@ -120,8 +126,6 @@ def _create_or_replay_provider_payment(
     tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=actor.venue_id).first()
     if tab is None:
         raise ProviderServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
-    if tab.state == TabState.CLOSED:
-        raise ProviderServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     existing = Payment.objects.filter(tab=tab, idempotency_key=idempotency_key).first()
     if existing is not None:
         if (
@@ -138,6 +142,8 @@ def _create_or_replay_provider_payment(
                 "PAYMENT_PROVIDER_INTEGRITY_ERROR", "Pagamento sem tentativa de provedor.", 409
             )
         return existing, attempt, True
+    if tab.state == TabState.CLOSED:
+        raise ProviderServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     if Payment.objects.filter(tab=tab, status__in=_PENDING_STATUSES, provider__gt="").exists():
         raise ProviderServiceError(
             "PAYMENT_ALREADY_PENDING",
