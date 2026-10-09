@@ -286,6 +286,13 @@ Exact thresholds are Venue-configurable typed values where the rule allows.
 
 Escalation never changes the underlying DispatchTask state.
 
+The initial in-app evaluator uses Venue-versioned guest request warning/danger
+ages (defaults 300/600 seconds). Both OPEN and CLAIMED requests remain eligible;
+claiming does not reset the request creation timestamp or imply completion.
+DONE/CANCELLED canonically clear the condition. Each episode links the original
+task, occupancy and destination snapshot. These in-app records do not claim
+push delivery; provider-backed delivery remains a separate acceptance gate.
+
 ## Rule semantics
 
 ### Fulfillment SLA breach
