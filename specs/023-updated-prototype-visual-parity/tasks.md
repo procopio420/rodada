@@ -75,8 +75,10 @@ Resultado: [validação integrada](../../docs/design/spec023-review.md).
 ## V02 parcial — hierarquia da Gerência
 
 - [x] Base isolada da main atual e fontes/ausência de export próprio identificadas.
-- [ ] Capturar antes/depois com fixture equivalente e documentar diferenças.
-- [ ] Promover ícones/medidas/tokens, preservar cinco destinos e Impressoras em Mais.
-- [ ] Hierarquia financeira e sectionHeader sem alterar dados ou exceções.
-- [ ] Verificar alvo/foco/fonte ampliada, comparação de ícone e telas adjacentes.
-- [ ] Executar gates e registrar commit/evidências/limites, sem conclusão global023.
+- [x] Capturar antes/depois com fixture equivalente e documentar diferenças.
+- [x] Promover ícones/medidas/tokens, preservar cinco destinos e Impressoras em Mais.
+- [x] Hierarquia financeira e sectionHeader sem alterar dados ou exceções.
+- [x] Verificar alvo/foco/fonte ampliada, comparação de ícone e telas adjacentes.
+- [x] Executar gates e registrar commit/evidências/limites, sem conclusão global023.
+
+Resultado deste recorte: [evidências e limites](../../docs/design/spec023-management-hierarchy.md). Gates locais passaram; não conclui V02 ou023 global.
