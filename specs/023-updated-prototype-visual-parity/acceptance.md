@@ -96,9 +96,11 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 
 ## Acabamento compartilhado Web — aceite
 
-- [ ] Todas as rotas Web existentes possuem heading contextual ou usam componente compartilhado coberto; redirecionamento / mantém destino.
-- [ ] Headings mantêm texto/nível/id/foco, ícones são aria-hidden e labels/contratos/ações permanecem.
-- [ ] Títulos, seções e subseções têm hierarquia coerente, sombras discretas e foco visível; alvos≥44, sem overflow em360–1440.
-- [ ] Bar/Cozinha mantêm lote/fila/passe, quantidade/destino/estado/callbacks; mesmos SVGs literais existentes. Cliente mantém disponibilidade e saldo canônicos.
-- [ ] Impressos/HTML histórico não são redesenhados; só sua superfície Web. Sem alteração API/financeira/auth.
-- [ ] Typecheck/build, suíte visual/realtime e integração PostgreSQL passam; comparação/regiões/limitações registradas sem baseline/tolerância novos.
+- [x] Todas as rotas Web existentes possuem heading contextual ou usam componente compartilhado coberto; redirecionamento / mantém destino.
+- [x] Headings mantêm texto/nível/id/foco, ícones são aria-hidden e labels/contratos/ações permanecem.
+- [x] Títulos, seções e subseções têm hierarquia coerente, sombras discretas e foco visível; alvos≥44 e sem overflow nas configurações verificadas: matriz principal360–1440 e subpáginas nas larguras discriminadas no relatório. Font scale/zoom global200% permanece pendente.
+- [x] Bar/Cozinha mantêm lote/fila/passe, quantidade/destino/estado/callbacks; mesmos SVGs literais existentes. Cliente mantém disponibilidade e saldo canônicos.
+- [x] Impressos/HTML histórico não são redesenhados; só sua superfície Web. Sem alteração API/financeira/auth.
+- [x] Typecheck/build, suíte visual/realtime e integração PostgreSQL passam; comparação/regiões/limitações registradas sem baseline/tolerância novos.
+
+Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
