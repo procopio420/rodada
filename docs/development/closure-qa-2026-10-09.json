@@ -12,7 +12,7 @@
       "criterion": "**Given** SSE/event delivery is unavailable but the HTTP API is healthy  \n**When** staff confirms an Order  \n**Then** the Order confirms through the API exactly once, UI shows realtime degraded/stale state, and other surfaces recover via bounded revalidation/polling without treating the realtime transport as canonical.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -24,7 +24,7 @@
       "criterion": "**Given** API is unreachable  \n**When** staff builds an order  \n**Then** it may be saved as PendingOrderIntent, but UI must not assign canonical Order status, balance effect or “pedido recebido”.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -36,7 +36,7 @@
       "criterion": "**Given** a pending order intent and API reconnects  \n**When** replay succeeds  \n**Then** one canonical Order is created using the original idempotency key and local status becomes CONFIRMED.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -48,7 +48,7 @@
       "criterion": "**Given** a pending intent contains an item cached AVAILABLE  \n**And** the Product became UNAVAILABLE centrally  \n**When** replay occurs  \n**Then** server rejects/returns affected item and does not silently substitute or create partial unintended production.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -60,7 +60,7 @@
       "criterion": "**Given** an Order submit timed out after the server committed it  \n**When** client retries with the same idempotency key  \n**Then** it receives the existing result and no duplicate Order/Charge is created.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -72,7 +72,7 @@
       "criterion": "**Given** provider submission occurred and connectivity is lost before backend confirmation  \n**When** app regains network  \n**Then** it reconciles the existing Payment/Attempt; it does not start an equivalent new charge while state is CONFIRMATION_PENDING.",
       "status": "EXTERNAL_BLOCKED",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Obtain approved SDK/sandbox merchant/device and real provider reconciliation evidence; simulators do not verify settlement."
     },
@@ -84,7 +84,7 @@
       "criterion": "**Given** a Pix QR is displayed and backend becomes unreachable  \n**When** customer pays externally  \n**Then** Rodada does not mark Payment confirmed until canonical provider/backend confirmation is received.",
       "status": "EXTERNAL_BLOCKED",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Obtain approved SDK/sandbox merchant/device and real provider reconciliation evidence; simulators do not verify settlement."
     },
@@ -96,7 +96,7 @@
       "criterion": "**Given** API is offline and venue follows emergency cash runbook  \n**When** staff records local cash evidence  \n**Then** it is visibly PENDING_SYNC and not counted as confirmed Payment/CashShift truth.\n\n**When** reconnect reconciliation finds the Tab balance unchanged and authorization valid  \n**Then** exactly one CASH Payment can be created.",
       "status": "MISSING",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Implement complete recovery evidence lifecycle, review metadata, dependency-aware replay and explicit pending UX with authorization checks."
     },
@@ -108,7 +108,7 @@
       "criterion": "**Given** offline cash evidence is 5000 cents  \n**And** current remaining Tab balance on reconnect is only 3000 cents  \n**When** reconciliation runs  \n**Then** no automatic 5000-cent Payment is posted; record becomes REQUIRES_REVIEW.",
       "status": "MISSING",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Implement complete recovery evidence lifecycle, review metadata, dependency-aware replay and explicit pending UX with authorization checks."
     },
@@ -120,7 +120,7 @@
       "criterion": "**Given** an external terminal charge occurred during outage  \n**When** evidence is captured and synced  \n**Then** server creates at most one EXTERNAL_TERMINAL Payment or raises review; it never charges the customer again automatically.",
       "status": "MISSING",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Implement complete recovery evidence lifecycle, review metadata, dependency-aware replay and explicit pending UX with authorization checks."
     },
@@ -132,7 +132,7 @@
       "criterion": "**Given** guest PWA loses API connectivity  \n**When** guest taps submit  \n**Then** UI never claims the order was received; payment and service requests remain unconfirmed until server acknowledgment.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -156,7 +156,7 @@
       "criterion": "**Given** a pending command was captured by a valid staff session  \n**And** membership is revoked before reconnect  \n**When** replay occurs  \n**Then** backend denies it; command is not reassigned to another operator.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -168,7 +168,7 @@
       "criterion": "**Given** two dependent pending commands for the same Tab  \n**When** the first conflicts  \n**Then** replay stops before applying a later command whose meaning depends on the conflicted state.",
       "status": "MISSING",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Implement complete recovery evidence lifecycle, review metadata, dependency-aware replay and explicit pending UX with authorization checks."
     },
@@ -180,7 +180,7 @@
       "criterion": "**Given** critical cached financial data is shown offline  \n**Then** the screen displays OFFLINE/STALE and last synchronization time, and integrated payment cannot be initiated from that stale amount.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -192,7 +192,7 @@
       "criterion": "**Given** a recovery record is reconciled manually  \n**When** audit is inspected  \n**Then** original captured_at, applied_at, device, actor, recovery_id, reviewer and reason are recoverable.",
       "status": "MISSING",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Implement complete recovery evidence lifecycle, review metadata, dependency-aware replay and explicit pending UX with authorization checks."
     },
@@ -216,7 +216,7 @@
       "criterion": "**Given** a domain mutation that must be published  \n**When** its database transaction commits  \n**Then** the canonical domain state and corresponding outbox record either both exist or neither exists.\n\n**And** restarting Redis/realtime fan-out after that commit cannot erase the fact that still needs delivery.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Live mutation created durable unpublished fact; separately spawned dispatcher delivered it. Full PostgreSQL atomic rollback test pending in running suite; Redis restart not executed.",
+      "test_evidence": "Live mutation created durable unpublished fact; separately spawned dispatcher delivered it. Full PostgreSQL atomic rollback test unverified: initial suite INTERRUPTED before summary; Redis restart not executed.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Repeat on integrated release head and native/Web clients; separately verify API/database restarts and busy-shift workload."
     },
@@ -228,7 +228,7 @@
       "criterion": "**Given** Cozinha, Bar or Gerência has a previously persisted safe projection  \n**And** the network is slow or temporarily unavailable  \n**When** the app opens  \n**Then** it renders the cached operational projection and freshness state without waiting for the network request to complete.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -252,7 +252,7 @@
       "criterion": "**Given** an event is delivered more than once  \n**When** the client/projection consumer processes the duplicate  \n**Then** final projected state is unchanged and no duplicate canonical mutation, task, charge or payment is created.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -276,7 +276,7 @@
       "criterion": "**Given** realtime delivery is reconnecting or stale  \n**And** the HTTP API is healthy  \n**When** a permitted user performs a canonical mutation  \n**Then** the mutation succeeds or fails solely according to server/domain rules and does not wait for SSE/WebSocket recovery.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -288,7 +288,7 @@
       "criterion": "**Given** an operational PWA is already installed/cached  \n**When** it starts during peak service  \n**Then** its live operation does not require SSR availability, and realtime updates do not require full-page reloads.",
       "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "Fresh full PostgreSQL test run pending; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
+      "test_evidence": "Initial full PostgreSQL test run INTERRUPTED before summary; tests/test_realtime.py and tests/test_access_security.py inspected. This does not prove device/offline journey.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify criterion end to end on API, Web and native with controlled transport loss."
     },
@@ -1072,5 +1072,6 @@
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Verify original branch and remote SHA without mutating archived work."
     }
-  ]
+  ],
+  "full_postgresql_suite": "INTERRUPTED before summary; no completion or pass count. Integrator owns final full suite."
 }
