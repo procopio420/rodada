@@ -1,0 +1,1 @@
+Rehearsal data created: venue=restore-rehearsal tab=eb418750-ef9e-4ab7-8b45-9575b0451688 closed_shift=c9bad136-8600-42ae-a5dc-e3c3f852d283 refund=f6cd216c-9b9c-4c1f-ace3-669bb91de8ad

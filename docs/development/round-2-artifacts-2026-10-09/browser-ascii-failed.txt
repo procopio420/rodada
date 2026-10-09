@@ -1,0 +1,332 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts
+
+[2m[WebServer] [22m(node:94083) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:94183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mConflict: /tabs/ff2a064a-d8cd-4319-a280-fc321d338f2f/close/
+  ✓   1 tests/integration/attendance.spec.ts:3:5 › real Atendimento login, order, production, table lifecycle and logout without payments (8.0s)
+  ✓   2 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (4.9s)
+[2m[WebServer] [22mInternal Server Error: /printing/documents/
+[2m[WebServer] [22mTraceback (most recent call last):
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/utils.py", line 105, in _execute
+[2m[WebServer] [22m    return self.cursor.execute(sql, params)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/cursor.py", line 117, in execute
+[2m[WebServer] [22m    raise ex.with_traceback(None)
+[2m[WebServer] [22mpsycopg.errors.UntranslatableCharacter: unsupported Unicode escape sequence
+[2m[WebServer] [22mLINE 1: ...d33a0b1ccf1b4c063f835ba6cad6891eb5d1c487a6b', 1,  E'{"venue"...
+[2m[WebServer] [22m                                                             ^
+[2m[WebServer] [22mDETAIL:  Unicode escape value could not be translated to the server's encoding SQL_ASCII.
+[2m[WebServer] [22mCONTEXT:  JSON data, line 1: {"venue": "Web E2E \u2014...
+[2m[WebServer] [22m
+[2m[WebServer] [22mThe above exception was the direct cause of the following exception:
+[2m[WebServer] [22m
+[2m[WebServer] [22mTraceback (most recent call last):
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[2m[WebServer] [22m    raise exc_info[1]
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 42, in inner
+[2m[WebServer] [22m    response = await get_response(request)
+[2m[WebServer] [22m               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 577, in thread_handler
+[2m[WebServer] [22m    raise exc_info[1]
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+[2m[WebServer] [22m    response = await wrapped_callback(
+[2m[WebServer] [22m               ^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m        request, *callback_args, **callback_kwargs
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[2m[WebServer] [22m    ret = await asyncio.shield(exec_coro)
+[2m[WebServer] [22m          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[2m[WebServer] [22m    result = self.fn(*self.args, **self.kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[2m[WebServer] [22m    return context.run(run_child)
+[2m[WebServer] [22m           ~~~~~~~~~~~^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[2m[WebServer] [22m    return child()
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+[2m[WebServer] [22m    return view_func(request, *args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/views/generic/base.py", line 105, in view
+[2m[WebServer] [22m    return self.dispatch(request, *args, **kwargs)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 526, in dispatch
+[2m[WebServer] [22m    response = self.handle_exception(exc)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 474, in handle_exception
+[2m[WebServer] [22m    self.raise_uncaught_exception(exc)
+[2m[WebServer] [22m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 485, in raise_uncaught_exception
+[2m[WebServer] [22m    raise exc
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/rest_framework/views.py", line 523, in dispatch
+[2m[WebServer] [22m    response = handler(request, *args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/documents_printing/views.py", line 114, in post
+[2m[WebServer] [22m    document = create_document(actor=request.actor_context, **values)
+[2m[WebServer] [22m  File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/contextlib.py", line 85, in inner
+[2m[WebServer] [22m    return func(*args, **kwds)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/documents_printing/services.py", line 185, in create_document
+[2m[WebServer] [22m    return ReceiptDocument.objects.create(
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[2m[WebServer] [22m        venue=tab.venue,
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    ...<8 lines>...
+[2m[WebServer] [22m        created_guest_session=guest_session,
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/manager.py", line 87, in manager_method
+[2m[WebServer] [22m    return getattr(self.get_queryset(), name)(*args, **kwargs)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 665, in create
+[2m[WebServer] [22m    obj.save(force_insert=True, using=self.db)
+[2m[WebServer] [22m    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/documents_printing/models.py", line 52, in save
+[2m[WebServer] [22m    return super().save(*args, **kwargs)
+[2m[WebServer] [22m           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/base.py", line 902, in save
+[2m[WebServer] [22m    self.save_base(
+[2m[WebServer] [22m    ~~~~~~~~~~~~~~^
+[2m[WebServer] [22m        using=using,
+[2m[WebServer] [22m        ^^^^^^^^^^^^
+[2m[WebServer] [22m    ...<2 lines>...
+[2m[WebServer] [22m        update_fields=update_fields,
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/base.py", line 1008, in save_base
+[2m[WebServer] [22m    updated = self._save_table(
+[2m[WebServer] [22m        raw,
+[2m[WebServer] [22m    ...<4 lines>...
+[2m[WebServer] [22m        update_fields,
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/base.py", line 1169, in _save_table
+[2m[WebServer] [22m    results = self._do_insert(
+[2m[WebServer] [22m        cls._base_manager, using, fields, returning_fields, raw
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/base.py", line 1210, in _do_insert
+[2m[WebServer] [22m    return manager._insert(
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~^
+[2m[WebServer] [22m        [self],
+[2m[WebServer] [22m        ^^^^^^^
+[2m[WebServer] [22m    ...<3 lines>...
+[2m[WebServer] [22m        raw=raw,
+[2m[WebServer] [22m        ^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/manager.py", line 87, in manager_method
+[2m[WebServer] [22m    return getattr(self.get_queryset(), name)(*args, **kwargs)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1873, in _insert
+[2m[WebServer] [22m    return query.get_compiler(using=using).execute_sql(returning_fields)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1882, in execute_sql
+[2m[WebServer] [22m    cursor.execute(sql, params)
+[2m[WebServer] [22m    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/utils.py", line 79, in execute
+[2m[WebServer] [22m    return self._execute_with_wrappers(
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[2m[WebServer] [22m        sql, params, many=False, executor=self._execute
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+[2m[WebServer] [22m    return executor(sql, params, many, context)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/utils.py", line 100, in _execute
+[2m[WebServer] [22m    with self.db.wrap_database_errors:
+[2m[WebServer] [22m         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[2m[WebServer] [22m    raise dj_exc_value.with_traceback(traceback) from exc_value
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/utils.py", line 105, in _execute
+[2m[WebServer] [22m    return self.cursor.execute(sql, params)
+[2m[WebServer] [22m           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/cursor.py", line 117, in execute
+[2m[WebServer] [22m    raise ex.with_traceback(None)
+[2m[WebServer] [22mdjango.db.utils.DataError: unsupported Unicode escape sequence
+[2m[WebServer] [22mLINE 1: ...d33a0b1ccf1b4c063f835ba6cad6891eb5d1c487a6b', 1,  E'{"venue"...
+[2m[WebServer] [22m                                                             ^
+[2m[WebServer] [22mDETAIL:  Unicode escape value could not be translated to the server's encoding SQL_ASCII.
+[2m[WebServer] [22mCONTEXT:  JSON data, line 1: {"venue": "Web E2E \u2014...
+[2m[WebServer] [22mERROR:    Exception in ASGI application
+[2m[WebServer] [22mTraceback (most recent call last):
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2m[WebServer] [22m    self.connect()
+[2m[WebServer] [22m    ~~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2m[WebServer] [22m    self.connection = self.get_new_connection(conn_params)
+[2m[WebServer] [22m                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2m[WebServer] [22m    connection = self.Database.connect(**conn_params)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[2m[WebServer] [22m    raise new_ex.with_traceback(None)
+[2m[WebServer] [22mpsycopg.OperationalError: connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down
+[2m[WebServer] [22mMultiple connection attempts failed. All failures were:
+[2m[WebServer] [22m- host: 'localhost', port: '55462', hostaddr: '::1': connection failed: connection to server at "::1", port 55462 failed: Connection refused
+[2m[WebServer] [22m	Is the server running on that host and accepting TCP/IP connections?
+[2m[WebServer] [22m- host: 'localhost', port: '55462', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down
+[2m[WebServer] [22m
+[2m[WebServer] [22mThe above exception was the direct cause of the following exception:
+[2m[WebServer] [22m
+[2m[WebServer] [22mTraceback (most recent call last):
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 411, in run_asgi
+[2m[WebServer] [22m    result = await app(  # type: ignore[func-returns-value]
+[2m[WebServer] [22m             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m        self.scope, self.receive, self.send
+[2m[WebServer] [22m        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m    ^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+[2m[WebServer] [22m    return await self.app(scope, receive, send)
+[2m[WebServer] [22m           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py", line 166, in __call__
+[2m[WebServer] [22m    await self.handle(scope, receive, send)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py", line 212, in handle
+[2m[WebServer] [22m    task.result()
+[2m[WebServer] [22m    ~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py", line 191, in process_request
+[2m[WebServer] [22m    await self.send_response(response, send)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py", line 336, in send_response
+[2m[WebServer] [22m    async for part in content:
+[2m[WebServer] [22m    ...<9 lines>...
+[2m[WebServer] [22m            )
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/http/response.py", line 533, in __aiter__
+[2m[WebServer] [22m    async for part in self.streaming_content:
+[2m[WebServer] [22m        yield part
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/http/response.py", line 489, in awrapper
+[2m[WebServer] [22m    async for part in _iterator:
+[2m[WebServer] [22m        yield self.make_bytes(part)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/realtime/views.py", line 166, in stream
+[2m[WebServer] [22m    messages, accepted, done = await sync_to_async(read_and_release)(accepted)
+[2m[WebServer] [22m                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 526, in __call__
+[2m[WebServer] [22m    ret = await asyncio.shield(exec_coro)
+[2m[WebServer] [22m          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/.local/share/mise/installs/python/3.13.15/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+[2m[WebServer] [22m    result = self.fn(*self.args, **self.kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 581, in thread_handler
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 508, in func
+[2m[WebServer] [22m    return context.run(run_child)
+[2m[WebServer] [22m           ~~~~~~~~~~~^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/asgiref/sync.py", line 506, in run_child
+[2m[WebServer] [22m    return child()
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/realtime/views.py", line 155, in read_and_release
+[2m[WebServer] [22m    return read(cursor)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/realtime/views.py", line 130, in read
+[2m[WebServer] [22m    identity = authorize()
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/realtime/views.py", line 114, in authorize
+[2m[WebServer] [22m    else session_for_access_token(token)
+[2m[WebServer] [22m         ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/release-round-2/apps/api/modules/access/services.py", line 176, in session_for_access_token
+[2m[WebServer] [22m    .first()
+[2m[WebServer] [22m     ~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1106, in first
+[2m[WebServer] [22m    for obj in queryset[:1]:
+[2m[WebServer] [22m               ~~~~~~~~^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 386, in __iter__
+[2m[WebServer] [22m    self._fetch_all()
+[2m[WebServer] [22m    ~~~~~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 1954, in _fetch_all
+[2m[WebServer] [22m    self._result_cache = list(self._iterable_class(self))
+[2m[WebServer] [22m                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/query.py", line 93, in __iter__
+[2m[WebServer] [22m    results = compiler.execute_sql(
+[2m[WebServer] [22m        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+[2m[WebServer] [22m    )
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/models/sql/compiler.py", line 1621, in execute_sql
+[2m[WebServer] [22m    cursor = self.connection.cursor()
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 320, in cursor
+[2m[WebServer] [22m    return self._cursor()
+[2m[WebServer] [22m           ~~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 296, in _cursor
+[2m[WebServer] [22m    self.ensure_connection()
+[2m[WebServer] [22m    ~~~~~~~~~~~~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 278, in ensure_connection
+[2m[WebServer] [22m    with self.wrap_database_errors:
+[2m[WebServer] [22m         ^^^^^^^^^^^^^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/utils.py", line 91, in __exit__
+[2m[WebServer] [22m    raise dj_exc_value.with_traceback(traceback) from exc_value
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 279, in ensure_connection
+[2m[WebServer] [22m    self.connect()
+[2m[WebServer] [22m    ~~~~~~~~~~~~^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/base/base.py", line 256, in connect
+[2m[WebServer] [22m    self.connection = self.get_new_connection(conn_params)
+[2m[WebServer] [22m                      ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/asyncio.py", line 26, in inner
+[2m[WebServer] [22m    return func(*args, **kwargs)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py", line 332, in get_new_connection
+[2m[WebServer] [22m    connection = self.Database.connect(**conn_params)
+[2m[WebServer] [22m  File "/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/psycopg/connection.py", line 134, in connect
+[2m[WebServer] [22m    raise new_ex.with_traceback(None)
+[2m[WebServer] [22mdjango.db.utils.OperationalError: connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down
+[2m[WebServer] [22mMultiple connection attempts failed. All failures were:
+[2m[WebServer] [22m- host: 'localhost', port: '55462', hostaddr: '::1': connection failed: connection to server at "::1", port 55462 failed: Connection refused
+[2m[WebServer] [22m	Is the server running on that host and accepting TCP/IP connections?
+[2m[WebServer] [22m- host: 'localhost', port: '55462', hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down
+[2m[WebServer] [22m⨯ Error: failed to pipe response
+[2m[WebServer] [22m    at tc (.next/server/chunks/[root-of-the-server]__15bjnu5._.js:1:62210)
+[2m[WebServer] [22m    at async tA (.next/server/chunks/[root-of-the-server]__15bjnu5._.js:3:2497)
+[2m[WebServer] [22m    at async Z (.next/server/chunks/[root-of-the-server]__0zebos8._.js:1:5189)
+[2m[WebServer] [22m    at async Y (.next/server/chunks/[root-of-the-server]__0zebos8._.js:1:6082)
+[2m[WebServer] [22m    at async Module.A [as handler] (.next/server/chunks/[root-of-the-server]__0zebos8._.js:1:8139) {
+[2m[WebServer] [22m  [cause]: TypeError: terminated
+[2m[WebServer] [22m      at ignore-listed frames {
+[2m[WebServer] [22m    [cause]: Error [SocketError]: other side closed
+[2m[WebServer] [22m        at ignore-listed frames {
+[2m[WebServer] [22m      code: [32m'UND_ERR_SOCKET'[39m,
+[2m[WebServer] [22m      socket: [36m[Object][39m
+[2m[WebServer] [22m    }
+[2m[WebServer] [22m  }
+[2m[WebServer] [22m}
+  ✘   3 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (22.4s)
+
+
+  1) tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy 
+
+    Test was interrupted.
+
+    Error: locator.selectOption: Test ended.
+    Call log:
+    [2m  - waiting for locator('.stationTools .dataRow').filter({ hasText: 'Printing E2E tab' }).getByLabel('Destino')[22m
+
+
+      31 |   const ticket = page.locator(".stationTools .dataRow").filter({ hasText: "Printing E2E tab" });
+      32 |   await ticket.getByRole("button", { name: "Ver / imprimir ticket" }).click();
+    > 33 |   await ticket.getByLabel("Destino").selectOption(endpoint.id);
+         |                                      ^
+      34 |   await expect(ticket.frameLocator("iframe").locator("pre")).toContainText("Bar E2E item");
+      35 |   await expect(ticket.frameLocator("iframe").locator("pre")).not.toContainText("Kitchen E2E item");
+      36 |   await ticket.getByRole("button", { name: "Imprimir", exact: true }).click();
+        at /home/lucas/projects/rodada/release-round-2/apps/web/tests/integration/printing.spec.ts:33:38
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/printing-canonical-order-s-414bf-final-bill-and-audited-copy/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/printing-canonical-order-s-414bf-final-bill-and-audited-copy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy 
+  10 did not run
+  2 passed (54.6s)

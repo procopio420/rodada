@@ -1,0 +1,15 @@
+..........................
+=============================== warnings summary ===============================
+../../../venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py:512
+  /home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/db/backends/postgresql/base.py:512: RuntimeWarning: Normally Django will use a connection to the 'postgres' database to avoid running initialization queries against the production database when it's not needed (for example, when running tests). Django was unable to create a connection to the 'postgres' database and will use the first PostgreSQL database instead.
+    warnings.warn(
+
+.:0
+  /home/lucas/projects/rodada/release-round-2/apps/api:0: PytestWarning: Error when trying to teardown test databases: OperationalError('connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down\nMultiple connection attempts failed. All failures were:\n- host: \'localhost\', port: \'55462\', hostaddr: \'::1\': connection failed: connection to server at "::1", port 55462 failed: Connection refused\n\tIs the server running on that host and accepting TCP/IP connections?\n- host: \'localhost\', port: \'55462\', hostaddr: \'127.0.0.1\': connection failed: connection to server at "127.0.0.1", port 55462 failed: FATAL:  the database system is shutting down')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /home/lucas/projects/rodada/release-round-2/docs/development/round-2-artifacts-2026-10-09/postgres-final.xml -
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/utils/crypto.py:77: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+26 passed, 2 warnings in 41.32s

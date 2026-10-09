@@ -1,0 +1,18 @@
+{
+  "api_web_sha": "72ff207fa1202835bc288642cc367ae070101993",
+  "native_sha": "0989217",
+  "python": "3.13.15",
+  "postgres": "17.6 UTF8 compiled isolated loopback55462",
+  "node": "v24.19.0",
+  "android": {
+    "tests": 49,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "limitations": [
+    "Local isolated test services; no staging TLS/proxy/hardware/PSP approval",
+    "MANUAL_TEST payments only",
+    "Native pending-intent process-death and complete manager review contract remain unverified"
+  ]
+}

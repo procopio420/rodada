@@ -1,0 +1,1 @@
+{"passed": true, "request_count": 1366, "mutation_count": 1043, "latency": {"count": 1366, "p50_ms": 361.67, "p95_ms": 887.6, "p99_ms": 1300.81, "max_ms": 2002.73}, "total_seconds": 78.029}

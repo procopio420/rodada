@@ -1,0 +1,1 @@
+{"verified_at": "2026-10-09T21:11:22.097486+00:00", "passed": true, "seconds": 5.402, "latency": {"count": 66, "p50_ms": 76.31, "p95_ms": 82.71, "p99_ms": 419.44, "max_ms": 419.44}, "errors": [], "boundary": "Canonical persistence readback only; caller must separately prove which real services were restarted."}

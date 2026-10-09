@@ -1,0 +1,44 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts
+
+[2m[WebServer] [22m(node:102876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:102954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:102954) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mConflict: /tabs/787fbfa1-1ad0-4673-8c34-d8c4263b84ed/close/
+  ✓   1 tests/integration/attendance.spec.ts:3:5 › real Atendimento login, order, production, table lifecycle and logout without payments (6.5s)
+  ✓   2 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (4.7s)
+[2m[WebServer] [22mNot Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓   3 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (7.9s)
+[2m[WebServer] [22m/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[2m[WebServer] [22m  async for part in content:
+  ✓   4 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (6.3s)
+[2m[WebServer] [22mForbidden: /guest/context/
+  ✓   5 tests/integration/service-requests.spec.ts:4:5 › guest service calls persist in Dispatch and revoke with the visit (4.4s)
+[2m[WebServer] [22mForbidden: /cash/shifts/6a1af8e4-c87b-414d-b67e-51148e6d8574/review/
+[2m[WebServer] [22mForbidden: /guest/context/
+[2m[WebServer] [22mConflict: /guest/qr/resolve/
+  ✓   6 tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows (17.2s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /management/alerts/
+  ✓   7 tests/integration/workflows.spec.ts:133:5 › real authorization failure is visible and never becomes an empty success (2.1s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓   8 tests/integration/workflows.spec.ts:143:5 › real expired session clears privileged cookies (368ms)
+  ✓   9 tests/integration/workflows.spec.ts:157:5 › canonical and compatibility hosts select the correct surface and manifest (246ms)
+[2m[WebServer] [22mForbidden: /cash/shifts/aeaa427f-c6e2-42c7-900d-792b92188e56/review/
+  ✓  10 tests/integration/workflows.spec.ts:172:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (11.2s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+[2m[WebServer] [22mUnauthorized: /auth/me/
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓  11 tests/integration/workflows.spec.ts:241:5 › parallel Web refresh preserves all operational screens and still enforces revocation (3.2s)
+  ✓  12 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (8.0s)
+  ✓  13 tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation (6.2s)
+
+  13 passed (1.6m)

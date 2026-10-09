@@ -1,0 +1,27 @@
+| Specification | Before PASS/PARTIAL/MISSING/EXTERNAL | After PASS/PARTIAL/MISSING/EXTERNAL | Added |
+| --- | --- | --- | --- |
+| `specs/001-core-pos/acceptance.md` | 19/1/0/0 | 19/1/0/0 | 0 |
+| `specs/002-house-account/acceptance.md` | 23/3/0/0 | 23/3/0/0 | 0 |
+| `specs/003-dispatch/acceptance.md` | 3/4/7/0 | 3/4/7/0 | 0 |
+| `specs/004-table-guest-ordering/acceptance.md` | 20/7/11/0 | 21/7/10/0 | 0 |
+| `specs/005-catalog-ai-icons/acceptance.md` | 25/0/0/1 | 25/0/0/1 | 0 |
+| `specs/006-payments-tap-on-phone/acceptance.md` | 27/7/2/7 | 27/7/2/7 | 0 |
+| `specs/007-management-cockpit/acceptance.md` | 6/5/4/0 | 6/5/4/0 | 0 |
+| `specs/008-staff-auth-roles-devices/acceptance.md` | 14/7/0/0 | 14/9/0/0 | 2 |
+| `specs/009-tab-operations/acceptance.md` | 18/3/0/0 | 18/3/0/0 | 0 |
+| `specs/010-product-modifiers-variants/acceptance.md` | 15/1/0/0 | 15/1/0/0 | 0 |
+| `specs/011-pricing-discounts-service-charge/acceptance.md` | 14/1/0/0 | 14/2/0/0 | 1 |
+| `specs/012-cash-management/acceptance.md` | 12/4/0/0 | 12/4/0/0 | 0 |
+| `specs/013-venue-configuration/acceptance.md` | 3/8/2/0 | 4/8/1/0 | 0 |
+| `specs/014-connectivity-degraded-operation/acceptance.md` | 4/14/5/2 | 4/14/5/2 | 0 |
+| `specs/015-receipts-printing-fallbacks/acceptance.md` | 13/0/1/1 | 13/1/1/1 | 1 |
+| `specs/016-covers-party-size/acceptance.md` | 6/7/1/0 | 6/7/1/0 | 0 |
+| `specs/017-order-corrections-exceptions/acceptance.md` | 8/7/0/0 | 8/7/0/0 | 0 |
+| `specs/018-notifications-operational-escalation/acceptance.md` | 12/2/10/0 | 13/3/8/0 | 0 |
+| `specs/019-specialized-surface-routing/acceptance.md` | 10/0/0/0 | 10/0/0/0 | 0 |
+| `specs/020-web-operational-completion/acceptance.md` | 9/0/0/0 | 9/0/0/0 | 0 |
+| `specs/021-operational-ux-polish/acceptance.md` | 8/0/0/0 | 8/0/0/0 | 0 |
+| `specs/021-prototype-design-integration/acceptance.md` | 6/0/0/0 | 6/0/0/0 | 0 |
+| `specs/022-full-product-implementation/acceptance.md` | 3/6/0/1 | 3/7/0/1 | 1 |
+| `specs/022-material-visual-fidelity/acceptance.md` | 7/0/0/0 | 7/0/0/0 | 0 |
+| `specs/023-updated-prototype-visual-parity/acceptance.md` | 0/47/0/0 | 0/58/0/0 | 11 |

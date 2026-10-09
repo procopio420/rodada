@@ -1,0 +1,132 @@
+{
+  "baseline_total": 474,
+  "supplemental_total": 16,
+  "total": 490,
+  "baseline_before": {
+    "PASS": 285,
+    "PARTIAL": 134,
+    "MISSING": 43,
+    "EXTERNAL_BLOCKED": 12
+  },
+  "baseline_after": {
+    "PASS": 288,
+    "PARTIAL": 135,
+    "MISSING": 39,
+    "EXTERNAL_BLOCKED": 12
+  },
+  "after": {
+    "PASS": 288,
+    "PARTIAL": 151,
+    "EXTERNAL_BLOCKED": 12,
+    "MISSING": 39
+  },
+  "by_spec": {
+    "specs/001-core-pos/acceptance.md": {
+      "PASS": 19,
+      "PARTIAL": 1
+    },
+    "specs/002-house-account/acceptance.md": {
+      "PARTIAL": 3,
+      "PASS": 23
+    },
+    "specs/005-catalog-ai-icons/acceptance.md": {
+      "PASS": 25,
+      "EXTERNAL_BLOCKED": 1
+    },
+    "specs/006-payments-tap-on-phone/acceptance.md": {
+      "PASS": 27,
+      "PARTIAL": 7,
+      "EXTERNAL_BLOCKED": 7,
+      "MISSING": 2
+    },
+    "specs/008-staff-auth-roles-devices/acceptance.md": {
+      "PARTIAL": 9,
+      "PASS": 14
+    },
+    "specs/010-product-modifiers-variants/acceptance.md": {
+      "PASS": 15,
+      "PARTIAL": 1
+    },
+    "specs/011-pricing-discounts-service-charge/acceptance.md": {
+      "PASS": 14,
+      "PARTIAL": 2
+    },
+    "specs/015-receipts-printing-fallbacks/acceptance.md": {
+      "PASS": 13,
+      "MISSING": 1,
+      "EXTERNAL_BLOCKED": 1,
+      "PARTIAL": 1
+    },
+    "specs/019-specialized-surface-routing/acceptance.md": {
+      "PASS": 10
+    },
+    "specs/020-web-operational-completion/acceptance.md": {
+      "PASS": 9
+    },
+    "specs/021-operational-ux-polish/acceptance.md": {
+      "PASS": 8
+    },
+    "specs/021-prototype-design-integration/acceptance.md": {
+      "PASS": 6
+    },
+    "specs/003-dispatch/acceptance.md": {
+      "PARTIAL": 4,
+      "PASS": 3,
+      "MISSING": 7
+    },
+    "specs/004-table-guest-ordering/acceptance.md": {
+      "PASS": 21,
+      "PARTIAL": 7,
+      "MISSING": 10
+    },
+    "specs/016-covers-party-size/acceptance.md": {
+      "PARTIAL": 7,
+      "PASS": 6,
+      "MISSING": 1
+    },
+    "specs/007-management-cockpit/acceptance.md": {
+      "PASS": 6,
+      "PARTIAL": 5,
+      "MISSING": 4
+    },
+    "specs/013-venue-configuration/acceptance.md": {
+      "PARTIAL": 8,
+      "PASS": 4,
+      "MISSING": 1
+    },
+    "specs/018-notifications-operational-escalation/acceptance.md": {
+      "PASS": 13,
+      "PARTIAL": 3,
+      "MISSING": 8
+    },
+    "specs/009-tab-operations/acceptance.md": {
+      "PASS": 18,
+      "PARTIAL": 3
+    },
+    "specs/012-cash-management/acceptance.md": {
+      "PASS": 12,
+      "PARTIAL": 4
+    },
+    "specs/017-order-corrections-exceptions/acceptance.md": {
+      "PARTIAL": 7,
+      "PASS": 8
+    },
+    "specs/014-connectivity-degraded-operation/acceptance.md": {
+      "PARTIAL": 14,
+      "EXTERNAL_BLOCKED": 2,
+      "MISSING": 5,
+      "PASS": 4
+    },
+    "specs/022-full-product-implementation/acceptance.md": {
+      "PASS": 3,
+      "PARTIAL": 7,
+      "EXTERNAL_BLOCKED": 1
+    },
+    "specs/022-material-visual-fidelity/acceptance.md": {
+      "PASS": 7
+    },
+    "specs/023-updated-prototype-visual-parity/acceptance.md": {
+      "PARTIAL": 58
+    }
+  }
+}

@@ -1,0 +1,1 @@
+RESTORE VERIFIED: exposure=0; refund/reversal linked; cash open+closed preserved; occupancy/guest session active; delivery history done.

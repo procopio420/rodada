@@ -1,0 +1,36 @@
+0989217 fix(android): keep closed history out of Agora open-account list
+72ff207 Merge PR65 shared visual hierarchy preserving guest request and alert context
+9140459 Merge current main PR64 retaining equivalent canonical pricing detail fixtures
+0ed0957 fix(integration): finish guest request surface and canonical pricing fixtures
+32374ed docs(release): record management guest escalation evidence
+ad9c8d7 docs(spec023): record full Web coverage and preserved demo validation
+bdb29bf feat(web): apply shared operational hierarchy across existing screens
+3bedc92 docs(spec023): define presentation-only adaptation for active demo
+6fcd10a docs(spec023): define shared Web hierarchy coverage contract
+81ac6e7 docs: record concurrent main sync and preserved pricing fixture
+859323b chore: sync current main and preserve Lucas pricing fixture
+1027926 docs(spec023): record management evidence checks and remaining scope
+32dc88e test(web): complete canonical detail fixture for delayed pricing
+92b344b feat(web): improve management hierarchy and operational navigation
+f2c9b3b docs(spec023): define management hierarchy slice and comparison contract
+cc99bd8 feat(alerts): escalate canonical aged service requests safely
+2d6ef27 feat(dispatch): persist structured service requests with safe ownership and retries
+9c47daa fix(android): preserve blocked recovery provenance and fail closed on unreadable history
+ec46481 test(security): exercise fail-closed deployment settings without secrets
+ee52c01 fix(release): preserve historical merchant lookup and add guest alert policy migration
+81b9a01 feat(alerts): define typed guest request age policy
+52317e3 test(release): define disconnect race and isolate closure ownership
+32404d5 fix(release): guard merchant disconnect and bind native intents to original sessions
+ae903e9 Merge PR 61 unique refresh coordination and Windows demo evidence
+7a38309 Merge PR 62 distinct catalog auth and customization closure
+872449a docs(auth): record concurrent session recovery acceptance
+0c60590 fix(auth): coordinate concurrent Web session refresh
+ae81857 test(catalog): verify provider fallback and document spec closure gates
+8c37217 test(access): verify switched order actor and valid guest isolation
+0b8dc06 docs(demo): record draft review publication
+2fe7489 docs(demo): record PostgreSQL and native integrated acceptance
+c94ada5 chore(demo): add isolated native Windows stack launcher
+317d736 test: preserve UTF-8 receipts and revoked-session assertions
+48cbc6f fix(web): wait for canonical pricing before preview
+fc555a3 feat(ordering): project immutable customization selection mix
+2f6b8ab fix(access): close BYOD audit and membership conflict gaps

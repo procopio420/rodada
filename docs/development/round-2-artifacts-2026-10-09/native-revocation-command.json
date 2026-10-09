@@ -1,0 +1,8 @@
+{
+  "session_id": "5173675c-e2f6-473c-81ea-20525b8cf5e0",
+  "status": 200,
+  "revoked": true,
+  "platform": "ANDROID",
+  "actor": "fixture release-owner",
+  "scope": "actual API; no pending-intent process-death claim"
+}

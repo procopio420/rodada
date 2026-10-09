@@ -1,0 +1,83 @@
+diff --git a/specs/008-staff-auth-roles-devices/acceptance.md b/specs/008-staff-auth-roles-devices/acceptance.md
+index 07b765f..899da92 100644
+--- a/specs/008-staff-auth-roles-devices/acceptance.md
++++ b/specs/008-staff-auth-roles-devices/acceptance.md
+@@ -109,3 +109,9 @@
+ **Given** a StaffMember belongs to Venue A but not Venue B  
+ **When** they try to mutate Venue B  
+ **Then** authorization is denied and no cross-Venue data is changed.
++
++## Web concurrent refresh (2026-10-09)
++
++Given valid refresh cookies and an expired/missing access cookie, concurrent authenticated reads of PDV, Bar, Cozinha and Caixa must all succeed and leave one valid operator session. Requests sent with stale cookies within five seconds receive the same rotation, without issuing a second backend refresh. Tokens remain HttpOnly and absent from response JSON.
++
++Given a session revoked after that rotation, reusing the buffered result must still fail API authorization and clear privileged cookies. A transient upstream refresh failure must not clear valid cookies. The coordinator is memory-bounded, isolates credentials and releases pending/expired entries. This acceptance is for one Web process, not multiple replicas.
+diff --git a/specs/011-pricing-discounts-service-charge/acceptance.md b/specs/011-pricing-discounts-service-charge/acceptance.md
+index 76bc69b..d7b1d26 100644
+--- a/specs/011-pricing-discounts-service-charge/acceptance.md
++++ b/specs/011-pricing-discounts-service-charge/acceptance.md
+@@ -130,3 +130,7 @@ reversing transferred allocations requires an allocation-aware correction rather
+ than guessing the current owner. Refund assistance never claims payment-to-item
+ settlement allocation. Service is operationally classified as revenue or
+ pass-through, without inventing a fiscal or general-ledger treatment.
++
++## Pricing ainda carregando
++
++Given pricing da comanda ainda sem resposta, When abrir ajuste, Then Conferir antes de aplicar fica desabilitado. Após resposta canônica válida, fica habilitado; preview/commit continuam sujeitos a versão, autorização e PIN.
+diff --git a/specs/015-receipts-printing-fallbacks/acceptance.md b/specs/015-receipts-printing-fallbacks/acceptance.md
+index 568d549..4b29cd5 100644
+--- a/specs/015-receipts-printing-fallbacks/acceptance.md
++++ b/specs/015-receipts-printing-fallbacks/acceptance.md
+@@ -120,3 +120,7 @@ checks inspect their parent controls and validate document content separately.
+ Automatic KDS heartbeat fallback and Android Bluetooth acceptance above remain rollout
+ criteria, not P0 claims. P0 does not expose an AUTO_FALLBACK configuration. Fiscal issuance
+ and vendor-mandated payment receipt metadata are separate external decisions.
++
++## Fixtures em Windows
++
++Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
+diff --git a/specs/022-full-product-implementation/acceptance.md b/specs/022-full-product-implementation/acceptance.md
+index d51752d..4cc261d 100644
+--- a/specs/022-full-product-implementation/acceptance.md
++++ b/specs/022-full-product-implementation/acceptance.md
+@@ -17,3 +17,9 @@
+ - [ ] Todos os critérios aplicáveis das specs de domínio têm evidência datada e limites; nenhuma conclusão por scaffolding, mock ou checkbox antigo.
+ 
+ Evidências deverão registrar ambiente, versões, comandos/testes, fixtures e resultado. A validação documental atual não marca nenhum gate de produto como concluído.
++
++## Aceite parcial — demo Windows
++
++Serviços/banco anteriores preservados; PostgreSQL real dedicado e migrations/check sem drift; ASGI/dispatcher/Web acessíveis. Turno idempotente, produção, parcial, fechamento, exceção e restart com saldo conciliado. Pricing/recibos reais; UI/Android separados de script HTTP. Sem afrouxar testes/referências. GO/condicional/NO-GO com SHA e limites; NOT_RUN explícito; publicação saneada sem merge.
++
++Resultado parcial: GO CONDICIONAL, conforme [evidência Windows](../../docs/development/demo-windows-evidence-2026-10-09.md). Não marca gates globais/físicos como concluídos.
+diff --git a/specs/023-updated-prototype-visual-parity/acceptance.md b/specs/023-updated-prototype-visual-parity/acceptance.md
+index 03ce5dd..5f25118 100644
+--- a/specs/023-updated-prototype-visual-parity/acceptance.md
++++ b/specs/023-updated-prototype-visual-parity/acceptance.md
+@@ -81,3 +81,26 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
+ - [ ] Branch original intacta e publicação confirmada por SHA remoto.
+ 
+ Resultado: [validação integrada](../../docs/design/spec023-review.md).
++
++## Hierarquia da Gerência — aceite parcial
++
++- [x] Cinco links em uma única linha em360/430/768; cada um tem ícone24 e label legível, alvo≥44 e seleção por hash/aria-current preservada. Impressoras continua acessível em Mais.
++- [x] Agora SVG corresponde ao original night (hash912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f) em≤0.1%, sem alterar o export/limiar. Pictogramas novos são extensões documentadas.
++- [x] Exposição usa valor canônico existente, destaque34px, largura total e cor financeira. Exceções precedem Agora; loading/erro inicial não exibem zeros medidos.
++- [x] Cabeçalhos/ícones não alteram nomes acessíveis e preservam callbacks, hrefs, dados e permissões. Fonte ampliada não corta labels nem deixa rodapé/campos sob a barra.
++- [x] Testes existentes/novos, types/build e adjacentes passam; evidências não declaram Gerência ou023 integralmente pixel-perfect.
++
++Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.
++
++Resultado deste recorte: [evidências e limites](../../docs/design/spec023-management-hierarchy.md). Gates locais passaram; não conclui V02 ou023 global.
++
++## Acabamento compartilhado Web — aceite
++
++- [x] Todas as rotas Web existentes possuem heading contextual ou usam componente compartilhado coberto; redirecionamento / mantém destino.
++- [x] Headings mantêm texto/nível/id/foco, ícones são aria-hidden e labels/contratos/ações permanecem.
++- [x] Títulos, seções e subseções têm hierarquia coerente, sombras discretas e foco visível; alvos≥44 e sem overflow nas configurações verificadas: matriz principal360–1440 e subpáginas nas larguras discriminadas no relatório. Font scale/zoom global200% permanece pendente.
++- [x] Bar/Cozinha mantêm lote/fila/passe, quantidade/destino/estado/callbacks; mesmos SVGs literais existentes. Cliente mantém disponibilidade e saldo canônicos.
++- [x] Impressos/HTML histórico não são redesenhados; só sua superfície Web. Sem alteração API/financeira/auth.
++- [x] Typecheck/build, suíte visual/realtime e integração PostgreSQL passam; comparação/regiões/limitações registradas sem baseline/tolerância novos.
++
++Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.

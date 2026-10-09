@@ -1,0 +1,2846 @@
+[
+  {
+    "criterion_id": "001-001",
+    "criterion": "Staff abre uma Tab sem selecionar mesa ou Customer.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-002",
+    "criterion": "Staff pode abrir uma Tab com nome/apelido simples.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-003",
+    "criterion": "Staff pode opcionalmente associar/mover a Tab entre contextos físicos.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-004",
+    "criterion": "Duas Tabs podem compartilhar a mesma TableOccupancy mantendo ledgers independentes.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-005",
+    "criterion": "Fechar uma Tab não encerra automaticamente a TableOccupancy.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-006",
+    "criterion": "Pedido com produtos ativos e operacionalmente disponíveis é confirmado com snapshot de preço.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-007",
+    "criterion": "Cozinha/Bar autorizado marca produto da estação como indisponível e a alteração é auditada.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-008",
+    "criterion": "Produto indisponível deixa de ser confirmável por `STAFF`, `CASHIER` e `GUEST` na regra/API de Order; a UI guest completa fica na Spec 004.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-009",
+    "criterion": "Carrinho stale é rejeitado na confirmação se algum item ficou indisponível, com indicação dos itens afetados.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-010",
+    "criterion": "Tornar produto indisponível não altera OrderItem já confirmado.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-011",
+    "criterion": "Todo Order possui `tab_id`.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-012",
+    "criterion": "Cada item confirmado gera efeito financeiro exatamente uma vez.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-013",
+    "criterion": "Estados operacionais registram timestamps.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-014",
+    "criterion": "Cancelamento pós-confirmação não apaga histórico e exige auditoria.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-015",
+    "criterion": "Pagamento manual reduz exposure.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-016",
+    "criterion": "Tab com exposure zero pode ser fechada.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-017",
+    "criterion": "Caixa resume recebimentos por método.",
+    "status": "PARTIAL",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "002-001",
+    "criterion": "Staff busca regular por nome/telefone; seleção opcional na abertura Android.",
+    "status": "PARTIAL",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-002",
+    "criterion": "Tab de `HOUSE` herda limite configurado e versão da política.",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-003",
+    "criterion": "Exposure atual aparece após mutation por revalidação API; outras superfícies usam polling bounded de 15s, o fallback existente da Spec 014.",
+    "status": "PARTIAL",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-004",
+    "criterion": "Ao atingir limite, novo consumo exige parcial/aprovação/reavaliação explícita.",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-005",
+    "criterion": "Parcial confirmado reduz exposure sem fechar Tab.",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-006",
+    "criterion": "Override registra ator, motivo, antes/depois, horário e expiração.",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-007",
+    "criterion": "Histórico mostra visitas/tabs, pendências e decisões auditadas.",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-008",
+    "criterion": "HOU-001  —  Anonymous Tab usa política VISITOR do Venue; identity optional  —  `test_anonymous_uses_venue_visitor_policy_and_snapshots_updates`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-009",
+    "criterion": "HOU-002  —  HOUSE/RESTRICTED têm snapshot correto; limite zero bloqueia  —  `test_house_and_restricted_snapshots`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-010",
+    "criterion": "HOU-003  —  Pedido abaixo/no limite confirma; excesso não cria Charge/OrderItem  —  `test_orders_below_limit_and_at_limit_then_no_effect_on_rejection`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-011",
+    "criterion": "HOU-004  —  Duas confirmações concorrentes não excedem limite  —  `HouseConcurrencyTests.test_concurrent_orders_cannot_overspend` (PostgreSQL)",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-012",
+    "criterion": "HOU-005  —  Replays não duplicam efeitos, inclusive após atingir limite/fechar  —  `test_idempotent_replay_after_limit_policy_change_and_close`, `HouseConcurrencyTests.test_concurrent_replay_creates_one_order`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-013",
+    "criterion": "HOU-006  —  Parcial restaura capacidade; Refund confirmado aumenta exposição  —  `test_partial_payment_restores_capacity_and_refund_increases_exposure`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-014",
+    "criterion": "HOU-007  —  Waiter/Cashier não aprovam; serviço não confia em payload; PIN recente obrigatório  —  `test_unauthorized_override_payload_and_recent_reauth`, `test_direct_override_service_cannot_trust_a_waiter_actor`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-015",
+    "criterion": "HOU-008  —  Override é idempotente, expira, audita e não cria Payment  —  `test_override_idempotency_expiration_and_no_fake_money`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-016",
+    "criterion": "HOU-009  —  Resolver limite preserva outro motivo de REQUIRES_ACTION  —  `test_override_cannot_clear_another_unresolved_reason`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-017",
+    "criterion": "HOU-010  —  Associação/mudança de relacionamento preservam snapshot/histórico; reavaliação é explícita  —  `test_customer_association_relationship_change_explicit_reassessment_preserves_history`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-018",
+    "criterion": "HOU-011  —  Atualização de política não modifica pedido confirmado  —  `test_policy_update_preserves_existing_order`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-019",
+    "criterion": "HOU-012  —  Guest/Staff/Cashier usam o mesmo enforcement  —  `test_guest_and_staff_share_same_tab_enforcement`, `test_spending_limit_is_source_agnostic`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-020",
+    "criterion": "HOU-013  —  Busca/associação são isoladas por Venue e alterações exigem autorização  —  `test_staff_customer_search_is_venue_scoped`, `test_cross_venue_customer_cannot_be_associated`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-021",
+    "criterion": "HOU-014  —  Solicitar aprovação não concede limite; warning a 80%  —  `test_request_approval_is_audited_without_granting_capacity`, `test_warning_at_eighty_percent`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-022",
+    "criterion": "HOU-015  —  Comandas antigas não desaparecem depois da primeira página  —  `test_active_tab_pagination_does_not_hide_old_attention_tabs`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-023",
+    "criterion": "HOU-016  —  Migração preserva ledger e atenção manual  —  `tests/test_house_account_migration.py`",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-024",
+    "criterion": "HOU-017  —  Open → Consume → Hit Limit → Block → Override/Partial → Continue → Pay → Close  —  Dois testes em `tests/test_house_account_e2e.py`, servidor real via HTTP",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-025",
+    "criterion": "HOU-018  —  Guest sem controles gerenciais, Gerência aprova com PIN; revalidação após reconnect em mobile  —  `scripts/house-account-browser-e2e.py`, Chromium real, 390×844",
+    "status": "PARTIAL",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "002-026",
+    "criterion": "HOU-019  —  Android lê capacidade/limite canônicos, zero sem percentual, schema incompleto falha  —  Quatro testes em `HouseAccountContractTest.kt`; build/lint Android",
+    "status": "PASS",
+    "source": "specs/002-house-account/acceptance.md"
+  },
+  {
+    "criterion_id": "003-001",
+    "criterion": "Ponto pode trocar de zona durante a noite.",
+    "status": "PARTIAL",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-002",
+    "criterion": "READY cria/atualiza uma delivery task idempotentemente.",
+    "status": "PASS",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-003",
+    "criterion": "Staff vê idade e destino; ownership continua fora do slice inicial.",
+    "status": "PARTIAL",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-004",
+    "criterion": "Fluxo normal não exige “peguei” ou “saí”; uma única conclusão explícita de entrega existe como exceção operacional P0.",
+    "status": "PASS",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-005",
+    "criterion": "Sistema consegue registrar PICKED_UP/DELIVERED inferidos com source e confidence.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-006",
+    "criterion": "Evento inferido não é apresentado como confirmação manual.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-007",
+    "criterion": "Staff consegue corrigir uma inferência errada com ação curta e auditável.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-008",
+    "criterion": "Correção não apaga o milestone/evento original.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-009",
+    "criterion": "Ausência/falha de BLE ou outro sensor não impede venda, preparo ou entrega.",
+    "status": "PASS",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-010",
+    "criterion": "Falha de telemetria degrada precisão da métrica, não recria passos obrigatórios.",
+    "status": "PARTIAL",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-011",
+    "criterion": "DeliveryRun agrupa entregas sem perder associação a cada Tab/OrderItem.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-012",
+    "criterion": "Métricas conseguem separar MANUAL, INFERRED e CORRECTED.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-013",
+    "criterion": "É possível medir taxa de correção dos eventos inferidos para calibrar confidence.",
+    "status": "MISSING",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "003-014",
+    "criterion": "POS continua funcional sem conexão realtime.",
+    "status": "PARTIAL",
+    "source": "specs/003-dispatch/acceptance.md"
+  },
+  {
+    "criterion_id": "004-001",
+    "criterion": "Mesa possui QR com token opaco não sequencial.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-002",
+    "criterion": "QR permanece o mesmo quando a mesa muda de lugar.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-003",
+    "criterion": "Scan do QR resolve a Table sem expor PK interno.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-004",
+    "criterion": "Table pode existir AVAILABLE sem placement ativo.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-005",
+    "criterion": "Staff autorizado pode associar/remover o contexto textual de Zone sem alterar ocupação, Tabs, pedidos, ledger ou QR.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-006",
+    "criterion": "Guest abre PWA sem instalar app ou criar conta.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-007",
+    "criterion": "Ao escanear Table sem placement, guest pode selecionar posição aproximada num floorplan 2D sanitizado.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-008",
+    "criterion": "Staff pode posicionar ou arrastar uma Table no floorplan.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-009",
+    "criterion": "Staff pode retirar uma Table do mapa encerrando apenas o placement, sem apagar a Table ou trocar o QR.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-010",
+    "criterion": "Reposicionar Table preserva TableOccupancy, Tabs, Orders, ledger, GuestSession válida e QR.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-011",
+    "criterion": "Update concorrente com versão stale não sobrescreve placement silenciosamente.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-012",
+    "criterion": "Floorplan guest não expõe estados operacionais de outras mesas, staff ou filas internas.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-013",
+    "criterion": "Staff pode agrupar/desagrupar Tables sem fundir suas identidades ou contas.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-014",
+    "criterion": "Em `DIRECT`, guest pode iniciar atendimento numa Table `AVAILABLE`.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-015",
+    "criterion": "Em `JOIN_ACTIVE`, guest não inicia ocupação nova.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-016",
+    "criterion": "Em `DISABLED`, guest não envia pedido.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-017",
+    "criterion": "Uma TableOccupancy suporta duas ou mais Tabs independentes.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-018",
+    "criterion": "Todo pedido guest pertence a uma Tab e possui `source=GUEST`.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-019",
+    "criterion": "Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-020",
+    "criterion": "Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-021",
+    "criterion": "Guest não confirma item que ficou indisponível depois de entrar no carrinho.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-022",
+    "criterion": "Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-023",
+    "criterion": "Fechar a última Tab não libera a Table automaticamente.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-024",
+    "criterion": "`release table` muda `OCCUPIED → DIRTY` e encerra a ocupação.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-025",
+    "criterion": "Staff inicia limpeza `DIRTY → CLEANING`.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-026",
+    "criterion": "Staff conclui limpeza `CLEANING → AVAILABLE`.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-027",
+    "criterion": "Concluir limpeza incrementa `access_generation`.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-028",
+    "criterion": "GuestSession de geração anterior não consegue criar novos pedidos.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-029",
+    "criterion": "Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-030",
+    "criterion": "Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-031",
+    "criterion": "Guest vê status simplificado RECEBIDO / PREPARANDO / PRONTO-CHEGANDO derivado do fulfillment.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-032",
+    "criterion": "Guest consegue pedir novamente um item anterior ainda disponível.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-033",
+    "criterion": "Guest consegue criar solicitação estruturada de atendimento/conta que entra no Dispatch.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-034",
+    "criterion": "Guest pode assumir Tab por código curto.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-035",
+    "criterion": "Uma Tab pode receber e revogar associação NFC.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-036",
+    "criterion": "NFC pode ser reutilizado em outra Tab após revogação/fechamento.",
+    "status": "MISSING",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-037",
+    "criterion": "Perfil Customer é opcional e pode ser ligado depois sem migrar a Tab.",
+    "status": "PARTIAL",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "004-038",
+    "criterion": "Sistema registra timestamps para ocupação, liberação, início e fim da limpeza.",
+    "status": "PASS",
+    "source": "specs/004-table-guest-ordering/acceptance.md"
+  },
+  {
+    "criterion_id": "005-001",
+    "criterion": "Staff autorizado em Bar/Cozinha possui ação **+ Item**.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-002",
+    "criterion": "Campo de nome oferece autocomplete de Products existentes do Venue.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-003",
+    "criterion": "Sugestões mostram nome, preço, estação, disponibilidade e ProductIcon.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-004",
+    "criterion": "Selecionar sugestão existente reutiliza o mesmo Product e o mesmo ProductIcon.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-005",
+    "criterion": "Correspondência exata normalizada não cria Product duplicado.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-006",
+    "criterion": "Sem correspondência exata, UI oferece **Criar \"{nome}\"**.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-007",
+    "criterion": "Confirmar nome novo executa resolve-or-create atômico e converge para um único Product em corrida concorrente.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-008",
+    "criterion": "Quick create herda a FulfillmentStation atual.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-009",
+    "criterion": "Nome e preço são suficientes para concluir Product novo no fluxo rápido.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-010",
+    "criterion": "Product e ProductIcon 1:1 são criados juntos.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-011",
+    "criterion": "Criar Product não depende da disponibilidade do provider de IA.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-012",
+    "criterion": "Salvar Product novo sem upload manual inicia geração de ícone automaticamente, sem botão/toggle de geração.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-013",
+    "criterion": "Enquanto gera, Product continua utilizável com placeholder ou ícone anterior.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-014",
+    "criterion": "Falha de geração não altera disponibilidade nem impede pedidos.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-015",
+    "criterion": "Asset gerado segue contrato 1:1, sem texto e adequado a tamanho pequeno.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-016",
+    "criterion": "Primeira geração bem-sucedida é publicada automaticamente quando ainda não existe asset.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-017",
+    "criterion": "Regeneração excepcional em edição não remove o ícone publicado atual até o novo ficar pronto.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-018",
+    "criterion": "Usuário pode substituir por upload manual.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-019",
+    "criterion": "Usuário pode remover o ícone e voltar ao placeholder.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-020",
+    "criterion": "Autocomplete, Staff, Bar/Cozinha e Guest usam a mesma referência de ProductIcon publicada.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-021",
+    "criterion": "Renomear Product não cria outro ProductIcon nem perde o vínculo 1:1.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-022",
+    "criterion": "Alterar preço/disponibilidade não altera a identidade visual do Product.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-023",
+    "criterion": "Provider/model/prompt/style_version ficam rastreáveis para geração.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-024",
+    "criterion": "Nenhum dado de Customer/Tab/Order é enviado ao gerador.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-025",
+    "criterion": "Geração possui rate limit, idempotência e deduplicação por conteúdo relevante + style version.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "005-026",
+    "criterion": "Fuzzy match nunca mescla dois Products automaticamente.",
+    "status": "PASS",
+    "source": "specs/005-catalog-ai-icons/acceptance.md"
+  },
+  {
+    "criterion_id": "006-001",
+    "criterion": "Payment pertence a Tab e nunca depende de Table.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-002",
+    "criterion": "Uma Tab aceita múltiplos Payments.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-003",
+    "criterion": "Pagamento parcial reduz saldo sem exigir \"dividir conta\".",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-004",
+    "criterion": "Saldo é derivado do ledger e não de `tab.paid`.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-005",
+    "criterion": "Pagar a última Tab não libera automaticamente TableOccupancy.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-006",
+    "criterion": "Staff consegue iniciar **Pagar** diretamente da Tab.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-007",
+    "criterion": "No happy path integrado, valor não é digitado novamente em outra maquininha.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-008",
+    "criterion": "Rodada Atendimento executa o fluxo operacional em app Android nativo Kotlin + Jetpack Compose.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-009",
+    "criterion": "Staff com membership ativa consegue operar pedidos em celular BYOD UNTRUSTED sem aprovação administrativa do aparelho.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-010",
+    "criterion": "Celular sem NFC ou não provisionado pelo PSP continua com comandas e pedidos, além dos fallbacks de pagamento autorizados.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-011",
+    "criterion": "Habilitação/homologação de Tap on Phone pelo PSP é verificada separadamente de login e DeviceRegistration do Rodada.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-012",
+    "criterion": "Device compatível oferece Tap on Phone sem acoplar o domínio a uma marca.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-013",
+    "criterion": "Paytime é o primeiro adapter real de Tap on Phone do MVP.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-014",
+    "criterion": "Cobrança Tap on Phone acontece dentro do Rodada Atendimento, sem abrir aplicativo externo no happy path.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-015",
+    "criterion": "Device/provider incompatível não oferece Tap on Phone como disponível.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-016",
+    "criterion": "Double tap/retry com a mesma intenção não cria cobrança duplicada.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-017",
+    "criterion": "Timeout após envio entra em estado reconciliável e não libera retry cego.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-018",
+    "criterion": "`CONFIRMATION_PENDING` impede nova cobrança equivalente até resolução.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-019",
+    "criterion": "Frontend sozinho nunca é fonte de verdade de confirmação.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-020",
+    "criterion": "Webhook duplicado é idempotente.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-021",
+    "criterion": "Evento externo é rastreável por provider_event_id/payload_hash.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-022",
+    "criterion": "Pix confirmado pelo provider atualiza automaticamente a Tab.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-023",
+    "criterion": "Staff não precisa marcar Pix como pago no fluxo normal.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-024",
+    "criterion": "Guest autorizado pode pagar a mesma Tab, sem criar conta paralela.",
+    "status": "MISSING",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-025",
+    "criterion": "Pagamento Guest aparece no Staff em realtime quando conectado.",
+    "status": "MISSING",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-026",
+    "criterion": "Dinheiro registra quem confirmou o recebimento.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-027",
+    "criterion": "Terminal externo existe como fallback explícito e auditável.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-028",
+    "criterion": "Payment confirmado nunca é apagado para representar estorno.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-029",
+    "criterion": "Estorno total/parcial cria Refund/efeito reverso rastreável.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-030",
+    "criterion": "Apenas papéis autorizados executam estorno/reconciliação manual.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-031",
+    "criterion": "Payment Provider é abstraído por porta/adaptador.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-032",
+    "criterion": "Capabilities de provider/device guiam a UI sem hardcode de marca.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-033",
+    "criterion": "PAN/CVV nunca são persistidos pelo Rodada.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-034",
+    "criterion": "Logs não expõem credenciais nem dados sensíveis de cartão.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-035",
+    "criterion": "Métrica de tempo entre intenção de pagar e confirmação é registrada.",
+    "status": "PARTIAL",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-036",
+    "criterion": "Fluxo P0 continua funcional quando Tap on Phone estiver indisponível, usando método alternativo.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-037",
+    "criterion": "Callback without its initiating browser cookie cannot exchange a code.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-038",
+    "criterion": "Revoked staff/session or denied OAuth cannot create a connection.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-039",
+    "criterion": "Lookup without artifacts retains the original Pix display data.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-040",
+    "criterion": "One unavailable merchant does not prevent other scheduled lookups.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-041",
+    "criterion": "TEST_DOUBLE/SIMULATED evidence is distinct from SANDBOX_CONFIRMED/LIVE_CONFIRMED.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-042",
+    "criterion": "Unsigned SumUp checkout notifications only request authenticated lookup; duplicate/reordered hints cannot settle money.",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "006-043",
+    "criterion": "One provider merchant transaction has one canonical financial owner; a second settlement remains CONFIRMATION_PENDING (PostgreSQL race + migration checks).",
+    "status": "PASS",
+    "source": "specs/006-payments-tap-on-phone/acceptance.md"
+  },
+  {
+    "criterion_id": "007-001",
+    "criterion": "A1 — Home mobile: Dado um gerente autenticado em viewport de 360–430 px, quando abrir Gerência, então deve ver primeiro pulso do dia, alertas acionáveis e estado operacional, sem depender de gráfico histórico para entender se existe problema agora.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-002",
+    "criterion": "A2 — Exceção aparece sem caça manual: Dado um pedido acima do SLA, quando a projeção atualizar, então um alerta deve aparecer com contexto, tempo e próxima ação, sem exigir que o gerente navegue até a cozinha para descobrir o problema.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-003",
+    "criterion": "A3 — Realtime degradável: Dado WebSocket/Redis indisponível, quando o gerente continuar usando o app, então o estado deve indicar stale/offline e revalidar via API, sem inventar atualização e sem perder a capacidade de leitura básica.",
+    "status": "PARTIAL",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-004",
+    "criterion": "A4 — Financeiro consistente: Dado um callback local de Tap on Phone sem confirmação server-side, quando Gerência mostrar pagamentos, então a cobrança não pode entrar como recebida definitivamente.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-005",
+    "criterion": "A5 — Timeline auditável: Dado um evento persistido relevante, quando o gerente abrir a timeline, então consegue localizar o evento e seu contexto.",
+    "status": "PARTIAL",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-006",
+    "criterion": "A6 — Business date: Dado um Venue cujo cutoff operacional ocorre após meia-noite, quando uma venda acontecer antes do cutoff, então ela deve pertencer ao mesmo business date da operação noturna configurada.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-007",
+    "criterion": "A7 — Fechamento diário: Dado um dia operacional encerrado, quando o gerente abrir o fechamento, então o sistema apresenta vendas, recebimentos, ajustes/refunds, Tabs abertas e divergências sem reconstrução manual.",
+    "status": "PARTIAL",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-008",
+    "criterion": "A8 — Correção pós-fechamento: Dado um ajuste feito depois do fechamento, quando o histórico for consultado, então o fechamento original e a correção permanecem auditáveis; o passado não é sobrescrito silenciosamente.",
+    "status": "PARTIAL",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-009",
+    "criterion": "A9 — Fechamento mensal: Dado um mês com dias fechados, quando abrir o resumo mensal no celular, então a primeira visão responde receita, variação, ticket, clientes/visitas, pico, área/produto destaque e saúde operacional antes de gráficos detalhados.",
+    "status": "MISSING",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-010",
+    "criterion": "A10 — Ocupação × receita: Dado histórico suficiente de TableOccupancy e vendas, quando o gerente analisar uma área, então consegue comparar ocupação/giro com receita por período sem a UI afirmar causalidade.",
+    "status": "MISSING",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-011",
+    "criterion": "A11 — Sem leaderboard tóxico: Quando métricas de equipe forem exibidas, então a interface não deve apresentar ranking simplista de “melhor/mais rápido” e deve preservar contexto/provenance relevante.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-012",
+    "criterion": "A12 — Push útil: Dado fluxo normal de pedidos e pagamentos, então novos pedidos e pagamentos aprovados não geram push gerencial por padrão.",
+    "status": "PASS",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-013",
+    "criterion": "A12 — Push útil: Dada uma condição crítica configurada e sustentada, então o gerente pode receber uma notificação deduplicada.",
+    "status": "MISSING",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "007-014",
+    "criterion": "A13 — Insights rastreáveis: Dado um insight do sistema, quando o gerente tocar nele, então deve ser possível identificar período/base/dados que o sustentam e se ele é fato, estimativa ou hipótese.",
+    "status": "MISSING",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "008-001",
+    "criterion": "Authentication happy path: **Given** an ACTIVE StaffMember membership in a Venue and a new Android app installation never registered with Rodada   **When** the staff member enters a valid PIN **Then** the backend registers the installation automatically as UNTRUSTED, issues a staff session scoped to that Venue and the app shows the current operator without manager approval.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-002",
+    "criterion": "BYOD device trust does not block routine work: **Given** an authenticated waiter on a personal Android installation with trust state UNTRUSTED   **When** they view Tabs, confirm orders or perform another ordinary operation their membership authorizes **Then** the server evaluates staff capabilities and succeeds without a device-trust promotion or approval screen.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-003",
+    "criterion": "Revocation scope and reinstall: **Given** a registered installation is REVOKED   **When** its existing sessions refresh or mutate **Then** they are denied, regardless of the employee's role.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-004",
+    "criterion": "Payment eligibility is independent: **Given** a waiter authenticated on an Android phone lacking NFC, a supported PSP SDK or required provider provisioning   **When** they use Rodada Atendimento **Then** normal orders and Tabs still work, while Tap on Phone is unavailable and supported payment fallbacks remain discoverable.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-005",
+    "criterion": "BYOD privacy and fallback: **Given** an employee uses their personal phone   **Then** the POS does not require MDM enrollment, access to unrelated personal content or continuous location tracking to authenticate and serve orders.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-006",
+    "criterion": "Permission denial: **Given** a STAFF user without refund capability   **When** they call the refund mutation directly, bypassing UI hiding **Then** the backend rejects it with CAPABILITY_REQUIRED and creates no Refund or financial effect.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-007",
+    "criterion": "Fast operator switching: **Given** a trusted shared device currently used by Ana   **When** Bruno selects his identity and authenticates with his PIN **Then** the next mutation is attributed to Bruno, not Ana, while the station/device context may remain.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-008",
+    "criterion": "Session expiry: **Given** an expired session   **When** a mutation is attempted and refresh is no longer valid **Then** no domain mutation occurs and the client asks for authentication again.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-009",
+    "criterion": "Revoked membership: **Given** a MANAGER revokes a staff membership   **When** an existing session next refreshes or performs a protected mutation **Then** authorization fails even if the client UI has not yet received realtime invalidation.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-010",
+    "criterion": "Lost device: **Given** an OWNER revokes a lost trusted device   **When** any session bound to that device attempts a new protected mutation **Then** it is rejected and the revocation is visible in audit history.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-011",
+    "criterion": "Privileged reauthentication: **Given** an authorized manager whose recent-auth window expired   **When** they attempt a refund **Then** the server returns REAUTH_REQUIRED; after successful reauthentication the same intended action can be retried without creating a duplicate refund.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-012",
+    "criterion": "Connectivity loss: **Given** Atendimento goes offline with an active session   **When** a command classified by Spec 014 as queueable is captured **Then** its original actor/session context is retained; on reconnect the backend reauthorizes it.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-013",
+    "criterion": "Concurrency: **Given** two managers concurrently update the same membership role from the same version   **When** both requests arrive **Then** only one update succeeds without conflict; the other receives the current membership state.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-014",
+    "criterion": "Audit verification: **Given** login, operator switch, device revoke and role change events   **When** audit is queried **Then** each record identifies what happened, when, actor where applicable, Venue and device/session provenance without storing PIN/token material.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-015",
+    "criterion": "Guest separation: **Given** a valid GuestSession   **When** it is supplied to a staff-only endpoint **Then** the request is rejected regardless of the guest's Tab access.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-016",
+    "criterion": "Cross-Venue isolation: **Given** a StaffMember belongs to Venue A but not Venue B   **When** they try to mutate Venue B **Then** authorization is denied and no cross-Venue data is changed.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "009-001",
+    "criterion": "Location move: **Given** an OPEN Tab at TableOccupancy A   **When** authorized staff moves it to active TableOccupancy B **Then** current location becomes B, no Charge/Payment changes, historical events keep prior context, and occupancy A is not released.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-002",
+    "criterion": "Split unpaid items: **Given** an unpaid Tab with three confirmed items   **When** cashier selects one complete item and splits it to a new Tab **Then** the original OrderItem remains historically on the source Tab, a balanced TabTransfer moves its open financial responsibility, and Venue total receivable is unchanged.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-003",
+    "criterion": "Partial movement: **Given** a transferable line of R$ 40,00   **When** R$ 15,00 is moved with a valid explicit partial transfer **Then** source responsibility decreases by exactly 1500 cents, destination increases by 1500 cents, and the transfer records provenance.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-004",
+    "criterion": "Payment restriction: **Given** a Tab with any confirmed Payment   **When** staff tries to move item financial responsibility or merge it into another Tab **Then** the server rejects the operation with a deterministic blocker and no ledger/history changes.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-005",
+    "criterion": "In-flight payment restriction: **Given** a Payment in CONFIRMATION_PENDING   **When** a merge is requested **Then** the merge is rejected until reconciliation resolves the Payment.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-006",
+    "criterion": "Merge duplicates: **Given** two unpaid duplicate OPEN Tabs in the same Venue   **When** cashier merges source into chosen survivor **Then** transferable responsibility is moved once, source is CANCELLED with MERGED_INTO provenance, source history remains queryable, and confirmed records are not deleted.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-007",
+    "criterion": "Guest identity safety: **Given** a GuestSession authorized to the source Tab   **When** the source is merged into another Tab **Then** the GuestSession is not silently rebound to the survivor and must explicitly rejoin/resolve authorized access.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-008",
+    "criterion": "Cancel accidental empty Tab: **Given** an OPEN Tab with no confirmed Orders, Charges, Payments, Refunds or non-zero Adjustments   **When** an authorized actor cancels it as accidental **Then** state becomes CANCELLED, audit is written, and any TableOccupancy remains unchanged.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-009",
+    "criterion": "Reject non-empty cancellation: **Given** a Tab with a confirmed Charge   **When** cancel_empty_tab is requested **Then** it is rejected and the user is directed to correction/reversal flows.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-010",
+    "criterion": "Reopen closed Tab: **Given** a CLOSED Tab with no incompatible settlement operation   **When** a MANAGER reopens it with reason **Then** prior close and payments remain immutable, Tab becomes OPEN or REQUIRES_ACTION according to current exposure, and no TableOccupancy is created/released.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-011",
+    "criterion": "Post-close reporting: **Given** the business day was already confirmed closed   **When** a Tab from that day is reopened **Then** the original close is preserved and Gerência receives a post-close exception fact.",
+    "status": "PARTIAL",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-012",
+    "criterion": "Concurrency: **Given** two clients attempt to transfer the same full R$ 30 line concurrently   **When** both commit **Then** at most one can transfer the full amount; the other receives current transferable state.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-013",
+    "criterion": "Retry/idempotency: **Given** a committed split request   **When** the same idempotency key is retried after timeout **Then** no second transfer or ledger effect is created.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-014",
+    "criterion": "Permission denial: **Given** an actor without tab.reopen capability   **When** they call reopen directly **Then** the backend rejects it and writes no state change.",
+    "status": "PARTIAL",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-015",
+    "criterion": "Degraded network: **Given** Atendimento is offline   **When** staff attempts split/merge/reopen **Then** the UI does not claim success or mutate local canonical balance; the operation waits for online execution.",
+    "status": "PARTIAL",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-016",
+    "criterion": "Audit verification: **Given** a move, split, merge or reopen succeeds   **When** timeline/audit is inspected **Then** actor, time, source/destination, exact amount where applicable and reason/policy context are recoverable.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "010-001",
+    "criterion": "Simple product backward compatibility: **Given** a Product with no variants or modifier groups   **When** staff adds it **Then** it can still quick-add and confirm exactly as before.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-002",
+    "criterion": "Required variant: **Given** a Product with P/M/G variants and no default   **When** staff attempts to confirm without a variant **Then** server rejects with VARIANT_REQUIRED and creates no OrderItem/Charge.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-003",
+    "criterion": "Required modifier: **Given** a SINGLE group “Ponto” with min=1 max=1   **When** no option is selected **Then** confirmation is rejected.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-004",
+    "criterion": "Multi-select bounds: **Given** “Adicionais” min=0 max=3   **When** four options are submitted by a modified client **Then** server rejects regardless of UI state.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-005",
+    "criterion": "Price calculation: **Given** base price 3000 cents, variant +500 and modifiers +300 +0   **When** the item is confirmed **Then** unit price snapshot is exactly 3800 cents and no floating-point calculation is used.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-006",
+    "criterion": "Zero-price removal: **Given** “SEM cebola” is an AVAILABLE REMOVE option priced 0   **When** selected **Then** it appears in the confirmed snapshot and production display without changing price.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-007",
+    "criterion": "Stale availability: **Given** bacon extra was selectable when cart opened   **When** it becomes UNAVAILABLE before confirmation **Then** server rejects the bacon selection, identifies the affected option and does not silently remove/substitute it.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-008",
+    "criterion": "Parent availability: **Given** ProductAvailability is UNAVAILABLE   **When** a client submits otherwise valid variant/modifiers **Then** the Product cannot be confirmed.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-009",
+    "criterion": "Snapshot immutability: **Given** a confirmed OrderItem with “Grande + bacon”   **When** the Product, variant name or modifier price later changes **Then** historical OrderItem still displays the original names and cents.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-010",
+    "criterion": "Post-confirm change: **Given** a confirmed item   **When** customer asks to remove bacon **Then** the existing snapshot is not mutated; correction follows Spec 017.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-011",
+    "criterion": "Production routing: **Given** a Product routed to KITCHEN with modifiers   **When** confirmed **Then** it remains one KITCHEN OrderItem with structured preparation text; no hidden BAR work is created by a modifier.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-012",
+    "criterion": "Permission denial: **Given** station staff without catalog-config capability   **When** they attempt to edit modifier group structure **Then** backend denies it.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-013",
+    "criterion": "Authorized availability: **Given** kitchen staff authorized for the Product station   **When** they mark a modifier option unavailable **Then** actor/time/old/new state are audited and staff/guest receive realtime invalidation.",
+    "status": "PARTIAL",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-014",
+    "criterion": "Concurrency: **Given** availability changes concurrently with order confirmation   **When** database validation sees the option unavailable before commit **Then** no invalid OrderItem/Charge is committed.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-015",
+    "criterion": "Idempotency: **Given** a customized order confirmation times out client-side   **When** the exact idempotency key is retried **Then** only one OrderItem and one financial effect exist.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "010-016",
+    "criterion": "Guest UX: **Given** required choices exist   **When** guest taps Add **Then** a compact choice flow opens; unavailable choices are labeled, price impact is visible, and notes remain secondary.",
+    "status": "PASS",
+    "source": "specs/010-product-modifiers-variants/acceptance.md"
+  },
+  {
+    "criterion_id": "011-001",
+    "criterion": "Item percentage discount: **Given** an eligible item net basis of 2000 cents   **When** an authorized cashier applies 10.00% item discount **Then** a -200 cent Adjustment is persisted, the original Charge remains unchanged and payable decreases exactly 200 cents.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-002",
+    "criterion": "Fixed discount bound: **Given** an eligible Tab basis of 3000 cents   **When** a 3500-cent fixed discount is requested **Then** the server rejects it and no Adjustment is written.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-003",
+    "criterion": "Courtesy: **Given** a manager grants full courtesy to a 1200-cent item with required reason   **When** committed **Then** the item Charge remains, a -1200-cent COURTESY effect is recorded with actor/reason, and reporting classifies it as courtesy rather than zero-price sale.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-004",
+    "criterion": "Service charge: **Given** eligible net consumption of 10000 cents and venue default 10.00%   **When** service charge is assessed **Then** SERVICE_CHARGE effect is exactly +1000 cents and no Product/OrderItem is created.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-005",
+    "criterion": "Service charge after discounts: **Given** gross consumption 10000 cents and 2000 cents of active eligible discounts   **When** 10.00% service charge is calculated **Then** basis is 8000 cents and service charge is 800 cents.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-006",
+    "criterion": "Reduce service charge: **Given** an active 1000-cent service charge   **When** authorized staff reduces it to 500 cents **Then** original assessment remains queryable and a -500-cent SERVICE_CHARGE_REDUCTION effect records the change.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-007",
+    "criterion": "Rounding/allocation: **Given** a Tab-level percentage discount whose proportional shares produce fractional cents   **When** applied **Then** largest-remainder allocation is deterministic and allocated cents sum exactly to total discount.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-008",
+    "criterion": "Permission threshold: **Given** STAFF lacks a requested discount threshold   **When** they submit it directly **Then** server returns APPROVAL_REQUIRED or CAPABILITY_REQUIRED according to policy and no financial effect is committed.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-009",
+    "criterion": "Manager approval: **Given** an approvable request above cashier threshold   **When** a manager reauthenticates and approves **Then** one Adjustment is created with requester and approver; retrying the same idempotency key creates no duplicate.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-010",
+    "criterion": "Partial payment safe edit: **Given** payable is 10000 cents and 4000 cents is already confirmed received   **When** manager applies an Adjustment that leaves payable 8000 cents **Then** it may commit if policy permits and remaining balance becomes 4000 cents.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-011",
+    "criterion": "Partial payment unsafe edit: **Given** 9000 cents already received   **When** a proposed discount would reduce payable to 8000 cents **Then** server rejects with SETTLEMENT_CORRECTION_REQUIRED unless a valid refund/correction orchestration handles the 1000-cent over-receipt.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-012",
+    "criterion": "Payment stale amount: **Given** a payment screen was opened before a pricing Adjustment   **When** it attempts to create an integrated payment with stale balance/version **Then** backend rejects/revalidates instead of charging the stale amount.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-013",
+    "criterion": "Refund helper: **Given** an item had allocated discounts   **When** manager prepares item-based refund **Then** refund preview uses persisted net allocations and never refunds the undiscounted list price by mistake.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-014",
+    "criterion": "Concurrency: **Given** two managers calculate discounts from the same pricing version   **When** both commit concurrently **Then** one succeeds and the stale request must re-preview against the new basis.",
+    "status": "PASS",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "011-015",
+    "criterion": "Audit / closing: **Given** discounts, courtesy and service charge occurred during a business date   **When** daily close is generated **Then** gross consumption, each adjustment category, service charge and refunds are separately reconstructible without double counting.",
+    "status": "PARTIAL",
+    "source": "specs/011-pricing-discounts-service-charge/acceptance.md"
+  },
+  {
+    "criterion_id": "012-001",
+    "criterion": "Open shift: **Given** CashPoint “Caixa principal” has no active shift   **When** CASHIER opens with 20000 cents float **Then** one OPEN CashShift exists and expected starting cash is 20000 cents.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-002",
+    "criterion": "Unique active shift: **Given** that CashPoint already has an OPEN shift   **When** another open request is made **Then** backend rejects it without creating a second active shift.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-003",
+    "criterion": "Cash receipt and change: **Given** Tab cash Payment is 8200 cents and customer tenders 10000   **When** staff confirms receipt **Then** Payment is CONFIRMED, tender detail records 10000/1800 and expected drawer increases by exactly 8200 cents.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-004",
+    "criterion": "Idempotent receipt: **Given** confirmed CASH Payment movement exists   **When** payment confirmation/event is retried **Then** no duplicate CashMovement is created.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-005",
+    "criterion": "Supply: **Given** an OPEN shift   **When** authorized cashier adds 5000 cents supply with required reason **Then** expected cash increases by 5000 and actor/reason are audited.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-006",
+    "criterion": "Sangria: **Given** an OPEN shift   **When** cashier withdraws 10000 cents with reason **Then** expected cash decreases by 10000 and the movement remains immutable.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-007",
+    "criterion": "Cash refund: **Given** a Refund is confirmed as physically paid in cash   **When** cash integration processes it **Then** expected cash decreases once and movement links the Refund.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-008",
+    "criterion": "Count and close: **Given** expected cash is 43800 cents   **When** cashier counts 43500 and closes **Then** close snapshot records expected 43800, counted 43500 and discrepancy -300 cents.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-009",
+    "criterion": "Review threshold: **Given** -300 exceeds configured review threshold   **When** shift closes **Then** review_status=PENDING and Gerência surfaces an exception.",
+    "status": "PARTIAL",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-010",
+    "criterion": "Manager review: **Given** a pending discrepancy   **When** MANAGER reviews with note **Then** review status changes to REVIEWED but expected/count/discrepancy values are not rewritten.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-011",
+    "criterion": "Late correction: **Given** a CLOSED shift omitted a real historical 1000-cent withdrawal   **When** manager records a late correction **Then** original close snapshot remains unchanged, corrected position is separately derivable and a post-close exception is emitted.",
+    "status": "PARTIAL",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-012",
+    "criterion": "Unclosed shift: **Given** a shift remains OPEN after business-date cutoff   **When** reporting runs **Then** no automatic fake count/close is created, CashPoint blocks a second shift by default and closing is marked incomplete.",
+    "status": "PARTIAL",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-013",
+    "criterion": "Concurrency: **Given** a cash Payment and shift close race   **When** both transactions execute **Then** the Payment is either included before the close boundary or rejected/retried against the CLOSED shift; it cannot be confirmed while omitted from expected cash.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-014",
+    "criterion": "Permission denial: **Given** STAFF lacks withdrawal capability   **When** they call withdrawal directly **Then** backend rejects it and no movement occurs.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-015",
+    "criterion": "Degraded behavior: **Given** API is unavailable   **When** staff handles an emergency physical cash transaction under runbook **Then** UI does not label it server-confirmed; reconciliation after reconnect requires an explicit audited recovery action.",
+    "status": "PARTIAL",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "012-016",
+    "criterion": "Audit verification: **Given** supply, withdrawal, close, review and late correction   **When** audit is inspected **Then** each includes actor, timestamp, CashPoint/shift, amount and required reason.",
+    "status": "PASS",
+    "source": "specs/012-cash-management/acceptance.md"
+  },
+  {
+    "criterion_id": "013-001",
+    "criterion": "Typed configuration: **Given** a manager opens Venue settings   **When** configuration is loaded **Then** settings are grouped into typed domain sections rather than returned as an unrestricted key/value dictionary.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-002",
+    "criterion": "Permission denial: **Given** MANAGER lacks owner-only provider credential capability   **When** they submit provider secret configuration directly **Then** backend rejects it and existing binding is unchanged.",
+    "status": "PASS",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-003",
+    "criterion": "Station safe-change blocker: **Given** KITCHEN has active queued OrderItems   **When** manager tries to deactivate the only KITCHEN station **Then** preview/apply returns the active blockers and does not orphan those items.",
+    "status": "MISSING",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-004",
+    "criterion": "Service charge versioning: **Given** open Tabs captured a 10% service-charge policy   **When** owner changes default to 12% **Then** new policy becomes effective according to configured boundary and existing Tabs are not silently repriced.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-005",
+    "criterion": "Guest emergency block: **Given** guest ordering is active   **When** manager enables the global guest-ordering block **Then** new guest mutations are rejected immediately, staff ordering remains available and confirmed guest Orders remain intact.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-006",
+    "criterion": "Business date cutoff: **Given** cutoff changes from 04:00 to 06:00 effective next business date   **When** historical reports are queried **Then** prior business_date assignments remain unchanged.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-007",
+    "criterion": "Provider boundary: **Given** an active payment provider binding   **When** Gerência reads it **Then** it sees provider status and normalized capabilities but never the raw secret.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-008",
+    "criterion": "Pending payment blocker: **Given** a provider has Payment in CONFIRMATION_PENDING   **When** owner attempts to disable the binding **Then** change is blocked or staged until reconciliation according to provider policy; the pending Payment is not orphaned.",
+    "status": "MISSING",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-009",
+    "criterion": "Concurrent configuration edit: **Given** two managers edit the same alert threshold version   **When** both save **Then** one succeeds and the stale editor receives current state rather than overwriting silently.",
+    "status": "PASS",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-010",
+    "criterion": "Table history safety: **Given** a Table has historical occupancies   **When** manager wants it removed from service **Then** it is archived/out-of-service through domain rules; history and QR identity are not destructively deleted.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-011",
+    "criterion": "Operating hours non-enforcement: **Given** configured public operating hours have ended   **When** authorized staff needs to close a Tab **Then** P0 does not block the POS solely because the schedule ended.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-012",
+    "criterion": "Degraded state: **Given** Gerência is offline/stale   **When** manager edits settings locally **Then** UI does not claim the change is active until server confirms it.",
+    "status": "PASS",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "013-013",
+    "criterion": "Audit: **Given** cutoff, service policy, station and provider binding changes   **When** configuration history is inspected **Then** actor, old/new typed state, applied/effective time and reason where required are present, with secrets redacted.",
+    "status": "PARTIAL",
+    "source": "specs/013-venue-configuration/acceptance.md"
+  },
+  {
+    "criterion_id": "014-001",
+    "criterion": "Realtime outage only: **Given** SSE/event delivery is unavailable but the HTTP API is healthy   **When** staff confirms an Order **Then** the Order confirms through the API exactly once, UI shows realtime degraded/stale state, and other surfaces recover via bounded revalidation/polling without treating the realtime transport as canonical.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-002",
+    "criterion": "API outage: **Given** API is unreachable   **When** staff builds an order **Then** it may be saved as PendingOrderIntent, but UI must not assign canonical Order status, balance effect or “pedido recebido”.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-003",
+    "criterion": "Order replay: **Given** a pending order intent and API reconnects   **When** replay succeeds **Then** one canonical Order is created using the original idempotency key and local status becomes CONFIRMED.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-004",
+    "criterion": "Stale availability conflict: **Given** a pending intent contains an item cached AVAILABLE   **And** the Product became UNAVAILABLE centrally **When** replay occurs **Then** server rejects/returns affected item and does not silently substitute or create partial unintended production.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-005",
+    "criterion": "Duplicate submit prevention: **Given** an Order submit timed out after the server committed it   **When** client retries with the same idempotency key **Then** it receives the existing result and no duplicate Order/Charge is created.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-006",
+    "criterion": "Tap on Phone ambiguity: **Given** provider submission occurred and connectivity is lost before backend confirmation   **When** app regains network **Then** it reconciles the existing Payment/Attempt; it does not start an equivalent new charge while state is CONFIRMATION_PENDING.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-007",
+    "criterion": "Pix offline: **Given** a Pix QR is displayed and backend becomes unreachable   **When** customer pays externally **Then** Rodada does not mark Payment confirmed until canonical provider/backend confirmation is received.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-008",
+    "criterion": "Emergency cash: **Given** API is offline and venue follows emergency cash runbook   **When** staff records local cash evidence **Then** it is visibly PENDING_SYNC and not counted as confirmed Payment/CashShift truth.",
+    "status": "MISSING",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-009",
+    "criterion": "Cash conflict: **Given** offline cash evidence is 5000 cents   **And** current remaining Tab balance on reconnect is only 3000 cents **When** reconciliation runs **Then** no automatic 5000-cent Payment is posted; record becomes REQUIRES_REVIEW.",
+    "status": "MISSING",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-010",
+    "criterion": "External terminal fallback: **Given** an external terminal charge occurred during outage   **When** evidence is captured and synced **Then** server creates at most one EXTERNAL_TERMINAL Payment or raises review; it never charges the customer again automatically.",
+    "status": "MISSING",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-011",
+    "criterion": "Guest offline: **Given** guest PWA loses API connectivity   **When** guest taps submit **Then** UI never claims the order was received; payment and service requests remain unconfirmed until server acknowledgment.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-012",
+    "criterion": "Fulfillment replay: **Given** Class C READY is enabled and a confirmed cached item is marked READY offline   **When** sync finds the item was centrally cancelled **Then** READY event is rejected/conflicted and history is not rewritten.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-013",
+    "criterion": "Auth revocation: **Given** a pending command was captured by a valid staff session   **And** membership is revoked before reconnect **When** replay occurs **Then** backend denies it; command is not reassigned to another operator.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-014",
+    "criterion": "Reconnect ordering: **Given** two dependent pending commands for the same Tab   **When** the first conflicts **Then** replay stops before applying a later command whose meaning depends on the conflicted state.",
+    "status": "MISSING",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-015",
+    "criterion": "UI freshness: **Given** critical cached financial data is shown offline   **Then** the screen displays OFFLINE/STALE and last synchronization time, and integrated payment cannot be initiated from that stale amount.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-016",
+    "criterion": "Audit: **Given** a recovery record is reconciled manually   **When** audit is inspected **Then** original captured_at, applied_at, device, actor, recovery_id, reviewer and reason are recoverable.",
+    "status": "MISSING",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-017",
+    "criterion": "Cross-surface propagation: **Given** Atendimento confirms an Order through the canonical HTTP command path   **When** the backend commits the Order and its outbox fact **Then** every authorized affected surface can receive the resulting state change through the shared realtime contract without calling another frontend.",
+    "status": "PASS",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-018",
+    "criterion": "Atomic event publication: **Given** a domain mutation that must be published   **When** its database transaction commits **Then** the canonical domain state and corresponding outbox record either both exist or neither exists.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-019",
+    "criterion": "Cached startup: **Given** Cozinha, Bar or Gerência has a previously persisted safe projection   **And** the network is slow or temporarily unavailable **When** the app opens **Then** it renders the cached operational projection and freshness state without waiting for the network request to complete.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-020",
+    "criterion": "SSE resume: **Given** a client accepted events through cursor C   **And** the SSE connection disconnects while later events are retained **When** it reconnects using C **Then** the client receives/reconciles the missed events and reaches the same projection as a fresh canonical snapshot.",
+    "status": "PASS",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-021",
+    "criterion": "Duplicate realtime delivery: **Given** an event is delivered more than once   **When** the client/projection consumer processes the duplicate **Then** final projected state is unchanged and no duplicate canonical mutation, task, charge or payment is created.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-022",
+    "criterion": "Cursor gap: **Given** the client reconnects with an expired, unknown or discontinuous resume cursor   **When** continuity cannot be proven **Then** the server/client requires a fresh canonical snapshot before later incremental events are trusted.",
+    "status": "PASS",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-023",
+    "criterion": "HTTP command independence: **Given** realtime delivery is reconnecting or stale   **And** the HTTP API is healthy **When** a permitted user performs a canonical mutation **Then** the mutation succeeds or fails solely according to server/domain rules and does not wait for SSE/WebSocket recovery.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-024",
+    "criterion": "Lightweight PWA runtime: **Given** an operational PWA is already installed/cached   **When** it starts during peak service **Then** its live operation does not require SSR availability, and realtime updates do not require full-page reloads.",
+    "status": "PARTIAL",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "014-025",
+    "criterion": "WebSocket exception: **Given** a proposed feature asks to introduce WebSocket   **When** HTTP commands + SSE can satisfy the interaction **Then** WebSocket is not introduced.",
+    "status": "PASS",
+    "source": "specs/014-connectivity-degraded-operation/acceptance.md"
+  },
+  {
+    "criterion_id": "015-001",
+    "criterion": "Customer check: **Given** an OPEN Tab with confirmed items, discounts, service charge and partial payment   **When** staff generates a customer check **Then** it shows canonical current subtotal/adjustments/confirmed receipts/remaining balance with generation time and non-fiscal labeling.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-002",
+    "criterion": "Stale check: **Given** a check was generated   **When** Tab changes later **Then** historical check remains unchanged and a newly generated check reflects the new source version.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-003",
+    "criterion": "Payment receipt: **Given** Payment is CONFIRMED   **When** receipt is generated **Then** it contains safe amount/method/time/reference and no sensitive card data.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-004",
+    "criterion": "Ambiguous payment: **Given** Payment is CONFIRMATION_PENDING   **When** user requests definitive paid receipt **Then** system refuses or renders pending-status document, never “pago confirmado”.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-005",
+    "criterion": "Production ticket source: **Given** an unconfirmed cart   **When** production print is requested **Then** no canonical production ticket is generated.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-006",
+    "criterion": "Production ticket source: **Given** confirmed KITCHEN OrderItems   **When** fallback print is requested **Then** ticket is rendered from immutable confirmed snapshots including modifiers/notes.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-007",
+    "criterion": "Retry idempotency: **Given** a production PrintJob times out   **When** worker retries the same job **Then** it remains one logical production ticket/job and does not create a second OrderItem/task.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-008",
+    "criterion": "Explicit reprint: **Given** an initial production ticket exists   **When** authorized station staff reprints it **Then** a new linked job is created, output is prominently marked REIMPRESSÃO and actor/reason policy is audited.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-009",
+    "criterion": "Auto-fallback dedupe: **Given** KDS is unhealthy and AUTO_FALLBACK enabled   **When** repeated health checks observe the same confirmed Order **Then** only one initial logical fallback ticket is enqueued for that station/order generation.",
+    "status": "MISSING",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-010",
+    "criterion": "Printer offline: **Given** every printer is OFFLINE   **When** staff confirms an Order through healthy API **Then** canonical Order/Fulfillment still succeeds and UI surfaces print fallback failure without rolling back the sale.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-011",
+    "criterion": "WebSocket outage: **Given** realtime is down but API healthy   **When** print is requested **Then** printing may proceed through canonical API/job flow.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-012",
+    "criterion": "Digital receipt authorization: **Given** guest has valid opaque receipt token for their receipt   **When** they open it **Then** only that receipt is returned; guessing another sequential id is not possible.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-013",
+    "criterion": "Multiple stations: **Given** an Order has BAR and KITCHEN items   **When** production fallback triggers **Then** each station receives only its routed item snapshots through its binding.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-014",
+    "criterion": "Permission denial: **Given** staff is not authorized to reprint another station's production ticket   **When** direct API request is made **Then** backend denies it and no PrintJob is created.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "015-015",
+    "criterion": "Audit: **Given** production reprint and printer binding change occur   **When** management timeline is inspected **Then** actor, time, target and reprint/config provenance are available.",
+    "status": "PASS",
+    "source": "specs/015-receipts-printing-fallbacks/acceptance.md"
+  },
+  {
+    "criterion_id": "016-001",
+    "criterion": "Unknown default: **Given** an existing or new occupancy with no party-size entry   **When** it is displayed **Then** covers are UNKNOWN/“—”, not 0 or 1, and ordering is not blocked.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-002",
+    "criterion": "Multiple Tabs: **Given** one TableOccupancy with three Tabs and party size 6   **When** cover analytics run **Then** the visit contributes 6 covers, not 18 and not 3.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-003",
+    "criterion": "Staff capture: **Given** an active occupancy with unknown covers   **When** authorized staff records 5 **Then** current party size becomes 5 with STAFF provenance and no financial state changes.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-004",
+    "criterion": "Guest capture: **Given** valid GuestSession starts a DIRECT occupancy   **When** guest records 4 people **Then** current count is 4 with GUEST provenance and staff can see/correct it.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-005",
+    "criterion": "Concurrency: **Given** guest and staff both loaded version 2   **When** guest writes 4 and staff writes 5 concurrently **Then** one commit wins and the stale request receives current value/provenance; no silent last-write overwrite.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-006",
+    "criterion": "Correction: **Given** active count was 4 but staff confirms actual party is 5   **When** corrected **Then** a new observation supersedes 4; old observation remains in history.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-007",
+    "criterion": "Post-release correction: **Given** occupancy released with count 5   **When** manager later corrects factual count to 6 with reason **Then** prior release/observation remain auditably visible and rebuilt analytics may use 6.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-008",
+    "criterion": "Tab without table: **Given** a standing-party Tab never associated to TableOccupancy   **When** staff explicitly records Tab party size 3 **Then** it may contribute 3 covers to eligible non-table analytics.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-009",
+    "criterion": "Later join occupancy: **Given** that Tab with count 3 later joins an occupancy whose covers are 7   **When** venue cover analytics run **Then** occupancy count 7 is canonical for that physical visit and the Tab count is not added.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-010",
+    "criterion": "Revenue per cover: **Given** two known-cover visits with net eligible revenue 10000/4 covers and 6000/2 covers   **When** period revenue per cover is computed **Then** result is 16000 / 6, not the unweighted average of the two visit ratios.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-011",
+    "criterion": "Missing-data honesty: **Given** half of visits have UNKNOWN covers   **When** Gerência shows revenue per cover **Then** it also shows known/unknown visit counts or coverage percentage and does not imply full-population precision.",
+    "status": "PARTIAL",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-012",
+    "criterion": "Permission denial: **Given** a guest session for another occupancy   **When** it submits party size for this occupancy **Then** backend rejects it.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-013",
+    "criterion": "Offline: **Given** API is offline   **When** staff changes local party-size draft **Then** it is not displayed as canonical until server replay succeeds.",
+    "status": "MISSING",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "016-014",
+    "criterion": "Audit: **Given** a manager post-release correction   **When** history is inspected **Then** old/new count, actor, source, reason and timestamps are recoverable.",
+    "status": "PASS",
+    "source": "specs/016-covers-party-size/acceptance.md"
+  },
+  {
+    "criterion_id": "017-001",
+    "criterion": "Draft edit: **Given** an item is still unconfirmed client draft   **When** staff changes Product/modifiers **Then** draft changes directly and no OrderCorrection/audit history is required.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-002",
+    "criterion": "Wrong accepted item: **Given** a confirmed ACCEPTED unpaid item and authorized STAFF   **When** they choose “item lançado errado” **Then** original item becomes CANCELLED through legal transition, original snapshot/Charge remain, reversal effect removes open responsibility, and correction is audited.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-003",
+    "criterion": "Preparing cancellation authorization: **Given** item is PREPARING   **When** ordinary STAFF attempts cancellation without required capability **Then** backend denies/requests manager approval and production state is unchanged.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-004",
+    "criterion": "Ready rejection: **Given** item is READY and customer rejects it   **When** manager applies correction **Then** original READY history and delivery task history remain, task resolves by exception, optional waste can be recorded and any replacement is a new OrderItem.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-005",
+    "criterion": "Modifier mistake remake: **Given** original confirmed item has wrong modifier snapshot   **When** a remake with corrected modifiers is created **Then** original snapshot is untouched and new OrderItem has its own corrected immutable snapshot and fulfillment lifecycle.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-006",
+    "criterion": "Station mistake comped remake: **Given** kitchen mistake requires same item remade without additional customer charge   **When** manager approves comped remake **Then** replacement/remake has normal price snapshot/Charge plus explicit matching courtesy (or canonical equivalent defined by Billing), producing intended zero additional responsibility without fake zero-price Product.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-007",
+    "criterion": "Customer changes mind after delivered: **Given** item is DELIVERED   **When** customer complains/changes mind **Then** system does not roll state backward; correction records complaint and offers explicit replacement/courtesy/refund options according to policy.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-008",
+    "criterion": "Paid refund: **Given** item responsibility was already paid and money should be returned   **When** correction is approved **Then** original Payment remains, Spec 006 Refund is created idempotently, and correction links the refund.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-009",
+    "criterion": "Transferred responsibility: **Given** original item belongs historically to Tab A but unpaid financial responsibility was transferred to Tab B   **When** item is cancelled **Then** operational correction remains linked to original item/A history while financial reversal applies to current responsibility on B.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-010",
+    "criterion": "Double correction concurrency: **Given** two devices attempt terminal cancellation of the same item concurrently   **When** both commit **Then** only one terminal correction/reversal is applied; the other gets current correction state.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-011",
+    "criterion": "Retry idempotency: **Given** a remake request committed but client timed out   **When** retried with same idempotency key **Then** no duplicate remake OrderItem, Charge or courtesy is created.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-012",
+    "criterion": "Waste marker: **Given** a prepared item is discarded   **When** authorized staff records PREPARED_NOT_SERVED **Then** WasteMarker is stored for operational analytics but no inventory deduction/accounting entry is invented.",
+    "status": "PASS",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-013",
+    "criterion": "Realtime failure: **Given** WebSocket is down but API healthy   **When** cancellation succeeds **Then** canonical state changes via API and station can recover by polling/revalidation.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-014",
+    "criterion": "Offline: **Given** API is offline   **When** staff tries to cancel/remake **Then** UI may save a pending note but does not mark canonical item cancelled or stop production as if server confirmed it.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "017-015",
+    "criterion": "Audit/analytics: **Given** corrections occurred   **When** Gerência reviews timeline **Then** original item, stage, reason, actor/approver, replacement/waste and financial disposition are traceable without a staff blame leaderboard.",
+    "status": "PARTIAL",
+    "source": "specs/017-order-corrections-exceptions/acceptance.md"
+  },
+  {
+    "criterion_id": "018-001",
+    "criterion": "SLA alert activation: **Given** a KITCHEN item remains active beyond its configured warning SLA   **When** the alert evaluator processes canonical fulfillment state **Then** one WARNING OperationalAlert episode becomes active with station/item provenance and a deep link to the exact context.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-002",
+    "criterion": "Dedupe: **Given** the evaluator receives the same SLA condition repeatedly   **When** it runs ten times **Then** there remains exactly one active alert for that dedupe key.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-003",
+    "criterion": "Escalation: **Given** the same active condition crosses its danger threshold   **When** reevaluated **Then** the existing alert escalates to DANGER, lifecycle history records the change, and expanded routing may enqueue one escalation delivery rather than a duplicate alert.",
+    "status": "PARTIAL",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-004",
+    "criterion": "Cooldown: **Given** a warning push was sent and the condition remains unchanged inside cooldown   **When** evaluator runs again **Then** no duplicate warning push is sent, while the alert remains visible in-app/Cockpit.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-005",
+    "criterion": "Acknowledgement is not resolution: **Given** a manager acknowledges a cash discrepancy alert   **When** CashShift review_status is still PENDING **Then** the alert is ACKNOWLEDGED but not RESOLVED.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-006",
+    "criterion": "Auto-resolution: **Given** a strategic Product unavailable alert is active   **When** canonical ProductAvailability changes to AVAILABLE **Then** the alert auto-resolves and no manual “resolve” tap is required.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-007",
+    "criterion": "Recurrence: **Given** a Product-unavailable alert resolved   **When** the same Product later becomes unavailable again **Then** a new linked alert episode is created rather than rewriting the old resolved episode.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-008",
+    "criterion": "Repeated payment failure threshold: **Given** one ordinary declined payment attempt   **When** no configured repeat threshold is crossed **Then** no manager alert/push is created by default.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-009",
+    "criterion": "Repeated payment failure threshold: **Given** the configured number of relevant failures occurs within the window   **When** evaluated **Then** one alert for the Tab/payment context is activated and routed to the configured cashier/manager roles.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-010",
+    "criterion": "Confirmation pending: **Given** a Payment remains CONFIRMATION_PENDING longer than reconciliation threshold   **When** evaluated **Then** an actionable payment exception alert is active.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-011",
+    "criterion": "Guest service request: **Given** a fresh BILL_REQUEST exists   **When** it is still inside normal SLA **Then** it remains a Dispatch task without notifying every manager.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-012",
+    "criterion": "Excessive queue: **Given** BAR queue crosses threshold for a sustained interval   **When** condition activates **Then** one station-level alert is created, not one per queued item.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-013",
+    "criterion": "Cash discrepancy: **Given** CashShift closes with review_status=PENDING   **When** discrepancy rule evaluates **Then** manager receives/observes one actionable alert linked to that exact CashShift.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-014",
+    "criterion": "Closing not completed: **Given** business-date close remains incomplete after configured grace   **When** evaluated **Then** MANAGER/OWNER routing receives an alert linked to that Daily Close, and acknowledgement alone does not mark the close complete.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-015",
+    "criterion": "Strategic product noise control: **Given** a normal non-strategic Product becomes UNAVAILABLE   **When** evaluated **Then** no management push is emitted solely for that change.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-016",
+    "criterion": "Push provider failure: **Given** an active DANGER alert and push provider is unavailable   **When** delivery fails **Then** NotificationDelivery records failure/retry state but the OperationalAlert remains active and visible via API/Cockpit.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-017",
+    "criterion": "Realtime outage: **Given** WebSocket is unavailable   **When** a canonical alert is activated/resolved **Then** API/polling can recover the same state and no client-side duplicate alert is invented.",
+    "status": "PARTIAL",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-018",
+    "criterion": "Deep-link security: **Given** a staff member receives a push but loses authorization before opening it   **When** they tap the notification **Then** the app reauthenticates/rechecks server authorization and does not expose the protected context.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-019",
+    "criterion": "Preference boundaries: **Given** a user disables an optional push category   **When** an INFO/WARNING event in that optional category occurs **Then** push may be SUPPRESSED according to policy but the canonical authorized in-app alert remains visible.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-020",
+    "criterion": "Preference boundaries: **Given** Venue policy marks a DANGER category mandatory   **When** a user preference would otherwise suppress it **Then** mandatory routing wins according to policy.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-021",
+    "criterion": "Audit/provenance: **Given** an alert was activated, escalated, acknowledged and resolved   **When** history is inspected **Then** canonical source references, rule/version, timestamps, actor for acknowledgement, severity transitions and resolution reason are recoverable.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-001",
+    "criterion": "A1: em Bar/Cozinha, fila e passe precedem catálogo no DOM e na tela; primeiro item/ação de fila normal visível sem scroll a 360×800. Quantidade e nome completos, target >=44 px.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-002",
+    "criterion": "A2: snapshot normal/lotado mostra contadores de itens por região; erro inicial/carregamento não apresenta zero confirmado. Estados anteriores e revalidação permanecem.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-003",
+    "criterion": "A3: em 768×1024, 1280×800 e 1440×900, produção e passe estão lado a lado; 360×800, 390×844, 430×932 não têm overflow. Axe e foco passam.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-004",
+    "criterion": "A4: Gerência mostra exceções, inclusive comandas REQUIRES_ACTION, e pulso antes de Conta da Casa; Gestão ainda dá acesso a seus controles. Itens READY não contam como em preparo, e rótulos canônicos disponíveis estão em português.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-005",
+    "criterion": "A5: nove superfícies Web têm imagens nos seis viewports, estados existentes e índice ignorado para antes/depois. Comparação equivalente de primitives permanece <=0,1%; não aceitar baseline para ocultar regressão.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-006",
+    "criterion": "A6: typecheck/build/test:visual/test:integration passam. Integração usa Django/BFF reais e confirma estados, permissões e persistência; SQLite local não é evidência de concorrência PostgreSQL.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-007",
+    "criterion": "A7: API/Web locais acessíveis e URLs documentadas; bloqueios PostgreSQL/Android explicitados se ausentes. Sem simular provider ou instalar UI Web no lugar do Android.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-UX-008",
+    "criterion": "A8: Cliente mantém ícone 58×58 px, conteúdo separado e preço legível em seis viewports, inclusive nomes longos/disabled. POS não permite selecionar item indisponível; disponibilidade retorna após reativação real na API.",
+    "status": "PASS",
+    "source": "specs/021-operational-ux-polish/acceptance.md"
+  },
+  {
+    "criterion_id": "021-001",
+    "criterion": "A1: cinco referências abrem via servidor HTTP, assets e runtime locais; manifesto identifica ZIP/hash/entrada.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "021-002",
+    "criterion": "A2: Web e referência legada compartilham cores/fontes/controle primário; comparação visual de primitives equivalentes passa sem aceitar baseline novo.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "021-003",
+    "criterion": "A3: resumo soma quantidades apenas em produção; fila/passe precedem catálogo e três colunas aparecem no desktop, sem overflow em 360–430 px.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "021-004",
+    "criterion": "A4: transição individual envia endpoint/estado existente, loading impede repetição e falha nunca inventa sucesso; passe sem ready_at não mostra idade fabricada.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "021-005",
+    "criterion": "A5: KB registra fontes, limites da simulação e mapping para specs; specs de offline/telemetria/financeiro permanecem autoridade.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "021-006",
+    "criterion": "A6: Atendimento utiliza RodadaTheme em vez do MaterialTheme padrão; build debug e testes JVM passam. Paridade visual nativa completa requer revisão física separada.",
+    "status": "PASS",
+    "source": "specs/021-prototype-design-integration/acceptance.md"
+  },
+  {
+    "criterion_id": "022-001",
+    "criterion": "Documento versionado identifica implementação existente, gaps, sequência, dependências e PRs concretos.",
+    "status": "PASS",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-002",
+    "criterion": "Mapeamento inclui os cinco exports e todas as Specs 001–021.",
+    "status": "PASS",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-003",
+    "criterion": "Gates distinguem piloto reduzido, produto completo e produção; IA adiada e dependências externas explícitas.",
+    "status": "PASS",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-004",
+    "criterion": "G0: contratos/fixtures e auditoria detalhada dos critérios existentes completos (R01/R02).",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-005",
+    "criterion": "G1: rollback, replay, snapshot em gap, perda de resposta, revogação e reconnect sem duplicação/vazamento.",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-006",
+    "criterion": "G2: turno piloto completo em staging/device, com múltiplas Tabs, parcial, disponibilidade concorrente, correção e fechamento conciliado.",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-007",
+    "criterion": "G3: dispatch sem medição obrigatória, provenance/correção, financeiro completo, guest/admin/gerência e provider real homologados.",
+    "status": "EXTERNAL_BLOCKED",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-008",
+    "criterion": "G4: carga/rede/device, segurança, backups/restore, observabilidade, treinamento e rollback ensaiados.",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-009",
+    "criterion": "Todas as superfícies passam revisão mobile-first/adjacente e checks de UI; diferenças da referência têm justificativa de domínio, sem baseline que esconda regressão.",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-010",
+    "criterion": "Todos os critérios aplicáveis das specs de domínio têm evidência datada e limites; nenhuma conclusão por scaffolding, mock ou checkbox antigo.",
+    "status": "PARTIAL",
+    "source": "specs/022-full-product-implementation/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-001",
+    "criterion": "A1: Arquivos originais e assets disponíveis como referência executável; fontes locais carregam offline.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-002",
+    "criterion": "A2: Button principal equivalente ao `.btn` da Cozinha em 116×56px tem diferença <= 0,1% (mesmo browser/fontes/texto), sem editar baseline original para passar.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-003",
+    "criterion": "A3: Desktop 1280px tem cabeçalho 72px e colunas 420/520/340; mobile 360/390/430 e tablet 768 não têm overflow, controles <44px ou violações WCAG AA.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-004",
+    "criterion": "A4: Agregação usa IDs, quantidades corretas, exclui passe e mantém nomes longos. Ações continuam por OrderItem e erro pausa mutations.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-005",
+    "criterion": "A5: API expõe Product/Order IDs somente dos itens confirmados do Venue autenticado; teste verifica projeção e isolamento.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-006",
+    "criterion": "A6: Matriz visual das nove superfícies/estados, typecheck/build e integração real passam. Galeria distingue material, fixture e API real.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "022-MATERIAL-007",
+    "criterion": "A7: Revisão lista fidelidade medida e lacunas (Android, SLA, equipamento, dispatch e offline), sem afirmar paridade total sem evidência.",
+    "status": "PASS",
+    "source": "specs/022-material-visual-fidelity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-001",
+    "criterion": "Plano identifica fontes, estado atual, sequÃªncia, arquivos-alvo, mÃ©tricas e limites de comparaÃ§Ã£o entre plataformas.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-002",
+    "criterion": "Cinco exports têm contratos versionados por estado, selector, dimensão, crop, fixture e hash.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-003",
+    "criterion": "Primitives novas usam typography/axes e medidas da referência, com comparação estrita.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-004",
+    "criterion": "Cozinha/Bar equivalentes passam assertions ≤0,1% e revisão de geometria por região; teste não é apenas auditoria.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-005",
+    "criterion": "Atendimento, pico e recovery Android possuem evidência HTML↔Compose e gates nativos no emulador fixado.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-006",
+    "criterion": "Fixtures reproduzem dados/relógio/assets; inconsistências do export têm derivação documentada, sem produção incorreta.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-007",
+    "criterion": "Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteúdo longo passam.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-008",
+    "criterion": "CI retém referência/actual/diff/overlay/stats e falha em regressão; não usa baseline atual ou masks para ocultar diferenças.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-009",
+    "criterion": "Audit/KB registram cobertura completa e diferenças restantes; nenhuma tela sem referência é declarada pixel-perfect.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-010",
+    "criterion": "Referência/hash e ambiente identificados; selector único `.k` e recortes medidos.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-011",
+    "criterion": "Estado literal e comportamento dos controles observados; estados não disponíveis explicitados.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-012",
+    "criterion": "Evidência da implementação identifica base Git, fixture, geometria e diferenças sem alegação de equivalência.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-013",
+    "criterion": "Aplicação/exports originais e branch anterior preservados; V01 global permanece pendente.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-014",
+    "criterion": "Field confortável: 56 px, raio 10 px, padding horizontal 16 px, Archivo 20/600, borda interna 1,5 px; foco interno 2 px papel. Label 14/800, tracking 0,1em, gap 6 px.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-015",
+    "criterion": "Controle normal/foco/placeholder compara com `.inp` atualizado em ≤0,1%, pixelmatch threshold 0.1 / includeAA false; nenhuma referência ou tolerância substituída.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-016",
+    "criterion": "StatusBadge tem diferenças e ausência de equivalências documentadas; estados operacionais preservados.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-017",
+    "criterion": "Cozinha/Bar em 360/430/768 sem overflow, labels/foco preservados; fluxo de criação/reutilização continua passando.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-018",
+    "criterion": "Typecheck/build/test registrados com evidências e limitações; branch original preservada, sem merge/push.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-019",
+    "criterion": "Apenas testes/documentação alterados, branch original preservada.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-020",
+    "criterion": "Fixture comum fornece produtos/identidades, quantidades, NEW/PREPARING/READY/PICKED_UP e timestamps fixos; READY/PICKED_UP não entram no resumo.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-021",
+    "criterion": "Referência literal preservada; derivação altera somente dados/linhas derivadas e enumera alterações, sem stylesheet/masks para esconder composição.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-022",
+    "criterion": "Assert de DTO e conteúdo de ambas as páginas verifica igualdade de dados; captures repetidas têm hash idêntico.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-023",
+    "criterion": "Métricas pixelmatch threshold 0.1/includeAA false e gate 0,1% existentes inalterados; divergência total permanece reportada como pendência.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-024",
+    "criterion": "Typecheck/build/test e relatório de diferenças entregues, sem merge/publicação.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-025",
+    "criterion": "Fixture V03: cinco grupos de pedido, seis itens e seis ações; P08 exibe destino uma vez, Fritas/Calabresa com ações independentes.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-026",
+    "criterion": "POST de Fritas/P08 afeta somente aquele OrderItem; Calabresa/P08 permanece em preparo.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-027",
+    "criterion": "Orders diferentes com mesma Tab e itens sem order_id permanecem grupos independentes.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-028",
+    "criterion": "Desktop conserva coluna destino 84 px, ação 116×56; mobile mantém alvo ≥44, sem overflow; Cozinha/Bar consistentes.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-029",
+    "criterion": "Referência, limite 0,1% e dados V03 preservados; relatório mostra métricas e diferenças restantes.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-030",
+    "criterion": "Typecheck/build/test:visual/test:realtime passam; branch original preservada, sem merge/publicação.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-031",
+    "criterion": "Cinco exports tÃªm contratos versionados por estado, selector, dimensÃ£o, crop, fixture e hash.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-032",
+    "criterion": "Primitives novas usam typography/axes e medidas da referÃªncia, com comparaÃ§Ã£o estrita.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-033",
+    "criterion": "Cozinha/Bar equivalentes passam assertions â‰¤0,1% e revisÃ£o de geometria por regiÃ£o; teste nÃ£o Ã© apenas auditoria.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-034",
+    "criterion": "Atendimento, pico e recovery Android possuem evidÃªncia HTMLâ†”Compose e gates nativos no emulador fixado.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-035",
+    "criterion": "Fixtures reproduzem dados/relÃ³gio/assets; inconsistÃªncias do export tÃªm derivaÃ§Ã£o documentada, sem produÃ§Ã£o incorreta.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-036",
+    "criterion": "Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteÃºdo longo passam.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-037",
+    "criterion": "CI retÃ©m referÃªncia/actual/diff/overlay/stats e falha em regressÃ£o; nÃ£o usa baseline atual ou masks para ocultar diferenÃ§as.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-038",
+    "criterion": "Audit/KB registram cobertura completa e diferenÃ§as restantes; nenhuma tela sem referÃªncia Ã© declarada pixel-perfect.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-039",
+    "criterion": "RegiÃ£o nativa 84 dp, centro 136 dp no telefone de 390 dp; alvos â‰¥44 dp.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-040",
+    "criterion": "Agora/Contas/Pedir mantÃªm callbacks; seleÃ§Ã£o explÃ­cita; busy bloqueia Pedir.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-041",
+    "criterion": "Mesas/Caixa preservados por capability; evidÃªncia adjacente.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-042",
+    "criterion": "ReferÃªncia original preservada; comparaÃ§Ã£o documentada sem baseline aprovado por aparÃªncia atual.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-043",
+    "criterion": "Navegação mantém Agora/Contas/Mesas/Caixa/Pedir e autorização/busy; labels não têm overflow nas seis configurações.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-044",
+    "criterion": "Canonical 390/fontScale1 mantém geometria e captura; fonte ampliada possui contrato de adaptação separado.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-045",
+    "criterion": "Gate remove somente XMLs descartáveis de instrumentação anterior e exige dois testes atuais sem skip/falhas.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-046",
+    "criterion": "Entregas anteriores permanecem documentadas; nenhuma fidelidade total declarada.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "023-047",
+    "criterion": "Branch original intacta e publicação confirmada por SHA remoto.",
+    "status": "PARTIAL",
+    "source": "specs/023-updated-prototype-visual-parity/acceptance.md"
+  },
+  {
+    "criterion_id": "001-018",
+    "criterion": "Item confirmado continua preparo/entrega após pagamento e fechamento financeiro; `test_financial_close_does_not_strand_confirmed_production` verifica API/ledger.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-019",
+    "criterion": "Retry de Payment manual já confirmado após fechamento recupera o mesmo ID; payload diferente mantém conflito e nova intenção continua bloqueada. Prova: `test_committed_payment_replay_after_close_recovers_original_receipt`.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "001-020",
+    "criterion": "Payload monetário fracionário, booleano, fora de intervalo ou malformado é rejeitado sem Payment; `test_invalid_manual_payment_payload_cannot_truncate_cents_or_crash`.",
+    "status": "PASS",
+    "source": "specs/001-core-pos/acceptance.md"
+  },
+  {
+    "criterion_id": "009-017",
+    "criterion": "An expired payment with a terminal attempt permits an unpaid transfer; an active ambiguous attempt still blocks it.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-018",
+    "criterion": "A retry after subsequent payment returns the immutable original response, while a revoked transfer capability rejects that same retry.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-019",
+    "criterion": "Concurrent identical splits create one destination, one operation and one transfer.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-020",
+    "criterion": "Concurrent payment and full split cannot both commit against the same responsibility.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "009-021",
+    "criterion": "Failed refresh after Android server rejection retains that rejection and clears stale preview.",
+    "status": "PASS",
+    "source": "specs/009-tab-operations/acceptance.md"
+  },
+  {
+    "criterion_id": "019-001",
+    "criterion": "Requesting `/` on each canonical host renders its matching focused surface.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-002",
+    "criterion": "A cliente QR path on `cliente.rodada.ai` resolves through the existing guest route.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-003",
+    "criterion": "Bar and Cozinha retain only production and availability workflows.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-004",
+    "criterion": "Gerência exposes task navigation for Agora, Operação, Vendas, Gestão, and Mais.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-005",
+    "criterion": "Existing local compatibility routes still build and use the same canonical API.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-006",
+    "criterion": "Manifest name, short name, and start URL match the selected host surface.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-007",
+    "criterion": "PR #40 visual checks cover all compatibility routes at the five required widths, significant states, accessible labels, keyboard focus and 44 px primary controls.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-008",
+    "criterion": "Canonical prototype/Web primitives have a strict visual comparison; full-screen production deviations have explicit operational and functional explanations.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-009",
+    "criterion": "Real Web/BFF/API tests exercise staff login, queues, availability, production transitions, guest ordering, management, cash/refund navigation and auth failures.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "019-010",
+    "criterion": "No personal developer credit or personal WhatsApp link is rendered on any Web surface.",
+    "status": "PASS",
+    "source": "specs/019-specialized-surface-routing/acceptance.md"
+  },
+  {
+    "criterion_id": "020-001",
+    "criterion": "Busca e resolução normalizada não duplicam Product; corrida converge e preço existente não muda; outra Venue não vaza.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-002",
+    "criterion": "Usuário sem capacidade não cria; payload inválido é rejeitado; criação registra ator/timestamp e ícone 1:1.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-003",
+    "criterion": "Falha/ausência do gerador mantém produto vendável com fallback explícito.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-004",
+    "criterion": "Histórico guest continua após reload, atualiza estados canônicos e desaparece após revogação; somente a Tab da sessão é exposta.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-005",
+    "criterion": "Fechamento antigo pode ser selecionado/revisado com turno novo ativo, que permanece intacto; lista paginada e scoped.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-006",
+    "criterion": "Relatório testa dinheiro em centavos, ajustes/refunds, pending/confirmed, boundary de cutoff, timezone e permissões.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-007",
+    "criterion": "UI permite filtros, detalhes e CSV sem falsos zeros em erro; 360/390/430/768/1280 sem overflow, labels/foco/toque e axe.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-008",
+    "criterion": "Testes de navegador usam API real para criar/reutilizar produto, acompanhar pedido após reload/transição, revisar fechamento antigo e ler/exportar relatórios.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "020-009",
+    "criterion": "Build/typecheck e suítes relevantes passam; documentação descreve capacidades executáveis, limites de infraestrutura e validação real.",
+    "status": "PASS",
+    "source": "specs/020-web-operational-completion/acceptance.md"
+  },
+  {
+    "criterion_id": "007-015",
+    "criterion": "A5 — Timeline auditável: Se o evento/milestone for inferido, isso não pode ser mascarado como observação manual.",
+    "status": "PARTIAL",
+    "source": "specs/007-management-cockpit/acceptance.md"
+  },
+  {
+    "criterion_id": "008-017",
+    "criterion": "BYOD device trust does not block routine work: **And given** a valid login on another previously unknown installation   **Then** it also succeeds without manager intervention; previous installations are not required to be removed first.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-018",
+    "criterion": "Revocation scope and reinstall: **And given** the same employee still has an ACTIVE membership and authenticates from a distinct, newly registered installation   **Then** the new session is evaluated normally; the old device revocation is not falsely treated as a physical-device ban.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-019",
+    "criterion": "Revocation scope and reinstall: **And given** the membership is SUSPENDED or REVOKED   **Then** login and mutations are denied from every installation.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-020",
+    "criterion": "BYOD privacy and fallback: **And given** the personal device is unavailable or unsuitable   **Then** the Venue can serve the same customer via an authorized shared/loaner device or cashier flow.",
+    "status": "PARTIAL",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "008-021",
+    "criterion": "Connectivity loss: **And given** that membership was revoked before replay   **Then** the command is rejected rather than reassigned or silently accepted.",
+    "status": "PASS",
+    "source": "specs/008-staff-auth-roles-devices/acceptance.md"
+  },
+  {
+    "criterion_id": "018-022",
+    "criterion": "Confirmation pending: **When** payment later becomes CONFIRMED or FAILED canonically   **Then** the alert resolves automatically.",
+    "status": "PASS",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-023",
+    "criterion": "Guest service request: **When** it exceeds the configured warning/escalation ages   **Then** alerting routes/escalates according to rule while preserving the original DispatchTask as source of truth.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  },
+  {
+    "criterion_id": "018-024",
+    "criterion": "Excessive queue: **When** queue falls below the configured recovery threshold   **Then** the alert resolves without flapping around the same threshold.",
+    "status": "MISSING",
+    "source": "specs/018-notifications-operational-escalation/acceptance.md"
+  }
+]

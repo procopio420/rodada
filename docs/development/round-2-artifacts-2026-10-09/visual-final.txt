@@ -1,0 +1,187 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test
+
+[2m[WebServer] [22m(node:38319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:41:36] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 187 tests using 1 worker
+
+(node:38400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 tests/visual/attendance.spec.ts:5:7 › Atendimento browser operations without payments at 360px (4.9s)
+  ✓    2 tests/visual/attendance.spec.ts:5:7 › Atendimento browser operations without payments at 390px (4.7s)
+  ✓    3 tests/visual/attendance.spec.ts:5:7 › Atendimento browser operations without payments at 430px (4.5s)
+  ✓    4 tests/visual/attendance.spec.ts:5:7 › Atendimento browser operations without payments at 1280px (5.0s)
+  ✓    5 tests/visual/attendance.spec.ts:24:5 › Atendimento manifest and financial gateway exclusion (273ms)
+  ✓    6 tests/visual/attendance.spec.ts:34:5 › ambiguous order retry preserves payload after catalog changes (3.5s)
+  ✓    7 tests/visual/attendance.spec.ts:59:5 › Atendimento hostname selects the dedicated browser entry (181ms)
+  ✓    8 tests/visual/customization.spec.ts:9:7 › customization choices and production text readable at 360px (5.9s)
+  ✓    9 tests/visual/customization.spec.ts:9:7 › customization choices and production text readable at 390px (5.2s)
+  ✓   10 tests/visual/customization.spec.ts:9:7 › customization choices and production text readable at 768px (4.7s)
+  ✓   11 tests/visual/customization.spec.ts:36:7 › manager customization editor remains accessible at 360px (2.8s)
+  ✓   12 tests/visual/customization.spec.ts:36:7 › manager customization editor remains accessible at 390px (3.4s)
+  ✓   13 tests/visual/customization.spec.ts:54:5 › optional single choice can be removed and stale choices require explicit review (1.7s)
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:27] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:28] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ✓   14 tests/visual/field-status-updated.spec.ts:17:7 › updated Field normal: unchanged export CSS and real Quick Catalog control (2.7s)
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:30] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:31] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:31] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:31] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:31] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:31] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ✓   15 tests/visual/field-status-updated.spec.ts:17:7 › updated Field focus: unchanged export CSS and real Quick Catalog control (2.5s)
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:42:33] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ✓   16 tests/visual/field-status-updated.spec.ts:17:7 › updated Field placeholder: unchanged export CSS and real Quick Catalog control (2.8s)
+  ✓   17 tests/visual/field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 360px (8.5s)
+  ✓   18 tests/visual/field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 430px (10.9s)
+  ✓   19 tests/visual/field-status-updated.spec.ts:78:7 › Field and StatusBadge: kitchen and adjacent bar at 768px (10.8s)
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[2m[WebServer] [22m127.0.0.1 - - [09/Oct/2026 17:43:06] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ✘   20 tests/visual/field-status-updated.spec.ts:99:5 › updated reference inventory: labels and non-equivalent badges (30.0s)
+(node:73224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   21 tests/visual/management-alerts.spec.ts:7:5 › manager canonical alert at mobile width: acknowledgement preserves condition (3.5s)
+
+
+  1) tests/visual/field-status-updated.spec.ts:99:5 › updated reference inventory: labels and non-equivalent badges 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test ended.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: '+ Item', exact: true })[22m
+
+
+      106 |   });
+      107 |   await fixture(actual); await actual.goto("/kitchen");
+    > 108 |   await actual.getByRole("button", { name: "+ Item", exact: true }).click();
+          |                                                                     ^
+      109 |   const label = await actual.locator(".fieldComfortable").evaluate(el => {
+      110 |     const field = getComputedStyle(el), label = getComputedStyle(el.querySelector("label")!);
+      111 |     return { gap: field.gap, fontSize: label.fontSize, fontWeight: label.fontWeight, tracking: label.letterSpacing };
+        at /home/lucas/projects/rodada/release-round-2/apps/web/tests/visual/field-status-updated.spec.ts:108:69
+
+    Error Context: test-results/visual/field-status-updated-updat-5e5f1-s-and-non-equivalent-badges/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/field-status-updated-updat-5e5f1-s-and-non-equivalent-badges/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/field-status-updated-updat-5e5f1-s-and-non-equivalent-badges/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/visual/management-alerts.spec.ts:7:5 › manager canonical alert at mobile width: acknowledgement preserves condition 
+
+    Test was interrupted.
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Produção acima do SLA')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Produção acima do SLA')[22m
+
+
+      11 |   await page.route(`**/api/pos/management/alerts/${id}/`, route => { status = "ACKNOWLEDGED"; return route.fulfill({ json: { ...base, status } }); });
+      12 |   await page.goto("/manage");
+    > 13 |   await expect(page.getByText("Produção acima do SLA")).toBeVisible();
+         |                                                         ^
+      14 |   await expect(page.getByText("Crítico · Cozinha · 21 min nesta etapa")).toBeVisible();
+      15 |   await expect(page.getByRole("link", { name: "Abrir contexto →" })).toHaveAttribute("href", `/manage/alerts/${id}`);
+      16 |   await page.getByRole("button", { name: "Registrar ciência" }).click();
+        at /home/lucas/projects/rodada/release-round-2/apps/web/tests/visual/management-alerts.spec.ts:13:57
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/management-alerts-manager--01478-dgement-preserves-condition/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/management-alerts-manager--01478-dgement-preserves-condition/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/visual/field-status-updated.spec.ts:99:5 › updated reference inventory: labels and non-equivalent badges 
+  1 interrupted
+    tests/visual/management-alerts.spec.ts:7:5 › manager canonical alert at mobile width: acknowledgement preserves condition 
+  166 did not run
+  19 passed (2.2m)
