@@ -41,6 +41,9 @@ object RodadaVisual {
     val Number = FontFamily(Font(R.font.jetbrains_mono))
 }
 
+// Compatibility for payment/operations components introduced on main.
+val RodadaMono = RodadaVisual.Number
+
 @Composable
 fun RodadaTheme(content: @Composable () -> Unit) {
     val base = Typography()

@@ -14,7 +14,7 @@ O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para
 6. **Estado nunca depende só de cor.** Badge, texto ou ícone sempre acompanha a cor.
 7. **Sem “SaaS genérico”.** Evitar glassmorphism, cards decorativos, dashboards de vaidade, gradientes sem função e navegação de ERP.
 8. **Dinheiro e risco têm hierarquia própria.** Saldo, exposição, limite, pagamento e bloqueio devem ser legíveis em um relance.
-9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações principais preferem 48–52 px.
+9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações de produção usam 56 px.
 10. **Português operacional.** Rótulos curtos, concretos e orientados à ação.
 
 ## Linguagem visual
@@ -82,7 +82,7 @@ Escala base:
 
 ## Espaçamento e forma
 
-Escala base: 4, 8, 12, 16, 24, 32 px.
+Escala base: 4, 8, 12, 16, 20, 24, 32 px. Margem mobile: `--space-mobile` (20 px). Botões: raio 8 px; badges: 4 px; listas de produção: raio 0.
 
 - `--radius-sm`: controles compactos;
 - `--radius-md`: botões, badges e linhas;
@@ -166,7 +166,8 @@ Componente visual compartilhado para o asset publicado de Product.
 
 Hierarquia fixa:
 
-- `button--primary`: próxima ação principal da tela;
+- `button--primary`: próxima ação principal da tela, fundo papel creme;
+- `button--work` / `buttonWork`: ação de produção de 56 px, papel, largura condensada e sombra de tecla;
 - `button--secondary`: ação segura alternativa;
 - `button--quiet`: navegação/ação de baixa ênfase;
 - `button--danger`: ação destrutiva ou bloqueio explícito.
@@ -224,11 +225,11 @@ Prioridade: **Tab → pedido → total → próxima ação**.
 
 Prioridade: **fila de produção + disponibilidade da estação**.
 
+Resumo por produto → fila individual → passe vêm antes da disponibilidade e Quick Catalog. No desktop largo são três colunas; no mobile, regiões empilhadas. Resumo apenas soma quantidades em produção, sem mutations agrupadas. Tempo desde o pedido usa created_at; no passe usa ready_at, com “Tempo não informado” quando ausente.
+
 No Web, nomes longos podem ocupar várias linhas: conteúdo e ações usam duas
 linhas no celular e colunas quando houver espaço. Sem truncar o produto ou
-reduzir o alvo de toque. A fila e o passe ficam antes do aviso compacto de
-Quick Catalog indisponível enquanto Spec 005 não estiver conectada. Esse aviso
-não contém formulário de criação aparentemente funcional.
+reduzir o alvo de toque. A fila e o passe ficam antes do cadastro conectado da Spec 020.
 
 Quick Catalog usa os mesmos componentes da superfície: Button, Field, CatalogCombobox, ProductIcon, StatusBadge e InlineNotice. Não existe botão obrigatório de “Gerar ícone”: ao criar Product novo, o ProductIcon nasce junto e a geração começa automaticamente. Criar item não deve parecer um mini-app separado dentro da cozinha.
 

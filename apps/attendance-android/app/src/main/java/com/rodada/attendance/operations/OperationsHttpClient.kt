@@ -62,6 +62,7 @@ class OperationsHttpClient(baseUrl: String) {
                 method = payment.getString("method"),
                 status = payment.getString("status"),
                 refundedCents = payment.optLong("refunded_cents"),
+                simulated = payment.optBoolean("simulated"),
             )
         }.orEmpty()
         val refundRequired = response.optJSONArray("refund_required_corrections")?.toObjects()?.map { correction ->
@@ -218,6 +219,21 @@ class OperationsHttpClient(baseUrl: String) {
             exposureCents = response.getLong("exposure_cents"),
         )
     }
+
+    fun paymentCapabilities(accessToken: String): com.rodada.attendance.payments.PaymentCapabilities =
+        request("GET", "/payments/capabilities/", accessToken = accessToken).let { com.rodada.attendance.payments.PaymentCapabilities(it.optBoolean("pix"), it.optBoolean("tap_to_pay"), it.optBoolean("simulated")) }
+
+    fun integratedPayment(accessToken: String, tabId: String, amountCents: Long, key: String, method: String = "PIX"): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/tabs/$tabId/payments/integrated/",
+            JSONObject().put("amount_cents", amountCents).put("method", method).put("idempotency_key", key), accessToken))
+
+    fun reconcileIntegrated(accessToken: String, paymentId: String): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/payments/$paymentId/integrated/", JSONObject(), accessToken))
+
+    private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
+        json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"),
+    )
 
     fun closeTab(accessToken: String, tabId: String) {
         request("POST", "/tabs/$tabId/close/", JSONObject(), accessToken)

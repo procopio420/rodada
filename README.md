@@ -20,7 +20,16 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 - pagamento pode ocorrer antes, durante ou depois da visita;
 - o sistema deve funcionar melhor no pico, não pior.
 
+
+## Meta de entrega: 09/10/2026 à noite
+
+A prioridade imediata é uma **demo operacional integrada e repetível em ambiente de teste** (Atendimento Android → pedido → Bar/Cozinha → pagamento parcial/manual → fechamento → Gerência), com evidência real em PostgreSQL, segurança financeira e resultado GO/NO-GO documentado. **Não equivale a homologação de produção nem substituição do VRSystem.** Veja o [plano de execução de sexta-feira](docs/architecture/2026-10-09-demo-readiness.md) para prioridades P0/P1, frentes paralelas, roteiro de turno, freeze, critérios e riscos externos.
+
 ## Marca e domínios canônicos
+
+### Protótipos da noite
+
+Os cinco ZIPs em `prototype/` foram integrados como [referências executáveis](prototype/references/index.html), com [KB de decisões e mapeamento](docs/design/prototype-integration.md) e [Spec 021](specs/021-prototype-design-integration/spec.md). Web e Atendimento Android compartilham a nova paleta/tipografia; Cozinha/Bar priorizam resumo de produção, fila e passe. Os fluxos simulados de Atendimento, pico e offline continuam referências de produto sob seus contratos canônicos.
 
 ### Estado Web verificável
 
@@ -51,6 +60,12 @@ Ver [ADR 0010](./docs/adr/0010-brand-and-canonical-domains.md).
 > **Identity optional, Tab mandatory.**
 
 Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou acessar a mesma comanda. Nenhuma delas deve virar a própria comanda.
+
+## Implementação do produto completo
+
+Para reproduzir fielmente os protótipos atualizados, seguir o [plano pixel-perfect](docs/design/pixel-perfect-implementation-plan.md) e a [Spec 023](specs/023-updated-prototype-visual-parity/spec.md): contratos por tela/estado, medidas, fixtures equivalentes e gates Web/Android.
+
+O [plano de implementação](docs/architecture/full-product-implementation-plan.md) registra o estado real, lacunas dos protótipos, etapas P0–P6, backlog R01–R18 e gates de piloto, produto completo e produção. A [Spec 022](specs/022-full-product-implementation/spec.md) acompanha a entrega; planejamento não declara os fluxos restantes implementados.
 
 ## Roadmap por slices
 
@@ -262,6 +277,8 @@ O Bar do Aderlan pode reaproveitar seus computadores: **caixa e gerência** no P
 **Autorizamos pessoas, não celulares:** login válido registra automaticamente a instalação e permite as operações do funcionário sem aprovação do gerente nem promoção para `TRUSTED`. Gestão de sessões/dispositivos existe para segurança, e `TRUSTED` atende capacidades específicas de terminais compartilhados. Tap on Phone requer elegibilidade/provisionamento separados pelo provider e não é condição para operar o PDV.
 
 Detalhes: [Spec 008](./specs/008-staff-auth-roles-devices/spec.md), [Spec 006](./specs/006-payments-tap-on-phone/spec.md) e [ADR 0007](./docs/adr/0007-specialized-surfaces-and-paytime-tap.md).
+
+Credenciais, acesso ao SDK e aprovação dos providers: [plano de ativação em pequenos passos](./docs/payments/provider-activation-steps.md).
 
 ## Design system
 

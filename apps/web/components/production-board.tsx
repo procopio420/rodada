@@ -91,9 +91,10 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     group.quantity += item.quantity; group.items.push(item); groups.set(key, group);
   }
   const batches = [...groups.values()].sort((a, b) => b.quantity - a.quantity);
-  const age = (timestamp: string) => {
+  const age = (timestamp?: string | null) => {
+    if (!timestamp || !Number.isFinite(Date.parse(timestamp))) return "Tempo não informado";
     const seconds = Math.max(0, Math.floor((now - Date.parse(timestamp)) / 1000));
-    return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}` : "—";
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
   };
   return <main className="appShell productionShell">
     <header className="stationHeader">
@@ -124,7 +125,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationPass" aria-labelledby="ready-title" aria-busy={loading}>
         <div className="stationLabel"><h2 id="ready-title">Pronto para retirada</h2>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">No passe · esperando retirada</p>
-        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">Pronto{item.ready_at && <> · <time>{age(item.ready_at)}</time></>}</div></div></article>)}
+        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
         {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
         <p className="stationFootnote">Estado confirmado pela operação. Atualiza a cada 5 segundos.</p>
