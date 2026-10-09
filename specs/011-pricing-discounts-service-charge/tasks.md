@@ -29,4 +29,4 @@ Guest service opt-out is performed by authorized staff under venue policy; this
 slice does not grant guests unilateral financial mutation. Existing receipt/check
 presentation uses the canonical bill. Printing infrastructure remains untouched.
 
-- [ ] Bloquear preview antes da leitura canônica; verificar atraso na UI e integração PostgreSQL.
+- [x] Bloquear preview antes da leitura canônica; verificar atraso na UI e integração PostgreSQL.

@@ -30,7 +30,7 @@
 
 ## Demo integrada Windows (parcial)
 
-- [ ] DW1: stack/reprodução isoladas.
-- [ ] DW2: turno HTTP/SSE/restart/SQL conciliados.
-- [ ] DW3: browser/pricing/recibos/Android disponível verificados.
+- [x] DW1: stack/reprodução isoladas.
+- [x] DW2: turno HTTP/SSE/restart/SQL conciliados.
+- [x] DW3: browser/pricing/recibos/Android disponível verificados.
 - [ ] DW4: gates e evidências publicados em PR draft.
