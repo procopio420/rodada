@@ -59,6 +59,38 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const [sending, setSending] = useState(false);
   const [stale, setStale] = useState(true);
   const orderIntent = useRef<string | null>(null);
+  const [requestSending, setRequestSending] = useState(false);
+  const [serviceNotice, setServiceNotice] = useState("");
+  const [serviceError, setServiceError] = useState(false);
+
+  async function requestService(taskType: "SERVICE_REQUEST" | "BILL_REQUEST") {
+    if (!context?.occupancy_active || requestSending || stale) return;
+    const intentKey = `${storageKey}.request.${guestToken}.${taskType}`;
+    let requestId: string;
+    try {
+      requestId = sessionStorage.getItem(intentKey) || crypto.randomUUID();
+      sessionStorage.setItem(intentKey, requestId);
+    } catch {
+      setServiceError(true);
+      setServiceNotice("Não foi possível guardar sua solicitação com segurança. Chame a equipe pessoalmente.");
+      return;
+    }
+    setRequestSending(true);
+    setServiceNotice("");
+    const result = await guestApi<{ id: string; state: string }>("service-requests/", guestToken, {
+      method: "POST", body: JSON.stringify({ request_id: requestId, task_type: taskType }),
+    });
+    setRequestSending(false);
+    setServiceError(!result.ok);
+    if (result.ok) {
+      sessionStorage.removeItem(intentKey);
+      setServiceNotice(taskType === "BILL_REQUEST" ? "Pedido de conta recebido pela equipe." : "Chamada de atendimento recebida pela equipe.");
+    } else {
+      // Preserve identity after ambiguous network/server outcomes for safe retry.
+      if (result.status < 500) sessionStorage.removeItem(intentKey);
+      setServiceNotice(messageFor(result.body as ApiError, "Não foi possível enviar sua chamada. Tente novamente ou chame a equipe."));
+    }
+  }
 
   const loadCatalog = useCallback(async (token: string) => {
     const result = await guestApi<{ results: Product[] }>("catalog/", token);
@@ -183,6 +215,15 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {notice && <div className="notice" data-state="danger" role="alert">{notice}</div>}
     {stale && <div className="notice" data-state="warning" role="status">Dados desatualizados. Reconecte para confirmar seu pedido.</div>}
     <button className="buttonQuiet" disabled={sending} onClick={() => void refresh().catch(() => {})}>Atualizar comanda</button>
+    {context.occupancy_active && <section className="panel" aria-labelledby="guest-service-heading">
+      <h2 id="guest-service-heading">Precisa da equipe?</h2>
+      <div className="actions">
+        <button className="buttonSecondary" disabled={requestSending || stale} onClick={() => void requestService("SERVICE_REQUEST")}>Chamar atendimento</button>
+        <button className="buttonSecondary" disabled={requestSending || stale} onClick={() => void requestService("BILL_REQUEST")}>Pedir conta à equipe</button>
+      </div>
+      {requestSending && <p role="status">Enviando solicitação…</p>}
+      {serviceNotice && <p className="notice" data-state={serviceError ? "danger" : "success"} role={serviceError ? "alert" : "status"}>{serviceNotice}</p>}
+    </section>}
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" disabled={sending || stale} onClick={() => void createTab()}>{sending ? "Abrindo…" : "Abrir minha comanda"}</button></section> : <>
       <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><BillSummary bill={context.tab} /></section>
       {context.tab.consumption_blocked && <div className="notice" data-state="warning" role="alert">Para continuar consumindo, peça ajuda à equipe. Você pode pagar uma parte da comanda ou solicitar aprovação.</div>}

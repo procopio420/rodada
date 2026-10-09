@@ -13,3 +13,7 @@
 11. DeliveryRun manual/assistido por Zone.
 12. métricas separando `MANUAL`, `INFERRED` e `CORRECTED`.
 13. dashboard de pico e análise de qualidade da inferência.
+
+Round 2: criar solicitações tipadas, fila por idade, claim exclusivo opcional e
+conclusão auditada sob lock da task; UUID persistido na própria task evita nova
+migration e permite replay após DONE. Integração usa contexto guest canônico.

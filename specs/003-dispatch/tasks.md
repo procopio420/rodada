@@ -23,3 +23,5 @@
 - [x] tests reconstrução/retry de eventos
 - [ ] tests de inferência sem duplicar milestones
 - [ ] tests de correção preservando histórico
+
+- [x] Round 2: structured staff/guest requests, safe claim/completion and PostgreSQL concurrent identity test.

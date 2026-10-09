@@ -313,3 +313,11 @@ A UX canônica está detalhada em `docs/product/guest-experience.md`.
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+
+### Round 2 — Chamada estruturada de atendimento
+
+Em ocupação ativa, guest pode chamar atendimento ou pedir conta à equipe.
+A sessão determina mesa/ocupação; payload aceita apenas tipo e UUID da intenção.
+A interface guarda o UUID antes de enviar, conserva-o em resultado desconhecido
+para retry e anuncia sucesso somente após resposta canônica. Criar solicitação
+não paga nem fecha a comanda e não expõe identidade/ownership do staff ao guest.

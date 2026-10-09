@@ -66,3 +66,7 @@
 - status guest simplificado;
 - pedir novamente;
 - solicitações estruturadas de atendimento integradas ao Dispatch.
+
+Round 2: usar DispatchTask existente para chamadas SERVICE_REQUEST/BILL_REQUEST;
+API guest autorizada pela sessão original da ocupação, UUID retry-safe, botões
+acessíveis na home e teste navegador com backend/PostgreSQL reais.
