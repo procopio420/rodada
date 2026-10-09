@@ -1,0 +1,68 @@
+=== android-release ===
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 15s
+53 actionable tasks: 7 executed, 46 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+
+=== web-typecheck ===
+
+> rodada-web@0.1.0 typecheck
+> tsc --noEmit
+
+
+=== web-build ===
+├ ƒ /reports
+└ ƒ /staff
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+
+=== web-realtime ===
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4862.581982
+
+=== web-integration ===
+[WebServer] Unauthorized: /auth/me/
+  ✓  4 tests/integration/workflows.spec.ts:140:5 › real expired session clears privileged cookies (907ms)
+  ✓  5 tests/integration/workflows.spec.ts:154:5 › canonical and compatibility hosts select the correct surface and manifest (415ms)
+[WebServer] Forbidden: /cash/shifts/0417092a-9ca9-4e51-b2a0-8339570903ce/review/
+  ✓  6 tests/integration/workflows.spec.ts:169:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (20.9s)
+  ✓  7 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (27.1s)
+
+  7 passed (1.7m)
+
+=== web-visual ===
+  ✓  141 tests/visual/parity.spec.ts:332:5 › new kitchen reference comparison documents the adapted connected layout (2.5s)
+  ✓  142 tests/visual/quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 360 (2.3s)
+  ✓  143 tests/visual/quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 390 (2.3s)
+  ✓  144 tests/visual/quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 430 (2.3s)
+
+  Slow test file: tests/visual/parity.spec.ts (7.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  144 passed (7.9m)
+
+=== production-after ===
+......................................................                   [100%]
+54 passed in 58.70s
+
+Android JUnit XML totals: {'tests': 38, 'failures': 0, 'errors': 0, 'skipped': 0}
+
+=== final PostgreSQL full suite ===
+........................................................................ [ 26%]
+........................................................................ [ 52%]
+........................................................................ [ 78%]
+..........................................................               [100%]
+274 passed in 391.92s (0:06:31)

@@ -52,6 +52,11 @@ Itens confirmados geram charges idempotentes no ledger da Tab.
 
 OrderItem suporta estados mínimos `NEW`, `ACCEPTED`, `PREPARING`, `READY`, `PICKED_UP`, `DELIVERED`, `CANCELLED`.
 
+Fechamento financeiro da Tab não abandona produção já confirmada. Transições
+legais de preparo/entrega continuam autorizadas para esses OrderItems, sem reabrir
+a Tab ou alterar ledger. Novos pedidos/pagamentos e correções financeiras mantêm
+as restrições de Tab fechada.
+
 ### POS-007 — Cancelamento
 
 Cancelamento após confirmação exige permissão e trilha de auditoria; ledger recebe reversão/adjustment em vez de apagar histórico.
@@ -59,6 +64,11 @@ Cancelamento após confirmação exige permissão e trilha de auditoria; ledger 
 ### POS-008 — Receber pagamento
 
 Registrar `CASH`, `CARD`, `PIX` ou `OTHER`; P0 aceita confirmação manual.
+
+Valores e troco são centavos inteiros positivos dentro do intervalo persistível;
+payload inválido é rejeitado sem efeito financeiro. Retry de intenção confirmada
+recupera o Payment original mesmo após fechamento da Tab; nova intenção permanece
+bloqueada e uma chave reutilizada com outro valor/método é conflito.
 
 ### POS-009 — Fechar Tab
 

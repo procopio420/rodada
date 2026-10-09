@@ -1,0 +1,22 @@
+ state  | tabs | charges_cents | adjustments_cents | payments_cents | refunds_cents | transfers_cents | exposure_cents 
+--------+------+---------------+-------------------+----------------+---------------+-----------------+----------------
+ CLOSED |   18 |         55700 |             -3600 |          55700 |          3600 |               0 |              0
+(1 row)
+
+ status | opening_float_cents | expected_amount_cents_snapshot | counted_amount_cents | discrepancy_cents | movement_sum_cents 
+--------+---------------------+--------------------------------+----------------------+-------------------+--------------------
+ CLOSED |               10000 |                          10000 |                10000 |                 0 |              10000
+ CLOSED |               10000 |                          14300 |                14300 |                 0 |              14300
+ CLOSED |               10000 |                          14300 |                14300 |                 0 |              14300
+ CLOSED |               10000 |                          14300 |                14300 |                 0 |              14300
+ CLOSED |               10000 |                          14300 |                14300 |                 0 |              14300
+ CLOSED |               10000 |                          14300 |                14300 |                 0 |              14300
+(6 rows)
+
+       check_name       | violations 
+------------------------+------------
+ duplicate_order_keys   |          0
+ duplicate_payment_keys |          0
+ duplicate_item_charges |          0
+(3 rows)
+
