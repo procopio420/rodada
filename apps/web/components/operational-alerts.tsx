@@ -7,11 +7,12 @@ import { useRealtime } from "@/lib/client/use-realtime";
 
 type Alert = {
   id: string; rule_key: string; status: string; severity: string;
-  source: { target: string; id: string; station?: string; state?: string; age_seconds?: number; tab_id?: string };
+  source: { target: string; id: string; station?: string; state?: string; age_seconds?: number; tab_id?: string; destination_label?: string };
 };
 const labels: Record<string, string> = {
   FULFILLMENT_SLA: "Produção acima do SLA", PAYMENT_PENDING: "Pagamento aguardando confirmação",
   STRATEGIC_PRODUCT: "Produto estratégico indisponível",
+  GUEST_SERVICE_REQUEST_AGED: "Solicitação de atendimento atrasada",
   CASH_DISCREPANCY: "Divergência de caixa aguardando revisão",
 };
 
@@ -32,7 +33,7 @@ export function OperationalAlerts() {
     setLoaded(true);
   }, []);
   const connectivity = useRealtime(load, {
-    relevant: event => event.type.startsWith("alert.") || event.type.startsWith("order.") || event.type.startsWith("payment.") || event.type.startsWith("cash."),
+    relevant: event => event.type.startsWith("alert.") || event.type.startsWith("order.") || event.type.startsWith("payment.") || event.type.startsWith("cash.") || event.type.startsWith("dispatch.") || event.type === "venue.configuration_changed",
     onRevoked: () => { setAlerts([]); setError("Entre novamente para consultar alertas."); },
   });
   async function acknowledge(id: string) {
@@ -53,6 +54,7 @@ export function OperationalAlerts() {
     {alerts.map(alert => <div className="movement" key={alert.id}>
       <div><strong>{labels[alert.rule_key] ?? alert.rule_key}</strong>
         <small>{alert.severity === "DANGER" ? "Crítico" : "Atenção"}{alert.source.station ? ` · ${alert.source.station === "BAR" ? "Bar" : "Cozinha"}` : ""}
+          {alert.source.destination_label ? ` · ${alert.source.destination_label}` : ""}
           {alert.source.age_seconds !== undefined ? ` · ${Math.floor(alert.source.age_seconds / 60)} min nesta etapa` : ""}</small>
         <Link className="backLink" href={`/manage/alerts/${alert.id}`}>Abrir contexto →</Link>
         {alert.status === "ACKNOWLEDGED" ? <small>Ciência registrada · condição continua ativa</small> :
