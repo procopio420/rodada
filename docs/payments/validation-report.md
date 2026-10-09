@@ -34,6 +34,7 @@ injected HTTP contract responses or explicit deterministic simulation.
 | --- | --- |
 | Full backend suite (SQLite) | 180 passed, 5 skipped; 180.64s |
 | Financial suite (PostgreSQL 17) | 72 passed; 100.83s |
+| Existing payment/House Account migration tests (PostgreSQL 17) | 2 passed; 16.71s |
 | Android JVM tests | 27 passed, no failures/errors |
 | Android testDebugUnitTest / assembleDebug / lintDebug | BUILD SUCCESSFUL; 52s |
 | Django system checks | No issues |
@@ -44,7 +45,8 @@ injected HTTP contract responses or explicit deterministic simulation.
 
 The full-suite skips include three PostgreSQL concurrency tests and two existing
 PostgreSQL-only migration tests. The three payment concurrency tests passed in the
-PostgreSQL financial suite; the two migration tests were not included in that suite.
+PostgreSQL financial suite; the two migration tests also passed in a separate
+PostgreSQL run.
 
 ## Reproduce
 
@@ -55,6 +57,8 @@ DJANGO_SETTINGS_MODULE=rodada_api.settings_payments_postgres python -m pytest \
   tests/test_sumup_payments.py tests/test_paytime_live.py tests/test_payment_provider.py \
   tests/test_payments_concurrency.py tests/test_ledger_payments.py \
   tests/test_cash_management.py tests/test_house_account.py tests/test_house_account_e2e.py
+DJANGO_SETTINGS_MODULE=rodada_api.settings_payments_postgres python -m pytest \
+  tests/test_payment_migration.py tests/test_house_account_migration.py
 DJANGO_SETTINGS_MODULE=rodada_api.settings_test python manage.py makemigrations --check --dry-run
 DJANGO_SETTINGS_MODULE=rodada_api.settings_test python manage.py check
 # From repository root, with JDK17 and Android SDK configured:
