@@ -63,3 +63,7 @@ Consolidar commits V01–V05 na branch de revisão sem mover main ou branch do u
 5. Typecheck/build, suíte visual completa/realtime e integração real PostgreSQL; evidências antes/depois, adjacência Caixa/Cozinha, commit/documentação. Não integrar automaticamente em main nem substituir a stack/banco ativo.
 
 Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.
+
+## Todas as superfícies Web — abordagem
+
+Reutilizar branch isolada já atualizada com main ae416da e preservar PR65/trabalho anterior. Inventariar headings e componentes compartilhados; promover OperationalHeading baseado em OperationalIcon com nomes acessíveis inalterados. Evitar dupla iconografia onde a referência já tem SVG. Aplicar tokens compartilhados de hierarquia/profundidade, completar navegação do Atendimento e leitura dos tickets. Capturar antes/depois usando fixtures existentes, reaproveitar matriz visual/estados/fluxos e integrações PostgreSQL. Preservar stack3119 e banco ativo. Atualizar apenas prévia isolada após build/checks; versionar evidências e ampliar PR65, sem merge na main.

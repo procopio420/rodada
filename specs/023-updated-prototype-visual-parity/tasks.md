@@ -82,3 +82,12 @@ Resultado: [validação integrada](../../docs/design/spec023-review.md).
 - [x] Executar gates e registrar commit/evidências/limites, sem conclusão global023.
 
 Resultado deste recorte: [evidências e limites](../../docs/design/spec023-management-hierarchy.md). Gates locais passaram; não conclui V02 ou023 global.
+
+## Acabamento de todas as telas Web
+
+- [x] Conferir Git/main ae416da, branch original e contrato antes do código.
+- [ ] Inventariar cobertura de todas as rotas e preservar documentos impressos.
+- [ ] Reutilizar ícones/headings/tokens em telas e componentes compartilhados.
+- [ ] Melhorar identificação de navegação e hierarquia de tickets sem mudar comandos.
+- [ ] Verificar matriz visual, estados, acessibilidade, adjacentes e API/PostgreSQL.
+- [ ] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
