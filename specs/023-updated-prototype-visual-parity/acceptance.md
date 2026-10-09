@@ -14,3 +14,12 @@
 - [ ] Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteúdo longo passam.
 - [ ] CI retém referência/actual/diff/overlay/stats e falha em regressão; não usa baseline atual ou masks para ocultar diferenças.
 - [ ] Audit/KB registram cobertura completa e diferenças restantes; nenhuma tela sem referência é declarada pixel-perfect.
+
+## Inventário parcial da Cozinha
+
+- [x] Referência/hash e ambiente identificados; selector único `.k` e recortes medidos.
+- [x] Estado literal e comportamento dos controles observados; estados não disponíveis explicitados.
+- [x] Evidência da implementação identifica base Git, fixture, geometria e diferenças sem alegação de equivalência.
+- [x] Aplicação/exports originais e branch anterior preservados; V01 global permanece pendente.
+
+Evidências e limites: [inventário](../../docs/design/v01-kitchen-inventory.md). Somente os itens desta subseção foram verificados; os critérios globais permanecem pendentes.

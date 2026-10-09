@@ -1,0 +1,818 @@
+{
+  "schema_version": 1,
+  "id": "spec023-v01-kitchen-literal-v1",
+  "scope": "V01 Cozinha somente; inventário documental, sem aceite de paridade",
+  "implementation_base": "1dfdf8a62bd98a4d48cc87b2079b3b2842b7a02a",
+  "preserved_branch": {
+    "name": "codex/ux-operational-polish",
+    "commit": "6e2f4ca4f386f6ee54325cbff2fdf09b05bef597"
+  },
+  "reference": {
+    "entry": "prototype/references/kitchen/Cozinha.dc.html",
+    "source_hashes": {
+      "prototype/Tela da Cozinha-html.zip": "ffa32367f3a04131922f75f2d7ebb4968c92e01451c7c32d6e4be1a94d428e63",
+      "prototype/references/kitchen/Cozinha.dc.html": "f4cccbe86677348f83a94d60083db6ae2a100f2984e43143151b7879b4d944c6",
+      "prototype/references/kitchen/support.js": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d",
+      "prototype/references/kitchen/vendor/react.js": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe",
+      "prototype/references/kitchen/vendor/react-dom.js": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a",
+      "prototype/fonts/fonts.css": "19cdd6f1551ec9b462fefd59bbec6beff3c0cf95422a1a4c179ed15426fbc8e9",
+      "prototype/fonts/Archivo.ttf": "0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053",
+      "prototype/fonts/JetBrainsMono.ttf": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda",
+      "prototype/references/kitchen/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg": "143f477e3b2a626f940cb8b7e998996bc9c4ab956a40f7a6eb40701e21f5aeab",
+      "prototype/references/kitchen/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg": "3a30827a143ff0ebee2bb59bfeb1b11fc432194ee1b19a202f0d897ca3945be0",
+      "prototype/references/kitchen/assets/73ba944a476ce094605977a1b0205ec9.svg": "6020be0b7b76c08800d6dd6cd4e056962cfd461912ae8dd847d48cec3834e3b6",
+      "prototype/references/kitchen/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg": "7895378cad0ef837d22d21150cf11d826b9b5db74814d22ca8f4853550a5b9df",
+      "prototype/references/kitchen/assets/da647361752c6e97c88066964a7f7259.svg": "4b29b1f5127e6b9679f80c08dd61ff6a8e6c5fab59cc7a016c81c928044d235b"
+    },
+    "manifest": {
+      "id": "kitchen",
+      "title": "Tela da Cozinha",
+      "archive": "Tela da Cozinha-html.zip",
+      "sha256": "ffa32367f3a04131922f75f2d7ebb4968c92e01451c7c32d6e4be1a94d428e63",
+      "entry": "kitchen/Cozinha.dc.html"
+    },
+    "root_selector": ".k",
+    "instance_count": 1,
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "device_scale_factor": 1,
+    "crop": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "fixture": "literal HTML, unchanged; static values incl. clock 23:14",
+    "states": [
+      {
+        "id": "initial",
+        "reach": [
+          "navigate to entry",
+          "wait for .k, fonts and images"
+        ],
+        "capture": "docs/design/evidence/v01-kitchen/reference-initial-1280.png"
+      },
+      {
+        "id": "keyboard-focus",
+        "reach": [
+          "navigate to entry",
+          "focus .tk:nth-of-type(2) .btn"
+        ],
+        "capture": "docs/design/evidence/v01-kitchen/reference-focus-1280.png",
+        "classification": "browser focus; not a separate domain state"
+      }
+    ],
+    "interactions": [
+      {
+        "index": 1,
+        "label": "Pronto",
+        "rootHTMLUnchanged": true,
+        "urlUnchanged": true
+      },
+      {
+        "index": 2,
+        "label": "Pronto",
+        "rootHTMLUnchanged": true,
+        "urlUnchanged": true
+      },
+      {
+        "index": 3,
+        "label": "Pronto",
+        "rootHTMLUnchanged": true,
+        "urlUnchanged": true
+      },
+      {
+        "index": 4,
+        "label": "Pronto",
+        "rootHTMLUnchanged": true,
+        "urlUnchanged": true
+      },
+      {
+        "index": 5,
+        "label": "Pronto",
+        "rootHTMLUnchanged": true,
+        "urlUnchanged": true
+      }
+    ],
+    "regions": {
+      "root": {
+        "selector": ".k",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "measured_style": {
+          "display": "grid",
+          "gridTemplateColumns": "420px 520px 340px",
+          "gridTemplateRows": "72px 728px",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgb(10, 8, 6)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "hidden"
+        }
+      },
+      "header": {
+        "selector": ".k > header",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 72
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px 24px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "1px",
+          "backgroundColor": "rgb(27, 23, 19)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "summary": {
+        "selector": ".k > section:nth-of-type(1)",
+        "crop": {
+          "x": 0,
+          "y": 72,
+          "width": 420,
+          "height": 728
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "1px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "tickets": {
+        "selector": ".k > section:nth-of-type(2)",
+        "crop": {
+          "x": 420,
+          "y": 72,
+          "width": 520,
+          "height": 728
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "1px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "pass": {
+        "selector": ".k > section:nth-of-type(3)",
+        "crop": {
+          "x": 940,
+          "y": 72,
+          "width": 340,
+          "height": 728
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgb(16, 13, 10)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "firstDish": {
+        "selector": ".dish:nth-of-type(2)",
+        "crop": {
+          "x": 0,
+          "y": 130,
+          "width": 419,
+          "height": 157
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "14px 24px 16px",
+          "gap": "8px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "1px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "firstTicket": {
+        "selector": ".tk:nth-of-type(2)",
+        "crop": {
+          "x": 420,
+          "y": 130,
+          "width": 519,
+          "height": 93.25
+        },
+        "measured_style": {
+          "display": "grid",
+          "gridTemplateColumns": "84px 243px 116px",
+          "gridTemplateRows": "68.25px",
+          "padding": "12px 20px 12px 24px",
+          "gap": "16px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "1px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "firstAction": {
+        "selector": ".tk:nth-of-type(2) .btn",
+        "crop": {
+          "x": 803,
+          "y": 148.125,
+          "width": 116,
+          "height": 56
+        },
+        "measured_style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "1px 6px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgb(243, 236, 225)",
+          "color": "rgb(23, 19, 15)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "18px",
+          "fontWeight": "850",
+          "fontStretch": "84%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "1.08px",
+          "textTransform": "uppercase",
+          "borderRadius": "8px",
+          "boxShadow": "rgba(0, 0, 0, 0.2) 0px -4px 0px 0px inset",
+          "overflow": "visible"
+        }
+      },
+      "firstPass": {
+        "selector": ".pass:nth-of-type(2)",
+        "crop": {
+          "x": 940,
+          "y": 130,
+          "width": 340,
+          "height": 65
+        },
+        "measured_style": {
+          "display": "grid",
+          "gridTemplateColumns": "64px 216px",
+          "gridTemplateRows": "40px",
+          "padding": "12px 24px",
+          "gap": "12px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "1px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "dishName": {
+        "selector": ".dish:nth-of-type(2) .n",
+        "crop": {
+          "x": 94,
+          "y": 156.203125,
+          "width": 117.046875,
+          "height": 39.59375
+        },
+        "measured_style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "44px",
+          "fontWeight": "900",
+          "fontStretch": "64%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "39.6px",
+          "letterSpacing": "normal",
+          "textTransform": "uppercase",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "quantity": {
+        "selector": ".dish:nth-of-type(2) .q",
+        "crop": {
+          "x": 363.796875,
+          "y": 150,
+          "width": 31.203125,
+          "height": 52
+        },
+        "measured_style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "\"JetBrains Mono\", monospace",
+          "fontSize": "52px",
+          "fontWeight": "800",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "52px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "chip": {
+        "selector": ".dish:nth-of-type(2) .chip:nth-of-type(1)",
+        "crop": {
+          "x": 24,
+          "y": 240,
+          "width": 48.8125,
+          "height": 30
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px 10px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgb(37, 32, 25)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "\"JetBrains Mono\", monospace",
+          "fontSize": "16px",
+          "fontWeight": "700",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "4px",
+          "boxShadow": "rgb(58, 50, 40) 0px 0px 0px 1px inset",
+          "overflow": "visible"
+        }
+      },
+      "headerTitle": {
+        "selector": ".k > header > div:nth-of-type(1) > b",
+        "crop": {
+          "x": 68,
+          "y": 15,
+          "width": 134.296875,
+          "height": 41
+        },
+        "measured_style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "38px",
+          "fontWeight": "900",
+          "fontStretch": "66%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "uppercase",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "ticketName": {
+        "selector": ".tk:nth-of-type(2) .i",
+        "crop": {
+          "x": 544,
+          "y": 142,
+          "width": 243,
+          "height": 26.25
+        },
+        "measured_style": {
+          "display": "block",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "21px",
+          "fontWeight": "700",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "26.25px",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "ticketMeta": {
+        "selector": ".tk:nth-of-type(2) .a",
+        "crop": {
+          "x": 544,
+          "y": 190.25,
+          "width": 243,
+          "height": 20
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(187, 174, 155)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "15px",
+          "fontWeight": "600",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "passUnclaimed": {
+        "selector": ".pass:nth-of-type(2) .w",
+        "crop": {
+          "x": 1040,
+          "y": 167,
+          "width": 216,
+          "height": 15
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "6px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(255, 93, 71)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "800",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "0.84px",
+          "textTransform": "uppercase",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "passWaiting": {
+        "selector": ".pass:nth-of-type(3) .w",
+        "crop": {
+          "x": 1040,
+          "y": 232,
+          "width": 216,
+          "height": 15
+        },
+        "measured_style": {
+          "display": "flex",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "0px",
+          "gap": "6px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(245, 165, 36)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "800",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "0.84px",
+          "textTransform": "uppercase",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "passTaken": {
+        "selector": ".pass:nth-of-type(4)",
+        "crop": {
+          "x": 940,
+          "y": 260,
+          "width": 340,
+          "height": 74
+        },
+        "measured_style": {
+          "display": "grid",
+          "gridTemplateColumns": "64px 216px",
+          "gridTemplateRows": "49px",
+          "padding": "12px 24px",
+          "gap": "12px",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "1px",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "color": "rgb(243, 236, 225)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "normal",
+          "letterSpacing": "normal",
+          "textTransform": "none",
+          "borderRadius": "0px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      },
+      "newBadge": {
+        "selector": ".tk:nth-of-type(6) .i > span",
+        "crop": {
+          "x": 622.4375,
+          "y": 518,
+          "width": 62.921875,
+          "height": 19
+        },
+        "measured_style": {
+          "display": "inline",
+          "gridTemplateColumns": "none",
+          "gridTemplateRows": "none",
+          "padding": "2px 6px",
+          "gap": "normal",
+          "borderRightWidth": "0px",
+          "borderBottomWidth": "0px",
+          "backgroundColor": "rgb(245, 165, 36)",
+          "color": "rgb(23, 19, 15)",
+          "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+          "fontSize": "14px",
+          "fontWeight": "900",
+          "fontStretch": "100%",
+          "fontVariationSettings": "normal",
+          "lineHeight": "17.5px",
+          "letterSpacing": "1.4px",
+          "textTransform": "none",
+          "borderRadius": "3px",
+          "boxShadow": "none",
+          "overflow": "visible"
+        }
+      }
+    },
+    "no_literal_reference": [
+      "empty",
+      "loading",
+      "API error",
+      "stale/retry",
+      "saving",
+      "unavailable product",
+      "missing timestamp",
+      "responsive 360/430/768"
+    ]
+  },
+  "implementation_inspection": {
+    "entry": "/kitchen",
+    "fixture": "docs/design/evidence/v01-kitchen/inspection-fixture.json",
+    "api": "browser interception only; commands never reach backend",
+    "clock": {
+      "initial": "2026-10-08T21:00:00Z",
+      "stale": "advance 5000ms to trigger existing poll",
+      "responsive": "fixed to initial clock"
+    },
+    "regions": {
+      "root": {
+        "selector": "main.productionShell",
+        "crop": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 1543.46875
+        }
+      },
+      "header": {
+        "selector": ".productHeader",
+        "crop": {
+          "x": 20,
+          "y": 16,
+          "width": 1240,
+          "height": 80.578125
+        }
+      },
+      "workspace": {
+        "selector": ".productionWorkspace",
+        "crop": {
+          "x": 20,
+          "y": 120.578125,
+          "width": 1240,
+          "height": 1052.71875
+        }
+      },
+      "summary": {
+        "selector": ".productionSummary",
+        "crop": {
+          "x": 20,
+          "y": 120.578125,
+          "width": 310,
+          "height": 1052.71875
+        }
+      },
+      "tickets": {
+        "selector": "section[aria-labelledby=\"queue-title\"]",
+        "crop": {
+          "x": 330,
+          "y": 120.578125,
+          "width": 620,
+          "height": 1052.71875
+        }
+      },
+      "pass": {
+        "selector": "section[aria-labelledby=\"ready-title\"]",
+        "crop": {
+          "x": 950,
+          "y": 120.578125,
+          "width": 310,
+          "height": 1052.71875
+        }
+      },
+      "firstAction": {
+        "selector": "section[aria-labelledby=\"queue-title\"] article:first-of-type button",
+        "crop": {
+          "x": 823.765625,
+          "y": 288.359375,
+          "width": 109.234375,
+          "height": 56
+        }
+      },
+      "availability": {
+        "selector": "section[aria-labelledby=\"availability-title\"]",
+        "crop": {
+          "x": 20,
+          "y": 1185.296875,
+          "width": 1240,
+          "height": 253.78125
+        }
+      }
+    },
+    "states": [
+      "initial",
+      "saving",
+      "stale",
+      "empty",
+      "loading",
+      "error",
+      "missing-time"
+    ],
+    "equivalence": false
+  },
+  "open_decisions": [
+    "Summary mixes waiting and pass items; do not reproduce inconsistent totals.",
+    "P08 is one visual ticket with two products; main renders individual OrderItem lines.",
+    "P44 Carlos levando has no confirmed provenance in export or endpoint.",
+    "Equipment/capacity/12-minute SLA require domain data or explicit derived reference.",
+    "Responsive views require derived contracts; do not shrink/stretch fixed reference."
+  ],
+  "environment": {
+    "os": "win32",
+    "node": "v24.19.0",
+    "playwright": "1.58.2",
+    "chromium": "145.0.7632.6",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "dpr": 1,
+    "locale": "pt-BR",
+    "timezone": "America/Sao_Paulo",
+    "build": "Next webpack; shared unchanged node_modules"
+  },
+  "evidence": "docs/design/evidence/v01-kitchen/measurements.json",
+  "status": "kitchen inventory verified; V01 all five exports and V02-V07 pending"
+}
