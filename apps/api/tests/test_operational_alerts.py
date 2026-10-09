@@ -1,8 +1,7 @@
 from datetime import timedelta
 from concurrent.futures import ThreadPoolExecutor
 from django.db import close_old_connections, connection, connections
-from django.test import TestCase, TransactionTestCase, override_settings
-from django.urls import path
+from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
 from rest_framework.test import APIClient
 from modules.access.models import StaffMember, VenueStaffMembership
@@ -13,11 +12,6 @@ from modules.cash.models import CashPoint, CashShift
 from modules.ledger.models import Payment
 from modules.venue.models import Venue, OperationalAlert, OperationalAlertPolicy
 from modules.management.alerts import evaluate_alerts
-from modules.management.views import AlertListView, AlertDetailView, AlertPolicyView
-
-urlpatterns = [path('alerts/', AlertListView.as_view()), path('alerts/<uuid:alert_id>/', AlertDetailView.as_view()),
-               path('policy/', AlertPolicyView.as_view())]
-
 
 class AlertFixtures:
     def setup_facts(self):
@@ -65,14 +59,13 @@ class OperationalAlertTests(AlertFixtures, TestCase):
         self.assertEqual(episode.repeat_of_id, alert.pk)
         self.assertEqual(alert.history.last().metadata['reason'], 'CANONICAL_CONDITION_CLEARED')
 
-    @override_settings(ROOT_URLCONF='tests.test_operational_alerts')
     def test_cash_ack_is_idempotent_not_resolution_then_review_resolves(self):
         point = CashPoint.objects.create(venue=self.venue, label='Caixa')
         shift = CashShift.objects.create(venue=self.venue, cash_point=point, business_date=self.now.date(),
             opened_by=self.staff, opening_idempotency_key='open', status='CLOSED', review_status='PENDING', discrepancy_cents=-100)
         alert = evaluate_alerts(self.venue, self.now).get(rule_key='CASH_DISCREPANCY')
         for _ in range(2):
-            response = self.client.post(f'/alerts/{alert.pk}/', {}, format='json')
+            response = self.client.post(f'/management/alerts/{alert.pk}/', {}, format='json')
             self.assertEqual(response.status_code, 200, response.data)
         alert.refresh_from_db()
         self.assertEqual(alert.status, 'ACKNOWLEDGED')
@@ -94,27 +87,25 @@ class OperationalAlertTests(AlertFixtures, TestCase):
         self.assertEqual(alert.status, 'RESOLVED')
         self.assertFalse(evaluate_alerts(self.venue, self.now).filter(rule_key='PAYMENT_PENDING').exists())
 
-    @override_settings(ROOT_URLCONF='tests.test_operational_alerts')
     def test_threshold_validation_conflict_and_audit(self):
-        self.assertEqual(self.client.get('/policy/').json()['section'], 'operational_alerts')
+        self.assertEqual(self.client.get('/management/alert-policy/').json()['section'], 'operational_alerts')
         values = {'expected_version':1, 'fulfillment_warning_seconds': 300, 'fulfillment_danger_seconds':600, 'payment_pending_seconds':200, 'reason':'Pico'}
-        first = self.client.patch('/policy/', values, format='json')
+        first = self.client.patch('/management/alert-policy/', values, format='json')
         self.assertEqual(first.status_code, 200, first.data)
-        stale = self.client.patch('/policy/', values, format='json')
+        stale = self.client.patch('/management/alert-policy/', values, format='json')
         self.assertEqual(stale.status_code, 409)
         self.assertEqual(stale.data['current']['version'], 2)
         values.update(expected_version=2, fulfillment_warning_seconds=700)
-        self.assertEqual(self.client.patch('/policy/', values, format='json').status_code, 400)
+        self.assertEqual(self.client.patch('/management/alert-policy/', values, format='json').status_code, 400)
         self.assertEqual(AuditEvent.objects.get(event_type='operational_threshold.changed').reason, 'Pico')
 
-    @override_settings(ROOT_URLCONF='tests.test_operational_alerts')
     def test_cross_venue_idor_and_revoked_capability(self):
         alert = OperationalAlert.objects.create(venue=self.other, rule_key='CASH_DISCREPANCY', rule_version=1,
             subject_id=self.item.id, severity='DANGER', source={}, first_detected_at=self.now, updated_at=self.now)
-        self.assertEqual(self.client.get(f'/alerts/{alert.id}/').status_code, 404)
-        self.assertEqual(self.client.post(f'/alerts/{alert.id}/', {}, format='json').status_code, 404)
+        self.assertEqual(self.client.get(f'/management/alerts/{alert.id}/').status_code, 404)
+        self.assertEqual(self.client.post(f'/management/alerts/{alert.id}/', {}, format='json').status_code, 404)
         VenueStaffMembership.objects.filter(venue=self.venue, staff_member=self.staff).update(role='STAFF')
-        self.assertEqual(self.client.get('/alerts/').status_code, 403)
+        self.assertEqual(self.client.get('/management/alerts/').status_code, 403)
 
     def test_report_never_counts_pending_payment_as_received(self):
         from modules.venue.calendar import business_date
@@ -137,11 +128,10 @@ class OperationalAlertTests(AlertFixtures, TestCase):
         self.assertEqual(business_date(self.venue, self.item.created_at), before)
         self.assertEqual(self.venue.business_day_cutoff_hour, 0)
 
-    @override_settings(ROOT_URLCONF='tests.test_operational_alerts')
     def test_policy_change_requires_recent_reauthentication(self):
         from modules.access.models import StaffSession
         StaffSession.objects.filter(venue=self.venue).update(recently_reauthenticated_at=None)
-        response = self.client.patch('/policy/', {}, format='json')
+        response = self.client.patch('/management/alert-policy/', {}, format='json')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data['code'], 'REAUTH_REQUIRED')
 

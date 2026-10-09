@@ -16,7 +16,7 @@ from modules.corrections.views import (
     PostProductionCorrectionView,
 )
 from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
-from modules.management.views import CalendarView, ReportView
+from modules.management.views import (CalendarView, ReportView, AlertListView, AlertDetailView, AlertPolicyView)
 from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
     PartySizeView,
@@ -117,6 +117,9 @@ urlpatterns = [
     path("service-points/", ServicePointView.as_view()),
     path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
     path("cash/shifts/history/", CashShiftListView.as_view()),
+    path("management/alerts/", AlertListView.as_view()),
+    path("management/alerts/<uuid:alert_id>/", AlertDetailView.as_view()),
+    path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
     path("health/", health, name="health"),
