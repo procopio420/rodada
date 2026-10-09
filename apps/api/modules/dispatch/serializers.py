@@ -31,3 +31,12 @@ class DispatchTaskSerializer(serializers.Serializer):
         if not task.order_item_id:
             return ""
         return task.order_item.order.tab.display_label
+
+
+class ServiceRequestSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
+    task_type = serializers.ChoiceField(choices=("SERVICE_REQUEST", "BILL_REQUEST"))
+
+
+class StaffServiceRequestSerializer(ServiceRequestSerializer):
+    table_id = serializers.UUIDField()

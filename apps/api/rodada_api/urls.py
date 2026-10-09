@@ -32,6 +32,7 @@ from modules.hospitality.views import (
 )
 from modules.guest_access.views import (
     GuestPartySizeView,
+    GuestServiceRequestView,
     GuestCatalogView,
     GuestContextView,
     GuestOrderConfirmView,
@@ -177,6 +178,7 @@ urlpatterns = [
     path("hospitality/occupancies/<uuid:occupancy_id>/tabs/", OccupancyAssignTabView.as_view(), name="occupancy-assign-tab"),
     path("hospitality/occupancies/<uuid:occupancy_id>/party-size/", PartySizeView.as_view()),
     path("hospitality/tabs/<uuid:tab_id>/party-size/", PartySizeView.as_view()),
+    path("guest/service-requests/", GuestServiceRequestView.as_view()),
     path("guest/party-size/", GuestPartySizeView.as_view()),
     path("guest/qr/resolve/", GuestQrResolveView.as_view(), name="guest-qr-resolve"),
     path("guest/context/", GuestContextView.as_view(), name="guest-context"),
