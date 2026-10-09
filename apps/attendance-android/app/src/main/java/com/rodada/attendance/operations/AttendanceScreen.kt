@@ -350,6 +350,7 @@ private fun TabList(
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
 ) {
+    val visibleTabs = tabsForSurface(state.tabs, showDeliveries)
     LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
         if (showDeliveries) item {
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
@@ -357,7 +358,7 @@ private fun TabList(
                 if (peak) Text("Só entregas · mais antigo primeiro", color = RodadaVisual.Amber)
                 Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("${state.deliveryTasks.size} PRONTOS", color = RodadaVisual.Success, style = MaterialTheme.typography.labelLarge)
-                    Text("${state.tabs.size} CONTAS", color = RodadaVisual.Money, style = MaterialTheme.typography.labelLarge)
+                    Text("${visibleTabs.size} CONTAS", color = RodadaVisual.Money, style = MaterialTheme.typography.labelLarge)
                 }
             }
             HorizontalDivider(color = RodadaVisual.Border)
@@ -379,9 +380,9 @@ private fun TabList(
             HorizontalDivider(color = RodadaVisual.Border)
         }
         if (!peak) item { Text(if (showDeliveries) "CONTAS ABERTAS" else "CONTAS", modifier = Modifier.padding(20.dp), style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Muted) }
-        if (state.loading && state.tabs.isEmpty()) item { LoadingRow() }
-        if (!peak && !state.loading && state.tabs.isEmpty()) item { Text("Nenhuma comanda aberta neste dispositivo.", modifier = Modifier.padding(20.dp)) }
-        if (!peak) items(state.tabs, key = { it.id }) { tab ->
+        if (state.loading && visibleTabs.isEmpty()) item { LoadingRow() }
+        if (!peak && !state.loading && visibleTabs.isEmpty()) item { Text("Nenhuma comanda aberta neste dispositivo.", modifier = Modifier.padding(20.dp)) }
+        if (!peak) items(visibleTabs, key = { it.id }) { tab ->
             TextButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp), enabled = !state.submitting) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(tab.displayLabel.ifBlank { "Sem identificação" }, style = MaterialTheme.typography.headlineSmall, color = RodadaVisual.Paper)

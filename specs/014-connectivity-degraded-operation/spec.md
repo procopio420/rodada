@@ -675,3 +675,7 @@ collection blocks replacement writes instead of silently dropping history. Cash
 mutations with an unresolved movement/close record require manager review before
 a new key is created. This is a conservative review boundary, not automatic replay
 or evidence of a completed financial reconciliation.
+
+Round 2 native shift readback: AGORA lists/counts only tabs whose authoritative
+state is not CLOSED. CONTAS retains historical closed tabs for authorized review
+and reopening; financial close does not hide outstanding delivery work.

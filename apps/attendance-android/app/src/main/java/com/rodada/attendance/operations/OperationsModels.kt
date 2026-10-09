@@ -181,3 +181,6 @@ fun parseCents(raw: String): Long? {
         else digits
     return (whole.ifBlank { "0" }.toLongOrNull()?.times(100))?.plus(centsDigits.toLong())
 }
+
+internal fun tabsForSurface(tabs: List<TabSummary>, agora: Boolean): List<TabSummary> =
+    if (agora) tabs.filter { it.state != "CLOSED" } else tabs
