@@ -1,5 +1,14 @@
 # Plano
 
+## Recorte atual V01 — night/Agora
+
+1. Conferir remotos/worktrees/PRs e isolar main45c4742, preservando branches e banco.
+2. Auditar V01–V07, código Android/ProductionBoard, manifesto e ADR de referências/fontes locais.
+3. Registrar contrato antes do harness; medir estado inicial Agora e Bar adjacente em Chromium, DPR1, pt-BR/America-Sao_Paulo e relógio congelado.
+4. Reutilizar Playwright e fontes locais já referenciadas pelo export importado. Servir somente arquivos locais em porta efêmera; bloquear rede externa. Não mudar o export nem substituir transporte/stylesheet no harness.
+5. Validar SHA256 do ZIP/HTML/assets, unicidade dos seletores, recursos/fontes e estabilidade de duas capturas. Revisar imagens e registrar limites, ambiente e mapa atual de pendências.
+6. Publicar somente documentação/contrato/harness/evidências validados em commit pequeno e PR rascunho. Gates Web de produto, Android e PostgreSQL não são evidência deste recorte documental.
+
 Executar [V01–V07 no plano visual](../../docs/design/pixel-perfect-implementation-plan.md), começando por inventário/captura, medidas do design system e fixtures. Corrigir cozinha, implementar composição nativa, depois pico/recovery e gates de CI. Comparar geometria antes de refinar rasterização.
 
 Referências e checks existentes da Spec 021 são base reutilizável, sem declarar que já há paridade completa. A Spec 022 permanece contexto funcional; dependências de backend são registradas por estado, não pré-requisito genérico para iniciar fidelidade visual.

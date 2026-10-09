@@ -1,0 +1,1046 @@
+{
+  "base": "45c4742b3de4e6a21ed607342f75e53e18b07d7d",
+  "reference": "night",
+  "entry": "night/Main.dc.html",
+  "state": "initial Agora / Bar",
+  "interactions": [
+    "fresh document load; no demo action"
+  ],
+  "fixture": "literal export state; test-only",
+  "clock": "2026-10-09T00:38:00Z; paused before navigation",
+  "environment": {
+    "os": "win32",
+    "node": "v24.19.0",
+    "playwright": "1.58.2",
+    "chromium": "145.0.7632.6",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "dpr": 1,
+    "locale": "pt-BR",
+    "timezone": "America/Sao_Paulo"
+  },
+  "normalization": [
+    "paused clock and screenshot animation/caret handling only; no stylesheet/data/DOM changes"
+  ],
+  "chrome": {
+    "excluded": [
+      "presentation rail",
+      "devlabel",
+      "outer device shadow"
+    ],
+    "phone": "literal rounded phone retained; not an approved native baseline",
+    "statusBar": "no simulated OS status bar in this initial phone; .top is product header",
+    "appRegions": [
+      "header",
+      "screen",
+      "navigation"
+    ]
+  },
+  "regions": {
+    "phone": {
+      "crop": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nAGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:18\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:32\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:54\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:14\nP29 · 3 Caipirinha\nCARLOS\n0:41\nB2 · Chamou atendimento\nRÊ\nAGORA\nPedir\nCONTAS",
+      "style": {
+        "display": "block",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(18, 15, 12)",
+        "borderRadius": "44px",
+        "boxShadow": "rgb(5, 4, 3) 0px 0px 0px 10px, rgb(58, 49, 40) 0px 0px 0px 11px, rgba(0, 0, 0, 0.6) 0px 30px 80px 0px",
+        "overflow": "hidden"
+      },
+      "selector": ".phone"
+    },
+    "header": {
+      "crop": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 60
+      },
+      "text": "rodada\nDani · Rua",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "8px 22px 0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(18, 15, 12)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .top"
+    },
+    "screen": {
+      "crop": {
+        "x": 410,
+        "y": 100,
+        "width": 390,
+        "height": 700
+      },
+      "text": "AGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:18\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:32\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:54\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:14\nP29 · 3 Caipirinha\nCARLOS\n0:41\nB2 · Chamou atendimento\nRÊ",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "hidden"
+      },
+      "selector": ".phone .screen"
+    },
+    "title": {
+      "crop": {
+        "x": 410,
+        "y": 100,
+        "width": 390,
+        "height": 63.390625
+      },
+      "text": "AGORA\n21:38",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "8px 20px 14px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .ahead"
+    },
+    "titleText": {
+      "crop": {
+        "x": 430,
+        "y": 108,
+        "width": 134.265625,
+        "height": 41.390625
+      },
+      "text": "AGORA",
+      "style": {
+        "display": "block",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "46px",
+        "fontWeight": "900",
+        "fontStretch": "68%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "41.4px",
+        "letterSpacing": "0.46px",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .ahead h1"
+    },
+    "counters": {
+      "crop": {
+        "x": 410,
+        "y": 163.390625,
+        "width": 390,
+        "height": 61
+      },
+      "text": "2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA",
+      "style": {
+        "display": "grid",
+        "gridTemplateColumns": "130px 130px 130px",
+        "gridTemplateRows": "59px",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .cnt"
+    },
+    "counterValue": {
+      "crop": {
+        "x": 430,
+        "y": 176.390625,
+        "width": 96,
+        "height": 14
+      },
+      "text": "2",
+      "style": {
+        "display": "block",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "40px",
+        "fontWeight": "800",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "40px",
+        "letterSpacing": "normal",
+        "color": "rgb(147, 219, 140)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .cnt > div:first-child > b"
+    },
+    "firstRow": {
+      "crop": {
+        "x": 410,
+        "y": 386.390625,
+        "width": 390,
+        "height": 134.1875
+      },
+      "text": "CHAMOU\n5:18\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR",
+      "style": {
+        "display": "grid",
+        "gridTemplateColumns": "80px 202px 108px",
+        "gridTemplateRows": "133.188px",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ":nth-match(.phone .row, 1)"
+    },
+    "firstDestination": {
+      "crop": {
+        "x": 506,
+        "y": 400.390625,
+        "width": 178,
+        "height": 30
+      },
+      "text": "P42 · Calçada",
+      "style": {
+        "display": "block",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "30px",
+        "fontWeight": "850",
+        "fontStretch": "76%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "30px",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ":nth-match(.phone .row, 1) .pl"
+    },
+    "firstAge": {
+      "crop": {
+        "x": 423.09375,
+        "y": 463.484375,
+        "width": 52.8125,
+        "height": 22
+      },
+      "text": "5:18",
+      "style": {
+        "display": "block",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "\"JetBrains Mono\", monospace",
+        "fontSize": "22px",
+        "fontWeight": "800",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "22px",
+        "letterSpacing": "normal",
+        "color": "rgb(23, 19, 15)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ":nth-match(.phone .row, 1) .age .t"
+    },
+    "firstAction": {
+      "crop": {
+        "x": 692,
+        "y": 424.984375,
+        "width": 92,
+        "height": 56
+      },
+      "text": "ASSUMIR",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px 14px",
+        "gap": "8px",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "18px",
+        "fontWeight": "850",
+        "fontStretch": "84%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "1.08px",
+        "color": "rgb(23, 19, 15)",
+        "backgroundColor": "rgb(243, 236, 225)",
+        "borderRadius": "8px",
+        "boxShadow": "rgba(0, 0, 0, 0.2) 0px -4px 0px 0px inset",
+        "overflow": "visible"
+      },
+      "selector": ":nth-match(.phone .row, 1) .ra button"
+    },
+    "navigation": {
+      "crop": {
+        "x": 410,
+        "y": 800,
+        "width": 390,
+        "height": 84
+      },
+      "text": "AGORA\nPedir\nCONTAS",
+      "style": {
+        "display": "grid",
+        "gridTemplateColumns": "127px 136px 127px",
+        "gridTemplateRows": "75px",
+        "padding": "0px 0px 8px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(27, 23, 19)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".phone .nav"
+    },
+    "bar": {
+      "crop": {
+        "x": 840,
+        "y": 40,
+        "width": 820,
+        "height": 864
+      },
+      "text": "BAR\nbalcão principal\n4 preparando\n3 na bancada\n21:38\nPREPARAR AGORA\nLOTE\nBRAHMA\n10\nHEINEKEN\n4\nCOCA\n1\nCAIPIRINHA\n1\nDESTINO · MAIS ANTIGO PRIMEIRO\n4\nP08\nImóvel 2\n3 Brahma\n4:22\nPRONTO\nP22\nCalçada\n2 Heineken · 1 Coca\n3:11\nPRONTO\nP33\nRua\n4 Brahma · 1 Caipirinha\n1:58\nPRONTO\nP07\nImóvel 2\n3 Brahma · 2 Heineken\n0:47\nPRONTO\nNA BANCADA · ESPERANDO GARÇOM\n3\nP41\n2 Heineken\nRua · pronto há 1:38\nESPERANDO\nP44\n3 Brahma · 1 Coca\nRua · pronto há 2:32\nESPERANDO\nP29\n3 Caipirinha\nCalçada · pronto há 1:14\nCARLOS VEM PEGAR\nCOZINHA · ESPELHO\n2\nP08\n1 Calabresa\nna chapa há 6:20\nNA CHAPA\nP22\n2 Bolinho\nna chapa há 3:10\nNA CHAPA",
+      "style": {
+        "display": "grid",
+        "gridTemplateColumns": "471.062px 348.938px",
+        "gridTemplateRows": "68px 796px",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(10, 8, 6)",
+        "borderRadius": "16px",
+        "boxShadow": "rgb(5, 4, 3) 0px 0px 0px 10px, rgb(58, 49, 40) 0px 0px 0px 11px, rgba(0, 0, 0, 0.6) 0px 30px 80px 0px",
+        "overflow": "hidden"
+      },
+      "selector": ".kds"
+    },
+    "barHeader": {
+      "crop": {
+        "x": 840,
+        "y": 40,
+        "width": 820,
+        "height": 68
+      },
+      "text": "BAR\nbalcão principal\n4 preparando\n3 na bancada\n21:38",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px 24px 0px 20px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(27, 23, 19)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".kds .kh"
+    },
+    "barProduction": {
+      "crop": {
+        "x": 840,
+        "y": 108,
+        "width": 471.0625,
+        "height": 796
+      },
+      "text": "PREPARAR AGORA\nLOTE\nBRAHMA\n10\nHEINEKEN\n4\nCOCA\n1\nCAIPIRINHA\n1\nDESTINO · MAIS ANTIGO PRIMEIRO\n4\nP08\nImóvel 2\n3 Brahma\n4:22\nPRONTO\nP22\nCalçada\n2 Heineken · 1 Coca\n3:11\nPRONTO\nP33\nRua\n4 Brahma · 1 Caipirinha\n1:58\nPRONTO\nP07\nImóvel 2\n3 Brahma · 2 Heineken\n0:47\nPRONTO",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".kds .kcol.l"
+    },
+    "barPass": {
+      "crop": {
+        "x": 1311.0625,
+        "y": 108,
+        "width": 348.9375,
+        "height": 796
+      },
+      "text": "NA BANCADA · ESPERANDO GARÇOM\n3\nP41\n2 Heineken\nRua · pronto há 1:38\nESPERANDO\nP44\n3 Brahma · 1 Coca\nRua · pronto há 2:32\nESPERANDO\nP29\n3 Caipirinha\nCalçada · pronto há 1:14\nCARLOS VEM PEGAR\nCOZINHA · ESPELHO\n2\nP08\n1 Calabresa\nna chapa há 6:20\nNA CHAPA\nP22\n2 Bolinho\nna chapa há 3:10\nNA CHAPA",
+      "style": {
+        "display": "flex",
+        "gridTemplateColumns": "none",
+        "gridTemplateRows": "none",
+        "padding": "0px",
+        "gap": "normal",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "fontStretch": "100%",
+        "fontVariationSettings": "normal",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "overflow": "visible"
+      },
+      "selector": ".kds .kcol:not(.l)"
+    }
+  },
+  "fontState": {
+    "archivo": true,
+    "mono": true,
+    "faces": [
+      {
+        "family": "Archivo",
+        "status": "loaded"
+      },
+      {
+        "family": "JetBrains Mono",
+        "status": "loaded"
+      }
+    ]
+  },
+  "fonts": [
+    {
+      "path": "prototype/fonts/Archivo-OFL.txt",
+      "sha256": "393a694c7dee6694a22c73049e95cea5d0808697a872c435862d33c0afc67091"
+    },
+    {
+      "path": "prototype/fonts/Archivo.ttf",
+      "sha256": "0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053"
+    },
+    {
+      "path": "prototype/fonts/fonts.css",
+      "sha256": "19cdd6f1551ec9b462fefd59bbec6beff3c0cf95422a1a4c179ed15426fbc8e9"
+    },
+    {
+      "path": "prototype/fonts/JetBrainsMono-OFL.txt",
+      "sha256": "ef2870fd9ccb5f68d6b89aba72c3b30a27ab66f317b41d8c2c048693236bee01"
+    },
+    {
+      "path": "prototype/fonts/JetBrainsMono.ttf",
+      "sha256": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda"
+    }
+  ],
+  "captures": [
+    {
+      "region": "phone",
+      "file": "phone.png",
+      "sha256": "3c47b53917309f1558c554a87325a746057e90859c3f6d92ad697689bb735905",
+      "repeatedSha256": "3c47b53917309f1558c554a87325a746057e90859c3f6d92ad697689bb735905"
+    },
+    {
+      "region": "header",
+      "file": "header.png",
+      "sha256": "8b074f17ae15bdae10f3ead4d12f0b5564d470c1d9cc24deb7ca536da8099feb",
+      "repeatedSha256": "8b074f17ae15bdae10f3ead4d12f0b5564d470c1d9cc24deb7ca536da8099feb"
+    },
+    {
+      "region": "screen",
+      "file": "screen.png",
+      "sha256": "6310bad17c74bf1bfe2c006e2a54b96904d690a7a9a357055d43e97d7ffd38b0",
+      "repeatedSha256": "6310bad17c74bf1bfe2c006e2a54b96904d690a7a9a357055d43e97d7ffd38b0"
+    },
+    {
+      "region": "navigation",
+      "file": "navigation.png",
+      "sha256": "56d1c5e9fd8ae1e6abfba748e9d1b30713a0195356380f2e68213c351cce250b",
+      "repeatedSha256": "56d1c5e9fd8ae1e6abfba748e9d1b30713a0195356380f2e68213c351cce250b"
+    },
+    {
+      "region": "bar",
+      "file": "bar.png",
+      "sha256": "5ca96cf02ba610edc8abe3844bc50798c1df9d5aea6f4ca68bcf4739d3e26e58",
+      "repeatedSha256": "5ca96cf02ba610edc8abe3844bc50798c1df9d5aea6f4ca68bcf4739d3e26e58"
+    }
+  ],
+  "resources": [
+    {
+      "path": "/prototype/fonts/Archivo.ttf",
+      "status": 200
+    },
+    {
+      "path": "/prototype/fonts/fonts.css",
+      "status": 200
+    },
+    {
+      "path": "/prototype/fonts/fonts.css",
+      "status": 200
+    },
+    {
+      "path": "/prototype/fonts/JetBrainsMono.ttf",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/Main.dc.html",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/Main.dc.html",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/support.js",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/vendor/react-dom.js",
+      "status": 200
+    },
+    {
+      "path": "/prototype/references/night/vendor/react.js",
+      "status": 200
+    }
+  ],
+  "sources": [
+    {
+      "id": "night",
+      "files": [
+        {
+          "path": "prototype/Protótipo · uma noite no bar (interativo)-html.zip",
+          "sha256": "10f5b7ce9a749094e9bb6adbdd09ac5eb26e3571fd82cce805f9b3f880d95e28"
+        },
+        {
+          "path": "prototype/references/night/Main.dc.html",
+          "sha256": "912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f"
+        },
+        {
+          "path": "prototype/references/night/support.js",
+          "sha256": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d"
+        },
+        {
+          "path": "prototype/references/night/vendor/react-dom.js",
+          "sha256": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a"
+        },
+        {
+          "path": "prototype/references/night/vendor/react.js",
+          "sha256": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe"
+        },
+        {
+          "path": "prototype/references/night/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg",
+          "sha256": "143f477e3b2a626f940cb8b7e998996bc9c4ab956a40f7a6eb40701e21f5aeab"
+        },
+        {
+          "path": "prototype/references/night/assets/1f82aee71780cd78e17356e3fa35cfa7.svg",
+          "sha256": "fb605acd5a9a639296fc12d55fa3325af3beae18e8b388321cb231a86fd2573b"
+        },
+        {
+          "path": "prototype/references/night/assets/2b4c20699a135faf16d6284286dc0dfd.svg",
+          "sha256": "a849ca9e0dba51fd870b45212604051d3a987e96ea8fcabb536cdb76b59bf2e5"
+        },
+        {
+          "path": "prototype/references/night/assets/2d80f66be0c4840f19b91dec3ff83973.svg",
+          "sha256": "aa8a21adc42b709c5e94ec0a1cadf1a99a1e6b7f2d133d15f3a52760ab29520d"
+        },
+        {
+          "path": "prototype/references/night/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg",
+          "sha256": "3a30827a143ff0ebee2bb59bfeb1b11fc432194ee1b19a202f0d897ca3945be0"
+        },
+        {
+          "path": "prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg",
+          "sha256": "9cadd100fb4deeb3b235a371acc3ce79baf30c194f9cc38777ba6dd501532b51"
+        },
+        {
+          "path": "prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg",
+          "sha256": "4f40236fd9128604c515de807c6a6572fcb925963a1d2b157254aeaaadd96433"
+        },
+        {
+          "path": "prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg",
+          "sha256": "f60ee92be4b7122a1e69ceb309e84f5b54dc7d7ffe3f8414b6e621588a4a95c2"
+        },
+        {
+          "path": "prototype/references/night/assets/4dcc6165d5744f488ad59acbad3eba3d.svg",
+          "sha256": "be85fe1548e8466727b6645fe85a1143ce0cdc2b95bbe1abd63d5336451917c1"
+        },
+        {
+          "path": "prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg",
+          "sha256": "46a2bb2477e3424cbd89478b20153546eb903e543fa66a6cc5a1f1ace2dd5f11"
+        },
+        {
+          "path": "prototype/references/night/assets/5eeb028ca51cb9caedd9e8647ff87e15.svg",
+          "sha256": "edfa46e320d6fa770e381a7e3970bb19c3cfe59a33dbf48f98e772caec567c15"
+        },
+        {
+          "path": "prototype/references/night/assets/613ae5d0e5e09693aae169934b7733bd.svg",
+          "sha256": "bfb6956ea8f5217981b6bdf841a8a6ef07f0afcc58f464937a67b1c42b985d2d"
+        },
+        {
+          "path": "prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg",
+          "sha256": "02391160aeac38d0ec33d8e7864f72749fbdd7ddb9a19606e1b5e8515e0d534c"
+        },
+        {
+          "path": "prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg",
+          "sha256": "6c62b51201dc05ecece1e7056a2934b3d0a954b29077218565a38a7f8abab249"
+        },
+        {
+          "path": "prototype/references/night/assets/64a3a5801b83b2228671150cdac05118.svg",
+          "sha256": "425eec2993e4268cf9a369298582236cf6cae6927b51bf27eb219374d08c938b"
+        },
+        {
+          "path": "prototype/references/night/assets/6d5919183826a93be5a7020ad40ea0fb.svg",
+          "sha256": "f1b5c5394c4ace9f4f198495480168216453d38a3afc264de50c44bf8a8712ee"
+        },
+        {
+          "path": "prototype/references/night/assets/74144d23a9c81fd7765e2bf13493db9f.svg",
+          "sha256": "54ce6f8bc9b5538b2bdcf72b4242fff023a770f6a6f1b9e2cc32c9ca4fead366"
+        },
+        {
+          "path": "prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg",
+          "sha256": "dc831f77d2137a36487784accecdac4d5426d42353035ab07fa5d216e135ea49"
+        },
+        {
+          "path": "prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg",
+          "sha256": "7fda623587970763f00466f08b64680143d7d12ea16594e431ab3a903b5d06f3"
+        },
+        {
+          "path": "prototype/references/night/assets/87632a5e9cb226543958696b57423608.svg",
+          "sha256": "a60b304f2ea55095e37328a163c0e15ae2e7df9188ff75e80ae456821ef5118b"
+        },
+        {
+          "path": "prototype/references/night/assets/8b478c47857d6c225aafdce306968c01.svg",
+          "sha256": "3d23750d91341e96f51f9071b128439506321513ef15b01399f4c2ebf12f7d00"
+        },
+        {
+          "path": "prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg",
+          "sha256": "bb3493d5b2323c0c7d0f11b4347954d9decc2c7fc4344420299fc03dcc30fbd6"
+        },
+        {
+          "path": "prototype/references/night/assets/96e215812a1b3ea02b223e6d6c3668cd.svg",
+          "sha256": "7818ac20a5e98233556358f303b90caacd95adff8f8d557cda88bbd90596c5b2"
+        },
+        {
+          "path": "prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg",
+          "sha256": "87f0826b6ff1532870a8005a521dd41f143d4ab414dc61a3a511046ca6799e26"
+        },
+        {
+          "path": "prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg",
+          "sha256": "abd80f5dabd5c671f8c02ef383ba1ad8b545a71ed2e1c8cea93648de923731eb"
+        },
+        {
+          "path": "prototype/references/night/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg",
+          "sha256": "7895378cad0ef837d22d21150cf11d826b9b5db74814d22ca8f4853550a5b9df"
+        },
+        {
+          "path": "prototype/references/night/assets/d10e0813adca92638a2d61b5c8091ba6.svg",
+          "sha256": "60830d8edd817c261287febdecaa645e612f68ca0093d94bb6c7dcdc13b74ddc"
+        },
+        {
+          "path": "prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg",
+          "sha256": "4b29b1f5127e6b9679f80c08dd61ff6a8e6c5fab59cc7a016c81c928044d235b"
+        },
+        {
+          "path": "prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg",
+          "sha256": "5259ba8084039d46bb4b5945be95d58848214139d270765430e333999086b194"
+        },
+        {
+          "path": "prototype/references/night/assets/fb7922d25a03026482c8fd320a511fd2.svg",
+          "sha256": "2a403cfdd00ef6f8e4c7e2cafffbf69332cf52d84e9a295b2d01cd5ddd063563"
+        },
+        {
+          "path": "prototype/references/night/assets/fbb85983aea7a00909ca1bbab95f67ac.svg",
+          "sha256": "c854f6fc2ce5639f674a458bbf92461f7067d9fbf146c18293f4c8ee055cd7c0"
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "files": [
+        {
+          "path": "prototype/Sistema Rodada-html.zip",
+          "sha256": "34d0afb8517b4ead16c2d787b70a5ac13bc3eee3f118d5dcffd1853323715e70"
+        },
+        {
+          "path": "prototype/references/system/Sistema.dc.html",
+          "sha256": "f87e035ffaa47823a201637bc3ad4747e7b050cfc1c83332facfad39b6f94d65"
+        },
+        {
+          "path": "prototype/references/system/support.js",
+          "sha256": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d"
+        },
+        {
+          "path": "prototype/references/system/vendor/react-dom.js",
+          "sha256": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a"
+        },
+        {
+          "path": "prototype/references/system/vendor/react.js",
+          "sha256": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe"
+        },
+        {
+          "path": "prototype/references/system/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg",
+          "sha256": "143f477e3b2a626f940cb8b7e998996bc9c4ab956a40f7a6eb40701e21f5aeab"
+        },
+        {
+          "path": "prototype/references/system/assets/2d80f66be0c4840f19b91dec3ff83973.svg",
+          "sha256": "aa8a21adc42b709c5e94ec0a1cadf1a99a1e6b7f2d133d15f3a52760ab29520d"
+        },
+        {
+          "path": "prototype/references/system/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg",
+          "sha256": "3a30827a143ff0ebee2bb59bfeb1b11fc432194ee1b19a202f0d897ca3945be0"
+        },
+        {
+          "path": "prototype/references/system/assets/455633b3820dce97baf3f0ed53e9e36c.svg",
+          "sha256": "9cadd100fb4deeb3b235a371acc3ce79baf30c194f9cc38777ba6dd501532b51"
+        },
+        {
+          "path": "prototype/references/system/assets/4a475e1753a0fa1728c530b141d33673.svg",
+          "sha256": "4f40236fd9128604c515de807c6a6572fcb925963a1d2b157254aeaaadd96433"
+        },
+        {
+          "path": "prototype/references/system/assets/4abc79c894255d9789137207c31a5c48.svg",
+          "sha256": "f60ee92be4b7122a1e69ceb309e84f5b54dc7d7ffe3f8414b6e621588a4a95c2"
+        },
+        {
+          "path": "prototype/references/system/assets/5eeb028ca51cb9caedd9e8647ff87e15.svg",
+          "sha256": "edfa46e320d6fa770e381a7e3970bb19c3cfe59a33dbf48f98e772caec567c15"
+        },
+        {
+          "path": "prototype/references/system/assets/613ae5d0e5e09693aae169934b7733bd.svg",
+          "sha256": "bfb6956ea8f5217981b6bdf841a8a6ef07f0afcc58f464937a67b1c42b985d2d"
+        },
+        {
+          "path": "prototype/references/system/assets/624b89158eeb8ff63f5da114a1ff41e6.svg",
+          "sha256": "02391160aeac38d0ec33d8e7864f72749fbdd7ddb9a19606e1b5e8515e0d534c"
+        },
+        {
+          "path": "prototype/references/system/assets/629a684aef42620febf07d65568ee00d.svg",
+          "sha256": "6c62b51201dc05ecece1e7056a2934b3d0a954b29077218565a38a7f8abab249"
+        },
+        {
+          "path": "prototype/references/system/assets/73ba944a476ce094605977a1b0205ec9.svg",
+          "sha256": "6020be0b7b76c08800d6dd6cd4e056962cfd461912ae8dd847d48cec3834e3b6"
+        },
+        {
+          "path": "prototype/references/system/assets/74144d23a9c81fd7765e2bf13493db9f.svg",
+          "sha256": "54ce6f8bc9b5538b2bdcf72b4242fff023a770f6a6f1b9e2cc32c9ca4fead366"
+        },
+        {
+          "path": "prototype/references/system/assets/79bc3499c17dd7e97ec7dede3be27064.svg",
+          "sha256": "dc831f77d2137a36487784accecdac4d5426d42353035ab07fa5d216e135ea49"
+        },
+        {
+          "path": "prototype/references/system/assets/80a30e1a3c4171ef83cdecc7f238af50.svg",
+          "sha256": "7fda623587970763f00466f08b64680143d7d12ea16594e431ab3a903b5d06f3"
+        },
+        {
+          "path": "prototype/references/system/assets/8e73c10d2aeb988382c5efa276f9452f.svg",
+          "sha256": "bb3493d5b2323c0c7d0f11b4347954d9decc2c7fc4344420299fc03dcc30fbd6"
+        },
+        {
+          "path": "prototype/references/system/assets/96e215812a1b3ea02b223e6d6c3668cd.svg",
+          "sha256": "7818ac20a5e98233556358f303b90caacd95adff8f8d557cda88bbd90596c5b2"
+        },
+        {
+          "path": "prototype/references/system/assets/a5621f6e42a924061406ba5edcf2e0df.svg",
+          "sha256": "87f0826b6ff1532870a8005a521dd41f143d4ab414dc61a3a511046ca6799e26"
+        },
+        {
+          "path": "prototype/references/system/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg",
+          "sha256": "abd80f5dabd5c671f8c02ef383ba1ad8b545a71ed2e1c8cea93648de923731eb"
+        },
+        {
+          "path": "prototype/references/system/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg",
+          "sha256": "7895378cad0ef837d22d21150cf11d826b9b5db74814d22ca8f4853550a5b9df"
+        },
+        {
+          "path": "prototype/references/system/assets/d10e0813adca92638a2d61b5c8091ba6.svg",
+          "sha256": "60830d8edd817c261287febdecaa645e612f68ca0093d94bb6c7dcdc13b74ddc"
+        },
+        {
+          "path": "prototype/references/system/assets/da647361752c6e97c88066964a7f7259.svg",
+          "sha256": "4b29b1f5127e6b9679f80c08dd61ff6a8e6c5fab59cc7a016c81c928044d235b"
+        },
+        {
+          "path": "prototype/references/system/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg",
+          "sha256": "5259ba8084039d46bb4b5945be95d58848214139d270765430e333999086b194"
+        },
+        {
+          "path": "prototype/references/system/assets/fb7922d25a03026482c8fd320a511fd2.svg",
+          "sha256": "2a403cfdd00ef6f8e4c7e2cafffbf69332cf52d84e9a295b2d01cd5ddd063563"
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "files": [
+        {
+          "path": "prototype/Tela da Cozinha-html.zip",
+          "sha256": "ffa32367f3a04131922f75f2d7ebb4968c92e01451c7c32d6e4be1a94d428e63"
+        },
+        {
+          "path": "prototype/references/kitchen/Cozinha.dc.html",
+          "sha256": "f4cccbe86677348f83a94d60083db6ae2a100f2984e43143151b7879b4d944c6"
+        },
+        {
+          "path": "prototype/references/kitchen/support.js",
+          "sha256": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d"
+        },
+        {
+          "path": "prototype/references/kitchen/vendor/react-dom.js",
+          "sha256": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a"
+        },
+        {
+          "path": "prototype/references/kitchen/vendor/react.js",
+          "sha256": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe"
+        },
+        {
+          "path": "prototype/references/kitchen/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg",
+          "sha256": "143f477e3b2a626f940cb8b7e998996bc9c4ab956a40f7a6eb40701e21f5aeab"
+        },
+        {
+          "path": "prototype/references/kitchen/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg",
+          "sha256": "3a30827a143ff0ebee2bb59bfeb1b11fc432194ee1b19a202f0d897ca3945be0"
+        },
+        {
+          "path": "prototype/references/kitchen/assets/73ba944a476ce094605977a1b0205ec9.svg",
+          "sha256": "6020be0b7b76c08800d6dd6cd4e056962cfd461912ae8dd847d48cec3834e3b6"
+        },
+        {
+          "path": "prototype/references/kitchen/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg",
+          "sha256": "7895378cad0ef837d22d21150cf11d826b9b5db74814d22ca8f4853550a5b9df"
+        },
+        {
+          "path": "prototype/references/kitchen/assets/da647361752c6e97c88066964a7f7259.svg",
+          "sha256": "4b29b1f5127e6b9679f80c08dd61ff6a8e6c5fab59cc7a016c81c928044d235b"
+        }
+      ]
+    },
+    {
+      "id": "peak",
+      "files": [
+        {
+          "path": "prototype/Modo pico-html.zip",
+          "sha256": "23ee008d67e39ae3ef9ce20c87d5142e41e86de21f1470cc9a0c384b189d5cf5"
+        },
+        {
+          "path": "prototype/references/peak/Pico.dc.html",
+          "sha256": "a007dffb42554a2d26e03c981e9878d909a9356de8ac17b7c18eadf04e9d10d0"
+        },
+        {
+          "path": "prototype/references/peak/support.js",
+          "sha256": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d"
+        },
+        {
+          "path": "prototype/references/peak/vendor/react-dom.js",
+          "sha256": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a"
+        },
+        {
+          "path": "prototype/references/peak/vendor/react.js",
+          "sha256": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe"
+        },
+        {
+          "path": "prototype/references/peak/assets/624b89158eeb8ff63f5da114a1ff41e6.svg",
+          "sha256": "02391160aeac38d0ec33d8e7864f72749fbdd7ddb9a19606e1b5e8515e0d534c"
+        }
+      ]
+    },
+    {
+      "id": "connectivity",
+      "files": [
+        {
+          "path": "prototype/Sem sinal → Sincronizado-html.zip",
+          "sha256": "603b6f7a308529deff418b7bb82cca4c486f7e5a21401a01d5d567a16cfefe67"
+        },
+        {
+          "path": "prototype/references/connectivity/Offline.dc.html",
+          "sha256": "4a9e85c2e9cfbea19a0698b277804d364d49d06c4feff773c36748f9c311790b"
+        },
+        {
+          "path": "prototype/references/connectivity/support.js",
+          "sha256": "b049de2e30482eb2ec09c3660845abebfd1166886ee6009f64e6a123a463e80d"
+        },
+        {
+          "path": "prototype/references/connectivity/vendor/react-dom.js",
+          "sha256": "13b1c0705b9fa93346936ed98bd4a858fea4cdacdb09e564f897c5ba6bd0943a"
+        },
+        {
+          "path": "prototype/references/connectivity/vendor/react.js",
+          "sha256": "d72610e728466bf70f27ecc9a1a14580fd8f1e75b977aa0612146cab0e80a3fe"
+        },
+        {
+          "path": "prototype/references/connectivity/assets/624b89158eeb8ff63f5da114a1ff41e6.svg",
+          "sha256": "02391160aeac38d0ec33d8e7864f72749fbdd7ddb9a19606e1b5e8515e0d534c"
+        },
+        {
+          "path": "prototype/references/connectivity/assets/79bc3499c17dd7e97ec7dede3be27064.svg",
+          "sha256": "dc831f77d2137a36487784accecdac4d5426d42353035ab07fa5d216e135ea49"
+        },
+        {
+          "path": "prototype/references/connectivity/assets/96e215812a1b3ea02b223e6d6c3668cd.svg",
+          "sha256": "7818ac20a5e98233556358f303b90caacd95adff8f8d557cda88bbd90596c5b2"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "status": "V01 partial; reference only; no product parity assertion"
+}

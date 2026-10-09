@@ -3,6 +3,8 @@
 Data: 2026-10-08. Estado: planejamento, implementação pendente.
 Contrato: [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md).
 
+Auditoria atual na main45c4742: [V01 night/Agora e mapa V01–V07](v01-night-agora-inventory.md). Os números de “Estado atual” abaixo são a observação inicial deste plano, não validação da main posterior. Recorte executado: apenas contrato/capturas do estado inicial Agora e Bar adjacente, sem mudanças de produto. Próximo recorte V01: Contas/busca → detalhe da Tab, antes de completar componentes/jornada Compose.
+
 ## Objetivo e definição de pronto
 
 Reproduzir os cinco protótipos atualizados no produto real, incluindo composição, densidade, tipografia, ícones, hierarquia, dimensões e estados interativos. Compartilhar paleta é apenas o início. O plano de produto 022 continua contexto funcional; este documento é a sequência de implementação da fidelidade visual solicitada.

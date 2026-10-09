@@ -2,6 +2,14 @@
 
 Estado: planejado. Data: 2026-10-08.
 
+## Recorte atual — V01, night/Agora e Bar adjacente (09/10/2026)
+
+Base isolada `origin/main` em `45c4742`. Prioridade: completar o contrato de referência ausente antes de novas alterações de composição. Inventariar somente o estado inicial Agora e o painel Bar simultâneo de `night/Main.dc.html`: seletores únicos, regiões, medidas, tipografia, assets, hashes e duas capturas determinísticas. Congelar o relógio no harness; não alterar dados, estilos, HTML ou ZIP original. Classificar moldura/status bar simulada separadamente do conteúdo.
+
+Auditar V01–V07 contra código e relatórios versionados nessa base. Relatórios históricos comprovam apenas seus commits. PR61 sobrepõe apresentação Web e sessão em base própria; não importar seu trabalho. Não alterar produto/API/Android, gerar dados no banco ou executar a demo integrada neste recorte. Os demais estados night, exports system/peak/connectivity, paridade de tela e gates nativos continuam pendentes.
+
+Aceite parcial: contrato reproduzível de Agora/Bar com hashes verificados, regiões medidas e capturas repetidas byte-idênticas, acompanhado de mapa das pendências e próximo recorte. A captura HTML é simulação de referência, nunca evidência Android, hardware ou serviço real. A validação usa Chromium com fontes locais e falha em seletor ambíguo, asset ausente ou captura instável; nenhuma tolerância/baseline é alterada.
+
 ## Objetivo
 
 Implementar fidelidade visual das telas e estados dos cinco exports atualizados no Web e Atendimento Android. O [plano canônico](../../docs/design/pixel-perfect-implementation-plan.md) define contratos de comparação e execução V01–V07.

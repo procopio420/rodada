@@ -1,5 +1,13 @@
 # Tasks
 
+## Recorte atual V01 — night/Agora e Bar
+
+- [x] Auditar V01–V07 e sobreposição de PRs contra main45c4742.
+- [x] Congelar contrato parcial antes de implementação; preservar fontes originais.
+- [x] Medir Agora/Bar, regiões e tipografia com seletores únicos e capturas repetidas.
+- [x] Validar hashes/assets/fontes; revisar imagens e documentar ambiente/limites.
+- [ ] Commit e publicação remota com PR rascunho, sem conclusão global.
+
 - [x] Documentar plano especÃ­fico de pixel-perfect e corrigir o foco da documentaÃ§Ã£o.
 - [ ] V01: inventÃ¡rio e contratos por tela/estado/recorte.
 - [ ] V02: medidas, tokens e componentes atualizados Web/Compose.

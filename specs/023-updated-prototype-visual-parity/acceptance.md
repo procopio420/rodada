@@ -1,5 +1,13 @@
 # Aceite
 
+## Recorte atual V01 — night/Agora e Bar
+
+- [x] ZIP corresponde ao manifesto; HTML/assets originais mantêm hashes antes/depois.
+- [x] Estado inicial Agora e painel Bar têm seletores únicos, dimensões/crops e estilos medidos; moldura/status bar simulada são classificados.
+- [x] Fontes locais carregadas sem fallback/rede externa; duas capturas por região principal possuem bytes idênticos.
+- [x] Auditoria distingue presença de código, checks históricos e validação atual; demais jornadas/exports e V02–V07 permanecem abertos.
+- [ ] Evidências identificam base, ambiente e reprodução; publicação SHA remoto/PR rascunho comprovada.
+
 ## Planejamento
 
 - [x] Plano identifica fontes, estado atual, sequÃªncia, arquivos-alvo, mÃ©tricas e limites de comparaÃ§Ã£o entre plataformas.
