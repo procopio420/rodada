@@ -239,3 +239,5 @@ h1 { font-family: var(--font-body); font-weight: 900; font-stretch: 68%; text-tr
 
 .guestProduct > span:nth-last-child(2) { display: grid; gap: var(--space-1); min-width: 0; flex: 1; overflow-wrap: anywhere; }
 .customizationPanel textarea { min-height: var(--touch-primary); }
+.guestProduct > .productIcon { flex: 0 0 auto; }
+.guestProduct > .productIcon svg { width: 100%; height: 100%; }

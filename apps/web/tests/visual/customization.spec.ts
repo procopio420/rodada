@@ -50,3 +50,27 @@ for (const width of [360, 390]) {
     await page.screenshot({ path: `test-results/customization-manager-${width}.png`, fullPage: true });
   });
 }
+
+test("optional single choice can be removed and stale choices require explicit review", async ({ page }) => {
+  await fixture(page);
+  const optional = { ...product.modifier_groups[1], id: "optional", name: "Molho", selection_mode: "SINGLE", min_selections: 0, max_selections: 1, options: [{ ...product.modifier_groups[1].options[0], id: "sauce", name: "Molho extra", price_delta_cents: 200, default_selected: false }] };
+  const menu = { ...product, modifier_groups: [optional] };
+  await page.route("**/api/guest/catalog/", route => route.fulfill({ json: { results: [menu] } }));
+  await page.goto("/guest/visual-test");
+  await page.getByRole("button", { name: /Hambúrguer/ }).click();
+  await page.getByLabel(/Molho extra/).check();
+  await expect(page.getByRole("button", { name: /^Adicionar ·/ })).toContainText("32,00");
+  await page.getByLabel(/Molho extra/).uncheck();
+  await expect(page.getByRole("button", { name: /^Adicionar ·/ })).toContainText("30,00");
+  await page.getByLabel(/Molho extra/).check();
+  await page.getByRole("button", { name: /^Adicionar ·/ }).click();
+  optional.options[0].availability = "UNAVAILABLE";
+  await page.getByRole("button", { name: "Atualizar comanda" }).click();
+  await expect(page.getByRole("button", { name: /^Enviar ·/ })).toBeDisabled();
+  await page.getByRole("button", { name: "Editar", exact: true }).click();
+  await expect(page.getByLabel(/Molho extra/)).toBeDisabled();
+  await page.getByRole("button", { name: "Remover escolhas indisponíveis" }).click();
+  await expect(page.getByRole("button", { name: /^Adicionar ·/ })).toBeEnabled();
+  await page.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await expect(page.getByRole("button", { name: /^Enviar ·/ })).toBeEnabled();
+});
