@@ -656,3 +656,11 @@ Canonical audit records:
 - No Class C offline fulfillment enablement and no change to existing financial command/recovery semantics.
 
 Staff access-token expiry emits `reauthenticate` and preserves the accepted cursor; the authenticated HTTP adapter rotates credentials on reconnect. Session/membership/device revocation emits terminal `revoked`. Web operational shells/assets are cached separately from API reads; no service worker caches commands or fabricates API responses. Safe projections are isolated per session and visibly timestamped. A page/process restart obtains a fresh snapshot instead of resuming a cursor detached from its projection.
+
+## Round 2 deployment boundary
+
+The explicit settings_production profile refuses missing/weak secrets or wildcard
+hosts and enables HTTPS, secure cookies, HSTS, CSRF and frame protections. Trusted
+proxy headers are opt-in and require an ingress that strips client headers. This
+profile is software configuration, not evidence of deployed TLS, secret rotation,
+backup RTO/RPO, SSE capacity or production authorization.

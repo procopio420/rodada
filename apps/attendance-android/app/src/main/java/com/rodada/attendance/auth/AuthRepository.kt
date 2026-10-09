@@ -154,7 +154,9 @@ class AuthRepository(context: Context) {
         action: (String) -> T,
     ): T =
         withContext(Dispatchers.IO) {
-            withAccessRefresh(current, action)
+            OriginatingSessionContext.id.set(current.sessionId)
+            try { withAccessRefresh(current, action) }
+            finally { OriginatingSessionContext.id.remove() }
         }
 
     private fun refreshStoredSession(session: StoredSession): StoredSession {
@@ -173,6 +175,9 @@ class AuthRepository(context: Context) {
         action: (String) -> T,
     ): T {
         var current = secureStore.load() ?: fallback
+        if (fallback.sessionId.isBlank() || current.sessionId != fallback.sessionId) {
+            throw AuthApiException(401, "RECOVERY_SESSION_CHANGED", "A sessão original mudou. Confira o histórico antes de criar uma nova operação.")
+        }
         return try {
             action(current.tokens.accessToken)
         } catch (error: AuthApiException) {

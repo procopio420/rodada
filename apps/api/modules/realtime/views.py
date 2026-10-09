@@ -4,6 +4,8 @@ from time import monotonic
 
 from asgiref.sync import sync_to_async
 from django.http import StreamingHttpResponse
+from django.core.handlers.asgi import ASGIRequest
+from django.db import close_old_connections
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -147,6 +149,13 @@ class StreamView(APIView):
             messages.append(frame("ready", {"cursor": cursor}, cursor))
             return messages, cursor, False
 
+        def read_and_release(cursor):
+            close_old_connections()
+            try:
+                return read(cursor)
+            finally:
+                close_old_connections()
+
         async def stream():
             accepted = cursor
             started = monotonic()
@@ -154,7 +163,7 @@ class StreamView(APIView):
             first = True
             while monotonic() - started < 300:
                 previous = accepted
-                messages, accepted, done = await sync_to_async(read)(accepted)
+                messages, accepted, done = await sync_to_async(read_and_release)(accepted)
                 if first or accepted != previous or done:
                     for message in messages:
                         yield message
@@ -168,7 +177,10 @@ class StreamView(APIView):
 
         if request.query_params.get("once") == "1":
             messages, _, _ = read(cursor)
-            content = iter(messages)
+            async def once():
+                for message in messages:
+                    yield message
+            content = once() if isinstance(request._request, ASGIRequest) else iter(messages)
         else:
             content = stream()
         response = StreamingHttpResponse(content, content_type="text/event-stream")

@@ -176,6 +176,9 @@ class CashHttpClient(baseUrl: String) {
             connection.readTimeout = 10_000
             connection.setRequestProperty("Accept", "application/json")
             connection.setRequestProperty("Authorization", "Bearer $accessToken")
+            com.rodada.attendance.auth.OriginatingSessionContext.id.get()?.takeIf { it.isNotBlank() }?.let {
+                connection.setRequestProperty("X-Rodada-Originating-Session", it)
+            }
             if (body != null) {
                 connection.doOutput = true
                 connection.setRequestProperty("Content-Type", "application/json")

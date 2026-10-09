@@ -16,7 +16,8 @@ from modules.audit.services import record_audit_event
 from .credentials import seal, unseal
 from .models import DeviceAuthorization, MerchantConnection, OAuthAuthorization
 from .paytime import NoRedirect
-from .services import ProviderServiceError
+from .services import ProviderServiceError, _PENDING_STATUSES
+from modules.ledger.models import Payment
 
 
 def _oauth_config():
@@ -135,9 +136,9 @@ def complete_connection(*, actor, state, code, transport=oauth_transport):
 
 
 @transaction.atomic
-def access_token_for(connection_id, *, venue_id, transport=oauth_transport):
+def access_token_for(connection_id, *, venue_id, transport=oauth_transport, historical=False):
     connection = MerchantConnection.objects.select_for_update().get(
-        pk=connection_id, venue_id=venue_id, active=True
+        pk=connection_id, venue_id=venue_id, **({"active": True} if not historical else {})
     )
     credentials = unseal(connection)
     if connection.token_expires_at and connection.token_expires_at > timezone.now() + timedelta(
@@ -175,8 +176,23 @@ def disconnect_connection(*, connection_id, actor):
     connection = MerchantConnection.objects.select_for_update().get(
         pk=connection_id, venue_id=actor.venue_id
     )
+    payments = Payment.objects.filter(
+        tab__venue_id=connection.venue_id,
+        provider=f"{connection.provider}:{connection.venue_id}:{connection.merchant_code}",
+    )
+    if payments.filter(status__in=_PENDING_STATUSES).exists():
+        raise ProviderServiceError(
+            "MERCHANT_PAYMENTS_PENDING",
+            "Reconcilie os pagamentos pendentes antes de desconectar o estabelecimento.",
+            409,
+        )
+    if not connection.active:
+        return connection
     connection.active = False
-    connection.encrypted_credentials = ""
+    # Confirmed payments may still need authenticated lookup/refund. Never erase
+    # their historical credentials as a side effect of disabling new collections.
+    if not payments.exists():
+        connection.encrypted_credentials = ""
     connection.disconnected_at = timezone.now()
     connection.save(update_fields=["active", "encrypted_credentials", "disconnected_at"])
     DeviceAuthorization.objects.filter(connection=connection).update(active=False)

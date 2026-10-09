@@ -111,7 +111,7 @@ class CashShiftViewModel(
         withActiveShift(session) { shift ->
             val key = UUID.randomUUID().toString()
             val intent = cashMovementIntent(session, shift.id, key, CashMovementRecoveryKind.SUPPLY, amountCents, reason)
-            pendingMutationIntentStore.save(intent)
+            pendingMutationIntentStore.save(intent, session)
             gateway.supply(session, shift.id, CashMovementCommand(amountCents, reason.trim(), key))
             pendingMutationIntentStore.remove(intent.id)
             reloadSelected(session, "Suprimento registrado.")
@@ -123,7 +123,7 @@ class CashShiftViewModel(
         withActiveShift(session) { shift ->
             val key = UUID.randomUUID().toString()
             val intent = cashMovementIntent(session, shift.id, key, CashMovementRecoveryKind.WITHDRAWAL, amountCents, reason)
-            pendingMutationIntentStore.save(intent)
+            pendingMutationIntentStore.save(intent, session)
             gateway.withdraw(session, shift.id, CashWithdrawalCommand(amountCents, reason.trim(), key))
             pendingMutationIntentStore.remove(intent.id)
             reloadSelected(session, "Sangria registrada.")
@@ -146,7 +146,7 @@ class CashShiftViewModel(
                 key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
                 shift.id, countedAmountCents, reviewThresholdCents, shift.version,
             )
-            pendingMutationIntentStore.save(intent)
+            pendingMutationIntentStore.save(intent, session)
             gateway.close(
                 session,
                 shift.id,

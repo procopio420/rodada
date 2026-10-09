@@ -393,3 +393,13 @@ No historical AuditEvent actor is rewritten.
 Concurrent Web requests and tabs using the same rotating refresh credential must share one refresh within a Web server process. A bounded five-second in-memory result window covers requests already sent with old cookies; keys are SHA-256 digests, credentials never enter logs, browser JavaScript or durable storage. Each retried request still authorizes against the API, including after revocation. Access tokens invalidated by rotation may refresh once using the existing refresh cookie, alongside ACCESS_TOKEN_EXPIRED. No lifetime, capability, device trust or API rotation changes.
 
 Transient refresh failure (e.g. API 503) preserves cookies and reports failure; invalid/revoked credentials clear them. This slice covers the existing single-process demo; coordinating multiple Web replicas remains outside this local acceptance and requires shared coordination before such deployment. No financial mutation is replayed after a successful response.
+
+## Round 2: originating native recovery session
+
+Encrypted recovery envelopes persist the originating session ID, alongside operator,
+Venue and installation. A different login cannot adopt an old intent; legacy records
+without provenance remain retained but unavailable for replay. Token refresh preserves
+session identity. Native authenticated requests carry X-Rodada-Originating-Session;
+the API rejects a mismatch before mutation and revalidates revocation/expiry on every
+request. Recovery after a new login requires canonical history review, never rebinding
+old records. Pending record writes are synchronous before issuing business commands.

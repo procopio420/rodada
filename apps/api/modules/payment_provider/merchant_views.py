@@ -78,6 +78,8 @@ class MerchantConnectionView(APIView):
             disconnect_connection(
                 connection_id=request.data.get("connection_id"), actor=request.actor_context
             )
+        except ProviderServiceError as error:
+            return error_response(error)
         except (MerchantConnection.DoesNotExist, ValueError):
             return Response({"code": "MERCHANT_CONNECTION_NOT_FOUND"}, status=404)
         return Response(status=204)

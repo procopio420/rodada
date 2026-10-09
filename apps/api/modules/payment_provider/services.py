@@ -142,6 +142,20 @@ def _create_or_replay_provider_payment(
                 "PAYMENT_PROVIDER_INTEGRITY_ERROR", "Pagamento sem tentativa de provedor.", 409
             )
         return existing, attempt, True
+    # Lock the immutable merchant identity before persisting the intent. Registry
+    # selection alone is stale by the time the command executes.
+    if provider.provider_key.startswith("sumup:"):
+        from .models import MerchantConnection
+        connection = MerchantConnection.objects.select_for_update().filter(
+            venue_id=actor.venue_id, provider="sumup",
+            merchant_code=provider.provider_key.split(":", 2)[2],
+        ).first()
+        if connection is not None and not connection.active:
+            raise ProviderServiceError("MERCHANT_DISCONNECTED", "Conexão desativada.", 409)
+        if getattr(provider, "connection_id", None) is not None and (
+            connection is None or str(connection.pk) != str(provider.connection_id)
+        ):
+            raise ProviderServiceError("MERCHANT_CONFIGURATION_STALE", "Revalide a conexão.", 409)
     if tab.state == TabState.CLOSED:
         raise ProviderServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     if Payment.objects.filter(tab=tab, status__in=_PENDING_STATUSES, provider__gt="").exists():

@@ -156,7 +156,7 @@ class OperationsViewModel(
             id = java.util.UUID.randomUUID().toString(), staffId = session.staffId, venueId = session.venueId,
             deviceId = session.deviceId, idempotencyKey = command.getString("idempotency_key"),
             createdAtMillis = System.currentTimeMillis(), state = RecoveryState.PENDING, tabId = id, commandJson = command.toString())
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(pendingTabOperation = intent)
         try {
             repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson))
@@ -193,7 +193,7 @@ class OperationsViewModel(
         val key = command.getString("idempotency_key")
         val intent = pendingPricing(session, tabId) ?: RecoveryIntent.Pricing(key, session.staffId, session.venueId,
             session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tabId, command.toString())
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         try {
             repository.pricing(session, tabId, org.json.JSONObject(intent.commandJson), if (approval) "approval-request/" else "")
         } catch (error: OperationsApiException) {
@@ -352,7 +352,7 @@ class OperationsViewModel(
                 tabId = tab.id,
                 lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
         )
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, orderIntentId = intentId)
         viewModelScope.launch {
             runCatching {
@@ -393,7 +393,7 @@ class OperationsViewModel(
         val key = UUID.randomUUID().toString()
         val intent = RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId,
             key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null, tab.version)
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
             tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
         viewModelScope.launch {
@@ -428,7 +428,7 @@ class OperationsViewModel(
         val intent = pending ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
             session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
             tab.id, amountCents, PaymentMethod.PIX, null, tab.version)
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
         viewModelScope.launch {
             runCatching { repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
@@ -507,7 +507,7 @@ class OperationsViewModel(
         }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
         val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId, tab.version)
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
         viewModelScope.launch {
             runCatching {
@@ -572,7 +572,7 @@ class OperationsViewModel(
             reasonText = command.reasonText.takeIf(String::isNotBlank),
             replacementProductId = command.replacementProductId,
         )
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
@@ -629,7 +629,7 @@ class OperationsViewModel(
                 command.amountCents, null, command.cashPointId,
             )
         }
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
@@ -660,7 +660,7 @@ class OperationsViewModel(
             key, session.staffId, session.venueId, session.deviceId, key,
             System.currentTimeMillis(), RecoveryState.CHECKING, taskId,
         )
-        pendingMutationIntentStore.save(intent)
+        pendingMutationIntentStore.save(intent, session)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {

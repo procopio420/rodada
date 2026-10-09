@@ -30,6 +30,11 @@ class StaffBearerAuthentication(BaseAuthentication):
                 raise AccessPermissionDenied(exc.code, exc.message) from exc
             raise AccessAuthenticationFailed(exc.code, exc.message) from exc
 
+        origin = request.headers.get("X-Rodada-Originating-Session")
+        if origin is not None and origin != str(session.pk):
+            raise AccessPermissionDenied(
+                "RECOVERY_SESSION_CHANGED", "A operação pertence a outra sessão. Confira o histórico.",
+            )
         request.actor_context = ActorContext.from_session(session)
         return session.staff_member, session
 

@@ -22,30 +22,46 @@ data class PendingOrderLine(val productId: String, val quantity: Int, val custom
 class PendingMutationIntentStore(context: Context) {
     private val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
-    fun save(intent: RecoveryIntent) {
-        val records = loadAll().filterNot { it.id == intent.id } + intent
-        write(records)
+    private data class StoredIntent(val intent: RecoveryIntent, val sessionId: String)
+
+    fun save(intent: RecoveryIntent, session: StoredSession) {
+        require(session.sessionId.isNotBlank()) { "Sessão original ausente; confira o histórico canônico." }
+        val records = loadAll()
+        val original = records.firstOrNull { it.intent.id == intent.id }
+        require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
+        write(records.filterNot { it.intent.id == intent.id } + StoredIntent(intent, session.sessionId))
     }
 
     fun loadFor(session: StoredSession): List<RecoveryIntent> =
-        loadAll().filter { it.staffId == session.staffId && it.venueId == session.venueId && it.deviceId == session.deviceId }
+        loadAll().filter { it.sessionId.isNotBlank() && it.sessionId == session.sessionId &&
+            it.intent.staffId == session.staffId && it.intent.venueId == session.venueId &&
+            it.intent.deviceId == session.deviceId }.map { it.intent }
 
-    fun remove(intentId: String) = write(loadAll().filterNot { it.id == intentId })
+    /** Retained for canonical investigation; never automatically adopted by a new login. */
+    fun blockedFor(session: StoredSession): List<RecoveryIntent> =
+        loadAll().filter { (it.sessionId.isBlank() || it.sessionId != session.sessionId) &&
+            it.intent.staffId == session.staffId && it.intent.venueId == session.venueId &&
+            it.intent.deviceId == session.deviceId }.map { it.intent }
 
-    private fun write(intents: List<RecoveryIntent>) {
-        val payload = JSONArray().apply { intents.forEach { put(it.toJson()) } }.toString()
-        preferences.edit().putString(KEY_PAYLOAD, encrypt(payload)).apply()
+    fun remove(intentId: String) = write(loadAll().filterNot { it.intent.id == intentId })
+
+    private fun write(intents: List<StoredIntent>) {
+        val payload = JSONArray().apply { intents.forEach { put(it.intent.toJson().put("originating_session_id", it.sessionId)) } }.toString()
+        check(preferences.edit().putString(KEY_PAYLOAD, encrypt(payload)).commit()) { "Não foi possível preservar a intenção." }
     }
 
-    private fun loadAll(): List<RecoveryIntent> {
+    private fun loadAll(): List<StoredIntent> {
         val payload = preferences.getString(KEY_PAYLOAD, null) ?: return emptyList()
         return try {
             val records = JSONArray(decrypt(payload))
             buildList {
-                for (index in 0 until records.length()) RecoveryIntent.fromJson(records.getJSONObject(index))?.let(::add)
+                for (index in 0 until records.length()) {
+                    val json = records.getJSONObject(index)
+                    RecoveryIntent.fromJson(json)?.let { add(StoredIntent(it, json.optString("originating_session_id"))) }
+                }
             }
         } catch (_: Exception) {
-            preferences.edit().remove(KEY_PAYLOAD).apply()
+            // Preserve unreadable records for investigation; never silently discard financial intent.
             emptyList()
         }
     }

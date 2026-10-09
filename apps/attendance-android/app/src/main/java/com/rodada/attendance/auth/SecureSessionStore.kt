@@ -23,6 +23,7 @@ class SecureSessionStore(context: Context) {
                 .put("access_expires_at", session.tokens.accessExpiresAt)
                 .put("refresh_token", session.tokens.refreshToken)
                 .put("refresh_expires_at", session.tokens.refreshExpiresAt)
+                .put("session_id", session.sessionId)
                 .put("staff_id", session.staffId)
                 .put("staff_display_name", session.staffDisplayName)
                 .put("venue_id", session.venueId)
@@ -49,6 +50,7 @@ class SecureSessionStore(context: Context) {
                         refreshToken = json.getString("refresh_token"),
                         refreshExpiresAt = json.getString("refresh_expires_at"),
                     ),
+                sessionId = json.optString("session_id"),
                 staffId = json.getString("staff_id"),
                 staffDisplayName = json.getString("staff_display_name"),
                 venueId = json.getString("venue_id"),

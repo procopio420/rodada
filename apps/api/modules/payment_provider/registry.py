@@ -33,12 +33,12 @@ def provider_for_venue(venue_id, method="PIX", provider_key=None):
                 pk=config.pop("connection_id"),
                 venue_id=venue_id,
                 provider="sumup",
-                active=True,
+                **({"active": True} if not provider_key else {}),
                 simulated=False,
             )
             if not connection.capabilities.get("pix" if method == "PIX" else "tap_to_pay"):
                 raise ValueError("Merchant capability not authorized")
-            token = access_token_for(connection.pk, venue_id=venue_id)
+            token = access_token_for(connection.pk, venue_id=venue_id, historical=bool(provider_key))
             adapter = SumUpPixProvider if method == "PIX" else SumUpTapToPayProvider
             provider = adapter(
                 venue_id=venue_id,
@@ -46,6 +46,7 @@ def provider_for_venue(venue_id, method="PIX", provider_key=None):
                 access_token=token,
                 **config,
             )
+            provider.connection_id = connection.pk
         elif kind == "paytime":
             provider = PaytimePixProvider(venue_id=venue_id, **config)
         else:

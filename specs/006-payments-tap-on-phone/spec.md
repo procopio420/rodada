@@ -620,3 +620,13 @@ not proof of SDK compilation. No external payment application is launched.
 OAuth browser callbacks must bind single-use state to the initiating browser and a still-authorized, recently reauthenticated staff session. Denial consumes state. Callback pages never expose tokens or provider errors. Pix EMV/QR and expiry survive lookup responses that omit artifacts; local expiry never confirms or cancels money. Scheduled reconciliation isolates unavailable merchants and continues other payments. Sandbox/live evidence requires actual provider access.
 
 Unsigned SumUp notifications only request asynchronous authenticated lookup; caller status is never evidence. A provider merchant transaction has one canonical Payment owner even when distinct checkout IDs reference it. A conflicting second settlement remains CONFIRMATION_PENDING.
+
+## Round 2: safe merchant disconnect
+
+Disconnect is rejected with MERCHANT_PAYMENTS_PENDING while any payment for the
+Venue and immutable merchant identity is unresolved (including CREATED, AUTHORIZED
+and CONFIRMATION_PENDING). Creation locks that identity before persisting intent;
+a stale inactive binding cannot initiate payment. Disconnect is idempotent and
+retains encrypted credentials when historical payments exist for later investigation
+and refund. Terminal outcomes require authoritative provider evidence. Owner
+capability and recent reauthentication remain mandatory at the API boundary.

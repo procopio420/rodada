@@ -138,6 +138,7 @@ class AuthHttpClient(baseUrl: String) {
 
         return StoredSession(
             tokens = parseTokens(response),
+            sessionId = response.getString("session_id"),
             staffId = staff.getString("id"),
             staffDisplayName = staff.getString("display_name"),
             venueId = venue?.optString("id").orEmpty(),

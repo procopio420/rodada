@@ -18,6 +18,7 @@ data class StoredSession(
     val deviceId: String,
     val deviceTrustState: String,
     val capabilities: Set<String> = emptySet(),
+    val sessionId: String = "",
 ) {
     fun withTokens(next: AuthTokens): StoredSession = copy(tokens = next)
 }
