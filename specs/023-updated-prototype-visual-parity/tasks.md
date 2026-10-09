@@ -71,3 +71,12 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
 - [x] Inventário e branches publicados com commits verificados.
 
 Resultado: [validação integrada](../../docs/design/spec023-review.md).
+
+## V02 parcial — hierarquia da Gerência
+
+- [x] Base isolada da main atual e fontes/ausência de export próprio identificadas.
+- [ ] Capturar antes/depois com fixture equivalente e documentar diferenças.
+- [ ] Promover ícones/medidas/tokens, preservar cinco destinos e Impressoras em Mais.
+- [ ] Hierarquia financeira e sectionHeader sem alterar dados ou exceções.
+- [ ] Verificar alvo/foco/fonte ampliada, comparação de ícone e telas adjacentes.
+- [ ] Executar gates e registrar commit/evidências/limites, sem conclusão global023.

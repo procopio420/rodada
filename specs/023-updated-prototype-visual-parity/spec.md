@@ -71,3 +71,13 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem
 Completar navegação nativa em 360/390/430 dp e font scale 1/2, sem clipping de texto nem targets abaixo de 44. Caso fonte ampliada comprove overflow, adaptar apenas a barra: ícone Pedir acima do texto e altura de 112 dp acima de fontScale 1.3; layout canônico 390/fontScale1 continua 84 dp e não muda. Preservar todos os callbacks e estado busy.
 
 Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.
+
+## V02 parcial — hierarquia da Gerência e ícones operacionais (09/10/2026)
+
+Retomar em base isolada main9b8e5e5. Gerência não possui export equivalente entre as cinco referências023: este recorte é uma extensão explícita de composição usando o design system, sem alegar equivalência completa. Corrigir seis links em cinco colunas: manter Agora/Operação/Vendas/Gestão/Mais na barra, mover Impressoras para Mais mantendo seu destino.
+
+Navegação usa ícone24px + texto e marcador ativo3px; o ícone Agora reutiliza exatamente o SVG do export night. Outros pictogramas são extensões vetoriais semânticas locais, com o mesmo stroke2.2/round; não são ProductIcon e não geram assets por IA. Cabeçalhos das seções reusam sectionHeader, com ícone20px e título. Exposição em aberto ganha hierarquia em uma região financeira de largura total, número34px e tokens money existentes. Contadores permanecem menores e sem mudar fatos/cálculos. Exceções continuam antes do pulso.
+
+Profundidade é restrita ao limite da barra e à região financeira, com token semântico de sombra discreta e borda; não copiar sombra de moldura/artboard nem criar gradiente/glassmorphism. Preservar loading/erro/vazio, snapshots, capabilities e ações. APIs, Android, pagamentos e páginas completas restantes ficam fora desta slice.
+
+Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.

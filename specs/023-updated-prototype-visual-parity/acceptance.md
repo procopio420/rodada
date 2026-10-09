@@ -81,3 +81,13 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
 - [ ] Branch original intacta e publicação confirmada por SHA remoto.
 
 Resultado: [validação integrada](../../docs/design/spec023-review.md).
+
+## Hierarquia da Gerência — aceite parcial
+
+- [ ] Cinco links em uma única linha em360/430/768; cada um tem ícone24 e label legível, alvo≥44 e seleção por hash/aria-current preservada. Impressoras continua acessível em Mais.
+- [ ] Agora SVG corresponde ao original night (hash912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f) em≤0.1%, sem alterar o export/limiar. Pictogramas novos são extensões documentadas.
+- [ ] Exposição usa valor canônico existente, destaque34px, largura total e cor financeira. Exceções precedem Agora; loading/erro inicial não exibem zeros medidos.
+- [ ] Cabeçalhos/ícones não alteram nomes acessíveis e preservam callbacks, hrefs, dados e permissões. Fonte ampliada não corta labels nem deixa rodapé/campos sob a barra.
+- [ ] Testes existentes/novos, types/build e adjacentes passam; evidências não declaram Gerência ou023 integralmente pixel-perfect.
+
+Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.
