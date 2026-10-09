@@ -1,4 +1,6 @@
 "use client";
+
+import { OperationalHeading } from "@/components/operational-heading";
 import { useEffect, useId, useRef, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
 import { IconReference, IconStatus, ProductIcon } from "./product-icon";
@@ -59,7 +61,7 @@ export function QuickCatalog({ station, onResolved, onChanged }: { station: "BAR
   if (!authorized) return null;
   return <section className="quickCatalog" aria-label={`Catálogo rápido ${station === "BAR" ? "Bar" : "Cozinha"}`}>
     <button ref={trigger} className="buttonSecondary" onClick={() => { setOpen(true); setTimeout(() => input.current?.focus(), 0); }}>+ Item</button>
-    {open && <div className="panel quickCatalogPanel"><div className="catalogHeading"><h2>{creating ? `Criar “${name.trim()}”` : "Item do catálogo"}</h2><button className="buttonQuiet" disabled={saving} onClick={close}>Fechar</button></div>
+    {open && <div className="panel quickCatalogPanel"><div className="catalogHeading"><OperationalHeading as="h2" icon="cart">{creating ? `Criar “${name.trim()}”` : "Item do catálogo"}</OperationalHeading><button className="buttonQuiet" disabled={saving} onClick={close}>Fechar</button></div>
       <p className="muted">Estação: {station === "BAR" ? "Bar" : "Cozinha"}</p>
       {!selected && !creating && <><div className="field fieldComfortable"><label htmlFor={id}>Nome do produto</label><input ref={input} id={id} maxLength={160} autoComplete="off" role="combobox" aria-expanded={searchOk} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined} value={name} onChange={e => { setName(e.target.value); setSearchOk(false); }} onKeyDown={e => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); setActive(current => options ? (current + (e.key === "ArrowDown" ? 1 : options - 1) + options) % options : -1); }

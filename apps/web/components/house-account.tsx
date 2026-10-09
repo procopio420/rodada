@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
 
@@ -141,7 +143,7 @@ export function HouseAccount() {
   }
 
   return <section className="panel" aria-label="Conta da casa">
-    <h2>Conta da casa</h2>
+    <OperationalHeading as="h2" icon="wallet">Conta da casa</OperationalHeading>
     {loading && <p role="status">Atualizando limites…</p>}
     {stale && <div className="notice" data-state="warning">Dados desatualizados. Atualize a conexão antes de aprovar consumo.</div>}
     {error && <div className="notice" data-state="danger" role="alert">{error}</div>}
