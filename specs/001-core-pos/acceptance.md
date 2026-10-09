@@ -13,6 +13,8 @@
 - [x] Todo Order possui `tab_id`.
 - [x] Cada item confirmado gera efeito financeiro exatamente uma vez.
 - [x] Estados operacionais registram timestamps.
+- Item confirmado continua preparo/entrega após pagamento e fechamento financeiro;
+  `test_financial_close_does_not_strand_confirmed_production` verifica API/ledger.
 - [ ] Cancelamento pós-confirmação não apaga histórico e exige auditoria.
 - [x] Pagamento manual reduz exposure.
 - Retry de Payment manual já confirmado após fechamento recupera o mesmo ID;

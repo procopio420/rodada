@@ -316,6 +316,16 @@ api(
     },
 )
 house_second = request(house_path, {**house_cart, "idempotency_key": run_id + "-house-2"}, staff)
+# Prepaid work must finish even after financial closure (release regression).
+api(
+    f"/tabs/{house['id']}/payments/",
+    {
+        "amount_cents": 1200,
+        "method": "EXTERNAL_TERMINAL",
+        "idempotency_key": run_id + "-house-final",
+    },
+)
+api(f"/tabs/{house['id']}/close/", {})
 for house_order in (house_first, house_second):
     for item in house_order["items"]:
         for state in ("ACCEPTED", "READY"):
@@ -333,6 +343,9 @@ request(f"/tabs/{other_tab['id']}/close/", {}, other)
 # Close all QA financial responsibility with auditable manual/test payments.
 for current in (tab, dest, house):
     detail = api(f"/tabs/{current['id']}/")
+    if detail["state"] == "CLOSED":
+        assert detail["exposure_cents"] == 0
+        continue
     body = {
         "amount_cents": detail["exposure_cents"],
         "method": "CASH" if current == tab else "EXTERNAL_TERMINAL",

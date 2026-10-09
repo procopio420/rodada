@@ -49,6 +49,28 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(closed.status_code, 200)
         self.assertEqual(closed.json()["state"], TabState.CLOSED)
 
+    def test_financial_close_does_not_strand_confirmed_production(self):
+        tab = self.order_tab()
+        item_id = self.client.get(f"/tabs/{tab['id']}/").json()["orders"][0]["items"][0]["id"]
+        self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 2400, "method": "EXTERNAL_TERMINAL", "idempotency_key": "prepaid"},
+            format="json",
+        )
+        self.assertEqual(self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json").status_code, 200)
+        for state in ("ACCEPTED", "PREPARING", "READY"):
+            result = self.client.post(f"/order-items/{item_id}/transition/", {"state": state}, format="json")
+            self.assertEqual(result.status_code, 200, result.json())
+        task = next(row for row in self.client.get("/dispatch/delivery/").json()["results"] if row["order_item_id"] == item_id)
+        done = self.client.post(f"/dispatch/delivery/{task['id']}/complete/", {}, format="json")
+        self.assertEqual(done.status_code, 200, done.json())
+        detail = self.client.get(f"/tabs/{tab['id']}/").json()
+        self.assertEqual(detail["orders"][0]["items"][0]["state"], "DELIVERED")
+        self.assertEqual(detail["state"], "CLOSED")
+        self.assertEqual(detail["exposure_cents"], 0)
+        self.assertEqual(Charge.objects.count(), 1)
+        self.assertEqual(Payment.objects.count(), 1)
+
     def test_payment_replay_is_idempotent_and_overpayment_rejected(self):
         tab = self.order_tab()
         payload = {"amount_cents": 1200, "method": "PIX", "idempotency_key": "same"}
