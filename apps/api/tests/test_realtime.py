@@ -107,6 +107,26 @@ class RealtimeTests(TestCase):
         assert self.tab.charges.count() == 0
         assert OutboxEvent.objects.count() == initial
 
+    def test_customization_invalidates_shared_products_without_audit_payload(self):
+        from modules.audit.models import AuditEvent
+        from modules.catalog.models import ModifierGroup, ModifierOption, ProductModifierGroup
+        from modules.realtime.views import visible
+        from types import SimpleNamespace
+
+        group = ModifierGroup.objects.create(venue=self.venue, name="Extras", selection_mode="MULTI")
+        option = ModifierOption.objects.create(group=group, name="Extra")
+        second = Product.objects.create(venue=self.venue, name="Second", price_cents=1200, fulfillment_station=FulfillmentStation.BAR)
+        for product in (self.product, second):
+            ProductModifierGroup.objects.create(product=product, group=group)
+        for event_type, entity in (("catalog.option_availability_changed", option), ("catalog.customization_configured", group)):
+            with transaction.atomic():
+                AuditEvent.objects.create(venue=self.venue, event_type=event_type, entity_type=entity.__class__.__name__, entity_id=str(entity.pk), metadata={"product_id": str(self.product.id), "private": "audit-only"})
+            events = OutboxEvent.objects.filter(event_type=event_type)
+            assert set(events.values_list("aggregate_id", flat=True)) == {str(self.product.id), str(second.id)}
+            assert all(event.aggregate_type == "Product" and event.payload == {} and event.tab_id is None for event in events)
+            assert all(visible(event, SimpleNamespace(tab_id=None), True) for event in events)
+            assert all(visible(event, SimpleNamespace(membership=self.membership), False) for event in events)
+
     def test_idempotent_http_command_emits_one_fact(self):
         payload = {
             "idempotency_key": "duplicate-command",

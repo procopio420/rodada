@@ -16,7 +16,7 @@ from django.conf import settings
 
 with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     if os.environ.get("RODADA_E2E_POSTGRES") != "1":
-        settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(Path(temporary) / "test.sqlite3"), "OPTIONS": {"timeout": 20}}}
+        settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(Path(temporary) / "test.sqlite3"), "OPTIONS": {"timeout": 20, "transaction_mode": "IMMEDIATE"}}}
     else:
         # Explicit opt-in requires the dedicated CI database, never ordinary rodada.
         if settings.DATABASES["default"]["NAME"] != "rodada_web_e2e":

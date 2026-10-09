@@ -151,3 +151,62 @@ class IconGenerationRequest(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=("icon", "key"), name="catalog_icon_alias_unique")]
+
+
+class ProductVariant(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    name = models.CharField(max_length=100)
+    price_cents = models.PositiveIntegerField()
+    active = models.BooleanField(default=True)
+    is_default = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
+    availability = models.CharField(max_length=16, choices=AvailabilityState.choices, default=AvailabilityState.AVAILABLE)
+    version = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ("sort_order", "id")
+        constraints = [models.UniqueConstraint(fields=["product"], condition=models.Q(is_default=True, active=True), name="catalog_one_default_variant")]
+
+
+class ModifierGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="modifier_groups")
+    name = models.CharField(max_length=100)
+    selection_mode = models.CharField(max_length=8, choices=[("SINGLE", "Single"), ("MULTI", "Multi")])
+    min_selections = models.PositiveIntegerField(default=0)
+    max_selections = models.PositiveIntegerField(default=1)
+    active = models.BooleanField(default=True)
+    version = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(max_selections__gte=models.F("min_selections")) & models.Q(max_selections__gte=1), name="catalog_group_bounds"),
+            models.CheckConstraint(condition=models.Q(selection_mode="MULTI") | models.Q(selection_mode="SINGLE", max_selections=1), name="catalog_single_group_max"),
+        ]
+
+
+class ModifierOption(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    group = models.ForeignKey(ModifierGroup, on_delete=models.CASCADE, related_name="options")
+    name = models.CharField(max_length=100)
+    price_delta_cents = models.PositiveIntegerField(default=0)
+    semantic_kind = models.CharField(max_length=8, choices=[("ADD", "Add"), ("REMOVE", "Remove"), ("CHOICE", "Choice")], default="CHOICE")
+    active = models.BooleanField(default=True)
+    default_selected = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
+    availability = models.CharField(max_length=16, choices=AvailabilityState.choices, default=AvailabilityState.AVAILABLE)
+    version = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ("sort_order", "id")
+
+
+class ProductModifierGroup(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="modifier_links")
+    group = models.ForeignKey(ModifierGroup, on_delete=models.CASCADE, related_name="product_links")
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("sort_order", "id")
+        constraints = [models.UniqueConstraint(fields=["product", "group"], name="catalog_product_group_unique")]

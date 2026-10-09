@@ -644,6 +644,8 @@ Canonical audit records:
 
 ## P0 implementation protocol
 
+- Spec 010 customization configuration and variant/option availability emit public Product catalog invalidations for every affected Product, including shared groups. Events carry no audit metadata or financial payload; canonical catalog reads revalidate the current selection.
+
 - One database-serialized sequence per Venue; opaque cursor binds venue and sequence. A locked VenueStream row assigns sequence in the mutation transaction, preventing commit-order holes.
 - Envelope schema_version=1, id/cursor, venue_id, type, aggregate_type/id, occurred_at, version and minimal invalidation payload. HTTP remains the sole command channel.
 - Replay retains 24 hours; missing, malformed, foreign, expired or discontinuous cursors emit `reset`. The client fetches a cursor baseline BEFORE refreshing canonical projections, then resumes, so mutations concurrent with refresh are replayed.

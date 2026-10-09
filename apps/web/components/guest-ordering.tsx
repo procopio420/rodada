@@ -5,8 +5,10 @@ import { useRealtime } from "@/lib/client/use-realtime";
 import { ConnectivityNotice } from "./connectivity-notice";
 import { ProductIcon, type IconData } from "./product-icon";
 
-type Product = { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean; icon?: IconData };
-type OrderItem = { id: string; product_name: string; quantity: number; line_total_cents: number; state: string; ready_at?: string | null; delivered_at?: string | null };
+import { ProductCustomization, CustomizationText, defaults, selectionError, unitPrice, type OrderingProduct, type Selection, type Snapshot } from "./product-customization";
+
+type Product = OrderingProduct & { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean; icon?: IconData };
+type OrderItem = { customization_snapshot?: Snapshot; id: string; product_name: string; quantity: number; line_total_cents: number; state: string; ready_at?: string | null; delivered_at?: string | null };
 type Order = { id: string; status: string; items: OrderItem[] };
 type Tab = { id: string; display_label: string; exposure_cents: number; consumption_blocked: boolean; remaining_capacity_cents: number; orders?: Order[] };
 type Context = { table: { label: string }; occupancy_active: boolean; can_start_occupancy: boolean; guest_session_token?: string; tab: Tab | null };
@@ -44,7 +46,9 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const [context, setContext] = useState<Context | null>(null);
   const [catalogCachedAt, setCatalogCachedAt] = useState<number>();
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<{ product: Product; quantity: number; selection: Selection }[]>([]);
+  const [configuring, setConfiguring] = useState<Product | null>(null);
+  const [editing, setEditing] = useState<number | null>(null);
   const [label, setLabel] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -113,12 +117,17 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     }
   }, [guestToken, loadCatalog, storageKey]);
   const connectivity = useRealtime(refresh, { guestToken, onRevoked: () => {
-    sessionStorage.removeItem(storageKey); setContext(null); setProducts([]); setCart({}); setStale(true);
+    sessionStorage.removeItem(storageKey); setContext(null); setProducts([]); setCart([]); setStale(true);
     setNotice("Esta visita terminou. Escaneie o QR novamente para pedir na nova ocupação.");
   } });
 
-  const rows = useMemo(() => products.filter((product) => cart[product.id]).map((product) => ({ product, quantity: cart[product.id] })), [cart, products]);
-  const total = rows.reduce((sum, row) => sum + row.product.price_cents * row.quantity, 0);
+  const rows = useMemo(() => cart.map(row => ({ ...row, product: products.find(p => p.id === row.product.id) ?? { ...row.product, available: false } })), [cart, products]);
+  const total = rows.reduce((sum, row) => sum + unitPrice(row.product, row.selection) * row.quantity, 0);
+  const cartError = rows.some(row => !row.product.available || !!selectionError(row.product, row.selection));
+  function addConfigured(product: Product, selection: Selection) {
+    setCart(current => editing === null ? [...current, { product, selection, quantity: 1 }] : current.map((row, index) => index === editing ? { ...row, product, selection } : row));
+    setConfiguring(null); setEditing(null);
+  }
 
   async function createTab() {
     if (sending || stale) return;
@@ -137,13 +146,13 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     orderIntent.current = idempotencyKey;
     const result = await guestApi<Order>("orders/confirm/", guestToken, {
       method: "POST",
-      body: JSON.stringify({ idempotency_key: idempotencyKey, lines: rows.map(({ product, quantity }) => ({ product_id: product.id, quantity })) }),
+      body: JSON.stringify({ idempotency_key: idempotencyKey, lines: rows.map(({ product, quantity, selection }) => ({ product_id: product.id, quantity, ...selection })) }),
     });
     if (result.ok) {
       const confirmed = result.body as Order;
       setContext(current => current?.tab ? { ...current, tab: { ...current.tab, orders: [...(current.tab.orders ?? []).filter(order => order.id !== confirmed.id), confirmed] } } : current);
       orderIntent.current = null;
-      setCart({});
+      setCart([]);
       const contextResult = await guestApi<{ tab: Tab | null }>("context/", guestToken);
       if (contextResult.ok) setContext((current) => {
         const tab = (contextResult.body as { tab: Tab | null }).tab;
@@ -155,6 +164,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       setNotice(messageFor(result.body as ApiError, "Não foi possível enviar o pedido."));
       if (result.status < 500) orderIntent.current = null;
       if (result.status >= 500) setStale(true);
+      if (["MODIFIER_UNAVAILABLE", "VARIANT_UNAVAILABLE", "PRODUCTS_NOT_CONFIRMABLE", "MODIFIER_REQUIRED", "TOO_MANY_MODIFIERS"].includes((result.body as ApiError).code ?? "")) await loadCatalog(guestToken);
       if ((result.body as ApiError).code === "SPENDING_LIMIT_EXCEEDED") await refresh().catch(() => {});
     }
     setSending(false);
@@ -172,9 +182,11 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" disabled={sending || stale} onClick={() => void createTab()}>{sending ? "Abrindo…" : "Abrir minha comanda"}</button></section> : <>
       <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><div className="guestBalance"><span>Em aberto</span><strong>{money(context.tab.exposure_cents)}</strong></div></section>
       {context.tab.consumption_blocked && <div className="notice" data-state="warning" role="alert">Para continuar consumindo, peça ajuda à equipe. Você pode pagar uma parte da comanda ou solicitar aprovação.</div>}
-      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="buttonSecondary guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => setCart((current) => ({ ...current, [product.id]: (current[product.id] || 0) + 1 }))}><ProductIcon name={product.name} icon={product.icon} /><span className="guestProductDetails"><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span className="guestProductPrice">{money(product.price_cents)}{cart[product.id] ? ` ×${cart[product.id]}` : ""}</span></button>)}</div></section>
-      <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={!rows.length || sending || stale || (context.tab.consumption_blocked && !orderIntent.current)} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>
-      <section className="panel"><h2>Meus pedidos</h2><p className="muted">Estado registrado pela operação. Atualizações ao vivo da sua comanda.</p>{!context.tab.orders?.length && <p>Nenhum pedido confirmado.</p>}{context.tab.orders?.map(order => <div key={order.id}>{order.items.map(item => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><small className="muted"> · {money(item.line_total_cents)}{item.ready_at ? ` · pronto às ${new Date(item.ready_at).toLocaleTimeString("pt-BR")}` : ""}</small></span><span className="statusBadge" data-state={item.state === "CANCELLED" ? "danger" : ["READY", "DELIVERED"].includes(item.state) ? "success" : "info"}>{itemStates[item.state] ?? item.state}</span></div>)}</div>)}</section>
+      <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="buttonSecondary guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => { if (product.variants?.length || product.modifier_groups?.length) { setEditing(null); setConfiguring(product); } else addConfigured(product, defaults(product)); }}><ProductIcon name={product.name} icon={product.icon} /><span className="guestProductDetails"><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span className="guestProductPrice">{money(product.price_cents)}</span></button>)}</div></section>
+      {configuring && <ProductCustomization key={`${configuring.id}-${editing}`} product={products.find(p => p.id === configuring.id) ?? configuring} initial={editing === null ? undefined : cart[editing]?.selection} onCancel={() => { setConfiguring(null); setEditing(null); }} onAdd={selection => addConfigured(configuring, selection)} />}
+      {!!rows.length && <section className="panel"><h2>Revisar pedido</h2>{rows.map((row, index) => <div key={index} className="dataRow"><div><strong>{row.quantity}× {row.product.name}</strong><CustomizationText snapshot={{ variant: row.product.variants?.find(v => v.id === row.selection.variant_id), modifiers: row.product.modifier_groups?.flatMap(g => g.options.filter(o => row.selection.modifier_option_ids.includes(o.id)).map(o => ({ ...o, group_name: g.name }))), special_instructions: row.selection.special_instructions }} />{(!row.product.available || selectionError(row.product, row.selection)) && <p className="notice" data-state="danger">{!row.product.available ? "Produto indisponível" : selectionError(row.product, row.selection)}</p>}</div><div className="actions"><button className="buttonQuiet" disabled={sending || !!orderIntent.current} onClick={() => { setEditing(index); setConfiguring(row.product); }}>Editar</button><button className="buttonQuiet" disabled={sending || !!orderIntent.current} onClick={() => setCart(c => c.filter((_, i) => i !== index))}>Remover</button></div></div>)}</section>}
+      {!configuring && <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={!rows.length || sending || stale || (cartError && !orderIntent.current) || (context.tab.consumption_blocked && !orderIntent.current)} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>}
+      <section className="panel"><h2>Meus pedidos</h2><p className="muted">Estado registrado pela operação. Atualizações ao vivo da sua comanda.</p>{!context.tab.orders?.length && <p>Nenhum pedido confirmado.</p>}{context.tab.orders?.map(order => <div key={order.id}>{order.items.map(item => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><small className="muted"> · {money(item.line_total_cents)}{item.ready_at ? ` · pronto às ${new Date(item.ready_at).toLocaleTimeString("pt-BR")}` : ""}</small></span><span className="statusBadge" data-state={item.state === "CANCELLED" ? "danger" : ["READY", "DELIVERED"].includes(item.state) ? "success" : "info"}>{itemStates[item.state] ?? item.state}</span></div>)}</div>)}</section>
     </>}
   </main>;
 }

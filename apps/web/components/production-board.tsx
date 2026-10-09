@@ -8,8 +8,11 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
 
-type Item = { id: string; product_id?: string; order_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
-type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
+
+import { CustomizationText, type Snapshot, type OrderingProduct } from "./product-customization";
+import { CustomizationAvailability } from "./customization-availability";
+type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
+type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
   ACCEPTED: { state: "PREPARING", label: "Preparar" },
@@ -136,7 +139,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         <p className="stationCaption">Por pedido · mais antigo primeiro</p>
         {loading ? <div className="loadingState" role="status">Carregando fila…</div> : waiting.map(item => <article className="stationTicket" key={item.id}>
           <strong className="stationTab">{item.tab_label || "Sem identificação"}</strong>
-          <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
+          <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
           {next[item.state] && <button className="buttonPrimary" disabled={disabled} aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`} onClick={() => void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id)}>{changingItemId === item.id ? "Salvando…" : next[item.state].label}</button>}
         </article>)}
         {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
@@ -144,9 +147,9 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationPass" aria-labelledby="ready-title" aria-busy={loading}>
         <div className="stationLabel"><h2 id="ready-title">Pronto para retirada</h2>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">No passe · esperando retirada</p>
-        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
+        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
-        {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
+        {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
         <p className="stationFootnote">Estado confirmado pela operação. Atualizações ao vivo.</p>
       </section>
     </div>
@@ -170,6 +173,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       })}
       {!loading && hasSnapshot && !products.length && <div className="emptyState">Nenhum produto roteado para esta estação.</div>}
     </section>
+    <CustomizationAvailability products={products} onChanged={() => load(true).catch(() => {})} />
     <QuickCatalog station={station} onChanged={() => load(true).catch(() => {})} />
     </div>
   </main>;

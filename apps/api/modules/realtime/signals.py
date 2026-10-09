@@ -41,6 +41,28 @@ MODELS = {
 
 @receiver(post_save, sender=AuditEvent)
 def audit_fact(sender, instance, created, **kwargs):
+    if created and instance.event_type in (
+        "catalog.customization_configured",
+        "catalog.variant_availability_changed",
+        "catalog.option_availability_changed",
+    ):
+        Product = apps.get_model("catalog", "Product")
+        if instance.entity_type == "ProductVariant":
+            products = Product.objects.filter(venue_id=instance.venue_id, variants__id=instance.entity_id)
+        elif instance.entity_type == "ModifierGroup":
+            products = Product.objects.filter(venue_id=instance.venue_id, modifier_links__group_id=instance.entity_id).distinct()
+        elif instance.entity_type == "ModifierOption":
+            products = Product.objects.filter(venue_id=instance.venue_id, modifier_links__group__options__id=instance.entity_id).distinct()
+        else:
+            products = Product.objects.filter(venue_id=instance.venue_id, pk=instance.metadata.get("product_id"))
+        for product in products:
+            emit_event(
+                venue_id=instance.venue_id,
+                event_type=instance.event_type,
+                aggregate_type="Product",
+                aggregate_id=product.id,
+            )
+        return
     if not created or not instance.event_type.startswith(PREFIXES):
         return
     tab_id = None

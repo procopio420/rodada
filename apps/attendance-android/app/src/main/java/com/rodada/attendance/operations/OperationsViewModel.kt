@@ -284,24 +284,32 @@ class OperationsViewModel(
         state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
     }
 
-    fun addProduct(product: Product) {
+    fun addProduct(product: Product, customization: Customization = product.defaults()) {
         if (
             !product.active ||
                 product.availability != "AVAILABLE" ||
                 state.selectedTab?.summary?.state == "CLOSED" ||
                 state.orderIntentId != null
         ) return
-        val existing = state.cart.firstOrNull { it.product.id == product.id }
+        if (product.customizationError(customization) != null) return
+        val existing = state.cart.firstOrNull { it.product.id == product.id && it.customization == customization }
         val next =
-            if (existing == null) state.cart + CartLine(product, 1)
-            else state.cart.map { if (it.product.id == product.id) it.copy(quantity = it.quantity + 1) else it }
+            if (existing == null) state.cart + CartLine(product, 1, customization)
+            else state.cart.map { if (it.lineId == existing.lineId) it.copy(quantity = it.quantity + 1) else it }
         state = state.copy(cart = next, noticeMessage = null)
+    }
+
+    fun editCartLine(lineId: String, customization: Customization) {
+        if (state.orderIntentId != null || state.submitting) return
+        state = state.copy(cart = state.cart.map { line ->
+            if (line.lineId == lineId) line.copy(customization = customization, product = state.products.firstOrNull { it.id == line.product.id } ?: line.product) else line
+        })
     }
 
     fun changeCartQuantity(productId: String, delta: Int) {
         if (state.orderIntentId != null) return
         val next = state.cart.mapNotNull { line ->
-            if (line.product.id != productId) line
+            if (line.lineId != productId) line
             else line.copy(quantity = line.quantity + delta).takeIf { it.quantity > 0 }
         }
         state = state.copy(cart = next)
@@ -320,7 +328,7 @@ class OperationsViewModel(
                 createdAtMillis = System.currentTimeMillis(),
                 state = RecoveryState.CHECKING,
                 tabId = tab.id,
-                lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity) },
+                lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
         )
         pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, orderIntentId = intentId)
@@ -347,6 +355,7 @@ class OperationsViewModel(
                     pendingMutationIntentStore.remove(intent.id)
                     state = state.copy(orderIntentId = null)
                     runCatching { repository.tabDetail(session, tab.id) }.onSuccess(::replaceDetail)
+                    runCatching { repository.products(session) }.onSuccess { state = state.copy(products = it) }
                     showFailure(error)
                     return@onFailure
                 }
@@ -767,8 +776,9 @@ private fun correctionNotice(result: CorrectionResult): String =
     }
 
 private fun RecoveryIntent.ConfirmOrder.toCart(products: List<Product>): List<CartLine> =
-    lines.mapNotNull { line ->
-        products.firstOrNull { it.id == line.productId }?.let { product ->
-            CartLine(product = product, quantity = line.quantity)
-        }
+    lines.map { line ->
+        // Missing/deactivated catalog rows must not change an ambiguous command payload.
+        val product = products.firstOrNull { it.id == line.productId }
+            ?: Product(line.productId, "Item indisponível", 0, false, "", "UNAVAILABLE")
+        CartLine(product = product, quantity = line.quantity, customization = line.customization)
     }

@@ -146,6 +146,7 @@ export default function ManagementPage() {
     </section>
 
     <HouseAccount />
+    <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
     <CatalogIconEditor />
     </div>
     <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>

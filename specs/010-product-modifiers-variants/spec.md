@@ -1,6 +1,6 @@
 # Spec 010 — Product Modifiers & Variants
 
-**Status:** Draft for implementation  
+**Status:** Implemented; verification recorded in acceptance.md
 **Owner capability:** Catalog + Ordering snapshot semantics
 
 ## Objective
@@ -373,3 +373,7 @@ Existing OrderItems require no rewrite. New snapshot fields are nullable/empty f
 - negative-priced modifier discounts;
 - modifier-specific tax;
 - automatic cross-station child item generation.
+
+## Implementation contract
+
+Variants store an explicit nonnegative `price_cents`, replacing the Product base price. Snapshots also record the difference from the Product price. Confirmation accepts additive `variant_id`, `modifier_option_ids` and `special_instructions` (500 characters); no submitted price is authoritative. Products with active variants require an explicit selected ID; defaults are visibly selected by clients. Groups are reusable within a Venue; association sets display priority, with cardinality owned by the group. Archival uses active=false and historical snapshots contain IDs as plain values, never mutable joins. Configuration and confirmation lock Products before child rows; reusable group edits lock all attached Products in ID order. Availability commands require expected_version and audit old/new state and reason. Polling existing catalogs supplies invalidation without adding SSE infrastructure.

@@ -33,3 +33,31 @@ Fonts locais WOFF2 e faces Android já validadas são mantidas; assets TTF impor
 ## Limites e próximo trabalho
 
 Esta integração não afirma paridade integral, homologação física, pagamento live ou execução dos casos PostgreSQL. A Spec 023 conserva suas pendências. Para novas tarefas, partir desta branch sincronizada, conferir origin/main antes da primeira alteração e preservar mudanças locais antes de qualquer integração.
+
+## Atualização seletiva das entregas recentes
+
+Após autorização para atualizar a mesma branch com as entregas recentes necessárias, foram integradas:
+
+- `feat/tab-operations` em `dc3c706dcd49a0b6e2d9af6116cecff44f015477`: correções de transferências, responsabilidade nos relatórios e rejeições Android; merge `9cd6d65`.
+- `feat/operational-realtime` em `1c5f928e474f145dc39d7f0e320c1ec98f38a9c7`: Spec 014, outbox transacional, SSE autenticado, replay, fallback de leituras e cache seguro; merge `56cd02a`.
+- `feat/product-modifiers-variants` em `4add70edbf61e7bd5efcfae665ef9995c5f67962`: Spec 010, configuração gerencial, seleção guest/Android, validação/preço canônico e snapshots imutáveis na produção.
+
+Os heads das três entregas tinham API/Web/Android aprovados no GitHub. A nova combinação recebeu validação local própria. Um novo fetch antes da publicação confirmou os mesmos heads e a main em `1dfdf8a`.
+
+Não foi feita integração indiscriminada das demais branches: documentação antiga já incorporada por squash, pesquisas fora do núcleo e ampliação de provider IA do Quick Catalog não são necessárias a esta base; IA continua adiada. Correções específicas de geração/regeneração nessa branch permanecem fora deste merge e podem ser avaliadas na ativação do provider.
+
+### Compatibilidade entre as entregas
+
+- Mantidos fontes/assets, layout da estação, identidade Product/Order, chips, transições individuais, tempo do passe e itens em entrega. Nenhum arquivo da base `feabbe7` foi excluído.
+- CustomizationText acompanha o snapshot confirmado nos tickets, passe e entrega; POS/Guest preservam ProductIcon e sua apresentação existente, junto aos novos controles de revisão.
+- Eventos de configuração e disponibilidade das variantes/adicionais invalidam o catálogo de todos os Products afetados, inclusive grupos compartilhados. O envelope público não copia metadata de auditoria. Teste cobre Products compartilhados e visibilidade staff/guest; o fluxo real verifica indisponibilidade no seletor guest sem atualização manual.
+- O banco SQLite descartável dos testes usa transações IMMEDIATE e WAL: evita conflito de upgrade de lock entre comandos e o publicador. Isso não muda a configuração de produção nem substitui os testes PostgreSQL.
+
+### Validação da combinação
+
+- Web: typecheck/build aprovados; 141 testes visuais/acessibilidade aprovados, sem alterar baselines ou limites; captura de cozinha personalizada em 390 px inspecionada.
+- Realtime client: oito testes aprovados, incluindo chunks, replay, fallback e revogação.
+- Web/BFF/API ASGI: seis fluxos reais aprovados com banco descartável; a primeira execução revelou locks SQLite, corrigidos somente no harness de teste antes da execução completa aprovada.
+- Android: 38 testes JVM, assembleDebug e lintDebug aprovados.
+
+Para ativar realtime num ambiente implantado, seguir `docs/development/operational-realtime.md`: servidor ASGI, dispatcher supervisionado, retenção e proxy compatível com SSE. Esta atualização entrega código integrado; não executa deployment, configura provider IA ou homologa dispositivo físico. Casos de concorrência PostgreSQL não foram executados localmente nesta atualização.

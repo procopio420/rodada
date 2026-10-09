@@ -182,7 +182,8 @@ fun AttendanceScreen(
                     state = state,
                     tab = selected,
                     onBack = { viewModel.clearSelection(); viewModel.refresh(session) },
-                    onAdd = viewModel::addProduct,
+                    onAdd = { product, selection -> viewModel.addProduct(product, selection) },
+                    onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
@@ -401,7 +402,8 @@ private fun TabWorkspace(
     state: OperationsUiState,
     tab: TabDetail,
     onBack: () -> Unit,
-    onAdd: (Product) -> Unit,
+    onAdd: (Product, Customization) -> Unit,
+    onEdit: (String, Customization) -> Unit,
     onQuantity: (String, Int) -> Unit,
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
@@ -416,7 +418,18 @@ private fun TabWorkspace(
     val availableProducts = remember(state.products, query) {
         state.products.filter { it.name.contains(query, ignoreCase = true) }
     }
-    val cartTotal = state.cart.sumOf { it.product.priceCents * it.quantity }
+    var configuring by remember { mutableStateOf<Product?>(null) }
+    var editing by remember { mutableStateOf<CartLine?>(null) }
+    var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
+    configuring?.let { selected ->
+        val current = state.products.firstOrNull { it.id == selected.id } ?: selected
+        ProductCustomizationSheet(current, editing?.customization ?: previous[current.id] ?: current.defaults(), onDismiss = { configuring = null; editing = null }) { selection ->
+            if (editing != null) onEdit(editing!!.lineId, selection) else onAdd(current, selection)
+            previous = previous + (current.id to selection); configuring = null; editing = null
+        }
+    }
+    val currentCart = state.cart.map { line -> line.copy(product = state.products.firstOrNull { it.id == line.product.id } ?: line.product.copy(active = false)) }
+    val cartTotal = currentCart.sumOf { it.unitPriceCents * it.quantity }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -448,7 +461,7 @@ private fun TabWorkspace(
         }
         items(availableProducts, key = { it.id }) { product ->
             val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-            OutlinedButton(onClick = { onAdd(product) }, enabled = sellable && !state.submitting && state.orderIntentId == null, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = { if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product }, enabled = sellable && !state.submitting && state.orderIntentId == null, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -463,7 +476,7 @@ private fun TabWorkspace(
         }
         item {
             if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
-            OrderCart(state.cart, cartTotal, state.submitting, state.orderIntentId != null, onQuantity, onConfirmOrder)
+            OrderCart(currentCart, cartTotal, state.submitting, state.orderIntentId != null, onQuantity, onConfirmOrder) { line -> editing = line; configuring = line.product }
         }
         if (tab.orders.isNotEmpty()) {
             item { Text("Pedidos confirmados", style = MaterialTheme.typography.titleLarge) }
@@ -475,6 +488,7 @@ private fun TabWorkspace(
                             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
+                                    if (item.customizationText.isNotBlank()) Text(item.customizationText)
                                     Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
                                 }
                                 // A cancelled line is retained as operational history, not an
@@ -612,6 +626,7 @@ private fun OrderCart(
     locked: Boolean,
     onQuantity: (String, Int) -> Unit,
     onConfirm: () -> Unit,
+    onEdit: (CartLine) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -622,16 +637,23 @@ private fun OrderCart(
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(line.product.name, fontWeight = FontWeight.SemiBold)
-                        Text("${formatCents(line.product.priceCents)} cada")
+                        Text("${formatCents(line.unitPriceCents)} cada")
+                        Text(line.product.configurationText(line.customization))
+                        if (!line.product.active || line.product.availability != "AVAILABLE" || line.product.customizationError(line.customization) != null) Text("Item desatualizado. Remova e selecione novamente.", color = MaterialTheme.colorScheme.error)
                     }
-                    TextButton(onClick = { onQuantity(line.product.id, -1) }, enabled = !busy && !locked) { Text("−") }
-                    Text("${line.quantity}")
-                    TextButton(onClick = { onQuantity(line.product.id, 1) }, enabled = !busy && !locked) { Text("+") }
+                    Column {
+                        TextButton(onClick = { onEdit(line) }, enabled = !busy && !locked) { Text("Editar") }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TextButton(onClick = { onQuantity(line.lineId, -1) }, enabled = !busy && !locked) { Text("−") }
+                            Text("${line.quantity}")
+                            TextButton(onClick = { onQuantity(line.lineId, 1) }, enabled = !busy && !locked) { Text("+") }
+                        }
+                    }
                 }
             }
             if (cart.isNotEmpty()) {
                 Text("Total: ${formatCents(total)}", fontWeight = FontWeight.Bold)
-                Button(onClick = onConfirm, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirmar pedido") }
+                Button(onClick = onConfirm, enabled = !busy && (locked || cart.all { it.product.active && it.product.availability == "AVAILABLE" && it.product.customizationError(it.customization) == null }), modifier = Modifier.fillMaxWidth()) { Text("Confirmar pedido") }
             }
         }
     }

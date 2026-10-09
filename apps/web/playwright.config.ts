@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 const appPort = Number(process.env.RODADA_VISUAL_PORT ?? 3100);
 const referencePort = Number(process.env.RODADA_REFERENCE_PORT ?? 3101);
 
+
 export default defineConfig({
   testDir: "./tests/visual",
   outputDir: "./test-results/visual",

@@ -6,6 +6,9 @@ from modules.access.models import MembershipStatus, StaffRole, VenueStaffMembers
 class Capability:
     CATALOG_CREATE_BAR = "catalog.create.bar"
     CATALOG_CREATE_KITCHEN = "catalog.create.kitchen"
+    CATALOG_AVAILABILITY_BAR = "catalog.availability.bar"
+    CATALOG_AVAILABILITY_KITCHEN = "catalog.availability.kitchen"
+    CATALOG_CUSTOMIZATION_MANAGE = "catalog.customization.manage"
     CATALOG_ICON_MANAGE = "catalog.icon.manage"
     TAB_OPEN = "tab.open"
     ORDER_CONFIRM = "order.confirm"
@@ -54,6 +57,9 @@ _CASHIER = _STAFF | {
 _MANAGER = _CASHIER | {
     Capability.CATALOG_CREATE_BAR,
     Capability.CATALOG_CREATE_KITCHEN,
+    Capability.CATALOG_AVAILABILITY_BAR,
+    Capability.CATALOG_AVAILABILITY_KITCHEN,
+    Capability.CATALOG_CUSTOMIZATION_MANAGE,
     Capability.CATALOG_ICON_MANAGE,
     Capability.CATALOG_PRODUCT_CREATE,
     Capability.MANAGEMENT_REPORTS_READ,

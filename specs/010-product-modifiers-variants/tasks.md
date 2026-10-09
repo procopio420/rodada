@@ -1,63 +1,71 @@
 # Tasks — Spec 010
 
 ## Domain/API
-- [ ] ProductVariant model and validation.
-- [ ] ModifierGroup / ModifierOption.
-- [ ] ProductModifierGroup association.
-- [ ] Variant vs modifier rules in domain service.
-- [ ] Server-side customization validator.
-- [ ] Server-side price calculator in cents.
-- [ ] OrderItem customization snapshot.
-- [ ] Normalized ordering errors.
-- [ ] Product ordering-schema query.
-- [ ] Variant/option availability commands.
+- [x] ProductVariant model and validation.
+- [x] ModifierGroup / ModifierOption.
+- [x] ProductModifierGroup association.
+- [x] Variant vs modifier rules in domain service.
+- [x] Server-side customization validator.
+- [x] Server-side price calculator in cents.
+- [x] OrderItem customization snapshot.
+- [x] Normalized ordering errors.
+- [x] Product ordering-schema query.
+- [x] Variant/option availability commands.
 
 ## Persistence
-- [ ] Constraints for one default variant.
-- [ ] Modifier min/max constraints.
-- [ ] Active/availability separation.
-- [ ] Snapshot persistence without mutable joins for history.
-- [ ] Availability versioning.
+- [x] Constraints for one default variant.
+- [x] Modifier min/max constraints.
+- [x] Active/availability separation.
+- [x] Snapshot persistence without mutable joins for history.
+- [x] Availability versioning.
 
 ## Android
-- [ ] Quick-add no-choice products.
-- [ ] Compact variant/modifier sheet.
-- [ ] Required-choice validation.
-- [ ] Price delta/total preview.
-- [ ] Removal/add-on semantics.
-- [ ] Stale choice recovery.
-- [ ] Repeat previous configuration with revalidation.
+- [x] Quick-add no-choice products.
+- [x] Compact variant/modifier sheet.
+- [x] Required-choice validation.
+- [x] Price delta/total preview.
+- [x] Removal/add-on semantics.
+- [x] Stale choice recovery.
+- [x] Repeat previous configuration with revalidation.
 
 ## Staff Web/PWA
-- [ ] Bar/Kitchen availability controls.
-- [ ] Catalog configuration screens for manager.
-- [ ] Production rendering of structured customization.
-- [ ] Exceptional note visual separation.
+- [x] Bar/Kitchen availability controls.
+- [x] Catalog configuration screens for manager.
+- [x] Production rendering of structured customization.
+- [x] Exceptional note visual separation.
 
 ## Guest
-- [ ] Published ordering schema.
-- [ ] Required/optional group UX.
-- [ ] Disabled unavailable choices.
-- [ ] Defaults visible/editable.
-- [ ] Price preview.
-- [ ] Notes secondary to structured choices.
+- [x] Published ordering schema.
+- [x] Required/optional group UX.
+- [x] Disabled unavailable choices.
+- [x] Defaults visible/editable.
+- [x] Price preview.
+- [x] Notes secondary to structured choices.
 
 ## Realtime
-- [ ] Variant availability invalidation.
-- [ ] Modifier option availability invalidation.
-- [ ] Mark affected open carts stale.
+- [x] Variant availability invalidation.
+- [x] Modifier option availability invalidation.
+- [x] Mark affected open carts stale (on shared catalog refresh or server rejection).
 
 ## Management
-- [ ] Basic variant/modifier sales mix projection.
-- [ ] Availability history where relevant.
+- [ ] Basic variant/modifier sales mix projection (follow-up analytics, outside this ordering delivery).
+- [x] Availability history where relevant.
 
 ## Quality/tests
-- [ ] Existing product without modifiers remains valid.
-- [ ] Single-select max one.
-- [ ] min/max enforced server-side.
-- [ ] Unavailable option rejected despite stale UI.
-- [ ] Product unavailable blocks all choices.
-- [ ] Confirmed snapshot never changes after catalog edit.
-- [ ] Integer-cent calculation only.
-- [ ] Same idempotency key cannot duplicate customized OrderItem/Charge.
-- [ ] Guest and staff calculate same server-authoritative total.
+- [x] Existing product without modifiers remains valid.
+- [x] Single-select max one.
+- [x] min/max enforced server-side.
+- [x] Unavailable option rejected despite stale UI.
+- [x] Product unavailable blocks all choices.
+- [x] Confirmed snapshot never changes after catalog edit.
+- [x] Integer-cent calculation only.
+- [x] Same idempotency key cannot duplicate customized OrderItem/Charge.
+- [x] Guest and staff calculate same server-authoritative total.
+
+## Delivery boundaries
+
+Availability refresh reuses existing polling: Web 5s, native 15s/resume/reconnect.
+SSE integration remains owned by the separate realtime branch; availability rejection
+at confirmation is immediate. Availability history is retained in AuditEvent;
+no separate analytics/history dashboard is added. Item corrections preserve remakes;
+configured replacements use cancellation plus a new configured order.
