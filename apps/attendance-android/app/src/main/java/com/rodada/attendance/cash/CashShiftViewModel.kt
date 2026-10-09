@@ -48,7 +48,7 @@ class CashShiftViewModel(
     private var loadedSessionKey: String? = null
 
     fun ensureLoaded(session: StoredSession) {
-        val key = "${session.staffId}:${session.venueId}"
+        val key = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
         if (loadedSessionKey == key && (state.cashPoints.isNotEmpty() || state.loading)) return
         if (loadedSessionKey != null && loadedSessionKey != key) state = CashShiftUiState()
         loadedSessionKey = key
@@ -56,7 +56,7 @@ class CashShiftViewModel(
     }
 
     fun refresh(session: StoredSession) {
-        state = state.copy(loading = true, errorMessage = null, noticeMessage = null)
+        state = state.copy(loading = true, errorMessage = null, noticeMessage = recoveryWarning(session))
         viewModelScope.launch {
             runCatching {
                 val points = gateway.cashPoints(session)
@@ -168,11 +168,26 @@ class CashShiftViewModel(
     }
 
     private fun withActiveShift(session: StoredSession, block: suspend (CashShiftSnapshot) -> Unit) {
+        recoveryWarning(session)?.let {
+            state = state.copy(errorMessage = it)
+            return
+        }
         val shift = state.activeShift ?: run {
             state = state.copy(errorMessage = "Abra um caixa antes de registrar esta operação.")
             return
         }
         action { block(shift) }
+    }
+
+    private fun recoveryWarning(session: StoredSession): String? {
+        pendingMutationIntentStore.reviewMessage(session)?.let { return it }
+        return try {
+            pendingMutationIntentStore.loadFor(session).firstOrNull {
+                it is RecoveryIntent.CashMovement || it is RecoveryIntent.CashClose
+            }?.let { "Operação de caixa pendente ${it.idempotencyKey}. Não repita com uma nova chave; peça à gerência para conferir o histórico canônico." }
+        } catch (_: Exception) {
+            "Recuperação local ilegível preservada; confira o histórico canônico antes de operar o caixa."
+        }
     }
 
     private suspend fun reloadSelected(session: StoredSession, notice: String) {

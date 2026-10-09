@@ -664,3 +664,14 @@ hosts and enables HTTPS, secure cookies, HSTS, CSRF and frame protections. Trust
 proxy headers are opt-in and require an ingress that strips client headers. This
 profile is software configuration, not evidence of deployed TLS, secret rotation,
 backup RTO/RPO, SSE capacity or production authorization.
+
+## Round 2 native recovery preservation
+
+Native encrypted recovery envelopes retain the originating session ID separately
+from the unchanged business command. Token rotation within that session is allowed;
+a new login never adopts old or legacy unbound records. Such records remain on
+device with an explicit canonical-history review notice. An unreadable or malformed
+collection blocks replacement writes instead of silently dropping history. Cash
+mutations with an unresolved movement/close record require manager review before
+a new key is created. This is a conservative review boundary, not automatic replay
+or evidence of a completed financial reconciliation.

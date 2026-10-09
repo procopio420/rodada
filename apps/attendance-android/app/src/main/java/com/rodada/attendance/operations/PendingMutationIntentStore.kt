@@ -22,48 +22,43 @@ data class PendingOrderLine(val productId: String, val quantity: Int, val custom
 class PendingMutationIntentStore(context: Context) {
     private val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
-    private data class StoredIntent(val intent: RecoveryIntent, val sessionId: String)
-
+    @Synchronized
     fun save(intent: RecoveryIntent, session: StoredSession) {
         require(session.sessionId.isNotBlank()) { "Sessão original ausente; confira o histórico canônico." }
+        reviewMessage(session)?.let { error(it) }
         val records = loadAll()
         val original = records.firstOrNull { it.intent.id == intent.id }
         require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
-        write(records.filterNot { it.intent.id == intent.id } + StoredIntent(intent, session.sessionId))
+        write(records.filterNot { it.intent.id == intent.id } + SessionBoundRecoveryIntent(intent, session.sessionId))
     }
 
     fun loadFor(session: StoredSession): List<RecoveryIntent> =
-        loadAll().filter { it.sessionId.isNotBlank() && it.sessionId == session.sessionId &&
-            it.intent.staffId == session.staffId && it.intent.venueId == session.venueId &&
-            it.intent.deviceId == session.deviceId }.map { it.intent }
+        loadAll().filter { it.canReplay(session) }.map { it.intent }
 
     /** Retained for canonical investigation; never automatically adopted by a new login. */
     fun blockedFor(session: StoredSession): List<RecoveryIntent> =
-        loadAll().filter { (it.sessionId.isBlank() || it.sessionId != session.sessionId) &&
-            it.intent.staffId == session.staffId && it.intent.venueId == session.venueId &&
-            it.intent.deviceId == session.deviceId }.map { it.intent }
+        loadAll().filter { it.sameContext(session) && !it.canReplay(session) }.map { it.intent }
 
+    @Synchronized
     fun remove(intentId: String) = write(loadAll().filterNot { it.intent.id == intentId })
 
-    private fun write(intents: List<StoredIntent>) {
+    private fun write(intents: List<SessionBoundRecoveryIntent>) {
         val payload = JSONArray().apply { intents.forEach { put(it.intent.toJson().put("originating_session_id", it.sessionId)) } }.toString()
         check(preferences.edit().putString(KEY_PAYLOAD, encrypt(payload)).commit()) { "Não foi possível preservar a intenção." }
     }
 
-    private fun loadAll(): List<StoredIntent> {
+    private fun loadAll(): List<SessionBoundRecoveryIntent> {
         val payload = preferences.getString(KEY_PAYLOAD, null) ?: return emptyList()
-        return try {
-            val records = JSONArray(decrypt(payload))
-            buildList {
-                for (index in 0 until records.length()) {
-                    val json = records.getJSONObject(index)
-                    RecoveryIntent.fromJson(json)?.let { add(StoredIntent(it, json.optString("originating_session_id"))) }
-                }
-            }
-        } catch (_: Exception) {
-            // Preserve unreadable records for investigation; never silently discard financial intent.
-            emptyList()
+        // A failed read must never become an empty collection that a later write replaces.
+        return SessionBoundRecoveryIntent.decode(decrypt(payload))
+    }
+
+    fun reviewMessage(session: StoredSession): String? = try {
+        blockedFor(session).takeIf { it.isNotEmpty() }?.let {
+            "${it.size} intenção(ões) de outra sessão ou sem origem verificável preservada(s). Não repita a operação; peça à gerência para conferir o histórico canônico."
         }
+    } catch (_: Exception) {
+        "Recuperação local ilegível preservada. Não repita a operação; peça à gerência para conferir o histórico canônico."
     }
 
     private fun encrypt(plaintext: String): String {
@@ -99,6 +94,28 @@ class PendingMutationIntentStore(context: Context) {
         const val KEY_ALIAS = "rodada_pending_mutation_intents_v1"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
         const val VERSION = "v1"
+    }
+}
+
+/** The encrypted envelope keeps session provenance separate from the original business command. */
+internal data class SessionBoundRecoveryIntent(val intent: RecoveryIntent, val sessionId: String) {
+    fun sameContext(session: StoredSession) = intent.staffId == session.staffId &&
+        intent.venueId == session.venueId && intent.deviceId == session.deviceId
+
+    fun canReplay(session: StoredSession) = sessionId.isNotBlank() &&
+        sessionId == session.sessionId && sameContext(session)
+
+    companion object {
+        fun decode(payload: String): List<SessionBoundRecoveryIntent> {
+            val records = JSONArray(payload)
+            return (0 until records.length()).map { index ->
+                val json = records.getJSONObject(index)
+                val intent = requireNotNull(RecoveryIntent.fromJson(json)) {
+                    "Intenção local não reconhecida; preserve o registro para revisão canônica."
+                }
+                SessionBoundRecoveryIntent(intent, json.optString("originating_session_id"))
+            }
+        }
     }
 }
 

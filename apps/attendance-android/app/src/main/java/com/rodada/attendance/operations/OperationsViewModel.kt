@@ -205,7 +205,7 @@ class OperationsViewModel(
     }
 
     fun ensureLoaded(session: StoredSession) {
-        val key = session.staffId + ":" + session.venueId
+        val key = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
         if (loadedSessionKey == key && (state.tabs.isNotEmpty() || state.loading)) return
         if (loadedSessionKey != null && loadedSessionKey != key) {
             // Never leave a prior operator's draft cart or Tab context on a shared device.
@@ -220,7 +220,7 @@ class OperationsViewModel(
         state = state.copy(
             loading = true,
             errorMessage = null,
-            noticeMessage = null,
+            noticeMessage = pendingMutationIntentStore.reviewMessage(session),
             connectivity = if (state.tabs.isEmpty()) ConnectivityState.RECONNECTING else ConnectivityState.STALE,
         )
         refreshJob = viewModelScope.launch {
@@ -292,7 +292,7 @@ class OperationsViewModel(
             orderIntentId = retained?.idempotencyKey,
             paymentIntentId = retainedPayment?.idempotencyKey,
             pendingPayment = retainedPayment,
-            noticeMessage = when {
+            noticeMessage = pendingMutationIntentStore.reviewMessage(session) ?: when {
                 retained != null -> "Pedido pendente encontrado. Verifique o resultado antes de adicionar novos itens."
                 retainedPayment != null -> "Pagamento pendente encontrado. Não tente cobrar novamente; reconcilie a mesma cobrança."
                 retainedCorrection != null -> "Correção pendente encontrada. Atualize a comanda antes de repetir a ação."
@@ -352,7 +352,7 @@ class OperationsViewModel(
                 tabId = tab.id,
                 lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
         )
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, orderIntentId = intentId)
         viewModelScope.launch {
             runCatching {
@@ -393,7 +393,7 @@ class OperationsViewModel(
         val key = UUID.randomUUID().toString()
         val intent = RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId,
             key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null, tab.version)
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
             tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
         viewModelScope.launch {
@@ -428,7 +428,7 @@ class OperationsViewModel(
         val intent = pending ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
             session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
             tab.id, amountCents, PaymentMethod.PIX, null, tab.version)
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
         viewModelScope.launch {
             runCatching { repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
@@ -507,7 +507,7 @@ class OperationsViewModel(
         }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
         val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId, tab.version)
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
         viewModelScope.launch {
             runCatching {
@@ -572,7 +572,7 @@ class OperationsViewModel(
             reasonText = command.reasonText.takeIf(String::isNotBlank),
             replacementProductId = command.replacementProductId,
         )
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
@@ -629,7 +629,7 @@ class OperationsViewModel(
                 command.amountCents, null, command.cashPointId,
             )
         }
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
@@ -660,7 +660,7 @@ class OperationsViewModel(
             key, session.staffId, session.venueId, session.deviceId, key,
             System.currentTimeMillis(), RecoveryState.CHECKING, taskId,
         )
-        pendingMutationIntentStore.save(intent, session)
+        if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
@@ -716,6 +716,11 @@ class OperationsViewModel(
         replaceDetail(repository.tabDetail(session, tabId))
         state = state.copy(noticeMessage = if (limitCents == null) "Solicitação enviada à gerência." else "Limite temporário aprovado.")
     }
+
+    private fun preserveIntent(intent: RecoveryIntent, session: StoredSession): Boolean =
+        runCatching { pendingMutationIntentStore.save(intent, session) }
+            .onFailure { showFailure(it, "A intenção não foi enviada; confira o histórico canônico.") }
+            .isSuccess
 
     private fun replaceDetail(detail: TabDetail) {
         state = state.copy(
