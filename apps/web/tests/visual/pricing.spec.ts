@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 import { fixture, stable, layoutAndA11y } from "./fixtures";
 test("pricing command waits for canonical pricing to finish loading", async ({ page }) => {
   await fixture(page);
-  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000 }] } }));
+  const tab = { id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000 };
+  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [tab] } }));
+  await page.route("**/api/pos/tabs/slow-tab/", r => r.fulfill({ json: tab }));
   let release!: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });
   await page.route("**/api/pos/tabs/slow-tab/pricing/", async r => {
