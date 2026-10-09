@@ -1,0 +1,53 @@
+import { test, expect } from "@playwright/test";
+import { PNG } from "pngjs";
+
+test("quick create, exact reuse and manager icon lifecycle", async ({ page }) => {
+  await page.goto("/staff");
+  await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-manager");
+  await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await page.goto("/bar");
+  await page.getByRole("button", { name: "+ Item", exact: true }).click();
+  const name = `Água teste ${Date.now()}`;
+  await page.getByRole("combobox").fill(name);
+  await page.getByRole("option", { name: `Criar “${name}”`, exact: true }).click();
+  await page.getByLabel("Preço (R$)").fill("12,50");
+  await page.getByRole("button", { name: "Criar item", exact: true }).click();
+  await expect(page.getByText("Item criado e disponível para vender.")).toBeVisible();
+  await expect(page.getByText("Ícone em geração")).toBeVisible();
+  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page.getByRole("button", { name: "+ Item", exact: true }).click();
+  await page.getByRole("combobox").fill(name.replace("Á", "a").toUpperCase());
+  await expect(page.getByRole("option").filter({ hasText: name })).toBeVisible();
+  await expect(page.getByRole("option", { name: /^Criar/ })).toHaveCount(0);
+  await page.getByRole("combobox").press("Enter");
+  await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
+  expect(await page.locator("body").evaluate(el => el.scrollWidth <= innerWidth)).toBe(true);
+  const products = await page.evaluate(async () => (await (await fetch("/api/pos/catalog/products/")).json()).results);
+  expect(products.filter((p: { name: string }) => p.name === name)).toHaveLength(1);
+  const product = products.find((p: { name: string }) => p.name === name);
+  expect(product.price_cents).toBe(1250);
+  expect(product.fulfillment_station).toBe("BAR");
+  await page.goto("/manage");
+  await page.getByText("Editar ícones", { exact: true }).click();
+  await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
+  await page.getByRole("button", { name: "Regenerar ícone", exact: true }).click();
+  await expect(page.getByText("Geração solicitada. O ícone atual permanece visível.")).toBeVisible();
+  const fixture = new PNG({ width: 128, height: 128 });
+  fixture.data.fill(255);
+  await page.getByLabel("Substituir por imagem", { exact: false }).setInputFiles({
+    name: "manual-test-only.png", mimeType: "image/png", buffer: PNG.sync.write(fixture),
+  });
+  await expect(page.getByText("Ícone atualizado.")).toBeVisible();
+  const preview = page.locator("details .productIcon img");
+  await expect(preview).toBeVisible();
+  await expect.poll(() => preview.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(128);
+  const updated = await page.evaluate(async () => (await (await fetch("/api/pos/catalog/products/")).json()).results);
+  expect(updated.find((p: { id: string }) => p.id === product.id).icon.id).toBe(product.icon.id);
+  await page.getByRole("button", { name: "Voltar ao placeholder", exact: true }).click();
+  await expect(page.getByText("Ícone atualizado.")).toBeVisible();
+  await expect(preview).toHaveCount(0);
+  expect(await page.locator("body").evaluate(el => el.scrollWidth <= innerWidth)).toBe(true);
+});

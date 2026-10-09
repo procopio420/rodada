@@ -48,6 +48,11 @@ Consumir o mesmo asset publicado em Staff, Bar/Cozinha e Guest.
 
 Rate limit, idempotência de request de geração, upload validation, testes de fallback e telemetria de custo/erro.
 
+## Implemented slices
+
+Persistent icon identity, transactional name resolution, durable worker, provider adapters, shared published assets, isolated QuickCatalog and manager icon editor are implemented. Runtime setup and permission policy: `apps/api/modules/catalog/README.md`; architectural decision: ADR 0013. Verification results are recorded in acceptance.md. Live generated-art validation requires provider credentials.
+
+
 ## Integração com main
 
-Preservar a migração 0002 já publicada e a identidade ProductIcon por Product. Acrescentar geração/revisões com migrações sequenciais; normalizar nomes antigos com bloqueio explícito de colisões. Manter o endpoint legado autorizado e filtros de busca. Validar upgrade com asset existente, criação concorrente, fluxos web e acessibilidade.
+Preservar as migrações publicadas e a identidade ProductIcon por Product, incluindo assets legados. Manter o endpoint legado autorizado e filtros de busca. Validar upgrade com asset existente, criação concorrente, fluxos Web e acessibilidade; preservar o layout de produção integrado em main.

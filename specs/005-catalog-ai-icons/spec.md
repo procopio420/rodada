@@ -1,6 +1,6 @@
 # Spec 005 — Quick Catalog + AI Icons
 
-**Status:** Implementation in progress; verification recorded in acceptance.md
+**Status:** Implemented and verified; real generated-art approval pending provider credentials. See acceptance.md.
 
 ## Objetivo
 
@@ -254,10 +254,11 @@ CatalogIconGenerator.generate(product_context, style_contract) -> GeneratedAsset
 - A durable database outbox is created with Product + ProductIcon atomically. `process_icon_jobs` performs provider I/O outside the transaction, with leases, three bounded attempts and stable upstream idempotency keys.
 - Automatic requests coalesce by catalog content + `rodada-icon-v1`; manager variations require an idempotency key. Manual upload/reset increments revision so an older worker cannot overwrite it.
 - Rate limits: manager requests 20/operator/hour and 60/venue/hour; automatic jobs are queued and provider starts are capped at 60/venue/hour.
-- Runtime uses a configurable HTTPS image-provider gateway (documented in Catalog README), with no fake adapter fallback. CI supplies an injected deterministic generator only.
+- Runtime uses a configurable direct OpenAI adapter or HTTPS image-provider gateway (documented in Catalog README), with no fake adapter fallback. CI supplies an injected deterministic generator only.
 - PNG/JPEG/WebP uploads: maximum 5 MB; square 128–2048 px; decoded and normalized to PNG. Only published assets are served publicly by opaque icon/asset identifiers.
 - Migration stops on accent-normalization collisions for explicit operator reconciliation; it never merges existing products or rewrites historical order references.
 
-## Compatibilidade com Spec 020
 
-A geração durável desta entrega substitui o fallback estático da Spec 020. O endpoint `catalog/products/resolve/` permanece como alias autenticado que exige `catalog.product.create`; essa capability permite criar nas duas estações. O endpoint `catalog/resolve-or-create/` mantém autorização por estação. A identidade ProductIcon já publicada em main permanece vinculada à chave UUID do Product; migrações posteriores adicionam jobs e revisões sem recriar os registros existentes.
+## Compatibilidade com main e Spec 020
+
+Preservar `0002_producticon` e a identidade existente de ProductIcon, cuja chave primária é o UUID de Product. As migrações publicadas `0003_icon_generation`, `0004_icon_generation_request` e `0005_normalize_existing_names` continuam intactas. A geração durável substitui o fallback estático da Spec 020. O endpoint legado `catalog/products/resolve/` exige `catalog.product.create`; essa capability autoriza criação nas duas estações. `catalog/resolve-or-create/` valida capabilities no servidor. Busca `q` e `include_inactive` continuam disponíveis.

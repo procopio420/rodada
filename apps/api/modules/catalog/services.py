@@ -15,7 +15,7 @@ from modules.access.capabilities import has_capability, Capability
 from modules.audit.models import AuditEvent
 from modules.catalog.models import Product, ProductIcon, IconGeneration, IconGenerationRequest, normalize_product_name
 from modules.catalog.style import STYLE_VERSION, STYLE_CONTRACT, product_context
-from modules.catalog.generator import HttpIconGenerator, validate_image
+from modules.catalog.generator import runtime_generator, validate_image
 from modules.venue.models import Venue
 
 
@@ -44,6 +44,7 @@ def resolve_or_create_product(*, actor, name, price_cents, session=None, station
     product, created = Product.objects.get_or_create(venue_id=actor.venue_id,
         normalized_name=normalize_product_name(name), defaults=dict(name=name.strip(), price_cents=price_cents,
         fulfillment_station=station, description=description, category=category))
+    product.refresh_from_db()
     if created:
         job = product.icon.generations.first()
         job.created_by_id = actor.staff_id
@@ -76,7 +77,7 @@ def enqueue_icon(*, product, actor=None, request_key=None, force=False):
     existing = IconGenerationRequest.objects.filter(icon=icon, key=key).select_related("generation").first()
     if existing:
         return existing.generation
-    equivalent = icon.generations.filter(fingerprint=fingerprint, status__in=["PENDING", "RUNNING", "READY"]).first()
+    equivalent = icon.generations.filter(revision=icon.revision, fingerprint=fingerprint, status__in=(["PENDING", "RUNNING"] if force else ["PENDING", "RUNNING", "READY"])).first()
     if equivalent and (not force or equivalent.status != "READY"):
         IconGenerationRequest.objects.create(icon=icon, key=key, generation=equivalent)
         return equivalent
@@ -117,7 +118,7 @@ def run_icon_job(generator=None):
         job.refresh_from_db()
     # Network/image work must never hold a Product creation transaction or row lock.
     try:
-        result = (generator or HttpIconGenerator()).generate(context=job.context, prompt=job.prompt,
+        result = (generator or runtime_generator()).generate(context=job.context, prompt=job.prompt,
             style_version=job.style_version, idempotency_key=str(job.id))
         content = validate_image(result.content)
         path = default_storage.save(f"catalog/icons/{job.icon_id}/{job.id}.png", ContentFile(content))
