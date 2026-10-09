@@ -1,6 +1,7 @@
 # Spec 009 — Tab Operations
 
-**Status:** In implementation  
+**Status:** Backend/API and Android implemented; adjacent integrations tracked
+
 **Owner capability:** Ordering, with Billing coordination
 
 ## Objective
@@ -391,7 +392,8 @@ Existing Tabs require no rewrite. Add transfer/provenance structures and version
 
 ## Implementation contract
 
-Atomic preview/commit uses current charge responsibility: original charge plus incoming
+P0 previews are read-only and do not reserve funds or persist PREPARED transfers; only
+committed transfers create responsibility effects. Atomic preview/commit uses current charge responsibility: original charge plus incoming
 minus outgoing transfer lines, with original adjustments subtracted. Cents are canonical;
 quantity selection is accepted only at the captured unit price and within remaining units.
 Both endpoints reject all non-terminal payment states, confirmed money and pending refunds.

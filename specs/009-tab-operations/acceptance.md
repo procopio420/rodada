@@ -95,3 +95,21 @@
 **Given** a move, split, merge or reopen succeeds  
 **When** timeline/audit is inspected  
 **Then** actor, time, source/destination, exact amount where applicable and reason/policy context are recoverable.
+
+## Verified progress
+
+The backend/API and native Android paths are implemented and exercised; see
+[validation.md](validation.md) for commands, test evidence and adjacent-owner boundaries.
+PostgreSQL tests cover actual concurrency, not SQLite's lock emulation. Persisted HTTP
+workflows include all structural commands and prove independent occupancy lifecycle.
+Management reports preserve exposure after merge and do not count transfers as sales.
+
+Additional regression criteria:
+
+- An expired payment with a terminal attempt permits an unpaid transfer; an active
+  ambiguous attempt still blocks it.
+- A retry after subsequent payment returns the immutable original response, while a
+  revoked transfer capability rejects that same retry.
+- Concurrent identical splits create one destination, one operation and one transfer.
+- Concurrent payment and full split cannot both commit against the same responsibility.
+- Failed refresh after Android server rejection retains that rejection and clears stale preview.
