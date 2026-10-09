@@ -71,3 +71,25 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
 - [x] Inventário e branches publicados com commits verificados.
 
 Resultado: [validação integrada](../../docs/design/spec023-review.md).
+
+## V02 parcial — hierarquia da Gerência
+
+- [x] Base isolada da main atual e fontes/ausência de export próprio identificadas.
+- [x] Capturar antes/depois com fixture equivalente e documentar diferenças.
+- [x] Promover ícones/medidas/tokens, preservar cinco destinos e Impressoras em Mais.
+- [x] Hierarquia financeira e sectionHeader sem alterar dados ou exceções.
+- [x] Verificar alvo/foco/fonte ampliada, comparação de ícone e telas adjacentes.
+- [x] Executar gates e registrar commit/evidências/limites, sem conclusão global023.
+
+Resultado deste recorte: [evidências e limites](../../docs/design/spec023-management-hierarchy.md). Gates locais passaram; não conclui V02 ou023 global.
+
+## Acabamento de todas as telas Web
+
+- [x] Conferir Git/main ae416da, branch original e contrato antes do código.
+- [x] Inventariar cobertura de todas as rotas e preservar documentos impressos.
+- [x] Reutilizar ícones/headings/tokens em telas e componentes compartilhados.
+- [x] Melhorar identificação de navegação e hierarquia de tickets sem mudar comandos.
+- [x] Verificar matriz visual, estados, acessibilidade, adjacentes e API/PostgreSQL.
+- [x] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
+
+Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.

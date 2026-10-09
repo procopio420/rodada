@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { projectionCache } from "@/lib/client/projection-cache";
@@ -143,7 +145,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum prato aguardando preparo.</div>}
       </section>
       <section className="stationTickets" aria-labelledby="queue-title" aria-busy={loading}>
-        <div className="stationLabel"><h2 id="queue-title">Em produção</h2>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
+        <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Em produção</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">Por pedido · mais antigo primeiro</p>
         {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${group[0].tab_label || "Sem identificação"}`}>
           <strong className="stationTab">{group[0].tab_label || "Sem identificação"}</strong>
@@ -155,7 +157,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
       </section>
       <section className="stationPass" aria-labelledby="ready-title" aria-busy={loading}>
-        <div className="stationLabel"><h2 id="ready-title">Pronto para retirada</h2>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
+        <div className="stationLabel"><OperationalHeading as="h2" icon="check" id="ready-title">Pronto para retirada</OperationalHeading>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">No passe · esperando retirada</p>
         {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
@@ -164,10 +166,10 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       </section>
     </div>
     <div className="stationTools">
-    <section className="panel"><h2>Tickets de produção</h2>{[...new Map(items.filter(i => i.order_id && i.tab_id).map(i => [i.order_id, i])).values()].map(item => <div className="dataRow" key={item.order_id}><strong>{item.tab_label || "Comanda"} · {item.order_id?.slice(0, 8)}</strong><ReceiptPrinting tabId={item.tab_id!} orderId={item.order_id} station={station} /></div>)}</section>
+    <section className="panel"><OperationalHeading as="h2" icon="operation">Tickets de produção</OperationalHeading>{[...new Map(items.filter(i => i.order_id && i.tab_id).map(i => [i.order_id, i])).values()].map(item => <div className="dataRow" key={item.order_id}><strong>{item.tab_label || "Comanda"} · {item.order_id?.slice(0, 8)}</strong><ReceiptPrinting tabId={item.tab_id!} orderId={item.order_id} station={station} /></div>)}</section>
     <section className="panel" aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
-      <h2 id="availability-title">Disponibilidade agora</h2>
+      <OperationalHeading as="h2" icon="operation" id="availability-title">Disponibilidade agora</OperationalHeading>
       {loading ? <div className="loadingState" role="status">Carregando disponibilidade…</div> : products.map(product => {
         const available = product.availability === "AVAILABLE";
         return <article className="dataRow productionRow" key={product.id}>

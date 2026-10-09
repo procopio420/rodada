@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import { FormEvent, ReactNode, useCallback, useEffect, useId, useState } from "react";
 import {
   AccessInvalidationFeed,
@@ -262,7 +264,7 @@ function LoginPanel({
     <main className="appShell">
       <header className="productHeader">
         <div className="eyebrow">RODADA / STAFF</div>
-        <h1>Entrar no atendimento</h1>
+        <OperationalHeading as="h1" icon="lock">Entrar no atendimento</OperationalHeading>
         <p className="muted">Identifique o operador sem levar credenciais para o browser.</p>
       </header>
 
@@ -334,7 +336,7 @@ function SessionPanel({
     <main className="appShell">
       <header className="productHeader">
         <div className="eyebrow">RODADA / STAFF</div>
-        <h1>{session.venue.name}</h1>
+        <OperationalHeading as="h1" icon="lock">{session.venue.name}</OperationalHeading>
         <p className="muted">Sessão operacional ativa</p>
       </header>
 
@@ -379,7 +381,7 @@ function SessionPanel({
       </section>
 
       <section className="panel">
-        <h2>Trocar operador</h2>
+        <OperationalHeading as="h2" icon="lock">Trocar operador</OperationalHeading>
         {!trusted ? (
           <div className="notice" data-state="danger">
             Troca rápida só é liberada em terminal confiável.
@@ -419,7 +421,7 @@ function SessionPanel({
       </section>
 
       <section className="panel">
-        <h2>Confirmar ação privilegiada</h2>
+        <OperationalHeading as="h2" icon="lock">Confirmar ação privilegiada</OperationalHeading>
         <p className="muted">
           Reconfirme sua própria identidade antes de operações sensíveis.
         </p>

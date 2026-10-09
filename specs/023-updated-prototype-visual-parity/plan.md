@@ -53,3 +53,19 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem
 ## Continuação — integração e navegação acessível
 
 Consolidar commits V01–V05 na branch de revisão sem mover main ou branch do usuário. Conflitos de append documental preservam todas as subseções; CSS preserva Field confortável e stationOrder. Reutilizar dois testes instrumentados e expandir checks de texto sem clipping. Executar matriz de seis configurações; revalidar Web integrado. Auditar evidências/hashes e documentar inventário/publicação.
+
+## Hierarquia da Gerência — V02 parcial
+
+1. Inventariar main/referências/PRs e capturar Gerência antes com fixture existente.
+2. Versionar contrato e tokens antes do código; documentar ausência de export de Gerência.
+3. Reutilizar sectionHeader/operationalMetric/surfaceNav, SVG local e tokens. Conservar labels/hrefs/cálculos; Impressoras permanece em Mais.
+4. Expandir teste de navegação existente e fixture/parity para largura360/430/768, fonte ampliada, warnings/loading/erro. Comparar ícone Agora com SVG original imutável em0.1%; a tela da Gerência recebe revisão geométrica, não selo pixel-perfect.
+5. Typecheck/build, suíte visual completa/realtime e integração real PostgreSQL; evidências antes/depois, adjacência Caixa/Cozinha, commit/documentação. Não integrar automaticamente em main nem substituir a stack/banco ativo.
+
+Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.
+
+## Todas as superfícies Web — abordagem
+
+Reutilizar branch isolada já atualizada com main ae416da e preservar PR65/trabalho anterior. Inventariar headings e componentes compartilhados; promover OperationalHeading baseado em OperationalIcon com nomes acessíveis inalterados. Evitar dupla iconografia onde a referência já tem SVG. Aplicar tokens compartilhados de hierarquia/profundidade, completar navegação do Atendimento e leitura dos tickets. Capturar antes/depois usando fixtures existentes, reaproveitar matriz visual/estados/fluxos e integrações PostgreSQL. Preservar stack3119 e banco ativo. Atualizar apenas prévia isolada após build/checks; versionar evidências e ampliar PR65, sem merge na main.
+
+Para disponibilizar o acabamento na demo3119, transpor somente mudanças de apresentação para a branch própria demo-functional: componentes compartilhados/títulos/CSS, sem absorver rotas ou contratos recentes de Atendimento/alertas ainda ausentes nessa base. Preservar autenticação entregue, backend e banco; revalidar build/visual/fluxo focado dessa composição antes de reconstruir somente Web. Essa adaptação é distinta da branch principal de revisão baseada na main e será documentada por commit. Serviços encontrados parados podem ser reabertos com os caminhos/dados existentes, sem reset.

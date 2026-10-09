@@ -144,6 +144,9 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await fixture(page);
     await page.goto(route);
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+    const title = page.getByRole("heading", { level: 1, name: heading, exact: true });
+    if (name !== "bar" && name !== "kitchen") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    if (width === 390) await page.screenshot({ path: path.join(artifactRoot, "spec023-all-web", `${name}-viewport.png`), fullPage: false });
     if (name === "manage") await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
     if (name === "cash") await expect(page.getByText("Caixa aberto", { exact: true })).toBeVisible();
     if (name === "reports") { await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible(); await page.getByText("Configurar dia operacional", { exact: true }).click(); }
@@ -202,6 +205,9 @@ for (const state of ["empty", "loading", "error", "long", "warnings"] as State[]
 test("management hash navigation selects each real section", async ({ page }) => {
   await fixture(page); await page.goto("/manage");
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(5);
+  await expect(page.getByRole("navigation").locator("svg[aria-hidden=true]")).toHaveCount(5);
+  await expect(page.getByRole("link", { name: "Impressoras", exact: true })).toHaveAttribute("href", "/manage/printing");
   for (const name of ["Operação", "Vendas", "Gestão", "Mais", "Agora"]) {
     const link = page.getByRole("navigation").getByRole("link", { name, exact: true });
     await link.click(); await expect(link).toHaveAttribute("aria-current", "page");
@@ -526,4 +532,54 @@ test("V04 shared Order: marking one item ready never completes its sibling", asy
   expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
   await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);
   await expect(page.locator(".stationOrder")).toHaveCount(5);
+});
+
+
+for (const width of [360, 430, 768]) test(`management hierarchy and enlarged navigation at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 844 });
+  await fixture(page, "warnings"); await page.goto("/manage");
+  const financial = page.locator(".financialMetric");
+  await expect(financial).toContainText("R$ 72,00");
+  const alert = await page.getByRole("heading", { name: "Divergências de caixa pendentes" }).boundingBox();
+  const pulse = await financial.boundingBox();
+  expect(alert!.y).toBeLessThan(pulse!.y);
+  const grid = await page.locator(".metricGrid").boundingBox();
+  expect(pulse!.width).toBe(grid!.width);
+  expect(await financial.locator("strong").evaluate(el => getComputedStyle(el).fontSize)).toBe("34px");
+  const nav = page.getByRole("navigation", { name: "Navegação da Gerência" });
+  const boxes = await nav.getByRole("link").evaluateAll(links => links.map(link => {
+    const box = link.getBoundingClientRect(); return { y: box.y, width: box.width, height: box.height };
+  }));
+  expect(new Set(boxes.map(box => box.y)).size).toBe(1);
+  expect(boxes.every(box => box.width >= 44 && box.height >= 44)).toBe(true);
+  await stable(page);
+  await mkdir(path.join(artifactRoot, "spec023-management/after"), { recursive: true });
+  await page.screenshot({ path: path.join(artifactRoot, `spec023-management/after/warnings-${width}.png`), fullPage: true });
+  // Controlled 200% label typography tests the explicit adaptive-nav contract, not Android/browser zoom.
+  await page.addStyleTag({ content: ".managementNavigation a { font-size: 28px; }" });
+  await expect.poll(() => nav.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThan(84);
+  const layout = await nav.evaluate(el => {
+    const box = el.getBoundingClientRect();
+    const shell = el.closest(".managementShell"); if (!shell) throw new Error("Missing management shell");
+    return { height: Math.ceil(box.height), reserved: Number.parseFloat(getComputedStyle(shell).paddingBottom), clipping: [...el.querySelectorAll("a span")].some(label => label.scrollWidth > label.clientWidth) };
+  });
+  expect(layout.reserved).toBeGreaterThanOrEqual(layout.height + 32);
+  expect(layout.clipping).toBe(false);
+  await layoutAndA11y(page);
+});
+
+test("management Agora icon preserves the supplied reference geometry and raster", async ({ browser }) => {
+  const reference = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const actual = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await reference.goto(`http://127.0.0.1:${process.env.RODADA_REFERENCE_PORT ?? 3101}/prototype/references/night/Main.dc.html`);
+  await fixture(actual); await actual.goto("/manage");
+  const source = reference.locator(".nav .nb.on svg").first();
+  const icon = actual.getByRole("navigation").getByRole("link", { name: "Agora", exact: true }).locator("svg");
+  await expect(source).toBeVisible(); await expect(icon).toBeVisible();
+  await stable(reference); await stable(actual);
+  // Normalize only specimen placement: fractional coordinates rasterize differently.
+  for (const specimen of [source, icon]) await specimen.evaluate(el => { Object.assign((el as SVGElement).style, { position: "fixed", left: "0px", top: "0px", margin: "0", transform: "none", background: "var(--g1, var(--color-surface-1))" }); });
+  const stats = await comparison(await source.screenshot(), await icon.screenshot(), "spec023-management-now-icon");
+  expect(stats.changedPercent).toBeLessThanOrEqual(0.1);
+  await reference.close(); await actual.close();
 });

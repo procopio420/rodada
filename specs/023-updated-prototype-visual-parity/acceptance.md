@@ -81,3 +81,26 @@ Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
 - [ ] Branch original intacta e publicação confirmada por SHA remoto.
 
 Resultado: [validação integrada](../../docs/design/spec023-review.md).
+
+## Hierarquia da Gerência — aceite parcial
+
+- [x] Cinco links em uma única linha em360/430/768; cada um tem ícone24 e label legível, alvo≥44 e seleção por hash/aria-current preservada. Impressoras continua acessível em Mais.
+- [x] Agora SVG corresponde ao original night (hash912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f) em≤0.1%, sem alterar o export/limiar. Pictogramas novos são extensões documentadas.
+- [x] Exposição usa valor canônico existente, destaque34px, largura total e cor financeira. Exceções precedem Agora; loading/erro inicial não exibem zeros medidos.
+- [x] Cabeçalhos/ícones não alteram nomes acessíveis e preservam callbacks, hrefs, dados e permissões. Fonte ampliada não corta labels nem deixa rodapé/campos sob a barra.
+- [x] Testes existentes/novos, types/build e adjacentes passam; evidências não declaram Gerência ou023 integralmente pixel-perfect.
+
+Comparação do ícone isola posição e fundo somente nos espécimes durante o teste: ambos SVGs em (0,0), fundo surface-1/g1 equivalente. Capturas literais em coordenadas fracionadas distintas deram14.72%; posicionamento comum deu0%. Geometria, stroke, cor, export original e limiar0.1% permanecem. Esse resultado não mede a barra inteira ou fidelidade da Gerência.
+
+Resultado deste recorte: [evidências e limites](../../docs/design/spec023-management-hierarchy.md). Gates locais passaram; não conclui V02 ou023 global.
+
+## Acabamento compartilhado Web — aceite
+
+- [x] Todas as rotas Web existentes possuem heading contextual ou usam componente compartilhado coberto; redirecionamento / mantém destino.
+- [x] Headings mantêm texto/nível/id/foco, ícones são aria-hidden e labels/contratos/ações permanecem.
+- [x] Títulos, seções e subseções têm hierarquia coerente, sombras discretas e foco visível; alvos≥44 e sem overflow nas configurações verificadas: matriz principal360–1440 e subpáginas nas larguras discriminadas no relatório. Font scale/zoom global200% permanece pendente.
+- [x] Bar/Cozinha mantêm lote/fila/passe, quantidade/destino/estado/callbacks; mesmos SVGs literais existentes. Cliente mantém disponibilidade e saldo canônicos.
+- [x] Impressos/HTML histórico não são redesenhados; só sua superfície Web. Sem alteração API/financeira/auth.
+- [x] Typecheck/build, suíte visual/realtime e integração PostgreSQL passam; comparação/regiões/limitações registradas sem baseline/tolerância novos.
+
+Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.

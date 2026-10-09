@@ -1,0 +1,372 @@
+[
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "1",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/app/cash/page.tsx",
+    "level": "2",
+    "icon": "lock"
+  },
+  {
+    "file": "apps/web/app/manage/page.tsx",
+    "level": "1",
+    "icon": "warning"
+  },
+  {
+    "file": "apps/web/app/refunds/page.tsx",
+    "level": "1",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/refunds/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/refunds/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/refunds/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "1",
+    "icon": "sales"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "sales"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "sales"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "sales"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/app/reports/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/manage/pricing/page.tsx",
+    "level": "1",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/app/manage/pricing/page.tsx",
+    "level": "2",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/app/manage/pricing/page.tsx",
+    "level": "2",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/app/manage/printing/page.tsx",
+    "level": "1",
+    "icon": "printer"
+  },
+  {
+    "file": "apps/web/app/manage/printing/page.tsx",
+    "level": "2",
+    "icon": "printer"
+  },
+  {
+    "file": "apps/web/app/manage/printing/page.tsx",
+    "level": "2",
+    "icon": "printer"
+  },
+  {
+    "file": "apps/web/app/manage/printing/page.tsx",
+    "level": "2",
+    "icon": "printer"
+  },
+  {
+    "file": "apps/web/app/manage/alerts/settings/page.tsx",
+    "level": "1",
+    "icon": "warning"
+  },
+  {
+    "file": "apps/web/app/manage/alerts/settings/page.tsx",
+    "level": "2",
+    "icon": "warning"
+  },
+  {
+    "file": "apps/web/app/manage/alerts/[id]/page.tsx",
+    "level": "1",
+    "icon": "warning"
+  },
+  {
+    "file": "apps/web/app/manage/alerts/[id]/page.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/app/manage/alerts/[id]/page.tsx",
+    "level": "2",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/app/printing/jobs/[id]/page.tsx",
+    "level": "1",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/app/receipt/[token]/page.tsx",
+    "level": "1",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/components/attendance-web.tsx",
+    "level": "1",
+    "icon": "people"
+  },
+  {
+    "file": "apps/web/components/attendance-web.tsx",
+    "level": "2",
+    "icon": "check"
+  },
+  {
+    "file": "apps/web/components/attendance-web.tsx",
+    "level": "2",
+    "icon": "table"
+  },
+  {
+    "file": "apps/web/components/catalog-customization-editor.tsx",
+    "level": "1",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/components/catalog-customization-editor.tsx",
+    "level": "2",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/components/catalog-customization-editor.tsx",
+    "level": "2",
+    "icon": "settings"
+  },
+  {
+    "file": "apps/web/components/catalog-icon-editor.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/customization-availability.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "1",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "1",
+    "icon": "table"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/components/guest-ordering.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/house-account.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/components/operational-alerts.tsx",
+    "level": "2",
+    "icon": "warning"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "1",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "receipt"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/order-workspace.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/components/pricing-adjustments.tsx",
+    "level": "2",
+    "icon": "wallet"
+  },
+  {
+    "file": "apps/web/components/product-customization.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/production-board.tsx",
+    "level": "2",
+    "icon": "operation"
+  },
+  {
+    "file": "apps/web/components/production-board.tsx",
+    "level": "2",
+    "icon": "check"
+  },
+  {
+    "file": "apps/web/components/production-board.tsx",
+    "level": "2",
+    "icon": "operation"
+  },
+  {
+    "file": "apps/web/components/production-board.tsx",
+    "level": "2",
+    "icon": "operation"
+  },
+  {
+    "file": "apps/web/components/quick-catalog.tsx",
+    "level": "2",
+    "icon": "cart"
+  },
+  {
+    "file": "apps/web/components/staff-auth-screen.tsx",
+    "level": "1",
+    "icon": "lock"
+  },
+  {
+    "file": "apps/web/components/staff-auth-screen.tsx",
+    "level": "1",
+    "icon": "lock"
+  },
+  {
+    "file": "apps/web/components/staff-auth-screen.tsx",
+    "level": "2",
+    "icon": "lock"
+  },
+  {
+    "file": "apps/web/components/staff-auth-screen.tsx",
+    "level": "2",
+    "icon": "lock"
+  }
+]
