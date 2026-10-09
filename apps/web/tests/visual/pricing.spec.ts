@@ -3,6 +3,7 @@ import { fixture, stable, layoutAndA11y } from "./fixtures";
 test("pricing command waits for canonical pricing to finish loading", async ({ page }) => {
   await fixture(page);
   await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000 }] } }));
+  await page.route("**/api/pos/tabs/slow-tab/", r => r.fulfill({ json: { id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000, charges_cents: 1000, payments_cents: 0, orders: [], payments: [], refund_required_corrections: [] } }));
   let release!: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });
   await page.route("**/api/pos/tabs/slow-tab/pricing/", async r => {
