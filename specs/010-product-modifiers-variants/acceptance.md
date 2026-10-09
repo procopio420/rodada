@@ -143,3 +143,23 @@ creates and configures a burger via Gerência and confirms staff/guest totals.
   retain configuration and availability history.
 - No connected physical Android device/emulator walkthrough is claimed; native
   unit tests, debug APK build and lint are the native validation gates.
+
+### Final gate results
+
+- Backend: **221 tests pass on PostgreSQL 17, no skips**, including real row-lock
+  races, legacy retries, corrections, ledger, House Account and full-shift smoke.
+  SQLite regression run also passed (216 tests at that point, 9 PostgreSQL-only
+  skips); the final ordering/customization focused run passed 25 tests.
+- Migrations: all migrations applied to a fresh dedicated PostgreSQL database;
+  `makemigrations --check --dry-run` reports no changes.
+- Android: **32 unit tests pass**, `assembleDebug` and `lintDebug` pass.
+- Web: TypeScript check and optimized production build pass.
+- Web visual: **116 tests pass**, including six dedicated customization/editor
+  layout/a11y tests; reference comparisons remain strict and no baseline was reset.
+- Browser integration: **6 tests pass against PostgreSQL**, including the manager →
+  guest → kitchen customization/availability workflow. The SQLite integration run
+  also passed 6 tests; PostgreSQL is the concurrency evidence.
+
+Generated Web images/reports remain in `apps/web/test-results/`,
+`apps/web/playwright-report/` and `visual-artifacts/`. Native APK and unit/lint reports
+remain in `apps/attendance-android/app/build/`. These build outputs are not committed.
