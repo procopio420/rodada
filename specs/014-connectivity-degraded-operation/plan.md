@@ -92,3 +92,7 @@ Server idempotency and canonical mutation semantics from Specs 001/006/008. Paym
 ## Implementation slice
 
 Implement a database outbox/publication log and async SSE endpoints first; adapt existing audit facts through a named allowlist, with explicit emission for guest/staff order confirmation. Add header-authenticated Web/native transports which invalidate canonical reads, guest-scoped history, and fault/replay tests. Verify existing full-shift suite before integration and PR.
+
+## Delivered realtime slice
+
+Database outbox and replay, authenticated async SSE, native and Web invalidation adapters, guest history/balance, session-scoped Web caches and offline shell startup are implemented. Production read polling is replaced with SSE plus bounded fallback. Android accepted cursors require successful canonical revalidation. Broader offline evidence/reconciliation remains a separate rollout; see tasks and delivery evidence.

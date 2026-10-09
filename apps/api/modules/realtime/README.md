@@ -42,10 +42,12 @@ The port rejects calls outside a transaction. A locked VenueStream row allocates
 sequence in that same transaction, ensuring venue sequence follows commit order.
 Envelope schema_version is 1; version is the venue sequence. Private tab_id routing
 is not serialized. Payloads must minimize data and exclude tokens, customer names,
-financial amounts and provider secrets. Future domains integrate through this port.
+financial amounts and provider secrets. Future domains integrate through this port
+and add an explicit authorization policy in `visible`; unclassified event types
+are not delivered to staff or guests.
 
 An audit adapter bridges existing transactional Tab/Table, item, Dispatch,
-availability, payment/refund and adjustment facts. Order confirmation emits explicitly
+availability, payment/refund, cash lifecycle and published catalog/icon facts. Order confirmation emits explicitly
 for guest and staff. Availability now has an atomic mutation boundary. Financial
 and provider rules are unchanged.
 
@@ -64,6 +66,8 @@ Guest snapshot includes its authorized order history and ledger-derived balance.
 5. `ready` advances cursor through filtered events; `heartbeat` keeps connection live.
 6. `reset` requires fresh baseline and canonical reads for expired, foreign, unknown
    or discontinuous history. `revoked` ends an unauthorized connected subscription.
+7. `reauthenticate` handles expired staff access tokens without discarding the
+   projection/cursor; HTTP adapters rotate credentials on reconnect.
 
 Delivery is at least once. Consuming events never executes mutations. `?once=1`
 returns a finite batch for tests; it does not run the required dispatcher.
@@ -87,3 +91,11 @@ budgets before scaling subscribers. Redis fan-out can later reduce shared reads.
 Android process restart deliberately takes a fresh snapshot instead of persisting
 a cursor without a corresponding durable operational projection. Class C offline
 fulfillment remains disabled. Cache never authorizes a command.
+
+Web revalidation is coalesced and bounded to four refreshes/second during event bursts;
+production stops five-second API polling. Safe projection caches are scoped by staff
+session and Venue, with timestamps. The service worker stores only shell HTML and
+static assets, never `/api/` requests. Guest offline reload shows public cached menu,
+not financial history or a locally extended authorization. See
+[verified delivery](../../../../docs/development/operational-realtime.md) for test results,
+measurements and remaining rollout work.
