@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError, type ApiError, type StaffSessionView } from "@/lib/client/staff-auth";
@@ -251,7 +253,7 @@ export default function CashPage() {
   return <main className="appShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / CAIXA</div>
-      <h1>Turno de caixa</h1>
+      <OperationalHeading as="h1" icon="wallet">Turno de caixa</OperationalHeading>
       <p className="muted">{session ? `${session.staff.display_name} · ${session.membership.role}` : "Carregando operador…"}</p>
       <Link className="backLink" href="/pos">← Voltar ao atendimento</Link>
     </header>
@@ -271,7 +273,7 @@ export default function CashPage() {
       {!loading && !notice && !selectedPoint ? <p className="muted">Sem ponto de caixa ativo para este operador.</p> : null}
     </section>
 
-    {selectedPoint && <section className="panel"><h2>Histórico de turnos</h2>
+    {selectedPoint && <section className="panel"><OperationalHeading as="h2" icon="receipt">Histórico de turnos</OperationalHeading>
       <div className="field"><label htmlFor="cash-history">Selecionar turno atual ou fechamento antigo</label><select id="cash-history" value={shift?.id ?? ""} disabled={busy || loading} onChange={e => void load(pointId, e.target.value)}>
         <option value="">Selecione um turno</option>{history.map(row => <option key={row.id} value={row.id}>{row.business_date ?? "Data não informada"} · {row.status === "CLOSED" ? "Fechado" : row.status === "COUNTING" ? "Em conferência" : "Aberto"}{row.review_status === "PENDING" ? " · revisão pendente" : ""} · {row.id.slice(0, 8)}</option>)}
       </select></div>
@@ -286,7 +288,7 @@ export default function CashPage() {
     </section>}
 
     {!shift && selectedPoint ? <section className="panel">
-      <h2>Abrir turno</h2>
+      <OperationalHeading as="h2" icon="wallet">Abrir turno</OperationalHeading>
       <p className="muted">{selectedPoint.label} · {selectedPoint.current_business_date ?? "Data operacional definida pelo estabelecimento"}</p>
       <div className="field"><label htmlFor="opening">Fundo inicial</label><input id="opening" inputMode="decimal" value={openingFloat} onChange={(event) => setOpeningFloat(event.target.value)} placeholder="Ex.: 200,00" /></div>
       <p className="muted">Você está abrindo o caixa com este valor físico. Confirme somente depois de conferir.</p>
@@ -296,7 +298,7 @@ export default function CashPage() {
 
     {shift ? <>
       <section className="panel cashPosition">
-        <div><div className="eyebrow">{selectedPoint?.label ?? "Caixa"}</div><h2>{shift.status === "OPEN" ? "Caixa aberto" : shift.status === "COUNTING" ? "Em conferência" : "Turno fechado"}</h2></div>
+        <div><div className="eyebrow">{selectedPoint?.label ?? "Caixa"}</div><OperationalHeading as="h2" icon="wallet">{shift.status === "OPEN" ? "Caixa aberto" : shift.status === "COUNTING" ? "Em conferência" : "Turno fechado"}</OperationalHeading></div>
         <span className="statusBadge" data-state={shift.status === "CLOSED" ? "success" : shift.status === "COUNTING" ? "warning" : "info"}>{shift.status}</span>
         <div className="cashExpected"><span>Esperado</span><strong>{money(expected)}</strong></div>
         <div className="dataRow"><span>Fundo inicial</span><strong>{money(shift.movements?.find((movement) => movement.kind === "OPENING_FLOAT")?.amount_cents ?? shift.opening_float_cents)}</strong></div>
@@ -306,7 +308,7 @@ export default function CashPage() {
       </section>
 
       {shift.status === "OPEN" ? <section className="panel">
-        <h2>Movimentar caixa</h2>
+        <OperationalHeading as="h2" icon="wallet">Movimentar caixa</OperationalHeading>
         <div className="segmented" role="group" aria-label="Tipo de movimento">
           <button className={movementKind === "SUPPLY" ? "buttonPrimary" : "buttonSecondary"} onClick={() => setMovementKind("SUPPLY")}>Suprimento</button>
           <button className={movementKind === "WITHDRAWAL" ? "buttonPrimary" : "buttonSecondary"} onClick={() => setMovementKind("WITHDRAWAL")}>Sangria</button>
@@ -318,13 +320,13 @@ export default function CashPage() {
       </section> : null}
 
       {shift.status === "OPEN" ? <section className="panel">
-        <h2>Fechar turno</h2>
+        <OperationalHeading as="h2" icon="wallet">Fechar turno</OperationalHeading>
         <p className="muted">Ao iniciar a conferência, recebimentos e movimentos ficam bloqueados até o fechamento.</p>
         <button className="buttonSecondary" style={{ width: "100%" }} disabled={busy || !canOpenOrClose} onClick={() => void startCount()}>Conferir caixa</button>
       </section> : null}
 
       {shift.status === "COUNTING" ? <section className="panel">
-        <h2>Contagem e revisão</h2>
+        <OperationalHeading as="h2" icon="wallet">Contagem e revisão</OperationalHeading>
         <p className="muted">Conte o dinheiro físico. O campo começa vazio para que a diferença continue visível.</p>
         <div className="field"><label htmlFor="counted">Contado</label><input id="counted" inputMode="decimal" value={counted} onChange={(event) => setCounted(event.target.value)} placeholder="Digite o total contado" /></div>
         <div className="dataRow"><span>Esperado</span><strong>{money(expected)}</strong></div>
@@ -335,7 +337,7 @@ export default function CashPage() {
       </section> : null}
 
       {shift.status === "CLOSED" ? <section className="panel">
-        <h2>Resultado do fechamento</h2>
+        <OperationalHeading as="h2" icon="wallet">Resultado do fechamento</OperationalHeading>
         <div className="dataRow"><span>Esperado</span><strong>{money(shift.expected_at_close_cents ?? expected)}</strong></div>
         <div className="dataRow"><span>Contado</span><strong>{money(shift.counted_amount_cents)}</strong></div>
         <div className="dataRow"><span>Diferença</span><strong className={shift.discrepancy_cents ? "cashDifference" : ""}>{money(shift.discrepancy_cents)}</strong></div>
@@ -343,11 +345,11 @@ export default function CashPage() {
       </section> : null}
 
       <section className="panel">
-        <h2>Histórico de movimentos</h2>
+        <OperationalHeading as="h2" icon="receipt">Histórico de movimentos</OperationalHeading>
         {!shift.movements?.length ? <p className="muted">Nenhum movimento registrado.</p> : <div className="movementList">{shift.movements.slice().reverse().map((movement) => <div className="movement" key={movement.id}><div><strong>{movementLabel(movement.kind)}</strong><small>{new Date(movement.occurred_at).toLocaleString("pt-BR")}{movement.reason ? ` · ${movement.reason}` : ""}</small></div><strong className={movement.amount_cents < 0 ? "cashNegative" : "cashPositive"}>{movement.amount_cents < 0 ? "−" : "+"}{money(Math.abs(movement.amount_cents))}</strong></div>)}</div>}
       </section>
     </> : null}
 
-    {pendingReauth ? <section className="panel reauthPanel"><h2>Confirme seu PIN</h2><p className="muted">Esta ação exige confirmação recente do gerente atual.</p><div className="field"><label htmlFor="reauth-pin">Seu PIN</label><input id="reauth-pin" type="password" inputMode="numeric" value={reauthPin} onChange={(event) => setReauthPin(event.target.value)} autoComplete="current-password" /></div><button className="buttonPrimary" style={{ width: "100%" }} disabled={busy || !reauthPin} onClick={() => void confirmReauth()}>Confirmar e continuar</button></section> : null}
+    {pendingReauth ? <section className="panel reauthPanel"><OperationalHeading as="h2" icon="lock">Confirme seu PIN</OperationalHeading><p className="muted">Esta ação exige confirmação recente do gerente atual.</p><div className="field"><label htmlFor="reauth-pin">Seu PIN</label><input id="reauth-pin" type="password" inputMode="numeric" value={reauthPin} onChange={(event) => setReauthPin(event.target.value)} autoComplete="current-password" /></div><button className="buttonPrimary" style={{ width: "100%" }} disabled={busy || !reauthPin} onClick={() => void confirmReauth()}>Confirmar e continuar</button></section> : null}
   </main>;
 }

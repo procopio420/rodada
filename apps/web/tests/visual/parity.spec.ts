@@ -144,6 +144,9 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await fixture(page);
     await page.goto(route);
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+    const title = page.getByRole("heading", { level: 1, name: heading, exact: true });
+    if (name !== "bar" && name !== "kitchen") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    if (width === 390) await page.screenshot({ path: path.join(artifactRoot, "spec023-all-web", `${name}-viewport.png`), fullPage: false });
     if (name === "manage") await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
     if (name === "cash") await expect(page.getByText("Caixa aberto", { exact: true })).toBeVisible();
     if (name === "reports") { await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible(); await page.getByText("Configurar dia operacional", { exact: true }).click(); }

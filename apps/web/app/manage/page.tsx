@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
@@ -101,7 +103,7 @@ export default function ManagementPage() {
   return <main className="appShell managementShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
-      <h1>O que precisa de atenção</h1>
+      <OperationalHeading as="h1" icon="warning">O que precisa de atenção</OperationalHeading>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
       <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>

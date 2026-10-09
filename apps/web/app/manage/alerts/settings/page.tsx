@@ -1,4 +1,6 @@
 "use client";
+
+import { OperationalHeading } from "@/components/operational-heading";
 import Link from "next/link";
 import { FormEvent, useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -45,11 +47,11 @@ export default function AlertSettings() {
     finally { setSaving(false); }
   }
   return <main className="appShell managementShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GESTÃO</div><h1>Alertas e SLAs</h1><Link className="backLink" href="/manage">Voltar à operação →</Link></header>
+    <header className="productHeader"><div className="eyebrow">RODADA / GESTÃO</div><OperationalHeading as="h1" icon="warning">Alertas e SLAs</OperationalHeading><Link className="backLink" href="/manage">Voltar à operação →</Link></header>
     <ConnectivityNotice {...connectivity} />
     {message && <p className="notice" role="status">{message}</p>}
     {policy && draft && <form className="panel" onSubmit={event => void save(event)}>
-      <h2>Limites operacionais</h2><p className="muted">Versão {draft.version}. Entra em vigor agora após confirmação. Não altera estados ou timestamps dos pedidos.</p>
+      <OperationalHeading as="h2" icon="warning">Limites operacionais</OperationalHeading><p className="muted">Versão {draft.version}. Entra em vigor agora após confirmação. Não altera estados ou timestamps dos pedidos.</p>
       {([
         ["fulfillment_warning_seconds", "Produção: atenção após (segundos)"],
         ["fulfillment_danger_seconds", "Produção: crítico após (segundos)"],

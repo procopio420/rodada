@@ -1,4 +1,6 @@
 "use client";
+
+import { OperationalHeading } from "@/components/operational-heading";
 import { useEffect, useRef, useState } from "react";
 
 export type Variant = { id: string; name: string; price_cents: number; active: boolean; is_default: boolean; availability: string; version: number; sort_order: number };
@@ -35,7 +37,7 @@ export function ProductCustomization({ product, initial, onAdd, onCancel }: { pr
   function toggle(group: Group, option: Option) {
     setSelection(current => ({ ...current, modifier_option_ids: current.modifier_option_ids.includes(option.id) ? current.modifier_option_ids.filter(id => id !== option.id) : group.selection_mode === "SINGLE" ? [...current.modifier_option_ids.filter(id => !group.options.some(o => o.id === id)), option.id] : [...current.modifier_option_ids, option.id] }));
   }
-  return <section ref={panel} className="panel customizationPanel" role="region" aria-label={`Configurar ${product.name}`}><h2 tabIndex={-1}>{product.name}</h2>
+  return <section ref={panel} className="panel customizationPanel" role="region" aria-label={`Configurar ${product.name}`}><OperationalHeading as="h2" icon="cart" tabIndex={-1}>{product.name}</OperationalHeading>
     {!!product.variants?.length && <fieldset><legend>Variação · obrigatória</legend>{product.variants.map(v => <label className="customizationChoice" key={v.id}><input type="radio" name={`variant-${product.id}`} checked={selection.variant_id === v.id} disabled={!v.active || v.availability !== "AVAILABLE"} onChange={() => setSelection(s => ({ ...s, variant_id: v.id }))} /><span>{v.name} · {money(v.price_cents)}{v.availability !== "AVAILABLE" && " · Indisponível"}</span></label>)}</fieldset>}
     {product.modifier_groups?.map(g => <fieldset key={g.id}><legend>{g.name} · {g.min_selections ? "obrigatório" : "opcional"} ({g.min_selections}–{g.max_selections})</legend>{g.options.map(o => <label className="customizationChoice" key={o.id}><input type={g.selection_mode === "SINGLE" && g.min_selections > 0 ? "radio" : "checkbox"} name={`group-${g.id}`} checked={selection.modifier_option_ids.includes(o.id)} disabled={!o.active || o.availability !== "AVAILABLE"} onChange={() => toggle(g, o)} /><span>{o.name}{o.price_delta_cents > 0 && ` + ${money(o.price_delta_cents)}`}{o.availability !== "AVAILABLE" && " · Indisponível"}</span></label>)}</fieldset>)}
     {!!unavailableIds.length && <button className="buttonSecondary" onClick={() => setSelection(s => ({ ...s, modifier_option_ids: s.modifier_option_ids.filter(id => !unavailableIds.includes(id)) }))}>Remover escolhas indisponíveis</button>}

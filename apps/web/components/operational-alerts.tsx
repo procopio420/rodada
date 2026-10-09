@@ -1,5 +1,7 @@
 "use client";
 
+import { OperationalHeading } from "@/components/operational-heading";
+
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -45,7 +47,7 @@ export function OperationalAlerts() {
     finally { setPending(undefined); }
   }
   return <section className="panel" aria-labelledby="operational-alerts-title">
-    <h2 id="operational-alerts-title">Alertas operacionais</h2>
+    <OperationalHeading as="h2" icon="warning" id="operational-alerts-title">Alertas operacionais</OperationalHeading>
     <Link className="backLink" href="/manage/alerts/settings">Configurar SLAs →</Link>
     {connectivity.state !== "ONLINE" && <p className="muted">Último estado confirmado. Alertas serão revalidados pela API.</p>}
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}

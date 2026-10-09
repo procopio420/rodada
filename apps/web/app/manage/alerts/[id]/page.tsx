@@ -1,4 +1,6 @@
 "use client";
+
+import { OperationalHeading } from "@/components/operational-heading";
 import Link from "next/link";
 import { use, useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -27,11 +29,11 @@ export default function AlertPage({ params }: { params: Promise<{ id: string }> 
   }, [id]);
   const connectivity = useRealtime(load, { onRevoked: () => { setDetail(undefined); setError("Entre novamente para consultar o contexto."); } });
   return <main className="appShell managementShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><h1>Contexto do alerta</h1><Link className="backLink" href="/manage">Voltar à operação →</Link></header>
+    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="warning">Contexto do alerta</OperationalHeading><Link className="backLink" href="/manage">Voltar à operação →</Link></header>
     <ConnectivityNotice {...connectivity} />
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}
     {detail && <>
-      <section className="panel"><h2>{detail.rule_key === "FULFILLMENT_SLA" ? "Produção acima do SLA" : detail.rule_key === "PAYMENT_PENDING" ? "Pagamento aguardando confirmação" : detail.rule_key === "STRATEGIC_PRODUCT" ? "Produto estratégico indisponível" : "Divergência de caixa"}</h2>
+      <section className="panel"><OperationalHeading as="h2" icon="wallet">{detail.rule_key === "FULFILLMENT_SLA" ? "Produção acima do SLA" : detail.rule_key === "PAYMENT_PENDING" ? "Pagamento aguardando confirmação" : detail.rule_key === "STRATEGIC_PRODUCT" ? "Produto estratégico indisponível" : "Divergência de caixa"}</OperationalHeading>
         <p>{detail.status === "RESOLVED" ? "Resolvido pela condição canônica. Este alerta permanece no histórico." : detail.status === "ACKNOWLEDGED" ? "Ciência registrada. A condição continua ativa." : "Condição ativa."}</p>
         <p>Regra versão {detail.rule_version} · {detail.severity === "DANGER" ? "Crítico" : "Atenção"}</p>
         <p>Contexto: {sourceLabels[detail.source.target] ?? "Registro operacional"} · {detail.source.id}</p>
@@ -40,7 +42,7 @@ export default function AlertPage({ params }: { params: Promise<{ id: string }> 
         <p className="muted">Origem: estado confirmado no servidor. A ciência do gerente não conclui o pedido, pagamento ou revisão de caixa.</p>
         <Link className="backLink" href={detail.source.target === "FULFILLMENT_ITEM" ? detail.source.station === "BAR" ? "/bar" : "/kitchen" : detail.source.target === "CASH_SHIFT" ? "/cash" : detail.source.target === "PRODUCT" ? "/manage/catalog" : "/pos"}>Abrir operação →</Link>
       </section>
-      <section className="panel"><h2>Histórico preservado</h2>{detail.history.map((event, index) => <div className="movement" key={index}><div><strong>{eventLabels[event.kind] ?? event.kind}</strong><small>{new Date(event.occurred_at).toLocaleString("pt-BR")}</small>
+      <section className="panel"><OperationalHeading as="h2" icon="receipt">Histórico preservado</OperationalHeading>{detail.history.map((event, index) => <div className="movement" key={index}><div><strong>{eventLabels[event.kind] ?? event.kind}</strong><small>{new Date(event.occurred_at).toLocaleString("pt-BR")}</small>
         {event.metadata.reason && <small>{event.metadata.reason === "CANONICAL_CONDITION_CLEARED" ? "A condição original deixou de exigir ação." : event.metadata.reason}</small>}
         {event.metadata.actor_id && <small>Operador: {event.metadata.actor_id}</small>}
         {event.metadata.before && <small>{event.metadata.before} → {event.metadata.after}</small>}

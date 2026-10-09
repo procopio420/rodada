@@ -1,4 +1,6 @@
 "use client";
+
+import { OperationalHeading } from "@/components/operational-heading";
 import { useEffect, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
 import { CatalogProduct, QuickCatalog } from "./quick-catalog";
@@ -27,7 +29,7 @@ export function CatalogIconEditor() {
     reader.readAsDataURL(file);
   };
   if (!allowed) return null;
-  return <section className="panel"><h2>Cardápio</h2><div className="actions"><QuickCatalog station="BAR" onResolved={() => void load()} /><QuickCatalog station="KITCHEN" onResolved={() => void load()} /></div>
+  return <section className="panel"><OperationalHeading as="h2" icon="cart">Cardápio</OperationalHeading><div className="actions"><QuickCatalog station="BAR" onResolved={() => void load()} /><QuickCatalog station="KITCHEN" onResolved={() => void load()} /></div>
     <details><summary>Editar ícones</summary><div className="field"><label htmlFor="icon-product">Produto</label><select id="icon-product" value={selected} onChange={e => setSelected(e.target.value)}><option value="">Selecionar produto</option>{products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
     {product && <><div className="catalogOption"><ProductIcon icon={product.icon} /><strong>{product.name}</strong><IconStatus icon={product.icon} /></div><div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void mutate("regenerate", { idempotency_key: crypto.randomUUID() })}>Regenerar ícone</button><button className="buttonQuiet" disabled={busy} onClick={() => void mutate("remove")}>Voltar ao placeholder</button></div><div className="field"><label htmlFor="icon-upload">Substituir por imagem · quadrada, 128–2048 px, até 5 MB</label><input id="icon-upload" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} /></div></>}
     {message && <p className="notice" role="status">{message}</p>}</details>
