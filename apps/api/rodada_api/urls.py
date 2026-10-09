@@ -84,13 +84,13 @@ from modules.tab_operations.views import OperationView, PreviewView, ServicePoin
 
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 
+from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
+
+urlpatterns = [
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
     path("printing/", include("modules.documents_printing.urls")),
     path("", include("modules.realtime.urls")),
-from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
-
-urlpatterns = [
     path("pricing/policy/", PricingPolicyView.as_view()),
     path("pricing/approvals/", PricingApproveView.as_view()),
     path("pricing/approvals/<uuid:approval_id>/approve/", PricingApproveView.as_view()),
