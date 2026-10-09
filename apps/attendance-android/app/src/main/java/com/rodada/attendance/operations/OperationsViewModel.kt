@@ -115,6 +115,28 @@ class OperationsViewModel(
         state = state.copy(tabs = repository.tabs(session), tables = repository.tables(session))
     }
 
+    fun pendingPricing(session: StoredSession, tabId: String) = pendingMutationIntentStore.loadFor(session)
+        .filterIsInstance<RecoveryIntent.Pricing>().firstOrNull { it.tabId == tabId }
+
+    suspend fun pricing(session: StoredSession, tabId: String, command: org.json.JSONObject? = null, action: String = "") =
+        repository.pricing(session, tabId, command, action)
+
+    suspend fun commitPricing(session: StoredSession, tabId: String, command: org.json.JSONObject, approval: Boolean, pin: String) {
+        if (pin.isNotBlank()) repository.reauthenticatePricing(session, pin)
+        val key = command.getString("idempotency_key")
+        val intent = pendingPricing(session, tabId) ?: RecoveryIntent.Pricing(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tabId, command.toString())
+        pendingMutationIntentStore.save(intent)
+        try {
+            repository.pricing(session, tabId, org.json.JSONObject(intent.commandJson), if (approval) "approval-request/" else "")
+        } catch (error: OperationsApiException) {
+            if (error.status in 400..499 && error.code != "REAUTH_REQUIRED") pendingMutationIntentStore.remove(intent.id)
+            throw error
+        }
+        pendingMutationIntentStore.remove(intent.id)
+        refresh(session)
+    }
+
     fun ensureLoaded(session: StoredSession) {
         val key = session.staffId + ":" + session.venueId
         if (loadedSessionKey == key && (state.tabs.isNotEmpty() || state.loading)) return
@@ -303,13 +325,13 @@ class OperationsViewModel(
         if (amountCents <= 0 || amountCents > tab.exposureCents || state.pendingPayment != null) return
         val key = UUID.randomUUID().toString()
         val intent = RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId,
-            key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null)
+            key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null, tab.version)
         pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
             tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
         viewModelScope.launch {
             runCatching {
-                val prepared = repository.integratedPayment(session, tab.id, amountCents, key, "TAP_TO_PAY")
+                val prepared = repository.integratedPayment(session, tab.id, amountCents, key, "TAP_TO_PAY", tab.version)
                 require(prepared.simulated) // Never run fake capture against a real merchant.
                 state = state.copy(integratedPayment = prepared)
                 val provider = com.rodada.attendance.payments.SumUpTapToPayProvider(
@@ -338,11 +360,11 @@ class OperationsViewModel(
         val key = pending?.idempotencyKey ?: UUID.randomUUID().toString()
         val intent = pending ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
             session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
-            tab.id, amountCents, PaymentMethod.PIX, null)
+            tab.id, amountCents, PaymentMethod.PIX, null, tab.version)
         pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
         viewModelScope.launch {
-            runCatching { repository.integratedPayment(session, tab.id, amountCents, key) }
+            runCatching { repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
                 .onSuccess { acceptIntegrated(session, it) }
                 .onFailure {
                     state = state.copy(submitting = false)
@@ -363,7 +385,7 @@ class OperationsViewModel(
                 state = state.copy(submitting = true)
                 viewModelScope.launch {
                     runCatching { repository.integratedPayment(session, pending.tabId, pending.amountCents,
-                        pending.idempotencyKey, pending.method.apiValue) }
+                        pending.idempotencyKey, pending.method.apiValue, pending.expectedVersion) }
                         .onSuccess { acceptIntegrated(session, it) }
                         .onFailure { state = state.copy(submitting = false); showFailure(it) }
                 }
@@ -417,12 +439,12 @@ class OperationsViewModel(
             }
         }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
-        val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId)
+        val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId, tab.version)
         pendingMutationIntentStore.save(intent)
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
         viewModelScope.launch {
             runCatching {
-                repository.collectPayment(session, tab.id, amountCents, method, key, cashPointId)
+                repository.collectPayment(session, tab.id, amountCents, method, key, cashPointId, intent.expectedVersion)
                 repository.tabDetail(session, tab.id)
             }.onSuccess { detail ->
                 replaceDetail(detail)

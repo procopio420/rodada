@@ -1,0 +1,6 @@
+export type Bill = { original_subtotal_cents?: number; charges_cents?: number; discounts_cents?: number; courtesy_cents?: number; corrections_cents?: number; service_charge_cents?: number; payable_cents?: number; payments_cents?: number; refunds_cents?: number; exposure_cents: number; service_assessment_stale?: boolean };
+const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
+export function BillSummary({ bill }: { bill: Bill }) {
+  const rows = [["Subtotal original", bill.original_subtotal_cents ?? bill.charges_cents], ["Descontos", -(bill.discounts_cents ?? 0)], ["Cortesias", -(bill.courtesy_cents ?? 0)], ["Correções", bill.corrections_cents], ["Taxa de serviço", bill.service_charge_cents], ["Total a pagar", bill.payable_cents], ["Pagamentos recebidos", bill.payments_cents], ["Estornos", bill.refunds_cents], ["Saldo restante", bill.exposure_cents]] as const;
+  return <div aria-label="Resumo da conta">{rows.map(([label, value]) => <div className="dataRow" key={label}><span>{label}</span><strong>{money(value)}</strong></div>)}{bill.service_assessment_stale && <p className="notice" data-state="warning">Atualize a taxa de serviço antes de receber.</p>}</div>;
+}

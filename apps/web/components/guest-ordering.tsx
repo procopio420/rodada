@@ -1,5 +1,6 @@
 "use client";
 
+import { BillSummary } from "./bill-summary";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProductIcon, type IconData } from "./product-icon";
 
@@ -8,7 +9,7 @@ import { ProductCustomization, CustomizationText, defaults, selectionError, unit
 type Product = OrderingProduct & { id: string; name: string; price_cents: number; fulfillment_station: string; available: boolean; icon?: IconData };
 type OrderItem = { customization_snapshot?: Snapshot; id: string; product_name: string; quantity: number; line_total_cents: number; state: string; ready_at?: string | null; delivered_at?: string | null };
 type Order = { id: string; status: string; items: OrderItem[] };
-type Tab = { id: string; display_label: string; exposure_cents: number; consumption_blocked: boolean; remaining_capacity_cents: number; orders?: Order[] };
+type Tab = import("./bill-summary").Bill & { id: string; display_label: string; exposure_cents: number; consumption_blocked: boolean; remaining_capacity_cents: number; orders?: Order[] };
 type Context = { table: { label: string }; occupancy_active: boolean; can_start_occupancy: boolean; guest_session_token?: string; tab: Tab | null };
 type ApiError = { code?: string; message?: string };
 
@@ -169,7 +170,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {stale && <div className="notice" data-state="warning" role="status">Dados desatualizados. Reconecte para confirmar seu pedido.</div>}
     <button className="buttonQuiet" disabled={sending} onClick={() => void refresh()}>Atualizar comanda</button>
     {!context.tab ? <section className="panel"><h2>Começar pedido</h2><p className="muted">Crie uma comanda para enviar itens ao bar e à cozinha.</p><div className="field"><label htmlFor="guest-label">Seu nome ou apelido (opcional)</label><input id="guest-label" value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Ex.: Ana" /></div><button className="buttonPrimary" disabled={sending || stale} onClick={() => void createTab()}>{sending ? "Abrindo…" : "Abrir minha comanda"}</button></section> : <>
-      <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><div className="guestBalance"><span>Em aberto</span><strong>{money(context.tab.exposure_cents)}</strong></div></section>
+      <section className="panel panelGuestBalance"><span className="eyebrow">Comanda</span><h2>{context.tab.display_label || "Minha comanda"}</h2><BillSummary bill={context.tab} /></section>
       {context.tab.consumption_blocked && <div className="notice" data-state="warning" role="alert">Para continuar consumindo, peça ajuda à equipe. Você pode pagar uma parte da comanda ou solicitar aprovação.</div>}
       <section className="panel"><h2>Cardápio</h2><div className="guestProducts">{products.map((product) => <button key={product.id} className="guestProduct" disabled={!product.available || stale || sending || !!orderIntent.current} onClick={() => { if (product.variants?.length || product.modifier_groups?.length) { setEditing(null); setConfiguring(product); } else addConfigured(product, defaults(product)); }}><ProductIcon icon={product.icon} /><span><strong>{product.name}</strong><small>{product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}{!product.available ? " · Indisponível" : ""}</small></span><span>{money(product.price_cents)}</span></button>)}</div></section>
       {configuring && <ProductCustomization key={`${configuring.id}-${editing}`} product={products.find(p => p.id === configuring.id) ?? configuring} initial={editing === null ? undefined : cart[editing]?.selection} onCancel={() => { setConfiguring(null); setEditing(null); }} onAdd={selection => addConfigured(configuring, selection)} />}

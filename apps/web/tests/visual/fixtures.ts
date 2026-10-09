@@ -43,6 +43,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname.startsWith("/api/pos/production/")) body = { results: items };
     else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail], next_offset: null };
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;
+    else if (url.pathname === "/api/pos/tabs/tab-test/pricing/") body = { version: 1, policy: { service_basis_points: 1000 }, history: [], charges: [] };
     else if (url.pathname === "/api/pos/cash/points/") body = { results: cash };
     else if (url.pathname === "/api/pos/cash/shifts/history/") body = { results: state === "empty" ? [] : [state === "warnings" ? pending : { ...shift, business_date: "2026-10-08" }], next_offset: null };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
