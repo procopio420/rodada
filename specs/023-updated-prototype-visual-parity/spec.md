@@ -110,3 +110,15 @@ V06: perda real da API revelou SSE Reconnecting substituindo OFFLINE; o contrato
 ## Evidência da demo atual
 
 [Relatório](../../docs/design/spec023-demo-validation.md) discrimina gates/artefatos e limites atuais. Núcleo da demo passou Web/PostgreSQL e UI Android real até fechamento de Tab/caixa de teste, incluindo OFFLINE/recovery. Paridade integral e todas jornadas internas ampliadas continuam fora do aceite comprovado; não declarar Spec023 concluída.
+
+## V02/V05 — catálogo e cobrança com fonte ampliada
+
+Verificar os componentes reais com instrumentação360/390/430 e fontes1/2 antes da correção. Linha de produto deve conservar nome completo, preço canônico em centavos, rota/disponibilidade e ação atual; não aceitar ellipsis ocultando identidade nem preço sem largura. Se confirmado clipping, nome e preço ganham linhas próprias nos tokens existentes. Diálogo de pagamento mantém decisões e footer/callbacks/busy, mas conteúdo longo deve permitir rolagem interna e preservar acesso às advertências/caixa/valor com fonte200%. Não alterar métodos, regras financeiras, provider ou confirmação offline. Extrair somente o botão de produto e tornar PaymentDialog interno para teste do componente de produção. Aceite: nomes sem ellipsis/clipping, preço legível; advertência acessível; caixa fechado não confirma; caixa ativo repassa exatamente300centavos/mesmo método/ponto; matriz nativa atual e screenshots. Paridade visual global continua aberta.
+
+Baseline360/font200 comprovou dois erros: nome de produto ellipsized e preço em coluna de caracteres; pagamento cortou métodos/advertências e footer sobreposto. Em fontScale>1.3 (mesmo limiar da navegação), footer da cobrança empilha confirmar/cancelar em largura total, gap8 existente; fonte normal conserva disposição. Conteúdo sempre rolável, sem alterar flags/decisões.
+
+V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
+
+Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.
+
+Resultado atual do recorte crítico Android: catálogo, pagamento e login com IME real corrigidos; 51unit/build/lint e48 testes instrumentados (8×6) aprovados, zero skips. 36 capturas adjacentes permanecem idênticas. [Critérios, reprodução, evidências e limites](../../docs/design/spec023-critical-fields.md). Critérios globais de paridade/jornadas internas/hardware/provider permanecem abertos.

@@ -424,3 +424,13 @@ Token --shadow-operational: 0 4px 12px rgb(0 0 0 / .2), para camada financeira; 
 ### Hierarquia compartilhada Web (Spec023)
 
 OperationalHeading conserva h1/h2 e atributos, adiciona ícone decorativo24/20px com stroke2.2/round/currentColor; identificação do título usa accent, seções usam text-muted salvo estados danger/warning já definidos. Título34px no telefone, seção20px, subseção16px; espaçamento existente8/12/16/24. Cabeçalho com separador border e espaço16; panel funcional reutiliza shadow-operational, sem sombra cumulativa em panel aninhado. Estações conservam SVGs da referência e zonas existentes: quantidade com font-number, destino legível e estado secundário. Não alterar geometria de Field/StatusBadge ou recibo canônico. Ícones contextualizam operação; produto continua usando seu ProductIcon. Navbar do Atendimento mantém labels/callbacks e ganha icon24 + texto, sem nova navegação.
+
+### Catálogo e cobrança nativos com fonte ampliada
+
+Produto: nome completo e preço canônico em linhas próprias, sem ellipsis, dentro do OutlinedButton/Column existentes; fontes, semibold, padding e rota/disponibilidade atuais. O diálogo de pagamento conserva footer e decisões, com conteúdo vertical rolável para fontes ampliadas/teclado; sem redução de fonte, sem esconder warning e sem autorização nova. Comparar componente real e medir clipping antes/depois em API36.
+
+Cobrança: fontScale>1.3 reutiliza limiar da navegação e empilha confirmar/cancelar com largura total/gap8; até1.3 mantém footer atual. Conteúdo vertical rolável em ambas variantes. Não esconder controles/advertências ou reduzir fonte para caber. Capturar antes/depois; labels/formatadores canônicos preservados.
+
+V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
+
+Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.
