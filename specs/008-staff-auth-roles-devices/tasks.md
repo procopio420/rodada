@@ -53,7 +53,18 @@
 - [x] Add regression integration tests for BYOD first login, successful ordinary order on UNTRUSTED and phone replacement. Evidence: `apps/api/tests/test_access_api.py` on PostgreSQL, release report 2026-10-09.
 - [x] Add tests for revoked-installation scope versus revoked membership across installations. Evidence: `test_revoked_installation_does_not_ban_replacement_but_membership_does`, release report 2026-10-09.
 - [ ] Verify Android UX has no device-approval screen and works without NFC; payment provisioning must remain a separate feature gate.
-- [ ] Validate no compulsory MDM/personal-content permissions and document operational shared-device/cashier fallback.
+- [x] Validate no compulsory MDM/personal-content permissions and document operational shared-device/cashier fallback (source/manifest review; physical behavior remains external).
+
+## Independent closure — 2026-10-09
+
+- [x] First-installation registration audit with actor/session/device, emitted once.
+- [x] Membership conflict returns current state; PostgreSQL competing updates select one winner.
+- [x] Direct refund denial, recent-auth requirement and exactly-once retry through real API.
+- [x] Original-session replay helper rejects a locked session even after a new-phone login.
+- [ ] Native recovery envelope must retain original session and reauthorize it on replay (Agent 3 + Agent 4 / Main Orchestrator; do not change shared contracts independently).
+- [ ] Physical Android first login, no-NFC operation, remote revocation and loaner walkthrough.
+
+Criterion-level evidence and handoffs: `docs/development/near-ready-specs-closure-2026-10-09.md`.
 
 ## Quality/tests
 - [x] Role/capability matrix tests.

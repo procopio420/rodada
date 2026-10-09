@@ -46,3 +46,14 @@ Existing Web polling (5 seconds) and Android polling (15 seconds plus resume/rec
 refresh availability; confirmation remains immediately authoritative. This branch
 does not take ownership of SSE/outbox infrastructure. Large Venues may later need a
 more granular reusable-group locking protocol; it must retain the same race guarantees.
+
+## Selection mix read boundary — 2026-10-09
+
+An isolated Ordering read service derives gross variant/modifier selection facts
+from confirmed snapshots, including quantity and historical labels/cents. Cancelled
+originals remain gross facts with cancelled units explicit; correction-generated
+children do not count as additional sales. Empty legacy snapshots remain simple
+items. This projection makes no financial calculation and stores no new state.
+Management owns authorization, Venue business-date conversion, endpoint and UI.
+Preserving label/price revisions in separate rows avoids retroactive relabeling;
+Product-unit denominators support attach rates without inventing inventory usage.
