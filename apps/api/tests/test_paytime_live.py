@@ -173,10 +173,41 @@ class PaytimeLiveTests(TestCase):
         self.client.post(f"/payments/{first.data['id']}/integrated/", {}, format="json")
         payment = Payment.objects.get(pk=first.data["id"])
         self.assertEqual(payment.status, "CANCELLED")
+
         self.remote["status"] = "PENDING"
         self.webhook("PENDING")
         payment.refresh_from_db()
         self.assertEqual(payment.status, "CANCELLED")
+
+    def test_committed_integrated_payment_replays_after_financial_close(self):
+        self.remote["original_amount"] = 3000
+        first = self.create(amount_cents=3000)
+        self.assertEqual(first.status_code, 201, first.data)
+        self.remote["status"] = "PAID"
+        self.assertEqual(self.webhook().status_code, 200)
+        closed = self.client.post(f"/tabs/{self.tab}/close/", {}, format="json")
+        self.assertEqual(closed.status_code, 200, closed.data)
+        replay = self.create(amount_cents=3000, expected_version=1)
+        self.assertEqual(replay.status_code, 200, replay.data)
+        self.assertEqual(replay.data["id"], first.data["id"])
+        self.assertEqual(replay.data["status"], "CONFIRMED")
+        self.assertEqual(replay.data["exposure_cents"], 0)
+        self.assertEqual(self.create(amount_cents=2000).data["code"], "IDEMPOTENCY_CONFLICT")
+        self.assertEqual(self.create(idempotency_key="new").data["code"], "TAB_CLOSED")
+        self.assertEqual(sum(method == "POST" for method, _, _ in self.calls), 1)
+        self.assertEqual(Payment.objects.count(), 1)
+
+    def test_malformed_integrated_intents_create_no_payment_or_external_request(self):
+        for changes in (
+            {"method": []}, {"method": {}}, {"method": True},
+            {"amount_cents": 2147483648}, {"expected_version": True},
+            {"expected_version": "1"}, {"expected_version": 0},
+        ):
+            with self.subTest(changes=changes):
+                response = self.create(**changes)
+                self.assertEqual(response.status_code, 400, response.data)
+        self.assertEqual(Payment.objects.count(), 0)
+        self.assertEqual(self.calls, [])
 
     def test_sensitive_provider_response_is_not_persisted(self):
         self.remote.update(card={"pan": "sensitive", "cvv": "123"}, token="secret")
