@@ -63,8 +63,7 @@ def begin_connection(actor):
     )
 
 
-def complete_connection(*, actor, state, code, transport=oauth_transport):
-    config = _oauth_config()
+def consume_authorization(*, actor, state):
     with transaction.atomic():
         authorization = (
             OAuthAuthorization.objects.select_for_update()
@@ -83,6 +82,11 @@ def complete_connection(*, actor, state, code, transport=oauth_transport):
             )
         authorization.consumed_at = timezone.now()
         authorization.save(update_fields=["consumed_at"])
+
+
+def complete_connection(*, actor, state, code, transport=oauth_transport):
+    config = _oauth_config()
+    consume_authorization(actor=actor, state=state)
     # Single use even when exchange result is unknown; never blindly exchange again.
     tokens = transport(
         "/token",
@@ -97,8 +101,14 @@ def complete_connection(*, actor, state, code, transport=oauth_transport):
     profile = transport("/v0.1/me", access_token=tokens["access_token"])
     merchant_code = profile["merchant_profile"]["merchant_code"]
     scopes = tokens.get("scope", "").split()
-    if "payments" not in scopes:
-        raise ProviderServiceError("SUMUP_SCOPE_REQUIRED", "SumUp precisa autorizar payments.", 409)
+    if "payments" not in scopes or not {"transactions.history", "transactions.read"}.intersection(
+        scopes
+    ):
+        raise ProviderServiceError(
+            "SUMUP_SCOPE_REQUIRED",
+            "SumUp precisa autorizar payments e consulta de transações.",
+            409,
+        )
     with transaction.atomic():
         connection, _ = MerchantConnection.objects.get_or_create(
             venue_id=actor.venue_id, provider="sumup", merchant_code=merchant_code

@@ -16,6 +16,13 @@ class PaymentsTest {
         assertFalse(IntegratedPayment("p", "tab", 1000, "CANCELLED").blocksNewCharge)
     }
 
+    @Test fun localExpiryNeverReleasesAnAmbiguousPayment() {
+        val payment = IntegratedPayment("p", "tab", 1000, "CONFIRMATION_PENDING", copyPaste = "saved-emv", expiresAt = "2000-01-01T00:00:00Z")
+        assertTrue(payment.blocksNewCharge)
+        assertFalse(payment.confirmed)
+        assertEquals("saved-emv", payment.copyPaste)
+    }
+
     @Test fun paytimeRemainsBlockedWithoutPrivateSdk() = runBlocking {
         val provider = PaytimeTapProvider(TapDeviceCapabilities(30, true, true, true))
         assertTrue(provider.availability() is TapToPayAvailability.Unavailable)

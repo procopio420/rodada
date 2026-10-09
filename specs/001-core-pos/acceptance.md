@@ -13,7 +13,14 @@
 - [x] Todo Order possui `tab_id`.
 - [x] Cada item confirmado gera efeito financeiro exatamente uma vez.
 - [x] Estados operacionais registram timestamps.
+- Item confirmado continua preparo/entrega após pagamento e fechamento financeiro;
+  `test_financial_close_does_not_strand_confirmed_production` verifica API/ledger.
 - [ ] Cancelamento pós-confirmação não apaga histórico e exige auditoria.
 - [x] Pagamento manual reduz exposure.
+- Retry de Payment manual já confirmado após fechamento recupera o mesmo ID;
+  payload diferente mantém conflito e nova intenção continua bloqueada.
+  Prova: `test_committed_payment_replay_after_close_recovers_original_receipt`.
+- Payload monetário fracionário, booleano, fora de intervalo ou malformado é
+  rejeitado sem Payment; `test_invalid_manual_payment_payload_cannot_truncate_cents_or_crash`.
 - [x] Tab com exposure zero pode ser fechada.
 - [ ] Caixa resume recebimentos por método.

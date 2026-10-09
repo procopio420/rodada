@@ -1,0 +1,31 @@
+name: Integrated release demo
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'demo/**'
+      - 'scripts/demo-*'
+      - 'apps/api/modules/ledger/**'
+      - 'apps/api/tests/test_release_concurrency.py'
+jobs:
+  shift-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Real HTTP shift and PostgreSQL/service restart
+        run: RODADA_DEMO_RESTART=1 bash scripts/demo-smoke.sh | tee /tmp/rodada-demo-ci.log
+        shell: bash --noprofile --norc -eo pipefail {0}
+      - name: PostgreSQL API and concurrency suite
+        run: docker compose -f demo/compose.yaml exec -T -e POSTGRES_DB=rodada_release_validation api python -m pytest --ds=rodada_api.settings
+      - name: Preserve sanitized shift evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-shift-evidence
+          path: |
+            /tmp/rodada-demo-shift.json
+            /tmp/rodada-demo-ci.log
+      - name: Stop demo
+        if: always()
+        run: docker compose -f demo/compose.yaml down

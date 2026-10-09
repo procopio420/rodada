@@ -182,8 +182,6 @@ def collect_payment(
     tab = Tab.objects.select_for_update().filter(pk=tab_id, venue_id=actor.venue_id).first()
     if not tab:
         raise LedgerServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
-    if tab.state == TabState.CLOSED:
-        raise LedgerServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     if amount_cents <= 0 or method not in PaymentMethod.values or not idempotency_key:
         raise LedgerServiceError("INVALID_PAYMENT", "Pagamento inválido.")
     if method in (PaymentMethod.TAP_TO_PAY, PaymentMethod.CARD_ONLINE):
@@ -197,6 +195,10 @@ def collect_payment(
         if existing.amount_cents != amount_cents or existing.method != method:
             raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro pagamento.", 409)
         return existing, totals(tab)
+    # A lost response may be recovered after another client closes the Tab.
+    # Replaying a committed identity is a read; only new money needs an open Tab.
+    if tab.state == TabState.CLOSED:
+        raise LedgerServiceError("TAB_CLOSED", "Comanda fechada não recebe pagamento.", 409)
     if Payment.objects.filter(tab=tab, provider__gt="", status__in=(
         PaymentStatus.CREATED, PaymentStatus.PENDING, PaymentStatus.PROCESSING,
         PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING,

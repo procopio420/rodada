@@ -1,0 +1,38 @@
+{
+  "run_id": "9c66483634",
+  "payment_classification": "MANUAL_TEST",
+  "native_android_ui": "NOT_RUN",
+  "tabs": [
+    "29f9e8ae-e72b-4a1d-a015-d66ef70fbcc1",
+    "03e7a2c2-84f7-4c31-af53-92debf47b3db",
+    "ded6fce7-d59a-4f9a-a4f2-b0177ab94f1d"
+  ],
+  "shift_id": "2ca9834b-863a-461c-9fab-f2cbf6b2ea1e",
+  "business_date": "2026-10-09",
+  "report_totals": {
+    "gross_cents": 55700,
+    "adjustments_cents": -3600,
+    "net_sales_cents": 52100,
+    "paid_cents": 55700,
+    "refunds_cents": 3600,
+    "net_received_cents": 52100,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "report_delta": {
+    "gross_cents": 8900,
+    "adjustments_cents": -600,
+    "net_sales_cents": 8300,
+    "paid_cents": 8900,
+    "refunds_cents": 600,
+    "net_received_cents": 8300,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "cash_expected_cents": 14300,
+  "cash_discrepancy_cents": 0,
+  "sse_replay": true,
+  "duplicate_order": "4ddabd35-1496-4cf7-b6b0-7a1cb7862fbf",
+  "duplicate_payment": "ea8392ca-8b3c-4aae-ac77-57c1f5fef16e",
+  "audit_events_observed": 200
+}

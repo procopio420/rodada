@@ -1,3 +1,5 @@
+> Updated audit and executable callback/activation instructions: [2026-10-09 readiness](provider-readiness-2026-10-09.md).
+
 # Payment activation: one small step at a time
 
 This is the operational plan for getting SumUp access, finishing Rodada's real SDK

@@ -278,6 +278,31 @@ def apply_provider_result(
     ):
         return payment, attempt, True
 
+    settlement_key = (
+        result.metadata.get("settlement_key", "") if incoming == PaymentStatus.CONFIRMED else ""
+    )
+    if settlement_key:
+        # Serialize ownership across Tabs/Venues; distinct checkout IDs cannot spend
+        # the same merchant transaction twice. DB uniqueness is the final guard.
+        if transaction.get_connection().vendor == "postgresql":
+            with transaction.get_connection().cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_advisory_xact_lock(%s)",
+                    [
+                        int.from_bytes(
+                            hashlib.sha256(settlement_key.encode()).digest()[:8], "big", signed=True
+                        )
+                    ],
+                )
+        if (
+            Payment.objects.filter(provider_settlement_key=settlement_key)
+            .exclude(pk=payment.pk)
+            .exists()
+        ):
+            incoming = PaymentStatus.CONFIRMATION_PENDING
+            result = ProviderResult(status=incoming, error_code="SETTLEMENT_ALREADY_OWNED")
+            settlement_key = ""
+
     now = timezone.now()
     previous_status = payment.status
     payment_updates = []
@@ -297,6 +322,9 @@ def apply_provider_result(
         attempt_updates.append("error_code")
 
     if incoming == PaymentStatus.CONFIRMED:
+        if settlement_key:
+            payment.provider_settlement_key = settlement_key
+            payment_updates.append("provider_settlement_key")
         payment.status, payment.confirmed_at = PaymentStatus.CONFIRMED, now
         attempt.status, attempt.finished_at = PaymentAttemptStatus.CONFIRMED, now
         payment_updates.extend(["status", "confirmed_at"])
