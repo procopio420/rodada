@@ -21,3 +21,28 @@ class TabOperationRecoveryTest {
         assertEquals(1501L, body.getJSONArray("lines").getJSONObject(0).getLong("amount_cents"))
     }
 }
+
+class TabOperationPresentationTest {
+    private val capabilities = setOf("tab.move", "tab.transfer", "tab.cancel_empty", "tab.reopen")
+
+    @Test fun closedAndCancelledTabsDoNotOfferFinancialTransfers() {
+        assertEquals(listOf("REOPEN"), tabOperationOptions(capabilities, "CLOSED").map { it.first })
+        assertTrue(tabOperationOptions(capabilities, "CANCELLED").isEmpty())
+        assertTrue(tabOperationOptions(capabilities, "SETTLING").isEmpty())
+        assertTrue(tabOperationOptions(emptySet(), "CLOSED").isEmpty())
+        assertEquals(5, tabOperationOptions(capabilities, "OPEN").size)
+    }
+
+    @Test fun refreshFailurePreservesTheOriginalServerRejection() = kotlinx.coroutines.runBlocking {
+        val rejection = OperationsApiException(409, "VERSION_CONFLICT", "Confira a seleção.")
+        val refreshFailure = java.io.IOException("Read timed out")
+        try {
+            refreshAfterTabOperationRejection(rejection) { throw refreshFailure }
+            fail("Must surface the original rejection")
+        } catch (caught: OperationsApiException) {
+            assertSame(rejection, caught)
+            assertEquals("VERSION_CONFLICT", caught.code)
+            assertSame(refreshFailure, caught.suppressed.single())
+        }
+    }
+}

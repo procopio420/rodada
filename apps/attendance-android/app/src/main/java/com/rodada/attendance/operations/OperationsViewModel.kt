@@ -103,8 +103,14 @@ class OperationsViewModel(
             // Deterministic server rejection means no commit. Network ambiguity retains the exact command.
             if (error.status in 400..499) {
                 pendingMutationIntentStore.remove(intent.id)
-                state = state.copy(pendingTabOperation = null, operationPreview = null)
-                state = state.copy(operationState = repository.operationState(session, id), tabs = repository.tabs(session))
+                state = state.copy(pendingTabOperation = null, operationPreview = null,
+                    operationState = null, connectivity = ConnectivityState.STALE)
+                refreshAfterTabOperationRejection(error) {
+                    val canonical = repository.operationState(session, id)
+                    val tabs = repository.tabs(session)
+                    state = state.copy(operationState = canonical, tabs = tabs,
+                        connectivity = ConnectivityState.ONLINE)
+                }
             }
             throw error
         }
