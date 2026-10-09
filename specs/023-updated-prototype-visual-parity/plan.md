@@ -41,3 +41,11 @@ Resultado do recorte V03: [comparação e diferenças](../../docs/design/v03-kit
 5. Comparar Cozinha e Bar, repetir fixture V03 sem mudar referência ou limites; typecheck/build/test:visual/test:realtime. Registrar diferenças ainda abertas. Sem merge/push.
 
 Resultado do recorte: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md). V04 global permanece aberta.
+
+## V05 parcial — navegação do Atendimento
+
+Extrair navegação para composable usado por produção/instrumentação, promover medidas ao design system, comparar crop HTML e screenshot nativa antes de qualquer baseline.
+
+Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
+
+Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem baseline nativa total aprovada.

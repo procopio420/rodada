@@ -396,3 +396,9 @@ StatusBadge de disponibilidade mantém seu contrato: raio 4, texto 12/900, paddi
 `stationOrder` agrupa visualmente itens pelo Order, com uma única Tab/destino e `stationOrderItems`. Cada `stationTicket` mantém produto/quantidade/customização, estado, tempo e ação individual; um bloco não oferece confirmação em lote. Sem identidade de Order, cada item permanece separado.
 
 Mobile: destino acima dos itens, ação de largura útil e altura mínima 56. Desktop ≥1200: destino 84 px, conteúdo flexível e ação 116 px, gaps 16; o grupo tem padding 12/20/12/24 e uma divisória externa, com gap 12 entre itens. Reutilizar tokens de cor/espaço/toque/fontes; `--production-ticket-destination` e `--production-ticket-action` promovem as medidas existentes 84/116 para compartilhamento. Não suprimir estado, tempo ou customização para imitar o export.
+
+## V05 parcial — navegação nativa
+
+AttendanceNavigation usa Ground/Surface/Paper/Ink/Muted existentes, Archivo Label, barra 84 dp com padding inferior 8, centro 136, margens centrais 10/4/2 e raio 12; ícones 24, gap 5, label 14 e marcador ativo 3. Medidas promovidas em AttendanceNavTokens, baseadas em .nav/.nb/.ngo do export night. Mesas/Caixa ficam na extensão operacional anterior, com targets mínimos 44 dp; insets pertencem ao AuthApp.
+
+Medição executável confirmou borda superior 1 px: laterais 127×75, botão central 128×63 no conteúdo 390. Token Subtle (já canônico no sistema) usado nas laterais inativas. Sombra de tecla 4 dp. A referência literal inclui cantos da moldura; crop derivado remove apenas border-radius da .phone, não a região .nav, para separar chrome de apresentação.

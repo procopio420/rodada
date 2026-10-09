@@ -57,3 +57,11 @@ Agrupamento é somente visual: cada mutation continua no endpoint de um único O
 Referência e fixture V03 permanecem intactas. Este recorte mede agrupamento, geometria e ações individuais; a diferença dos dois botões reais de P08 contra um botão ilustrativo do export permanece explícita. V04 completa e equivalência integral continuam fora do aceite parcial.
 
 Resultado do recorte: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md). V04 global permanece aberta.
+
+## V05 parcial — navegação do Atendimento
+
+Navegação canônica de 84 dp com região central de 136 dp em 390 dp; seleção semântica e callbacks atuais preservados. Mesas/Caixa seguem acessíveis em extensão identificada, sem inventar dados.
+
+Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
+
+Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem baseline nativa total aprovada.
