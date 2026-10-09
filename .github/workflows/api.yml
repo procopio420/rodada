@@ -37,7 +37,7 @@ jobs:
       - name: Tests
         run: pytest
 
-  house-account-postgres:
+  full-postgres:
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -63,5 +63,5 @@ jobs:
           python-version: "3.13"
       - name: Install
         run: pip install -e ".[dev]"
-      - name: House Account row locking, migration and HTTP E2E
-        run: pytest tests/test_house_account.py tests/test_house_account_migration.py tests/test_house_account_e2e.py tests/test_web_completion.py tests/test_quick_catalog.py tests/test_catalog_upgrade.py tests/test_tab_operations.py tests/test_tab_operations_e2e.py --ds=rodada_api.settings
+      - name: Full PostgreSQL suite including row locks and financial reconciliation
+        run: pytest --ds=rodada_api.settings
