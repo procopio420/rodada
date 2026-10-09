@@ -202,9 +202,9 @@
       "acceptance_file": "specs/014-connectivity-degraded-operation/acceptance.md",
       "section": "Cross-surface propagation",
       "criterion": "**Given** Atendimento confirms an Order through the canonical HTTP command path  \n**When** the backend commits the Order and its outbox fact  \n**Then** every authorized affected surface can receive the resulting state change through the shared realtime contract without calling another frontend.",
-      "status": "PASS",
+      "status": "PARTIAL",
       "implementation_file": "apps/api/modules/realtime; apps/web/lib/client/realtime.ts; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations",
-      "test_evidence": "2026-10-09 fresh scripts/verify_realtime.py against uvicorn18765 and PostgreSQL17.11: passed live_guest, publication_process_restart, replay, cursor_reset. confirmation_to_event_ms=1234. Redis restart false; no device/network handoff claim.",
+      "test_evidence": "Fresh live guest SSE propagation passed on initial QA base; all authorized native/Web surfaces not yet freshly verified. Initial full suite interrupted. Integrator owns final complete-service evidence.",
       "owner": "QA / integrator for cross-owner recovery",
       "next_action": "Repeat on integrated release head and native/Web clients; separately verify API/database restarts and busy-shift workload."
     },
