@@ -291,18 +291,13 @@ private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Com
 
 @Composable
 private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit, onOpenTab: () -> Unit, busy: Boolean) {
-    Column(modifier = Modifier.fillMaxWidth().background(RodadaVisual.Surface)) {
-        HorizontalDivider(color = RodadaVisual.Border)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            TextButton(onClick = { onSelect(FrontlineSection.TABLES) }) { Text("Mesas") }
-            if (canUseCash) TextButton(onClick = { onSelect(FrontlineSection.CASH) }) { Text("Caixa") }
-        }
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { onSelect(FrontlineSection.NOW) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) { Text("AGORA", color = if (section == FrontlineSection.NOW) RodadaVisual.Paper else RodadaVisual.Muted) }
-            Button(onClick = onOpenTab, enabled = !busy, modifier = Modifier.weight(1.2f)) { Text("+ PEDIR") }
-            TextButton(onClick = { onSelect(FrontlineSection.TABS) }, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) { Text("CONTAS", color = if (section == FrontlineSection.TABS) RodadaVisual.Paper else RodadaVisual.Muted) }
-        }
-    }
+    com.rodada.attendance.ui.AttendanceNavigation(
+        selected = com.rodada.attendance.ui.AttendanceDestination.valueOf(section.name),
+        canUseCash = canUseCash,
+        busy = busy,
+        onSelect = { onSelect(FrontlineSection.valueOf(it.name)) },
+        onOpenTab = onOpenTab,
+    )
 }
 
 @Composable

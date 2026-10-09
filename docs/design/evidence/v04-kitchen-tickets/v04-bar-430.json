@@ -1,0 +1,18 @@
+{
+  "station": "BAR",
+  "width": 430,
+  "groups": 5,
+  "items": 6,
+  "destination": {
+    "x": 24,
+    "y": 947.421875,
+    "width": 386,
+    "height": 25.296875
+  },
+  "action": {
+    "x": 24,
+    "y": 1044.96875,
+    "width": 386,
+    "height": 56
+  }
+}

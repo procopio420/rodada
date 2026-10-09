@@ -1,0 +1,99 @@
+{
+  "label": {
+    "gap": "6px",
+    "fontSize": "14px",
+    "fontWeight": "800",
+    "tracking": "1.4px"
+  },
+  "refLabel": {
+    "gap": "6px",
+    "fontSize": "14px",
+    "fontWeight": "800",
+    "tracking": "1.4px"
+  },
+  "badges": [
+    {
+      "text": "Disponível",
+      "state": "success",
+      "radius": "4px",
+      "fontSize": "12px",
+      "fontWeight": "900",
+      "height": 28
+    },
+    {
+      "text": "Disponível",
+      "state": "success",
+      "radius": "4px",
+      "fontSize": "12px",
+      "fontWeight": "900",
+      "height": 28
+    },
+    {
+      "text": "Disponível",
+      "state": "success",
+      "radius": "4px",
+      "fontSize": "12px",
+      "fontWeight": "900",
+      "height": 28
+    },
+    {
+      "text": "Disponível",
+      "state": "success",
+      "radius": "4px",
+      "fontSize": "12px",
+      "fontWeight": "900",
+      "height": 28
+    },
+    {
+      "text": "Disponível",
+      "state": "success",
+      "radius": "4px",
+      "fontSize": "12px",
+      "fontWeight": "900",
+      "height": 28
+    }
+  ],
+  "referenceBadges": [
+    {
+      "text": "Da Casa",
+      "radius": "4px",
+      "height": 28,
+      "fontSize": "15px",
+      "fontWeight": "800",
+      "tracking": "1.35px"
+    },
+    {
+      "text": "Da Casa",
+      "radius": "4px",
+      "height": 28,
+      "fontSize": "14px",
+      "fontWeight": "800",
+      "tracking": "1.26px"
+    },
+    {
+      "text": "Regular",
+      "radius": "4px",
+      "height": 28,
+      "fontSize": "14px",
+      "fontWeight": "800",
+      "tracking": "1.26px"
+    },
+    {
+      "text": "Conhecido",
+      "radius": "4px",
+      "height": 28,
+      "fontSize": "14px",
+      "fontWeight": "800",
+      "tracking": "1.26px"
+    },
+    {
+      "text": "Paga na hora",
+      "radius": "4px",
+      "height": 28,
+      "fontSize": "14px",
+      "fontWeight": "800",
+      "tracking": "1.26px"
+    }
+  ],
+  "equivalence": "Relationship seals and navigation counters are not ProductAvailability. No pixel-equivalence claim for StatusBadge."
+}

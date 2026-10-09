@@ -1,0 +1,27 @@
+[
+  {
+    "manifest": "docs/design/evidence/v01-kitchen/sha256.json",
+    "files": 20,
+    "mismatches": []
+  },
+  {
+    "manifest": "docs/design/evidence/v02-field-status/sha256.json",
+    "files": 40,
+    "mismatches": []
+  },
+  {
+    "manifest": "docs/design/evidence/v03-kitchen/sha256.json",
+    "files": 25,
+    "mismatches": []
+  },
+  {
+    "manifest": "docs/design/evidence/v04-kitchen-tickets/sha256.json",
+    "files": 37,
+    "mismatches": []
+  },
+  {
+    "manifest": "docs/design/evidence/v05-atendimento-shell/sha256.json",
+    "files": 15,
+    "mismatches": []
+  }
+]

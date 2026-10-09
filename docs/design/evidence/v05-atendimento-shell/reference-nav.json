@@ -1,0 +1,38 @@
+{
+  "bounds": {
+    "width": 390,
+    "height": 84
+  },
+  "children": [
+    {
+      "text": "Agora",
+      "width": 127,
+      "height": 75,
+      "style": {
+        "fontSize": "14px",
+        "color": "rgb(243, 236, 225)",
+        "background": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "text": "Pedir",
+      "width": 128,
+      "height": 63,
+      "style": {
+        "fontSize": "18px",
+        "color": "rgb(23, 19, 15)",
+        "background": "rgb(243, 236, 225)"
+      }
+    },
+    {
+      "text": "Contas",
+      "width": 127,
+      "height": 75,
+      "style": {
+        "fontSize": "14px",
+        "color": "rgb(163, 150, 134)",
+        "background": "rgba(0, 0, 0, 0)"
+      }
+    }
+  ]
+}

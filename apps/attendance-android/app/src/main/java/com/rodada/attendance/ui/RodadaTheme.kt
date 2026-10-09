@@ -30,6 +30,7 @@ object RodadaVisual {
     val Paper = Color(0xFFF3ECE1)
     val Ink = Color(0xFF17130F)
     val Muted = Color(0xFFBBAE9B)
+    val Subtle = Color(0xFFA39686)
     val Amber = Color(0xFFF5A524)
     val Success = Color(0xFF93DB8C)
     val Danger = Color(0xFFFF5D47)

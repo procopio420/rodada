@@ -1,0 +1,17 @@
+{
+  ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+  "android-verified.log": "eeb1dc6c0a037be2370585de4dc577dc7e7a12282aa572ce7ecc709b299223a0",
+  "environment.json": "253995b8a581db62bdfcdddfa691b300135fbbdbd01288425969fbc31e59efc3",
+  "instrumentation.xml": "3f702db3647ade3da7e3cdcf53fd000bfedb503f5d6a639411450da0ec635230",
+  "nav-now-0.png": "61d418c01cbc542749e6038326bddf5f785ae1ecb10e23af7c2da97742880011",
+  "nav-now-1.png": "61d418c01cbc542749e6038326bddf5f785ae1ecb10e23af7c2da97742880011",
+  "nav-tabs-busy-0.png": "c426cf60a787ad2378b27ed5954bf37e8a26184458b23239df913b017cc0f4aa",
+  "nav-tabs-busy-1.png": "c426cf60a787ad2378b27ed5954bf37e8a26184458b23239df913b017cc0f4aa",
+  "nav.diff.png": "eb95a7ad201aaa49bc971c3bf2eb2688ab28d09639354066d69047f0fc2bdeee",
+  "nav.pair.png": "cb349b58efd5de9e5f0ccb024075ef6a989d755cfab40424413b1cc1a766b05b",
+  "nav.stats.json": "159548ff48a4c424b2e1a4dc6e4b24c32f4483b135bfbedf2449710d7117ba91",
+  "reference-nav-content.png": "772a56102ac7f71cd30e885c6126831bb47caa694d1f5d648a7083b173ecbdd0",
+  "reference-nav.json": "3b8abeceff45b841ec86f52c7a8fd85dcf5f76a74d4dc1fd7b0da4515782b011",
+  "reference-nav.png": "56d1c5e9fd8ae1e6abfba748e9d1b30713a0195356380f2e68213c351cce250b",
+  "unit-results.json": "85a776f4e94a4df51848145dc5eaad888442e42e32de467ac771ad7f7b6b3907"
+}

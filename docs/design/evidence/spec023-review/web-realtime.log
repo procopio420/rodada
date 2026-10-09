@@ -1,0 +1,20 @@
+(node:5780) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Erick%20Grotz/.codex/worktrees/spec023-review/Rodada/apps/web/lib/client/realtime.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\Erick Grotz\.codex\worktrees\spec023-review\Rodada\apps\web\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ SSE parser handles delayed chunks and multiple frames (1.8073ms)
+✔ duplicate and reordered events invalidate once and never roll back (0.208ms)
+✔ unknown schemas cannot be accepted as canonical (0.0867ms)
+✔ SSE parser preserves CRLF split at transport boundaries (0.1256ms)
+✔ healthy fallback reads remain visibly stale after the reconnect budget (329.4946ms)
+✔ stream invalidates HTTP projections, resumes cursor, and resets to snapshot after gap (2940.3745ms)
+✔ SSE unavailable keeps canonical API fallback usable without sending commands (665.0878ms)
+✔ revoked subscriptions clear projections and stop reconnect (15.1284ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4208.9039

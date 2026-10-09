@@ -1,0 +1,17 @@
+{
+  "reference_png_unchanged": true,
+  "reference_sha256": "608b5814a75482103c840c03fca8a84978bb6fe957a2b509e649fa7b494449c9",
+  "before": {
+    "viewport_changed_pixels": 127755,
+    "viewport_percent": 12.4761,
+    "tickets_changed_pixels": 70772,
+    "tickets_percent": 18.6951
+  },
+  "after": {
+    "viewport_changed_pixels": 120164,
+    "viewport_percent": 11.7348,
+    "tickets_changed_pixels": 63181,
+    "tickets_percent": 16.6898
+  },
+  "full_fidelity_verified": false
+}

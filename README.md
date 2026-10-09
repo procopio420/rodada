@@ -65,6 +65,8 @@ Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou ac
 
 Para reproduzir fielmente os protótipos atualizados, seguir o [plano pixel-perfect](docs/design/pixel-perfect-implementation-plan.md) e a [Spec 023](specs/023-updated-prototype-visual-parity/spec.md): contratos por tela/estado, medidas, fixtures equivalentes e gates Web/Android.
 
+Os recortes parciais V01–V05 e a correção da navegação com fonte ampliada estão reunidos no [inventário para revisão](docs/design/spec023-review.md). Checks locais e limites são registrados; a Spec 023 completa permanece aberta.
+
 O [plano de implementação](docs/architecture/full-product-implementation-plan.md) registra o estado real, lacunas dos protótipos, etapas P0–P6, backlog R01–R18 e gates de piloto, produto completo e produção. A [Spec 022](specs/022-full-product-implementation/spec.md) acompanha a entrega; planejamento não declara os fluxos restantes implementados.
 
 ## Roadmap por slices

@@ -1,0 +1,30 @@
+{
+  "base": "742faac639adc998f3a4da6d8af485b407317851",
+  "api": 36,
+  "abi": "x86_64",
+  "size": [
+    390,
+    844
+  ],
+  "densityDpi": 160,
+  "fontScale": 1.0,
+  "jdk": "Microsoft JDK 21, available runtime; source/target Java 17",
+  "gradle": "9.6.0",
+  "reference": {
+    "entry": "prototype/references/night/Main.dc.html",
+    "sha256": "912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f",
+    "normalization": "only presentation .phone border-radius removed in memory for content crop; literal retained"
+  },
+  "nativeStability": true,
+  "nativeGeometryAssertions": {
+    "nav": [
+      390,
+      84
+    ],
+    "centerButton": [
+      128,
+      63
+    ]
+  },
+  "nativeBaselineApproved": false
+}

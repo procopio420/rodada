@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { kitchenScenario, kitchenFixture, normalizeKitchenReference, kitchenBatches, waitingItems, readyItems, elapsed } from "./kitchen-scenario";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { fixture, layoutAndA11y, stable, widths, viewports, type State } from "./fixtures";
@@ -364,4 +366,164 @@ test("new kitchen reference comparison documents the adapted connected layout", 
   // Full-artboard differences remain a documented audit, not a renewed baseline:
   // no invented equipment/capacity, SLA bars, ownership or bulk transitions.
   await reference.close(); await actual.close();
+});
+
+
+test("V03 kitchen: shared deterministic data and explicit reference derivation", async ({ browser }) => {
+  const reference = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const actual = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const errors: string[] = [];
+  for (const page of [reference, actual]) page.on("pageerror", error => errors.push(error.message));
+  const referencePort = process.env.RODADA_REFERENCE_PORT ?? "3101";
+  const sourcePath = path.resolve(process.cwd(), "../../prototype/references/kitchen/Cozinha.dc.html");
+  const source = await readFile(sourcePath);
+  const zip = await readFile(path.resolve(process.cwd(), "../../prototype/Tela da Cozinha-html.zip"));
+  expect(createHash("sha256").update(zip).digest("hex")).toBe("ffa32367f3a04131922f75f2d7ebb4968c92e01451c7c32d6e4be1a94d428e63");
+  await reference.goto(`http://127.0.0.1:${referencePort}/prototype/references/kitchen/Cozinha.dc.html`);
+  await reference.locator(".k").waitFor();
+  const imagesReady = async (page: typeof reference) => page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all(Array.from(document.images).map(img => img.decode()));
+    return { archivo: document.fonts.check('600 20px Archivo'), mono: document.fonts.check('800 20px "JetBrains Mono"') };
+  });
+  await stable(reference); await imagesReady(reference);
+  await reference.screenshot({ path: path.join(artifactRoot, "v03-kitchen-literal.png") });
+  const stylesBefore = await reference.locator("style").allTextContents();
+  const normalized = await normalizeKitchenReference(reference);
+  expect(normalized).toEqual({ waitingOrders: 5, waitingItems: 6, ready: 2, transit: 1 });
+  expect(await reference.locator("style").allTextContents()).toEqual(stylesBefore);
+  expect(await readFile(sourcePath)).toEqual(source);
+  await expect(reference.locator(".dish .n")).toHaveText(kitchenBatches.map(batch => batch.name));
+  await expect(reference.locator(".dish .q")).toHaveText(kitchenBatches.map(batch => String(batch.quantity)));
+  const refChips = await reference.locator(".dish").evaluateAll(els => els.map(el => Array.from(el.querySelectorAll(".chip")).map(chip => chip.textContent)));
+  expect(refChips).toEqual(kitchenBatches.map(batch => batch.items.map(item => item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : ""))));
+  await kitchenFixture(actual); await actual.goto("/kitchen");
+  await expect(actual.locator(".stationTicket")).toHaveCount(waitingItems.length);
+  await expect(actual.locator(".notice[role=status]")).toContainText("Reconectando");
+  await expect(actual.locator(".stationDishHeading strong")).toHaveText(kitchenBatches.map(batch => batch.name));
+  await expect(actual.locator(".stationQuantity")).toHaveText(kitchenBatches.map(batch => String(batch.quantity)));
+  const actualChips = await actual.locator(".stationDish").evaluateAll(els => els.map(el => Array.from(el.querySelectorAll(".stationChips span")).map(chip => chip.textContent)));
+  expect(actualChips).toEqual(refChips);
+  await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
+  await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
+  await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Novo" : "Preparando"));
+  const refTickets = await reference.locator(".tk").evaluateAll(els => els.map(el => ({ text: el.querySelector(".i")!.textContent, age: el.querySelector(".a .mono")!.textContent, state: (el as HTMLElement).dataset.state })));
+  const orderIds = [...new Set(waitingItems.map(item => item.order_id))];
+  expect(refTickets).toEqual(orderIds.map(order => {
+    const items = waitingItems.filter(item => item.order_id === order);
+    return { text: items.map(item => `${item.quantity} ${item.product_name}`).join(" · ") + (items[0].state === "NEW" ? " NOVO" : ""), age: elapsed(items[0].created_at), state: items[0].state };
+  }));
+  await expect(actual.locator(".stationSummary b")).toHaveText(["5", "2"]);
+  await expect(reference.locator(".k > header b")).toHaveText(["Cozinha", "5", "1", "2"]);
+  await expect(reference.locator(".k > header .mono")).toHaveText("23:14");
+  expect(await actual.locator(".stationTicket").evaluateAll(els => els.map(el => el.closest(".stationOrder")!.querySelector(":scope > .stationTab")!.textContent))).toEqual(waitingItems.map(item => item.tab_label));
+  await expect(actual.locator(".stationSummary time")).toHaveText("23:14");
+  await expect(actual.locator(".stationPass > .stationPassRow > div > strong")).toHaveText(readyItems.map(item => `${item.quantity} ${item.product_name}`));
+  await expect(actual.locator(".stationPass > .stationPassRow time")).toHaveText(readyItems.map(item => elapsed(item.ready_at!)));
+  await expect(reference.locator(".pass .i")).toHaveText([...readyItems, ...kitchenScenario.items.filter(item => item.state === "PICKED_UP")].map(item => `${item.quantity} ${item.product_name}`));
+  await expect(reference.locator(".pass .w")).toHaveText(["Ninguém pegou · 3:40", "Esperando · 1:20", "Retirada registrada"]);
+  await expect(actual.locator(".stationTransit .stationPassMeta")).toHaveText("Retirada registrada");
+  await expect(actual.locator(".stationTransit .stationPassRow > div > strong")).toHaveText("1 Torresmo");
+  await expect(actual.locator(".stationTransit .stationTab")).toHaveText("P44");
+  await expect(actual.getByRole("button", { name: /^Aceitar:/ })).toHaveCount(1);
+  await expect(reference.locator(".tk button")).toHaveText(["Pronto", "Pronto", "Pronto", "Pronto", "Aceitar"]);
+  await stable(reference); await stable(actual);
+  const fonts = await Promise.all([imagesReady(reference), imagesReady(actual)]);
+  expect(fonts).toEqual([{ archivo: true, mono: true }, { archivo: true, mono: true }]);
+  const left = await reference.screenshot({ path: path.join(artifactRoot, "v03-kitchen-reference.png") });
+  const right = await actual.screenshot({ path: path.join(artifactRoot, "v03-kitchen-actual.png") });
+  // Two immediate frames: fixed browser clock, deterministic EOF/reconnect fixture and decoded assets.
+  expect(await reference.screenshot()).toEqual(left);
+  expect(await actual.screenshot()).toEqual(right);
+  await actual.screenshot({ path: path.join(artifactRoot, "v03-kitchen-actual-full.png"), fullPage: true });
+  await writeFile(path.join(artifactRoot, "v03-kitchen-derived.html"), await reference.content());
+  const stats = await comparison(left, right, "v03-kitchen-viewport");
+  const crop = (buffer: Buffer, x: number, y: number, width: number, height: number) => { const source = PNG.sync.read(buffer), result = new PNG({ width, height }); PNG.bitblt(source, result, x, y, width, height, 0, 0); return PNG.sync.write(result); };
+  const regions = [];
+  for (const region of [{ name: "header", x: 0, y: 0, width: 1280, height: 72 }, { name: "summary", x: 0, y: 72, width: 420, height: 728 }, { name: "tickets", x: 420, y: 72, width: 520, height: 728 }, { name: "pass", x: 940, y: 72, width: 340, height: 728 }]) {
+    regions.push(await comparison(crop(left, region.x, region.y, region.width, region.height), crop(right, region.x, region.y, region.width, region.height), `v03-kitchen-${region.name}`));
+  }
+  const l = PNG.sync.read(left), r = PNG.sync.read(right), overlay = new PNG({ width: l.width, height: l.height });
+  for (let i = 0; i < l.data.length; i++) overlay.data[i] = Math.round((l.data[i] + r.data[i]) / 2);
+  await writeFile(path.join(artifactRoot, "v03-kitchen-overlay.png"), PNG.sync.write(overlay));
+  const boxes = await Promise.all([reference, actual].map(page => page.locator(page === reference ? ".k > header, .k > section" : ".stationHeader, .productionWorkspace > section").evaluateAll(els => els.map(el => { const box = el.getBoundingClientRect(); return { x: box.x, y: box.y, width: box.width, height: box.height }; }))));
+  const assets = await Promise.all(kitchenScenario.products.map(async product => ({ product: product.id, sha256: createHash("sha256").update(await readFile(path.resolve(process.cwd(), "../../prototype/references/kitchen/assets", product.asset))).digest("hex") })));
+  await writeFile(path.join(artifactRoot, "v03-kitchen-contract-result.json"), JSON.stringify({ scenario: kitchenScenario, normalized, sourceSha256: createHash("sha256").update(source).digest("hex"), platform: process.platform, browser: browser.version(), fixedClock: kitchenScenario.now, fonts, assets, boxes, stats, regions, stable: { reference: createHash("sha256").update(left).digest("hex"), actual: createHash("sha256").update(right).digest("hex"), repeatIdentical: true }, equivalentData: true, equivalentLayout: stats.changedPercent <= 0.1, remainingGate: 0.1 }, null, 2) + "\n");
+  expect(errors).toEqual([]);
+  // V03 gates data/derivation/stability. A full visual gate is still unmet V04 work,
+  // recorded explicitly rather than changing thresholds or weakening existing assertions.
+  await reference.close(); await actual.close();
+});
+
+
+for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430, 1280]) {
+  test(`V04 Order groups: ${station} layout and individual actions at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width, height: 1024 } });
+    const page = await context.newPage();
+    await kitchenFixture(page, station);
+    // Axe needs its timers to run; keep Date fixed without pausing the event loop.
+    await page.clock.resume(); await page.clock.setFixedTime(new Date(kitchenScenario.now));
+    await page.goto(`/${station.toLowerCase()}`);
+    await expect(page.locator(".stationOrder")).toHaveCount(5);
+    await expect(page.locator(".stationTicket")).toHaveCount(6);
+    await expect(page.locator(".stationOrder > .stationTab")).toHaveText(["P22", "P08", "P25", "P41", "P37"]);
+    const sharedOrder = page.getByRole("group", { name: "Pedido: P08", exact: true });
+    await expect(sharedOrder.locator(".stationTab")).toHaveCount(1);
+    await expect(sharedOrder.locator(".stationTicket")).toHaveCount(2);
+    await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true })).toBeVisible();
+    await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeVisible();
+    await stable(page); await layoutAndA11y(page);
+    const destination = await sharedOrder.locator(".stationTab").boundingBox();
+    const action = await sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).boundingBox();
+    expect(action!.height).toBe(56);
+    if (width === 1280) { expect(destination!.width).toBe(84); expect(action!.width).toBe(116); }
+    else { expect(action!.width).toBeGreaterThanOrEqual(44); expect(action!.y).toBeGreaterThan(destination!.y); }
+    await page.screenshot({ path: path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.png`), fullPage: true });
+    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, action }, null, 2));
+    await context.close();
+  });
+}
+
+test("V04 Order grouping never merges different Orders or legacy items by Tab", async ({ page }) => {
+  await kitchenFixture(page);
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+    { ...kitchenScenario.items[1], id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
+  ] } }));
+  await page.goto("/kitchen");
+  await expect(page.locator(".stationOrder")).toHaveCount(4);
+  await expect(page.locator(".stationTicket")).toHaveCount(4);
+  await expect(page.locator(".stationOrder > .stationTab")).toHaveText(Array(4).fill("Mesmo destino"));
+  await expect(page.locator(".stationQuantity")).toHaveText("4");
+});
+
+test("V04 shared Order: marking one item ready never completes its sibling", async ({ page }) => {
+  await kitchenFixture(page);
+  await page.clock.resume(); await page.clock.setFixedTime(new Date(kitchenScenario.now));
+  const items = kitchenScenario.items.map(item => ({ ...item }));
+  const target = items.find(item => item.tab_label === "P08" && item.product_name === "Fritas")!;
+  const posts: Array<{ id: string; body: unknown }> = [];
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: items } }));
+  await page.route("**/api/pos/order-items/*/transition/", async route => {
+    expect(route.request().method()).toBe("POST");
+    const id = new URL(route.request().url()).pathname.split("/")[4];
+    const body = route.request().postDataJSON(); posts.push({ id, body });
+    const item = items.find(item => item.id === id)!;
+    expect(item.state).toBe("PREPARING"); expect(body).toEqual({ state: "READY" });
+    item.state = "READY"; item.ready_at = kitchenScenario.now;
+    await route.fulfill({ json: item });
+  });
+  await page.goto("/kitchen");
+  const group = page.getByRole("group", { name: "Pedido: P08", exact: true });
+  await expect(group.locator(".stationTicket")).toHaveCount(2);
+  await group.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).click();
+  await expect(group.locator(".stationTicket")).toHaveCount(1);
+  await expect(group.locator(".stationTicketContent > strong")).toHaveText("1 Calabresa");
+  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Preparando");
+  await expect(group.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeEnabled();
+  expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
+  await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);
+  await expect(page.locator(".stationOrder")).toHaveCount(5);
 });
