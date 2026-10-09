@@ -36,3 +36,6 @@ All provider columns are public-contract implementation, not live verification.
 - [ ] Financial realtime publisher integration when shared outbox is available.
 
 See validation-report.md for automated results; checkboxes do not assert sandbox/live verification.
+
+The step-by-step human and engineering activation sequence is in
+[provider-activation-steps.md](provider-activation-steps.md).
