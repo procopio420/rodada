@@ -86,8 +86,12 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 ## Acabamento de todas as telas Web
 
 - [x] Conferir Git/main ae416da, branch original e contrato antes do código.
-- [ ] Inventariar cobertura de todas as rotas e preservar documentos impressos.
-- [ ] Reutilizar ícones/headings/tokens em telas e componentes compartilhados.
-- [ ] Melhorar identificação de navegação e hierarquia de tickets sem mudar comandos.
-- [ ] Verificar matriz visual, estados, acessibilidade, adjacentes e API/PostgreSQL.
-- [ ] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
+- [x] Inventariar cobertura de todas as rotas e preservar documentos impressos.
+- [x] Reutilizar ícones/headings/tokens em telas e componentes compartilhados.
+- [x] Melhorar identificação de navegação e hierarquia de tickets sem mudar comandos.
+- [x] Verificar matriz visual, estados, acessibilidade, adjacentes e API/PostgreSQL.
+- [x] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
+
+Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
+
+Adaptação nesta base demo: [evidência específica](../../docs/design/spec023-demo-web-hierarchy.md). Páginas exclusivas da main não são importadas para esta base; cobertura completa é registrada na branch de revisão.
