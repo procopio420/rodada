@@ -1,3 +1,6 @@
+from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
+from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView
+from modules.payment_provider.views import (PaymentCapabilitiesView, IntegratedPaymentCreateView, IntegratedPaymentDetailView, PaytimeWebhookView)
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
@@ -79,6 +82,14 @@ def readiness(request):
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 
 urlpatterns = [
+    path("payments/device-authorizations/", PaymentDeviceAuthorizationView.as_view()),
+    path("payments/<uuid:payment_id>/refunds/integrated/", IntegratedRefundView.as_view()),
+    path("refunds/<uuid:refund_id>/reconcile/", IntegratedRefundReconcileView.as_view()),
+    path("payments/merchant-connections/", MerchantConnectionView.as_view()),
+    path("payments/capabilities/", PaymentCapabilitiesView.as_view()),
+    path("tabs/<uuid:tab_id>/payments/integrated/", IntegratedPaymentCreateView.as_view()),
+    path("payments/<uuid:payment_id>/integrated/", IntegratedPaymentDetailView.as_view()),
+    path("payments/webhooks/paytime/<uuid:venue_id>/", PaytimeWebhookView.as_view()),
     path("tabs/<uuid:tab_id>/operations/", OperationView.as_view()),
     path("tabs/<uuid:tab_id>/operations/preview/", PreviewView.as_view()),
     path("service-points/", ServicePointView.as_view()),
