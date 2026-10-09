@@ -26,12 +26,17 @@ class OperationalAlertPolicy(models.Model):
     fulfillment_warning_seconds = models.PositiveIntegerField(default=600)
     fulfillment_danger_seconds = models.PositiveIntegerField(default=1200)
     payment_pending_seconds = models.PositiveIntegerField(default=300)
+    guest_request_warning_seconds = models.PositiveIntegerField(default=300)
+    guest_request_danger_seconds = models.PositiveIntegerField(default=600)
 
     class Meta:
         constraints = [models.CheckConstraint(
             condition=models.Q(fulfillment_warning_seconds__gt=0) & models.Q(
                 fulfillment_danger_seconds__gt=models.F('fulfillment_warning_seconds')),
-            name='venue_alert_sla_ordered')]
+            name='venue_alert_sla_ordered'), models.CheckConstraint(
+            condition=models.Q(guest_request_warning_seconds__gt=0) & models.Q(
+                guest_request_danger_seconds__gt=models.F('guest_request_warning_seconds')),
+            name='venue_alert_guest_sla_ordered')]
 
 
 class OperationalAlert(models.Model):
