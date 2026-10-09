@@ -126,7 +126,7 @@ npm run test:integration
 # Android
 cd apps/attendance-android
 ./gradlew testDebugUnitTest assembleDebug lintDebug
-````
+```
 
 **Obrigatório:** reexecutar casos sensíveis em PostgreSQL; o caminho de SQLite rápido não comprova concorrência. Guardar logs com redaction, resultado de testes, SHA, ambiente, print das superfícies e balanço esperado/real. Não anexar PIN, bearer token, credenciais, dados de cliente ou secrets.
 
@@ -146,3 +146,35 @@ Após o gate de amanhã: fechar `011` e `015` se não concluídas; depois `013` 
 **Reconciliação de checklists é tarefa explícita:** `005` e `009` continuam com tarefas desmarcadas apesar de código/PRs; `007` tem trabalho parcial com tasks não atualizadas; `001` e `012` também podem ter divergências entre lista e implementação. Para cada item, relacionar `código + teste + critério` e marcar apenas evidência real; não calcular percentuais falsos usando somente `[x]`.
 
 **Primeira ação do próximo agente:** ler este plano e a `main` atual, identificar um P0 verificável do item 3, implementá-lo numa branch isolada, executar os testes correspondentes e abrir PR pequeno. **Próxima ação da coordenação:** rodar G0/G1 da main e integrar somente o que melhora o resultado de sexta-feira.
+
+## 8. Anexo — panorama das 23 specs na main em 08/10
+
+**Esta tabela indica código/resultado conhecido, não percentual de tarefas:** cada spec já possui `spec.md`, `plan.md`, `tasks.md` e `acceptance.md`; marque tarefas apenas depois de relacionar implementação, teste e critério.
+
+| Spec | Estado interpretado | Próxima ação |
+| --- | --- | --- |
+| [001](../../specs/001-core-pos/spec.md) | Parcial / base funcional | Revalidar turno completo e integração |
+| [002](../../specs/002-house-account/spec.md) | Checklist completo; código com testes | Garantir limites/overrides na demo |
+| [003](../../specs/003-dispatch/spec.md) | Parcial | Runs, SLA e provenance após demo |
+| [004](../../specs/004-table-guest-ordering/spec.md) | Parcial | Mapa/identificadores e UX depois do P0 |
+| [005](../../specs/005-catalog-ai-icons/spec.md) | Catálogo básico entregue; PR #46 aberto | Conciliar ícones/worker; IA não bloqueia |
+| [006](../../specs/006-payments-tap-on-phone/spec.md) | Adapters Pix e simulação; live bloqueado | Homologar PSP/SDK, Guest e realtime financeiro |
+| [007](../../specs/007-management-cockpit/spec.md) | Dashboard/relatórios parciais | Projeções, fechamento, métricas e alertas |
+| [008](../../specs/008-staff-auth-roles-devices/spec.md) | Base avançada | Completar smoke BYOD/revogação |
+| [009](../../specs/009-tab-operations/spec.md) | Implementação principal mergeada (#47) | Auditar checklist/testes e UX de conflitos |
+| [010](../../specs/010-product-modifiers-variants/spec.md) | Especificada, não comprovada na main | Implementar como frente prioritária |
+| [011](../../specs/011-pricing-discounts-service-charge/spec.md) | Reversões pontuais; motor pendente | Pricing e taxa após gate P0 |
+| [012](../../specs/012-cash-management/spec.md) | Operacional parcialmente | Integrar UX/contingência e fechamento |
+| [013](../../specs/013-venue-configuration/spec.md) | Parcial (ex.: calendário); centralização pendente | Configuração do Venue sem SQL |
+| [014](../../specs/014-connectivity-degraded-operation/spec.md) | Especificada; SSE/outbox pendente | Frente prioritária; fallback honesto |
+| [015](../../specs/015-receipts-printing-fallbacks/spec.md) | Especificada, implementação pendente | PrintJob/documentos, não bloquear demo sem hardware |
+| [016](../../specs/016-covers-party-size/spec.md) | Especificada, implementação pendente | Após campo validar importância |
+| [017](../../specs/017-order-corrections-exceptions/spec.md) | Cancelamento/estorno parciais | Remake e replacement com auditoria |
+| [018](../../specs/018-notifications-operational-escalation/spec.md) | Especificada, implementação pendente | Após runtime e cockpit |
+| [019](../../specs/019-specialized-surface-routing/spec.md) | Checklist completo | Regressão de hosts/superfícies |
+| [020](../../specs/020-web-operational-completion/spec.md) | Checklist completo (#43) | Regressão com features novas |
+| [021](../../specs/021-prototype-design-integration/spec.md) | Checklist completo (#51) | Preservar visual atual em integrações |
+| [022](../../specs/022-full-product-implementation/spec.md) | Plano integrador, não entrega | Continuar após demo |
+| [023](../../specs/023-updated-prototype-visual-parity/spec.md) | Paridade integral pendente | Gates visuais sem bloquear fluxo P0 |
+
+**Atenção:** PRs de agentes podem alterar este panorama durante a execução. Reavaliar o HEAD antes de usar a matriz como relatório de andamento; **planejamento não prova entrega**.
