@@ -18,10 +18,14 @@ export default defineConfig({
     colorScheme: "dark",
     trace: "retain-on-failure",
   },
-  webServer: {
+  webServer: [{
     command: "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100",
     reuseExistingServer: false,
     timeout: 120_000,
-  },
+  }, {
+    command: "python3 -m http.server 3101 --bind 127.0.0.1 --directory ../..",
+    url: "http://127.0.0.1:3101/prototype/references/",
+    reuseExistingServer: false,
+  }],
 });

@@ -6,7 +6,7 @@ import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
 
 
-type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
+type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string; ready_at?: string | null };
 type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
@@ -18,6 +18,7 @@ const tone = (state: string) => state === "READY" ? "success" : state === "PREPA
 const apiMessage = (body: unknown) => { const error = asApiError(body); return `${error.code} · ${error.message}`; };
 
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {
+  const [now, setNow] = useState(() => Date.now());
   const [items, setItems] = useState<Item[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [message, setMessage] = useState("");
@@ -56,7 +57,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
 
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => { if (!mutating.current) void load(); }, 5000);
+    const timer = window.setInterval(() => { setNow(Date.now()); if (!mutating.current) void load(); }, 5000);
     return () => window.clearInterval(timer);
   }, [load]);
 
@@ -77,9 +78,17 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     }
   }
 
-  const waiting = items.filter(item => item.state !== "READY");
+  const waiting = items.filter(item => Object.hasOwn(next, item.state));
   const ready = items.filter(item => item.state === "READY");
   const disabled = !!message || changingProductId !== null || changingItemId !== null;
+
+  const totals = new Map<string, number>();
+  for (const item of waiting) totals.set(item.product_name, (totals.get(item.product_name) ?? 0) + item.quantity);
+  function age(timestamp?: string | null) {
+    if (!timestamp || !Number.isFinite(Date.parse(timestamp))) return "Tempo não informado";
+    const seconds = Math.max(0, Math.floor((now - Date.parse(timestamp)) / 1000));
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  }
 
   return <main className="appShell productionShell">
     <header className="productHeader">
@@ -92,6 +101,41 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       {hasSnapshot && <p>Último estado confirmado. Ações pausadas até atualizar.</p>}
       <button className="buttonSecondary" onClick={() => void load(true)}>Tentar atualizar</button>
     </div>}
+    <div className="productionWorkspace">
+    <section className="panel productionSummary" aria-labelledby="summary-title" aria-busy={loading}>
+      <div className="eyebrow">Total para preparar</div>
+      <h2 id="summary-title">Por produto</h2>
+      {loading ? <div className="loadingState" role="status">Carregando resumo…</div> : Array.from(totals, ([name, quantity]) => <div className="dataRow" key={name}>
+        <strong>{name}</strong><span className="productionQuantity" aria-label={`${quantity} unidades`}>×{quantity}</span>
+      </div>)}
+      {!loading && hasSnapshot && !totals.size && <div className="emptyState">Tudo em dia.</div>}
+    </section>
+    <section className="panel panelWarning" aria-labelledby="queue-title" aria-busy={loading}>
+      <div className="eyebrow">Fila de produção</div>
+      <h2 id="queue-title">Em produção</h2>
+      {loading ? <div className="loadingState" role="status">Carregando fila…</div> : waiting.map(item => <article className="dataRow productionRow" key={item.id}>
+        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">Desde o pedido · {age(item.created_at)}</span></div>
+        <div className="actions">
+          <span className="statusBadge" data-state={tone(item.state)}>{labels[item.state] ?? item.state}</span>
+          {next[item.state] && <button className="buttonPrimary buttonWork" disabled={disabled}
+            aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`}
+            onClick={() => void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id)}>
+            {changingItemId === item.id ? "Salvando…" : next[item.state].label}
+          </button>}
+        </div>
+      </article>)}
+      {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
+    </section>
+    <section className="panel panelSuccess" aria-labelledby="ready-title" aria-busy={loading}>
+      <div className="eyebrow">Passe</div>
+      <h2 id="ready-title">Pronto para retirada</h2>
+      {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <div className="dataRow productionRow" key={item.id}>
+        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">No passe · {age(item.ready_at)}</span></div>
+        <span className="statusBadge" data-state="success">Pronto</span>
+      </div>)}
+      {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
+    </section>
+    </div>
     <section className="panel" aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
       <h2 id="availability-title">Disponibilidade agora</h2>
@@ -110,31 +154,6 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         </article>;
       })}
       {!loading && hasSnapshot && !products.length && <div className="emptyState">Nenhum produto roteado para esta estação.</div>}
-    </section>
-    <section className="panel panelWarning" aria-labelledby="queue-title" aria-busy={loading}>
-      <div className="eyebrow">Fila de produção</div>
-      <h2 id="queue-title">Em produção</h2>
-      {loading ? <div className="loadingState" role="status">Carregando fila…</div> : waiting.map(item => <article className="dataRow productionRow" key={item.id}>
-        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small></div>
-        <div className="actions">
-          <span className="statusBadge" data-state={tone(item.state)}>{labels[item.state] ?? item.state}</span>
-          {next[item.state] && <button className="buttonPrimary" disabled={disabled}
-            aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`}
-            onClick={() => void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id)}>
-            {changingItemId === item.id ? "Salvando…" : next[item.state].label}
-          </button>}
-        </div>
-      </article>)}
-      {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
-    </section>
-    <section className="panel panelSuccess" aria-labelledby="ready-title" aria-busy={loading}>
-      <div className="eyebrow">Passe</div>
-      <h2 id="ready-title">Pronto para retirada</h2>
-      {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <div className="dataRow productionRow" key={item.id}>
-        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small></div>
-        <span className="statusBadge" data-state="success">Pronto</span>
-      </div>)}
-      {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
     </section>
     <QuickCatalog station={station} onChanged={() => load(true)} />
   </main>;

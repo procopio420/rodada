@@ -186,3 +186,96 @@ test("staff login keyboard order and submitted failure", async ({ page }) => {
   await page.keyboard.press("Enter"); await expect(page.locator(".notice[role=alert]")).toContainText("AUTH_INVALID");
   await expect(page.getByLabel("PIN", { exact: true })).toHaveValue("");
 });
+
+const importedRoot = "http://127.0.0.1:3101/prototype/references";
+for (const [folder, entry] of [["night", "Main"], ["system", "Sistema"], ["kitchen", "Cozinha"], ["peak", "Pico"], ["connectivity", "Offline"]]) {
+  test(`imported ${folder} reference renders with local assets`, async ({ page }) => {
+    const errors: string[] = [];
+    page.on("pageerror", error => errors.push(error.message));
+    page.on("response", response => { if (response.status() >= 400) errors.push(response.url()); });
+    await page.goto(`${importedRoot}/${folder}/${entry}.dc.html`);
+    await expect(page.locator("x-dc")).toHaveCount(0); // The runtime replaces its source template.
+    await expect(page.locator(".stage, .ds, .k, .ph").first()).toBeVisible();
+    await expect(page.locator("button").first()).toBeVisible();
+    await stable(page);
+    await expect.poll(() => page.locator("img").evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+    expect(errors).toEqual([]);
+  });
+}
+
+test("production action matches the new executable system reference", async ({ browser }) => {
+  const reference = await browser.newPage(), actual = await browser.newPage();
+  await reference.goto(`${importedRoot}/system/Sistema.dc.html`);
+  await expect(reference.locator(".ds")).toBeVisible();
+  await fixture(actual); await actual.goto("/kitchen");
+  for (const [page, html] of [[reference, '<button class="btn" style="width:100%">Pronto</button>'], [actual, '<button class="buttonPrimary buttonWork">Pronto</button>']] as const) {
+    await page.evaluate(content => { document.body.innerHTML = `<main class="ds" style="width:358px;margin:16px;font-family:Archivo"><div id="primitive">${content}</div></main>`; }, html);
+    await stable(page);
+  }
+  const stats = await comparison(await reference.locator("#primitive").screenshot(), await actual.locator("#primitive").screenshot(), "new-system-production-action");
+  expect(stats.changedPercent).toBeLessThanOrEqual(0.1);
+  await reference.close(); await actual.close();
+});
+
+test("production prioritizes work, sums quantities and preserves individual transitions", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+    { id: "one", state: "PREPARING", quantity: 2, product_name: "Fritas", tab_label: "João", created_at: "2026-10-08T20:58:00Z" },
+    { id: "two", state: "NEW", quantity: 3, product_name: "Fritas", tab_label: "Maria", created_at: "2026-10-08T20:59:00Z" },
+    { id: "ready", state: "READY", quantity: 8, product_name: "Fritas", tab_label: "Passe", created_at: "2026-10-08T20:50:00Z", ready_at: "2026-10-08T20:59:30Z" },
+    { id: "picked", state: "PICKED_UP", quantity: 20, product_name: "Fritas", tab_label: "Já retirado", created_at: "2026-10-08T20:50:00Z" },
+    { id: "unknown", state: "READY", quantity: 1, product_name: "Omelete", tab_label: "Passe antigo", created_at: "2026-10-08T20:50:00Z" },
+  ] } }));
+  await page.goto("/kitchen");
+  await expect(page.locator(".productionSummary")).toContainText("×5");
+  await expect(page.getByText("No passe · 0:30", { exact: true })).toBeVisible();
+  await expect(page.getByText("No passe · Tempo não informado", { exact: true })).toBeVisible();
+  const order = await page.locator("main h2").allTextContents();
+  expect(order.indexOf("Em produção")).toBeLessThan(order.indexOf("Disponibilidade agora"));
+  let requestBody: unknown;
+  await page.route("**/api/pos/order-items/one/transition/", async route => {
+    requestBody = route.request().postDataJSON();
+    await route.fulfill({ status: 503, json: { code: "UPSTREAM_UNAVAILABLE", message: "Estado não confirmado" } });
+  });
+  await page.getByRole("button", { name: "Pronto: 2 Fritas, João", exact: true }).click();
+  await expect(page.locator(".notice[role=alert]")).toContainText("Último estado confirmado");
+  expect(requestBody).toEqual({ state: "READY" });
+  await expect(page.getByRole("button", { name: "Aceitar: 3 Fritas, Maria", exact: true })).toBeDisabled();
+});
+
+test("new kitchen reference comparison documents the adapted connected layout", async ({ browser }) => {
+  const reference = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const actual = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await reference.goto(`${importedRoot}/kitchen/Cozinha.dc.html`);
+  await expect(reference.locator(".k")).toBeVisible();
+  await fixture(actual);
+  // Reproduce the exported ticket/pass contents. Equipment, zones and inferred
+  // ownership are deliberately absent: the current endpoint does not supply them.
+  const tickets = [
+    ["Bolinho de bacalhau", 2, "P22 · Galera da 22", 790],
+    ["Fritas", 1, "P08 · Renata", 562], ["Calabresa", 1, "P08 · Renata", 562],
+    ["Fritas", 2, "P25 · Turma do Vasco", 375], ["Calabresa", 1, "P41 · Carlos Mecânico", 250],
+    ["Fritas", 1, "P37 · João da Oficina", 31],
+  ] as const;
+  const items = tickets.map(([product_name, quantity, tab_label, seconds], index) => ({
+    id: `reference-${index}`, product_name, quantity, tab_label, state: "PREPARING",
+    created_at: new Date(Date.parse("2026-10-08T21:00:00Z") - seconds * 1000).toISOString(),
+  }));
+  const pass = [["Calabresa", "P12", 220], ["Bolinho", "B4", 80], ["Torresmo", "P44", 30]] as const;
+  await actual.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+    ...items, ...pass.map(([product_name, tab_label, seconds], index) => ({
+      id: `pass-${index}`, product_name, quantity: 1, tab_label, state: "READY",
+      created_at: "2026-10-08T20:45:00Z", ready_at: new Date(Date.parse("2026-10-08T21:00:00Z") - seconds * 1000).toISOString(),
+    })),
+  ] } }));
+  await actual.goto("/kitchen");
+  await expect(actual.locator(".productionSummary")).toContainText("×4");
+  await stable(reference); await stable(actual);
+  const columns = await actual.locator(".productionWorkspace").evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" "));
+  expect(columns).toHaveLength(3);
+  await comparison(await reference.screenshot({ path: path.join(artifactRoot, "new-kitchen-1280.reference.png") }),
+    await actual.screenshot({ path: path.join(artifactRoot, "new-kitchen-1280.actual.png") }), "new-kitchen-1280");
+  // Full-artboard differences remain a documented audit, not a renewed baseline:
+  // no invented equipment/capacity, SLA bars, ownership or bulk transitions.
+  await reference.close(); await actual.close();
+});
