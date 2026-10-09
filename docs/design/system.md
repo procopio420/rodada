@@ -14,7 +14,7 @@ O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para
 6. **Estado nunca depende só de cor.** Badge, texto ou ícone sempre acompanha a cor.
 7. **Sem “SaaS genérico”.** Evitar glassmorphism, cards decorativos, dashboards de vaidade, gradientes sem função e navegação de ERP.
 8. **Dinheiro e risco têm hierarquia própria.** Saldo, exposição, limite, pagamento e bloqueio devem ser legíveis em um relance.
-9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações de linha preferem 56 px e ações principais 68 px.
+9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações de produção usam 56 px.
 10. **Português operacional.** Rótulos curtos, concretos e orientados à ação.
 
 ## Linguagem visual
@@ -35,7 +35,7 @@ Use tokens semânticos; não use hex diretamente em componentes de produto.
 | `--color-border` | divisores e bordas |
 | `--color-text` | texto principal |
 | `--color-text-muted` | metadado/apoio |
-| `--color-accent` | atenção, seleção e marca Rodada |
+| `--color-accent` | seleção, trabalho pendente e marca Rodada |
 | `--color-success` | disponível, pronto, confirmado |
 | `--color-danger` | indisponível, erro, bloqueio, atraso crítico |
 | `--color-info` | informação, claim/ownership e estado neutro ativo |
@@ -55,7 +55,7 @@ Não reutilizar `success` para “da casa” ou `danger` para decoração.
 
 ## Tipografia
 
-Archivo variável é a fonte compartilhada; JetBrains Mono para tempo, quantidade e códigos. Arquivos locais com fallback system-ui/monospace evitam dependência de rede. Títulos usam peso 900 e largura 68%; ações de produção peso 850 e largura 84%. Prioridades:
+Archivo variável (peso 400–900, largura 62–125%) é a fonte do produto. JetBrains Mono é usada para quantidades, tempos e valores. Ambas são locais e licenciadas sob OFL. Prioridades:
 
 - títulos curtos e pesados;
 - números financeiros com peso forte e `font-variant-numeric: tabular-nums`;
@@ -63,9 +63,17 @@ Archivo variável é a fonte compartilhada; JetBrains Mono para tempo, quantidad
 - corpo nunca menor que 14 px em informação importante;
 - evitar blocos longos de texto em telas operacionais.
 
+### Referência aprovada em 08/10/2026
+
+Os cinco HTMLs fornecidos pelo usuário estão preservados em `prototype/material-reference`; a spec 022 adota sua identidade. Tokens canônicos: fundo `#120F0C`, estação `#0A0806`, passe `#100D0A`, superfícies `#1B1713 / #252019 / #312A21`, bordas `#3A3228 / #4D4335`, papel `#F3ECE1`, apoio `#BBAE9B`, sutil `#A39686`, ink `#17130F`, âmbar `#F5A524`, success `#93DB8C`, danger `#FF5D47`, info `#82B8FF`, financeiro `#C3A6FF`.
+
+Button primário usa papel/ink, altura 56px, raio 8px, Archivo 18px/850 com largura 84%, uppercase e tracking .06em; sombra interna inferior de 4px a 20%. Seleção continua âmbar. Badge e chip usam raio 4px. Painéis usam raio 12px; filas usam divisórias e não cards individuais. Cabeçalho operacional desktop usa 72px. Títulos de estação usam 38px/900 e largura 66%; pratos 44px/900 e largura 64%; quantidades 52px/800 mono. Mobile reduz títulos quando necessário, preservando nomes completos e alvos 44px.
+
+Contadores financeiros nunca recebem a cor de atraso apenas por representar dinheiro. A identidade visual não autoriza inventar SLA, responsável, equipamento, cliente ou sucesso de sincronização.
+
 Escala base:
 
-- `--text-xs`: 14 px
+- `--text-xs`: 12 px
 - `--text-sm`: 14 px
 - `--text-md`: 16 px
 - `--text-lg`: 20 px
@@ -295,7 +303,7 @@ A home **Agora** deve reutilizar `Metric`, `MoneyValue`, `Panel`, `DataRow`, `St
 Divergências de caixa e estornos pendentes aparecem antes do pulso operacional.
 Antes do primeiro snapshot confirmado, mostrar carregamento ou erro, sem números
 que aparentem zero medido. Falha de atualização preserva o último snapshot com
-aviso explícito. Rodapé discreto usa texto muted de 14 px, link com alvo de 44 px
+aviso explícito. Rodapé discreto usa texto muted de 12 px, link com alvo de 44 px
 e espaço suficiente para não ficar atrás da navegação ou carrinho fixos.
 
 Durante operação, Gerência funciona como cockpit. Fora do pico, a mesma superfície pode aumentar densidade para fechamento e analytics.
@@ -369,25 +377,8 @@ Quick Catalog combina Field, CatalogCombobox, ProductIcon, StatusBadge/semântic
 
 Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV, Panel para grupos de fatos e estados semânticos para conferência/divergência. Valores históricos e exposição atual são rotulados separadamente. Histórico de caixa usa seletor com data/estado e retorno explícito ao turno ativo; consultar histórico não altera estado financeiro. Todas as superfícies mantêm foco visível, targets 44 px e tokens existentes. Ver [Spec 020](../../specs/020-web-operational-completion/spec.md).
 
-## Noite v2 — Spec 021
+## Hierarquia operacional — Spec 021
 
-Referência nova: [galeria](../../prototype/references/index.html), [KB e decisões](prototype-integration.md). A referência anterior acompanha os novos tokens para impedir drift entre primitives. Os exports originais permanecem intactos nos ZIPs.
+Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
 
-| Token | Valor |
-| --- | --- |
-| bg / surface-1 / surface-2 / surface-3 | #120F0C / #1B1713 / #252019 / #312A21 |
-| border / border-strong | #3A3228 / #4D4335 |
-| text / text-muted / text-subtle | #F3ECE1 / #BBAE9B / #A39686 |
-| on-accent | #17130F |
-| accent / warning | #F5A524 |
-| success / danger / info | #93DB8C / #FF5D47 / #82B8FF |
-| money / money-bg | #C3A6FF / #2A2140 |
-| house / house-bg | #F2CFA4 / #4A2617 |
-
-Money e House são contexto, não novos estados de domínio: warning/danger continuam comunicando risco e bloqueio. Rampas de idade, pulse e limites financeiros dos exports são demonstrativos; política temporal não é fixada pelo CSS. `--shadow-key` é a sombra canônica de ação de produção. Não usar pulse contínuo obrigatório; respeitar reduced-motion. Ícones operacionais acompanham palavras; SVGs demonstrativos não substituem ProductIcon real.
-
-Atendimento nativo usa `RodadaTheme` com a mesma paleta escura, fonte Archivo empacotada e Shapes 4/8 px. Não aplica a paleta dinâmica do aparelho. A revisão de layout/fluxo nativo completo continua separada do port de tema.
-
-## Próxima entrega — paridade visual atualizada
-
-O [plano pixel-perfect](pixel-perfect-implementation-plan.md) e a [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) definem como alcançar fidelidade por tela/estado aos exports atualizados. A integração de tema/componentes não equivale a paridade completa; implementação e novos gates permanecem pendentes.
+Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.

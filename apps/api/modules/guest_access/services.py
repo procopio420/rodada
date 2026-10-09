@@ -258,8 +258,6 @@ def guest_catalog(*, session_token: str):
     # A staff block stops mutations immediately but should not erase the
     # guest's ability to inspect the menu/current visit in the PWA.
     session = _locked_authorized_session(token=session_token, require_ordering_enabled=False)
-    from modules.catalog.models import Product
+    from modules.catalog.queries import catalog_for_venue
 
-    return Product.objects.filter(venue_id=session.table.venue_id, active=True).select_related(
-        "availability", "icon"
-    )
+    return catalog_for_venue(venue_id=session.table.venue_id)

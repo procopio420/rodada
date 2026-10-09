@@ -5,6 +5,7 @@ const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
   pathname.startsWith("/api/") ||
   pathname === "/favicon.ico" ||
+  pathname === "/operational-sw.js" ||
   pathname === "/manifest.webmanifest";
 
 export function proxy(request: NextRequest) {

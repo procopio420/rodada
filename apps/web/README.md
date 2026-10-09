@@ -97,3 +97,9 @@ O protótipo continua como referência visual, não como fonte de regra de domí
 ## Invalidação de acesso
 
 Enquanto uma sessão staff está ativa, o Web/PWA consulta o invalidation feed em intervalo bounded. Mudança de role/device força nova leitura de `/auth/me` e limpa qualquer janela de reauth recente. Falha do feed não bloqueia operação: a API continua autoritativa em todas as mutations.
+
+## Revisão UX local — Spec 021
+
+Fila/passe vêm antes do catálogo em Bar/Cozinha e expandem para duas colunas em tablet/desktop. Gerência prioriza pulso/produção e mantém Conta da Casa em Gestão. Cliente mantém ícone/nome/preço separados; POS desabilita produto indisponível sem substituir a validação da API.
+
+A suíte visual cobre os seis viewports 360×800, 390×844, 430×932, 768×1024, 1280×800 e 1440×900. Na raiz, `node scripts/ux-review-gallery.mjs` gera o índice estático ignorado; `--before` preserva capturas antes das alterações. O launcher e o runner Django descartável são ferramentas locais, sem nova rota em produção. Consulte [auditoria, reprodução, evidências e limites](../../docs/design/operational-ux-review.md).

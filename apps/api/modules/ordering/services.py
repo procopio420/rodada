@@ -68,7 +68,7 @@ def confirm_order(
         raise OrderingServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
     if actor is not None and actor.venue_id != tab.venue_id:
         raise OrderingServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
-    normalized_lines: list[tuple[object, int]] = []
+    normalized_lines = []
     product_ids = []
     for line in lines:
         product_id = line.get("product_id")
@@ -79,7 +79,7 @@ def confirm_order(
                 "Cada item precisa de product_id e quantity positiva.",
                 400,
             )
-        normalized_lines.append((product_id, quantity))
+        normalized_lines.append(line)
         product_ids.append(product_id)
 
     request_fingerprint = _order_fingerprint(source=source, lines=normalized_lines)
@@ -116,7 +116,8 @@ def confirm_order(
     }
 
     invalid_products = []
-    for product_id, _quantity in normalized_lines:
+    for line in normalized_lines:
+        product_id = line["product_id"]
         product = locked_products.get(product_id)
         if product is None:
             invalid_products.append(
@@ -144,7 +145,9 @@ def confirm_order(
 
     from modules.house_account.services import financial_position, sync_attention
     position = financial_position(tab)
-    order_total = sum(locked_products[pid].price_cents * qty for pid, qty in normalized_lines)
+    from modules.catalog.customization import price_customization
+    snapshots = [price_customization(locked_products[line["product_id"]], line) for line in normalized_lines]
+    order_total = sum(snapshot["line_total_cents"] for snapshot in snapshots)
     if position["exposure_cents"] + order_total > position["effective_limit_cents"]:
         raise OrderingServiceError("SPENDING_LIMIT_EXCEEDED",
             "Consumo acima do limite. Receba um pagamento parcial ou solicite aprovação da gerência.",
@@ -161,12 +164,14 @@ def confirm_order(
         [
             OrderItem(
                 order=order,
-                product=locked_products[product_id],
-                product_name_snapshot=locked_products[product_id].name,
-                unit_price_cents=locked_products[product_id].price_cents,
-                quantity=quantity,
+                product_id=snapshot["product_id"],
+                product_name_snapshot=snapshot["product_name"],
+                unit_price_cents=snapshot["unit_price_cents"],
+                quantity=snapshot["quantity"],
+                customization_snapshot=snapshot,
+                fulfillment_station_snapshot=snapshot["fulfillment_station"],
             )
-            for product_id, quantity in normalized_lines
+            for snapshot in snapshots
         ]
     )
 
@@ -191,24 +196,35 @@ def confirm_order(
     # a mutable catalog price. One-to-one Charge makes retries exactly-once.
     from modules.ledger.services import create_charges_for_order
     create_charges_for_order(order, actor)
+    from modules.realtime.services import emit_event
+    emit_event(venue_id=tab.venue_id, event_type="order.confirmed", aggregate_type="Order",
+               aggregate_id=order.id, tab_id=tab.id)
     sync_attention(tab, actor)
 
     return order
 
 
-def _order_fingerprint(*, source: str, lines: list[tuple[object, int]]) -> str:
-    """Stable intent identity, insensitive to line ordering in a cart."""
-    quantities: dict[str, int] = {}
-    for product_id, quantity in lines:
-        product_key = str(product_id)
-        quantities[product_key] = quantities.get(product_key, 0) + quantity
-    payload = {
-        "source": source,
-        "lines": sorted(quantities.items()),
-    }
-    return hashlib.sha256(
-        json.dumps(payload, separators=(",", ":"), ensure_ascii=True).encode()
-    ).hexdigest()
+def _order_fingerprint(*, source: str, lines: list[dict]) -> str:
+    """Aggregate identical configurations; preserve variant, choices and note intent."""
+    # Preserve the already-deployed fingerprint for simple-product requests.
+    # Encrypted pre-upgrade intents must still replay confirmed Orders exactly once.
+    if all(not line.get("variant_id") and not line.get("modifier_option_ids")
+           and not line.get("special_instructions") for line in lines):
+        quantities = {}
+        for line in lines:
+            key = str(line["product_id"])
+            quantities[key] = quantities.get(key, 0) + line["quantity"]
+        payload = {"source": source, "lines": sorted(quantities.items())}
+        return hashlib.sha256(json.dumps(payload, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
+    quantities = {}
+    for line in lines:
+        configuration = json.dumps({"product_id": str(line["product_id"]),
+            "variant_id": str(line.get("variant_id")) if line.get("variant_id") else None,
+            "modifier_option_ids": sorted(str(i) for i in line.get("modifier_option_ids", [])),
+            "special_instructions": line.get("special_instructions", "")}, sort_keys=True)
+        quantities[configuration] = quantities.get(configuration, 0) + line["quantity"]
+    return hashlib.sha256(json.dumps({"source": source, "lines": sorted(quantities.items())},
+                                    separators=(",", ":")).encode()).hexdigest()
 
 
 _TRANSITIONS = {

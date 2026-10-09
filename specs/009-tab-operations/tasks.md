@@ -1,62 +1,80 @@
 # Tasks — Spec 009
 
 ## Domain/API
-- [ ] Define TabTransfer and TabTransferLine.
-- [ ] Define balanced ledger transfer effect.
-- [ ] Implement transferability calculation.
-- [ ] Implement move_tab_location.
-- [ ] Implement split/move open responsibility.
-- [ ] Implement merge duplicate Tabs.
-- [ ] Implement cancel_empty_tab.
-- [ ] Implement reopen_tab.
-- [ ] Define explicit TabIdentifier reassignment.
-- [ ] Normalize blocked-by-payment and stale-version errors.
-- [ ] Require idempotency key on structural mutations.
+
+- [x] Define TabTransfer and TabTransferLine.
+- [x] Define balanced ledger transfer effect.
+- [x] Implement transferability calculation.
+- [x] Implement move_tab_location.
+- [x] Implement split/move open responsibility.
+- [x] Implement merge duplicate Tabs.
+- [x] Implement cancel_empty_tab.
+- [x] Implement reopen_tab.
+- [ ] Define explicit TabIdentifier reassignment — deferred until Guest Access persists TabIdentifier; no identifiers are inherited or rebound by operations.
+- [x] Normalize blocked-by-payment and stale-version errors.
+- [x] Require idempotency key on structural mutations.
 
 ## Persistence
-- [ ] Tab optimistic version.
-- [ ] Transfer unique/idempotency constraints.
-- [ ] Source/destination provenance indexes.
-- [ ] Merge pointer / cancel reason.
-- [ ] Reopen audit metadata.
+
+- [x] Tab optimistic version.
+- [x] Transfer unique/idempotency constraints.
+- [x] Source/destination provenance indexes.
+- [x] Merge pointer / cancel reason.
+- [x] Reopen audit metadata.
 
 ## Android
-- [ ] Separate Mover local from Dividir/Mover consumo.
-- [ ] Item/quantity selection split UI.
-- [ ] Destination Tab create/search.
-- [ ] Transfer preview totals.
-- [ ] Merge survivor UI.
-- [ ] Paid/ambiguous blocker UX.
-- [ ] Manager reopen flow.
+
+- [x] Separate Mover local from Dividir/Mover consumo.
+- [x] Item/quantity selection split UI.
+- [x] Destination Tab create/search.
+- [x] Transfer preview totals.
+- [x] Merge survivor UI.
+- [x] Paid/ambiguous blocker UX.
+- [x] Manager reopen flow.
 
 ## Staff Web/PWA
+
 - [ ] Tab structural operations where relevant to cashier/manager surfaces.
 - [ ] Conflict refresh behavior.
 - [ ] Provenance display for transferred responsibility.
 
 ## Guest
-- [ ] No guest structural mutation.
-- [ ] Preserve GuestSession on location move.
-- [ ] Rejoin guidance after merge/source cancellation.
+
+- [x] No guest structural mutation.
+- [x] Preserve GuestSession on location move.
+- [x] Rejoin guidance in Android merge confirmation; source GuestSessions are revoked, never rebound.
 
 ## Realtime
-- [ ] Invalidate source and destination Tab.
-- [ ] Refresh Dispatch destination on location move.
-- [ ] Emit canonical transfer/merge/reopen facts.
+
+- [x] Emit source/destination invalidation metadata through durable AuditEvent; transport consumer integration belongs to Spec 019.
+- [x] Refresh Dispatch destination on location move.
+- [x] Emit canonical transfer/merge/reopen facts.
 
 ## Management
+
 - [ ] Timeline rendering.
 - [ ] Related Tabs drill-down.
-- [ ] Avoid double-counting balanced transfers as sales.
-- [ ] Surface post-close reopen exception.
+- [x] Avoid double-counting balanced transfers as sales; include responsibility transfers in current open exposure.
+- [x] Expose durable post-close reopen exception with original closure timestamp in operation history/audit. Daily-close-specific policy awaits the DailyClose owner.
 
 ## Quality/tests
-- [ ] Total Venue receivable unchanged by transfer.
-- [ ] Confirmed Orders/Payments never change historical tab_id.
-- [ ] Concurrent transfer cannot overdraw transferable amount.
-- [ ] Retry does not duplicate transfer.
-- [ ] Confirmed Payment/Refund blocks financial move.
-- [ ] In-flight ambiguous Payment blocks financial move.
-- [ ] Location move remains ledger-neutral.
-- [ ] Merge preserves source history.
-- [ ] Closing/reopening never changes TableOccupancy.
+
+- [x] Total Venue receivable unchanged by transfer.
+- [x] Confirmed Orders/Payments never change historical tab_id.
+- [x] Concurrent transfer cannot overdraw transferable amount.
+- [x] Retry does not duplicate transfer.
+- [x] Confirmed Payment/Refund blocks financial move.
+- [x] In-flight ambiguous Payment blocks financial move.
+- [x] Location move remains ledger-neutral.
+- [x] Merge preserves source history.
+- [x] Closing/reopening never changes TableOccupancy.
+
+## Verified delivery
+
+The original persistence/API/Android slice shipped in PR #47. The follow-up on
+`feat/tab-operations` validates current main payment adapters and corrects expired-payment
+blocking, peak-service responsibility queries, canonical operation reads, management exposure,
+and Android rejection recovery. See [validation.md](validation.md) for exact test evidence.
+
+Unchecked Web/Gerência rendering tasks are adjacent-surface integrations outside this delivery's
+Android ownership. They do not imply that a transport or DailyClose policy is implemented.

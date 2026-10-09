@@ -13,7 +13,7 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-data class PendingOrderLine(val productId: String, val quantity: Int)
+data class PendingOrderLine(val productId: String, val quantity: Int, val customization: Customization = Customization())
 
 /**
  * A deliberately closed set of encrypted recovery records. This is not an offline queue:
@@ -133,7 +133,7 @@ sealed interface RecoveryIntent {
         val tabId: String,
         val lines: List<PendingOrderLine>,
     ) : RecoveryIntent {
-        override fun toJson() = baseJson("CONFIRM_ORDER").put("tab_id", tabId).put("lines", JSONArray().apply { lines.forEach { put(JSONObject().put("product_id", it.productId).put("quantity", it.quantity)) } })
+        override fun toJson() = baseJson("CONFIRM_ORDER").put("tab_id", tabId).put("lines", JSONArray().apply { lines.forEach { put(JSONObject().put("product_id", it.productId).put("quantity", it.quantity).put("variant_id", it.customization.variantId ?: JSONObject.NULL).put("modifier_option_ids", JSONArray(it.customization.optionIds)).put("special_instructions", it.customization.note)) } })
     }
 
     data class StartPayment(
@@ -292,7 +292,7 @@ sealed interface RecoveryIntent {
                 "TAB_STRUCTURE" -> TabStructure(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "CONFIRM_ORDER" -> {
                     val lines = json.getJSONArray("lines")
-                    ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity")) } })
+                    ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity"), Customization(if (it.isNull("variant_id")) null else it.optString("variant_id").ifBlank { null }, it.optJSONArray("modifier_option_ids")?.let { ids -> List(ids.length()) { i -> ids.getString(i) } }.orEmpty(), it.optString("special_instructions"))) } })
                 }
                 "START_PAYMENT" -> {
                     StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null })

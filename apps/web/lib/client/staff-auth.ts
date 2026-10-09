@@ -49,6 +49,11 @@ export async function apiCall<T>(
   input: string,
   init?: RequestInit,
 ): Promise<{ response: Response; body: T | ApiError | null }> {
+  const clearProjections = () => {
+    if (typeof window === "undefined") return;
+    for (let index = sessionStorage.length - 1; index >= 0; index--) { const key = sessionStorage.key(index); if (key?.startsWith("rodada.projection.")) sessionStorage.removeItem(key); }
+  };
+  if (/\/api\/auth\/(login|logout|switch-operator|lock)/.test(input)) clearProjections();
   const headers = new Headers(init?.headers);
   headers.set("Accept", "application/json");
   if (init?.body) headers.set("Content-Type", "application/json");
@@ -59,6 +64,7 @@ export async function apiCall<T>(
     cache: "no-store",
   });
 
+  if (response.status === 401 || response.status === 403) clearProjections();
   return { response, body: await readJson<T | ApiError>(response) };
 }
 

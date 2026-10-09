@@ -25,8 +25,10 @@ def icon_payload(product):
 
 
 def product_payload(product):
+    from modules.catalog.customization import ordering_schema
     return {"id": str(product.id), "name": product.name, "price_cents": product.price_cents,
             "description": product.description, "category": product.category,
             "normalized_name": product.normalized_name, "active": product.active,
             "fulfillment_station": product.fulfillment_station,
-            "availability": product.availability.state, "icon": icon_payload(product)}
+            "availability": product.availability.state, "icon": icon_payload(product),
+            **ordering_schema(product)}

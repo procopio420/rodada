@@ -51,6 +51,7 @@ class OperationsHttpClient(baseUrl: String) {
                                 quantity = item.getInt("quantity"),
                                 lineTotalCents = item.getLong("line_total_cents"),
                                 state = item.getString("state"),
+                                customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
                             )
                         },
                 )
@@ -88,6 +89,8 @@ class OperationsHttpClient(baseUrl: String) {
                     active = it.getBoolean("active"),
                     fulfillmentStation = it.getString("fulfillment_station"),
                     availability = it.getString("availability"),
+                    variants = it.optJSONArray("variants")?.toObjects()?.map { v -> ProductVariant(v.getString("id"), v.getString("name"), v.getLong("price_cents"), v.optBoolean("active", true) && v.getString("availability") == "AVAILABLE", v.optBoolean("is_default")) }.orEmpty(),
+                    modifierGroups = it.optJSONArray("modifier_groups")?.toObjects()?.map { g -> ModifierGroup(g.getString("id"), g.getString("name"), g.getInt("min_selections"), g.getInt("max_selections"), g.getString("selection_mode") == "SINGLE", g.getJSONArray("options").toObjects().map { o -> ModifierOption(o.getString("id"), o.getString("name"), o.getLong("price_delta_cents"), o.optBoolean("active", true) && o.getString("availability") == "AVAILABLE", o.optBoolean("default_selected"), o.getString("semantic_kind")) }) }.orEmpty(),
                 )
             }
 
@@ -180,7 +183,10 @@ class OperationsHttpClient(baseUrl: String) {
             lineJson.put(
                 JSONObject()
                     .put("product_id", line.product.id)
-                    .put("quantity", line.quantity),
+                    .put("quantity", line.quantity)
+                    .put("variant_id", line.customization.variantId ?: JSONObject.NULL)
+                    .put("modifier_option_ids", JSONArray(line.customization.optionIds))
+                    .put("special_instructions", line.customization.note),
             )
         }
         // The backend persists this UUID per Tab and returns the existing Order on a retry.
@@ -287,6 +293,12 @@ class OperationsHttpClient(baseUrl: String) {
             },
         )
     }
+
+    private fun snapshotText(snapshot: JSONObject?): String = buildList {
+        snapshot?.optJSONObject("variant")?.let { add(it.getString("name")) }
+        snapshot?.optJSONArray("modifiers")?.toObjects()?.forEach { o -> add(when (o.optString("semantic_kind")) { "ADD" -> "+ ${o.getString("name")}"; "REMOVE" -> "− ${o.getString("name")}"; else -> "${o.getString("group_name")}: ${o.getString("name")}" }) }
+        snapshot?.optString("special_instructions")?.takeIf { it.isNotBlank() }?.let { add("Observação: $it") }
+    }.joinToString("\n")
 
     private fun JSONArray.toObjects(): List<JSONObject> = List(length()) { index -> getJSONObject(index) }
 

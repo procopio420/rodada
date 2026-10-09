@@ -16,7 +16,7 @@ from django.conf import settings
 
 with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     if os.environ.get("RODADA_E2E_POSTGRES") != "1":
-        settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(Path(temporary) / "test.sqlite3")}}
+        settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(Path(temporary) / "test.sqlite3"), "OPTIONS": {"timeout": 20, "transaction_mode": "IMMEDIATE"}}}
     else:
         # Explicit opt-in requires the dedicated CI database, never ordinary rodada.
         if settings.DATABASES["default"]["NAME"] != "rodada_web_e2e":
@@ -35,6 +35,10 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     from modules.venue.models import Venue
 
     call_command("migrate", verbosity=0)
+    if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("PRAGMA journal_mode=WAL")
     venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e")
     for identifier, role in [("test-manager", StaffRole.MANAGER), ("test-staff", StaffRole.STAFF)]:
         staff = StaffMember.objects.create(display_name=identifier, login_identifier=identifier)
@@ -49,4 +53,22 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     Product.objects.create(venue=venue, name="Kitchen E2E item", price_cents=1000, fulfillment_station="KITCHEN")
     Product.objects.create(venue=venue, name="Bar E2E item", price_cents=500, fulfillment_station="BAR")
     CashPoint.objects.create(venue=venue, label="E2E drawer")
-    call_command("runserver", "127.0.0.1:8100", use_reloader=False, verbosity=0)
+    import threading
+    import time
+    import uvicorn
+    from django.db import close_old_connections, OperationalError
+    from modules.realtime.services import dispatch_pending
+
+    def publish():
+        while True:
+            close_old_connections()
+            try:
+                dispatch_pending()
+            except OperationalError:
+                # SQLite's single writer may be occupied by a test command.
+                # The durable outbox remains pending and retries on the next pass.
+                pass
+            time.sleep(0.5)
+
+    threading.Thread(target=publish, daemon=True).start()
+    uvicorn.run("rodada_api.asgi:application", host="127.0.0.1", port=int(os.environ.get("RODADA_E2E_API_PORT", "8100")), log_level="warning")

@@ -1,15 +1,19 @@
 import { expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-export const widths = [360, 390, 430, 768, 1280] as const;
+export const viewports = [
+  { width: 360, height: 800 }, { width: 390, height: 844 }, { width: 430, height: 932 },
+  { width: 768, height: 1024 }, { width: 1280, height: 800 }, { width: 1440, height: 900 },
+] as const;
+export const widths = viewports.map(viewport => viewport.width);
 export const products = [
-  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
+  { id: "fries", name: "Fritas", price_cents: 7200, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true, icon: { id: "fries", source: "PROVIDED_REFERENCE", status: "READY", published_asset_url: "/product-icons/material-fries.svg" } },
   { id: "omelette", name: "Omelete", price_cents: 1800, fulfillment_station: "KITCHEN", availability: "AVAILABLE", available: true, active: true },
   { id: "beer", name: "Bebida de teste", price_cents: 1200, fulfillment_station: "BAR", availability: "AVAILABLE", available: true, active: true },
 ];
 export const queue = [
-  { id: "order-921", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
-  { id: "order-922", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
+  { id: "order-921", product_id: "fries", order_id: "ticket-1", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
+  { id: "order-922", product_id: "mandioca", order_id: "ticket-2", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
 ];
 const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
 const shift = { id: "shift-test", cash_point_id: "cash-test", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };
@@ -35,6 +39,8 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     const cash = state === "empty" ? [] : [{ id: "cash-test", label: state === "long" ? longName : "Caixa de teste", active_shift: state === "warnings" ? null : shift, pending_review_shift: state === "warnings" ? pending : null }];
     const detail = { ...tab, ...(state === "warnings" ? { state: "REQUIRES_ACTION", action_reasons: ["SPENDING_LIMIT"], approval_requested: true, consumption_blocked: true } : {}), display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
     let body: unknown;
+    if (url.pathname.endsWith("/realtime/snapshot/")) return route.fulfill({ json: { schema_version: 1, cursor: "visual-test:0" } });
+    if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: 'event: ready\nid: visual-test:0\ndata: {"cursor":"visual-test:0"}\n\n' });
     if (url.pathname === "/api/auth/me") {
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;

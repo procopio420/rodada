@@ -12,7 +12,10 @@ class TabCreateSerializer(serializers.Serializer):
 
 class OrderLineSerializer(serializers.Serializer):
     product_id = serializers.UUIDField()
-    quantity = serializers.IntegerField(min_value=1)
+    quantity = serializers.IntegerField(min_value=1, max_value=999)
+    variant_id = serializers.UUIDField(required=False, allow_null=True, default=None)
+    modifier_option_ids = serializers.ListField(child=serializers.UUIDField(), required=False, default=list, max_length=100)
+    special_instructions = serializers.CharField(max_length=500, required=False, allow_blank=True, default="")
 
 
 class OrderConfirmSerializer(serializers.Serializer):

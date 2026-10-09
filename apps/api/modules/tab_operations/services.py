@@ -13,6 +13,7 @@ from modules.house_account.services import authorize, financial_position, sync_a
 from modules.ledger.models import Charge, PaymentStatus, Refund, RefundStatus
 from modules.ledger.services import totals
 from modules.ordering.models import Tab, TabState
+
 from .models import ServicePoint, TabOperation, TabTransfer, TabTransferLine
 
 
@@ -29,10 +30,19 @@ FINANCIAL = ("SPLIT", "MOVE_ITEMS", "MERGE")
 
 
 def transfer_effect(tab):
+    return transfer_effects([tab.id]).get(tab.id, 0)
+
+
+def transfer_effects(tab_ids):
+    """Narrow batch ledger integration for projections; transfers never become sales."""
+    effects = dict.fromkeys(tab_ids, 0)
     lines = TabTransferLine.objects.filter(transfer__status="COMMITTED")
-    incoming = lines.filter(transfer__destination_tab=tab).aggregate(v=Sum("amount_cents"))["v"] or 0
-    outgoing = lines.filter(transfer__source_tab=tab).aggregate(v=Sum("amount_cents"))["v"] or 0
-    return incoming - outgoing
+    for field, sign in (("transfer__destination_tab_id", 1), ("transfer__source_tab_id", -1)):
+        for row in lines.filter(**{f"{field}__in": effects}).values(field).annotate(
+            amount=Sum("amount_cents")
+        ):
+            effects[row[field]] += sign * row["amount"]
+    return effects
 
 
 def payment_blocker(tab, *, confirmed=True):
@@ -41,21 +51,34 @@ def payment_blocker(tab, *, confirmed=True):
         return "CONFIRMED_PAYMENT", "Esta comanda já tem pagamento confirmado. Use o fluxo de correção/estorno."
     from modules.payment_provider.models import PaymentAttempt
     active_attempt = PaymentAttempt.objects.filter(payment__tab=tab, status__in=("CREATED", "PROCESSING", "CONFIRMATION_PENDING")).exists()
-    if active_attempt or tab.payments.exclude(status__in=(*PaymentStatus.confirmed_money_values(), PaymentStatus.FAILED, PaymentStatus.CANCELLED)).exists() or Refund.objects.filter(payment__tab=tab, status=RefundStatus.PENDING).exists():
+    if active_attempt or tab.payments.exclude(status__in=(*PaymentStatus.confirmed_money_values(), PaymentStatus.FAILED, PaymentStatus.CANCELLED, PaymentStatus.EXPIRED)).exists() or Refund.objects.filter(payment__tab=tab, status=RefundStatus.PENDING).exists():
         return "PAYMENT_IN_FLIGHT", "Pagamento/estorno em andamento. Aguarde a reconciliação."
     return None
 
 
 def responsibility(tab):
-    charges = Charge.objects.filter(Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)).distinct().select_related("order_item", "tab")
+    charges = list(Charge.objects.filter(
+        Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)
+    ).distinct().select_related("order_item", "tab").prefetch_related("order_item__ledger_adjustments"))
+    allocations = {
+        str(row["source_charge_id"]): row
+        for row in TabTransferLine.objects.filter(
+            source_charge__in=charges, transfer__status="COMMITTED"
+        ).values("source_charge_id").annotate(
+            incoming=Sum("amount_cents", filter=Q(transfer__destination_tab=tab)),
+            outgoing=Sum("amount_cents", filter=Q(transfer__source_tab=tab)),
+            transferred=Sum("amount_cents"),
+        )
+    }
     rows = []
     for charge in charges:
-        incoming = charge.transfer_lines.filter(transfer__destination_tab=tab).aggregate(v=Sum("amount_cents"))["v"] or 0
-        outgoing = charge.transfer_lines.filter(transfer__source_tab=tab).aggregate(v=Sum("amount_cents"))["v"] or 0
-        adjustment = charge.order_item.ledger_adjustments.aggregate(v=Sum("amount_cents"))["v"] or 0
+        allocation = allocations.get(str(charge.id), {})
+        incoming = allocation.get("incoming") or 0
+        outgoing = allocation.get("outgoing") or 0
+        adjustment = sum(value.amount_cents for value in charge.order_item.ledger_adjustments.all())
         amount = (charge.amount_cents + adjustment if charge.tab_id == tab.id else 0) + incoming - outgoing
         # Allocation-aware pricing is not yet available. Never guess on adjusted lines.
-        blocker = "ADJUSTED_LINE" if adjustment and charge.transfer_lines.exists() else None
+        blocker = "ADJUSTED_LINE" if adjustment and allocation.get("transferred") else None
         rows.append({"charge_id": str(charge.id), "order_item_id": str(charge.order_item_id),
                      "original_tab_id": str(charge.tab_id), "product_name": charge.order_item.product_name_snapshot,
                      "unit_price_cents": charge.order_item.unit_price_cents, "original_quantity": charge.order_item.quantity,
@@ -267,8 +290,8 @@ def execute(*, tab_id, data, actor):
         emit(actor, "tab.location_changed", source, {"before": before, "occupancy_id": str(occupancy_id) if occupancy_id else None, "service_point_id": str(point_id) if point_id else None})
     elif kind == "CANCEL_EMPTY":
         check_open(source)
-        from modules.access.models import StaffSession
         from modules.access.capabilities import has_capability
+        from modules.access.models import StaffSession
         membership = StaffSession.objects.get(pk=actor.session_id).membership
         if source.opened_by_id != actor.staff_id and not has_capability(membership, Capability.TAB_TRANSFER):
             raise OperationError("OWN_TAB_REQUIRED", "Só pode cancelar sua própria comanda vazia.", 403)

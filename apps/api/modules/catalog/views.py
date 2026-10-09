@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,11 +28,12 @@ class ProductAvailabilityView(APIView):
     permission_classes = [IsAuthenticated, RequireCapability]
     required_capability = Capability.CATALOG_AVAILABILITY_MANAGE_STATION
 
+    @transaction.atomic
     def post(self, request, product_id):
         state = request.data.get("state")
         if state not in AvailabilityState.values:
             return Response({"code": "INVALID_AVAILABILITY", "message": "Disponibilidade inválida."}, status=400)
-        availability = ProductAvailability.objects.select_related("product").filter(product_id=product_id, product__venue_id=request.actor_context.venue_id).first()
+        availability = ProductAvailability.objects.select_for_update().select_related("product").filter(product_id=product_id, product__venue_id=request.actor_context.venue_id).first()
         if not availability:
             return Response({"code": "PRODUCT_NOT_FOUND", "message": "Produto não encontrado."}, status=404)
         before = availability.state

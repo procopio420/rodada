@@ -1,5 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
+import path from "node:path";
+
+async function evidence(page: Page, name: string) {
+  const directory = path.resolve(process.cwd(), "../../visual-artifacts/real-api");
+  await mkdir(directory, { recursive: true });
+  await page.screenshot({ path: path.join(directory, `${name}-390.png`), fullPage: true });
+}
 
 async function login(page: Page, operator = "test-manager") {
   await page.goto("/staff");
@@ -23,6 +30,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await login(page);
+  await evidence(page, "staff");
   const cookies = await page.context().cookies();
   expect(cookies.filter(cookie => cookie.name.startsWith("rodada_staff_") && cookie.name !== "rodada_staff_device").every(cookie => cookie.httpOnly)).toBe(true);
   expect(await page.evaluate(() => document.cookie)).not.toContain("rodada_staff_access");
@@ -40,6 +48,11 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     await expect(page.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
     const catalog = await api(page, "/api/pos/catalog/products/");
     expect(catalog.results.find((p: { id: string }) => p.id === product.id).availability).toBe("UNAVAILABLE");
+    await page.goto("/pos");
+    await page.getByRole("button", { name: /Real Web E2E tab/ }).click();
+    await expect(page.getByRole("button", { name: new RegExp(`${product.name}.*Indisponível`) })).toBeDisabled();
+    await evidence(page, "pos-unavailable");
+    await page.goto(route);
     await page.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
     await expect(page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
     for (const label of ["Aceitar", "Preparar", "Pronto"]) {
@@ -48,11 +61,12 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     }
     const item = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
     expect(item.state).toBe("READY");
+    await evidence(page, route.slice(1));
   }
 
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Web E2E 24", guest_ordering_mode: "DIRECT" });
   await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
-  const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   guest.on("pageerror", error => errors.push(error.message));
   await guest.goto(`/guest/${table.public_token}`);
@@ -67,19 +81,23 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   const guestDetail = await api(page, `/api/pos/tabs/${guestTab.id}/`);
   expect(guestDetail.orders[0].source).toBe("GUEST");
   expect(guestDetail.exposure_cents).toBe(kitchen.price_cents);
+  await evidence(guest, "guest");
 
   await page.goto("/manage");
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
+  await evidence(page, "manage");
   await page.getByRole("link", { name: "Abrir caixa", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Turno de caixa" })).toBeVisible();
   await page.getByLabel("Fundo inicial").fill("100,00");
   await page.getByRole("button", { name: "Confirmar abertura" }).click();
   await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
+  await evidence(page, "cash");
   await page.goto("/manage");
   await page.getByRole("link", { name: "Estornos", exact: true }).click();
   await page.getByLabel("Comanda", { exact: true }).selectOption(tab.id);
   await expect(page.getByText("Restante reembolsável")).toHaveCount(0); // No payment invented.
   await expect(page.getByRole("button", { name: "Confirmar estorno" })).toBeDisabled();
+  await evidence(page, "refunds");
 
   const point = (await api(page, "/api/pos/cash/points/")).results[0];
   const counting = await api(page, `/api/pos/cash/shifts/${point.active_shift.id}/count/start/`, {});
@@ -93,6 +111,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await page.getByLabel("Seu PIN").fill("2468");
   await page.getByRole("button", { name: "Confirmar e continuar" }).click();
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
+  await evidence(page, "cash-success");
 
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
   const revoked = await guest.evaluate(async token => {
@@ -115,12 +134,13 @@ test("real authorization failure is visible and never becomes an empty success",
   await page.goto("/manage");
   await expect(page.locator(".notice[role=alert]")).toBeVisible();
   await expect(page.getByText("Comandas abertas")).toHaveCount(0);
+  await evidence(page, "manage-permission-denied");
 });
 
 test("real expired session clears privileged cookies", async ({ page, context }) => {
   await context.addCookies([
-    { name: "rodada_staff_access", value: "rat_e2e-expired-only", url: "http://127.0.0.1:3110", httpOnly: true, sameSite: "Lax" },
-    { name: "rodada_staff_refresh", value: "rrt_e2e-expired-only", url: "http://127.0.0.1:3110", httpOnly: true, sameSite: "Lax" },
+    { name: "rodada_staff_access", value: "rat_e2e-expired-only", url: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, httpOnly: true, sameSite: "Lax" },
+    { name: "rodada_staff_refresh", value: "rrt_e2e-expired-only", url: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, httpOnly: true, sameSite: "Lax" },
   ]);
   const response = page.waitForResponse("**/api/auth/me");
   await page.goto("/staff");
@@ -168,7 +188,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Tracking E2E", guest_ordering_mode: "DIRECT" });
   await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
-  const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   await guest.goto(`/guest/${table.public_token}`);
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Tracking guest");
@@ -201,6 +221,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
   expect((await api(page, `/api/pos/cash/shifts/${active.id}/`)).status).toBe("OPEN");
   await page.goto("/reports"); await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible();
+  await evidence(page, "reports");
   const calendar = await api(page, "/api/pos/management/calendar/");
   const report = await api(page, `/api/pos/management/reports/?start=${calendar.business_date}&end=${calendar.business_date}`);
   expect(report.products.some((row: { order_item__product_name_snapshot: string }) => row.order_item__product_name_snapshot === name)).toBe(true);

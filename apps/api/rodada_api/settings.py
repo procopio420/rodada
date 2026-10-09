@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "modules.payment_provider",
     "modules.cash",
     "modules.audit",
+    "modules.realtime.apps.RealtimeConfig",
 ]
 
 MIDDLEWARE = [
