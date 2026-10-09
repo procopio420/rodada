@@ -56,6 +56,8 @@ fun ProductCustomizationSheet(product: Product, initial: Customization = product
                         }
                     }
                 }
+                val unavailableIds = selection.optionIds.filter { id -> product.modifierGroups.flatMap { it.options }.none { it.id == id && it.available } }
+                if (unavailableIds.isNotEmpty()) OutlinedButton(onClick = { selection = selection.copy(optionIds = selection.optionIds - unavailableIds.toSet()) }, modifier = Modifier.fillMaxWidth()) { Text("Remover escolhas indisponíveis") }
                 OutlinedTextField(value = selection.note, onValueChange = { selection = selection.copy(note = it.take(500)) }, label = { Text("Pedido especial (opcional)") }, modifier = Modifier.fillMaxWidth())
                 if (error != null) Text(error, color = MaterialTheme.colorScheme.error)
                 Button(onClick = { onAdd(selection) }, enabled = error == null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Adicionar · ${formatCents(product.unitPrice(selection))}") }

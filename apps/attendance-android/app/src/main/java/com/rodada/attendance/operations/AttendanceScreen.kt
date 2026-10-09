@@ -614,10 +614,14 @@ private fun OrderCart(
                         Text(line.product.configurationText(line.customization))
                         if (!line.product.active || line.product.availability != "AVAILABLE" || line.product.customizationError(line.customization) != null) Text("Item desatualizado. Remova e selecione novamente.", color = MaterialTheme.colorScheme.error)
                     }
-                    TextButton(onClick = { onEdit(line) }, enabled = !busy && !locked) { Text("Editar") }
-                    TextButton(onClick = { onQuantity(line.lineId, -1) }, enabled = !busy && !locked) { Text("−") }
-                    Text("${line.quantity}")
-                    TextButton(onClick = { onQuantity(line.lineId, 1) }, enabled = !busy && !locked) { Text("+") }
+                    Column {
+                        TextButton(onClick = { onEdit(line) }, enabled = !busy && !locked) { Text("Editar") }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TextButton(onClick = { onQuantity(line.lineId, -1) }, enabled = !busy && !locked) { Text("−") }
+                            Text("${line.quantity}")
+                            TextButton(onClick = { onQuantity(line.lineId, 1) }, enabled = !busy && !locked) { Text("+") }
+                        }
+                    }
                 }
             }
             if (cart.isNotEmpty()) {

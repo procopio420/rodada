@@ -403,6 +403,12 @@ def create_post_production_correction(
         ).first()
         if product is None:
             raise CorrectionServiceError("REPLACEMENT_PRODUCT_NOT_AVAILABLE", "Item de substituição indisponível.", 409)
+        if product.variants.filter(active=True).exists() or product.modifier_links.filter(group__active=True, group__min_selections__gt=0).exists():
+            raise CorrectionServiceError("REPLACEMENT_CUSTOMIZATION_REQUIRED", "Este produto exige configuração. Cancele o item e confirme a substituição no catálogo.", 409)
+        from modules.catalog.models import ProductAvailability
+        availability = ProductAvailability.objects.select_for_update().filter(product=product).first()
+        if not availability or availability.state != "AVAILABLE":
+            raise CorrectionServiceError("REPLACEMENT_PRODUCT_NOT_AVAILABLE", "Item de substituição indisponível.", 409)
         unit_price_cents = product.price_cents
         quantity = item.quantity
 
@@ -438,6 +444,8 @@ def create_post_production_correction(
             product_name_snapshot=product.name if kind == CorrectionKind.REPLACEMENT else item.product_name_snapshot,
             unit_price_cents=unit_price_cents,
             quantity=quantity,
+            customization_snapshot=item.customization_snapshot if kind == CorrectionKind.REMAKE else {},
+            fulfillment_station_snapshot=item.fulfillment_station_snapshot if kind == CorrectionKind.REMAKE else product.fulfillment_station,
         )
         create_charges_for_order(replacement_order, actor)
         item.order.tab.version += 1

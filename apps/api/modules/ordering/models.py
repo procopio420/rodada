@@ -140,6 +140,18 @@ class OrderItem(models.Model):
             models.Index(fields=("product", "created_at"), name="ordering_item_product_idx"),
         ]
 
+    def save(self, *args, **kwargs):
+        immutable = {"product_id", "product_name_snapshot", "unit_price_cents", "quantity", "customization_snapshot", "fulfillment_station_snapshot", "order_id"}
+        fields = kwargs.get("update_fields")
+        if fields is not None:
+            fields = {field + "_id" if field in ("product", "order") else field for field in fields}
+        if not self._state.adding and (fields is None or immutable.intersection(fields)):
+            original = type(self).objects.filter(pk=self.pk).values(*immutable).first()
+            if original and any(original[field] != getattr(self, field) for field in immutable):
+                from django.core.exceptions import ValidationError
+                raise ValidationError("Confirmed order snapshots cannot be edited; use an order correction.")
+        return super().save(*args, **kwargs)
+
     @property
     def line_total_cents(self) -> int:
         return self.unit_price_cents * self.quantity
