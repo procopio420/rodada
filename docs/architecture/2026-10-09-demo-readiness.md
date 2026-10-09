@@ -2,7 +2,7 @@
 
 **Janela:** quinta-feira, **08/10/2026** → sexta-feira, **09/10/2026**, período da noite (**America/Sao_Paulo**).
 **Status:** plano de execução, **não** declaração de conclusão.
-**Base auditada:** `main» em `5458e5e4e235d63efea07e3cd1f92152201bb517» em 08/10/2026.
+**Base auditada:** `main` em `5458e5e4e235d63efea07e3cd1f92152201bb517` em 08/10/2026.
 **Dono do objetivo:** coordenação de integração; cada frente tem agente/PR próprio.
 **Planos de referência:** [Spec 022](../../specs/022-full-product-implementation/spec.md), [roadmap técnico](technical-roadmap.md), [plano longo](full-product-implementation-plan.md), [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md).
 
@@ -16,7 +16,7 @@
 
 1. Inicializar stack local documentada, com **PostgreSQL**, migrations e dados de teste identificados; abrir Atendimento Android, Bar/Cozinha Web, Caixa e Gerência.
 2. Autenticar operador autorizado pelo **Venue + PIN** em aparelho BYOD, sem aprovação manual de telefone pessoal; registrar qual ambiente e usuário de teste foram utilizados.
-3. Abrir **Tab anônima**, localizar/criar outra Tab e associar opcionalmente a uma ocupação, preservando `Tab ≠ Table».
+3. Abrir **Tab anônima**, localizar/criar outra Tab e associar opcionalmente a uma ocupação, preservando `Tab ≠ Table`.
 4. Lançar um pedido com pelo menos um produto do Bar e um da Cozinha; confirmar pela API, com preço em centavos, histórico e Charge **uma única vez**.
 5. Ver o pedido nas filas corretas; executar transições reais de preparo/pronto, indisponibilizar item e comprovar que um novo pedido inválido é rejeitado pelo servidor.
 6. Acompanhar o estado atualizado nas superfícies: **SSE se integrado e aprovado**; caso contrário, polling/revalidação existentes com atraso conhecido e status de desatualização explícito. Não afirmar realtime concluído quando for polling.
@@ -31,7 +31,7 @@
 
 ## 2. Estado verdadeiro de partida (não inferir conclusão de checkbox)
 
-**Já disponível na `main»:**
+**Já disponível na `main`:**
 - Núcleo Core POS, pedidos/OrderItems, ledger, pagamento parcial/manual, produção Bar/Cozinha, QR guest, permissões, caixa/estornos e House Account com bloqueio de exposição; casos existentes têm testes, mas **não** significam produto 100% homologado.
 - Operações de Tab com transferência, split/merge e auditoria: [PR #47](https://github.com/procopio420/rodada/pull/47), incorporado.
 - Adapters Pix Paytime e SumUp e fluxo Android com teste/simulação: [PR #48](https://github.com/procopio420/rodada/pull/48) e [PR #49](https://github.com/procopio420/rodada/pull/49), incorporados; **não há comprovação de ativação do merchant, Pix liquidado nem Tap privado rodando em produção**.
@@ -43,16 +43,16 @@
 - [#45 — polimento Web/Android](https://github.com/procopio420/rodada/pull/45): potencial sobreposição com #51; **não fazer merge sem reconciliar mudanças e CI**.
 - [#46 — Quick Catalog + ícones IA](https://github.com/procopio420/rodada/pull/46): parte de catálogo já existe na main; comparar delta efetivo, migrações, dependências e conflitos antes de merge. Ícones de IA **não** bloqueiam demo.
 
-**Lacunas relevantes ainda não demonstradas como concluídas na `main»:**
-- `010» variantes/modificadores; `011» pricing/descontos/serviço; `014» SSE/outbox/replay; `015» impressão/fallback; `018» alertas; restante de `013» configuração e `007» cockpit. Não alegar que trabalho solicitado a agentes já está mergeado.
+**Lacunas relevantes ainda não demonstradas como concluídas na `main`:**
+- `010` variantes/modificadores; `011` pricing/descontos/serviço; `014` SSE/outbox/replay; `015` impressão/fallback; `018` alertas; restante de `013` configuração e `007` cockpit. Não alegar que trabalho solicitado a agentes já está mergeado.
 - Live Tap on Phone: **bloqueado por SDK/acesso privado, credenciais, ativação e homologação**. Pix live também exige contrato/provedor e testes reais.
 
 ## 3. Ações em ordem estrita, com dono por frente e entregável
 
 | Ordem / prioridade | Frente responsável | Próxima ação concreta | Evidência e condição de conclusão | Dependência |
 | --- | --- | --- | --- | --- |
-| **0 — P0** | **Integração/coordenação** | Criar uma branch de integração derivada da `main» atual; revisar os PRs #44/#45/#46, conflitos e duplicação; preservar migrações e contratos. Atualizar quadro de PRs. | Branch compila; deltas únicos identificados; nenhum merge cego de visual ou catálogo | Imediato |
-| **1 — P0** | **Integração + QA** | Congelar o roteiro acima como fixture de **turno reduzido** (2 estações + Android + Caixa + Gerência) em PostgreSQL; executar uma primeira vez na `main» antes das próximas features. | Relatório por passo com PASS/FAIL, SHA, ambiente, comandos e screenshots/logs saneados | 0 |
+| **0 — P0** | **Integração/coordenação** | Criar uma branch de integração derivada da `main` atual; revisar os PRs #44/#45/#46, conflitos e duplicação; preservar migrações e contratos. Atualizar quadro de PRs. | Branch compila; deltas únicos identificados; nenhum merge cego de visual ou catálogo | Imediato |
+| **1 — P0** | **Integração + QA** | Congelar o roteiro acima como fixture de **turno reduzido** (2 estações + Android + Caixa + Gerência) em PostgreSQL; executar uma primeira vez na `main` antes das próximas features. | Relatório por passo com PASS/FAIL, SHA, ambiente, comandos e screenshots/logs saneados | 0 |
 | **2 — P0** | **Agente 014 (runtime)** | Implementar outbox+SSE com cursor/replay, autenticação por Venue/guest, revalidação de gaps e fallback; integrar às superfícies sem reescrever o domínio. | Pedido confirmado aparece nos clients sem refresh; reconnect não perde fato; falha de stream não bloqueia API. Se incompleto, manter polling seguro e sinalizar limitação | Contratos de API existentes; coordenação de arquivos |
 | **3 — P0** | **Agente 010 (customização)** | Completar variantes/modificadores com snapshot de preço, validação server-side e exibição nas filas, **sem quebrar produto simples**. | Teste E2E Android/guest → API → cozinha com adicional pago; pedido simples original segue íntegro | Catalog/ordering vigentes; coordenar com 005 |
 | **4 — P0** | **Integração/QA** | Rebase/cherry-pick seletivo dos PRs prontos com CI, migrations e revisão; executar o turno reduzido novamente após cada merge sensível. | API, Web, Android e PostgreSQL verdes no SHA integrado; nenhuma regressão de saldo/produção | 1; novos PRs aprovados |
@@ -61,7 +61,7 @@
 | **7 — P1** | **Gerência/configuração (007/013)** | Corrigir somente bloqueadores da demo: seed, perfis, catálogo, relatórios/CSV, histórico de caixa e configurações mínimas sem SQL durante demonstração. | Operador consegue conduzir roteiro com permissões certas; relatório confere com ledger | 1 e 4 |
 | **8 — P2** | **Produto/research (003/004/016/017/018/022/023)** | Usar resultado do PR #44 e entrevistas para selecionar gaps realmente usados pelo Aderlan; terminar visual pixel-perfect e recursos avançados depois do gate P0. | Backlog reordenado com evidência de uso; nenhuma feature especulativa no caminho crítico | Após demo |
 
-**Responsabilidade de arquivos:** pagamento `payment_provider/» + Android `payments/»; catálogo `catalog/» + QuickCatalog; Tab `tab_operations/»; tempo real em módulo/clients isolados; variantes em domínio próprio com integrações mínimas no `ordering/»; pricing em serviços financeiros próprios; impressão em novo módulo. Arquivos transversais (URLs, modelos comuns, migrations, app roots, design tokens e `production-board») são ponto de integração **serializado pela coordenação**; agentes não devem rebasear uns sobre worktrees sujas ou sobrescrever a mesma alteração simultaneamente.
+**Responsabilidade de arquivos:** pagamento `payment_provider/` + Android `payments/`; catálogo `catalog/` + QuickCatalog; Tab `tab_operations/`; tempo real em módulo/clients isolados; variantes em domínio próprio com integrações mínimas no `ordering/`; pricing em serviços financeiros próprios; impressão em novo módulo. Arquivos transversais (URLs, modelos comuns, migrations, app roots, design tokens e `production-board`) são ponto de integração **serializado pela coordenação**; agentes não devem rebasear uns sobre worktrees sujas ou sobrescrever a mesma alteração simultaneamente.
 
 **Specs são fonte de intenção:** modificar a spec/ADR de domínio quando comportamento mudar; um PR termina só quando código, testes e critérios de aceite condizem. Não criar uma spec 024 só para recontar o plano de 001–023.
 
@@ -79,10 +79,10 @@ Não prometer homologação de provedor, hardware físico ou operação integral
 ## 5. Gates verificáveis antes de dizer “funciona”
 
 ### G0 — Build e integridade
-- [ ] `main»/branch candidato identificada pelo SHA; todas as migrations aplicáveis em banco descartável e `makemigrations --check --dry-run» sem drift.
-- [ ] API `pytest» + `manage.py check», com testes PostgreSQL para concorrência/ledger (não confundir passes em SQLite com prova de locks).
-- [ ] Web `npm run typecheck», `npm run build», `npm run test:visual», `npm run test:integration» com API real.
-- [ ] Android `./gradlew testDebugUnitTest assembleDebug»; lint e smoke no emulador/aparelho conforme ambiente disponível.
+- [ ] `main`/branch candidato identificada pelo SHA; todas as migrations aplicáveis em banco descartável e `makemigrations --check --dry-run` sem drift.
+- [ ] API `pytest` + `manage.py check`, com testes PostgreSQL para concorrência/ledger (não confundir passes em SQLite com prova de locks).
+- [ ] Web `npm run typecheck`, `npm run build`, `npm run test:visual`, `npm run test:integration` com API real.
+- [ ] Android `./gradlew testDebugUnitTest assembleDebug`; lint e smoke no emulador/aparelho conforme ambiente disponível.
 - [ ] PRs revisados sem conflitos silenciosos; nenhuma mudança em credenciais/segredos para tornar demo possível.
 
 ### G1 — Turno reduzido ponta a ponta
@@ -96,7 +96,7 @@ Não prometer homologação de provedor, hardware físico ou operação integral
 ### G2 — Resiliência e comunicação honesta
 - [ ] Derrubar apenas SSE/polling não interrompe HTTP saudável; UI marca snapshot antigo e revalida.
 - [ ] Se SSE foi entregue, reconectar após perda de eventos e revogar sessão são cenários testados; caso contrário, nomear o polling como fallback, **não** tempo real concluído.
-- [ ] Pagamento simulado fica identificado; `CONFIRMATION_PENDING» não conta como recebido, não aciona tentativa cega nem permite fechar com saldo incompatível.
+- [ ] Pagamento simulado fica identificado; `CONFIRMATION_PENDING` não conta como recebido, não aciona tentativa cega nem permite fechar com saldo incompatível.
 - [ ] A demonstração pode ser repetida após restart de clients usando dados de teste persistidos sem reiniciar manualmente a história financeira.
 
 **Definições de resultado:**
@@ -109,7 +109,7 @@ Não prometer homologação de provedor, hardware físico ou operação integral
 
 Validar e adaptar à máquina/CI conforme [API README](../../apps/api/README.md), [Web README](../../apps/web/README.md) e [Android README](../../apps/attendance-android/README.md):
 
-````bash
+```bash
 # API, após instalar dependências e configurar ambiente de teste
 cd apps/api
 python manage.py check --settings=rodada_api.settings_test
@@ -126,23 +126,23 @@ npm run test:integration
 # Android
 cd apps/attendance-android
 ./gradlew testDebugUnitTest assembleDebug lintDebug
-```»
+````
 
 **Obrigatório:** reexecutar casos sensíveis em PostgreSQL; o caminho de SQLite rápido não comprova concorrência. Guardar logs com redaction, resultado de testes, SHA, ambiente, print das superfícies e balanço esperado/real. Não anexar PIN, bearer token, credenciais, dados de cliente ou secrets.
 
-Salvar a evidência de amanhã em `docs/development/demo-evidence-2026-10-09.md» (criar **somente ao executar**; não marcar sucesso antecipadamente) com:
+Salvar a evidência de amanhã em `docs/development/demo-evidence-2026-10-09.md` (criar **somente ao executar**; não marcar sucesso antecipadamente) com:
 
 - SHA de origem e SHA candidato; PRs integrados e descartados, responsáveis por cada decisão.
 - Versões de API/Web/Android/DB, ambiente e se houve dispositivo físico.
-- Tabela dos passos 1–10: `PASS / FAIL / NOT_RUN», evidência, causa e workaround permitido.
+- Tabela dos passos 1–10: `PASS / FAIL / NOT_RUN`, evidência, causa e workaround permitido.
 - Resultados dos testes por suíte e distinção SQLite/PostgreSQL.
-- Pagamentos: `MANUAL_TEST / SIMULATED / SANDBOX_CONFIRMED / LIVE_CONFIRMED» por caso, sem confundir status.
+- Pagamentos: `MANUAL_TEST / SIMULATED / SANDBOX_CONFIRMED / LIVE_CONFIRMED` por caso, sem confundir status.
 - Bug list com severidade/reprodução; recomendação final de demo e separadamente de cutover.
 
 ## 7. Pós-demo — execução sem inventar nova prioridade
 
-Após o gate de amanhã: fechar `011» e `015» se não concluídas; depois `013» configuração sem SQL, `007» dashboard/projeções e `018» alertas; aprofundar `004» mapa/guest, `003» dispatch, `017» corrections e `016» covers segundo observação real e [pesquisa VR](https://github.com/procopio420/rodada/pull/44). `023» fecha paridade visual sem fingir 0,1% para telas não equivalentes; `022» continua plano integrador até todos os gates de produto.
+Após o gate de amanhã: fechar `011` e `015` se não concluídas; depois `013` configuração sem SQL, `007` dashboard/projeções e `018` alertas; aprofundar `004` mapa/guest, `003` dispatch, `017` corrections e `016` covers segundo observação real e [pesquisa VR](https://github.com/procopio420/rodada/pull/44). `023` fecha paridade visual sem fingir 0,1% para telas não equivalentes; `022` continua plano integrador até todos os gates de produto.
 
-**Reconciliação de checklists é tarefa explícita:** `005» e `009» continuam com tarefas desmarcadas apesar de código/PRs; `007» tem trabalho parcial com tasks não atualizadas; `001» e `012» também podem ter divergências entre lista e implementação. Para cada item, relacionar `código + teste + critério» e marcar apenas evidência real; não calcular percentuais falsos usando somente `[x]».
+**Reconciliação de checklists é tarefa explícita:** `005` e `009` continuam com tarefas desmarcadas apesar de código/PRs; `007` tem trabalho parcial com tasks não atualizadas; `001` e `012` também podem ter divergências entre lista e implementação. Para cada item, relacionar `código + teste + critério` e marcar apenas evidência real; não calcular percentuais falsos usando somente `[x]`.
 
-**Primeira ação do próximo agente:** ler este plano e a `main» atual, identificar um P0 verificável do item 3, implementá-lo numa branch isolada, executar os testes correspondentes e abrir PR pequeno. **Próxima ação da coordenação:** rodar G0/G1 da main e integrar somente o que melhora o resultado de sexta-feira.
+**Primeira ação do próximo agente:** ler este plano e a `main` atual, identificar um P0 verificável do item 3, implementá-lo numa branch isolada, executar os testes correspondentes e abrir PR pequeno. **Próxima ação da coordenação:** rodar G0/G1 da main e integrar somente o que melhora o resultado de sexta-feira.
