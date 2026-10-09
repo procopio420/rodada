@@ -3,7 +3,6 @@ Name: rodada-api
 Version: 0.1.0
 Summary: Rodada modular monolith API
 Requires-Python: >=3.12
-Requires-Dist: cryptography<47,>=46
 Requires-Dist: Django<5.3,>=5.2.12
 Requires-Dist: djangorestframework<3.19,>=3.18.1
 Requires-Dist: psycopg[binary]<4,>=3.2

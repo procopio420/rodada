@@ -27,18 +27,19 @@
 - [x] Geração possui rate limit, idempotência e deduplicação por conteúdo relevante + style version.
 - [x] Fuzzy match nunca mescla dois Products automaticamente.
 
-## Verification — 2026-10-08
+## Verification — 2026-10-08 (America/Sao_Paulo)
+
+Branch reconciled with `origin/main` at `1dfdf8a`; published Catalog migrations and Product-keyed ProductIcon identity preserved. Production-board component matches main without additional queue changes.
 
 - Django system checks: passed. Migration drift: no changes detected.
-- PostgreSQL focused Catalog suite: **15 passed**. Covers exact normalized identity, fuzzy non-merging, venue scope, station permissions, AI timeout resilience and guest ordering, generation deduplication/aliases, regeneration retention, upload/reset fencing, MIME/dimensions, public asset retrieval, edit identity, privacy allowlist, provider adapter and rate limits. Real concurrent creation and out-of-transaction worker execution pass on PostgreSQL.
+- PostgreSQL Catalog/upgrade/compatibility suite: **25 passed**. Covers exact normalized identity, concurrent creation, fuzzy non-merging, venue scope, station permissions, out-of-transaction provider execution, timeout resilience and guest ordering, aliases/deduplication, regeneration retention and reset revision fencing, upload validation, public asset retrieval, edit identity, privacy allowlist, provider adapters and rate limits. Includes preservation of the published legacy icon and House Account migration compatibility.
+- Full API regression: **216 passed, 8 skipped** on SQLite. The additional reset/regeneration regression added during this run passed separately in the PostgreSQL suite above. PostgreSQL-specific concurrency checks ran successfully there.
 - Web typecheck and production build: passed.
-- Real browser integration suite: **5 passed**, including Quick Catalog creation/exact reuse/manager lifecycle plus staff production, guest ordering, management, cash/refunds, authorization and session flows.
-- Deterministic fixtures are injected only in tests. No fake imagery is available as a runtime provider.
-- **Requires provider credentials:** a real generated icon's visual adherence (no lettering/logos, safe area, 48 px legibility) remains unverified. Direct OpenAI or HTTPS gateway configuration and worker/shared persistent asset storage are documented in `apps/api/modules/catalog/README.md`.
-- Manual upload and editing preview are implemented and backend-tested; live visual review of a real generated product asset remains pending credentials.
+- Browser integration: **6 passed** against real API routes. The strengthened Quick Catalog test then passed separately with manual upload, decoded published-asset preview, stable icon identity, and reset to placeholder. Existing staff, guest, management, cash, refund, authorization and session workflows pass.
+- Visual/accessibility: **113 passed**, including Quick Catalog at 360/390/430 px and adjacent surfaces. Screenshots reviewed; production summary, queue and pass remain intact.
+- Test generation/upload images are deterministic fixtures only; runtime never substitutes them for generated artwork.
 
-Final regression results: **167 API tests passed, 3 PostgreSQL-only tests skipped in SQLite**; Catalog PostgreSQL suite separately passed all 15. **90 visual/accessibility tests passed**, including Quick Catalog at 360/390/430 px. Browser integration: 5 passed. No tests claim real generated artwork approval.
-
+**Requires provider credentials:** configure a direct OpenAI account/model or HTTPS gateway, supervise `process_icon_jobs`, and provision persistent shared asset storage as documented in `apps/api/modules/catalog/README.md`. Real generated artwork still needs visual approval for no text/logos, safe area and 48 px legibility. This is the sole unchecked acceptance criterion; tests do not claim real artwork approval.
 
 ## Upgrade de main
 
