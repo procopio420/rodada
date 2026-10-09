@@ -1,0 +1,338 @@
+{
+  "007-001": {
+    "status": "PASS",
+    "implementation": "apps/web/app/manage/page.tsx; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "Existing mobile cockpit plus apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)",
+    "owner": "Management",
+    "next_action": "Retain adjacent-surface visual regression gate; complete wider spec separately."
+  },
+  "007-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_dedupe_escalation_resolution_recurrence_and_provenance; apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)",
+    "owner": "Management",
+    "next_action": "Retain station-context proof; operational deep link focusing the exact source item is future work."
+  },
+  "007-003": {
+    "status": "PARTIAL",
+    "implementation": "apps/web/lib/client/use-realtime.ts; apps/web/app/manage/page.tsx; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "Existing cached snapshot/connectivity handling; targeted visual test demonstrated API acknowledgement works while SSE reconnects. No live SSE restart proof in this agent.",
+    "owner": "Management",
+    "next_action": "P0 QA: verify real-service reconnect/stale and cached reading; no browser fixture substitutes for outage test."
+  },
+  "007-004": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/views.py::ReportView",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_report_never_counts_pending_payment_as_received",
+    "owner": "Management",
+    "next_action": "Preserve canonical confirmed-money filtering; provider confirmation external verification remains blocked separately."
+  },
+  "007-005": {
+    "status": "PARTIAL",
+    "implementation": "apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx; apps/api/modules/access/views.py",
+    "evidence": "Alert lifecycle history is exact-source/auditable; existing access audit available; global searchable operational timeline missing.",
+    "owner": "Management",
+    "next_action": "P1 Management: implement searchable event timeline preserving inferred provenance."
+  },
+  "007-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/venue/calendar.py; apps/api/modules/management/views.py",
+    "evidence": "apps/api/tests/test_web_completion.py::test_calendar_cutoff_timezone_and_audit; ::test_report_cutoff_and_payment_confirmation_dates; ::test_business_boundary_tracks_dst (PostgreSQL)",
+    "owner": "Management",
+    "next_action": "Retain cutoff and DST tests; effective-dated calendar changes separate missing criterion."
+  },
+  "007-007": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/views.py::ReportView; apps/web/app/reports/page.tsx",
+    "evidence": "apps/api/tests/test_web_completion.py::test_report_ledger_summary_and_export_shapes (canonical charges/adjustments/refunds/open exposure/cash); reports are dynamic, not immutable Daily Close.",
+    "owner": "Management",
+    "next_action": "P0 Management: persisted reviewed Daily Close snapshot and explicit incomplete-close workflow."
+  },
+  "007-008": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/cash/models.py; apps/api/modules/cash/services.py",
+    "evidence": "CashShift close snapshots preserved; no immutable management Daily Close model.",
+    "owner": "Management",
+    "next_action": "P0 Management/Cash: add Daily Close snapshot + separately audited post-close corrections."
+  },
+  "007-009": {
+    "status": "MISSING",
+    "implementation": "apps/web/app/reports/page.tsx (period totals only)",
+    "evidence": "Source audit: no monthly executive summary with comparison/visits/peak/area/operational health.",
+    "owner": "Management",
+    "next_action": "P1 Management: monthly executive summary with coverage indicators."
+  },
+  "007-010": {
+    "status": "MISSING",
+    "implementation": "No occupancy-to-revenue projection",
+    "evidence": "Source audit: management reports do not join occupancy/zone/turnover with revenue.",
+    "owner": "Management",
+    "next_action": "P1 Management/Hospitality: canonical attribution and coverage-aware period comparison, without causal claims."
+  },
+  "007-011": {
+    "status": "PASS",
+    "implementation": "apps/web/app/manage/page.tsx; apps/web/app/reports/page.tsx",
+    "evidence": "Source audit: no staff leaderboard or simplistic ranking emitted.",
+    "owner": "Management",
+    "next_action": "Keep ranking absent; contextual staff metrics remain deferred."
+  },
+  "007-012": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py",
+    "evidence": "No notification delivery subsystem emits ordinary order/payment pushes; evaluator creates actionable exceptions only.",
+    "owner": "Management",
+    "next_action": "Retain no-noise default when adding real push adapter."
+  },
+  "007-013": {
+    "status": "MISSING",
+    "implementation": "No push adapter/delivery worker",
+    "evidence": "Persistent critical in-app alerts exist; no deduplicated actual push evidence.",
+    "owner": "Management",
+    "next_action": "P1 Management/Infra: provider-backed delivery/idempotency/cooldown and recipient authorization."
+  },
+  "007-014": {
+    "status": "MISSING",
+    "implementation": "No insight data/provenance model",
+    "evidence": "Source audit: no traceable insights surface.",
+    "owner": "Management",
+    "next_action": "P1 Management: explicit facts/estimates/hypotheses with period, sources and coverage."
+  },
+  "013-001": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/views.py::AlertPolicyView; apps/web/app/manage/alerts/settings/page.tsx; existing calendar/pricing/access surfaces",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_threshold_validation_conflict_and_audit; apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)",
+    "owner": "Management",
+    "next_action": "P0 Management: remaining typed Venue sections and onboarding; no generic settings bucket."
+  },
+  "013-002": {
+    "status": "MISSING",
+    "implementation": "No provider credential configuration surface",
+    "evidence": "Cannot treat absent provider setup endpoint as successful binding-preservation criterion.",
+    "owner": "Management",
+    "next_action": "P0 Integrator: owner-only write-only provider setup/bindings and authorization tests."
+  },
+  "013-003": {
+    "status": "MISSING",
+    "implementation": "Fulfillment stations remain catalog enum",
+    "evidence": "No station resource/deactivation preview command; active-item blockers not exposed.",
+    "owner": "Management",
+    "next_action": "P0 Management/Catalog: typed station resource with active-queue blocker."
+  },
+  "013-004": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/ledger/pricing.py; apps/web/app/manage/pricing/page.tsx",
+    "evidence": "Typed versioned PricingPolicy exists; open Tab policy captured at opening/effective-boundary proof missing.",
+    "owner": "Management",
+    "next_action": "P0 Integrator/Pricing: preserve per-Tab captured service policy for new-context changes."
+  },
+  "013-005": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/hospitality (per-table guest modes)",
+    "evidence": "Per-table blocks exist; audited global Venue emergency block not implemented by this agent.",
+    "owner": "Management",
+    "next_action": "P0 Hospitality/Management: global block and staff/confirmed-order preservation proof."
+  },
+  "013-006": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/views.py::CalendarView",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_calendar_history_cannot_be_reassigned; historical Charge/Payment/CashShift edits blocked with exact blocker codes; next-date schedule missing.",
+    "owner": "Management",
+    "next_action": "P0 Management: effective-dated calendar versions; scheduled cutoff change must not reclassify history."
+  },
+  "013-007": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/payment_provider/views.py",
+    "evidence": "Normalized provider capability query exists; complete Venue binding/status setup surface absent.",
+    "owner": "Management",
+    "next_action": "P0 Integrator: provider binding status/capability projections with secret-redaction assertions."
+  },
+  "013-008": {
+    "status": "MISSING",
+    "implementation": "No provider disable/stage command",
+    "evidence": "Source audit: pending-payment binding transition/blocker not exposed.",
+    "owner": "Management",
+    "next_action": "P0 Integrator: transactional provider disable blocker preserving pending reconciliation."
+  },
+  "013-009": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/views.py::AlertPolicyView; apps/web/app/manage/alerts/settings/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_threshold_validation_conflict_and_audit; stale version returns current typed state, UI loads it for explicit review; apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)",
+    "owner": "Management",
+    "next_action": "Retain optimistic edit/re-auth checks."
+  },
+  "013-010": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/hospitality/models.py",
+    "evidence": "History uses protected references; archival/out-of-service manager command needs domain proof.",
+    "owner": "Management",
+    "next_action": "P1 Hospitality/Management: archive domain-safe Table with QR/history preservation test."
+  },
+  "013-011": {
+    "status": "PARTIAL",
+    "implementation": "No operating-hours policy schema",
+    "evidence": "POS contains no public-hours enforcement; configured-hours scenario cannot be exercised.",
+    "owner": "Management",
+    "next_action": "P1 Management: typed operating-hours messaging only and test POS remains available after hours."
+  },
+  "013-012": {
+    "status": "PASS",
+    "implementation": "apps/web/app/manage/alerts/settings/page.tsx",
+    "evidence": "apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)::typed alert settings do not activate a failed or conflicted save; server confirmation required, API-offline disabled, no local mutation queue.",
+    "owner": "Management",
+    "next_action": "QA: extend real-service offline/recovery evidence for all configuration sections."
+  },
+  "013-013": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/views.py; apps/api/modules/audit/services.py",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_threshold_validation_conflict_and_audit; thresholds have actor/reason/before/after/effective_at; calendar audited; unsupported station/provider transitions absent.",
+    "owner": "Management",
+    "next_action": "P0 Management/Integrator: per-section effective-boundary audit and secret redaction proof."
+  },
+  "018-001": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_dedupe_escalation_resolution_recurrence_and_provenance",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-002": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_dedupe_escalation_resolution_recurrence_and_provenance; OperationalAlertConcurrencyTests::test_parallel_evaluators_create_one_episode",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-003": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_dedupe_escalation_resolution_recurrence_and_provenance; WARNING to DANGER is one episode with history.",
+    "owner": "Management",
+    "next_action": "P1 Management: expanded recipient routing and idempotent escalation delivery."
+  },
+  "018-004": {
+    "status": "MISSING",
+    "implementation": "No NotificationDelivery/cooldown worker",
+    "evidence": "Source audit: no real push deliveries to suppress.",
+    "owner": "Management",
+    "next_action": "P1 Management/Infra: per-recipient delivery identity and cooldown tests."
+  },
+  "018-005": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_cash_ack_is_idempotent_not_resolution_then_review_resolves",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-006": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_strategic_product_resolution_recurrence_and_noise_control",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-007": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_strategic_product_resolution_recurrence_and_noise_control",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-008": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_pending_payment_resolution_and_no_normal_payment_noise (FAILED canonical state creates no alert); no normal decline delivery.",
+    "owner": "Management",
+    "next_action": "Retain single-decline no-noise behavior when repeated-failure policy added."
+  },
+  "018-009": {
+    "status": "MISSING",
+    "implementation": "No repeated payment failure window evaluator",
+    "evidence": "No configured repeat threshold/role routing implemented.",
+    "owner": "Management",
+    "next_action": "P1 Management/Payments: rolling PaymentAttempt failure evaluator and exact tab routing."
+  },
+  "018-010": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_pending_payment_resolution_and_no_normal_payment_noise",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-011": {
+    "status": "MISSING",
+    "implementation": "No guest aged-request alert evaluator",
+    "evidence": "Dispatch source tasks do not have management escalation policy in this agent.",
+    "owner": "Management",
+    "next_action": "P0 Management/Dispatch: age thresholds, exact task links, no fresh-request manager noise."
+  },
+  "018-012": {
+    "status": "MISSING",
+    "implementation": "No sustained queue/hysteresis rule",
+    "evidence": "Fulfillment SLA is per item; queue station aggregate rule absent.",
+    "owner": "Management",
+    "next_action": "P1 Management: sustained queue threshold/recovery hysteresis with station dedupe."
+  },
+  "018-013": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_cash_ack_is_idempotent_not_resolution_then_review_resolves",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-014": {
+    "status": "MISSING",
+    "implementation": "No immutable Daily Close/reminder policy",
+    "evidence": "Cash discrepancy alert is not Daily Close completeness alert.",
+    "owner": "Management",
+    "next_action": "P0 Management: canonical reviewed-close source then reminder/escalation."
+  },
+  "018-015": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_strategic_product_resolution_recurrence_and_noise_control",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-016": {
+    "status": "MISSING",
+    "implementation": "No NotificationDelivery/push adapter",
+    "evidence": "No provider-failure delivery retry state exists.",
+    "owner": "Management",
+    "next_action": "P1 Management/Infra: provider failure/backoff/idempotency without losing canonical alert."
+  },
+  "018-017": {
+    "status": "PARTIAL",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "API reads canonical persisted alerts and reevaluates; lifecycle emits transactional outbox invalidations; visual fixture has no SSE live transport.",
+    "owner": "Management",
+    "next_action": "P0 QA: actual SSE outage/API-poll recovery and service restart test."
+  },
+  "018-018": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes)::test_cross_venue_idor_and_revoked_capability",
+    "owner": "Management",
+    "next_action": "Preserve source-driven lifecycle/authorization; real push remains separately unimplemented."
+  },
+  "018-019": {
+    "status": "MISSING",
+    "implementation": "No NotificationPreference/delivery routing",
+    "evidence": "In-app alerts canonical; optional/mandatory push preference policy absent.",
+    "owner": "Management",
+    "next_action": "P1 Management: optional category preference and mandatory DANGER routing authorization tests."
+  },
+  "018-020": {
+    "status": "MISSING",
+    "implementation": "No NotificationPreference/delivery routing",
+    "evidence": "In-app alerts canonical; optional/mandatory push preference policy absent.",
+    "owner": "Management",
+    "next_action": "P1 Management: optional category preference and mandatory DANGER routing authorization tests."
+  },
+  "018-021": {
+    "status": "PASS",
+    "implementation": "apps/api/modules/management/alerts.py; apps/api/modules/management/views.py; apps/api/modules/venue/models.py; apps/web/components/operational-alerts.tsx; apps/web/app/manage/alerts/[id]/page.tsx",
+    "evidence": "apps/api/tests/test_operational_alerts.py (real PostgreSQL; APIClient uses actual authentication/database, isolated test URLConf for additive routes) lifecycle/ack/recurrence tests assert source refs, rule version, severity changes, acknowledgement actor/audit, timestamps and resolution reason; apps/web/tests/visual/management-alerts.spec.ts (3 deterministic transport-fixture tests; layout, touch and axe accessibility; not real-service E2E)",
+    "owner": "Management",
+    "next_action": "Retain immutable lifecycle-event evidence and privacy boundaries."
+  }
+}
