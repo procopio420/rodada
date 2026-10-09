@@ -59,5 +59,6 @@ Não foi feita integração indiscriminada das demais branches: documentação a
 - Realtime client: oito testes aprovados, incluindo chunks, replay, fallback e revogação.
 - Web/BFF/API ASGI: seis fluxos reais aprovados com banco descartável; a primeira execução revelou locks SQLite, corrigidos somente no harness de teste antes da execução completa aprovada.
 - Android: 38 testes JVM, assembleDebug e lintDebug aprovados.
+- API: execução completa aprovada, 241 testes passaram e 11 foram ignorados por exigirem PostgreSQL no ambiente local SQLite; Django check e verificação de migrações passaram.
 
 Para ativar realtime num ambiente implantado, seguir `docs/development/operational-realtime.md`: servidor ASGI, dispatcher supervisionado, retenção e proxy compatível com SSE. Esta atualização entrega código integrado; não executa deployment, configura provider IA ou homologa dispositivo físico. Casos de concorrência PostgreSQL não foram executados localmente nesta atualização.
