@@ -244,6 +244,60 @@ class ByodClosureTests(TestCase):
         assert first.json()["id"] == replay.json()["id"]
         assert Refund.objects.count() == 1
 
+    def test_shared_switch_next_order_has_new_operator_session_and_same_device(self):
+        first = self.login(self.waiter, "shared-installation")
+        owner = self.owner_client()
+        assert (
+            owner.patch(
+                f"/manage/access/devices/{first['device']['id']}/",
+                {"trust_state": "TRUSTED"},
+                format="json",
+            ).status_code
+            == 200
+        )
+        switched = self.api_client(first).post(
+            "/auth/switch-operator/",
+            {
+                "login_identifier": self.owner.login_identifier,
+                "pin": "2468",
+            },
+            format="json",
+        )
+        assert switched.status_code == 200
+        second = switched.json()
+        assert second["device"]["id"] == first["device"]["id"]
+        assert self.order(second).status_code == 201
+        assert self.order(first, "old-actor").json()["code"] == "SESSION_SUPERSEDED"
+        event = AuditEvent.objects.get(event_type="order.confirmed")
+        assert event.actor_staff_id == self.owner.pk
+        assert str(event.actor_session_id) == second["session_id"]
+        assert str(event.device_id) == first["device"]["id"]
+        assert Order.objects.get().confirmed_by == self.owner
+
+    def test_real_guest_session_cannot_use_staff_order_endpoint(self):
+        from modules.hospitality.models import Table
+
+        table = Table.objects.create(
+            venue=self.venue, label="Guest test", guest_ordering_mode="DIRECT"
+        )
+        guest = APIClient()
+        resolved = guest.post("/guest/qr/resolve/", {"token": table.public_token}, format="json")
+        assert resolved.status_code == 201
+        token = resolved.json()["guest_session_token"]
+        guest.credentials(HTTP_X_GUEST_SESSION=token)
+        assert guest.get("/guest/catalog/").status_code == 200
+        guest.credentials(HTTP_AUTHORIZATION="Bearer " + token)
+        denied = guest.post(
+            f"/tabs/{self.tab.pk}/orders/confirm/",
+            {
+                "idempotency_key": "guest-staff",
+                "lines": [{"product_id": str(self.product.pk), "quantity": 1}],
+            },
+            format="json",
+        )
+        assert denied.status_code == 401 and denied.json()["code"] == "AUTH_REQUIRED"
+        assert not Order.objects.exists() and not Charge.objects.exists()
+
 
 @skipUnless(connection.vendor == "postgresql", "Requires PostgreSQL row locks")
 class MembershipConcurrencyTests(TransactionTestCase):
