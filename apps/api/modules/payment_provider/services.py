@@ -98,6 +98,7 @@ def _create_or_replay_provider_payment(
     provider: PaymentProvider,
     tab_id,
     actor: ActorContext,
+    expected_version=None,
 ) -> tuple[Payment, PaymentAttempt, bool]:
     _assert_provider_method(method)
     if (
@@ -143,6 +144,13 @@ def _create_or_replay_provider_payment(
             "Há um pagamento integrado aguardando confirmação; não cobre novamente.",
             409,
         )
+    if expected_version is not None and tab.version != expected_version:
+        raise ProviderServiceError("VERSION_CONFLICT", "Comanda mudou. Confira o pagamento.", 409)
+    from modules.ledger.pricing import assert_settleable, PricingError
+    try:
+        assert_settleable(tab)
+    except PricingError as error:
+        raise ProviderServiceError(error.code, error.message, error.status_code) from error
     if amount_cents > exposure_cents(tab):
         raise ProviderServiceError(
             "PAYMENT_EXCEEDS_EXPOSURE", "Pagamento excede o saldo em aberto.", 409
@@ -189,6 +197,7 @@ def initiate_provider_payment(
     provider: PaymentProvider,
     tab_id,
     actor: ActorContext,
+    expected_version=None,
 ) -> tuple[Payment, PaymentAttempt, bool]:
     """Persist intent before external I/O; an ambiguous start is never retried here."""
     payment, attempt, replayed = _create_or_replay_provider_payment(
@@ -198,6 +207,7 @@ def initiate_provider_payment(
         provider=provider,
         tab_id=tab_id,
         actor=actor,
+        expected_version=expected_version,
     )
     if replayed:
         return payment, attempt, True
@@ -297,6 +307,8 @@ def apply_provider_result(
         attempt_updates.append("error_code")
 
     if incoming == PaymentStatus.CONFIRMED:
+        payment.tab.version += 1
+        payment.tab.save(update_fields=["version"])
         payment.status, payment.confirmed_at = PaymentStatus.CONFIRMED, now
         attempt.status, attempt.finished_at = PaymentAttemptStatus.CONFIRMED, now
         payment_updates.extend(["status", "confirmed_at"])

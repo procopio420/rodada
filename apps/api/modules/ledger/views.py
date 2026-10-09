@@ -29,6 +29,7 @@ class PaymentCollectView(APIView):
                     if request.data.get("amount_tendered_cents") is not None
                     else None
                 ),
+                expected_version=request.data.get("expected_version"),
                 actor=request.actor_context,
             )
         except (TypeError, ValueError):

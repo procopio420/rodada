@@ -1,6 +1,6 @@
 # Spec 011 — Pricing, Discounts, Courtesy & Service Charge
 
-**Status:** Draft for implementation  
+**Status:** Implemented; financial acceptance verified
 **Owner capability:** Billing / Pricing adjustments
 
 ## Objective
@@ -424,3 +424,44 @@ Migration adds kind/scope/calculation/allocation fields with historical mapping.
 - taxes/fiscal;
 - loyalty;
 - accounting allocation beyond operational reporting.
+
+## Executable contract (2026-10-09)
+
+Percentages round half up: `(basis * basis_points + 5000) // 10000`.
+Persist largest-remainder allocations with UUID lexicographic tie breaking.
+The existing LedgerAdjustment table is extended; legacy correction records and
+constraints retain their meaning. Append-only PostgreSQL triggers protect adjustment
+facts and allocations against UPDATE/DELETE. Typed venue policy defaults to disabled
+service; rates, maximum discount, staff/cashier thresholds, post-payment permission,
+removal authority and service accounting/refund treatment are explicitly configurable.
+Policy updates require expected version and recent privileged reauthentication.
+
+Commands lock the Tab and require expected_version. Retries compare the full intent
+fingerprint before version validation and reauthorize. Pending/ambiguous payments and
+pending refunds block pricing. Discounts that exceed net consumption or produce
+payable below net confirmed receipts fail atomically. Manager approval stores the
+request and exact preview without applying money; approval commits only the original
+request at its original version, with both actors recorded.
+
+An assessment is a snapshot, not a silently changing default. Once assessed, new
+orders or discounts require explicit refresh; payment and close reject stale service
+basis. Refresh appends a full reduction of the prior active service and a new
+assessment in the same transaction. Reductions remain explicit and never create a
+Product. Service is operationally separated from consumption; policy records
+REVENUE or PASS_THROUGH without claiming fiscal/GL compliance.
+
+Unpaid transfers persist gross, discount/courtesy and service components per line,
+proportionally with deterministic cents. Their sum equals transferred payable.
+Allocated effects travel with responsibility, including service; rates are not
+silently changed by split/merge. Reassessment is explicit on each Tab. A reversal
+whose allocations have been transferred is rejected pending allocation-aware
+correction; historical facts remain intact. Confirmed money still blocks transfers.
+Refund assistance gives current net consumption and configured refundable service
+share, bounded by net receipts; payment-to-item settlement is not inferred.
+
+Pricing invalidation uses existing bounded HTTP refresh on this branch. No new
+transport or provider SDK/printing changes are introduced. This PR stacks on Spec 010.
+
+Service removal has a separate `service_removal_requires_manager` policy flag
+(default true); authorized opt-out remains governed by `service_opt_out`.
+Item adjustment selectors show the captured product name and original amount.

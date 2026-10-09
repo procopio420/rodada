@@ -85,6 +85,7 @@ class IntegratedPaymentCreateView(APIView):
                 actor=request.actor_context,
                 provider=provider,
                 amount_cents=request.data.get("amount_cents"),
+                expected_version=request.data.get("expected_version"),
                 method=request.data.get("method", ""),
                 idempotency_key=request.data.get("idempotency_key", ""),
             )

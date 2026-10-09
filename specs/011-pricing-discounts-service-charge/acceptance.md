@@ -89,3 +89,44 @@
 **Given** discounts, courtesy and service charge occurred during a business date  
 **When** daily close is generated  
 **Then** gross consumption, each adjustment category, service charge and refunds are separately reconstructible without double counting.
+
+## Executable financial evidence
+
+The foundation audit is in `audit.md`. Detailed reproduction commands and measured
+gates are in `evidence.md`.
+
+| Acceptance / edge case | Executable evidence |
+| --- | --- |
+| Item percentage; original charge unchanged | `test_preview_replay_allocation_and_original_history` |
+| Half-up rounding and largest remainder, 600 calculator combinations | `CalculatorTests.test_rounding_and_allocation` |
+| Allocation across multiple order items | `test_multiple_items_rounding_is_persisted` |
+| Discount greater than remaining / courtesy on paid consumption | `test_partial_payment_and_paid_courtesy_bounds` |
+| Full courtesy and required reason | `test_full_courtesy_reason` |
+| Manager approval, PIN, both actors and exact replay | `test_approval_reauth_and_exact_replay` |
+| Stale approval has no effect | `test_stale_approval_never_applies` |
+| Configurable 7.5%/10%, max/disabled policy and House limits | `test_policy_and_staff_threshold`, `test_service_disabled_maximum_and_house_exposure` |
+| Service after discounts, refresh and removal | `test_service_refresh_and_explicit_removal` |
+| Reversal preserves service and authority | `test_service_reduction_reversal_and_reason_authority` |
+| Historical policy treatment on removal | `test_service_removal_preserves_original_treatment_after_policy_change` |
+| Post-payment policy and mandatory reason | `test_post_payment_policy_and_required_reason` |
+| Payment stale version / in-flight money | `test_stale_payment_version_is_rejected`, `test_inflight_version_and_limit` |
+| Refund after discount and item net-value helper | `test_refund_after_discount_preserves_pricing`, `test_reverse_and_net_refund_preview` |
+| Unpaid adjusted transfers; paid transfer blocked | `test_unpaid_split_conserves_components`, Tab Operations regression suite |
+| Discounted cancellation uses remaining net | `test_discounted_unpaid_cancellation_uses_net` |
+| Complete customized remake/payment/close/reconciliation | `test_customized_bill_correction_and_management` |
+| Two staff / same key / payment versus discount / service races | `PricingConcurrencyTests` (PostgreSQL) |
+| Database forbids UPDATE/DELETE and inexact allocations | `test_postgres_append_only_and_allocation_sum` |
+| Legacy upgrade preserves money, kind and reason | `PricingUpgradeTests` |
+| Real cashier UI through PostgreSQL to reports | `tests/integration/zz-pricing.spec.ts` |
+| Native exact cents, bill fields and persisted intent/version | `PricingContractTest` |
+
+The complete scenario proves: original consumption 4800, remake consumption 2800,
+gross 7600; Tab discount 800; courtesy 3200 (replacement 2800 + correction 400);
+net consumption 3600; final service 360; payable and net received both 3960;
+closed Tab exposure zero. The original Charges and Payments retain their amounts.
+
+Explicit P0 boundaries: confirmed payments/refunds block financial transfers;
+reversing transferred allocations requires an allocation-aware correction rather
+than guessing the current owner. Refund assistance never claims payment-to-item
+settlement allocation. Service is operationally classified as revenue or
+pass-through, without inventing a fiscal or general-ledger treatment.

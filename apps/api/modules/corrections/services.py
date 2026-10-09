@@ -213,7 +213,11 @@ def cancel_before_fulfillment(
             from modules.ledger.services import totals
 
             current_exposure = totals(item.order.tab)["exposure_cents"]
-            refund_required_cents = max(0, item.line_total_cents - current_exposure)
+            from modules.ledger.pricing import components, net_consumption
+            from modules.ledger.models import Charge
+            pricing_charge = Charge.objects.get(order_item=item)
+            item_net = net_consumption(components(item.order.tab)[str(pricing_charge.id)])
+            refund_required_cents = max(0, item_net - current_exposure)
             correction = OrderCorrection.objects.create(
                 venue_id=item.order.tab.venue_id,
                 original_order_item=item,
@@ -591,7 +595,11 @@ def settle_refund_required_cancellation(
     charge = Charge.objects.select_for_update().filter(order_item=item, tab=item.order.tab).first()
     if charge is None:
         raise CorrectionServiceError("CHARGE_NOT_FOUND", "Item sem cobrança canônica.", 409)
-    if amount_cents > charge.amount_cents:
+    from modules.ledger.pricing import components, net_consumption
+    refundable_net = net_consumption(components(item.order.tab)[str(charge.id)])
+    if correction.financial_adjustment_id:
+        refundable_net -= correction.financial_adjustment.amount_cents
+    if amount_cents > refundable_net:
         raise CorrectionServiceError(
             "REFUND_EXCEEDS_ITEM_VALUE",
             "Estorno excede o valor original do item.",

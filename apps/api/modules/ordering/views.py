@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -96,8 +97,9 @@ class TabListCreateView(APIView):
 class TabDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def get(self, request, tab_id):
-        tab = Tab.objects.filter(pk=tab_id, venue=request.auth.venue).first()
+        tab = Tab.objects.select_for_update().filter(pk=tab_id, venue=request.auth.venue).first()
         if not tab:
             return Response(
                 {"code": "TAB_NOT_FOUND", "message": "Comanda não encontrada."},
