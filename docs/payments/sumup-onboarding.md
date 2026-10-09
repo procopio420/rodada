@@ -4,9 +4,12 @@ Rodada has no SumUp or Paytime account, credentials, SDK access or live payment
 evidence. SumUp is the primary candidate; Paytime Pix is preserved as an alternative.
 All test evidence below concerns deterministic simulators and injected HTTP contracts.
 
+For the actionable sequence, owners and evidence for every approval gate, follow
+[Payment activation: one small step at a time](provider-activation-steps.md).
+
 ## Audit and dependencies
 
-This branch builds on open PR #48 (Paytime REST Pix and Android recovery). The
+PR #49 merged the SumUp candidate and the Paytime baseline from PR #48. The
 existing Payment is a persisted intent, PaymentAttempt records provider work,
 Payment.provider_payment_id is the checkout/transaction reference, Refund preserves
 the original receipt, and Payment confirmation settles a Tab. Bank payout is a
@@ -24,11 +27,13 @@ provider; changing a primary candidate does not silently re-route reconciliation
 
 ## Accounts and approval
 
-1. Create a SumUp merchant account at https://me.sumup.com/ and complete business
-   details. The documentation does not describe a separate anonymous developer login.
+1. Start with the [developer signup link in the testing guide](https://developer.sumup.com/online-payments/testing#setting-up-a-sandbox-merchant-account),
+   which creates a sandbox merchant, or use an existing account. The bar owner must
+   separately complete live merchant onboarding at https://me.sumup.com/.
 2. Open Developer Settings, create a Sandbox Account, then create an OAuth application
    with Rodada's homepage and exact HTTPS redirect URI. Keep client secret server-side.
-3. Ask the integration team for Android **Tap-to-Pay** private Maven access and
+3. Use **Contact us** on [Developer Help](https://developer.sumup.com/help) to ask
+   the integration team for Android **Tap-to-Pay** private Maven access and
    manual verification of payment scopes. The regular Android SDK and URI/payment
    switch integrations do not satisfy the embedded phone-only requirement.
 4. Request confirmation of Brazilian merchant eligibility, Pix methods and BYOD
@@ -42,7 +47,7 @@ Embedded Tap: version 1.1.6 is the latest listed release (2026-08-25). Artifact
 `https://maven.sumup.com/releases` and
 `https://tap-to-pay-sdk.fleet.live.sumup.net/` (private credentials required).
 Android 11+/API 30, physical NFC device, compile/target 36+, Java 17, Kotlin 2.2.x
-recommended and core desugaring `com.android.tools:desugar_jdk_libs:2.1.5`.
+(required by the current guide for SDK 1.1.6+) and core desugaring `com.android.tools:desugar_jdk_libs:2.1.5`.
 SDK uses `TapToPayApiProvider.provide(applicationContext)`,
 `init(AuthTokenProvider)` once, `startPayment(CheckoutData): Flow<PaymentEvent>` and
 `tearDown()`. `AuthTokenProvider.getAccessToken()` supplies access; Rodada does not
@@ -120,8 +125,8 @@ Schedule reconcile_payments. Expiration can be configured with expires_seconds.
 Never distribute credential configuration to Android.
 
 For real SDK work, supply Maven credentials and run `./gradlew -PsumupSdk=true
-assembleDebug`. The optional build resolves the artifact but no real SDK bridge is
-wired. Implement SumUpSdkBoundary against actual classes/imports from the official
+assembleDebug`. The optional build attempts to resolve the artifact; artifact access and this build
+have not been verified. No real SDK bridge is wired. Implement SumUpSdkBoundary against actual classes/imports from the official
 sample; map events and credit/debit; obtain approved short-lived BYOD token flow;
 prove merchant switching tears down credentials; compile and run on physical NFC
 phone. Standard fake build success does not prove private SDK compatibility.
