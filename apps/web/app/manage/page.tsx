@@ -103,7 +103,8 @@ export default function ManagementPage() {
     {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
     <HouseAccount />
-    <CatalogIconEditor />
+    <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
+      <CatalogIconEditor />
 
     <section className="panel"><h2>Agora</h2>
       <div className="metricGrid">

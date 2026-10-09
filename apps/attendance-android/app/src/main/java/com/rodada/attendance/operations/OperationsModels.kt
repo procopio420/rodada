@@ -28,6 +28,7 @@ data class OrderItem(
     val quantity: Int,
     val lineTotalCents: Long,
     val state: String,
+    val customizationText: String = "",
 )
 
 data class TabOrder(
@@ -66,6 +67,8 @@ data class Product(
     val active: Boolean,
     val fulfillmentStation: String,
     val availability: String,
+    val variants: List<ProductVariant> = emptyList(),
+    val modifierGroups: List<ModifierGroup> = emptyList(),
 )
 
 /** Server-authoritative READY work; it is never synthesized from a local order cart. */
@@ -82,7 +85,11 @@ data class DeliveryTask(
 data class CartLine(
     val product: Product,
     val quantity: Int,
-)
+    val customization: Customization = Customization(),
+    val lineId: String = java.util.UUID.randomUUID().toString(),
+) {
+    val unitPriceCents: Long get() = product.unitPrice(customization)
+}
 
 enum class ConnectivityState {
     ONLINE,

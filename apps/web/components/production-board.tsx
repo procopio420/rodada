@@ -6,8 +6,10 @@ import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
 
 
-type Item = { id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string; ready_at?: string | null };
-type Product = { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
+import { CustomizationText, type Snapshot, type OrderingProduct } from "./product-customization";
+import { CustomizationAvailability } from "./customization-availability";
+type Item = { customization_snapshot?: Snapshot; id: string; state: string; quantity: number; product_name: string; tab_label: string; created_at: string; ready_at?: string | null };
+type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
   ACCEPTED: { state: "PREPARING", label: "Preparar" },
@@ -114,7 +116,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <div className="eyebrow">Fila de produção</div>
       <h2 id="queue-title">Em produção</h2>
       {loading ? <div className="loadingState" role="status">Carregando fila…</div> : waiting.map(item => <article className="dataRow productionRow" key={item.id}>
-        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">Desde o pedido · {age(item.created_at)}</span></div>
+        <div><strong>{item.quantity}× {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">Desde o pedido · {age(item.created_at)}</span></div>
         <div className="actions">
           <span className="statusBadge" data-state={tone(item.state)}>{labels[item.state] ?? item.state}</span>
           {next[item.state] && <button className="buttonPrimary buttonWork" disabled={disabled}
@@ -130,7 +132,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <div className="eyebrow">Passe</div>
       <h2 id="ready-title">Pronto para retirada</h2>
       {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <div className="dataRow productionRow" key={item.id}>
-        <div><strong>{item.quantity}× {item.product_name}</strong><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">No passe · {age(item.ready_at)}</span></div>
+        <div><strong>{item.quantity}× {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><br /><small className="muted">{item.tab_label || "Sem identificação"}</small><br /><span className="productionAge">No passe · {age(item.ready_at)}</span></div>
         <span className="statusBadge" data-state="success">Pronto</span>
       </div>)}
       {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
@@ -155,6 +157,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       })}
       {!loading && hasSnapshot && !products.length && <div className="emptyState">Nenhum produto roteado para esta estação.</div>}
     </section>
+    <CustomizationAvailability products={products} onChanged={() => load(true)} />
     <QuickCatalog station={station} onChanged={() => load(true)} />
   </main>;
 }
