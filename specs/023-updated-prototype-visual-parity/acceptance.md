@@ -14,3 +14,11 @@
 - [ ] Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteúdo longo passam.
 - [ ] CI retém referência/actual/diff/overlay/stats e falha em regressão; não usa baseline atual ou masks para ocultar diferenças.
 - [ ] Audit/KB registram cobertura completa e diferenças restantes; nenhuma tela sem referência é declarada pixel-perfect.
+
+## Aceite do recorte V02 — Field / StatusBadge
+
+- [x] Field confortável: 56 px, raio 10 px, padding horizontal 16 px, Archivo 20/600, borda interna 1,5 px; foco interno 2 px papel. Label 14/800, tracking 0,1em, gap 6 px.
+- [x] Controle normal/foco/placeholder compara com `.inp` atualizado em ≤0,1%, pixelmatch threshold 0.1 / includeAA false; nenhuma referência ou tolerância substituída.
+- [x] StatusBadge tem diferenças e ausência de equivalências documentadas; estados operacionais preservados.
+- [x] Cozinha/Bar em 360/430/768 sem overflow, labels/foco preservados; fluxo de criação/reutilização continua passando.
+- [x] Typecheck/build/test registrados com evidências e limitações; branch original preservada, sem merge/push.
