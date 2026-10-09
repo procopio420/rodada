@@ -206,7 +206,14 @@ class GuestPartySizeView(APIView):
                 session_token=_session_token(request), **serializer.validated_data
             )
         except (GuestAccessError, HospitalityServiceError) as error:
-            return _error_response(error)
+            response = _error_response(error)
+            current = response.data.get("current")
+            if current:
+                response.data["current"] = {
+                    key: current[key]
+                    for key in ("covers_count", "version", "source", "observation_id")
+                }
+            return response
         # Public guest payload excludes staff/device identifiers and private reasons.
         data = observation_payload(row)
         return Response(

@@ -249,18 +249,12 @@ class PartySizeApiTests(Fixture, TestCase):
         import sys
 
         from django.test import override_settings
-        from django.urls import path
         from rest_framework.test import APIClient
 
-        from modules.guest_access.views import GuestPartySizeView
-        from modules.hospitality.views import PartySizeView
         from rodada_api.urls import urlpatterns as canonical_urls
 
         module = sys.modules[__name__]
-        module.urlpatterns = canonical_urls + [
-            path("test/occupancies/<uuid:occupancy_id>/party-size/", PartySizeView.as_view()),
-            path("test/guest/party-size/", GuestPartySizeView.as_view()),
-        ]
+        module.urlpatterns = canonical_urls
         with override_settings(ROOT_URLCONF=__name__):
             self.staff.set_pin("1234")
             self.staff.save()
@@ -278,14 +272,14 @@ class PartySizeApiTests(Fixture, TestCase):
             )
             assert login.status_code == 200, login.json()
             client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
-            url = f"/test/occupancies/{self.occupancy.id}/party-size/"
+            url = f"/hospitality/occupancies/{self.occupancy.id}/party-size/"
             unknown = client.get(url)
             assert unknown.status_code == 200 and unknown.json()["current"]["covers_count"] is None
             resolution = self.guest()
             guest = APIClient()
             guest.credentials(HTTP_X_GUEST_SESSION=resolution.token)
             response = guest.post(
-                "/test/guest/party-size/",
+                "/guest/party-size/",
                 {"covers_count": 4, "expected_version": 0, "idempotency_key": "api-guest"},
                 format="json",
             )
@@ -297,16 +291,26 @@ class PartySizeApiTests(Fixture, TestCase):
             )
             corrected = client.post(
                 url,
-                {"covers_count": 5, "expected_version": 1, "idempotency_key": "api-staff"},
+                {"covers_count": 5, "expected_version": 1, "idempotency_key": "api-staff", "reason": "Private staff correction"},
                 format="json",
             )
             assert corrected.status_code == 200, corrected.json()
+            stale = guest.post(
+                "/guest/party-size/",
+                {"covers_count": 6, "expected_version": 1, "idempotency_key": "guest-stale"},
+                format="json",
+            )
+            assert stale.status_code == 409, stale.json()
+            assert set(stale.json()["current"]) == {
+                "covers_count", "version", "source", "observation_id"
+            }
+            assert "Private staff correction" not in str(stale.json())
             history = client.get(url).json()["history"]
             assert [row["covers_count"] for row in history] == [5, 4]
             assert history[0]["source"] == "STAFF"
             release_table(table_id=self.table.id, actor=self.actor)
             response = guest.post(
-                "/test/guest/party-size/",
+                "/guest/party-size/",
                 {"covers_count": 6, "expected_version": 2, "idempotency_key": "api-after-release"},
                 format="json",
             )
