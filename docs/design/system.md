@@ -382,3 +382,9 @@ Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV
 Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
 
 Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.
+
+## V05 parcial — navegação nativa
+
+AttendanceNavigation usa Ground/Surface/Paper/Ink/Muted existentes, Archivo Label, barra 84 dp com padding inferior 8, centro 136, margens centrais 10/4/2 e raio 12; ícones 24, gap 5, label 14 e marcador ativo 3. Medidas promovidas em AttendanceNavTokens, baseadas em .nav/.nb/.ngo do export night. Mesas/Caixa ficam na extensão operacional anterior, com targets mínimos 44 dp; insets pertencem ao AuthApp.
+
+Medição executável confirmou borda superior 1 px: laterais 127×75, botão central 128×63 no conteúdo 390. Token Subtle (já canônico no sistema) usado nas laterais inativas. Sombra de tecla 4 dp. A referência literal inclui cantos da moldura; crop derivado remove apenas border-radius da .phone, não a região .nav, para separar chrome de apresentação.

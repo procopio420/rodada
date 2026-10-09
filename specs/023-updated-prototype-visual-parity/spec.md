@@ -23,3 +23,11 @@ Implementação de todo backlog funcional da Spec 022, geração IA adiada, publ
 ## Critérios
 
 Ver [acceptance.md](acceptance.md); execução em [plan.md](plan.md) e [tasks.md](tasks.md).
+
+## V05 parcial — navegação do Atendimento
+
+Navegação canônica de 84 dp com região central de 136 dp em 390 dp; seleção semântica e callbacks atuais preservados. Mesas/Caixa seguem acessíveis em extensão identificada, sem inventar dados.
+
+Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
+
+Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem baseline nativa total aprovada.
