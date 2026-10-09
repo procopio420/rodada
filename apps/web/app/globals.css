@@ -364,3 +364,44 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceNav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin-bottom: var(--space-4); }
 .attendanceItem { padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
 .attendanceItem h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+
+/* Spec023 partial: management extension; no literal full-screen reference exists. */
+:root {
+  --shadow-operational: 0 4px 12px rgb(0 0 0 / .2);
+  --shadow-navigation: 0 -4px 12px rgb(0 0 0 / .2);
+  --management-nav-min-height: 84px;
+  --management-nav-marker: 3px;
+}
+.operationalIcon { flex-shrink: 0; display: block; }
+.managementNavigation {
+  min-height: calc(var(--management-nav-min-height) + env(safe-area-inset-bottom));
+  padding: var(--space-2) var(--space-1) max(var(--space-2), env(safe-area-inset-bottom));
+  gap: 0;
+  box-shadow: var(--shadow-navigation);
+}
+.managementNavigation a {
+  position: relative; display: flex; flex-direction: column; justify-content: center;
+  gap: var(--space-1); padding: var(--space-1); font-size: var(--text-sm);
+  line-height: 1.2; font-stretch: 84%; min-width: 0; border-radius: 0;
+}
+.managementNavigation .surfaceNavActive { background: transparent !important; }
+.managementNavigation .surfaceNavActive::before {
+  content: ""; position: absolute; top: calc(-1 * var(--space-2)); left: 26%; right: 26%;
+  height: var(--management-nav-marker); background: var(--color-text);
+}
+.managementShell { padding-bottom: calc(var(--space-6) + var(--management-nav-height, var(--management-nav-min-height)) + env(safe-area-inset-bottom)); }
+.managementSectionHeader h2 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-lg); }
+.managementSectionHeader .operationalIcon { color: var(--color-accent); }
+.managementShell .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.managementShell .operationalMetric strong { font-size: var(--text-xl); }
+.managementShell .financialMetric {
+  grid-column: 1 / -1; grid-row: 1; padding: var(--space-4);
+  border-color: var(--color-border-strong); box-shadow: var(--shadow-operational);
+}
+.managementShell .financialMetric strong { font-size: var(--text-2xl); color: var(--color-money); }
+.metricLabel { display: flex; gap: var(--space-2); align-items: center; }
+.metricLabel .operationalIcon { color: var(--color-money); }
+.managementUtilityLink { display: flex; align-items: center; gap: var(--space-2); }
+.managementShell [id] { scroll-margin-top: var(--space-4); }
+
+.managementNavigation a span { max-width: 100%; overflow-wrap: anywhere; }

@@ -6,6 +6,7 @@ import { useRealtime } from "@/lib/client/use-realtime";
 import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { OperationalAlerts } from "@/components/operational-alerts";
+import { ManagementSectionHeader, OperationalIcon } from "@/components/operational-icon";
 import { ManagementNav } from "@/components/management-nav";
 import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -111,28 +112,27 @@ export default function ManagementPage() {
     <OperationalAlerts />
     {hasSnapshot && <>
     {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
-      <h2 id="cash-review-title">Divergências de caixa pendentes</h2>
+      <ManagementSectionHeader icon="wallet" id="cash-review-title">Divergências de caixa pendentes</ManagementSectionHeader>
       {pendingCash.map(point => <div className="movement" key={point.id}><div><strong>{point.label}</strong><small>Fechamento aguardando revisão</small></div><strong className="cashDifference">{money(point.pending_review_shift?.discrepancy_cents)}</strong></div>)}
       <Link className="backLink" href="/cash">Revisar caixa →</Link>
     </section>}
-    {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
+    {refunds.length ? <section className="panel panelDanger"><ManagementSectionHeader icon="wallet">Estornos pendentes</ManagementSectionHeader>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
     {attentionTabs.length > 0 && <section className="panel panelWarning" aria-labelledby="tab-attention-title">
-      <h2 id="tab-attention-title">Comandas precisam de atenção</h2>
+      <ManagementSectionHeader icon="now" id="tab-attention-title">Comandas precisam de atenção</ManagementSectionHeader>
       {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tab.display_label || "Comanda sem nome"}</strong><small>Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
       <Link className="backLink" href="/manage#gestao">Ver comandas em Gestão →</Link>
     </section>}
-    <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
-    <section className="panel"><h2>Agora</h2>
+    <section className="panel"><ManagementSectionHeader icon="now">Agora</ManagementSectionHeader>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
-        <div className="operationalMetric"><span>Exposição em aberto</span><strong>{money(exposure)}</strong></div>
+        <div className="operationalMetric financialMetric"><div className="metricLabel"><OperationalIcon name="wallet" size={20} /><span>Exposição em aberto</span></div><strong>{money(exposure)}</strong></div>
         <div className="operationalMetric"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
         <div className="operationalMetric"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
       </div>
     </section>
 
-    <section className="panel" id="operacao"><h2>Produção e entrega</h2>
+    <section className="panel" id="operacao"><ManagementSectionHeader icon="operation">Produção e entrega</ManagementSectionHeader>
       <div className="dataRow"><span>Bar em preparo</span><strong>{bar.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Cozinha em preparo</span><strong>{kitchen.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
@@ -141,7 +141,8 @@ export default function ManagementPage() {
     </section>
 
     <div id="gestao">
-    <section className="panel"><h2>Caixa e salão</h2>
+    <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
+    <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e salão</ManagementSectionHeader>
       {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
       <div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div>
       <div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter((table) => table.status === "CLEANING").length}</strong></div>
@@ -152,9 +153,9 @@ export default function ManagementPage() {
     <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
     <CatalogIconEditor />
     </div>
-    <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
-    {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">Indisponível</strong></div>)}</section> : null}
-    <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Consulte o cardápio nas estações e os relatórios em Vendas. Para trocar de operador ou encerrar a sessão, abra Atendimento.</p><Link className="backLink" href="/staff">Abrir sessão de atendimento →</Link></section>
+    <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
+    {unavailable.length ? <section className="panel"><ManagementSectionHeader icon="operation">Indisponíveis</ManagementSectionHeader>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">Indisponível</strong></div>)}</section> : null}
+    <section className="panel" id="mais"><ManagementSectionHeader icon="more">Mais</ManagementSectionHeader><p className="muted">Consulte o cardápio nas estações e os relatórios em Vendas. Para trocar de operador ou encerrar a sessão, abra Atendimento.</p><Link className="backLink managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link><Link className="backLink" href="/staff">Abrir sessão de atendimento →</Link></section>
     </>}
   </main>;
 }
