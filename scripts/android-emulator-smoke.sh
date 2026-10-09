@@ -164,13 +164,12 @@ fi
 if [[ "${RODADA_SMOKE_SKIP_BUILD:-0}" != "1" ]]; then
   (
     cd "$APP_DIR"
-    ./gradlew assembleDebug
+    ./gradlew "-ProdadaApiBaseUrl=http://$API_HOST:$API_PORT/" assembleDebug
   )
 fi
-(
-  cd "$APP_DIR"
-  ./gradlew installDebug
-)
+# installDebug would rebuild with the default URL even when SKIP_BUILD=1.
+# Install the exact APK assembled above (or explicitly provided by the caller).
+adb -s "$SERIAL" install -r "$APP_DIR/app/build/outputs/apk/debug/app-debug.apk"
 adb -s "$SERIAL" shell am start -W -n com.rodada.attendance/.MainActivity >/dev/null
 
 if [[ "${RODADA_SMOKE_LOGCAT:-0}" == "1" ]]; then
@@ -180,7 +179,9 @@ if [[ "${RODADA_SMOKE_LOGCAT:-0}" == "1" ]]; then
 fi
 
 cat <<EOF
-Rodada Atendimento is running on $SERIAL and reached the local API.
+Rodada Atendimento is running on $SERIAL; Android TCP reachability to $API_HOST:$API_PORT passed.
+Native login and ordering still require the following UI checks. With SKIP_BUILD=1,
+the existing APK must already have been built for that URL.
 
 Complete the manual canonical API smoke in the app:
   1. Login: venue bar-do-aderlan, operator bia, PIN 1234.

@@ -70,6 +70,35 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(response.json()["code"], "PAYMENT_METHOD_UNAVAILABLE")
         self.assertEqual(Payment.objects.count(), 0)
 
+    def test_committed_payment_replay_after_close_recovers_original_receipt(self):
+        tab = self.order_tab()
+        path = f"/tabs/{tab['id']}/payments/"
+        payload = {"amount_cents": 2400, "method": "EXTERNAL_TERMINAL", "idempotency_key": "settled"}
+        first = self.client.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json").status_code, 200)
+        replay = self.client.post(path, payload, format="json")
+        self.assertEqual(replay.status_code, 201, replay.json())
+        self.assertEqual(replay.json()["id"], first.json()["id"])
+        conflict = self.client.post(path, {**payload, "amount_cents": 1200}, format="json")
+        self.assertEqual(conflict.json()["code"], "IDEMPOTENCY_CONFLICT")
+        new = self.client.post(path, {**payload, "idempotency_key": "new"}, format="json")
+        self.assertEqual(new.json()["code"], "TAB_CLOSED")
+        self.assertEqual(Payment.objects.count(), 1)
+
+    def test_invalid_manual_payment_payload_cannot_truncate_cents_or_crash(self):
+        tab = self.order_tab()
+        payload = {"amount_cents": 1200, "method": "EXTERNAL_TERMINAL", "idempotency_key": "invalid"}
+        invalid = [1.9, True, 2147483648, "nan", None]
+        bodies = [{**payload, "amount_cents": amount} for amount in invalid]
+        bodies += [{**payload, "idempotency_key": []}, {**payload, "cash_point_id": "bad"}, []]
+        for body in bodies:
+            with self.subTest(body=body):
+                response = self.client.post(f"/tabs/{tab['id']}/payments/", body, format="json")
+                self.assertEqual(response.status_code, 400, response.json())
+                self.assertEqual(response.json()["code"], "INVALID_PAYMENT")
+        self.assertFalse(Payment.objects.exists())
+
     def manager_client(self):
         manager = StaffMember.objects.create(display_name="Gerente", login_identifier="gerente")
         manager.set_pin("4321")
@@ -89,6 +118,24 @@ class LedgerPaymentTests(TestCase):
         )
         client.credentials(HTTP_AUTHORIZATION="Bearer " + response.json()["access_token"])
         return manager, client
+
+    def test_invalid_refund_payload_cannot_truncate_cents_or_crash(self):
+        tab = self.order_tab()
+        payment = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 1200, "method": "EXTERNAL_TERMINAL", "idempotency_key": "refund-source"},
+            format="json",
+        ).json()
+        _, manager = self.manager_client()
+        manager.post("/auth/reauthenticate/", {"pin": "4321"}, format="json")
+        payload = {"amount_cents": 100, "idempotency_key": "invalid-refund", "reason": "QA"}
+        bodies = [{**payload, "amount_cents": amount} for amount in (1.9, True, 2147483648, None)]
+        bodies += [[], {**payload, "cash_point_id": "bad"}]
+        for body in bodies:
+            response = manager.post(f"/payments/{payment['id']}/refunds/", body, format="json")
+            self.assertEqual(response.status_code, 400, response.json())
+            self.assertEqual(response.json()["code"], "INVALID_REFUND")
+        self.assertFalse(Refund.objects.exists())
 
     def test_only_confirmed_money_counts_and_authorized_refund_is_append_only(self):
         tab = self.order_tab()

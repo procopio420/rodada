@@ -1,0 +1,83 @@
+name: rodada-demo
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: rodada_demo
+      POSTGRES_USER: rodada
+      POSTGRES_PASSWORD: demo-local-only
+    ports:
+      - "127.0.0.1:55459:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rodada -d rodada_demo"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  migrate:
+    build:
+      context: ..
+      dockerfile: demo/api.Dockerfile
+    environment: &api-env
+      POSTGRES_DB: rodada_demo
+      POSTGRES_USER: rodada
+      POSTGRES_PASSWORD: demo-local-only
+      POSTGRES_HOST: db
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,api,10.0.2.2
+      DJANGO_SETTINGS_MODULE: rodada_api.settings
+      RODADA_PAYMENT_SIMULATION: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "manage.py", "migrate", "--noinput"]
+  seed:
+    build:
+      context: ..
+      dockerfile: demo/api.Dockerfile
+    environment: *api-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["python", "manage.py", "seed_demo"]
+  api:
+    build:
+      context: ..
+      dockerfile: demo/api.Dockerfile
+    environment: *api-env
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    command: ["python", "-m", "uvicorn", "rodada_api.asgi:application", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "0.0.0.0:18764:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready/', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 20
+  dispatcher:
+    build:
+      context: ..
+      dockerfile: demo/api.Dockerfile
+    environment: *api-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["python", "manage.py", "dispatch_realtime"]
+    restart: unless-stopped
+  web:
+    build:
+      context: ..
+      dockerfile: demo/web.Dockerfile
+    environment:
+      RODADA_API_BASE_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "0.0.0.0:3119:3000"
+    restart: unless-stopped
+volumes:
+  database:

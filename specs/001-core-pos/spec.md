@@ -60,6 +60,11 @@ Cancelamento após confirmação exige permissão e trilha de auditoria; ledger 
 
 Registrar `CASH`, `CARD`, `PIX` ou `OTHER`; P0 aceita confirmação manual.
 
+Valores e troco são centavos inteiros positivos dentro do intervalo persistível;
+payload inválido é rejeitado sem efeito financeiro. Retry de intenção confirmada
+recupera o Payment original mesmo após fechamento da Tab; nova intenção permanece
+bloqueada e uma chave reutilizada com outro valor/método é conflito.
+
 ### POS-009 — Fechar Tab
 
 Tab fecha normalmente com exposure zero. Divergência exige manager action.

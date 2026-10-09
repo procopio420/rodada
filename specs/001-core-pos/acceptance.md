@@ -15,5 +15,10 @@
 - [x] Estados operacionais registram timestamps.
 - [ ] Cancelamento pós-confirmação não apaga histórico e exige auditoria.
 - [x] Pagamento manual reduz exposure.
+- Retry de Payment manual já confirmado após fechamento recupera o mesmo ID;
+  payload diferente mantém conflito e nova intenção continua bloqueada.
+  Prova: `test_committed_payment_replay_after_close_recovers_original_receipt`.
+- Payload monetário fracionário, booleano, fora de intervalo ou malformado é
+  rejeitado sem Payment; `test_invalid_manual_payment_payload_cannot_truncate_cents_or_crash`.
 - [x] Tab com exposure zero pode ser fechada.
 - [ ] Caixa resume recebimentos por método.
