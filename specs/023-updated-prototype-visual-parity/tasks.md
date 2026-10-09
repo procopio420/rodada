@@ -26,3 +26,13 @@ Evidências e limites: [inventário](../../docs/design/v01-kitchen-inventory.md)
 - [x] Verificar Cozinha e Bar adjacente e executar typecheck/build/test.
 
 Este checklist não conclui V02 global nem V01.
+
+## V03 parcial — Cozinha
+
+- [x] Contrato prévio com fonte, dados e normalizações explícitas.
+- [x] Modelo comum e adapters test-only reutilizam fixture/comparador existentes.
+- [x] Dados equivalentes e captures determinísticas verificados.
+- [x] Comparação literal/derivada/aplicação e diferenças documentadas.
+- [x] Typecheck/build/test executados e resultados registrados.
+
+V03 global e V04 continuam abertos.

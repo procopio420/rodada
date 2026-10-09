@@ -21,3 +21,13 @@ Referências e checks existentes da Spec 021 são base reutilizável, sem declar
 5. Executar typecheck, build, suíte visual e testes realtime; registrar resultados e limites. Sem merge/publicação.
 
 Resultado do recorte: [inventário e validação](../../docs/design/v02-field-status.md). V02 global permanece pendente.
+
+## V03 parcial — Cozinha
+
+1. Revisar `fixtures.ts`, comparação/geometry/Product identity de `parity.spec.ts` e referência atualizada.
+2. Versionar contrato antes do harness. Criar cenário comum test-only com relógio 23:14, items e produtos/ícones.
+3. Reutilizar fixture HTTP/clock/stable e comparador existente; adicionar opção de relógio sem alterar cenários anteriores. Adaptar DTOs e dados no DOM da referência, sem mudar seus estilos.
+4. Guardar literal, derivada, aplicação, diffs/overlay/stats; verificar dados equivalentes e estabilidade de duas capturas.
+5. Typecheck/build/test:visual/test:realtime; registrar diferenças e preservar branch original. Sem merge/publicação.
+
+Resultado do recorte V03: [comparação e diferenças](../../docs/design/v03-kitchen-comparison.md). V03 global e fidelidade total continuam pendentes.

@@ -1,0 +1,9 @@
+{
+  "independentRuns": "focused test then complete suite; additionally two identical frames inside each test",
+  "sha256": {
+    "v03-kitchen-literal.png": "47035610ba95b629fe4135220cefdd64424c59795871e4bb9457293eacc52fd5",
+    "v03-kitchen-reference.png": "608b5814a75482103c840c03fca8a84978bb6fe957a2b509e649fa7b494449c9",
+    "v03-kitchen-actual.png": "5c821cfaecff2048dde3261e63d4e886d4dfb0b911aafc6d7364de72ef2833dd",
+    "v03-kitchen-actual-full.png": "0e35992c1440442bbd37e601653647d3990c4506c450acde845036bfe8c36dc1"
+  }
+}
