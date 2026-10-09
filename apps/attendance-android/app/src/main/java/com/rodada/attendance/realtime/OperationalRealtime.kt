@@ -105,11 +105,13 @@ class SseOperationalRealtime(
                         cursor = baseline
                         gate.reset(baseline)
                     }
-                    auth.withAuthorizedAccess(session) { token ->
-                        val stream = open("/realtime/stream/?cursor=$cursor", token)
-                        connection = stream
-                        try {
-                            checkStatus(stream)
+                    val stream = auth.withAuthorizedAccess(session) { token ->
+                        open("/realtime/stream/?cursor=$cursor", token).also {
+                            try { checkStatus(it) } catch (error: Exception) { it.disconnect(); throw error }
+                        }
+                    }
+                    connection = stream
+                    try {
                             stream.inputStream.bufferedReader().use { reader ->
                                 val frames = SseFrames()
                                 while (true) {
@@ -117,6 +119,7 @@ class SseOperationalRealtime(
                                     val frame = frames.line(line) ?: continue
                                     when (frame.event) {
                                         "reset" -> { cursor = null; throw IOException("Replay gap") }
+                                        "reauthenticate" -> throw IOException("Refresh access token and resume")
                                         "revoked" -> throw AuthApiException(403, "AUTH_REVOKED", "Realtime authorization revoked")
                                         "ready", "heartbeat" -> { attempts = 0; trySend(RealtimeSignal.Connected) }
                                         "change" -> {
@@ -129,8 +132,7 @@ class SseOperationalRealtime(
                                     }
                                 }
                             }
-                        } finally { stream.disconnect(); connection = null }
-                    }
+                    } finally { stream.disconnect(); connection = null }
                 } catch (error: kotlinx.coroutines.CancellationException) { throw error
                 } catch (error: Exception) {
                     send(RealtimeSignal.Reconnecting)

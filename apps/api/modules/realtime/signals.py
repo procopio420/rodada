@@ -21,6 +21,12 @@ PREFIXES = (
     "replacement.",
     "product.availability_",
     "guest_session.",
+    "cash.",
+    "catalog.product_created",
+    "catalog.product_edited",
+    "catalog.icon_published",
+    "catalog.icon_uploaded",
+    "catalog.icon_removed",
 )
 MODELS = {
     "Tab": "ordering.Tab",

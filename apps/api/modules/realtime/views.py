@@ -19,7 +19,8 @@ from .services import replay_batch, snapshot_cursor
 
 def frame(event, data, cursor=None):
     identity = f"id: {cursor}\n" if cursor else ""
-    return f"{identity}event: {event}\ndata: {json.dumps(data, default=str, separators=(',', ':'))}\n\n"
+    serialized = json.dumps(data, default=str, separators=(",", ":"))
+    return f"{identity}event: {event}\ndata: {serialized}\n\n"
 
 
 class SnapshotView(APIView):
@@ -47,10 +48,25 @@ class GuestSnapshotView(APIView):
 
 def visible(event, identity, guest):
     if guest:
-        return (identity.tab_id is not None and event.tab_id == identity.tab_id) or (
-            event.aggregate_type == "Product" and event.event_type.startswith("product.")
+        tab_event = event.event_type.startswith(
+            (
+                "tab.",
+                "guest_tab.",
+                "order.",
+                "order_item.",
+                "dispatch.",
+                "payment.",
+                "charge.",
+                "replacement.",
+            )
+        )
+        return (tab_event and identity.tab_id is not None and event.tab_id == identity.tab_id) or (
+            event.aggregate_type in ("Product", "ProductIcon")
+            and event.event_type.startswith(("product.", "catalog."))
         )
     capabilities = effective_capabilities(identity.membership)
+    if event.event_type.startswith("cash."):
+        return bool({Capability.CASH_SHIFT_OPEN, Capability.CASH_REVIEW} & capabilities)
     if event.event_type.startswith(("payment.", "charge.", "replacement.")):
         return Capability.PAYMENT_COLLECT in capabilities
     if event.event_type.startswith(("order.", "order_item.", "dispatch.")):
@@ -59,7 +75,15 @@ def visible(event, identity, guest):
         return Capability.TABLE_MANAGE in capabilities
     if event.event_type.startswith("guest_session."):
         return False
-    return bool(capabilities)
+    if event.event_type.startswith(("tab.", "guest_tab.")):
+        return Capability.TAB_OPEN in capabilities
+    if event.event_type.startswith(("product.", "catalog.")):
+        return bool(
+            {Capability.ORDER_CONFIRM, Capability.CATALOG_AVAILABILITY_MANAGE_STATION}
+            & capabilities
+        )
+    # New domain ports must add an explicit routing policy before public delivery.
+    return False
 
 
 class EventStreamRenderer(JSONRenderer):
@@ -92,13 +116,21 @@ class StreamView(APIView):
             identity = authorize()
         except GuestAccessError as error:
             return _error_response(error)
+        except AccessServiceError as error:
+            return Response(
+                {"code": error.code, "message": error.message}, status=error.status_code
+            )
         venue_id = identity.table.venue_id if guest else identity.venue_id
         cursor = request.headers.get("Last-Event-ID") or request.query_params.get("cursor", "")
 
         def read(cursor):
             try:
                 identity = authorize()
-            except (GuestAccessError, AccessServiceError):
+            except AccessServiceError as error:
+                if error.code == "ACCESS_TOKEN_EXPIRED":
+                    return [frame("reauthenticate", {"reason": error.code})], cursor, True
+                return [frame("revoked", {"reason": "AUTH_REVOKED"})], cursor, True
+            except GuestAccessError:
                 return [frame("revoked", {"reason": "AUTH_REVOKED"})], cursor, True
             rows = replay_batch(venue_id, cursor)
             if rows is None:

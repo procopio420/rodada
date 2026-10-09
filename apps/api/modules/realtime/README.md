@@ -29,8 +29,13 @@ from modules.realtime.services import emit_event
 
 with transaction.atomic():
     # Validate and persist the canonical mutation.
-    emit_event(venue_id=venue.id, event_type="order.confirmed",
-               aggregate_type="Order", aggregate_id=order.id, tab_id=order.tab_id)
+    emit_event(
+        venue_id=venue.id,
+        event_type="order.confirmed",
+        aggregate_type="Order",
+        aggregate_id=order.id,
+        tab_id=order.tab_id,
+    )
 ```
 
 The port rejects calls outside a transaction. A locked VenueStream row allocates

@@ -281,6 +281,70 @@ class RealtimeTests(TestCase):
         result = self.stream(baseline)
         assert not any(frame.get("event") == "change" for frame in result)
 
+    def test_unpublished_commits_wait_for_dispatch_without_advancing_cursor(self):
+        baseline = self.client.get("/realtime/snapshot/").json()["cursor"]
+        event = self.emit()
+        before = frames(self.client.get("/realtime/stream/", {"once": "1", "cursor": baseline}))
+        assert not any(frame.get("event") == "change" for frame in before)
+        assert before[-1]["data"]["cursor"] == baseline
+        changes = [frame for frame in self.stream(baseline) if frame.get("event") == "change"]
+        assert [frame["id"] for frame in changes] == [event.cursor]
+
+    def test_cash_changes_are_atomic_and_filtered_from_guest_and_staff(self):
+        from modules.access.context import ActorContext
+        from modules.access.services import session_for_access_token
+        from modules.cash.models import CashPoint
+        from modules.cash.services import create_cash_point
+
+        client, _, _ = self.guest("cash-scope")
+        baseline = client.get("/guest/realtime/snapshot/").json()["cursor"]
+        token = self.client._credentials["HTTP_AUTHORIZATION"].split(" ", 1)[1]
+        actor = ActorContext.from_session(session_for_access_token(token))
+        with self.assertRaises(RuntimeError), transaction.atomic():
+            create_cash_point(label="Rolled back", actor=actor)
+            assert OutboxEvent.objects.filter(event_type="cash.point_created").exists()
+            raise RuntimeError("command rollback")
+        assert not CashPoint.objects.filter(label="Rolled back").exists()
+        assert not OutboxEvent.objects.filter(event_type="cash.point_created").exists()
+        create_cash_point(label="Authorized drawer", actor=actor)
+        assert any(frame.get("event") == "change" for frame in self.stream(baseline))
+        dispatch_pending()
+        guest_frames = frames(
+            client.get("/guest/realtime/stream/", {"once": "1", "cursor": baseline})
+        )
+        assert not any(frame.get("event") == "change" for frame in guest_frames)
+        self.membership.role = StaffRole.STAFF
+        self.membership.save(update_fields=["role"])
+        assert not any(frame.get("event") == "change" for frame in self.stream(baseline))
+
+    def test_unclassified_public_port_events_are_not_delivered(self):
+        baseline = self.client.get("/realtime/snapshot/").json()["cursor"]
+        with transaction.atomic():
+            emit_event(
+                venue_id=self.venue.id,
+                event_type="future.private",
+                aggregate_type="Future",
+                aggregate_id="test",
+            )
+        assert not any(frame.get("event") == "change" for frame in self.stream(baseline))
+
+    def test_expired_staff_access_rotates_credentials_without_revoking_session(self):
+        from unittest.mock import patch
+
+        from modules.access.services import AccessServiceError, session_for_access_token
+
+        token = self.client._credentials["HTTP_AUTHORIZATION"].split(" ", 1)[1]
+        session = session_for_access_token(token)
+        cursor = self.client.get("/realtime/snapshot/").json()["cursor"]
+        with patch(
+            "modules.realtime.views.session_for_access_token",
+            side_effect=[session, AccessServiceError("ACCESS_TOKEN_EXPIRED", "Expired", 401)],
+        ):
+            result = frames(self.client.get("/realtime/stream/", {"once": "1", "cursor": cursor}))
+        assert [frame["event"] for frame in result] == ["reauthenticate"]
+        session.refresh_from_db()
+        assert session.revoked_at is None
+
 
 class ActiveStreamRevocationTests(TransactionTestCase):
     def test_connected_guest_session_is_reauthorized_before_delivery(self):

@@ -2,7 +2,7 @@
 POSTGRES_DB=rodada_realtime_verification python apps/web/tests/visual-realtime.py
 Requires API on 18764, built Web on 18765, and playwright Chromium.
 """
-import json, os, sys, time, uuid, subprocess
+import json, os, sys, time, uuid, subprocess, re
 from pathlib import Path
 from urllib.request import Request, urlopen
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "api"))
@@ -41,12 +41,12 @@ with sync_playwright() as playwright:
     production = manager.new_page(); production.goto(base + "/bar")
     production.get_by_text("1× Browser Beer").wait_for()
     dispatch_pending()
-    production.get_by_role("button", name="Aceitar", exact=True).click(); dispatch_pending()
+    production.get_by_role("button", name=re.compile("^Aceitar:")).click(); dispatch_pending()
     page.get_by_text("Aceito", exact=True).wait_for()
-    production.get_by_role("button", name="Preparar", exact=True).click(); dispatch_pending()
+    production.get_by_role("button", name=re.compile("^Preparar:")).click(); dispatch_pending()
     page.get_by_text("Em preparo", exact=True).wait_for()
     started = time.monotonic()
-    production.get_by_role("button", name="Pronto", exact=True).click(); dispatch_pending()
+    production.get_by_role("button", name=re.compile("^Pronto:")).click(); dispatch_pending()
     page.get_by_text("Pronto", exact=True).wait_for()
     readiness_ms = round((time.monotonic() - started) * 1000)
     for name, surface in [("guest", page), ("bar", production)]:
@@ -57,5 +57,22 @@ with sync_playwright() as playwright:
     management.get_by_role("heading", name="O que precisa de atenção").wait_for()
     assert management.evaluate("document.documentElement.scrollWidth <= innerWidth")
     management.screenshot(path="/tmp/rodada-realtime-management-390.png", full_page=True)
-    print(json.dumps({"guest_reload_history": "passed", "live_readiness_ms": readiness_ms, "mobile_overflow": "none", "surfaces": ["guest", "bar", "management"]}))
+    # Entirely disconnected reload must start from the cached shell, and never
+    # present private history or a command as confirmed from local data.
+    page.wait_for_function("async () => !!(await caches.open('rodada-operational-shell-v1')).match(location.href)")
+    guest.set_offline(True)
+    page.reload(wait_until="domcontentloaded")
+    page.get_by_role("heading", name="Cardápio salvo").wait_for()
+    page.get_by_text("API indisponível · dados em cache", exact=False).wait_for()
+    assert page.get_by_role("button", name=re.compile("^Enviar")).count() == 0
+    assert page.get_by_text("Pronto", exact=True).count() == 0
+    page.screenshot(path="/tmp/rodada-realtime-guest-offline-390.png", full_page=True)
+    production.wait_for_function("async () => !!(await caches.open('rodada-operational-shell-v1')).match(location.href)")
+    manager.set_offline(True)
+    production.reload(wait_until="domcontentloaded")
+    production.get_by_text("1× Browser Beer", exact=True).wait_for()
+    production.get_by_text("API indisponível · dados em cache", exact=False).wait_for()
+    assert production.get_by_role("button", name="Indisponibilizar Browser Beer", exact=True).is_disabled()
+    production.screenshot(path="/tmp/rodada-realtime-bar-offline-390.png", full_page=True)
+    print(json.dumps({"guest_reload_history": "passed", "offline_shell_and_safe_cache": "passed", "live_readiness_ms": readiness_ms, "mobile_overflow": "none", "surfaces": ["guest", "bar", "management"]}))
     browser.close()

@@ -37,8 +37,6 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
 
   const load = useCallback(async (force = false) => {
     if (reading.current && !force) return;
-    const cached = await cache.restore();
-    if (cached) { setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
     const version = ++snapshotVersion.current;
     reading.current = true;
     try {
@@ -66,9 +64,14 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     }
   }, [station, cache]);
 
+  useEffect(() => {
+    void cache.restore().then(cached => {
+      if (cached) { setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
+    });
+  }, [cache]);
   const connectivity = useRealtime(() => load(true), {
     relevant: event => ["order", "orderitem", "order_item", "product", "producticon"].includes(event.aggregate_type.toLowerCase()),
-    onRevoked: () => { cache.clear(); setItems([]); setProducts([]); setHasSnapshot(false); },
+    onRevoked: (error) => { cache.clear(); setItems([]); setProducts([]); setHasSnapshot(false); setLoading(false); setMessage(apiMessage(error ?? { code: "AUTH_REVOKED", message: "Sessão encerrada." })); },
   });
   useEffect(() => {
     // Local age display only; canonical reads are driven by realtime/fallback.

@@ -4,6 +4,9 @@ POSTGRES_DB=rodada_realtime_verification python scripts/verify_realtime.py
 The same environment must be used by the running API on localhost:18764.
 """
 
+# Django must initialize before importing application models.
+# ruff: noqa: E402
+
 import json
 import os
 import subprocess
@@ -141,6 +144,7 @@ print(
         {
             "passed": True,
             "confirmation_to_event_ms": delivery_ms,
+            "redis_restart_verified": bool(redis_container),
             "verified": [
                 "live_guest",
                 "publication_process_restart",

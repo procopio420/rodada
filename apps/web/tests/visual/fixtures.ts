@@ -35,6 +35,8 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     const cash = state === "empty" ? [] : [{ id: "cash-test", label: state === "long" ? longName : "Caixa de teste", active_shift: state === "warnings" ? null : shift, pending_review_shift: state === "warnings" ? pending : null }];
     const detail = { ...tab, ...(state === "warnings" ? { state: "REQUIRES_ACTION", action_reasons: ["SPENDING_LIMIT"], approval_requested: true, consumption_blocked: true } : {}), display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
     let body: unknown;
+    if (url.pathname.endsWith("/realtime/snapshot/")) return route.fulfill({ json: { schema_version: 1, cursor: "visual-test:0" } });
+    if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: 'event: ready\nid: visual-test:0\ndata: {"cursor":"visual-test:0"}\n\n' });
     if (url.pathname === "/api/auth/me") {
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;

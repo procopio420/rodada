@@ -38,7 +38,7 @@ test("healthy fallback reads remain visibly stale after the reconnect budget", a
   globalThis.fetch = async (url) => String(url).includes("snapshot") ? Response.json({ cursor: "venue:0" }) : new Response("unavailable", { status: 503 });
   const stop = subscribeRealtime({ base: "/realtime", freshnessBudgetMs: 20, refresh: async () => {}, onState(state) { states.push(state); } });
   try {
-    await new Promise((resolve) => setTimeout(resolve, 65));
+    await new Promise((resolve) => setTimeout(resolve, 300));
     assert.ok(states.includes("STALE"));
     assert.equal(states.at(-1), "STALE");
     assert.ok(!states.includes("ONLINE"));
@@ -81,7 +81,7 @@ test("SSE unavailable keeps canonical API fallback usable without sending comman
   globalThis.fetch = async (url, options) => { requests.push({ url, method: options?.method }); return String(url).includes("snapshot") ? Response.json({ cursor: "venue:0" }) : new Response("unavailable", { status: 503 }); };
   const stop = subscribeRealtime({ base: "/realtime", refresh: async () => { reads++; }, onState(state) { states.push(state); } });
   try {
-    await new Promise((resolve) => setTimeout(resolve, 85));
+    await new Promise((resolve) => setTimeout(resolve, 650));
     assert.ok(reads >= 3); assert.ok(states.includes("RECONNECTING"));
     assert.ok(!states.includes("OFFLINE"));
     assert.ok(requests.every((request) => !request.method || request.method === "GET"));

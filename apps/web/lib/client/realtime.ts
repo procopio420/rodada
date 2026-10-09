@@ -2,6 +2,7 @@
 export type Connectivity = "ONLINE" | "RECONNECTING" | "STALE" | "OFFLINE";
 export type RealtimeEvent = { id: string; schema_version: number; type: string; aggregate_type: string; aggregate_id: string; version: number; venue_id: string; payload: Record<string, unknown> };
 export type StreamMessage = { event: string; id: string; data: string };
+export type RealtimeAuthError = { code?: string; message?: string };
 
 export class SSEParser {
   private buffer = "";
@@ -45,18 +46,27 @@ export function subscribeRealtime(options: {
   base: string; headers?: Record<string, string>; refresh: () => Promise<void>;
   relevant?: (event: RealtimeEvent) => boolean;
   onState: (state: Connectivity, syncedAt?: number) => void;
-  onRevoked?: () => void;
+  onRevoked?: (error?: RealtimeAuthError) => void;
   freshnessBudgetMs?: number;
 }) {
   let stopped = false, cursor = "", connected = false, attempt = 0, lastSync = 0, lastFrame = 0, apiOffline = false;
   let refreshPromise: Promise<void> | null = null;
+  let lastRefreshStarted = 0;
   let controller: AbortController | null = null;
   let wake: (() => void) | undefined;
   const gate = new EventGate();
   let disconnectedAt = Date.now();
   const state = (): Connectivity => apiOffline ? "OFFLINE" : connected ? "ONLINE" : Date.now() - disconnectedAt >= (options.freshnessBudgetMs ?? 30000) ? "STALE" : "RECONNECTING";
   const refresh = () => {
-    if (!refreshPromise) refreshPromise = options.refresh().then(() => {
+    if (!refreshPromise) refreshPromise = (async () => {
+      // Bound burst-driven revalidation to four canonical reads per second.
+      const delay = Math.max(0, 250 - (Date.now() - lastRefreshStarted));
+      if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+      if (stopped) return;
+      lastRefreshStarted = Date.now();
+      await options.refresh();
+    })().then(() => {
+      if (stopped) return;
       apiOffline = false; lastSync = Date.now(); options.onState(state(), lastSync);
     }).catch((error) => { apiOffline = true; options.onState("OFFLINE", lastSync || undefined); throw error; }).finally(() => { refreshPromise = null; });
     return refreshPromise;
@@ -64,7 +74,7 @@ export function subscribeRealtime(options: {
   const snapshot = async () => {
     // Take cursor before fetching projections: concurrent commits replay afterwards.
     const response = await fetch(`${options.base}/snapshot/`, { headers: options.headers, cache: "no-store", signal: controller?.signal });
-    if (response.status === 401 || response.status === 403) { options.onRevoked?.(); stopped = true; throw new Error("Unauthorized"); }
+    if (response.status === 401 || response.status === 403) { options.onRevoked?.(await response.json().catch(() => undefined)); stopped = true; throw new Error("Unauthorized"); }
     if (!response.ok) throw new Error("Snapshot unavailable");
     const body = await response.json(); await refresh(); cursor = String(body.cursor ?? ""); gate.reset();
   };
@@ -77,7 +87,7 @@ export function subscribeRealtime(options: {
           headers: { ...options.headers, Accept: "text/event-stream", ...(cursor ? { "Last-Event-ID": cursor } : {}) },
           cache: "no-store", signal: controller.signal,
         });
-        if (response.status === 401 || response.status === 403) { options.onRevoked?.(); stopped = true; break; }
+        if (response.status === 401 || response.status === 403) { options.onRevoked?.(await response.json().catch(() => undefined)); stopped = true; break; }
         if (!response.ok || !response.body) throw new Error("Stream unavailable");
         lastFrame = Date.now();
         const reader = response.body.getReader(), decoder = new TextDecoder(), parser = new SSEParser();
@@ -87,6 +97,7 @@ export function subscribeRealtime(options: {
           let needsRefresh = false, nextCursor = cursor;
           for (const message of parser.push(decoder.decode(value, { stream: true }))) {
             if (message.event === "reset") { cursor = ""; controller.abort(); break; }
+            if (message.event === "reauthenticate") { controller.abort(); break; }
             if (message.event === "revoked") { options.onRevoked?.(); stopped = true; controller.abort(); break; }
             if (message.event === "ready") { const ready = JSON.parse(message.data); nextCursor = message.id || String(ready.cursor ?? nextCursor); connected = true; attempt = 0; options.onState("ONLINE", lastSync); }
             if (message.event === "change") {
