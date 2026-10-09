@@ -4,6 +4,11 @@ Atualizado em 2026-10-08. O repositório já contém API, Web e Atendimento Andr
 
 O [plano de implementação do produto completo](full-product-implementation-plan.md) é o documento canônico de execução. Ele substitui a sequência antiga de bootstrap, que não representava mais o código existente. Contrato e backlog: [Spec 022](../../specs/022-full-product-implementation/spec.md).
 
+
+## Meta imediata — demo de sexta-feira (09/10/2026 à noite)
+
+O [plano de demo-readiness de 09/10](2026-10-09-demo-readiness.md) prevalece para a **ordem de execução de curto prazo e os gates da demonstração**: reconciliar PRs #44/#45/#46, rodar um turno reduzido sobre PostgreSQL, priorizar SSE (014) e variantes (010) sem romper o núcleo, congelar features na tarde de sexta e executar a demonstração à noite. Falhas em recursos opcionais devem ser explicitadas, nunca mascaradas. O presente roadmap e a Spec 022 continuam sendo o programa de produto completo, sem garantia de entrega integral na sexta.
+
 | Etapa | Resultado |
 | --- | --- |
 | P0 | Auditoria de critérios, contratos e fixtures |
