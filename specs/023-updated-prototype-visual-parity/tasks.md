@@ -36,3 +36,15 @@ Este checklist não conclui V02 global nem V01.
 - [x] Typecheck/build/test executados e resultados registrados.
 
 V03 global e V04 continuam abertos.
+
+## V04 parcial — agrupamento de tickets
+
+- [x] Contrato e design system atualizados antes do código.
+- [x] Agrupamento apenas por identidade de Order; fallback independente para DTO antigo.
+- [x] Estado/tempo/customização/ação por OrderItem preservados; transition isolada comprovada.
+- [x] Geometria e tela adjacente verificadas; comparação V03 mantém fontes/tolerâncias.
+- [x] Typecheck/build/test e diferenças documentados.
+
+Este recorte não conclui V04 global nem declara fidelidade total.
+
+Resultados: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md).

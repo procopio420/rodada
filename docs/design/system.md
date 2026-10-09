@@ -390,3 +390,9 @@ Gerência apresenta exceções, pulso e produção antes dos formulários de rel
 Tokens específicos reutilizáveis: `--radius-field`, `--space-field-gap`, `--stroke-field`, `--stroke-field-focus`, `--tracking-field-label`; altura, padding, fontes e cores reutilizam tokens existentes. O foco interno em papel continua visível no teclado e no toque; o recorte de pixels mede o controle.
 
 StatusBadge de disponibilidade mantém seu contrato: raio 4, texto 12/900, padding 5/9, min-height 28, texto + estado. `.badge` do export é contador de navegação, `.rel`/`.casa` são relacionamento e NOVO é etiqueta de pedido. Não são referências equivalentes para Disponível/Indisponível; paridade completa desses badges permanece não verificada.
+
+## V04 parcial — bloco de pedido em produção
+
+`stationOrder` agrupa visualmente itens pelo Order, com uma única Tab/destino e `stationOrderItems`. Cada `stationTicket` mantém produto/quantidade/customização, estado, tempo e ação individual; um bloco não oferece confirmação em lote. Sem identidade de Order, cada item permanece separado.
+
+Mobile: destino acima dos itens, ação de largura útil e altura mínima 56. Desktop ≥1200: destino 84 px, conteúdo flexível e ação 116 px, gaps 16; o grupo tem padding 12/20/12/24 e uma divisória externa, com gap 12 entre itens. Reutilizar tokens de cor/espaço/toque/fontes; `--production-ticket-destination` e `--production-ticket-action` promovem as medidas existentes 84/116 para compartilhamento. Não suprimir estado, tempo ou customização para imitar o export.

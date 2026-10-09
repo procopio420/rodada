@@ -47,3 +47,13 @@ Este recorte entrega somente dados/harness de teste e documentação, sem mudar 
 Preservar o export literal e registrar toda derivação em [contrato da fixture](../../docs/design/v03-kitchen-comparison-contract.md). Comparação de tela mede divergências, não aceita fidelidade total: composição/metadata sem campos canônicos continuam pendências V04. Limites e gates existentes permanecem intactos.
 
 Resultado do recorte V03: [comparação e diferenças](../../docs/design/v03-kitchen-comparison.md). V03 global e fidelidade total continuam pendentes.
+
+## V04 parcial — agrupamento visual dos tickets da Cozinha
+
+A fila passa a reunir OrderItems de um mesmo `order_id` em um bloco de pedido, com destino/Tab exibido uma vez, preservando cada item, customização, estado, tempo e botão de transição. Sem `order_id`, manter bloco independente por `item.id`; não agrupar por nome de produto ou rótulo da Tab. O grupo segue a primeira ocorrência na fila recebida; itens seguem sua ordem recebida.
+
+Agrupamento é somente visual: cada mutation continua no endpoint de um único OrderItem, com payload/guardas atuais. Um item pronto sai da fila sem concluir os demais. Não adicionar mutation coletiva, dados de cliente/localização/equipamento/SLA, nem copiar barras ilustrativas do export. Cozinha e Bar compartilham ProductionBoard e devem permanecer consistentes.
+
+Referência e fixture V03 permanecem intactas. Este recorte mede agrupamento, geometria e ações individuais; a diferença dos dois botões reais de P08 contra um botão ilustrativo do export permanece explícita. V04 completa e equivalência integral continuam fora do aceite parcial.
+
+Resultado do recorte: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md). V04 global permanece aberta.
