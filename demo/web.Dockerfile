@@ -1,4 +1,4 @@
-FROM node:24-slim
+FROM public.ecr.aws/docker/library/node:24-slim
 WORKDIR /app/apps/web
 COPY apps/web/package*.json ./
 RUN npm ci
