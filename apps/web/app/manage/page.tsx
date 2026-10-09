@@ -102,7 +102,9 @@ export default function ManagementPage() {
     </section>}
     {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
-    <HouseAccount /><CatalogIconEditor />
+    <HouseAccount />
+    <CatalogIconEditor />
+
     <section className="panel"><h2>Agora</h2>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
@@ -127,7 +129,7 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
-    <section className="panel" id="vendas"><h2>Vendas</h2><p className="muted">O detalhamento de vendas permanece em evolução; esta superfície prioriza exceções operacionais durante o serviço.</p></section>
+    <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
     {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">{product.availability}</strong></div>)}</section> : null}
     <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Cardápio, equipe e relatórios entrarão aqui sem transformar Gerência em navegação de domínio.</p></section>
     </>}

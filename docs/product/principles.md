@@ -20,7 +20,7 @@
 18. **Não virar ERP por reflexo.** Fiscal, estoque profundo, delivery e contabilidade precisam justificar a entrada no roadmap.
 19. **O núcleo é nosso.** Rodada possui seu próprio PDV transacional; integrações não definem o domínio.
 20. **Dispatch é produto.** Fila de trabalho, ownership, tempo e entrega são partes de primeira classe.
-21. **Realtime não é fonte de verdade.** WebSocket acelera a operação; PostgreSQL preserva consistência.
+21. **Realtime não é fonte de verdade.** SSE atualiza as superfícies; PostgreSQL preserva consistência e HTTP confirma comandos.
 22. **Medir o fluxo inteiro.** Pedido não termina quando é enviado: medir até ficar pronto, ser retirado, entregue e pago.
 23. **Disponibilidade é operacional, não exclusão de catálogo.** “Acabou a fritas” não é o mesmo que desativar o produto administrativamente.
 24. **Uma disponibilidade, todos os canais.** Cozinha/bar altera uma vez; staff, caixa e guest passam a respeitar a mesma verdade.

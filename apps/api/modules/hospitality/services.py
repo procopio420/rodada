@@ -180,6 +180,9 @@ def _assign_tab(
         tab=tab,
         assigned_by_id=actor.staff_id,
     )
+    tab.version += 1
+    tab.service_point = None
+    tab.save(update_fields=["version", "service_point"])
     record_audit_event(
         actor=actor,
         event_type="table_occupancy.tab_assigned",

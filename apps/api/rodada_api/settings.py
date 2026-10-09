@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "modules.access",
     "modules.catalog",
     "modules.ordering",
+    "modules.tab_operations",
     "modules.house_account",
     "modules.hospitality",
     "modules.guest_access",
@@ -93,6 +94,13 @@ LOGGING = {
     },
 }
 
+# JSON is injected by the deployment secret manager, keyed by Venue UUID.
+import json
+RODADA_PAYMENT_PROVIDERS = json.loads(os.environ.get("RODADA_PAYMENT_PROVIDERS", "{}"))
+RODADA_PAYMENT_CREDENTIAL_KEY = os.environ.get("RODADA_PAYMENT_CREDENTIAL_KEY", "")
+RODADA_SUMUP_OAUTH = json.loads(os.environ.get("RODADA_SUMUP_OAUTH", "{}"))
+RODADA_PAYTIME_PROVIDERS = json.loads(os.environ.get("RODADA_PAYTIME_PROVIDERS", "{}"))
+RODADA_PAYMENT_SIMULATION = os.environ.get("RODADA_PAYMENT_SIMULATION", "false").lower() == "true"
 # Configure a real HTTPS provider gateway; missing credentials produce retriable job failure.
 RODADA_ICON_PROVIDER_URL = os.environ.get("RODADA_ICON_PROVIDER_URL", "")
 RODADA_ICON_PROVIDER_KEY = os.environ.get("RODADA_ICON_PROVIDER_KEY", "")

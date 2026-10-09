@@ -1,7 +1,5 @@
 import time
-
 from django.core.management.base import BaseCommand
-
 from modules.catalog.services import run_icon_job
 
 

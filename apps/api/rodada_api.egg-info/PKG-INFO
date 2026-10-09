@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: rodada-api
+Version: 0.1.0
+Summary: Rodada modular monolith API
+Requires-Python: >=3.12
+Requires-Dist: cryptography<47,>=46
+Requires-Dist: Django<5.3,>=5.2.12
+Requires-Dist: djangorestframework<3.19,>=3.18.1
+Requires-Dist: psycopg[binary]<4,>=3.2
+Requires-Dist: Pillow<13,>=11.3
+Provides-Extra: dev
+Requires-Dist: pytest<9,>=8; extra == "dev"
+Requires-Dist: pytest-django<5,>=4.9; extra == "dev"
+Requires-Dist: ruff<1,>=0.12; extra == "dev"

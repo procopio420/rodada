@@ -13,6 +13,8 @@ from rest_framework.views import APIView
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.cash.models import CashPoint, CashReviewStatus, CashShift, CashShiftStatus
+from modules.venue.calendar import business_date as current_business_date
+from rest_framework import serializers
 from modules.cash.services import (
     CashServiceError,
     active_cash_shift,
@@ -102,6 +104,7 @@ class CashPointListView(APIView):
                     "label": point.label,
                     "active_shift": _shift_payload(shift) if shift else None,
                     "pending_review_shift": _shift_payload(pending_review_shift) if pending_review_shift else None,
+                    "current_business_date": current_business_date(request.auth.venue),
                 }
             )
         return Response({"results": data})
@@ -140,7 +143,7 @@ class CashShiftOpenView(APIView):
 
     def post(self, request):
         try:
-            business_date = request.data.get("business_date")
+            business_date = request.data.get("business_date") or current_business_date(request.auth.venue)
             if isinstance(business_date, str):
                 business_date = date.fromisoformat(business_date)
             shift = open_cash_shift(
@@ -178,6 +181,24 @@ class CashShiftDetailView(APIView):
             return Response(payload)
         except CashServiceError as error:
             return _error(error)
+
+
+class CashShiftListView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.PAYMENT_COLLECT
+
+    def get(self, request):
+        class Query(serializers.Serializer):
+            cash_point_id = serializers.UUIDField()
+            offset = serializers.IntegerField(min_value=0, default=0)
+        data = Query(data=request.query_params)
+        data.is_valid(raise_exception=True)
+        values = data.validated_data
+        rows = list(CashShift.objects.filter(venue_id=request.actor_context.venue_id,
+            cash_point_id=values["cash_point_id"]).order_by("-opened_at", "-id")[values["offset"]:values["offset"] + 51])
+        return Response({"results": [_shift_payload(row, include_position=False) for row in rows[:50]],
+            "next_offset": values["offset"] + 50 if len(rows) > 50 else None,
+            "current_business_date": current_business_date(request.auth.venue)})
 
 
 class CashSupplyView(APIView):

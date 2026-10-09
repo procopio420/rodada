@@ -47,11 +47,13 @@ npm run test:visual
 npm run test:integration
 ```
 
-Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual tem 87 testes nas oito telas, cinco larguras e estados de operação; usa respostas controladas somente nos testes. A integração tem quatro testes de navegador com BFF e Django reais.
+Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual tem 102 testes nas nove telas, cinco larguras e estados de operação, incluindo o formulário do Quick Catalog; usa respostas controladas somente nos testes. A integração tem cinco testes de navegador com BFF e Django reais.
 
 Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. O banco local é SQLite temporário; CI usa PostgreSQL 17 isolado. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. No PowerShell: `$env:RODADA_TEST_PYTHON='C:\caminho\python.exe'`. Reserve as portas 3100 (visual), 3110 e 8100 (integração).
 
-O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. Quick Catalog continua indisponível. O cliente vê os pedidos confirmados nesta sessão; a API atual não fornece histórico completo nem acompanhamento ao vivo após recarregar. O crédito pessoal do desenvolvedor foi removido do rodapé.
+O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. A [Spec 020](../../specs/020-web-operational-completion/spec.md) entrega Quick Catalog em Bar/Cozinha, histórico persistido da própria comanda guest com polling de cinco segundos, seleção paginada de turnos antigos em `/cash` e relatórios com filtro de período/CSV em `/reports`. Criação exige `catalog.product.create`; relatórios, `management.reports.read`; configuração do calendário também exige `venue.configure`. A API continua autoritativa.
+
+Antes de iniciar uma instância existente, aplicar as migrações Django (`python manage.py migrate`, em `apps/api`, com o ambiente correto). Elas adicionam ProductIcon e hora de corte do Venue, cujo default 0 preserva meia-noite. Produto novo e existente recebem ícone 1:1 com fallback `GENERATOR_NOT_CONFIGURED`; não há IA/worker configurado nesta entrega, por escolha do usuário. Nenhuma credencial externa é necessária para criar ou vender. O crédito pessoal permanece removido. Consulte [entrega e limites](../../docs/development/web-operational-completion.md).
 
 ## Superfícies e hosts
 
@@ -75,6 +77,8 @@ Durante desenvolvimento, rotas locais podem continuar servindo como entrypoints:
 /kitchen    produção + disponibilidade
 /guest      QR/PWA do cliente
 /manage     gerência
+/reports    relatórios operacionais + calendário/CSV
+/cash       caixa + histórico de turnos
 ```
 
 Rotas locais são detalhe de implementação e não definem URLs públicas. O runtime/deploy pode resolver a superfície pelo hostname mantendo um único codebase/deploy Next.js.

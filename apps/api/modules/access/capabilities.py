@@ -17,12 +17,17 @@ class Capability:
     CASH_SHIFT_OPEN = "cash.shift.open"
     CASH_ADJUSTMENT_CREATE = "cash.adjustment.create"
     CASH_REVIEW = "cash.review"
+    TAB_MOVE = "tab.move"
+    TAB_CANCEL = "tab.cancel_empty"
+    TAB_TRANSFER = "tab.transfer"
     TAB_REOPEN = "tab.reopen"
     DISCOUNT_OVERRIDE = "discount.override"
     STAFF_MANAGE = "staff.manage"
     VENUE_CONFIGURE = "venue.configure"
     CUSTOMER_MANAGE = "customer.manage"
     LIMIT_OVERRIDE = "tab.limit.override"
+    CATALOG_PRODUCT_CREATE = "catalog.product.create"
+    MANAGEMENT_REPORTS_READ = "management.reports.read"
 
 
 ALL_CAPABILITIES = frozenset(
@@ -33,6 +38,8 @@ ALL_CAPABILITIES = frozenset(
 
 _STAFF = {
     Capability.TAB_OPEN,
+    Capability.TAB_MOVE,
+    Capability.TAB_CANCEL,
     Capability.ORDER_CONFIRM,
     Capability.ORDER_CORRECT,
     Capability.TABLE_MANAGE,
@@ -40,6 +47,7 @@ _STAFF = {
 }
 _CASHIER = _STAFF | {
     Capability.PAYMENT_COLLECT,
+    Capability.TAB_TRANSFER,
     Capability.CASH_SHIFT_OPEN,
     Capability.CASH_ADJUSTMENT_CREATE,
 }
@@ -47,6 +55,8 @@ _MANAGER = _CASHIER | {
     Capability.CATALOG_CREATE_BAR,
     Capability.CATALOG_CREATE_KITCHEN,
     Capability.CATALOG_ICON_MANAGE,
+    Capability.CATALOG_PRODUCT_CREATE,
+    Capability.MANAGEMENT_REPORTS_READ,
     Capability.CUSTOMER_MANAGE,
     Capability.LIMIT_OVERRIDE,
     Capability.REFUND_CREATE,

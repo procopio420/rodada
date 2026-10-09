@@ -24,6 +24,15 @@ import java.io.IOException
 import java.util.UUID
 
 data class OperationsUiState(
+    val pixEnabled: Boolean = false,
+    val tapSimulationEnabled: Boolean = false,
+    val tapPhase: String? = null,
+    val integratedPayment: com.rodada.attendance.payments.IntegratedPayment? = null,
+    val operationState: org.json.JSONObject? = null,
+    val operationPoints: List<Pair<String, String>> = emptyList(),
+    val operationPreview: org.json.JSONObject? = null,
+    val pendingTabOperation: RecoveryIntent.TabStructure? = null,
+    val operationCompleted: Boolean = false,
     val loading: Boolean = false,
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
@@ -58,6 +67,54 @@ class OperationsViewModel(
 
     private var loadedSessionKey: String? = null
 
+    fun loadTabOperations(session: StoredSession) = action {
+        state = state.copy(operationState = null, operationPreview = null, operationCompleted = false)
+        val id = state.selectedTab?.summary?.id ?: return@action
+        val pending = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TabStructure>().firstOrNull { it.tabId == id }
+        val points = repository.servicePoints(session).getJSONArray("results")
+        state = state.copy(operationState = repository.operationState(session, id),
+            operationPoints = List(points.length()) { points.getJSONObject(it).let { p -> p.getString("id") to p.getString("label") } },
+            operationPreview = null, pendingTabOperation = pending, operationCompleted = false,
+            tabs = repository.tabs(session), tables = repository.tables(session), connectivity = ConnectivityState.ONLINE,
+            lastSyncedAtMillis = System.currentTimeMillis())
+    }
+
+    fun clearOperationPreview() { state = state.copy(operationPreview = null) }
+
+    fun previewTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+        if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
+        val id = state.selectedTab?.summary?.id ?: return@action
+        state = state.copy(operationPreview = repository.tabOperation(session, id, command, preview = true))
+    }
+
+    fun commitTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+        if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
+        val id = state.selectedTab?.summary?.id ?: return@action
+        val pending = state.pendingTabOperation
+        val intent = pending ?: RecoveryIntent.TabStructure(
+            id = java.util.UUID.randomUUID().toString(), staffId = session.staffId, venueId = session.venueId,
+            deviceId = session.deviceId, idempotencyKey = command.getString("idempotency_key"),
+            createdAtMillis = System.currentTimeMillis(), state = RecoveryState.PENDING, tabId = id, commandJson = command.toString())
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(pendingTabOperation = intent)
+        try {
+            repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson))
+        } catch (error: OperationsApiException) {
+            // Deterministic server rejection means no commit. Network ambiguity retains the exact command.
+            if (error.status in 400..499) {
+                pendingMutationIntentStore.remove(intent.id)
+                state = state.copy(pendingTabOperation = null, operationPreview = null)
+                state = state.copy(operationState = repository.operationState(session, id), tabs = repository.tabs(session))
+            }
+            throw error
+        }
+        pendingMutationIntentStore.remove(intent.id)
+        state = state.copy(pendingTabOperation = null, operationPreview = null, operationCompleted = true,
+            operationState = null, noticeMessage = "Operação confirmada pelo servidor.")
+        replaceDetail(repository.tabDetail(session, id))
+        state = state.copy(tabs = repository.tabs(session), tables = repository.tables(session))
+    }
+
     fun ensureLoaded(session: StoredSession) {
         val key = session.staffId + ":" + session.venueId
         if (loadedSessionKey == key && (state.tabs.isNotEmpty() || state.loading)) return
@@ -79,6 +136,8 @@ class OperationsViewModel(
         )
         viewModelScope.launch {
             runCatching {
+                val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
+                state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
@@ -139,6 +198,7 @@ class OperationsViewModel(
         val retainedCart = retained?.toCart(state.products).orEmpty()
         state = state.copy(
             selectedTab = detail,
+            integratedPayment = null,
             cart = retainedCart,
             orderIntentId = retained?.idempotencyKey,
             paymentIntentId = retainedPayment?.idempotencyKey,
@@ -154,7 +214,7 @@ class OperationsViewModel(
     }
 
     fun clearSelection() {
-        state = state.copy(selectedTab = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
+        state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
     }
 
     fun addProduct(product: Product) {
@@ -228,12 +288,117 @@ class OperationsViewModel(
         }
     }
 
+    private fun startTapSimulation(session: StoredSession, amountCents: Long, method: PaymentMethod) {
+        val tab = state.selectedTab?.summary ?: return
+        if (!state.tapSimulationEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
+        if (amountCents <= 0 || amountCents > tab.exposureCents || state.pendingPayment != null) return
+        val key = UUID.randomUUID().toString()
+        val intent = RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId,
+            key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, null)
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
+            tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
+        viewModelScope.launch {
+            runCatching {
+                val prepared = repository.integratedPayment(session, tab.id, amountCents, key, "TAP_TO_PAY")
+                require(prepared.simulated) // Never run fake capture against a real merchant.
+                state = state.copy(integratedPayment = prepared)
+                val provider = com.rodada.attendance.payments.SumUpTapToPayProvider(
+                    com.rodada.attendance.payments.TapDeviceCapabilities(30, true, true, true), true,
+                    com.rodada.attendance.payments.DeterministicSumUpSdk(), simulated = true,
+                    onEvent = { event -> state = state.copy(tapPhase = com.rodada.attendance.payments.tapEventMessage(event, true)) },
+                )
+                provider.cardProcessing = if (method == PaymentMethod.TAP_DEBIT) com.rodada.attendance.payments.CardProcessing.DEBIT else com.rodada.attendance.payments.CardProcessing.CREDIT
+                provider.initialize()
+                provider.collect(com.rodada.attendance.payments.TapPaymentRequest(prepared.id, prepared.amountCents))
+                provider.tearDown()
+                repository.reconcileIntegrated(session, prepared.id)
+            }.onSuccess { acceptIntegrated(session, it) }.onFailure {
+                state = state.copy(submitting = false, tapPhase = "SIMULAÇÃO — resultado desconhecido; reconcilie sem cobrar novamente")
+                showFailure(it)
+            }
+        }
+    }
+
+    fun startPix(session: StoredSession, amountCents: Long) {
+        val tab = state.selectedTab?.summary ?: return
+        if (!state.pixEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
+        if (amountCents <= 0 || amountCents > tab.exposureCents) return
+        val pending = state.pendingPayment
+        if (pending != null && (pending.method != PaymentMethod.PIX || pending.amountCents != amountCents)) return
+        val key = pending?.idempotencyKey ?: UUID.randomUUID().toString()
+        val intent = pending ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
+            tab.id, amountCents, PaymentMethod.PIX, null)
+        pendingMutationIntentStore.save(intent)
+        state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
+        viewModelScope.launch {
+            runCatching { repository.integratedPayment(session, tab.id, amountCents, key) }
+                .onSuccess { acceptIntegrated(session, it) }
+                .onFailure {
+                    state = state.copy(submitting = false)
+                    showFailure(it, "Confirmando Pix. Verifique a mesma intenção; não cobre novamente.")
+                }
+        }
+    }
+
+    fun reconcilePix(session: StoredSession) {
+        if (state.submitting) return
+        val payment = state.integratedPayment
+        if (payment == null) {
+            val pending = state.pendingPayment
+            val persisted = state.selectedTab?.payments?.lastOrNull { it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED") }
+            if (persisted != null) {
+                reconcilePixId(session, persisted.id)
+            } else if (pending != null) {
+                state = state.copy(submitting = true)
+                viewModelScope.launch {
+                    runCatching { repository.integratedPayment(session, pending.tabId, pending.amountCents,
+                        pending.idempotencyKey, pending.method.apiValue) }
+                        .onSuccess { acceptIntegrated(session, it) }
+                        .onFailure { state = state.copy(submitting = false); showFailure(it) }
+                }
+            }
+            return
+        }
+        reconcilePixId(session, payment.id)
+    }
+
+    private fun reconcilePixId(session: StoredSession, id: String) {
+        state = state.copy(submitting = true, errorMessage = null)
+        viewModelScope.launch {
+            runCatching { repository.reconcileIntegrated(session, id) }
+                .onSuccess { acceptIntegrated(session, it) }
+                .onFailure {
+                    state = state.copy(submitting = false)
+                    showFailure(it, "Pagamento ainda não verificado. Não cobre novamente.")
+                }
+        }
+    }
+
+    private suspend fun acceptIntegrated(session: StoredSession, payment: com.rodada.attendance.payments.IntegratedPayment) {
+        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message)
+        if (!payment.blocksNewCharge) {
+            state.pendingPayment?.let { pendingMutationIntentStore.remove(it.id) }
+            state = state.copy(pendingPayment = null, paymentIntentId = null)
+        }
+        runCatching { repository.tabDetail(session, payment.tabId) }.onSuccess(::replaceDetail)
+    }
+
     fun collectPayment(
         session: StoredSession,
         amountCents: Long,
         method: PaymentMethod,
         cashPointId: String?,
     ) {
+        if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
+            startTapSimulation(session, amountCents, method)
+            return
+        }
+        if (method == PaymentMethod.PIX) {
+            startPix(session, amountCents)
+            return
+        }
         val tab = state.selectedTab?.summary ?: return
         if (amountCents <= 0 || amountCents > tab.exposureCents || state.submitting) return
         state.pendingPayment?.let { pending ->

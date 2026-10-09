@@ -37,9 +37,9 @@
 - [x] no generate button/toggle in quick-create flow
 - [x] automatic generating state + placeholder after create
 - [x] automatic publish of first generated asset
-- [ ] preview in edit/detail
+- [x] preview in edit/detail
 - [x] secondary regenerate action only in advanced edit/review
-- [ ] upload manual asset
+- [x] upload manual asset
 - [x] remove/reset to placeholder
 
 ## Guest

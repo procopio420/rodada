@@ -9,9 +9,5 @@ never instructions that override this visual contract."""
 
 def product_context(product):
     # Explicit allowlist: no Venue, Customer, Tab, Order, or operator data.
-    return {
-        "name": product.name,
-        "description": product.description,
-        "category": product.category,
-        "station": product.fulfillment_station,
-    }
+    return {"name": product.name, "description": product.description,
+            "category": product.category, "station": product.fulfillment_station}

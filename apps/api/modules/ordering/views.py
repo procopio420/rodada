@@ -51,6 +51,9 @@ def _order_payload(order) -> dict:
                 "quantity": item.quantity,
                 "line_total_cents": item.line_total_cents,
                 "state": item.state,
+                "accepted_at": item.accepted_at,
+                "ready_at": item.ready_at,
+                "delivered_at": item.delivered_at,
             }
             for item in items
         ],
@@ -115,6 +118,7 @@ class TabDetailView(APIView):
                 "method": payment.method,
                 "status": payment.status,
                 "confirmed_at": payment.confirmed_at,
+                "simulated": payment.provider.startswith("simulator:"),
                 "refunded_cents": sum(
                     refund.amount_cents
                     for refund in payment.refunds.all()

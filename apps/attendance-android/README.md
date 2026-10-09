@@ -2,6 +2,10 @@
 
 Aplicativo nativo do garçom/caixa móvel, em Kotlin + Jetpack Compose.
 
+## Sistema visual
+
+O Atendimento usa `RodadaTheme`: paleta quente escura, ações papel creme, Archivo local e formas do design system compartilhado. Fontes e licenças são empacotadas, sem download durante uso. Ver [Spec 021](../../specs/021-prototype-design-integration/spec.md) e [KB dos protótipos](../../docs/design/prototype-integration.md). O port do tema preserva os fluxos existentes e não declara paridade completa com o artboard.
+
 ## Uso em celulares pessoais (BYOD)
 
 O fluxo padrão é o garçom instalar o Rodada Atendimento no **seu Android**, escolher o estabelecimento e autenticar com a identidade/PIN de um funcionário ativo. **Não há aprovação manual do aparelho pelo gerente para trabalhar.**
@@ -179,3 +183,19 @@ Correções, estornos e a operação completa de CashShift ainda não pertencem 
 ## Invalidação de acesso
 
 Com sessão ativa, o app consulta o invalidation feed em intervalo bounded. Eventos de membership/device forçam revalidação canônica e zeram a janela de reauth. Revogação/supersede continua sendo detectada pela própria API e remove imediatamente a sessão cifrada local.
+
+## SumUp candidate and simulator
+
+The normal build has no private SumUp dependency. DEBUG UI offers simulated credit
+and debit only when the backend explicitly reports simulated Tap capability and
+Rodada authorizes the device. These screens never receive real card/PIN data and
+show SIMULAÇÃO; no real money is received. Backend verification remains mandatory.
+
+`-PsumupSdk=true` optionally resolves the documented 1.1.6 private artifact and
+raises minSdk to 30, with core library desugaring. Supply SUMUP_MAVEN_USER and
+SUMUP_MAVEN_PASSWORD via environment. This configuration does NOT yet wire a real
+SDK implementation. It has NOT been compiled with the private artifact. Implement
+SumUpSdkBoundary using the actual artifact and official sample after access is
+granted, map all PaymentEvents, inject approved short-lived OAuth access, initialize
+once and tear down on merchant/operator logout. Never embed an API/client secret.
+See docs/payments/sumup-onboarding.md for the complete activation gates.

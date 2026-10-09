@@ -8,11 +8,11 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun tabs(accessToken: String): List<TabSummary> {
+    fun tabs(accessToken: String, includeClosed: Boolean = false): List<TabSummary> {
         val tabs = mutableListOf<TabSummary>()
         var offset = 0
         while (true) {
-            val page = request("GET", "/tabs/?active=true&offset=$offset", accessToken = accessToken)
+            val page = request("GET", "/tabs/?active=${!includeClosed}&offset=$offset", accessToken = accessToken)
             tabs += page.getJSONArray("results").toObjects().map(::tabSummary)
             if (page.isNull("next_offset")) return tabs.distinctBy { it.id }
             offset = page.getInt("next_offset")
@@ -62,6 +62,7 @@ class OperationsHttpClient(baseUrl: String) {
                 method = payment.getString("method"),
                 status = payment.getString("status"),
                 refundedCents = payment.optLong("refunded_cents"),
+                simulated = payment.optBoolean("simulated"),
             )
         }.orEmpty()
         val refundRequired = response.optJSONArray("refund_required_corrections")?.toObjects()?.map { correction ->
@@ -219,6 +220,21 @@ class OperationsHttpClient(baseUrl: String) {
         )
     }
 
+    fun paymentCapabilities(accessToken: String): com.rodada.attendance.payments.PaymentCapabilities =
+        request("GET", "/payments/capabilities/", accessToken = accessToken).let { com.rodada.attendance.payments.PaymentCapabilities(it.optBoolean("pix"), it.optBoolean("tap_to_pay"), it.optBoolean("simulated")) }
+
+    fun integratedPayment(accessToken: String, tabId: String, amountCents: Long, key: String, method: String = "PIX"): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/tabs/$tabId/payments/integrated/",
+            JSONObject().put("amount_cents", amountCents).put("method", method).put("idempotency_key", key), accessToken))
+
+    fun reconcileIntegrated(accessToken: String, paymentId: String): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/payments/$paymentId/integrated/", JSONObject(), accessToken))
+
+    private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
+        json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"),
+    )
+
     fun closeTab(accessToken: String, tabId: String) {
         request("POST", "/tabs/$tabId/close/", JSONObject(), accessToken)
     }
@@ -232,6 +248,7 @@ class OperationsHttpClient(baseUrl: String) {
             chargesCents = json.getLong("charges_cents"),
             paymentsCents = json.getLong("payments_cents"),
             exposureCents = json.getLong("exposure_cents"),
+            transfersCents = json.optLong("transfers_cents"),
             effectiveLimitCents = json.getLong("effective_limit_cents"),
             remainingCapacityCents = json.getLong("remaining_capacity_cents"),
             percentageUsed = if (json.isNull("percentage_used")) null else json.getInt("percentage_used"),
@@ -273,7 +290,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun JSONArray.toObjects(): List<JSONObject> = List(length()) { index -> getJSONObject(index) }
 
-    private fun request(
+    internal fun request(
         method: String,
         path: String,
         body: JSONObject? = null,

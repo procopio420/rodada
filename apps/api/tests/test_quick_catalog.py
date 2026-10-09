@@ -179,6 +179,19 @@ class QuickCatalogTests(TestCase):
             and IconGenerationRequest.objects.filter(icon=p.icon).count() == 3
         )
 
+    def test_regeneration_after_reset_does_not_reuse_obsolete_pending_job(self):
+        p, _ = self.create()
+        original = p.icon.generations.get()
+        replace_icon(product=p, actor=self.actor)
+        new = enqueue_icon(product=p, actor=self.actor, request_key="manual:after-reset", force=True)
+        assert new.id != original.id
+        assert new.revision > original.revision
+        run_icon_job(self.generator)
+        run_icon_job(self.generator)
+        p.refresh_from_db()
+        assert p.icon.status == "READY"
+        assert p.icon.published_asset == p.icon.generations.get(pk=new.pk).asset
+
     def test_failed_regeneration_keeps_published_asset(self):
         p, _ = self.create()
         run_icon_job(self.generator)

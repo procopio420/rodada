@@ -48,6 +48,9 @@ class Tab(models.Model):
     action_reasons = models.JSONField(default=list, blank=True)
     state = models.CharField(max_length=24, choices=TabState.choices, default=TabState.OPEN)
     version = models.PositiveIntegerField(default=1)
+    service_point = models.ForeignKey("tab_operations.ServicePoint", on_delete=models.PROTECT, null=True, blank=True)
+    merged_into = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, related_name="merged_sources")
+    cancel_reason = models.CharField(max_length=240, blank=True)
     opened_by = models.ForeignKey(
         StaffMember,
         on_delete=models.PROTECT,

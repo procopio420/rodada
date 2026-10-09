@@ -2,7 +2,8 @@
 import { useState } from "react";
 
 export type IconReference = { id: string; source: string; status: string; published_asset_url: string | null };
-export function ProductIcon({ icon }: { icon?: IconReference }) {
+export type IconData = IconReference;
+export function ProductIcon({ icon }: { icon?: IconReference; name?: string }) {
   const [failed, setFailed] = useState<string | null>(null);
   const asset = icon?.published_asset_url;
   const src = asset?.startsWith("/catalog/assets/") ? asset.replace("/catalog/assets/", "/api/catalog-assets/") : asset;

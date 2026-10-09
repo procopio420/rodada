@@ -35,7 +35,9 @@ def _active_destination_for_tab(*, tab_id):
         .first()
     )
     if assignment is None:
-        return None, None, ""
+        from modules.ordering.models import Tab
+        tab = Tab.objects.select_related("service_point").get(pk=tab_id)
+        return None, None, tab.service_point.label if tab.service_point_id else ""
 
     table = assignment.occupancy.table
     return table, assignment.occupancy, f"Mesa {table.label}"
@@ -196,3 +198,18 @@ def complete_delivery_task(*, task_id, actor: ActorContext) -> DispatchTask:
         metadata={"order_item_id": str(item.id), "tab_id": str(item.order.tab_id)},
     )
     return task
+
+
+def refresh_tab_destination(tab, actor):
+    from modules.dispatch.models import DispatchTask
+    from modules.hospitality.models import TabOccupancyAssignment
+    assignment = TabOccupancyAssignment.objects.filter(tab=tab, released_at__isnull=True).select_related("occupancy__table").first()
+    table = assignment.occupancy.table if assignment else None
+    occupancy = assignment.occupancy if assignment else None
+    label = table.label if table else (tab.service_point.label if tab.service_point_id else tab.display_label)
+    for task in DispatchTask.objects.select_for_update(of=("self",)).filter(order_item__order__tab=tab, state__in=("OPEN", "CLAIMED")):
+        before = {"table_id": str(task.destination_table_id) if task.destination_table_id else None, "label": task.destination_label}
+        task.destination_table, task.destination_occupancy, task.destination_label = table, occupancy, label
+        task.save(update_fields=["destination_table", "destination_occupancy", "destination_label", "updated_at"])
+        record_audit_event(actor=actor, event_type="dispatch.destination_changed", entity_type="DispatchTask", entity_id=str(task.id), metadata={"tab_id": str(tab.id), "before": before, "label": label})
+

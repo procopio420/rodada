@@ -16,7 +16,7 @@ const shift = { id: "shift-test", cash_point_id: "cash-test", status: "OPEN", ex
 const session = {
   staff: { id: "operator-test", display_name: "Operador de teste" }, venue: { id: "venue-test", slug: "web-test", name: "Estabelecimento de teste" },
   membership: { id: "member-test", role: "MANAGER", status: "ACTIVE", version: 1 },
-  capabilities: ["cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create", "tab.limit.override", "customer.manage", "venue.configure"],
+  capabilities: ["cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create", "tab.limit.override", "customer.manage", "venue.configure", "catalog.product.create", "management.reports.read"],
   session: { id: "session-test", expires_at: "2026-10-09T08:00:00Z", access_expires_at: "2026-10-08T21:15:00Z" }, device: null,
 };
 export type State = "normal" | "empty" | "loading" | "error" | "long" | "warnings";
@@ -39,16 +39,26 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;
     } else if (url.pathname.startsWith("/api/auth/invalidation-events")) body = { cursor: 0, results: [] };
-    else if (url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
+    else if (url.pathname === "/api/pos/catalog/suggestions/" || url.pathname === "/api/pos/catalog/products/" || url.pathname === "/api/guest/catalog/") body = { results: catalog };
     else if (url.pathname.startsWith("/api/pos/production/")) body = { results: items };
     else if (url.pathname === "/api/pos/tabs/") body = { results: state === "empty" ? [] : [detail], next_offset: null };
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;
     else if (url.pathname === "/api/pos/cash/points/") body = { results: cash };
+    else if (url.pathname === "/api/pos/cash/shifts/history/") body = { results: state === "empty" ? [] : [state === "warnings" ? pending : { ...shift, business_date: "2026-10-08" }], next_offset: null };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
     else if (url.pathname === "/api/pos/dispatch/delivery/") body = { results: state === "empty" ? [] : [{ id: "delivery-test", product_name: "Fritas", destination_label: "Mesa 24", age_seconds: 120 }] };
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };
     else if (url.pathname === "/api/guest/context/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, tab: state === "empty" ? null : detail };
+    else if (url.pathname === "/api/pos/management/calendar/") body = { timezone: "America/Sao_Paulo", cutoff_hour: 4, business_date: "2026-10-08" };
+    else if (url.pathname === "/api/pos/management/reports/") body = {
+      generated_at: "2026-10-08T21:00:00Z", timezone: "America/Sao_Paulo", cutoff_hour: 4, start: "2026-10-08", end: "2026-10-08",
+      totals: { gross_cents: state === "empty" ? 0 : 8400, adjustments_cents: 0, net_sales_cents: state === "empty" ? 0 : 8400, paid_cents: 1200, refunds_cents: state === "warnings" ? 1000 : 0, net_received_cents: 1200, current_open_exposure_cents: 7200, current_open_tabs: 1 },
+      daily: [{ date: "2026-10-08", gross_cents: 8400, adjustments_cents: 0, net_sales_cents: 8400, paid_cents: 1200, refunds_cents: 0, net_received_cents: 1200 }],
+      products: state === "empty" ? [] : [{ order_item__product_id: "fries", order_item__product_name_snapshot: state === "long" ? longName : "Fritas", quantity: 1, gross_cents: 7200 }],
+      payment_methods: state === "empty" ? [] : [{ method: "CASH", count: 1, amount_cents: 1200 }], orders: [{ source: "GUEST", status: "CONFIRMED", count: 1 }],
+      cash_shifts: state === "empty" ? [] : [{ ...(state === "warnings" ? pending : shift), cash_point_label: state === "long" ? longName : "Caixa de teste", business_date: "2026-10-08" }],
+    };
     else throw new Error(`Missing visual fixture: ${route.request().method()} ${url.pathname}`);
     await route.fulfill({ json: body });
   });

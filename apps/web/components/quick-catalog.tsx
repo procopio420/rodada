@@ -7,7 +7,7 @@ export type CatalogProduct = { id: string; name: string; normalized_name: string
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 const normalize = (value: string) => value.normalize("NFKD").replace(/\p{M}/gu, "").toLocaleLowerCase().trim().replace(/\s+/g, " ");
 
-export function QuickCatalog({ station, onResolved }: { station: "BAR" | "KITCHEN"; onResolved?: (product: CatalogProduct) => void }) {
+export function QuickCatalog({ station, onResolved, onChanged }: { station: "BAR" | "KITCHEN"; onResolved?: (product: CatalogProduct) => void; onChanged?: () => Promise<void> }) {
   const id = useId();
   const [authorized, setAuthorized] = useState(false);
   const [open, setOpen] = useState(false), [name, setName] = useState(""), [price, setPrice] = useState("");
@@ -15,7 +15,7 @@ export function QuickCatalog({ station, onResolved }: { station: "BAR" | "KITCHE
   const [creating, setCreating] = useState(false), [saving, setSaving] = useState(false), [message, setMessage] = useState("");
   const [selected, setSelected] = useState<CatalogProduct | null>(null), [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null), trigger = useRef<HTMLButtonElement>(null);
-  useEffect(() => { let live = true; void apiCall<StaffSessionView>("/api/auth/me").then(({ response, body }) => { if (live && response.ok) setAuthorized((body as StaffSessionView).capabilities.includes(`catalog.create.${station.toLowerCase()}`)); }); return () => { live = false; }; }, [station]);
+  useEffect(() => { let live = true; void apiCall<StaffSessionView>("/api/auth/me").then(({ response, body }) => { if (live && response.ok) setAuthorized((body as StaffSessionView).capabilities.some(c => c === `catalog.create.${station.toLowerCase()}` || c === "catalog.product.create")); }); return () => { live = false; }; }, [station]);
   useEffect(() => {
     if (!open || creating || selected) return;
     const abort = new AbortController();
@@ -40,7 +40,7 @@ export function QuickCatalog({ station, onResolved }: { station: "BAR" | "KITCHE
   const exact = results.find(p => p.normalized_name === normalize(name));
   const canCreate = searchOk && !searching && !!name.trim() && !exact;
   const options = results.length + (canCreate ? 1 : 0);
-  const resolve = (product: CatalogProduct) => { setSelected(product); setCreating(false); setMessage("Item disponível no catálogo existente."); onResolved?.(product); };
+  const resolve = (product: CatalogProduct) => { setSelected(product); setCreating(false); setMessage("Item disponível no catálogo existente."); onResolved?.(product); void onChanged?.(); };
   const choose = (index: number) => { if (index < results.length) resolve(results[index]); else if (canCreate) { setCreating(true); setMessage(""); } };
   const close = () => { setOpen(false); setSelected(null); setCreating(false); setName(""); setPrice(""); setMessage(""); trigger.current?.focus(); };
   const save = async () => {

@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.rodada.attendance"
-        minSdk = 26
+        minSdk = if (providers.gradleProperty("sumupSdk").orNull == "true") 30 else 26
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
@@ -28,12 +28,18 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = providers.gradleProperty("sumupSdk").orNull == "true"
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
+    if (providers.gradleProperty("sumupSdk").orNull == "true") {
+        implementation("com.sumup.tap-to-pay:utopia-sdk:1.1.6")
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    }
+
     val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
 
     implementation(composeBom)

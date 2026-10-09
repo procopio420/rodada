@@ -38,3 +38,8 @@
 - Manual upload and editing preview are implemented and backend-tested; live visual review of a real generated product asset remains pending credentials.
 
 Final regression results: **167 API tests passed, 3 PostgreSQL-only tests skipped in SQLite**; Catalog PostgreSQL suite separately passed all 15. **90 visual/accessibility tests passed**, including Quick Catalog at 360/390/430 px. Browser integration: 5 passed. No tests claim real generated artwork approval.
+
+
+## Upgrade de main
+
+Teste de migração preserva ProductIcon, sua chave UUID de Product e asset publicado de `0002_producticon` até o schema atual. Alias legado mantém autorização server-side; busca `q` e `include_inactive` permanecem compatíveis.

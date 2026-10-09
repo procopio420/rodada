@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 async function login(page: Page, operator = "test-manager") {
   await page.goto("/staff");
@@ -60,7 +61,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(guest.getByRole("heading", { name: "Real guest E2E" })).toBeVisible();
   await guest.getByRole("button", { name: new RegExp(kitchen.name) }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
-  await expect(guest.getByRole("heading", { name: "Pedidos confirmados nesta sessão", exact: true })).toBeVisible();
+  await expect(guest.getByRole("heading", { name: "Meus pedidos", exact: true })).toBeVisible();
   const guestTab = (await api(page, "/api/pos/tabs/")).results.find((t: { display_label: string }) => t.display_label === "Real guest E2E");
   expect(guestTab.id).not.toBe(tab.id);
   const guestDetail = await api(page, `/api/pos/tabs/${guestTab.id}/`);
@@ -143,4 +144,71 @@ test("canonical and compatibility hosts select the correct surface and manifest"
     expect(response.status()).toBe(200);
     expect(await response.text()).toContain(`<title>${title}</title>`);
   }
+});
+
+test("completed catalog, persistent guest tracking, historical cash review and report export use real APIs", async ({ page, browser }) => {
+  await login(page);
+  await page.goto("/kitchen");
+  const name = "=Teste CSV real";
+  await page.getByRole("button", { name: "+ Item", exact: true }).click();
+  await page.getByLabel("Nome do produto").fill(name);
+  await page.getByRole("option", { name: `Criar “${name}”`, exact: true }).click();
+  await page.getByLabel("Preço (R$)").fill("18,00");
+  await page.getByRole("button", { name: "Criar item", exact: true }).click();
+  await expect(page.getByText("Item criado e disponível para vender.")).toBeVisible();
+  const catalog = await api(page, `/api/pos/catalog/products/?q=${encodeURIComponent(name)}`);
+  expect(catalog.results).toHaveLength(1);
+  const product = catalog.results[0];
+  const reused = await api(page, "/api/pos/catalog/products/resolve/", { name: name.toUpperCase(), price_cents: 9999, fulfillment_station: "BAR" });
+  expect(reused.created).toBe(false); expect(reused.product.id).toBe(product.id); expect(reused.product.price_cents).toBe(1800);
+  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page.getByRole("button", { name: "+ Item", exact: true }).click();
+  await page.getByLabel("Nome do produto").fill("Teste CSV");
+  await page.getByRole("option", { name: new RegExp(name.replace("=", "")) }).click();
+  await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
+  const table = await api(page, "/api/pos/hospitality/tables/", { label: "Tracking E2E", guest_ordering_mode: "DIRECT" });
+  await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
+  const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guest = await guestContext.newPage();
+  await guest.goto(`/guest/${table.public_token}`);
+  await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Tracking guest");
+  await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
+  await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
+  await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+  await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
+  await guest.reload();
+  await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();
+  const tab = (await api(page, "/api/pos/tabs/")).results.find((row: { display_label: string }) => row.display_label === "Tracking guest");
+  const detail = await api(page, `/api/pos/tabs/${tab.id}/`);
+  const item = detail.orders[0].items[0];
+  for (const state of ["ACCEPTED", "PREPARING", "READY"]) await api(page, `/api/pos/order-items/${item.id}/transition/`, { state });
+  await expect(guest.getByText("Pronto", { exact: true })).toBeVisible({ timeout: 10000 });
+  await guest.reload(); await expect(guest.getByText("Pronto", { exact: true })).toBeVisible();
+  const point = await api(page, "/api/pos/cash/points/create/", { label: "Historical E2E" });
+  const old = await api(page, "/api/pos/cash/shifts/", { cash_point_id: point.id, opening_float_cents: 1000, idempotency_key: "history-old" });
+  await api(page, `/api/pos/cash/shifts/${old.id}/count/start/`, {});
+  await api(page, `/api/pos/cash/shifts/${old.id}/close/`, { counted_amount_cents: 900 });
+  const active = await api(page, "/api/pos/cash/shifts/", { cash_point_id: point.id, opening_float_cents: 2000, idempotency_key: "history-new" });
+  await page.goto("/cash"); await page.getByLabel("Ponto de caixa").selectOption(point.id);
+  await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
+  await page.getByLabel("Selecionar turno atual ou fechamento antigo").selectOption(old.id);
+  await expect(page.getByRole("heading", { name: "Turno fechado" })).toBeVisible();
+  await page.getByLabel("Motivo da revisão").fill("Revisão histórica E2E");
+  await page.getByRole("button", { name: "Revisar divergência" }).click();
+  const reauth = page.getByLabel("Seu PIN");
+  await expect(reauth).toBeVisible();
+  await reauth.fill("2468"); await page.getByRole("button", { name: "Confirmar e continuar" }).click();
+  await expect(page.getByText("Divergência revisada.")).toBeVisible();
+  expect((await api(page, `/api/pos/cash/shifts/${active.id}/`)).status).toBe("OPEN");
+  await page.goto("/reports"); await expect(page.getByRole("heading", { name: "Resumo financeiro" })).toBeVisible();
+  const calendar = await api(page, "/api/pos/management/calendar/");
+  const report = await api(page, `/api/pos/management/reports/?start=${calendar.business_date}&end=${calendar.business_date}`);
+  expect(report.products.some((row: { order_item__product_name_snapshot: string }) => row.order_item__product_name_snapshot === name)).toBe(true);
+  const downloaded = page.waitForEvent("download"); await page.getByRole("button", { name: "Exportar CSV" }).click();
+  const download = await downloaded; const csv = await readFile((await download.path())!, "utf8");
+  expect(csv).toContain('"\'=Teste CSV real"'); expect(csv).toContain("valores monetários em centavos");
+  await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
+  await expect(guest.getByText("Esta visita terminou.", { exact: false })).toBeVisible({ timeout: 10000 });
+  await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toHaveCount(0);
+  await guestContext.close();
 });

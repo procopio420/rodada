@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "apps/web/**"
+      - "apps/api/**"
       - "prototype/**"
       - "docs/design/**"
       - ".github/workflows/web.yml"
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - "apps/web/**"
+      - "apps/api/**"
       - "prototype/**"
       - "docs/design/**"
       - ".github/workflows/web.yml"

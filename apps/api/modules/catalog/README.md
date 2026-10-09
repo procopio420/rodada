@@ -42,6 +42,6 @@ Manager/Owner receive `catalog.create.bar`, `catalog.create.kitchen`, `catalog.i
 - PATCH `/catalog/products/{id}/`: authorized management edits preserve icon identity.
 - POST `/catalog/products/{id}/icon/`: action regenerate (idempotency_key), upload (image_base64/mime), or remove.
 
-Normalization uses Unicode compatibility folding, casefold, accent removal and whitespace collapse. Migration 0004 stops on existing accent collisions and requires explicit renaming; it never merges products or historical orders.
+Normalization uses Unicode compatibility folding, casefold, accent removal and whitespace collapse. Migration 0005 stops on existing accent collisions and requires explicit renaming; it never merges products or historical orders.
 
 Manager generation requests are capped at 20/operator/hour and 60/venue/hour. Automatic generation starts are capped at 60/venue/hour and excess work remains queued. Run `process_icon_jobs --once` for one worker iteration.

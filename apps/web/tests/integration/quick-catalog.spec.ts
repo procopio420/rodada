@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { PNG } from "pngjs";
 
 test("quick create, exact reuse and manager icon lifecycle", async ({ page }) => {
   await page.goto("/staff");
@@ -34,7 +35,19 @@ test("quick create, exact reuse and manager icon lifecycle", async ({ page }) =>
   await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
   await page.getByRole("button", { name: "Regenerar ícone", exact: true }).click();
   await expect(page.getByText("Geração solicitada. O ícone atual permanece visível.")).toBeVisible();
+  const fixture = new PNG({ width: 128, height: 128 });
+  fixture.data.fill(255);
+  await page.getByLabel("Substituir por imagem", { exact: false }).setInputFiles({
+    name: "manual-test-only.png", mimeType: "image/png", buffer: PNG.sync.write(fixture),
+  });
+  await expect(page.getByText("Ícone atualizado.")).toBeVisible();
+  const preview = page.locator("details .productIcon img");
+  await expect(preview).toBeVisible();
+  await expect.poll(() => preview.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(128);
+  const updated = await page.evaluate(async () => (await (await fetch("/api/pos/catalog/products/")).json()).results);
+  expect(updated.find((p: { id: string }) => p.id === product.id).icon.id).toBe(product.icon.id);
   await page.getByRole("button", { name: "Voltar ao placeholder", exact: true }).click();
   await expect(page.getByText("Ícone atualizado.")).toBeVisible();
+  await expect(preview).toHaveCount(0);
   expect(await page.locator("body").evaluate(el => el.scrollWidth <= innerWidth)).toBe(true);
 });
