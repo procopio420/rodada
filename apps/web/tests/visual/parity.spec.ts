@@ -558,13 +558,15 @@ for (const width of [360, 430, 768]) test(`management hierarchy and enlarged nav
   // Controlled 200% label typography tests the explicit adaptive-nav contract, not Android/browser zoom.
   await page.addStyleTag({ content: ".managementNavigation a { font-size: 28px; }" });
   await expect.poll(() => nav.evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThan(84);
-  const layout = await nav.evaluate(el => {
+  // ResizeObserver reserves bottom space asynchronously after enlarged-font reflow.
+  // Keep the original >=32px clearance requirement; wait for its real DOM state.
+  await expect.poll(() => nav.evaluate(el => {
     const box = el.getBoundingClientRect();
     const shell = el.closest(".managementShell"); if (!shell) throw new Error("Missing management shell");
-    return { height: Math.ceil(box.height), reserved: Number.parseFloat(getComputedStyle(shell).paddingBottom), clipping: [...el.querySelectorAll("a span")].some(label => label.scrollWidth > label.clientWidth) };
-  });
-  expect(layout.reserved).toBeGreaterThanOrEqual(layout.height + 32);
-  expect(layout.clipping).toBe(false);
+    return Number.parseFloat(getComputedStyle(shell).paddingBottom) - Math.ceil(box.height);
+  })).toBeGreaterThanOrEqual(32);
+  const clipping = await nav.evaluate(el => [...el.querySelectorAll("a span")].some(label => label.scrollWidth > label.clientWidth));
+  expect(clipping).toBe(false);
   await layoutAndA11y(page);
 });
 
