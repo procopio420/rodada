@@ -40,16 +40,16 @@ export const kitchenBatches = products.map(product => ({ ...product, items: wait
   .sort((a, b) => b.quantity - a.quantity || waitingItems.findIndex(item => item.product_id === a.id) - waitingItems.findIndex(item => item.product_id === b.id));
 export const elapsed = (time: string) => { const seconds = (Date.parse(now) - Date.parse(time)) / 1000; return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`; };
 
-export async function kitchenFixture(page: Page) {
+export async function kitchenFixture(page: Page, station: "KITCHEN" | "BAR" = "KITCHEN") {
   await fixture(page, "normal", false, { now });
   await page.clock.pauseAt(new Date(now));
-  await page.route("**/api/pos/production/KITCHEN/", route => {
+  await page.route(`**/api/pos/production/${station}/`, route => {
     expect(route.request().method()).toBe("GET");
     return route.fulfill({ json: { results: kitchenScenario.items } });
   });
   await page.route("**/api/pos/catalog/products/", route => route.fulfill({ json: { results: products.map(product => ({
     id: product.id, name: product.name, active: true, price_cents: 100, // test DTO only; price is outside compared regions
-    fulfillment_station: "KITCHEN", availability: "AVAILABLE",
+    fulfillment_station: station, availability: "AVAILABLE",
     icon: { id: `icon-${product.id}`, source: "UPLOADED", status: "READY", published_asset_url: `/product-icons/${product.id}.svg` },
   })) } }));
   await page.route("**/product-icons/v03-*.svg", async route => {

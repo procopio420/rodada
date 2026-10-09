@@ -1,0 +1,299 @@
+[WebServer] (node:23548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:06:01] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 153 tests using 1 worker
+
+(node:28788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   1 tests\visual\customization.spec.ts:9:7 › customization choices and production text readable at 360px (2.0s)
+  ok   2 tests\visual\customization.spec.ts:9:7 › customization choices and production text readable at 390px (1.9s)
+  ok   3 tests\visual\customization.spec.ts:9:7 › customization choices and production text readable at 768px (1.9s)
+  ok   4 tests\visual\customization.spec.ts:36:7 › manager customization editor remains accessible at 360px (1.0s)
+  ok   5 tests\visual\customization.spec.ts:36:7 › manager customization editor remains accessible at 390px (994ms)
+  ok   6 tests\visual\customization.spec.ts:54:5 › optional single choice can be removed and stale choices require explicit review (679ms)
+  ok   7 tests\visual\parity.spec.ts:15:5 › primary control matches the supplied unchanged kitchen material (725ms)
+  ok   8 tests\visual\parity.spec.ts:30:5 › kitchen material geometry and Product identity aggregation (431ms)
+  ok   9 tests\visual\parity.spec.ts:69:5 › documents the full kitchen comparison without equating different workflows (663ms)
+  ok  10 tests\visual\parity.spec.ts:100:7 › canonical primary matches its equivalent prototype primitive (457ms)
+  ok  11 tests\visual\parity.spec.ts:100:7 › canonical secondary matches its equivalent prototype primitive (440ms)
+  ok  12 tests\visual\parity.spec.ts:100:7 › canonical danger matches its equivalent prototype primitive (444ms)
+  ok  13 tests\visual\parity.spec.ts:100:7 › canonical disabled matches its equivalent prototype primitive (428ms)
+  ok  14 tests\visual\parity.spec.ts:100:7 › canonical field matches its equivalent prototype primitive (478ms)
+  ok  15 tests\visual\parity.spec.ts:100:7 › canonical badge matches its equivalent prototype primitive (460ms)
+  ok  16 tests\visual\parity.spec.ts:100:7 › canonical panel matches its equivalent prototype primitive (431ms)
+  ok  17 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 360px (1.2s)
+  ok  18 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 390px (1.2s)
+  ok  19 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 430px (1.2s)
+  ok  20 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 768px (1.2s)
+  ok  21 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 1280px (1.3s)
+  ok  22 tests\visual\parity.spec.ts:123:7 › Quick Catalog: creation form accessibility at 1440px (1.3s)
+  ok  23 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 360px (853ms)
+  ok  24 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 360px (996ms)
+  ok  25 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 360px (993ms)
+  ok  26 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 360px (1.0s)
+  ok  27 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 360px (1.2s)
+  ok  28 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 360px (988ms)
+  ok  29 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 360px (937ms)
+  ok  30 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 360px (1.0s)
+  ok  31 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 360px (1.1s)
+  ok  32 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 390px (834ms)
+  ok  33 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 390px (1.0s)
+  ok  34 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 390px (996ms)
+  ok  35 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 390px (1.0s)
+  ok  36 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 390px (1.2s)
+  ok  37 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 390px (1.0s)
+  ok  38 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 390px (969ms)
+  ok  39 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 390px (972ms)
+  ok  40 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 390px (1.1s)
+  ok  41 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 430px (830ms)
+  ok  42 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 430px (1.0s)
+  ok  43 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 430px (993ms)
+  ok  44 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 430px (1.0s)
+  ok  45 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 430px (1.2s)
+  ok  46 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 430px (972ms)
+  ok  47 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 430px (945ms)
+  ok  48 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 430px (1.0s)
+  ok  49 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 430px (1.1s)
+  ok  50 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 768px (845ms)
+  ok  51 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 768px (1.0s)
+  ok  52 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 768px (1.0s)
+  ok  53 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 768px (1.0s)
+  ok  54 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 768px (1.2s)
+  ok  55 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 768px (995ms)
+  ok  56 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 768px (906ms)
+  ok  57 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 768px (1.0s)
+  ok  58 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 768px (1.1s)
+  ok  59 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 1280px (872ms)
+  ok  60 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 1280px (1.1s)
+  ok  61 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 1280px (1.1s)
+  ok  62 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 1280px (982ms)
+  ok  63 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 1280px (1.2s)
+  ok  64 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 1280px (1.0s)
+  ok  65 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 1280px (953ms)
+  ok  66 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 1280px (1.1s)
+  ok  67 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 1280px (1.2s)
+  ok  68 tests\visual\parity.spec.ts:139:7 › staff: responsive layout and accessibility at 1440px (867ms)
+  ok  69 tests\visual\parity.spec.ts:139:7 › bar: responsive layout and accessibility at 1440px (1.2s)
+  ok  70 tests\visual\parity.spec.ts:139:7 › kitchen: responsive layout and accessibility at 1440px (1.1s)
+  ok  71 tests\visual\parity.spec.ts:139:7 › guest: responsive layout and accessibility at 1440px (1.1s)
+  ok  72 tests\visual\parity.spec.ts:139:7 › manage: responsive layout and accessibility at 1440px (1.2s)
+  ok  73 tests\visual\parity.spec.ts:139:7 › cash: responsive layout and accessibility at 1440px (1.0s)
+  ok  74 tests\visual\parity.spec.ts:139:7 › refunds: responsive layout and accessibility at 1440px (967ms)
+  ok  75 tests\visual\parity.spec.ts:139:7 › pos: responsive layout and accessibility at 1440px (1.1s)
+  ok  76 tests\visual\parity.spec.ts:139:7 › reports: responsive layout and accessibility at 1440px (1.2s)
+  ok  77 tests\visual\parity.spec.ts:173:9 › bar: empty operational state (964ms)
+  ok  78 tests\visual\parity.spec.ts:173:9 › kitchen: empty operational state (975ms)
+  ok  79 tests\visual\parity.spec.ts:173:9 › guest: empty operational state (890ms)
+  ok  80 tests\visual\parity.spec.ts:173:9 › manage: empty operational state (1.0s)
+  ok  81 tests\visual\parity.spec.ts:173:9 › cash: empty operational state (782ms)
+  ok  82 tests\visual\parity.spec.ts:173:9 › refunds: empty operational state (812ms)
+  ok  83 tests\visual\parity.spec.ts:173:9 › pos: empty operational state (808ms)
+  ok  84 tests\visual\parity.spec.ts:173:9 › reports: empty operational state (900ms)
+  ok  85 tests\visual\parity.spec.ts:173:9 › bar: loading operational state (845ms)
+  ok  86 tests\visual\parity.spec.ts:173:9 › kitchen: loading operational state (860ms)
+  ok  87 tests\visual\parity.spec.ts:173:9 › guest: loading operational state (771ms)
+  ok  88 tests\visual\parity.spec.ts:173:9 › manage: loading operational state (798ms)
+  ok  89 tests\visual\parity.spec.ts:173:9 › cash: loading operational state (777ms)
+  ok  90 tests\visual\parity.spec.ts:173:9 › refunds: loading operational state (788ms)
+  ok  91 tests\visual\parity.spec.ts:173:9 › pos: loading operational state (811ms)
+  ok  92 tests\visual\parity.spec.ts:173:9 › reports: loading operational state (791ms)
+  ok  93 tests\visual\parity.spec.ts:173:9 › bar: error operational state (946ms)
+  ok  94 tests\visual\parity.spec.ts:173:9 › kitchen: error operational state (861ms)
+  ok  95 tests\visual\parity.spec.ts:173:9 › guest: error operational state (771ms)
+  ok  96 tests\visual\parity.spec.ts:173:9 › manage: error operational state (929ms)
+  ok  97 tests\visual\parity.spec.ts:173:9 › cash: error operational state (794ms)
+  ok  98 tests\visual\parity.spec.ts:173:9 › refunds: error operational state (793ms)
+  ok  99 tests\visual\parity.spec.ts:173:9 › pos: error operational state (794ms)
+  ok 100 tests\visual\parity.spec.ts:173:9 › reports: error operational state (775ms)
+  ok 101 tests\visual\parity.spec.ts:173:9 › bar: long operational state (1.2s)
+  ok 102 tests\visual\parity.spec.ts:173:9 › kitchen: long operational state (1.2s)
+  ok 103 tests\visual\parity.spec.ts:173:9 › guest: long operational state (945ms)
+  ok 104 tests\visual\parity.spec.ts:173:9 › manage: long operational state (1.0s)
+  ok 105 tests\visual\parity.spec.ts:173:9 › cash: long operational state (859ms)
+  ok 106 tests\visual\parity.spec.ts:173:9 › refunds: long operational state (866ms)
+  ok 107 tests\visual\parity.spec.ts:173:9 › pos: long operational state (823ms)
+  ok 108 tests\visual\parity.spec.ts:173:9 › reports: long operational state (906ms)
+  ok 109 tests\visual\parity.spec.ts:173:9 › bar: warnings operational state (1.0s)
+  ok 110 tests\visual\parity.spec.ts:173:9 › kitchen: warnings operational state (1.0s)
+  ok 111 tests\visual\parity.spec.ts:173:9 › guest: warnings operational state (954ms)
+  ok 112 tests\visual\parity.spec.ts:173:9 › manage: warnings operational state (1.1s)
+  ok 113 tests\visual\parity.spec.ts:173:9 › cash: warnings operational state (963ms)
+  ok 114 tests\visual\parity.spec.ts:173:9 › refunds: warnings operational state (856ms)
+  ok 115 tests\visual\parity.spec.ts:173:9 › pos: warnings operational state (934ms)
+  ok 116 tests\visual\parity.spec.ts:173:9 › reports: warnings operational state (907ms)
+  ok 117 tests\visual\parity.spec.ts:202:5 › management hash navigation selects each real section (466ms)
+  ok 118 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 360px (336ms)
+  ok 119 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 390px (332ms)
+  ok 120 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 430px (330ms)
+  ok 121 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 768px (334ms)
+  ok 122 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 1280px (323ms)
+  ok 123 tests\visual\parity.spec.ts:212:7 › /bar: production is first and expands at 1440px (337ms)
+  ok 124 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 360px (333ms)
+  ok 125 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 390px (335ms)
+  ok 126 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 430px (334ms)
+  ok 127 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 768px (334ms)
+  ok 128 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 1280px (359ms)
+  ok 129 tests\visual\parity.spec.ts:212:7 › /kitchen: production is first and expands at 1440px (327ms)
+  ok 130 tests\visual\parity.spec.ts:231:5 › management prioritizes current work and distinguishes preparation from ready (407ms)
+  ok 131 tests\visual\parity.spec.ts:248:7 › /bar: saving and stale failure never invent success (557ms)
+  ok 132 tests\visual\parity.spec.ts:248:7 › /kitchen: saving and stale failure never invent success (553ms)
+  ok 133 tests\visual\parity.spec.ts:266:5 › staff login keyboard order and submitted failure (316ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/Main.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/5816a48a9a4c79865a6138a8e08c6108.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:01] "GET /prototype/references/night/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+  ok 134 tests\visual\parity.spec.ts:280:7 › imported night reference renders with local assets (372ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/Sistema.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/613ae5d0e5e09693aae169934b7733bd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/74144d23a9c81fd7765e2bf13493db9f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/fb7922d25a03026482c8fd320a511fd2.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/2d80f66be0c4840f19b91dec3ff83973.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/96e215812a1b3ea02b223e6d6c3668cd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/d10e0813adca92638a2d61b5c8091ba6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/system/assets/5eeb028ca51cb9caedd9e8647ff87e15.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 135 tests\visual\parity.spec.ts:280:7 › imported system reference renders with local assets (358ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/Cozinha.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/kitchen/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 136 tests\visual\parity.spec.ts:280:7 › imported kitchen reference renders with local assets (204ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/peak/Pico.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/peak/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/peak/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/peak/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/references/peak/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:02] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 137 tests\visual\parity.spec.ts:280:7 › imported peak reference renders with local assets (239ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/Offline.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/assets/96e215812a1b3ea02b223e6d6c3668cd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/connectivity/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 138 tests\visual\parity.spec.ts:280:7 › imported connectivity reference renders with local assets (255ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/Sistema.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/613ae5d0e5e09693aae169934b7733bd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/79bc3499c17dd7e97ec7dede3be27064.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/455633b3820dce97baf3f0ed53e9e36c.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/4a475e1753a0fa1728c530b141d33673.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/74144d23a9c81fd7765e2bf13493db9f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/8e73c10d2aeb988382c5efa276f9452f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/fb7922d25a03026482c8fd320a511fd2.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/2d80f66be0c4840f19b91dec3ff83973.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/624b89158eeb8ff63f5da114a1ff41e6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/4abc79c894255d9789137207c31a5c48.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/96e215812a1b3ea02b223e6d6c3668cd.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/80a30e1a3c4171ef83cdecc7f238af50.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/a5621f6e42a924061406ba5edcf2e0df.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/629a684aef42620febf07d65568ee00d.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/d10e0813adca92638a2d61b5c8091ba6.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/references/system/assets/5eeb028ca51cb9caedd9e8647ff87e15.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:03] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 139 tests\visual\parity.spec.ts:294:5 › production action matches the new executable system reference (668ms)
+  ok 140 tests\visual\parity.spec.ts:308:5 › production prioritizes work, sums quantities and preserves individual transitions (459ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/Cozinha.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/references/kitchen/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:04] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 141 tests\visual\parity.spec.ts:334:5 › new kitchen reference comparison documents the adapted connected layout (907ms)
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/Cozinha.dc.html HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/vendor/react.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/fonts/fonts.css HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/assets/c74be2bf7ae8d32da5f77ec39f311a18.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/vendor/react-dom.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/support.js HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/assets/1e9830bdd3cf72f57dc17c0bd356214f.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/assets/431ed6655f8c54cccf2eea5b7faf92ca.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/assets/73ba944a476ce094605977a1b0205ec9.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/references/kitchen/assets/da647361752c6e97c88066964a7f7259.svg HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/fonts/Archivo.ttf HTTP/1.1" 200 -
+[WebServer] 127.0.0.1 - - [09/Oct/2026 11:08:05] "GET /prototype/fonts/JetBrainsMono.ttf HTTP/1.1" 200 -
+  ok 142 tests\visual\parity.spec.ts:372:5 › V03 kitchen: shared deterministic data and explicit reference derivation (2.0s)
+  ok 143 tests\visual\parity.spec.ts:460:7 › V04 Order groups: KITCHEN layout and individual actions at 360px (1.2s)
+  ok 144 tests\visual\parity.spec.ts:460:7 › V04 Order groups: KITCHEN layout and individual actions at 430px (1.2s)
+  ok 145 tests\visual\parity.spec.ts:460:7 › V04 Order groups: KITCHEN layout and individual actions at 1280px (1.3s)
+  ok 146 tests\visual\parity.spec.ts:460:7 › V04 Order groups: BAR layout and individual actions at 360px (1.3s)
+  ok 147 tests\visual\parity.spec.ts:460:7 › V04 Order groups: BAR layout and individual actions at 430px (1.2s)
+  ok 148 tests\visual\parity.spec.ts:460:7 › V04 Order groups: BAR layout and individual actions at 1280px (1.3s)
+  ok 149 tests\visual\parity.spec.ts:487:5 › V04 Order grouping never merges different Orders or legacy items by Tab (323ms)
+  ok 150 tests\visual\parity.spec.ts:502:5 › V04 shared Order: marking one item ready never completes its sibling (362ms)
+  ok 151 tests\visual\quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 360 (861ms)
+  ok 152 tests\visual\quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 390 (893ms)
+  ok 153 tests\visual\quick-catalog.spec.ts:5:7 › Quick Catalog accessible mobile flow 430 (896ms)
+
+  153 passed (2.3m)

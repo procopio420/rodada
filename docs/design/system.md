@@ -382,3 +382,9 @@ Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV
 Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
 
 Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.
+
+## V04 parcial — bloco de pedido em produção
+
+`stationOrder` agrupa visualmente itens pelo Order, com uma única Tab/destino e `stationOrderItems`. Cada `stationTicket` mantém produto/quantidade/customização, estado, tempo e ação individual; um bloco não oferece confirmação em lote. Sem identidade de Order, cada item permanece separado.
+
+Mobile: destino acima dos itens, ação de largura útil e altura mínima 56. Desktop ≥1200: destino 84 px, conteúdo flexível e ação 116 px, gaps 16; o grupo tem padding 12/20/12/24 e uma divisória externa, com gap 12 entre itens. Reutilizar tokens de cor/espaço/toque/fontes; `--production-ticket-destination` e `--production-ticket-action` promovem as medidas existentes 84/116 para compartilhamento. Não suprimir estado, tempo ou customização para imitar o export.

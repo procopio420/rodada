@@ -416,7 +416,7 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await expect(actual.locator(".stationSummary b")).toHaveText(["5", "2"]);
   await expect(reference.locator(".k > header b")).toHaveText(["Cozinha", "5", "1", "2"]);
   await expect(reference.locator(".k > header .mono")).toHaveText("23:14");
-  await expect(actual.locator(".stationTicket > .stationTab")).toHaveText(waitingItems.map(item => item.tab_label));
+  expect(await actual.locator(".stationTicket").evaluateAll(els => els.map(el => el.closest(".stationOrder")!.querySelector(":scope > .stationTab")!.textContent))).toEqual(waitingItems.map(item => item.tab_label));
   await expect(actual.locator(".stationSummary time")).toHaveText("23:14");
   await expect(actual.locator(".stationPass > .stationPassRow > div > strong")).toHaveText(readyItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationPass > .stationPassRow time")).toHaveText(readyItems.map(item => elapsed(item.ready_at!)));
@@ -453,4 +453,77 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   // V03 gates data/derivation/stability. A full visual gate is still unmet V04 work,
   // recorded explicitly rather than changing thresholds or weakening existing assertions.
   await reference.close(); await actual.close();
+});
+
+
+for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430, 1280]) {
+  test(`V04 Order groups: ${station} layout and individual actions at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ viewport: { width, height: 1024 } });
+    const page = await context.newPage();
+    await kitchenFixture(page, station);
+    // Axe needs its timers to run; keep Date fixed without pausing the event loop.
+    await page.clock.resume(); await page.clock.setFixedTime(new Date(kitchenScenario.now));
+    await page.goto(`/${station.toLowerCase()}`);
+    await expect(page.locator(".stationOrder")).toHaveCount(5);
+    await expect(page.locator(".stationTicket")).toHaveCount(6);
+    await expect(page.locator(".stationOrder > .stationTab")).toHaveText(["P22", "P08", "P25", "P41", "P37"]);
+    const sharedOrder = page.getByRole("group", { name: "Pedido: P08", exact: true });
+    await expect(sharedOrder.locator(".stationTab")).toHaveCount(1);
+    await expect(sharedOrder.locator(".stationTicket")).toHaveCount(2);
+    await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true })).toBeVisible();
+    await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeVisible();
+    await stable(page); await layoutAndA11y(page);
+    const destination = await sharedOrder.locator(".stationTab").boundingBox();
+    const action = await sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).boundingBox();
+    expect(action!.height).toBe(56);
+    if (width === 1280) { expect(destination!.width).toBe(84); expect(action!.width).toBe(116); }
+    else { expect(action!.width).toBeGreaterThanOrEqual(44); expect(action!.y).toBeGreaterThan(destination!.y); }
+    await page.screenshot({ path: path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.png`), fullPage: true });
+    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, action }, null, 2));
+    await context.close();
+  });
+}
+
+test("V04 Order grouping never merges different Orders or legacy items by Tab", async ({ page }) => {
+  await kitchenFixture(page);
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+    { ...kitchenScenario.items[1], id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
+  ] } }));
+  await page.goto("/kitchen");
+  await expect(page.locator(".stationOrder")).toHaveCount(4);
+  await expect(page.locator(".stationTicket")).toHaveCount(4);
+  await expect(page.locator(".stationOrder > .stationTab")).toHaveText(Array(4).fill("Mesmo destino"));
+  await expect(page.locator(".stationQuantity")).toHaveText("4");
+});
+
+test("V04 shared Order: marking one item ready never completes its sibling", async ({ page }) => {
+  await kitchenFixture(page);
+  await page.clock.resume(); await page.clock.setFixedTime(new Date(kitchenScenario.now));
+  const items = kitchenScenario.items.map(item => ({ ...item }));
+  const target = items.find(item => item.tab_label === "P08" && item.product_name === "Fritas")!;
+  const posts: Array<{ id: string; body: unknown }> = [];
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: items } }));
+  await page.route("**/api/pos/order-items/*/transition/", async route => {
+    expect(route.request().method()).toBe("POST");
+    const id = new URL(route.request().url()).pathname.split("/")[4];
+    const body = route.request().postDataJSON(); posts.push({ id, body });
+    const item = items.find(item => item.id === id)!;
+    expect(item.state).toBe("PREPARING"); expect(body).toEqual({ state: "READY" });
+    item.state = "READY"; item.ready_at = kitchenScenario.now;
+    await route.fulfill({ json: item });
+  });
+  await page.goto("/kitchen");
+  const group = page.getByRole("group", { name: "Pedido: P08", exact: true });
+  await expect(group.locator(".stationTicket")).toHaveCount(2);
+  await group.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).click();
+  await expect(group.locator(".stationTicket")).toHaveCount(1);
+  await expect(group.locator(".stationTicketContent > strong")).toHaveText("1 Calabresa");
+  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Preparando");
+  await expect(group.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeEnabled();
+  expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
+  await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);
+  await expect(page.locator(".stationOrder")).toHaveCount(5);
 });

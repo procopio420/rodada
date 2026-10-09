@@ -1,0 +1,18 @@
+{
+  "station": "KITCHEN",
+  "width": 1280,
+  "groups": 5,
+  "items": 6,
+  "destination": {
+    "x": 444,
+    "y": 344.046875,
+    "width": 84,
+    "height": 29.890625
+  },
+  "action": {
+    "x": 803,
+    "y": 297,
+    "width": 116,
+    "height": 56
+  }
+}

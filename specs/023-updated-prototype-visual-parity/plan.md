@@ -13,3 +13,13 @@ Referências e checks existentes da Spec 021 são base reutilizável, sem declar
 5. Typecheck/build/test:visual/test:realtime; registrar diferenças e preservar branch original. Sem merge/publicação.
 
 Resultado do recorte V03: [comparação e diferenças](../../docs/design/v03-kitchen-comparison.md). V03 global e fidelidade total continuam pendentes.
+
+## V04 parcial — tickets
+
+1. Base isolada da main atual, reutilizando o commit local V03 apenas como infraestrutura de teste/documentação.
+2. Atualizar contrato/design system antes do código; agrupar apresentação por order_id, com fallback por item.id.
+3. Manter markup de cada stationTicket e handlers; envolver itens em stationOrder com destino comum. Reutilizar tokens e medidas desktop 84/116 px.
+4. Adaptar a observação da Tab no teste V03 ao contexto do grupo, mantendo asserts dos mesmos dados. Acrescentar checks de grupos, geometria, fallback e transição individual.
+5. Comparar Cozinha e Bar, repetir fixture V03 sem mudar referência ou limites; typecheck/build/test:visual/test:realtime. Registrar diferenças ainda abertas. Sem merge/push.
+
+Resultado do recorte: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md). V04 global permanece aberta.
