@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.rodada.attendance.ui.RodadaVisual
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -283,12 +285,18 @@ private fun Header(
             Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
             Text(session.staffDisplayName, style = MaterialTheme.typography.bodySmall)
             Text(
-                connectivity.label(),
+                when (connectivity) {
+                    ConnectivityState.ONLINE -> "ONLINE"
+                    ConnectivityState.RECONNECTING -> "VERIFICANDO"
+                    ConnectivityState.STALE -> "DESATUALIZADO"
+                    ConnectivityState.OFFLINE -> "SEM SINAL"
+                },
+                modifier = Modifier.semantics { contentDescription = connectivity.label() },
                 style = MaterialTheme.typography.labelSmall,
                 color = if (connectivity == ConnectivityState.ONLINE) RodadaVisual.Success else RodadaVisual.Amber,
             )
         }
-        TextButton(onClick = onTogglePeak) { Text(if (peak) "Sair do pico" else "Pico", color = RodadaVisual.Amber) }
+        TextButton(onClick = onTogglePeak, modifier = Modifier.semantics { contentDescription = if (peak) "Sair do modo pico" else "Ativar modo pico" }) { Text(if (peak) "Pico ●" else "Pico", color = RodadaVisual.Amber) }
         TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
         OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
     }
@@ -323,8 +331,8 @@ private fun TabList(
                     Text(deliveryAge(task.ageSeconds), fontFamily = RodadaVisual.Number, fontWeight = FontWeight.ExtraBold, color = RodadaVisual.Success)
                 }
                 Column(modifier = Modifier.weight(1f).padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(task.destinationLabel.ifBlank { "Destino não informado" }, style = MaterialTheme.typography.headlineSmall)
-                    Text("${task.quantity} ${task.productName}", style = MaterialTheme.typography.titleMedium)
+                    Text("${task.quantity} ${task.productName}", style = MaterialTheme.typography.titleLarge)
+                    Text(task.destinationLabel.ifBlank { "Destino não informado" }, style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
                     if (task.tabLabel.isNotBlank()) Text(task.tabLabel, color = RodadaVisual.Muted, style = MaterialTheme.typography.bodySmall)
                 }
                 Button(onClick = { onCompleteDelivery(task.id) }, enabled = !state.submitting, modifier = Modifier.padding(end = 16.dp)) { Text("ENTREGUE") }

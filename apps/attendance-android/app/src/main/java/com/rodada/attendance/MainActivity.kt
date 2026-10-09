@@ -1,6 +1,8 @@
 package com.rodada.attendance
 
 import android.os.Bundle
+import android.os.Build
+import android.content.pm.PackageManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -37,6 +39,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= 37 &&
+            checkSelfPermission("android.permission.ACCESS_LOCAL_NETWORK") != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf("android.permission.ACCESS_LOCAL_NETWORK"), 22)
+        }
         setContent {
             RodadaTheme {
                 AuthApp(authViewModel, operationsViewModel, cashShiftViewModel)
