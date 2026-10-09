@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Real HTTP shift and PostgreSQL/service restart
-        run: RODADA_DEMO_RESTART=1 bash scripts/demo-smoke.sh | tee /tmp/rodada-demo-ci.log
+        run: RODADA_DEMO_POSTGRES_IMAGE=public.ecr.aws/docker/library/postgres:17 RODADA_DEMO_RESTART=1 bash scripts/demo-smoke.sh | tee /tmp/rodada-demo-ci.log
         shell: bash --noprofile --norc -eo pipefail {0}
       - name: PostgreSQL API and concurrency suite
         run: docker compose -f demo/compose.yaml exec -T -e POSTGRES_DB=rodada_release_validation api python -m pytest --ds=rodada_api.settings
