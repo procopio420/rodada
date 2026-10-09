@@ -283,7 +283,8 @@ class TabOperationRegressionTests(OperationFixture, TestCase):
         with CaptureQueriesContext(connection) as many:
             rows = responsibility(tab)
         assert len(rows) == 5
-        assert len(many) == len(first) == 3
+        # Charges, legacy effects, pricing allocations and transfer components each use one query.
+        assert len(many) == len(first) == 4
         assert sum(row["available_cents"] for row in rows) == 4000
 
     def test_paid_location_move_and_conflict_are_ledger_neutral(self):

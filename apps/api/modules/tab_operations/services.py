@@ -57,16 +57,28 @@ def payment_blocker(tab, *, confirmed=True):
 
 
 def responsibility(tab):
-    charges = Charge.objects.filter(Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)).distinct().select_related("order_item", "tab")
+    from django.db.models import Exists, OuterRef, Subquery, IntegerField
+    from django.db.models.functions import Coalesce
+    from modules.ledger.models import AdjustmentAllocation, LedgerAdjustment
     from modules.ledger.pricing import components
-    commercial = components(tab)
+
+    legacy = LedgerAdjustment.objects.filter(order_item_id=OuterRef("order_item_id")).values(
+        "order_item_id"
+    ).annotate(amount=Sum("amount_cents")).values("amount")
+    charges = list(Charge.objects.filter(
+        Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)
+    ).distinct().select_related("order_item", "tab").annotate(
+        legacy_adjustment=Coalesce(Subquery(legacy, output_field=IntegerField()), 0),
+        has_transfer=Exists(TabTransferLine.objects.filter(source_charge_id=OuterRef("pk"))),
+        has_pricing_allocation=Exists(AdjustmentAllocation.objects.filter(charge_id=OuterRef("pk"))),
+    ))
+    commercial = components(tab, charges=charges)
     rows = []
     for charge in charges:
-        adjustment = charge.order_item.ledger_adjustments.aggregate(v=Sum("amount_cents"))["v"] or 0
         detail = commercial[str(charge.id)]
         amount = sum(detail[key] for key in ("gross", "discount", "courtesy", "correction", "service"))
         # Legacy effects without allocation cannot be followed through older transfers.
-        blocker = "ADJUSTED_LINE" if adjustment and charge.transfer_lines.exists() and not charge.pricing_allocations.exists() else None
+        blocker = "ADJUSTED_LINE" if charge.legacy_adjustment and charge.has_transfer and not charge.has_pricing_allocation else None
         rows.append({"charge_id": str(charge.id), "order_item_id": str(charge.order_item_id),
                      "original_tab_id": str(charge.tab_id), "product_name": charge.order_item.product_name_snapshot,
                      "unit_price_cents": charge.order_item.unit_price_cents, "original_quantity": charge.order_item.quantity,

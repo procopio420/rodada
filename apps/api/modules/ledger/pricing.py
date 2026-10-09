@@ -73,12 +73,14 @@ def category(adjustment):
     return "correction"
 
 
-def components(tab):
+def components(tab, *, charges=None):
     from modules.tab_operations.models import TabTransferLine
 
-    charges = Charge.objects.filter(
-        Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)
-    ).distinct()
+    if charges is None:
+        charges = list(Charge.objects.filter(
+            Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)
+        ).distinct())
+    charge_ids_by_item = {charge.order_item_id: str(charge.id) for charge in charges}
     result = {str(c.id): dict.fromkeys((*CATEGORIES, *TREATMENTS), 0) for c in charges}
     for charge in charges:
         if charge.tab_id == tab.id:
@@ -88,7 +90,7 @@ def components(tab):
         allocations__isnull=True
     ):
         if adjustment.order_item_id:
-            key = str(Charge.objects.get(order_item_id=adjustment.order_item_id).id)
+            key = charge_ids_by_item.get(adjustment.order_item_id)
             if key in result:
                 result[key][category(adjustment)] += adjustment.amount_cents
     for line in AdjustmentAllocation.objects.filter(adjustment__tab=tab).select_related(
