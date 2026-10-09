@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="2" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-09T16:23:02" hostname="localhost">
+  <testsuite name="com.rodada.attendance.ui.AttendanceNavigationTest" tests="2" failures="0" errors="0" skipped="0" time="3.688" timestamp="2026-10-09T16:23:02" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5554" />
+    </properties>
+    <testcase name="busyAndAdjacentDestination" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="2.072" />
+    <testcase name="geometryAndActions" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="1.616" />
+  </testsuite>
+</testsuites>

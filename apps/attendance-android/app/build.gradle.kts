@@ -53,6 +53,10 @@ dependencies {
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
 
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
     testImplementation("junit:junit:4.13.2")
     // Android supplies org.json on devices, while local JVM tests otherwise receive a stub.
     testImplementation("org.json:json:20250517")

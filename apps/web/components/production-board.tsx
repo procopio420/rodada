@@ -101,6 +101,13 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   }
 
   const waiting = items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
+  // Group presentation by canonical Order identity; legacy items remain independent.
+  const orderGroups = new Map<string, Item[]>();
+  for (const item of waiting) {
+    const key = item.order_id ? `order:${item.order_id}` : `item:${item.id}`;
+    const group = orderGroups.get(key) ?? [];
+    group.push(item); orderGroups.set(key, group);
+  }
   const ready = items.filter(item => item.state === "READY");
   const inTransit = items.filter(item => item.state === "PICKED_UP");
   const disabled = connectivity.state === "OFFLINE" || !!message || changingProductId !== null || changingItemId !== null;
@@ -138,11 +145,13 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationTickets" aria-labelledby="queue-title" aria-busy={loading}>
         <div className="stationLabel"><h2 id="queue-title">Em produção</h2>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">Por pedido · mais antigo primeiro</p>
-        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : waiting.map(item => <article className="stationTicket" key={item.id}>
-          <strong className="stationTab">{item.tab_label || "Sem identificação"}</strong>
+        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${group[0].tab_label || "Sem identificação"}`}>
+          <strong className="stationTab">{group[0].tab_label || "Sem identificação"}</strong>
+          <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
           <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
           {next[item.state] && <button className="buttonPrimary" disabled={disabled} aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`} onClick={() => void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id)}>{changingItemId === item.id ? "Salvando…" : next[item.state].label}</button>}
-        </article>)}
+          </article>)}</div>
+        </div>)}
         {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
       </section>
       <section className="stationPass" aria-labelledby="ready-title" aria-busy={loading}>

@@ -1,0 +1,47 @@
+{
+  "source": "http://127.0.0.1:3125/prototype/references/night/Main.dc.html",
+  "sha256": "912b59ca1bfc6f0f7c92927ac6e0d8f4f663963f34f7adbb6a228e48c98d0a2f",
+  "normalization": "320px width; identical value/placeholder; isolated .inp, original stage inheritance; real Field label excluded from input crop and measured separately",
+  "measurements": [
+    {
+      "width": 320,
+      "height": 56,
+      "styles": {
+        "height": "56px",
+        "borderRadius": "10px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "borderWidth": "0px",
+        "boxShadow": "rgb(77, 67, 53) 0px 0px 0px 1.5px inset",
+        "fontFamily": "Archivo, ui-sans-serif, system-ui, sans-serif",
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "fontStretch": "100%",
+        "letterSpacing": "normal",
+        "lineHeight": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(37, 32, 25)"
+      }
+    },
+    {
+      "width": 320,
+      "height": 56,
+      "styles": {
+        "height": "56px",
+        "borderRadius": "10px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "borderWidth": "0px",
+        "boxShadow": "rgb(77, 67, 53) 0px 0px 0px 1.5px inset",
+        "fontFamily": "Archivo, system-ui, sans-serif",
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "fontStretch": "100%",
+        "letterSpacing": "normal",
+        "lineHeight": "normal",
+        "color": "rgb(243, 236, 225)",
+        "backgroundColor": "rgb(37, 32, 25)"
+      }
+    }
+  ]
+}

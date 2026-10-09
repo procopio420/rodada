@@ -1,0 +1,14 @@
+{
+  "method": "First full suite versus serial focused repetition, SHA256 of input crops",
+  "matches": {
+    "normal.reference.png": "2530de4247c46c32855a499d23f9f4034d3a8b47e8080a32f539563a23dc86f4",
+    "normal.actual.png": "fa6094e55a9a81b5d3a9c0e11ae244b4a5d6dd2346b732e8be096763355cbc4e",
+    "normal.diff.png": "a686965dd598de6eaeddfd976d789a045ba3b07d6208cc5d7fe764ae11a7c591",
+    "focus.reference.png": "a95b79f0ae9e9191f4b93e86231196e1211b2ebe74b8d00c536b2df15bc0a164",
+    "focus.actual.png": "19ecc3543220eeaad546a786e4c60e76faed966f0d682fa5e30bf71cfefdd619",
+    "focus.diff.png": "af12edf3ca327ed9221b50898c04da65d9662e0efcd6c1eb837f4eb8c86eebc5",
+    "placeholder.reference.png": "acc3042a1b17d431b35636be070acd1422d6721cae99ee7b0a4d307914a77f77",
+    "placeholder.actual.png": "c32d387e364eb5605530bbd9d3e9076039e0ae577bdee641db87d404572ece47",
+    "placeholder.diff.png": "a07e75b15850e1ca3875e952bff469b3380d53fe54135c685f97855f4603005a"
+  }
+}

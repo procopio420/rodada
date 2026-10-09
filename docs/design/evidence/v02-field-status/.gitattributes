@@ -1,0 +1,2 @@
+# Preserve capture bytes so recorded SHA256 survives checkout on Windows/Linux.
+* -text

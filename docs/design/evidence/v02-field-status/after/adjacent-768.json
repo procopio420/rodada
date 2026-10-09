@@ -1,0 +1,89 @@
+[
+  {
+    "station": "kitchen",
+    "width": 768,
+    "field": {
+      "x": 33,
+      "y": 876.1875,
+      "width": 702,
+      "height": 56
+    },
+    "badges": [
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      }
+    ]
+  },
+  {
+    "station": "bar",
+    "width": 768,
+    "field": {
+      "x": 33,
+      "y": 876.1875,
+      "width": 702,
+      "height": 56
+    },
+    "badges": [
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      },
+      {
+        "text": "Disponível",
+        "state": "success",
+        "height": 28,
+        "fontSize": "12px",
+        "radius": "4px"
+      }
+    ]
+  }
+]
