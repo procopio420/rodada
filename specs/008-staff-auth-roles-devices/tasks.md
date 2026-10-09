@@ -71,4 +71,4 @@
 - [x] Reproduce one success and seven AUTH_REQUIRED responses using a single rotating credential.
 - [x] Coordinate parallel/late refresh without changing API lifetimes or authorization.
 - [x] Verify regression, revocation, adjacent screens, typecheck/build and existing suites.
-- [ ] Update live demo Web and record/publish evidence on draft PR.
+- [x] Update live demo Web and record/publish evidence on draft PR — [report](../../docs/development/demo-auth-refresh-2026-10-09.md), code0c60590; no main merge.

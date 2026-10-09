@@ -57,3 +57,5 @@ Abrir http://127.0.0.1:3119/staff; /pos, /bar, /kitchen, /cash, /manage, /report
 Restam fora deste aceite: device físico/LAN/BYOD, private Tap SDK/Pix/liquidação, impressão física/fiscal, rede do bar, restore de backup e paridade visual integral. Não precisam bloquear este roteiro manual supervisionado. Para mostrar algo desses itens é necessário seu gate próprio. Native screenshot regression completa não foi ampliada neste recorte. CI remoto tem estado separado e não é inferido dos passes locais.
 
 Publicação: branch codex/demo-functional enviada e [PR61 em rascunho](https://github.com/procopio420/rodada/pull/61) criado, sem merge. CI remoto é acompanhado separadamente dos checks locais acima.
+
+Correção posterior da sessão Web: [renovação concorrente e gates atuais](demo-auth-refresh-2026-10-09.md). Os resultados acima continuam específicos do commit original; a correção posterior tem suas próprias evidências.

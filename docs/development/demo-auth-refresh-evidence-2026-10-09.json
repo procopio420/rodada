@@ -1,0 +1,40 @@
+{
+  "code_commit": "0c60590bba46bba8d64f90117f8359adf658e4a2",
+  "web": "http://127.0.0.1:3119",
+  "before": {
+    "same_refresh_parallel_requests": 8,
+    "success": 1,
+    "AUTH_REQUIRED": 7
+  },
+  "after_live": {
+    "same_refresh_parallel_requests": 8,
+    "success": 8,
+    "failures": 0
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "build": "PASS",
+    "auth_unit_pass": 4,
+    "realtime_pass": 8,
+    "postgres_browser_integration_pass": 10,
+    "visual_pass": 173,
+    "upstream_outage": {
+      "status": 503,
+      "code": "UPSTREAM_UNAVAILABLE",
+      "set_cookie_count": 0
+    },
+    "revocation": "401 SESSION_REVOKED; privileged cookies removed"
+  },
+  "preserved": {
+    "api_pid": 23840,
+    "dispatcher_pid": 29948,
+    "postgres_port": 55459,
+    "demo_database": "rodada_demo",
+    "original_branch": "codex/ux-operational-polish",
+    "old_demo_ports": [
+      3000,
+      8000
+    ]
+  },
+  "limitation": "Single Web process; multiple replicas not validated; no new full API or Android suite in this Web-only correction"
+}
