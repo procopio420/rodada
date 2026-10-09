@@ -72,3 +72,11 @@
 - [x] Customer/Tab/Order data never enters generation payload
 - [x] rename/price/availability changes preserve the ProductIcon 1:1 identity
 - [x] all surfaces and autocomplete resolve the same published asset
+
+## Independent closure — 2026-10-09
+
+- [x] Real unconfigured gateway exhausts three attempts without blocking a staff order; upload/reset keep one ProductIcon identity.
+- [x] Existing Catalog upgrade, concurrent creation, identity, privacy, fallback and browser lifecycle suites revalidated.
+- [ ] Real provider artwork approval at 48x48: safe area, legibility, consistency and no text/logos — EXTERNAL_BLOCKED (no provider credentials).
+
+Criterion-level evidence: `docs/development/near-ready-specs-closure-2026-10-09.md`.
