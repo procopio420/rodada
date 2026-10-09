@@ -2,7 +2,10 @@ import { test, expect } from "@playwright/test";
 import { fixture, stable, layoutAndA11y } from "./fixtures";
 test("pricing command waits for canonical pricing to finish loading", async ({ page }) => {
   await fixture(page);
-  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000 }] } }));
+  const bill = { id: "slow-tab", version: 1, display_label: "Slow pricing", state: "OPEN", exposure_cents: 1000, charges_cents: 1000, payments_cents: 0, orders: [], payments: [], refund_required_corrections: [] };
+  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [bill] } }));
+  // Selection reads Tab detail separately from pricing; both must identify the same canonical bill.
+  await page.route("**/api/pos/tabs/slow-tab/", r => r.fulfill({ json: bill }));
   let release!: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });
   await page.route("**/api/pos/tabs/slow-tab/pricing/", async r => {
@@ -50,7 +53,10 @@ for (const width of [360, 390, 768]) {
 
 test("pricing preview waits for the canonical bill read", async ({ page }) => {
   await fixture(page);
-  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "tab-loading", version: 1, display_label: "Conta carregando", state: "OPEN", exposure_cents: 1000 }] } }));
+  const bill = { id: "tab-loading", version: 1, display_label: "Conta carregando", state: "OPEN", exposure_cents: 1000, charges_cents: 1000, payments_cents: 0, orders: [], payments: [], refund_required_corrections: [] };
+  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [bill] } }));
+  // Selection reads Tab detail separately from pricing; both must identify the same canonical bill.
+  await page.route("**/api/pos/tabs/tab-loading/", r => r.fulfill({ json: bill }));
   let release!: () => void;
   const held = new Promise<void>(resolve => { release = resolve; });
   await page.route("**/api/pos/tabs/tab-loading/pricing/", async route => {
