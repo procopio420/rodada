@@ -90,3 +90,15 @@ A matriz passou **102 testes visuais/acessibilidade**, nove telas nas cinco larg
 **5 testes reais de navegador** passaram com BFF e Django, incluindo criação/reuso do catálogo, histórico guest após reload/transição, revogação, revisão antiga com novo caixa aberto e exportação CSV protegida. API local: **159 passaram, 3 casos PostgreSQL-only ignorados no SQLite**. Os jobs de CI executam a corrida de criação e testes financeiros em PostgreSQL, além do E2E real. Fontes, contrato, reprodução e limites estão na [Spec 020](../../specs/020-web-operational-completion/spec.md) e no [registro da entrega](../development/web-operational-completion.md).
 
 Permanecem fora desta slice: geração de imagens por IA, analytics avançado/insights da Spec 007, referências executáveis equivalentes para todas as telas, validação física do piloto e publicação em produção. O crédito pessoal permanece removido.
+
+## Spec 021 — Referências da noite (2026-10-08)
+
+Web: **110 testes passaram**, incluindo cinco exports DC com assets/fontes locais, primitives legadas, nove superfícies em 360/390/430/768/1280 px, estados longos/loading/erro e transição individual com falha. Typecheck e build passaram.
+
+A ação de produção equivalente ao Sistema Rodada tem **0 pixels diferentes** em 358×56. A comparação completa da Cozinha em 1280×800 tem **11,2106% de pixels diferentes**; é uma auditoria, não gate de equivalência ou baseline aceito. A fixture reproduz tickets/passe do export; seu resumo contém exemplos que não correspondem integralmente aos tickets desenhados, por isso o Web soma apenas itens reais da fixture. Equipamentos/capacidade, SLA, destinos estruturados e ownership não são inventados quando ausentes da API. O Web preserva transições individuais, texto integral e catálogo conectado após produção.
+
+Artefatos locais: `visual-artifacts/new-system-production-action.*` e `visual-artifacts/new-kitchen-1280.*`. Fontes e decisões em [KB](prototype-integration.md) e [Spec 021](../../specs/021-prototype-design-integration/spec.md). Atendimento recebe o tema compartilhado; paridade visual/fluxo nativa completa não é declarada.
+
+## Próxima entrega — paridade visual atualizada
+
+O [plano pixel-perfect](pixel-perfect-implementation-plan.md) e a [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) definem como alcançar fidelidade por tela/estado aos exports atualizados. A integração de tema/componentes não equivale a paridade completa; implementação e novos gates permanecem pendentes.

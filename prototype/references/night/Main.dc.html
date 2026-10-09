@@ -1,0 +1,1703 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Rodada · protótipo da noite</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>
+body{margin:0;background:#0C0A08}
+sc-if,sc-for,dc-import{display:contents}
+.stage{--g0:#120F0C;--g1:#1B1713;--g2:#252019;--g3:#312A21;--ln:#3A3228;--ln2:#4D4335;--tx:#F3ECE1;--mu:#BBAE9B;--dm:#A39686;--amb:#F5A524;--ambbg:#3A2A10;--red:#FF5D47;--redbg:#3D1712;--grn:#93DB8C;--grnbg:#16301A;--blu:#82B8FF;--blubg:#15253B;--vio:#C3A6FF;--viobg:#2A2140;--casa:#F2CFA4;--casabg:#4A2617;--ink:#17130F;width:1760px;height:1060px;box-sizing:border-box;padding:40px;display:flex;gap:40px;align-items:flex-start;background:#0C0A08;color:var(--tx);font-family:'Archivo',ui-sans-serif,system-ui,sans-serif;font-size:16px;-webkit-font-smoothing:antialiased}
+.stage button{font-family:inherit;color:inherit;cursor:pointer}
+.stage svg{flex:none}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.tn{font-variant-numeric:tabular-nums}
+
+/* rail */
+.rail{width:330px;flex:none;height:980px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.disc{width:30px;height:30px;border-radius:50%;background:var(--amb);box-shadow:inset 0 0 0 5px #B9740C,inset 0 0 0 8px var(--amb);flex:none}
+.brand b{font-size:36px;font-weight:900;letter-spacing:-.03em;font-stretch:88%}
+.rail p{margin:0;font-size:15px;line-height:1.45;color:var(--mu)}
+.rh{margin:0;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dm)}
+.steps{display:flex;flex-direction:column;gap:1px}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;padding:4px 8px;border:0;background:none;text-align:left;border-radius:6px;color:var(--dm);font-size:15px;font-weight:600;line-height:1.25}
+.step .n{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding-top:1px}
+.step.done{color:var(--mu)}
+.step.done .n{color:var(--grn)}
+.step.cur{background:var(--g2);color:var(--tx);box-shadow:inset 0 0 0 1.5px var(--amb)}
+.step.cur .n{color:var(--amb)}
+.step .hint{display:block;font-size:14px;color:var(--amb);font-weight:700;margin-top:3px}
+.ctrls{margin-top:auto;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--ln);padding-top:14px}
+.ctrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tgl{display:flex;justify-content:space-between;align-items:center;height:44px;padding:0 12px;border-radius:8px;border:0;background:var(--g1);font-size:15px;font-weight:700;box-shadow:inset 0 0 0 1px var(--ln)}
+.sw{width:38px;height:22px;border-radius:11px;background:var(--g3);position:relative;flex:none}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--dm);transition:left .15s}
+.tgl.on .sw{background:var(--amb)}
+.tgl.on .sw::after{left:19px;background:var(--ink)}
+
+/* devices */
+.dev{display:flex;flex-direction:column;align-items:center;gap:16px;flex:none}
+.devlabel{font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dm)}
+.phone{width:390px;height:844px;position:relative;overflow:hidden;border-radius:44px;background:var(--g0);box-shadow:0 0 0 10px #050403,0 0 0 11px #3A3128,0 30px 80px rgba(0,0,0,.6)}
+.top{position:absolute;top:0;left:0;right:0;height:60px;padding:8px 22px 0;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;z-index:3;background:var(--g0)}
+.mark{display:flex;align-items:center;gap:8px;font-weight:900;font-size:22px;letter-spacing:-.03em;font-stretch:88%}
+.mark .disc{width:18px;height:18px;box-shadow:inset 0 0 0 3px #B9740C,inset 0 0 0 5px var(--amb)}
+.shift{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--mu)}
+.av{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;background:var(--blu);color:var(--ink);flex:none}
+.netbar{position:absolute;left:0;right:0;height:40px;display:flex;align-items:center;gap:10px;padding:0 20px;font-size:15px;font-weight:600;z-index:3;animation:fade .25s}
+.netbar.off{background:var(--g3);color:var(--tx)}
+.netbar.off b{color:var(--amb)}
+.netbar.ok{background:var(--grnbg);color:var(--grn)}
+.screen{position:absolute;left:0;right:0;display:flex;flex-direction:column;overflow:hidden}
+.scroll{flex:1;overflow-y:auto;min-height:0;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+
+/* type */
+.h1{margin:0;font-size:46px;line-height:.9;font-weight:900;font-stretch:68%;letter-spacing:.01em;text-transform:uppercase}
+.ahead{padding:8px 20px 14px;display:flex;align-items:flex-end;justify-content:space-between}
+.clk{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--mu)}
+.grp{padding:18px 20px 8px;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dm);display:flex;justify-content:space-between;align-items:center}
+.grp.blue{color:var(--blu)}
+
+/* counters */
+.cnt{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ln);border-bottom:1px solid var(--ln)}
+.cnt div{padding:12px 14px 14px 20px;display:flex;flex-direction:column;gap:3px}
+.cnt div+div{border-left:1px solid var(--ln);padding-left:14px}
+.cnt b{font-size:40px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.cnt span{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.c-ready{color:var(--grn)}
+.c-call{color:var(--amb)}
+.c-money{color:var(--vio)}
+.cnt .zero{color:var(--dm)}
+
+/* run suggestion */
+.sug{margin:14px 16px 4px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 12px 12px 16px;background:var(--blubg);border-radius:10px;box-shadow:inset 0 0 0 1px #2B4466;animation:fade .3s}
+.sug .k{font-size:14px;font-weight:800;letter-spacing:.1em;color:var(--blu);text-transform:uppercase;display:flex;gap:6px;align-items:center}
+.sug .p{font-size:24px;font-weight:850;font-stretch:78%;margin-top:3px}
+.sug .l{font-size:15px;color:var(--mu);margin-top:2px}
+
+/* queue rows */
+.row{display:grid;grid-template-columns:80px minmax(0,1fr) 108px;border-bottom:1px solid var(--ln);min-height:112px}
+.row.mine{background:var(--blubg)}
+.row.flash{animation:claim 1.2s ease-out}
+.age{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-right:1px solid var(--ln);text-align:center}
+.age .t{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;line-height:1}
+.age .kl{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:4px}
+.l0{color:var(--mu)}
+.l1{color:var(--amb);background:var(--ambbg)}
+.l2{background:var(--amb);color:var(--ink)}
+.l3{background:var(--red);color:var(--ink)}
+.l4{background:var(--red);color:var(--ink);animation:beat 1.6s ease-in-out infinite}
+.k-ready{color:var(--grn)}
+.k-call{color:var(--amb)}
+.k-bill,.k-limit{color:var(--vio)}
+.rb{padding:14px 8px 14px 16px;display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0}
+.pl{font-size:30px;line-height:1;font-weight:850;font-stretch:76%;white-space:nowrap}
+.pl span{color:var(--mu);font-weight:700}
+.wh{font-size:18px;font-weight:650;line-height:1.2}
+.nm{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hs{color:var(--casa);display:inline-flex}
+.ra{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:6px;padding:12px 16px 12px 0}
+.conf{font-size:14px;font-weight:700;color:var(--blu);text-align:center}
+.trow{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:0 20px;min-height:56px;border-bottom:1px solid var(--ln);color:var(--mu);font-size:16px}
+.trow .t{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px}
+.trow b{color:var(--tx);font-weight:800}
+.trow .ow{display:flex;align-items:center;gap:6px;color:var(--blu);font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.empty{padding:40px 24px;text-align:center;color:var(--mu);font-size:18px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.empty b{color:var(--tx);font-size:26px;font-stretch:80%;font-weight:850}
+
+/* peak */
+.pkh{padding:4px 20px 14px;display:flex;flex-direction:column;gap:12px}
+.pkh .lab{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amb)}
+.pkc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pkc div{background:var(--g1);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;box-shadow:inset 0 0 0 1px var(--ln)}
+.pkc b{font-size:48px;line-height:1;font-weight:850;font-variant-numeric:tabular-nums}
+.pkc span{font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.pkc .late{color:var(--red)}
+.row.pk{grid-template-columns:96px minmax(0,1fr) 120px;min-height:104px}
+.row.pk .t{font-size:28px}
+.row.pk .pl{font-size:38px}
+.row.pk .wh{font-size:20px}
+.calm{padding:14px 20px;color:var(--dm);font-size:15px;font-weight:700;display:flex;justify-content:space-between}
+
+/* buttons */
+.btn{appearance:none;border:0;border-radius:8px;height:56px;padding:0 14px;background:var(--tx);color:var(--ink) !important;font-size:18px;font-weight:850;font-stretch:84%;letter-spacing:.06em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);white-space:nowrap;box-sizing:border-box}
+.btn:active{transform:translateY(2px);box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.btn.sec{background:var(--g2);color:var(--tx) !important;box-shadow:inset 0 0 0 1.5px var(--ln2),inset 0 -4px 0 rgba(0,0,0,.3)}
+.btn.blue{background:var(--blu)}
+.btn.go{background:var(--grn)}
+.btn.vio{background:var(--vio)}
+.btn.amb{background:var(--amb)}
+.btn.w{width:100%}
+.btn.xl{height:68px;font-size:22px;border-radius:10px}
+.btn.xxl{height:112px;font-size:38px;border-radius:14px;letter-spacing:.08em}
+.btn.sm{height:48px;font-size:16px}
+.btn[disabled]{opacity:.3;pointer-events:none}
+.iconbtn{width:48px;height:48px;border:0;border-radius:10px;background:var(--g2);display:inline-flex;align-items:center;justify-content:center;color:var(--tx);box-shadow:inset 0 0 0 1px var(--ln);flex:none}
+
+/* chips */
+.casa{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:4px;background:var(--casabg);color:var(--casa);font-size:14px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.rel{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:4px;box-shadow:inset 0 0 0 1.5px var(--ln2);color:var(--mu);font-size:14px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.loc{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:4px;border:0;background:var(--g2);color:var(--tx);font-size:16px;font-weight:700;box-shadow:inset 0 0 0 1px var(--ln)}
+
+/* nav */
+.nav{position:absolute;left:0;right:0;bottom:0;height:84px;display:grid;grid-template-columns:1fr 136px 1fr;background:var(--g1);border-top:1px solid var(--ln);padding-bottom:8px;box-sizing:border-box;z-index:3}
+.nb{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dm) !important;position:relative}
+.nb.on{color:var(--tx) !important}
+.nb.on::before{content:'';position:absolute;top:-1px;left:26%;right:26%;height:3px;background:var(--tx)}
+.badge{position:absolute;top:10px;left:calc(50% + 8px);min-width:22px;height:22px;border-radius:11px;background:var(--amb);color:var(--ink);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px;box-sizing:border-box;letter-spacing:0}
+.ngo{margin:10px 4px 2px;border:0;border-radius:12px;background:var(--tx);color:var(--ink) !important;font-size:18px;font-weight:900;letter-spacing:.08em;font-stretch:84%;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+
+/* contas */
+.srch{padding:0 16px 10px;position:relative}
+.srch svg{position:absolute;left:32px;top:18px;color:var(--mu)}
+.inp{height:56px;border-radius:10px;border:0;background:var(--g2);box-shadow:inset 0 0 0 1.5px var(--ln2);color:var(--tx);font-size:20px;font-weight:600;padding:0 16px;font-family:inherit;width:100%;box-sizing:border-box;outline:none}
+.inp:focus{box-shadow:inset 0 0 0 2px var(--tx)}
+.inp::placeholder{color:var(--dm)}
+.srch .inp{padding-left:48px}
+.cr{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 20px;border:0;border-bottom:1px solid var(--ln);background:none;width:100%;text-align:left;min-height:68px;box-sizing:border-box}
+.cr .avw{grid-row:1 / span 2;grid-column:1}
+.cr .n{grid-column:2;font-size:21px;font-weight:800;font-stretch:88%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr .s{grid-column:2;display:flex;gap:8px;align-items:center;font-size:15px;color:var(--mu)}
+.cr .a{grid-row:1 / span 2;grid-column:3;text-align:right;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.cr .a small{display:block;font-size:14px;color:var(--dm);font-weight:700}
+.cr.new .n{color:var(--amb)}
+
+/* conta */
+.tabh{padding:4px 20px 14px;display:flex;flex-direction:column;gap:10px}
+.backrow{display:flex;justify-content:space-between;align-items:center}
+.lnk{border:0;background:none;color:var(--mu) !important;font-size:15px;font-weight:700;height:44px;padding:0 4px;text-decoration:underline;text-underline-offset:4px}
+.tname{margin:0;font-size:40px;line-height:.92;font-weight:900;font-stretch:68%;text-transform:uppercase}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.expo{padding:14px 20px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);background:var(--g1)}
+.mrow{display:flex;align-items:flex-end;gap:10px}
+.money{display:flex;align-items:baseline;gap:6px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.money .cur{font-size:22px;color:var(--mu);font-weight:700;letter-spacing:0}
+.money .v{font-size:58px;line-height:.85}
+.money .u{font-size:15px;color:var(--mu);font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-left:4px}
+.lim{margin-left:auto;text-align:right;font-size:14px;color:var(--mu);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.lim b{display:block;font-size:22px;color:var(--tx);font-variant-numeric:tabular-nums;letter-spacing:0;margin-top:2px}
+.ebar{height:14px;background:var(--g3);border-radius:3px;display:flex;overflow:hidden}
+.ebar .a{background:#7C7062;transition:width .5s}
+.ebar .b{background:var(--tx);transition:width .5s}
+.ebar.near .a{background:#7A68A3}
+.ebar.near .b{background:var(--vio)}
+.fal{font-size:18px;font-weight:750}
+.fal.near{color:var(--vio)}
+.brk{font-size:15px;color:var(--mu)}
+.sec{padding:14px 20px 6px;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dm)}
+.li{display:grid;grid-template-columns:36px 32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 20px;border-bottom:1px solid var(--ln);font-size:18px;font-weight:600;min-height:52px;box-sizing:border-box}
+.li .q{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:20px}
+.li .st{font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-align:right}
+.st-prep{color:var(--mu)}
+.st-ready{color:var(--grn)}
+.st-done{color:var(--dm)}
+.st-kit{color:var(--mu)}
+.st-q{color:var(--amb)}
+.st-pay{color:var(--grn)}
+.st-way{color:var(--blu)}
+.need{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:4px;background:var(--vio);color:var(--ink);font-size:14px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+.rel.vio{box-shadow:inset 0 0 0 1.5px var(--vio);color:var(--vio)}
+.ovl{font-size:15px;color:var(--vio);font-weight:700}
+.acts.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.acts.four .btn{font-size:15px;padding:0 4px;flex-direction:column;gap:3px;height:64px}
+.acts.four .span3{grid-column:1 / -1}
+.warn{padding:10px 12px;border-radius:8px;background:var(--viobg);color:var(--vio);font-size:16px;font-weight:700;line-height:1.3;box-shadow:inset 0 0 0 1px #4A3B6E}
+.sumlist{display:flex;flex-direction:column;max-height:230px;overflow-y:auto;scrollbar-width:none}
+.sumrow{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid var(--ln);font-size:15px;color:var(--mu)}
+.sumrow b{font-family:'JetBrains Mono',monospace;color:var(--tx);font-size:14px}
+.sumrow span strong{color:var(--tx);font-weight:700}
+.tims{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tims div{background:var(--g2);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mu);font-weight:600;line-height:1.2}
+.tims b{font-family:'JetBrains Mono',monospace;font-size:22px;color:var(--tx)}
+.hist{padding:4px 20px 16px;display:flex;flex-direction:column;gap:6px;font-size:16px;color:var(--mu)}
+.hist div{display:flex;justify-content:space-between}
+.acts{padding:12px 16px 14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;border-top:1px solid var(--ln);background:var(--g0)}
+.span3{grid-column:1 / -1}
+
+/* pedir */
+.posh{padding:22px 16px 12px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ln)}
+.tgt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;border:0;background:none;text-align:left;padding:0}
+.tgt small{font-size:14px;font-weight:800;letter-spacing:.1em;color:var(--dm);text-transform:uppercase}
+.tgt b{font-size:24px;font-weight:850;font-stretch:78%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;gap:6px;align-items:center}
+.glbl{padding:14px 20px 8px;align-items:center;font-size:14px;font-weight:800;letter-spacing:.12em;color:var(--dm);text-transform:uppercase;display:flex;justify-content:space-between}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0 16px}
+.tw{position:relative;height:108px}
+.tw.s2{grid-column:span 2}
+.tile{position:absolute;inset:0;border:0;border-radius:10px;background:var(--g2);color:var(--tx) !important;text-align:left;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:inset 0 0 0 1px var(--ln),inset 0 -4px 0 rgba(0,0,0,.35);transition:background .12s}
+.tile:active{transform:scale(.97)}
+.tile .tnm{font-size:23px;line-height:1;font-weight:850;font-stretch:76%;text-transform:uppercase}
+.tw.s2 .tile .tnm{font-size:40px}
+.tile .tsb{font-size:14px;color:var(--mu);font-weight:600;margin-top:4px;display:block}
+.tile .tpr{font-size:15px;font-weight:700;color:var(--mu);font-variant-numeric:tabular-nums}
+.tile .tq{position:absolute;top:8px;right:10px;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:28px;line-height:1}
+.tw.on .tile{background:var(--tx);color:var(--ink) !important;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+.tw.on .tile .tsb,.tw.on .tile .tpr{color:#5E5143}
+.minus{position:absolute;right:6px;bottom:6px;width:44px;height:44px;border-radius:8px;border:0;background:var(--ink);color:var(--tx) !important;display:flex;align-items:center;justify-content:center}
+.tray{margin-top:auto;padding:14px 16px 18px;background:var(--g1);border-top:1px solid var(--ln);display:flex;flex-direction:column;gap:10px}
+.tl{display:flex;flex-wrap:wrap;gap:6px;min-height:32px;align-items:center;font-size:15px;color:var(--dm)}
+.tc{height:32px;padding:0 10px;border-radius:4px;background:var(--g3);font-size:16px;font-weight:700;display:inline-flex;align-items:center;gap:6px;color:var(--tx)}
+.tc b{font-family:'JetBrains Mono',monospace}
+.tsum{display:flex;justify-content:space-between;align-items:baseline}
+.routes{font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.tot{font-size:30px;font-weight:850;font-variant-numeric:tabular-nums}
+
+/* rodada */
+.runh{padding:30px 20px 14px;display:flex;flex-direction:column;gap:12px;background:var(--blubg);border-bottom:1px solid #2B4466}
+.runk{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--blu)}
+.segs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+.seg{height:8px;border-radius:2px;background:#2B4466}
+.seg.d{background:var(--grn)}
+.seg.c{background:var(--blu)}
+.stop{flex:1;padding:14px 20px 8px;display:flex;flex-direction:column;gap:8px;animation:slidein .28s ease-out}
+.sz{font-size:18px;color:var(--mu);font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+.sp{font-size:104px;line-height:.82;font-weight:900;font-stretch:66%;letter-spacing:-.01em}
+.si{font-size:40px;line-height:1.05;font-weight:800;font-stretch:78%}
+.sn{font-size:20px;color:var(--mu);display:flex;gap:8px;align-items:center}
+.nexts{border-top:1px solid var(--ln);padding:12px 20px;display:flex;flex-direction:column;gap:8px}
+.nx{display:flex;gap:12px;font-size:17px;color:var(--mu);align-items:baseline}
+.nx b{color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:17px;width:44px}
+.runa{padding:10px 14px 24px;display:flex;flex-direction:column;gap:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fin{flex:1;padding-top:8px !important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+.fin b{font-size:44px;font-weight:900;font-stretch:70%;text-transform:uppercase;line-height:.95}
+.fin span{font-size:18px;color:var(--mu)}
+.bigok{width:88px;height:88px;border-radius:50%;background:var(--grn);color:var(--ink);display:flex;align-items:center;justify-content:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+
+/* sheets */
+.scrim{position:absolute;inset:0;background:rgba(5,4,3,.64);z-index:5;animation:fade .18s;border:0;padding:0;width:100%;height:100%}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:6;background:var(--g1);border-radius:22px 22px 0 0;box-shadow:0 -1px 0 var(--ln2);padding:10px 20px 30px;display:flex;flex-direction:column;gap:14px;animation:up .24s cubic-bezier(.2,.8,.2,1)}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--ln2);align-self:center}
+.sht{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.sht h3{margin:0;font-size:34px;line-height:.95;font-weight:900;font-stretch:70%;text-transform:uppercase}
+.sht small{display:block;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dm);margin-bottom:6px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline;font-size:18px;color:var(--mu);font-weight:600}
+.kv b{color:var(--tx);font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.kv .big{font-size:36px}
+.kv .lineb{grid-column:1 / -1;height:1px;background:var(--ln)}
+.seg4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.sg{height:52px;border:0;border-radius:8px;background:var(--g2);font-size:16px;font-weight:800;box-shadow:inset 0 0 0 1px var(--ln)}
+.sg.on{background:var(--tx);color:var(--ink) !important}
+.pts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pt{height:56px;border:0;border-radius:8px;background:var(--g2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 0 0 1px var(--ln);padding:0 4px}
+.pt b{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:800}
+.pt span{font-size:14px;color:var(--mu);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt.free{background:none;box-shadow:inset 0 0 0 1.5px var(--ln2)}
+.amt{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
+.amt .val{text-align:center;font-size:52px;font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.amt .val small{font-size:22px;color:var(--mu);font-weight:700;margin-right:4px}
+.qk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.qk .sg{height:48px;font-size:15px}
+.mth{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mth .btn{height:64px;font-size:22px}
+.wait{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0;text-align:center}
+.qr{width:150px;height:150px;border-radius:12px;background:var(--tx);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.wait b{font-size:26px;font-weight:850;font-stretch:80%}
+.wait span{font-size:16px;color:var(--mu)}
+.prog{width:100%;height:6px;background:var(--g3);border-radius:3px;overflow:hidden;position:relative}
+.prog::after{content:'';position:absolute;top:0;bottom:0;width:40%;background:var(--amb);animation:slide 1.1s ease-in-out infinite}
+.okrow{display:flex;align-items:center;gap:14px}
+.okc{width:64px;height:64px;border-radius:50%;background:var(--grn);color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+.okrow b{display:block;font-size:30px;font-weight:900;font-stretch:72%;text-transform:uppercase;line-height:1}
+.okrow span{font-size:17px;color:var(--mu)}
+.after{padding:12px 14px;border-radius:8px;background:var(--g2);font-size:17px;font-weight:650;display:flex;gap:8px;align-items:center}
+.rt{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 14px;border-radius:8px;background:var(--g2);min-height:56px;box-sizing:border-box}
+.rt .d{font-size:16px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.rt .i{font-size:18px;font-weight:650}
+.rt .s{font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.s-ok{color:var(--grn)}
+.s-wait{color:var(--mu)}
+.s-q{color:var(--amb)}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dm)}
+.note{font-size:15px;color:var(--mu)}
+
+/* KDS */
+.kds{width:820px;height:864px;background:#0A0806;border-radius:16px;box-shadow:0 0 0 10px #050403,0 0 0 11px #3A3128,0 30px 80px rgba(0,0,0,.6);display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:68px minmax(0,1fr);overflow:hidden}
+.kh{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 20px;border-bottom:1px solid var(--ln);background:var(--g1)}
+.kh .ttl{display:flex;align-items:baseline;gap:12px}
+.kh .ttl b{font-size:34px;font-weight:900;font-stretch:68%;text-transform:uppercase}
+.kh .ttl span{font-size:16px;color:var(--mu);font-weight:600}
+.kstat{display:flex;gap:18px;font-size:15px;color:var(--mu);font-weight:700;align-items:center}
+.kstat b{color:var(--tx);font-variant-numeric:tabular-nums}
+.kcol{display:flex;flex-direction:column;min-height:0}
+.kcol.l{border-right:1px solid var(--ln)}
+.lblk{padding:16px 24px 8px;font-size:14px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--dm);display:flex;justify-content:space-between;align-items:center}
+.lblk.am{color:var(--amb)}
+.batch{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:4px 24px 4px 18px;border-bottom:1px solid var(--ln);min-height:58px}
+.batch .bn{font-size:36px;font-weight:900;font-stretch:66%;text-transform:uppercase;letter-spacing:.01em}
+.batch .bq{font-family:'JetBrains Mono',monospace;font-size:46px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.batch.new .bq{color:var(--amb);animation:bump .7s ease-out}
+.dest{display:grid;grid-template-columns:70px minmax(0,1fr) 58px 100px;gap:12px;align-items:center;padding:6px 16px 6px 24px;border-bottom:1px solid var(--ln);min-height:60px}
+.dest .dp{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;line-height:1}
+.dest .dp small{display:block;font-family:'Archivo',sans-serif;font-size:14px;color:var(--mu);font-weight:700;margin-top:4px}
+.dest .di{font-size:18px;font-weight:650;line-height:1.25}
+.dest .da{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;text-align:center;border-radius:4px;padding:6px 0}
+.dest.new{animation:newin 2.4s ease-out}
+.newtag{display:inline-block;font-family:'Archivo',sans-serif;font-size:14px;font-weight:900;letter-spacing:.1em;color:var(--ink);background:var(--amb);border-radius:3px;padding:2px 6px;margin-left:6px;vertical-align:2px}
+.shf{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 20px 8px 24px;border-bottom:1px solid var(--ln);min-height:60px}
+.shf .dp{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800}
+.shf .di{font-size:17px;font-weight:650;line-height:1.25}
+.shf .di small{display:block;font-size:14px;color:var(--mu);font-weight:600}
+.who{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;text-align:right;display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.who.wait{color:var(--amb)}
+.who.taken{color:var(--blu)}
+.who.late{color:var(--red)}
+.kit{margin-top:auto;border-top:2px solid var(--ln2);background:#100D0A}
+.kit .shf .dp{color:var(--mu)}
+
+/* imagery */
+.avi{border-radius:50%;object-fit:cover;flex:none;display:block;background:var(--g3)}
+.avini{border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--g3);color:var(--mu);font-weight:800}
+.shift .avi{width:32px;height:32px;box-shadow:0 0 0 2px var(--blu)}
+.nm .avi{width:22px;height:22px}
+.trow .avi{width:26px;height:26px;box-shadow:0 0 0 2px var(--blu)}
+.cr .avi,.cr .avini{width:44px;height:44px;font-size:18px}
+.thead{display:flex;align-items:center;gap:14px}
+.thead .avi,.thead .avini{width:64px;height:64px;font-size:26px;box-shadow:0 0 0 2px var(--ln2)}
+.sht .avi{width:56px;height:56px;box-shadow:0 0 0 2px var(--ln2)}
+.li img{width:28px;height:34px;object-fit:contain}
+.tile .tim{position:absolute;right:6px;bottom:6px;height:58px;width:46px;object-fit:contain;object-position:bottom right;pointer-events:none}
+.tw.s2 .tile .tim{height:84px;width:72px;right:16px}
+.tw.on .tile .tpr{visibility:hidden}
+.minus{left:6px;right:auto !important}
+.batch img{width:40px;height:50px;object-fit:contain}
+.shf .avi{width:24px;height:24px}
+.map{position:relative;width:350px;height:233px;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--ln);flex:none;align-self:center}
+.map>img{position:absolute;inset:0;width:100%;height:100%}
+.mzone{position:absolute;border:0;background:transparent;border-radius:6px;display:flex;align-items:flex-end;justify-content:flex-start;padding:6px 8px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mu) !important;box-sizing:border-box}
+.mzone.on{background:rgba(245,165,36,.12);box-shadow:inset 0 0 0 2px var(--amb);color:var(--amb) !important}
+.mdot{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--tx);opacity:.55;pointer-events:none}
+.mdot.me{width:16px;height:16px;margin:-8px 0 0 -8px;background:var(--amb);opacity:1;box-shadow:0 0 0 4px rgba(245,165,36,.3)}
+.mline{position:absolute;height:0;border-top:2.5px dashed var(--blu);transform-origin:0 0;opacity:.9}
+.mline.d{border-top-color:var(--grn);opacity:.6}
+.mstop{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:var(--g0);box-shadow:inset 0 0 0 2px var(--tx);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:var(--tx)}
+.mstop.d{background:var(--grn);box-shadow:none;color:var(--ink)}
+.mstop.c{background:var(--blu);box-shadow:0 0 0 5px rgba(130,184,255,.3);color:var(--ink);animation:beat 1.4s ease-in-out infinite}
+.morig{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:3px;background:var(--amb)}
+.maplbl{position:absolute;left:10px;top:8px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+.pt.here{box-shadow:inset 0 0 0 2px var(--amb)}
+.pt.here span{color:var(--amb)}
+.mth .btn svg,.acts .btn svg,.kh svg,.glbl svg,.tgl svg{flex:none}
+.tgl span.l{display:flex;align-items:center;gap:8px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+@keyframes claim{0%{background:#2E5A94}100%{background:var(--blubg)}}
+@keyframes beat{0%,100%{filter:none}50%{filter:brightness(1.25)}}
+@keyframes bump{0%{transform:scale(1.35)}100%{transform:none}}
+@keyframes newin{0%{background:#4A3310}100%{background:transparent}}
+@keyframes slide{0%{left:-40%}100%{left:100%}}
+@keyframes slidein{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+</style>
+</helmet>
+
+<div class="stage">
+
+<!-- ============ RAIL ============ -->
+<aside class="rail">
+  <div class="brand"><span class="disc"></span><b>rodada</b></div>
+  <p>Uma noite no bar, de ponta a ponta. Use o celular do garçom e a tela do Bar como se fossem de verdade — o roteiro marca cada passo sozinho.</p>
+  <h2 class="rh">Roteiro</h2>
+  <div class="steps">
+    <sc-for list="{{v.steps}}" as="st" hint-placeholder-count="17">
+      <button class="{{st.cls}}" onClick="{{st.tap}}"><span class="n">{{st.n}}</span><span>{{st.title}}<sc-if value="{{st.showHint}}" hint-placeholder-val="{{ false }}"><span class="hint">{{st.hint}}</span></sc-if></span></button>
+    </sc-for>
+  </div>
+  <div class="ctrls">
+    <sc-if value="{{v.showAdvance}}" hint-placeholder-val="{{ false }}"><button class="btn sec w" onClick="{{v.later}}">Avançar a noite · +1h20</button></sc-if>
+    <button class="btn amb w" onClick="{{v.doStep}}" disabled="{{v.allDone}}">{{v.doLabel}}</button>
+    <div class="ctrow">
+      <button class="{{v.peakCls}}" onClick="{{v.togglePeak}}"><span class="l"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>Pico</span><span class="sw"></span></button>
+      <button class="{{v.offCls}}" onClick="{{v.toggleOff}}"><span class="l"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M8.5 16.4a5 5 0 0 1 7 0"></path><path d="M5 12.6a10 10 0 0 1 4.3-2.4"></path><path d="M19 12.6a10 10 0 0 0-2.6-1.8"></path><path d="M12 20h.01"></path></svg>Sem sinal</span><span class="sw"></span></button>
+    </div>
+    <button class="btn sec sm w" onClick="{{v.reset}}">Recomeçar a noite</button>
+  </div>
+</aside>
+
+<!-- ============ PHONE ============ -->
+<div class="dev">
+<div class="phone">
+
+  <sc-if value="{{v.hasHeader}}" hint-placeholder-val="{{ true }}">
+    <header class="top">
+      <div class="mark"><span class="disc"></span>rodada</div>
+      <div class="shift"><img class="avi" sc-camel-src="{{v.meAv}}" alt="">Dani · Rua</div>
+    </header>
+  </sc-if>
+
+  <sc-if value="{{v.offline}}" hint-placeholder-val="{{ false }}">
+    <div class="netbar off" style="top: {{v.netTop}}px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"></path><path d="M8.5 16.4a5 5 0 0 1 7 0"></path><path d="M5 12.6a10 10 0 0 1 4.3-2.4"></path><path d="M19 12.6a10 10 0 0 0-2.6-1.8"></path><path d="M12 20h.01"></path></svg>
+      <b>Sem sinal</b><span>{{v.pendingLabel}}</span>
+    </div>
+  </sc-if>
+  <sc-if value="{{v.synced}}" hint-placeholder-val="{{ false }}">
+    <div class="netbar ok" style="top: {{v.netTop}}px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+      <b>Sincronizado</b><span>tudo foi enviado</span>
+    </div>
+  </sc-if>
+
+  <!-- ===== AGORA ===== -->
+  <sc-if value="{{v.isAgora}}" hint-placeholder-val="{{ true }}">
+  <section class="screen" style="top: {{v.scrTop}}px; bottom: {{v.scrBottom}}px">
+    <div class="scroll">
+
+    <sc-if value="{{v.notPeak}}" hint-placeholder-val="{{ true }}">
+      <div class="ahead"><h1 class="h1">Agora</h1><span class="clk">{{v.clock}}</span></div>
+      <div class="cnt">
+        <div class="{{v.cReady.cls}}"><b>{{v.cReady.n}}</b><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.8 2.8L16.5 9.5"></path></svg>{{v.cReady.lab}}</span></div>
+        <div class="{{v.cCall.cls}}"><b>{{v.cCall.n}}</b><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg>{{v.cCall.lab}}</span></div>
+        <div class="{{v.cMoney.cls}}"><b>{{v.cMoney.n}}</b><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>{{v.cMoney.lab}}</span></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{v.peak}}" hint-placeholder-val="{{ false }}">
+      <div class="pkh">
+        <div class="lab"><span>Modo pico · só o essencial</span><span class="clk">{{v.clock}}</span></div>
+        <div class="pkc">
+          <div><b class="c-ready">{{v.cReady.n}}</b><span class="c-ready">prontos</span></div>
+          <div><b class="late">{{v.nLate}}</b><span class="late">atrasados</span></div>
+          <div><b class="c-money">{{v.cMoney.n}}</b><span class="c-money">conta</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{v.hasSug}}" hint-placeholder-val="{{ false }}">
+      <div class="sug">
+        <div>
+          <div class="k"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.2"></circle><circle cx="18" cy="5" r="2.2"></circle><path d="M8.2 19h8.3a3.5 3.5 0 0 0 0-7h-9a3.5 3.5 0 0 1 0-7H15.8"></path></svg>Rodada · {{v.sug.zone}}</div>
+          <div class="p">{{v.sug.places}}</div>
+          <div class="l">{{v.sug.lead}}</div>
+        </div>
+        <button class="btn blue" onClick="{{v.sug.tap}}">Montar · {{v.sug.n}}</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{v.hasMine}}" hint-placeholder-val="{{ false }}">
+      <div class="grp blue"><span>Com você</span><span>{{v.mineN}}</span></div>
+      <sc-for list="{{v.mine}}" as="r" hint-placeholder-count="1">
+        <div class="{{r.cls}}">
+          <div class="{{r.ageCls}}">
+            <span class="{{r.klCls}}">
+              <sc-if value="{{r.isReady}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.8 2.8L16.5 9.5"></path></svg></sc-if>
+              <sc-if value="{{r.isCall}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg></sc-if>
+              <sc-if value="{{r.isMoney}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg></sc-if>
+              {{r.kl}}
+            </span>
+            <span class="t">{{r.age}}</span>
+          </div>
+          <div class="rb">
+            <div class="pl">{{r.place}} <span>· {{r.zone}}</span></div>
+            <div class="wh">{{r.what}}</div>
+            <div class="nm"><img class="avi" sc-camel-src="{{r.av}}" alt="">{{r.name}}<sc-if value="{{r.casa}}" hint-placeholder-val="{{ false }}"><span class="hs" aria-label="Da Casa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg></span></sc-if></div>
+          </div>
+          <div class="ra">
+            <button class="{{r.btnCls}}" onClick="{{r.tap}}">{{r.btn}}</button>
+            <sc-if value="{{r.hasConf}}" hint-placeholder-val="{{ false }}"><span class="conf">{{r.conf}}</span></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{v.hasOpen}}" hint-placeholder-val="{{ true }}">
+      <div class="grp"><span>{{v.openTitle}}</span><span>{{v.openN}}</span></div>
+      <sc-for list="{{v.open}}" as="r" hint-placeholder-count="4">
+        <div class="{{r.cls}}">
+          <div class="{{r.ageCls}}">
+            <span class="{{r.klCls}}">
+              <sc-if value="{{r.isReady}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.8 2.8L16.5 9.5"></path></svg></sc-if>
+              <sc-if value="{{r.isCall}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg></sc-if>
+              <sc-if value="{{r.isMoney}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg></sc-if>
+              {{r.kl}}
+            </span>
+            <span class="t">{{r.age}}</span>
+          </div>
+          <div class="rb">
+            <div class="pl">{{r.place}} <span>· {{r.zone}}</span></div>
+            <div class="wh">{{r.what}}</div>
+            <sc-if value="{{r.showName}}" hint-placeholder-val="{{ true }}"><div class="nm"><img class="avi" sc-camel-src="{{r.av}}" alt="">{{r.name}}<sc-if value="{{r.casa}}" hint-placeholder-val="{{ false }}"><span class="hs" aria-label="Da Casa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg></span></sc-if></div></sc-if>
+          </div>
+          <div class="ra">
+            <button class="{{r.btnCls}}" onClick="{{r.tap}}">{{r.btn}}</button>
+          </div>
+        </div>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{v.empty}}" hint-placeholder-val="{{ false }}">
+      <div class="empty"><b>Tudo em dia</b><span>Ninguém esperando por você agora.</span></div>
+    </sc-if>
+
+    <sc-if value="{{v.showTeam}}" hint-placeholder-val="{{ true }}">
+      <div class="grp"><span>Com a equipe</span><span>{{v.teamN}}</span></div>
+      <sc-for list="{{v.team}}" as="r" hint-placeholder-count="2">
+        <div class="trow">
+          <span class="t">{{r.age}}</span>
+          <span><b>{{r.place}}</b> · {{r.what}}</span>
+          <span class="ow"><img class="avi" sc-camel-src="{{r.oav}}" alt="">{{r.owner}}</span>
+        </div>
+      </sc-for>
+    </sc-if>
+    <sc-if value="{{v.peakTeam}}" hint-placeholder-val="{{ false }}">
+      <div class="calm"><span>{{v.teamLabel}}</span><span>escondido no pico</span></div>
+    </sc-if>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ===== CONTAS ===== -->
+  <sc-if value="{{v.isContas}}" hint-placeholder-val="{{ false }}">
+  <section class="screen" style="top: {{v.scrTop}}px; bottom: {{v.scrBottom}}px">
+    <div class="ahead"><h1 class="h1">Contas</h1><span class="clk">{{v.clock}}</span></div>
+    <div class="srch">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>
+      <input class="inp" type="text" placeholder="Nome ou apelido" aria-label="Buscar cliente" value="{{v.query}}" onChange="{{v.onQuery}}">
+    </div>
+    <div class="scroll">
+      <sc-for list="{{v.cgroups}}" as="g" hint-placeholder-count="2">
+        <div class="grp"><span>{{g.title}}</span><span>{{g.n}}</span></div>
+        <sc-for list="{{g.rows}}" as="c" hint-placeholder-count="4">
+          <button class="cr" onClick="{{c.tap}}">
+            <span class="avw"><sc-if value="{{c.hasAv}}" hint-placeholder-val="{{ true }}"><img class="avi" sc-camel-src="{{c.av}}" alt=""></sc-if><sc-if value="{{c.noAv}}" hint-placeholder-val="{{ false }}"><span class="avini">{{c.ini}}</span></sc-if></span>
+            <span class="n">{{c.name}}</span>
+            <span class="s">
+              <sc-if value="{{c.casa}}" hint-placeholder-val="{{ false }}"><span class="casa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</span></sc-if>
+              <sc-if value="{{c.hasRel}}" hint-placeholder-val="{{ false }}"><span class="{{c.relCls}}">{{c.rel}}</span></sc-if>
+              {{c.sub}}
+            </span>
+            <span class="a">{{c.amount}}<small>{{c.amountSub}}</small></span>
+          </button>
+        </sc-for>
+      </sc-for>
+      <sc-if value="{{v.showNew}}" hint-placeholder-val="{{ false }}">
+        <button class="cr new" onClick="{{v.newCust}}">
+          <span class="avw"><span class="avini" style="color: var(--amb)">+</span></span>
+          <span class="n">Novo: “{{v.query}}”</span>
+          <span class="s">Só o nome. O resto dá pra completar depois.</span>
+          <span class="a"></span>
+        </button>
+      </sc-if>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ===== CONTA (tab) ===== -->
+  <sc-if value="{{v.isConta}}" hint-placeholder-val="{{ false }}">
+  <section class="screen" style="top: {{v.scrTop}}px; bottom: {{v.scrBottom}}px">
+    <div class="scroll">
+      <div class="tabh">
+        <div class="backrow">
+          <button class="iconbtn" aria-label="Voltar" onClick="{{v.goContas}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <button class="lnk" onClick="{{v.toggleHist}}">{{v.histLabel}}</button>
+        </div>
+        <div class="thead"><sc-if value="{{v.tb.hasAv}}" hint-placeholder-val="{{ true }}"><img class="avi" sc-camel-src="{{v.tb.av}}" alt=""></sc-if><sc-if value="{{v.tb.noAv}}" hint-placeholder-val="{{ false }}"><span class="avini">{{v.tb.ini}}</span></sc-if><h2 class="tname">{{v.tb.name}}</h2></div>
+        <div class="meta">
+          <sc-if value="{{v.tb.casa}}" hint-placeholder-val="{{ false }}"><span class="casa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</span></sc-if>
+          <sc-if value="{{v.tb.hasRel}}" hint-placeholder-val="{{ false }}"><span class="{{v.tb.relCls}}">{{v.tb.rel}}</span></sc-if>
+          <sc-if value="{{v.tb.needs}}" hint-placeholder-val="{{ false }}"><span class="need">Precisa de ação</span></sc-if>
+          <button class="loc" onClick="{{v.move}}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>{{v.tb.where}}</button>
+        </div>
+      </div>
+      <div class="expo">
+        <div class="mrow">
+          <div class="money"><span class="cur">R$</span><span class="v">{{v.tb.open}}</span><span class="u">aberto</span></div>
+          <div class="lim">limite<b>R$ {{v.tb.lim}}</b></div>
+        </div>
+        <div class="{{v.tb.barCls}}"><span class="b" style="width: {{v.tb.wA}}%"></span></div>
+        <div class="{{v.tb.falCls}}">{{v.tb.fal}}</div>
+        <sc-if value="{{v.tb.hasOv}}" hint-placeholder-val="{{ false }}"><div class="ovl">{{v.tb.ov}}</div></sc-if>
+        <div class="brk">{{v.tb.brk}}</div>
+      </div>
+      <sc-if value="{{v.histOpen}}" hint-placeholder-val="{{ false }}">
+        <div class="sec">Últimas noites</div>
+        <div class="hist">
+          <div><span>Sexta</span><span>R$ 180 · Pix</span></div>
+          <div><span>Quarta</span><span>R$ 95 · dinheiro</span></div>
+          <div><span>Sábado passado</span><span>R$ 210 · Pix</span></div>
+        </div>
+      </sc-if>
+      <div class="sec">Hoje</div>
+      <sc-for list="{{v.tb.items}}" as="it" hint-placeholder-count="2">
+        <div class="li"><span class="q">{{it.q}}</span><span><sc-if value="{{it.hasImg}}" hint-placeholder-val="{{ true }}"><img sc-camel-src="{{it.img}}" alt=""></sc-if></span><span>{{it.name}}</span><span class="{{it.stCls}}">{{it.st}}</span></div>
+      </sc-for>
+      <sc-if value="{{v.tb.noItems}}" hint-placeholder-val="{{ false }}">
+        <div class="li"><span class="q">—</span><span></span><span style="color: var(--mu)">Nada lançado ainda</span><span></span></div>
+      </sc-if>
+      <sc-if value="{{v.tb.hasPays}}" hint-placeholder-val="{{ false }}">
+        <div class="sec">Pagamentos</div>
+        <sc-for list="{{v.tb.pays}}" as="p" hint-placeholder-count="1">
+          <div class="li"><span class="q" style="color: var(--grn)">✓</span><span style="color: var(--grn)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg></span><span>{{p.label}}</span><span class="st st-pay">{{p.amt}}</span></div>
+        </sc-for>
+      </sc-if>
+    </div>
+    <div class="acts four">
+      <button class="btn xl span3" onClick="{{v.goPedir}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Pedir</button>
+      <button class="btn sec" onClick="{{v.receive}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>Receber</button>
+      <button class="btn sec" onClick="{{v.move}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>Mover</button>
+      <button class="btn sec" onClick="{{v.callSheet}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg>Chamar</button>
+      <button class="btn sec" onClick="{{v.closeTab}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>Fechar</button>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ===== PEDIR ===== -->
+  <sc-if value="{{v.isPedir}}" hint-placeholder-val="{{ false }}">
+  <section class="screen" style="top: {{v.scrTop}}px; bottom: 0px">
+    <div class="posh">
+      <button class="tgt" onClick="{{v.pos.targetTap}}">
+        <small>{{v.pos.forLabel}}</small>
+        <b>{{v.pos.target}}<sc-if value="{{v.pos.casa}}" hint-placeholder-val="{{ false }}"><span class="hs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg></span></sc-if></b>
+      </button>
+      <button class="iconbtn" aria-label="Fechar pedido" onClick="{{v.pos.close}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div class="glbl"><span style="display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z"></path></svg>Cozinha</span><span>cada toque = +1</span></div>
+    <div class="pgrid">
+      <sc-for list="{{v.pos.ktiles}}" as="p" hint-placeholder-count="3">
+        <div class="{{p.cls}}">
+          <button class="tile" onClick="{{p.tap}}"><span><span class="tnm">{{p.name}}</span><span class="tsb">{{p.sub}}</span></span><span class="tpr">{{p.price}}</span><img class="tim" sc-camel-src="{{p.img}}" alt=""><sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><span class="tq">{{p.q}}</span></sc-if></button>
+          <sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><button class="minus" aria-label="Tirar um" onClick="{{p.sub1}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"></path></svg></button></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div class="glbl"><span style="display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h10v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"></path><path d="M15 11h2.5a2.5 2.5 0 0 1 0 5H15"></path><path d="M5 8c0-2.5 1.5-4 4-4 1 0 1.5.5 2 1 .5-.5 1.5-1 2.5-1 1.5 0 2 1.5 1.5 4"></path></svg>Bar</span><span></span></div>
+    <div class="pgrid">
+      <sc-for list="{{v.pos.btiles}}" as="p" hint-placeholder-count="8">
+        <div class="{{p.cls}}">
+          <button class="tile" onClick="{{p.tap}}"><span><span class="tnm">{{p.name}}</span><span class="tsb">{{p.sub}}</span></span><span class="tpr">{{p.price}}</span><img class="tim" sc-camel-src="{{p.img}}" alt=""><sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><span class="tq">{{p.q}}</span></sc-if></button>
+          <sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><button class="minus" aria-label="Tirar um" onClick="{{p.sub1}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"></path></svg></button></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div class="tray">
+      <div class="tl">
+        <sc-for list="{{v.pos.lines}}" as="l" hint-placeholder-count="0"><span class="tc"><b>{{l.q}}</b>{{l.name}}</span></sc-for>
+        <sc-if value="{{v.pos.emptyCart}}" hint-placeholder-val="{{ true }}"><span>Toque nos itens. Segure o dedo no menos para tirar.</span></sc-if>
+      </div>
+      <div class="tsum"><span class="routes">{{v.pos.routes}}</span><span class="tot">{{v.pos.total}}</span></div>
+      <sc-if value="{{v.pos.notOver}}" hint-placeholder-val="{{ true }}"><button class="btn xl w" onClick="{{v.pos.send}}" disabled="{{v.pos.noSend}}">{{v.pos.sendLabel}}</button></sc-if>
+      <sc-if value="{{v.pos.over}}" hint-placeholder-val="{{ false }}">
+        <div class="warn">{{v.pos.overMsg}}</div>
+        <div class="two"><button class="btn vio xl" onClick="{{v.pos.payFirst}}">Receber antes</button><button class="btn sec xl" onClick="{{v.pos.askOv}}">Liberar</button></div>
+      </sc-if>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ===== RODADA (delivery run) ===== -->
+  <sc-if value="{{v.isRodada}}" hint-placeholder-val="{{ false }}">
+  <section class="screen" style="top: 0px; bottom: 0px">
+    <div class="runh">
+      <div class="runk"><span>Rodada · {{v.run.zone}}</span><span>{{v.run.prog}}</span></div>
+      <div class="segs"><sc-for list="{{v.run.segs}}" as="sg" hint-placeholder-count="3"><span class="{{sg.cls}}"></span></sc-for></div>
+    </div>
+    <div class="map" style="margin-top: 14px">
+      <img src="./assets/629a684aef42620febf07d65568ee00d.svg" alt="Planta do bar">
+      <sc-for list="{{v.run.lines}}" as="l" hint-placeholder-count="3"><span class="{{l.cls}}" style="{{l.style}}"></span></sc-for>
+      <span class="morig" style="{{v.run.originStyle}}"></span>
+      <sc-for list="{{v.run.dots}}" as="d" hint-placeholder-count="3"><span class="{{d.cls}}" style="{{d.style}}">{{d.n}}</span></sc-for>
+      <span class="maplbl">Saída · balcão</span>
+    </div>
+    <sc-if value="{{v.run.going}}" hint-placeholder-val="{{ true }}">
+      <div class="stop">
+        <span class="sz">{{v.run.cur.zone}} · leve para</span>
+        <span class="sp">{{v.run.cur.place}}</span>
+        <span class="si">{{v.run.cur.what}}</span>
+        <span class="sn">{{v.run.cur.name}}<sc-if value="{{v.run.cur.casa}}" hint-placeholder-val="{{ false }}"><span class="casa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</span></sc-if></span>
+        <span class="sz" style="font-size: 15px; color: var(--blu)">{{v.run.nextLine}}</span>
+      </div>
+      <div class="runa">
+        <button class="btn go xxl w" onClick="{{v.run.deliver}}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Entregue</button>
+        <div class="two">
+          <button class="btn sec" onClick="{{v.run.skip}}">Próximo</button>
+          <button class="btn sec" onClick="{{v.run.stopRun}}">Parar rodada</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{v.run.done}}" hint-placeholder-val="{{ false }}">
+      <div class="fin">
+        <div class="bigok"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></div>
+        <b>Rodada<br>completa</b>
+        <span>{{v.run.summary}}</span>
+      </div>
+      <div class="runa"><button class="btn xl w" onClick="{{v.run.finish}}">Voltar pro Agora</button></div>
+    </sc-if>
+  </section>
+  </sc-if>
+
+  <!-- ===== NAV ===== -->
+  <sc-if value="{{v.showNav}}" hint-placeholder-val="{{ true }}">
+    <nav class="nav">
+      <button class="{{v.navAgora}}" onClick="{{v.goAgora}}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9.5 2.5h5"></path></svg>
+        Agora
+        <sc-if value="{{v.hasBadge}}" hint-placeholder-val="{{ false }}"><span class="badge">{{v.badge}}</span></sc-if>
+      </button>
+      <button class="ngo" onClick="{{v.goPedir}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Pedir</button>
+      <button class="{{v.navContas}}" onClick="{{v.goContas}}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18.5 14.5a6.5 6.5 0 0 1 3 5.5"></path></svg>
+        Contas
+      </button>
+    </nav>
+  </sc-if>
+
+  <!-- ===== SHEETS ===== -->
+  <sc-if value="{{v.anySheet}}" hint-placeholder-val="{{ false }}">
+    <button class="scrim" aria-label="Fechar" onClick="{{v.closeSheet}}"></button>
+  </sc-if>
+
+  <sc-if value="{{v.sheetCust}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>Cliente</small><h3>{{v.sc.name}}</h3></div><sc-if value="{{v.sc.hasAv}}" hint-placeholder-val="{{ false }}"><img class="avi" sc-camel-src="{{v.sc.av}}" alt=""></sc-if></div>
+      <div class="meta">
+        <sc-if value="{{v.sc.casa}}" hint-placeholder-val="{{ false }}"><span class="casa"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>Da Casa</span></sc-if>
+        <sc-if value="{{v.sc.hasRel}}" hint-placeholder-val="{{ false }}"><span class="{{v.sc.relCls}}">{{v.sc.rel}}</span></sc-if>
+        <span class="note">{{v.sc.last}}</span>
+      </div>
+      <div class="kv"><span>Limite</span><b>{{v.sc.lim}}</b><span>Pendências</span><b>{{v.sc.pend}}</b></div>
+      <button class="btn xl w" onClick="{{v.openTab}}">{{v.sc.btn}}</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetLocal}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>{{v.lc.who}}</small><h3>{{v.lc.title}}</h3></div></div>
+      <div class="map">
+        <img src="./assets/629a684aef42620febf07d65568ee00d.svg" alt="Planta do bar">
+        <sc-for list="{{v.lc.dots}}" as="d" hint-placeholder-count="0"><span class="{{d.cls}}" style="{{d.style}}"></span></sc-for>
+        <sc-for list="{{v.lc.zones}}" as="z" hint-placeholder-count="4"><button class="{{z.cls}}" style="{{z.style}}" onClick="{{z.tap}}">{{z.name}}</button></sc-for>
+      </div>
+      <div class="pts"><sc-for list="{{v.lc.points}}" as="p" hint-placeholder-count="12"><button class="{{p.cls}}" onClick="{{p.tap}}"><b>{{p.p}}</b><span>{{p.occ}}</span></button></sc-for></div>
+      <div class="note">Toque na área no mapa e depois no ponto. Dá pra mover a noite toda.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetNovo}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>Novo cliente</small><h3>Quem é?</h3></div></div>
+      <label class="fld">Nome ou apelido<input class="inp" type="text" value="{{v.nv.name}}" onChange="{{v.nv.onName}}"></label>
+      <div class="fld">Relacionamento</div>
+      <div class="seg4"><sc-for list="{{v.nv.rels}}" as="r" hint-placeholder-count="4"><button class="{{r.cls}}" onClick="{{r.tap}}" style="font-size: 14px">{{r.name}}</button></sc-for></div>
+      <div class="note">{{v.nv.limLine}}</div>
+      <label class="fld">Telefone · opcional<input class="inp" type="tel" placeholder="(11) 9…" value="{{v.nv.phone}}" onChange="{{v.nv.onPhone}}"></label>
+      <button class="btn xl w" onClick="{{v.nv.create}}" disabled="{{v.nv.noName}}">Abrir conta</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetSent}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>{{v.sn.place}}</small><h3>{{v.sn.title}}</h3></div><span class="tot">{{v.sn.total}}</span></div>
+      <sc-if value="{{v.sn.hasBar}}" hint-placeholder-val="{{ true }}">
+        <div class="rt"><span class="d" style="display: flex; align-items: center; gap: 6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h10v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"></path><path d="M15 11h2.5a2.5 2.5 0 0 1 0 5H15"></path><path d="M5 8c0-2.5 1.5-4 4-4 1 0 1.5.5 2 1 .5-.5 1.5-1 2.5-1 1.5 0 2 1.5 1.5 4"></path></svg>Bar</span><span class="i">{{v.sn.bar}}</span><span class="{{v.sn.stCls}}">{{v.sn.st}}</span></div>
+      </sc-if>
+      <sc-if value="{{v.sn.hasKit}}" hint-placeholder-val="{{ true }}">
+        <div class="rt"><span class="d" style="display: flex; align-items: center; gap: 6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z"></path></svg>Cozinha</span><span class="i">{{v.sn.kit}}</span><span class="{{v.sn.stCls}}">{{v.sn.st}}</span></div>
+      </sc-if>
+      <div class="note">{{v.sn.note}}</div>
+      <button class="btn sec w" onClick="{{v.closeSent}}">OK</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetPay}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>Receber</small><h3>{{v.py.name}}</h3></div></div>
+      <div class="kv"><span>Conta</span><b>{{v.py.conta}}</b><span>Pago</span><b>{{v.py.pago}}</b><span class="lineb"></span><span>Restante</span><b class="big">{{v.py.rest}}</b></div>
+      <sc-if value="{{v.py.pick}}" hint-placeholder-val="{{ true }}">
+        <div class="amt">
+          <button class="iconbtn" style="width: 56px; height: 56px" aria-label="Menos 10" onClick="{{v.py.minus}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+          <div class="val"><small>R$</small>{{v.py.amt}}</div>
+          <button class="iconbtn" style="width: 56px; height: 56px" aria-label="Mais 10" onClick="{{v.py.plus}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+        </div>
+        <div class="qk"><sc-for list="{{v.py.quick}}" as="q" hint-placeholder-count="4"><button class="{{q.cls}}" onClick="{{q.tap}}">{{q.label}}</button></sc-for></div>
+        <div class="mth">
+          <button class="btn" onClick="{{v.py.pix}}" disabled="{{v.py.noAmt}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1"></rect><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 19h1M19.5 14v2"></path></svg>Pix</button>
+          <button class="btn" onClick="{{v.py.card}}" disabled="{{v.py.noAmt}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"></rect><path d="M2.5 10h19M6 15h4"></path></svg>Cartão</button>
+          <button class="btn" onClick="{{v.py.cash}}" disabled="{{v.py.noAmt}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>Dinheiro</button>
+          <button class="btn sec" onClick="{{v.py.other}}" disabled="{{v.py.noAmt}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.4"></circle><circle cx="12" cy="12" r="1.4"></circle><circle cx="19" cy="12" r="1.4"></circle></svg>Outro</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{v.py.wait}}" hint-placeholder-val="{{ false }}">
+        <div class="wait">
+          <sc-if value="{{v.py.isPix}}" hint-placeholder-val="{{ false }}"><div class="qr" style="flex-direction: column; gap: 8px"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1"></rect><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 19h1M19.5 14v2"></path></svg>QR na maquininha</div></sc-if>
+          <b>{{v.py.waitTitle}}</b>
+          <span>{{v.py.waitSub}}</span>
+          <button class="btn go xl w" onClick="{{v.py.confirm}}">{{v.py.confirmLabel}}</button>
+          <button class="btn sec w" onClick="{{v.py.cancel}}">Trocar forma</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{v.py.done}}" hint-placeholder-val="{{ false }}">
+        <div class="okrow"><span class="okc"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><div><b>{{v.py.doneTitle}}</b><span>{{v.py.doneSub}}</span></div></div>
+        <sc-if value="{{v.py.casa}}" hint-placeholder-val="{{ false }}"><div class="after"><span class="hs"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg></span>{{v.py.after}}</div></sc-if>
+        <sc-if value="{{v.py.notZero}}" hint-placeholder-val="{{ true }}">
+          <button class="btn xl w" onClick="{{v.py.cont}}">Continuar conta</button>
+          <button class="btn sec w" onClick="{{v.py.more}}">Receber mais</button>
+        </sc-if>
+        <sc-if value="{{v.py.zero}}" hint-placeholder-val="{{ false }}">
+          <button class="btn xl w" onClick="{{v.py.fin}}">Fechar conta</button>
+          <button class="btn sec w" onClick="{{v.py.cont}}">Deixar aberta</button>
+        </sc-if>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetCall}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>{{v.tb.name}} · {{v.tb.where}}</small><h3>O que ele pediu?</h3></div></div>
+      <button class="btn sec xl w" onClick="{{v.callAt}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9"></path><path d="M10.3 20.5a2 2 0 0 0 3.4 0"></path></svg>Quer atendimento</button>
+      <button class="btn sec xl w" onClick="{{v.callBill}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.6"></circle></svg>Quer a conta</button>
+      <div class="note">Vira tarefa no Agora para quem estiver perto. Cliente não precisa de app.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetOv}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet">
+      <span class="grab"></span>
+      <div class="sht"><div><small>Liberar limite · {{v.tb.name}}</small><h3>Até quanto?</h3></div></div>
+      <div class="amt">
+        <button class="iconbtn" style="width: 56px; height: 56px" aria-label="Menos 50" onClick="{{v.ovv.minus}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+        <div class="val"><small>R$</small>{{v.ovv.to}}</div>
+        <button class="iconbtn" style="width: 56px; height: 56px" aria-label="Mais 50" onClick="{{v.ovv.plus}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+      </div>
+      <div class="note">Hoje: {{v.ovv.from}}. Vale só para esta conta.</div>
+      <div class="fld">Motivo · opcional</div>
+      <div class="seg4" style="grid-template-columns: repeat(3, minmax(0, 1fr))"><sc-for list="{{v.ovv.reasons}}" as="r" hint-placeholder-count="3"><button class="{{r.cls}}" onClick="{{r.tap}}" style="font-size: 14px">{{r.name}}</button></sc-for></div>
+      <div class="kv" style="align-items: center"><span>Gerente</span><b style="font-size: 20px; display: flex; align-items: center; gap: 10px; justify-content: flex-end"><img class="avi" src="./assets/4abc79c894255d9789137207c31a5c48.svg" alt="" style="width: 36px; height: 36px">{{v.ovv.mgr}}</b></div>
+      <button class="btn xl w" onClick="{{v.ovv.apply}}">Liberar · fica registrado</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{v.sheetSum}}" hint-placeholder-val="{{ false }}">
+    <div class="sheet" style="max-height: 92%; overflow-y: auto">
+      <span class="grab"></span>
+      <div class="sht"><div><small>Conta fechada · {{v.sm.place}}</small><h3>{{v.sm.name}}</h3></div><span class="tot">{{v.sm.total}}</span></div>
+      <div class="kv">
+        <sc-for list="{{v.sm.pays}}" as="p" hint-placeholder-count="2"><span>{{p.label}}</span><b style="font-size: 20px; color: var(--grn)">{{p.v}}</b></sc-for>
+      </div>
+      <sc-if value="{{v.sm.hasTimes}}" hint-placeholder-val="{{ true }}">
+        <div class="fld">Tempos · 4 Brahma do P37</div>
+        <div class="tims"><sc-for list="{{v.sm.times}}" as="m" hint-placeholder-count="3"><div><b>{{m.v}}</b>{{m.label}}</div></sc-for></div>
+      </sc-if>
+      <div class="fld">Trilha da conta</div>
+      <div class="sumlist"><sc-for list="{{v.sm.audit}}" as="a" hint-placeholder-count="6"><div class="sumrow"><b>{{a.at}}</b><span><strong>{{a.who}}</strong> · {{a.what}}</span></div></sc-for></div>
+      <button class="btn xl w" onClick="{{v.sm.done}}">Pronto</button>
+    </div>
+  </sc-if>
+
+</div>
+<div class="devlabel">Celular do garçom · Dani</div>
+</div>
+
+<!-- ============ BAR SCREEN ============ -->
+<div class="dev">
+<div class="kds">
+  <div class="kh">
+    <div class="ttl" style="align-items: center"><span style="color: var(--amb); display: flex"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h10v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"></path><path d="M15 11h2.5a2.5 2.5 0 0 1 0 5H15"></path><path d="M5 8c0-2.5 1.5-4 4-4 1 0 1.5.5 2 1 .5-.5 1.5-1 2.5-1 1.5 0 2 1.5 1.5 4"></path></svg></span><b>Bar</b><span>balcão principal</span></div>
+    <div class="kstat"><span><b>{{v.kd.nPrep}}</b> preparando</span><span><b>{{v.kd.nShelf}}</b> na bancada</span><span class="clk">{{v.clock}}</span></div>
+  </div>
+  <div class="kcol l">
+    <div class="lblk am"><span style="display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>Preparar agora</span><span>lote</span></div>
+    <sc-for list="{{v.kd.batches}}" as="b" hint-placeholder-count="4">
+      <div class="{{b.cls}}"><img sc-camel-src="{{b.img}}" alt=""><span class="bn">{{b.name}}</span><span class="bq">{{b.q}}</span></div>
+    </sc-for>
+    <div class="lblk"><span>Destino · mais antigo primeiro</span><span>{{v.kd.nPrep}}</span></div>
+    <div class="scroll">
+      <sc-for list="{{v.kd.dest}}" as="d" hint-placeholder-count="5">
+        <div class="{{d.cls}}">
+          <span class="dp">{{d.place}}<small>{{d.zone}}</small></span>
+          <span class="di">{{d.items}}<sc-if value="{{d.isNew}}" hint-placeholder-val="{{ false }}"><span class="newtag">NOVO</span></sc-if></span>
+          <span class="{{d.ageCls}}">{{d.age}}</span>
+          <button class="btn sm" onClick="{{d.tap}}">Pronto</button>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div class="kcol">
+    <div class="lblk"><span>Na bancada · esperando garçom</span><span>{{v.kd.nShelf}}</span></div>
+    <div class="scroll">
+      <sc-for list="{{v.kd.shelf}}" as="h" hint-placeholder-count="3">
+        <div class="shf">
+          <span class="dp">{{h.place}}</span>
+          <span class="di">{{h.items}}<small>{{h.zone}} · pronto há {{h.age}}</small></span>
+          <span class="{{h.whoCls}}"><sc-if value="{{h.taken}}" hint-placeholder-val="{{ false }}"><img class="avi" sc-camel-src="{{h.oav}}" alt=""></sc-if>{{h.who}}</span>
+        </div>
+      </sc-for>
+      <sc-if value="{{v.kd.shelfEmpty}}" hint-placeholder-val="{{ false }}"><div class="empty" style="font-size: 16px">Bancada vazia</div></sc-if>
+    </div>
+    <div class="kit">
+      <div class="lblk"><span style="display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z"></path></svg>Cozinha · espelho</span><span>{{v.kd.nKit}}</span></div>
+      <sc-for list="{{v.kd.kit}}" as="k" hint-placeholder-count="3">
+        <div class="shf">
+          <span class="dp">{{k.place}}</span>
+          <span class="di">{{k.items}}<sc-if value="{{k.isNew}}" hint-placeholder-val="{{ false }}"><span class="newtag">NOVO</span></sc-if><small>na chapa há {{k.age}}</small></span>
+          <span class="who">{{k.st}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+<div class="devlabel">Tela do Bar · toque em Pronto</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":1060}}'>
+var C0 = 21 * 3600 + 38 * 60;
+var ME = 'Dani';
+var MANAGER = 'Aderlan';
+var P = {
+  brahma: { name: 'Brahma', sub: '600 ml', price: 14, route: 'bar' },
+  heineken: { name: 'Heineken', sub: '600 ml', price: 18, route: 'bar' },
+  original: { name: 'Original', sub: '600 ml', price: 16, route: 'bar' },
+  caipirinha: { name: 'Caipirinha', sub: 'limão', price: 22, route: 'bar' },
+  coca: { name: 'Coca', sub: 'lata', price: 7, route: 'bar' },
+  guarana: { name: 'Guaraná', sub: 'lata', price: 7, route: 'bar' },
+  agua: { name: 'Água', sub: 'sem gás', price: 5, route: 'bar' },
+  dose: { name: 'Dose', sub: 'cachaça', price: 9, route: 'bar' },
+  fritas: { name: 'Fritas', sub: 'porção', price: 34, route: 'cozinha' },
+  calabresa: { name: 'Calabresa', sub: 'acebolada', price: 42, route: 'cozinha' },
+  bolinho: { name: 'Bolinho', sub: 'bacalhau · 6', price: 38, route: 'cozinha' }
+};
+var IMG = { brahma: './assets/79bc3499c17dd7e97ec7dede3be27064.svg', heineken: './assets/455633b3820dce97baf3f0ed53e9e36c.svg', original: './assets/613ae5d0e5e09693aae169934b7733bd.svg', caipirinha: './assets/4a475e1753a0fa1728c530b141d33673.svg', coca: './assets/8e73c10d2aeb988382c5efa276f9452f.svg', guarana: './assets/fb7922d25a03026482c8fd320a511fd2.svg', agua: './assets/2d80f66be0c4840f19b91dec3ff83973.svg', dose: './assets/74144d23a9c81fd7765e2bf13493db9f.svg', fritas: './assets/c74be2bf7ae8d32da5f77ec39f311a18.svg', calabresa: './assets/431ed6655f8c54cccf2eea5b7faf92ca.svg', bolinho: './assets/1e9830bdd3cf72f57dc17c0bd356214f.svg' };
+var AV = { joao: './assets/96e215812a1b3ea02b223e6d6c3668cd.svg', joana: './assets/6d5919183826a93be5a7020ad40ea0fb.svg', joaozinho: './assets/1f82aee71780cd78e17356e3fa35cfa7.svg', fabinho: './assets/4dcc6165d5744f488ad59acbad3eba3d.svg', juninho: './assets/a5621f6e42a924061406ba5edcf2e0df.svg', carlosm: './assets/f3cebaded3ea2ddeb960c7aa11ad5042.svg', pedrinho: './assets/2b4c20699a135faf16d6284286dc0dfd.svg', cida: './assets/80a30e1a3c4171ef83cdecc7f238af50.svg', ze: './assets/5eeb028ca51cb9caedd9e8647ff87e15.svg', beto: './assets/5816a48a9a4c79865a6138a8e08c6108.svg', lu: './assets/8b478c47857d6c225aafdce306968c01.svg', renata: './assets/fbb85983aea7a00909ca1bbab95f67ac.svg', galera: './assets/87632a5e9cb226543958696b57423608.svg', antonio: './assets/64a3a5801b83b2228671150cdac05118.svg', bia: './assets/d10e0813adca92638a2d61b5c8091ba6.svg', Dani: './assets/624b89158eeb8ff63f5da114a1ff41e6.svg', Carlos: './assets/da647361752c6e97c88066964a7f7259.svg', 'Rê': './assets/aabd18f03f6d27eb21fb3dde05eca4a0.svg', Aderlan: './assets/4abc79c894255d9789137207c31a5c48.svg' };
+var MAPK = 350 / 360;
+function ptXY(p) {
+  var n = parseInt(p.slice(1), 10);
+  if (p.charAt(0) === 'B') return { x: 22 + (n - 1) * 16, y: 76 };
+  if (n <= 12) return { x: 180 + ((n - 1) % 6) * 30, y: 34 + Math.floor((n - 1) / 6) * 32 };
+  if (n <= 31) return { x: 18 + (n - 20) * 29.5, y: 122 };
+  return { x: 30 + ((n - 32) % 8) * 43, y: 172 + Math.floor((n - 32) / 8) * 36 };
+}
+var ZONE_BOX = { 'Bar principal': [6, 8, 146, 84], 'Imóvel 2': [160, 8, 194, 84], 'Calçada': [0, 98, 360, 48], 'Rua': [0, 151, 360, 89] };
+function px(v) { return (v * MAPK).toFixed(1); }
+function av(id) { return AV[id] || ''; }
+var KGRID = ['fritas', 'calabresa', 'bolinho'];
+var BGRID = ['agua', 'dose', 'guarana', 'coca', 'caipirinha', 'original', 'brahma', 'heineken'];
+function range(pre, a, b, pad) { var o = []; for (var i = a; i <= b; i++) o.push(pre + (pad && i < 10 ? '0' : '') + i); return o; }
+var ZONES = { 'Bar principal': range('B', 1, 8), 'Imóvel 2': range('P', 1, 12, true), 'Calçada': range('P', 20, 31), 'Rua': range('P', 32, 47) };
+var ZONE_ORDER = ['Bar principal', 'Imóvel 2', 'Calçada', 'Rua'];
+var ZONE_SHORT = { 'Bar principal': 'Bar', 'Imóvel 2': 'Imóvel 2', 'Calçada': 'Calçada', 'Rua': 'Rua' };
+var REL = { casa: 'Da Casa', regular: 'Regular', conhecido: 'Conhecido', visitante: 'Visitante', restrito: 'Paga na hora' };
+var LIMIT = { visitante: 30, conhecido: 80, regular: 200, casa: 500, restrito: 0 };
+var KIND = { ready: 'Pronto', call: 'Chamou', bill: 'Conta', limit: 'Limite' };
+var MNAME = { pix: 'Pix', cartao: 'Cartão', dinheiro: 'Dinheiro', outro: 'Outro' };
+var STEPS = [
+  ['Abrir a tela Agora', '', 'home'],
+  ['Encontrar João da Oficina', 'CONTAS → digite “jo”', 'found'],
+  ['Ver que ele é Da Casa, sem pendências', 'Toque no nome dele', 'sawCasa'],
+  ['Abrir a conta dele', 'ABRIR CONTA', 'opened'],
+  ['Colocar na Rua · P37', 'Rua → P37', 'located'],
+  ['Lançar 4 Brahma + 1 Fritas', 'PEDIR → Brahma ×4, Fritas ×1', 'added'],
+  ['Enviar o pedido', 'ENVIAR', 'sent'],
+  ['Pedido chega no Bar e na Cozinha', 'Olhe a tela do Bar →', 'routed'],
+  ['Bar termina as Brahmas', 'No Bar: PRONTO no P37', 'ready'],
+  ['Entrega aparece no Agora', 'Volte para AGORA', 'sawDispatch'],
+  ['Pegar a entrega', 'PEGAR no P37', 'claimed'],
+  ['Juntar numa rodada da Rua', 'MONTAR', 'run'],
+  ['Marcar entregue', 'ENTREGUE', 'delivered'],
+  ['A noite segue: conta chega a R$ 420 de R$ 500', 'AVANÇAR A NOITE aqui embaixo → abra a conta do João', 'sawLimit'],
+  ['Receber R$ 200 parcial', 'RECEBER → R$ 200 → PIX → CONFIRMAR', 'paid'],
+  ['Aberto cai para R$ 220', 'A conta continua aberta', 'balance'],
+  ['Continuar a conta', 'CONTINUAR CONTA', 'cont'],
+  ['Receber o restante', 'FECHAR → CARTÃO → CONFIRMAR', 'paidAll'],
+  ['Fechar a conta e ver o resumo', 'FECHAR CONTA', 'closed']
+];
+var SCRIPT = [
+  [],
+  [['nav', 'contas'], ['query', 'jo']],
+  [['openCust', 'joao']],
+  [['openTab']],
+  [['zone', 'Rua'], ['point', 'P37']],
+  [['pedir'], ['add', 'brahma'], ['add', 'brahma'], ['add', 'brahma'], ['add', 'brahma'], ['add', 'fritas']],
+  [['send']],
+  [['confirmRoute'], ['closeSent']],
+  [['barReadyPlace', 'P37']],
+  [['nav', 'agora']],
+  [['claimPlace', 'P37']],
+  [['buildRun', 'Rua']],
+  [['deliver']],
+  [['deliverAll'], ['finishRun'], ['later'], ['openTabOf', 'joao']],
+  [['receive'], ['payAmt', 200], ['payMethod', 'pix'], ['payConfirm']],
+  [],
+  [['continueTab']],
+  [['closeTab'], ['payMethod', 'cartao'], ['payConfirm']],
+  [['finalize']]
+];
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function norm(x) { return String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function num(n) { return String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function brl(n) { return 'R$ ' + num(n); }
+function mmss(sec) { sec = Math.max(0, Math.floor(sec)); var m = Math.floor(sec / 60), x = sec % 60; return m + ':' + (x < 10 ? '0' : '') + x; }
+function clock(t) { var x = C0 + t; var h = Math.floor(x / 3600) % 24, m = Math.floor(x / 60) % 60; return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m; }
+function now(s) { return clock(s.t + s.off); }
+function itemsLabel(items) { return items.map(function (x) { return x[1] + ' ' + P[x[0]].name; }).join(' · '); }
+function warnOf(kind) { return kind === 'ready' ? 120 : 60; }
+function lvl(kind, a) {
+  if (kind === 'limit') return 'l0';
+  var w = warnOf(kind);
+  if (a >= 480) return 'l4'; if (a >= 300) return 'l3'; if (a >= w * 2) return 'l2'; if (a >= w) return 'l1'; return 'l0';
+}
+function tab(rel, place, zone, today, paidSoFar) {
+  return { place: place, zone: zone, today: today, limit: LIMIT[rel], items: [], pays: paidSoFar ? [{ method: 'pix', amount: paidSoFar, at: '21:10' }] : [], overrides: [] };
+}
+
+function seed() {
+  return {
+    t: 0, off: 0, screen: 'agora', sheet: null, query: '', custId: null, locZone: 'Rua', locMode: 'open',
+    cart: {}, peak: false, offline: false, pending: 0, queue: [], syncedAt: -999, flash: null, flashAt: -999,
+    sent: null, pay: null, payFrom: 'conta', run: null, draft: null, ov: null, hist: false, seq: 100, ord: 921, flags: { home: true },
+    audit: [], summary: null,
+    custs: [
+      { id: 'joao', name: 'João da Oficina', alias: 'oficina joao', rel: 'casa', freq: 9, visits: 12, last: 'sexta', tab: null },
+      { id: 'joana', name: 'Joana', alias: '', rel: 'regular', freq: 6, visits: 7, last: 'ontem', tab: null },
+      { id: 'joaozinho', name: 'Joãozinho', alias: 'filho do ze', rel: 'conhecido', freq: 2, visits: 3, last: 'sábado', tab: null },
+      { id: 'fabinho', name: 'Fabinho', alias: 'fabio', rel: 'restrito', freq: 3, visits: 5, last: 'quinta', tab: null },
+      { id: 'juninho', name: 'Juninho', alias: 'junior', rel: 'regular', freq: 7, tab: tab('regular', 'P42', 'Calçada', 64) },
+      { id: 'carlosm', name: 'Carlos Mecânico', alias: 'carlao', rel: 'casa', freq: 8, tab: tab('casa', 'P41', 'Rua', 146) },
+      { id: 'pedrinho', name: 'Pedrinho', alias: 'pedro', rel: 'conhecido', freq: 3, tab: tab('conhecido', 'P38', 'Rua', 28) },
+      { id: 'cida', name: 'Dona Cida', alias: 'aparecida', rel: 'casa', freq: 10, tab: tab('casa', 'P12', 'Imóvel 2', 88) },
+      { id: 'ze', name: 'Seu Zé', alias: 'jose', rel: 'regular', freq: 9, tab: tab('regular', 'B2', 'Bar principal', 45) },
+      { id: 'beto', name: 'Mesa do Beto', alias: 'roberto', rel: 'visitante', freq: 0, tab: tab('visitante', 'P44', 'Rua', 112, 88) },
+      { id: 'lu', name: 'Turma da Lu', alias: 'luciana', rel: 'visitante', freq: 0, tab: tab('visitante', 'P29', 'Calçada', 96, 74) },
+      { id: 'renata', name: 'Renata', alias: '', rel: 'regular', freq: 5, tab: tab('regular', 'P08', 'Imóvel 2', 74) },
+      { id: 'galera', name: 'Galera da 22', alias: '', rel: 'visitante', freq: 0, tab: tab('visitante', 'P22', 'Calçada', 58, 40) },
+      { id: 'antonio', name: 'Seu Antônio', alias: 'toninho', rel: 'conhecido', freq: 4, tab: tab('conhecido', 'P33', 'Rua', 62) },
+      { id: 'bia', name: 'Aniversário da Bia', alias: 'beatriz', rel: 'visitante', freq: 0, tab: tab('visitante', 'P07', 'Imóvel 2', 132, 110) }
+    ],
+    tasks: [
+      { id: 't1', kind: 'call', cust: 'juninho', place: 'P42', zone: 'Calçada', what: 'Chamou atendimento', t0: -318, owner: null },
+      { id: 't2', kind: 'ready', cust: 'beto', place: 'P44', zone: 'Rua', what: '3 Brahma · 1 Coca', t0: -152, owner: null, ticket: 'b6' },
+      { id: 't3', kind: 'ready', cust: 'carlosm', place: 'P41', zone: 'Rua', what: '2 Heineken', t0: -98, owner: null, ticket: 'b5' },
+      { id: 't4', kind: 'bill', cust: 'cida', place: 'P12', zone: 'Imóvel 2', what: 'Pediu a conta', t0: -54, owner: null },
+      { id: 't5', kind: 'ready', cust: 'lu', place: 'P29', zone: 'Calçada', what: '3 Caipirinha', t0: -74, owner: 'Carlos', ticket: 'b7' },
+      { id: 't6', kind: 'call', cust: 'ze', place: 'B2', zone: 'Bar principal', what: 'Chamou atendimento', t0: -41, owner: 'Rê' }
+    ],
+    bar: [
+      { id: 'b1', place: 'P08', zone: 'Imóvel 2', cust: 'renata', items: [['brahma', 3]], t0: -262, status: 'prep' },
+      { id: 'b2', place: 'P22', zone: 'Calçada', cust: 'galera', items: [['heineken', 2], ['coca', 1]], t0: -191, status: 'prep' },
+      { id: 'b3', place: 'P33', zone: 'Rua', cust: 'antonio', items: [['brahma', 4], ['caipirinha', 1]], t0: -118, status: 'prep' },
+      { id: 'b4', place: 'P07', zone: 'Imóvel 2', cust: 'bia', items: [['brahma', 3], ['heineken', 2]], t0: -47, status: 'prep' },
+      { id: 'b5', place: 'P41', zone: 'Rua', cust: 'carlosm', items: [['heineken', 2]], t0: -260, status: 'ready', readyAt: -98 },
+      { id: 'b6', place: 'P44', zone: 'Rua', cust: 'beto', items: [['brahma', 3], ['coca', 1]], t0: -330, status: 'ready', readyAt: -152 },
+      { id: 'b7', place: 'P29', zone: 'Calçada', cust: 'lu', items: [['caipirinha', 3]], t0: -240, status: 'ready', readyAt: -74 }
+    ],
+    kitchen: [
+      { id: 'k1', place: 'P08', zone: 'Imóvel 2', cust: 'renata', items: [['calabresa', 1]], t0: -380 },
+      { id: 'k2', place: 'P22', zone: 'Calçada', cust: 'galera', items: [['bolinho', 2]], t0: -190 }
+    ]
+  };
+}
+
+function cust(s, id) { for (var i = 0; i < s.custs.length; i++) if (s.custs[i].id === id) return s.custs[i]; return null; }
+function paid(c) { var p = 0; (c && c.tab ? c.tab.pays : []).forEach(function (x) { p += x.amount; }); return p; }
+function exp(c) { return c && c.tab ? c.tab.today - paid(c) : 0; }
+function lim(c) { return c && c.tab ? c.tab.limit : (c ? LIMIT[c.rel] : 0); }
+function findTask(s, id) { return s.tasks.filter(function (t) { return t.id === id; })[0]; }
+function log(s, c, what) { if (c && c.id === 'joao') s.audit.push({ at: now(s), who: ME, what: what }); }
+
+function limitCheck(s, c) {
+  if (!c || !c.tab || (c.rel !== 'casa' && c.rel !== 'regular')) return;
+  var L = c.tab.limit;
+  var has = s.tasks.some(function (t) { return t.kind === 'limit' && t.cust === c.id; });
+  var near = L > 0 && exp(c) >= 0.8 * L;
+  if (near && !has) s.tasks.push({ id: 'l' + (s.seq++), kind: 'limit', cust: c.id, place: c.tab.place, zone: c.tab.zone, what: brl(exp(c)) + ' de ' + brl(L), t0: s.t, owner: null });
+  if (!near && has) s.tasks = s.tasks.filter(function (t) { return !(t.kind === 'limit' && t.cust === c.id); });
+  s.tasks.forEach(function (t) { if (t.kind === 'limit' && t.cust === c.id) t.what = brl(exp(c)) + ' de ' + brl(L); });
+}
+function markLimit(s, c) { if (c && c.id === 'joao' && s.flags.later && exp(c) >= 420) s.flags.sawLimit = true; }
+function markDispatch(s) {
+  if (s.screen === 'agora' && s.tasks.some(function (t) { return t.kind === 'ready' && t.place === 'P37'; })) s.flags.sawDispatch = true;
+}
+function receive(s, p) {
+  if (p.bar.length) s.bar.push({ id: 'b' + (s.seq++), place: p.place, zone: p.zone, cust: p.cust, items: p.bar, t0: s.t, status: 'prep', ord: p.ord });
+  if (p.kit.length) s.kitchen.push({ id: 'k' + (s.seq++), place: p.place, zone: p.zone, cust: p.cust, items: p.kit, t0: s.t, ord: p.ord });
+  var c = cust(s, p.cust);
+  if (c && c.tab) c.tab.items.forEach(function (i) { i.queued = false; });
+  if (p.cust === 'joao') s.flags.routed = true;
+}
+function cartTotal(s) { var t = 0; Object.keys(s.cart).forEach(function (id) { t += (s.cart[id] || 0) * P[id].price; }); return t; }
+function send(s) {
+  var c = cust(s, s.custId); if (!c || !c.tab) return;
+  var total = cartTotal(s); if (!total) return;
+  if (exp(c) + total > c.tab.limit) return;
+  var bar = [], kit = [], ord = '#' + (s.ord++);
+  Object.keys(s.cart).forEach(function (id) {
+    var q = s.cart[id]; if (!q) return;
+    (P[id].route === 'bar' ? bar : kit).push([id, q]);
+    c.tab.items.push({ pid: id, qty: q, status: P[id].route === 'bar' ? 'prep' : 'kit', queued: s.offline, ord: ord });
+  });
+  c.tab.today += total;
+  var payload = { cust: c.id, place: c.tab.place, zone: c.tab.zone, bar: bar, kit: kit, ord: ord };
+  s.sent = { phase: s.offline ? 'queued' : 'sending', ord: ord, bar: itemsLabel(bar), kit: itemsLabel(kit), hasBar: bar.length > 0, hasKit: kit.length > 0, total: total, place: c.tab.zone + ' · ' + c.tab.place + ' · ' + c.name };
+  if (s.offline) { s.queue.push(payload); s.pending++; } else receive(s, payload);
+  s.sheet = 'sent'; s.cart = {};
+  log(s, c, 'Pedido ' + ord + ' · ' + [itemsLabel(bar), itemsLabel(kit)].filter(Boolean).join(' · ') + ' · ' + brl(total));
+  if (c.id === 'joao' && bar.some(function (x) { return x[0] === 'brahma' && x[1] >= 4; }) && kit.some(function (x) { return x[0] === 'fritas'; })) s.flags.sent = true;
+  limitCheck(s, c);
+}
+function barReady(s, id) {
+  var tk = s.bar.filter(function (b) { return b.id === id; })[0]; if (!tk || tk.status !== 'prep') return;
+  tk.status = 'ready'; tk.readyAt = s.t;
+  s.tasks.push({ id: 'r' + tk.id, kind: 'ready', cust: tk.cust, place: tk.place, zone: tk.zone, what: itemsLabel(tk.items), t0: s.t, owner: null, ticket: tk.id });
+  var c = cust(s, tk.cust);
+  if (c && c.tab) c.tab.items.forEach(function (i) { if (i.status === 'prep' && tk.items.some(function (x) { return x[0] === i.pid; })) i.status = 'ready'; });
+  if (c && c.id === 'joao') s.audit.push({ at: now(s), who: 'Bar', what: itemsLabel(tk.items) + ' prontas' });
+  if (tk.place === 'P37') s.flags.ready = true;
+  markDispatch(s);
+}
+function claim(s, id) {
+  var t = findTask(s, id); if (!t || t.owner) return;
+  t.owner = ME; s.flash = id; s.flashAt = s.t;
+  if (s.offline) s.pending++;
+  if (t.kind === 'ready' && t.place === 'P37') { s.flags.claimed = true; log(s, cust(s, t.cust), 'Pegou a entrega · ' + t.place); }
+}
+function buildRun(s, zone) {
+  var l = s.tasks.filter(function (t) { return t.kind === 'ready' && t.zone === zone && (!t.owner || t.owner === ME); });
+  if (!l.length) return;
+  l.sort(function (a, b) { return (a.owner === ME ? 0 : 1) - (b.owner === ME ? 0 : 1) || a.t0 - b.t0; });
+  l.forEach(function (t) {
+    t.owner = ME;
+    var tk = s.bar.filter(function (b) { return b.id === t.ticket; })[0];
+    if (tk) { tk.status = 'picked'; tk.pickedAt = s.t; }
+    var c = cust(s, t.cust);
+    if (c && c.tab && tk) c.tab.items.forEach(function (i) { if (i.status === 'ready' && tk.items.some(function (x) { return x[0] === i.pid; })) i.status = 'onway'; });
+    log(s, c, 'Saiu do balcão na rodada ' + zone);
+  });
+  s.run = { zone: zone, stops: l.map(function (t) { return t.id; }), i: 0, start: s.t, delivered: 0, done: false };
+  s.screen = 'rodada'; s.sheet = null;
+  if (l.some(function (t) { return t.place === 'P37'; })) s.flags.run = true;
+}
+function deliver(s) {
+  var r = s.run; if (!r || r.done) return;
+  var t = findTask(s, r.stops[r.i]);
+  if (t) {
+    s.tasks = s.tasks.filter(function (x) { return x.id !== t.id; });
+    var tk = s.bar.filter(function (b) { return b.id === t.ticket; })[0];
+    if (tk) { tk.status = 'gone'; tk.deliveredAt = s.t; }
+    var c = cust(s, t.cust);
+    if (c && c.tab && tk) c.tab.items.forEach(function (i) { if ((i.status === 'onway' || i.status === 'ready') && tk.items.some(function (x) { return x[0] === i.pid; })) { i.status = 'done'; i.doneAt = now(s); } });
+    log(s, c, 'Entregue · ' + t.place);
+    if (t.place === 'P37') s.flags.delivered = true;
+    if (s.offline) s.pending++;
+    r.delivered++;
+  }
+  r.i++;
+  if (r.i >= r.stops.length) { r.done = true; r.end = s.t; }
+}
+function later(s) {
+  var c = cust(s, 'joao'); if (!c || !c.tab || s.flags.later) return;
+  s.off += 4800;
+  c.tab.items.forEach(function (i) { if (i.status === 'kit') { i.status = 'done'; i.doneAt = '21:58'; } });
+  s.kitchen = s.kitchen.filter(function (k) { return k.cust !== 'joao'; });
+  [['brahma', 6, '22:05', '#934'], ['calabresa', 1, '22:12', '#934'], ['brahma', 6, '22:41', '#957'], ['caipirinha', 2, '22:41', '#957'], ['bolinho', 2, '22:50', '#957']].forEach(function (x) {
+    c.tab.items.push({ pid: x[0], qty: x[1], status: 'done', doneAt: x[2], ord: x[3] });
+  });
+  c.tab.today += 330;
+  s.audit.push({ at: '22:05', who: 'Carlos', what: 'Pedido #934 · 6 Brahma · 1 Calabresa · R$ 126' });
+  s.audit.push({ at: '22:41', who: ME, what: 'Pedido #957 · 6 Brahma · 2 Caipirinha · 2 Bolinho · R$ 204' });
+  s.flags.later = true;
+  limitCheck(s, c);
+}
+function applyPay(s) {
+  var c = cust(s, s.custId); if (!c || !c.tab) return;
+  c.tab.pays.push({ method: s.pay.method, amount: s.pay.amount, at: now(s) });
+  log(s, c, MNAME[s.pay.method] + ' ' + brl(s.pay.amount) + ' confirmado');
+  if (s.offline) s.pending++;
+  if (c.id === 'joao') {
+    s.flags.paid = true;
+    if (exp(c) === 220) s.flags.balance = true;
+    if (exp(c) === 0 && s.flags.cont) s.flags.paidAll = true;
+  }
+  limitCheck(s, c);
+}
+function finalize(s) {
+  var c = cust(s, s.custId); if (!c || !c.tab || exp(c) !== 0) return;
+  log(s, c, 'Conta fechada');
+  var tk = s.bar.filter(function (b) { return b.cust === c.id && b.deliveredAt != null; })[0];
+  var items = {};
+  c.tab.items.forEach(function (i) { items[i.pid] = (items[i.pid] || 0) + i.qty; });
+  s.summary = {
+    name: c.name, place: c.tab.zone + ' · ' + c.tab.place, total: c.tab.today,
+    items: Object.keys(items).map(function (k) { return { q: items[k], name: P[k].name, v: brl(items[k] * P[k].price) }; }),
+    pays: c.tab.pays.map(function (p) { return { label: MNAME[p.method] + ' · ' + p.at, v: brl(p.amount) }; }),
+    times: tk ? [
+      { label: 'Pedido → pronto', v: mmss(tk.readyAt - tk.t0) },
+      { label: 'Pronto → saiu do balcão', v: mmss(tk.pickedAt - tk.readyAt) },
+      { label: 'Saiu → entregue', v: mmss(tk.deliveredAt - tk.pickedAt) }
+    ] : [],
+    audit: s.audit.slice()
+  };
+  s.tasks = s.tasks.filter(function (t) { return t.cust !== c.id; });
+  c.tab = null; c.last = 'hoje';
+  s.sheet = 'summary'; s.pay = null; s.screen = 'contas';
+  if (c.id === 'joao') s.flags.closed = true;
+}
+
+function R(s0, a, arg) {
+  var s = clone(s0), c, t;
+  switch (a) {
+    case 'tick': s.t++; break;
+    case 'nav': s.screen = arg; s.sheet = null; markDispatch(s); break;
+    case 'query': s.query = arg; if (norm(arg).indexOf('jo') === 0) s.flags.found = true; break;
+    case 'openCust':
+      s.custId = arg; s.sheet = 'cust'; s.flags.found = true;
+      c = cust(s, arg); if (c && c.id === 'joao') s.flags.sawCasa = true; break;
+    case 'openTab':
+      c = cust(s, s.custId); if (!c) break;
+      if (c.tab) { s.sheet = null; s.screen = 'conta'; s.hist = false; markLimit(s, c); }
+      else { s.sheet = 'local'; s.locMode = 'open'; s.locZone = 'Rua'; if (c.id === 'joao') s.flags.opened = true; }
+      break;
+    case 'move': c = cust(s, s.custId); if (!c || !c.tab) break; s.sheet = 'local'; s.locMode = 'move'; s.locZone = c.tab.zone; break;
+    case 'zone': s.locZone = arg; break;
+    case 'point':
+      c = cust(s, s.custId); if (!c) break;
+      if (!c.tab) { c.tab = tab(c.rel, arg, s.locZone, 0); log(s, c, 'Abriu conta · limite ' + brl(c.tab.limit) + ' · ' + s.locZone + ' ' + arg); }
+      else { log(s, c, 'Mudou de ' + c.tab.zone + ' ' + c.tab.place + ' para ' + s.locZone + ' ' + arg); c.tab.place = arg; c.tab.zone = s.locZone; }
+      s.tasks.forEach(function (x) { if (x.cust === c.id) { x.place = arg; x.zone = s.locZone; } });
+      s.sheet = null; s.screen = 'conta'; s.hist = false;
+      if (c.id === 'joao' && arg === 'P37' && s.locZone === 'Rua') s.flags.located = true;
+      break;
+    case 'pedir': s.screen = 'pedir'; s.sheet = null; break;
+    case 'add':
+      s.cart[arg] = (s.cart[arg] || 0) + 1;
+      if (s.custId === 'joao' && (s.cart.brahma || 0) >= 4 && (s.cart.fritas || 0) >= 1) s.flags.added = true;
+      break;
+    case 'sub': if (s.cart[arg]) { s.cart[arg]--; if (!s.cart[arg]) delete s.cart[arg]; } break;
+    case 'send': send(s); break;
+    case 'confirmRoute': if (s.sent && s.sent.phase === 'sending') s.sent.phase = 'ok'; break;
+    case 'closeSent': if (s.sheet === 'sent') { s.sheet = null; s.sent = null; s.screen = 'conta'; } break;
+    case 'barReady': barReady(s, arg); break;
+    case 'barReadyPlace': t = s.bar.filter(function (b) { return b.place === arg && b.status === 'prep'; })[0]; if (t) barReady(s, t.id); break;
+    case 'claim': claim(s, arg); break;
+    case 'claimPlace': t = s.tasks.filter(function (x) { return x.kind === 'ready' && x.place === arg; })[0]; if (t) claim(s, t.id); break;
+    case 'resolve': s.tasks = s.tasks.filter(function (x) { return x.id !== arg; }); if (s.offline) s.pending++; break;
+    case 'buildRun': buildRun(s, arg); break;
+    case 'deliver': deliver(s); break;
+    case 'deliverAll': while (s.run && !s.run.done) deliver(s); break;
+    case 'skip': if (s.run && s.run.stops.length - s.run.i > 1) { var id = s.run.stops.splice(s.run.i, 1)[0]; s.run.stops.push(id); } break;
+    case 'stopRun':
+      if (s.run) s.run.stops.slice(s.run.i).forEach(function (id) {
+        var x = findTask(s, id); if (!x) return; x.owner = null;
+        var tk = s.bar.filter(function (b) { return b.id === x.ticket; })[0]; if (tk) tk.status = 'ready';
+        var cc = cust(s, x.cust); if (cc && cc.tab) cc.tab.items.forEach(function (i) { if (i.status === 'onway') i.status = 'ready'; });
+      });
+      s.run = null; s.screen = 'agora'; break;
+    case 'finishRun': s.run = null; s.screen = 'agora'; markDispatch(s); break;
+    case 'later': later(s); break;
+    case 'openTabOf': s.custId = arg; s.screen = 'conta'; s.sheet = null; s.hist = false; markLimit(s, cust(s, arg)); break;
+    case 'openTask':
+      t = findTask(s, arg); if (!t) break;
+      s.custId = t.cust; s.screen = 'conta'; s.sheet = null; s.hist = false; markLimit(s, cust(s, t.cust)); break;
+    case 'charge':
+      t = findTask(s, arg); if (!t) break;
+      s.custId = t.cust; s.screen = 'conta'; s.payFrom = 'conta'; c = cust(s, t.cust);
+      s.sheet = 'pay'; s.pay = { amount: exp(c), method: null, phase: 'pick', tid: t.id }; break;
+    case 'callSheet': s.sheet = 'call'; break;
+    case 'newCall':
+      c = cust(s, s.custId); if (!c || !c.tab) break;
+      s.tasks.push({ id: 'q' + (s.seq++), kind: arg, cust: c.id, place: c.tab.place, zone: c.tab.zone, what: arg === 'bill' ? 'Pediu a conta' : 'Chamou atendimento', t0: s.t, owner: null });
+      s.sheet = null; s.screen = 'agora'; break;
+    case 'receive': c = cust(s, s.custId); if (!c) break; s.payFrom = s.screen; s.sheet = 'pay'; s.pay = { amount: 0, method: null, phase: 'pick' }; break;
+    case 'closeTab': c = cust(s, s.custId); if (!c) break; s.payFrom = 'conta'; s.sheet = 'pay'; s.pay = { amount: exp(c), method: null, phase: 'pick', closing: true }; break;
+    case 'payAmt': if (s.pay) s.pay.amount = arg; break;
+    case 'payStep': c = cust(s, s.custId); if (s.pay && c) s.pay.amount = Math.max(0, Math.min(exp(c), s.pay.amount + arg)); break;
+    case 'payMethod':
+      if (!s.pay || !s.pay.amount) break;
+      s.pay.method = arg;
+      if (arg === 'dinheiro') { s.pay.phase = 'done'; applyPay(s); } else s.pay.phase = 'wait';
+      break;
+    case 'payConfirm': if (s.pay && s.pay.phase === 'wait') { s.pay.phase = 'done'; applyPay(s); } break;
+    case 'payCancel': if (s.pay) { s.pay.phase = 'pick'; s.pay.method = null; } break;
+    case 'payMore': s.pay = { amount: 0, method: null, phase: 'pick' }; break;
+    case 'continueTab':
+      if (s.pay && s.pay.tid) s.tasks = s.tasks.filter(function (x) { return x.id !== s.pay.tid; });
+      s.sheet = null; s.pay = null; s.screen = s.payFrom === 'pedir' ? 'pedir' : 'conta'; if (s.flags.paid) s.flags.cont = true; break;
+    case 'finalize': finalize(s); break;
+    case 'ovOpen': c = cust(s, s.custId); if (!c || !c.tab) break; s.sheet = 'ovr'; s.ov = { to: Math.max(c.tab.limit + 100, Math.ceil((exp(c) + cartTotal(s)) / 50) * 50), reason: 'Cliente conhecido' }; break;
+    case 'ovStep': if (s.ov) s.ov.to = Math.max(50, s.ov.to + arg); break;
+    case 'ovReason': if (s.ov) s.ov.reason = arg; break;
+    case 'ovApply':
+      c = cust(s, s.custId); if (!c || !c.tab || !s.ov) break;
+      c.tab.overrides.push({ by: MANAGER, from: c.tab.limit, to: s.ov.to, at: now(s), reason: s.ov.reason });
+      s.audit.push({ at: now(s), who: MANAGER, what: 'Limite ' + brl(c.tab.limit) + ' → ' + brl(s.ov.to) + ' · ' + s.ov.reason });
+      c.tab.limit = s.ov.to; s.sheet = null; s.ov = null; limitCheck(s, c); break;
+    case 'closeSheet':
+      if (s.sheet === 'sent') { s.sheet = null; s.sent = null; s.screen = 'conta'; break; }
+      if (s.sheet === 'pay' && s.pay && s.pay.phase === 'wait') break;
+      if (s.sheet === 'pay' && s.pay && s.pay.phase === 'done' && s.flags.paid) s.flags.cont = true;
+      s.sheet = null; s.pay = null; s.ov = null; break;
+    case 'newCust': s.sheet = 'novo'; s.draft = { name: s.query, rel: 'visitante', phone: '' }; break;
+    case 'draftName': s.draft.name = arg; break;
+    case 'draftPhone': s.draft.phone = arg; break;
+    case 'draftRel': s.draft.rel = arg; break;
+    case 'createCust':
+      if (!s.draft || !s.draft.name.trim()) break;
+      var nid = 'c' + (s.seq++);
+      s.custs.push({ id: nid, name: s.draft.name.trim(), alias: '', rel: s.draft.rel, freq: 0, visits: 0, last: '', tab: null });
+      s.custId = nid; s.sheet = 'local'; s.locMode = 'open'; s.locZone = 'Rua'; s.query = ''; break;
+    case 'hist': s.hist = !s.hist; break;
+    case 'peak': s.peak = !s.peak; break;
+    case 'offline':
+      if (!s.offline) { s.offline = true; }
+      else { s.offline = false; s.queue.forEach(function (p) { receive(s, p); }); s.queue = []; s.pending = 0; s.syncedAt = s.t; }
+      break;
+  }
+  return s;
+}
+
+function replay(k) {
+  var s = seed();
+  for (var i = 0; i < k - 1 && i < SCRIPT.length; i++) SCRIPT[i].forEach(function (x) { s = R(s, x[0], x[1]); });
+  return s;
+}
+function curStep(s) { for (var i = 0; i < STEPS.length; i++) if (!s.flags[STEPS[i][2]]) return i; return STEPS.length; }
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { s: seed() }; }
+  componentDidMount() {
+    var self = this;
+    this.iv = setInterval(function () { self.act('tick'); }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tSend); clearTimeout(this.tClose); }
+  componentDidUpdate() {
+    var s = this.state.s, self = this;
+    if (s.sheet === 'sent' && s.sent && s.sent.phase === 'sending' && !this.tSend) {
+      this.tSend = setTimeout(function () { self.tSend = null; self.act('confirmRoute'); }, 750);
+    }
+    if (s.sheet === 'sent' && s.sent && s.sent.phase !== 'sending' && !this.tClose) {
+      this.tClose = setTimeout(function () { self.tClose = null; self.act('closeSent'); }, 2600);
+    }
+  }
+  act(a, arg) { this.setState(function (st) { return { s: R(st.s || seed(), a, arg) }; }); }
+  jump(k) {
+    clearTimeout(this.tSend); clearTimeout(this.tClose);
+    this.tSend = this.tClose = null;
+    this.setState({ s: replay(k) });
+  }
+  doStep() {
+    this.setState(function (st) {
+      var s = st.s, i = curStep(s);
+      if (i >= SCRIPT.length) return null;
+      SCRIPT[i].forEach(function (x) { s = R(s, x[0], x[1]); });
+      return { s: s };
+    });
+  }
+
+  renderVals() {
+    var self = this, s = (this.state && this.state.s) || seed();
+    var go = function (a, arg) { return function () { self.act(a, arg); }; };
+    var v = {};
+    v.clock = now(s); v.meAv = AV[ME];
+    var avOf = function (c) { return c && AV[c.id] ? AV[c.id] : ''; };
+    var relChip = function (c) { return { casa: !!(c && c.rel === 'casa'), hasRel: !!(c && c.rel !== 'casa' && c.rel !== 'visitante'), rel: c ? REL[c.rel] : '', relCls: c && c.rel === 'restrito' ? 'rel vio' : 'rel' }; };
+
+    /* rail */
+    var ci = curStep(s);
+    v.steps = STEPS.map(function (st, i) {
+      var done = !!s.flags[st[2]], cur = i === ci;
+      return { n: (i < 9 ? '0' : '') + (i + 1), title: st[0], hint: st[1], showHint: cur && !!st[1], cls: 'step' + (done ? ' done' : '') + (cur ? ' cur' : ''), tap: function () { self.jump(i + 1); } };
+    });
+    v.allDone = ci >= STEPS.length;
+    v.doLabel = v.allDone ? 'Cenário completo' : 'Fazer o passo ' + (ci + 1) + ' por mim';
+    v.doStep = function () { self.doStep(); };
+    v.reset = function () { self.jump(1); };
+    v.showAdvance = !!s.flags.delivered && !s.flags.later;
+    v.later = go('later');
+    v.peakCls = 'tgl' + (s.peak ? ' on' : ''); v.togglePeak = go('peak');
+    v.offCls = 'tgl' + (s.offline ? ' on' : ''); v.toggleOff = go('offline');
+
+    /* frame */
+    var hasHeader = s.screen !== 'pedir' && s.screen !== 'rodada';
+    v.hasHeader = hasHeader;
+    v.offline = s.offline;
+    v.synced = !s.offline && (s.t - s.syncedAt) < 4;
+    var netbar = v.offline || v.synced;
+    v.pendingLabel = s.pending ? s.pending + (s.pending === 1 ? ' ação aguardando envio' : ' ações aguardando envio') : 'pode seguir, fica guardado';
+    v.netTop = hasHeader ? 60 : 0;
+    v.scrTop = (hasHeader ? 60 : 0) + (netbar ? 40 : 0);
+    v.showNav = hasHeader;
+    v.scrBottom = v.showNav ? 84 : 0;
+    v.isAgora = s.screen === 'agora'; v.isContas = s.screen === 'contas'; v.isConta = s.screen === 'conta';
+    v.isPedir = s.screen === 'pedir'; v.isRodada = s.screen === 'rodada' && !!s.run;
+    if (s.screen === 'rodada' && !s.run) v.isAgora = true;
+    v.navAgora = 'nb' + (v.isAgora ? ' on' : ''); v.navContas = 'nb' + (v.isContas || v.isConta ? ' on' : '');
+    v.goAgora = go('nav', 'agora'); v.goContas = go('nav', 'contas'); v.goPedir = go('pedir');
+
+    /* agora */
+    var rows = s.tasks.map(function (t) {
+      var c = cust(s, t.cust), a = s.t - t.t0, lv = lvl(t.kind, a);
+      var mine = t.owner === ME, other = !!t.owner && !mine;
+      var btn, tap, btnCls = 'btn';
+      if (t.kind === 'ready') { if (mine) { btn = 'Levar'; tap = go('buildRun', t.zone); btnCls = 'btn blue'; } else { btn = 'Pegar'; tap = go('claim', t.id); } }
+      else if (t.kind === 'call') { if (mine) { btn = 'Feito'; tap = go('resolve', t.id); btnCls = 'btn blue'; } else { btn = 'Assumir'; tap = go('claim', t.id); } }
+      else if (t.kind === 'bill') { if (mine) { btn = 'Cobrar'; tap = go('charge', t.id); btnCls = 'btn vio'; } else { btn = 'Assumir'; tap = go('claim', t.id); } }
+      else { btn = 'Abrir'; tap = go('openTask', t.id); btnCls = 'btn sec'; }
+      var justClaimed = s.flash === t.id && s.t - s.flashAt < 2;
+      return {
+        id: t.id, place: t.place, zone: ZONE_SHORT[t.zone] || t.zone, what: t.what,
+        name: c ? c.name : '', casa: !!(c && c.rel === 'casa'), age: mmss(a), lv: lv,
+        u: t.kind === 'limit' ? 0.5 : a / warnOf(t.kind),
+        ageCls: 'age ' + lv, kl: KIND[t.kind], klCls: 'kl' + (lv === 'l0' ? ' k-' + t.kind : ''),
+        isReady: t.kind === 'ready', isCall: t.kind === 'call', isMoney: t.kind === 'bill' || t.kind === 'limit',
+        av: avOf(c), oav: av(t.owner), btn: btn, tap: tap, btnCls: btnCls, mine: mine, other: other, owner: t.owner || '', oi: t.owner ? t.owner.charAt(0) : '',
+        cls: 'row' + (mine ? ' mine' : '') + (justClaimed ? ' flash' : '') + (s.peak ? ' pk' : ''),
+        hasConf: mine && (justClaimed || s.offline), conf: s.offline ? 'na fila' : (s.t - s.flashAt < 1 ? 'enviando…' : '✓ confirmado'),
+        showName: !s.peak
+      };
+    });
+    var mine = rows.filter(function (r) { return r.mine; });
+    var open = rows.filter(function (r) { return !r.owner; }).sort(function (a, b) { return b.u - a.u; });
+    var team = rows.filter(function (r) { return r.other; });
+    v.mine = mine; v.open = open; v.team = team;
+    v.hasMine = mine.length > 0; v.hasOpen = open.length > 0;
+    v.mineN = mine.length; v.openN = open.length; v.teamN = team.length;
+    v.openTitle = s.peak ? 'Mais antigo primeiro' : 'Precisa de alguém';
+    v.peak = s.peak; v.notPeak = !s.peak;
+    v.showTeam = !s.peak && team.length > 0; v.peakTeam = s.peak && team.length > 0;
+    v.teamLabel = team.length + (team.length === 1 ? ' tarefa com a equipe' : ' tarefas com a equipe');
+    v.empty = !mine.length && !open.length;
+    var nReady = s.tasks.filter(function (t) { return t.kind === 'ready' && !t.owner; }).length;
+    var nCall = s.tasks.filter(function (t) { return t.kind === 'call' && !t.owner; }).length;
+    var nMoney = s.tasks.filter(function (t) { return (t.kind === 'bill' || t.kind === 'limit') && !t.owner; }).length;
+    v.cReady = { n: nReady, lab: nReady === 1 ? 'pronto' : 'prontos', cls: nReady ? 'c-ready' : 'zero' };
+    v.cCall = { n: nCall, lab: 'chamando', cls: nCall ? 'c-call' : 'zero' };
+    v.cMoney = { n: nMoney, lab: 'conta', cls: nMoney ? 'c-money' : 'zero' };
+    v.nLate = open.filter(function (r) { return r.lv === 'l3' || r.lv === 'l4' || r.lv === 'l2'; }).length;
+    v.badge = open.length; v.hasBadge = open.length > 0 && !v.isAgora;
+
+    var byZone = {};
+    s.tasks.forEach(function (t) { if (t.kind === 'ready' && (!t.owner || t.owner === ME)) (byZone[t.zone] = byZone[t.zone] || []).push(t); });
+    var best = null;
+    Object.keys(byZone).forEach(function (z) {
+      var l = byZone[z]; if (l.length < 2) return;
+      var sc = l.length + (l.some(function (t) { return t.owner === ME; }) ? 10 : 0) + (z === 'Rua' ? 1 : 0);
+      if (!best || sc > best.sc) best = { z: z, l: l, sc: sc };
+    });
+    v.hasSug = !!best && !s.run;
+    if (best) {
+      var mineIn = best.l.filter(function (t) { return t.owner === ME; });
+      best.l.sort(function (a, b) { return (a.owner === ME ? 0 : 1) - (b.owner === ME ? 0 : 1); });
+      v.sug = { zone: best.z, n: best.l.length, places: best.l.map(function (t) { return t.place; }).join('  ·  '), tap: go('buildRun', best.z),
+        lead: mineIn.length ? 'Você vai à ' + best.z + ' com o ' + mineIn[0].place + '. Leve o resto junto.' : best.l.length + ' entregas prontas no mesmo caminho' };
+    } else v.sug = { zone: '', n: 0, places: '', tap: null, lead: '' };
+
+    /* contas */
+    v.query = s.query;
+    v.onQuery = function (e) { var val = e && e.target ? e.target.value : ''; self.act('query', val); };
+    var q = norm(s.query.trim());
+    var crow = function (c) {
+      var e = exp(c), rc = relChip(c);
+      return {
+        name: c.name, av: avOf(c), hasAv: !!avOf(c), noAv: !avOf(c), ini: c.name.charAt(0), casa: rc.casa, hasRel: rc.hasRel, rel: rc.rel, relCls: rc.relCls,
+        sub: c.tab ? ZONE_SHORT[c.tab.zone] + ' · ' + c.tab.place : (c.last ? 'última vez ' + c.last : 'primeira vez'),
+        amount: c.tab ? brl(e) : '', amountSub: c.tab ? 'de ' + brl(c.tab.limit) : '',
+        tap: go('openCust', c.id)
+      };
+    };
+    if (!q) {
+      var openC = s.custs.filter(function (c) { return c.tab; }).sort(function (a, b) { return ZONE_ORDER.indexOf(b.tab.zone) - ZONE_ORDER.indexOf(a.tab.zone) || a.tab.place.localeCompare(b.tab.place); });
+      var freq = s.custs.filter(function (c) { return !c.tab && c.freq > 0; }).sort(function (a, b) { return b.freq - a.freq; }).slice(0, 4);
+      v.cgroups = [
+        { title: 'Frequentes · sem conta hoje', n: freq.length, rows: freq.map(crow) },
+        { title: 'Abertas agora', n: openC.length, rows: openC.map(crow) }
+      ];
+      v.showNew = false;
+    } else {
+      var toks = q.split(/\s+/);
+      var scored = s.custs.map(function (c) {
+        var hay = norm(c.name + ' ' + (c.alias || '')); var words = hay.split(/\s+/); var sc = 0, ok = true;
+        toks.forEach(function (tk) {
+          if (words.some(function (w) { return w.indexOf(tk) === 0; })) sc += 3;
+          else if (hay.indexOf(tk) >= 0) sc += 2;
+          else { var j = 0; for (var i = 0; i < hay.length && j < tk.length; i++) if (hay[i] === tk[j]) j++; if (j === tk.length && tk.length >= 3) sc += 1; else ok = false; }
+        });
+        if (!ok) return null;
+        sc += (c.tab ? 1 : 0) + (c.freq || 0) / 5 + (c.rel === 'casa' ? 1 : 0);
+        return { c: c, sc: sc };
+      }).filter(Boolean).sort(function (a, b) { return b.sc - a.sc; });
+      v.cgroups = [{ title: scored.length ? 'Resultado' : 'Ninguém com esse nome', n: scored.length || '', rows: scored.map(function (x) { return crow(x.c); }) }];
+      v.showNew = true;
+    }
+    v.newCust = go('newCust');
+
+    /* tab */
+    var tc = cust(s, s.custId);
+    v.tb = { av: '', hasAv: false, noAv: true, ini: '', name: '', casa: false, hasRel: false, rel: '', relCls: 'rel', where: '', open: '0', lim: '0', needs: false, barCls: 'ebar', wA: 0, falCls: 'fal', fal: '', brk: '', hasOv: false, ov: '', items: [], noItems: true, hasPays: false, pays: [] };
+    if (tc && tc.tab) {
+      var e = exp(tc), L = tc.tab.limit, pd = paid(tc), rc = relChip(tc);
+      var near = L > 0 && e >= 0.8 * L, needs = e >= L && L >= 0 && (L > 0 || e > 0);
+      var items = tc.tab.items.map(function (i) {
+        var st = i.queued ? 'na fila' : i.status === 'prep' ? 'no bar' : i.status === 'kit' ? 'na cozinha' : i.status === 'ready' ? 'pronto' : i.status === 'onway' ? 'a caminho' : 'entregue ' + (i.doneAt || '');
+        var cls = i.queued ? 'st st-q' : 'st st-' + (i.status === 'kit' ? 'kit' : i.status === 'onway' ? 'way' : i.status);
+        return { q: i.qty, name: P[i.pid].name, st: st, stCls: cls, img: IMG[i.pid], hasImg: true };
+      });
+      var itemsSum = 0; tc.tab.items.forEach(function (i) { itemsSum += i.qty * P[i.pid].price; });
+      var earlier = tc.tab.today - itemsSum;
+      if (earlier > 0) items.unshift({ q: '·', name: 'Lançado antes', st: brl(earlier), stCls: 'st st-done', img: '', hasImg: false });
+      var lastOv = tc.tab.overrides[tc.tab.overrides.length - 1];
+      v.tb = {
+        av: avOf(tc), hasAv: !!avOf(tc), noAv: !avOf(tc), ini: tc.name.charAt(0), name: tc.name, casa: rc.casa, hasRel: rc.hasRel, rel: rc.rel, relCls: rc.relCls,
+        where: ZONE_SHORT[tc.tab.zone] + ' · ' + tc.tab.place, open: num(e), lim: num(L), needs: needs,
+        barCls: 'ebar' + (near ? ' near' : ''), wA: L ? Math.min(100, e / L * 100).toFixed(1) : (e > 0 ? 100 : 0),
+        falCls: 'fal' + (near ? ' near' : ''),
+        fal: L === 0 ? 'Paga na hora: receba antes de lançar' : e >= L ? 'Chegou no limite · receba ou peça liberação' : 'Faltam ' + brl(L - e) + ' para o limite',
+        brk: 'Consumo ' + brl(tc.tab.today) + (pd ? '  ·  Recebido ' + brl(pd) : '') + '  ·  ' + REL[tc.rel] + ' começa com ' + brl(LIMIT[tc.rel]),
+        hasOv: !!lastOv, ov: lastOv ? 'Limite liberado ' + brl(lastOv.from) + ' → ' + brl(lastOv.to) + ' por ' + lastOv.by + ' · ' + lastOv.at : '',
+        items: items, noItems: items.length === 0,
+        hasPays: tc.tab.pays.length > 0,
+        pays: tc.tab.pays.map(function (p) { return { label: MNAME[p.method] + ' · ' + p.at, amt: brl(p.amount) }; })
+      };
+    }
+    v.histOpen = s.hist && !!(tc && tc.rel !== 'visitante'); v.toggleHist = go('hist'); v.histLabel = s.hist ? 'Esconder histórico' : 'Histórico';
+    v.move = go('move'); v.receive = go('receive'); v.closeTab = go('closeTab'); v.callSheet = go('callSheet');
+
+    /* pedir */
+    var tile = function (id, span) {
+      var qn = s.cart[id] || 0;
+      return { img: IMG[id], name: P[id].name, sub: P[id].sub, price: brl(P[id].price), q: '×' + qn, on: qn > 0, cls: 'tw' + (span ? ' s2' : '') + (qn ? ' on' : ''), tap: go('add', id), sub1: go('sub', id) };
+    };
+    var ptc = tc && tc.tab ? tc : null;
+    var lines = [], total = 0, nb = 0, nk = 0;
+    Object.keys(s.cart).forEach(function (id) { var qn = s.cart[id]; if (!qn) return; lines.push({ q: qn, name: P[id].name }); total += qn * P[id].price; if (P[id].route === 'bar') nb += qn; else nk += qn; });
+    var routes = []; if (nb) routes.push('Bar ' + nb); if (nk) routes.push('Cozinha ' + nk);
+    var over = !!ptc && total > 0 && exp(ptc) + total > ptc.tab.limit;
+    v.pos = {
+      forLabel: ptc ? 'Pedido para · ' + ZONE_SHORT[ptc.tab.zone] + ' ' + ptc.tab.place : 'Pedido para',
+      target: ptc ? ptc.name : 'Escolher conta…', casa: !!(ptc && ptc.rel === 'casa'),
+      targetTap: go('nav', 'contas'), close: ptc ? go('openTabOf', ptc.id) : go('nav', 'agora'),
+      ktiles: KGRID.map(function (id) { return tile(id, false); }),
+      btiles: BGRID.map(function (id) { return tile(id, id === 'brahma'); }),
+      lines: lines, emptyCart: lines.length === 0,
+      routes: routes.length ? '→ ' + routes.join(' · ') : 'Nada no pedido', total: brl(total),
+      send: ptc ? go('send') : go('nav', 'contas'), noSend: ptc ? total === 0 : false,
+      sendLabel: ptc ? (total ? 'Enviar · ' + ptc.tab.place : 'Enviar') : 'Escolher conta',
+      over: over, notOver: !over,
+      overMsg: !ptc ? '' : ptc.tab.limit === 0 ? 'Paga na hora: receba ' + brl(total) + ' antes de enviar' : 'Passa do limite em ' + brl(exp(ptc) + total - ptc.tab.limit) + ' · aberto ' + brl(exp(ptc)) + ' de ' + brl(ptc.tab.limit),
+      payFirst: go('receive'), askOv: go('ovOpen')
+    };
+
+    /* run */
+    v.run = { dots: [], lines: [], originStyle: '', nextLine: '', zone: '', prog: '', segs: [], going: false, done: false, cur: { place: '', what: '', name: '', casa: false, zone: '' }, hasNext: false, next: [], summary: '', deliver: go('deliver'), skip: go('skip'), stopRun: go('stopRun'), finish: go('finishRun') };
+    if (s.run) {
+      var r = s.run, ct = r.done ? null : findTask(s, r.stops[r.i]);
+      var cc = ct ? cust(s, ct.cust) : null;
+      v.run.zone = r.zone; v.run.done = r.done; v.run.going = !r.done;
+      v.run.prog = r.done ? r.delivered + ' de ' + r.stops.length : (r.i + 1) + ' de ' + r.stops.length;
+      v.run.segs = r.stops.map(function (id, i) { return { cls: 'seg' + (i < r.i ? ' d' : i === r.i && !r.done ? ' c' : '') }; });
+      if (ct) v.run.cur = { place: ct.place, what: ct.what, name: cc ? cc.name : '', casa: !!(cc && cc.rel === 'casa'), zone: ct.zone };
+      v.run.next = r.stops.slice(r.i + 1).map(function (id) { var x = findTask(s, id); return x ? { place: x.place, what: x.what } : null; }).filter(Boolean);
+      v.run.hasNext = v.run.next.length > 0;
+      var o = { x: 84, y: 62 }, prev = o, lines = [];
+      v.run.dots = r.stops.map(function (id, i) {
+        var x = findTask(s, id), tk = null, place = x ? x.place : null;
+        if (!x) { tk = s.bar.filter(function (b) { return 'r' + b.id === id; })[0]; place = tk ? tk.place : null; }
+        if (!place) return null;
+        var p = ptXY(place);
+        var dx = (p.x - prev.x) * MAPK, dy = (p.y - prev.y) * MAPK;
+        lines.push({ style: 'left: ' + px(prev.x) + 'px; top: ' + px(prev.y) + 'px; width: ' + Math.sqrt(dx * dx + dy * dy).toFixed(1) + 'px; transform: rotate(' + (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1) + 'deg)', cls: 'mline' + (i < r.i ? ' d' : '') });
+        prev = p;
+        return { n: i + 1, place: place, style: 'left: ' + px(p.x) + 'px; top: ' + px(p.y) + 'px', cls: 'mstop' + (i < r.i ? ' d' : i === r.i && !r.done ? ' c' : '') };
+      }).filter(Boolean);
+      v.run.lines = lines;
+      v.run.originStyle = 'left: ' + px(o.x) + 'px; top: ' + px(o.y) + 'px';
+      v.run.nextLine = v.run.next.length ? 'Depois: ' + v.run.next.map(function (n) { return n.place; }).join(' → ') : 'Última parada';
+      v.run.summary = r.delivered + (r.delivered === 1 ? ' entrega em ' : ' entregas em ') + mmss((r.end || s.t) - r.start);
+    }
+
+    /* sheets */
+    v.sheetCust = s.sheet === 'cust'; v.sheetLocal = s.sheet === 'local'; v.sheetSent = s.sheet === 'sent'; v.sheetPay = s.sheet === 'pay'; v.sheetNovo = s.sheet === 'novo';
+    v.sheetCall = s.sheet === 'call'; v.sheetOv = s.sheet === 'ovr'; v.sheetSum = s.sheet === 'summary' && !!s.summary;
+    v.anySheet = !!s.sheet; v.closeSheet = go('closeSheet'); v.openTab = go('openTab'); v.closeSent = go('closeSent');
+    v.callAt = go('newCall', 'call'); v.callBill = go('newCall', 'bill');
+    var sc = cust(s, s.custId), src = relChip(sc);
+    v.sc = { av: avOf(sc), hasAv: !!avOf(sc), ini: sc ? sc.name.charAt(0) : '', name: sc ? sc.name : '', casa: src.casa, hasRel: src.hasRel, rel: src.rel, relCls: src.relCls,
+      last: sc ? (sc.tab ? 'Conta aberta · ' + ZONE_SHORT[sc.tab.zone] + ' ' + sc.tab.place : (sc.visits ? sc.visits + ' visitas · última ' + sc.last : 'Primeira vez')) : '',
+      lim: sc ? brl(lim(sc)) : '', pend: sc && sc.tab ? brl(exp(sc)) + ' aberto hoje' : 'Nenhuma',
+      btn: sc && sc.tab ? 'Ver conta' : 'Abrir conta' };
+    v.lc = {
+      who: s.locMode === 'move' ? 'Mover ' + (sc ? sc.name : '') : (sc ? sc.name + ' · opcional' : ''), title: s.locMode === 'move' ? 'Pra onde foi?' : 'Onde ele está?',
+      zones: ZONE_ORDER.map(function (z) { var b = ZONE_BOX[z]; return { name: z, cls: 'mzone' + (s.locZone === z ? ' on' : ''), tap: go('zone', z), style: 'left: ' + px(b[0]) + 'px; top: ' + px(b[1]) + 'px; width: ' + px(b[2]) + 'px; height: ' + px(b[3]) + 'px' }; }),
+      dots: s.custs.filter(function (c) { return c.tab; }).map(function (c) { var p = ptXY(c.tab.place); return { style: 'left: ' + px(p.x) + 'px; top: ' + px(p.y) + 'px', cls: 'mdot' + (c.id === s.custId ? ' me' : '') }; }),
+      points: (ZONES[s.locZone] || []).map(function (p) {
+        var occ = s.custs.filter(function (c) { return c.tab && c.tab.place === p && c.id !== s.custId; })[0];
+        var mineHere = sc && sc.tab && sc.tab.place === p;
+        return { p: p, occ: mineHere ? 'aqui' : occ ? occ.name.split(' ')[0] : 'livre', cls: 'pt' + (occ ? '' : ' free') + (mineHere ? ' here' : ''), tap: go('point', p) };
+      })
+    };
+    var d = s.draft || { name: '', rel: 'visitante', phone: '' };
+    v.nv = { name: d.name, phone: d.phone, noName: !d.name.trim(), limLine: 'Começa com limite de ' + brl(LIMIT[d.rel]) + '. Sem CPF.',
+      onName: function (e) { self.act('draftName', e.target.value); }, onPhone: function (e) { self.act('draftPhone', e.target.value); },
+      rels: ['visitante', 'conhecido', 'regular', 'casa'].map(function (r) { return { name: REL[r], cls: 'sg' + (d.rel === r ? ' on' : ''), tap: go('draftRel', r) }; }),
+      create: go('createCust') };
+    var sn = s.sent || {};
+    v.sn = { place: (sn.ord || '') + ' · ' + (sn.place || ''), total: brl(sn.total || 0), bar: sn.bar || '', kit: sn.kit || '', hasBar: !!sn.hasBar, hasKit: !!sn.hasKit,
+      title: sn.phase === 'sending' ? 'Enviando…' : sn.phase === 'queued' ? 'Guardado' : 'Pedido enviado',
+      st: sn.phase === 'sending' ? 'enviando' : sn.phase === 'queued' ? 'na fila' : '✓ recebido',
+      stCls: 's ' + (sn.phase === 'sending' ? 's-wait' : sn.phase === 'queued' ? 's-q' : 's-ok'),
+      note: sn.phase === 'queued' ? 'Sem sinal. O pedido está guardado no aparelho e vai sozinho quando o sinal voltar.' : 'Já está na conta. Bar e cozinha estão vendo; você recebe aviso quando ficar pronto.' };
+    var py = s.pay || { amount: 0, phase: 'pick' }, pc = sc;
+    var pe = exp(pc), ppd = paid(pc);
+    var half = Math.round(pe / 2);
+    v.py = {
+      name: pc ? pc.name : '', conta: brl(pc && pc.tab ? pc.tab.today : 0), pago: brl(ppd), rest: brl(pe), amt: num(py.amount), noAmt: !py.amount,
+      pick: py.phase === 'pick', wait: py.phase === 'wait', done: py.phase === 'done', isPix: py.method === 'pix',
+      minus: go('payStep', -10), plus: go('payStep', 10),
+      quick: [100, 200, half, pe].map(function (n, i) { return { label: i === 2 ? 'Metade' : i === 3 ? 'Tudo' : brl(n), cls: 'sg' + (py.amount === n && n ? ' on' : ''), tap: go('payAmt', n) }; }),
+      pix: go('payMethod', 'pix'), card: go('payMethod', 'cartao'), cash: go('payMethod', 'dinheiro'), other: go('payMethod', 'outro'), cancel: go('payCancel'),
+      confirm: go('payConfirm'),
+      waitTitle: py.method === 'pix' ? 'Pix de ' + brl(py.amount) + ' pendente' : py.method === 'cartao' ? brl(py.amount) + ' na maquininha' : brl(py.amount) + ' por outro meio',
+      waitSub: py.method === 'pix' ? 'Quando cair, confirme. Com Pix integrado, confirma sozinho.' : py.method === 'cartao' ? 'Quando a maquininha aprovar, confirme.' : 'Vale-refeição, transferência… confirme quando receber.',
+      confirmLabel: py.method === 'pix' ? 'Pix caiu · confirmar' : py.method === 'cartao' ? 'Aprovado · confirmar' : 'Recebido · confirmar',
+      doneTitle: (MNAME[py.method] || 'Pagamento') + ' recebido', doneSub: brl(py.amount) + ' · ' + now(s),
+      zero: py.phase === 'done' && pe === 0, notZero: !(py.phase === 'done' && pe === 0),
+      casa: !!(pc && pc.tab && pc.tab.limit && pe > 0),
+      after: pc && pc.tab ? brl(pe) + ' aberto · faltam ' + brl(Math.max(0, pc.tab.limit - pe)) + ' para o limite' : '',
+      cont: go('continueTab'), more: go('payMore'), fin: go('finalize')
+    };
+    var ov = s.ov || { to: 0, reason: '' };
+    v.ovv = { from: brl(ptc ? ptc.tab.limit : 0), to: num(ov.to), minus: go('ovStep', -50), plus: go('ovStep', 50), apply: go('ovApply'), mgr: MANAGER,
+      reasons: ['Cliente conhecido', 'Vai pagar já', 'Outro'].map(function (r) { return { name: r, cls: 'sg' + (ov.reason === r ? ' on' : ''), tap: go('ovReason', r) }; }) };
+    var sm = s.summary || { name: '', place: '', total: 0, items: [], pays: [], times: [], audit: [] };
+    v.sm = { name: sm.name, place: sm.place, total: brl(sm.total), items: sm.items, pays: sm.pays, times: sm.times, hasTimes: sm.times.length > 0, audit: sm.audit, done: go('closeSheet') };
+
+    /* bar screen */
+    var prep = s.bar.filter(function (b) { return b.status === 'prep'; }).sort(function (a, b) { return a.t0 - b.t0; });
+    var agg = {}, newIds = {};
+    prep.forEach(function (b) { var isNew = s.t - b.t0 < 6; b.items.forEach(function (x) { agg[x[0]] = (agg[x[0]] || 0) + x[1]; if (isNew) newIds[x[0]] = 1; }); });
+    var shelf = s.bar.filter(function (b) { return b.status === 'ready'; });
+    v.kd = {
+      nPrep: prep.length, nShelf: shelf.length, nKit: s.kitchen.length,
+      batches: Object.keys(agg).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return { img: IMG[k], name: P[k].name, q: agg[k], cls: 'batch' + (newIds[k] ? ' new' : '') }; }),
+      dest: prep.map(function (b) {
+        var a = s.t - b.t0, lv = a >= 300 ? 'l3' : a >= 180 ? 'l2' : a >= 120 ? 'l1' : 'l0';
+        return { place: b.place, zone: ZONE_SHORT[b.zone], items: itemsLabel(b.items), age: mmss(a), ageCls: 'da ' + lv, isNew: a < 6, cls: 'dest' + (a < 6 ? ' new' : ''), tap: go('barReady', b.id) };
+      }),
+      shelf: shelf.map(function (b) {
+        var t = s.tasks.filter(function (x) { return x.ticket === b.id; })[0];
+        var a = s.t - b.readyAt, owner = t && t.owner;
+        return { place: b.place, zone: ZONE_SHORT[b.zone], items: itemsLabel(b.items), age: mmss(a), taken: !!owner, oav: av(owner), oi: owner ? owner.charAt(0) : '',
+          who: owner ? owner + ' vem pegar' : (a >= 180 ? 'Ninguém pegou' : 'Esperando'), whoCls: 'who ' + (owner ? 'taken' : a >= 180 ? 'late' : 'wait') };
+      }),
+      shelfEmpty: shelf.length === 0,
+      kit: s.kitchen.map(function (k) { var a = s.t - k.t0; return { place: k.place, items: itemsLabel(k.items), age: mmss(a), isNew: a < 6, st: 'na chapa' }; })
+    };
+    return { v: v };
+  }
+}
+</script>
+</body>
+</html>

@@ -22,6 +22,10 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 
 ## Marca e domínios canônicos
 
+### Protótipos da noite
+
+Os cinco ZIPs em `prototype/` foram integrados como [referências executáveis](prototype/references/index.html), com [KB de decisões e mapeamento](docs/design/prototype-integration.md) e [Spec 021](specs/021-prototype-design-integration/spec.md). Web e Atendimento Android compartilham a nova paleta/tipografia; Cozinha/Bar priorizam resumo de produção, fila e passe. Os fluxos simulados de Atendimento, pico e offline continuam referências de produto sob seus contratos canônicos.
+
 ### Estado Web verificável
 
 Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API. A [Spec 020](specs/020-web-operational-completion/spec.md) entrega Quick Catalog com busca/reutilização e criação auditada, histórico da comanda do cliente com atualização a cada cinco segundos, seleção/revisão de fechamentos antigos mesmo com turno ativo e relatórios operacionais por período com CSV. Os ícones usam fallback; a integração de IA foi adiada pelo usuário. Consulte a [entrega e validação](docs/development/web-operational-completion.md), o [relatório visual](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). O roadmap abaixo também descreve capacidades futuras; não implica que todo módulo esteja implementado. Paridade visual total e publicação em produção não são declaradas.
@@ -51,6 +55,12 @@ Ver [ADR 0010](./docs/adr/0010-brand-and-canonical-domains.md).
 > **Identity optional, Tab mandatory.**
 
 Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou acessar a mesma comanda. Nenhuma delas deve virar a própria comanda.
+
+## Implementação do produto completo
+
+Para reproduzir fielmente os protótipos atualizados, seguir o [plano pixel-perfect](docs/design/pixel-perfect-implementation-plan.md) e a [Spec 023](specs/023-updated-prototype-visual-parity/spec.md): contratos por tela/estado, medidas, fixtures equivalentes e gates Web/Android.
+
+O [plano de implementação](docs/architecture/full-product-implementation-plan.md) registra o estado real, lacunas dos protótipos, etapas P0–P6, backlog R01–R18 e gates de piloto, produto completo e produção. A [Spec 022](specs/022-full-product-implementation/spec.md) acompanha a entrega; planejamento não declara os fluxos restantes implementados.
 
 ## Roadmap por slices
 

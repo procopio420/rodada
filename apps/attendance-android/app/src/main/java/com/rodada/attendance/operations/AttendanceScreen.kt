@@ -1,5 +1,7 @@
 package com.rodada.attendance.operations
 
+import com.rodada.attendance.ui.RodadaMono
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -304,7 +306,7 @@ private fun TabList(
                     Text(task.destinationLabel.ifBlank { "Destino não informado" }, fontWeight = FontWeight.Bold)
                     Text("${task.quantity}× ${task.productName}")
                     if (task.tabLabel.isNotBlank()) Text("Comanda: ${task.tabLabel}")
-                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall)
+                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall, fontFamily = RodadaMono)
                     Button(
                         onClick = { onCompleteDelivery(task.id) },
                         enabled = !state.submitting,

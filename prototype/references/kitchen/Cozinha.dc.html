@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Rodada · tela da cozinha</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>
+body{margin:0}
+.k button{font-family:inherit;cursor:pointer}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+.lbl{padding:16px 24px 10px;font-size:15px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#A39686;display:flex;justify-content:space-between}
+.dish{padding:14px 24px 16px;border-bottom:1px solid #3A3228;display:flex;flex-direction:column;gap:8px}
+.dish .h{display:flex;justify-content:space-between;align-items:center}
+.dish .n{font-size:44px;line-height:.9;font-weight:900;font-stretch:64%;text-transform:uppercase}
+.dish .q{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:800;line-height:1}
+.dish .st{font-size:15px;color:#BBAE9B;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:30px;padding:0 10px;border-radius:4px;background:#252019;box-shadow:inset 0 0 0 1px #3A3228;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;display:inline-flex;align-items:center}
+.tk{display:grid;grid-template-columns:84px minmax(0,1fr) 116px;gap:16px;align-items:center;padding:12px 20px 12px 24px;border-bottom:1px solid #3A3228}
+.tk .p{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;line-height:1}
+.tk .p small{display:block;font-family:'Archivo',sans-serif;font-size:14px;font-weight:700;color:#BBAE9B;margin-top:5px}
+.tk .i{font-size:21px;font-weight:700;line-height:1.25}
+.tk .meter{margin-top:8px;height:8px;border-radius:2px;background:#312A21;overflow:hidden}
+.tk .meter span{display:block;height:100%}
+.tk .a{display:flex;justify-content:space-between;font-size:15px;color:#BBAE9B;margin-top:6px;font-weight:600}
+.btn{border:0;border-radius:8px;height:56px;width:100%;background:#F3ECE1;color:#17130F;font-size:18px;font-weight:850;font-stretch:84%;letter-spacing:.06em;text-transform:uppercase;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2)}
+.pass{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:12px 24px;border-bottom:1px solid #3A3228}
+.pass .p{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800}
+.pass .i{font-size:19px;font-weight:700}
+.pass .w{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:4px;display:flex;align-items:center;gap:6px}
+.av{width:24px;height:24px;border-radius:50%;background:#82B8FF;color:#17130F;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+</style>
+</helmet>
+<div class="k" style="width: 1280px; height: 800px; background: #0A0806; color: #F3ECE1; font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif; display: grid; grid-template-columns: 420px minmax(0, 1fr) 340px; grid-template-rows: 72px minmax(0, 1fr); overflow: hidden">
+
+  <header style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: #1B1713; border-bottom: 1px solid #3A3228">
+    <div style="display: flex; align-items: center; gap: 14px"><span style="color: #F5A524; display: flex"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z"></path></svg></span><b style="font-size: 38px; font-weight: 900; font-stretch: 66%; text-transform: uppercase">Cozinha</b><span style="font-size: 17px; color: #BBAE9B; font-weight: 600">chapa · fritadeira · meta 12 min</span></div>
+    <div style="display: flex; gap: 22px; align-items: center; font-size: 16px; color: #BBAE9B; font-weight: 700"><span><b style="color: #F3ECE1">6</b> pedidos</span><span><b style="color: #FF5D47">1</b> passou da meta</span><span><b style="color: #F3ECE1">3</b> no passe</span><span class="mono" style="font-size: 18px">23:14</span></div>
+  </header>
+
+  <!-- production -->
+  <section style="border-right: 1px solid #3A3228; display: flex; flex-direction: column; min-height: 0">
+    <div class="lbl" style="color: #F5A524"><span style="display: flex; align-items: center; gap: 6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>Fazer agora · por prato</span><span>porções</span></div>
+    <div class="dish"><div class="h"><span style="display: flex; align-items: center; gap: 14px"><img src="./assets/c74be2bf7ae8d32da5f77ec39f311a18.svg" alt="" style="width: 56px; height: 64px; object-fit: contain"><span class="n">Fritas</span></span><span class="q">4</span></div><span class="st">Fritadeira 1 · cesto cheio = 2</span><div class="chips"><span class="chip">P37</span><span class="chip">P08</span><span class="chip">P25 ×2</span></div></div>
+    <div class="dish"><div class="h"><span style="display: flex; align-items: center; gap: 14px"><img src="./assets/1e9830bdd3cf72f57dc17c0bd356214f.svg" alt="" style="width: 56px; height: 64px; object-fit: contain"><span class="n">Bolinho</span></span><span class="q">3</span></div><span class="st">Fritadeira 2 · 6 un. cada</span><div class="chips"><span class="chip">P22 ×2</span><span class="chip">B4</span></div></div>
+    <div class="dish"><div class="h"><span style="display: flex; align-items: center; gap: 14px"><img src="./assets/431ed6655f8c54cccf2eea5b7faf92ca.svg" alt="" style="width: 56px; height: 64px; object-fit: contain"><span class="n">Calabresa</span></span><span class="q">2</span></div><span class="st">Chapa</span><div class="chips"><span class="chip">P41</span><span class="chip">P12</span></div></div>
+    <div class="dish" style="border-bottom: 0"><div class="h"><span style="display: flex; align-items: center; gap: 14px"><img src="./assets/73ba944a476ce094605977a1b0205ec9.svg" alt="" style="width: 56px; height: 64px; object-fit: contain"><span class="n">Torresmo</span></span><span class="q">1</span></div><span class="st">Fritadeira 2</span><div class="chips"><span class="chip">P44</span></div></div>
+  </section>
+
+  <!-- tickets -->
+  <section style="display: flex; flex-direction: column; min-height: 0; border-right: 1px solid #3A3228">
+    <div class="lbl"><span>Por pedido · mais antigo primeiro</span><span>montar e soltar</span></div>
+    <div class="tk"><span class="p">P22<small>Calçada</small></span><div><div class="i">2 Bolinho de bacalhau</div><div class="meter"><span style="width: 100%; background: #FF5D47"></span></div><div class="a"><span>Galera da 22</span><span class="mono" style="color: #FF5D47; font-weight: 800">13:10</span></div></div><button class="btn">Pronto</button></div>
+    <div class="tk"><span class="p">P08<small>Imóvel 2</small></span><div><div class="i">1 Fritas · 1 Calabresa</div><div class="meter"><span style="width: 78%; background: #F5A524"></span></div><div class="a"><span>Renata</span><span class="mono" style="color: #F5A524; font-weight: 800">9:22</span></div></div><button class="btn">Pronto</button></div>
+    <div class="tk"><span class="p">P25<small>Calçada</small></span><div><div class="i">2 Fritas</div><div class="meter"><span style="width: 52%; background: #BBAE9B"></span></div><div class="a"><span>Turma do Vasco</span><span class="mono" style="font-weight: 800">6:15</span></div></div><button class="btn">Pronto</button></div>
+    <div class="tk"><span class="p">P41<small>Rua</small></span><div><div class="i">1 Calabresa</div><div class="meter"><span style="width: 35%; background: #BBAE9B"></span></div><div class="a"><span>Carlos Mecânico</span><span class="mono" style="font-weight: 800">4:10</span></div></div><button class="btn">Pronto</button></div>
+    <div class="tk"><span class="p">P37<small>Rua</small></span><div><div class="i">1 Fritas <span style="font-size: 14px; font-weight: 900; letter-spacing: .1em; color: #17130F; background: #F5A524; border-radius: 3px; padding: 2px 6px; vertical-align: 3px">NOVO</span></div><div class="meter"><span style="width: 4%; background: #BBAE9B"></span></div><div class="a"><span>João da Oficina</span><span class="mono" style="font-weight: 800">0:31</span></div></div><button class="btn">Pronto</button></div>
+  </section>
+
+  <!-- pass -->
+  <section style="display: flex; flex-direction: column; min-height: 0; background: #100D0A">
+    <div class="lbl"><span>No passe · esperando garçom</span><span>3</span></div>
+    <div class="pass"><span class="p">P12</span><div><div class="i">1 Calabresa</div><div class="w" style="color: #FF5D47">Ninguém pegou · 3:40</div></div></div>
+    <div class="pass"><span class="p">B4</span><div><div class="i">1 Bolinho</div><div class="w" style="color: #F5A524">Esperando · 1:20</div></div></div>
+    <div class="pass"><span class="p">P44</span><div><div class="i">1 Torresmo</div><div class="w" style="color: #82B8FF"><img src="./assets/da647361752c6e97c88066964a7f7259.svg" alt="" style="width: 24px; height: 24px; border-radius: 50%">Carlos levando</div></div></div>
+    <div style="margin-top: auto; padding: 18px 20px; border-top: 1px solid #3A3228; font-size: 16px; line-height: 1.45; color: #BBAE9B">Prato no passe vira tarefa no celular dos garçons da área. Quem pegar aparece aqui em azul.</div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

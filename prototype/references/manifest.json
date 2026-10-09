@@ -1,0 +1,37 @@
+[
+  {
+    "id": "night",
+    "title": "Uma noite no bar",
+    "archive": "Protótipo · uma noite no bar (interativo)-html.zip",
+    "sha256": "10f5b7ce9a749094e9bb6adbdd09ac5eb26e3571fd82cce805f9b3f880d95e28",
+    "entry": "night/Main.dc.html"
+  },
+  {
+    "id": "system",
+    "title": "Sistema Rodada",
+    "archive": "Sistema Rodada-html.zip",
+    "sha256": "34d0afb8517b4ead16c2d787b70a5ac13bc3eee3f118d5dcffd1853323715e70",
+    "entry": "system/Sistema.dc.html"
+  },
+  {
+    "id": "kitchen",
+    "title": "Tela da Cozinha",
+    "archive": "Tela da Cozinha-html.zip",
+    "sha256": "ffa32367f3a04131922f75f2d7ebb4968c92e01451c7c32d6e4be1a94d428e63",
+    "entry": "kitchen/Cozinha.dc.html"
+  },
+  {
+    "id": "peak",
+    "title": "Modo pico",
+    "archive": "Modo pico-html.zip",
+    "sha256": "23ee008d67e39ae3ef9ce20c87d5142e41e86de21f1470cc9a0c384b189d5cf5",
+    "entry": "peak/Pico.dc.html"
+  },
+  {
+    "id": "connectivity",
+    "title": "Sem sinal → Sincronizado",
+    "archive": "Sem sinal → Sincronizado-html.zip",
+    "sha256": "603b6f7a308529deff418b7bb82cca4c486f7e5a21401a01d5d567a16cfefe67",
+    "entry": "connectivity/Offline.dc.html"
+  }
+]

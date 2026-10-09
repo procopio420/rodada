@@ -2,6 +2,10 @@
 
 Aplicativo nativo do garçom/caixa móvel, em Kotlin + Jetpack Compose.
 
+## Sistema visual
+
+O Atendimento usa `RodadaTheme`: paleta quente escura, ações papel creme, Archivo local e formas do design system compartilhado. Fontes e licenças são empacotadas, sem download durante uso. Ver [Spec 021](../../specs/021-prototype-design-integration/spec.md) e [KB dos protótipos](../../docs/design/prototype-integration.md). O port do tema preserva os fluxos existentes e não declara paridade completa com o artboard.
+
 ## Uso em celulares pessoais (BYOD)
 
 O fluxo padrão é o garçom instalar o Rodada Atendimento no **seu Android**, escolher o estabelecimento e autenticar com a identidade/PIN de um funcionário ativo. **Não há aprovação manual do aparelho pelo gerente para trabalhar.**

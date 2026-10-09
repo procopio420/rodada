@@ -1,11 +1,9 @@
-# Protótipo
+# Protótipos Rodada
 
-Abra `index.html` no navegador.
+Referências novas da noite: [galeria](references/index.html). Na raiz, rode `python3 -m http.server 3101 --bind 127.0.0.1` e abra `http://127.0.0.1:3101/prototype/references/`.
 
-Ele demonstra três superfícies conceituais do MVP:
+Os cinco ZIPs são preservados; exports e assets locais ficam em `references/`, com origem/hash em [manifest.json](references/manifest.json). Fontes locais e suas licenças ficam em `fonts/`. Os demos usam dados simulados e runtime próprio; não são implementação conectada.
 
-1. **PDV** — Tab + pedido + routing Bar/Cozinha.
-2. **Dispatch** — tarefas e run de entrega por zona.
-3. **Da Casa** — relacionamento, exposure, limite e parcial.
+A referência anterior em [index.html](index.html) continua navegável (PDV, Dispatch, Da Casa etc.) e compartilha os tokens em `design-system.css` com o Web.
 
-É propositalmente estático: serve para conversar com o Aderlan antes de investir em implementação.
+Contrato visual e diferenças de domínio: [KB](../docs/design/prototype-integration.md), [design system](../docs/design/system.md), [Spec 021](../specs/021-prototype-design-integration/spec.md).
