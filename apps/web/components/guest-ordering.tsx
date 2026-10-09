@@ -88,37 +88,6 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       sessionStorage.removeItem(intentKey);
       setServiceNotice(taskType === "BILL_REQUEST" ? "Pedido de conta recebido pela equipe." : "Chamada de atendimento recebida pela equipe.");
     } else {
-      if (result.status < 500) sessionStorage.removeItem(intentKey);
-      setServiceNotice(messageFor(result.body as ApiError, "Não foi possível enviar sua chamada. Tente novamente ou chame a equipe."));
-    }
-  }
-  const [requestSending, setRequestSending] = useState(false);
-  const [serviceNotice, setServiceNotice] = useState("");
-  const [serviceError, setServiceError] = useState(false);
-
-  async function requestService(taskType: "SERVICE_REQUEST" | "BILL_REQUEST") {
-    if (!context?.occupancy_active || requestSending || stale) return;
-    const intentKey = `${storageKey}.request.${guestToken}.${taskType}`;
-    let requestId: string;
-    try {
-      requestId = sessionStorage.getItem(intentKey) || crypto.randomUUID();
-      sessionStorage.setItem(intentKey, requestId);
-    } catch {
-      setServiceError(true);
-      setServiceNotice("Não foi possível guardar sua solicitação com segurança. Chame a equipe pessoalmente.");
-      return;
-    }
-    setRequestSending(true);
-    setServiceNotice("");
-    const result = await guestApi<{ id: string; state: string }>("service-requests/", guestToken, {
-      method: "POST", body: JSON.stringify({ request_id: requestId, task_type: taskType }),
-    });
-    setRequestSending(false);
-    setServiceError(!result.ok);
-    if (result.ok) {
-      sessionStorage.removeItem(intentKey);
-      setServiceNotice(taskType === "BILL_REQUEST" ? "Pedido de conta recebido pela equipe." : "Chamada de atendimento recebida pela equipe.");
-    } else {
       // Preserve identity after ambiguous network/server outcomes for safe retry.
       if (result.status < 500) sessionStorage.removeItem(intentKey);
       setServiceNotice(messageFor(result.body as ApiError, "Não foi possível enviar sua chamada. Tente novamente ou chame a equipe."));
