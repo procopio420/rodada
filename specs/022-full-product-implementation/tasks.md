@@ -27,3 +27,10 @@
 - [ ] R16: Configuração, guest, covers e contexto.
 - [ ] R17: Projeções e alertas.
 - [ ] R18: Homologação, runbooks e rollout.
+
+## Demo integrada Windows (parcial)
+
+- [ ] DW1: stack/reprodução isoladas.
+- [ ] DW2: turno HTTP/SSE/restart/SQL conciliados.
+- [ ] DW3: browser/pricing/recibos/Android disponível verificados.
+- [ ] DW4: gates e evidências publicados em PR draft.
