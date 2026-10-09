@@ -9,6 +9,7 @@ const items = [
   ["Vendas", "/manage#vendas"],
   ["Gestão", "/manage#gestao"],
   ["Mais", "/manage#mais"],
+  ["Impressoras", "/manage/printing"],
 ] as const;
 
 export function ManagementNav() {

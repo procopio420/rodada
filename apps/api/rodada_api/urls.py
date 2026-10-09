@@ -82,7 +82,12 @@ def readiness(request):
 
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 
+from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
+
 urlpatterns = [
+    path("receipts/<str:token>/", SharedReceiptView.as_view()),
+    path("guest/receipt/", GuestReceiptView.as_view()),
+    path("printing/", include("modules.documents_printing.urls")),
     path("", include("modules.realtime.urls")),
     path("catalog/products/<uuid:product_id>/customization/", CustomizationView.as_view()),
     path("catalog/products/<uuid:product_id>/customization/<str:kind>/<uuid:choice_id>/availability/", ChoiceAvailabilityView.as_view()),
