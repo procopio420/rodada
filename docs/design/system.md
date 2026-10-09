@@ -405,6 +405,10 @@ Medição executável confirmou borda superior 1 px: laterais 127×75, botão ce
 
 ## Navegação nativa com fonte ampliada
 
+### Header operacional Android — contrato responsivo da demo
+
+O header conserva marca, nome real do operador e estado textual de conexão. Ações Pico/Atualizar/Conta são extensão operacional ausente do header literal60px do night. Em celular360–430dp, promover agrupamento em duas regiões: identidade/conexão acima e ações em FlowRow abaixo, padding horizontal16/vertical12, gap8, alvo mínimo44dp. Fonte ampliada pode aumentar altura e quebrar o nome, sem ellipsis/clipping ou redução da fonte escolhida. Busy desabilita Atualizar/Conta, mantendo toggle Pico como antes. A própria coluna mede sua altura; insets continuam no AuthApp. Nenhuma alegação de equivalência literal do header completo.
+
 Contrato de adaptação: fontScale acima de 1.3 usa AttendanceNavTokens.ExpandedHeight de 112 dp e Pedir com ícone acima do label. Até 1.3 mantém barra 84 dp. Centro 136 dp na fonte normal e 104 dp na ampliada; margens existentes permanecem, sem encolhimento artificial da fonte. Comparação HTML canônica segue em 390 dp/fontScale1. Testar 360/390/430 dp com fontScale 1 e 2 para overflow, ações e seleção.
 
 Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.

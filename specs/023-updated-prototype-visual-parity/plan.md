@@ -1,5 +1,16 @@
 # Plano
 
+## Continuação completa — ordem de execução
+
+1. Completar inventário reproduzível de night (jornadas principais), system (espécimes), peak e connectivity (instâncias literais). Cozinha mantém contrato anterior; validar hashes atuais de todas as fontes.
+2. Medir divergências antes de corrigir componentes; promover medidas aprovadas no design system.
+3. Reexecutar fixture/comparação Cozinha/Bar e seus comandos individuais; nenhuma tolerância aumentada.
+4. Extrair apenas componentes Android que precisam de instrumentação real: header, linha/contadores/contas existentes. Corrigir clipping comprovado, preservar viewmodel/callbacks/capabilities; testar uma jornada por vez.
+5. Revalidar pico/recovery com snapshots e estado canônico; feedback não declara sincronização sem confirmação.
+6. Revalidar matriz360/390/430 e fonte1/2 no API36, com texto/targets e capturas repetidas; comparar com regiões literais/derivadas identificadas.
+7. Types/build/auth/realtime/visual/Web API PostgreSQL e Android unit/build/lint/instrumentação. Registrar falhas reais, correções e rodada final; ensaio integrado separado de fixture.
+8. Documentar critérios efetivamente comprovados, dependências e diferenças restantes; publicar commits/PR rascunho sem merge.
+
 ## Recorte atual V01 — night/Agora
 
 1. Conferir remotos/worktrees/PRs e isolar main45c4742, preservando branches e banco.

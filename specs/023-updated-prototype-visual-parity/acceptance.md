@@ -1,5 +1,15 @@
 # Aceite
 
+## Continuação completa — gates da demo
+
+- [ ] Cinco fontes verificadas e contratos dos estados principais versionados, com crops/medidas/fontes/normalizações.
+- [ ] Alterações de componentes baseadas em medidas, callbacks e estados preservados; sem dados fictícios no produto.
+- [ ] Cozinha/Bar: testes de transição individual/disponibilidade e comparação atuais, diferenças integrais reportadas sem esconder regiões.
+- [ ] Android: header/jornadas existentes sem clipping em fonte1/2, alvos44dp, busy/capabilities e estado de conexão preservados, screenshots no API36.
+- [ ] Web types/build/auth/realtime/visual e integração PostgreSQL; Android unit/build/lint/instrumentação com resultados atuais.
+- [ ] Roteiro integrado distingue testes interceptados, emulador e API/PostgreSQL real; sem claim de hardware/provider/produção.
+- [ ] Publicação/limites documentados por commit; critérios globais de paridade só marcados com confronto correspondente.
+
 ## Recorte atual V01 — night/Agora e Bar
 
 - [x] ZIP corresponde ao manifesto; HTML/assets originais mantêm hashes antes/depois.

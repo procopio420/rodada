@@ -2,6 +2,16 @@
 
 Estado: planejado. Data: 2026-10-08.
 
+## Continuação autorizada — sequência completa da demo importante
+
+Primeira correção V02/V05 a verificar: Header Android atual põe identidade e três ações na mesma Row. Extrair sem alterar comportamento para teste instrumentado; reproduzir nomes longos/fonte200% antes da correção. Contrato responsivo: identidade em região superior e ações FlowRow abaixo, tokens16/12/8, targets44, callbacks/busy existentes. Instrumentação verifica cada linha de texto e ações nas seis configurações; comparar regiões com header night60px e declarar extensão, não paridade integral.
+
+O pedido posterior amplia a execução além de um único recorte. Priorizar: contratos dos cinco exports e jornadas principais; componentes/legibilidade sem refazer acabamento; Cozinha/Bar com comparações honestas; Atendimento por jornada; pico/recovery; responsividade/acessibilidade; gates e roteiro integrado. A ordem V01–V07 permanece. Cada mudança tem contrato e critério antes do código. Reutilizar a base isolada main45c4742 e PR68, com commits por slice.
+
+O objetivo demonstrativo é concluir os gates verificáveis dos fluxos existentes; não transforma diferenças visuais ainda não resolvidas em fidelidade total. Contratos de backend ausentes são dependências nas specs proprietárias. Simulações dos exports (pagamento offline, entrega/ownership sem provenance) não autorizam copiar semântica para domínio. Fontes ampliadas/header/linhas Android devem conservar conteúdo completo e alvos44dp; controles e callbacks reais preservados.
+
+Validação desta sequência usa ambiente de teste isolado: PostgreSQL dedicado separado do55459 e do banco demonstrativo, serviços Web/API em portas livres, emulador API36 isolado. Sem reset de dados existentes, merge ou implantação. Hardware, SDK privado/provider e produção exigem evidência própria e não serão declarados comprovados.
+
 ## Recorte atual — V01, night/Agora e Bar adjacente (09/10/2026)
 
 Base isolada `origin/main` em `45c4742`. Prioridade: completar o contrato de referência ausente antes de novas alterações de composição. Inventariar somente o estado inicial Agora e o painel Bar simultâneo de `night/Main.dc.html`: seletores únicos, regiões, medidas, tipografia, assets, hashes e duas capturas determinísticas. Congelar o relógio no harness; não alterar dados, estilos, HTML ou ZIP original. Classificar moldura/status bar simulada separadamente do conteúdo.
@@ -93,3 +103,5 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 ## Continuação — acabamento compartilhado de todas as telas Web
 
 Aplicar o vocabulário já aceito na Gerência às superfícies Web existentes: entrada/sessão, Atendimento, PDV, Bar/Cozinha, Cliente, Caixa, Gerência e subpáginas de catálogo/preços/impressão/alertas, relatórios, estornos, recibo e documento histórico. Não criar ações/dados/rotas. Títulos conservam nível, texto, id, foco e nome acessível; ícones decorativos distinguem contexto operacional sem substituir ProductIcon ou rótulo. Hierarquia título/seção/subseção, bordas e sombras funcionais usam tokens. Estações conservam composição de lote/fila/passe e SVGs literais existentes; destaque de quantidade/destino/estado não muda transições. Impressos canônicos e HTML histórico no iframe permanecem intocados; só a moldura Web recebe acabamento. Nenhum contrato de API, regra financeira, autenticação ou auditoria muda. Não declarar paridade integral nas superfícies sem export. Android depende de confirmação de escopo e validação nativa própria.
+
+V06: perda real da API revelou SSE Reconnecting substituindo OFFLINE; o contrato e verificação da menor correção estão na Spec014. Manter SEM SINAL até leitura confirmada, sem executar/confirmar cobrança offline.

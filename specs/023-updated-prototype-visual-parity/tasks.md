@@ -1,5 +1,16 @@
 # Tasks
 
+## Continuação completa — demo importante
+
+- [ ] V01: contratos/jornadas principais dos cinco exports e fontes atuais.
+- [ ] V02: componentes essenciais com diferenças comprovadas e contrato.
+- [ ] V03–V04: comparação atual Cozinha/Bar e comandos individuais.
+- [ ] V05: jornadas existentes Android, header/contas/pedido/cobrança.
+- [ ] V06: pico/reconexão e feedback honesto.
+- [ ] Responsivo/acessibilidade internos360/390/430 e fonte1/2.
+- [ ] V07: gates atuais e roteiro integrado PostgreSQL/emulador.
+- [ ] Evidências/limites, commits pequenos e PR rascunho atualizado.
+
 ## Recorte atual V01 — night/Agora e Bar
 
 - [x] Auditar V01–V07 e sobreposição de PRs contra main45c4742.
