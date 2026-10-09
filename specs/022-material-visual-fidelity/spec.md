@@ -22,6 +22,8 @@ Pedido explícito de 08/10/2026: reproduzir os cinco HTMLs fornecidos (Sistema, 
 
 ## Fora de escopo
 
+Validação nativa usa API local no emulador. Em builds debug com Android 17+, declarar e solicitar a permissão de rede local antes de autenticar. Negar mantém o erro real de conexão; não conceder por bypass. Release não recebe essa permissão de desenvolvimento.
+
 Novo domínio de dispatch, SLA, inferência de entrega, queue offline genérica, provider financeiro, identidade fictícia, migração de atendimento nativo para web, geração de ícones em render e deployment.
 
 ## Aceite

@@ -265,6 +265,8 @@ Detalhes: [Spec 008](./specs/008-staff-auth-roles-devices/spec.md), [Spec 006](.
 
 ## Design system
 
+Os cinco materiais HTML fornecidos estão em [`prototype/material-reference`](./prototype/material-reference/README.md). A [Spec 022](./specs/022-material-visual-fidelity/spec.md) governa sua aplicação em Web e Android. Veja [fidelidade medida, validação e diferenças funcionais](./docs/design/material-fidelity-review.md).
+
 PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops, Guest Ordering e Quick Catalog compartilham um único sistema visual definido em [`docs/design/system.md`](./docs/design/system.md).
 
 O Quick Catalog também segue esse contrato: autocomplete-first, reuse de Product/ProductIcon existente e geração automática do ícone apenas para Product novo. O asset segue [`docs/product/icon-style.md`](./docs/product/icon-style.md); estados como `GENERATING`, `FAILED`, selecionado e indisponível pertencem à UI.

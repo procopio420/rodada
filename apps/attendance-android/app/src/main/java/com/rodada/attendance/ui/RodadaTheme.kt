@@ -55,6 +55,12 @@ fun RodadaTheme(content: @Composable () -> Unit) {
             background = RodadaVisual.Ground, onBackground = RodadaVisual.Paper,
             surface = RodadaVisual.Surface, onSurface = RodadaVisual.Paper,
             surfaceVariant = RodadaVisual.Control, onSurfaceVariant = RodadaVisual.Muted,
+            surfaceContainer = RodadaVisual.Control,
+            surfaceContainerLow = RodadaVisual.Surface,
+            surfaceContainerLowest = RodadaVisual.Ground,
+            surfaceContainerHigh = RodadaVisual.Control,
+            surfaceContainerHighest = RodadaVisual.Control,
+            surfaceTint = Color.Transparent,
             outline = RodadaVisual.Border, error = RodadaVisual.Danger,
         ),
         typography = base.copy(
@@ -68,7 +74,7 @@ fun RodadaTheme(content: @Composable () -> Unit) {
             labelLarge = label, labelMedium = label.copy(fontSize = 14.sp),
             labelSmall = label.copy(fontSize = 12.sp),
         ),
-        shapes = Shapes(small = RoundedCornerShape(4.dp), medium = RoundedCornerShape(8.dp), large = RoundedCornerShape(12.dp)),
+        shapes = Shapes(extraSmall = RoundedCornerShape(4.dp), small = RoundedCornerShape(4.dp), medium = RoundedCornerShape(8.dp), large = RoundedCornerShape(12.dp), extraLarge = RoundedCornerShape(12.dp)),
         content = content,
     )
 }

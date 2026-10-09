@@ -1,5 +1,7 @@
 # Revisão UX operacional — Spec 021
 
+Registro histórico da primeira slice. A identidade e a validação atuais estão em [Fidelidade ao material — Spec 022](./material-fidelity-review.md), que substitui o layout de duas colunas e a limitação de toolchain Android abaixo.
+
 Data: 2026-10-08. Base: `main`/`origin/main` confirmado em `4ba9c237b74878730c8b133e70dd8b02087c2cd7`. Branch: `codex/ux-operational-polish`. A fundação PR #40 e a conclusão Spec 020 são preservadas.
 
 ## Matriz priorizada

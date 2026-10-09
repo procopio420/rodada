@@ -167,6 +167,8 @@ Stack do bootstrap:
 
 ## Segurança
 
+No debug, a API do emulador fica em `10.0.2.2:8000`. Android 17+ solicita a permissão de rede local pelo diálogo do sistema antes do login. Negar impede o acesso local e mantém o erro de conexão; a permissão é declarada somente no manifest debug. [Documentação Android](https://developer.android.com/privacy-and-security/local-network-permission?hl=en).
+
 Tokens são serializados juntos com o contexto da sessão e cifrados antes de entrar em SharedPreferences. A chave AES não é exportável pelo app e vive no Android Keystore.
 
 `EncryptedSharedPreferences` não é usado porque está deprecated. O installation id não é credencial e fica em storage comum.
