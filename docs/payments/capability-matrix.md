@@ -1,3 +1,5 @@
+> Updated audit and executable callback/activation instructions: [2026-10-09 readiness](provider-readiness-2026-10-09.md).
+
 # Payment capability matrix
 
 All provider columns are public-contract implementation, not live verification.
@@ -11,7 +13,7 @@ All provider columns are public-contract implementation, not live verification.
 | Expiration | valid_until/EXPIRED contract | No invented timer | Unverified | Scripted |
 | Cancellation | Deactivate unprocessed only; no UI promise | SDK event requires reconciliation | Unverified | Scripted |
 | Partial refund | Request + matching new REFUND evidence | Same API; activation blocked | Unverified; manual confirmation rejected | Reservation/evidence tests |
-| Webhooks | Direct inbox rejected; polling implemented | Polling | Basic + authoritative lookup | Not public |
+| Webhooks | Unsigned lookup hints; authenticated polling | Polling | Basic + authoritative lookup | Not public |
 | Multi-merchant | OAuth encrypted connection | BYOD delegation blocked | Venue settings | Venue-scoped |
 | Private SDK build | N/A | Opt-in dependency; real bridge not compiled | N/A | Standard build green |
 | Real transaction evidence | NONE | NONE | NONE | No real money |
