@@ -28,7 +28,7 @@ Esta matriz descreve código presente, não certificação de produção. Checkb
 | Mesas e guest | `hospitality`, `guest_access`; testes de QR/ocupação | Jornada completa, mapa e recovery contextual; revogação consistente em caches |
 | Transferência/divisão de contas | `tab_operations/services.py`; preview, versões e locks | Completar UX e matriz de conflitos com pagamentos, correções e mudança de destino |
 | Caixa e correções | `cash`, `corrections`; testes e smoke de turno | Fechar casos operacionais restantes, comprovantes, treinamento e reconciliação integrada |
-| Pagamentos integrados | `payment_provider/adapters.py`; port e double determinístico | Adaptador real, credenciais/provisionamento, SDK Android, webhooks e homologação. Double não é provider de produção |
+| Pagamentos integrados | `payment_provider`: adapters Paytime/SumUp, intents, OAuth, callbacks/refunds e testes; Android integrated payments | Credenciais/provisionamento, SDK privado quando necessário e homologação sandbox/device real. Contratos simulados não comprovam liquidação real |
 | Atendimento Android | `apps/attendance-android`; auth, operações, tema, intenções locais e testes | Implementar paridade de jornada, estados de recovery, cobrança e integração de device |
 | Gerência | `management/views.py`; calendário/relatórios; Web conectado | Projeções reprocessáveis, alertas com ciclo de vida e cockpit de exceções |
 | Configuração/acesso | `venue`, `access`; sessões, capabilities e revogação | Onboarding operacional sem SQL e configuração dos módulos ainda incompletos |
@@ -140,7 +140,7 @@ Retirada/entrega podem permanecer desconhecidas quando não há evidência. Não
 
 Reutilizar ledger, provider port, cash e locks existentes. Testar saldo/exposição, responsabilidade entre contas, limites e rateios com PostgreSQL real; SQLite não comprova bloqueios de linha. Todo valor em centavos, transação em alteração de saldo, idempotência para evento externo, trilha com ator/horário/antes/depois/motivo quando aplicável. Refund não apaga pagamento original; transferências não reparentam silenciosamente histórico.
 
-O adapter determinístico e a classe Android de disponibilidade são scaffolding testável. R14 exige artefato/SDK real, elegibilidade do aparelho, credenciais, ativação comercial e ambiente de homologação. Estender o port com iniciar/consultar/cancelar quando suportado e definir estados reconciliáveis server-side. Validar webhook autenticado, duplicado, fora de ordem e callback perdido; a UI não decide liquidação. Pix e Tap seguem capacidades reais do provider, sem hardcode no domínio. Não prometer suporte a hardware não homologado.
+Após integrar o main atualizado, existem adapters Paytime/SumUp, lifecycle/reconciliação e integração Android testados com respostas injetadas. Reutilizar esse trabalho e o relatório em `docs/payments/validation-report.md`; não reconstruir adapters existentes. R14 agora exige completar gaps verificáveis, artefato/SDK real quando necessário, elegibilidade do aparelho, credenciais, ativação comercial e ambiente de homologação. Estender o port com iniciar/consultar/cancelar quando suportado e definir estados reconciliáveis server-side. Validar webhook autenticado, duplicado, fora de ordem e callback perdido; a UI não decide liquidação. Pix e Tap seguem capacidades reais do provider, sem hardcode no domínio. Não prometer suporte a hardware não homologado.
 
 ## Design system e implementação das jornadas
 
