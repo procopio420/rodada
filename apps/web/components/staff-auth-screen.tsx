@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useId, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useId, useState } from "react";
 import {
   AccessInvalidationFeed,
   ApiError,
@@ -38,7 +38,7 @@ function Field({
   );
 }
 
-export function StaffAuthScreen() {
+export function StaffAuthScreen({ renderSession }: { renderSession?: (session: StaffSessionView, logout: () => Promise<void>) => ReactNode } = {}) {
   const [session, setSession] = useState<StaffSessionView | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -190,6 +190,14 @@ export function StaffAuthScreen() {
       />
     );
   }
+
+  if (renderSession) return <>{error && <div className="appShell"><ErrorNotice error={error} /></div>}{renderSession(session, async () => {
+    try {
+      const result = await apiCall("/api/auth/logout", { method: "POST", body: "{}" });
+      if (result.response.ok) { setSession(null); setReauthValidUntil(null); }
+      else setError(asApiError(result.body));
+    } catch { setError({ code: "NETWORK_ERROR", message: "Não foi possível sair. Verifique a conexão." }); }
+  })}</>;
 
   return (
     <SessionPanel

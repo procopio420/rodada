@@ -1,4 +1,4 @@
-export type SurfaceId = "public" | "bar" | "kitchen" | "client" | "management";
+export type SurfaceId = "public" | "attendance" | "bar" | "kitchen" | "client" | "management";
 
 export type SurfaceDefinition = {
   id: SurfaceId;
@@ -15,6 +15,11 @@ export const surfaces: Record<SurfaceId, SurfaceDefinition> = {
     description: "PDV operacional para bares cheios",
     route: "/staff",
     shortName: "Rodada",
+  },
+  attendance: {
+    id: "attendance", title: "Rodada Atendimento",
+    description: "Comandas, pedidos, entregas e mesas · teste sem pagamentos",
+    route: "/attendance", shortName: "Atendimento",
   },
   bar: {
     id: "bar",
@@ -49,6 +54,7 @@ export const surfaces: Record<SurfaceId, SurfaceDefinition> = {
 /** Hostname is untrusted routing context only; the API remains the authorization authority. */
 export function surfaceForHost(host: string | null): SurfaceDefinition {
   const hostname = (host ?? "").split(":")[0].toLowerCase();
+  if (hostname === "atendimento.rodada.ai") return surfaces.attendance;
   if (hostname === "bar.rodada.ai") return surfaces.bar;
   if (hostname === "cozinha.rodada.ai") return surfaces.kitchen;
   if (hostname === "cliente.rodada.ai" || hostname === "pedido.rodada.ai") return surfaces.client;

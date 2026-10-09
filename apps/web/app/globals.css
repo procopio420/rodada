@@ -359,3 +359,8 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
   .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr) var(--production-ticket-action); gap: var(--space-4); }
   .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
 }
+
+/* Atendimento reuses canonical operational tokens and touch targets. */
+.attendanceNav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin-bottom: var(--space-4); }
+.attendanceItem { padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
+.attendanceItem h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }

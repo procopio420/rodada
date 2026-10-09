@@ -305,3 +305,10 @@ O protótipo usa [`prototype/design-system.css`](./prototype/design-system.css) 
 ## Norte do produto
 
 > **PDVs registram o que aconteceu. Rodada também coordena o que precisa acontecer agora.**
+
+### Atendimento in the browser
+
+For testing the Android operational flows without installing an APK, use the
+[Atendimento Web companion](apps/web/README.md#atendimento-web--test-without-payments)
+at `/attendance`. Payments are excluded; Agora, Contas and Mesas use the same API.
+See [Spec 024](specs/024-attendance-web/spec.md).

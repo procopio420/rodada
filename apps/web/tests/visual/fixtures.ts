@@ -30,6 +30,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
   await page.clock.install({ time: new Date(options.now ?? "2026-10-08T21:00:00Z") });
   await page.route("**/api/**", async route => {
     const url = new URL(route.request().url());
+    url.pathname = url.pathname.replace("/api/attendance/", "/api/pos/");
     if (state === "loading") return; // Held until the page closes; no arbitrary sleep.
     if (state === "error") return route.fulfill({ status: 403, json: { code: "CAPABILITY_REQUIRED", message: "Seu perfil não pode executar esta ação." } });
     const longName = "Porção especial com um nome muito longo para conferir leitura durante operação cheia ".repeat(2);
@@ -54,6 +55,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname === "/api/pos/cash/shifts/history/") body = { results: state === "empty" ? [] : [state === "warnings" ? pending : { ...shift, business_date: "2026-10-08" }], next_offset: null };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
     else if (url.pathname === "/api/pos/dispatch/delivery/") body = { results: state === "empty" ? [] : [{ id: "delivery-test", product_name: "Fritas", destination_label: "Mesa 24", age_seconds: 120 }] };
+    else if (url.pathname === "/api/pos/hospitality/zones/") body = { results: [{ id: "zone-test", label: "Salão" }] };
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };
     else if (url.pathname === "/api/guest/context/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, tab: state === "empty" ? null : detail };

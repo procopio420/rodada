@@ -103,3 +103,21 @@ Enquanto uma sessão staff está ativa, o Web/PWA consulta o invalidation feed e
 Fila/passe vêm antes do catálogo em Bar/Cozinha e expandem para duas colunas em tablet/desktop. Gerência prioriza pulso/produção e mantém Conta da Casa em Gestão. Cliente mantém ícone/nome/preço separados; POS desabilita produto indisponível sem substituir a validação da API.
 
 A suíte visual cobre os seis viewports 360×800, 390×844, 430×932, 768×1024, 1280×800 e 1440×900. Na raiz, `node scripts/ux-review-gallery.mjs` gera o índice estático ignorado; `--before` preserva capturas antes das alterações. O launcher e o runner Django descartável são ferramentas locais, sem nova rota em produção. Consulte [auditoria, reprodução, evidências e limites](../../docs/design/operational-ux-review.md).
+
+## Atendimento Web — test without payments
+
+From this checkout, `npm ci`, `npm run build`, then
+`RODADA_API_BASE_URL=http://127.0.0.1:18764 npm run start -- --port 3120 --hostname 0.0.0.0`.
+Open `http://localhost:3120/attendance` For phones, use an HTTPS proxy to preserve secure authentication cookies; plain LAN HTTP is not supported by the production build.
+The existing demo API must be running; no public Sites deployment is required.
+For the seeded local demo: Venue `bar-do-aderlan`, staff `bia`, PIN `1234`
+(or manager `ana`, PIN `0420`). These are test-only identities.
+
+Agora lists deliveries; Contas opens/searches comandas and confirms customized
+orders; Mesas supports occupancy, association, zones and cleaning. Add the page
+to the phone's home screen for standalone browser mode. No payments, refunds or
+cash management are exposed by this companion. Unpaid tabs remain open, and
+closure requires zero canonical balance. Native NFC/BLE and payment SDKs require
+the Android app. API connectivity is required; no offline command queue exists.
+Keep the page open while verifying an ambiguous order: retries preserve its payload
+and idempotency key in memory. Reload recovery is outside this slice.

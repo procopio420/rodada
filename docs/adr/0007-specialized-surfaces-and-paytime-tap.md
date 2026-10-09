@@ -143,3 +143,12 @@ Timeout ou perda de conectividade depois do envio pode produzir `CONFIRMATION_PE
 - fiscal.
 
 Esses assuntos exigem decisão/spec própria quando entrarem no roadmap.
+
+## 2026-10-09 — Browser companion for testing
+
+Spec 024 adds Atendimento Web at `/attendance` and `atendimento.rodada.ai` for
+operational testing without Android installation. It shares staff auth and canonical
+commands, with Agora, Contas and Mesas. Its restricted gateway excludes all payment,
+refund and cash commands. The native Android application remains the surface for
+NFC and provider SDKs. Browser orders accrue real canonical test balances; this
+companion does not manufacture settlements or bypass zero-balance closure.
