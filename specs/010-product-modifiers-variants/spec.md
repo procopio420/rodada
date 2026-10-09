@@ -1,6 +1,6 @@
 # Spec 010 — Product Modifiers & Variants
 
-**Status:** Draft for implementation  
+**Status:** Implemented; verification recorded in acceptance.md
 **Owner capability:** Catalog + Ordering snapshot semantics
 
 ## Objective
