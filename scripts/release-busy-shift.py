@@ -129,6 +129,33 @@ class Shift:
         with self.lock:
             self.completed.append(tab_id)
 
+    def verify_persistence(self):
+        evidence = json.loads(Path(self.args.evidence).read_text())
+        require(evidence.get("passed"), "Original busy shift did not pass")
+        started = time.monotonic()
+        result = {"verified_at": datetime.now(timezone.utc).isoformat()}
+        try:
+            self.owner = self.login("release-owner", "2468")
+            for tab_id in evidence["completed_tabs"]:
+                detail = self.api(f"/tabs/{tab_id}/", token=self.owner, operation="restart.tab")
+                require(detail["state"] == "CLOSED" and detail["exposure_cents"] == 0, "Closed tab lost across restart")
+                require(detail["charges_cents"] == detail["payments_cents"] == 3200, "Restart ledger mismatch")
+                require(len(detail["orders"]) == 1 and len(detail["payments"]) == 2, "Restart persisted duplicates")
+                require(all(i["state"] == "DELIVERED" for i in detail["orders"][0]["items"]), "Restart fulfillment mismatch")
+            report = self.report(evidence["business_date"])
+            require(all(report[k] == evidence["report_after"][k] for k in evidence["expected_report_delta"]), "Restart report differs; isolate unrelated writes")
+            result["passed"] = True
+        except Exception as error:
+            result.update({"passed": False, "failure": str(error)[:240]})
+        result["seconds"] = round(time.monotonic() - started, 3)
+        result["latency"] = percentiles([s["ms"] for s in self.samples])
+        result["errors"] = self.errors
+        result["boundary"] = "Canonical persistence readback only; caller must separately prove which real services were restarted."
+        evidence["persistence_verification"] = result
+        Path(self.args.evidence).write_text(json.dumps(evidence, indent=2) + "\n")
+        print(json.dumps(result))
+        return 0 if result["passed"] else 1
+
     def run(self):
         started = time.monotonic()
         evidence = {"run_id": self.run_id, "started_at": datetime.now(timezone.utc).isoformat(),
@@ -194,12 +221,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default="http://127.0.0.1:18766")
     parser.add_argument("--evidence", default="/tmp/rodada-release-busy-shift.json")
+    parser.add_argument("--verify", action="store_true", help="Read back recorded tabs/report after separately evidenced service/database restart")
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--tabs", type=int, default=64)
     args = parser.parse_args()
     require(urlparse(args.url).hostname in {"127.0.0.1", "localhost", "::1"}, "Only isolated loopback release fixtures are allowed")
     require(args.workers >= 8 and args.tabs >= 64, "Busy-shift evidence requires at least 8 clients and 64 Tabs")
-    return Shift(args).run()
+    shift = Shift(args)
+    return shift.verify_persistence() if args.verify else shift.run()
 
 
 if __name__ == "__main__":
