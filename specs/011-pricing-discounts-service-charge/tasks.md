@@ -1,63 +1,30 @@
 # Tasks — Spec 011
 
-## Domain/API
-- [x] Add immutable item-cancellation reversal adjustment kind.
-- [ ] Define AdjustmentAllocation.
-- [ ] Implement canonical pricing order.
-- [ ] Implement percentage/fixed cents calculator.
-- [ ] Implement deterministic allocation.
-- [ ] Apply item discount.
-- [ ] Apply Tab discount.
-- [ ] Grant courtesy.
-- [ ] Assess service charge.
-- [ ] Reduce/remove service charge.
-- [ ] Reverse/supersede adjustment.
-- [ ] Pricing preview endpoint/query.
-- [ ] Approval-required contract.
-- [ ] Post-payment settlement guard.
-- [ ] Refund/item net-value helper.
+- [x] Extend canonical immutable Adjustment and preserve legacy kinds.
+- [x] Persist exact per-Charge allocations and historical policy snapshots.
+- [x] Integer half-up percentage calculation and deterministic largest remainder.
+- [x] Fixed/percentage item and Tab discounts; full/partial courtesy.
+- [x] Configurable service preview, assessment, refresh, reduction/removal.
+- [x] Compensating reversals with explicit transferred/superseded guards.
+- [x] Atomic Tab locks, versions, intent fingerprints and durable replay responses.
+- [x] Typed configuration, capability thresholds and recent privileged reauth.
+- [x] Exact manager approval request with requester/approver provenance.
+- [x] Pending payment/refund and post-payment settlement guards.
+- [x] House Account exposure updates and positive-effect limit enforcement.
+- [x] Unpaid split/merge commercial component allocation; paid transfers blocked.
+- [x] Refund assistance based on net consumption and refundable service.
+- [x] Legacy cancellation/refund integration uses remaining discounted value.
+- [x] Web and native adjustment previews, approval request and PIN flow.
+- [x] Native and Web recovery preserve the original pricing intent.
+- [x] Cashier, Android payment and guest commercial bill breakdown.
+- [x] Management configuration, approvals, history and gross/net reports.
+- [x] Bounded refresh and stale service/payment conflict handling.
+- [x] PostgreSQL append-only and deferred allocation-sum guards.
+- [x] Legacy upgrade, API, calculator and real PostgreSQL concurrency tests.
+- [x] Customized order → discount → service → partial → remake/correction → final → close → reconciliation.
+- [x] Web layout/accessibility and adjacent-surface primitive comparisons.
+- [x] Native unit tests, debug APK and lint.
 
-## Persistence
-- [ ] Adjustment allocation rows.
-- [x] Idempotency constraints for item-cancellation reversals.
-- [ ] Pricing version / optimistic lock.
-- [ ] Supersedes/reversal links.
-- [ ] Reason code/text fields.
-
-## Android
-- [ ] Item discount action.
-- [ ] Tab discount/courtesy action.
-- [ ] Service charge row/reduce/remove.
-- [ ] Before/after preview.
-- [ ] Approval + reauth flow.
-- [ ] Stale total/payment conflict recovery.
-
-## Staff Web/PWA
-- [ ] Cashier/manager adjustment flows.
-- [ ] Policy-aware controls.
-- [ ] Receipt/check presentation.
-
-## Guest
-- [ ] Gross/discount/service/final presentation.
-- [ ] Optional service-charge opt-out only when policy permits.
-- [ ] Never expose internal staff reasons.
-
-## Realtime
-- [ ] Invalidate Tab totals/payment screen after adjustment.
-- [ ] Emit canonical pricing facts.
-
-## Management
-- [ ] Gross/net definitions.
-- [ ] Separate discount/courtesy/service/refund metrics.
-- [ ] Closing integration.
-- [ ] Adjustment drill-down/audit.
-
-## Quality/tests
-- [ ] No float anywhere.
-- [ ] Allocation sums exactly to Adjustment.
-- [ ] Net eligible consumption never negative.
-- [ ] Concurrent stale pricing mutation conflicts.
-- [ ] Retry cannot duplicate Adjustment.
-- [ ] Partial-payment repricing guard.
-- [ ] Service charge never calculated on itself/tip/payment/refund.
-- [x] Historical OrderItem price snapshot unchanged for cancellation reversal.
+Guest service opt-out is performed by authorized staff under venue policy; this
+slice does not grant guests unilateral financial mutation. Existing receipt/check
+presentation uses the canonical bill. Printing infrastructure remains untouched.
