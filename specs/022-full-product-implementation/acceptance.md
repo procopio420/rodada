@@ -17,3 +17,9 @@
 - [ ] Todos os critérios aplicáveis das specs de domínio têm evidência datada e limites; nenhuma conclusão por scaffolding, mock ou checkbox antigo.
 
 Evidências deverão registrar ambiente, versões, comandos/testes, fixtures e resultado. A validação documental atual não marca nenhum gate de produto como concluído.
+
+## Aceite parcial — demo Windows
+
+Serviços/banco anteriores preservados; PostgreSQL real dedicado e migrations/check sem drift; ASGI/dispatcher/Web acessíveis. Turno idempotente, produção, parcial, fechamento, exceção e restart com saldo conciliado. Pricing/recibos reais; UI/Android separados de script HTTP. Sem afrouxar testes/referências. GO/condicional/NO-GO com SHA e limites; NOT_RUN explícito; publicação saneada sem merge.
+
+Resultado parcial: GO CONDICIONAL, conforme [evidência Windows](../../docs/development/demo-windows-evidence-2026-10-09.md). Não marca gates globais/físicos como concluídos.

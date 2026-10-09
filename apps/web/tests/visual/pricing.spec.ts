@@ -32,3 +32,20 @@ for (const width of [360, 390, 768]) {
     await page.screenshot({ path: `test-results/pricing-management-${width}.png`, fullPage: true });
   });
 }
+
+test("pricing preview waits for the canonical bill read", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/pos/tabs/", r => r.fulfill({ json: { results: [{ id: "tab-loading", version: 1, display_label: "Conta carregando", state: "OPEN", exposure_cents: 1000 }] } }));
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/pos/tabs/tab-loading/pricing/", async route => {
+    await held;
+    await route.fulfill({ json: { version: 1, policy: { service_basis_points: 1000 }, history: [], charges: [] } });
+  });
+  await page.goto("/pos");
+  await page.getByRole("button", { name: /Conta carregando/ }).click();
+  const preview = page.getByRole("button", { name: "Conferir antes de aplicar" });
+  await expect(preview).toBeDisabled();
+  release();
+  await expect(preview).toBeEnabled();
+});

@@ -1,0 +1,29 @@
+{
+  "api": {
+    "tests": 363,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "browser_integration": {
+    "passed": 9,
+    "database": "PostgreSQL"
+  },
+  "visual": {
+    "passed": 173
+  },
+  "realtime": {
+    "passed": 8
+  },
+  "android": {
+    "unit_passed": 43,
+    "build": "PASS",
+    "lint": "PASS"
+  },
+  "web": {
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "restart": "PASS",
+  "repeat_turn": "PASS"
+}

@@ -1,0 +1,11 @@
+{
+  "os": "Windows",
+  "python": "3.12.14",
+  "django": "5.2.18",
+  "uvicorn": "0.54.0",
+  "psycopg": "3.3.6",
+  "base": "7227f7d",
+  "payments": "MANUAL_TEST",
+  "android_unit": 43,
+  "android_errors": 0
+}
