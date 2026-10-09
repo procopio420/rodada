@@ -37,8 +37,10 @@ class StaffAuthAPITests(TestCase):
             "friendly_label": "Atendimento 1",
         }
 
-    def login(self):
-        response = self.client.post("/auth/login/", self.login_payload, format="json")
+    def login(self, **overrides):
+        response = self.client.post(
+            "/auth/login/", {**self.login_payload, **overrides}, format="json"
+        )
         assert response.status_code == 200, response.json()
         return response.json()
 
@@ -64,6 +66,55 @@ class StaffAuthAPITests(TestCase):
         assert response.json()["staff"]["id"] == str(self.staff.id)
         assert response.json()["venue"]["id"] == str(self.venue.id)
         assert response.json()["membership"]["role"] == StaffRole.CASHIER
+
+    def test_byod_unknown_installations_order_without_trust_or_approval(self):
+        from modules.catalog.models import Product
+
+        product = Product.objects.create(
+            venue=self.venue, name="BYOD beer", price_cents=100, fulfillment_station="BAR"
+        )
+        for installation in ("personal-first", "personal-replacement"):
+            tokens = self.login(installation_id=installation)
+            self.bearer(tokens["access_token"])
+            me = self.client.get("/auth/me/").json()
+            assert me["device"]["trust_state"] == DeviceTrustState.UNTRUSTED
+            tab = self.client.post("/tabs/", {}, format="json").json()
+            order = self.client.post(
+                f"/tabs/{tab['id']}/orders/confirm/",
+                {"idempotency_key": installation,
+                 "lines": [{"product_id": str(product.pk), "quantity": 1}]},
+                format="json",
+            )
+            assert order.status_code == 201, order.json()
+        assert DeviceRegistration.objects.filter(venue=self.venue).count() == 2
+
+    def test_revoked_installation_does_not_ban_replacement_but_membership_does(self):
+        first = self.login(installation_id="lost-personal-phone")
+        device = DeviceRegistration.objects.get(venue=self.venue)
+        device.trust_state = DeviceTrustState.REVOKED
+        device.save(update_fields=["trust_state"])
+        self.bearer(first["access_token"])
+        rejected = self.client.post("/tabs/", {}, format="json")
+        assert rejected.status_code == 403 and rejected.data["code"] == "DEVICE_REVOKED"
+        self.client.credentials()
+        refresh = self.client.post(
+            "/auth/refresh/", {"refresh_token": first["refresh_token"]}, format="json"
+        )
+        assert refresh.status_code == 403 and refresh.data["code"] == "DEVICE_REVOKED"
+        self.client.credentials()
+        replacement = self.login(installation_id="new-personal-phone")
+        self.bearer(replacement["access_token"])
+        assert self.client.post("/tabs/", {}, format="json").status_code == 201
+        self.membership.status = MembershipStatus.REVOKED
+        self.membership.save(update_fields=["status"])
+        rejected = self.client.post("/tabs/", {}, format="json")
+        assert rejected.status_code == 403 and rejected.data["code"] == "MEMBERSHIP_REVOKED"
+        self.client.credentials()
+        denied = self.client.post(
+            "/auth/login/", {**self.login_payload, "installation_id": "third-phone"},
+            format="json",
+        )
+        assert denied.status_code == 403 and denied.data["code"] == "MEMBERSHIP_REVOKED"
 
     def test_wrong_pin_is_throttled_after_repeated_failures(self):
         bad = {**self.login_payload, "pin": "0000"}
