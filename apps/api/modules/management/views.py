@@ -75,36 +75,56 @@ class ReportView(APIView):
         refunds = Refund.objects.filter(payment__tab__venue=venue, status=RefundStatus.CONFIRMED, confirmed_at__gte=lower, confirmed_at__lt=upper)
         total = lambda rows: rows.aggregate(value=Sum("amount_cents"))["value"] or 0
         gross, adjustment, paid, refunded = map(total, (charges, adjustments, payments, refunds))
+        from modules.ledger.pricing import category
+        commercial = {"item_discounts_cents": 0, "tab_discounts_cents": 0, "courtesy_cents": 0,
+                      "service_assessed_cents": 0, "service_reductions_cents": 0,
+                      "corrections_cents": 0, "service_revenue_cents": 0, "service_pass_through_cents": 0}
+        category_rows = []
+        for fact in adjustments.select_related("reverses"):
+            kind = fact.reverses.kind if fact.kind == "REVERSAL" else fact.kind
+            field = {"ITEM_DISCOUNT": "item_discounts_cents", "TAB_DISCOUNT": "tab_discounts_cents",
+                     "COURTESY": "courtesy_cents", "COURTESY_REPLACEMENT": "courtesy_cents",
+                     "SERVICE_CHARGE": "service_assessed_cents", "SERVICE_CHARGE_REDUCTION": "service_reductions_cents"}.get(kind, "corrections_cents")
+            sign = -1 if field in ("item_discounts_cents", "tab_discounts_cents", "courtesy_cents", "service_reductions_cents") else 1
+            commercial[field] += sign * fact.amount_cents
+            category_rows.append((fact.created_at, field, sign * fact.amount_cents))
+            if category(fact) == "service":
+                splits = fact.policy_snapshot.get("service_allocations")
+                if splits is not None:
+                    for treatment_key, report_key in [("service_revenue", "service_revenue_cents"), ("service_pass_through", "service_pass_through_cents")]:
+                        amount = sum(split.get(treatment_key, 0) for split in splits.values())
+                        commercial[report_key] += amount
+                        category_rows.append((fact.created_at, report_key, amount))
+                else:
+                    treatment = (fact.reverses.policy_snapshot if fact.kind == "REVERSAL" else fact.policy_snapshot).get("service_treatment", "PASS_THROUGH")
+                    treatment_field = "service_revenue_cents" if treatment == "REVENUE" else "service_pass_through_cents"
+                    commercial[treatment_field] += fact.amount_cents
+                    category_rows.append((fact.created_at, treatment_field, fact.amount_cents))
+        service = commercial["service_assessed_cents"] - commercial["service_reductions_cents"]
         days = {}
         for day_offset in range((end - start).days + 1):
             key = str(start + timedelta(days=day_offset))
-            days[key] = {"date": key, "gross_cents": 0, "adjustments_cents": 0, "paid_cents": 0, "refunds_cents": 0}
+            days[key] = {**dict.fromkeys(commercial, 0), "date": key, "gross_cents": 0, "adjustments_cents": 0, "paid_cents": 0, "refunds_cents": 0}
         for rows, timestamp, field in [(charges, "created_at", "gross_cents"), (adjustments, "created_at", "adjustments_cents"), (payments, "confirmed_at", "paid_cents"), (refunds, "confirmed_at", "refunds_cents")]:
             for instant, amount in rows.values_list(timestamp, "amount_cents").iterator():
                 days[str(business_date(venue, instant))][field] += amount
+        for instant, field, amount in category_rows:
+            days[str(business_date(venue, instant))][field] += amount
         for row in days.values():
-            row["net_sales_cents"] = row["gross_cents"] + row["adjustments_cents"]
+            row["net_consumption_cents"] = row["gross_cents"] + row["adjustments_cents"] - row["service_assessed_cents"] + row["service_reductions_cents"]
+            row["net_sales_cents"] = row["net_consumption_cents"] + row["service_revenue_cents"]
+            row["payable_cents"] = row["gross_cents"] + row["adjustments_cents"]
             row["net_received_cents"] = row["paid_cents"] - row["refunds_cents"]
         products = list(charges.values("order_item__product_id", "order_item__product_name_snapshot").annotate(quantity=Sum("order_item__quantity"), gross_cents=Sum("amount_cents")).order_by("-gross_cents", "order_item__product_name_snapshot"))
         orders = Order.objects.filter(tab__venue=venue, confirmed_at__gte=lower, confirmed_at__lt=upper)
         open_tabs = Tab.objects.filter(venue=venue).exclude(state__in=["CLOSED", "CANCELLED"])
-        # A credit on one Tab must not hide another Tab's outstanding exposure.
-        balances = dict.fromkeys(open_tabs.values_list("id", flat=True), 0)
-        for rows, key, sign in [
-            (Charge.objects.filter(tab__in=open_tabs), "tab_id", 1),
-            (LedgerAdjustment.objects.filter(tab__in=open_tabs), "tab_id", 1),
-            (Payment.objects.filter(tab__in=open_tabs, status__in=PaymentStatus.confirmed_money_values()), "tab_id", -1),
-            (Refund.objects.filter(payment__tab__in=open_tabs, status=RefundStatus.CONFIRMED), "payment__tab_id", 1),
-        ]:
-            for row in rows.values(key).annotate(amount=Sum("amount_cents")):
-                balances[row[key]] = balances.get(row[key], 0) + sign * row["amount"]
-        from modules.tab_operations.services import transfer_effects
-        for tab_id, effect in transfer_effects(balances).items():
-            balances[tab_id] += effect
-        exposure = sum(max(0, balance) for balance in balances.values())
+        from modules.ledger.services import totals
+        exposure = sum(max(0, totals(tab)["exposure_cents"]) for tab in open_tabs)
         return Response({"generated_at": timezone.now(), "timezone": venue.timezone,
             "cutoff_hour": venue.business_day_cutoff_hour, "start": start, "end": end,
-            "totals": {"gross_cents": gross, "adjustments_cents": adjustment, "net_sales_cents": gross + adjustment,
+            "totals": {**commercial, "gross_cents": gross, "adjustments_cents": adjustment,
+                "net_consumption_cents": gross + adjustment - service, "payable_cents": gross + adjustment,
+                "net_sales_cents": gross + adjustment - commercial["service_pass_through_cents"],
                 "paid_cents": paid, "refunds_cents": refunded, "net_received_cents": paid - refunded,
                 "current_open_exposure_cents": exposure, "current_open_tabs": open_tabs.count()},
             "daily": list(days.values()), "products": products,

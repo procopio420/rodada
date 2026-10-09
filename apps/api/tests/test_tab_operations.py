@@ -92,6 +92,8 @@ class TabOperationTests(OperationFixture, TestCase):
         assert TabTransferLine.objects.count() == 0
         original.tab_id, original.status = source, "FAILED"
         original.save()
+        assert self.commit(source, command, 409)["code"] == "VERSION_CONFLICT"
+        command["expected_version"] = self.detail(source)["version"]
         self.commit(source, command)
 
     def test_limit_and_orders_use_transferred_balance(self):
@@ -281,7 +283,8 @@ class TabOperationRegressionTests(OperationFixture, TestCase):
         with CaptureQueriesContext(connection) as many:
             rows = responsibility(tab)
         assert len(rows) == 5
-        assert len(many) == len(first) == 3
+        # Charges, legacy effects, pricing allocations and transfer components each use one query.
+        assert len(many) == len(first) == 4
         assert sum(row["available_cents"] for row in rows) == 4000
 
     def test_paid_location_move_and_conflict_are_ledger_neutral(self):

@@ -57,32 +57,32 @@ def payment_blocker(tab, *, confirmed=True):
 
 
 def responsibility(tab):
+    from django.db.models import Exists, OuterRef, Subquery, IntegerField
+    from django.db.models.functions import Coalesce
+    from modules.ledger.models import AdjustmentAllocation, LedgerAdjustment
+    from modules.ledger.pricing import components
+
+    legacy = LedgerAdjustment.objects.filter(order_item_id=OuterRef("order_item_id")).values(
+        "order_item_id"
+    ).annotate(amount=Sum("amount_cents")).values("amount")
     charges = list(Charge.objects.filter(
         Q(tab=tab) | Q(transfer_lines__transfer__destination_tab=tab)
-    ).distinct().select_related("order_item", "tab").prefetch_related("order_item__ledger_adjustments"))
-    allocations = {
-        str(row["source_charge_id"]): row
-        for row in TabTransferLine.objects.filter(
-            source_charge__in=charges, transfer__status="COMMITTED"
-        ).values("source_charge_id").annotate(
-            incoming=Sum("amount_cents", filter=Q(transfer__destination_tab=tab)),
-            outgoing=Sum("amount_cents", filter=Q(transfer__source_tab=tab)),
-            transferred=Sum("amount_cents"),
-        )
-    }
+    ).distinct().select_related("order_item", "tab").annotate(
+        legacy_adjustment=Coalesce(Subquery(legacy, output_field=IntegerField()), 0),
+        has_transfer=Exists(TabTransferLine.objects.filter(source_charge_id=OuterRef("pk"))),
+        has_pricing_allocation=Exists(AdjustmentAllocation.objects.filter(charge_id=OuterRef("pk"))),
+    ))
+    commercial = components(tab, charges=charges)
     rows = []
     for charge in charges:
-        allocation = allocations.get(str(charge.id), {})
-        incoming = allocation.get("incoming") or 0
-        outgoing = allocation.get("outgoing") or 0
-        adjustment = sum(value.amount_cents for value in charge.order_item.ledger_adjustments.all())
-        amount = (charge.amount_cents + adjustment if charge.tab_id == tab.id else 0) + incoming - outgoing
-        # Allocation-aware pricing is not yet available. Never guess on adjusted lines.
-        blocker = "ADJUSTED_LINE" if adjustment and allocation.get("transferred") else None
+        detail = commercial[str(charge.id)]
+        amount = sum(detail[key] for key in ("gross", "discount", "courtesy", "correction", "service"))
+        # Legacy effects without allocation cannot be followed through older transfers.
+        blocker = "ADJUSTED_LINE" if charge.legacy_adjustment and charge.has_transfer and not charge.has_pricing_allocation else None
         rows.append({"charge_id": str(charge.id), "order_item_id": str(charge.order_item_id),
                      "original_tab_id": str(charge.tab_id), "product_name": charge.order_item.product_name_snapshot,
                      "unit_price_cents": charge.order_item.unit_price_cents, "original_quantity": charge.order_item.quantity,
-                     "available_cents": max(0, amount), "blocker": blocker})
+                     "available_cents": max(0, amount), "components": detail, "blocker": blocker})
     return rows
 
 
@@ -142,6 +142,8 @@ def selected_lines(source, destination, data):
         if quantity is not None:
             if type(quantity) is not int or quantity <= 0 or row["unit_price_cents"] <= 0:
                 raise OperationError("INVALID_QUANTITY", "Quantidade inválida.", 400)
+            if any(row["components"][key] for key in ("discount", "courtesy", "service", "correction")):
+                raise OperationError("ADJUSTED_QUANTITY_SELECTION", "Selecione o valor líquido para consumo ajustado.")
             quantity_amount = quantity * row["unit_price_cents"]
             if amount is not None and amount != quantity_amount:
                 raise OperationError("QUANTITY_AMOUNT_MISMATCH", "Valor não corresponde à quantidade.", 400)
@@ -150,7 +152,15 @@ def selected_lines(source, destination, data):
             raise OperationError("INVALID_AMOUNT", "Informe valor inteiro em centavos.", 400)
         if amount > row["available_cents"]:
             raise OperationError("INSUFFICIENT_TRANSFERABLE_BALANCE", "Saldo transferível insuficiente.", details={"current": transferability(source)})
-        result.append({**row, "amount_cents": amount, "quantity": quantity})
+        detail = row["components"]
+        # Allocate each non-gross component between moved and retained responsibility;
+        # gross is the balancing component, preserving the exact net transfer cents.
+        from modules.ledger.pricing import allocate
+        moved = {key: allocate(value, {"moved": amount, "retained": row["available_cents"] - amount}).get("moved", 0)
+                 for key, value in detail.items() if key != "gross"}
+        moved["service"] = moved.get("service_revenue", 0) + moved.get("service_pass_through", 0)
+        moved["gross"] = amount - sum(moved.get(key, 0) for key in ("discount", "courtesy", "correction", "service"))
+        result.append({**row, "amount_cents": amount, "quantity": quantity, "components": moved})
     amount = sum(row["amount_cents"] for row in result)
     source_balance = totals(source)["exposure_cents"]
     if amount > source_balance:
@@ -189,6 +199,10 @@ def locked_tabs(source_id, destination_id, actor):
 def preview(*, tab_id, data, actor):
     authorize(actor, capability(data["kind"]))
     source, destination = locked_tabs(tab_id, data.get("destination_tab_id"), actor)
+    if data["kind"] in FINANCIAL:
+        check_payment(source)
+        if destination:
+            check_payment(destination)
     check_version(source, data["expected_version"])
     if destination:
         check_version(destination, data.get("destination_version"))
@@ -231,6 +245,10 @@ def execute(*, tab_id, data, actor):
         if previous.request_fingerprint != fingerprint:
             raise OperationError("IDEMPOTENCY_CONFLICT", "Chave já usada em outra operação.")
         return previous.response
+    if data["kind"] in FINANCIAL:
+        check_payment(source)
+        if destination:
+            check_payment(destination)
     check_version(source, data["expected_version"])
     if destination:
         check_version(destination, data.get("destination_version"))
@@ -248,7 +266,7 @@ def execute(*, tab_id, data, actor):
         transfer = TabTransfer.objects.create(operation=operation, venue_id=actor.venue_id, source_tab=source,
             destination_tab=destination, kind=kind, reason=reason, source_version=source.version, destination_version=destination.version)
         for line in result["lines"]:
-            TabTransferLine.objects.create(transfer=transfer, source_charge_id=line["charge_id"], amount_cents=line["amount_cents"], quantity=line["quantity"])
+            TabTransferLine.objects.create(transfer=transfer, source_charge_id=line["charge_id"], amount_cents=line["amount_cents"], quantity=line["quantity"], components=line["components"])
         result["transfer_id"] = str(transfer.id)
         if kind == "MERGE":
             source.state, source.cancel_reason, source.merged_into = TabState.CANCELLED, "MERGED_INTO", destination

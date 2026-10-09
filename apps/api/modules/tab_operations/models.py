@@ -52,6 +52,7 @@ class TabTransferLine(models.Model):
     transfer = models.ForeignKey(TabTransfer, on_delete=models.PROTECT, related_name="lines")
     source_charge = models.ForeignKey("ledger.Charge", on_delete=models.PROTECT, related_name="transfer_lines")
     amount_cents = models.PositiveIntegerField()
+    components = models.JSONField(default=dict)
     quantity = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:

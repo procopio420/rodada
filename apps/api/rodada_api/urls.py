@@ -84,11 +84,20 @@ from modules.tab_operations.views import OperationView, PreviewView, ServicePoin
 
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 
+from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
+
 urlpatterns = [
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
     path("printing/", include("modules.documents_printing.urls")),
     path("", include("modules.realtime.urls")),
+    path("pricing/policy/", PricingPolicyView.as_view()),
+    path("pricing/approvals/", PricingApproveView.as_view()),
+    path("pricing/approvals/<uuid:approval_id>/approve/", PricingApproveView.as_view()),
+    path("tabs/<uuid:tab_id>/pricing/", PricingView.as_view()),
+    path("tabs/<uuid:tab_id>/pricing/preview/", PricingPreviewView.as_view()),
+    path("tabs/<uuid:tab_id>/pricing/approval-request/", PricingRequestApprovalView.as_view()),
+    path("tabs/<uuid:tab_id>/pricing/refund-preview/<uuid:charge_id>/", RefundItemPreviewView.as_view()),
     path("catalog/products/<uuid:product_id>/customization/", CustomizationView.as_view()),
     path("catalog/products/<uuid:product_id>/customization/<str:kind>/<uuid:choice_id>/availability/", ChoiceAvailabilityView.as_view()),
     path("payments/device-authorizations/", PaymentDeviceAuthorizationView.as_view()),

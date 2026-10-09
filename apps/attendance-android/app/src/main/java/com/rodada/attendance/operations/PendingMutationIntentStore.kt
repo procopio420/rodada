@@ -108,6 +108,15 @@ sealed interface RecoveryIntent {
     val state: RecoveryState
     fun toJson(): JSONObject
 
+    data class Pricing(
+        override val id: String, override val staffId: String, override val venueId: String,
+        override val deviceId: String, override val idempotencyKey: String,
+        override val createdAtMillis: Long, override val state: RecoveryState,
+        val tabId: String, val commandJson: String,
+    ) : RecoveryIntent {
+        override fun toJson() = baseJson("PRICING").put("tab_id", tabId).put("command_json", commandJson)
+    }
+
     data class TabStructure(
         override val id: String,
         override val staffId: String,
@@ -148,8 +157,9 @@ sealed interface RecoveryIntent {
         val amountCents: Long,
         val method: PaymentMethod,
         val cashPointId: String?,
+        val expectedVersion: Int? = null,
     ) : RecoveryIntent {
-        override fun toJson() = baseJson("START_PAYMENT").put("tab_id", tabId).put("amount_cents", amountCents).put("method", method.name).apply { if (cashPointId != null) put("cash_point_id", cashPointId) }
+        override fun toJson() = baseJson("START_PAYMENT").put("tab_id", tabId).put("amount_cents", amountCents).put("method", method.name).apply { if (cashPointId != null) put("cash_point_id", cashPointId); if (expectedVersion != null) put("expected_version", expectedVersion) }
     }
 
     /**
@@ -289,13 +299,14 @@ sealed interface RecoveryIntent {
                 state = RecoveryState.valueOf(json.getString("state")),
             )
             when (json.getString("type")) {
+                "PRICING" -> Pricing(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "TAB_STRUCTURE" -> TabStructure(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "CONFIRM_ORDER" -> {
                     val lines = json.getJSONArray("lines")
                     ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity"), Customization(if (it.isNull("variant_id")) null else it.optString("variant_id").ifBlank { null }, it.optJSONArray("modifier_option_ids")?.let { ids -> List(ids.length()) { i -> ids.getString(i) } }.orEmpty(), it.optString("special_instructions"))) } })
                 }
                 "START_PAYMENT" -> {
-                    StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null })
+                    StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null }, if (json.has("expected_version")) json.getInt("expected_version") else null)
                 }
                 "CORRECTION" -> Correction(
                     common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,

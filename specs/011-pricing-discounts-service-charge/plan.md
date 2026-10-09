@@ -60,3 +60,21 @@ Do not enable post-payment repricing until refund/reconciliation integration pas
 ## Dependencies first
 
 Core ledger and Spec 006 payment states; Spec 008 capability checks. Spec 013 can expose policy UI after Billing contracts are stable.
+
+## Implemented architecture
+
+The existing ledger owns the calculator, policy, allocation and approval services.
+All pricing mutations serialize on Tab and lock the typed policy snapshot. The
+venue policy is live for new adjustments; applied facts retain the old policy.
+Service removal allocates revenue/pass-through components from active assessments,
+so policy changes do not retrospectively reclassify collections.
+
+Service is explicitly assessed/refreshed rather than implicitly added by UI or a
+payment provider. New consumption/discounts invalidate its per-Charge basis, even
+when the total basis happens to remain the same. Settlement requires refresh.
+
+Native recovery saves the exact pricing command and original payment version;
+Web saves the pricing intent in session storage scoped to venue, operator and Tab.
+Both reauthorize server-side and retry the same key after an ambiguous response.
+Daily/monthly reports share business-date range queries; transfer components do
+not create sales. Optional fiscal/GL integration remains outside this slice.
