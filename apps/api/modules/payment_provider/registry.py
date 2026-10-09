@@ -12,6 +12,8 @@ from .sumup import SumUpPixProvider, SumUpTapToPayProvider
 
 def provider_for_venue(venue_id, method="PIX", provider_key=None):
     config = dict(getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}).get(str(venue_id), {}))
+    if not config and provider_key == f"paytime:{venue_id}":
+        config = dict(getattr(settings, "RODADA_PAYTIME_PROVIDERS", {}).get(str(venue_id), {}))
     if not config:
         raise ProviderServiceError(
             "PROVIDER_NOT_CONFIGURED", "Pagamento integrado indisponível.", 409

@@ -1,11 +1,10 @@
 """Run periodically against durable pending payments; never creates provider charges."""
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from modules.ledger.models import Payment, PaymentStatus
 from modules.payment_provider.registry import provider_for_venue
-from modules.payment_provider.services import reconcile_provider_payment
+from modules.payment_provider.services import ProviderServiceError, reconcile_provider_payment
 
 
 class Command(BaseCommand):
@@ -24,7 +23,6 @@ class Command(BaseCommand):
                 PaymentStatus.CONFIRMATION_PENDING,
             ),
             provider__gt="",
-            tab__venue_id__in=getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}).keys(),
         )
         ids = list(
             pending.order_by("received_at").values_list(
@@ -32,10 +30,16 @@ class Command(BaseCommand):
             )[: options["limit"]]
         )
         resolved = 0
+        unavailable = 0
         for payment_id, venue_id, method, provider_key in ids:
-            payment, _ = reconcile_provider_payment(
-                payment_id=payment_id, provider=provider_for_venue(venue_id, method, provider_key)
-            )
+            try:
+                payment, _ = reconcile_provider_payment(
+                    payment_id=payment_id,
+                    provider=provider_for_venue(venue_id, method, provider_key),
+                )
+            except (ProviderServiceError, OSError, ValueError):
+                unavailable += 1
+                continue
             resolved += payment.status not in (
                 PaymentStatus.CREATED,
                 PaymentStatus.PENDING,
@@ -43,4 +47,6 @@ class Command(BaseCommand):
                 PaymentStatus.AUTHORIZED,
                 PaymentStatus.CONFIRMATION_PENDING,
             )
-        self.stdout.write(f"Checked {len(ids)} payments; resolved {resolved}.")
+        self.stdout.write(
+            f"Checked {len(ids)} payments; resolved {resolved}; unavailable {unavailable}."
+        )

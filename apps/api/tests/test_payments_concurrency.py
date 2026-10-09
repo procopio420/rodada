@@ -135,3 +135,42 @@ class PaymentConcurrencyTests(TransactionTestCase):
         self.assertEqual(ProviderEvent.objects.count(), 1)
         payment.refresh_from_db()
         self.assertEqual(payment.status, "CONFIRMED")
+
+    def test_one_transaction_cannot_settle_distinct_tabs_concurrently(self):
+        from modules.payment_provider.adapters import ProviderResult
+        from modules.payment_provider.models import PaymentAttempt
+        from modules.payment_provider.services import apply_provider_result
+        from modules.payment_provider.sumup import settlement_key
+
+        payments = []
+        for index in range(2):
+            tab = Tab.objects.create(venue=self.tab.venue)
+            payment = Payment.objects.create(
+                tab=tab,
+                amount_cents=1000,
+                method="PIX",
+                provider=f"sumup:{self.tab.venue_id}:merchant",
+                status="PENDING",
+                received_by_id=self.actor.staff_id,
+                idempotency_key=f"checkout-{index}",
+                provider_payment_id=f"checkout-{index}",
+            )
+            attempt = PaymentAttempt.objects.create(
+                payment=payment, provider=payment.provider, idempotency_key=payment.idempotency_key
+            )
+            payments.append((payment.pk, attempt.pk))
+
+        def settle(index):
+            payment_id, attempt_id = payments[index]
+            return apply_provider_result(
+                payment_id=payment_id,
+                attempt_id=attempt_id,
+                result=ProviderResult(
+                    status="CONFIRMED",
+                    metadata={"settlement_key": settlement_key("merchant", "one-transaction")},
+                ),
+                actor=self.actor,
+            )[0].status
+
+        self.assertCountEqual(self.race(settle), ["CONFIRMED", "CONFIRMATION_PENDING"])
+        self.assertEqual(Payment.objects.filter(status="CONFIRMED").count(), 1)

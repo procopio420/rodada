@@ -68,3 +68,7 @@ adapters, persistent deterministic simulator, merchant credentials and authoriza
 models, refund request/reconciliation, Android SumUp boundary/event states and debug
 simulator UI. Add provider contract/tenant/refund/PostgreSQL race tests and onboarding
 matrix/checklist. PR depends on the existing Paytime PR until it is merged.
+
+## Provider readiness — 2026-10-09
+
+Reuse merchant OAuth, PaymentAttempt metadata and canonical settlement. Add a narrowly scoped signed HttpOnly callback cookie, validate current staff authorization, retain sanitized Pix artifacts, and isolate reconciliation failures. Private SDK and employee delegation remain activation gates.

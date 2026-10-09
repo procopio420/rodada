@@ -614,3 +614,9 @@ outcomes persist on the backend, survive restart and are labeled in all payment
 responses/UI. Native fake capture cannot establish receipt by itself. Real SumUp
 SDK artifacts are opt-in and isolated from the standard build; fake compilation is
 not proof of SDK compilation. No external payment application is launched.
+
+## Provider readiness — 2026-10-09
+
+OAuth browser callbacks must bind single-use state to the initiating browser and a still-authorized, recently reauthenticated staff session. Denial consumes state. Callback pages never expose tokens or provider errors. Pix EMV/QR and expiry survive lookup responses that omit artifacts; local expiry never confirms or cancels money. Scheduled reconciliation isolates unavailable merchants and continues other payments. Sandbox/live evidence requires actual provider access.
+
+Unsigned SumUp notifications only request asynchronous authenticated lookup; caller status is never evidence. A provider merchant transaction has one canonical Payment owner even when distinct checkout IDs reference it. A conflicting second settlement remains CONFIRMATION_PENDING.
