@@ -8,21 +8,32 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun tabs(accessToken: String): List<TabSummary> =
-        request("GET", "/tabs/", accessToken = accessToken)
-            .getJSONArray("results")
-            .toObjects()
-            .map(::tabSummary)
+    fun tabs(accessToken: String, includeClosed: Boolean = false): List<TabSummary> {
+        val tabs = mutableListOf<TabSummary>()
+        var offset = 0
+        while (true) {
+            val page = request("GET", "/tabs/?active=${!includeClosed}&offset=$offset", accessToken = accessToken)
+            tabs += page.getJSONArray("results").toObjects().map(::tabSummary)
+            if (page.isNull("next_offset")) return tabs.distinctBy { it.id }
+            offset = page.getInt("next_offset")
+        }
+    }
 
-    fun openTab(accessToken: String, label: String): TabSummary =
+    fun openTab(accessToken: String, label: String, customerId: String? = null): TabSummary =
         tabSummary(
             request(
                 "POST",
                 "/tabs/",
-                JSONObject().put("display_label", label),
+                JSONObject().put("display_label", label).apply { if (customerId != null) put("customer_id", customerId) },
                 accessToken,
             ),
         )
+
+    fun customers(accessToken: String, query: String): List<CustomerSummary> =
+        request("GET", "/customers/?q=" + java.net.URLEncoder.encode(query, "UTF-8"), accessToken = accessToken)
+            .getJSONArray("results").toObjects().map {
+                CustomerSummary(it.getString("id"), it.getString("display_name"), it.getString("kind"))
+            }
 
     fun tabDetail(accessToken: String, tabId: String): TabDetail {
         val response = request("GET", "/tabs/$tabId/", accessToken = accessToken)
@@ -51,6 +62,7 @@ class OperationsHttpClient(baseUrl: String) {
                 method = payment.getString("method"),
                 status = payment.getString("status"),
                 refundedCents = payment.optLong("refunded_cents"),
+                simulated = payment.optBoolean("simulated"),
             )
         }.orEmpty()
         val refundRequired = response.optJSONArray("refund_required_corrections")?.toObjects()?.map { correction ->
@@ -208,11 +220,26 @@ class OperationsHttpClient(baseUrl: String) {
         )
     }
 
+    fun paymentCapabilities(accessToken: String): com.rodada.attendance.payments.PaymentCapabilities =
+        request("GET", "/payments/capabilities/", accessToken = accessToken).let { com.rodada.attendance.payments.PaymentCapabilities(it.optBoolean("pix"), it.optBoolean("tap_to_pay"), it.optBoolean("simulated")) }
+
+    fun integratedPayment(accessToken: String, tabId: String, amountCents: Long, key: String, method: String = "PIX"): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/tabs/$tabId/payments/integrated/",
+            JSONObject().put("amount_cents", amountCents).put("method", method).put("idempotency_key", key), accessToken))
+
+    fun reconcileIntegrated(accessToken: String, paymentId: String): com.rodada.attendance.payments.IntegratedPayment =
+        parseIntegrated(request("POST", "/payments/$paymentId/integrated/", JSONObject(), accessToken))
+
+    private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
+        json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"),
+    )
+
     fun closeTab(accessToken: String, tabId: String) {
         request("POST", "/tabs/$tabId/close/", JSONObject(), accessToken)
     }
 
-    private fun tabSummary(json: JSONObject) =
+    internal fun tabSummary(json: JSONObject) =
         TabSummary(
             id = json.getString("id"),
             displayLabel = json.optString("display_label").ifBlank { "Comanda sem nome" },
@@ -221,7 +248,24 @@ class OperationsHttpClient(baseUrl: String) {
             chargesCents = json.getLong("charges_cents"),
             paymentsCents = json.getLong("payments_cents"),
             exposureCents = json.getLong("exposure_cents"),
+            transfersCents = json.optLong("transfers_cents"),
+            effectiveLimitCents = json.getLong("effective_limit_cents"),
+            remainingCapacityCents = json.getLong("remaining_capacity_cents"),
+            percentageUsed = if (json.isNull("percentage_used")) null else json.getInt("percentage_used"),
+            consumptionBlocked = json.getBoolean("consumption_blocked"),
+            limitWarning = json.getBoolean("limit_warning"),
+            actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
         )
+
+    fun requestApproval(accessToken: String, tabId: String, reason: String, key: String) {
+        request("POST", "/tabs/$tabId/approval-request/", JSONObject().put("reason", reason).put("idempotency_key", key), accessToken)
+    }
+
+    fun approveLimit(accessToken: String, tabId: String, limitCents: Long, reason: String, expiresAt: String, key: String) {
+        request("POST", "/tabs/$tabId/limit-override/", JSONObject()
+            .put("limit_cents", limitCents).put("reason", reason)
+            .put("expires_at", expiresAt).put("idempotency_key", key), accessToken)
+    }
 
     private fun tableSummary(json: JSONObject): TableSummary {
         val active = json.optJSONObject("active_occupancy")
@@ -246,7 +290,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun JSONArray.toObjects(): List<JSONObject> = List(length()) { index -> getJSONObject(index) }
 
-    private fun request(
+    internal fun request(
         method: String,
         path: String,
         body: JSONObject? = null,

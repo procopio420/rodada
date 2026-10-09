@@ -1,15 +1,22 @@
+from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
+from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView
+from modules.payment_provider.views import (PaymentCapabilitiesView, IntegratedPaymentCreateView, IntegratedPaymentDetailView, PaytimeWebhookView)
 from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
+from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView,
+    TabLimitOverrideView, TabCustomerView, TabReassessView, TabApprovalRequestView, TabHouseHistoryView)
 from modules.corrections.views import (
     CorrectionRefundSettlementView,
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
-from modules.catalog.views import ProductAvailabilityView, ProductListView
+from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
+from modules.management.views import CalendarView, ReportView
+from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -72,8 +79,25 @@ def readiness(request):
     return JsonResponse({"status": "ready"})
 
 
+from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
+
 urlpatterns = [
     path("", include("modules.realtime.urls")),
+    path("payments/device-authorizations/", PaymentDeviceAuthorizationView.as_view()),
+    path("payments/<uuid:payment_id>/refunds/integrated/", IntegratedRefundView.as_view()),
+    path("refunds/<uuid:refund_id>/reconcile/", IntegratedRefundReconcileView.as_view()),
+    path("payments/merchant-connections/", MerchantConnectionView.as_view()),
+    path("payments/capabilities/", PaymentCapabilitiesView.as_view()),
+    path("tabs/<uuid:tab_id>/payments/integrated/", IntegratedPaymentCreateView.as_view()),
+    path("payments/<uuid:payment_id>/integrated/", IntegratedPaymentDetailView.as_view()),
+    path("payments/webhooks/paytime/<uuid:venue_id>/", PaytimeWebhookView.as_view()),
+    path("tabs/<uuid:tab_id>/operations/", OperationView.as_view()),
+    path("tabs/<uuid:tab_id>/operations/preview/", PreviewView.as_view()),
+    path("service-points/", ServicePointView.as_view()),
+    path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
+    path("cash/shifts/history/", CashShiftListView.as_view()),
+    path("management/calendar/", CalendarView.as_view()),
+    path("management/reports/", ReportView.as_view()),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),
@@ -92,6 +116,14 @@ urlpatterns = [
     path("manage/access/sessions/<uuid:session_id>/revoke/", SessionRevokeView.as_view(), name="access-session-revoke"),
     path("manage/access/audit/", AccessAuditListView.as_view(), name="access-audit"),
     path("tabs/", TabListCreateView.as_view(), name="tab-list-create"),
+    path("customers/", CustomerListView.as_view(), name="house-customers"),
+    path("customers/<uuid:customer_id>/", CustomerDetailView.as_view(), name="house-customer-detail"),
+    path("house-account/policies/", PolicyView.as_view(), name="house-policies"),
+    path("tabs/<uuid:tab_id>/limit-override/", TabLimitOverrideView.as_view(), name="tab-limit-override"),
+    path("tabs/<uuid:tab_id>/customer/", TabCustomerView.as_view(), name="tab-customer"),
+    path("tabs/<uuid:tab_id>/reassess-policy/", TabReassessView.as_view(), name="tab-reassess"),
+    path("tabs/<uuid:tab_id>/approval-request/", TabApprovalRequestView.as_view(), name="tab-approval-request"),
+    path("tabs/<uuid:tab_id>/house-history/", TabHouseHistoryView.as_view(), name="tab-house-history"),
     path("tabs/<uuid:tab_id>/", TabDetailView.as_view(), name="tab-detail"),
     path("tabs/<uuid:tab_id>/orders/confirm/", OrderConfirmView.as_view(), name="order-confirm"),
     path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),
@@ -103,6 +135,11 @@ urlpatterns = [
     path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
+    path("catalog/suggestions/", ProductSuggestView.as_view()),
+    path("catalog/resolve-or-create/", ProductResolveView.as_view()),
+    path("catalog/products/<uuid:product_id>/", ProductEditView.as_view()),
+    path("catalog/products/<uuid:product_id>/icon/", ProductIconManageView.as_view()),
+    path("catalog/assets/<uuid:icon_id>/<str:filename>/", PublishedIconAssetView.as_view()),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),

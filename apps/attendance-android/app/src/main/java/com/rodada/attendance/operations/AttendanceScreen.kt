@@ -1,5 +1,7 @@
 package com.rodada.attendance.operations
 
+import com.rodada.attendance.ui.RodadaMono
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +36,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.LifecycleOwner
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,6 +55,8 @@ import com.rodada.attendance.refunds.DirectRefundCommand
 import com.rodada.attendance.refunds.RefundCommand
 import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import java.util.UUID
+import java.time.Instant
+import kotlinx.coroutines.delay
 
 @Composable
 fun AttendanceScreen(
@@ -58,8 +66,38 @@ fun AttendanceScreen(
     onOpenAccount: () -> Unit,
 ) {
     val state = viewModel.state
+    val context = LocalContext.current
+    val lifecycleOwner = LocalActivity.current as? LifecycleOwner
+    DisposableEffect(lifecycleOwner, session.staffId, session.venueId) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.revalidateConnection(session)
+        }
+        lifecycleOwner?.lifecycle?.addObserver(observer)
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) { viewModel.revalidateConnection(session) }
+            override fun onLost(network: Network) { viewModel.markConnectionStale() }
+        }
+        connectivity.registerDefaultNetworkCallback(callback)
+        onDispose {
+            lifecycleOwner?.lifecycle?.removeObserver(observer)
+            connectivity.unregisterNetworkCallback(callback)
+        }
+    }
+    var operatingTab by remember { mutableStateOf(false) }
+    LaunchedEffect(state.operationCompleted) { if (state.operationCompleted) operatingTab = false }
     var openingTab by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
+    var viewingIntegrated by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.integratedPayment?.id, state.integratedPayment?.status) {
+        val payment = state.integratedPayment
+        if (payment != null) viewingIntegrated = true
+        while (payment?.blocksNewCharge == true) {
+            delay(5000)
+            viewModel.reconcilePix(session)
+        }
+    }
+    var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
@@ -140,6 +178,8 @@ fun AttendanceScreen(
                     onConfirmOrder = { viewModel.confirmOrder(session) },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
+                    onOperations = { operatingTab = true; viewModel.loadTabOperations(session) },
+                    onResolveLimit = { resolvingLimit = true },
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
@@ -148,12 +188,22 @@ fun AttendanceScreen(
         }
     }
 
+    if (operatingTab) TabOperationsDialog(session, state,
+        onDismiss = { operatingTab = false },
+        onPreview = { viewModel.previewTabOperation(session, it) },
+        onCommit = { viewModel.commitTabOperation(session, it) },
+        onEdit = viewModel::clearOperationPreview,
+        onRefresh = { viewModel.loadTabOperations(session) })
+
     if (openingTab) {
         OpenTabDialog(
             busy = state.submitting,
+            customers = state.customers,
+            message = state.errorMessage,
+            onSearch = { viewModel.searchCustomers(session, it) },
             onDismiss = { openingTab = false },
-            onOpen = {
-                viewModel.openTab(session, it)
+            onOpen = { label, customerId ->
+                viewModel.openTab(session, label, customerId)
                 openingTab = false
             },
         )
@@ -163,10 +213,36 @@ fun AttendanceScreen(
             tab = state.selectedTab.summary,
             cashPoints = state.cashPoints,
             busy = state.submitting,
+            pixEnabled = state.pixEnabled,
+            tapSimulationEnabled = state.tapSimulationEnabled,
+            onCheckPix = {
+                viewModel.reconcilePix(session)
+                viewingIntegrated = true
+                takingPayment = false
+            },
             onDismiss = { takingPayment = false },
             onPay = { amount, method, cashPointId ->
                 viewModel.collectPayment(session, amount, method, cashPointId)
                 takingPayment = false
+            },
+        )
+    }
+    if (viewingIntegrated && !state.submitting && state.integratedPayment != null) {
+        com.rodada.attendance.payments.IntegratedPaymentPanel(
+            state.integratedPayment, state.submitting,
+            onCheck = { viewModel.reconcilePix(session) },
+            onDismiss = { viewingIntegrated = false },
+        )
+    }
+    if (resolvingLimit && state.selectedTab != null) {
+        LimitResolutionDialog(
+            tab = state.selectedTab.summary,
+            canApprove = "tab.limit.override" in session.capabilities,
+            busy = state.submitting || state.connectivity != ConnectivityState.ONLINE,
+            message = state.errorMessage ?: state.noticeMessage,
+            onDismiss = { resolvingLimit = false },
+            onSubmit = { amount, reason, pin, expiry, key ->
+                viewModel.resolveLimit(session, amount, reason, pin, expiry, key)
             },
         )
     }
@@ -193,6 +269,7 @@ fun AttendanceScreen(
         }
     }
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
+    state.tapPhase?.takeIf { state.submitting }?.let { MessageDialog("Simulação de aproximação", it) {} }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
 }
 
@@ -267,7 +344,7 @@ private fun TabList(
                     Text(task.destinationLabel.ifBlank { "Destino não informado" }, fontWeight = FontWeight.Bold)
                     Text("${task.quantity}× ${task.productName}")
                     if (task.tabLabel.isNotBlank()) Text("Comanda: ${task.tabLabel}")
-                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall)
+                    Text("Pronto há ${deliveryAge(task.ageSeconds)}", style = MaterialTheme.typography.bodySmall, fontFamily = RodadaMono)
                     Button(
                         onClick = { onCompleteDelivery(task.id) },
                         enabled = !state.submitting,
@@ -316,6 +393,8 @@ private fun TabWorkspace(
     onConfirmOrder: () -> Unit,
     onPay: () -> Unit,
     onClose: () -> Unit,
+    onOperations: () -> Unit,
+    onResolveLimit: () -> Unit,
     onCorrectItem: (OrderItem) -> Unit,
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
@@ -334,7 +413,14 @@ private fun TabWorkspace(
             TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
             Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
+            OutlinedButton(onClick = onOperations, enabled = !state.submitting) { Text("Operações da comanda") }
             BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
+            if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
+                Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
+            }
+            if (tab.summary.state != "CLOSED") {
+                OutlinedButton(onClick = onResolveLimit, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE) { Text("Solicitar / aprovar limite") }
+            }
         }
         item {
             Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
@@ -398,7 +484,7 @@ private fun TabWorkspace(
             items(tab.payments, key = { it.id }) { payment ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
+                        Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
                         Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
                         if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
                         val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
@@ -446,6 +532,10 @@ private fun BalanceCard(
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("Cobrado ${formatCents(tab.chargesCents)} · recebido ${formatCents(tab.paymentsCents)}")
+            if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
+            Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
+            tab.percentageUsed?.let { Text("$it% do limite utilizado") }
+            if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(onClick = onPay, enabled = tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
                     Text("Pagar")
@@ -456,6 +546,49 @@ private fun BalanceCard(
             }
         }
     }
+}
+
+@Composable
+private fun LimitResolutionDialog(
+    tab: TabSummary,
+    canApprove: Boolean,
+    busy: Boolean,
+    message: String?,
+    onDismiss: () -> Unit,
+    onSubmit: (Long?, String, String, String, String) -> Unit,
+) {
+    var amount by rememberSaveable(tab.id) { mutableStateOf("") }
+    var reason by rememberSaveable(tab.id) { mutableStateOf("") }
+    var pin by remember { mutableStateOf("") }
+    val key = rememberSaveable(tab.id) { UUID.randomUUID().toString() }
+    val expiry = rememberSaveable(tab.id) { Instant.now().plusSeconds(3600).toString() }
+    var submitted by rememberSaveable(tab.id) { mutableStateOf(false) }
+    val cents = parseCents(amount)
+    AlertDialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        title = { Text(if (canApprove) "Aprovar limite temporário" else "Solicitar aprovação") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Em aberto ${formatCents(tab.exposureCents)} · limite ${formatCents(tab.effectiveLimitCents)}")
+                message?.let { Text(it) }
+                if (canApprove) {
+                    Text("Aprovação operacional válida por uma hora. Não registra pagamento ou garantia financeira.")
+                    OutlinedTextField(value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, label = { Text("Novo limite total (R$)") })
+                    OutlinedTextField(value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, visualTransformation = PasswordVisualTransformation())
+                } else Text("A gerência receberá a solicitação. Para pagar, volte à comanda e toque em Pagar; um operador autorizado confirma o recebimento.")
+                OutlinedTextField(value = reason, onValueChange = { reason = it.take(240) }, enabled = !busy && !submitted, label = { Text("Motivo") })
+                if (submitted) Text("Confira a mensagem na comanda. Em caso de perda de conexão, repita esta mesma solicitação após atualizar.")
+            }
+        },
+        confirmButton = {
+            TextButton(enabled = !busy && reason.isNotBlank() && (!canApprove || (pin.isNotBlank() && cents != null && cents > tab.effectiveLimitCents)), onClick = {
+                submitted = true
+                onSubmit(if (canApprove) cents else null, reason, pin, expiry, key)
+                pin = ""
+            }) { Text(if (busy) "Confirmando…" else if (canApprove) "Aprovar" else "Solicitar") }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = onDismiss) { Text("Voltar à comanda") } },
+    )
 }
 
 @Composable
@@ -492,15 +625,30 @@ private fun OrderCart(
 }
 
 @Composable
-private fun OpenTabDialog(busy: Boolean, onDismiss: () -> Unit, onOpen: (String) -> Unit) {
+private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, message: String?, onSearch: (String) -> Unit,
+                          onDismiss: () -> Unit, onOpen: (String, String?) -> Unit) {
     var label by rememberSaveable { mutableStateOf("") }
+    var customerId by rememberSaveable { mutableStateOf<String?>(null) }
+    var searched by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Abrir comanda") },
         text = {
-            OutlinedTextField(value = label, onValueChange = { label = it }, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = label, onValueChange = { label = it; customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
+                TextButton(enabled = !busy && label.isNotBlank(), onClick = { searched = true; onSearch(label) }) { Text(if (busy) "Buscando…" else "Buscar cliente existente") }
+                if (searched && !busy) {
+                    if (customers.isEmpty()) Text("Nenhum cliente encontrado. Você pode abrir sem cadastro.")
+                    customers.take(5).forEach { customer ->
+                        OutlinedButton(enabled = !busy, onClick = { customerId = customer.id; label = customer.displayName }) {
+                            Text("${customer.displayName} · ${customer.kind}${if (customerId == customer.id) " ✓" else ""}")
+                        }
+                    }
+                }
+                message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            }
         },
-        confirmButton = { Button(onClick = { onOpen(label.trim()) }, enabled = !busy) { Text("Abrir") } },
+        confirmButton = { Button(onClick = { onOpen(label.trim(), customerId) }, enabled = !busy) { Text("Abrir") } },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }
@@ -510,6 +658,9 @@ private fun PaymentDialog(
     tab: TabSummary,
     cashPoints: List<CashPoint>,
     busy: Boolean,
+    pixEnabled: Boolean,
+    tapSimulationEnabled: Boolean,
+    onCheckPix: () -> Unit,
     onDismiss: () -> Unit,
     onPay: (Long, PaymentMethod, String?) -> Unit,
 ) {
@@ -527,7 +678,7 @@ private fun PaymentDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Total em aberto: ${formatCents(tab.exposureCents)}")
                 OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                PaymentMethod.entries.forEach { candidate ->
+                PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
@@ -543,15 +694,17 @@ private fun PaymentDialog(
                         Text("Abra ou selecione um caixa com turno ativo antes de receber dinheiro.", color = MaterialTheme.colorScheme.error)
                     }
                 }
+                if (pixEnabled || tapSimulationEnabled) TextButton(onClick = onCheckPix, enabled = !busy) { Text("Verificar pagamento existente") }
+                Text(if (tapSimulationEnabled) "SIMULAÇÃO de aproximação. Não recebe dinheiro e não exige cartão." else "Aproximação SumUp aguarda SDK e ativação. Terminal externo disponível.")
                 if (!valid) Text("Informe um valor entre R$ 0,01 e o saldo em aberto.", color = MaterialTheme.colorScheme.error)
-                if (method != PaymentMethod.CASH) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
+                if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O app não confirma pagamentos externos sozinho.")
             }
         },
         confirmButton = {
             Button(
                 onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
                 enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text("Confirmar pagamento") }
+            ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )

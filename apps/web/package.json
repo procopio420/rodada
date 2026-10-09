@@ -8,7 +8,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:realtime": "node --experimental-strip-types --test tests/realtime.test.mjs",
-    "test:visual": "python tests/visual-realtime.py"
+    "test:realtime:browser": "python tests/visual-realtime.py",
+    "test:visual": "playwright test",
+    "test:integration": "playwright test --config playwright.integration.config.ts",
+    "test:visual:report": "playwright show-report"
   },
   "dependencies": {
     "next": "16.3.8",
@@ -16,9 +19,14 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@playwright/test": "^1.58.2",
     "@types/node": "^22.18.0",
+    "@types/pngjs": "^6.0.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
     "typescript": "5.9.3"
   },
   "engines": {

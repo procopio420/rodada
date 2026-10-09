@@ -7,11 +7,13 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   if (request.method !== "GET") {
     try { body = await request.json(); } catch { body = {}; }
   }
-  return forwardAuthenticated(request, "/" + path.join("/") + "/", {
-    method: request.method as "GET" | "POST",
+  return forwardAuthenticated(request, "/" + path.join("/") + "/" + request.nextUrl.search, {
+    method: request.method as "GET" | "POST" | "PATCH" | "PUT",
     body,
   });
 }
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
 export async function POST(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
+export async function PATCH(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }
+export async function PUT(request: NextRequest, context: { params: Promise<{ path: string[] }> }) { return forward(request, context.params); }

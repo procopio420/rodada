@@ -14,7 +14,7 @@ O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para
 6. **Estado nunca depende só de cor.** Badge, texto ou ícone sempre acompanha a cor.
 7. **Sem “SaaS genérico”.** Evitar glassmorphism, cards decorativos, dashboards de vaidade, gradientes sem função e navegação de ERP.
 8. **Dinheiro e risco têm hierarquia própria.** Saldo, exposição, limite, pagamento e bloqueio devem ser legíveis em um relance.
-9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações principais preferem 48–52 px.
+9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações de linha preferem 56 px e ações principais 68 px.
 10. **Português operacional.** Rótulos curtos, concretos e orientados à ação.
 
 ## Linguagem visual
@@ -35,7 +35,7 @@ Use tokens semânticos; não use hex diretamente em componentes de produto.
 | `--color-border` | divisores e bordas |
 | `--color-text` | texto principal |
 | `--color-text-muted` | metadado/apoio |
-| `--color-accent` | ação primária, seleção e marca Rodada |
+| `--color-accent` | atenção, seleção e marca Rodada |
 | `--color-success` | disponível, pronto, confirmado |
 | `--color-danger` | indisponível, erro, bloqueio, atraso crítico |
 | `--color-info` | informação, claim/ownership e estado neutro ativo |
@@ -55,7 +55,7 @@ Não reutilizar `success` para “da casa” ou `danger` para decoração.
 
 ## Tipografia
 
-Fonte de sistema é aceitável no protótipo e no MVP. Prioridades:
+Archivo variável é a fonte compartilhada; JetBrains Mono para tempo, quantidade e códigos. Arquivos locais com fallback system-ui/monospace evitam dependência de rede. Títulos usam peso 900 e largura 68%; ações de produção peso 850 e largura 84%. Prioridades:
 
 - títulos curtos e pesados;
 - números financeiros com peso forte e `font-variant-numeric: tabular-nums`;
@@ -65,7 +65,7 @@ Fonte de sistema é aceitável no protótipo e no MVP. Prioridades:
 
 Escala base:
 
-- `--text-xs`: 12 px
+- `--text-xs`: 14 px
 - `--text-sm`: 14 px
 - `--text-md`: 16 px
 - `--text-lg`: 20 px
@@ -74,7 +74,7 @@ Escala base:
 
 ## Espaçamento e forma
 
-Escala base: 4, 8, 12, 16, 24, 32 px.
+Escala base: 4, 8, 12, 16, 20, 24, 32 px. Margem mobile: `--space-mobile` (20 px). Botões: raio 8 px; badges: 4 px; listas de produção: raio 0.
 
 - `--radius-sm`: controles compactos;
 - `--radius-md`: botões, badges e linhas;
@@ -158,7 +158,8 @@ Componente visual compartilhado para o asset publicado de Product.
 
 Hierarquia fixa:
 
-- `button--primary`: próxima ação principal da tela;
+- `button--primary`: próxima ação principal da tela, fundo papel creme;
+- `button--work` / `buttonWork`: ação de produção de 56 px, papel, largura condensada e sombra de tecla;
 - `button--secondary`: ação segura alternativa;
 - `button--quiet`: navegação/ação de baixa ênfase;
 - `button--danger`: ação destrutiva ou bloqueio explícito.
@@ -215,6 +216,12 @@ Prioridade: **Tab → pedido → total → próxima ação**.
 ### Cozinha / Bar
 
 Prioridade: **fila de produção + disponibilidade da estação**.
+
+Resumo por produto → fila individual → passe vêm antes da disponibilidade e Quick Catalog. No desktop largo são três colunas; no mobile, regiões empilhadas. Resumo apenas soma quantidades em produção, sem mutations agrupadas. Tempo desde o pedido usa created_at; no passe usa ready_at, com “Tempo não informado” quando ausente.
+
+No Web, nomes longos podem ocupar várias linhas: conteúdo e ações usam duas
+linhas no celular e colunas quando houver espaço. Sem truncar o produto ou
+reduzir o alvo de toque. A fila e o passe ficam antes do cadastro conectado da Spec 020.
 
 Quick Catalog usa os mesmos componentes da superfície: Button, Field, CatalogCombobox, ProductIcon, StatusBadge e InlineNotice. Não existe botão obrigatório de “Gerar ícone”: ao criar Product novo, o ProductIcon nasce junto e a geração começa automaticamente. Criar item não deve parecer um mini-app separado dentro da cozinha.
 
@@ -285,6 +292,12 @@ Gerência é mobile-first de verdade:
 
 A home **Agora** deve reutilizar `Metric`, `MoneyValue`, `Panel`, `DataRow`, `StatusBadge` e `InlineNotice`. Evitar criar cards decorativos apenas para “encher dashboard”.
 
+Divergências de caixa e estornos pendentes aparecem antes do pulso operacional.
+Antes do primeiro snapshot confirmado, mostrar carregamento ou erro, sem números
+que aparentem zero medido. Falha de atualização preserva o último snapshot com
+aviso explícito. Rodapé discreto usa texto muted de 14 px, link com alvo de 44 px
+e espaço suficiente para não ficar atrás da navegação ou carrinho fixos.
+
 Durante operação, Gerência funciona como cockpit. Fora do pico, a mesma superfície pode aumentar densidade para fechamento e analytics.
 
 Estados de conectividade precisam ser explícitos:
@@ -349,3 +362,32 @@ Pode usar layout split para operação, sem transformar cada módulo em dashboar
 O protótipo em `prototype/index.html` consome `prototype/design-system.css` e serve como referência visual inicial.
 
 Ele não é a implementação final do frontend, mas mudanças visuais de alto nível devem primeiro preservar este contrato para evitar drift entre protótipo, Codex/Claude e o futuro app Next.js.
+
+## Implementação Web — Spec 020
+
+Quick Catalog combina Field, CatalogCombobox, ProductIcon, StatusBadge/semântica de estado e Button. Resultados mostram preço, destino e ativação/disponibilidade; selecionar reutiliza o produto. Criação é ação explícita com preço e destino, após a busca. Ícone de fallback usa as iniciais no mesmo espaço do asset e não representa disponibilidade. A fila de produção continua antes do cadastro.
+
+Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV, Panel para grupos de fatos e estados semânticos para conferência/divergência. Valores históricos e exposição atual são rotulados separadamente. Histórico de caixa usa seletor com data/estado e retorno explícito ao turno ativo; consultar histórico não altera estado financeiro. Todas as superfícies mantêm foco visível, targets 44 px e tokens existentes. Ver [Spec 020](../../specs/020-web-operational-completion/spec.md).
+
+## Noite v2 — Spec 021
+
+Referência nova: [galeria](../../prototype/references/index.html), [KB e decisões](prototype-integration.md). A referência anterior acompanha os novos tokens para impedir drift entre primitives. Os exports originais permanecem intactos nos ZIPs.
+
+| Token | Valor |
+| --- | --- |
+| bg / surface-1 / surface-2 / surface-3 | #120F0C / #1B1713 / #252019 / #312A21 |
+| border / border-strong | #3A3228 / #4D4335 |
+| text / text-muted / text-subtle | #F3ECE1 / #BBAE9B / #A39686 |
+| on-accent | #17130F |
+| accent / warning | #F5A524 |
+| success / danger / info | #93DB8C / #FF5D47 / #82B8FF |
+| money / money-bg | #C3A6FF / #2A2140 |
+| house / house-bg | #F2CFA4 / #4A2617 |
+
+Money e House são contexto, não novos estados de domínio: warning/danger continuam comunicando risco e bloqueio. Rampas de idade, pulse e limites financeiros dos exports são demonstrativos; política temporal não é fixada pelo CSS. `--shadow-key` é a sombra canônica de ação de produção. Não usar pulse contínuo obrigatório; respeitar reduced-motion. Ícones operacionais acompanham palavras; SVGs demonstrativos não substituem ProductIcon real.
+
+Atendimento nativo usa `RodadaTheme` com a mesma paleta escura, fonte Archivo empacotada e Shapes 4/8 px. Não aplica a paleta dinâmica do aparelho. A revisão de layout/fluxo nativo completo continua separada do port de tema.
+
+## Próxima entrega — paridade visual atualizada
+
+O [plano pixel-perfect](pixel-perfect-implementation-plan.md) e a [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) definem como alcançar fidelidade por tela/estado aos exports atualizados. A integração de tema/componentes não equivale a paridade completa; implementação e novos gates permanecem pendentes.

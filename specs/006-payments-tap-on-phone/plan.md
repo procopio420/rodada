@@ -50,3 +50,21 @@ Jobs/commands de reconciliação para operações pendentes, métricas de aprova
 ## Slice 9 — UX avançada
 
 Divisão por itens/pessoa e gorjeta, mantendo o ledger monetário como fonte de verdade.
+
+## Live slice
+
+Implement Paytime REST Pix adapter and venue-scoped configuration, protected create,
+status/reconciliation and webhook routes. Harden concurrent inbox deduplication and
+terminal transitions. Persist QR evidence using existing attempt metadata. Test
+provider contracts with injected HTTP transport and API workflows separately from
+live activation. Extend native Tap port and canonical payment presentation; run
+backend financial gates and Android tests/build/lint. Document unverified provider
+activation gates explicitly.
+
+## SumUp slice
+
+Reuse payment orchestration; add exact-decimal SumUp Checkout and Tap verification
+adapters, persistent deterministic simulator, merchant credentials and authorization
+models, refund request/reconciliation, Android SumUp boundary/event states and debug
+simulator UI. Add provider contract/tenant/refund/PostgreSQL race tests and onboarding
+matrix/checklist. PR depends on the existing Paytime PR until it is merged.

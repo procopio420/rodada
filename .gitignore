@@ -6,11 +6,15 @@ node_modules/
 .next/
 __pycache__/
 *.pyc
+*.egg-info/
 *.sqlite3
 *.tsbuildinfo
 .venv/
 dist/
 build/
+visual-artifacts/
+apps/web/test-results/
+apps/web/playwright-report/
 .DS_Store
 .gradle/
 .kotlin/

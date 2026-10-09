@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.catalog.models import AvailabilityState
+from modules.catalog.serializers import icon_payload
 from modules.ordering.views import _order_payload, _tab_payload
 
 from .serializers import GuestOrderConfirmSerializer, GuestTabCreateSerializer, QrResolveSerializer
@@ -75,6 +76,11 @@ def _context_payload(session, *, token: str | None = None) -> dict:
                 item["state_source"] = "CANONICAL"
     if token is not None:
         payload["guest_session_token"] = token
+    if session.tab_id:
+        payload["tab"]["orders"] = [
+            _order_payload(order) for order in session.tab.orders.order_by("confirmed_at", "id")
+            .prefetch_related("items__product")
+        ]
     return payload
 
 
@@ -146,6 +152,7 @@ class GuestCatalogView(APIView):
                         "price_cents": product.price_cents,
                         "fulfillment_station": product.fulfillment_station,
                         "available": product.availability.state == AvailabilityState.AVAILABLE,
+                        "icon": icon_payload(product),
                     }
                     for product in products
                 ]

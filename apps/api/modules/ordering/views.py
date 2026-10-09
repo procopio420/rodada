@@ -22,7 +22,7 @@ def _error_response(error: OrderingServiceError) -> Response:
 
 
 def _tab_payload(tab: Tab) -> dict:
-    from modules.ledger.services import totals
+    from modules.house_account.services import financial_position
     return {
         "id": str(tab.id),
         "display_label": tab.display_label,
@@ -30,7 +30,7 @@ def _tab_payload(tab: Tab) -> dict:
         "version": tab.version,
         "opened_at": tab.opened_at,
         "closed_at": tab.closed_at,
-        **totals(tab),
+        **financial_position(tab),
     }
 
 
@@ -51,6 +51,9 @@ def _order_payload(order) -> dict:
                 "quantity": item.quantity,
                 "line_total_cents": item.line_total_cents,
                 "state": item.state,
+                "accepted_at": item.accepted_at,
+                "ready_at": item.ready_at,
+                "delivered_at": item.delivered_at,
             }
             for item in items
         ],
@@ -61,8 +64,19 @@ class TabListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        tabs = Tab.objects.filter(venue=request.auth.venue).order_by("-opened_at", "id")[:200]
-        return Response({"results": [_tab_payload(tab) for tab in tabs]})
+        from rest_framework import serializers
+        class Query(serializers.Serializer):
+            offset = serializers.IntegerField(min_value=0, default=0)
+            active = serializers.BooleanField(default=False)
+        query = Query(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        offset = query.validated_data["offset"]
+        tabs = Tab.objects.filter(venue=request.auth.venue)
+        if query.validated_data["active"]:
+            tabs = tabs.filter(state__in=["OPEN", "REQUIRES_ACTION", "SETTLING"])
+        rows = list(tabs.order_by("-opened_at", "id")[offset:offset + 201])
+        return Response({"results": [_tab_payload(tab) for tab in rows[:200]],
+                         "next_offset": offset + 200 if len(rows) > 200 else None})
 
     def post(self, request):
         permission = RequireCapability()
@@ -71,10 +85,10 @@ class TabListCreateView(APIView):
 
         serializer = TabCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        tab = open_tab(
-            actor=request.actor_context,
-            **serializer.validated_data,
-        )
+        try:
+            tab = open_tab(actor=request.actor_context, **serializer.validated_data)
+        except OrderingServiceError as error:
+            return _error_response(error)
         return Response(_tab_payload(tab), status=201)
 
 
@@ -104,6 +118,7 @@ class TabDetailView(APIView):
                 "method": payment.method,
                 "status": payment.status,
                 "confirmed_at": payment.confirmed_at,
+                "simulated": payment.provider.startswith("simulator:"),
                 "refunded_cents": sum(
                     refund.amount_cents
                     for refund in payment.refunds.all()

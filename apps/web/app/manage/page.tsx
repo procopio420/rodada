@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
+import { useRealtime } from "@/lib/client/use-realtime";
+import { projectionCache } from "@/lib/client/projection-cache";
+import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { ManagementNav } from "@/components/management-nav";
+import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
-import { projectionCache } from "@/lib/client/projection-cache";
-import { useRealtime } from "@/lib/client/use-realtime";
-import { ConnectivityNotice } from "@/components/connectivity-notice";
+import { CatalogIconEditor } from "@/components/catalog-icon-editor";
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
 type TabDetail = Tab & {
@@ -17,7 +19,7 @@ type TabDetail = Tab & {
 type Product = { id: string; name: string; availability: string; active: boolean };
 type QueueItem = { id: string; product_name: string; state: string; tab_label: string };
 type Delivery = { id: string; product_name: string; destination_label: string; age_seconds: number };
-type CashPoint = { id: string; label: string; active_shift: { id: string; status: string; expected_cents?: number } | null };
+type CashPoint = { id: string; label: string; active_shift: { id: string; status: string; expected_cents?: number } | null; pending_review_shift?: { id: string; discrepancy_cents: number } | null };
 type Table = { id: string; label: string; status: string; active_occupancy: { id: string } | null };
 
 const money = (value = 0) =>
@@ -40,13 +42,13 @@ export default function ManagementPage() {
   const [refunds, setRefunds] = useState<{ tab: string; item: string; cents: number }[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [hasSnapshot, setHasSnapshot] = useState(false);
 
   const cache = useMemo(() => projectionCache<{ tabs: Tab[]; products: Product[]; bar: QueueItem[]; kitchen: QueueItem[]; deliveries: Delivery[]; cash: CashPoint[]; tables: Table[] }>("management"), []);
   const [cachedAt, setCachedAt] = useState<number>();
   const load = useCallback(async () => {
     const cached = await cache.restore();
-    if (cached) { const data = cached.data; setTabs(data.tabs); setProducts(data.products); setBar(data.bar); setKitchen(data.kitchen); setDeliveries(data.deliveries); setCashPoints(data.cash); setTables(data.tables); setCachedAt(cached.fetchedAt); }
-    setLoading(true);
+    if (cached) { const data = cached.data; setTabs(data.tabs); setProducts(data.products); setBar(data.bar); setKitchen(data.kitchen); setDeliveries(data.deliveries); setCashPoints(data.cash); setTables(data.tables); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
     setMessage("");
     try {
       const [nextTabs, nextProducts, nextBar, nextKitchen, nextDeliveries, nextCash, nextTables] = await Promise.all([
@@ -58,14 +60,16 @@ export default function ManagementPage() {
         getResults<CashPoint>("/api/pos/cash/points/"),
         getResults<Table>("/api/pos/hospitality/tables/"),
       ]);
-      setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
-      setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
-      cache.save({ tabs: nextTabs.map((tab) => ({ ...tab, display_label: "" })), products: nextProducts, bar: nextBar.map((item) => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map((item) => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
       const openTabs = nextTabs.filter((tab) => tab.state !== "CLOSED");
       const details = await Promise.all(openTabs.map(async (tab) => {
         const result = await apiCall<TabDetail>(`/api/pos/tabs/${tab.id}/`);
-        return result.response.ok ? result.body as TabDetail : null;
+        if (!result.response.ok) throw new Error(asApiError(result.body).message);
+        return result.body as TabDetail;
       }));
+      setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
+      setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
+      cache.save({ tabs: nextTabs.map(tab => ({ ...tab, display_label: "" })), products: nextProducts, bar: nextBar.map(item => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map(item => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
+      setHasSnapshot(true);
       setRefunds(details.flatMap((detail) => {
         if (!detail) return [];
         return (detail.refund_required_corrections ?? []).map((row) => ({
@@ -79,33 +83,44 @@ export default function ManagementPage() {
       setLoading(false);
     }
   }, [cache]);
-
-  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); } });
+  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); setHasSnapshot(false); } });
   const openTabs = useMemo(() => tabs.filter((tab) => tab.state !== "CLOSED"), [tabs]);
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
   const activeCash = cashPoints.filter((point) => point.active_shift);
   const activeTables = tables.filter((table) => table.status === "OCCUPIED");
+  const pendingCash = cashPoints.filter(point => point.pending_review_shift);
 
-  return <main className="appShell">
+  return <main className="appShell managementShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
       <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
-    <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     <ManagementNav />
-    {message ? <div className="notice" data-state="danger" role="alert">{message}</div> : null}
+    <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
+    {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
+    {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
+    {hasSnapshot && <>
+    {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
+      <h2 id="cash-review-title">Divergências de caixa pendentes</h2>
+      {pendingCash.map(point => <div className="movement" key={point.id}><div><strong>{point.label}</strong><small>Fechamento aguardando revisão</small></div><strong className="cashDifference">{money(point.pending_review_shift?.discrepancy_cents)}</strong></div>)}
+      <Link className="backLink" href="/cash">Revisar caixa →</Link>
+    </section>}
+    {refunds.length ? <section className="panel panelDanger"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
+
+    <HouseAccount />
+    <CatalogIconEditor />
 
     <section className="panel"><h2>Agora</h2>
-      <div className="dataRow"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
-      <div className="dataRow"><span>Exposição em aberto</span><strong>{money(exposure)}</strong></div>
-      <div className="dataRow"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
-      <div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
+      <div className="metricGrid">
+        <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
+        <div className="operationalMetric"><span>Exposição em aberto</span><strong>{money(exposure)}</strong></div>
+        <div className="operationalMetric"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
+        <div className="operationalMetric"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
+      </div>
     </section>
-
-    {refunds.length ? <section className="panel"><h2>Estornos pendentes</h2>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
 
     <section className="panel" id="operacao"><h2>Produção e entrega</h2>
       <div className="dataRow"><span>Bar em fila</span><strong>{bar.length}</strong></div>
@@ -122,8 +137,9 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
-    <section className="panel" id="vendas"><h2>Vendas</h2><p className="muted">O detalhamento de vendas permanece em evolução; esta superfície prioriza exceções operacionais durante o serviço.</p></section>
+    <section className="panel" id="vendas"><h2>Vendas e relatórios</h2><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
     {unavailable.length ? <section className="panel"><h2>Indisponíveis</h2>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">{product.availability}</strong></div>)}</section> : null}
     <section className="panel" id="mais"><h2>Mais</h2><p className="muted">Cardápio, equipe e relatórios entrarão aqui sem transformar Gerência em navegação de domínio.</p></section>
+    </>}
   </main>;
 }

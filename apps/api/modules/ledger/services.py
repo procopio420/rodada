@@ -36,12 +36,15 @@ def totals(tab: Tab) -> dict:
         payment__tab=tab,
         status=RefundStatus.CONFIRMED,
     ).aggregate(total=Sum("amount_cents"))["total"] or 0
+    from modules.tab_operations.services import transfer_effect
+    transfers = transfer_effect(tab)
     return {
+        "transfers_cents": transfers,
         "charges_cents": charges,
         "adjustments_cents": adjustments,
         "payments_cents": payments,
         "refunds_cents": refunds,
-        "exposure_cents": charges + adjustments - payments + refunds,
+        "exposure_cents": charges + adjustments - payments + refunds + transfers,
     }
 
 
@@ -59,6 +62,9 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     Payments are intentionally not touched here. Callers must first establish
     that the Tab has no confirmed money that would need a separate refund.
     """
+    from modules.tab_operations.models import TabTransferLine
+    if TabTransferLine.objects.filter(source_charge__order_item=item).exists():
+        raise LedgerServiceError("TRANSFERRED_RESPONSIBILITY", "Consumo transferido exige correção com alocação de responsabilidade.", 409)
     charge = (
         Charge.objects.select_for_update()
         .filter(order_item=item, tab=item.order.tab)
@@ -191,6 +197,15 @@ def collect_payment(
         if existing.amount_cents != amount_cents or existing.method != method:
             raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro pagamento.", 409)
         return existing, totals(tab)
+    if Payment.objects.filter(tab=tab, provider__gt="", status__in=(
+        PaymentStatus.CREATED, PaymentStatus.PENDING, PaymentStatus.PROCESSING,
+        PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING,
+    )).exists():
+        raise LedgerServiceError("PAYMENT_ALREADY_PENDING", "Confirme o pagamento integrado antes de cobrar novamente.", 409)
+    if method == PaymentMethod.PIX:
+        from django.conf import settings
+        if str(actor.venue_id) in getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}):
+            raise LedgerServiceError("PROVIDER_CONFIRMATION_REQUIRED", "Pix exige confirmação do provedor.", 409)
     if amount_cents > exposure_cents(tab):
         raise LedgerServiceError("PAYMENT_EXCEEDS_EXPOSURE", "Pagamento excede o saldo em aberto.", 409)
     amount_due_cents = exposure_cents(tab)
@@ -229,6 +244,8 @@ def collect_payment(
         except CashServiceError as error:
             raise LedgerServiceError(error.code, error.message, error.status_code) from error
     result = totals(tab)
+    from modules.house_account.services import sync_attention
+    sync_attention(tab, actor)
     record_audit_event(
         actor=actor,
         event_type="payment.collected",
@@ -245,6 +262,9 @@ def _confirmed_refunds_cents(payment: Payment) -> int:
 
 @transaction.atomic
 def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, cash_point_id=None):
+    tab_id = Payment.objects.filter(pk=payment_id, tab__venue_id=actor.venue_id).values_list("tab_id", flat=True).first()
+    if tab_id:
+        Tab.objects.select_for_update().get(pk=tab_id)
     payment = (
         Payment.objects.select_for_update()
         .select_related("tab")
@@ -269,6 +289,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
         return existing, totals(payment.tab)
     if payment.status not in PaymentStatus.confirmed_money_values():
         raise LedgerServiceError("PAYMENT_NOT_CONFIRMED", "Só é possível estornar pagamento confirmado.", 409)
+    if payment.provider:
+        raise LedgerServiceError("PROVIDER_REFUND_REQUIRED", "Estorno integrado exige confirmação do provedor.", 409)
     refunded_cents = _confirmed_refunds_cents(payment)
     if amount_cents > payment.amount_cents - refunded_cents:
         raise LedgerServiceError("REFUND_EXCEEDS_PAYMENT", "Estorno excede o valor ainda reembolsável.", 409)
@@ -316,6 +338,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
     )
     payment.save(update_fields=["status"])
     result = totals(payment.tab)
+    from modules.house_account.services import sync_attention
+    sync_attention(payment.tab, actor)
     record_audit_event(
         actor=actor,
         event_type="payment.refunded",

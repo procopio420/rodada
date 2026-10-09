@@ -2,6 +2,8 @@ package com.rodada.attendance.operations
 
 import java.util.Locale
 
+data class CustomerSummary(val id: String, val displayName: String, val kind: String)
+
 data class TabSummary(
     val id: String,
     val displayLabel: String,
@@ -10,6 +12,13 @@ data class TabSummary(
     val chargesCents: Long,
     val paymentsCents: Long,
     val exposureCents: Long,
+    val transfersCents: Long = 0,
+    val effectiveLimitCents: Long = 3000,
+    val remainingCapacityCents: Long = 3000,
+    val percentageUsed: Int? = null,
+    val consumptionBlocked: Boolean = false,
+    val limitWarning: Boolean = false,
+    val actionReasons: List<String> = emptyList(),
 )
 
 data class OrderItem(
@@ -40,6 +49,7 @@ data class TabPayment(
     val method: String,
     val status: String,
     val refundedCents: Long,
+    val simulated: Boolean = false,
 )
 
 data class RefundRequiredCorrection(
@@ -82,6 +92,9 @@ enum class ConnectivityState {
 }
 
 enum class PaymentMethod(val apiValue: String, val label: String) {
+    TAP_CREDIT("TAP_TO_PAY", "Aproximação crédito"),
+    TAP_DEBIT("TAP_TO_PAY", "Aproximação débito"),
+    PIX("PIX", "Pix integrado"),
     CASH("CASH", "Dinheiro"),
     EXTERNAL_TERMINAL("EXTERNAL_TERMINAL", "Terminal externo"),
 }

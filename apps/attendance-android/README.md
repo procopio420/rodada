@@ -2,6 +2,23 @@
 
 Aplicativo nativo do garçom/caixa móvel, em Kotlin + Jetpack Compose.
 
+## Sistema visual
+
+O Atendimento usa `RodadaTheme`: paleta quente escura, ações papel creme, Archivo local e formas do design system compartilhado. Fontes e licenças são empacotadas, sem download durante uso. Ver [Spec 021](../../specs/021-prototype-design-integration/spec.md) e [KB dos protótipos](../../docs/design/prototype-integration.md). O port do tema preserva os fluxos existentes e não declara paridade completa com o artboard.
+
+## Uso em celulares pessoais (BYOD)
+
+O fluxo padrão é o garçom instalar o Rodada Atendimento no **seu Android**, escolher o estabelecimento e autenticar com a identidade/PIN de um funcionário ativo. **Não há aprovação manual do aparelho pelo gerente para trabalhar.**
+
+- No primeiro login válido, a API registra automaticamente a instalação com um identificador aleatório. O estado inicial `UNTRUSTED` **não impede** pedidos, comandas ou demais operações autorizadas para aquele funcionário.
+- `TRUSTED` é reservado a funções especiais em dispositivos compartilhados do bar, como troca rápida de operador, e não é requisito para uso individual.
+- Trocar de aparelho é fazer login no novo Android. O gerente pode revogar as sessões/instalações antigas; a revogação da instalação não bloqueia a pessoa em todos os aparelhos. Para bloquear a pessoa, suspender/revogar seu vínculo com o Venue.
+- **NFC não é requisito para usar o PDV.** Tap on Phone só fica habilitado quando o aparelho e o provedor satisfazem os requisitos próprios de pagamentos, independentes da autenticação Rodada.
+- O app não exige MDM, acesso a contatos, mensagens, fotos pessoais ou rastreamento contínuo. O estabelecimento deve oferecer alternativa (aparelho compartilhado/de reserva ou operação pelo caixa) quando BYOD não for adequado.
+- Queda de rede não permite novo login offline nem cobrança sem reconciliação; seguir os estados de conectividade e fallbacks já documentados.
+
+Referências: `specs/008-staff-auth-roles-devices/spec.md`, `specs/006-payments-tap-on-phone/spec.md` e ADR 0007.
+
 ## Slices atuais — Specs 008 e 001 (loop operacional)
 
 Este primeiro app executável cobre a fundação de autenticação:
@@ -186,3 +203,18 @@ This slice does not persist operational projections or cursors across process de
 new subscriptions deliberately bootstrap from a fresh canonical snapshot. The existing
 payment CTA remains conservative when realtime is stale. Auth invalidation polling
 and CashShift standalone reads remain separate from this operational subscription.
+## SumUp candidate and simulator
+
+The normal build has no private SumUp dependency. DEBUG UI offers simulated credit
+and debit only when the backend explicitly reports simulated Tap capability and
+Rodada authorizes the device. These screens never receive real card/PIN data and
+show SIMULAÇÃO; no real money is received. Backend verification remains mandatory.
+
+`-PsumupSdk=true` optionally resolves the documented 1.1.6 private artifact and
+raises minSdk to 30, with core library desugaring. Supply SUMUP_MAVEN_USER and
+SUMUP_MAVEN_PASSWORD via environment. This configuration does NOT yet wire a real
+SDK implementation. It has NOT been compiled with the private artifact. Implement
+SumUpSdkBoundary using the actual artifact and official sample after access is
+granted, map all PaymentEvents, inject approved short-lived OAuth access, initialize
+once and tear down on merchant/operator logout. Never embed an API/client secret.
+See docs/payments/sumup-onboarding.md for the complete activation gates.

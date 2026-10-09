@@ -7,10 +7,24 @@ import com.rodada.attendance.auth.StoredSession
 class OperationsRepository(private val authRepository: AuthRepository) {
     private val client = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
 
-    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tabs)
+    suspend fun operationState(session: StoredSession, tabId: String) =
+        authRepository.withAuthorizedAccess(session) { client.request("GET", "/tabs/$tabId/operations/", accessToken = it) }
 
-    suspend fun openTab(session: StoredSession, label: String) =
-        authRepository.withAuthorizedAccess(session) { client.openTab(it, label) }
+    suspend fun servicePoints(session: StoredSession) =
+        authRepository.withAuthorizedAccess(session) { client.request("GET", "/service-points/", accessToken = it) }
+
+    suspend fun tabOperation(session: StoredSession, tabId: String, command: org.json.JSONObject, preview: Boolean = false) =
+        authRepository.withAuthorizedAccess(session) {
+            client.request("POST", "/tabs/$tabId/operations/" + if (preview) "preview/" else "", command, it)
+        }
+
+    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session) { client.tabs(it, "tab.reopen" in session.capabilities) }
+
+    suspend fun openTab(session: StoredSession, label: String, customerId: String? = null) =
+        authRepository.withAuthorizedAccess(session) { client.openTab(it, label, customerId) }
+
+    suspend fun customers(session: StoredSession, query: String) =
+        authRepository.withAuthorizedAccess(session) { client.customers(it, query) }
 
     suspend fun tabDetail(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.tabDetail(it, tabId) }
@@ -64,6 +78,21 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         client.collectPayment(it, tabId, amountCents, method, idempotencyKey, cashPointId)
     }
 
+    suspend fun paymentCapabilities(session: StoredSession) =
+        authRepository.withAuthorizedAccess(session, client::paymentCapabilities)
+
+    suspend fun integratedPayment(session: StoredSession, tabId: String, amountCents: Long, key: String, method: String = "PIX") =
+        authRepository.withAuthorizedAccess(session) { client.integratedPayment(it, tabId, amountCents, key, method) }
+
+    suspend fun reconcileIntegrated(session: StoredSession, paymentId: String) =
+        authRepository.withAuthorizedAccess(session) { client.reconcileIntegrated(it, paymentId) }
+
     suspend fun closeTab(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.closeTab(it, tabId) }
+
+    suspend fun requestApproval(session: StoredSession, tabId: String, reason: String, key: String) =
+        authRepository.withAuthorizedAccess(session) { client.requestApproval(it, tabId, reason, key) }
+
+    suspend fun approveLimit(session: StoredSession, tabId: String, limitCents: Long, reason: String, expiresAt: String, key: String) =
+        authRepository.withAuthorizedAccess(session) { client.approveLimit(it, tabId, limitCents, reason, expiresAt, key) }
 }
