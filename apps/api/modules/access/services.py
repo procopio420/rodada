@@ -31,6 +31,7 @@ class AccessServiceError(Exception):
     message: str
     status_code: int = 400
     retry_after_seconds: int | None = None
+    details: dict | None = None
 
 
 def _seconds_setting(name: str, default: int) -> int:
@@ -278,6 +279,16 @@ def _complete_login(
         expires_at=now + refresh_ttl,
     )
     tokens = _issue_tokens(session)
+
+    if created:
+        _audit(
+            venue=venue,
+            event_type="auth.device_registered",
+            actor_staff=staff,
+            actor_session=session,
+            device=device,
+            metadata={"trust_state": device.trust_state, "platform": device.platform},
+        )
 
     _audit(
         venue=venue,
@@ -724,6 +735,14 @@ def update_membership_admin(
             "VERSION_CONFLICT",
             "O vínculo foi alterado por outra operação.",
             409,
+            details={
+                "current_membership": {
+                    "id": str(membership.id),
+                    "role": membership.role,
+                    "status": membership.status,
+                    "version": membership.version,
+                }
+            },
         )
 
     before = {

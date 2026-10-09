@@ -31,6 +31,8 @@ from modules.audit.models import AuditEvent
 
 def _service_error_response(exc: AccessServiceError) -> Response:
     payload = {"code": exc.code, "message": exc.message}
+    if exc.details:
+        payload.update(exc.details)
     headers = {}
     if exc.retry_after_seconds is not None:
         retry_after = max(1, int(exc.retry_after_seconds))

@@ -1,5 +1,14 @@
 # Plan — Spec 008
 
+## Independent closure — 2026-10-09
+
+Add real API BYOD tests for untrusted ordinary orders, replacement/reinstall,
+installation versus membership revocation, refresh/lock and mutation audit provenance.
+Reproduce missing registration audit and conflict-current-state response before fixing
+Access only. Add PostgreSQL parallel role-update coverage. Inspect native auth and
+manifest without changing navigation/payment provisioning; physical-device approval
+remains an explicit external gate.
+
 ## Recommended implementation sequence
 
 1. **Domain and migrations first**

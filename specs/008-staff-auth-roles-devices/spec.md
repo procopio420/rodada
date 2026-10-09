@@ -1,6 +1,6 @@
 # Spec 008 — Staff Auth, Roles & Devices
 
-**Status:** Draft for implementation  
+**Status:** Implemented core; native replay-session handoff and physical validation pending
 **Owner capability:** Venue / Access Control
 
 ## Objective
@@ -308,6 +308,12 @@ Record at minimum:
 - actor/session/device on relevant mutations.
 
 Never log PIN, password, access token, refresh token or payment credentials.
+
+First authenticated registration records a distinct `auth.device_registered` event
+with the new session/device provenance and UNTRUSTED state. Repeated logins on the
+same installation do not emit a second registration event. A membership version
+conflict returns the current membership ID, role, status and version, scoped to
+the actor's Venue, so the caller can review before retrying.
 
 ## UX rules
 
