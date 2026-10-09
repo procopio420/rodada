@@ -65,3 +65,10 @@
 - [x] Replayed queued command is reauthorized.
 - [x] Guest credential cannot satisfy staff auth.
 - [x] Sensitive credentials never appear in logs.
+
+## Web concurrent refresh — demo correction (2026-10-09)
+
+- [x] Reproduce one success and seven AUTH_REQUIRED responses using a single rotating credential.
+- [x] Coordinate parallel/late refresh without changing API lifetimes or authorization.
+- [x] Verify regression, revocation, adjacent screens, typecheck/build and existing suites.
+- [ ] Update live demo Web and record/publish evidence on draft PR.

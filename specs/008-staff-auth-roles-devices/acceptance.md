@@ -109,3 +109,9 @@
 **Given** a StaffMember belongs to Venue A but not Venue B  
 **When** they try to mutate Venue B  
 **Then** authorization is denied and no cross-Venue data is changed.
+
+## Web concurrent refresh (2026-10-09)
+
+Given valid refresh cookies and an expired/missing access cookie, concurrent authenticated reads of PDV, Bar, Cozinha and Caixa must all succeed and leave one valid operator session. Requests sent with stale cookies within five seconds receive the same rotation, without issuing a second backend refresh. Tokens remain HttpOnly and absent from response JSON.
+
+Given a session revoked after that rotation, reusing the buffered result must still fail API authorization and clear privileged cookies. A transient upstream refresh failure must not clear valid cookies. The coordinator is memory-bounded, isolates credentials and releases pending/expired entries. This acceptance is for one Web process, not multiple replicas.
