@@ -376,4 +376,24 @@ Existing OrderItems require no rewrite. New snapshot fields are nullable/empty f
 
 ## Implementation contract
 
+### Independent selection-mix read contract
+
+Availability changes publish the existing catalog fact names through the existing
+transactional realtime outbox, once per affected Product (`aggregate_type=Product`).
+This reuses guest/staff Catalog routing and never exposes operator or note data.
+Polling remains the native fallback; no shared delivery infrastructure is changed.
+
+`ordering.customization_mix.selection_mix(venue_id, start, end)` reads confirmed
+OrderItem snapshots in the explicit timezone-aware interval [start, end). It groups
+Product/variant and Product/group/option identities with their original labels and
+cents; quantities weight counts. Archived/deleted catalog choices remain readable.
+It returns gross confirmed selection facts, including cancelled originals, with
+cancelled units separately identified. Operational remake/replacement children are
+excluded to avoid counting the same sale again. Legacy empty snapshots contribute
+to simple Product units. Modifier attach-rate inputs are selected units and total
+Product units, not a guessed percentage or inventory consumption. Price/delta
+totals are snapshot facts, never net revenue, ledger balances or financial reports.
+Management owns business-date/cutoff conversion, authorization, endpoint and UI
+integration. This isolated internal read service adds no migrations or mutations.
+
 Variants store an explicit nonnegative `price_cents`, replacing the Product base price. Snapshots also record the difference from the Product price. Confirmation accepts additive `variant_id`, `modifier_option_ids` and `special_instructions` (500 characters); no submitted price is authoritative. Products with active variants require an explicit selected ID; defaults are visibly selected by clients. Groups are reusable within a Venue; association sets display priority, with cardinality owned by the group. Archival uses active=false and historical snapshots contain IDs as plain values, never mutable joins. Configuration and confirmation lock Products before child rows; reusable group edits lock all attached Products in ID order. Availability commands require expected_version and audit old/new state and reason. Polling existing catalogs supplies invalidation without adding SSE infrastructure.

@@ -1,5 +1,13 @@
 # Plan — Spec 010
 
+## Independent closure — 2026-10-09
+
+Add isolated `ordering/customization_mix.py` with snapshot-only gross selection
+aggregation and regression tests for quantity, original prices/labels after edits,
+Venue/time isolation, legacy items, cancellations and remake exclusion. No management
+UI/report changes. Reexecute customization/availability locking and compatibility
+suites; hand endpoint/business-date integration to Agent 2.
+
 ## Recommended sequence
 
 1. **Migrations/domain**

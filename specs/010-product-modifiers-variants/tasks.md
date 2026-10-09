@@ -48,7 +48,7 @@
 - [x] Mark affected open carts stale (on shared catalog refresh or server rejection).
 
 ## Management
-- [ ] Basic variant/modifier sales mix projection (follow-up analytics, outside this ordering delivery).
+- [x] Basic variant/modifier sales mix projection (`ordering/customization_mix.py`; isolated read service, Management integration handed to Agent 2).
 - [x] Availability history where relevant.
 
 ## Quality/tests
@@ -69,3 +69,11 @@ SSE integration remains owned by the separate realtime branch; availability reje
 at confirmation is immediate. Availability history is retained in AuditEvent;
 no separate analytics/history dashboard is added. Item corrections preserve remakes;
 configured replacements use cancellation plus a new configured order.
+
+## Independent closure — 2026-10-09
+
+- [x] Snapshot-only gross selection mix, quantities, immutable label/price revisions and attach-rate denominators.
+- [x] Venue/time scoping, legacy snapshots, explicit cancelled units and correction-child exclusion.
+- [x] Existing shared-option realtime fanout and transactional rollback verified without changing shared infrastructure.
+
+Criterion-level evidence and handoffs: `docs/development/near-ready-specs-closure-2026-10-09.md`.
