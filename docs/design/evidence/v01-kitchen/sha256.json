@@ -1,0 +1,22 @@
+{
+  "capture.mjs": "a94307cb524f528e14b39ec700442bfb21e087a004a29632d4b3c61a10012844",
+  "inspection-fixture.json": "c6dd865dd7722c71d83949d39a22aa6cfd3190957236cdf58c35e6c64b66963d",
+  "main-empty-1280.png": "92aeeb34708c00581627b7779932d68c0af5637b4e2515adec9fd193a91e9b45",
+  "main-error-1280.png": "21960383e55a9f3b0cdfd4055349d69d2ff31e16195063b428ab57008d4209df",
+  "main-initial-1280.png": "fdb0227c22b7f2532225bae4ceddfba5ebd47cce74eff0a2881cd7592df8f5e5",
+  "main-initial-360.png": "bccb353de74e270390ac67a626f8310c22fa8d34e1dd18f05e9e4e01a4cf224a",
+  "main-initial-430.png": "4bf0da080fe883644118f0e947cd0ae73a21c72196bc07f43d6eed04c6841681",
+  "main-initial-768.png": "00e9de35f3580b73dd626dd3c8a5f17190a698ed4b5624a6176ddbb962b87972",
+  "main-loading-1280.png": "476c54361429264c1f56f2604bef94851deaafd12f5ec1af897dbadac56391a6",
+  "main-missing-time-1280.png": "9eee356ba18e855e322779058f8fb25dea11804afc0a98e90d88bda436dfa3bf",
+  "main-saving-1280.png": "35323da2fdeaac535f41442f059d19377a7fc220f00e6e4e54d7a32d25d08930",
+  "main-stale-1280.png": "1052ec45d9cf00a82df8636c12069a26799220e85298e625f74df9ed2255070e",
+  "main-workspace-1280.png": "8043fa997ccaf3f97dd5cd2c80ee9c3cad4e48cd5d17bec8ba21364e493f4452",
+  "measurements.json": "52b8e36c9be8f231a3ab2abcdcbd9df68fe0ce28e5328943f838c6505026af53",
+  "reference-focus-1280.png": "2f71a5bc5843caea5352be7c23a999b715776c5022e448476d438eeaeaf4e3b2",
+  "reference-header.png": "f3ba28e86650432f49d22f8b0ae7ef34104ea2a33c83ff623e2c789549f3734b",
+  "reference-initial-1280.png": "47035610ba95b629fe4135220cefdd64424c59795871e4bb9457293eacc52fd5",
+  "reference-pass.png": "a25e5c521da55b997f45c99dba148c2a957ee541510f137b2efd2a27b274a1bb",
+  "reference-summary.png": "4f8dff1d9872370571b693e16eafcbbb3da2aba2f70260816d09c1d6eb7eb4b4",
+  "reference-tickets.png": "db29685ec4dd450084c9e1faf8e9f10a4abd5933ca8a4e694bfa79b684193985"
+}

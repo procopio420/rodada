@@ -1,0 +1,103 @@
+{
+  "id": "kitchen-main-inspection-v1",
+  "clock": "2026-10-08T21:00:00Z",
+  "queue": [
+    {
+      "id": "reference-0",
+      "product_name": "Bolinho de bacalhau",
+      "quantity": 2,
+      "tab_label": "P22 · Galera da 22",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:46:50.000Z"
+    },
+    {
+      "id": "reference-1",
+      "product_name": "Fritas",
+      "quantity": 1,
+      "tab_label": "P08 · Renata",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:50:38.000Z"
+    },
+    {
+      "id": "reference-2",
+      "product_name": "Calabresa",
+      "quantity": 1,
+      "tab_label": "P08 · Renata",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:50:38.000Z"
+    },
+    {
+      "id": "reference-3",
+      "product_name": "Fritas",
+      "quantity": 2,
+      "tab_label": "P25 · Turma do Vasco",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:53:45.000Z"
+    },
+    {
+      "id": "reference-4",
+      "product_name": "Calabresa",
+      "quantity": 1,
+      "tab_label": "P41 · Carlos Mecânico",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:55:50.000Z"
+    },
+    {
+      "id": "reference-5",
+      "product_name": "Fritas",
+      "quantity": 1,
+      "tab_label": "P37 · João da Oficina",
+      "state": "PREPARING",
+      "created_at": "2026-10-08T20:59:29.000Z"
+    },
+    {
+      "id": "pass-0",
+      "product_name": "Calabresa",
+      "quantity": 1,
+      "tab_label": "P12",
+      "state": "READY",
+      "created_at": "2026-10-08T20:45:00Z",
+      "ready_at": "2026-10-08T20:56:20.000Z"
+    },
+    {
+      "id": "pass-1",
+      "product_name": "Bolinho",
+      "quantity": 1,
+      "tab_label": "B4",
+      "state": "READY",
+      "created_at": "2026-10-08T20:45:00Z",
+      "ready_at": "2026-10-08T20:58:40.000Z"
+    },
+    {
+      "id": "pass-2",
+      "product_name": "Torresmo",
+      "quantity": 1,
+      "tab_label": "P44",
+      "state": "READY",
+      "created_at": "2026-10-08T20:45:00Z",
+      "ready_at": "2026-10-08T20:59:30.000Z"
+    }
+  ],
+  "catalog": [
+    {
+      "id": "fries-test",
+      "name": "Fritas",
+      "price_cents": 7200,
+      "fulfillment_station": "KITCHEN",
+      "availability": "AVAILABLE"
+    },
+    {
+      "id": "omelette-test",
+      "name": "Omelete",
+      "price_cents": 1800,
+      "fulfillment_station": "KITCHEN",
+      "availability": "UNAVAILABLE"
+    }
+  ],
+  "notes": [
+    "API intercepted in browser; no database writes.",
+    "Split P08 into two OrderItem lines.",
+    "P44 rendered READY for layout inspection; reference ownership not reproduced.",
+    "Literal summary/metadata are not normalized or claimed equivalent."
+  ]
+}
