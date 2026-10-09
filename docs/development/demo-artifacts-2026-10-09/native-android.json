@@ -1,0 +1,91 @@
+{
+  "products": {
+    "BAR": "2e20d1ae-c86a-4819-86c2-29d28e4e4fc8",
+    "KITCHEN": "703bd736-30e3-4254-88f0-c00d721055b6"
+  },
+  "tab_id": "ff804a11-dcbb-474c-bf03-e64f1e6c9529",
+  "variant_id": "62b56c97-4853-4d2f-b13c-b23fd36f9fae",
+  "option_id": "735a1bbf-cbae-4c6c-992b-012c4c2eb51d",
+  "native_byod_login": true,
+  "anonymous_tab": true,
+  "restart_with_pending_intent": true,
+  "api_restart": true,
+  "orders_after_recovery": 1,
+  "charges_after_recovery_cents": 4700,
+  "order_id": "dc367b2e-e9b6-4caf-a61a-cfc7bd4d8d06",
+  "items": [
+    {
+      "id": "2fb8081c-40d7-461e-9585-4e3398ed9334",
+      "product_id": "2e20d1ae-c86a-4819-86c2-29d28e4e4fc8",
+      "product_name": "Native QA Bar",
+      "customization_snapshot": {
+        "variant": null,
+        "quantity": 1,
+        "modifiers": [],
+        "product_id": "2e20d1ae-c86a-4819-86c2-29d28e4e4fc8",
+        "product_name": "Native QA Bar",
+        "base_price_cents": 1200,
+        "line_total_cents": 1200,
+        "unit_price_cents": 1200,
+        "fulfillment_station": "BAR",
+        "special_instructions": ""
+      },
+      "unit_price_cents": 1200,
+      "quantity": 1,
+      "line_total_cents": 1200,
+      "state": "NEW",
+      "accepted_at": null,
+      "ready_at": null,
+      "delivered_at": null
+    },
+    {
+      "id": "6456433f-7848-40c0-967c-71f6dc0c6c96",
+      "product_id": "703bd736-30e3-4254-88f0-c00d721055b6",
+      "product_name": "Native QA Kitchen",
+      "customization_snapshot": {
+        "variant": {
+          "id": "62b56c97-4853-4d2f-b13c-b23fd36f9fae",
+          "name": "Native Double",
+          "price_cents": 3000,
+          "price_delta_cents": 1000
+        },
+        "quantity": 1,
+        "modifiers": [
+          {
+            "name": "Native Bacon",
+            "group_id": "30b6296d-2fa9-4260-8295-08b429a58291",
+            "option_id": "735a1bbf-cbae-4c6c-992b-012c4c2eb51d",
+            "group_name": "Native Extras",
+            "semantic_kind": "CHOICE",
+            "price_delta_cents": 500
+          }
+        ],
+        "product_id": "703bd736-30e3-4254-88f0-c00d721055b6",
+        "product_name": "Native QA Kitchen",
+        "base_price_cents": 2000,
+        "line_total_cents": 3500,
+        "unit_price_cents": 3500,
+        "fulfillment_station": "KITCHEN",
+        "special_instructions": ""
+      },
+      "unit_price_cents": 3500,
+      "quantity": 1,
+      "line_total_cents": 3500,
+      "state": "NEW",
+      "accepted_at": null,
+      "ready_at": null,
+      "delivered_at": null
+    }
+  ],
+  "both_queues": true,
+  "emulator_api": 36,
+  "physical_device": false,
+  "web_production_ui": true,
+  "native_sse_ready_propagation": true,
+  "native_shift_closed": true,
+  "exposure_cents": 0,
+  "payment_classification": "MANUAL_TEST",
+  "production_delivery_completed": true,
+  "native_revocation_requested": true,
+  "native_revocation_returned_to_login": true
+}
