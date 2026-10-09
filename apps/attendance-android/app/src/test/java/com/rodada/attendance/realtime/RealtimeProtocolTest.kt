@@ -2,8 +2,24 @@ package com.rodada.attendance.realtime
 
 import org.junit.Assert.*
 import org.junit.Test
+import kotlinx.coroutines.runBlocking
+import java.io.IOException
 
 class RealtimeProtocolTest {
+    @Test fun failedCanonicalReadRetainsCursorForReplay() = runBlocking {
+        val gate = CursorGate()
+        gate.reset("venue:10")
+        try {
+            gate.acceptAfterRevalidation("venue:11") { throw IOException("API offline") }
+            fail("Failed revalidation must not acknowledge the event")
+        } catch (_: IOException) { }
+        assertEquals("venue:10", gate.cursor)
+        var reads = 0
+        assertTrue(gate.acceptAfterRevalidation("venue:11") { reads++ })
+        assertFalse(gate.acceptAfterRevalidation("venue:11") { reads++ })
+        assertEquals(1, reads)
+        assertEquals("venue:11", gate.cursor)
+    }
     @Test fun duplicateAndReorderedCursorsDoNotRepeatInvalidation() {
         val gate = CursorGate()
         assertTrue(gate.accept("venue:12"))

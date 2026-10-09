@@ -46,15 +46,18 @@ export function subscribeRealtime(options: {
   relevant?: (event: RealtimeEvent) => boolean;
   onState: (state: Connectivity, syncedAt?: number) => void;
   onRevoked?: () => void;
+  freshnessBudgetMs?: number;
 }) {
   let stopped = false, cursor = "", connected = false, attempt = 0, lastSync = 0, lastFrame = 0, apiOffline = false;
   let refreshPromise: Promise<void> | null = null;
   let controller: AbortController | null = null;
   let wake: (() => void) | undefined;
   const gate = new EventGate();
+  let disconnectedAt = Date.now();
+  const state = (): Connectivity => apiOffline ? "OFFLINE" : connected ? "ONLINE" : Date.now() - disconnectedAt >= (options.freshnessBudgetMs ?? 30000) ? "STALE" : "RECONNECTING";
   const refresh = () => {
     if (!refreshPromise) refreshPromise = options.refresh().then(() => {
-      apiOffline = false; lastSync = Date.now(); options.onState(connected ? "ONLINE" : "RECONNECTING", lastSync);
+      apiOffline = false; lastSync = Date.now(); options.onState(state(), lastSync);
     }).catch((error) => { apiOffline = true; options.onState("OFFLINE", lastSync || undefined); throw error; }).finally(() => { refreshPromise = null; });
     return refreshPromise;
   };
@@ -100,14 +103,21 @@ export function subscribeRealtime(options: {
             cursor = nextCursor;
           }
         }
-      } catch { gate.reset(); /* Failed refresh must be replayable. */ }
+      } catch {
+        gate.reset(); /* Failed refresh must be replayable. */
+        if (!lastSync && !stopped) await refresh().catch(() => {});
+      }
+      if (connected) disconnectedAt = Date.now();
       connected = false;
       if (stopped) break;
-      options.onState(apiOffline ? "OFFLINE" : Date.now() - lastSync > 30000 ? "STALE" : "RECONNECTING", lastSync || undefined);
+      options.onState(state(), lastSync || undefined);
       await new Promise<void>((resolve) => { const timer = setTimeout(resolve, Math.min(30000, 1000 * 2 ** Math.min(attempt++, 5)) * (0.75 + Math.random() * 0.5)); wake = () => { clearTimeout(timer); resolve(); }; });
     }
   };
-  const watchdog = setInterval(() => { if (Date.now() - lastFrame > 45000) controller?.abort(); }, 10000);
+  const watchdog = setInterval(() => {
+    if (Date.now() - lastFrame > 45000) controller?.abort();
+    if (!connected && !stopped) options.onState(state(), lastSync || undefined);
+  }, 10000);
   const fallback = setInterval(() => { if (!connected && !stopped) void refresh().catch(() => {}); }, 15000);
   const resume = () => { if (!stopped) { void refresh().catch(() => {}); controller?.abort(); wake?.(); } };
   const visible = () => { if (document.visibilityState === "visible") resume(); };

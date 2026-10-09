@@ -21,6 +21,30 @@ test("unknown schemas cannot be accepted as canonical", () => {
   assert.equal(new EventGate().accept({ ...event(1), schema_version: 2 }), false);
 });
 
+test("SSE parser preserves CRLF split at transport boundaries", () => {
+  const parser = new SSEParser();
+  assert.deepEqual(parser.push("event: ready\r"), []);
+  assert.deepEqual(parser.push("\ndata: {}\r\n\r"), []);
+  assert.deepEqual(parser.push("\n"), [{ event: "ready", id: "", data: "{}" }]);
+});
+
+test("healthy fallback reads remain visibly stale after the reconnect budget", async () => {
+  const originalFetch = globalThis.fetch, originalInterval = globalThis.setInterval;
+  globalThis.setInterval = (callback, delay) => originalInterval(callback, delay === 15000 ? 10 : delay);
+  globalThis.window = { addEventListener() {}, removeEventListener() {} };
+  globalThis.document = { addEventListener() {}, removeEventListener() {}, visibilityState: "visible" };
+  const { subscribeRealtime } = await import("../lib/client/realtime.ts");
+  const states = [];
+  globalThis.fetch = async (url) => String(url).includes("snapshot") ? Response.json({ cursor: "venue:0" }) : new Response("unavailable", { status: 503 });
+  const stop = subscribeRealtime({ base: "/realtime", freshnessBudgetMs: 20, refresh: async () => {}, onState(state) { states.push(state); } });
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 65));
+    assert.ok(states.includes("STALE"));
+    assert.equal(states.at(-1), "STALE");
+    assert.ok(!states.includes("ONLINE"));
+  } finally { stop(); globalThis.fetch = originalFetch; globalThis.setInterval = originalInterval; }
+});
+
 test("stream invalidates HTTP projections, resumes cursor, and resets to snapshot after gap", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.window = { addEventListener() {}, removeEventListener() {} };

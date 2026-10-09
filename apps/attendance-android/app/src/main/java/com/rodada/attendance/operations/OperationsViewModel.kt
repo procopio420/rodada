@@ -25,6 +25,7 @@ import kotlinx.coroutines.delay
 import com.rodada.attendance.BuildConfig
 import com.rodada.attendance.realtime.SseOperationalRealtime
 import com.rodada.attendance.realtime.RealtimeSignal
+import com.rodada.attendance.realtime.OperationalRealtime
 import java.io.IOException
 import java.util.UUID
 
@@ -56,6 +57,7 @@ class OperationsViewModel(
     private val authRepository: AuthRepository,
     private val correctionsRepository: CorrectionsRepository,
     private val refundsRepository: RefundsRepository,
+    private val realtime: OperationalRealtime = SseOperationalRealtime(BuildConfig.RODADA_API_BASE_URL, authRepository),
 ) : ViewModel() {
     var state by mutableStateOf(OperationsUiState())
         private set
@@ -70,7 +72,7 @@ class OperationsViewModel(
     fun startRealtime(session: StoredSession) {
         stopRealtime()
         realtimeJob = viewModelScope.launch {
-            SseOperationalRealtime(BuildConfig.RODADA_API_BASE_URL, authRepository).subscribe(session).collect { signal ->
+            realtime.subscribe(session).collect { signal ->
                 when (signal) {
                     RealtimeSignal.Connected -> {
                         streamConnected = true
@@ -94,6 +96,14 @@ class OperationsViewModel(
                                 }
                             }
                         }
+                    }
+                    is RealtimeSignal.Revalidate -> {
+                        // A resume cursor is accepted only after canonical reads succeed.
+                        refreshJob?.join()
+                        val previous = state.lastSyncedAtMillis
+                        refresh(session)
+                        refreshJob?.join()
+                        signal.accepted.complete(state.lastSyncedAtMillis != previous)
                     }
                 }
             }

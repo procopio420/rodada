@@ -100,6 +100,11 @@ with stream("/guest/realtime/stream/", baseline, guest_auth) as live:
     order = api("/guest/orders/confirm/", payload, guest_auth)
     events = OutboxEvent.objects.filter(venue=venue)
     assert events.filter(event_type="order.confirmed", published_at__isnull=True).exists()
+    redis_container = os.environ.get("REALTIME_TEST_REDIS_CONTAINER")
+    if redis_container:
+        committed_ids = list(events.values_list("id", flat=True))
+        subprocess.run(["docker", "restart", redis_container], check=True, capture_output=True)
+        assert list(events.values_list("id", flat=True)) == committed_ids
     # Publication in a distinct process proves facts survive command process lifetime.
     subprocess.run(
         [sys.executable, "manage.py", "dispatch_realtime", "--once"],

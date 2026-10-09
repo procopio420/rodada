@@ -23,7 +23,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -75,7 +75,7 @@ fun AttendanceScreen(
     }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
-    val activity = LocalContext.current as? ComponentActivity
+    val activity = LocalActivity.current as? ComponentActivity
     DisposableEffect(session.staffId, session.venueId, activity) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {

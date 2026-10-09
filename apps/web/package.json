@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:realtime": "node --experimental-strip-types --test tests/realtime.test.mjs"
+    "test:realtime": "node --experimental-strip-types --test tests/realtime.test.mjs",
+    "test:visual": "python tests/visual-realtime.py"
   },
   "dependencies": {
     "next": "16.3.8",

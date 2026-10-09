@@ -4,6 +4,7 @@ import com.rodada.attendance.auth.AuthApiException
 import com.rodada.attendance.auth.AuthRepository
 import com.rodada.attendance.auth.StoredSession
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ sealed interface RealtimeSignal {
     data object Connected : RealtimeSignal
     data object Reconnecting : RealtimeSignal
     data object Refresh : RealtimeSignal
+    data class Revalidate(val accepted: CompletableDeferred<Boolean>) : RealtimeSignal
 }
 
 interface OperationalRealtime {
@@ -36,6 +38,11 @@ class CursorGate {
         return true
     }
     fun reset(value: String) { cursor = value }
+    suspend fun acceptAfterRevalidation(value: String, revalidate: suspend () -> Unit): Boolean {
+        if (cursor != null && cursorSequence(value) <= cursorSequence(cursor!!)) return false
+        revalidate()
+        return accept(value)
+    }
 }
 
 fun cursorSequence(cursor: String): Long = cursor.substringAfterLast(':').toLongOrNull() ?: -1
@@ -79,18 +86,24 @@ class SseOperationalRealtime(
             var cursor: String? = null
             var attempts = 0
             var lastFallback = 0L
+            suspend fun revalidate() {
+                val accepted = CompletableDeferred<Boolean>()
+                send(RealtimeSignal.Revalidate(accepted))
+                if (!accepted.await()) throw IOException("Canonical refresh failed; retain resume cursor")
+            }
             while (true) {
                 try {
                     if (cursor == null) {
-                        cursor = auth.withAuthorizedAccess(session) { token ->
+                        val baseline = auth.withAuthorizedAccess(session) { token ->
                             val snapshot = open("/realtime/snapshot/", token)
                             try {
                                 checkStatus(snapshot)
                                 JSONObject(snapshot.inputStream.bufferedReader().use { it.readText() }).getString("cursor")
                             } finally { snapshot.disconnect() }
                         }
-                        gate.reset(cursor!!)
-                        send(RealtimeSignal.Refresh)
+                        revalidate()
+                        cursor = baseline
+                        gate.reset(baseline)
                     }
                     auth.withAuthorizedAccess(session) { token ->
                         val stream = open("/realtime/stream/?cursor=$cursor", token)
@@ -104,15 +117,12 @@ class SseOperationalRealtime(
                                     val frame = frames.line(line) ?: continue
                                     when (frame.event) {
                                         "reset" -> { cursor = null; throw IOException("Replay gap") }
+                                        "revoked" -> throw AuthApiException(403, "AUTH_REVOKED", "Realtime authorization revoked")
                                         "ready", "heartbeat" -> { attempts = 0; trySend(RealtimeSignal.Connected) }
                                         "change" -> {
                                             val next = frame.id ?: continue
-                                            if (gate.accept(next)) {
+                                            if (gate.acceptAfterRevalidation(next) { revalidate() }) {
                                                 // Only invalidation crosses this transport boundary.
-                                                if (trySend(RealtimeSignal.Refresh).isFailure) {
-                                                    cursor = null
-                                                    throw IOException("Invalidation buffer overflow; snapshot required")
-                                                }
                                                 cursor = next
                                             }
                                         }

@@ -25,7 +25,7 @@ Product.objects.create(venue=venue, name="Browser Beer", price_cents=1200, fulfi
 table = Table.objects.create(venue=venue, label="Browser", guest_ordering_mode=GuestOrderingMode.DIRECT)
 base = "http://127.0.0.1:18765"
 with sync_playwright() as playwright:
-    browser = playwright.chromium.launch(executable_path="/home/lucas/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome", args=["--no-sandbox"])
+    browser = playwright.chromium.launch(**({"executable_path": os.environ["CHROMIUM_EXECUTABLE"]} if os.environ.get("CHROMIUM_EXECUTABLE") else {}), args=["--no-sandbox"])
     guest = browser.new_context(viewport={"width": 390, "height": 844})
     page = guest.new_page()
     page.goto(base + "/guest/" + table.public_token)
