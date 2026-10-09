@@ -17,7 +17,7 @@ from modules.corrections.models import (
     WasteKind,
     WasteMarker,
 )
-from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, TabState
+from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab, TabState
 
 
 @dataclass(frozen=True)
@@ -53,6 +53,18 @@ def _fingerprint(*, kind: str, reason_code: str, reason_text: str) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
     ).hexdigest()
+
+
+def _lock_item_financial_aggregate(*, item_id, actor: ActorContext) -> None:
+    # Every financial writer serializes on Tab before locking children. Locking
+    # OrderItem first can deadlock against order/payment/pricing writers and
+    # leaves cancellation racing a newly confirmed payment.
+    tab_id = OrderItem.objects.filter(
+        pk=item_id, order__tab__venue_id=actor.venue_id
+    ).values_list("order__tab_id", flat=True).first()
+    if tab_id is None:
+        raise CorrectionServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
+    Tab.objects.select_for_update().get(pk=tab_id, venue_id=actor.venue_id)
 
 
 def _has_confirmed_money(*, tab_id) -> bool:
@@ -100,7 +112,9 @@ def _cancel_active_delivery(*, item: OrderItem, actor: ActorContext, correction:
 
 
 def _cancel_item_operationally(*, item: OrderItem, actor: ActorContext, correction: OrderCorrection) -> None:
-    if item.state != OrderItemState.CANCELLED:
+    # Served work is a historical fact; a complaint or replacement cannot
+    # turn it back into unserved work. Resolve only outstanding dispatch.
+    if item.state not in (OrderItemState.CANCELLED, OrderItemState.PICKED_UP, OrderItemState.DELIVERED):
         item.state = OrderItemState.CANCELLED
         item.cancelled_at = timezone.now()
         item.save(update_fields=["state", "cancelled_at"])
@@ -149,6 +163,7 @@ def cancel_before_fulfillment(
             "Motivo e chave de idempotência são obrigatórios.",
         )
 
+    _lock_item_financial_aggregate(item_id=item_id, actor=actor)
     item = (
         OrderItem.objects.select_for_update()
         .select_related("order__tab")
@@ -347,6 +362,7 @@ def create_post_production_correction(
         raise CorrectionServiceError(
             "INVALID_CORRECTION_REQUEST", "Motivo e chave de idempotência são obrigatórios."
         )
+    _lock_item_financial_aggregate(item_id=item_id, actor=actor)
     item = (
         OrderItem.objects.select_for_update()
         .select_related("order__tab", "product")
@@ -532,6 +548,12 @@ def settle_refund_required_cancellation(
     inspectable facts: the original Charge, a negative LedgerAdjustment and a
     Refund against the manager-selected confirmed Payment.
     """
+    original_id = OrderCorrection.objects.filter(
+        pk=correction_id, venue_id=actor.venue_id
+    ).values_list("original_order_item_id", flat=True).first()
+    if original_id is None:
+        raise CorrectionServiceError("CORRECTION_NOT_FOUND", "Correção não encontrada.", 404)
+    _lock_item_financial_aggregate(item_id=original_id, actor=actor)
     correction = (
         OrderCorrection.objects.select_for_update()
         # `refund` and `financial_adjustment` are nullable.  PostgreSQL cannot
@@ -570,7 +592,9 @@ def settle_refund_required_cancellation(
             "Esta correção não aguarda estorno.",
             409,
         )
-    if item.state not in (*_CANCELLABLE_STATES, OrderItemState.CANCELLED):
+    if item.state not in (*_CANCELLABLE_STATES, OrderItemState.CANCELLED) and not (
+        correction.replacement_order_item_id and item.state in _POST_PRODUCTION_STATES
+    ):
         raise CorrectionServiceError(
             "CORRECTION_STAGE_REQUIRES_APPROVAL",
             "O item mudou de estágio e exige tratamento operacional específico.",

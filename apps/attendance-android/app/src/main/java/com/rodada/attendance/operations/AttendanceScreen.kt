@@ -766,7 +766,8 @@ private fun CorrectionDialog(
     onDismiss: () -> Unit,
     onSubmit: (CorrectionCommand, String?) -> Unit,
 ) {
-    var action by remember(item.id) { mutableStateOf(CorrectionAction.CANCEL) }
+    val availableActions = correctionActionsFor(item.state)
+    var action by remember(item.id, item.state) { mutableStateOf(availableActions.firstOrNull() ?: CorrectionAction.CANCEL) }
     var reason by remember(item.id) { mutableStateOf("") }
     var pin by remember(item.id) { mutableStateOf("") }
     var replacementId by remember(item.id) { mutableStateOf("") }
@@ -775,7 +776,6 @@ private fun CorrectionDialog(
     // The canonical post-production command intentionally rejects remake and
     // replacement before work begins. Do not offer an action that the server
     // can never accept for a NEW/ACCEPTED item.
-    val availableActions = correctionActionsFor(item.state)
     val replacementProducts = products.filter { it.active && it.availability == "AVAILABLE" && it.id != replacementId }
     val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }).requiresPostProductionEndpoint()
     val replacementValid = action != CorrectionAction.REPLACEMENT || replacementId.isNotBlank()
@@ -839,7 +839,7 @@ private fun CorrectionDialog(
                     )
                     pin = ""
                 },
-                enabled = !busy && reason.isNotBlank() && replacementValid && (!requiresReauth || pin.isNotBlank()),
+                enabled = !busy && action in availableActions && reason.isNotBlank() && replacementValid && (!requiresReauth || pin.isNotBlank()),
             ) { Text(action.label) }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Voltar") } },

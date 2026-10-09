@@ -179,7 +179,7 @@ Tokens são serializados juntos com o contexto da sessão e cifrados antes de en
 
 ## Limites atuais
 
-Correções, estornos e a operação completa de CashShift ainda não pertencem a esta superfície. Tap on Phone/Paytime e Pix não estão integrados. A fila de entrega usa polling manual/atualização; não há transporte realtime ainda. O terminal externo permanece uma confirmação manual do operador; não existe confirmação falsa pelo app.
+Correções, estornos e CashShift possuem fluxos nativos ligados à API e recuperação de comandos. Realtime SSE invalida leituras, com polling como recuperação. A validação de release está em `docs/development/closure-native-2026-10-09.json`: mudanças de modifiers no remake, reversão de responsabilidade transferida e jornadas completas de dispositivo ainda têm lacunas. Tap/Pix reais dependem dos gates externos do provider. O terminal externo permanece confirmação manual do operador; o app não comprova liquidação real.
 
 
 ## Invalidação de acesso

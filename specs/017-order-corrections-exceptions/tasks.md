@@ -6,13 +6,13 @@
 - [x] WasteMarker.
 - [x] Replacement/remake linkage.
 - [ ] Correction options/preview.
-- [ ] Stage-aware authorization.
+- [x] Stage-aware authorization.
 - [x] Cancel confirmed item command for unpaid NEW/ACCEPTED work.
 - [ ] Current financial-owner resolution.
 - [x] Open responsibility reversal integration.
-- [ ] Create remake.
-- [ ] Create replacement.
-- [ ] Comped replacement via Spec 011.
+- [x] Create remake.
+- [x] Create replacement.
+- [x] Comped replacement via Spec 011.
 - [x] Paid/refund-required orchestration with reauthenticated manager settlement.
 - [x] Structured reason codes.
 
@@ -57,7 +57,11 @@
 - [x] Original fulfillment history preserved.
 - [x] Double correction idempotent/conflicted.
 - [x] Replacement is new OrderItem.
-- [ ] Comped replacement net effect correct.
+- [x] Comped replacement net effect correct.
 - [ ] Transferred financial responsibility corrected on current owner.
 - [x] Paid item requires refund/courtesy semantics.
 - [ ] Offline correction not treated canonical.
+
+## Release verification 2026-10-09
+
+Checkboxes above track implementation only. Per-criterion evidence and remaining modifier/transfer/device gaps are in `docs/development/closure-native-2026-10-09.json`. Served-item corrections preserve PICKED_UP/DELIVERED facts; remake/replacement creates separate work. Corrected modifier selections and allocation-aware transferred responsibility remain open.

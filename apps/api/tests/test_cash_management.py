@@ -125,6 +125,19 @@ class CashManagementTests(TestCase):
         self.assertEqual(CashMovement.objects.filter(shift=shift).count(), 3)
         self.assertTrue(AuditEvent.objects.filter(event_type="cash.withdrawn").exists())
 
+    def test_full_drawer_withdrawal_retry_does_not_recheck_depleted_balance(self):
+        shift = self.open_shift()
+        command = dict(shift_id=shift.id, amount_cents=20_000,
+                       reason="Sangria completa", idempotency_key="withdraw-all", actor=self.actor)
+        first = withdraw_cash(**command)
+        replay = withdraw_cash(**command)
+        self.assertEqual(first.id, replay.id)
+        self.assertEqual(cash_shift_position(shift)["expected_cents"], 0)
+        self.assertEqual(shift.movements.filter(kind=CashMovementKind.WITHDRAWAL).count(), 1)
+        with self.assertRaises(CashServiceError) as conflict:
+            withdraw_cash(**{**command, "amount_cents": 19_000})
+        self.assertEqual(conflict.exception.code, "IDEMPOTENCY_CONFLICT")
+
     def test_confirmed_cash_payment_records_net_not_tendered_and_refund_once(self):
         shift = self.open_shift()
         payment = self.confirmed_cash_payment()
