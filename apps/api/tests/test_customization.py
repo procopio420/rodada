@@ -374,3 +374,34 @@ class CustomizationTests(TestCase):
         assert replacement.customization_snapshot == item["customization_snapshot"]
         assert replacement.fulfillment_station_snapshot == "KITCHEN"
         assert self.client.get(f"/tabs/{self.tab.id}/").json()["exposure_cents"] == 7600
+
+    def test_pre_upgrade_simple_order_fingerprint_still_replays(self):
+        import hashlib
+        import json
+
+        from modules.ordering.models import Order
+
+        water = Product.objects.create(
+            venue=self.venue, name="Legacy water", price_cents=1250, fulfillment_station="BAR"
+        )
+        fingerprint = hashlib.sha256(
+            json.dumps(
+                {"source": "STAFF", "lines": [(str(water.pk), 2)]},
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode()
+        ).hexdigest()
+        order = Order.objects.create(
+            tab=self.tab, source="STAFF", idempotency_key="legacy", request_fingerprint=fingerprint
+        )
+        item = OrderItem.objects.create(
+            order=order,
+            product=water,
+            product_name_snapshot="Legacy water",
+            unit_price_cents=1250,
+            quantity=2,
+        )
+        Charge.objects.create(tab=self.tab, order_item=item, amount_cents=2500)
+        response = self.confirm({"product_id": str(water.pk), "quantity": 2}, key="legacy")
+        assert response.status_code == 200 and response.json()["id"] == str(order.pk)
+        assert Charge.objects.count() == 1 and OrderItem.objects.count() == 1

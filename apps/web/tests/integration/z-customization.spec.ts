@@ -19,7 +19,8 @@ test("manager configures real persisted customization; guest prices and kitchen 
   await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
   async function save() {
     await page.getByRole("button", { name: "Salvar configuração", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Salvar configuração", exact: true })).toHaveCount(0);
+    await expect(page.getByLabel("Nome", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Criar grupo", exact: true })).toBeEnabled();
   }
   for (const [name, cents] of [["Simples", "1000"], ["Duplo", "2000"]]) {
     await page.getByRole("button", { name: "Criar variação", exact: true }).click();

@@ -203,6 +203,16 @@ def confirm_order(
 
 def _order_fingerprint(*, source: str, lines: list[dict]) -> str:
     """Aggregate identical configurations; preserve variant, choices and note intent."""
+    # Preserve the already-deployed fingerprint for simple-product requests.
+    # Encrypted pre-upgrade intents must still replay confirmed Orders exactly once.
+    if all(not line.get("variant_id") and not line.get("modifier_option_ids")
+           and not line.get("special_instructions") for line in lines):
+        quantities = {}
+        for line in lines:
+            key = str(line["product_id"])
+            quantities[key] = quantities.get(key, 0) + line["quantity"]
+        payload = {"source": source, "lines": sorted(quantities.items())}
+        return hashlib.sha256(json.dumps(payload, separators=(",", ":"), ensure_ascii=True).encode()).hexdigest()
     quantities = {}
     for line in lines:
         configuration = json.dumps({"product_id": str(line["product_id"]),
