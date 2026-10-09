@@ -71,3 +71,13 @@ Resultados: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md).
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
 Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
+
+## Continuação — integração e navegação acessível
+
+- [x] Navegação mantém Agora/Contas/Mesas/Caixa/Pedir e autorização/busy; labels não têm overflow nas seis configurações.
+- [x] Canonical 390/fontScale1 mantém geometria e captura; fonte ampliada possui contrato de adaptação separado.
+- [x] Gate remove somente XMLs descartáveis de instrumentação anterior e exige dois testes atuais sem skip/falhas.
+- [x] Entregas anteriores permanecem documentadas; nenhuma fidelidade total declarada.
+- [ ] Branch original intacta e publicação confirmada por SHA remoto.
+
+Resultado: [validação integrada](../../docs/design/spec023-review.md).

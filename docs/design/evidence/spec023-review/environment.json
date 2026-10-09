@@ -1,0 +1,21 @@
+{
+  "base": "742faac639adc998f3a4da6d8af485b407317851",
+  "branch": "codex/spec023-review",
+  "emulator": "API 36 Google APIs x86_64, SwiftShader",
+  "displayHeight": 844,
+  "densityDpi": 160,
+  "widths": [
+    360,
+    390,
+    430
+  ],
+  "fontScales": [
+    1,
+    2
+  ],
+  "nativeCases": 6,
+  "nativeTestsExecuted": 12,
+  "canonicalScreenshotUnchanged": true,
+  "canonicalSha256": "61d418c01cbc542749e6038326bddf5f785ae1ecb10e23af7c2da97742880011",
+  "nativeBaselineApproved": false
+}

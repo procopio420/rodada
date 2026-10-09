@@ -402,3 +402,9 @@ Mobile: destino acima dos itens, ação de largura útil e altura mínima 56. De
 AttendanceNavigation usa Ground/Surface/Paper/Ink/Muted existentes, Archivo Label, barra 84 dp com padding inferior 8, centro 136, margens centrais 10/4/2 e raio 12; ícones 24, gap 5, label 14 e marcador ativo 3. Medidas promovidas em AttendanceNavTokens, baseadas em .nav/.nb/.ngo do export night. Mesas/Caixa ficam na extensão operacional anterior, com targets mínimos 44 dp; insets pertencem ao AuthApp.
 
 Medição executável confirmou borda superior 1 px: laterais 127×75, botão central 128×63 no conteúdo 390. Token Subtle (já canônico no sistema) usado nas laterais inativas. Sombra de tecla 4 dp. A referência literal inclui cantos da moldura; crop derivado remove apenas border-radius da .phone, não a região .nav, para separar chrome de apresentação.
+
+## Navegação nativa com fonte ampliada
+
+Contrato de adaptação: fontScale acima de 1.3 usa AttendanceNavTokens.ExpandedHeight de 112 dp e Pedir com ícone acima do label. Até 1.3 mantém barra 84 dp. Centro 136 dp na fonte normal e 104 dp na ampliada; margens existentes permanecem, sem encolhimento artificial da fonte. Comparação HTML canônica segue em 390 dp/fontScale1. Testar 360/390/430 dp com fontScale 1 e 2 para overflow, ações e seleção.
+
+Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.

@@ -65,3 +65,9 @@ Navegação canônica de 84 dp com região central de 136 dp em 390 dp; seleçã
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
 Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem baseline nativa total aprovada.
+
+## Continuação — integração e navegação acessível
+
+Completar navegação nativa em 360/390/430 dp e font scale 1/2, sem clipping de texto nem targets abaixo de 44. Caso fonte ampliada comprove overflow, adaptar apenas a barra: ícone Pedir acima do texto e altura de 112 dp acima de fontScale 1.3; layout canônico 390/fontScale1 continua 84 dp e não muda. Preservar todos os callbacks e estado busy.
+
+Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.

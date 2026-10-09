@@ -49,3 +49,7 @@ Extrair navegação para composable usado por produção/instrumentação, promo
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
 Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md), sem baseline nativa total aprovada.
+
+## Continuação — integração e navegação acessível
+
+Consolidar commits V01–V05 na branch de revisão sem mover main ou branch do usuário. Conflitos de append documental preservam todas as subseções; CSS preserva Field confortável e stationOrder. Reutilizar dois testes instrumentados e expandir checks de texto sem clipping. Executar matriz de seis configurações; revalidar Web integrado. Auditar evidências/hashes e documentar inventário/publicação.

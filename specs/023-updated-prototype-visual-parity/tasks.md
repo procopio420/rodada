@@ -61,3 +61,13 @@ Resultados: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md).
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
 Resultado: [relatório parcial](../../docs/design/v05-atendimento-shell.md).
+
+## Continuação — integração e navegação acessível
+
+- [x] Contrato de adaptação e integração registrado antes do código.
+- [x] Matriz 360/390/430, fonte 1/2 e overflow de texto verificados/corrigidos.
+- [x] Gate impede aceitar XML antigo/nenhum teste executado.
+- [x] Typecheck/build/Web/realtime e Android unit/build/lint/instrumentação integrados passam.
+- [ ] Inventário e branches publicados com commits verificados.
+
+Resultado: [validação integrada](../../docs/design/spec023-review.md).

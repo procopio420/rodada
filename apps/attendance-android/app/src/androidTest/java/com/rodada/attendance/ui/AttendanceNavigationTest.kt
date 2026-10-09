@@ -6,6 +6,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.asAndroidBitmap
 import android.graphics.Bitmap
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertArrayEquals
 import android.os.ParcelFileDescriptor
@@ -21,10 +24,12 @@ class AttendanceNavigationTest {
         var chosen: AttendanceDestination? = null
         var orders = 0
         compose.setContent { RodadaTheme { AttendanceNavigation(AttendanceDestination.NOW, true, false, { chosen = it }, { orders++ }) } }
-        compose.onNodeWithTag("attendance-nav").assertHeightIsEqualTo(84.dp).assertWidthIsEqualTo(390.dp)
-        compose.onNodeWithTag("attendance-order").assertWidthIsEqualTo(128.dp).assertHeightIsEqualTo(63.dp)
+        val expanded = InstrumentationRegistry.getInstrumentation().targetContext.resources.configuration.fontScale > 1.3f
+        compose.onNodeWithTag("attendance-nav").assertHeightIsEqualTo(if (expanded) 112.dp else 84.dp).assertWidthIsEqualTo((InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.widthPixels / InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.density).dp)
+        compose.onNodeWithTag("attendance-order").assertWidthIsEqualTo(if (expanded) 96.dp else 128.dp).assertHeightIsEqualTo(if (expanded) 91.dp else 63.dp)
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         capture("nav-now")
+        assertLabelsFit()
         compose.onNodeWithTag("attendance-tabs").assertIsNotSelected().performClick()
         assertEquals(AttendanceDestination.TABS, chosen)
         compose.onNodeWithText("Mesas").assertWidthIsAtLeast(44.dp).assertHeightIsAtLeast(44.dp).performClick(); assertEquals(AttendanceDestination.TABLES, chosen)
@@ -42,9 +47,27 @@ class AttendanceNavigationTest {
         compose.onNodeWithTag("attendance-order").assertIsNotEnabled().performClick()
         assertEquals(0, orders)
         capture("nav-tabs-busy")
+        assertLabelsFit()
     }
 
-    private fun capture(name: String) {
+    private fun assertLabelsFit() {
+        for (label in listOf("AGORA", "CONTAS", "Pedir", "Mesas")) {
+            val layouts = mutableListOf<TextLayoutResult>()
+            compose.onNodeWithText(label, useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> assertTrue(action(layouts)) }
+            assertTrue("Missing text layout: $label", layouts.isNotEmpty())
+            layouts.forEach { layout ->
+                for (line in 0 until layout.lineCount) {
+                    assertTrue("Horizontal text clipping: $label", kotlin.math.floor(layout.getLineLeft(line)).toInt() >= 0 && kotlin.math.ceil(layout.getLineRight(line)).toInt() <= layout.size.width)
+                    assertTrue("Vertical text clipping: $label", kotlin.math.floor(layout.getLineTop(line)).toInt() >= 0 && kotlin.math.ceil(layout.getLineBottom(line)).toInt() <= layout.size.height)
+                }
+            }
+        }
+    }
+
+    private fun capture(baseName: String) {
+        val metrics = InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics
+        val fontScale = InstrumentationRegistry.getInstrumentation().targetContext.resources.configuration.fontScale
+        val name = if (metrics.widthPixels == 390 && fontScale == 1f) baseName else "$baseName-w${metrics.widthPixels}-f${(fontScale * 100).toInt()}"
         compose.mainClock.advanceTimeBy(1000)
         compose.waitForIdle()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
