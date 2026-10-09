@@ -5,13 +5,14 @@ import { useRealtime } from "@/lib/client/use-realtime";
 import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "./connectivity-notice";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+import { ReceiptPrinting } from "./receipt-printing";
 import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
 
 
 import { CustomizationText, type Snapshot, type OrderingProduct } from "./product-customization";
 import { CustomizationAvailability } from "./customization-availability";
-type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
+type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
 type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "ACCEPTED", label: "Aceitar" },
@@ -163,6 +164,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       </section>
     </div>
     <div className="stationTools">
+    <section className="panel"><h2>Tickets de produção</h2>{[...new Map(items.filter(i => i.order_id && i.tab_id).map(i => [i.order_id, i])).values()].map(item => <div className="dataRow" key={item.order_id}><strong>{item.tab_label || "Comanda"} · {item.order_id?.slice(0, 8)}</strong><ReceiptPrinting tabId={item.tab_id!} orderId={item.order_id} station={station} /></div>)}</section>
     <section className="panel" aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
       <h2 id="availability-title">Disponibilidade agora</h2>

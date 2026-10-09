@@ -4,6 +4,10 @@ from modules.access.models import MembershipStatus, StaffRole, VenueStaffMembers
 
 
 class Capability:
+    PRINT_CUSTOMER = "print.customer"
+    PRINT_BAR = "print.production.bar"
+    PRINT_KITCHEN = "print.production.kitchen"
+    PRINT_MANAGE = "print.manage"
     CATALOG_CREATE_BAR = "catalog.create.bar"
     CATALOG_CREATE_KITCHEN = "catalog.create.kitchen"
     CATALOG_AVAILABILITY_BAR = "catalog.availability.bar"
@@ -40,6 +44,7 @@ ALL_CAPABILITIES = frozenset(
 )
 
 _STAFF = {
+    Capability.PRINT_CUSTOMER,
     Capability.TAB_OPEN,
     Capability.TAB_MOVE,
     Capability.TAB_CANCEL,
@@ -55,6 +60,9 @@ _CASHIER = _STAFF | {
     Capability.CASH_ADJUSTMENT_CREATE,
 }
 _MANAGER = _CASHIER | {
+    Capability.PRINT_BAR,
+    Capability.PRINT_KITCHEN,
+    Capability.PRINT_MANAGE,
     Capability.CATALOG_CREATE_BAR,
     Capability.CATALOG_CREATE_KITCHEN,
     Capability.CATALOG_AVAILABILITY_BAR,

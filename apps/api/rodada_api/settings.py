@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "rest_framework",
     "modules.venue",
+    "modules.documents_printing",
     "modules.access",
     "modules.catalog",
     "modules.ordering",
