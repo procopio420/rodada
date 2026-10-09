@@ -6,7 +6,9 @@
 - [x] Congelar contrato parcial antes de implementação; preservar fontes originais.
 - [x] Medir Agora/Bar, regiões e tipografia com seletores únicos e capturas repetidas.
 - [x] Validar hashes/assets/fontes; revisar imagens e documentar ambiente/limites.
-- [ ] Commit e publicação remota com PR rascunho, sem conclusão global.
+- [x] Commit e publicação remota com PR rascunho, sem conclusão global.
+
+Resultado parcial: [V01 Agora/Bar](../../docs/design/v01-night-agora-inventory.md), evidência bc9575b publicada no [PR68 em rascunho](https://github.com/procopio420/rodada/pull/68). V01 global permanece aberto.
 
 - [x] Documentar plano especÃ­fico de pixel-perfect e corrigir o foco da documentaÃ§Ã£o.
 - [ ] V01: inventÃ¡rio e contratos por tela/estado/recorte.

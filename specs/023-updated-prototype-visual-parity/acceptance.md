@@ -6,7 +6,9 @@
 - [x] Estado inicial Agora e painel Bar têm seletores únicos, dimensões/crops e estilos medidos; moldura/status bar simulada são classificados.
 - [x] Fontes locais carregadas sem fallback/rede externa; duas capturas por região principal possuem bytes idênticos.
 - [x] Auditoria distingue presença de código, checks históricos e validação atual; demais jornadas/exports e V02–V07 permanecem abertos.
-- [ ] Evidências identificam base, ambiente e reprodução; publicação SHA remoto/PR rascunho comprovada.
+- [x] Evidências identificam base, ambiente e reprodução; publicação SHA remoto/PR rascunho comprovada.
+
+Evidência bc9575b confirmada em origin/codex/spec023-next, [PR68 em rascunho](https://github.com/procopio420/rodada/pull/68). Somente aceite parcial V01; nenhum gate de paridade integral do produto foi concluído.
 
 ## Planejamento
 

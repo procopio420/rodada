@@ -62,3 +62,7 @@ Tentativas iniciais: sandbox bloqueou localhost; execução autorizada fora dele
 Typecheck/build/test:visual/test:realtime de produto, Android/emulador/hardware e integração PostgreSQL **não executados**: este recorte altera somente contrato/documentação e inspeção de referências, sem UI ou fluxo integrado. Não há nova prova de demo funcional ou fidelidade atual do app; V07 segue aberto.
 
 Próximo recorte: V01 night **Contas/busca → detalhe da Tab**, congelando seletores/interações/medidas dessa única jornada antes de V02/V05. System/peak/connectivity também precisam seus contratos; nenhuma conclusão global da Spec023.
+
+## Publicação
+
+Contrato/harness/evidências versionados em `bc9575b0c99a7a8c9b55aae0a3b50a56e772d429`; SHA remoto confirmado por ls-remote. [PR68 em rascunho](https://github.com/procopio420/rodada/pull/68), base main45c4742. Este registro posterior só documenta publicação/aceite; não muda pixels ou implementação. CI remoto não foi tratado como validação concluída.
