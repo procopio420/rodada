@@ -113,11 +113,14 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
   await evidence(page, "cash-success");
 
+  // Keep the old access for the explicit stale-session request; SSE may already clear storage.
+  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
+  expect(oldSession).toBeTruthy();
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
-  const revoked = await guest.evaluate(async token => {
-    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": sessionStorage.getItem(`rodada.guest.session.${token}`) ?? "" } });
+  const revoked = await guest.evaluate(async oldSession => {
+    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": oldSession ?? "" } });
     return { status: result.status, body: await result.json() };
-  }, table.public_token);
+  }, oldSession);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
   await guest.reload();

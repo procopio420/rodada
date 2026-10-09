@@ -33,3 +33,7 @@
 
 Status polling is implemented; dedicated print realtime events and aggregated fallback metrics
 are future projection work. Printer availability does not enter financial/KDS transactions.
+
+## Fixtures em Windows
+
+Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.

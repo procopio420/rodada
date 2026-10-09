@@ -120,3 +120,7 @@ checks inspect their parent controls and validate document content separately.
 Automatic KDS heartbeat fallback and Android Bluetooth acceptance above remain rollout
 criteria, not P0 claims. P0 does not expose an AUTO_FALLBACK configuration. Fiscal issuance
 and vendor-mandated payment receipt metadata are separate external decisions.
+
+## Fixtures em Windows
+
+Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.

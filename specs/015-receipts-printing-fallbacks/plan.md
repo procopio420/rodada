@@ -73,3 +73,7 @@ Canonical Order/Payment/pricing snapshots and Spec 014 degraded-state contract.
 Automatic fallback is deferred until a trustworthy station heartbeat exists. Android
 Bluetooth and Windows native spool APIs are deferred until actual OS/device models and
 vendor SDK compatibility are confirmed. These are not enabled by configuration in P0.
+
+## Fixtures em Windows
+
+Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
