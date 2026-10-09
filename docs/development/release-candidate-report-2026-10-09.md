@@ -103,3 +103,14 @@ Use a dedicated PostgreSQL database and run migrations; test identities require 
 ## Merge follow-up
 
 The initial remote API `test` job failed with 365 passed / 31 skipped / 1 failure because it selected SQLite while `OperationalAlertConcurrencyTests` requires actual PostgreSQL locks. Android and Web passed; the separate full PostgreSQL job was still running at inspection. Both API jobs now provision PostgreSQL 17 and run `pytest --ds=rodada_api.settings`; the mandatory PostgreSQL assertion is unchanged. Workflow path filters also include the API workflow itself so CI configuration edits trigger validation. No skip, mock, threshold change or forced merge was used to bypass the failed check. Merge waits for green remote API checks on the corrected candidate head.
+
+
+## Post-merge integration verification
+
+PR #63 merged as `9b8e5e538753a9a753985ca0fb297e3cffa77320` on 2026-10-09 at 18:36:18 UTC, after all four candidate CI checks passed. Both API jobs executed 397 PostgreSQL tests successfully. The merge also includes an independently added Spec 024 Atendimento Web companion (`b77acf7`); Spec 024 is outside this report's 001–023 criterion inventory.
+
+On the actual merged tree, Django checks, migration drift, PostgreSQL operational-alert concurrency (1 test), Web typecheck/build, realtime tests (8), focused Atendimento visual/accessibility checks (7) and all real PostgreSQL browser journeys (11) passed. The temporary browser PostgreSQL service was isolated and stopped after verification. The first drift command used a nonexistent base database and emitted a migration-history warning; rerunning against the existing dedicated demo database completed without that warning.
+
+Post-merge Android and both API CI jobs passed. [Web CI run 37974441889](https://github.com/procopio420/rodada/actions/runs/37974441889) failed with 182 visual tests passed and one failure: the delayed-pricing test lacked `GET /api/pos/tabs/slow-tab/`, now requested by the shared order workspace before pricing mounts. This failure was reproduced locally. Its fixture now supplies the same canonical tab for list and detail; both disabled-before-loading and enabled-after-loading assertions remain unchanged. All seven pricing visual/accessibility tests then passed locally. Full remote Web gates must pass on this follow-up before it merges. No test skips, retries, baseline edits or relaxed assertions were introduced.
+
+Release scope counts and production blockers are unchanged; the decision remains supervised **DEMO_GO**, not pilot or production approval.
