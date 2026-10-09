@@ -14,6 +14,15 @@ def provider_for_venue(venue_id, method="PIX", provider_key=None):
     config = dict(getattr(settings, "RODADA_PAYMENT_PROVIDERS", {}).get(str(venue_id), {}))
     if not config and provider_key == f"paytime:{venue_id}":
         config = dict(getattr(settings, "RODADA_PAYTIME_PROVIDERS", {}).get(str(venue_id), {}))
+    if provider_key and provider_key.startswith(f"sumup:{venue_id}:"):
+        # Historical reconciliation uses immutable merchant identity, even if the
+        # Venue's current selection was removed or changed to another provider.
+        historical = MerchantConnection.objects.filter(
+            venue_id=venue_id, provider="sumup",
+            merchant_code=provider_key.split(":", 2)[2], simulated=False,
+        ).first()
+        if historical is not None:
+            config = {"provider": "sumup", "connection_id": str(historical.pk)}
     if not config:
         raise ProviderServiceError(
             "PROVIDER_NOT_CONFIGURED", "Pagamento integrado indisponível.", 409
@@ -36,7 +45,7 @@ def provider_for_venue(venue_id, method="PIX", provider_key=None):
                 **({"active": True} if not provider_key else {}),
                 simulated=False,
             )
-            if not connection.capabilities.get("pix" if method == "PIX" else "tap_to_pay"):
+            if not provider_key and not connection.capabilities.get("pix" if method == "PIX" else "tap_to_pay"):
                 raise ValueError("Merchant capability not authorized")
             token = access_token_for(connection.pk, venue_id=venue_id, historical=bool(provider_key))
             adapter = SumUpPixProvider if method == "PIX" else SumUpTapToPayProvider
