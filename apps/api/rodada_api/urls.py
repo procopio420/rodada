@@ -82,6 +82,7 @@ def readiness(request):
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 
 urlpatterns = [
+    path("", include("modules.realtime.urls")),
     path("payments/device-authorizations/", PaymentDeviceAuthorizationView.as_view()),
     path("payments/<uuid:payment_id>/refunds/integrated/", IntegratedRefundView.as_view()),
     path("refunds/<uuid:refund_id>/reconcile/", IntegratedRefundReconcileView.as_view()),

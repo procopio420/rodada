@@ -273,7 +273,7 @@ test("staff login keyboard order and submitted failure", async ({ page }) => {
   await expect(page.getByLabel("PIN", { exact: true })).toHaveValue("");
 });
 
-const importedRoot = "http://127.0.0.1:3101/prototype/references";
+const importedRoot = `http://127.0.0.1:${process.env.RODADA_REFERENCE_PORT ?? 3101}/prototype/references`;
 for (const [folder, entry] of [["night", "Main"], ["system", "Sistema"], ["kitchen", "Cozinha"], ["peak", "Pico"], ["connectivity", "Offline"]]) {
   test(`imported ${folder} reference renders with local assets`, async ({ page }) => {
     const errors: string[] = [];

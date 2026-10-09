@@ -641,3 +641,16 @@ Canonical audit records:
 - fully offline guest ordering;
 - offline provider payment authorization;
 - automatic conflict merge for financial records.
+
+## P0 implementation protocol
+
+- One database-serialized sequence per Venue; opaque cursor binds venue and sequence. A locked VenueStream row assigns sequence in the mutation transaction, preventing commit-order holes.
+- Envelope schema_version=1, id/cursor, venue_id, type, aggregate_type/id, occurred_at, version and minimal invalidation payload. HTTP remains the sole command channel.
+- Replay retains 24 hours; missing, malformed, foreign, expired or discontinuous cursors emit `reset`. The client fetches a cursor baseline BEFORE refreshing canonical projections, then resumes, so mutations concurrent with refresh are replayed.
+- Durable dispatcher marks committed records published; SSE reads the database publication log without requiring Redis. Publication acknowledgement never deletes facts. Worker retry is safe; delivery remains at least once.
+- Stream authentication is revalidated each read cycle; GuestSession sees only its own Tab and public catalog invalidations, never other financial aggregates. Staff capabilities filter financial versus operational events.
+- SSE sends `change`, `ready`, `reset`, `heartbeat`, `reauthenticate` and `revoked`; snapshots return a cursor watermark. Production uses async ASGI streaming. Fallback revalidates active views on a bounded cadence, not fixed five-second production polling.
+- Guest context includes only authorized Tab history and ledger-derived outstanding balance; only stored item states and classified milestone provenance are rendered.
+- No Class C offline fulfillment enablement and no change to existing financial command/recovery semantics.
+
+Staff access-token expiry emits `reauthenticate` and preserves the accepted cursor; the authenticated HTTP adapter rotates credentials on reconnect. Session/membership/device revocation emits terminal `revoked`. Web operational shells/assets are cached separately from API reads; no service worker caches commands or fabricates API responses. Safe projections are isolated per session and visibly timestamped. A page/process restart obtains a fresh snapshot instead of resuming a cursor detached from its projection.

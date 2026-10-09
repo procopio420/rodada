@@ -191,6 +191,9 @@ def confirm_order(
     # a mutable catalog price. One-to-one Charge makes retries exactly-once.
     from modules.ledger.services import create_charges_for_order
     create_charges_for_order(order, actor)
+    from modules.realtime.services import emit_event
+    emit_event(venue_id=tab.venue_id, event_type="order.confirmed", aggregate_type="Order",
+               aggregate_id=order.id, tab_id=tab.id)
     sync_attention(tab, actor)
 
     return order

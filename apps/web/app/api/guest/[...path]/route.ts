@@ -11,7 +11,7 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   }
 
   const { path } = await params;
-  const headers = new Headers({ Accept: "application/json" });
+  const headers = new Headers({ Accept: request.headers.get("accept") ?? "application/json" });
   const guestSession = request.headers.get("x-guest-session");
   if (guestSession) headers.set("X-Guest-Session", guestSession);
 
@@ -22,15 +22,16 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   }
 
   try {
-    const upstream = await fetch(`${apiBaseUrl}/guest/${path.join("/")}/`, {
+    const upstream = await fetch(`${apiBaseUrl}/guest/${path.join("/")}/${request.nextUrl.search}`, {
       method: request.method,
       headers,
       body,
       cache: "no-store",
+      signal: request.signal,
     });
     return new NextResponse(upstream.body, {
       status: upstream.status,
-      headers: { "Content-Type": upstream.headers.get("content-type") ?? "application/json" },
+      headers: { "Content-Type": upstream.headers.get("content-type") ?? "application/json", "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no" },
     });
   } catch {
     return NextResponse.json(

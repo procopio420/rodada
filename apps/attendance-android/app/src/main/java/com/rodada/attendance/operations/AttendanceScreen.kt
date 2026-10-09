@@ -31,6 +31,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
+import androidx.activity.compose.LocalActivity
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,10 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.activity.compose.LocalActivity
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleEventObserver
 import android.net.ConnectivityManager
 import android.net.Network
 import androidx.compose.ui.text.font.FontWeight
@@ -119,8 +120,21 @@ fun AttendanceScreen(
     }
 
     LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
-    LaunchedEffect(session.staffId, session.venueId) {
-        while (true) { delay(15_000); if (!operatingTab) viewModel.refresh(session) }
+    val activity = LocalActivity.current as? ComponentActivity
+    DisposableEffect(session.staffId, session.venueId, activity) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> { viewModel.refresh(session); viewModel.startRealtime(session) }
+                Lifecycle.Event.ON_STOP -> viewModel.stopRealtime()
+                else -> Unit
+            }
+        }
+        activity?.lifecycle?.addObserver(observer)
+        if (activity == null || activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) viewModel.startRealtime(session)
+        onDispose {
+            activity?.lifecycle?.removeObserver(observer)
+            viewModel.stopRealtime()
+        }
     }
 
     Surface(modifier = Modifier.fillMaxSize()) {

@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test:realtime": "node --experimental-strip-types --test tests/realtime.test.mjs",
+    "test:realtime:browser": "python tests/visual-realtime.py",
     "test:visual": "playwright test",
     "test:integration": "playwright test --config playwright.integration.config.ts",
     "test:visual:report": "playwright show-report"

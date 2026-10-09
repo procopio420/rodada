@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRealtime } from "@/lib/client/use-realtime";
+import { projectionCache } from "@/lib/client/projection-cache";
+import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { ManagementNav } from "@/components/management-nav";
 import { HouseAccount } from "@/components/house-account";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -41,8 +44,10 @@ export default function ManagementPage() {
   const [loading, setLoading] = useState(true);
   const [hasSnapshot, setHasSnapshot] = useState(false);
 
+  const cache = useMemo(() => projectionCache<{ tabs: Tab[]; products: Product[]; bar: QueueItem[]; kitchen: QueueItem[]; deliveries: Delivery[]; cash: CashPoint[]; tables: Table[] }>("management"), []);
+  const [cachedAt, setCachedAt] = useState<number>();
   const load = useCallback(async () => {
-    setLoading(true);
+
     setMessage("");
     try {
       const [nextTabs, nextProducts, nextBar, nextKitchen, nextDeliveries, nextCash, nextTables] = await Promise.all([
@@ -62,6 +67,7 @@ export default function ManagementPage() {
       }));
       setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
       setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
+      cache.save({ tabs: nextTabs.map(tab => ({ ...tab, display_label: "" })), products: nextProducts, bar: nextBar.map(item => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map(item => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
       setHasSnapshot(true);
       setRefunds(details.flatMap((detail) => {
         if (!detail) return [];
@@ -71,12 +77,17 @@ export default function ManagementPage() {
       }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Não foi possível atualizar o painel.");
+      throw error;
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => { void load(); }, [load]);
+  }, [cache]);
+  useEffect(() => {
+    void cache.restore().then(cached => {
+      if (cached) { const data = cached.data; setTabs(data.tabs); setProducts(data.products); setBar(data.bar); setKitchen(data.kitchen); setDeliveries(data.deliveries); setCashPoints(data.cash); setTables(data.tables); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
+    });
+  }, [cache]);
+  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); setHasSnapshot(false); setLoading(false); setMessage("Sessão encerrada. Entre novamente."); } });
   const openTabs = useMemo(() => tabs.filter((tab) => tab.state !== "CLOSED"), [tabs]);
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
@@ -90,9 +101,10 @@ export default function ManagementPage() {
       <div className="eyebrow">RODADA / GESTÃO</div>
       <h1>O que precisa de atenção</h1>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
-      <div className="actions"><button className="buttonQuiet" onClick={() => void load()} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
+      <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
     </header>
     <ManagementNav />
+    <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
     {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
     {hasSnapshot && <>

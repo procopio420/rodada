@@ -242,3 +242,7 @@ POST /hospitality/tables/{id}/cleaning/complete/  # table.manage
 O ciclo persistido é `AVAILABLE → OCCUPIED → DIRTY → CLEANING → AVAILABLE`.
 `public_token` é aleatório/opaco para o QR físico; o resolver público e GuestSession
 ainda pertencem ao próximo slice. A geração de acesso só aumenta no fim da limpeza.
+
+## Operational realtime
+
+Spec 014 SSE streams, durable outbox/dispatcher, authorization and replay are documented in [modules/realtime/README.md](modules/realtime/README.md). Use ASGI and run the separate dispatcher; SSE is independent of HTTP commands.

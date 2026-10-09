@@ -66,7 +66,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
 
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Web E2E 24", guest_ordering_mode: "DIRECT" });
   await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
-  const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   guest.on("pageerror", error => errors.push(error.message));
   await guest.goto(`/guest/${table.public_token}`);
@@ -139,8 +139,8 @@ test("real authorization failure is visible and never becomes an empty success",
 
 test("real expired session clears privileged cookies", async ({ page, context }) => {
   await context.addCookies([
-    { name: "rodada_staff_access", value: "rat_e2e-expired-only", url: "http://127.0.0.1:3110", httpOnly: true, sameSite: "Lax" },
-    { name: "rodada_staff_refresh", value: "rrt_e2e-expired-only", url: "http://127.0.0.1:3110", httpOnly: true, sameSite: "Lax" },
+    { name: "rodada_staff_access", value: "rat_e2e-expired-only", url: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, httpOnly: true, sameSite: "Lax" },
+    { name: "rodada_staff_refresh", value: "rrt_e2e-expired-only", url: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, httpOnly: true, sameSite: "Lax" },
   ]);
   const response = page.waitForResponse("**/api/auth/me");
   await page.goto("/staff");
@@ -188,7 +188,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Tracking E2E", guest_ordering_mode: "DIRECT" });
   await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
-  const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   await guest.goto(`/guest/${table.public_token}`);
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Tracking guest");

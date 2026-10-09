@@ -20,6 +20,12 @@ import com.rodada.attendance.refunds.RefundsRepository
 import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import com.rodada.attendance.refunds.refundStatusLabel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import com.rodada.attendance.BuildConfig
+import com.rodada.attendance.realtime.SseOperationalRealtime
+import com.rodada.attendance.realtime.RealtimeSignal
+import com.rodada.attendance.realtime.OperationalRealtime
 import java.io.IOException
 import java.util.UUID
 
@@ -61,11 +67,66 @@ class OperationsViewModel(
     private val authRepository: AuthRepository,
     private val correctionsRepository: CorrectionsRepository,
     private val refundsRepository: RefundsRepository,
+    private val realtime: OperationalRealtime = SseOperationalRealtime(BuildConfig.RODADA_API_BASE_URL, authRepository),
 ) : ViewModel() {
     var state by mutableStateOf(OperationsUiState())
         private set
 
     private var loadedSessionKey: String? = null
+    private var realtimeJob: Job? = null
+    private var refreshJob: Job? = null
+    private var streamConnected = false
+    private var invalidationJob: Job? = null
+    private var refreshRequested = false
+
+    fun startRealtime(session: StoredSession) {
+        stopRealtime()
+        realtimeJob = viewModelScope.launch {
+            realtime.subscribe(session).collect { signal ->
+                when (signal) {
+                    RealtimeSignal.Connected -> {
+                        streamConnected = true
+                        if (state.connectivity != ConnectivityState.OFFLINE) state = state.copy(connectivity = ConnectivityState.ONLINE)
+                    }
+                    RealtimeSignal.Reconnecting -> {
+                        streamConnected = false
+                        state = state.copy(connectivity = if (state.lastSyncedAtMillis == null || System.currentTimeMillis() - state.lastSyncedAtMillis!! < 30_000) ConnectivityState.RECONNECTING else ConnectivityState.STALE)
+                    }
+                    RealtimeSignal.Refresh -> {
+                        // Coalesce bursts while retaining one revalidation after an in-flight read.
+                        refreshRequested = true
+                        if (invalidationJob?.isActive != true) {
+                            invalidationJob = viewModelScope.launch {
+                                while (refreshRequested) {
+                                    refreshRequested = false
+                                    delay(200)
+                                    refreshJob?.join()
+                                    refresh(session)
+                                    refreshJob?.join()
+                                }
+                            }
+                        }
+                    }
+                    is RealtimeSignal.Revalidate -> {
+                        // A resume cursor is accepted only after canonical reads succeed.
+                        refreshJob?.join()
+                        val previous = state.lastSyncedAtMillis
+                        refresh(session)
+                        refreshJob?.join()
+                        signal.accepted.complete(state.lastSyncedAtMillis != previous)
+                    }
+                }
+            }
+        }
+    }
+
+    fun stopRealtime() {
+        realtimeJob?.cancel()
+        realtimeJob = null
+        invalidationJob?.cancel()
+        refreshRequested = false
+        streamConnected = false
+    }
 
     fun loadTabOperations(session: StoredSession) = action {
         state = state.copy(operationState = null, operationPreview = null, operationCompleted = false)
@@ -133,14 +194,14 @@ class OperationsViewModel(
     }
 
     fun refresh(session: StoredSession) {
-        if (state.loading || state.submitting) return
+        if (refreshJob?.isActive == true || state.submitting) return
         state = state.copy(
             loading = true,
             errorMessage = null,
             noticeMessage = null,
             connectivity = if (state.tabs.isEmpty()) ConnectivityState.RECONNECTING else ConnectivityState.STALE,
         )
-        viewModelScope.launch {
+        refreshJob = viewModelScope.launch {
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
                 state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
@@ -162,7 +223,7 @@ class OperationsViewModel(
                     deliveryTasks = snapshot.deliveryTasks,
                     tables = snapshot.tables,
                     selectedTab = snapshot.detail ?: state.selectedTab,
-                    connectivity = ConnectivityState.ONLINE,
+                    connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
             }.onFailure {

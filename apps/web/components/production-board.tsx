@@ -1,6 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRealtime } from "@/lib/client/use-realtime";
+import { projectionCache } from "@/lib/client/projection-cache";
+import { ConnectivityNotice } from "./connectivity-notice";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { QuickCatalog } from "./quick-catalog";
 import { ProductIcon, type IconData } from "./product-icon";
@@ -25,6 +28,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const [changingItemId, setChangingItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasSnapshot, setHasSnapshot] = useState(false);
+  const cache = useMemo(() => projectionCache<{ items: Item[]; products: Product[] }>(station), [station]);
+  const [cachedAt, setCachedAt] = useState<number>();
   const reading = useRef(false);
   const snapshotVersion = useRef(0);
   const mutating = useRef(false);
@@ -41,25 +46,38 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       if (version !== snapshotVersion.current) return;
       if (!queue.response.ok || !catalog.response.ok) {
         setMessage(apiMessage(!queue.response.ok ? queue.body : catalog.body));
-        return;
+        throw new Error("Station snapshot unavailable");
       }
-      setItems((queue.body as { results: Item[] }).results);
-      setProducts((catalog.body as { results: Product[] }).results.filter(product => product.fulfillment_station === station));
+      const nextItems = (queue.body as { results: Item[] }).results;
+      const nextProducts = (catalog.body as { results: Product[] }).results.filter(product => product.fulfillment_station === station);
+      setItems(previous => JSON.stringify(previous) === JSON.stringify(nextItems) ? previous : nextItems);
+      setProducts(previous => JSON.stringify(previous) === JSON.stringify(nextProducts) ? previous : nextProducts);
+      cache.save({ items: nextItems.map(item => ({ ...item, tab_label: "" })), products: nextProducts });
       setHasSnapshot(true);
       setMessage("");
-    } catch {
+    } catch (error) {
       if (version === snapshotVersion.current) setMessage("Não foi possível atualizar a estação. Confira a conexão e tente novamente.");
+      throw error;
     } finally {
       if (version === snapshotVersion.current) { reading.current = false; setLoading(false); }
     }
-  }, [station]);
+  }, [station, cache]);
 
   useEffect(() => {
+    void cache.restore().then(cached => {
+      if (cached) { setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
+    });
+  }, [cache]);
+  const connectivity = useRealtime(() => load(true), {
+    relevant: event => ["order", "orderitem", "order_item", "product", "producticon"].includes(event.aggregate_type.toLowerCase()),
+    onRevoked: (error) => { cache.clear(); setItems([]); setProducts([]); setHasSnapshot(false); setLoading(false); setMessage(apiMessage(error ?? { code: "AUTH_REVOKED", message: "Sessão encerrada." })); },
+  });
+  useEffect(() => {
     setNow(Date.now());
-    void load();
-    const timer = window.setInterval(() => { setNow(Date.now()); if (!mutating.current) void load(); }, 5000);
+    // Local age display only; canonical reads are driven by realtime/fallback.
+    const timer = window.setInterval(() => setNow(Date.now()), 15000);
     return () => window.clearInterval(timer);
-  }, [load]);
+  }, []);
 
   async function change(path: string, state: string, kind: "product" | "item", id: string) {
     if (mutating.current || message) return;
@@ -81,7 +99,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const waiting = items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
   const ready = items.filter(item => item.state === "READY");
   const inTransit = items.filter(item => item.state === "PICKED_UP");
-  const disabled = !!message || changingProductId !== null || changingItemId !== null;
+  const disabled = connectivity.state === "OFFLINE" || !!message || changingProductId !== null || changingItemId !== null;
 
   const groups = new Map<string, { name: string; product?: Product; quantity: number; items: Item[] }>();
   for (const item of waiting) {
@@ -101,7 +119,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <div className="stationIdentity"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{station === "KITCHEN" ? <path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z" /> : <><path d="M5 4h12v16H5zM17 7h2a3 3 0 0 1 0 6h-2M8 1v4M13 1v4" /></>}</svg><h1>{title}</h1><span>Fila da estação</span></div>
       <div className="stationSummary">{hasSnapshot && <><span><b>{new Set(waiting.map(item => item.order_id ?? item.id)).size}</b> pedidos em preparo</span><span><b>{ready.length}</b> no passe</span></>}<time>{now ? new Date(now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</time></div>
     </header>
-    {message && <div className="notice" data-state="danger" role="alert"><p>{message}</p>{hasSnapshot && <p>Último estado confirmado. Ações pausadas até atualizar.</p>}<button className="buttonSecondary" onClick={() => void load(true)}>Tentar atualizar</button></div>}
+    <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
+    {message && <div className="notice" data-state="danger" role="alert"><p>{message}</p>{hasSnapshot && <p>Último estado confirmado. Ações pausadas até atualizar.</p>}<button className="buttonSecondary" onClick={() => void load(true).catch(() => {})}>Tentar atualizar</button></div>}
     <div className="productionWorkspace">
       <section className="stationBatches" aria-labelledby="batch-title" aria-busy={loading}>
         <div className="stationLabel"><h2 id="batch-title"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg><span>Fazer agora · por {station === "KITCHEN" ? "prato" : "produto"}</span></h2><span>{station === "KITCHEN" ? "porções" : "lote"}</span></div>
@@ -128,7 +147,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
         {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
-        <p className="stationFootnote">Estado confirmado pela operação. Atualiza a cada 5 segundos.</p>
+        <p className="stationFootnote">Estado confirmado pela operação. Atualizações ao vivo.</p>
       </section>
     </div>
     <div className="stationTools">
@@ -151,7 +170,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       })}
       {!loading && hasSnapshot && !products.length && <div className="emptyState">Nenhum produto roteado para esta estação.</div>}
     </section>
-    <QuickCatalog station={station} onChanged={() => load(true)} />
+    <QuickCatalog station={station} onChanged={() => load(true).catch(() => {})} />
     </div>
   </main>;
 }
