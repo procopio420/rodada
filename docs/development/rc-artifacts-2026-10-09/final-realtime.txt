@@ -1,0 +1,24 @@
+
+> rodada-web@0.1.0 test:realtime
+> node --experimental-strip-types --test tests/realtime.test.mjs
+
+(node:2031980) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/lucas/projects/rodada/release-candidate/apps/web/lib/client/realtime.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/lucas/projects/rodada/release-candidate/apps/web/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ SSE parser handles delayed chunks and multiple frames (5.543604ms)
+✔ duplicate and reordered events invalidate once and never roll back (0.925208ms)
+✔ unknown schemas cannot be accepted as canonical (0.519997ms)
+✔ SSE parser preserves CRLF split at transport boundaries (1.098814ms)
+✔ healthy fallback reads remain visibly stale after the reconnect budget (374.075633ms)
+✔ stream invalidates HTTP projections, resumes cursor, and resets to snapshot after gap (3906.661884ms)
+✔ SSE unavailable keeps canonical API fallback usable without sending commands (652.837254ms)
+✔ revoked subscriptions clear projections and stop reconnect (12.208495ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5373.176469

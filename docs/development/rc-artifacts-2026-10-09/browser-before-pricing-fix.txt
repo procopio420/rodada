@@ -1,0 +1,101 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts
+
+[WebServer] (node:2063228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:2063380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2063380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (1.6s)
+(node:2063796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2063796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Not Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓   2 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (8.6s)
+[WebServer] /home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[WebServer]   async for part in content:
+  ✓   3 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (5.0s)
+[WebServer] Forbidden: /cash/shifts/9dd950f5-5ea0-4125-9992-adc771c5882d/review/
+[WebServer] Forbidden: /guest/context/
+[WebServer] Conflict: /guest/qr/resolve/
+  ✓   4 tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows (18.2s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /management/alerts/
+[WebServer] Forbidden: /cash/points/
+  ✓   5 tests/integration/workflows.spec.ts:130:5 › real authorization failure is visible and never becomes an empty success (2.2s)
+[WebServer] Unauthorized: /auth/me/
+  ✓   6 tests/integration/workflows.spec.ts:140:5 › real expired session clears privileged cookies (369ms)
+  ✓   7 tests/integration/workflows.spec.ts:154:5 › canonical and compatibility hosts select the correct surface and manifest (287ms)
+[WebServer] Forbidden: /cash/shifts/fd6a2ce5-df8e-4422-9e72-dea179496758/review/
+  ✓   8 tests/integration/workflows.spec.ts:169:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (11.2s)
+  ✓   9 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (9.1s)
+  ✘  10 tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation (30.1s)
+
+
+  1) tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution 
+
+    Error: {"code":"AUTH_REQUIRED","message":"Autenticação de staff necessária."}
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 300
+    Received:   401
+
+      10 |   async function call(path: string, method = "GET", body?: unknown) {
+      11 |     const response = await page.request.fetch(path, { method, data: body });
+    > 12 |     expect(response.status(), await response.text()).toBeLessThan(300);
+         |                                                      ^
+      13 |     return response.json();
+      14 |   }
+      15 |   const { product } = await call("/api/pos/catalog/resolve-or-create/", "POST", {
+        at call (/home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/management-alerts.spec.ts:12:54)
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/management-alerts.spec.ts:15:23
+
+    Error Context: test-results/integration/management-alerts-real-API-4516e-nt-and-canonical-resolution/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/management-alerts-real-API-4516e-nt-and-canonical-resolution/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/management-alerts-real-API-4516e-nt-and-canonical-resolution/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Confirmar ajuste' })
+
+
+      20 |   await page.goto("/pos"); await page.getByRole("button", { name: /Pricing reconciliation/ }).click();
+      21 |   await page.getByLabel("Valor (R$)").fill("1,00"); await page.getByLabel("Motivo", { exact: true }).fill("CUSTOMER_REQUEST");
+    > 22 |   await page.getByRole("button", { name: "Conferir antes de aplicar" }).click(); await page.getByRole("button", { name: "Confirmar ajuste" }).click();
+         |                                                                                                                                               ^
+      23 |   await expect(page.getByText("Ajuste aplicado.")).toBeVisible();
+      24 |   const apply = async (kind: string, value: number, key: string) => { const detail = await api(page, `/tabs/${tab.id}/`); return api(page, `/tabs/${tab.id}/pricing/`, { kind, value, expected_version: detail.version, idempotency_key: key, reason_code: "CUSTOMER_REQUEST" }); };
+      25 |   await apply("SERVICE_CHARGE", 1000, "service");
+        at /home/lucas/projects/rodada/release-candidate/apps/web/tests/integration/zz-pricing.spec.ts:22:143
+
+    Error Context: test-results/integration/zz-pricing-cashier-bill-sh-666bb-on-and-final-reconciliation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/zz-pricing-cashier-bill-sh-666bb-on-and-final-reconciliation/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/zz-pricing-cashier-bill-sh-666bb-on-and-final-reconciliation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution 
+    tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation 
+  8 passed (1.8m)

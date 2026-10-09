@@ -1,0 +1,57 @@
+
+> rodada-web@0.1.0 build
+> next build
+
+▲ Next.js 16.3.8 (Turbopack)
+✓ Running next.config.ts took 45ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 349ms
+  Running TypeScript ...
+  Finished TypeScript in 3.4s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/23) ...
+  Generating static pages using 15 workers (5/23) 
+  Generating static pages using 15 workers (11/23) 
+  Generating static pages using 15 workers (17/23) 
+✓ Generating static pages using 15 workers (23/23) in 737ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api/auth/invalidation-events
+├ ƒ /api/auth/lock
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/reauthenticate
+├ ƒ /api/auth/switch-operator
+├ ƒ /api/catalog-assets/[icon]/[filename]
+├ ƒ /api/guest/[...path]
+├ ƒ /api/pos/[...path]
+├ ƒ /api/realtime/[...path]
+├ ƒ /api/receipt/[token]
+├ ƒ /bar
+├ ƒ /cash
+├ ƒ /guest/[token]
+├ ƒ /kitchen
+├ ƒ /manage
+├ ƒ /manage/alerts/[id]
+├ ƒ /manage/alerts/settings
+├ ƒ /manage/catalog
+├ ƒ /manage/pricing
+├ ƒ /manage/printing
+├ ƒ /manifest.webmanifest
+├ ƒ /pos
+├ ƒ /printing/jobs/[id]
+├ ƒ /receipt/[token]
+├ ƒ /refunds
+├ ƒ /reports
+└ ƒ /staff
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+

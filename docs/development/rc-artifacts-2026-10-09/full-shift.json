@@ -1,0 +1,48 @@
+{
+  "run_id": "4bd1f86ce4",
+  "payment_classification": "MANUAL_TEST",
+  "native_android_ui": "NOT_RUN",
+  "tabs": [
+    "20e7298b-a22a-40ba-83d0-a25bf5484bc3",
+    "b218768a-fa30-4876-958d-640bba152d0e",
+    "0651763b-3b27-42e7-a795-5cb4d7a633ae"
+  ],
+  "shift_id": "a722b4b3-e467-4f6a-af1c-f4b170c79bf6",
+  "business_date": "2026-10-09",
+  "report_totals": {
+    "item_discounts_cents": 0,
+    "tab_discounts_cents": 0,
+    "courtesy_cents": 0,
+    "service_assessed_cents": 0,
+    "service_reductions_cents": 0,
+    "corrections_cents": -600,
+    "service_revenue_cents": 0,
+    "service_pass_through_cents": 0,
+    "gross_cents": 8900,
+    "adjustments_cents": -600,
+    "net_consumption_cents": 8300,
+    "payable_cents": 8300,
+    "net_sales_cents": 8300,
+    "paid_cents": 8900,
+    "refunds_cents": 600,
+    "net_received_cents": 8300,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "report_delta": {
+    "gross_cents": 8900,
+    "adjustments_cents": -600,
+    "net_sales_cents": 8300,
+    "paid_cents": 8900,
+    "refunds_cents": 600,
+    "net_received_cents": 8300,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "cash_expected_cents": 14300,
+  "cash_discrepancy_cents": 0,
+  "sse_replay": true,
+  "duplicate_order": "8a6fa8c8-48e6-4053-8a31-699c5ddca959",
+  "duplicate_payment": "b29962dd-4170-4a94-97e2-cc26fb0a52cf",
+  "audit_events_observed": 84
+}

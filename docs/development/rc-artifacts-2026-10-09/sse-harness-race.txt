@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/lucas/projects/rodada/release-candidate/apps/api/scripts/verify_realtime.py", line 105, in <module>
+    assert events.filter(event_type="order.confirmed", published_at__isnull=True).exists()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+AssertionError

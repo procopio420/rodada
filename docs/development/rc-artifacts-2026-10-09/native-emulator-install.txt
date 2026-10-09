@@ -1,0 +1,9 @@
+Performing Streamed Install
+Success
+Starting: Intent { cmp=com.rodada.attendance/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.rodada.attendance/.MainActivity
+TotalTime: 3691
+WaitTime: 3695
+Complete

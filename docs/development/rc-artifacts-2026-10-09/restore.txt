@@ -1,0 +1,2 @@
+Rehearsal data created: venue=restore-rehearsal tab=145575aa-f736-4919-84eb-7b31ef97dc93 closed_shift=c9804696-741a-4f4f-9950-a579fb141425 refund=e0715a55-67c3-426c-bbcf-a1e07ec9df45
+RESTORE VERIFIED: exposure=0; refund/reversal linked; cash open+closed preserved; occupancy/guest session active; delivery history done.

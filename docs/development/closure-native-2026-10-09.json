@@ -100,7 +100,7 @@
   "009-015": {
     "status": "PARTIAL",
     "implementation": "apps/api/modules/tab_operations/services.py; apps/attendance-android/app/src/main/java/com/rodada/attendance/operations/TabOperationsScreen.kt",
-    "evidence": "Android API-required operations; no emulator/device installed",
+    "evidence": "Android API-required operations; API 36 emulator now provisioned and custom order/delivery/manual partial payment/closure passed. Split/merge/reopen offline walkthrough remains unverified",
     "owner": "Native POS",
     "next_action": "Run device offline split/merge/reopen recovery"
   },
