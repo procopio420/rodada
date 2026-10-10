@@ -55,6 +55,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname === "/api/pos/cash/shifts/history/") body = { results: state === "empty" ? [] : [state === "warnings" ? pending : { ...shift, business_date: "2026-10-08" }], next_offset: null };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
     else if (url.pathname === "/api/pos/dispatch/delivery/") body = { results: state === "empty" ? [] : [{ id: "delivery-test", product_name: "Fritas", destination_label: "Mesa 24", age_seconds: 120 }] };
+    else if (url.pathname === "/api/pos/dispatch/requests/") body = { results: [] };
     else if (url.pathname === "/api/pos/hospitality/zones/") body = { results: [{ id: "zone-test", label: "Salão" }] };
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };

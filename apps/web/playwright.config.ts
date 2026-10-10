@@ -27,7 +27,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
   }, {
-    command: `python3 -m http.server ${referencePort} --bind 127.0.0.1 --directory ../..`,
+    command: `"${process.env.RODADA_REFERENCE_PYTHON ?? "python3"}" -m http.server ${referencePort} --bind 127.0.0.1 --directory ../..`,
     url: `http://127.0.0.1:${referencePort}/prototype/references/`,
     reuseExistingServer: false,
   }],
