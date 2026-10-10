@@ -31,6 +31,9 @@ python manage.py seed_demo
 
 umask 077
 printf '%s\n' "$DEMO_GATE_PASSWORD" | htpasswd -iB -c /tmp/rodada-demo.htpasswd rodada-demo >/dev/null
+# Nginx worker (www-data) needs read access; keep password file inaccessible to others.
+chown root:www-data /tmp/rodada-demo.htpasswd
+chmod 0640 /tmp/rodada-demo.htpasswd
 python - <<'PY'
 from pathlib import Path
 import os
