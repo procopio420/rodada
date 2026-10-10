@@ -90,6 +90,9 @@ Commits validados sobre `45c4742`:
 - `6950a01`: fila Web e covers opcionais.
 - `81f280f`: setup, equipe autorizada e proteção da Gerência.
 - `b2e2d3a`: chamadas, evidências de recovery, covers e acessibilidade Android.
+- `b81024a`: pausa ações de chamada durante leitura/loading, perda de sinal e falha
+  de transporte; 53 JVM, assemble/lint e 9 instrumentados revalidados em 430/fonte200.
+  As capturas e testes de geometria em 360/390 são do layout anterior, que não mudou.
 
 A compilação/visuais e testes instrumentados correspondem ao código desses commits;
 a última mudança no teste integrado apenas torna o diretório de captura independente
