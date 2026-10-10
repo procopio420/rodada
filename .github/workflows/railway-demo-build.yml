@@ -1,0 +1,91 @@
+name: Railway Aderlan demo Docker smoke
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/railway/**'
+      - '.github/workflows/railway-demo-build.yml'
+      - 'apps/web/**'
+      - 'apps/api/**'
+      - 'prototype/**'
+  push:
+    branches:
+      - 'deploy/railway-aderlan-demo-20261009'
+    paths:
+      - 'deploy/railway/**'
+      - '.github/workflows/railway-demo-build.yml'
+      - 'apps/web/**'
+      - 'apps/api/**'
+      - 'prototype/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build complete Railway image
+        run: docker build --progress=plain -f deploy/railway/Dockerfile -t rodada-aderlan-demo:ci .
+      - name: Start disposable private database and app
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker network create rodada-demo-ci
+          docker run -d --name rodada-demo-postgres --network rodada-demo-ci \
+            -e POSTGRES_DB=rodada_demo_ci \
+            -e POSTGRES_USER=rodada_ci \
+            -e POSTGRES_PASSWORD=ci-local-only \
+            --health-cmd="pg_isready -U rodada_ci -d rodada_demo_ci" \
+            --health-interval=3s --health-retries=30 \
+            postgres:17
+          docker run -d --name rodada-demo-app --network rodada-demo-ci \
+            -p 127.0.0.1:18080:8080 \
+            -e PORT=8080 \
+            -e POSTGRES_HOST=rodada-demo-postgres \
+            -e POSTGRES_PORT=5432 \
+            -e POSTGRES_DB=rodada_demo_ci \
+            -e POSTGRES_USER=rodada_ci \
+            -e POSTGRES_PASSWORD=ci-local-only \
+            -e DJANGO_SECRET_KEY=ci-local-only-secret-not-used-outside-github-actions \
+            -e DEMO_GATE_PASSWORD=ci-local-only-gate-password \
+            rodada-aderlan-demo:ci
+      - name: Validate startup, Basic Auth and all four pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            if [ "$(docker inspect -f '{{.State.Running}}' rodada-demo-app)" != true ]; then
+              echo "App container stopped before readiness" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            code=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/staff || true)
+            if [ "$code" = "401" ]; then break; fi
+            if [ "$i" = "120" ]; then
+              echo "Gateway did not become ready" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff)" = "401"
+          for page in staff attendance bar kitchen manage; do
+            status=$(curl -s -L -u rodada-demo:ci-local-only-gate-password -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
+            echo "/$page -> HTTP $status"
+            test "$status" = "200"
+          done
+          docker logs rodada-demo-app --tail 100
+      - name: Logs on failure
+        if: failure()
+        run: |
+          docker logs rodada-demo-app --tail 250 || true
+          docker logs rodada-demo-postgres --tail 100 || true
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f rodada-demo-app rodada-demo-postgres || true
+          docker network rm rodada-demo-ci || true
