@@ -124,6 +124,15 @@ jobs:
           _, catalog = api("GET", "/catalog/products/", token=token)
           bar = next(p for p in catalog["results"] if p["fulfillment_station"] == "BAR")
           kitchen = next(p for p in catalog["results"] if p["fulfillment_station"] == "KITCHEN")
+          # Startup must provision exactly one occupied sample physical table and tab.
+          _, tables = api("GET", "/hospitality/tables/", token=token)
+          sample = [t for t in tables["results"] if t["label"] == "01"]
+          assert len(sample) == 1, sample
+          sample = sample[0]
+          assert sample["status"] == "OCCUPIED", sample
+          assert len(sample["active_occupancy"]["tabs"]) == 1, sample
+          assert sample["active_occupancy"]["tabs"][0]["display_label"] == "Cliente Exemplo - Mesa 01", sample
+          print("PASS: Mesa 01 occupied, example customer tab assigned")
           status, tab = api("POST", "/tabs/", {"display_label": "CI demo smoke"}, token)
           assert status == 201, tab
           status, order = api("POST", f"/tabs/{tab['id']}/orders/confirm/", {
