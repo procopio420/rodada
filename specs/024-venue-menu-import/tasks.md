@@ -4,7 +4,7 @@
 - [x] Adicionar testes de importação, escopo, atualização, duplicação e falha atômica.
 - [x] Documentar origem do cardápio e procedimentos de importação.
 - [ ] Executar testes em ambiente Django/PostgreSQL e anexar resultado.
-- [ ] Obter PDF do Canva e transcrever catálogo verdadeiro.
+- [x] Receber sete screenshots do Canva e transcrever 143 produtos em CSV.
 - [ ] Revisar preços e stations com Aderlan.
-- [ ] Aplicar no Venue real do ambiente demo, sem apagar dados anteriores.
+- [x] Integrar CSV ao comando idempotente de seed da demo (carga no PC/banco ainda pendente).
 - [ ] Validar fluxo fim a fim com um pedido de bar e outro de cozinha.
