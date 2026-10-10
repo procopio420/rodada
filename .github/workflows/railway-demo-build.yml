@@ -51,9 +51,8 @@ jobs:
             -e POSTGRES_USER=rodada_ci \
             -e POSTGRES_PASSWORD=ci-local-only \
             -e DJANGO_SECRET_KEY=ci-local-only-secret-not-used-outside-github-actions \
-            -e DEMO_GATE_PASSWORD=ci-local-only-gate-password \
             rodada-aderlan-demo:ci
-      - name: Validate startup, Basic Auth and all four pages
+      - name: Validate startup and all four pages with no browser authentication
         shell: bash
         run: |
           set -euo pipefail
@@ -64,18 +63,17 @@ jobs:
               exit 1
             fi
             code=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/staff || true)
-            if [ "$code" = "401" ]; then break; fi
+            if [ "$code" = "200" ]; then break; fi
             if [ "$i" = "120" ]; then
-              echo "Gateway did not become ready" >&2
+              echo "Application did not become ready" >&2
               docker logs rodada-demo-app --tail 150
               exit 1
             fi
             sleep 2
           done
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff)" = "401"
-          # Gateway can be listening before the separately spawned Next.js server is ready.
+          # Wait until Next.js is ready before checking application pages.
           for i in $(seq 1 60); do
-            web_code=$(curl -s -L -u rodada-demo:ci-local-only-gate-password -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff || true)
+            web_code=$(curl -s -L -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff || true)
             if [ "$web_code" = "200" ]; then break; fi
             if [ "$i" = "60" ]; then
               echo "Next.js never became ready; last /staff status: $web_code" >&2
@@ -85,7 +83,7 @@ jobs:
             sleep 2
           done
           for page in staff attendance bar kitchen manage; do
-            status=$(curl -s -L -u rodada-demo:ci-local-only-gate-password -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
+            status=$(curl -s -L -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
             echo "/$page -> HTTP $status"
             test "$status" = "200"
           done
