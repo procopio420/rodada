@@ -135,7 +135,11 @@ test("real authorization failure is visible and never becomes an empty success",
   await page.goto("/cash");
   await expect(page.locator(".notice[role=alert]")).toContainText("CAPABILITY_REQUIRED");
   await page.goto("/manage");
-  await expect(page.locator(".notice[role=alert]")).toBeVisible();
+  await expect(page.locator("div.notice[role=alert]")).toHaveText("Ação não autorizada para este operador.");
+  await expect(page.locator("div.notice[role=alert]")).toBeVisible();
+  const alerts = page.getByRole("region", { name: "Alertas operacionais" }).getByRole("alert");
+  await expect(alerts).toHaveText("Ação não autorizada para este operador.");
+  await expect(alerts).toBeVisible();
   await expect(page.getByText("Comandas abertas")).toHaveCount(0);
   await evidence(page, "manage-permission-denied");
 });

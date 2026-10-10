@@ -161,3 +161,9 @@
 **Then** WebSocket is not introduced.
 
 **And** if WebSocket is introduced, the feature documents the continuous bidirectional requirement and preserves PostgreSQL/API authority.
+
+## Android — preservação de API offline (Spec023 V06, 09/10/2026)
+
+Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
+
+Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.

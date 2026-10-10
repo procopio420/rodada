@@ -1,6 +1,24 @@
 # 023 — Paridade visual com os protótipos atualizados
 
-Estado: planejado. Data: 2026-10-08.
+Estado: em implementação; demo validada nos fluxos discriminados, paridade global aberta. Data: 2026-10-08.
+
+## Continuação autorizada — sequência completa da demo importante
+
+Primeira correção V02/V05 a verificar: Header Android atual põe identidade e três ações na mesma Row. Extrair sem alterar comportamento para teste instrumentado; reproduzir nomes longos/fonte200% antes da correção. Contrato responsivo: identidade em região superior e ações FlowRow abaixo, tokens16/12/8, targets44, callbacks/busy existentes. Instrumentação verifica cada linha de texto e ações nas seis configurações; comparar regiões com header night60px e declarar extensão, não paridade integral.
+
+O pedido posterior amplia a execução além de um único recorte. Priorizar: contratos dos cinco exports e jornadas principais; componentes/legibilidade sem refazer acabamento; Cozinha/Bar com comparações honestas; Atendimento por jornada; pico/recovery; responsividade/acessibilidade; gates e roteiro integrado. A ordem V01–V07 permanece. Cada mudança tem contrato e critério antes do código. Reutilizar a base isolada main45c4742 e PR68, com commits por slice.
+
+O objetivo demonstrativo é concluir os gates verificáveis dos fluxos existentes; não transforma diferenças visuais ainda não resolvidas em fidelidade total. Contratos de backend ausentes são dependências nas specs proprietárias. Simulações dos exports (pagamento offline, entrega/ownership sem provenance) não autorizam copiar semântica para domínio. Fontes ampliadas/header/linhas Android devem conservar conteúdo completo e alvos44dp; controles e callbacks reais preservados.
+
+Validação desta sequência usa ambiente de teste isolado: PostgreSQL dedicado separado do55459 e do banco demonstrativo, serviços Web/API em portas livres, emulador API36 isolado. Sem reset de dados existentes, merge ou implantação. Hardware, SDK privado/provider e produção exigem evidência própria e não serão declarados comprovados.
+
+## Recorte anterior — V01, night/Agora e Bar adjacente (09/10/2026)
+
+Base isolada `origin/main` em `45c4742`. Prioridade: completar o contrato de referência ausente antes de novas alterações de composição. Inventariar somente o estado inicial Agora e o painel Bar simultâneo de `night/Main.dc.html`: seletores únicos, regiões, medidas, tipografia, assets, hashes e duas capturas determinísticas. Congelar o relógio no harness; não alterar dados, estilos, HTML ou ZIP original. Classificar moldura/status bar simulada separadamente do conteúdo.
+
+Auditar V01–V07 contra código e relatórios versionados nessa base. Relatórios históricos comprovam apenas seus commits. PR61 sobrepõe apresentação Web e sessão em base própria; não importar seu trabalho. Não alterar produto/API/Android, gerar dados no banco ou executar a demo integrada neste recorte. Os demais estados night, exports system/peak/connectivity, paridade de tela e gates nativos continuam pendentes.
+
+Aceite parcial: contrato reproduzível de Agora/Bar com hashes verificados, regiões medidas e capturas repetidas byte-idênticas, acompanhado de mapa das pendências e próximo recorte. A captura HTML é simulação de referência, nunca evidência Android, hardware ou serviço real. A validação usa Chromium com fontes locais e falha em seletor ambíguo, asset ausente ou captura instável; nenhuma tolerância/baseline é alterada.
 
 ## Objetivo
 
@@ -85,3 +103,38 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 ## Continuação — acabamento compartilhado de todas as telas Web
 
 Aplicar o vocabulário já aceito na Gerência às superfícies Web existentes: entrada/sessão, Atendimento, PDV, Bar/Cozinha, Cliente, Caixa, Gerência e subpáginas de catálogo/preços/impressão/alertas, relatórios, estornos, recibo e documento histórico. Não criar ações/dados/rotas. Títulos conservam nível, texto, id, foco e nome acessível; ícones decorativos distinguem contexto operacional sem substituir ProductIcon ou rótulo. Hierarquia título/seção/subseção, bordas e sombras funcionais usam tokens. Estações conservam composição de lote/fila/passe e SVGs literais existentes; destaque de quantidade/destino/estado não muda transições. Impressos canônicos e HTML histórico no iframe permanecem intocados; só a moldura Web recebe acabamento. Nenhum contrato de API, regra financeira, autenticação ou auditoria muda. Não declarar paridade integral nas superfícies sem export. Android depende de confirmação de escopo e validação nativa própria.
+
+V06: perda real da API revelou SSE Reconnecting substituindo OFFLINE; o contrato e verificação da menor correção estão na Spec014. Manter SEM SINAL até leitura confirmada, sem executar/confirmar cobrança offline.
+
+
+## Evidência da demo atual
+
+[Relatório](../../docs/design/spec023-demo-validation.md) discrimina gates/artefatos e limites atuais. Núcleo da demo passou Web/PostgreSQL e UI Android real até fechamento de Tab/caixa de teste, incluindo OFFLINE/recovery. Paridade integral e todas jornadas internas ampliadas continuam fora do aceite comprovado; não declarar Spec023 concluída.
+
+## V02/V05 — catálogo e cobrança com fonte ampliada
+
+Verificar os componentes reais com instrumentação360/390/430 e fontes1/2 antes da correção. Linha de produto deve conservar nome completo, preço canônico em centavos, rota/disponibilidade e ação atual; não aceitar ellipsis ocultando identidade nem preço sem largura. Se confirmado clipping, nome e preço ganham linhas próprias nos tokens existentes. Diálogo de pagamento mantém decisões e footer/callbacks/busy, mas conteúdo longo deve permitir rolagem interna e preservar acesso às advertências/caixa/valor com fonte200%. Não alterar métodos, regras financeiras, provider ou confirmação offline. Extrair somente o botão de produto e tornar PaymentDialog interno para teste do componente de produção. Aceite: nomes sem ellipsis/clipping, preço legível; advertência acessível; caixa fechado não confirma; caixa ativo repassa exatamente300centavos/mesmo método/ponto; matriz nativa atual e screenshots. Paridade visual global continua aberta.
+
+Baseline360/font200 comprovou dois erros: nome de produto ellipsized e preço em coluna de caracteres; pagamento cortou métodos/advertências e footer sobreposto. Em fontScale>1.3 (mesmo limiar da navegação), footer da cobrança empilha confirmar/cancelar em largura total, gap8 existente; fonte normal conserva disposição. Conteúdo sempre rolável, sem alterar flags/decisões.
+
+V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
+
+Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.
+
+Resultado atual do recorte crítico Android: catálogo, pagamento e login com IME real corrigidos; 51unit/build/lint e48 testes instrumentados (8×6) aprovados, zero skips. 36 capturas adjacentes permanecem idênticas. [Critérios, reprodução, evidências e limites](../../docs/design/spec023-critical-fields.md). Critérios globais de paridade/jornadas internas/hardware/provider permanecem abertos.
+
+## Continuação10/10 — V04 tipografia de tickets
+
+Base main45c4742/PR68 em b1fb704, original6e2f4ca preservada. Comparação atual revela título de item24px e margem metadata8px, divergentes dos21px/6px do export. Isso quebra Bolinho em duas linhas na coluna equivalente. Experimentar somente esses dois valores; aceitar apenas se reduzir a diferença integral, caso contrário descartar; conservar destaque lateral, headings, layout dos grupos, conteúdo canônico e ações individuais. Nenhum cliente, equipamento, SLA/meter ou ação coletiva será inventado para copiar o mock.
+
+Verificação: fixture V03 antes/depois1280×800, títulos reais21px/line-height1.25/metadados6px e nome Bolinho completo numa linha; pares estáveis, hashes/fontes preservados e redução dos pixels divergentes em tickets sem tolerância nova. Cozinha/Bar adjacentes e ações individuais mantêm gates existentes. Executar types/build/auth/realtime/visual e integração PostgreSQL isolada. Comparação global ainda exige≤0.1%; regiões sem contrato funcional permanecem diferenças explícitas. Não reabrir acabamento das demais superfícies.
+
+## V05 — estorno nativo e fonte ampliada
+
+Validar jornada existente de estorno direto com dinheiro de teste e autorização do operador; não criar novo método/provider/endpoint. Antes: instrumentar RefundDialog real em360/font200 e verificar acesso a valor/motivo/PIN/decisões. Se clipping confirmado, aplicar o contrato rolável e footer ampliado já aprovado para PaymentDialog, mantendo valid/busy, PIN limpo após submit, chave idempotente estável durante a edição, centavos e caixa. Não capturar PIN/token. Testes devem conservar callback original e comando300centavos, motivo trim e mesma chave quando valor muda. Capturas antes/depois e matriz API36; fluxo real separado em PostgreSQL55523 com leitura de Refund/Payment/CashMovement/auditoria. Não alegar execução de hardware/provider nem reescrever pagamentos confirmados.
+
+Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas aumentou região16.241→17.8714%. Candidata descartada; CSS e testes de apresentação restaurados byte a byte ao head. Não aceitar nova baseline. Diferenças estruturais incluem conectividade/heading/campos canônicos distintos e múltiplas ações de P08; dependências documentadas, não copiar metadados/SLA do mock.
+
+Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lint e54instrumentados aprovados. Gates Web atuais types/build12auth/realtime197visual13PostgreSQL. [Detalhes e limites](../../docs/design/spec023-refund-validation.md). Jornada nativa financeira/readback atual são verificações separadas, sem usar HTTP como prova de UI.
+
+Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.

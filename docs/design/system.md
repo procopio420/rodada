@@ -405,6 +405,10 @@ Medição executável confirmou borda superior 1 px: laterais 127×75, botão ce
 
 ## Navegação nativa com fonte ampliada
 
+### Header operacional Android — contrato responsivo da demo
+
+O header conserva marca, nome real do operador e estado textual de conexão. Ações Pico/Atualizar/Conta são extensão operacional ausente do header literal60px do night. Em celular360–430dp, promover agrupamento em duas regiões: identidade/conexão acima e ações em FlowRow abaixo, padding horizontal16/vertical12, gap8, alvo mínimo44dp. Fonte ampliada pode aumentar altura e quebrar o nome, sem ellipsis/clipping ou redução da fonte escolhida. Busy desabilita Atualizar/Conta, mantendo toggle Pico como antes. A própria coluna mede sua altura; insets continuam no AuthApp. Nenhuma alegação de equivalência literal do header completo.
+
 Contrato de adaptação: fontScale acima de 1.3 usa AttendanceNavTokens.ExpandedHeight de 112 dp e Pedir com ícone acima do label. Até 1.3 mantém barra 84 dp. Centro 136 dp na fonte normal e 104 dp na ampliada; margens existentes permanecem, sem encolhimento artificial da fonte. Comparação HTML canônica segue em 390 dp/fontScale1. Testar 360/390/430 dp com fontScale 1 e 2 para overflow, ações e seleção.
 
 Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. Para fonte ampliada, centro adapta para 104 dp e barra 112 dp; laterais ganham largura, Pedir usa ícone acima, label lateral lineHeight 16 sp. Centro 136 e altura 84 permanecem em fontScale normal; captura canônica deve permanecer idêntica.
@@ -420,3 +424,13 @@ Token --shadow-operational: 0 4px 12px rgb(0 0 0 / .2), para camada financeira; 
 ### Hierarquia compartilhada Web (Spec023)
 
 OperationalHeading conserva h1/h2 e atributos, adiciona ícone decorativo24/20px com stroke2.2/round/currentColor; identificação do título usa accent, seções usam text-muted salvo estados danger/warning já definidos. Título34px no telefone, seção20px, subseção16px; espaçamento existente8/12/16/24. Cabeçalho com separador border e espaço16; panel funcional reutiliza shadow-operational, sem sombra cumulativa em panel aninhado. Estações conservam SVGs da referência e zonas existentes: quantidade com font-number, destino legível e estado secundário. Não alterar geometria de Field/StatusBadge ou recibo canônico. Ícones contextualizam operação; produto continua usando seu ProductIcon. Navbar do Atendimento mantém labels/callbacks e ganha icon24 + texto, sem nova navegação.
+
+### Catálogo e cobrança nativos com fonte ampliada
+
+Produto: nome completo e preço canônico em linhas próprias, sem ellipsis, dentro do OutlinedButton/Column existentes; fontes, semibold, padding e rota/disponibilidade atuais. O diálogo de pagamento conserva footer e decisões, com conteúdo vertical rolável para fontes ampliadas/teclado; sem redução de fonte, sem esconder warning e sem autorização nova. Comparar componente real e medir clipping antes/depois em API36.
+
+Cobrança: fontScale>1.3 reutiliza limiar da navegação e empilha confirmar/cancelar com largura total/gap8; até1.3 mantém footer atual. Conteúdo vertical rolável em ambas variantes. Não esconder controles/advertências ou reduzir fonte para caber. Capturar antes/depois; labels/formatadores canônicos preservados.
+
+V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
+
+Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.

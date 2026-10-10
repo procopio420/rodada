@@ -1,0 +1,7 @@
+{
+  "phase": "login",
+  "passed": true,
+  "platform": "API36 emulator",
+  "api": "real isolated PostgreSQL",
+  "payments": "MANUAL_TEST only"
+}

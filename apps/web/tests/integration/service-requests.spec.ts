@@ -40,8 +40,21 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   }
   const accessibility = await new AxeBuilder({ page: guest }).include('section[aria-labelledby="guest-service-heading"]').analyze();
   expect(accessibility.violations).toEqual([]);
+  // SSE may revoke the page and remove its refresh control before the click.
+  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
+  expect(oldSession).toBeTruthy();
   await api(`hospitality/tables/${table.id}/release/`, {});
-  await guest.getByRole("button", { name: "Atualizar comanda", exact: true }).click();
+  const revoked = await guest.evaluate(async oldSession => {
+    const response = await fetch("/api/guest/service-requests/", {
+      method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": oldSession ?? "" },
+      body: JSON.stringify({ task_type: "SERVICE_REQUEST", request_id: crypto.randomUUID() }),
+    });
+    return { status: response.status, body: await response.json() };
+  }, oldSession);
+  expect(revoked.status).toBe(403);
+  expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
+  await guest.reload();
+  await expect(guest.getByRole("heading", { name: "Não foi possível abrir o pedido" })).toBeVisible();
   await expect(call).toHaveCount(0);
   await context.close();
 });

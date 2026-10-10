@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "source": "read-only Django ORM on real isolated PostgreSQL",
+  "native_android_ui": "RUN_API36",
+  "payment_classification": "MANUAL_TEST",
+  "tab_id": "cc6be243-7198-4554-9a05-1f1d5c290bf7",
+  "tab_state": "CLOSED",
+  "order_count": 1,
+  "charges_cents": 600,
+  "payments": [
+    {
+      "amount_cents": 600,
+      "method": "CASH",
+      "status": "CONFIRMED"
+    }
+  ],
+  "open_exposure_cents": 0,
+  "payment_actor_matches_tab_operator": true,
+  "payment_confirmation_timestamp_present": true,
+  "shift_id": "474ba8c1-34ce-4b6c-9cbc-238d49e8e526",
+  "shift_status": "CLOSED",
+  "cash_expected_cents": 600,
+  "cash_counted_cents": 600,
+  "cash_discrepancy_cents": 0
+}

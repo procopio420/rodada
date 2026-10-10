@@ -1,0 +1,107 @@
+[
+  {
+    "text": "Pagar comanda",
+    "content-desc": "",
+    "bounds": "[59,88][220,122]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Subtotal original: R$ 6,00",
+    "content-desc": "",
+    "bounds": "[59,138][234,160]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Descontos: R$ 0,00 · Cortesias: R$ 0,00",
+    "content-desc": "",
+    "bounds": "[59,168][331,212]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Serviço: R$ 0,00 · Total: R$ 6,00",
+    "content-desc": "",
+    "bounds": "[59,220][278,242]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Recebido: R$ 0,00 · Estornado: R$ 0,00",
+    "content-desc": "",
+    "bounds": "[59,250][330,272]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Saldo restante: R$ 6,00",
+    "content-desc": "",
+    "bounds": "[59,280][219,302]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "6,00",
+    "content-desc": "",
+    "bounds": "[59,310][331,376]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Valor",
+    "content-desc": "",
+    "bounds": "[75,310][108,330]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "✓ Dinheiro",
+    "content-desc": "",
+    "bounds": "[156,397][234,419]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Terminal externo",
+    "content-desc": "",
+    "bounds": "[134,453][256,475]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa aberto",
+    "content-desc": "",
+    "bounds": "[59,496][151,512]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Abra ou selecione um caixa com turno ativo antes de receber dinheiro.",
+    "content-desc": "",
+    "bounds": "[59,520][331,564]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Aproximação SumUp aguarda SDK e ativação. Terminal externo disponível.",
+    "content-desc": "",
+    "bounds": "[59,572][331,616]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Confirmar pagamento",
+    "content-desc": "",
+    "bounds": "[151,657][307,679]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Cancelar",
+    "content-desc": "",
+    "bounds": "[253,713][319,735]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

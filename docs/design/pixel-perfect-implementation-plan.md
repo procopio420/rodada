@@ -3,6 +3,8 @@
 Data: 2026-10-08. Estado: planejamento, implementação pendente.
 Contrato: [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md).
 
+Auditoria atual na main45c4742: [V01 night/Agora e mapa V01–V07](v01-night-agora-inventory.md). Os números de “Estado atual” abaixo são a observação inicial deste plano, não validação da main posterior. Recorte executado: apenas contrato/capturas do estado inicial Agora e Bar adjacente, sem mudanças de produto. Próximo recorte V01: Contas/busca → detalhe da Tab, antes de completar componentes/jornada Compose.
+
 ## Objetivo e definição de pronto
 
 Reproduzir os cinco protótipos atualizados no produto real, incluindo composição, densidade, tipografia, ícones, hierarquia, dimensões e estados interativos. Compartilhar paleta é apenas o início. O plano de produto 022 continua contexto funcional; este documento é a sequência de implementação da fidelidade visual solicitada.
@@ -129,3 +131,11 @@ PRs pequenos por tela/estado: cada PR mostra referência/antes/depois/diff e reg
 [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) acompanha execução. Atualizar [audit](visual-parity-audit.md) com cobertura, métricas e diferenças abertas; atualizar [KB](prototype-integration.md) e design system quando promover padrões. Conclusão exige evidência por tela/estado, não apenas uma média de pixels do produto inteiro.
 
 Esta entrega contém o plano. Nenhuma nova fidelidade de tela foi implementada ou medida aqui; 11,2106% é evidência anterior, não resultado novo.
+
+## Validação atual da demo — main45c4742
+
+A sequência V01–V07 foi revalidada por escopo no [relatório atual](spec023-demo-validation.md). Contratos34, header responsivo, OFFLINE preservado, gates Web/Android/PostgreSQL e ensaio nativo têm evidências novas. Regiões de tickets continuam16,241%; matriz nativa verifica shell, não todas jornadas internas. Critérios de paridade global e hardware permanecem abertos. Não usar relatórios anteriores como validação do head atual.
+
+Continuação Android atual: [campos críticos, gates e limites](spec023-critical-fields.md). Não altera a pendência de paridade global V03.
+
+Continuação10/10: [estorno nativo e gates](spec023-refund-validation.md), [revisão de tickets](spec023-tickets-review.md). Candidata visual rejeitada por regressão integral; acabamento preservado. Estorno acessível na matriz ampliada54casos; checks financeiros reais discriminados no relatório.

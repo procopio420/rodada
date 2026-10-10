@@ -106,6 +106,14 @@ enum class ConnectivityState {
     OFFLINE,
 }
 
+/** SSE reconnect cannot erase a failed canonical API read. */
+internal fun ConnectivityState.onRealtimeReconnect(lastSyncedAtMillis: Long?, nowMillis: Long): ConnectivityState =
+    when {
+        this == ConnectivityState.OFFLINE -> ConnectivityState.OFFLINE
+        lastSyncedAtMillis == null || nowMillis - lastSyncedAtMillis < 30_000 -> ConnectivityState.RECONNECTING
+        else -> ConnectivityState.STALE
+    }
+
 enum class PaymentMethod(val apiValue: String, val label: String) {
     TAP_CREDIT("TAP_TO_PAY", "Aproximação crédito"),
     TAP_DEBIT("TAP_TO_PAY", "Aproximação débito"),

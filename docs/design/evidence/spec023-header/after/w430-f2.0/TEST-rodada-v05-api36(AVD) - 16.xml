@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="4" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-09T22:50:43" hostname="localhost">
+  <testsuite name="com.rodada.attendance.ui.AttendanceHeaderTest" tests="2" failures="0" errors="0" skipped="0" time="4.333" timestamp="2026-10-09T22:50:43" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="longNameAndActionsFit" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="3.017" />
+    <testcase name="busyPreservesPeakAndCanonicalConnectivity" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="1.316" />
+  </testsuite>
+  <testsuite name="com.rodada.attendance.ui.AttendanceNavigationTest" tests="2" failures="0" errors="0" skipped="0" time="3.221" timestamp="2026-10-09T22:50:43" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="busyAndAdjacentDestination" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="1.560" />
+    <testcase name="geometryAndActions" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="1.661" />
+  </testsuite>
+</testsuites>

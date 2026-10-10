@@ -1,0 +1,149 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[16,102][74,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[29,113][62,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[94,113][161,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[205,113][249,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "AGORA",
+    "content-desc": "",
+    "bounds": "[20,176][150,226]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "0 PRONTOS",
+    "content-desc": "",
+    "bounds": "[20,238][106,254]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "2 CONTAS",
+    "content-desc": "",
+    "bounds": "[295,238][370,254]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Nenhuma entrega aguardando.",
+    "content-desc": "",
+    "bounds": "[20,291][245,313]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "CONTAS ABERTAS",
+    "content-desc": "",
+    "bounds": "[20,353][158,369]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Spec023 test 1791585997",
+    "content-desc": "",
+    "bounds": "[24,405][289,436]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ABERTA · R$ 6,00 em aberto",
+    "content-desc": "",
+    "bounds": "[24,440][280,462]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Spec023 test 1791585927",
+    "content-desc": "",
+    "bounds": "[24,494][289,525]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ABERTA · R$ 0,00 em aberto",
+    "content-desc": "",
+    "bounds": "[24,529][280,551]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Mesas",
+    "content-desc": "",
+    "bounds": "[94,703][142,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa",
+    "content-desc": "",
+    "bounds": "[253,703][295,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "AGORA",
+    "content-desc": "",
+    "bounds": "[37,782][91,797]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pedir",
+    "content-desc": "",
+    "bounds": "[184,769][234,789]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "CONTAS",
+    "content-desc": "",
+    "bounds": "[296,782][357,797]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]
