@@ -828,13 +828,13 @@ private fun CorrectionDialog(
     )
 }
 
-private sealed interface RefundTarget {
+internal sealed interface RefundTarget {
     data class Payment(val payment: TabPayment) : RefundTarget
     data class Correction(val correction: RefundRequiredCorrection) : RefundTarget
 }
 
 @Composable
-private fun RefundDialog(
+internal fun RefundDialog(
     target: RefundTarget,
     payments: List<TabPayment>,
     cashPoints: List<CashPoint>,
@@ -866,11 +866,26 @@ private fun RefundDialog(
     val key = remember(target, paymentId) { UUID.randomUUID().toString() }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= maximum && amount <= selectedPaymentAvailable && selectedPayment != null
+    val expanded = LocalConfiguration.current.fontScale > 1.3f
+    @Composable fun ConfirmRefund(modifier: Modifier = Modifier) {
+        Button(
+                onClick = {
+                    val command = when (target) {
+                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
+                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
+                    }
+                    onSubmit(command, pin)
+                    pin = ""
+                },
+                modifier = modifier,
+                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
+            ) { Text("Confirmar estorno") }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Disponível para estorno: ${formatCents(maximum)}")
                 if (target is RefundTarget.Correction) {
                     Text("Correção: ${target.correction.itemName}")
@@ -899,19 +914,12 @@ private fun RefundDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val command = when (target) {
-                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
-                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
-                    }
-                    onSubmit(command, pin)
-                    pin = ""
-                },
-                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
-            ) { Text("Confirmar estorno") }
+            if (expanded) Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ConfirmRefund(Modifier.fillMaxWidth())
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) { Text("Cancelar") }
+            } else ConfirmRefund()
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+        dismissButton = { if (!expanded) TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
     )
 }
 
