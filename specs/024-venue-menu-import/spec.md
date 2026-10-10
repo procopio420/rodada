@@ -1,6 +1,6 @@
 # Spec 024 — Importação revisada de cardápio de Venue
 
-**Estado:** implementação inicial em PR; dados reais do Canva ainda pendentes de acesso/verificação.
+**Estado:** implementação e transcrição de 143 produtos em PR; preços/roteamento pendentes de aprovação do estabelecimento, testes e deploy local.
 
 ## Problema
 O Bar do Aderlan já possui cardápio publicado no Canva, mas a demo usa quatro produtos fictícios. Precisamos de um caminho repetível e seguro para promover uma transcrição humana revisada para o catálogo canônico do Rodada, sem criar um segundo catálogo.
