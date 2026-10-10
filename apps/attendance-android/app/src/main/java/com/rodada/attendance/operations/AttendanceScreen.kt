@@ -1,6 +1,9 @@
 package com.rodada.attendance.operations
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.HorizontalDivider
@@ -159,6 +162,8 @@ fun AttendanceScreen(
                             onOpenTab = { openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                            staffId = session.staffId,
+                            onServiceAction = { id, complete -> viewModel.updateServiceRequest(session, id, complete) },
                         )
                         FrontlineSection.TABS -> TabList(
                             state = state,
@@ -175,6 +180,7 @@ fun AttendanceScreen(
                             onRelease = { viewModel.releaseTable(session, it) },
                             onStartCleaning = { viewModel.startTableCleaning(session, it) },
                             onCompleteCleaning = { viewModel.completeTableCleaning(session, it) },
+                            partySizeEditor = { occupancyId -> PartySizeEditor(load = { viewModel.readPartySize(session, occupancyId) }, save = { viewModel.recordPartySize(session, occupancyId, it) }) },
                         )
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
@@ -315,30 +321,10 @@ private fun Header(
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-            Text(session.staffDisplayName, style = MaterialTheme.typography.bodySmall)
-            Text(
-                when (connectivity) {
-                    ConnectivityState.ONLINE -> "ONLINE"
-                    ConnectivityState.RECONNECTING -> "VERIFICANDO"
-                    ConnectivityState.STALE -> "DESATUALIZADO"
-                    ConnectivityState.OFFLINE -> "SEM SINAL"
-                },
-                modifier = Modifier.semantics { contentDescription = connectivity.label() },
-                style = MaterialTheme.typography.labelSmall,
-                color = if (connectivity == ConnectivityState.ONLINE) RodadaVisual.Success else RodadaVisual.Amber,
-            )
-        }
-        TextButton(onClick = onTogglePeak, modifier = Modifier.semantics { contentDescription = if (peak) "Sair do modo pico" else "Ativar modo pico" }) { Text(if (peak) "Pico ●" else "Pico", color = RodadaVisual.Amber) }
-        TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
-        OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
-    }
+    com.rodada.attendance.ui.AttendanceHeader(
+        staffName = session.staffDisplayName, connectivity = connectivity, busy = busy, peak = peak,
+        onTogglePeak = onTogglePeak, onOpenAccount = onOpenAccount, onRefresh = onRefresh,
+    )
 }
 
 @Composable
@@ -349,9 +335,22 @@ private fun TabList(
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
+    staffId: String = "",
+    onServiceAction: (String, Boolean) -> Unit = { _, _ -> },
 ) {
     val visibleTabs = tabsForSurface(state.tabs, showDeliveries)
     LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        if (showDeliveries && state.recoveryEvidence.isNotEmpty()) item {
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("PENDÊNCIAS LOCAIS", style = MaterialTheme.typography.titleMedium)
+                Text("Registros preservados no aparelho. Não representam saldo ou operação confirmada.")
+                state.recoveryEvidence.forEach { evidence ->
+                    Text(evidence.label, fontWeight = FontWeight.Bold)
+                    Text("Capturado em ${java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(evidence.capturedAtMillis))}")
+                    Text(if (evidence.reviewOnly) "Outra sessão: revisão pela gerência. Não repita a operação." else "Abra o contexto da operação e confira o resultado antes de repetir.", color = RodadaVisual.Amber)
+                }
+            }
+        }
         if (showDeliveries) item {
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
                 Text(if (peak) "MODO PICO" else "AGORA", style = MaterialTheme.typography.headlineLarge)
@@ -363,7 +362,30 @@ private fun TabList(
             }
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (showDeliveries && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries) item {
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("CHAMADAS DE ATENDIMENTO", style = MaterialTheme.typography.titleMedium)
+                state.serviceRequestsError?.let { Text(it, color = RodadaVisual.Amber) }
+                if (!state.serviceRequestsFresh && state.serviceRequestsError == null) Text("Chamadas ainda não consultadas.")
+                if (state.serviceRequestsFresh && state.serviceRequests.isEmpty()) Text("Nenhuma chamada aberta.")
+                state.pendingServiceAction?.let { pending ->
+                    Text("Resultado não confirmado. Verifique a mesma ação.", color = RodadaVisual.Amber)
+                    OutlinedButton(onClick = { onServiceAction(pending.taskId, pending.complete) }, enabled = !state.submitting && state.serviceRequestsFresh) { Text("Verificar mesma chamada") }
+                }
+            }
+        }
+        if (showDeliveries) items(state.serviceRequests, key = { "service-${it.id}" }) { task ->
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("${task.title} · ${task.destination}", style = MaterialTheme.typography.titleLarge)
+                Text(task.ageLabel, color = RodadaVisual.Muted)
+                Text(task.responsibility(staffId))
+                val enabled = !state.submitting && state.serviceRequestsFresh && !task.belongsToOther(staffId) && state.pendingServiceAction == null
+                if (task.claimedById != staffId) OutlinedButton(onClick = { onServiceAction(task.id, false) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Assumir chamada") }
+                Button(onClick = { onServiceAction(task.id, true) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Concluir chamada") }
+            }
+            HorizontalDivider(color = RodadaVisual.Border)
+        }
+        if (showDeliveries && !state.loading && state.lastSyncedAtMillis != null && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
         if (showDeliveries) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
             Row(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.background(RodadaVisual.Control).padding(horizontal = 10.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -464,17 +486,8 @@ private fun TabWorkspace(
         }
         items(availableProducts, key = { it.id }) { product ->
             val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-            OutlinedButton(onClick = { if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product }, enabled = sellable && !state.submitting && state.orderIntentId == null, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(formatCents(product.priceCents))
-                    }
-                    Text(
-                        if (sellable) product.fulfillmentStation else "${product.availability} · indisponível",
-                        color = if (sellable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
-                    )
-                }
+            CatalogProductButton(product, sellable, sellable && !state.submitting && state.orderIntentId == null) {
+                if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
             }
         }
         item {
@@ -698,7 +711,7 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
 }
 
 @Composable
-private fun PaymentDialog(
+internal fun PaymentDialog(
     tab: TabSummary,
     cashPoints: List<CashPoint>,
     busy: Boolean,
@@ -715,11 +728,19 @@ private fun PaymentDialog(
     }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= tab.exposureCents
+    val expanded = LocalConfiguration.current.fontScale > 1.3f
+    @Composable fun ConfirmPayment(modifier: Modifier = Modifier) {
+        Button(
+            onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
+            enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
+            modifier = modifier,
+        ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Pagar comanda") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Subtotal original: ${formatCents(tab.originalSubtotalCents)}")
                 Text("Descontos: ${formatCents(tab.discountsCents)} · Cortesias: ${formatCents(tab.courtesyCents)}")
                 Text("Serviço: ${formatCents(tab.serviceChargeCents)} · Total: ${formatCents(tab.payableCents)}")
@@ -749,12 +770,12 @@ private fun PaymentDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
-                enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
+            if (expanded) Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ConfirmPayment(Modifier.fillMaxWidth())
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) { Text("Cancelar") }
+            } else ConfirmPayment()
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+        dismissButton = { if (!expanded) TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
     )
 }
 
@@ -784,7 +805,7 @@ private fun CorrectionDialog(
         onDismissRequest = onDismiss,
         title = { Text("Corrigir ${item.productName}") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
                 availableActions.forEach { candidate ->
                     OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
@@ -847,13 +868,13 @@ private fun CorrectionDialog(
     )
 }
 
-private sealed interface RefundTarget {
+internal sealed interface RefundTarget {
     data class Payment(val payment: TabPayment) : RefundTarget
     data class Correction(val correction: RefundRequiredCorrection) : RefundTarget
 }
 
 @Composable
-private fun RefundDialog(
+internal fun RefundDialog(
     target: RefundTarget,
     payments: List<TabPayment>,
     cashPoints: List<CashPoint>,
@@ -885,11 +906,26 @@ private fun RefundDialog(
     val key = remember(target, paymentId) { UUID.randomUUID().toString() }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= maximum && amount <= selectedPaymentAvailable && selectedPayment != null
+    val expanded = LocalConfiguration.current.fontScale > 1.3f
+    @Composable fun ConfirmRefund(modifier: Modifier = Modifier) {
+        Button(
+                onClick = {
+                    val command = when (target) {
+                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
+                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
+                    }
+                    onSubmit(command, pin)
+                    pin = ""
+                },
+                modifier = modifier,
+                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
+            ) { Text("Confirmar estorno") }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Disponível para estorno: ${formatCents(maximum)}")
                 if (target is RefundTarget.Correction) {
                     Text("Correção: ${target.correction.itemName}")
@@ -918,19 +954,12 @@ private fun RefundDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val command = when (target) {
-                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
-                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
-                    }
-                    onSubmit(command, pin)
-                    pin = ""
-                },
-                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
-            ) { Text("Confirmar estorno") }
+            if (expanded) Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ConfirmRefund(Modifier.fillMaxWidth())
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) { Text("Cancelar") }
+            } else ConfirmRefund()
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+        dismissButton = { if (!expanded) TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
     )
 }
 
@@ -980,7 +1009,7 @@ private fun paymentStatusLabel(status: String): String =
         else -> status
     }
 
-private fun ConnectivityState.label(): String =
+internal fun ConnectivityState.label(): String =
     when (this) {
         ConnectivityState.ONLINE -> "ONLINE · API atualizada por consulta"
         ConnectivityState.RECONNECTING -> "RECONECTANDO · verificando a API"

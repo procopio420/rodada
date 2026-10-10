@@ -46,6 +46,11 @@ data class OperationsUiState(
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
     val deliveryTasks: List<DeliveryTask> = emptyList(),
+    val serviceRequests: List<ServiceRequest> = emptyList(),
+    val serviceRequestsFresh: Boolean = false,
+    val serviceRequestsError: String? = null,
+    val pendingServiceAction: ServiceRequestAction? = null,
+    val recoveryEvidence: List<RecoveryEvidence> = emptyList(),
     val tables: List<TableSummary> = emptyList(),
     val selectedTab: TabDetail? = null,
     val cart: List<CartLine> = emptyList(),
@@ -225,6 +230,12 @@ class OperationsViewModel(
         )
         refreshJob = viewModelScope.launch {
             runCatching {
+                pendingMutationIntentStore.loadFor(session).map { it.evidence() } +
+                    pendingMutationIntentStore.blockedFor(session).map { it.evidence(reviewOnly = true) }
+            }.onSuccess { state = state.copy(recoveryEvidence = it.sortedBy { row -> row.capturedAtMillis }) }
+                .onFailure { state = state.copy(recoveryEvidence = emptyList(), noticeMessage = pendingMutationIntentStore.reviewMessage(session)) }
+            readServiceRequests(session)
+            runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
                 state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
@@ -255,9 +266,32 @@ class OperationsViewModel(
         }
     }
 
+    private suspend fun readServiceRequests(session: StoredSession) {
+        runCatching { repository.serviceRequests(session) }
+            .onSuccess { state = state.copy(serviceRequests = it, serviceRequestsFresh = true, serviceRequestsError = null) }
+            .onFailure { state = state.copy(serviceRequestsFresh = false, serviceRequestsError = "Chamadas desatualizadas. Atualize antes de agir.") }
+    }
+
+    fun updateServiceRequest(session: StoredSession, taskId: String, complete: Boolean) = action {
+        if (!state.serviceRequestsFresh) error("Atualize as chamadas antes de agir.")
+        val intent = state.pendingServiceAction ?: ServiceRequestAction(taskId, complete)
+        try {
+            repository.serviceRequestAction(session, intent)
+            state = state.copy(pendingServiceAction = null, noticeMessage = if (intent.complete) "Chamada concluída." else "Chamada assumida.")
+        } catch (failure: Exception) {
+            val ambiguous = failure is IOException || (failure is OperationsApiException && failure.status >= 500)
+            state = state.copy(pendingServiceAction = if (ambiguous) intent else null)
+            if (ambiguous) error("Resultado não confirmado. Verifique a mesma chamada antes de executar outra ação.")
+            throw failure
+        } finally { readServiceRequests(session) }
+    }
+
     fun revalidateConnection(session: StoredSession) {
         viewModelScope.launch { refresh(session) }
     }
+
+    suspend fun readPartySize(session: StoredSession, occupancyId: String) = repository.partySize(session, occupancyId)
+    suspend fun recordPartySize(session: StoredSession, occupancyId: String, command: PartySizeCommand) = repository.partySize(session, occupancyId, command)
 
     fun markConnectionStale() {
         viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE) }

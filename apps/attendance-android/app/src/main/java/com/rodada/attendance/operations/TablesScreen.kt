@@ -32,6 +32,7 @@ fun TablesScreen(
     onRelease: (tableId: String) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
+    partySizeEditor: @Composable (String) -> Unit = {},
 ) {
     var occupyingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -61,6 +62,7 @@ fun TablesScreen(
                 onRelease = { onRelease(table.id) },
                 onStartCleaning = { onStartCleaning(table.id) },
                 onCompleteCleaning = { onCompleteCleaning(table.id) },
+                partySizeEditor = partySizeEditor,
             )
         }
     }
@@ -99,6 +101,7 @@ private fun TableCard(
     onRelease: () -> Unit,
     onStartCleaning: () -> Unit,
     onCompleteCleaning: () -> Unit,
+    partySizeEditor: @Composable (String) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -112,6 +115,7 @@ private fun TableCard(
             } ?: Text("Sem ocupação ativa")
             if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
             if (!canManage) return@Column
+            table.activeOccupancy?.let { occupancy -> androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) } }
             when (table.status) {
                 "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Ocupar mesa") }
                 "OCCUPIED" -> {

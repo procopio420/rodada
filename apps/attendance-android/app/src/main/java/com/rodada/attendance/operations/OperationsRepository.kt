@@ -40,11 +40,25 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
 
+    suspend fun serviceRequests(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
+        val rows = client.request("GET", "/dispatch/requests/", accessToken = it).getJSONArray("results")
+        List(rows.length()) { index -> ServiceRequest.fromJson(rows.getJSONObject(index)) }
+    }
+
+    suspend fun serviceRequestAction(session: StoredSession, intent: ServiceRequestAction) = authRepository.withAuthorizedAccess(session) {
+        client.request("POST", "/dispatch/requests/${intent.taskId}/${if (intent.complete) "complete" else "claim"}/", org.json.JSONObject(), it)
+    }
+
     suspend fun cashPoints(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::cashPoints)
 
     suspend fun tables(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::tables)
 
     suspend fun zones(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::zones)
+
+    suspend fun partySize(session: StoredSession, occupancyId: String, command: PartySizeCommand? = null) = authRepository.withAuthorizedAccess(session) {
+        val response = client.request(if (command == null) "GET" else "POST", "/hospitality/occupancies/$occupancyId/party-size/", command?.toJson(), it)
+        PartySizeSnapshot.fromJson(if (command == null) response.getJSONObject("current") else response)
+    }
 
     suspend fun occupyTable(session: StoredSession, tableId: String, tabId: String?) =
         authRepository.withAuthorizedAccess(session) { client.occupyTable(it, tableId, tabId) }
