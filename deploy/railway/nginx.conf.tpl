@@ -3,9 +3,6 @@ server {
     server_name _;
     client_max_body_size 8m;
 
-    auth_basic "Rodada - demo privada";
-    auth_basic_user_file /tmp/rodada-demo.htpasswd;
-
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
