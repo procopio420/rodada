@@ -679,3 +679,11 @@ or evidence of a completed financial reconciliation.
 Round 2 native shift readback: AGORA lists/counts only tabs whose authoritative
 state is not CLOSED. CONTAS retains historical closed tabs for authorized review
 and reopening; financial close does not hide outstanding delivery work.
+
+## Frontend pending inventory — 2026-10-10
+Agora lists readable own-context retained intents with operation kind, captured
+time and review status. This is local evidence, never a server-confirmed financial
+result. Other-session records remain review-only; unreadable storage remains
+preserved with explicit warning. No discard, adoption, automatic replay or new
+manager reconciliation command is introduced. Existing context-specific retry
+flows remain responsible for canonical verification with original identity.

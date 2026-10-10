@@ -1,5 +1,10 @@
 # Plan — Spec 003
 
+Piloto frontend 10/10: reutilizar gateways autenticados e componentes Web/Compose;
+consulta de chamadas com freshness próprio para não bloquear POS quando falhar.
+Revalidar ownership depois de mutation, manter task/action em resultado ambíguo.
+Testar apresentação de idade desconhecida e ações de outro operador bloqueadas.
+
 1. Zone + ServicePoint completos.
 2. DispatchTask e fila operacional derivada de `READY`.
 3. WebSocket/event feed.

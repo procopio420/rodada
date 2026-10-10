@@ -93,3 +93,5 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 - [x] Registrar capturas, cobertura, limites, commits e PR; atualizar prévia isolada.
 
 Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
+
+- [x] Validar pagamento/estorno/cabeçalho/catálogo com fonte ampliada no emulador (360/390/430, 200%).

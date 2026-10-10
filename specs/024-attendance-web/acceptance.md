@@ -1,4 +1,11 @@
 # Acceptance
+
+## Pilot service queue — 2026-10-10
+- [ ] Agora shows service/bill type, destination, server age (unknown when absent), and own/other/unassigned responsibility.
+- [ ] Another operator's claim disables claim/completion; server conflict reloads authoritative ownership without success.
+- [ ] Lost command response retains task/action for retry; no optimistic removal or new task is created.
+- [ ] Initial read error/stale snapshot disables mutations and never reports a measured empty queue; recovered GET restores actions.
+- [ ] Mobile long content passes touch/accessibility checks; financial gateway exclusions remain enforced.
 1. Anonymous visitors see staff login; login enters Atendimento and logout clears it.
 2. A comanda receives customized, quantity-aware orders in the canonical production pipeline.
 3. Unavailable products cannot be confirmed; ambiguous retries use the original payload/key.

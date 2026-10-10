@@ -1,5 +1,9 @@
 # Acceptance — Spec 013
 
+## Initial Web pilot setup — 2026-10-10
+- [ ] Authorized manager creates table/zone from explicit input; missing capability hides controls; lost response requires list review before another create.
+- [ ] Membership edits use current version/recent PIN; stale conflict reconsults without automatic overwrite or invented account provisioning.
+
 ## Typed configuration
 
 **Given** a manager opens Venue settings  

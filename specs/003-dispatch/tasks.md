@@ -1,5 +1,10 @@
 # Tasks — Spec 003
 
+## Frontend piloto — 10/10/2026
+- [x] Fila de chamadas Web com freshness/conflito/retry mesma identidade.
+- [x] Fila de chamadas Android com ownership, leitura independente e resultado ambíguo.
+- [x] Testes e evidência do recorte; navegação exata depende do contrato backend.
+
 - [x] Zone CRUD/config (P0: criação/listagem por Venue e associação auditada da mesa)
 - [ ] ServicePoint ativar/mover/desativar
 - [x] DispatchTask

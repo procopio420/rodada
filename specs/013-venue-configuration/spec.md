@@ -471,6 +471,16 @@ Current hardcoded/default values become typed records with behavior-preserving d
 
 ## Deliberately deferred
 
+### Initial Web pilot setup — 2026-10-10
+Gerência links to a focused setup surface using existing table/zone creation and
+staff membership read/update APIs. No provider, station or generic settings editor.
+Staff role/status edits require recent PIN and expected_version; conflicts reload
+current membership and require deliberate resubmission. Staff creation has no
+current HTTP contract and remains an explicit backend dependency. Table/zone
+creation has no request-key contract: ambiguous outcomes block resubmission until
+operator reloads and deliberately confirms the existing list was checked; no blind
+retry, dedupe by label or automatic merge. All success follows server response.
+
 - arbitrary custom roles;
 - config scripting;
 - corporate multi-Venue inheritance;

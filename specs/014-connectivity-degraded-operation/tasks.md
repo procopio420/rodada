@@ -1,5 +1,9 @@
 # Tasks — Spec 014 — Realtime, Connectivity & Degraded Operation
 
+## Frontend piloto — 10/10/2026
+- [x] Mostrar inventário local legível de pendências, sem descarte/replay automático.
+- [x] Preservar bloqueio de outra sessão/coleção ilegível e registrar dependência da revisão canônica.
+
 ## Architecture/contracts
 - [x] Define one cross-surface event envelope and versioning rules.
 - [x] Define SSE endpoint/subscription authorization by Venue/surface.

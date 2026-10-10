@@ -81,3 +81,5 @@ Priorizar componentes existentes:
 - WorkCard.
 
 Novos padrões transversais só entram no design system se não puderem ser compostos de primitives existentes.
+
+Piloto: adiar montagem de alertas até snapshot autorizado; preservar falha explícita.

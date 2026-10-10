@@ -62,3 +62,5 @@
 - [ ] Nenhum sucesso financeiro derivado só de callback local.
 - [ ] Nenhum evento inferido apresentado como observado.
 - [ ] Nenhum fechamento reescreve histórico silenciosamente.
+
+- [x] Piloto: acesso negado sem duplicar avisos de painéis não autorizados.

@@ -1,5 +1,10 @@
 # Plan — Spec 013
 
+2026-10-10: `/manage/setup` uses authenticated existing APIs, shared fields/buttons,
+explicit capability boundaries and no arbitrary JSON. Reuse typed staff role/status
+updates with PIN/version. Creation uncertainty requires canonical list inspection.
+Station safe changes, onboarding of new staff and Venue fields need backend contracts.
+
 ## Recommended sequence
 
 1. **Inventory typed config ownership**

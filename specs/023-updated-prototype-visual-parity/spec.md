@@ -85,3 +85,9 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 ## Continuação — acabamento compartilhado de todas as telas Web
 
 Aplicar o vocabulário já aceito na Gerência às superfícies Web existentes: entrada/sessão, Atendimento, PDV, Bar/Cozinha, Cliente, Caixa, Gerência e subpáginas de catálogo/preços/impressão/alertas, relatórios, estornos, recibo e documento histórico. Não criar ações/dados/rotas. Títulos conservam nível, texto, id, foco e nome acessível; ícones decorativos distinguem contexto operacional sem substituir ProductIcon ou rótulo. Hierarquia título/seção/subseção, bordas e sombras funcionais usam tokens. Estações conservam composição de lote/fila/passe e SVGs literais existentes; destaque de quantidade/destino/estado não muda transições. Impressos canônicos e HTML histórico no iframe permanecem intocados; só a moldura Web recebe acabamento. Nenhum contrato de API, regra financeira, autenticação ou auditoria muda. Não declarar paridade integral nas superfícies sem export. Android depende de confirmação de escopo e validação nativa própria.
+
+## Slice de acessibilidade para o piloto
+Pagamento e estorno Android permitem rolar o conteúdo e alcançar campos com fonte
+200%; botões empilhados evitam competição horizontal. Catálogo mantém nome completo
+e cabeçalho adapta nomes longos. Correção também permite rolagem. Preservar comandos,
+limites, PIN, idempotência e estados canônicos; não alegar paridade V07 completa.

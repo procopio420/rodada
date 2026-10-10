@@ -473,3 +473,8 @@ Visualizar uma métrica não concede capacidade de executar a mutation correspon
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+
+## Teste supervisionado: acesso negado
+Sem snapshot autorizado, a Gerência mostra a falha de acesso uma vez e não monta
+painéis dependentes. Após snapshot válido, alertas continuam com erros próprios e
+estado desatualizado explícito; falha nunca significa operação sem exceções.

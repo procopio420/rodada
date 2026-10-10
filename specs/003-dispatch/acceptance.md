@@ -1,5 +1,10 @@
 # Acceptance — Spec 003
 
+## Frontend piloto — 10/10/2026
+- [ ] Web/Android mostram tipo/destino/idade/ownership sem inventar nome ou tempo.
+- [ ] Outro operador bloqueia ações; conflito reconsulta, sem sucesso otimista.
+- [ ] Resposta ambígua permite verificar mesma task/action; consulta falha não vira fila vazia confirmada.
+
 - [ ] Ponto pode trocar de zona durante a noite.
 - [x] READY cria/atualiza uma delivery task idempotentemente.
 - [x] Staff vê idade e destino; ownership continua fora do slice inicial.

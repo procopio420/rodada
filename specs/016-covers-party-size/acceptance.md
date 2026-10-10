@@ -1,5 +1,12 @@
 # Acceptance — Spec 016
 
+## Staff Web pilot capture — 2026-10-10
+- [ ] Active occupancy shows unknown without default 1; optional capture does not block other operations.
+- [ ] 1–8/manual selector posts a positive integer, read version and stable key; canonical response alone changes displayed count.
+- [ ] Ambiguous retry preserves original count/version/reason/key and freezes editing.
+- [ ] Version conflict refreshes canonical count and asks for deliberate resubmission; no automatic overwrite.
+- [ ] Android active-occupancy chooser follows the same unknown/version/retry rules; scrollable controls remain reachable with keyboard/font enlargement.
+
 ## Unknown default
 
 **Given** an existing or new occupancy with no party-size entry  
