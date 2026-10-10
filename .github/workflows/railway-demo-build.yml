@@ -79,6 +79,58 @@ jobs:
             test "$status" = "200"
           done
           docker logs rodada-demo-app --tail 100
+      - name: Submit canonical test order and verify both production queues
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec -i rodada-demo-app python - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
+          from uuid import uuid4
+
+          BASE = "http://127.0.0.1:8000"
+
+          def api(method, path, data=None, token=None):
+              body = json.dumps(data).encode() if data is not None else None
+              headers = {"Content-Type": "application/json"}
+              if token:
+                  headers["Authorization"] = "Bearer " + token
+              req = Request(BASE + path, data=body, headers=headers, method=method)
+              try:
+                  with urlopen(req, timeout=15) as response:
+                      return response.status, json.load(response)
+              except HTTPError as error:
+                  raise AssertionError(f"{method} {path}: HTTP {error.code} {error.read().decode()[:300]}") from error
+
+          status, login = api("POST", "/auth/login/", {
+              "venue_slug": "bar-do-aderlan",
+              "login_identifier": "ana",
+              "pin": "0420",
+              "installation_id": "railway-ci-demo-smoke",
+              "platform": "WEB",
+          })
+          assert status == 200, login
+          token = login["access_token"]
+          _, catalog = api("GET", "/catalog/products/", token=token)
+          bar = next(p for p in catalog["results"] if p["fulfillment_station"] == "BAR")
+          kitchen = next(p for p in catalog["results"] if p["fulfillment_station"] == "KITCHEN")
+          status, tab = api("POST", "/tabs/", {"display_label": "CI demo smoke"}, token)
+          assert status == 201, tab
+          status, order = api("POST", f"/tabs/{tab['id']}/orders/confirm/", {
+              "idempotency_key": "railway-smoke-" + str(uuid4()),
+              "lines": [{"product_id": bar["id"], "quantity": 1},
+                        {"product_id": kitchen["id"], "quantity": 1}],
+          }, token)
+          assert status == 201 and len(order["items"]) == 2, order
+          for station, product in (("BAR", bar), ("KITCHEN", kitchen)):
+              status, queue = api("GET", f"/production/{station}/", token=token)
+              assert status == 200
+              assert any(item["order_id"] == order["id"] and
+                         item["product_id"] == product["id"]
+                         for item in queue["results"]), (station, queue)
+          print("PASS: persisted test order appears in BAR and KITCHEN production queues")
+          PY
       - name: Logs on failure
         if: failure()
         run: |
