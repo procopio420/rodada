@@ -20,8 +20,8 @@ class ImportCatalogCsvTests(TestCase):
             path = Path(folder) / "catalog.csv"
             path.write_text(content, encoding="utf-8")
             output = io.StringIO()
-            call_command("import_catalog_csv", file=str(path), venue_slug=self.venue.slug,
-                         stdout=output, *flags)
+            call_command("import_catalog_csv", "--file", str(path), "--venue-slug", self.venue.slug,
+                         *flags, stdout=output)
             return output.getvalue()
 
     def test_dry_run_then_apply_and_repeat_are_idempotent(self):
