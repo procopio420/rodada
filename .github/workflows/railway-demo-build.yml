@@ -73,6 +73,17 @@ jobs:
             sleep 2
           done
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff)" = "401"
+          # Gateway can be listening before the separately spawned Next.js server is ready.
+          for i in $(seq 1 60); do
+            web_code=$(curl -s -L -u rodada-demo:ci-local-only-gate-password -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff || true)
+            if [ "$web_code" = "200" ]; then break; fi
+            if [ "$i" = "60" ]; then
+              echo "Next.js never became ready; last /staff status: $web_code" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
           for page in staff attendance bar kitchen manage; do
             status=$(curl -s -L -u rodada-demo:ci-local-only-gate-password -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
             echo "/$page -> HTTP $status"
