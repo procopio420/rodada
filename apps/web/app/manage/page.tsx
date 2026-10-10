@@ -111,7 +111,7 @@ export default function ManagementPage() {
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
     {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
-    <OperationalAlerts />
+    {hasSnapshot && <OperationalAlerts />}
     {hasSnapshot && <>
     {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
       <ManagementSectionHeader icon="wallet" id="cash-review-title">Divergências de caixa pendentes</ManagementSectionHeader>
@@ -143,6 +143,7 @@ export default function ManagementPage() {
     </section>
 
     <div id="gestao">
+    <Link className="buttonSecondary" href="/manage/setup">Preparar mesas, zonas e equipe</Link>
     <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
     <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e salão</ManagementSectionHeader>
       {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}

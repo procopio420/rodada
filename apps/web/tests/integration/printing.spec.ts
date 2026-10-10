@@ -59,6 +59,7 @@ test("canonical order, station ticket, partial receipt, final bill and audited c
   await shared.goto(link);
   await expect(shared.locator("pre")).toContainText("RECIBO DE PAGAMENTO PARCIAL");
   await page.getByRole("button", { name: "Revogar link" }).click();
+  await expect(page.getByLabel("Link de leitura")).toHaveCount(0);
   await shared.reload();
   await expect(shared.locator("p[role=alert]")).toContainText("expirou");
   await shared.close();
