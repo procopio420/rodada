@@ -267,6 +267,7 @@ class OperationsViewModel(
     }
 
     private suspend fun readServiceRequests(session: StoredSession) {
+        state = state.copy(serviceRequestsFresh = false)
         runCatching { repository.serviceRequests(session) }
             .onSuccess { state = state.copy(serviceRequests = it, serviceRequestsFresh = true, serviceRequestsError = null) }
             .onFailure { state = state.copy(serviceRequestsFresh = false, serviceRequestsError = "Chamadas desatualizadas. Atualize antes de agir.") }
@@ -294,7 +295,7 @@ class OperationsViewModel(
     suspend fun recordPartySize(session: StoredSession, occupancyId: String, command: PartySizeCommand) = repository.partySize(session, occupancyId, command)
 
     fun markConnectionStale() {
-        viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE) }
+        viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE, serviceRequestsFresh = false) }
     }
 
     fun openTab(session: StoredSession, label: String, customerId: String? = null) = action {
@@ -791,6 +792,7 @@ class OperationsViewModel(
             }
         state = state.copy(
             errorMessage = listOf(message, suffix).filter(String::isNotBlank).joinToString(" "),
+            serviceRequestsFresh = state.serviceRequestsFresh && error !is IOException,
             connectivity =
                 when (error) {
                     is IOException -> ConnectivityState.OFFLINE

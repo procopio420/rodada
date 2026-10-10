@@ -370,7 +370,7 @@ private fun TabList(
                 if (state.serviceRequestsFresh && state.serviceRequests.isEmpty()) Text("Nenhuma chamada aberta.")
                 state.pendingServiceAction?.let { pending ->
                     Text("Resultado não confirmado. Verifique a mesma ação.", color = RodadaVisual.Amber)
-                    OutlinedButton(onClick = { onServiceAction(pending.taskId, pending.complete) }, enabled = !state.submitting && state.serviceRequestsFresh) { Text("Verificar mesma chamada") }
+                    OutlinedButton(onClick = { onServiceAction(pending.taskId, pending.complete) }, enabled = !state.loading && !state.submitting && state.serviceRequestsFresh) { Text("Verificar mesma chamada") }
                 }
             }
         }
@@ -379,7 +379,7 @@ private fun TabList(
                 Text("${task.title} · ${task.destination}", style = MaterialTheme.typography.titleLarge)
                 Text(task.ageLabel, color = RodadaVisual.Muted)
                 Text(task.responsibility(staffId))
-                val enabled = !state.submitting && state.serviceRequestsFresh && !task.belongsToOther(staffId) && state.pendingServiceAction == null
+                val enabled = !state.loading && !state.submitting && state.serviceRequestsFresh && !task.belongsToOther(staffId) && state.pendingServiceAction == null
                 if (task.claimedById != staffId) OutlinedButton(onClick = { onServiceAction(task.id, false) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Assumir chamada") }
                 Button(onClick = { onServiceAction(task.id, true) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Concluir chamada") }
             }
