@@ -7,9 +7,9 @@
 - [x] V03–V04: comparação atual Cozinha/Bar e comandos individuais; diferenças integrais ainda pendentes de paridade.
 - [x] V05 funcional: login/conta/pico/Tab/busca/carrinho/pedido/guarda de caixa/pagamento CASH manual/fechamentos em UI nativa e readback real.
 - [x] V06: pico real, OFFLINE preservado e retorno ONLINE somente com leitura confirmada.
-- [x] Responsivo/acessibilidade do header/navegação360/390/430 e fonte1/2,24 testes instrumentados.
+- [x] Responsivo/acessibilidade do header/navegação/campos críticos/estorno360/390/430 e fonte1/2,54 testes instrumentados.
 - [x] V07 local: gates atuais e roteiros PostgreSQL/emulador; unidade51, visual197, auth/realtime12, integração13.
-- [ ] Matriz de todas jornadas internas com fonte200%/teclado; estorno nativo; paridade global e hardware/provider.
+- [ ] Matriz de todas jornadas internas com fonte200%/teclado; paridade global e hardware/provider.
 - [ ] Publicação final/CI do head e evidências por commit.
 
 Resultados, ambiente, reprodução e limites: [relatório atual](../../docs/design/spec023-demo-validation.md). Cada checkbox desta seção comprova apenas seu escopo discriminado; não substitui critérios globais de paridade.
@@ -142,3 +142,5 @@ Validar jornada existente de estorno direto com dinheiro de teste e autorizaçã
 Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas aumentou região16.241→17.8714%. Candidata descartada; CSS e testes de apresentação restaurados byte a byte ao head. Não aceitar nova baseline. Diferenças estruturais incluem conectividade/heading/campos canônicos distintos e múltiplas ações de P08; dependências documentadas, não copiar metadados/SLA do mock.
 
 Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lint e54instrumentados aprovados. Gates Web atuais types/build12auth/realtime197visual13PostgreSQL. [Detalhes e limites](../../docs/design/spec023-refund-validation.md). Jornada nativa financeira/readback atual são verificações separadas, sem usar HTTP como prova de UI.
+
+Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.

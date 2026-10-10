@@ -1,0 +1,59 @@
+{
+  "platform": "API36 emulator, height844, density160",
+  "matrix": [
+    {
+      "configuration": "w360-f1.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "configuration": "w360-f2.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "configuration": "w390-f1.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "configuration": "w390-f2.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "configuration": "w430-f1.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "configuration": "w430-f2.0",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "unit_tests": 51,
+  "instrumentation_tests": 54,
+  "build_lint": "PASS",
+  "web_types_build": "PASS",
+  "web_auth_realtime": 12,
+  "web_visual": 197,
+  "web_real_postgresql_integration": 13,
+  "visual_candidate": "REJECTED, production presentation preserved",
+  "reference_hash_unchanged": true,
+  "ticket_changed_percent": 16.241,
+  "physical_hardware": "NOT_RUN",
+  "provider": "NOT_RUN"
+}

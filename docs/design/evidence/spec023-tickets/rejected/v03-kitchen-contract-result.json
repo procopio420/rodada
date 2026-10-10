@@ -1,0 +1,270 @@
+{
+  "scenario": {
+    "now": "2026-10-09T02:14:00Z",
+    "products": [
+      {
+        "id": "v03-fries",
+        "name": "Fritas",
+        "asset": "c74be2bf7ae8d32da5f77ec39f311a18.svg"
+      },
+      {
+        "id": "v03-cod",
+        "name": "Bolinho de bacalhau",
+        "asset": "1e9830bdd3cf72f57dc17c0bd356214f.svg"
+      },
+      {
+        "id": "v03-sausage",
+        "name": "Calabresa",
+        "asset": "431ed6655f8c54cccf2eea5b7faf92ca.svg"
+      },
+      {
+        "id": "v03-pork",
+        "name": "Torresmo",
+        "asset": "73ba944a476ce094605977a1b0205ec9.svg"
+      }
+    ],
+    "items": [
+      {
+        "id": "v03-item-0",
+        "order_id": "v03-order-P22",
+        "product_id": "v03-cod",
+        "product_name": "Bolinho de bacalhau",
+        "tab_label": "P22",
+        "quantity": 2,
+        "state": "PREPARING",
+        "created_at": "2026-10-09T02:00:50.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-1",
+        "order_id": "v03-order-P08",
+        "product_id": "v03-fries",
+        "product_name": "Fritas",
+        "tab_label": "P08",
+        "quantity": 1,
+        "state": "PREPARING",
+        "created_at": "2026-10-09T02:04:38.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-2",
+        "order_id": "v03-order-P08",
+        "product_id": "v03-sausage",
+        "product_name": "Calabresa",
+        "tab_label": "P08",
+        "quantity": 1,
+        "state": "PREPARING",
+        "created_at": "2026-10-09T02:04:38.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-3",
+        "order_id": "v03-order-P25",
+        "product_id": "v03-fries",
+        "product_name": "Fritas",
+        "tab_label": "P25",
+        "quantity": 2,
+        "state": "PREPARING",
+        "created_at": "2026-10-09T02:07:45.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-4",
+        "order_id": "v03-order-P41",
+        "product_id": "v03-sausage",
+        "product_name": "Calabresa",
+        "tab_label": "P41",
+        "quantity": 1,
+        "state": "PREPARING",
+        "created_at": "2026-10-09T02:09:50.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-5",
+        "order_id": "v03-order-P37",
+        "product_id": "v03-fries",
+        "product_name": "Fritas",
+        "tab_label": "P37",
+        "quantity": 1,
+        "state": "NEW",
+        "created_at": "2026-10-09T02:13:29.000Z",
+        "ready_at": null
+      },
+      {
+        "id": "v03-item-6",
+        "order_id": "v03-order-P12",
+        "product_id": "v03-sausage",
+        "product_name": "Calabresa",
+        "tab_label": "P12",
+        "quantity": 1,
+        "state": "READY",
+        "created_at": "2026-10-09T01:59:00.000Z",
+        "ready_at": "2026-10-09T02:10:20.000Z"
+      },
+      {
+        "id": "v03-item-7",
+        "order_id": "v03-order-B4",
+        "product_id": "v03-cod",
+        "product_name": "Bolinho de bacalhau",
+        "tab_label": "B4",
+        "quantity": 1,
+        "state": "READY",
+        "created_at": "2026-10-09T02:04:00.000Z",
+        "ready_at": "2026-10-09T02:12:40.000Z"
+      },
+      {
+        "id": "v03-item-8",
+        "order_id": "v03-order-P44",
+        "product_id": "v03-pork",
+        "product_name": "Torresmo",
+        "tab_label": "P44",
+        "quantity": 1,
+        "state": "PICKED_UP",
+        "created_at": "2026-10-09T02:06:00.000Z",
+        "ready_at": "2026-10-09T02:12:00.000Z"
+      }
+    ]
+  },
+  "normalized": {
+    "waitingOrders": 5,
+    "waitingItems": 6,
+    "ready": 2,
+    "transit": 1
+  },
+  "sourceSha256": "f4cccbe86677348f83a94d60083db6ae2a100f2984e43143151b7879b4d944c6",
+  "platform": "win32",
+  "browser": "145.0.7632.6",
+  "fixedClock": "2026-10-09T02:14:00Z",
+  "fonts": [
+    {
+      "archivo": true,
+      "mono": true
+    },
+    {
+      "archivo": true,
+      "mono": true
+    }
+  ],
+  "assets": [
+    {
+      "product": "v03-fries",
+      "sha256": "7895378cad0ef837d22d21150cf11d826b9b5db74814d22ca8f4853550a5b9df"
+    },
+    {
+      "product": "v03-cod",
+      "sha256": "143f477e3b2a626f940cb8b7e998996bc9c4ab956a40f7a6eb40701e21f5aeab"
+    },
+    {
+      "product": "v03-sausage",
+      "sha256": "3a30827a143ff0ebee2bb59bfeb1b11fc432194ee1b19a202f0d897ca3945be0"
+    },
+    {
+      "product": "v03-pork",
+      "sha256": "6020be0b7b76c08800d6dd6cd4e056962cfd461912ae8dd847d48cec3834e3b6"
+    }
+  ],
+  "boxes": [
+    [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 72
+      },
+      {
+        "x": 0,
+        "y": 72,
+        "width": 420,
+        "height": 728
+      },
+      {
+        "x": 420,
+        "y": 72,
+        "width": 520,
+        "height": 728
+      },
+      {
+        "x": 940,
+        "y": 72,
+        "width": 340,
+        "height": 728
+      }
+    ],
+    [
+      {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 72
+      },
+      {
+        "x": 0,
+        "y": 135,
+        "width": 420,
+        "height": 728
+      },
+      {
+        "x": 420,
+        "y": 135,
+        "width": 520,
+        "height": 728
+      },
+      {
+        "x": 940,
+        "y": 135,
+        "width": 340,
+        "height": 728
+      }
+    ]
+  ],
+  "stats": {
+    "name": "v03-kitchen-viewport",
+    "platform": "win32",
+    "width": 1280,
+    "height": 800,
+    "changedPixels": 126019,
+    "changedPercent": 12.3065
+  },
+  "regions": [
+    {
+      "name": "v03-kitchen-header",
+      "platform": "win32",
+      "width": 1280,
+      "height": 72,
+      "changedPixels": 2299,
+      "changedPercent": 2.4946
+    },
+    {
+      "name": "v03-kitchen-summary",
+      "platform": "win32",
+      "width": 420,
+      "height": 728,
+      "changedPixels": 39409,
+      "changedPercent": 12.8889
+    },
+    {
+      "name": "v03-kitchen-tickets",
+      "platform": "win32",
+      "width": 520,
+      "height": 728,
+      "changedPixels": 67654,
+      "changedPercent": 17.8714
+    },
+    {
+      "name": "v03-kitchen-pass",
+      "platform": "win32",
+      "width": 340,
+      "height": 728,
+      "changedPixels": 16661,
+      "changedPercent": 6.7312
+    }
+  ],
+  "stable": {
+    "reference": "608b5814a75482103c840c03fca8a84978bb6fe957a2b509e649fa7b494449c9",
+    "actual": "0ee0fdbc59f44553ed2b009312d30abc7bce8ca300bef9ade7ef78cc425c7d66",
+    "repeatIdentical": true
+  },
+  "equivalentData": true,
+  "equivalentLayout": false,
+  "remainingGate": 0.1
+}

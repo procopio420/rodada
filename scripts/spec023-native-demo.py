@@ -15,7 +15,7 @@ from xml.etree import ElementTree as ET
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--adb', required=True)
 p.add_argument('--serial', required=True)
-p.add_argument('--phase', choices=['login', 'tab', 'order', 'payment-guard', 'cash-open', 'payment', 'cash-close', 'inspect', 'offline', 'recovery'], required=True)
+p.add_argument('--phase', choices=['login', 'tab', 'order', 'payment-guard', 'cash-open', 'payment', 'payment-open', 'refund', 'refund-return', 'refund-repay', 'cash-close', 'inspect', 'offline', 'recovery'], required=True)
 p.add_argument('--out', required=True)
 a = p.parse_args()
 assert a.serial.startswith('emulator-'), 'Only isolated emulator accepted'
@@ -163,7 +163,7 @@ elif a.phase == 'cash-open':
     tap('Abrir caixa')
     wait('Iniciar contagem')
     capture('native-cash-open')
-elif a.phase == 'payment':
+elif a.phase in ('payment', 'payment-open'):
     tap('CONTAS')
     saved = json.loads((out/'native-tab.json').read_text(encoding='utf-8'))
     labels = [n['text'] for n in saved if n['text'].startswith('Spec023 test ')]
@@ -181,6 +181,52 @@ elif a.phase == 'payment':
     seek('R$ 0,00',up=True)
     find('Pagamentos recebidos R$ 6,00 · estornos R$ 0,00')
     capture('native-payment-confirmed')
+    if a.phase == 'payment':
+        tap('Fechar')
+        wait('Atualizar')
+        seek('Fechada',up=True)
+        capture('native-tab-closed')
+elif a.phase == 'refund':
+    seek('Estornar R$ 6,00')
+    tap('Estornar R$ 6,00')
+    wait('Estornar pagamento')
+    tap('Valor do estorno',True)
+    adb('shell','input','keyevent','KEYCODE_MOVE_END')
+    for _ in range(16): adb('shell','input','keyevent','KEYCODE_DEL')
+    adb('shell','input','text','3,00')
+    adb('shell','input','keyevent','4')
+    seek('Motivo')
+    enter('Motivo','Estorno%stest%snativo')
+    seek('Seu PIN')
+    capture('native-refund-before-pin')
+    enter('Seu PIN','2468')
+    tap('Confirmar estorno')
+    wait('Estorno confirmado.')
+    capture('native-refund-alert')
+    tap('Entendi')
+    # Existing UI keeps the cleared form open; closing it never undoes a refund.
+    tap('Cancelar')
+    wait('Atualizar')
+    seek('Já estornado: R$ 3,00')
+    capture('native-refund-confirmed')
+elif a.phase == 'refund-return':
+    # Resume only after a read-only DB check confirmed the first refund.
+    # No PIN entry or financial submission is repeated here.
+    tap('Cancelar')
+    wait('Atualizar')
+    seek('Já estornado: R$ 3,00')
+    capture('native-refund-confirmed')
+elif a.phase == 'refund-repay':
+    seek('Pagar',up=True)
+    tap('Pagar')
+    wait('Pagar comanda')
+    find('Saldo restante: R$ 3,00')
+    capture('native-refund-repay')
+    tap('Confirmar pagamento')
+    wait('Atualizar')
+    seek('R$ 0,00',up=True)
+    find('Pagamentos recebidos R$ 9,00 · estornos R$ 3,00')
+    capture('native-refund-reconciled')
     tap('Fechar')
     wait('Atualizar')
     seek('Fechada',up=True)

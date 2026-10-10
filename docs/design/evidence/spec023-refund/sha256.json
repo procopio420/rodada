@@ -1,0 +1,518 @@
+[
+  {
+    "file": "docs/design/evidence/spec023-refund/checks.json",
+    "sha256": "df5c1931082685a1e86926fc9ae632149b6105e24ef274b8599a890e5793dfe0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/before/refund-w360-f200.png",
+    "sha256": "6ae802e767154b26a1135764c351977a2723a84687732a870023bd9e9859f8ba"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/before/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "7742af64a7d9f44750248992731bbf180cca111ac90220ac9959790187514ce4"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/cash-close.result.json",
+    "sha256": "27787755fff9ad26f6c595c252b9ed46443e511b89b740381169bd147c608f18"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/cash-open.result.json",
+    "sha256": "723e358c4270146e49ebdcee5db4a153c31181bbc604162a0d87857550204e70"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/login.result.json",
+    "sha256": "1f05e668de931ad32ed575867006566b709368d50f5a54bfe829beb146eb2475"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-account.json",
+    "sha256": "31df1bdc810ccf689ccc82af6b10f4d0fe9dc8d26e211bf294cd503531dc5de4"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-account.png",
+    "sha256": "9ae3f8e43ddf919685aa5ad9206906589b500b99771351c170a64c3ef7950f16"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-agora.json",
+    "sha256": "7374d6db29aa31cfa9a4b19f05210a2d83fc6f3167ea9a9806d966d7cd796c72"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-agora.png",
+    "sha256": "edc7ae2cc007dc1e4327c3fce0a089b81300557a2959b037235ec8b2259bad37"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cart.json",
+    "sha256": "3aa895e423ab9435cf21ad554d5c3c52959374b94def1ae7de9dc94488e5bb0a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cart.png",
+    "sha256": "6edba5d0f81e68b04502cb6c9b793341c21ac9892b19d4826b966744d8c912fb"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-closed.json",
+    "sha256": "e3d3d78fbb06e135564d908eb134cc453d9ddd88fe540485b194850d7f9dcb61"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-closed.png",
+    "sha256": "9855f1bbe0c8bbc04c171f788929aa0720aaee28890cf3d0d5ab51d3342bbe5b"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-count.json",
+    "sha256": "df7ef90cbf1d3ef4ee93c0f87fda1f6df35dcd56a0ffff77e6efb1b7d384d412"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-count.png",
+    "sha256": "4a4063954bef825fee61decbe386240d08b10ddf1c7c7c988b57459b2eb78bfb"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-open.json",
+    "sha256": "ba0d06d26b9820bda32f2240c07f6a063f44c2184d619c3fb8150113df9f41aa"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-open.png",
+    "sha256": "69acae11e604c33f2c1d8b3c33d6f16607f85531c02cd661c3067e80f658678e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-received.json",
+    "sha256": "e94668ff0601a7e2b3ac72fcdabfd27632afa1f278f860bea776484a0d0698f7"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-cash-received.png",
+    "sha256": "3f8c4d6b36bd8c87be98de839a96ec41776ceabfd2223adc847ee0949edc352d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-order-confirmed.json",
+    "sha256": "b3b6bcea288f204bd04a4a571e100b2a79850419c234ced59b87f4399648a6b5"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-order-confirmed.png",
+    "sha256": "a696cecac8b4c45b0cb3b4c3537271f445b0d1566a15c21f6bc06f904f112369"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-confirmed.json",
+    "sha256": "39c66bed76981a3127cad81b0241dd5ec1fd0602b9d52238e494fa93965c3f89"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-confirmed.png",
+    "sha256": "d73df0f7cdeeda0cb6807bd80dbca6e21bb190d744019046eb2e28d9332914e6"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-guard.json",
+    "sha256": "c98cb2270cf51b82f44cd26872187f436c427bda7d7c1a740339859854bf0c68"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-guard.png",
+    "sha256": "3538f5a78e6be44ccc9b8a71cf28ffb93dfc52b0e2366a63af8c6a284fb30e3a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-manual-test.json",
+    "sha256": "9caa23ecc3837ea00bc6d2e307c5726193294800a28af70a345fb00a99e41a28"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-payment-manual-test.png",
+    "sha256": "ab2498ee4ea770879a35854965c7a78e81b4f87b7e7d042585fa293c8810b4ac"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-peak.json",
+    "sha256": "867aa834fc599b7f66571becfd64cc8090f01c11e84a3caf8448f3d31dca00a4"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-peak.png",
+    "sha256": "0c3ae98e1a51702179ec001bde69fb758f609910ce09141fa2ddde87768bc1e0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-before-pin.json",
+    "sha256": "c5c6bb4c2765358b0a4a72998ad613330438dda19e7e4ee8abccbbfc4363b90d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-before-pin.png",
+    "sha256": "b1e06489e45d3e8dc9bc6deec2720e8f4273fb36ef0221c7b7a4c5bd0df55174"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-confirmed.json",
+    "sha256": "023ac9524db8412b4d27c290ec08dbe60d3f3a38aea3e48d29baaf9af9fccb38"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-confirmed.png",
+    "sha256": "b79fb4f470e6cada54dfa6a59b4c3298e90f69a938faa6ec9c2524d07285e35d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-readback.json",
+    "sha256": "03789b6ee35d1c5a40f95de4ea0c831538df6fa0d9da30556b7f5533a53a9a97"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-reconciled.json",
+    "sha256": "ee6e50e8721476294effb84e8972d63625011e920ca48eac4e34f32774d7ee5b"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-reconciled.png",
+    "sha256": "faa143685408b1dd4a452d987cd37877ec7ab5353fea1c610455c7b7ed43abc8"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-repay.json",
+    "sha256": "78a98a656845aba1fe555aec1a03bcc1c4d9dce7c4fa0045f2e869375dfc21e0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-refund-repay.png",
+    "sha256": "af9979854603d1a3fb641fa44df96da39ac897939844c04cb6d43c81d1a98b23"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-tab-closed.json",
+    "sha256": "0b4951905bc531f1dc053d4c564a88c2d1de2c3f54a3da6da190a45bae4595ed"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-tab-closed.png",
+    "sha256": "df1a2788df14e2c717f6896246cb4a5515f4b3e0473f4e998080e400b94fdf34"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-tab.json",
+    "sha256": "d7d11752254f29d5765e49cd3fa1c8a8b3491cfa82414f76ff8573456e60aeb5"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/native-tab.png",
+    "sha256": "2ab884b9dea2673580acebfb5719b82f9318a9e867fd1e55d60ebd5ef0ff5507"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/order.result.json",
+    "sha256": "2f5137cdf745e7bb2dcfb9a48d1b60974664d00736acae244705a8bc6a682326"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/payment-guard.result.json",
+    "sha256": "9dce524f2b6f040cd70458d98077d7fa0dc56e2579b6a67a58cd40c7d3f773b9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/payment-open.result.json",
+    "sha256": "bef08ac3fc661cf3f3486607a969537e7cc84452424343e2285d33fae21bd40e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/refund-repay.result.json",
+    "sha256": "c8cf731d4fedc6790dce5ab603a89f4bbd10486c591676582476c30275eb001e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/refund-return.result.json",
+    "sha256": "bd6b5b624eff20f73e12e0e156d5f7ec703c64b22b23b58276571e97f334ecd9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/native/tab.result.json",
+    "sha256": "f3c23a0eb8a0cd08e224a6fa28db254658324f955ad1da47e9c32d74c9b4dcad"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w360-f100.png",
+    "sha256": "07da8b3c6bdc2597633825b3a7eea07ca0ef7773ab4ca3c60393463f69eb04d0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w360-f200.png",
+    "sha256": "e9e861692e250050f8fd8bf6715f28438f3d26ac5000ab0ee0a306adb5cfb444"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w390-f100.png",
+    "sha256": "b73e319cba4164e8c899795b46ad942f56b4346c8695d35ca8739f34bbe73177"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w390-f200.png",
+    "sha256": "f596c35648fee464d03d74cac81442648e3fcc17723b62f8255eb5b1566e81fa"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w430-f100.png",
+    "sha256": "5dc5a3ee662586012227a9f055923d20d459d5e1c9ff00762c52e61c691d4b54"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/catalog-w430-f200.png",
+    "sha256": "77d606c3a42f207a4b9acb6928961ead2597718d3a2c62572183c22641b089f3"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w360-f100.png",
+    "sha256": "e3022b17c5e2a1c33776800546acf6b3b5bdc2c3fbb680736ed70e20c7a43e4e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w360-f200.png",
+    "sha256": "0036c2c8fed519a7fc5e8fb37e3fad04a8aa47988587d43546fa2d9467443ee0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w390-f100.png",
+    "sha256": "8aa06cc6dec35d603188febc51560cc1fa8b33e53b3c479fb2df688fae2fa016"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w390-f200.png",
+    "sha256": "a3075eaa67660b3f0b6589ea41eda43791a483e85dc1b425fd5c28ebc6003f6a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w430-f100.png",
+    "sha256": "17c5a45a51e46d48c5c51665f1f21d5ccdc7dff88d431a06d2581c0d045bc879"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-keyboard-w430-f200.png",
+    "sha256": "5f6f7c8c4f61744f4038c4418a3da8b277436efab41d28c6654906cbd988d741"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w360-f100.png",
+    "sha256": "8f5e5bd8776208244937ecf3c0431749d6d60132b6ebe53170c1f167bf08270d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w360-f200.png",
+    "sha256": "5624da5efd786b3812b10a5dc4972990835f2a647bb31840795e240321b01271"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w390-f100.png",
+    "sha256": "d9782e77a6b079860b05965a23df82f462daac7bcf0cbb28e98d1a9a85545103"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w390-f200.png",
+    "sha256": "d945f9afb169dab98fdfd46e57ddbb8c939ee0c742648d18ab31653028239338"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w430-f100.png",
+    "sha256": "75449641c8bf85f1ce6e0d435b4eb0d98927fb8d66b9f11caa6c81c6df794ff6"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/login-w430-f200.png",
+    "sha256": "a53eacfc164916b2a70823c2d0cbef9d382e3ab91f20088ac68de1b17da120a3"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w360-f100.png",
+    "sha256": "ea6d39382ee51bb213f93ec3be6bb3437034a474856d377e12d804c838930655"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w360-f200.png",
+    "sha256": "2a5b0b097b5620db1835807da3273d90d8d4be4786c4fadb5c910feab2cb97a7"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w390-f100.png",
+    "sha256": "ea6d39382ee51bb213f93ec3be6bb3437034a474856d377e12d804c838930655"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w390-f200.png",
+    "sha256": "2a5b0b097b5620db1835807da3273d90d8d4be4786c4fadb5c910feab2cb97a7"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w430-f100.png",
+    "sha256": "ea6d39382ee51bb213f93ec3be6bb3437034a474856d377e12d804c838930655"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/payment-w430-f200.png",
+    "sha256": "2a5b0b097b5620db1835807da3273d90d8d4be4786c4fadb5c910feab2cb97a7"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w360-f100.png",
+    "sha256": "a0beec9e4fd2b915a8265137d2b87267e0e358c13414ec9f8ff69c27be3008d0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w360-f200.png",
+    "sha256": "766f08f1e0cecf9aabd7ef86d9653232c44d6bd1bdbc9720a402de8bb5209641"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w390-f100.png",
+    "sha256": "a0beec9e4fd2b915a8265137d2b87267e0e358c13414ec9f8ff69c27be3008d0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w390-f200.png",
+    "sha256": "766f08f1e0cecf9aabd7ef86d9653232c44d6bd1bdbc9720a402de8bb5209641"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w430-f100.png",
+    "sha256": "a0beec9e4fd2b915a8265137d2b87267e0e358c13414ec9f8ff69c27be3008d0"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/rodada-critical-evidence/refund-w430-f200.png",
+    "sha256": "766f08f1e0cecf9aabd7ef86d9653232c44d6bd1bdbc9720a402de8bb5209641"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w360-f1.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "adcdea0a903b763618b766c559b432dea068ab33fa9cdef71f707f6b3bfd05bb"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w360-f2.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "7fab11eef52dbd7977491e61736aa66a7b8e857a47001f271cbe750f3a992870"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w390-f1.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "b4e5aaf1463aff83d1a78e9ad8b721c9d904440fa15639942e904c9aaf12bfa9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w390-f2.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "c8a8223ac5a5c4ce8c6f687eaa543c6fa26be69a2ddcff09b35af259d934819c"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w430-f1.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "b11c5ed698f1c20599cf4a5805eff01309145a6c74be3b40d7d00e6e315fc0c9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-refund/after/w430-f2.0/TEST-rodada-v05-api36(AVD) - 16.xml",
+    "sha256": "8a94a0aa465885a24a129d6d44d333a1b8ef94c4b3e1bfacb647c69482fe3376"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-actual-full.png",
+    "sha256": "c0ed53cb36cd7ca1213c8979dd0ba410ffcafadfa8a84a32c7784b1e42a0b455"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-actual.png",
+    "sha256": "afa1efd5f7026a6cdfbbb98e886bbe193fcb3675d84ed95ea0ec7078b7c3cf37"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-contract-result.json",
+    "sha256": "9d89a807770711c133801517fe109c3e83f2977d445107173f4e9c0d0ab2b528"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-derived.html",
+    "sha256": "1b00a946f14e65050fcf1d277d9c24c29fd71c71d8efa6a0b4c07d241eb34c37"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-header.diff.png",
+    "sha256": "9c5d2ae5d44aa99ca30afef5404a8f222bbb24e78a65314f8b811eac244de83d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-header.side-by-side.png",
+    "sha256": "919a37be72113ebe9669bffe260b5b8da3d5a266c02bed81eb26b5304b99e90a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-header.stats.json",
+    "sha256": "277918641979562577fe3866f548961fc61cfd3863f3e16f8b0f62e6ad1d78a1"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-literal.png",
+    "sha256": "47035610ba95b629fe4135220cefdd64424c59795871e4bb9457293eacc52fd5"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-overlay.png",
+    "sha256": "e58de293ac4ab76aa001309bc3d830d7448e7463db60de1562468478423df2fd"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-pass.diff.png",
+    "sha256": "efdd77ef066d0ef7bf04b07431ed0498b6e220eaabbdb4eba46fbd01e9906ba3"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-pass.side-by-side.png",
+    "sha256": "e89098019ba019e4555ed49f93bd76082ab402ee3f196ca7cd9867f6b861b5cb"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-pass.stats.json",
+    "sha256": "1f7e10863f94b8ad359218633e8e69c57e9229a7e0e04d39f3af0e05d587ec5e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-reference.png",
+    "sha256": "608b5814a75482103c840c03fca8a84978bb6fe957a2b509e649fa7b494449c9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-summary.diff.png",
+    "sha256": "9669f3aeef6f1cc93be1c898077acefa33d6d56651b42f22d95621eeea954f87"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-summary.side-by-side.png",
+    "sha256": "f0254f2da4a67c17af212c4b8ef66de6cdae9f509c914198f493ce94ad2b243a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-summary.stats.json",
+    "sha256": "e930c224cf1b0f0df51ede3943db60fcc0bac9629b345cec57f9d0a7e5e516a9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-tickets.diff.png",
+    "sha256": "6469bb5546a7e00bd327427ba78d4c180f1df4d1f10185d15af4ef842760d548"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-tickets.side-by-side.png",
+    "sha256": "a0174e4e942cc40243d8e010b31bdc445283acf3572cc192fc5d83064e046e86"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-tickets.stats.json",
+    "sha256": "f7b0e30791aeec3f80d8eb1a301df1f88260edd242050449aba85e97a0a30a8d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-viewport.diff.png",
+    "sha256": "95e4e3cc5142163c7277fc94033d988dbeca2d22cc147d32428142f5d5cc55ed"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-viewport.side-by-side.png",
+    "sha256": "e21d68191a695eac2b7261f23199b77af3e981431b49da488f536d847457c2e3"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/before/v03-kitchen-viewport.stats.json",
+    "sha256": "294ed1b684454e7c2ade4a79cee3b8dd66a42562bdb12f3aad42013d94bb5eca"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-actual-full.png",
+    "sha256": "7b5d0046fd8a152568a96961c7d1974859df3d1d547bf9e20002841609f82e0d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-actual.png",
+    "sha256": "0ee0fdbc59f44553ed2b009312d30abc7bce8ca300bef9ade7ef78cc425c7d66"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-contract-result.json",
+    "sha256": "485191c091f335803623094a4b39a5afc9b41c694151572302b19c8f0c433faa"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-derived.html",
+    "sha256": "1b00a946f14e65050fcf1d277d9c24c29fd71c71d8efa6a0b4c07d241eb34c37"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-header.diff.png",
+    "sha256": "9c5d2ae5d44aa99ca30afef5404a8f222bbb24e78a65314f8b811eac244de83d"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-header.side-by-side.png",
+    "sha256": "919a37be72113ebe9669bffe260b5b8da3d5a266c02bed81eb26b5304b99e90a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-header.stats.json",
+    "sha256": "277918641979562577fe3866f548961fc61cfd3863f3e16f8b0f62e6ad1d78a1"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-literal.png",
+    "sha256": "47035610ba95b629fe4135220cefdd64424c59795871e4bb9457293eacc52fd5"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-overlay.png",
+    "sha256": "5d039a9357d3433d4f56f06735b1ce0b875356ab0f5656d7d1af4efd382fbe5f"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-pass.diff.png",
+    "sha256": "efdd77ef066d0ef7bf04b07431ed0498b6e220eaabbdb4eba46fbd01e9906ba3"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-pass.side-by-side.png",
+    "sha256": "e89098019ba019e4555ed49f93bd76082ab402ee3f196ca7cd9867f6b861b5cb"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-pass.stats.json",
+    "sha256": "1f7e10863f94b8ad359218633e8e69c57e9229a7e0e04d39f3af0e05d587ec5e"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-reference.png",
+    "sha256": "608b5814a75482103c840c03fca8a84978bb6fe957a2b509e649fa7b494449c9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-summary.diff.png",
+    "sha256": "9669f3aeef6f1cc93be1c898077acefa33d6d56651b42f22d95621eeea954f87"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-summary.side-by-side.png",
+    "sha256": "f0254f2da4a67c17af212c4b8ef66de6cdae9f509c914198f493ce94ad2b243a"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-summary.stats.json",
+    "sha256": "e930c224cf1b0f0df51ede3943db60fcc0bac9629b345cec57f9d0a7e5e516a9"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-tickets.diff.png",
+    "sha256": "63cc35f95bba1a6a86c711058d869b65212072bc6adb21cceac8138d17202f9f"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-tickets.side-by-side.png",
+    "sha256": "9f40d9e58e14c646f5fac56c9b9bf9391f1c58b85f6f0ab66ddb15d324772868"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-tickets.stats.json",
+    "sha256": "b495c9c35b1d438bebc0dc4b4ca9f59c0ef0a5a9e47ec143dc9482ddc6e8cc48"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-viewport.diff.png",
+    "sha256": "cbc5f2e5e68fbcf49cbb2b0ed2d9b9db604e26029095807ca7d13550e152364b"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-viewport.side-by-side.png",
+    "sha256": "e9675bcab7a5d59c6097b234f630563b3f581c3d4db318422433033d4d166a71"
+  },
+  {
+    "file": "docs/design/evidence/spec023-tickets/rejected/v03-kitchen-viewport.stats.json",
+    "sha256": "60c077b65b8cf99200d317271b0dd0b848b0e740a7cdba055bd7568fdea2784f"
+  }
+]

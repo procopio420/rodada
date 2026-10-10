@@ -137,3 +137,5 @@ Esta entrega contém o plano. Nenhuma nova fidelidade de tela foi implementada o
 A sequência V01–V07 foi revalidada por escopo no [relatório atual](spec023-demo-validation.md). Contratos34, header responsivo, OFFLINE preservado, gates Web/Android/PostgreSQL e ensaio nativo têm evidências novas. Regiões de tickets continuam16,241%; matriz nativa verifica shell, não todas jornadas internas. Critérios de paridade global e hardware permanecem abertos. Não usar relatórios anteriores como validação do head atual.
 
 Continuação Android atual: [campos críticos, gates e limites](spec023-critical-fields.md). Não altera a pendência de paridade global V03.
+
+Continuação10/10: [estorno nativo e gates](spec023-refund-validation.md), [revisão de tickets](spec023-tickets-review.md). Candidata visual rejeitada por regressão integral; acabamento preservado. Estorno acessível na matriz ampliada54casos; checks financeiros reais discriminados no relatório.

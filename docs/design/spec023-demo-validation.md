@@ -59,3 +59,9 @@ Contratos/referências41a42bd; header/matriz20e3649; OFFLINE/reconnectbb29b5d; r
 [Relatório atual](spec023-critical-fields.md): nome/preço de catálogo, diálogo de pagamento e acesso ao login com IME real. Matriz final ampliada para8 testes×6=48; 51unit/build/lint aprovados. 36 capturas adjacentes idênticas ao commit anterior. Evidências anteriores conservam seu escopo/commit; não reutilizar24 testes como gate desta revisão.
 
 Jornada nativa repetida após4b1a475: [readback atual](evidence/spec023-critical/native/native-readback.json) e [capturas](evidence/spec023-critical/native). Uma Order/pagamento CASH600, Tab CLOSED/saldo0, caixa600/600/diferença0. Histórico anterior não sobrescrito. Contratos75669e6 e implementação4b1a475; pagamentos MANUAL_TEST, API8144/PostgreSQL55523 reais, emulador API36.
+
+## Continuação10/10 — pendências da demo
+
+[Resultado atual e reprodução](spec023-refund-validation.md): diálogo de estorno corrigido após baseline real de clipping/PIN inacessível;54instrumentados/51unit/build/lint. Web final197visual13PostgreSQL12auth/realtime/types/build. [Tickets](spec023-tickets-review.md): experimento descartado, referência/hash e composição anterior conservados. Relatórios anteriores conservam seus commits; serviços anteriores encontrados parados nesta execução, banco demonstrativo55459 não reiniciado nem alterado. API/dispatcher próprios8144/cluster55523 e dados anteriores preservados.
+
+Estorno nativo real10/10 aprovado: [readback](evidence/spec023-refund/native/native-refund-readback.json). Recebimentos900, estorno300, charges600, exposição0; pagamento original preservado, auditoria/movimento de caixa, caixa600/600/diferença0. Essa pendência específica V05 está atendida; demais limites globais continuam discriminados no relatório atual.
