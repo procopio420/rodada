@@ -1,20 +1,22 @@
-from django.core.management.base import BaseCommand
+"""Provision the Aderlan venue and the photographed venue menu for local demo.
+
+Existing Products are intentionally not overwritten: reseeding must never reset
+an operator-edited price or operational availability on a running demo.
+"""
+from pathlib import Path
+
+from django.core.management import call_command
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from modules.catalog.models import FulfillmentStation, Product, normalize_product_name
 from modules.venue.models import Venue
 
 
-DEMO_PRODUCTS = (
-    ("Brahma 600ml", 1200, FulfillmentStation.BAR),
-    ("Fritas", 2800, FulfillmentStation.KITCHEN),
-    ("Água 500 ml", 500, FulfillmentStation.BAR),
-    ("Refrigerante lata", 700, FulfillmentStation.BAR),
-)
+MENU_CSV = Path(__file__).resolve().parents[2] / "data" / "aderlan-menu-2026-10-09.csv"
 
 
 class Command(BaseCommand):
-    help = "Cria um Venue demo e um catálogo mínimo idempotente."
+    help = "Cria o Bar do Aderlan e importa o cardápio fotografado, idempotente e sem apagar alterações."
 
     def add_arguments(self, parser):
         parser.add_argument("--venue-slug", default="bar-do-aderlan")
@@ -22,27 +24,21 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
+        if not MENU_CSV.is_file():
+            raise CommandError(f"CSV do catálogo do Aderlan indisponível: {MENU_CSV}")
         venue, _ = Venue.objects.get_or_create(
             slug=options["venue_slug"],
             defaults={"name": options["venue_name"]},
         )
-
-        created = 0
-        for name, price_cents, station in DEMO_PRODUCTS:
-            _, was_created = Product.objects.get_or_create(
-                venue=venue,
-                normalized_name=normalize_product_name(name),
-                defaults={
-                    "name": name,
-                    "price_cents": price_cents,
-                    "fulfillment_station": station,
-                    "active": True,
-                },
-            )
-            created += int(was_created)
-
+        # Existing product prices, inactive flags, icons and availability are
+        # preserved. The opt-in import command handles reviewed bulk updates.
+        call_command(
+            "import_catalog_csv",
+            "--file", str(MENU_CSV),
+            "--venue-slug", venue.slug,
+            "--apply",
+            stdout=self.stdout,
+        )
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Venue {venue.slug}: {created} produto(s) criado(s), catálogo demo pronto."
-            )
+            self.style.SUCCESS(f"Venue {venue.slug}: cardápio do Aderlan disponível no catálogo demo.")
         )
