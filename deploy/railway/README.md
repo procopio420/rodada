@@ -1,6 +1,6 @@
 # Railway temporary demo (not production)
 
-This is a password-gated **temporary** demonstration containing Django API, SSE dispatcher and Next.js in one container, plus an independent Railway-managed PostgreSQL. Committing these files does not launch any cloud service.
+This is a **temporary** demonstration containing Django API, SSE dispatcher and Next.js in one container, plus an independent Railway-managed PostgreSQL. Committing these files does not launch any cloud service.
 
 ## Create two Railway services
 
@@ -10,7 +10,6 @@ This is a password-gated **temporary** demonstration containing Django API, SSE 
 4. In app service **Variables** set:
    - `PORT` = `8080`
    - `DJANGO_SECRET_KEY` = a newly generated unique secret (do not commit)
-   - `DEMO_GATE_PASSWORD` = a unique secret password of at least 16 characters (do not commit)
    - `POSTGRES_HOST` = reference to `Postgres.PGHOST`
    - `POSTGRES_PORT` = reference to `Postgres.PGPORT`
    - `POSTGRES_DB` = reference to `Postgres.PGDATABASE`
@@ -18,15 +17,15 @@ This is a password-gated **temporary** demonstration containing Django API, SSE 
    - `POSTGRES_PASSWORD` = reference to `Postgres.PGPASSWORD`
 5. Create a Railway HTTPS public domain **on the app service only**. Do not expose the PostgreSQL service to the internet.
 6. Check **actual** build/start logs; startup runs migrations and idempotent `seed_demo`. No claims of success until Railway reports a successful deployment.
-7. Open the actual HTTPS URL, append `/staff`. In the browser password challenge, use user `rodada-demo` and the private `DEMO_GATE_PASSWORD`.
+7. Open the actual HTTPS URL, append `/staff`. There is no HTTP Basic Auth prompt: use the Rodada application login.
 8. Then sign in to Rodada with test-only Venue `bar-do-aderlan`, user `ana` PIN `0420` or `bia` PIN `1234`.
 9. Navigate to `/attendance`, `/bar`, `/kitchen`, `/manage`, `/cash` and `/reports`. Place a new order and check its production routing before saying the demo works.
 
 ## Security and limitations
 
 - Nginx is the only public listener; Next.js and Django API are reachable only inside the app container. This is **not** a Tailscale-only deployment.
-- HTTP Basic Auth protects the full demo including guest QR. It is not a customer-facing live venue deployment.
-- Public test PINs from repository are acceptable only behind an independent randomly generated outer password and on an isolated database.
+- There is **no outer HTTP Basic Auth**: the staff area uses only the Rodada application login. This is not a customer-facing live venue deployment.
+- **Security warning**: demo PINs are known in repository documentation. Anyone who knows them may access this isolated demo and create fake orders. Never place real data here, and delete the demo after presenting it.
 - Payment methods are demo/manual-only. Never claim PSP settlement, Pix or Tap on Phone.
 - Icon/media stored inside this app container are **ephemeral**. PostgreSQL data is managed separately.
 - Restart reruns migrations and seeds but does **not** reset database or any created transactions. Use one replica only.
