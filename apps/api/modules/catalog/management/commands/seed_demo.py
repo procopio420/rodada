@@ -1,11 +1,12 @@
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.db import transaction
+import os
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.cash.models import CashPoint
 from modules.house_account.models import DEMO_LIMITS, RelationshipKind, VenueRelationshipPolicy
-from modules.hospitality.models import Table, TableOccupancy, TableStatus, TabOccupancyAssignment
+from modules.hospitality.models import GuestOrderingMode, Table, TableOccupancy, TableStatus, TabOccupancyAssignment
 from modules.ordering.models import Tab
 from modules.venue.models import Venue
 
@@ -42,7 +43,8 @@ class Command(BaseCommand):
         # Only seed the visit when creating the physical table for the first time:
         # subsequent deploys must never reoccupy a released table or duplicate tabs.
         example_table, table_created = Table.objects.get_or_create(
-            venue=venue, label="01"
+            venue=venue, label="01",
+            defaults={"guest_ordering_mode": GuestOrderingMode.JOIN_ACTIVE},
         )
         if table_created:
             manager = StaffMember.objects.get(login_identifier="ana")
@@ -71,5 +73,14 @@ class Command(BaseCommand):
                 f"Mesa 01 already exists: {example_table.status}; "
                 "preserving current occupancy and tabs."
             )
+        # Permit QR-based ordering only for this isolated sample table.
+        if example_table.guest_ordering_mode != GuestOrderingMode.JOIN_ACTIVE:
+            example_table.guest_ordering_mode = GuestOrderingMode.JOIN_ACTIVE
+            example_table.save(update_fields=["guest_ordering_mode", "updated_at"])
+        sample_qr_token = os.getenv("DEMO_MESA_01_QR_TOKEN", "")
+        if sample_qr_token and len(sample_qr_token) >= 32:
+            if example_table.public_token != sample_qr_token:
+                example_table.public_token = sample_qr_token
+                example_table.save(update_fields=["public_token", "updated_at"])
         CashPoint.objects.get_or_create(venue=venue, label="Caixa principal")
         self.stdout.write(self.style.SUCCESS("Demo ready: bar-do-aderlan; Ana Gerente/0420, Bia Staff/1234."))
