@@ -5,6 +5,8 @@ from django.db import transaction
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.cash.models import CashPoint
 from modules.house_account.models import DEMO_LIMITS, RelationshipKind, VenueRelationshipPolicy
+from modules.hospitality.models import Table, TableOccupancy, TableStatus, TabOccupancyAssignment
+from modules.ordering.models import Tab
 from modules.venue.models import Venue
 
 
@@ -36,5 +38,38 @@ class Command(BaseCommand):
             staff.set_pin(pin)
             staff.save(update_fields=["display_name", "pin_hash"])
             VenueStaffMembership.objects.update_or_create(venue=venue, staff_member=staff, defaults={"role": role})
+        # Example occupied table for the Aderlan demo, without financial movements.
+        # Only seed the visit when creating the physical table for the first time:
+        # subsequent deploys must never reoccupy a released table or duplicate tabs.
+        example_table, table_created = Table.objects.get_or_create(
+            venue=venue, label="01"
+        )
+        if table_created:
+            manager = StaffMember.objects.get(login_identifier="ana")
+            example_tab = Tab.objects.create(
+                venue=venue,
+                display_label="Cliente Exemplo - Mesa 01",
+                opened_by=manager,
+                relationship_snapshot=RelationshipKind.VISITOR,
+                policy_version_snapshot=visitor_policy.version,
+                operating_limit_cents=visitor_policy.limit_cents,
+            )
+            occupancy = TableOccupancy.objects.create(
+                table=example_table, generation=example_table.access_generation
+            )
+            example_table.status = TableStatus.OCCUPIED
+            example_table.save(update_fields=["status", "updated_at"])
+            TabOccupancyAssignment.objects.create(
+                occupancy=occupancy, tab=example_tab, assigned_by=manager
+            )
+            self.stdout.write(
+                f"Mesa 01 seeded: OCCUPIED, Cliente Exemplo - Mesa 01; "
+                f"table={example_table.pk}, tab={example_tab.pk}, occupancy={occupancy.pk}"
+            )
+        else:
+            self.stdout.write(
+                f"Mesa 01 already exists: {example_table.status}; "
+                "preserving current occupancy and tabs."
+            )
         CashPoint.objects.get_or_create(venue=venue, label="Caixa principal")
         self.stdout.write(self.style.SUCCESS("Demo ready: bar-do-aderlan; Ana Gerente/0420, Bia Staff/1234."))
