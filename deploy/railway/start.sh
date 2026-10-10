@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-for name in DEMO_GATE_PASSWORD DJANGO_SECRET_KEY POSTGRES_HOST POSTGRES_PORT POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
+for name in DJANGO_SECRET_KEY POSTGRES_HOST POSTGRES_PORT POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD; do
   if [[ -z "$(printenv "$name" 2>/dev/null || true)" ]]; then
     echo "Missing required variable: $name" >&2
     exit 1
   fi
 done
-if [[ "$(printf %s "$DEMO_GATE_PASSWORD" | wc -c)" -lt 16 ]]; then
-  echo "DEMO_GATE_PASSWORD must be at least 16 characters" >&2
-  exit 1
-fi
-
 export DJANGO_ALLOWED_HOSTS="127.0.0.1,localhost"
 export RODADA_PAYMENT_SIMULATION=false
 export RODADA_API_BASE_URL=http://127.0.0.1:8000
@@ -29,11 +24,6 @@ for attempt in $(seq 1 30); do
 done
 python manage.py seed_demo
 
-umask 077
-printf '%s\n' "$DEMO_GATE_PASSWORD" | htpasswd -iB -c /tmp/rodada-demo.htpasswd rodada-demo >/dev/null
-# Nginx worker (www-data) needs read access; keep password file inaccessible to others.
-chown root:www-data /tmp/rodada-demo.htpasswd
-chmod 0640 /tmp/rodada-demo.htpasswd
 python - <<'PY'
 from pathlib import Path
 import os
@@ -59,7 +49,7 @@ cleanup() {
   wait || true
 }
 trap cleanup EXIT INT TERM
-echo "Rodada demo started behind private HTTP Basic Auth gateway"
+echo "Rodada demo started; only application-native login is required"
 wait -n "$api_pid" "$dispatcher_pid" "$web_pid" "$nginx_pid"
 echo "A required service exited; ending container for Railway restart" >&2
 exit 1
