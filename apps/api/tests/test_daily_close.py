@@ -23,6 +23,7 @@ class DailyCloseTests(TransactionTestCase):
         self.staff = StaffMember.objects.create(display_name='Manager', login_identifier='daily-manager')
         self.membership = VenueStaffMembership.objects.create(venue=self.venue, staff_member=self.staff, role='MANAGER')
         self.session = StaffSession.objects.create(venue=self.venue, staff_member=self.staff, membership=self.membership,
+            access_expires_at=timezone.now()+timedelta(minutes=15),
             expires_at=timezone.now()+timedelta(hours=1), recently_reauthenticated_at=timezone.now())
         self.actor = ActorContext.from_session(self.session)
         self.day = date(2026, 1, 2)
@@ -85,6 +86,7 @@ class DailyCloseTests(TransactionTestCase):
         other = Venue.objects.create(name='Other', slug='daily-other')
         membership = VenueStaffMembership.objects.create(venue=other, staff_member=self.staff, role='MANAGER')
         session = StaffSession.objects.create(venue=other, staff_member=self.staff, membership=membership,
+            access_expires_at=timezone.now()+timedelta(minutes=15),
             expires_at=timezone.now()+timedelta(hours=1), recently_reauthenticated_at=timezone.now())
         actor = ActorContext.from_session(session)
         with self.assertRaises(DailyCloseError) as error:
@@ -116,6 +118,7 @@ class DailyCloseTests(TransactionTestCase):
         member.role = role
         member.save(update_fields=['role'])
         session = StaffSession.objects.create(venue=venue, staff_member=self.staff, membership=member,
+            access_expires_at=timezone.now()+timedelta(minutes=15),
             expires_at=timezone.now()+timedelta(hours=1),
             recently_reauthenticated_at=timezone.now() if fresh else None)
         factory = APIRequestFactory()
@@ -171,6 +174,22 @@ class DailyCloseTests(TransactionTestCase):
         close = self.generate()
         self.assertEqual(close.status, 'INCOMPLETE')
         self.assertTrue(any(row['kind']=='OPEN_TAB' for row in close.snapshot['blockers']))
+
+    def test_domain_rejects_expired_access_and_mismatched_membership_actor(self):
+        self.session.access_expires_at = timezone.now()-timedelta(seconds=1)
+        self.session.save(update_fields=['access_expires_at'])
+        with self.assertRaises(DailyCloseError) as expired:
+            self.generate()
+        self.assertEqual(expired.exception.code, 'ACCESS_TOKEN_EXPIRED')
+        other_staff = StaffMember.objects.create(display_name='Other manager', login_identifier='daily-other-manager')
+        other_membership = VenueStaffMembership.objects.create(venue=self.venue, staff_member=other_staff, role='MANAGER')
+        self.session.membership = other_membership
+        self.session.access_expires_at = timezone.now()+timedelta(minutes=15)
+        self.session.save(update_fields=['membership', 'access_expires_at'])
+        with self.assertRaises(DailyCloseError) as mismatch:
+            self.generate()
+        self.assertEqual(mismatch.exception.code, 'AUTH_REQUIRED')
+        self.assertEqual(DailyClose.objects.count(), 0)
 
     @skipUnless(connection.vendor == 'postgresql', 'Requires real PostgreSQL isolation')
     def test_two_concurrent_generations_same_identity_create_one_close(self):
@@ -230,3 +249,35 @@ class DailyCloseTests(TransactionTestCase):
         paid = snapshot['receipts']['paid_cents']
         self.assertIn(paid, (0, 1000))
         self.assertEqual(snapshot['cash_shifts'][0]['expected_cents'], 5000+paid)
+
+    @skipUnless(connection.vendor == 'postgresql', 'Requires PostgreSQL authority lock ordering')
+    def test_membership_revocation_race_does_not_deadlock_admin_or_generate_after_prior_revoke(self):
+        from modules.access.services import update_membership_admin
+        barrier = Barrier(2)
+        def revoke():
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                return update_membership_admin(actor_session=self.session, membership_id=self.membership.pk,
+                    expected_version=1, status='REVOKED', reason='Concurrent access revocation').status
+            finally:
+                close_old_connections()
+        def generate():
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                try:
+                    self.generate('revocation-race')
+                    return 'BEFORE_REVOKE'
+                except DailyCloseError as error:
+                    return error.code
+            finally:
+                close_old_connections()
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            revocation = executor.submit(revoke)
+            observation = executor.submit(generate)
+            self.assertEqual(revocation.result(timeout=20), 'REVOKED')
+            self.assertIn(observation.result(timeout=20), ('BEFORE_REVOKE', 'SESSION_REVOKED', 'MEMBERSHIP_REVOKED'))
+        with self.assertRaises(DailyCloseError) as denied:
+            self.generate('after-revoke')
+        self.assertIn(denied.exception.code, ('SESSION_REVOKED', 'MEMBERSHIP_REVOKED'))

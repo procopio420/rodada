@@ -29,17 +29,25 @@ def _authorize(actor):
     from modules.access.models import StaffSession, DeviceRegistration
     from modules.access.capabilities import Capability, has_capability
     from modules.access.services import _session_failure, recent_reauthentication_valid
-    # Refresh and lock live authority inside the same transaction as financial
-    # observation. An earlier HTTP permission result is not a revocation guard.
-    session = StaffSession.objects.select_related('membership', 'staff_member').select_for_update().filter(
+    # Lock only the session. Admin changes lock membership/device before
+    # updating sessions; locking those rows here after session would invert
+    # their order. Authority reads share this transaction's MVCC boundary and
+    # may linearize before a concurrent revocation, never after a prior commit.
+    session = StaffSession.objects.select_related('membership', 'staff_member').select_for_update(of=('self',)).filter(
         pk=actor.session_id, venue_id=actor.venue_id, staff_member_id=actor.staff_id).first()
     if session is None or session.device_id != actor.device_id:
         raise DailyCloseError('AUTH_REQUIRED', 'Sessão válida necessária.', 401)
     if session.device_id:
-        session.device = DeviceRegistration.objects.select_for_update().get(pk=session.device_id)
+        session.device = DeviceRegistration.objects.get(pk=session.device_id)
+        if session.device.venue_id != session.venue_id:
+            raise DailyCloseError('AUTH_REQUIRED', 'Dispositivo fora deste estabelecimento.', 401)
+    if session.membership.staff_member_id != session.staff_member_id:
+        raise DailyCloseError('AUTH_REQUIRED', 'Vínculo de operador inválido.', 401)
     failure = _session_failure(session)
     if failure:
         raise DailyCloseError(failure.code, failure.message, failure.status_code)
+    if not session.access_expires_at or session.access_expires_at <= timezone.now():
+        raise DailyCloseError('ACCESS_TOKEN_EXPIRED', 'Renove a sessão antes de continuar.', 401)
     if not has_capability(session.membership, Capability.CASH_REVIEW):
         raise DailyCloseError('CAPABILITY_REQUIRED', 'Revisão financeira não autorizada.', 403)
     if not recent_reauthentication_valid(session):
@@ -59,7 +67,7 @@ def _snapshot(venue, day):
     # A shift from an earlier service still blocks honest reconciliation today.
     for shift in CashShift.objects.filter(venue=venue, business_date__lt=day, status__in=('OPEN', 'COUNTING')).order_by('id'):
         blockers.append(dict(kind='OVERDUE_CASH_SHIFT', id=str(shift.id), business_date=shift.business_date.isoformat(), status=shift.status))
-    pending = Payment.objects.filter(tab__venue=venue, created_at__lt=upper,
+    pending = Payment.objects.filter(tab__venue=venue, received_at__lt=upper,
         status__in=('CREATED', 'PENDING', 'PROCESSING', 'AUTHORIZED', 'CONFIRMATION_PENDING')).order_by('id')
     for payment in pending:
         blockers.append(dict(kind='UNRESOLVED_PAYMENT', id=str(payment.id), tab_id=str(payment.tab_id), status=payment.status))

@@ -138,6 +138,22 @@ P0 keeps baseline roles STAFF/CASHIER/MANAGER/OWNER. Venue may enable documented
 
 ## FulfillmentStations
 
+### B1 executable contract (2026-10-11)
+
+BAR/KITCHEN have typed per-Venue StationConfiguration records, enabled by
+default, with optimistic versions. Preview is advisory; apply always repeats
+authorization, version and active-work validation under the same Venue row lock
+used by order confirmation. Deactivation is blocked by undelivered confirmed
+items or unsettled production PrintJobs. Printer bindings are informational,
+not destroyed by deactivation. Routing snapshots and existing jobs are preserved.
+New orders cannot route to a disabled station; an already-committed idempotent
+order replay remains readable. No remapping or destructive deletion is offered.
+GET /management/stations/ and POST /management/stations/<station>/preview/
+and /apply/ accept only typed expected_version, enabled, label and reason fields.
+Apply requires recent reauthentication; mutations are online-only and emit an
+audited, non-sensitive configuration invalidation. Evidence remains pending
+until PostgreSQL tests and integrated CI execute.
+
 Manager can:
 - create station;
 - rename/display-order;
@@ -480,3 +496,4 @@ Current hardcoded/default values become typed records with behavior-preserving d
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+

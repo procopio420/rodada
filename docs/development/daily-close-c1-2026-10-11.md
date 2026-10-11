@@ -17,9 +17,12 @@ with `expected_version` and `reason`. Routes registered in isolated source. Read
 is `management.reports.read`; generation/review additionally require `cash.review`
 and recent reauthentication. Date-scoped receipt helper preserves PR71 payload.
 PR71 inline aggregation now calls that helper, preserving its existing response.
-Generation/review revalidate and lock live session, membership, staff and device
-authority inside the snapshot transaction, including revocation and recent PIN
-reauthentication. Unknown request fields fail validation. Open Tabs explicitly
+Generation/review lock Venue with NO KEY UPDATE, then only the session row;
+membership, staff and device authority share the coherent MVCC snapshot without
+inverting admin membership/device-to-session lock order. Access expiry, actor
+membership/device provenance, revocation and recent PIN reauthentication are
+revalidated. A concurrent observation may linearize before revocation; an
+already committed revocation always denies it. Unknown request fields fail validation. Open Tabs explicitly
 block review rather than allowing an incomplete service to appear reconciled.
 
 | Spec / AC | Implementation | Validation / actual result | Remaining | Risk |
