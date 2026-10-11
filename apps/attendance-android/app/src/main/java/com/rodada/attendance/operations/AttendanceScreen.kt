@@ -76,7 +76,7 @@ fun AttendanceScreen(
     val state = viewModel.state
     val context = LocalContext.current
     val lifecycleOwner = LocalActivity.current as? LifecycleOwner
-    DisposableEffect(lifecycleOwner, session.staffId, session.venueId) {
+    DisposableEffect(lifecycleOwner, session.staffId, session.venueId, session.deviceId, session.sessionId) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) viewModel.revalidateConnection(session)
         }
@@ -122,9 +122,9 @@ fun AttendanceScreen(
         if (correctionItemId != null && correctionItem == null) correctionItemId = null
     }
 
-    LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
+    LaunchedEffect(session.staffId, session.venueId, session.deviceId, session.sessionId) { viewModel.ensureLoaded(session) }
     val activity = LocalActivity.current as? ComponentActivity
-    DisposableEffect(session.staffId, session.venueId, activity) {
+    DisposableEffect(session.staffId, session.venueId, session.deviceId, session.sessionId, activity) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> { viewModel.refresh(session); viewModel.startRealtime(session) }
