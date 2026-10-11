@@ -262,7 +262,7 @@ export default function DailyCloseManagement() {
           </div>}
           {selected.review && <p className="notice" data-state="success">Revisado em {stamp(selected.review.reviewed_at)} · {selected.review.reason}</p>}
           {selected.status === "INCOMPLETE" && <p className="muted">Resolva os bloqueios e gere uma nova versão. Esta revisão permanecerá preservada.</p>}
-          <p className="muted">Fingerprint: <code>{selected.fingerprint}</code></p>
+          <p className="muted" style={{ overflowWrap: "anywhere" }}>Fingerprint: <code>{selected.fingerprint}</code></p>
           <div className="dataRow"><span>Correções posteriores aprovadas</span><strong>{money(selected.corrected_cash_delta_cents)}</strong></div>
         </>}
       </>}
