@@ -1,0 +1,161 @@
+name: Railway Aderlan demo Docker smoke
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/railway/**'
+      - '.github/workflows/railway-demo-build.yml'
+      - 'apps/web/**'
+      - 'apps/api/**'
+      - 'prototype/**'
+  push:
+    branches:
+      - 'deploy/railway-aderlan-demo-20261009'
+    paths:
+      - 'deploy/railway/**'
+      - '.github/workflows/railway-demo-build.yml'
+      - 'apps/web/**'
+      - 'apps/api/**'
+      - 'prototype/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build complete Railway image
+        run: docker build --progress=plain -f deploy/railway/Dockerfile -t rodada-aderlan-demo:ci .
+      - name: Start disposable private database and app
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker network create rodada-demo-ci
+          docker run -d --name rodada-demo-postgres --network rodada-demo-ci \
+            -e POSTGRES_DB=rodada_demo_ci \
+            -e POSTGRES_USER=rodada_ci \
+            -e POSTGRES_PASSWORD=ci-local-only \
+            --health-cmd="pg_isready -U rodada_ci -d rodada_demo_ci" \
+            --health-interval=3s --health-retries=30 \
+            postgres:17
+          docker run -d --name rodada-demo-app --network rodada-demo-ci \
+            -p 127.0.0.1:18080:8080 \
+            -e PORT=8080 \
+            -e POSTGRES_HOST=rodada-demo-postgres \
+            -e POSTGRES_PORT=5432 \
+            -e POSTGRES_DB=rodada_demo_ci \
+            -e POSTGRES_USER=rodada_ci \
+            -e POSTGRES_PASSWORD=ci-local-only \
+            -e DJANGO_SECRET_KEY=ci-local-only-secret-not-used-outside-github-actions \
+            rodada-aderlan-demo:ci
+      - name: Validate startup and all four pages with no browser authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            if [ "$(docker inspect -f '{{.State.Running}}' rodada-demo-app)" != true ]; then
+              echo "App container stopped before readiness" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            code=$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/staff || true)
+            if [ "$code" = "200" ]; then break; fi
+            if [ "$i" = "120" ]; then
+              echo "Application did not become ready" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
+          # Wait until Next.js is ready before checking application pages.
+          for i in $(seq 1 60); do
+            web_code=$(curl -s -L -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/staff || true)
+            if [ "$web_code" = "200" ]; then break; fi
+            if [ "$i" = "60" ]; then
+              echo "Next.js never became ready; last /staff status: $web_code" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
+          for page in staff attendance bar kitchen manage; do
+            status=$(curl -s -L -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
+            echo "/$page -> HTTP $status"
+            test "$status" = "200"
+          done
+          docker logs rodada-demo-app --tail 100
+      - name: Submit canonical test order and verify both production queues
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker exec -i rodada-demo-app python - <<'PY'
+          import json
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
+          from uuid import uuid4
+
+          BASE = "http://127.0.0.1:8000"
+
+          def api(method, path, data=None, token=None):
+              body = json.dumps(data).encode() if data is not None else None
+              headers = {"Content-Type": "application/json"}
+              if token:
+                  headers["Authorization"] = "Bearer " + token
+              req = Request(BASE + path, data=body, headers=headers, method=method)
+              try:
+                  with urlopen(req, timeout=15) as response:
+                      return response.status, json.load(response)
+              except HTTPError as error:
+                  raise AssertionError(f"{method} {path}: HTTP {error.code} {error.read().decode()[:300]}") from error
+
+          status, login = api("POST", "/auth/login/", {
+              "venue_slug": "bar-do-aderlan",
+              "login_identifier": "ana",
+              "pin": "0420",
+              "installation_id": "railway-ci-demo-smoke",
+              "platform": "WEB",
+          })
+          assert status == 200, login
+          token = login["access_token"]
+          _, catalog = api("GET", "/catalog/products/", token=token)
+          bar = next(p for p in catalog["results"] if p["fulfillment_station"] == "BAR")
+          kitchen = next(p for p in catalog["results"] if p["fulfillment_station"] == "KITCHEN")
+          # Startup must provision exactly one occupied sample physical table and tab.
+          _, tables = api("GET", "/hospitality/tables/", token=token)
+          sample = [t for t in tables["results"] if t["label"] == "01"]
+          assert len(sample) == 1, sample
+          sample = sample[0]
+          assert sample["status"] == "OCCUPIED", sample
+          assert len(sample["active_occupancy"]["tabs"]) == 1, sample
+          assert sample["active_occupancy"]["tabs"][0]["display_label"] == "Cliente Exemplo - Mesa 01", sample
+          print("PASS: Mesa 01 occupied, example customer tab assigned")
+          status, tab = api("POST", "/tabs/", {"display_label": "CI demo smoke"}, token)
+          assert status == 201, tab
+          status, order = api("POST", f"/tabs/{tab['id']}/orders/confirm/", {
+              "idempotency_key": "railway-smoke-" + str(uuid4()),
+              "lines": [{"product_id": bar["id"], "quantity": 1},
+                        {"product_id": kitchen["id"], "quantity": 1}],
+          }, token)
+          assert status == 201 and len(order["items"]) == 2, order
+          for station, product in (("BAR", bar), ("KITCHEN", kitchen)):
+              status, queue = api("GET", f"/production/{station}/", token=token)
+              assert status == 200
+              assert any(item["order_id"] == order["id"] and
+                         item["product_id"] == product["id"]
+                         for item in queue["results"]), (station, queue)
+          print("PASS: persisted test order appears in BAR and KITCHEN production queues")
+          PY
+      - name: Logs on failure
+        if: failure()
+        run: |
+          docker logs rodada-demo-app --tail 250 || true
+          docker logs rodada-demo-postgres --tail 100 || true
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f rodada-demo-app rodada-demo-postgres || true
+          docker network rm rodada-demo-ci || true
