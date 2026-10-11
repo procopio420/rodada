@@ -90,3 +90,14 @@ node_modules/@playwright/test/cli.js test`), equivalente ao script
 Logs locais: `visual-artifacts/demo-functional/runtime/pilot-{api,visual,integration}.log`.
 Capturas/relatórios ficam em `visual-artifacts/` e `apps/web/playwright-report/`.
 Sem alteração de baseline/tolerância, sem merge na main ou deploy nesta entrega.
+
+
+## Main integration follow-up - 2026-10-11
+
+Integrated main through cc7ecc7 (PR #82), including cashier method totals, guest service calls, safe station configuration, global guest policy, daily-close review/two-person correction approvals, KDS health and Android durable order recovery with upstream CI evidence.
+
+Conflict resolution preserves Spec 025 developer staff routes, progressive management navigation, party-size access and the existing service queue's stale/conflict/ambiguous-action safeguards. Service-call integration selectors now target the shared queue and verify ownership before completion. The daily-close concurrency fixture uses a separate owner to revoke the manager, preserving the self-removal prohibition.
+
+Validation: production Web build and TypeScript passed; 210 visual tests passed without baseline changes; 71 focused PostgreSQL API tests passed; migration drift check passed. Web/PostgreSQL integration: 14 cases passed in the full run, then the single service-call case passed after its selector compatibility correction (15 cases covered). Local database was backed up before five new migrations; API readiness and management HTTP checks returned 200. No demo seeding or cleanup was repeated.
+
+Android additions are integrated source and upstream evidence; native emulator/device tests were not repeated locally in this update. Provider and physical-device readiness remain subject to their existing acceptance gates.

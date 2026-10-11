@@ -138,6 +138,22 @@ P0 keeps baseline roles STAFF/CASHIER/MANAGER/OWNER. Venue may enable documented
 
 ## FulfillmentStations
 
+### B1 executable contract (2026-10-11)
+
+BAR/KITCHEN have typed per-Venue StationConfiguration records, enabled by
+default, with optimistic versions. Preview is advisory; apply always repeats
+authorization, version and active-work validation under the same Venue row lock
+used by order confirmation. Deactivation is blocked by undelivered confirmed
+items or unsettled production PrintJobs. Printer bindings are informational,
+not destroyed by deactivation. Routing snapshots and existing jobs are preserved.
+New orders cannot route to a disabled station; an already-committed idempotent
+order replay remains readable. No remapping or destructive deletion is offered.
+GET /management/stations/ and POST /management/stations/<station>/preview/
+and /apply/ accept only typed expected_version, enabled, label and reason fields.
+Apply requires recent reauthentication; mutations are online-only and emit an
+audited, non-sensitive configuration invalidation. Evidence remains pending
+until PostgreSQL tests and integrated CI execute.
+
 Manager can:
 - create station;
 - rename/display-order;
@@ -169,6 +185,21 @@ Use Spec 004:
 Deleting a Table with history is prohibited. Archive/deactivate instead.
 
 ## Guest ordering policy
+
+### B2 global emergency boundary (2026-10-11)
+
+Venue guest_mutations_blocked is a typed immediate switch, separate from
+per-table ordering modes. Its optimistic guest_policy_version prevents lost
+manager edits. GET/PATCH /management/guest-policy/ returns only blocked/version;
+PATCH requires expected_version, blocked and optional reason, authenticated
+venue.configure and live authorization revalidation. Emergency blocking does
+not require another PIN prompt. The Venue NO KEY UPDATE lock precedes guest
+session/table locks; successful blocking serializes against guest order, Tab,
+new QR session, party-size and service/bill-request mutations. Existing orders,
+financial facts and staff actions remain intact. Public context/catalog/history
+stay readable and expose only emergency_blocked and policy_version; invalidation
+contains neither guest tokens nor staff credentials. Reads may update technical
+last_seen metadata, but never bypass the block to mutate operational facts.
 
 Typed settings:
 - venue default: DISABLED | JOIN_ACTIVE | DIRECT;
@@ -490,3 +521,4 @@ retry, dedupe by label or automatic merge. All success follows server response.
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+

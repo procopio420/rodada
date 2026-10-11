@@ -3,12 +3,32 @@ import uuid
 from django.db import models
 
 
+class StationConfiguration(models.Model):
+    """Typed routing enablement; existing immutable routing is never rewritten."""
+
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    station = models.CharField(max_length=16, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
+    enabled = models.BooleanField(default=True)
+    version = models.PositiveIntegerField(default=1)
+    label = models.CharField(max_length=120, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("venue", "station"), name="venue_station_unique"),
+            models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="venue_station_valid"),
+            models.CheckConstraint(condition=models.Q(version__gte=1), name="venue_station_version_positive"),
+        ]
+
+
 class Venue(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=160)
     slug = models.SlugField(max_length=80, unique=True)
     timezone = models.CharField(max_length=64, default="America/Sao_Paulo")
     business_day_cutoff_hour = models.PositiveSmallIntegerField(default=0, db_default=0)
+    guest_mutations_blocked = models.BooleanField(default=False, db_default=False)
+    guest_policy_version = models.PositiveIntegerField(default=1, db_default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -69,3 +89,4 @@ class OperationalAlertEvent(models.Model):
 
     class Meta:
         ordering = ['occurred_at', 'id']
+

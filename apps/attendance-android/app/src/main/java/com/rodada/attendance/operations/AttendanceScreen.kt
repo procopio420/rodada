@@ -76,7 +76,7 @@ fun AttendanceScreen(
     val state = viewModel.state
     val context = LocalContext.current
     val lifecycleOwner = LocalActivity.current as? LifecycleOwner
-    DisposableEffect(lifecycleOwner, session.staffId, session.venueId) {
+    DisposableEffect(lifecycleOwner, session.staffId, session.venueId, session.deviceId, session.sessionId) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) viewModel.revalidateConnection(session)
         }
@@ -122,13 +122,13 @@ fun AttendanceScreen(
         if (correctionItemId != null && correctionItem == null) correctionItemId = null
     }
 
-    LaunchedEffect(session.staffId, session.venueId) { viewModel.ensureLoaded(session) }
+    LaunchedEffect(session.staffId, session.venueId, session.deviceId, session.sessionId) { viewModel.ensureLoaded(session) }
     val activity = LocalActivity.current as? ComponentActivity
-    DisposableEffect(session.staffId, session.venueId, activity) {
+    DisposableEffect(session.staffId, session.venueId, session.deviceId, session.sessionId, activity) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> { viewModel.refresh(session); viewModel.startRealtime(session) }
-                Lifecycle.Event.ON_STOP -> viewModel.stopRealtime()
+                Lifecycle.Event.ON_STOP -> { viewModel.stopRealtime(); viewModel.pauseOrderRecovery() }
                 else -> Unit
             }
         }
@@ -137,6 +137,7 @@ fun AttendanceScreen(
         onDispose {
             activity?.lifecycle?.removeObserver(observer)
             viewModel.stopRealtime()
+            viewModel.pauseOrderRecovery()
         }
     }
 
@@ -150,6 +151,32 @@ fun AttendanceScreen(
                 onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
+            if (state.queuedOrders.isNotEmpty()) {
+                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("${state.queuedOrders.size} PEDIDO(S) GUARDADO(S) · NÃO CONFIRMADOS",
+                            style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Amber)
+                        state.queuedOrders.take(3).forEach { intent ->
+                            Text("Comanda ${intent.tabId.take(8)} · ${OrderRecoveryPolicy.stateLabel(intent.state)}",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        val reviewCount = state.queuedOrders.count {
+                            it.state == RecoveryState.ACTION_REQUIRED || it.state == RecoveryState.FAILED_TERMINAL
+                        }
+                        if (reviewCount > 0) Text("$reviewCount requer(em) revisão da gerência. Não recrie o pedido.",
+                            color = RodadaVisual.Danger, style = MaterialTheme.typography.bodySmall)
+                        if (state.queuedOrders.any {
+                            it.state in setOf(RecoveryState.PENDING, RecoveryState.CHECKING, RecoveryState.SAFE_TO_RETRY)
+                        }) {
+                            OutlinedButton(
+                                onClick = { viewModel.revalidateConnection(session) },
+                                enabled = !state.loading && !state.submitting,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) { Text("Conferir pedidos no servidor") }
+                        }
+                    }
+                }
+            }
             Box(modifier = Modifier.weight(1f)) {
             when (val selected = state.selectedTab) {
                 null -> {

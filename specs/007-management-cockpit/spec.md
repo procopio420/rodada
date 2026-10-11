@@ -293,6 +293,21 @@ Correções pós-fechamento devem preservar histórico e gerar nova evidência/a
 
 ## MGM-012 — Fechamento mensal
 
+### Persisted daily close contract (C1, 2026-10-11)
+
+`DailyClose` is an immutable as-of snapshot, identified by Venue, business date
+and revision. Generating another revision preserves every earlier snapshot.
+Its typed financial sections contain confirmed receipts by method, confirmed
+refunds on their confirmation business date, charges, adjustments, open Tabs,
+cash shifts and blockers. An open/counting shift, pending discrepancy review or
+ambiguous payment makes it `INCOMPLETE`; no invented count or receipt is allowed.
+Review requires manager cash-review capability, recent reauthentication and the
+exact revision. Review appends authorship without changing financial JSON; stale
+facts require regeneration. A review is an as-of acknowledgement, not a freeze
+on later financial activity. Late corrections are read separately from the signed
+snapshot. PostgreSQL snapshot isolation keeps generation internally coherent.
+This API slice does not declare mobile workflow acceptance complete.
+
 Fechamento mensal não é apenas soma visual dos dias.
 
 Resumo executivo inicial:

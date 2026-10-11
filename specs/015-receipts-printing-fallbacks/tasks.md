@@ -24,6 +24,13 @@
 - [x] Installation/configuration/runbook, ADR and hardware verification checklist.
 
 ## Rollout decisions deliberately not enabled
+- [ ] D1 runtime gate: authenticated per-device heartbeat, persisted station health,
+      sustained outage/recovery, configuration version conflicts and audit; code
+      and tests added 2026-10-11, runtime/ PostgreSQL evidence still pending.
+- [ ] D2 system provenance and typed disabled-by-default fallback policy; reuse
+      initial PrintJob identity and station snapshots, integrate Spec013 active stations.
+- [ ] Web canonical-read heartbeat producer and manager health visibility with
+      browser failure injection; cache/SSE cannot declare queue healthy.
 - [ ] Real Aderlan printer model/OS/LAN/driver/code-page/cut/status verification and paper acceptance.
 - [ ] AUTO_FALLBACK after trustworthy KDS heartbeat/read-model health and threshold contract.
 - [ ] Android Bluetooth/native print adapter after actual paired-device/SDK verification.
@@ -37,3 +44,4 @@ are future projection work. Printer availability does not enter financial/KDS tr
 ## Fixtures em Windows
 
 Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
+

@@ -33,11 +33,26 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   const queue = await api("dispatch/requests/");
   const requests = queue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E");
   expect(requests.map((task: { task_type: string }) => task.task_type).sort()).toEqual(["BILL_REQUEST", "SERVICE_REQUEST"]);
+  await page.goto("/attendance");
+  await expect(page.getByRole("heading", { name: "Chamadas de atendimento" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Atendimento · Mesa Service request E2E", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pedido de conta · Mesa Service request E2E", exact: true })).toBeVisible();
   for (const request of requests) {
-    await api(`dispatch/requests/${request.id}/claim/`, {});
-    const completed = await api(`dispatch/requests/${request.id}/complete/`, {});
-    expect(completed.state).toBe("DONE");
+    const title = request.task_type === "BILL_REQUEST" ? "Pedido de conta" : "Atendimento";
+    const destination = request.destination_label;
+    const item = page.getByRole("article").filter({ has: page.getByRole("heading", { name: `${title} · ${destination}`, exact: true }) });
+    const claim = item.getByRole("button", { name: "Assumir chamada", exact: true });
+    await expect(claim).toBeVisible();
+    await claim.click();
+    await expect(item.getByText("Você está responsável")).toBeVisible();
+    const complete = item.getByRole("button", { name: "Concluir chamada", exact: true });
+    await expect(complete).toBeVisible();
+    await complete.click();
+    // Completion includes the asynchronous command and canonical queue refresh.
+    await expect(complete).toHaveCount(0);
   }
+  const completedQueue = await api("dispatch/requests/");
+  expect(completedQueue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E")).toHaveLength(0);
   const accessibility = await new AxeBuilder({ page: guest }).include('section[aria-labelledby="guest-service-heading"]').analyze();
   expect(accessibility.violations).toEqual([]);
   // SSE may revoke the page and remove its refresh control before the click.

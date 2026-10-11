@@ -23,6 +23,15 @@ type CashShift = {
 };
 
 type CashPoint = { id: string; label: string; active_shift: CashShift | null; pending_review_shift?: CashShift | null; current_business_date?: string };
+type VenuePaymentMethodSummary = {
+  scope: "VENUE_BUSINESS_DATE";
+  business_date: string;
+  paid_cents: number;
+  refunds_cents: number;
+  net_received_cents: number;
+  methods: { method: string; paid_cents: number; refunds_cents: number; net_received_cents: number; payment_count: number; refund_count: number }[];
+};
+
 type CashMovement = {
   id: string;
   kind: string;
@@ -41,6 +50,10 @@ function cents(value: string): number | null {
   return Math.round(Number(normalized) * 100);
 }
 
+function paymentMethodLabel(method: string) {
+  return ({ CASH: "Dinheiro", PIX: "Pix", CARD: "Cartão", TAP_TO_PAY: "Tap to Pay", CARD_ONLINE: "Cartão online", EXTERNAL_TERMINAL: "Maquininha externa", OTHER: "Outro" } as Record<string, string>)[method] ?? method;
+}
+
 function movementLabel(kind: string) {
   return {
     OPENING_FLOAT: "Fundo inicial",
@@ -57,6 +70,8 @@ export default function CashPage() {
   const [points, setPoints] = useState<CashPoint[]>([]);
   const [pointId, setPointId] = useState("");
   const [shift, setShift] = useState<CashShift | null>(null);
+  const [paymentSummary, setPaymentSummary] = useState<VenuePaymentMethodSummary | null>(null);
+  const [paymentSummaryUnavailable, setPaymentSummaryUnavailable] = useState(false);
   const [openingFloat, setOpeningFloat] = useState("");
   const [movementAmount, setMovementAmount] = useState("");
   const [movementReason, setMovementReason] = useState("");
@@ -79,6 +94,8 @@ export default function CashPage() {
     setLoading(true);
     setNotice(null);
     setConfirmation("");
+    setPaymentSummary(null);
+    setPaymentSummaryUnavailable(false);
     try {
     const [me, pointsResult] = await Promise.all([
       apiCall<StaffSessionView>("/api/auth/me"),
@@ -106,16 +123,30 @@ export default function CashPage() {
       setHistory(body.results); setHistoryOffset(body.next_offset);
     } else { setHistory([]); setHistoryOffset(null); }
     const active = selected?.active_shift ?? selected?.pending_review_shift ?? null;
+    let summaryDay = selected?.current_business_date ?? "";
     if (!active && !preferredShiftId) {
       setShift(null);
-      return;
+    } else {
+      const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${preferredShiftId ?? active?.id}/`);
+      if (detail.response.ok && detail.body) {
+        const loaded = detail.body as CashShift; setShift(loaded);
+        summaryDay = loaded.business_date ?? summaryDay;
+        setHistory(rows => rows.some(row => row.id === loaded.id) ? rows : [...rows, loaded]);
+      } else {
+        setShift(null);
+        setNotice(asApiError(detail.body));
+      }
     }
-    const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${preferredShiftId ?? active?.id}/`);
-    if (detail.response.ok && detail.body) {
-      const loaded = detail.body as CashShift; setShift(loaded);
-      setHistory(rows => rows.some(row => row.id === loaded.id) ? rows : [...rows, loaded]);
+    // All-method revenue belongs to the venue/day, NEVER to this drawer’s physical balance.
+    if (selected && summaryDay) {
+      try {
+        const summary = await apiCall<VenuePaymentMethodSummary>(`/api/pos/cash/received-by-method/?business_date=${encodeURIComponent(summaryDay)}`);
+        if (summary.response.ok && summary.body) setPaymentSummary(summary.body as VenuePaymentMethodSummary);
+        else setPaymentSummaryUnavailable(true);
+      } catch {
+        setPaymentSummaryUnavailable(true);
+      }
     }
-    else setNotice(asApiError(detail.body));
     } catch { setNotice({ code: "NETWORK_ERROR", message: "Não foi possível atualizar o caixa. Confira a conexão." }); }
     finally { setLoading(false); }
   // pointId is deliberately read as the current selection when no preference is supplied.
@@ -294,6 +325,25 @@ export default function CashPage() {
       <p className="muted">Você está abrindo o caixa com este valor físico. Confirme somente depois de conferir.</p>
       <button className="buttonPrimary" style={{ width: "100%" }} disabled={busy || !canOpenOrClose} onClick={() => void openShift()}>{busy ? "Abrindo…" : "Confirmar abertura"}</button>
       {!canOpenOrClose ? <p className="muted">Seu perfil não pode abrir turno de caixa.</p> : null}
+    </section> : null}
+
+    {selectedPoint && !loading ? <section className="panel" aria-label="Recebimentos por método do estabelecimento">
+      <OperationalHeading as="h2" icon="receipt">Recebimentos por método</OperationalHeading>
+      <p className="muted">Todos os caixas do estabelecimento no dia operacional selecionado. Não representa o dinheiro desta gaveta, nem confirma liquidação no provedor.</p>
+      {paymentSummaryUnavailable ? <p className="notice" role="status">Resumo indisponível. As operações de caixa continuam independentes.</p> : null}
+      {paymentSummary ? <>
+        <p className="muted">Dia operacional: {paymentSummary.business_date}</p>
+        {!paymentSummary.methods.length ? <p className="muted">Nenhum recebimento confirmado neste dia.</p> : paymentSummary.methods.map(row =>
+          <div key={row.method} className="dataRow">
+            <span>{paymentMethodLabel(row.method)} · {row.payment_count} pagamento(s){row.refund_count ? ` + ${row.refund_count} estorno(s)` : ""}</span>
+            <strong>{money(row.net_received_cents)}</strong>
+          </div>
+        )}
+        <div className="dataRow"><span>Recebimentos confirmados</span><strong>{money(paymentSummary.paid_cents)}</strong></div>
+        <div className="dataRow"><span>Estornos confirmados</span><strong>−{money(paymentSummary.refunds_cents)}</strong></div>
+        <div className="dataRow"><span>Total líquido registrado</span><strong>{money(paymentSummary.net_received_cents)}</strong></div>
+        <p className="muted">Estornos contam na data em que foram confirmados, mesmo quando o pagamento ocorreu em outro dia.</p>
+      </> : null}
     </section> : null}
 
     {shift ? <>
