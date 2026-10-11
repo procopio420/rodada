@@ -18,6 +18,15 @@
 **When** manager tries to deactivate the only KITCHEN station  
 **Then** preview/apply returns the active blockers and does not orphan those items.
 
+B1 evidence target: `tests/test_station_configuration.py` covers blockers,
+preview-to-apply changes, immutable confirmed routing, disabled mixed-order
+atomic rejection, original-key replay, optimistic conflicts, actor provenance,
+Venue isolation and PostgreSQL races. Commands on complete source:
+`python -m pytest --ds=rodada_api.settings tests/test_station_configuration.py`
+and `python manage.py makemigrations --check --dry-run` against isolated
+PostgreSQL. Implementation alone does not mark 013-003 PASS; execution and
+integrated CI remain required, management UI remains a subsequent slice.
+
 ## Service charge versioning
 
 **Given** open Tabs captured a 10% service-charge policy  
@@ -77,3 +86,4 @@
 **Given** cutoff, service policy, station and provider binding changes  
 **When** configuration history is inspected  
 **Then** actor, old/new typed state, applied/effective time and reason where required are present, with secrets redacted.
+

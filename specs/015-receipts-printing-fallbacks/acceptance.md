@@ -48,6 +48,13 @@
 
 ## Auto-fallback dedupe
 
+D1 prerequisite checks (new tests, **not yet runtime verified**): authenticated
+device/session provenance, multiple browsers per station, rejected client
+timestamps, ignored revoked observations, TTL/sustained-failure transitions,
+recovery hysteresis across gaps/restarts, version conflicts with one audit,
+and concurrent PostgreSQL observation/evaluation. D1 never enables automatic
+printing; full 015-009 remains open until D2 and browser integration pass.
+
 **Given** KDS is unhealthy and AUTO_FALLBACK enabled  
 **When** repeated health checks observe the same confirmed Order  
 **Then** only one initial logical fallback ticket is enqueued for that station/order generation.
@@ -126,3 +133,4 @@ and vendor-mandated payment receipt metadata are separate external decisions.
 Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
 
 Verificação10/10: revogação de link compartilhado deve aguardar resposta canônica de sucesso antes de recarregar a página leitora; leitor exige erro expirado e ausência do documento. Sincronizar o teste com POST share contendo revoke_id, sem timeout maior ou redução do aceite.
+

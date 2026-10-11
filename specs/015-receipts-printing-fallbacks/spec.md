@@ -228,6 +228,41 @@ KDS must not create a second OrderItem/task because a ticket was printed/reprint
 
 ## Auto-fallback
 
+### D1 detector contract — 2026-10-11 (implementation pending runtime validation)
+
+`POST /printing/kds/{BAR|KITCHEN}/heartbeat/` requires a valid device-bound
+staff session with the existing station printing capability. Body is strictly
+`queue_observed: boolean, client_version?: string`; actor, device, Venue and
+timestamps derive from authentication/server clock. `queue_observed` is the
+authenticated client's declaration that it refreshed its canonical queue, not
+proof of physical display or paper. Cached restoration and SSE messages must
+never submit a successful observation. Client clock is not accepted.
+
+Server persists one observation per Venue/station/device, retaining session
+provenance. Expired/revoked session, device, membership or station capability
+cannot keep a station healthy. Any eligible fresh device can keep its station
+healthy; one disconnected browser does not establish a station outage.
+
+Default TTL is 30 seconds; absence beyond TTL becomes SUSPECT; 90 additional
+seconds without a valid queue observation becomes UNHEALTHY. The missing window
+starts from last accepted observation + TTL, so delayed evaluation cannot erase
+an outage. Return becomes RECOVERING and requires 60 seconds of sustained fresh
+observations; a gap of TTL resets recovery. Persisted timestamps survive API
+worker restarts. Row locks serialize detector/heartbeat/configuration updates.
+
+`GET /printing/kds/` projects both stations for print managers.
+`POST /printing/kds/{station}/detector/` requires print management, expected
+configuration version, all typed thresholds and reason. Conflict returns 409;
+successful changes increment version and record actor/before/after/time/reason.
+New threshold configuration starts a new monitoring window.
+
+D1 always reports `auto_fallback_enabled=false`; no activation endpoint,
+automatic PrintJob creation, Web heartbeat producer or hardware certification
+is delivered by this slice. D2 consumes Spec013 station configuration and must
+resolve explicit system requester provenance before generating automatic jobs.
+Existing manual printing, snapshots, reprint permissions and spool semantics
+remain unchanged. This detector alone does not satisfy 015-009.
+
 AUTO_FALLBACK may trigger when:
 - station KDS heartbeat/read-model is unhealthy beyond threshold;
 - API is healthy and Order is canonical;
@@ -505,3 +540,4 @@ not inferred from an unverified Aderlan printer model.
 ## Fixtures em Windows
 
 Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
+

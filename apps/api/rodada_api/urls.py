@@ -1,3 +1,4 @@
+from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -17,6 +18,7 @@ from modules.corrections.views import (
 )
 from modules.catalog.views import (ProductAvailabilityView, ProductListView, ProductSuggestView, ProductResolveView, LegacyProductResolveView, ProductEditView, ProductIconManageView, PublishedIconAssetView)
 from modules.management.views import (CalendarView, ReportView, AlertListView, AlertDetailView, AlertPolicyView)
+from modules.venue.station_views import StationListView, StationPreviewView, StationApplyView
 from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
     PartySizeView,
@@ -91,6 +93,9 @@ from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 
 urlpatterns = [
+    path("management/daily-closes/", DailyCloseListView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/", DailyCloseDetailView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/review/", DailyCloseReviewView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
     path("printing/", include("modules.documents_printing.urls")),
@@ -121,6 +126,9 @@ urlpatterns = [
     path("cash/shifts/history/", CashShiftListView.as_view()),
     path("cash/received-by-method/", CashPaymentMethodSummaryView.as_view(), name="cash-received-by-method"),
     path("management/alerts/", AlertListView.as_view()),
+    path("management/stations/", StationListView.as_view()),
+    path("management/stations/<str:station>/preview/", StationPreviewView.as_view()),
+    path("management/stations/<str:station>/apply/", StationApplyView.as_view()),
     path("management/alerts/<uuid:alert_id>/", AlertDetailView.as_view()),
     path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
@@ -199,3 +207,4 @@ urlpatterns = [
     path("cash/shifts/<uuid:shift_id>/review/", CashReviewView.as_view(), name="cash-review"),
     path("cash/shifts/<uuid:shift_id>/late-corrections/", CashLateCorrectionView.as_view(), name="cash-late-correction"),
 ]
+
