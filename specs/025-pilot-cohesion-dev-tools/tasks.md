@@ -1,8 +1,8 @@
 # Tarefas
-- [ ] Seções reais e detalhes progressivos na Gerência.
-- [ ] Atalhos/contexto e volta entre telas existentes.
-- [ ] Criar/listar/alterar/remover acesso staff em DEV autorizado.
-- [ ] Idempotência, PIN recente, último OWNER, conflitos/segredos.
-- [ ] Backup e limpeza local auditada; catálogo padronizado.
-- [ ] Histórico de comandas recolhido por padrão.
-- [ ] Gates Web/API e documentação das próximas prioridades.
+- [x] Seções reais e detalhes progressivos na Gerência.
+- [x] Atalhos/contexto e volta entre telas existentes.
+- [x] Criar/listar/alterar/remover acesso staff em DEV autorizado.
+- [x] Idempotência, PIN recente, último OWNER, conflitos/segredos.
+- [x] Backup e limpeza local auditada; catálogo padronizado.
+- [x] Histórico de comandas recolhido por padrão.
+- [x] Gates Web/API e documentação das próximas prioridades.

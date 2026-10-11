@@ -149,3 +149,14 @@ Quatro logins verificados em navegador real: ana/bia no bar-do-aderlan e
 release-owner/release-staff no release-demo. Doze superfícies operacionais abertas
 sem avisos de erro, e QR de teste preservado. Essas são contas e dados locais de
 ensaio, não credenciais nem homologação de produção.
+
+
+## Coesão e DEV local em 11/10
+
+[Entrega Spec025 e prioridades atuais](pilot-cohesion-2026-10-11.md): Gerência por
+seções, cadastros em páginas próprias, criação/gestão/revogação staff em DEV
+explicitamente habilitado e limpeza auditada dos testes locais com backup.
+A pendência de novos operadores acima agora tem ferramenta local; provisionamento
+seguro no ambiente do cliente permanece uma decisão operacional. A ferramenta não
+conclui recovery, configuração de estações ou fechamento diário. Plano novo do
+Lucas integrado de origin/main (`ddf889a`), sem código de produto nesse commit.
