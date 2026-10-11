@@ -49,9 +49,21 @@ Após autenticação, o Atendimento também executa o loop operacional persistid
 - conclui a entrega com uma única ação idempotente, persistida no servidor.
 - lista Mesas e executa ocupar, associar múltiplas comandas, liberar e limpar sem tratar a mesa como dona do saldo.
 
-Pedidos e pagamentos recebem uma UUID de intenção por submissão. Resultado ambíguo é guardado cifrado com operador, Venue, device, payload mínimo e UUID original; após reinício, ele só pode ser reconciliado pela mesma intenção e pelo mesmo contexto. O app não possui uma fila genérica de mutações offline.
+Pedidos e pagamentos recebem uma UUID de intenção por submissão. Resultado ambíguo é guardado cifrado com operador, Venue, device, payload mínimo e UUID original; após reinício, ele só pode ser reconciliado pela mesma intenção e pelo mesmo contexto. **A fila durável offline é restrita a confirmações de pedidos já submetidos:** grava o payload exato com `SharedPreferences.commit()` e AES-GCM/Keystore antes de qualquer chamada HTTP; a atualização de uma intenção não pode alterar idempotency key nem itens. Após uma leitura canônica bem-sucedida, o app reconcilia uma intenção por vez com a mesma UUID, sem alegar confirmação antes do ACK da API e releitura da comanda. Erros 4xx ficam `ACTION_REQUIRED` para revisão; timeouts e interrupções mantêm `CHECKING`; outro login não adota a fila. O app não possui fila genérica de mutações financeiras offline e não reenvia automaticamente pagamentos, estornos ou movimentações de caixa.
 
 O estado de conectividade da API é explícito: `ONLINE`, `RECONECTANDO`, `DESATUALIZADO` ou `OFFLINE`. Cobrança é bloqueada quando o saldo exibido não está `ONLINE`; um resultado ambíguo mostra “Verificando pagamento”, nunca “falhou, tente cobrar novamente”. O app nunca apresenta pagamento externo como confirmado antes de o operador confirmar que o terminal/provedor concluiu a cobrança.
+
+
+
+### Prova de encerramento forçado e queda de conexão (Spec 014)
+
+Em um emulador Google APIs **API 36** (ou aparelho descartável), use:
+
+```bash
+bash scripts/android-force-stop-recovery.sh
+```
+
+O script instala APK e androidTest, grava um pedido cifrado, executa `adb shell am force-stop`, desliga Wi-Fi/dados, comprova a recuperação em **outro processo** sem conexão, marca a intenção como `CHECKING`, força outro encerramento e verifica a identidade e idempotência preservadas. Nenhum teste captura dinheiro real nem toca em banco de produção. Evidência canônica de não duplicação do servidor continua nos testes PostgreSQL do backend; para o ensaio conectado com API local, siga `scripts/android-emulator-smoke.sh` e o runbook em `docs/development/android-force-stop-recovery-2026-10-11.md`.
 
 ## Backend local
 
