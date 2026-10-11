@@ -55,6 +55,7 @@ data class OperationsUiState(
     val orderIntentId: String? = null,
     val paymentIntentId: String? = null,
     val pendingPayment: RecoveryIntent.StartPayment? = null,
+    val queuedOrders: List<RecoveryIntent.ConfirmOrder> = emptyList(),
     /** Lets the composable close only the correction sheet that the server accepted. */
     val completedCorrectionItemId: String? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
@@ -75,6 +76,7 @@ class OperationsViewModel(
     private var loadedSessionKey: String? = null
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
+    private var orderReplayJob: Job? = null
     private var streamConnected = false
     private var invalidationJob: Job? = null
     private var refreshRequested = false
@@ -86,7 +88,7 @@ class OperationsViewModel(
                 when (signal) {
                     RealtimeSignal.Connected -> {
                         streamConnected = true
-                        if (state.connectivity != ConnectivityState.OFFLINE) state = state.copy(connectivity = ConnectivityState.ONLINE)
+                        if (state.connectivity != ConnectivityState.OFFLINE && state.lastSyncedAtMillis != null) state = state.copy(connectivity = ConnectivityState.ONLINE)
                     }
                     RealtimeSignal.Reconnecting -> {
                         streamConnected = false
@@ -212,6 +214,7 @@ class OperationsViewModel(
             state = OperationsUiState()
         }
         loadedSessionKey = key
+        loadOrderQueue(session)
         refresh(session)
     }
 
@@ -248,6 +251,9 @@ class OperationsViewModel(
                     connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                 )
+                // Canonical HTTP read, not SSE alone, authorizes order reconciliation.
+                loadOrderQueue(session)
+                resumePendingOrders(session)
             }.onFailure {
                 state = state.copy(loading = false)
                 showFailure(it)
