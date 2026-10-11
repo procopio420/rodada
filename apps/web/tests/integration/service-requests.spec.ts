@@ -46,6 +46,8 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
     const complete = page.getByRole("button", { name: `Concluir ${title} em ${destination}` });
     await expect(complete).toBeVisible();
     await complete.click();
+    // Completion includes the asynchronous command and canonical queue refresh.
+    await expect(complete).toHaveCount(0);
   }
   const completedQueue = await api("dispatch/requests/");
   expect(completedQueue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E")).toHaveLength(0);
