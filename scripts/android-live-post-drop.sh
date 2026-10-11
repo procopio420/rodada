@@ -55,20 +55,23 @@ force_stop_running() {
 # then RSTs the Android socket; zero response bytes reach HttpURLConnection.
 run_stage capture
 python3 "$ROOT/scripts/verify-android-live-post-drop.py" before --fixture "$FIXTURE" --marker "$MARKER"
-python3 - <<'PY'
-from urllib.request import Request, urlopen
-request = Request("http://127.0.0.1:8000/__fault/disarm", data=b"", method="POST")
-with urlopen(request, timeout=10) as response:
-    assert response.status == 200
-print("PASS: fault disarmed only after proven Django commit")
-PY
-
+# Keep the proxy fault ARMED while starting the app to prove an actual live
+# PID exists: startup may perform automatic recovery. It must not get a healthy
+# result before the offline/force-stop phase is verified.
 force_stop_running
 "${ADB[@]}" shell svc wifi disable
 "${ADB[@]}" shell svc data disable
 trap '"${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true; "${ADB[@]}" shell svc data enable >/dev/null 2>&1 || true' EXIT
 run_stage offline
 force_stop_running
+# Only after the app is dead AND offline can we remove the injected fault.
+python3 - <<'PY'
+from urllib.request import Request, urlopen
+request = Request("http://127.0.0.1:8000/__fault/disarm", data=b"", method="POST")
+with urlopen(request, timeout=10) as response:
+    assert response.status == 200
+print("PASS: fault disarmed only after offline process death")
+PY
 "${ADB[@]}" shell svc wifi enable
 "${ADB[@]}" shell svc data enable
 sleep 4
