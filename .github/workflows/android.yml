@@ -53,6 +53,12 @@ jobs:
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
       - uses: gradle/actions/setup-gradle@v4
+      - name: Install app compileSdk 37 for instrumentation
+        shell: bash
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
       - name: Prove encrypted queue survives real adb force-stop and offline startup
         uses: reactivecircus/android-emulator-runner@v2
         with:
