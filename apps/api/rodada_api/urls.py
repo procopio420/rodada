@@ -1,3 +1,4 @@
+from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -92,6 +93,9 @@ from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 
 urlpatterns = [
+    path("management/daily-closes/", DailyCloseListView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/", DailyCloseDetailView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/review/", DailyCloseReviewView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
     path("printing/", include("modules.documents_printing.urls")),
