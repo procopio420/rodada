@@ -148,7 +148,7 @@ export default function ManagementPage() {
       {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
       <div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div>
       <div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter((table) => table.status === "CLEANING").length}</strong></div>
-      <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
+      <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/manage/daily-close">Fechamento diário e aprovações →</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
     <HouseAccount />
