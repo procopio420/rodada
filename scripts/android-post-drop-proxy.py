@@ -163,8 +163,10 @@ class Handler(BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(response_body)
                     return
-                    self.server.replays.append(event)
-                    self.server.persist()
+                if not self.server.armed:
+                    with self.server.lock:
+                        self.server.replays.append(event)
+                        self.server.persist()
             self.send_response(status)
             for name, value in response_headers:
                 if name.lower() not in HOP:
