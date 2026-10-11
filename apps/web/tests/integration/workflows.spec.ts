@@ -220,6 +220,12 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
   await page.getByLabel("Selecionar turno atual ou fechamento antigo").selectOption(old.id);
   await expect(page.getByRole("heading", { name: "Turno fechado" })).toBeVisible();
+  const allMethods = await api(page, `/api/pos/cash/received-by-method/?business_date=${old.business_date}`);
+  expect(allMethods.scope).toBe("VENUE_BUSINESS_DATE");
+  expect(allMethods.net_received_cents).toBe(allMethods.paid_cents - allMethods.refunds_cents);
+  await expect(page.getByRole("heading", { name: "Recebimentos por método" })).toBeVisible();
+  await expect(page.getByText(`Dia operacional: ${old.business_date}`)).toBeVisible();
+  await expect(page.getByText(/Não representa o dinheiro desta gaveta/)).toBeVisible();
   await page.getByLabel("Motivo da revisão").fill("Revisão histórica E2E");
   await page.getByRole("button", { name: "Revisar divergência" }).click();
   const reauth = page.getByLabel("Seu PIN");
