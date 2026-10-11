@@ -58,6 +58,16 @@ def confirm_order(
     if not lines:
         raise OrderingServiceError("EMPTY_ORDER", "Pedido precisa ter ao menos um item.", 400)
 
+    # Serialize routing with station configuration BEFORE locking a Tab. Guest
+    # commands resolve Venue from canonical Tab, never from an untrusted body.
+    from modules.venue.models import Venue
+    venue_id = Tab.objects.filter(pk=tab_id).values_list("venue_id", flat=True).first()
+    if venue_id is None or (actor is not None and actor.venue_id != venue_id):
+        raise OrderingServiceError("TAB_NOT_FOUND", "Comanda não encontrada.", 404)
+    # NO KEY UPDATE still serializes configuration, while allowing FK checks
+    # by existing Tab-first financial/audit transactions to finish.
+    Venue.objects.select_for_update(no_key=True).get(pk=venue_id)
+
     tab = (
         Tab.objects.select_for_update(of=("self",))
         .select_related("venue")
@@ -142,6 +152,17 @@ def confirm_order(
             409,
             {"products": invalid_products},
         )
+
+    # Already-confirmed idempotent replay returned above. Only new routing is
+    # constrained by enablement; confirmed snapshots remain operational facts.
+    from modules.venue.models import StationConfiguration
+    disabled = list(StationConfiguration.objects.filter(
+        venue_id=tab.venue_id, enabled=False,
+        station__in={product.fulfillment_station for product in locked_products.values()},
+    ).values_list("station", flat=True).order_by("station"))
+    if disabled:
+        raise OrderingServiceError("STATION_DISABLED", "Estação desativada para novos pedidos.",
+                                   409, {"stations": disabled})
 
     from modules.house_account.services import financial_position, sync_attention
     position = financial_position(tab)
@@ -261,3 +282,4 @@ def transition_order_item(*, item_id, target_state, actor):
 
         ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=actor)
     return item
+

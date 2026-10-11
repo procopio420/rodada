@@ -3,6 +3,24 @@ import uuid
 from django.db import models
 
 
+class StationConfiguration(models.Model):
+    """Typed routing enablement; existing immutable routing is never rewritten."""
+
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    station = models.CharField(max_length=16, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
+    enabled = models.BooleanField(default=True)
+    version = models.PositiveIntegerField(default=1)
+    label = models.CharField(max_length=120, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("venue", "station"), name="venue_station_unique"),
+            models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="venue_station_valid"),
+            models.CheckConstraint(condition=models.Q(version__gte=1), name="venue_station_version_positive"),
+        ]
+
+
 class Venue(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=160)
@@ -69,3 +87,4 @@ class OperationalAlertEvent(models.Model):
 
     class Meta:
         ordering = ['occurred_at', 'id']
+

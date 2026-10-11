@@ -1,5 +1,11 @@
 # Tasks — Spec 013
 
+## B1 slice — implementation awaiting verification
+- [ ] Execute station blocker, stale preview, authorization and audit tests.
+- [ ] Execute PostgreSQL concurrent-manager and order/deactivation race tests.
+- [ ] Integrate station routes and run migration drift checks on complete source.
+- [ ] Add management preview/apply UI with queue links and offline feedback.
+
 ## Domain/API
 - [ ] Define typed VenueProfile/Operations policy fields.
 - [ ] Define safe-change mode contract.
@@ -66,3 +72,4 @@
 - [ ] Historical business dates unchanged after cutoff/timezone change.
 - [ ] Secret redaction tests.
 - [ ] Manager cannot self-escalate.
+
