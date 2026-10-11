@@ -88,6 +88,27 @@ jobs:
             test "$status" = "200"
           done
           docker logs rodada-demo-app --tail 100
+      - name: Wait for canonical Django API and completed seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            if [ "$(docker inspect -f '{{.State.Running}}' rodada-demo-app)" != true ]; then
+              echo "App exited before Django API readiness" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            # Django /ready/ verifies a live DB connection. The app container's
+            # startup script completes migrations and demo seed before serving.
+            status=$(docker exec rodada-demo-app python -c "from urllib.request import urlopen; print(urlopen('http://127.0.0.1:8000/ready/', timeout=3).status)" 2>/dev/null || true)
+            if [ "$status" = "200" ]; then break; fi
+            if [ "$i" = "120" ]; then
+              echo "Django API never became ready; final status: $status" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
       - name: Submit canonical test order and verify both production queues
         shell: bash
         run: |
