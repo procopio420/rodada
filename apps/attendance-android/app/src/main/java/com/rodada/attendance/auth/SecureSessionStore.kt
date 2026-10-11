@@ -35,7 +35,9 @@ class SecureSessionStore(context: Context) {
                 .put("capabilities", JSONArray(session.capabilities.toList()))
                 .toString()
 
-        preferences.edit().putString(KEY_PAYLOAD, encrypt(json)).apply()
+        check(preferences.edit().putString(KEY_PAYLOAD, encrypt(json)).commit()) {
+            "Falha ao preservar sessão; não é seguro iniciar operações recuperáveis."
+        }
     }
 
     fun load(): StoredSession? {
