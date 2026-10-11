@@ -1,3 +1,4 @@
+from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -133,6 +134,8 @@ urlpatterns = [
     path("auth/switch-operator/", StaffSwitchOperatorView.as_view(), name="staff-switch-operator"),
     path("auth/reauthenticate/", StaffReauthenticateView.as_view(), name="staff-reauthenticate"),
     path("auth/invalidation-events/", AccessInvalidationFeedView.as_view(), name="access-invalidation-events"),
+    path("developer/staff/", DeveloperStaffListView.as_view()),
+    path("developer/staff/<uuid:membership_id>/", DeveloperStaffDetailView.as_view()),
     path("manage/access/memberships/", StaffMembershipListView.as_view(), name="access-memberships"),
     path("manage/access/memberships/<uuid:membership_id>/", StaffMembershipDetailView.as_view(), name="access-membership-detail"),
     path("manage/access/devices/", DeviceListView.as_view(), name="access-devices"),
