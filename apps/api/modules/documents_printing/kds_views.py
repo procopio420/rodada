@@ -11,7 +11,7 @@ from .views import authorize, manage
 class StrictInput(serializers.Serializer):
     def to_internal_value(self, data):
         if set(data) - set(self.fields):
-            raise serializers.ValidationError("Unknown fields; identity and time are server-owned.")
+            raise serializers.ValidationError({"non_field_errors": ["Unknown fields; identity and time are server-owned."]})
         return super().to_internal_value(data)
 
 
