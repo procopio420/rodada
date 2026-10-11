@@ -1,3 +1,4 @@
+from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -120,6 +121,9 @@ urlpatterns = [
     path("catalog/products/resolve/", LegacyProductResolveView.as_view()),
     path("cash/shifts/history/", CashShiftListView.as_view()),
     path("cash/received-by-method/", CashPaymentMethodSummaryView.as_view(), name="cash-received-by-method"),
+    path("management/daily-closes/", DailyCloseListView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/", DailyCloseDetailView.as_view()),
+    path("management/daily-closes/<uuid:close_id>/review/", DailyCloseReviewView.as_view()),
     path("management/alerts/", AlertListView.as_view()),
     path("management/alerts/<uuid:alert_id>/", AlertDetailView.as_view()),
     path("management/alert-policy/", AlertPolicyView.as_view()),
@@ -199,3 +203,4 @@ urlpatterns = [
     path("cash/shifts/<uuid:shift_id>/review/", CashReviewView.as_view(), name="cash-review"),
     path("cash/shifts/<uuid:shift_id>/late-corrections/", CashLateCorrectionView.as_view(), name="cash-late-correction"),
 ]
+
