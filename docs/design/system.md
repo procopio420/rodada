@@ -434,3 +434,16 @@ Cobrança: fontScale>1.3 reutiliza limiar da navegação e empilha confirmar/can
 V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
 
 Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.
+
+
+## Gerência progressiva e DEV local (Spec025)
+
+Gerência monta uma única seção da navegação por vez. Agora prioriza exceções,
+comandas abertas e exposição; detalhes auxiliares ficam em details/summary com
+alvo mínimo44, sem retirar a indicação de pendências. Cadastros têm páginas
+próprias e retorno para Mais. Histórico encerrado é disclosure explícito no PDV.
+DEV reutiliza os mesmos Field, panel, OperationalHeading e botões; confirmação
+local informa revogação de sessões e preservação de histórico.
+buttonDangerReadable conserva borda/tinta danger e usa color-text no label para
+contraste AA sobre Surface2. É variante semântica de ação destrutiva usada no DEV;
+não altera o raster canônico do botão danger nem tolerâncias das referências.
