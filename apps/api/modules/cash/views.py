@@ -4,7 +4,9 @@ Routes are deliberately not installed here: the integration layer owns the
 public URL map.  See the module README-style route list in the final handoff.
 """
 
-from datetime import date
+from datetime import date, timedelta
+
+from django.db.models import Count, Sum
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -108,6 +110,81 @@ class CashPointListView(APIView):
                 }
             )
         return Response({"results": data})
+
+
+class CashPaymentMethodSummaryView(APIView):
+    """Venue-wide received money by business date, not a physical drawer balance."""
+
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.PAYMENT_COLLECT
+
+    def get(self, request):
+        from modules.ledger.models import Payment, PaymentStatus, Refund, RefundStatus
+        from modules.venue.calendar import business_boundary
+
+        class Query(serializers.Serializer):
+            business_date = serializers.DateField(required=False)
+
+        query = Query(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        venue = request.auth.venue
+        day = query.validated_data.get("business_date") or current_business_date(venue)
+        lower = business_boundary(venue, day)
+        upper = business_boundary(venue, day + timedelta(days=1))
+
+        # Confirmed payments retain their original amount after a refund.
+        # Subtract only *confirmed* refunds on the day they were confirmed,
+        # including refunds of payments collected on an earlier business day.
+        payments = (
+            Payment.objects.filter(
+                tab__venue_id=request.actor_context.venue_id,
+                status__in=PaymentStatus.confirmed_money_values(),
+                confirmed_at__gte=lower,
+                confirmed_at__lt=upper,
+            )
+            .values("method")
+            .annotate(paid_cents=Sum("amount_cents"), payment_count=Count("id"))
+        )
+        refunds = (
+            Refund.objects.filter(
+                payment__tab__venue_id=request.actor_context.venue_id,
+                status=RefundStatus.CONFIRMED,
+                confirmed_at__gte=lower,
+                confirmed_at__lt=upper,
+            )
+            .values("payment__method")
+            .annotate(refunds_cents=Sum("amount_cents"), refund_count=Count("id"))
+        )
+
+        methods = {}
+        for row in payments:
+            methods[row["method"]] = {
+                "method": row["method"], "paid_cents": row["paid_cents"],
+                "refunds_cents": 0, "payment_count": row["payment_count"],
+                "refund_count": 0,
+            }
+        for row in refunds:
+            method = row["payment__method"]
+            entry = methods.setdefault(method, {
+                "method": method, "paid_cents": 0, "refunds_cents": 0,
+                "payment_count": 0, "refund_count": 0,
+            })
+            entry["refunds_cents"] = row["refunds_cents"]
+            entry["refund_count"] = row["refund_count"]
+
+        rows = sorted(methods.values(), key=lambda row: row["method"])
+        for row in rows:
+            row["net_received_cents"] = row["paid_cents"] - row["refunds_cents"]
+        paid_cents = sum(row["paid_cents"] for row in rows)
+        refunds_cents = sum(row["refunds_cents"] for row in rows)
+        return Response({
+            "scope": "VENUE_BUSINESS_DATE",
+            "business_date": day.isoformat(),
+            "paid_cents": paid_cents,
+            "refunds_cents": refunds_cents,
+            "net_received_cents": paid_cents - refunds_cents,
+            "methods": rows,
+        })
 
 
 class CashPointCreateView(APIView):
