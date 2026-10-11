@@ -27,11 +27,15 @@ case "$MODE" in
   emulator-link)
     HOST_IP="10.0.2.2"
     API_URL="http://10.0.2.2:8000/"
-    # Google APIs images are debuggable; fail closed if root is unavailable.
-    "${ADB[@]}" root | tee /tmp/rodada-android-adb-root.log
-    sleep 2
+    # AOSP ATD is debuggable. Prefer its existing root shell, avoiding an
+    # unnecessary adbd restart (which may knock the emulator offline in CI).
+    if ! "${ADB[@]}" shell id -u | tr -d '\r' | grep -qx 0; then
+      "${ADB[@]}" root | tee /tmp/rodada-android-adb-root.log
+      "${ADB[@]}" wait-for-device
+      sleep 2
+    fi
     "${ADB[@]}" shell id -u | tr -d '\r' | grep -qx 0 || {
-      echo "FAIL: emulator root unavailable; cannot sever actual uplink" >&2; exit 2;
+      echo "FAIL: AOSP emulator root unavailable; cannot sever actual uplink" >&2; exit 2;
     }
     IFACE="eth0"
     ;;
