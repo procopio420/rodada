@@ -136,14 +136,26 @@ network_is_down=1
 # Verification is fail-closed. Merely disabling Android Wi-Fi without removing
 # the actual route (e.g. emulator still using eth0) cannot pass this test.
 route_after=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
+link_after=$("${ADB[@]}" shell ip -o link show dev "$IFACE" 2>&1 | tr -d '\r' || true)
 echo "ROUTE_AFTER_CUT: $route_after"
-if grep -q "dev $IFACE" <<< "$route_after"; then
-  echo "FAIL: Android still has a routed path on $IFACE" >&2; exit 1
+echo "LINK_AFTER_CUT: $link_after"
+# Linux may preserve a linkdown route, so the link must be DOWN
+# (not merely missing a route). Check for any alternate live route too.
+if ! grep -qE 'state DOWN|does not exist|Device not found' <<< "$link_after"; then
+  echo "FAIL: actual interface $IFACE was NOT switched down" >&2; exit 1
 fi
-if grep -Eq 'dev (wlan|rmnet|ccmni|eth)[0-9]+' <<< "$route_after"; then
-  echo "FAIL: Android still has another network route; no proven full disconnect" >&2; exit 1
+if [[ "$MODE" == physical-wifi ]]; then
+  wifi_status=$("${ADB[@]}" shell cmd wifi status 2>&1 | tr -d '\r')
+  echo "WIFI_AFTER_CUT: $wifi_status"
+  grep -qi 'disabled' <<< "$wifi_status" || {
+    echo "FAIL: Wi-Fi still enabled on physical phone" >&2; exit 1;
+  }
 fi
-echo "PASS: Android physical network interface $IFACE disconnected while HTTP POST is held"
+if grep -Eq 'dev (wlan|rmnet|ccmni|eth)[0-9]+' <<< "$route_after" &&
+   ! grep -q "dev $IFACE" <<< "$route_after"; then
+  echo "FAIL: alternative network route remains (cellular or Ethernet)" >&2; exit 1
+fi
+echo "PASS: Android actual uplink $IFACE is down while HTTP POST is held"
 
 # Release the REAL upstream bytes after link loss. Because the client is
 # offline, it must receive IOException rather than a successful order ACK.
