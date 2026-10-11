@@ -16,7 +16,7 @@ export const queue = [
   { id: "order-922", product_id: "mandioca", order_id: "ticket-2", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
 ];
 const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
-const shift = { id: "shift-test", cash_point_id: "cash-test", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };
+const shift = { id: "shift-test", cash_point_id: "cash-test", business_date: "2026-10-08", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };
 const session = {
   staff: { id: "operator-test", display_name: "Operador de teste" }, venue: { id: "venue-test", slug: "web-test", name: "Estabelecimento de teste" },
   membership: { id: "member-test", role: "MANAGER", status: "ACTIVE", version: 1 },
@@ -52,6 +52,13 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname === "/api/pos/tabs/tab-test/") body = detail;
     else if (url.pathname === "/api/pos/tabs/tab-test/pricing/") body = { version: 1, policy: { service_basis_points: 1000 }, history: [], charges: [] };
     else if (url.pathname === "/api/pos/cash/points/") body = { results: cash };
+    else if (url.pathname === "/api/pos/cash/received-by-method/") body = {
+      scope: "VENUE_BUSINESS_DATE", business_date: url.searchParams.get("business_date") ?? "2026-10-08",
+      paid_cents: state === "empty" ? 0 : 1200, refunds_cents: state === "warnings" ? 200 : 0,
+      net_received_cents: state === "empty" ? 0 : state === "warnings" ? 1000 : 1200,
+      methods: state === "empty" ? [] : [{ method: "CASH", paid_cents: 1200, refunds_cents: state === "warnings" ? 200 : 0,
+        net_received_cents: state === "warnings" ? 1000 : 1200, payment_count: 1, refund_count: state === "warnings" ? 1 : 0 }],
+    };
     else if (url.pathname === "/api/pos/cash/shifts/history/") body = { results: state === "empty" ? [] : [state === "warnings" ? pending : { ...shift, business_date: "2026-10-08" }], next_offset: null };
     else if (url.pathname === "/api/pos/cash/shifts/shift-test/") body = state === "warnings" ? pending : shift;
     else if (url.pathname === "/api/pos/dispatch/delivery/") body = { results: state === "empty" ? [] : [{ id: "delivery-test", product_name: "Fritas", destination_label: "Mesa 24", age_seconds: 120 }] };
