@@ -37,7 +37,11 @@ case "$MODE" in
     "${ADB[@]}" shell id -u | tr -d '\r' | grep -qx 0 || {
       echo "FAIL: AOSP emulator root unavailable; cannot sever actual uplink" >&2; exit 2;
     }
-    IFACE="eth0"
+    # Actual transport on recent AOSP AVDs is often wlan0, not eth0.
+    # Discover the routed NIC; refusing to guess is the acceptance gate.
+    IFACE=$("${ADB[@]}" shell ip route get "$HOST_IP" | tr -d '\r' |
+      sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -1)
+    case "$IFACE" in wlan0|eth0) ;; *) echo "FAIL: unsupported Android uplink $IFACE" >&2; exit 2;; esac
     ;;
   physical-wifi)
     test -n "${ANDROID_SERIAL:-}" || { echo "FAIL: explicit Android serial required" >&2; exit 2; }
@@ -66,7 +70,7 @@ grep -q "dev $IFACE" <<< "$route_before" || {
 network_is_down=0
 cleanup() {
   if [[ "$network_is_down" == 1 ]]; then
-    if [[ "$MODE" == emulator-link ]]; then
+    if [[ "$MODE" == emulator-link && "$IFACE" != wlan0 ]]; then
       "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
     else
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
@@ -132,7 +136,13 @@ kill -0 "$capture_pid" 2>/dev/null || { echo "FAIL: POST no longer in flight" >&
 echo "PASS: real Django HTTP 201 committed; Android POST still blocked awaiting response"
 
 if [[ "$MODE" == emulator-link ]]; then
-  "${ADB[@]}" shell ip link set "$IFACE" down
+  # On AOSP wifi NICs, ask Android to disconnect the radio before validating
+  # actual link DOWN; on Ethernet, explicit privileged ip-link remains needed.
+  if [[ "$IFACE" == wlan0 ]]; then
+    "${ADB[@]}" shell svc wifi disable
+  else
+    "${ADB[@]}" shell ip link set "$IFACE" down
+  fi
 else
   "${ADB[@]}" shell svc wifi disable
 fi
