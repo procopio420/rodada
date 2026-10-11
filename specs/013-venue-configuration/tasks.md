@@ -6,6 +6,12 @@
 - [ ] Integrate station routes and run migration drift checks on complete source.
 - [ ] Add management preview/apply UI with queue links and offline feedback.
 
+## B2 slice — implementation awaiting verification
+- [ ] Register management/guest-policy/ query and PATCH routes.
+- [ ] Execute global guest-switch tests plus existing guest/service regressions in PostgreSQL.
+- [ ] Validate integrated migration drift and CI.
+- [ ] Add manager emergency switch UI and guest policy feedback.
+
 ## Domain/API
 - [ ] Define typed VenueProfile/Operations policy fields.
 - [ ] Define safe-change mode contract.
