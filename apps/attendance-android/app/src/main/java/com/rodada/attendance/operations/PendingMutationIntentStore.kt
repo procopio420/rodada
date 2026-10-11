@@ -29,11 +29,32 @@ class PendingMutationIntentStore(context: Context) {
         val records = loadAll()
         val original = records.firstOrNull { it.intent.id == intent.id }
         require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
+        if (original != null) {
+            // State can advance, never change an in-flight command, actor or key.
+            val previous = original.intent.toJson().put("state", intent.state.name).toString()
+            require(previous == intent.toJson().toString()) {
+                "Uma intenção durável não pode trocar payload, chave ou identidade."
+            }
+        }
+        if (intent is RecoveryIntent.ConfirmOrder && original == null) {
+            require(records.none {
+                it.canReplay(session) && it.intent is RecoveryIntent.ConfirmOrder &&
+                    it.intent.tabId == intent.tabId && it.intent.state != RecoveryState.CONFIRMED
+            }) { "Existe um pedido pendente para esta comanda. Reconcilie antes de criar outro." }
+        }
         write(records.filterNot { it.intent.id == intent.id } + SessionBoundRecoveryIntent(intent, session.sessionId))
     }
 
     fun loadFor(session: StoredSession): List<RecoveryIntent> =
         loadAll().filter { it.canReplay(session) }.map { it.intent }
+
+    /** Durable, oldest-first queue; never includes payment or refund commands. */
+    fun orderQueue(session: StoredSession): List<RecoveryIntent.ConfirmOrder> =
+        OrderRecoveryPolicy.displayQueue(loadFor(session))
+
+    /** Strictly preserves the original command, changing only the recovery state. */
+    fun updateOrderState(intent: RecoveryIntent.ConfirmOrder, session: StoredSession, next: RecoveryState) =
+        save(intent.copy(state = next), session)
 
     /** Retained for canonical investigation; never automatically adopted by a new login. */
     fun blockedFor(session: StoredSession): List<RecoveryIntent> =
