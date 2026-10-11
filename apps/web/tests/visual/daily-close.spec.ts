@@ -48,7 +48,7 @@ test("gerência mostra snapshot imutável e só confirma correção após PIN e 
   await expect(page.getByRole("heading", { name: "Fechamento diário" })).toBeVisible();
   await expect(page.getByText("Conferência verificada")).toBeVisible();
   await expect(page.getByText("Sangria omitida")).toBeVisible();
-  await expect(page.getByText("R$ 45,00")).toBeVisible();
+  await expect(page.getByText("R$ 45,00").first()).toBeVisible();
   await expect(page.getByText("R$ 49,00")).toBeVisible();
   await page.getByLabel("Motivo da decisão").fill("Comprovante validado");
   await page.getByRole("button", { name: "Aprovar", exact: true }).click();
