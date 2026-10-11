@@ -157,3 +157,51 @@ class ReceiptAccessToken(models.Model):
     revoked_at = models.DateTimeField(null=True)
     created_by = models.ForeignKey("access.StaffMember", on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class KdsStationHealth(models.Model):
+    """Persisted detector configuration/state, independent of printer or SSE health."""
+
+    class State(models.TextChoices):
+        HEALTHY = "HEALTHY"
+        SUSPECT = "SUSPECT"
+        UNHEALTHY = "UNHEALTHY"
+        RECOVERING = "RECOVERING"
+
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    station = models.CharField(max_length=16, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
+    version = models.PositiveIntegerField(default=1)
+    heartbeat_ttl_seconds = models.PositiveIntegerField(default=30)
+    failure_threshold_seconds = models.PositiveIntegerField(default=90)
+    recovery_threshold_seconds = models.PositiveIntegerField(default=60)
+    state = models.CharField(max_length=16, choices=State.choices, default=State.SUSPECT)
+    monitoring_started_at = models.DateTimeField()
+    last_queue_observed_at = models.DateTimeField(null=True)
+    suspect_since = models.DateTimeField(null=True)
+    recovery_since = models.DateTimeField(null=True)
+    recovery_observed_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("venue", "station"), name="printing_kds_station_unique"),
+            models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="printing_kds_station_valid"),
+            models.CheckConstraint(condition=models.Q(heartbeat_ttl_seconds__gte=5, heartbeat_ttl_seconds__lte=300, failure_threshold_seconds__gte=30, failure_threshold_seconds__lte=3600, recovery_threshold_seconds__gte=30, recovery_threshold_seconds__lte=3600), name="printing_kds_thresholds_valid"),
+        ]
+
+
+class KdsDeviceHeartbeat(models.Model):
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    station = models.CharField(max_length=16, choices=[("BAR", "Bar"), ("KITCHEN", "Kitchen")])
+    device = models.ForeignKey("access.DeviceRegistration", on_delete=models.PROTECT)
+    session = models.ForeignKey("access.StaffSession", on_delete=models.PROTECT)
+    seen_at = models.DateTimeField()
+    queue_observed_at = models.DateTimeField(null=True)
+    client_version = models.CharField(max_length=64, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("venue", "station", "device"), name="printing_kds_device_unique"),
+            models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="printing_kds_device_station_valid"),
+        ]
+
