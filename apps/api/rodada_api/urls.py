@@ -1,4 +1,5 @@
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
+from modules.cash.correction_views import CashCorrectionShiftView, CashCorrectionManagementView, CashCorrectionDecisionView
 from modules.venue.guest_policy_views import GuestPolicyView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
@@ -97,6 +98,9 @@ urlpatterns = [
     path("management/daily-closes/", DailyCloseListView.as_view()),
     path("management/daily-closes/<uuid:close_id>/", DailyCloseDetailView.as_view()),
     path("management/daily-closes/<uuid:close_id>/review/", DailyCloseReviewView.as_view()),
+    path("management/correction-requests/", CashCorrectionManagementView.as_view()),
+    path("cash/shifts/<uuid:shift_id>/correction-requests/", CashCorrectionShiftView.as_view()),
+    path("cash/correction-requests/<uuid:request_id>/decision/", CashCorrectionDecisionView.as_view()),
     path("management/guest-policy/", GuestPolicyView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),

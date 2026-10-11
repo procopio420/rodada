@@ -10,7 +10,7 @@ from modules.venue.models import Venue
 from modules.venue.calendar import business_boundary
 from modules.ordering.models import Tab
 from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentStatus, Refund
-from modules.cash.models import DailyClose, DailyCloseReview, CashShift, CashMovement
+from modules.cash.models import DailyClose, DailyCloseReview, CashShift, CashMovement, CashCorrectionRequest
 from modules.cash.services import cash_shift_position
 from modules.cash.payment_summaries import payment_method_summary
 
@@ -64,6 +64,13 @@ def _snapshot(venue, day):
             review_status=shift.review_status, **cash_shift_position(shift)))
         if shift.status != 'CLOSED' or shift.review_status == 'PENDING':
             blockers.append(dict(kind='CASH_SHIFT', id=str(shift.id), status=shift.status, review_status=shift.review_status))
+    # An undecided cash proposal is not a committed movement; it blocks a
+    # reviewed close until a different manager approves or rejects it.
+    for proposal in CashCorrectionRequest.objects.filter(
+        shift__venue=venue, shift__business_date=day, status="PENDING"
+    ).order_by("id"):
+        blockers.append(dict(kind="PENDING_CASH_CORRECTION", id=str(proposal.id),
+            shift_id=str(proposal.shift_id), amount_cents=proposal.amount_cents))
     # A shift from an earlier service still blocks honest reconciliation today.
     for shift in CashShift.objects.filter(venue=venue, business_date__lt=day, status__in=('OPEN', 'COUNTING')).order_by('id'):
         blockers.append(dict(kind='OVERDUE_CASH_SHIFT', id=str(shift.id), business_date=shift.business_date.isoformat(), status=shift.status))

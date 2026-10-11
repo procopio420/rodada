@@ -324,22 +324,17 @@ class CashReviewView(APIView):
 
 
 class CashLateCorrectionView(APIView):
+    """Legacy direct-write endpoint remains closed to prevent approval bypass."""
+
     permission_classes = [IsAuthenticated, RequireCapability]
     required_capability = Capability.CASH_REVIEW
 
     def post(self, request, shift_id):
-        try:
-            movement = record_late_cash_correction(
-                shift_id=shift_id,
-                amount_cents=int(request.data.get("amount_cents")),
-                reason=request.data.get("reason", ""),
-                idempotency_key=request.data.get("idempotency_key", ""),
-                correction_of_id=request.data.get("correction_of_id"),
-                actor=request.actor_context,
-            )
-            return Response(_movement_payload(movement), status=201)
-        except (TypeError, ValueError):
-            return Response({"code": "INVALID_LATE_CORRECTION", "message": "Correção inválida."}, status=400)
-        except CashServiceError as error:
-            return _error(error)
-
+        return Response(
+            {
+                "code": "CASH_CORRECTION_APPROVAL_REQUIRED",
+                "message": "Solicite a correção e obtenha aprovação de outro gerente.",
+                "request_path": f"/cash/shifts/{shift_id}/correction-requests/",
+            },
+            status=409,
+        )
