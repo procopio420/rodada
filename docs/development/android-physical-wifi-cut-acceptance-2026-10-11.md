@@ -3,7 +3,7 @@
 ## Diferença entre as três provas
 
 1. **PR #82 / TCP RST após commit (PASS)**: Android API36, Django e PostgreSQL reais; o proxy descartou a resposta. Isso prova idempotência com transporte quebrado, não desliga a interface de rede do Android.
-2. **PR #83 / corte de interface real no emulador (novo gate)**: o proxy mantém o **HTTP 201 efetivo da API** pendente; só depois do commit, enquanto a chamada Android ainda está em andamento, o script **derruba eth0 no emulador Android**. Exige link `DOWN`, resposta não reconhecida pelo app, intenção `CHECKING` cifrada, novo processo offline e replay `HTTP 200` byte-idêntico após religar a interface. Não é apenas desligar o ícone Wi-Fi enquanto a conexão de emulação segue por Ethernet.
+2. **PR #83 / corte de interface real no emulador (novo gate)**: o proxy mantém o **HTTP 201 efetivo da API** pendente; só depois do commit, enquanto a chamada Android ainda está em andamento, o script **derruba a interface efetivamente roteada no emulador Android (wlan0 nas imagens AOSP recentes, eth0 em outras)**. Exige link `DOWN`, resposta não reconhecida pelo app, intenção `CHECKING` cifrada, novo processo offline e replay `HTTP 200` byte-idêntico após religar a interface. Não é apenas desligar o ícone Wi-Fi enquanto a conexão de emulação segue por Ethernet.
 3. **Celular físico no Wi-Fi do Bar do Aderlan (a executar in loco)**: o mesmo teste aceita `RODADA_NETWORK_CUT_MODE=physical-wifi` e `adb` USB no **aparelho descartável**, para cortar **wlan0** após o POST gravado. Só esta execução, com evidência da conexão do celular ao AP do bar, comprova o ambiente físico; CI remoto não substitui isso.
 
 **Não usar pagamento real, PSP, caixa de produção, clientes verdadeiros, banco compartilhado, Railway ou equipamentos principais do bar.** O teste simula um consumo de R$ 7,00 em um PostgreSQL descartável; não cria `Payment`. Não exige desligar o roteador do estabelecimento ou prejudicar os demais clientes.
@@ -13,9 +13,9 @@
 Na PR, exigir sucesso de:
 - `Android / test` e `Android / forced-stop-recovery`;
 - `Android real POST disconnect / real-post-after-commit-disconnect` (RST pós-commit, regressão);
-- `Android real POST disconnect / actual-network-uplink-cut` (interface eth0 efetivamente DOWN durante POST).
+- `Android real POST disconnect / actual-network-uplink-cut` (interface realmente roteada, tipicamente wlan0, efetivamente DOWN durante POST).
 
-O job `actual-network-uplink-cut` usa exclusivamente PostgreSQL 17, Django do repositório, Android Google APIs 36 e `scripts/android-active-network-cut.sh`. Deve falhar se o Android não for rootável no emulador, se a rota pré-corte não usar eth0, se eth0 continuar UP, se não houver um POST de verdade gravado, se o app receber ACK indevido, se a intenção original sumir ou se o reenvio mudar UUID/corpo/Order ID. Confirma exatamente `Order=1, OrderItem=1, Charge=1, Payment=0`.
+O job `actual-network-uplink-cut` usa exclusivamente PostgreSQL 17, Django do repositório, Android AOSP API 34 rootável e `scripts/android-active-network-cut.sh`. Deve falhar se o Android não for rootável no emulador, se a rota pré-corte não usar wlan0/eth0, se a interface roteada continuar UP, se não houver um POST de verdade gravado, se o app receber ACK indevido, se a intenção original sumir ou se o reenvio mudar UUID/corpo/Order ID. Confirma exatamente `Order=1, OrderItem=1, Charge=1, Payment=0`.
 
 ## Execução presencial — celular físico / Wi-Fi do Aderlan
 
