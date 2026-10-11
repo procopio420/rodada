@@ -186,6 +186,21 @@ Deleting a Table with history is prohibited. Archive/deactivate instead.
 
 ## Guest ordering policy
 
+### B2 global emergency boundary (2026-10-11)
+
+Venue guest_mutations_blocked is a typed immediate switch, separate from
+per-table ordering modes. Its optimistic guest_policy_version prevents lost
+manager edits. GET/PATCH /management/guest-policy/ returns only blocked/version;
+PATCH requires expected_version, blocked and optional reason, authenticated
+venue.configure and live authorization revalidation. Emergency blocking does
+not require another PIN prompt. The Venue NO KEY UPDATE lock precedes guest
+session/table locks; successful blocking serializes against guest order, Tab,
+new QR session, party-size and service/bill-request mutations. Existing orders,
+financial facts and staff actions remain intact. Public context/catalog/history
+stay readable and expose only emergency_blocked and policy_version; invalidation
+contains neither guest tokens nor staff credentials. Reads may update technical
+last_seen metadata, but never bypass the block to mutate operational facts.
+
 Typed settings:
 - venue default: DISABLED | JOIN_ACTIVE | DIRECT;
 - per-Table override;
