@@ -343,51 +343,110 @@ class OperationsViewModel(
         state = state.copy(cart = next)
     }
 
+    /**
+     * A tap captures an exact, encrypted order intent before any network request.
+     * OFFLINE never claims delivery; the next successful canonical read drains it.
+     */
     fun confirmOrder(session: StoredSession) {
         val tab = state.selectedTab?.summary ?: return
         if (state.cart.isEmpty() || tab.state == "CLOSED" || state.submitting) return
-        val intentId = state.orderIntentId ?: UUID.randomUUID().toString()
+        val existing = runCatching { pendingMutationIntentStore.orderQueue(session) }
+            .getOrElse { showFailure(it, "Fila local ilegível. Não envie um novo pedido."); return }
+            .firstOrNull { it.tabId == tab.id }
+        if (existing != null) {
+            state = state.copy(orderIntentId = existing.idempotencyKey,
+                noticeMessage = "Pedido já guardado. Sua intenção original será reconciliada, sem duplicar.")
+            if (existing.state != RecoveryState.ACTION_REQUIRED && existing.state != RecoveryState.FAILED_TERMINAL) {
+                revalidateConnection(session)
+            }
+            return
+        }
+        val key = state.orderIntentId ?: UUID.randomUUID().toString()
         val intent = RecoveryIntent.ConfirmOrder(
-                id = intentId,
-                staffId = session.staffId,
-                venueId = session.venueId,
-                deviceId = session.deviceId,
-                idempotencyKey = intentId,
-                createdAtMillis = System.currentTimeMillis(),
-                state = RecoveryState.CHECKING,
-                tabId = tab.id,
-                lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
+            id = key, staffId = session.staffId, venueId = session.venueId,
+            deviceId = session.deviceId, idempotencyKey = key,
+            createdAtMillis = System.currentTimeMillis(), state = RecoveryState.PENDING,
+            tabId = tab.id, lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
         )
         if (!preserveIntent(intent, session)) return
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, orderIntentId = intentId)
-        viewModelScope.launch {
-            runCatching {
-                repository.confirmOrder(session, tab.id, state.cart, intentId)
-                repository.tabDetail(session, tab.id)
-            }.onSuccess { detail ->
-                replaceDetail(detail)
-                state = state.copy(
-                    submitting = false,
-                    cart = emptyList(),
-                    noticeMessage = "Pedido enviado para produção.",
-                    orderIntentId = null,
-                    connectivity = ConnectivityState.ONLINE,
-                    lastSyncedAtMillis = System.currentTimeMillis(),
-                )
-                pendingMutationIntentStore.remove(intent.id)
-            }.onFailure { error ->
-                // Retrying this exact cart retains the same intent UUID. The API returns the
-                // original Order instead of creating a second order after an ambiguous timeout.
-                state = state.copy(submitting = false, orderIntentId = intentId)
-                if (error is OperationsApiException && error.status in 400..499) {
-                    pendingMutationIntentStore.remove(intent.id)
-                    state = state.copy(orderIntentId = null)
-                    runCatching { repository.tabDetail(session, tab.id) }.onSuccess(::replaceDetail)
-                    runCatching { repository.products(session) }.onSuccess { state = state.copy(products = it) }
-                    showFailure(error)
-                    return@onFailure
+        loadOrderQueue(session)
+        state = state.copy(orderIntentId = key, errorMessage = null,
+            noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
+                "Pedido guardado neste aparelho. Ainda NÃO foi recebido pelo bar."
+            else "Pedido guardado. Verificando confirmação no servidor.")
+        if (state.connectivity != ConnectivityState.OFFLINE) revalidateConnection(session)
+    }
+
+    /** Restores encrypted, original-session order records even before canonical HTTP succeeds. */
+    private fun loadOrderQueue(session: StoredSession): Boolean {
+        val orders = runCatching { pendingMutationIntentStore.orderQueue(session) }
+            .getOrElse {
+                state = state.copy(noticeMessage = pendingMutationIntentStore.reviewMessage(session)
+                    ?: "Fila ilegível. Não repita pedidos sem revisão da gerência.")
+                return false
+            }
+        state = state.copy(queuedOrders = orders)
+        return true
+    }
+
+    /**
+     * Only orders replay, oldest-first and one at a time. The backend owns availability,
+     * limit, tab state and idempotency; any rejection parks the exact command for review.
+     */
+    private fun resumePendingOrders(session: StoredSession) {
+        if (orderReplayJob?.isActive == true || state.submitting) return
+        val queue = runCatching { pendingMutationIntentStore.orderQueue(session) }
+            .getOrElse {
+                state = state.copy(noticeMessage = "Fila local ilegível. Reenvio bloqueado para revisão.")
+                return
+            }
+        if (OrderRecoveryPolicy.awaitingReconciliation(queue).isEmpty()) return
+        orderReplayJob = viewModelScope.launch {
+            for (intent in OrderRecoveryPolicy.awaitingReconciliation(queue)) {
+                // Stop if a different staff/venue/device/session replaced the originating context.
+                val now = runCatching { pendingMutationIntentStore.orderQueue(session) }
+                    .getOrElse {
+                        state = state.copy(errorMessage = "Falha na fila criptografada. Reenvio interrompido.")
+                        break
+                    }.firstOrNull { it.id == intent.id } ?: continue
+                if (!OrderRecoveryPolicy.canReplay(now, SessionBoundRecoveryIntent(now, session.sessionId), session)) {
+                    break
                 }
-                showFailure(error, "Verificando pedido. Não envie outro pedido; confirme novamente para reconciliar esta mesma intenção.")
+                state = state.copy(submitting = true,
+                    noticeMessage = "Verificando pedido pendente; não registre outro pedido.")
+                try {
+                    // Revalidate authentication, Tab and Catalog before using the exact saved command.
+                    repository.tabDetail(session, now.tabId)
+                    val products = repository.products(session)
+                    pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
+                    repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
+                    val canonical = repository.tabDetail(session, now.tabId)
+                    pendingMutationIntentStore.remove(now.id)
+                    loadOrderQueue(session)
+                    if (state.selectedTab?.summary?.id == now.tabId) {
+                        replaceDetail(canonical)
+                        state = state.copy(cart = emptyList(), orderIntentId = null)
+                    }
+                    state = state.copy(noticeMessage = "Pedido confirmado pelo servidor.",
+                        connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
+                } catch (error: Exception) {
+                    if (error is OperationsApiException && error.status in 400..499) {
+                        // A stale price, disabled product, closed Tab or lost authority is not
+                        // silently retried on reconnect. Preserve evidence for reconciliation.
+                        runCatching {
+                            pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.ACTION_REQUIRED)
+                        }.onFailure { state = state.copy(errorMessage = "Falha ao preservar conflito; confira a gerência.") }
+                        loadOrderQueue(session)
+                        showFailure(error, "Pedido guardado para revisão; nenhum novo pedido foi criado localmente.")
+                    } else {
+                        // Unknown outcome may have committed. Keep CHECKING and the same UUID.
+                        loadOrderQueue(session)
+                        showFailure(error, "Resultado do pedido desconhecido. A mesma chave será conferida após reconectar.")
+                    }
+                    break // Stop on first uncertainty; never reorder dependent commands.
+                } finally {
+                    state = state.copy(submitting = false)
+                }
             }
         }
     }
