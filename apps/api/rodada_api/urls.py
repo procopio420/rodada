@@ -1,3 +1,4 @@
+from modules.venue.guest_policy_views import GuestPolicyView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -92,6 +93,7 @@ from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 
 urlpatterns = [
+    path("management/guest-policy/", GuestPolicyView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
     path("printing/", include("modules.documents_printing.urls")),

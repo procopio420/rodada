@@ -17,6 +17,7 @@ from modules.hospitality.models import (
 )
 from modules.ordering.models import OrderSource, Tab
 from modules.ordering.services import OrderingServiceError, confirm_order
+from modules.venue.models import Venue
 
 from .models import GuestSession
 
@@ -72,9 +73,21 @@ def _assert_table_accepts_guests(table: Table):
         )
 
 
+def _lock_guest_venue(venue_id, *, require_mutation=True):
+    venue = Venue.objects.select_for_update(no_key=True).get(pk=venue_id)
+    if require_mutation and venue.guest_mutations_blocked:
+        raise GuestAccessError("VENUE_GUEST_MUTATIONS_BLOCKED",
+                               "Pedidos e solicitações pelo QR estão temporariamente bloqueados.", 403)
+    return venue
+
+
 @transaction.atomic
 def resolve_table_qr(*, public_token: str, existing_session_token: str = "") -> GuestResolution:
     """Resolve only physical context; it never treats a QR as a Tab credential."""
+    venue_id = Table.objects.filter(public_token=public_token).values_list("venue_id", flat=True).first()
+    if venue_id is None:
+        raise GuestAccessError("QR_NOT_FOUND", "QR inválido ou expirado.", 404)
+    venue = _lock_guest_venue(venue_id)
     table = Table.objects.select_for_update().filter(public_token=public_token).first()
     if table is None:
         raise GuestAccessError("QR_NOT_FOUND", "QR inválido ou expirado.", 404)
@@ -111,6 +124,8 @@ def resolve_table_qr(*, public_token: str, existing_session_token: str = "") -> 
         ):
             session.last_seen_at = timezone.now()
             session.save(update_fields=["last_seen_at"])
+            session._guest_policy = {"emergency_blocked": venue.guest_mutations_blocked,
+                                     "policy_version": venue.guest_policy_version}
             return GuestResolution(session=session, token=existing_session_token, created=False)
 
     raw_token = secrets.token_urlsafe(32)
@@ -121,6 +136,8 @@ def resolve_table_qr(*, public_token: str, existing_session_token: str = "") -> 
         token_digest=_token_digest(raw_token),
         expires_at=timezone.now() + _session_ttl(),
     )
+    session._guest_policy = {"emergency_blocked": venue.guest_mutations_blocked,
+                             "policy_version": venue.guest_policy_version}
     _record_guest_audit(
         session=session,
         event_type="guest_session.created",
@@ -136,10 +153,17 @@ def resolve_table_qr(*, public_token: str, existing_session_token: str = "") -> 
 
 @transaction.atomic
 def _locked_authorized_session(
-    *, token: str, require_tab: bool = False, require_ordering_enabled: bool = True
+    *, token: str, require_tab: bool = False, require_ordering_enabled: bool = True,
+    require_mutation: bool = True,
 ) -> GuestSession:
     if not token:
         raise GuestAccessError("GUEST_SESSION_REQUIRED", "Sessão guest obrigatória.", 401)
+    venue_id = GuestSession.objects.filter(token_digest=_token_digest(token)).values_list("table__venue_id", flat=True).first()
+    if venue_id is None:
+        raise GuestAccessError("GUEST_SESSION_INVALID", "Sessão guest inválida.", 401)
+    # Every guest entry point shares Venue first, including read-only context,
+    # preventing guest/table lock inversion with QR issuance and order routing.
+    venue = _lock_guest_venue(venue_id, require_mutation=require_mutation)
     session = (
         GuestSession.objects.select_for_update()
         # GuestSession is the lock boundary. Both occupancy and tab are
@@ -165,6 +189,8 @@ def _locked_authorized_session(
         _assert_table_accepts_guests(table)
     # Keep the object returned to callers aligned with the row protected above.
     session.table = table
+    session._guest_policy = {"emergency_blocked": venue.guest_mutations_blocked,
+                             "policy_version": venue.guest_policy_version}
 
     occupancy = _active_occupancy(table)
     if session.occupancy_id is not None:
@@ -182,7 +208,7 @@ def _locked_authorized_session(
 
 def guest_session_context(*, session_token: str) -> GuestSession:
     """Return the currently authorized public context (Tab is optional)."""
-    return _locked_authorized_session(token=session_token, require_ordering_enabled=False)
+    return _locked_authorized_session(token=session_token, require_ordering_enabled=False, require_mutation=False)
 
 
 @transaction.atomic
@@ -257,7 +283,8 @@ def confirm_guest_order(*, session_token: str, lines: list[dict], idempotency_ke
 def guest_catalog(*, session_token: str):
     # A staff block stops mutations immediately but should not erase the
     # guest's ability to inspect the menu/current visit in the PWA.
-    session = _locked_authorized_session(token=session_token, require_ordering_enabled=False)
+    session = _locked_authorized_session(token=session_token, require_ordering_enabled=False, require_mutation=False)
     from modules.catalog.queries import catalog_for_venue
 
     return catalog_for_venue(venue_id=session.table.venue_id)
+

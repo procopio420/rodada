@@ -39,6 +39,12 @@ integrated CI remain required, management UI remains a subsequent slice.
 **When** manager enables the global guest-ordering block  
 **Then** new guest mutations are rejected immediately, staff ordering remains available and confirmed guest Orders remain intact.
 
+B2 evidence target: `tests/test_global_guest_block.py`, direct API bypass,
+QR/Tab/order/party-size/service/bill-request denial, retained history/catalog,
+staff ordering, version conflict, audit redaction and PostgreSQL manager/order
+races. Execute together with guest-access and service-request regressions on
+isolated PostgreSQL and integrated CI. No PASS asserted before execution.
+
 ## Business date cutoff
 
 **Given** cutoff changes from 04:00 to 06:00 effective next business date  

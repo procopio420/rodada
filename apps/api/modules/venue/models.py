@@ -27,6 +27,8 @@ class Venue(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
     timezone = models.CharField(max_length=64, default="America/Sao_Paulo")
     business_day_cutoff_hour = models.PositiveSmallIntegerField(default=0, db_default=0)
+    guest_mutations_blocked = models.BooleanField(default=False)
+    guest_policy_version = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

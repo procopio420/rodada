@@ -63,6 +63,7 @@ def _context_payload(session, *, token: str | None = None) -> dict:
 
     party = current_party_size(occupancy_id=session.occupancy_id) if session.occupancy_id else None
     payload = {
+        "guest_policy": getattr(session, "_guest_policy", {"emergency_blocked": False, "policy_version": 1}),
         "party_size": {
             "covers_count": party.covers_count if party else None,
             "version": party.version if party else 0,
@@ -239,3 +240,4 @@ class GuestServiceRequestView(APIView):
         # Guests never receive internal ownership, staff identity or queue data.
         return Response({"id": str(task.id), "task_type": task.task_type, "state": task.state},
                         status=200 if task._request_replay else 201)
+
