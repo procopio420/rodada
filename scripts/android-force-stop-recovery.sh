@@ -30,15 +30,30 @@ run_stage() {
   fi
 }
 
-# A real Android process is created for each phase. Keystore and preference
-# storage stay intact; force-stop is not pm clear or app reinstall.
+# Each force-stop must target an ACTUALLY RUNNING application, not merely
+# an instrumentation process which may exit after finishing the test method.
+force_stop_running_app() {
+  "${ADB[@]}" shell am start -W -n "$APP_ID/.MainActivity" >/dev/null
+  local pid
+  pid=$("${ADB[@]}" shell pidof "$APP_ID" | tr -d '\r' || true)
+  if [[ -z "$pid" ]]; then
+    echo "Android app process was not running; force-stop proof invalid" >&2
+    exit 1
+  fi
+  "${ADB[@]}" shell am force-stop "$APP_ID"
+  if [[ -n "$("${ADB[@]}" shell pidof "$APP_ID" | tr -d '\r' || true)" ]]; then
+    echo "App did not exit after force-stop" >&2
+    exit 1
+  fi
+}
+# Keystore/preferences survive force-stop; never use pm clear or reinstall.
 run_stage prepare
-"${ADB[@]}" shell am force-stop "$APP_ID"
+force_stop_running_app
 "${ADB[@]}" shell svc wifi disable
 "${ADB[@]}" shell svc data disable
-trap '"${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true' EXIT
+trap '"${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true; "${ADB[@]}" shell svc data enable >/dev/null 2>&1 || true' EXIT
 run_stage offline
-"${ADB[@]}" shell am force-stop "$APP_ID"
+force_stop_running_app
 "${ADB[@]}" shell svc wifi enable
 run_stage ambiguous
 "${ADB[@]}" shell am force-stop "$APP_ID"
