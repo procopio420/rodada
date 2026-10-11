@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
 from modules.cash.models import CashCorrectionRequest, CashShift
+from modules.cash.services import CashServiceError
 from modules.cash.correction_approval import (
     CashCorrectionError, correction_payload, decide_cash_correction, request_cash_correction,
 )
@@ -47,7 +48,7 @@ class CashCorrectionShiftView(APIView):
                 shift_id=shift_id, actor=request.actor_context, **data.validated_data
             )
             return Response(correction_payload(row), status=201 if created else 200)
-        except CashCorrectionError as error:
+        except (CashCorrectionError, CashServiceError) as error:
             return _error(error)
 
 
@@ -85,5 +86,5 @@ class CashCorrectionDecisionView(APIView):
                 request_id=request_id, actor=request.actor_context, **data.validated_data
             )
             return Response(correction_payload(row))
-        except CashCorrectionError as error:
+        except (CashCorrectionError, CashServiceError) as error:
             return _error(error)
