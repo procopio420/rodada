@@ -40,7 +40,7 @@ case "$MODE" in
     test "${RODADA_DISPOSABLE_PHONE_ACK:-}" = "I_CONFIRM_DISPOSABLE_TEST_PHONE" || {
       echo "FAIL: this installs a debug app and changes Wi-Fi/data; use a disposable phone and explicit consent" >&2; exit 2;
     }
-    HOST_IP="${RODADA_TEST_LAN_IP:?Set test laptop's numeric LAN IPv4 address}"
+    HOST_IP="${RODADA_TEST_LAN_IP:?Set numeric LAN IPv4 address of test laptop}"
     [[ "$HOST_IP" =~ ^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)[0-9.]+$ ]] || {
       echo "FAIL: LAN address required (no public server)" >&2; exit 2;
     }
