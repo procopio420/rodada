@@ -33,10 +33,11 @@ class Proxy(ThreadingHTTPServer):
         self.lock = threading.Lock()
         self.armed = True
         self.events = []
+        self.replays = []
         self.evidence = evidence
 
     def snapshot(self):
-        return {"armed": self.armed, "events": self.events}
+        return {"armed": self.armed, "events": self.events, "replays": self.replays}
 
     def persist(self):
         parent = os.path.dirname(self.evidence) or "."
@@ -113,6 +114,8 @@ class Handler(BaseHTTPRequestHandler):
                         self.connection.close()
                         self.close_connection = True
                         return
+                    self.server.replays.append(event)
+                    self.server.persist()
             self.send_response(status)
             for name, value in response_headers:
                 if name.lower() not in HOP:
