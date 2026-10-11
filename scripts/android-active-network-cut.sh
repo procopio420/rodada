@@ -149,8 +149,17 @@ fi
 network_is_down=1
 # Verification is fail-closed. Merely disabling Android Wi-Fi without removing
 # the actual route (e.g. emulator still using eth0) cannot pass this test.
-route_after=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
-link_after=$("${ADB[@]}" shell ip -o link show dev "$IFACE" 2>&1 | tr -d '\r' || true)
+# Android Wi-Fi disconnection is asynchronous: observe actual kernel link
+# state, not just the return code of "svc wifi disable". Bound the wait well
+# below the HTTP client's 10-second read timeout.
+link_after=""
+route_after=""
+for i in $(seq 1 20); do
+  route_after=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
+  link_after=$("${ADB[@]}" shell ip -o link show dev "$IFACE" 2>&1 | tr -d '\r' || true)
+  if grep -qE 'state DOWN|does not exist|Device not found' <<< "$link_after"; then break; fi
+  sleep 0.15
+done
 echo "ROUTE_AFTER_CUT: $route_after"
 echo "LINK_AFTER_CUT: $link_after"
 # Linux may preserve a linkdown route, so the link must be DOWN
