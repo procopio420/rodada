@@ -31,7 +31,7 @@ class LivePostDropReconciliationTest {
     private val queue get() = PendingMutationIntentStore(context)
 
     @Test fun stage() {
-        val phase = instrumentation.arguments.getString("phase")
+        val phase = InstrumentationRegistry.getArguments().getString("phase")
         assumeTrue("Run only through scripts/android-live-post-drop.sh",
             phase == "capture" || phase == "offline" || phase == "replay")
         when (phase) {
@@ -67,7 +67,7 @@ class LivePostDropReconciliationTest {
         }
 
     private fun captureCommittedButLostResponse() {
-        val productId = instrumentation.arguments.getString("productId") ?: error("Missing Postgres product ID")
+        val productId = InstrumentationRegistry.getArguments().getString("productId") ?: error("Missing Postgres product ID")
         val session = authClient.login(LoginRequest(
             venueSlug = "android-post-drop-ci",
             loginIdentifier = "android-post-drop-operator",
