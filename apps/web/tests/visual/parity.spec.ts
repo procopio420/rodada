@@ -207,6 +207,7 @@ test("management hash navigation selects each real section", async ({ page }) =>
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(5);
   await expect(page.getByRole("navigation").locator("svg[aria-hidden=true]")).toHaveCount(5);
+  await page.getByRole("navigation").getByRole("link", { name: "Mais", exact: true }).click();
   await expect(page.getByRole("link", { name: "Impressoras", exact: true })).toHaveAttribute("href", "/manage/printing");
   for (const name of ["Operação", "Vendas", "Gestão", "Mais", "Agora"]) {
     const link = page.getByRole("navigation").getByRole("link", { name, exact: true });
@@ -237,16 +238,21 @@ for (const route of ["/bar", "/kitchen"]) for (const viewport of viewports) {
 test("management prioritizes current work and distinguishes preparation from ready", async ({ page }) => {
   await fixture(page, "warnings"); await page.goto("/manage");
   const pulse = page.getByRole("heading", { name: "Agora", exact: true });
-  const house = page.getByRole("heading", { name: "Conta da casa", exact: true });
-  await expect(pulse).toBeVisible(); await expect(house).toBeVisible();
+  await expect(pulse).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Conta da casa", exact: true })).toHaveCount(0);
   const y = async (locator: typeof pulse) => (await locator.boundingBox())!.y;
   expect(await y(page.getByRole("heading", { name: "Divergências de caixa pendentes" }))).toBeLessThan(await y(pulse));
   expect(await y(page.getByRole("heading", { name: "Comandas precisam de atenção" }))).toBeLessThan(await y(pulse));
-  expect(await y(pulse)).toBeLessThan(await y(house));
-  expect(await y(page.getByRole("heading", { name: "Produção e entrega" }))).toBeLessThan(await y(house));
+  await expect(page.getByRole("heading", { name: "Produção e entrega" })).toHaveCount(0);
+  await page.getByRole("link", { name: "Operação", exact: true }).click();
+  await expect(pulse).toHaveCount(0);
   await expect(page.locator(".dataRow").filter({ hasText: "Bar em preparo" })).toHaveText("Bar em preparo1");
   await expect(page.locator(".dataRow").filter({ hasText: "Cozinha em preparo" })).toHaveText("Cozinha em preparo1");
+  await expect(page.getByRole("link", { name: "Atendimento e mesas" })).toHaveAttribute("href", "/attendance");
   await page.getByRole("link", { name: "Gestão", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Consultar comandas" })).toHaveAttribute("href", "/pos");
+  await page.getByRole("link", { name: "Mais", exact: true }).click();
+  await page.getByRole("link", { name: "Clientes e conta da casa", exact: true }).click();
   await expect(page.getByLabel("Inspecionar comanda")).toBeVisible();
 });
 

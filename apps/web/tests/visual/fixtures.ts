@@ -42,7 +42,9 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     let body: unknown;
     if (url.pathname.endsWith("/realtime/snapshot/")) return route.fulfill({ json: { schema_version: 1, cursor: "visual-test:0" } });
     if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: 'event: ready\nid: visual-test:0\ndata: {"cursor":"visual-test:0"}\n\n' });
-    if (url.pathname === "/api/auth/me") {
+    if (url.pathname === "/api/dev/status") body = { enabled: false };
+    else if (url.pathname === "/api/auth/reauthenticate") body = { ok: true };
+    else if (url.pathname === "/api/auth/me") {
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;
     } else if (url.pathname.startsWith("/api/auth/invalidation-events")) body = { cursor: 0, results: [] };

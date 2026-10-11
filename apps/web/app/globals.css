@@ -428,3 +428,6 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 @media print { .panel { box-shadow: none; } .operationalHeading > .operationalIcon { display: none; } }
 .panelDanger .operationalHeading > .operationalIcon, .panel--danger .operationalHeading > .operationalIcon { color: var(--color-danger); }
 .panelWarning .operationalHeading > .operationalIcon, .panel--warning .operationalHeading > .operationalIcon { color: var(--color-warning); }
+
+/* Destructive actions with readable labels, preserving the danger border/tint. */
+.buttonDangerReadable { color: var(--color-text); }
