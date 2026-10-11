@@ -687,3 +687,9 @@ result. Other-session records remain review-only; unreadable storage remains
 preserved with explicit warning. No discard, adoption, automatic replay or new
 manager reconciliation command is introduced. Existing context-specific retry
 flows remain responsible for canonical verification with original identity.
+
+## Android — preservação de API offline (Spec023 V06, 09/10/2026)
+
+Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
+
+Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.

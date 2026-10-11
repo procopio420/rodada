@@ -51,7 +51,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
 import com.rodada.attendance.cash.CashShiftScreen

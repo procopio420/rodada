@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
 async function evidence(page: import("@playwright/test").Page, name: string) {
-  const directory = path.resolve(import.meta.dirname, "../../../../visual-artifacts/frontend-pilot");
+  const directory = path.resolve(__dirname, "../../../../visual-artifacts/frontend-pilot");
   await mkdir(directory, { recursive: true });
   await page.screenshot({ path: path.join(directory, `${name}-390.png`), fullPage: true });
 }

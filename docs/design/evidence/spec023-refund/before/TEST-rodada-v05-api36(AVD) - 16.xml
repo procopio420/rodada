@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="1" failures="1" errors="0" skipped="0" time="0.000" timestamp="2026-10-10T05:20:29" hostname="localhost">
+  <testsuite name="com.rodada.attendance.operations.RefundFieldsTest" tests="1" failures="1" errors="0" skipped="0" time="1.851" timestamp="2026-10-10T05:20:29" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="authorizedRefundKeepsCentsReasonAndStableIntent" classname="com.rodada.attendance.operations.RefundFieldsTest" time="1.851">
+      <failure>java.lang.AssertionError: Semantic Node has no parent layout with a Scroll SemanticsAction
+	at androidx.compose.ui.test.ActionsKt.scrollToNode(Actions.kt:98)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:83)
+	at com.rodada.attendance.operations.RefundFieldsTest.authorizedRefundKeepsCentsReasonAndStableIntent(RefundFieldsTest.kt:24)
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

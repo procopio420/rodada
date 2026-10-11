@@ -115,3 +115,5 @@
 Given valid refresh cookies and an expired/missing access cookie, concurrent authenticated reads of PDV, Bar, Cozinha and Caixa must all succeed and leave one valid operator session. Requests sent with stale cookies within five seconds receive the same rotation, without issuing a second backend refresh. Tokens remain HttpOnly and absent from response JSON.
 
 Given a session revoked after that rotation, reusing the buffered result must still fail API authorization and clear privileged cookies. A transient upstream refresh failure must not clear valid cookies. The coordinator is memory-bounded, isolates credentials and releases pending/expired entries. This acceptance is for one Web process, not multiple replicas.
+
+Verificação Web10/10/2026: membro sem capability de gerência deve ver aviso explícito tanto no cockpit quanto na região Alertas operacionais, sem projeção Comandas abertas. Teste integrado distingue os dois avisos legítimos, exige ambos e não afrouxa autorização.

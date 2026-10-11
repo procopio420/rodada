@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="2" failures="2" errors="0" skipped="0" time="0.000" timestamp="2026-10-09T22:30:25" hostname="localhost">
+  <testsuite name="com.rodada.attendance.ui.AttendanceHeaderTest" tests="2" failures="2" errors="0" skipped="0" time="4.160" timestamp="2026-10-09T22:30:25" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="longNameAndActionsFit" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="2.845">
+      <failure>java.lang.AssertionError: Text right clipped: ● rodada
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.rodada.attendance.ui.AttendanceHeaderTest.assertTextFits(AttendanceHeaderTest.kt:50)
+	at com.rodada.attendance.ui.AttendanceHeaderTest.longNameAndActionsFit(AttendanceHeaderTest.kt:26)
+</failure>
+    </testcase>
+    <testcase name="busyPreservesPeakAndCanonicalConnectivity" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="1.315">
+      <failure>java.lang.AssertionError: Text right clipped: ● rodada
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.rodada.attendance.ui.AttendanceHeaderTest.assertTextFits(AttendanceHeaderTest.kt:50)
+	at com.rodada.attendance.ui.AttendanceHeaderTest.busyPreservesPeakAndCanonicalConnectivity(AttendanceHeaderTest.kt:36)
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

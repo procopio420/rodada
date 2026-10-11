@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.rodada.attendance.ui.RodadaButton as Button
@@ -27,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.AuthUiState
@@ -110,18 +113,20 @@ fun AuthApp(
 }
 
 @Composable
-private fun LoginScreen(
+internal fun LoginScreen(
     state: AuthUiState,
     onLogin: (String, String, String) -> Unit,
 ) {
     var venueSlug by rememberSaveable { mutableStateOf("") }
     var loginIdentifier by rememberSaveable { mutableStateOf("") }
     var pin by rememberSaveable { mutableStateOf("") }
+    val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
+                .then(if (keyboardVisible) Modifier.verticalScroll(rememberScrollState()) else Modifier)
                 .padding(24.dp),
         verticalArrangement = Arrangement.Center,
     ) {

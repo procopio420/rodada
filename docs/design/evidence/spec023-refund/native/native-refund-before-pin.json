@@ -1,0 +1,93 @@
+[
+  {
+    "text": "Estornar pagamento",
+    "content-desc": "",
+    "bounds": "[59,124][272,158]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Disponível para estorno: R$ 6,00",
+    "content-desc": "",
+    "bounds": "[59,174][283,196]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pagamento: Dinheiro",
+    "content-desc": "",
+    "bounds": "[59,204][205,226]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "3,00",
+    "content-desc": "",
+    "bounds": "[59,234][331,300]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Valor do estorno",
+    "content-desc": "",
+    "bounds": "[75,234][178,254]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Estorno test nativo",
+    "content-desc": "",
+    "bounds": "[59,308][331,374]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Motivo",
+    "content-desc": "",
+    "bounds": "[75,308][117,328]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa para devolução em dinheiro",
+    "content-desc": "",
+    "bounds": "[59,382][301,398]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "✓ QA c87f49c59d",
+    "content-desc": "",
+    "bounds": "[132,419][259,441]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Confirme sua identidade como operador autorizado; o PIN não é salvo.",
+    "content-desc": "",
+    "bounds": "[59,462][331,506]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Seu PIN",
+    "content-desc": "",
+    "bounds": "[75,541][134,563]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Confirmar estorno",
+    "content-desc": "",
+    "bounds": "[176,621][307,643]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Cancelar",
+    "content-desc": "",
+    "bounds": "[253,677][319,699]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

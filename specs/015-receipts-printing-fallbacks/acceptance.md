@@ -124,3 +124,5 @@ and vendor-mandated payment receipt metadata are separate external decisions.
 ## Fixtures em Windows
 
 Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
+
+Verificação10/10: revogação de link compartilhado deve aguardar resposta canônica de sucesso antes de recarregar a página leitora; leitor exige erro expirado e ausência do documento. Sincronizar o teste com POST share contendo revoke_id, sem timeout maior ou redução do aceite.

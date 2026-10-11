@@ -1,0 +1,107 @@
+[
+  {
+    "text": "← Atendimento",
+    "content-desc": "",
+    "bounds": "[36,61][148,83]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Operador ativo",
+    "content-desc": "",
+    "bounds": "[24,108][132,124]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[24,136][200,171]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-demo",
+    "content-desc": "",
+    "bounds": "[24,183][124,205]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Função: OWNER",
+    "content-desc": "",
+    "bounds": "[24,217][150,239]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Device: UNTRUSTED",
+    "content-desc": "",
+    "bounds": "[24,251][185,273]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Bloquear",
+    "content-desc": "",
+    "bounds": "[48,298][114,320]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Sair",
+    "content-desc": "",
+    "bounds": "[164,298][194,320]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Trocar operador",
+    "content-desc": "",
+    "bounds": "[24,373][171,395]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "A troca rápida só é liberada em dispositivo confiável.",
+    "content-desc": "",
+    "bounds": "[24,407][366,451]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Próximo operador",
+    "content-desc": "",
+    "bounds": "[40,490][170,512]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "PIN do próximo operador",
+    "content-desc": "",
+    "bounds": "[40,568][219,590]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Trocar operador",
+    "content-desc": "",
+    "bounds": "[138,636][253,658]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Confirmar ação privilegiada",
+    "content-desc": "",
+    "bounds": "[24,715][273,737]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Seu PIN",
+    "content-desc": "",
+    "bounds": "[40,776][99,798]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

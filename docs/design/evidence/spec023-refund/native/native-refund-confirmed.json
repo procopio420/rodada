@@ -1,0 +1,191 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[16,102][74,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[29,113][62,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[94,113][161,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[205,113][249,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 20,00",
+    "content-desc": "",
+    "bounds": "[40,160][350,171]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[40,171][109,193]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "QA Wrong item c87f49c59d",
+    "content-desc": "",
+    "bounds": "[40,219][350,241]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[40,241][350,263]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[40,263][109,285]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "busy-09a16b4ae046 KITCHEN",
+    "content-desc": "",
+    "bounds": "[40,311][350,333]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 20,00",
+    "content-desc": "",
+    "bounds": "[40,333][350,355]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[40,355][109,377]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Carrinho",
+    "content-desc": "",
+    "bounds": "[32,411][109,437]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Toque em um produto para adicionar.",
+    "content-desc": "",
+    "bounds": "[32,445][298,467]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pedidos confirmados",
+    "content-desc": "",
+    "bounds": "[16,493][203,519]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[28,541][79,563]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "1× QA Wrong item c87f49c59d · R$ 6,00",
+    "content-desc": "",
+    "bounds": "[28,567][258,611]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Novo",
+    "content-desc": "",
+    "bounds": "[28,611][61,626]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[282,586][338,608]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pagamentos",
+    "content-desc": "",
+    "bounds": "[16,648][127,674]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Dinheiro",
+    "content-desc": "",
+    "bounds": "[28,696][90,718]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00 · PARTIALLY_REFUNDED",
+    "content-desc": "",
+    "bounds": "[28,723][279,745]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Já estornado: R$ 3,00",
+    "content-desc": "",
+    "bounds": "[28,750][185,772]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Estornar R$ 3,00",
+    "content-desc": "",
+    "bounds": "[136,790][255,812]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

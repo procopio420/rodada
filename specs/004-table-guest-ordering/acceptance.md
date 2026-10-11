@@ -1,5 +1,9 @@
 # Acceptance — Spec 004
 
+## Validação integrada da demo — revogação realtime
+
+O teste de chamadas guest preserva em memória o token anterior antes de liberar a mesa. Depois da liberação, exige403/GUEST_SESSION_REVOKED em nova solicitação com esse token e ausência dos controles de chamada após reload. SSE pode remover a superfície imediatamente; não depender de clicar em um botão já removido. Contrato de domínio e status/code exigidos permanecem inalterados.
+
 - [ ] Mesa possui QR com token opaco não sequencial.
 - [ ] QR permanece o mesmo quando a mesa muda de lugar.
 - [x] Scan do QR resolve a Table sem expor PK interno.

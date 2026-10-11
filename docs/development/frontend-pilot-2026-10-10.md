@@ -107,3 +107,45 @@ Capturas versionadas (fixtures de teste): [setup](assets/frontend-pilot/setup-39
 [estorno Android](assets/frontend-pilot/refund-w360-f200.png).
 As capturas Android mostram o primeiro trecho rolável do formulário; os testes
 verificam o acesso aos campos abaixo e às ações com fonte 200%.
+
+
+## Sincronização e reabertura — 11/10/2026
+
+Integrada `origin/main` em `2aef9d3` na branch `codex/ux-operational-polish`,
+preservando as slices anteriores. Main inclui PR68 (Android/acessibilidade e
+OFFLINE/reconexão), PR69 (cardápio) e PR70 (preparação Railway). Conflitos de
+specs preservam os dois recortes; imports Android deduplicados; impressão conserva
+espera da resposta canônica e desaparecimento do link revogado. Teste de acesso
+à Gerência conserva um aviso único e ausência de dados/painel sem autorização.
+Coletor de capturas usa `__dirname`, compatível com a transformação Playwright;
+`import.meta.dirname` havia impedido executar a integração, apesar do typecheck.
+
+Validação desta combinação: build/types Web, 201 visuais sem alterar baselines,
+14 jornadas Web/API/PostgreSQL isoladas, 12 sessão/realtime, 8 testes PostgreSQL
+do importador/cardápio; Android 55 JVM sem skips, assembleDebug e lintDebug.
+Instrumentação Android não foi repetida nesta sincronização: a matriz acima é
+histórica, não evidência nativa nova deste merge.
+
+Novas PRs de Lucas consultadas em seus heads atuais, ainda abertas:
+- [PR71](https://github.com/procopio420/rodada/pull/71), `973faec`: recebimentos/
+  estornos confirmados por método; API/Web/Docker aprovados. Ainda fora desta branch.
+- [PR72](https://github.com/procopio420/rodada/pull/72), `4342a39`: fila de chamadas
+  Web; sobrepõe a fila já entregue aqui. Docker/visuais passam, mas integração
+  falha porque a fila canônica ainda contém um BILL_REQUEST CLAIMED após o teste
+  tentar concluí-lo. Não absorver UI duplicada nem declarar a PR aprovada.
+
+Auditados os 10 worktrees: sem arquivos modificados de produto nem commits não
+publicados contra as respectivas branches; `.worktrees/` é diretório local de
+checkouts e permanece fora do commit. A main local antiga é atualizada apenas
+se for ancestral de origin/main. Push normal na nossa branch; nenhuma publicação
+Railway/merge da nossa branch na main foi feita nesta sincronização.
+
+Demo reaberta do checkout principal com PostgreSQL preservado (55459), API18764,
+Web3119 e dispatcher. Migrações já atuais. Importação não sobrescreveu existentes:
+142 produtos novos, 1 divergente preservado; 146 produtos totais, incluindo três
+itens antigos fora do CSV. Brahma600ml permanece1200 centavos. Preços/roteamento
+fotografados ainda exigem revisão do estabelecimento.
+Quatro logins verificados em navegador real: ana/bia no bar-do-aderlan e
+release-owner/release-staff no release-demo. Doze superfícies operacionais abertas
+sem avisos de erro, e QR de teste preservado. Essas são contas e dados locais de
+ensaio, não credenciais nem homologação de produção.
