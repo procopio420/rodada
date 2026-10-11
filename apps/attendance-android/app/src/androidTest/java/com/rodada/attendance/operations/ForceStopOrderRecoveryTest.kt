@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.rodada.attendance.auth.AuthTokens
 import com.rodada.attendance.auth.StoredSession
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,7 +29,18 @@ class ForceStopOrderRecoveryTest {
         tabId = "test-tab", lines = listOf(PendingOrderLine("test-product", 2)),
     )
 
-    @Test fun prepareEncryptedPendingOrder() {
+    @Test fun stagedRecovery() {
+        val phase = InstrumentationRegistry.getArguments().getString("phase")
+        assumeTrue("Explicit multi-process smoke only; see scripts/android-force-stop-recovery.sh",
+            phase in setOf("prepare", "offline", "ambiguous"))
+        when (phase) {
+            "prepare" -> prepareEncryptedPendingOrder()
+            "offline" -> verifySurvivesForceStopWhileNetworkUnavailable()
+            "ambiguous" -> verifyAmbiguousIntentSurvivesSecondForceStop()
+        }
+    }
+
+    private fun prepareEncryptedPendingOrder() {
         val store = PendingMutationIntentStore(context)
         store.remove(key)
         store.save(intent, session)
@@ -41,7 +53,7 @@ class ForceStopOrderRecoveryTest {
         assertFalse(ciphertext.contains(key))
     }
 
-    @Test fun verifySurvivesForceStopWhileNetworkUnavailable() {
+    private fun verifySurvivesForceStopWhileNetworkUnavailable() {
         // This method MUST run after adb force-stop in a fresh instrumentation process.
         val store = PendingMutationIntentStore(context)
         val restored = store.orderQueue(session).single { it.id == key }
@@ -57,7 +69,7 @@ class ForceStopOrderRecoveryTest {
         store.updateOrderState(restored, session, RecoveryState.CHECKING)
     }
 
-    @Test fun verifyAmbiguousIntentSurvivesSecondForceStop() {
+    private fun verifyAmbiguousIntentSurvivesSecondForceStop() {
         // Simulates kill after POST could have committed but before acknowledgement.
         val store = PendingMutationIntentStore(context)
         val original = store.orderQueue(session).single { it.id == key }
