@@ -30,10 +30,15 @@ class PendingMutationIntentStore(context: Context) {
         val original = records.firstOrNull { it.intent.id == intent.id }
         require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
         if (original != null && intent is RecoveryIntent.ConfirmOrder) {
-            // State can advance, never change an in-flight order, actor or key.
-            val previous = original.intent.toJson().put("state", intent.state.name).toString()
-            require(previous == intent.toJson().toString()) {
+            // Data-class equality deliberately ignores only state; JSON key order does
+            // not carry meaning and must not decide whether a financial fact is safe.
+            val prior = original.intent as? RecoveryIntent.ConfirmOrder
+            require(prior != null && prior.copy(state = intent.state) == intent) {
                 "Uma intenção durável não pode trocar payload, chave ou identidade."
+            }
+            require(prior.state !in setOf(RecoveryState.ACTION_REQUIRED, RecoveryState.FAILED_TERMINAL, RecoveryState.CONFIRMED)
+                || prior.state == intent.state) {
+                "Pedido bloqueado para revisão não pode voltar à fila automaticamente."
             }
         }
         if (intent is RecoveryIntent.ConfirmOrder && original == null) {
