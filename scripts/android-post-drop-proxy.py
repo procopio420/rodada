@@ -28,16 +28,22 @@ class Proxy(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, handler, evidence):
+    def __init__(self, address, handler, evidence, hold_response=False):
         super().__init__(address, handler)
         self.lock = threading.Lock()
         self.armed = True
         self.events = []
         self.replays = []
         self.evidence = evidence
+        self.hold_response = hold_response
+        self.holding = 0
+        self.release_signal = threading.Event()
+        self.release_after_cut = False
 
     def snapshot(self):
-        return {"armed": self.armed, "events": self.events, "replays": self.replays}
+        return {"armed": self.armed, "events": self.events, "replays": self.replays,
+                "hold_response": self.hold_response, "holding": self.holding,
+                "released_after_cut": self.release_after_cut}
 
     def persist(self):
         parent = os.path.dirname(self.evidence) or "."
@@ -63,6 +69,21 @@ class Handler(BaseHTTPRequestHandler):
         self.proxy("GET")
 
     def do_POST(self):
+        if self.path == "/__fault/release-after-cut":
+            with self.server.lock:
+                if not self.server.hold_response or not self.server.holding:
+                    self.send_error(409, "No committed response is being held")
+                    return
+                self.server.release_after_cut = True
+                self.server.persist()
+                self.server.release_signal.set()
+            payload = b'{"released_after_cut":true}'
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
         if self.path == "/__fault/disarm":
             with self.server.lock:
                 if not self.server.events:
@@ -109,11 +130,39 @@ class Handler(BaseHTTPRequestHandler):
                         self.server.events.append(event)
                         self.server.persist()
                         print(f"POST_COMMITTED_BUT_RESPONSE_DROPPED status={status} order_id={data['id']}", flush=True)
-                        # A real TCP RST, not a successful HTTP response or fake JSON.
+                        if self.server.hold_response:
+                            self.server.holding += 1
+                            self.server.persist()
+                        else:
+                            # Existing test: a real TCP RST, never a fake successful HTTP response.
+                            self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+                            self.connection.close()
+                            self.close_connection = True
+                            return
+                if self.server.armed and self.server.hold_response:
+                    # The caller is blocked inside a real HTTP POST until the test
+                    # runner cuts the Android network. No response is sent before that.
+                    if not self.server.release_signal.wait(timeout=20):
+                        print("HOLD_RESPONSE_TIMEOUT", flush=True)
                         self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
                         self.connection.close()
                         self.close_connection = True
                         return
+                    with self.server.lock:
+                        if not self.server.release_after_cut:
+                            raise RuntimeError("Held response released without verified network cut")
+                    print("RELEASING_COMMITTED_RESPONSE_AFTER_ANDROID_NETWORK_CUT", flush=True)
+                    # Attempt delivery of the genuine upstream HTTP response only
+                    # after the Android uplink has been disconnected.
+                    # A client-side IOException, not this log alone, proves loss.
+                    self.send_response(status)
+                    for name, value in response_headers:
+                        if name.lower() not in HOP:
+                            self.send_header(name, value)
+                    self.send_header("Content-Length", str(len(response_body)))
+                    self.end_headers()
+                    self.wfile.write(response_body)
+                    return
                     self.server.replays.append(event)
                     self.server.persist()
             self.send_response(status)
@@ -140,10 +189,12 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", required=True)
+    parser.add_argument("--hold-response", action="store_true",
+                        help="Pause a committed POST until externally verified Android uplink cut")
     args = parser.parse_args()
-    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence)
+    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence, hold_response=args.hold_response)
     app.persist()
-    print("POST_DROP_PROXY_READY at :8000 => Django :8101", flush=True)
+    print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :8000 => Django :8101", flush=True)
     app.serve_forever()
 
 
