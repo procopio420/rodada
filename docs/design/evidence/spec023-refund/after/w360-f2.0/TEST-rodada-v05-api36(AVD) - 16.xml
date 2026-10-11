@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="9" failures="0" errors="0" skipped="0" time="0.000" timestamp="2026-10-10T05:24:26" hostname="localhost">
+  <testsuite name="com.rodada.attendance.operations.CriticalFieldsTest" tests="3" failures="0" errors="0" skipped="0" time="5.579" timestamp="2026-10-10T05:24:26" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="activeCashKeepsAmountMethodAndDestination" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="2.810" />
+    <testcase name="paymentWarningAndDecisionsRemainReachable" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="1.541" />
+    <testcase name="catalogKeepsFullIdentityAndCanonicalPrice" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="1.228" />
+  </testsuite>
+  <testsuite name="com.rodada.attendance.operations.LoginAccessibilityTest" tests="1" failures="0" errors="0" skipped="0" time="3.647" timestamp="2026-10-10T05:24:26" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="completeLoginRemainsReachableAndClearsPin" classname="com.rodada.attendance.operations.LoginAccessibilityTest" time="3.647" />
+  </testsuite>
+  <testsuite name="com.rodada.attendance.operations.RefundFieldsTest" tests="1" failures="0" errors="0" skipped="0" time="4.731" timestamp="2026-10-10T05:24:26" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="authorizedRefundKeepsCentsReasonAndStableIntent" classname="com.rodada.attendance.operations.RefundFieldsTest" time="4.731" />
+  </testsuite>
+  <testsuite name="com.rodada.attendance.ui.AttendanceHeaderTest" tests="2" failures="0" errors="0" skipped="0" time="2.744" timestamp="2026-10-10T05:24:26" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="longNameAndActionsFit" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="1.407" />
+    <testcase name="busyPreservesPeakAndCanonicalConnectivity" classname="com.rodada.attendance.ui.AttendanceHeaderTest" time="1.337" />
+  </testsuite>
+  <testsuite name="com.rodada.attendance.ui.AttendanceNavigationTest" tests="2" failures="0" errors="0" skipped="0" time="3.153" timestamp="2026-10-10T05:24:26" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="busyAndAdjacentDestination" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="1.576" />
+    <testcase name="geometryAndActions" classname="com.rodada.attendance.ui.AttendanceNavigationTest" time="1.577" />
+  </testsuite>
+</testsuites>

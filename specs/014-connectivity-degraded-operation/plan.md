@@ -96,3 +96,9 @@ Implement a database outbox/publication log and async SSE endpoints first; adapt
 ## Delivered realtime slice
 
 Database outbox and replay, authenticated async SSE, native and Web invalidation adapters, guest history/balance, session-scoped Web caches and offline shell startup are implemented. Production read polling is replaced with SSE plus bounded fallback. Android accepted cursors require successful canonical revalidation. Broader offline evidence/reconciliation remains a separate rollout; see tasks and delivery evidence.
+
+## Android — preservação de API offline (Spec023 V06, 09/10/2026)
+
+Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
+
+Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.

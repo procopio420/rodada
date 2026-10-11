@@ -1,0 +1,55 @@
+{
+  "validated_behavior_commits": [
+    "20e3649",
+    "bb29b5d",
+    "1d22393"
+  ],
+  "android": {
+    "lint": "PASS",
+    "unit": 51,
+    "widths": [
+      360,
+      390,
+      430
+    ],
+    "font_scales": [
+      1,
+      2
+    ],
+    "api": 36,
+    "tests_per_configuration": 4,
+    "failures": 0,
+    "density": 160,
+    "skips": 0,
+    "build": "PASS"
+  },
+  "base": "45c4742b3de4e6a21ed607342f75e53e18b07d7d",
+  "limits": [
+    "No full pixel parity approval",
+    "No hardware/provider/production",
+    "Native refunds and full internal 200 percent font/keyboard matrix pending",
+    "Remote CI inspected separately by published head"
+  ],
+  "web": {
+    "typecheck": "PASS",
+    "realtime": 8,
+    "visual": 197,
+    "postgres_integration": 13,
+    "build": "PASS",
+    "auth": 4
+  },
+  "integrated": {
+    "payment_classification": "MANUAL_TEST",
+    "peak_mutations": 1043,
+    "http_full_shift": "PASS",
+    "native_postgres_readback": "PASS",
+    "native_ui_cash_cycle": "PASS",
+    "peak_requests": 1366
+  },
+  "reference": {
+    "original_sources_unchanged": true,
+    "cross_run_files_exact": true,
+    "states": 34,
+    "stable_pairs": 34
+  }
+}

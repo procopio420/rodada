@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "source": "read-only Django ORM, real isolated PostgreSQL55523",
+  "native_android_ui": "RUN_API36",
+  "payments": "MANUAL_TEST",
+  "tab_state": "CLOSED",
+  "orders": 1,
+  "charges_cents": 600,
+  "payments_cents": 900,
+  "refunds_cents": 300,
+  "open_exposure_cents": 0,
+  "original_payment": "PARTIALLY_REFUNDED, preserved600",
+  "refund_count": 1,
+  "refund_actor_timestamp_audit": true,
+  "cash_refund_movement_cents": -300,
+  "cash_expected_cents": 600,
+  "cash_counted_cents": 600,
+  "cash_discrepancy_cents": 0,
+  "provider": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}

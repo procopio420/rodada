@@ -1,0 +1,19 @@
+{
+  "spec": "023",
+  "slice": "V01 night initial Agora and adjacent Bar only",
+  "base": "45c4742b3de4e6a21ed607342f75e53e18b07d7d",
+  "entry": "night/Main.dc.html",
+  "archive_sha256": "10f5b7ce9a749094e9bb6adbdd09ac5eb26e3571fd82cce805f9b3f880d95e28",
+  "state": "fresh initial state; no interaction",
+  "viewport": { "width": 1760, "height": 1060 },
+  "phone": { "selector": ".phone", "width": 390, "height": 844 },
+  "bar": { "selector": ".kds", "width": 820, "height": 864 },
+  "fixture": "literal export data; no database",
+  "normalization": "clock paused; animations/caret disabled for screenshot only; no data or DOM/style changes",
+  "measurements": "docs/design/evidence/v01-night-agora/measurements.json",
+  "reproduce": "node scripts/spec023-night-inventory.cjs",
+  "excluded_chrome": ["presentation rail", "devlabel", "outer device shadow"],
+  "native_baseline_approved": false,
+  "uncovered_states": ["Contas/search", "Tab detail", "order/cart/review", "payment/limit/approval", "overlays", "peak", "offline/recovery"],
+  "status": "partial inventory; no product parity claim"
+}

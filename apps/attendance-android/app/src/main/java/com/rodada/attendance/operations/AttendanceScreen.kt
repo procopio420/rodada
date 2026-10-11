@@ -1,6 +1,8 @@
 package com.rodada.attendance.operations
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.HorizontalDivider
@@ -43,12 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.LifecycleOwner
 import android.net.ConnectivityManager
 import android.net.Network
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
 import com.rodada.attendance.cash.CashShiftScreen
@@ -315,30 +317,10 @@ private fun Header(
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
-            Text(session.staffDisplayName, style = MaterialTheme.typography.bodySmall)
-            Text(
-                when (connectivity) {
-                    ConnectivityState.ONLINE -> "ONLINE"
-                    ConnectivityState.RECONNECTING -> "VERIFICANDO"
-                    ConnectivityState.STALE -> "DESATUALIZADO"
-                    ConnectivityState.OFFLINE -> "SEM SINAL"
-                },
-                modifier = Modifier.semantics { contentDescription = connectivity.label() },
-                style = MaterialTheme.typography.labelSmall,
-                color = if (connectivity == ConnectivityState.ONLINE) RodadaVisual.Success else RodadaVisual.Amber,
-            )
-        }
-        TextButton(onClick = onTogglePeak, modifier = Modifier.semantics { contentDescription = if (peak) "Sair do modo pico" else "Ativar modo pico" }) { Text(if (peak) "Pico ●" else "Pico", color = RodadaVisual.Amber) }
-        TextButton(onClick = onRefresh, enabled = !busy) { Text("Atualizar") }
-        OutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
-    }
+    com.rodada.attendance.ui.AttendanceHeader(
+        staffName = session.staffDisplayName, connectivity = connectivity, busy = busy, peak = peak,
+        onTogglePeak = onTogglePeak, onOpenAccount = onOpenAccount, onRefresh = onRefresh,
+    )
 }
 
 @Composable
@@ -464,17 +446,8 @@ private fun TabWorkspace(
         }
         items(availableProducts, key = { it.id }) { product ->
             val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-            OutlinedButton(onClick = { if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product }, enabled = sellable && !state.submitting && state.orderIntentId == null, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(product.name, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(formatCents(product.priceCents))
-                    }
-                    Text(
-                        if (sellable) product.fulfillmentStation else "${product.availability} · indisponível",
-                        color = if (sellable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
-                    )
-                }
+            CatalogProductButton(product, sellable, sellable && !state.submitting && state.orderIntentId == null) {
+                if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
             }
         }
         item {
@@ -698,7 +671,7 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
 }
 
 @Composable
-private fun PaymentDialog(
+internal fun PaymentDialog(
     tab: TabSummary,
     cashPoints: List<CashPoint>,
     busy: Boolean,
@@ -715,11 +688,19 @@ private fun PaymentDialog(
     }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= tab.exposureCents
+    val expanded = LocalConfiguration.current.fontScale > 1.3f
+    @Composable fun ConfirmPayment(modifier: Modifier = Modifier) {
+        Button(
+            onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
+            enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
+            modifier = modifier,
+        ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Pagar comanda") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Subtotal original: ${formatCents(tab.originalSubtotalCents)}")
                 Text("Descontos: ${formatCents(tab.discountsCents)} · Cortesias: ${formatCents(tab.courtesyCents)}")
                 Text("Serviço: ${formatCents(tab.serviceChargeCents)} · Total: ${formatCents(tab.payableCents)}")
@@ -749,12 +730,12 @@ private fun PaymentDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = { onPay(amount ?: 0, method, cashPointId.ifBlank { null }) },
-                enabled = valid && !busy && (method != PaymentMethod.CASH || cashPointId.isNotBlank()),
-            ) { Text(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else "Confirmar pagamento") }
+            if (expanded) Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ConfirmPayment(Modifier.fillMaxWidth())
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) { Text("Cancelar") }
+            } else ConfirmPayment()
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+        dismissButton = { if (!expanded) TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
     )
 }
 
@@ -847,13 +828,13 @@ private fun CorrectionDialog(
     )
 }
 
-private sealed interface RefundTarget {
+internal sealed interface RefundTarget {
     data class Payment(val payment: TabPayment) : RefundTarget
     data class Correction(val correction: RefundRequiredCorrection) : RefundTarget
 }
 
 @Composable
-private fun RefundDialog(
+internal fun RefundDialog(
     target: RefundTarget,
     payments: List<TabPayment>,
     cashPoints: List<CashPoint>,
@@ -885,11 +866,26 @@ private fun RefundDialog(
     val key = remember(target, paymentId) { UUID.randomUUID().toString() }
     val amount = parseCents(rawAmount)
     val valid = amount != null && amount > 0 && amount <= maximum && amount <= selectedPaymentAvailable && selectedPayment != null
+    val expanded = LocalConfiguration.current.fontScale > 1.3f
+    @Composable fun ConfirmRefund(modifier: Modifier = Modifier) {
+        Button(
+                onClick = {
+                    val command = when (target) {
+                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
+                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
+                    }
+                    onSubmit(command, pin)
+                    pin = ""
+                },
+                modifier = modifier,
+                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
+            ) { Text("Confirmar estorno") }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (target is RefundTarget.Correction) "Resolver estorno" else "Estornar pagamento") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Disponível para estorno: ${formatCents(maximum)}")
                 if (target is RefundTarget.Correction) {
                     Text("Correção: ${target.correction.itemName}")
@@ -918,19 +914,12 @@ private fun RefundDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val command = when (target) {
-                        is RefundTarget.Payment -> DirectRefundCommand(paymentId, amount ?: 0, reason.trim(), key, cashPointId.ifBlank { null })
-                        is RefundTarget.Correction -> SettleCorrectionRefundCommand(target.correction.id, paymentId, amount ?: 0, key, cashPointId.ifBlank { null })
-                    }
-                    onSubmit(command, pin)
-                    pin = ""
-                },
-                enabled = !busy && valid && pin.isNotBlank() && (target is RefundTarget.Correction || reason.isNotBlank()),
-            ) { Text("Confirmar estorno") }
+            if (expanded) Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ConfirmRefund(Modifier.fillMaxWidth())
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) { Text("Cancelar") }
+            } else ConfirmRefund()
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+        dismissButton = { if (!expanded) TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
     )
 }
 
@@ -980,7 +969,7 @@ private fun paymentStatusLabel(status: String): String =
         else -> status
     }
 
-private fun ConnectivityState.label(): String =
+internal fun ConnectivityState.label(): String =
     when (this) {
         ConnectivityState.ONLINE -> "ONLINE · API atualizada por consulta"
         ConnectivityState.RECONNECTING -> "RECONECTANDO · verificando a API"

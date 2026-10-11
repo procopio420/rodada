@@ -1,0 +1,177 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[16,102][74,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[29,113][62,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[94,113][161,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[205,113][249,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Ajustar conta / serviço",
+    "content-desc": "",
+    "bounds": "[114,173][277,195]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "← Comandas",
+    "content-desc": "",
+    "bounds": "[28,231][124,253]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Spec023 test 1791588592",
+    "content-desc": "",
+    "bounds": "[16,266][321,301]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ABERTA · versão 1",
+    "content-desc": "",
+    "bounds": "[16,301][153,323]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Operações da comanda",
+    "content-desc": "",
+    "bounds": "[40,336][209,358]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Saldo em aberto",
+    "content-desc": "",
+    "bounds": "[32,387][148,403]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,411][119,446]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Subtotal original R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,454][208,476]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Descontos R$ 0,00 · cortesias R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,484][304,506]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Taxa de serviço R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,514][202,536]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Total a pagar R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,544][183,566]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pagamentos recebidos R$ 0,00 · estornos R$ 0,00",
+    "content-desc": "",
+    "bounds": "[32,574][358,618]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Limite R$ 200,00 · disponível R$ 200,00",
+    "content-desc": "",
+    "bounds": "[32,626][313,648]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "0% do limite utilizado",
+    "content-desc": "",
+    "bounds": "[32,656][184,678]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pagar",
+    "content-desc": "",
+    "bounds": "[90,703][132,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Fechar",
+    "content-desc": "",
+    "bounds": "[254,699][304,721]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Solicitar / aprovar limite",
+    "content-desc": "",
+    "bounds": "[40,771][213,793]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Novo pedido",
+    "content-desc": "",
+    "bounds": "[16,816][125,820]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

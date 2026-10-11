@@ -1,0 +1,184 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[16,102][74,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[29,113][62,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[94,113][161,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[205,113][249,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa",
+    "content-desc": "",
+    "bounds": "[16,160][77,191]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Valores e divergências são confirmados pelo Rodada.",
+    "content-desc": "",
+    "bounds": "[16,191][374,235]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "QA c87f49c59d",
+    "content-desc": "",
+    "bounds": "[32,261][167,287]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Aberto · 2026-10-09",
+    "content-desc": "",
+    "bounds": "[32,297][177,319]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Fundo inicial",
+    "content-desc": "",
+    "bounds": "[32,329][124,351]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 0,00",
+    "content-desc": "",
+    "bounds": "[303,329][358,351]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Esperado",
+    "content-desc": "",
+    "bounds": "[32,361][102,383]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[303,361][358,383]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Suprimento",
+    "content-desc": "",
+    "bounds": "[70,406][154,428]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Sangria",
+    "content-desc": "",
+    "bounds": "[251,406][307,428]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Iniciar contagem",
+    "content-desc": "",
+    "bounds": "[134,468][256,490]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Movimentos recentes",
+    "content-desc": "",
+    "bounds": "[16,533][209,555]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Recebimento em dinheiro",
+    "content-desc": "",
+    "bounds": "[30,579][216,601]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "R$ 6,00",
+    "content-desc": "",
+    "bounds": "[30,601][85,623]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Mesas",
+    "content-desc": "",
+    "bounds": "[94,703][142,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa",
+    "content-desc": "",
+    "bounds": "[253,703][295,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "AGORA",
+    "content-desc": "",
+    "bounds": "[37,782][91,797]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pedir",
+    "content-desc": "",
+    "bounds": "[184,769][234,789]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "CONTAS",
+    "content-desc": "",
+    "bounds": "[296,782][357,797]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]

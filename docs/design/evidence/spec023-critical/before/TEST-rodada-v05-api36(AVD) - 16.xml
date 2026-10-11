@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="3" failures="2" errors="0" skipped="0" time="0.000" timestamp="2026-10-09T23:07:52" hostname="localhost">
+  <testsuite name="com.rodada.attendance.operations.CriticalFieldsTest" tests="3" failures="2" errors="0" skipped="0" time="6.332" timestamp="2026-10-09T23:07:52" hostname="localhost">
+    <properties>
+      <property name="device" value="emulator-5572" />
+    </properties>
+    <testcase name="activeCashKeepsAmountMethodAndDestination" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="3.850" />
+    <testcase name="paymentWarningAndDecisionsRemainReachable" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="1.443">
+      <failure>java.lang.AssertionError: Semantic Node has no parent layout with a Scroll SemanticsAction
+	at androidx.compose.ui.test.ActionsKt.scrollToNode(Actions.kt:98)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:83)
+	at com.rodada.attendance.operations.CriticalFieldsTest.paymentWarningAndDecisionsRemainReachable(CriticalFieldsTest.kt:46)
+</failure>
+    </testcase>
+    <testcase name="catalogKeepsFullIdentityAndCanonicalPrice" classname="com.rodada.attendance.operations.CriticalFieldsTest" time="1.039">
+      <failure>java.lang.AssertionError: Product identity must not be ellipsized
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at com.rodada.attendance.operations.CriticalFieldsTest.catalogKeepsFullIdentityAndCanonicalPrice(CriticalFieldsTest.kt:32)
+</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

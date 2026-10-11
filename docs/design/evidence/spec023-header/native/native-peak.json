@@ -1,0 +1,121 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[16,36][97,63]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "release-owner",
+    "content-desc": "",
+    "bounds": "[16,63][107,78]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[16,78][63,92]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "",
+    "content-desc": "Sair do modo pico",
+    "bounds": "[16,102][85,146]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pico ●",
+    "content-desc": "",
+    "bounds": "[28,113][73,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[105,113][172,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[216,113][260,135]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "MODO PICO",
+    "content-desc": "",
+    "bounds": "[20,176][226,226]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Só entregas · mais antigo primeiro",
+    "content-desc": "",
+    "bounds": "[20,226][265,248]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "0 PRONTOS",
+    "content-desc": "",
+    "bounds": "[20,260][106,276]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "2 CONTAS",
+    "content-desc": "",
+    "bounds": "[295,260][370,276]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Nenhuma entrega aguardando.",
+    "content-desc": "",
+    "bounds": "[20,313][245,335]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Mesas",
+    "content-desc": "",
+    "bounds": "[94,703][142,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Caixa",
+    "content-desc": "",
+    "bounds": "[253,703][295,725]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "AGORA",
+    "content-desc": "",
+    "bounds": "[37,782][91,797]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "Pedir",
+    "content-desc": "",
+    "bounds": "[184,769][234,789]",
+    "enabled": "true",
+    "selected": "false"
+  },
+  {
+    "text": "CONTAS",
+    "content-desc": "",
+    "bounds": "[296,782][357,797]",
+    "enabled": "true",
+    "selected": "false"
+  }
+]
