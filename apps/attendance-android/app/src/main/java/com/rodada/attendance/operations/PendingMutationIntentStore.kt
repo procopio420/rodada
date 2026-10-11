@@ -29,8 +29,8 @@ class PendingMutationIntentStore(context: Context) {
         val records = loadAll()
         val original = records.firstOrNull { it.intent.id == intent.id }
         require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
-        if (original != null) {
-            // State can advance, never change an in-flight command, actor or key.
+        if (original != null && intent is RecoveryIntent.ConfirmOrder) {
+            // State can advance, never change an in-flight order, actor or key.
             val previous = original.intent.toJson().put("state", intent.state.name).toString()
             require(previous == intent.toJson().toString()) {
                 "Uma intenção durável não pode trocar payload, chave ou identidade."
