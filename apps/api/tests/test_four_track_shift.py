@@ -11,7 +11,7 @@ from rest_framework.test import APIClient
 from modules.access.context import ActorContext
 from modules.access.models import StaffMember, StaffSession, VenueStaffMembership
 from modules.cash.models import CashPoint, DailyClose
-from modules.cash.services import (close_cash_shift, record_late_cash_correction,
+from modules.cash.services import (close_cash_shift,
                                   review_cash_discrepancy, start_cash_count)
 from modules.catalog.models import Product
 from modules.documents_printing.models import PrintJob
@@ -110,8 +110,35 @@ class FourTrackShiftTests(TransactionTestCase):
                 "expected_version": ready["version"], "reason": "Test shift checked"})
             self.assertEqual(reviewed["status"], "REVIEWED")
             original = DailyClose.objects.get(pk=ready["id"]).snapshot
-            record_late_cash_correction(shift_id=closed.pk, amount_cents=-100,
-                idempotency_key="late-test-correction", reason="Test omitted withdrawal", actor=actor)
+            # A late correction is not money until a different manager approves.
+            requested = self.call(manager, f"/cash/shifts/{closed.pk}/correction-requests/", {
+                "amount_cents": -100, "idempotency_key": "late-test-correction",
+                "reason": "Test omitted withdrawal"}, 201)
+            self.assertEqual(requested["status"], "PENDING")
+            self.assertEqual(self.call(manager, f"/management/daily-closes/{ready['id']}/")[
+                "corrected_cash_delta_cents"], 0)
+            own = manager.post(f"/cash/correction-requests/{requested['id']}/decision/", {
+                "expected_version": 1, "decision": "APPROVED",
+                "reason": "Must be independent"}, format="json")
+            self.assertEqual(own.status_code, 403)
+            replacement_manager = StaffMember.objects.create(
+                display_name="Independent manager", login_identifier="four-track-independent")
+            replacement_manager.set_pin("1357")
+            replacement_manager.save(update_fields=["pin_hash"])
+            VenueStaffMembership.objects.create(
+                venue=self.venue, staff_member=replacement_manager, role="MANAGER")
+            # login() uses current staff and fixture PIN; do not reuse the first actor's session.
+            self.staff = replacement_manager
+            independent = APIClient()
+            login = self.call(independent, "/auth/login/", {
+                "venue_slug": self.venue.slug, "login_identifier": replacement_manager.login_identifier,
+                "pin": "1357", "installation_id": "four-track-independent", "platform": "WEB"})
+            independent.credentials(HTTP_AUTHORIZATION="Bearer " + login["access_token"])
+            self.call(independent, "/auth/reauthenticate/", {"pin": "1357"})
+            approved = self.call(independent, f"/cash/correction-requests/{requested['id']}/decision/", {
+                "expected_version": 1, "decision": "APPROVED", "reason": "Second manager verified shortage"})
+            self.assertEqual(approved["status"], "APPROVED")
+            self.assertIsNotNone(approved["movement_id"])
             corrected = self.call(manager, f"/management/daily-closes/{ready['id']}/")
             self.assertEqual(corrected["original"], original)
             self.assertEqual(corrected["corrected_cash_delta_cents"], -100)
