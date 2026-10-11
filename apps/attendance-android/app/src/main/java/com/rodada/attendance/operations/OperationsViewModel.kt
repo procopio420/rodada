@@ -404,11 +404,13 @@ class OperationsViewModel(
         orderReplayJob = viewModelScope.launch {
             for (intent in OrderRecoveryPolicy.awaitingReconciliation(queue)) {
                 // Stop if a different staff/venue/device/session replaced the originating context.
-                val now = runCatching { pendingMutationIntentStore.orderQueue(session) }
-                    .getOrElse {
-                        state = state.copy(errorMessage = "Falha na fila criptografada. Reenvio interrompido.")
-                        break
-                    }.firstOrNull { it.id == intent.id } ?: continue
+                val currentQueue = try {
+                    pendingMutationIntentStore.orderQueue(session)
+                } catch (error: Exception) {
+                    state = state.copy(errorMessage = "Falha na fila criptografada. Reenvio interrompido.")
+                    break
+                }
+                val now = currentQueue.firstOrNull { it.id == intent.id } ?: continue
                 if (!OrderRecoveryPolicy.canReplay(now, SessionBoundRecoveryIntent(now, session.sessionId), session)) {
                     break
                 }
@@ -430,6 +432,7 @@ class OperationsViewModel(
                     state = state.copy(noticeMessage = "Pedido confirmado pelo servidor.",
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
                 } catch (error: Exception) {
+                    if (error is kotlinx.coroutines.CancellationException) throw error
                     if (error is OperationsApiException && error.status in 400..499) {
                         // A stale price, disabled product, closed Tab or lost authority is not
                         // silently retried on reconnect. Preserve evidence for reconciliation.
