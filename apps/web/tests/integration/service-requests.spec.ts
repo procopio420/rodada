@@ -33,11 +33,24 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   const queue = await api("dispatch/requests/");
   const requests = queue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E");
   expect(requests.map((task: { task_type: string }) => task.task_type).sort()).toEqual(["BILL_REQUEST", "SERVICE_REQUEST"]);
+  await page.goto("/attendance");
+  await expect(page.getByRole("heading", { name: "Chamados de mesas" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Chamar garçom" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pedido de conta" })).toBeVisible();
   for (const request of requests) {
-    await api(`dispatch/requests/${request.id}/claim/`, {});
-    const completed = await api(`dispatch/requests/${request.id}/complete/`, {});
-    expect(completed.state).toBe("DONE");
+    const title = request.task_type === "BILL_REQUEST" ? "Pedido de conta" : "Chamar garçom";
+    const destination = request.destination_label;
+    const claim = page.getByRole("button", { name: `Assumir ${title} em ${destination}` });
+    await expect(claim).toBeVisible();
+    await claim.click();
+    const complete = page.getByRole("button", { name: `Concluir ${title} em ${destination}` });
+    await expect(complete).toBeVisible();
+    await complete.click();
+    // Completion includes the asynchronous command and canonical queue refresh.
+    await expect(complete).toHaveCount(0);
   }
+  const completedQueue = await api("dispatch/requests/");
+  expect(completedQueue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E")).toHaveLength(0);
   const accessibility = await new AxeBuilder({ page: guest }).include('section[aria-labelledby="guest-service-heading"]').analyze();
   expect(accessibility.violations).toEqual([]);
   // SSE may revoke the page and remove its refresh control before the click.

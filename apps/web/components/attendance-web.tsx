@@ -10,6 +10,7 @@ import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-a
 
 type Table = { id: string; label: string; status: string; zone?: { id: string; label: string }; active_occupancy?: { id: string; tabs?: { id: string; display_label: string }[] } };
 type Delivery = { id: string; product_name: string; quantity: number; tab_label: string; destination_label: string; age_seconds: number };
+type ServiceRequest = { id: string; task_type: "SERVICE_REQUEST" | "BILL_REQUEST"; state: "OPEN" | "CLAIMED"; destination_label: string; claimed_by_id: string | null; age_seconds: number };
 type Tab = { id: string; display_label: string };
 const labels: Record<string, string> = { AVAILABLE: "Disponível", OCCUPIED: "Ocupada", DIRTY: "Aguardando limpeza", CLEANING: "Em limpeza", OUT_OF_SERVICE: "Fora de serviço" };
 async function request<T>(path: string, payload?: object): Promise<T> {
@@ -23,15 +24,15 @@ export function AttendanceWeb() {
 function Workspace({ session, logout }: { session: StaffSessionView; logout: () => Promise<void> }) {
   const [pendingOrder, setPendingOrder] = useState(false);
   const [screen, setScreen] = useState("now"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
-  const [tables, setTables] = useState<Table[]>([]), [deliveries, setDeliveries] = useState<Delivery[]>([]), [tabs, setTabs] = useState<Tab[]>([]), [zones, setZones] = useState<{ id: string; label: string }[]>([]);
+  const [tables, setTables] = useState<Table[]>([]), [deliveries, setDeliveries] = useState<Delivery[]>([]), [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]), [tabs, setTabs] = useState<Tab[]>([]), [zones, setZones] = useState<{ id: string; label: string }[]>([]);
   const [error, setError] = useState(""), [message, setMessage] = useState(""), [updated, setUpdated] = useState("");
   const refresh = useCallback(async () => {
     try {
-      const [tableList, queue, zoneList] = await Promise.all([request<{ results: Table[] }>("hospitality/tables/"), request<{ results: Delivery[] }>("dispatch/delivery/"), request<{ results: { id: string; label: string }[] }>("hospitality/zones/")]);
+      const [tableList, queue, serviceQueue, zoneList] = await Promise.all([request<{ results: Table[] }>("hospitality/tables/"), request<{ results: Delivery[] }>("dispatch/delivery/"), request<{ results: ServiceRequest[] }>("dispatch/requests/"), request<{ results: { id: string; label: string }[] }>("hospitality/zones/")]);
       const allTabs: Tab[] = [];
       let offset: number | null = 0;
       do { const page: { results: Tab[]; next_offset?: number | null } = await request(`tabs/?active=true&offset=${offset}`); allTabs.push(...page.results); offset = page.next_offset ?? null; } while (offset !== null);
-      setTables(tableList.results); setDeliveries(queue.results); setZones(zoneList.results); setTabs(allTabs); setOnline(true); setUpdated(new Date().toLocaleTimeString("pt-BR"));
+      setTables(tableList.results); setDeliveries(queue.results); setServiceRequests(serviceQueue.results); setZones(zoneList.results); setTabs(allTabs); setOnline(true); setUpdated(new Date().toLocaleTimeString("pt-BR"));
     } catch (failure) { setOnline(false); setError(failure instanceof Error ? failure.message : "Não foi possível atualizar."); }
     finally { setLoading(false); }
   }, []);
@@ -48,6 +49,22 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     <nav className="attendanceNav" aria-label="Atendimento">{[["now", "Agora"], ["tabs", "Contas"], ["tables", "Mesas"]].map(([id, title]) => <button key={id} className={screen === id ? "buttonPrimary" : "buttonSecondary"} aria-current={screen === id ? "page" : undefined} disabled={busy || pendingOrder} onClick={() => { setScreen(id); void refresh(); }}><OperationalIcon name={({ now: "now", tabs: "wallet", tables: "table" } as Record<string, OperationalIconName>)[id]} /><span>{title}</span></button>)}</nav>
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && <p className="notice" data-state="success" role="status">{message}</p>}
     {screen === "now" && <section className="panel"><OperationalHeading as="h2" icon="check">Entregas prontas</OperationalHeading>{loading ? <p>Carregando entregas…</p> : !deliveries.length && online ? <p className="muted">Nenhuma entrega pronta.</p> : deliveries.map(delivery => <article className="attendanceItem" key={delivery.id}><h3>{delivery.quantity || 1}× {delivery.product_name}</h3><p>{delivery.destination_label || "Sem mesa"} · {delivery.tab_label || "Comanda"}</p><p className="muted">Pronto há {Math.floor(delivery.age_seconds / 60)} min</p><button className="buttonPrimary" disabled={busy || !online} onClick={() => void command(`dispatch/delivery/${delivery.id}/complete/`)}>Concluir entrega</button></article>)}</section>}
+    {screen === "now" && <section className="panel" aria-label="Chamados de mesas">
+      <OperationalHeading as="h2" icon="people">Chamados de mesas</OperationalHeading>
+      <p className="muted">Solicitações confirmadas no servidor; atualiza automaticamente a cada 15 segundos. Confirme antes de marcar um chamado como concluído.</p>
+      {loading ? <p>Carregando chamados…</p> : !serviceRequests.length && online ? <p className="muted">Nenhum chamado pendente.</p> : serviceRequests.map(task => {
+        const title = task.task_type === "BILL_REQUEST" ? "Pedido de conta" : "Chamar garçom";
+        const destination = task.destination_label || "Local não informado";
+        return <article className="attendanceItem" key={task.id}>
+          <h3>{title}</h3>
+          <p>{destination}</p>
+          <p className="muted">Aguardando há {Math.floor(task.age_seconds / 60)} min · {task.state === "CLAIMED" ? "Em atendimento" : "Aguardando responsável"}</p>
+          {task.state === "OPEN" ? <button className="buttonPrimary" disabled={busy || !online} aria-label={`Assumir ${title} em ${destination}`} onClick={() => void command(`dispatch/requests/${task.id}/claim/`)}>Assumir chamado</button> : null}
+          {task.state === "CLAIMED" && task.claimed_by_id === session.staff.id ? <button className="buttonPrimary" disabled={busy || !online} aria-label={`Concluir ${title} em ${destination}`} onClick={() => void command(`dispatch/requests/${task.id}/complete/`)}>Concluir chamado</button> : null}
+          {task.state === "CLAIMED" && task.claimed_by_id !== session.staff.id ? <p className="muted">Outro operador assumiu este chamado.</p> : null}
+        </article>;
+      })}
+    </section>}
     <div hidden={screen !== "tabs"}><OrderWorkspace withoutPayments onPendingChange={setPendingOrder} /></div>
     {screen === "tables" && <section className="panel"><OperationalHeading as="h2" icon="table">Mesas</OperationalHeading>{loading ? <p>Carregando mesas…</p> : !tables.length && online ? <p className="muted">Nenhuma mesa cadastrada.</p> : tables.map(table => <article className="attendanceItem" key={table.id}><h3>Mesa {table.label}</h3><p>{labels[table.status] || table.status}</p>{table.active_occupancy?.tabs?.map(tab => <p key={tab.id}>{tab.display_label || "Comanda sem nome"}</p>)}<div className="field"><label htmlFor={`zone-${table.id}`}>Localização da mesa {table.label}</label><select id={`zone-${table.id}`} value={table.zone?.id || ""} disabled={busy || !online} onChange={event => void command(`hospitality/tables/${table.id}/location/`, { zone_id: event.target.value || null })}><option value="">Sem zona</option>{zones.map(zone => <option key={zone.id} value={zone.id}>{zone.label}</option>)}</select></div>
       {table.status === "AVAILABLE" && <button className="buttonPrimary" disabled={busy || !online} onClick={() => void command(`hospitality/tables/${table.id}/occupy/`)}>Ocupar mesa {table.label}</button>}
