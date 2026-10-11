@@ -128,7 +128,7 @@ fun AttendanceScreen(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> { viewModel.refresh(session); viewModel.startRealtime(session) }
-                Lifecycle.Event.ON_STOP -> viewModel.stopRealtime()
+                Lifecycle.Event.ON_STOP -> { viewModel.stopRealtime(); viewModel.pauseOrderRecovery() }
                 else -> Unit
             }
         }
