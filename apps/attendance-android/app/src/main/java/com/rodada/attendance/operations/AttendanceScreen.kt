@@ -137,6 +137,7 @@ fun AttendanceScreen(
         onDispose {
             activity?.lifecycle?.removeObserver(observer)
             viewModel.stopRealtime()
+            viewModel.pauseOrderRecovery()
         }
     }
 
