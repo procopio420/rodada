@@ -122,6 +122,12 @@ class OperationsViewModel(
         }
     }
 
+    fun pauseOrderRecovery() {
+        // Lifecycle STOP interrupts any in-flight replay; CHECKING stays durable.
+        orderReplayJob?.cancel()
+        orderReplayJob = null
+    }
+
     fun stopRealtime() {
         realtimeJob?.cancel()
         realtimeJob = null
@@ -210,6 +216,9 @@ class OperationsViewModel(
         val key = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
         if (loadedSessionKey == key && (state.tabs.isNotEmpty() || state.loading)) return
         if (loadedSessionKey != null && loadedSessionKey != key) {
+            // Never let an old foreground replay continue after operator/session switch.
+            orderReplayJob?.cancel()
+            orderReplayJob = null
             // Never leave a prior operator's draft cart or Tab context on a shared device.
             state = OperationsUiState()
         }
@@ -403,6 +412,9 @@ class OperationsViewModel(
         if (OrderRecoveryPolicy.awaitingReconciliation(queue).isEmpty()) return
         orderReplayJob = viewModelScope.launch {
             for (intent in OrderRecoveryPolicy.awaitingReconciliation(queue)) {
+                // Another operator may log in while a coroutine is suspended.
+                val originatingKey = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
+                if (loadedSessionKey != originatingKey) break
                 // Stop if a different staff/venue/device/session replaced the originating context.
                 val currentQueue = try {
                     pendingMutationIntentStore.orderQueue(session)
