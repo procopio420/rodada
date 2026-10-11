@@ -150,6 +150,32 @@ fun AttendanceScreen(
                 onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
+            if (state.queuedOrders.isNotEmpty()) {
+                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("${state.queuedOrders.size} PEDIDO(S) GUARDADO(S) · NÃO CONFIRMADOS",
+                            style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Amber)
+                        state.queuedOrders.take(3).forEach { intent ->
+                            Text("Comanda ${intent.tabId.take(8)} · ${OrderRecoveryPolicy.stateLabel(intent.state)}",
+                                style = MaterialTheme.typography.bodySmall)
+                        }
+                        val reviewCount = state.queuedOrders.count {
+                            it.state == RecoveryState.ACTION_REQUIRED || it.state == RecoveryState.FAILED_TERMINAL
+                        }
+                        if (reviewCount > 0) Text("$reviewCount requer(em) revisão da gerência. Não recrie o pedido.",
+                            color = RodadaVisual.Danger, style = MaterialTheme.typography.bodySmall)
+                        if (state.queuedOrders.any {
+                            it.state in setOf(RecoveryState.PENDING, RecoveryState.CHECKING, RecoveryState.SAFE_TO_RETRY)
+                        }) {
+                            OutlinedButton(
+                                onClick = { viewModel.revalidateConnection(session) },
+                                enabled = !state.loading && !state.submitting,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) { Text("Conferir pedidos no servidor") }
+                        }
+                    }
+                }
+            }
             Box(modifier = Modifier.weight(1f)) {
             when (val selected = state.selectedTab) {
                 null -> {
