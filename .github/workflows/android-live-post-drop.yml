@@ -177,8 +177,8 @@ jobs:
       - name: Cut actual Android eth0 link DURING POST, force-stop offline and reconcile
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
-          target: google_apis
+          api-level: 34
+          target: aosp_atd
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
