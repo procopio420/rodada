@@ -14,11 +14,18 @@ for (const width of [360, 390, 430]) test(`Attendance categories and compact bil
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
   const bill = page.getByRole("region", { name: "Valores da comanda" });
-  await expect(bill.getByText("Subtotal original")).toBeVisible();
+  await expect(bill.getByText("Subtotal", { exact: true })).toBeVisible();
+  await expect(bill.getByText("Subtotal original")).not.toBeVisible();
   await expect(bill.getByText("Descontos")).not.toBeVisible();
-  await expect(bill.getByText("R$ 84,00", { exact: true })).toBeVisible();
+  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 84,00", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /Amstel Long Neck/ })).toBeVisible();
   await page.getByRole("button", { name: /Amstel Long Neck/ }).click();
+  await page.getByRole("button", { name: "Refrigerantes (1)", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Coca-Cola Lata/ })).toBeVisible();
+  await page.getByRole("button", { name: "Refrigerantes (1)", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Coca-Cola Lata/ })).not.toBeVisible();
+  await expect(page.getByLabel("Buscar item no cardápio")).not.toBeVisible();
+  await expect(page.getByText("1× Amstel Long Neck", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Refrigerantes (1)", exact: true }).click();
   await expect(page.getByRole("button", { name: /Coca-Cola Lata/ })).toBeVisible();
   await expect(page.getByText("1× Amstel Long Neck", { exact: true })).toBeVisible();
@@ -31,6 +38,9 @@ for (const width of [360, 390, 430]) test(`Attendance categories and compact bil
   await expect(page.getByRole("button", { name: /Item sem categoria/ })).toBeVisible();
   await bill.getByText("Mais detalhes", { exact: true }).click();
   await expect(bill.getByText("Descontos")).toBeVisible();
+  await expect(bill.getByText("Subtotal original")).toBeVisible();
+  await expect(page.locator(".attendanceTabTitle svg")).toHaveCount(0);
+  await expect(page.locator(".attendanceTabTitle")).toHaveCSS("text-align", "center");
   await expect(bill.getByText("R$ 72,00", { exact: true })).toBeVisible();
   const ordering = await page.locator(".attendanceOrders").evaluate(el => {
     const catalog = [...el.querySelectorAll("h2")].find(h => h.textContent === "Catálogo");

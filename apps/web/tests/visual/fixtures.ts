@@ -15,7 +15,7 @@ export const queue = [
   { id: "order-921", product_id: "fries", order_id: "ticket-1", state: "PREPARING", quantity: 1, product_name: "Fritas", tab_label: "Mesa 24 / João", created_at: "2026-10-08T20:00:00Z" },
   { id: "order-922", product_id: "mandioca", order_id: "ticket-2", state: "READY", quantity: 2, product_name: "Mandioca", tab_label: "Mesa 37", created_at: "2026-10-08T20:01:00Z" },
 ];
-const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
+const tab = { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 7200, payable_cents: 8400, charges_cents: 8400, payments_cents: 1200, effective_limit_cents: 10000, remaining_capacity_cents: 2800, action_reasons: [], approval_requested: false, consumption_blocked: false };
 const shift = { id: "shift-test", cash_point_id: "cash-test", business_date: "2026-10-08", status: "OPEN", expected_cents: 10000, version: 1, movements: [] };
 const session = {
   staff: { id: "operator-test", display_name: "Operador de teste" }, venue: { id: "venue-test", slug: "web-test", name: "Estabelecimento de teste" },

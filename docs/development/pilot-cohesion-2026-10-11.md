@@ -108,3 +108,11 @@ Android additions are integrated source and upstream evidence; native emulator/d
 Attendance now presents one catalog category at a time, with counts and a global accent-insensitive name search. Exact photographed-menu presentation groups split non-alcoholic beverages and place portions/cold board under snacks; other products retain their published category or Outros. Changing filters preserves drafts and customization. Inactive items are omitted; unavailable items stay disabled. The selected Tab summary moves to the end: original subtotal plus Mais detalhes for the existing monetary breakdown. POS financial visibility is unchanged.
 
 Validation: build/TypeScript, 213 visual tests and the real PostgreSQL Attendance workflow passed. No baseline changes, menu price/name edits, seeding or live test orders were performed. The existing local Tab was opened read-only for UI verification.
+
+## Attendance removal and disclosure follow-up
+
+Confirmed NEW/ACCEPTED items now offer Remover with reason and confirmation through Spec 017's audited cancellation. Ambiguous responses retain the same intent/key for retry; paid items and advanced production states keep the authorized management workflow. Switching accounts is blocked while resolving a correction. Cancelled history is retained.
+
+Clicking the selected category collapses/reopens its products without losing the draft. The selected Tab title is centered without a cart icon. Visible Subtotal uses canonical payable cents after adjustments, before received payments; original subtotal moves into Mais detalhes, styled as a discreet button. This supersedes the original-subtotal visibility described above.
+
+Validation: final production build/TypeScript passed; 213 cases passed in the full visual run and the three removal cases passed after a fixture correction in a focused rerun (216 covered). Both real PostgreSQL integration journeys passed. No baseline relaxation or live demo mutation. Evidence: removal-visual-final.log, removal-focused-final.log and removal-integration-final.log under visual-artifacts/demo-functional/runtime.

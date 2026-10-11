@@ -9,3 +9,5 @@
 
 ### Attendance refinement
 Reuse category metadata and existing product/cart components. Isolate presentation taxonomy in a helper built from the existing photographed-menu CSV, with explicit category overrides. Add compact BillSummary mode only for Attendance, at the end of selected Tab. Verify category/search/cart invariants, disclosure and adjacent POS behavior.
+
+Use the existing Spec 017 cancellation API through the restricted Attendance BFF; no financial domain change. Isolate cancellation UI and revalidation. Preserve existing confirm retry and disable navigation while cancellation is unresolved. Reuse quiet-button tokens for the details disclosure.

@@ -18,9 +18,14 @@ Relatórios/logs em visual-artifacts/demo-functional/runtime/pilot-*.log e
 apps/web/playwright-report/. Nenhuma baseline/tolerância alterada.
 
 ### Attendance refinement
-- Opening a Tab presents the ordering workflow before its bill. Original subtotal is visible; financial details require Mais detalhes and retain exact cent values.
+- Opening a Tab presents the ordering workflow before its bill. Net Subtotal is visible; original subtotal and financial details require Mais detalhes and retain exact cent values.
 - Category filters and global accent-insensitive search preserve drafts and mandatory choices; unavailable items cannot be added.
 - Unrecognized products remain discoverable; inactive items are absent from Attendance.
 - POS retains its full financial summary. Responsive 360/390/430 checks and visual suite pass without baseline relaxation.
 
 Attendance refinement evidence: production build/TypeScript passed; 213 visual cases passed without baseline relaxation, including 360/390/430 category/search/cart/bill tests; real PostgreSQL Attendance order-production-delivery-table lifecycle passed. Search normalization was additionally checked for accents and numeric units. No database/product/payment mutation was introduced.
+
+### Attendance follow-up
+Remove an unpaid NEW item through Spec 017; canonical charge reversal updates subtotal without Payment creation. Repeating after lost response uses identical key/body; 202 never hides or marks item cancelled. Prepared items require the authorized workflow. Category collapse/reopen preserves cart; centered title has no cart icon; original subtotal appears only in discrete button-like Mais detalhes.
+
+Follow-up evidence: production build/TypeScript passed. Full visual run passed 213 cases; three removal cases initially failed because their list fixture contradicted the canonical detail fixture. After correcting the fixture, all three passed in a focused rerun against the same final build (216 cases covered). Two real Web/API/PostgreSQL journeys passed, including cancellation, preserved item history, zero payable/exposure and no Payment creation. No visual baseline/tolerance changes. Live demo item remained untouched.

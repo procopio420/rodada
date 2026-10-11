@@ -11,3 +11,8 @@
 - [x] Implement category navigation and global search.
 - [x] Move compact Attendance bill to the end.
 - [x] Validate responsive/a11y, cart preservation, monetary details and unchanged POS.
+
+### Attendance refinement follow-up
+- [x] Canonical confirmed-item cancellation and ambiguous/paid/conflict feedback.
+- [x] Reversible catalog collapse, centered Tab heading, net Subtotal disclosure.
+- [x] Mobile, API integration and visual verification.

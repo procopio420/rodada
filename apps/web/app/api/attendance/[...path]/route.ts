@@ -3,7 +3,7 @@ import { forwardAuthenticated } from "@/lib/server/auth-gateway";
 
 // This companion deliberately has no payment or refund command path.
 const reads = /^(tabs|tabs\/[^/]+|catalog\/products|dispatch\/(delivery|requests)|hospitality\/tables|hospitality\/zones|hospitality\/occupancies\/[^/]+\/party-size)$/;
-const commands = /^(tabs|tabs\/[^/]+\/(orders\/confirm|close)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|party-size))$/;
+const commands = /^(order-items\/[^/]+\/corrections\/cancel|tabs|tabs\/[^/]+\/(orders\/confirm|close)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|party-size))$/;
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   if (path.some(segment => !/^[a-zA-Z0-9_-]+$/.test(segment))) return Response.json({ code: "INVALID_PATH", message: "Rota inválida." }, { status: 400 });
