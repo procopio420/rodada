@@ -6,3 +6,8 @@
 - [x] Backup e limpeza local auditada; catálogo padronizado.
 - [x] Histórico de comandas recolhido por padrão.
 - [x] Gates Web/API e documentação das próximas prioridades.
+
+### Attendance refinement
+- [x] Implement category navigation and global search.
+- [x] Move compact Attendance bill to the end.
+- [x] Validate responsive/a11y, cart preservation, monetary details and unchanged POS.

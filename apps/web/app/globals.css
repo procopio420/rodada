@@ -431,3 +431,10 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 
 /* Destructive actions with readable labels, preserving the danger border/tint. */
 .buttonDangerReadable { color: var(--color-text); }
+
+.attendanceCartRow { flex-wrap: wrap; }
+.attendanceCartRow > div:first-child { flex-basis: 100%; overflow-wrap: anywhere; }
+.attendanceCartRow .actions { flex: 1 1 100%; flex-wrap: wrap; }
+.attendanceCartRow .actions .field { flex: 1 1 100%; }
+
+.attendanceCategories > button { text-transform: none; font-size: var(--text-sm); }

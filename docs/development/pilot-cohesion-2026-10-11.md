@@ -101,3 +101,10 @@ Conflict resolution preserves Spec 025 developer staff routes, progressive manag
 Validation: production Web build and TypeScript passed; 210 visual tests passed without baseline changes; 71 focused PostgreSQL API tests passed; migration drift check passed. Web/PostgreSQL integration: 14 cases passed in the full run, then the single service-call case passed after its selector compatibility correction (15 cases covered). Local database was backed up before five new migrations; API readiness and management HTTP checks returned 200. No demo seeding or cleanup was repeated.
 
 Android additions are integrated source and upstream evidence; native emulator/device tests were not repeated locally in this update. Provider and physical-device readiness remain subject to their existing acceptance gates.
+
+
+## Attendance catalog and compact account summary
+
+Attendance now presents one catalog category at a time, with counts and a global accent-insensitive name search. Exact photographed-menu presentation groups split non-alcoholic beverages and place portions/cold board under snacks; other products retain their published category or Outros. Changing filters preserves drafts and customization. Inactive items are omitted; unavailable items stay disabled. The selected Tab summary moves to the end: original subtotal plus Mais detalhes for the existing monetary breakdown. POS financial visibility is unchanged.
+
+Validation: build/TypeScript, 213 visual tests and the real PostgreSQL Attendance workflow passed. No baseline changes, menu price/name edits, seeding or live test orders were performed. The existing local Tab was opened read-only for UI verification.

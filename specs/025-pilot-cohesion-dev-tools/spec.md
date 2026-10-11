@@ -38,3 +38,6 @@ reset de contas/PIN existentes, exposição pública de ferramentas DEV.
 
 ## Aceite
 Ver acceptance.md. Este recorte não declara homologação de produção.
+
+## Attendance catalog and bill hierarchy
+Attendance prioritizes catalog, draft order and confirmed items before the bill at the end of the selected Tab. Show original subtotal followed by a keyboard/touch disclosure Mais detalhes containing the unchanged financial breakdown. Cash/POS retains its full summary. Category navigation shows one category at a time, counts and global accent-insensitive name search; search spans categories without discarding cart/customization. Use published Product.category; an exact photographed-menu presentation mapping splits Bebidas and groups portions/cold board as Petiscos. Unknown items retain their published category or Outros; no fuzzy inference. Unavailable published products remain visible but disabled; inactive products are omitted in Attendance. Preserve prices, IDs, routes, monetary math, immutable orders and retry behavior. No API/database change or menu price transcription.

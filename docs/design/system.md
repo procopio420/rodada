@@ -447,3 +447,7 @@ local informa revogação de sessões e preservação de histórico.
 buttonDangerReadable conserva borda/tinta danger e usa color-text no label para
 contraste AA sobre Surface2. É variante semântica de ação destrutiva usada no DEV;
 não altera o raster canônico do botão danger nem tolerâncias das referências.
+
+
+## Attendance catalog hierarchy
+Use existing category buttons with pressed state and counts, global search Field and ProductIcon cards. Only one category is shown outside search; changing category preserves the draft. Cart quantities/actions wrap below long item names on mobile. Attendance financial summary follows the ordering flow: original subtotal, then a native Mais detalhes disclosure containing the existing breakdown. Cash/POS keeps full monetary visibility. Use existing tokens/touch targets; no new visual identity.

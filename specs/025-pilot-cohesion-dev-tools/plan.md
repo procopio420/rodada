@@ -6,3 +6,6 @@
 4. Validar permissões, secrets, retries, isolamento de Venue e navegação mobile.
 5. Guardar backup local, corrigir Products e encerrar testes com trilha explícita.
 6. Build/visuais/integração real, reabrir demo e documentar limites/backlog.
+
+### Attendance refinement
+Reuse category metadata and existing product/cart components. Isolate presentation taxonomy in a helper built from the existing photographed-menu CSV, with explicit category overrides. Add compact BillSummary mode only for Attendance, at the end of selected Tab. Verify category/search/cart invariants, disclosure and adjacent POS behavior.
