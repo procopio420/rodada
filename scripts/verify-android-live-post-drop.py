@@ -62,10 +62,21 @@ def verify(stage, marker, fixture, receipt):
     assert Charge.objects.get(tab=order.tab).amount_cents == 700
     assert Payment.objects.filter(tab=order.tab).count() == 0, "Unexpected payment operation"
     assert evidence["armed"] == (stage == "before"), "Fault was not disarmed at expected stage"
+    replays = evidence.get("replays", [])
+    if stage == "before":
+        assert not replays, "Healthy replay occurred before explicit reconnect"
+    else:
+        assert len(replays) == 1, "Expected one and only one recovered HTTP POST"
+        replay = replays[0]
+        assert replay["upstream_status"] == 200, "Recovery did not receive idempotent HTTP 200"
+        for field in ("order_id", "tab_id", "idempotency_key", "body_sha256"):
+            assert replay[field] == first[field], f"Recovered POST changed {field}"
     summary = {
         "scenario": "real_android_post_server_commit_tcp_reset",
         "phase": stage,
         "disconnected_responses": len(events),
+        "recovery_http_status": replays[0]["upstream_status"] if replays else None,
+        "recovery_post_count": len(replays),
         "original_order_id": str(order.pk),
         "original_tab_id": str(order.tab_id),
         "orders": 1, "order_items": 1, "charges": 1, "payments": 0,
