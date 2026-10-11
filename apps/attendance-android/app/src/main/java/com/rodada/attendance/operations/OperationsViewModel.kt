@@ -219,6 +219,9 @@ class OperationsViewModel(
             // Never let an old foreground replay continue after operator/session switch.
             orderReplayJob?.cancel()
             orderReplayJob = null
+            refreshJob?.cancel()
+            refreshJob = null
+            stopRealtime()
             // Never leave a prior operator's draft cart or Tab context on a shared device.
             state = OperationsUiState()
         }
