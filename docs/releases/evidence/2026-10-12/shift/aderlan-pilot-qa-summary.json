@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "environment": "disposable Docker PostgreSQL and HTTP, NOT the physical Aderlan bar",
+  "manual_test_payment_only": true,
+  "physical_wifi": "EXTERNAL_BLOCKED",
+  "native_android_ui": "NOT_RUN",
+  "provider_settlement": "NOT_RUN",
+  "full_shift_replay": true,
+  "busy_shift_tabs": 64,
+  "restart_verified": true
+}
