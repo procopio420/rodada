@@ -1,0 +1,146 @@
+{
+  "release": "Aderlan assisted pilot RC 2026-10-12",
+  "tested_source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "git_pin": "release/aderlan-pilot-rc-20261012",
+  "image": {
+    "checked_at": "2026-10-12T22:10:19.864673+00:00",
+    "source_sha_declared_by_builder": "19dfc80e27f619a32c02518fad745e30db09830e",
+    "image_id": "sha256:cd1f2adb5ea06be98ed5e5bac183c7888008fc8071b540836efc5a60575d0137",
+    "container_image_matches": true,
+    "versions": {
+      "python": "3.13.16",
+      "Django": "5.2.18",
+      "djangorestframework": "3.18.3",
+      "psycopg": "3.3.6",
+      "uvicorn": "0.54.0",
+      "node": "v24.21.0",
+      "next": "16.3.8"
+    },
+    "limits": [
+      "Local image identity; does not attest a Railway deployed SHA",
+      "Rebuilds resolve floating dependencies; promote this image by digest or archive"
+    ]
+  },
+  "local_staging": {
+    "url": "http://127.0.0.1:18095",
+    "container": "rodada-pilot-pinned-app",
+    "database": "rodada_pilot_final19",
+    "postgres_version": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+    "postgres_image": "sha256:79bd7c99e923138f136f8009d6bffa66e21e9d4fda5c0c561b00fc9c90cfe537",
+    "release_mode": "pilot",
+    "debug": false,
+    "payment_simulation": false,
+    "guest_mutations_default_blocked": true
+  },
+  "cloud": {
+    "url": "https://rodada-web-demo.up.railway.app",
+    "deployment_performed": false,
+    "actual_deployed_sha": null,
+    "status": "EXTERNAL_BLOCKED",
+    "reason": "Railway CLI Unauthorized; public domain inspected read-only"
+  },
+  "artifacts": {
+    "image_archive": "/home/lucas/projects/rodada/pilot-artifacts/rodada-pilot-19dfc80-image.tar",
+    "image_archive_sha256": "f6eb3d98955597abbde1598d844da9c1d541992e41ad03764d911217c41eec74",
+    "test_db_backup": "/home/lucas/projects/rodada/pilot-artifacts/rodada-pilot-19dfc80-backup.dump",
+    "test_db_backup_sha256": "4d4839bb60c25524ddab655abdefe572ecbae20da030cbd266690c4841e7dd2f"
+  },
+  "rollback_runbook": "docs/releases/aderlan-incident-runbook.md",
+  "onsite_procedure": "docs/releases/aderlan-onsite-acceptance.md",
+  "recommendation": "NO-GO for customer pilot until cloud, physical and fiscal gates close",
+  "integrated_payments": "NO-GO; disabled until actual approvals",
+  "scope": "Only isolated disposable test identities/data; no real customer/payment/production database touched",
+  "readiness_report": "docs/releases/aderlan-pilot-final-readiness.md",
+  "evidence_directory": "docs/releases/evidence/integrated-19dfc80",
+  "ci_runs": [
+    {
+      "conclusion": "success",
+      "databaseId": 38314972691,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Integrated release demo",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314972691"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314961773,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Aderlan isolated pilot shift acceptance",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314961773"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314958715,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Railway Aderlan demo Docker smoke",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314958715"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314956027,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Android real POST disconnect",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314956027"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314953184,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Android",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314953184"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314950595,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "Web",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314950595"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 38314947779,
+      "headSha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "name": "API",
+      "status": "completed",
+      "url": "https://github.com/procopio420/rodada/actions/runs/38314947779"
+    }
+  ],
+  "native_attempts": [
+    {
+      "conclusion": "failure",
+      "head_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "html_url": "https://github.com/procopio420/rodada/actions/runs/38314956027",
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+      "html_url": "https://github.com/procopio420/rodada/actions/runs/38314956027",
+      "run_attempt": 2,
+      "status": "completed"
+    }
+  ],
+  "native_gate_reliability": "PARTIAL: RST attempt1 missing live PID; attempt2 PASS, cause unresolved",
+  "application_versions": {
+    "api": "0.1.0",
+    "web": "0.1.0",
+    "android_default_version_name": "0.1.0",
+    "android_default_version_code": 1,
+    "android_compile_target_sdk": 37,
+    "android_default_min_sdk": 26
+  },
+  "image_platform": "linux/amd64",
+  "ci_checked_at": "2026-10-12T22:24:47.590014+00:00",
+  "native_artifacts": {
+    "uplink_artifact_id": 11776691935,
+    "rst_attempt1_artifact_id": 11776397760,
+    "rst_attempt2_artifact_id": 11776394238,
+    "note": "Duplicate artifact names across attempts; select by ID"
+  }
+}

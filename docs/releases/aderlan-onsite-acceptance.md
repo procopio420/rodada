@@ -33,7 +33,7 @@ fallback remain disabled until their separate activation gates pass.
    reject that item, preserve existing orders and create no new charge. Restore availability.
 8. Prepare/ready the items; perform a supported correction/remake and inspect original history,
    compensating ledger entry, authorship and replacement routing. Never erase the original.
-9. Execute the physical Wi-Fi harness documented in the Android acceptance guide on the
+9. Execute the physical Wi-Fi harness documented in the [Android physical acceptance guide](../development/android-physical-wifi-cut-acceptance-2026-10-11.md) (`RODADA_NETWORK_CUT_MODE=physical-wifi bash scripts/android-active-network-cut.sh`, with the guide’s isolated DB/device variables) on the
    disposable stack: lose actual wlan connectivity while committed POST response is held,
    verify no cellular fallback, force-stop, reopen offline, reconnect and reconcile same key.
    Assert exactly one Order/OrderItem/Charge and zero unexpected Payment. Record handset,

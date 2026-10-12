@@ -1,0 +1,36 @@
+{
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "browser": "Chromium headless",
+  "login": "PASS",
+  "secure_http_only_cookies": true,
+  "js_token_inaccessible": true,
+  "authenticated_readback_status": 200,
+  "reports_loaded": true,
+  "routes": [
+    {
+      "path": "/attendance",
+      "status": 200
+    },
+    {
+      "path": "/bar",
+      "status": 200
+    },
+    {
+      "path": "/kitchen",
+      "status": 200
+    },
+    {
+      "path": "/manage",
+      "status": 200
+    },
+    {
+      "path": "/cash",
+      "status": 200
+    },
+    {
+      "path": "/reports",
+      "status": 200
+    }
+  ],
+  "scope": "Actual browser on loopback HTTP secure-context exception; public HTTPS/device/network not tested"
+}

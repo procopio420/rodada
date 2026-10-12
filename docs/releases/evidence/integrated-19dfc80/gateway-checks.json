@@ -1,0 +1,13 @@
+{
+  "/api/auth/me": 200,
+  "/api/attendance/catalog/products": 200,
+  "/api/realtime/snapshot": 200,
+  "sse_status": 200,
+  "sse_content_type": "text/event-stream",
+  "sse_frame_received": true,
+  "cookie_auth": true,
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "scope": "HTTP client manually forwards secure cookies on loopback; not HTTPS browser authentication",
+  "same_origin_with_port": "PASS",
+  "csrf_check_relaxed": false
+}

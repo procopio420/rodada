@@ -1,0 +1,4 @@
+PASS: Mesa 01 occupied, example customer tab assigned
+PASS: persisted test order appears in BAR and KITCHEN production queues
+PASS: authenticated SSE stream sends frame
+PASS: opaque customer QR resolves to guest session

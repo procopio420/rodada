@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-10-12T22:10:19.864673+00:00",
+  "source_sha_declared_by_builder": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "image_id": "sha256:cd1f2adb5ea06be98ed5e5bac183c7888008fc8071b540836efc5a60575d0137",
+  "container_image_matches": true,
+  "versions": {
+    "python": "3.13.16",
+    "Django": "5.2.18",
+    "djangorestframework": "3.18.3",
+    "psycopg": "3.3.6",
+    "uvicorn": "0.54.0",
+    "node": "v24.21.0",
+    "next": "16.3.8"
+  },
+  "limits": [
+    "Local image identity; does not attest a Railway deployed SHA",
+    "Rebuilds resolve floating dependencies; promote this image by digest or archive"
+  ]
+}
