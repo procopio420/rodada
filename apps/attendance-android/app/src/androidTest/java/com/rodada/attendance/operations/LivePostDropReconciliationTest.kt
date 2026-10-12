@@ -24,7 +24,11 @@ import java.util.UUID
 class LivePostDropReconciliationTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
     private val context get() = instrumentation.targetContext
-    private val base = "http://10.0.2.2:8000/"
+    // CI emulator uses 10.0.2.2; disposable physical-phone runs inject
+    // the laptop's LAN IP. Never point this suite at Railway or a merchant.
+    private val base get() = InstrumentationRegistry.getArguments()
+        .getString("baseUrl", "http://10.0.2.2:8000/")
+        .also { require(it.startsWith("http://") && !it.contains("rodada.ai") && !it.contains("up.railway.app")) }
     private val authClient get() = AuthHttpClient(base)
     private val orders get() = OperationsHttpClient(base)
     private val sessions get() = SecureSessionStore(context)
