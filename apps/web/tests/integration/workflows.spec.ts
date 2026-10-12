@@ -59,6 +59,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     expect(pending.state).toBe("NEW");
     await expect(page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ })).toBeVisible();
     await page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ }).click();
+    await expect(page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ })).toBeVisible();
     const started = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
     expect(started.state).toBe("PREPARING");
     await page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ }).click();
