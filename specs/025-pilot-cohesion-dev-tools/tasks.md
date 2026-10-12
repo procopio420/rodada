@@ -22,3 +22,5 @@
 - [x] Reusable Attendance action dialogs for table organization, release, Tab close and customization; nonblocking order success feedback.
 
 - [x] Hide canonically CANCELLED lines from Attendance confirmed orders while preserving audited history.
+
+- [x] Collapse/reopen active Tab without discarding draft; touch quantity controls before catalog; restrained amber selection treatment.

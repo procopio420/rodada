@@ -13,7 +13,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: "Abrir", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Atendimento browser test", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
-  await page.getByLabel("Quantidade de Kitchen E2E item").fill("2");
+  await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();
   await expect(page.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
   await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();

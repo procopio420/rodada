@@ -15,3 +15,5 @@ Use the existing Spec 017 cancellation API through the restricted Attendance BFF
 Confirmed-item removal uses a native modal dialog with a labelled title, trapped focus and focus restoration. Escape closes only before submission or after a resolved rejection; pending, ambiguous or applied-but-unrefreshed corrections cannot be dismissed. Existing cancellation rules remain unchanged. Dialog uses existing surface, border, spacing and radius tokens; backdrop uses the background token.
 
 Reuse a native ActionDialog and existing correction styling. Wrap only existing Attendance controls, preserve payloads and validate mobile/a11y and existing journeys.
+
+Use a focused AttendanceDraft component for quantity controls, existing customization snapshots and line prices. Keep selected Tab mounted while collapsed, expose aria-expanded, and reuse existing accent/spacing/touch tokens. Verify mobile layout, draft preservation, zero-quantity removal and ambiguous locks.
