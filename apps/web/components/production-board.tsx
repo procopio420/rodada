@@ -17,11 +17,11 @@ import { CustomizationAvailability } from "./customization-availability";
 type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
 type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
-  NEW: { state: "ACCEPTED", label: "Aceitar" },
-  ACCEPTED: { state: "PREPARING", label: "Preparar" },
+  NEW: { state: "PREPARING", label: "Iniciar preparo" },
+  ACCEPTED: { state: "PREPARING", label: "Iniciar preparo" },
   PREPARING: { state: "READY", label: "Pronto" },
 };
-const labels: Record<string, string> = { NEW: "Novo", ACCEPTED: "Aceito", PREPARING: "Preparando", READY: "Pronto" };
+const labels: Record<string, string> = { NEW: "Aguardando preparo", ACCEPTED: "Aguardando preparo", PREPARING: "Em preparo", READY: "Pronto" };
 const tone = (state: string) => state === "READY" ? "success" : state === "PREPARING" ? "warning" : "info";
 const apiMessage = (body: unknown) => { const error = asApiError(body); return `${error.code} · ${error.message}`; };
 
@@ -103,6 +103,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   }
 
   const waiting = items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
+  const pending = waiting.filter(item => item.state !== "PREPARING");
+  const inProgress = waiting.filter(item => item.state === "PREPARING");
   // Group presentation by canonical Order identity; legacy items remain independent.
   const orderGroups = new Map<string, Item[]>();
   for (const item of waiting) {
@@ -130,23 +132,23 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   return <main className="appShell productionShell">
     <header className="stationHeader">
       <div className="stationIdentity"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{station === "KITCHEN" ? <path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z" /> : <><path d="M5 4h12v16H5zM17 7h2a3 3 0 0 1 0 6h-2M8 1v4M13 1v4" /></>}</svg><h1>{title}</h1><span>Fila da estação</span></div>
-      <div className="stationSummary">{hasSnapshot && <><span><b>{new Set(waiting.map(item => item.order_id ?? item.id)).size}</b> pedidos em preparo</span><span><b>{ready.length}</b> no passe</span></>}<time>{now ? new Date(now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</time></div>
+      <div className="stationSummary">{hasSnapshot && <><span><b>{new Set(pending.map(item => item.order_id ?? item.id)).size}</b> pedidos aguardando</span><span><b>{inProgress.length}</b> itens em preparo</span></>}<time>{now ? new Date(now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</time></div>
     </header>
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     {message && <div className="notice" data-state="danger" role="alert"><p>{message}</p>{hasSnapshot && <p>Último estado confirmado. Ações pausadas até atualizar.</p>}<button className="buttonSecondary" onClick={() => void load(true).catch(() => {})}>Tentar atualizar</button></div>}
     <div className="productionWorkspace">
       <section className="stationBatches" aria-labelledby="batch-title" aria-busy={loading}>
-        <div className="stationLabel"><h2 id="batch-title"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg><span>Fazer agora · por {station === "KITCHEN" ? "prato" : "produto"}</span></h2><span>{station === "KITCHEN" ? "porções" : "lote"}</span></div>
+        <div className="stationLabel"><h2 id="batch-title"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z" /></svg><span>Fila da estação · por {station === "KITCHEN" ? "prato" : "produto"}</span></h2><span>{station === "KITCHEN" ? "porções" : "lote"}</span></div>
         {loading ? <div className="loadingState" role="status">Carregando produção…</div> : batches.map(batch => <article className="stationDish" key={batch.items[0].product_id ?? batch.items[0].id}>
           <div className="stationDishHeading"><div><ProductIcon name={batch.name} icon={batch.product?.icon} /><strong>{batch.name}</strong></div><span className="stationQuantity">{batch.quantity}</span></div>
-          <span className="stationDishContext">{batch.items.length} {batch.items.length === 1 ? "item em produção" : "itens em produção"}</span>
+          <span className="stationDishContext">{batch.items.filter(item => item.state !== "PREPARING").length} aguardando · {batch.items.filter(item => item.state === "PREPARING").length} em preparo</span>
           <div className="stationChips">{batch.items.map(item => <span key={item.id}>{item.tab_label || "Sem identificação"}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
         </article>)}
         {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum prato aguardando preparo.</div>}
       </section>
       <section className="stationTickets" aria-labelledby="queue-title" aria-busy={loading}>
-        <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Em produção</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
-        <p className="stationCaption">Por pedido · mais antigo primeiro</p>
+        <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Fila de pedidos</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
+        <p className="stationCaption">O preparo só começa ao tocar em Iniciar preparo · mais antigo primeiro</p>
         {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${group[0].tab_label || "Sem identificação"}`}>
           <strong className="stationTab">{group[0].tab_label || "Sem identificação"}</strong>
           <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
