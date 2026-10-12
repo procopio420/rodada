@@ -71,60 +71,15 @@ grep -q "dev $IFACE" <<< "$route_before" || {
 network_is_down=0
 standby_disabled=0
 STANDBY_IFACE=""
-ethernet_addresses=""
-ethernet_routes=""
-ethernet_rules=""
-ethernet_table=""
-if [[ "$MODE" == emulator-link && "$IFACE" == eth0 ]]; then
-  # ATD can drop netd's policy routes when eth0 is switched down. Snapshot
-  # only this disposable interface; link-up alone does not restore routing.
-  ethernet_table=$(sed -n 's/.* table \([^ ]*\).*/\1/p' <<< "$route_before")
-  ethernet_table="${ethernet_table:-main}"
-  ethernet_addresses=$("${ADB[@]}" shell ip -o -4 address show dev "$IFACE" | tr -d '\r' |
-    awk '{for (i=1;i<=NF;i++) if ($i=="inet") print $(i+1)}')
-  ethernet_routes=$("${ADB[@]}" shell ip -4 route show table "$ethernet_table" dev "$IFACE" | tr -d '\r')
-  ethernet_rules=$("${ADB[@]}" shell ip -4 rule show | tr -d '\r' |
-    grep -E "lookup $ethernet_table( |$)" || true)
-  test -n "$ethernet_addresses" && test -n "$ethernet_routes" || {
-    echo "FAIL: cannot snapshot original Ethernet configuration" >&2; exit 2;
-  }
-fi
-restore_ethernet_configuration() {
-  local address route rule priority current_rules
-  local -a words
-  while IFS= read -r address; do
-    test -n "$address" || continue
-    "${ADB[@]}" shell ip -4 address replace "$address" dev "$IFACE" || return 1
-  done <<< "$ethernet_addresses"
-  while IFS= read -r route; do
-    test -n "$route" || continue
-    read -r -a words <<< "$route"
-    "${ADB[@]}" shell ip -4 route replace table "$ethernet_table" "${words[@]}" || return 1
-  done <<< "$ethernet_routes"
-  current_rules=$("${ADB[@]}" shell ip -4 rule show | tr -d '\r') || return 1
-  while IFS= read -r rule; do
-    test -n "$rule" || continue
-    grep -Fqx "$rule" <<< "$current_rules" && continue
-    priority="${rule%%:*}"
-    read -r -a words <<< "${rule#*:}"
-    "${ADB[@]}" shell ip -4 rule add pref "$priority" "${words[@]}" || return 1
-  done <<< "$ethernet_rules"
-}
-restore_primary() {
+cleanup() {
   if [[ "$network_is_down" == 1 ]]; then
     if [[ "$IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
     else
       "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
-      if [[ -n "$ethernet_table" ]]; then
-        restore_ethernet_configuration
-      fi
     fi
   fi
-}
-cleanup() {
-  restore_primary || true
-  # Restore exactly the disabled standby on exit, after original-route replay.
+  # Restore exactly the disabled standby, *after* offline proof.
   if [[ "$standby_disabled" == 1 ]]; then
     if [[ "$STANDBY_IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
@@ -287,18 +242,10 @@ req=Request("http://127.0.0.1:8000/__fault/disarm", data=b"", method="POST")
 with urlopen(req, timeout=5) as response:
     assert response.status == 200
 PY
-<<<<<<< HEAD
-# Keep standby disabled until the original NIC has recovered and replayed.
-# Restoring both here can make AOSP route over the standby instead, hiding
-# recovery of the transport that was actually cut (especially eth0 -> wlan0).
-restore_primary
-network_is_down=0
-=======
 # Restore the interfaces only after offline/process-death proof. Android may
 # select the other restored NIC (e.g. wlan0 after eth0 loses its DHCP lease).
 # Recovery requires a real routed UP uplink, not the same pre-cut NIC.
 cleanup
->>>>>>> origin/main
 recovered=0
 recovered_iface=""
 route_up=""
@@ -317,20 +264,9 @@ for i in $(seq 1 60); do
   esac
   sleep 1
 done
-<<<<<<< HEAD
-test "$recovered" == 1 || {
-  echo "ROUTE_AFTER_RESTORE: $route_up"
-  "${ADB[@]}" shell ip -4 address show dev "$IFACE"
-  "${ADB[@]}" shell ip -4 route show table all dev "$IFACE"
-  "${ADB[@]}" shell ip -4 rule show
-  echo "FAIL: Android link did not recover" >&2; exit 1;
-}
-echo "PASS: Android network route recovered ($IFACE)"
-=======
 test "$recovered" == 1 || { echo "FAIL: Android link did not recover: $route_up" >&2; exit 1; }
 network_is_down=0
 echo "PASS: Android network route recovered ($recovered_iface; original=$IFACE)"
->>>>>>> origin/main
 
 run_stage replay
 python3 "$ROOT/scripts/verify-android-live-post-drop.py" after \
