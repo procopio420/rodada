@@ -120,3 +120,7 @@ Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas 
 Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lint e54instrumentados aprovados. Gates Web atuais types/build12auth/realtime197visual13PostgreSQL. [Detalhes e limites](../../docs/design/spec023-refund-validation.md). Jornada nativa financeira/readback atual são verificações separadas, sem usar HTTP como prova de UI.
 
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
+
+## Deterministic visual transport — 2026-10-12
+
+Keep Date fixed with Playwright setFixedTime, preserving timers for axe and hydration. Replace misleading ready+EOF fixture with a finite SSE comment response, so retries cannot briefly publish ONLINE. Verify repeated management gate and full visual suite.

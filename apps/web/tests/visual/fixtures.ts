@@ -27,7 +27,10 @@ export type State = "normal" | "empty" | "loading" | "error" | "long" | "warning
 
 /** Only browser requests are intercepted here. These fixtures are never production data or E2E evidence. */
 export async function fixture(page: Page, state: State = "normal", staffSession = false, options: { now?: string } = {}) {
-  await page.clock.install({ time: new Date(options.now ?? "2026-10-08T21:00:00Z") });
+  const now = new Date(options.now ?? "2026-10-08T21:00:00Z");
+  await page.clock.install({ time: now });
+  // Keep dates fixed while allowing timers used by hydration and axe to run.
+  await page.clock.setFixedTime(now);
   await page.route("**/api/**", async route => {
     const url = new URL(route.request().url());
     url.pathname = url.pathname.replace("/api/attendance/", "/api/pos/");
@@ -41,7 +44,9 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     const detail = { ...tab, ...(state === "warnings" ? { state: "REQUIRES_ACTION", action_reasons: ["SPENDING_LIMIT"], approval_requested: true, consumption_blocked: true } : {}), display_label: state === "long" ? longName : tab.display_label, orders: [], payments: [{ id: "payment-test", method: "CASH", status: "CONFIRMED", amount_cents: 1200, refunded_cents: 0, refunds: [] }], refund_required_corrections: state === "warnings" ? [{ id: "correction-test", order_item_id: "item-test", item_name: "Item corrigido", refund_required_cents: 1200 }] : [] };
     let body: unknown;
     if (url.pathname.endsWith("/realtime/snapshot/")) return route.fulfill({ json: { schema_version: 1, cursor: "visual-test:0" } });
-    if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: 'event: ready\nid: visual-test:0\ndata: {"cursor":"visual-test:0"}\n\n' });
+    // A finite response is disconnected realtime. ready+EOF would briefly render
+    // ONLINE on every jittered retry, moving alert warnings during screenshots.
+    if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: ': visual snapshot has no live SSE connection\n\n' });
     if (url.pathname === "/api/auth/me") {
       if (!staffSession && page.url().includes("/staff")) return route.fulfill({ status: 401, json: { code: "AUTH_REQUIRED", message: "Entre para continuar." } });
       body = session;
