@@ -30,3 +30,5 @@ Resultado parcial: GO CONDICIONAL, conforme [evidência Windows](../../docs/deve
 - Restart never seeds/resets credentials; demo default retains existing fixture behavior.
 - Unknown mode, DEBUG/simulation enabled and known/weak secrets fail before migrations; active documented demo PINs refuse pilot startup.
 - First-owner provisioning records audit, hashes credentials and refuses existing identities; credentials stay out of command arguments/logs.
+
+- Disposable Docker smoke posts BFF login with its exact loopback Origin including port: HTTP 200. Different port/origin and cross-site Fetch Metadata: HTTP 403. No cookies or tokens appear in logs.
