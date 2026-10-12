@@ -1,5 +1,13 @@
 # Tasks — Spec 017
 
+- [x] Append cancelled-unit facts and partial ledger kind without editing confirmed snapshots.
+- [x] Canonical remaining-unit projections for staff/guest/kitchen/dispatch/new production tickets.
+- [x] Quantity selector with bounded touch controls and exact retry intent; closing action after bill.
+- [x] PostgreSQL financial/replay/concurrency regression, real Web/API journey and visual validation.
+- [x] Authorized migration/restart of preserved local demo.
+
+Validation (2026-10-12): 108 PostgreSQL tests, two real Web/API/PostgreSQL journeys and 226 visual cases passed. Production build and TypeScript passed. No visual baseline changes. Local demo schema migrations applied after a verified backup; all 16 existing Payments and their total were preserved.
+
 ## Domain/API
 - [x] OrderCorrection model/kinds/status.
 - [x] FinancialDisposition contract.

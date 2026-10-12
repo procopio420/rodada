@@ -456,7 +456,7 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceTabHint { color: var(--color-text-muted); }
 .attendanceDraft { margin-bottom: var(--space-5); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2); }
 .attendanceDraftHeading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
-.attendanceDraftHeading h2 { margin: 0; }
+.attendanceDraftHeading h2 { margin: 0; width: 100%; }
 .attendanceDraftLine { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); padding: var(--space-3) 0; border-top: 1px solid var(--color-border); }
 .attendanceDraftDescription { min-width: 0; font-size: var(--text-sm); }
 .attendanceDraftPrice { font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
@@ -466,3 +466,19 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceQuantity button { width: var(--touch-min); min-height: var(--touch-min); padding: var(--space-2); font-size: var(--text-lg); }
 .attendanceQuantity output { min-width: var(--space-5); text-align: center; font-weight: 850; }
 .attendanceDraft > .buttonPrimary, .attendanceCategories > .buttonPrimary { background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface-2)); color: var(--color-text); border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border)); }
+.attendanceOrders .operationalHeading[data-level="2"] { padding: var(--space-3); border: 1px solid color-mix(in srgb, var(--color-accent) 25%, var(--color-border)); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface-2)); }
+.attendanceOrders .operationalHeading[data-level="2"] .operationalIcon { color: var(--color-accent); }
+.attendanceConfirmedItem { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3); padding: var(--space-3); margin-bottom: var(--space-2); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-2); }
+.attendanceConfirmedDescription { min-width: 0; overflow-wrap: anywhere; }
+.attendanceConfirmedDescription > small { display: block; margin-top: var(--space-2); }
+.attendanceConfirmedActions { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
+.attendanceConfirmedStatus { padding: var(--space-1) var(--space-2); border-radius: var(--radius-pill); background: var(--color-surface-3); color: var(--color-text-muted); font-size: var(--text-xs); white-space: nowrap; }
+.attendanceRemoveItem { width: var(--touch-min); min-height: var(--touch-min); padding: var(--space-2); display: inline-flex; align-items: center; justify-content: center; border-color: transparent; background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface-2)); }
+.attendanceCloseTab, .dialogReturn { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin-top: var(--space-4); border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border)); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-2)); }
+.attendanceCloseTab .operationalIcon { color: var(--color-accent); }
+.removalQuantity { justify-content: center; margin: var(--space-4) 0; }
+
+
+.attendanceOpenHeading { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); padding-right: var(--space-2); border: 1px solid color-mix(in srgb, var(--color-accent) 25%, var(--color-border)); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface-2)); }
+.attendanceOrders .attendanceOpenHeading .operationalHeading { flex: 1; margin: 0; border: 0; background: transparent; }
+.attendanceOpenHeading > button { display: inline-flex; align-items: center; justify-content: center; width: var(--touch-min); min-width: var(--touch-min); color: var(--color-text-muted); }

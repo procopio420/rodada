@@ -1,5 +1,7 @@
 # Plan — Spec 017
 
+Partial cancellation: add nullable positive cancelled-unit facts to OrderCorrection with backwards-compatible fingerprints, and a distinct negative partial-cancellation ledger kind so existing whole-line uniqueness stays intact. Derive remaining quantity from applied facts; prefetch corrections on operational projections. Prorate the current canonical net using integers and consume all rounding cents on the final cancellation. Keep Tab/item locking, stage/transfer/paid guards and immutable snapshots. Verify unit/rounding/replay and real PostgreSQL races, then the actual Web/API journey and mobile dialogs. Apply migrations to the preserved local demo only using authorized local authentication and restart matching API/frontend builds.
+
 ## Recommended sequence
 
 1. **Domain/migrations**

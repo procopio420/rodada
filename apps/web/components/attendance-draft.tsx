@@ -1,4 +1,5 @@
 "use client";
+import { OperationalHeading } from "@/components/operational-heading";
 import { CustomizationText, selectionError, unitPrice, type OrderingProduct, type Selection } from "@/components/product-customization";
 
 export type DraftLine = { product: OrderingProduct & { active: boolean; availability: string }; quantity: number; selection: Selection };
@@ -7,7 +8,7 @@ export function AttendanceDraft({ rows, locked, fresh, onQuantity, onEdit, child
  rows: DraftLine[]; locked: boolean; fresh: boolean; onQuantity: (index: number, delta: number) => void; onEdit: (index: number) => void; children: React.ReactNode;
 }) {
  return <section className="attendanceDraft" aria-label="Pedido atual">
-  <div className="attendanceDraftHeading"><h2>Pedido atual</h2><span className="muted">{rows.reduce((sum, row) => sum + row.quantity, 0)} itens</span></div>
+  <div className="attendanceDraftHeading"><OperationalHeading as="h2" icon="cart">Pedido atual</OperationalHeading><span className="muted">{rows.reduce((sum, row) => sum + row.quantity, 0)} itens</span></div>
   {!rows.length && <p className="muted">Selecione os itens no catálogo abaixo.</p>}
   {rows.map((row, index) => <article className="attendanceDraftLine" key={index}>
    <div className="attendanceDraftDescription"><strong>{row.quantity}× {row.product.name}</strong><CustomizationText snapshot={{ variant: row.product.variants?.find(v => v.id === row.selection.variant_id), modifiers: row.product.modifier_groups?.flatMap(g => g.options.filter(o => row.selection.modifier_option_ids.includes(o.id)).map(o => ({ ...o, group_name: g.name }))), special_instructions: row.selection.special_instructions }} />

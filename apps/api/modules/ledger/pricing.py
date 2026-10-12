@@ -6,7 +6,7 @@ import uuid
 from dataclasses import dataclass
 
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 from modules.access.capabilities import Capability, has_capability
 from modules.access.context import ActorContext
@@ -181,6 +181,12 @@ def commercial_summary(tab):
         "discounts_cents": -sums["discount"],
         "courtesy_cents": -sums["courtesy"],
         "corrections_cents": sums["correction"],
+        "wrong_entry_removals_cents": tab.ledger_adjustments.filter(
+            kind__in=(Kind.ORDER_ITEM_CANCELLATION, Kind.ORDER_ITEM_PARTIAL_CANCEL),
+            correction__kind="WRONG_ITEM_ENTERED",
+            correction__status="APPLIED",
+            correction__stage_at_request__in=("NEW", "ACCEPTED"),
+        ).aggregate(total=Sum("amount_cents"))["total"] or 0,
         "net_consumption_cents": sum(net_consumption(row) for row in rows.values()),
         "service_charge_cents": sums["service"],
         "payable_cents": sum(sums.values()),

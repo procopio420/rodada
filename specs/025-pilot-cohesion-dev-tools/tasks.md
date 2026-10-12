@@ -24,3 +24,24 @@
 - [x] Hide canonically CANCELLED lines from Attendance confirmed orders while preserving audited history.
 
 - [x] Collapse/reopen active Tab without discarding draft; touch quantity controls before catalog; restrained amber selection treatment.
+
+- [x] Replace Outros navigation with grouped Todos; classify exact Brahma 600 ml/600ml in Cervejas and preserve collapse/search/draft behavior.
+- [x] Validate the complete visual suite for the grouped catalog follow-up.
+
+- [x] Keep catalog search visible without an expanded category; reveal global results while typing and restore collapse when cleared.
+- [x] Complete visual regression checks for the always-visible search.
+
+- [x] Refine Attendance section headings, confirmed-item rows, accessible minimal trash action and closing button using shared tokens.
+- [x] Validate responsive screenshots and full visual regression for the Attendance styling follow-up.
+
+- [x] Move compact Attendance summary above confirmed orders; preserve final closing action and financial disclosure.
+
+- [x] Match Pedido atual to shared section headings and place summary immediately before closing.
+
+- [x] Separate mistaken item removals from compact Correções disclosure with immutable financial facts preserved.
+
+- [x] Omit wrong-entry removals entirely from compact bill details without reclassifying them as Correções.
+
+- [x] Separate Attendance history into a read-only dialog with a discreet right-aligned trigger in Abrir comanda.
+
+- [x] Highlight history Voltar with a bordered secondary accent surface.

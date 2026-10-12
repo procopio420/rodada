@@ -82,11 +82,19 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     key = f"correction:{correction.id}"
     existing = LedgerAdjustment.objects.filter(tab=charge.tab, idempotency_key=key).first()
     if existing:
-        if existing.order_item_id != item.id or existing.kind != AdjustmentKind.ORDER_ITEM_CANCELLATION:
+        if existing.order_item_id != item.id or existing.kind not in (AdjustmentKind.ORDER_ITEM_CANCELLATION, AdjustmentKind.ORDER_ITEM_PARTIAL_CANCEL):
             raise LedgerServiceError("ADJUSTMENT_IDEMPOTENCY_CONFLICT", "Reversão não corresponde à correção.", 409)
         return existing
     from modules.ledger.pricing import components, net_consumption
     net = net_consumption(components(charge.tab)[str(charge.id)])
+    adjustment_kind = AdjustmentKind.ORDER_ITEM_CANCELLATION
+    if correction.quantity_cancelled is not None:
+        remaining = item.remaining_quantity
+        if remaining < 1 or not 1 <= correction.quantity_cancelled <= remaining:
+            raise LedgerServiceError("INVALID_CANCELLATION_QUANTITY", "Quantidade restante inválida.", 409)
+        if correction.quantity_cancelled < remaining:
+            adjustment_kind = AdjustmentKind.ORDER_ITEM_PARTIAL_CANCEL
+        net = net * correction.quantity_cancelled // remaining
     if net == 0:
         return None
     if net < 0:
@@ -97,7 +105,7 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
         idempotency_key=key,
         defaults={
             "order_item": item,
-            "kind": AdjustmentKind.ORDER_ITEM_CANCELLATION,
+            "kind": adjustment_kind,
             "amount_cents": -net,
             "reason_code": correction.reason_code,
             "created_by_id": actor.staff_id,
@@ -105,7 +113,7 @@ def reverse_open_responsibility(correction, item: OrderItem, actor) -> LedgerAdj
     )
     expected = (
         adjustment.order_item_id == item.id
-        and adjustment.kind == AdjustmentKind.ORDER_ITEM_CANCELLATION
+        and adjustment.kind == adjustment_kind
         and adjustment.amount_cents == -net
     )
     if not expected:

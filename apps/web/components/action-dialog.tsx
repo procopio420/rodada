@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useId, useRef, type ReactNode } from "react";
-export function ActionDialog({ title, children, locked = false, onClose }: { title: string; children: ReactNode; locked?: boolean; onClose: () => void }) {
+export function ActionDialog({ title, children, locked = false, onClose, closeButtonClassName = "buttonQuiet" }: { title: string; children: ReactNode; locked?: boolean; onClose: () => void; closeButtonClassName?: string }) {
  const ref = useRef<HTMLDialogElement>(null);
  const titleId = useId();
  useEffect(() => {
@@ -11,6 +11,6 @@ export function ActionDialog({ title, children, locked = false, onClose }: { tit
  }, []);
  return <dialog ref={ref} className="removalDialog" aria-labelledby={titleId} onCancel={event => { event.preventDefault(); if (!locked) onClose(); }}>
   <h2 id={titleId}>{title}</h2>{children}
-  <button className="buttonQuiet" disabled={locked} onClick={onClose}>Voltar</button>
+  <button className={closeButtonClassName} disabled={locked} onClick={onClose}>Voltar</button>
  </dialog>;
 }

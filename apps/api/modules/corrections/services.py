@@ -43,13 +43,15 @@ _POST_PRODUCTION_STATES = frozenset(
 )
 
 
-def _fingerprint(*, kind: str, reason_code: str, reason_text: str) -> str:
+def _fingerprint(*, kind: str, reason_code: str, reason_text: str, quantity=None) -> str:
     payload = {
         "kind": kind,
         "reason_code": reason_code.strip(),
         "reason_text": reason_text.strip(),
         "financial_disposition": FinancialDisposition.REVERSE_OPEN_RESPONSIBILITY,
     }
+    if quantity is not None:
+        payload["quantity"] = quantity
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
     ).hexdigest()
@@ -144,6 +146,7 @@ def cancel_before_fulfillment(
     actor: ActorContext,
     financial_reversal_hook: OpenResponsibilityReversal | None,
     record_paid_request: bool = False,
+    quantity: int | None = None,
 ) -> OrderCorrection:
     """Cancel a NEW/ACCEPTED item without erasing its snapshot or charge.
 
@@ -154,6 +157,8 @@ def cancel_before_fulfillment(
     """
     if kind not in _CANCEL_KINDS:
         raise CorrectionServiceError("INVALID_CORRECTION_KIND", "Tipo de correção inválido.")
+    if quantity is not None and (type(quantity) is not int or quantity < 1):
+        raise CorrectionServiceError("INVALID_CANCELLATION_QUANTITY", "Quantidade inválida.")
     reason_code = reason_code.strip()
     reason_text = reason_text.strip()
     idempotency_key = idempotency_key.strip()
@@ -179,7 +184,7 @@ def cancel_before_fulfillment(
             409,
         )
 
-    fingerprint = _fingerprint(kind=kind, reason_code=reason_code, reason_text=reason_text)
+    fingerprint = _fingerprint(kind=kind, reason_code=reason_code, reason_text=reason_text, quantity=quantity)
     existing = OrderCorrection.objects.filter(
         original_order_item=item,
         idempotency_key=idempotency_key,
@@ -217,7 +222,14 @@ def cancel_before_fulfillment(
             {"state": item.state},
         )
 
+    remaining = item.remaining_quantity
+    requested_quantity = remaining if quantity is None else quantity
+    if requested_quantity > remaining or remaining < 1:
+        raise CorrectionServiceError("INVALID_CANCELLATION_QUANTITY", "Quantidade superior aos itens restantes. Atualize a comanda.", 409)
+
     if _has_confirmed_money(tab_id=item.order.tab_id):
+        if requested_quantity < remaining:
+            raise CorrectionServiceError("PARTIAL_PAID_CORRECTION_REQUIRES_REVIEW", "Este item envolve pagamento. A remoção parcial exige revisão da gerência.", 409)
         if record_paid_request:
             # The adjustment is deliberately deferred until the manager settles
             # the refund.  Still, the client must receive the exact canonical
@@ -242,6 +254,7 @@ def cancel_before_fulfillment(
                 reason_text=reason_text,
                 financial_disposition=FinancialDisposition.REFUND_REQUIRED,
                 refund_required_cents=refund_required_cents,
+                quantity_cancelled=requested_quantity,
                 idempotency_key=idempotency_key,
                 request_fingerprint=fingerprint,
                 requested_by_id=actor.staff_id,
@@ -282,6 +295,7 @@ def cancel_before_fulfillment(
                 reason_code=reason_code,
                 reason_text=reason_text,
                 financial_disposition=FinancialDisposition.REVERSE_OPEN_RESPONSIBILITY,
+                quantity_cancelled=requested_quantity,
                 idempotency_key=idempotency_key,
                 request_fingerprint=fingerprint,
                 requested_by_id=actor.staff_id,
@@ -308,9 +322,13 @@ def cancel_before_fulfillment(
         correction.save(update_fields=["financial_adjustment"])
 
     now = timezone.now()
-    item.state = OrderItemState.CANCELLED
-    item.cancelled_at = now
-    item.save(update_fields=["state", "cancelled_at"])
+    if requested_quantity == remaining:
+        item.state = OrderItemState.CANCELLED
+        item.cancelled_at = now
+        item.save(update_fields=["state", "cancelled_at"])
+    if adjustment is None:
+        from django.db.models import F
+        Tab.objects.filter(pk=item.order.tab_id).update(version=F("version") + 1)
     correction.status = CorrectionStatus.APPLIED
     correction.approved_by_id = actor.staff_id
     correction.applied_at = now
@@ -326,6 +344,9 @@ def cancel_before_fulfillment(
             "order_item_id": str(item.id),
             "tab_id": str(item.order.tab_id),
             "kind": kind,
+            "quantity_cancelled": requested_quantity,
+            "original_quantity": item.quantity,
+            "remaining_quantity": remaining - requested_quantity,
             "stage_at_request": correction.stage_at_request,
             "financial_disposition": correction.financial_disposition,
         },
@@ -401,7 +422,7 @@ def create_post_production_correction(
     active = OrderCorrection.objects.filter(
         original_order_item=item,
         status__in=(CorrectionStatus.REQUESTED, CorrectionStatus.APPLIED),
-    ).first()
+    ).exclude(status=CorrectionStatus.APPLIED, quantity_cancelled__isnull=False).first()
     if active is not None:
         raise CorrectionServiceError(
             "ITEM_ALREADY_CORRECTED", "Este item já possui uma correção em andamento ou aplicada.", 409,
@@ -414,7 +435,7 @@ def create_post_production_correction(
     if kind == CorrectionKind.REMAKE:
         product = item.product
         unit_price_cents = item.unit_price_cents
-        quantity = item.quantity
+        quantity = item.remaining_quantity
     elif kind == CorrectionKind.REPLACEMENT:
         if not replacement_product_id:
             raise CorrectionServiceError("REPLACEMENT_PRODUCT_REQUIRED", "Escolha o item de substituição.")
@@ -430,7 +451,7 @@ def create_post_production_correction(
         if not availability or availability.state != "AVAILABLE":
             raise CorrectionServiceError("REPLACEMENT_PRODUCT_NOT_AVAILABLE", "Item de substituição indisponível.", 409)
         unit_price_cents = product.price_cents
-        quantity = item.quantity
+        quantity = item.remaining_quantity
 
     correction = OrderCorrection.objects.create(
         venue_id=item.order.tab.venue_id,
@@ -484,6 +505,7 @@ def create_post_production_correction(
         else:
             correction.status = CorrectionStatus.APPLIED
 
+    operational_quantity = item.remaining_quantity
     _cancel_item_operationally(item=item, actor=actor, correction=correction)
     if kind in _CANCEL_KINDS:
         # Once preparation started, discarded work is operational evidence. It
@@ -493,7 +515,7 @@ def create_post_production_correction(
             order_item=item,
             correction=correction,
             kind=WasteKind.PREPARED_NOT_SERVED,
-            quantity=item.quantity,
+            quantity=operational_quantity,
             reason=reason_text or reason_code,
             created_by_id=actor.staff_id,
             occurred_at=timezone.now(),

@@ -171,7 +171,12 @@ const menuGroups: Record<string, { source: string; label: string }> = {
 };
 export const normalizeCatalogSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").trim();
 export function attendanceCategory(product: { name: string; category?: string }) {
+  if (/^brahma 600\s?ml$/.test(normalizeCatalogSearch(product.name))) return "Cervejas";
   const mapped = menuGroups[product.name];
   return mapped && product.category === mapped.source ? mapped.label : product.category?.trim() || "Outros";
 }
 export const attendanceCategoryOrder = ["Cervejas", "Refrigerantes", "Águas", "Sucos e outras bebidas", "Energéticos e isotônicos", "Drinks", "Destilados", "Petiscos e porções", "Salgados", "Pratos quentes", "Caldos", "Outros"];
+export function compareAttendanceCategories(a: string, b: string) {
+  const rank = (value: string) => { const index = attendanceCategoryOrder.indexOf(value); return index < 0 ? 999 : index; };
+  return rank(a) - rank(b) || a.localeCompare(b, "pt-BR");
+}

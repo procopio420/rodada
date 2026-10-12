@@ -62,6 +62,7 @@ class OrderCorrection(models.Model):
     )
     reason_code = models.CharField(max_length=80)
     reason_text = models.CharField(max_length=400, blank=True)
+    quantity_cancelled = models.PositiveIntegerField(null=True, blank=True)
     financial_disposition = models.CharField(
         max_length=32,
         choices=FinancialDisposition.choices,
@@ -124,6 +125,10 @@ class OrderCorrection(models.Model):
             ),
         ]
         constraints = [
+            models.CheckConstraint(
+                condition=Q(quantity_cancelled__isnull=True) | Q(quantity_cancelled__gt=0),
+                name="correction_cancel_qty_positive",
+            ),
             models.UniqueConstraint(
                 fields=("original_order_item", "idempotency_key"),
                 condition=~Q(idempotency_key=""),
