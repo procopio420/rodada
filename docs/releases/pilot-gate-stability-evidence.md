@@ -7,7 +7,8 @@ immediately after the browser click initiating the asynchronous READY mutation.
 The test now polls canonical API state until READY, with the existing bounded Playwright
 expect timeout. It never treats a clicked button as completed persistence and does not
 increase retries/tolerance or change production behavior. Full real PostgreSQL Web
-integration on fresh private port55513 is recorded after completion.
+integration on fresh private port55513: **16 passed (2.2 min)**. Local log is
+`/tmp/pilot-current-web-integration.log`; final integrated CI repeats this gate.
 
 A separate native CI24ed failure38279479036 aborted before POST: async standby radio
 shutdown briefly changed preferred route22ms after the command. Harness now requires
