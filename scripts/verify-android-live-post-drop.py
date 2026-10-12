@@ -72,7 +72,13 @@ def verify(stage, marker, fixture, receipt):
         for field in ("order_id", "tab_id", "idempotency_key", "body_sha256"):
             assert replay[field] == first[field], f"Recovered POST changed {field}"
     summary = {
-        "scenario": "real_android_post_server_commit_tcp_reset",
+        "scenario": (
+            "real_android_post_server_commit_held_response_uplink_cut"
+            if evidence.get("hold_response")
+            else "real_android_post_server_commit_tcp_reset"
+        ),
+        "hold_response": bool(evidence.get("hold_response")),
+        "released_after_cut": bool(evidence.get("released_after_cut")),
         "phase": stage,
         "disconnected_responses": len(events),
         "recovery_http_status": replays[0]["upstream_status"] if replays else None,
