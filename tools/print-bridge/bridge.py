@@ -3,8 +3,10 @@
 
 import argparse
 import base64
+import ipaddress
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -55,7 +57,54 @@ def api(base, token, path, data, allow_refresh=True):
         return api(base, token, path, data, allow_refresh=False)
 
 
+def validate_bridge_config(config):
+    """Refuse unsafe printer destinations before any job is claimed.
+
+    The bridge is designed for on-premises LAN/CUPS/file endpoints only.
+    Credentials and print bytes must not be sent to public Internet printers.
+    """
+    if not isinstance(config, dict) or not isinstance(config.get("endpoints"), dict):
+        raise ValueError("A local endpoints mapping is required")
+    if not config["endpoints"]:
+        raise ValueError("At least one local endpoint is required")
+    trusted_networks = tuple(map(ipaddress.ip_network, (
+        "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+        "127.0.0.0/8", "fc00::/7", "fe80::/10", "::1/128",
+    )))
+    for endpoint_id, destination in config["endpoints"].items():
+        if not isinstance(endpoint_id, str) or not endpoint_id.strip():
+            raise ValueError("Endpoint ID must be nonempty")
+        if not isinstance(destination, dict):
+            raise ValueError("Invalid local endpoint configuration")
+        adapter = destination.get("adapter")
+        if adapter not in {"FILE", "NETWORK", "SPOOL"}:
+            raise ValueError("Only supported local print adapters are permitted")
+        if not isinstance(destination.get("connection_ref"), str) or not destination["connection_ref"]:
+            raise ValueError("An explicit connection_ref is required")
+        if adapter == "NETWORK":
+            host, port = destination.get("host"), destination.get("port", 9100)
+            if not isinstance(host, str) or not host or host.strip() != host:
+                raise ValueError("Network printer requires a fixed local host")
+            try:
+                address = ipaddress.ip_address(host)
+                trusted = any(address in network for network in trusted_networks)
+            except ValueError:
+                trusted = bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*\\.(?:local|lan)", host))
+            if not trusted or type(port) is not int or not (1 <= port <= 65535):
+                raise ValueError("Network printers must use private LAN hosts and valid ports")
+        elif adapter == "SPOOL":
+            queue = destination.get("queue")
+            if not isinstance(queue, str) or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}", queue):
+                raise ValueError("A safe local CUPS queue name is required")
+        else:
+            directory = destination.get("directory")
+            if not isinstance(directory, str) or not directory.strip():
+                raise ValueError("FILE endpoint requires an explicit output directory")
+    return config
+
+
 def run_once(base, token, config):
+    validate_bridge_config(config)
     job = api(base, token, "bridge/claim/", {"endpoint_ids": list(config["endpoints"])})
     if not job:
         return False
