@@ -75,6 +75,13 @@ def request_provider_refund(*, payment_id, amount_cents, key, reason, actor, pro
     payment = Payment.objects.get(
         pk=payment_id, tab__venue_id=actor.venue_id, provider=provider.provider_key
     )
+    # A durable replay must not depend on provider availability. Reuse the
+    # reservation service for scope, locking and conflicting-payload validation.
+    if Refund.objects.filter(payment=payment, idempotency_key=key).exists():
+        refund, _ = reserve_refund(
+            payment_id=payment_id, amount_cents=amount_cents, key=key, reason=reason, actor=actor
+        )
+        return refund
     attempt = payment.provider_attempts.order_by("started_at").last()
     tx_id = attempt.metadata.get("transaction_id", "") if attempt else ""
     if not tx_id:
@@ -90,13 +97,16 @@ def request_provider_refund(*, payment_id, amount_cents, key, reason, actor, pro
     if tx.get("id") != tx_id or tx.get("merchant_code") != provider.merchant_code:
         raise ProviderServiceError("TRANSACTION_UNVERIFIED", "Estorno não verificado.", 409)
     baseline = [str(event["id"]) for event in tx.get("transaction_events", []) if event.get("id")]
-    refund, replayed = reserve_refund(
-        payment_id=payment_id, amount_cents=amount_cents, key=key, reason=reason, actor=actor
-    )
-    if not replayed:
-        ProviderRefundRequest.objects.create(
-            refund=refund, transaction_id=tx_id, baseline_event_ids=baseline
+    # Commit the reservation and reconciliation identity together before I/O.
+    with transaction.atomic():
+        refund, replayed = reserve_refund(
+            payment_id=payment_id, amount_cents=amount_cents, key=key, reason=reason, actor=actor
         )
+        if not replayed:
+            ProviderRefundRequest.objects.create(
+                refund=refund, transaction_id=tx_id, baseline_event_ids=baseline
+            )
+    if not replayed:
         try:
             provider.request_refund(transaction_id=tx_id, amount_cents=amount_cents)
         except Exception:  # noqa: BLE001 - provider request may have succeeded

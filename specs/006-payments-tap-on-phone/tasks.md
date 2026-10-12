@@ -122,3 +122,9 @@ See `docs/payments/sumup-onboarding.md` and the validation report for exact gate
 
 - [x] Merchant transaction ownership guard and historical SumUp backfill.
 - [x] Unsigned SumUp checkout notification hints and optional return_url.
+
+## Pilot refund durability — 2026-10-12
+
+- [x] Atomic reservation and provider reconciliation identity.
+- [x] Offline replay and conflicting replay regression.
+- [x] Storage failure rollback regression.
