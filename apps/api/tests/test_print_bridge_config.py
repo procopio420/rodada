@@ -80,7 +80,8 @@ def test_api_origin_accepts_https_or_explicit_loopback(origin):
     assert bridge.validate_api_origin(origin) == origin
 
 
-def test_authenticated_command_refuses_real_http_redirect():
+@pytest.mark.parametrize("redirect_refresh", [False, True])
+def test_authenticated_command_refuses_real_http_redirect(redirect_refresh):
     import threading
     import urllib.error
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -101,6 +102,10 @@ def test_authenticated_command_refuses_real_http_redirect():
 
     class Redirect(Target):
         def do_POST(self):
+            if redirect_refresh and self.path.startswith("/printing/"):
+                self.send_response(401)
+                self.end_headers()
+                return
             self.send_response(302)
             self.send_header("Location", f"http://127.0.0.1:{target.server_port}/stolen")
             self.end_headers()
@@ -112,7 +117,11 @@ def test_authenticated_command_refuses_real_http_redirect():
         thread.start()
     try:
         with pytest.raises(urllib.error.HTTPError) as error:
-            bridge.api(f"http://127.0.0.1:{source.server_port}", "test-secret", "bridge/claim/", {})
+            bridge.api(
+                f"http://127.0.0.1:{source.server_port}",
+                {"access_token": "test-secret", "refresh_token": "test-refresh-secret"},
+                "bridge/claim/", {},
+            )
         assert error.value.code == 302
         assert received == []
     finally:
