@@ -47,13 +47,14 @@ class OrderingFoundationTests(TestCase):
         name="Cerveja",
         price_cents=1200,
         active=True,
+        station=FulfillmentStation.BAR,
     ):
         return Product.objects.create(
             venue=venue or self.venue,
             name=name,
             price_cents=price_cents,
             active=active,
-            fulfillment_station=FulfillmentStation.BAR,
+            fulfillment_station=station,
         )
 
     def open_tab(self, label=""):
@@ -307,6 +308,46 @@ class OrderingFoundationTests(TestCase):
         assert order.source == OrderSource.GUEST
         assert order.confirmed_by_id is None
         assert order.tab_id == tab.id
+
+    def test_station_order_waits_for_explicit_prep_start(self):
+        tab = self.open_tab("Mesa 12")
+        product = self.product(name="Porção de fritas", station=FulfillmentStation.KITCHEN)
+        response = self.client.post(
+            f"/tabs/{tab['id']}/orders/confirm/",
+            {"idempotency_key": "kitchen-start-1", "lines": [{"product_id": str(product.id), "quantity": 2}]},
+            format="json",
+        )
+        assert response.status_code == 201, response.json()
+        item_id = response.json()["items"][0]["id"]
+        item = OrderItem.objects.get(pk=item_id)
+        assert item.state == "NEW"
+        assert item.accepted_at is None
+        assert item.preparing_at is None
+        assert self.client.get("/production/KITCHEN/").json()["results"][0]["state"] == "NEW"
+
+        # Confirmation must never mark an item as READY or in preparation.
+        denied = self.client.post(f"/order-items/{item_id}/transition/", {"state": "READY"}, format="json")
+        assert denied.status_code == 409, denied.json()
+        item.refresh_from_db()
+        assert item.state == "NEW"
+        assert item.preparing_at is None
+
+        start = self.client.post(f"/order-items/{item_id}/transition/", {"state": "PREPARING"}, format="json")
+        assert start.status_code == 200, start.json()
+        item.refresh_from_db()
+        assert item.state == "PREPARING"
+        assert item.preparing_at is not None
+        assert item.accepted_at is None  # Optional ACCEPTED step is not fabricated.
+        assert item.ready_at is None
+        assert self.client.get("/production/KITCHEN/").json()["results"][0]["state"] == "PREPARING"
+
+        replay = self.client.post(f"/order-items/{item_id}/transition/", {"state": "PREPARING"}, format="json")
+        assert replay.status_code == 409, replay.json()
+        ready = self.client.post(f"/order-items/{item_id}/transition/", {"state": "READY"}, format="json")
+        assert ready.status_code == 200, ready.json()
+        item.refresh_from_db()
+        assert item.state == "READY"
+        assert item.ready_at is not None
 
     def test_production_projection_preserves_identity_and_venue_isolation(self):
         product = self.product(name="Porção", price_cents=500)
