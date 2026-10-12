@@ -1,5 +1,8 @@
 package com.rodada.attendance.ui
 
+import android.content.Intent
+import android.net.Uri
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.AuthUiState
@@ -121,6 +125,7 @@ internal fun LoginScreen(
     var loginIdentifier by rememberSaveable { mutableStateOf("") }
     var pin by rememberSaveable { mutableStateOf("") }
     val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val context = LocalContext.current
 
     Column(
         modifier =
@@ -176,6 +181,16 @@ internal fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Entrar")
+        }
+        TextButton(
+            onClick = {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://rodada.ai/privacidade"))
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Política de privacidade")
         }
     }
 }
