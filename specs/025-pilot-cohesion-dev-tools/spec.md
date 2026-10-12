@@ -49,3 +49,5 @@ Confirmed-item removal uses a native modal dialog with a labelled title, trapped
 
 ## Attendance action dialogs
 Existing table location/Tab association fields move behind Organizar mesa. Release requires a labelled dialog explaining QR revocation and open Tabs. Occupy/clean/deliver remain direct quick actions. Product customization in Attendance opens a modal; POS remains inline. Close Tab requires confirmation in Attendance, retaining balance restrictions. Errors remain persistent alerts, successful orders use nonblocking status. No new transfer endpoint or domain behavior. Dialogs preserve keyboard focus, Escape and pending-action locks.
+
+Attendance confirmed-item list excludes CANCELLED items after canonical refresh. Historical orders/corrections remain persisted; POS/history and monetary calculations are unchanged.

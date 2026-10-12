@@ -36,7 +36,7 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
   await form.getByRole("button", { name: "Verificar mesma remoção" }).click();
   await expect(form).toHaveCount(0);
   expect(attempts).toHaveLength(2); expect(attempts[0]).toBe(attempts[1]);
-  await expect(page.getByText("Cancelado", { exact: true })).toBeVisible();
+  await expect(page.getByText("Cancelado", { exact: true })).toHaveCount(0);
   await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 0,00", { exact: true })).toBeVisible();
  } else {
   await expect(form.getByRole("status")).toContainText(outcome === "paid" ? "ele ainda não foi removido" : "exige fluxo");

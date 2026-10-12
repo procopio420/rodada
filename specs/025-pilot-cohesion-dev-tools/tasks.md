@@ -20,3 +20,5 @@
 - [x] Present confirmed-item removal in an accessible native modal dialog, preserving correction safeguards.
 
 - [x] Reusable Attendance action dialogs for table organization, release, Tab close and customization; nonblocking order success feedback.
+
+- [x] Hide canonically CANCELLED lines from Attendance confirmed orders while preserving audited history.

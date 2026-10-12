@@ -35,3 +35,5 @@ Confirmed-item removal uses a native modal dialog with a labelled title, trapped
 Dialog validation: production build/TypeScript and three focused visual/a11y correction scenarios passed; no financial API changes or baseline changes.
 
 Attendance action dialog evidence (2026-10-12): final production build/TypeScript passed; 220 visual cases passed against the stable final build, including 360/390/430 table dialogs, cancellation without mutation, explicit release/close confirmation, rejection alerts, focus restoration and unchanged adjacent POS. Two real Web/API/PostgreSQL journeys passed, including association and confirmed release. No baseline/tolerance changes or live demo mutations. Logs: action-dialog-visual-final.log and action-dialog-integration.log under visual-artifacts/demo-functional/runtime.
+
+Cancelled-item visibility: build/TypeScript and six focused visual cases passed. Real PostgreSQL cancellation journey passed, verifying cancelled history remains persisted with canonical zero payable and no Payment creation. Attendance excludes cancelled lines; POS/history unchanged.

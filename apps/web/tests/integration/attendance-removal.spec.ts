@@ -14,7 +14,7 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await page.getByRole("button", { name: "Remover", exact: true }).click();
  await page.getByLabel("Motivo da remoção").selectOption("WRONG_ITEM_ENTERED");
  await page.getByRole("button", { name: "Confirmar remoção" }).click();
- await expect(page.getByText("Cancelado", { exact: true })).toBeVisible();
+ await expect(page.getByText("Cancelado", { exact: true })).toHaveCount(0);
  const bill = page.getByRole("region", { name: "Valores da comanda" });
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 0,00", { exact: true })).toBeVisible();
  const canonical = await page.evaluate(async () => {
