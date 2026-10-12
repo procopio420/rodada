@@ -1,6 +1,6 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** P0 implementation in progress; canonical paths and production routing gated
+**Status:** P0 implemented and security-tested; canonical paths and production routing gated
 **Date:** 2026-10-12
 **Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
 

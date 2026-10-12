@@ -74,3 +74,10 @@ Um deployment Next + Django compartilhado e PostgreSQL compartilhado com scoping
 6. Só então alterar DNS/HTTPS de produção e migrar hosts antigos com observabilidade/rollback.
 
 **Este ADR não afirma que o wildcard DNS, certificados, lookup de hostname, proteção de sessão ou novos URLs estão implementados ou publicados.** Ver Spec 025.
+
+
+## Implementation record — P0, 2026-10-12
+
+VenueDomain and the additional host/session/guest restriction are implemented without Organization/Tenant tables or slug changes. The BFF authenticates the original Host with an expiring HMAC assertion and Django resolves it from the registry. Existing domain authentication remains authoritative. PostgreSQL enforces immutable alias identity and audits lifecycle changes; compatibility is an explicit infrastructure-host list. This supersedes the context paragraph's statement that no domain registry exists, while preserving the architecture decision.
+
+Public path rollout, per-host metadata, wildcard DNS/TLS, live staging verification and QR migration remain gated. See [security contract](../architecture/spec025-p0-security.md) and [acceptance evidence](../../specs/025-tenant-host-routing/acceptance.md).

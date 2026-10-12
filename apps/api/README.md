@@ -102,7 +102,14 @@ pytest
 python manage.py makemigrations --check --dry-run --settings=rodada_api.settings_test
 ```
 
-PostgreSQL continua sendo o banco principal da aplicação.
+PostgreSQL continua sendo o banco principal da aplicação. A suíte completa inclui testes que exigem PostgreSQL e falham explicitamente em SQLite. Para a validação completa da Spec 025, use um cluster descartável com banco `rodada_spec025` e usuário com permissão para criar o banco de teste:
+
+```bash
+SPEC025_DB_USER=seu_usuario SPEC025_DB_PORT=55475 pytest --ds=rodada_api.settings_tenant_postgres
+python manage.py makemigrations --check --dry-run --settings=rodada_api.settings_tenant_postgres
+```
+
+O profile mantém o nome do banco de validação separado dos bancos operacionais. Consulte o [contrato de segurança P0](../../docs/architecture/spec025-p0-security.md) para configurar `RODADA_BFF_HOST_SECRET`, hosts de compatibilidade explícitos e provisionamento auditado de VenueDomain. Produção não permite wildcard na lista de compatibilidade nem subdomínios de estabelecimentos nela.
 
 ## Backup e ensaio de restore
 

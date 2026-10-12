@@ -1,6 +1,8 @@
 # Spec 025 — Implementation plan
 
-**Current state (2026-10-12): contract only.** Current Web entrypoints use `surfaceForHost` selecting module on `cozinha.rodada.ai` / `gerencia.rodada.ai`. Next proxy rewrites legacy root/guest paths. Django Venue has unique `slug`, but no public host mapping; sessions are scoped by Venue and Web login still accepts a typed venue slug.
+**Current state (2026-10-12): P0 implemented and validated in PostgreSQL.** The registry, immutable domain identity, audit lifecycle, signed host boundary, staff/guest restrictions and establishment page validation are implemented. Existing `surfaceForHost` legacy rewrites and paths remain; login still presents the typed slug and the backend rejects substitutions on canonical hosts. Custom-domain onboarding, per-host metadata and canonical path rewrites are followups. No DNS or live Railway deployment was changed.
+
+Implementation and trust boundary: [P0 security record](../../docs/architecture/spec025-p0-security.md). Evidence and remaining gates: [acceptance](acceptance.md).
 
 ## Slice 1 — Identity and host registry (backend first)
 

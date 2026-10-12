@@ -105,3 +105,10 @@ closure requires zero canonical balance. Native NFC/BLE and payment SDKs require
 the Android app. API connectivity is required; no offline command queue exists.
 Keep the page open while verifying an ambiguous order: retries preserve its payload
 and idempotency key in memory. Reload recovery is outside this slice.
+
+
+## Spec 025 P0: host e credenciais
+
+O BFF e Django devem receber o mesmo `RODADA_BFF_HOST_SECRET` via secrets do servidor. O BFF assina Host/método/path/tempo; não encaminha headers de identidade do browser. `RODADA_HOST_COMPATIBILITY_HOSTS` define hosts exatos de infraestrutura/demo; localhost e 127.0.0.1 são os defaults locais. Cookies staff e guest são host-only, HttpOnly, SameSite=Lax e Secure em produção; guest usa um cookie por QR, sem credencial em sessionStorage. O header guest do browser é apenas o seletor público do QR.
+
+Paths atuais permanecem. `/cozinha`, `/gerencia`, `/caixa` e `/m/:token`, DNS wildcard e migração de QR continuam bloqueados para um rollout separado. Veja [segurança e rollout P0](../../docs/architecture/spec025-p0-security.md).

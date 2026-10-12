@@ -31,3 +31,8 @@ This is a **temporary** demonstration containing Django API, SSE dispatcher and 
 - Restart reruns migrations and seeds but does **not** reset database or any created transactions. Use one replica only.
 - Railway resources may cost money. Delete after the demo. Never point this demo at production data.
 - Configuration files are **untested in Railway** until a live build and smoke test prove them working.
+
+
+## Compatibilidade Spec 025
+
+O startup mantém os paths atuais e define explicitamente `RODADA_HOST_COMPATIBILITY_HOSTS` usando `RAILWAY_PUBLIC_DOMAIN` (fallback somente para o hostname da demo existente) e loopback. Gera um secret BFF interno por startup se nenhum secret foi provisionado; o mesmo valor é herdado por Next e Django no container. Este mecanismo é para a demo de um único container. Deploys com serviços/réplicas separados devem provisionar o mesmo secret persistente e uma lista explícita de hosts. Isso não ativa wildcard, paths canônicos, nem altera DNS. A operação Railway ao vivo exige validação após promoção; este PR não realiza deploy.

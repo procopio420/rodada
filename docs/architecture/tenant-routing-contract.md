@@ -4,7 +4,7 @@ Updated 2026-10-12. **Design/implementation backlog, not an announcement of live
 
 ## Canonical example
 
-The hostname names the physical Venue; URL path names an experience. Public alias `bardoaderlan` is mapped to existing internal Venue `bar-do-aderlan` through a future persistent host registry.
+The hostname names the physical Venue; URL path names an experience. Public alias `bardoaderlan` is mapped to existing internal Venue `bar-do-aderlan` through the P0 persistent VenueDomain registry; public path rollout remains gated.
 
 | Audience | Target URL | Current internal app route |
 | --- | --- | --- |
@@ -38,3 +38,8 @@ The host does not confer auth. No client-controlled `X-Rodada-Venue`, `X-Forward
 `bardoaderlan.rodada.ai` is a short brand-facing alias. Existing `bar-do-aderlan` is the database slug and stays unchanged. A network of Venues may later belong to a single `Organization/Tenant`, but that is not implemented or silently implied by hostname routing.
 
 See [ADR 0016](../adr/0016-tenant-hostname-module-paths.md) and [Spec 025](../../specs/025-tenant-host-routing/spec.md).
+
+
+## P0 implementation record
+
+The authoritative registry and signed BFF/Django host boundary are implemented; this does not publish canonical paths or DNS. Establishment page hosts are validated, staff sessions and guest credentials are constrained to their resolved Venue, and compatibility is an exact infrastructure-host allowlist. See [security/lifecycle/rollout](spec025-p0-security.md) and [Spec 025 acceptance](../../specs/025-tenant-host-routing/acceptance.md) for executed evidence and remaining gates.
