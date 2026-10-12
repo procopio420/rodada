@@ -94,7 +94,10 @@ from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 
+from modules.venue.host_views import VenueHostView
+
 urlpatterns = [
+    path("venue/host/", VenueHostView.as_view(), name="venue-host"),
     path("management/daily-closes/", DailyCloseListView.as_view()),
     path("management/daily-closes/<uuid:close_id>/", DailyCloseDetailView.as_view()),
     path("management/daily-closes/<uuid:close_id>/review/", DailyCloseReviewView.as_view()),

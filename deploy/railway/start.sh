@@ -10,6 +10,10 @@ done
 export DJANGO_ALLOWED_HOSTS="127.0.0.1,localhost"
 export RODADA_PAYMENT_SIMULATION=false
 export RODADA_API_BASE_URL=http://127.0.0.1:8000
+# This isolated demonstration is an explicit compatibility transport, not a Venue host.
+export RODADA_HOST_COMPATIBILITY_HOSTS="127.0.0.1,localhost,${RAILWAY_PUBLIC_DOMAIN:-rodada-web-demo.up.railway.app}"
+# Same container, per-start internal secret. Never print it or expose it to JS.
+export RODADA_BFF_HOST_SECRET="${RODADA_BFF_HOST_SECRET:-$(python -c 'import secrets; print(secrets.token_hex(32))')}"
 
 cd /app/apps/api
 for attempt in $(seq 1 30); do

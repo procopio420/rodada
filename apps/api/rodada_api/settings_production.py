@@ -20,3 +20,8 @@ if any(not origin.startswith("https://") or "*" in origin for origin in CSRF_TRU
 # Opt in only behind an ingress that strips incoming client forwarding headers.
 if os.environ.get("RODADA_TRUST_HTTPS_PROXY") == "1":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+if "RODADA_HOST_COMPATIBILITY_HOSTS" not in os.environ:
+    raise ImproperlyConfigured("Explicitly provision API/native/legacy compatibility hosts (or empty)")
+if len(RODADA_BFF_HOST_SECRET) < 32:
+    raise ImproperlyConfigured("Provision a separate high-entropy BFF host secret of at least 32 characters")

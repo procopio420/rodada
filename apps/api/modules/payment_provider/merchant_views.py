@@ -129,7 +129,8 @@ class OAuthCallbackAuthentication(BaseAuthentication):
     def authenticate(self, request):
         from modules.access.context import ActorContext
         from modules.access.models import StaffSession
-        from modules.access.services import _session_failure
+        from modules.access.services import _session_failure, AccessServiceError
+        from modules.access.errors import AccessPermissionDenied
 
         try:
             binding = request.get_signed_cookie(
@@ -148,6 +149,8 @@ class OAuthCallbackAuthentication(BaseAuthentication):
             ).get(pk=session_id)
             if _session_failure(session):
                 raise ValueError("Session unavailable")
+        except AccessServiceError as error:
+            raise AccessPermissionDenied(error.code, error.message) from error
         except (KeyError, ValueError, signing.BadSignature, StaffSession.DoesNotExist) as error:
             raise AuthenticationFailed("Autorização inválida ou expirada.") from error
         request.actor_context = ActorContext.from_session(session)

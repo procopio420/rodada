@@ -108,11 +108,18 @@ class StreamView(APIView):
         )
 
         def authorize():
-            return (
-                guest_session_context(session_token=token)
-                if guest
-                else session_for_access_token(token)
-            )
+            from modules.venue.hostnames import resolved_venue_id, resolve_venue_from_hostname
+            hostname = request._request.venue_hostname
+            expected = resolve_venue_from_hostname(hostname).pk if hostname else None
+            context_token = resolved_venue_id.set(expected)
+            try:
+                return (
+                    guest_session_context(session_token=token)
+                    if guest
+                    else session_for_access_token(token)
+                )
+            finally:
+                resolved_venue_id.reset(context_token)
 
         try:
             identity = authorize()
@@ -126,13 +133,14 @@ class StreamView(APIView):
         cursor = request.headers.get("Last-Event-ID") or request.query_params.get("cursor", "")
 
         def read(cursor):
+            from modules.venue.hostnames import HostResolutionError
             try:
                 identity = authorize()
             except AccessServiceError as error:
                 if error.code == "ACCESS_TOKEN_EXPIRED":
                     return [frame("reauthenticate", {"reason": error.code})], cursor, True
                 return [frame("revoked", {"reason": "AUTH_REVOKED"})], cursor, True
-            except GuestAccessError:
+            except (GuestAccessError, HostResolutionError):
                 return [frame("revoked", {"reason": "AUTH_REVOKED"})], cursor, True
             rows = replay_batch(venue_id, cursor)
             if rows is None:

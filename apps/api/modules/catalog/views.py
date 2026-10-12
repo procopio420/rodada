@@ -143,6 +143,10 @@ class PublishedIconAssetView(APIView):
 
     def get(self, request, icon_id, filename):
         icon = ProductIcon.objects.filter(pk=icon_id).first()
+        from modules.venue.hostnames import resolved_venue_id
+        expected = resolved_venue_id.get()
+        if icon and expected is not None and icon.product.venue_id != expected:
+            raise Http404
         if not icon or not icon.published_asset or PurePosixPath(icon.published_asset).name != filename:
             raise Http404
         try:

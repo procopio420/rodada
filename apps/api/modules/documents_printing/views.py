@@ -472,6 +472,13 @@ class SharedReceiptView(APIView):
             revoked_at__isnull=True,
             document__station="",
         )
+        from modules.venue.hostnames import assert_guest_venue
+        from modules.guest_access.services import GuestAccessError
+        from modules.guest_access.views import _error_response
+        try:
+            assert_guest_venue(access.document.venue_id)
+        except GuestAccessError as error:
+            return _error_response(error)
         return Response(
             document_payload(access.document),
             headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
+import { venueHostHeaders } from "./venue-host";
 import { SessionRefreshCoordinator } from "./session-refresh";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -119,6 +120,7 @@ async function responseJson(response: Response): Promise<JsonObject | null> {
 }
 
 async function backendRequest(
+  request: NextRequest,
   path: string,
   options: {
     method?: string;
@@ -128,7 +130,8 @@ async function backendRequest(
     signal?: AbortSignal;
   } = {},
 ): Promise<{ response: Response; payload: JsonObject | null }> {
-  const headers = new Headers({ Accept: options.stream ? "text/event-stream" : "application/json" });
+  const headers = venueHostHeaders(request, options.method ?? "GET", path);
+  headers.set("Accept", options.stream ? "text/event-stream" : "application/json");
   if (options.body) headers.set("Content-Type", "application/json");
   if (options.accessToken) {
     headers.set("Authorization", "Bearer " + options.accessToken);
@@ -188,10 +191,10 @@ const refreshGlobal = globalThis as typeof globalThis & {
 };
 const refreshCoordinator = refreshGlobal.rodadaStaffRefresh ??= new SessionRefreshCoordinator<RefreshResult>();
 
-async function refreshFromCookie(refreshToken: string): Promise<RefreshResult> {
-  const key = createHash("sha256").update(refreshToken).digest("hex");
+async function refreshFromCookie(request: NextRequest, refreshToken: string): Promise<RefreshResult> {
+  const key = createHash("sha256").update(`${request.headers.get("host")}\n${refreshToken}`).digest("hex");
   try {
-    return await refreshCoordinator.run(key, () => performRefresh(refreshToken));
+    return await refreshCoordinator.run(key, () => performRefresh(request, refreshToken));
   } catch {
     return { ok: false, status: 503, payload: { code: "UPSTREAM_UNAVAILABLE", message: "Não foi possível renovar a sessão no momento. Tente novamente." } };
   }
@@ -203,8 +206,8 @@ function refreshFailureResponse(refresh: Extract<RefreshResult, { ok: false }>):
   return response;
 }
 
-async function performRefresh(refreshToken: string): Promise<RefreshResult> {
-  const result = await backendRequest("/auth/refresh/", {
+async function performRefresh(request: NextRequest, refreshToken: string): Promise<RefreshResult> {
+  const result = await backendRequest(request, "/auth/refresh/", {
     method: "POST",
     body: { refresh_token: refreshToken },
     signal: AbortSignal.timeout(10_000),
@@ -245,8 +248,7 @@ export function rejectCrossOriginMutation(request: NextRequest): NextResponse | 
   const origin = request.headers.get("origin");
   if (!origin) return null;
 
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const host = forwardedHost || request.headers.get("host");
+  const host = request.headers.get("host");
   if (!host) {
     return NextResponse.json(
       { code: "CSRF_REJECTED", message: "Host da requisição não pôde ser validado." },
@@ -279,7 +281,7 @@ export async function loginThroughGateway(
   if (rejected) return rejected;
 
   const deviceId = request.cookies.get(DEVICE_COOKIE)?.value || randomUUID();
-  const result = await backendRequest("/auth/login/", {
+  const result = await backendRequest(request, "/auth/login/", {
     method: "POST",
     body: {
       ...body,
@@ -317,7 +319,7 @@ export async function forwardAuthenticated(
   let rotated: JsonObject | null = null;
 
   if (!accessToken && refreshToken) {
-    const refresh = await refreshFromCookie(refreshToken);
+    const refresh = await refreshFromCookie(request, refreshToken);
     if (!refresh.ok) {
       return refreshFailureResponse(refresh);
     }
@@ -334,7 +336,7 @@ export async function forwardAuthenticated(
     return response;
   }
 
-  let result = await backendRequest(path, {
+  let result = await backendRequest(request, path, {
     method,
     body: options.body,
     accessToken,
@@ -347,14 +349,14 @@ export async function forwardAuthenticated(
     ["ACCESS_TOKEN_EXPIRED", "AUTH_REQUIRED"].includes(authCode(result.payload)) &&
     refreshToken
   ) {
-    const refresh = await refreshFromCookie(refreshToken);
+    const refresh = await refreshFromCookie(request, refreshToken);
     if (!refresh.ok) {
       return refreshFailureResponse(refresh);
     }
 
     rotated = refresh.payload;
     accessToken = refresh.accessToken;
-    result = await backendRequest(path, {
+    result = await backendRequest(request, path, {
       method,
       body: options.body,
       accessToken,

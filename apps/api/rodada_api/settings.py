@@ -33,6 +33,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "modules.venue.host_middleware.VenueHostMiddleware",
 ]
 
 ROOT_URLCONF = "rodada_api.urls"
@@ -114,3 +115,19 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 8 * 1024 * 1024
 
 RODADA_ICON_PROVIDER = os.environ.get("RODADA_ICON_PROVIDER", "http")
 RODADA_OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+# Explicit transport compatibility, never a default Venue. Production must provision
+# exact API/native/legacy demo hosts. Never add .rodada.ai or a wildcard here.
+USE_X_FORWARDED_HOST = False
+RODADA_BFF_HOST_SECRET = os.environ.get("RODADA_BFF_HOST_SECRET", "")
+RODADA_HOST_COMPATIBILITY_HOSTS = tuple(filter(None, os.environ.get(
+    "RODADA_HOST_COMPATIBILITY_HOSTS", "localhost,127.0.0.1").split(",")))
+
+from django.core.exceptions import ImproperlyConfigured
+from modules.venue.hostnames import RESERVED_LABELS
+for compatibility_host in RODADA_HOST_COMPATIBILITY_HOSTS:
+    if ("*" in compatibility_host or compatibility_host.startswith(".") or
+        compatibility_host != compatibility_host.lower() or "/" in compatibility_host or
+        (compatibility_host.endswith(".rodada.ai") and
+         compatibility_host.removesuffix(".rodada.ai") not in RESERVED_LABELS)):
+        raise ImproperlyConfigured("Compatibility requires exact infrastructure/legacy hosts")
