@@ -61,3 +61,5 @@ Attendance history refinement (2026-10-12): right-aligned Histórico icon/text t
 History header placement (2026-10-12): accessible icon-only Histórico control is inside the heading surface at the right edge of Abrir comanda, with minimum 44px touch area. Build/TypeScript and seven focused history/dialog visual cases passed at 360/390/430; demo HTTP 200 verified.
 
 History return action (2026-10-12): Voltar uses full-width secondary border/accent surface and separated spacing. Build/TypeScript and seven focused visual history/dialog checks passed at 360/390/430 with focus restoration preserved. Demo HTTP 200 verified.
+
+Integrated release validation (2026-10-12): integrated explicit kitchen/bar preparation start from main; build/TypeScript, 61 ordering/correction/pricing API tests and all 232 visual cases passed without baseline changes. Subsequent Spec 026 documentation update also integrated; no executable code changed after validation. Demo frontend HTTP 200 and API readiness confirmed.
