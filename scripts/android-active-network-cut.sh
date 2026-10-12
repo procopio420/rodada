@@ -71,17 +71,59 @@ grep -q "dev $IFACE" <<< "$route_before" || {
 network_is_down=0
 standby_disabled=0
 STANDBY_IFACE=""
+ethernet_addresses=""
+ethernet_routes=""
+ethernet_rules=""
+ethernet_table=""
+if [[ "$MODE" == emulator-link && "$IFACE" == eth0 ]]; then
+  # ATD can drop netd's policy routes when eth0 is switched down. Snapshot
+  # only this disposable interface; link-up alone does not restore routing.
+  ethernet_table=$(sed -n 's/.* table \([^ ]*\).*/\1/p' <<< "$route_before")
+  ethernet_table="${ethernet_table:-main}"
+  ethernet_addresses=$("${ADB[@]}" shell ip -o -4 address show dev "$IFACE" | tr -d '\r' |
+    awk '{for (i=1;i<=NF;i++) if ($i=="inet") print $(i+1)}')
+  ethernet_routes=$("${ADB[@]}" shell ip -4 route show table "$ethernet_table" dev "$IFACE" | tr -d '\r')
+  ethernet_rules=$("${ADB[@]}" shell ip -4 rule show | tr -d '\r' |
+    grep -E "lookup $ethernet_table( |$)" || true)
+  test -n "$ethernet_addresses" && test -n "$ethernet_routes" || {
+    echo "FAIL: cannot snapshot original Ethernet configuration" >&2; exit 2;
+  }
+fi
+restore_ethernet_configuration() {
+  local address route rule priority current_rules
+  local -a words
+  while IFS= read -r address; do
+    test -n "$address" || continue
+    "${ADB[@]}" shell ip -4 address replace "$address" dev "$IFACE" || return 1
+  done <<< "$ethernet_addresses"
+  while IFS= read -r route; do
+    test -n "$route" || continue
+    read -r -a words <<< "$route"
+    "${ADB[@]}" shell ip -4 route replace table "$ethernet_table" "${words[@]}" || return 1
+  done <<< "$ethernet_routes"
+  current_rules=$("${ADB[@]}" shell ip -4 rule show | tr -d '\r') || return 1
+  while IFS= read -r rule; do
+    test -n "$rule" || continue
+    grep -Fqx "$rule" <<< "$current_rules" && continue
+    priority="${rule%%:*}"
+    read -r -a words <<< "${rule#*:}"
+    "${ADB[@]}" shell ip -4 rule add pref "$priority" "${words[@]}" || return 1
+  done <<< "$ethernet_rules"
+}
 restore_primary() {
   if [[ "$network_is_down" == 1 ]]; then
     if [[ "$IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
     else
       "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
+      if [[ -n "$ethernet_table" ]]; then
+        restore_ethernet_configuration
+      fi
     fi
   fi
 }
 cleanup() {
-  restore_primary
+  restore_primary || true
   # Restore exactly the disabled standby on exit, after original-route replay.
   if [[ "$standby_disabled" == 1 ]]; then
     if [[ "$STANDBY_IFACE" == wlan0 ]]; then
@@ -256,7 +298,13 @@ for i in $(seq 1 20); do
   if grep -q "dev $IFACE" <<< "$route_up"; then recovered=1; break; fi
   sleep 1
 done
-test "$recovered" == 1 || { echo "ROUTE_AFTER_RESTORE: $route_up"; echo "FAIL: Android link did not recover" >&2; exit 1; }
+test "$recovered" == 1 || {
+  echo "ROUTE_AFTER_RESTORE: $route_up"
+  "${ADB[@]}" shell ip -4 address show dev "$IFACE"
+  "${ADB[@]}" shell ip -4 route show table all dev "$IFACE"
+  "${ADB[@]}" shell ip -4 rule show
+  echo "FAIL: Android link did not recover" >&2; exit 1;
+}
 echo "PASS: Android network route recovered ($IFACE)"
 
 run_stage replay
