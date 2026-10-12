@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'deploy/railway/**'
+      - 'scripts/verify-aderlan-staging.py'
       - '.github/workflows/railway-demo-build.yml'
       - 'apps/web/**'
       - 'apps/api/**'
@@ -82,11 +83,13 @@ jobs:
             fi
             sleep 2
           done
-          for page in staff attendance bar kitchen manage; do
+          for page in staff attendance bar kitchen manage cash reports; do
             status=$(curl -s -L -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
             echo "/$page -> HTTP $status"
             test "$status" = "200"
           done
+          python3 scripts/verify-aderlan-staging.py --base http://127.0.0.1:18080 \
+            --evidence /tmp/rodada-staging-surface-check.json
           docker logs rodada-demo-app --tail 100
       - name: Wait for canonical Django API and completed seed
         shell: bash

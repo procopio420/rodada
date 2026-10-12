@@ -34,8 +34,22 @@ class PaytimePixProvider:
         webhook_password,
         transport=None,
     ):
-        if urlparse(base_url).scheme != "https" or urlparse(base_url).username:
-            raise ValueError("Paytime requires an HTTPS API origin")
+        # Credentials are attached to every provider request. Reject anything
+        # other than a genuine HTTPS origin: URL userinfo, query strings and
+        # paths could otherwise create ambiguous destinations or leak secrets.
+        parsed = urlparse(base_url)
+        try:
+            port = parsed.port
+        except ValueError as exc:
+            raise ValueError("Invalid Paytime HTTPS origin port") from exc
+        if (
+            not isinstance(base_url, str) or base_url != base_url.strip()
+            or parsed.scheme != "https" or not parsed.hostname
+            or parsed.username is not None or parsed.password is not None
+            or parsed.path not in ("", "/") or parsed.query or parsed.fragment
+            or parsed.params or (port is not None and not 1 <= port <= 65535)
+        ):
+            raise ValueError("Paytime requires a credential-free HTTPS API origin")
         if not all(
             (
                 integration_key,
