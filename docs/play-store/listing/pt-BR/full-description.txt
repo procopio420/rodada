@@ -1,0 +1,14 @@
+Rodada Atendimento é o aplicativo de operação para equipes de bares e restaurantes que utilizam a plataforma Rodada.
+
+Com acesso autorizado pelo estabelecimento, garçons e operadores podem:
+• Consultar mesas, comandas e catálogo.
+• Registrar pedidos e acompanhar os itens da operação.
+• Visualizar valores, saldos e pagamentos de comandas.
+• Acompanhar pedidos prontos e registrar entregas.
+• Executar funções de caixa quando autorizados.
+
+O acesso é exclusivo para operadores cadastrados por um estabelecimento participante. Não é necessário que clientes finais instalem este aplicativo.
+
+A disponibilidade de recursos depende da configuração e das permissões definidas pelo estabelecimento. Algumas modalidades de pagamento dependem de fornecedor e dispositivo compatíveis.
+
+Rodada — atendimento conectado à sua operação.

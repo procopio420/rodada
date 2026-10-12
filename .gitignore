@@ -21,3 +21,8 @@ apps/web/playwright-report/
 local.properties
 .idea/
 *.iml
+# Android upload keys must be stored offline, never in Git.
+*.jks
+*.keystore
+**/key.properties
+**/signing.properties

@@ -40,6 +40,25 @@ jobs:
         working-directory: apps/attendance-android
         run: ./gradlew assembleDebug --stacktrace
 
+      # Never upload this artifact: a new ephemeral test key is created on every CI run.
+      - name: Smoke-check release AAB with disposable signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          keytool -genkeypair -noprompt -keystore "$RUNNER_TEMP/ci-play-upload.jks" \
+            -alias disposable-ci-key -keyalg RSA -keysize 3072 -validity 1 \
+            -storepass disposable-ci-only -keypass disposable-ci-only \
+            -dname "CN=Disposable CI, O=Rodada, C=BR"
+          cd apps/attendance-android
+          RODADA_UPLOAD_KEYSTORE_FILE="$RUNNER_TEMP/ci-play-upload.jks" \
+          RODADA_UPLOAD_STORE_PASSWORD="disposable-ci-only" \
+          RODADA_UPLOAD_KEY_ALIAS="disposable-ci-key" \
+          RODADA_UPLOAD_KEY_PASSWORD="disposable-ci-only" \
+          RODADA_RELEASE_API_BASE_URL="https://ci.rodada.ai/" \
+            ./gradlew :app:bundleRelease --stacktrace
+          test -s app/build/outputs/bundle/release/app-release.aab
+          rm -f "$RUNNER_TEMP/ci-play-upload.jks"
+
   forced-stop-recovery:
     runs-on: ubuntu-24.04
     timeout-minutes: 40

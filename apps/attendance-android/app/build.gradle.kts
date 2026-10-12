@@ -1,25 +1,67 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+// Development and Play release configuration deliberately do not share a default API.
+// A release without an explicit HTTPS endpoint and a real upload keystore fails closed.
+val debugApiUrl = providers.gradleProperty("rodadaApiBaseUrl").getOrElse("http://10.0.2.2:8000/")
+val releaseApiUrl = providers.gradleProperty("rodadaReleaseApiBaseUrl")
+    .orElse(providers.environmentVariable("RODADA_RELEASE_API_BASE_URL"))
+    .getOrElse("").trim()
+val uploadKeystoreFile = providers.gradleProperty("rodadaUploadStoreFile")
+    .orElse(providers.environmentVariable("RODADA_UPLOAD_KEYSTORE_FILE")).orNull
+val uploadStorePassword = providers.gradleProperty("rodadaUploadStorePassword")
+    .orElse(providers.environmentVariable("RODADA_UPLOAD_STORE_PASSWORD")).orNull
+val uploadKeyAlias = providers.gradleProperty("rodadaUploadKeyAlias")
+    .orElse(providers.environmentVariable("RODADA_UPLOAD_KEY_ALIAS")).orNull
+val uploadKeyPassword = providers.gradleProperty("rodadaUploadKeyPassword")
+    .orElse(providers.environmentVariable("RODADA_UPLOAD_KEY_PASSWORD")).orNull
+
+fun asBuildConfigString(value: String): String =
+    "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
     namespace = "com.rodada.attendance"
     compileSdk = 37
 
     defaultConfig {
+        // This ID is permanent after the first Play upload. Do not change casually.
         applicationId = "com.rodada.attendance"
         minSdk = if (providers.gradleProperty("sumupSdk").orNull == "true") 30 else 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = providers.gradleProperty("rodadaVersionCode").getOrElse("1").toInt()
+        versionName = providers.gradleProperty("rodadaVersionName").getOrElse("0.1.0")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField(
-            "String",
-            "RODADA_API_BASE_URL",
-            "\"${providers.gradleProperty("rodadaApiBaseUrl").getOrElse("http://10.0.2.2:8000/")}\"",
-        )
+    }
+
+    signingConfigs {
+        if (listOf(uploadKeystoreFile, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
+                .all { !it.isNullOrBlank() }
+        ) {
+            create("playUpload") {
+                storeFile = file(requireNotNull(uploadKeystoreFile))
+                storePassword = uploadStorePassword
+                keyAlias = uploadKeyAlias
+                keyPassword = uploadKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "RODADA_API_BASE_URL", asBuildConfigString(debugApiUrl))
+        }
+        getByName("release") {
+            isDebuggable = false
+            // Enable shrinking only after testing the authenticated networking/JSON flows with R8.
+            isMinifyEnabled = false
+            buildConfigField("String", "RODADA_API_BASE_URL", asBuildConfigString(releaseApiUrl))
+            signingConfig = signingConfigs.findByName("playUpload")
+        }
     }
 
     buildFeatures {
@@ -33,6 +75,34 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+// A checked-in or mistakenly cached localhost URL must NEVER become a Play release.
+// Keep validation attached to both AAB and APK release entrypoints.
+val verifyPlayRelease by tasks.registering {
+    group = "verification"
+    description = "Check HTTPS endpoint, release version and upload signing before packaging."
+    doLast {
+        val parsed = runCatching { URI(releaseApiUrl) }.getOrNull()
+        val host = parsed?.host?.lowercase().orEmpty()
+        check(parsed?.scheme.equals("https", ignoreCase = true) &&
+            host.isNotBlank() &&
+            host !in setOf("localhost", "127.0.0.1", "10.0.2.2", "0.0.0.0") &&
+            !host.endsWith(".localhost") && !host.endsWith(".invalid") &&
+            parsed?.userInfo == null && parsed?.rawQuery == null &&
+            parsed?.rawFragment == null && parsed?.port in listOf(-1, 443)
+        ) { "Play release requires RODADA_RELEASE_API_BASE_URL to be a real HTTPS API origin." }
+        check(listOf(uploadKeystoreFile, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
+            .all { !it.isNullOrBlank() }
+        ) { "Play release requires all four RODADA_UPLOAD_* signing variables." }
+        check(file(requireNotNull(uploadKeystoreFile)).isFile) {
+            "RODADA_UPLOAD_KEYSTORE_FILE does not point to an existing keystore."
+        }
+        val code = providers.gradleProperty("rodadaVersionCode").getOrElse("1").toInt()
+        check(code > 0) { "rodadaVersionCode must be positive." }
+    }
+}
+tasks.matching { it.name in setOf("bundleRelease", "assembleRelease", "packageReleaseBundle") }
+    .configureEach { dependsOn(verifyPlayRelease) }
 
 dependencies {
     if (providers.gradleProperty("sumupSdk").orNull == "true") {

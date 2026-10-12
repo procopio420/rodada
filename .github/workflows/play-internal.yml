@@ -1,0 +1,118 @@
+name: Play Store internal release
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_play:
+        description: 'Upload the AAB to the Google Play internal testing track (after initial setup)'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rodada-play-internal
+  cancel-in-progress: false
+
+jobs:
+  signed-aab:
+    runs-on: ubuntu-24.04
+    environment: play-internal
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK and license setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-37.0' 'build-tools;37.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Check required upload settings
+        shell: bash
+        env:
+          API_URL: ${{ vars.RODADA_RELEASE_API_BASE_URL }}
+          KEY_BASE64: ${{ secrets.RODADA_UPLOAD_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.RODADA_UPLOAD_KEY_ALIAS }}
+          KEY_STORE_PASS: ${{ secrets.RODADA_UPLOAD_STORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.RODADA_UPLOAD_KEY_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          UPLOAD_TO_PLAY: ${{ inputs.upload_to_play }}
+        run: |
+          set -euo pipefail
+          for name in API_URL KEY_BASE64 KEY_ALIAS KEY_STORE_PASS KEY_PASS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing configuration: $name. See docs/play-store/README.md"
+              exit 1
+            fi
+          done
+          if [ "$UPLOAD_TO_PLAY" = 'true' ] && [ -z "$PLAY_SERVICE_ACCOUNT" ]; then
+            echo '::error::PLAY_SERVICE_ACCOUNT_JSON is required for upload.'
+            exit 1
+          fi
+
+      - name: Decode keystore without publishing it
+        shell: bash
+        env:
+          KEY_BASE64: ${{ secrets.RODADA_UPLOAD_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rodada-upload"
+          umask 077
+          printf '%s' "$KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/rodada-upload/upload.jks"
+          test -s "$RUNNER_TEMP/rodada-upload/upload.jks"
+
+      - name: Test and create signed AAB
+        working-directory: apps/attendance-android
+        shell: bash
+        env:
+          RODADA_RELEASE_API_BASE_URL: ${{ vars.RODADA_RELEASE_API_BASE_URL }}
+          RODADA_UPLOAD_STORE_PASSWORD: ${{ secrets.RODADA_UPLOAD_STORE_PASSWORD }}
+          RODADA_UPLOAD_KEY_ALIAS: ${{ secrets.RODADA_UPLOAD_KEY_ALIAS }}
+          RODADA_UPLOAD_KEY_PASSWORD: ${{ secrets.RODADA_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          export RODADA_UPLOAD_KEYSTORE_FILE="$RUNNER_TEMP/rodada-upload/upload.jks"
+          # Same run rerun receives a different version code; never reuse a Play versionCode.
+          version_code=$((GITHUB_RUN_NUMBER * 100 + GITHUB_RUN_ATTEMPT))
+          ./gradlew testDebugUnitTest :app:bundleRelease \
+            -ProdadaVersionCode="$version_code" \
+            -ProdadaVersionName="0.1.0-internal.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}" \
+            --stacktrace
+          test -s app/build/outputs/bundle/release/app-release.aab
+
+      - name: Keep only signed AAB as short-lived artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rodada-attendance-internal-aab
+          path: apps/attendance-android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 7
+
+      # The first application creation/release may require a manual Play Console upload.
+      # Do not upload until the user sets up the Play API and opts in explicitly.
+      - name: Upload to Google Play internal track
+        if: ${{ inputs.upload_to_play }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.rodada.attendance
+          releaseFiles: apps/attendance-android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
+
+      - name: Remove temporary upload key
+        if: always()
+        shell: bash
+        run: rm -rf "$RUNNER_TEMP/rodada-upload"
