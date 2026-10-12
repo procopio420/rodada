@@ -1,6 +1,6 @@
 --------- beginning of system
 10-12 19:19:24.597   704  1120 I ActivityManager: Process com.android.externalstorage (pid 2406) early provider death
-10-12 19:19:24.597   704  1120 I ActivityManager: Process com.android.externalstorage (pid 2406) has died: cch+5 CEM 
+10-12 19:19:24.597   704  1120 I ActivityManager: Process com.android.externalstorage (pid 2406) has died: cch+5 CEM
 10-12 19:19:24.658   704  1119 W ActivityManager: pid 2532 com.google.android.documentsui sent binder code 1 with flags 2 to frozen apps and got error -2147483646
 10-12 19:19:24.792   704   741 I ActivityManager: Start proc 6494:com.android.externalstorage/u0a95 for content provider {com.android.externalstorage/com.android.externalstorage.ExternalStorageProvider}
 10-12 19:19:24.792   704   741 I ActivityManager: ProcessObserver broadcast disabled

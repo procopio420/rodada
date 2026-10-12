@@ -69,6 +69,8 @@ Completed six gates: full API593 tests in each job; integrated593 tests; Web232 
 
 Native proof artifact names repeat across attempts: RST attempt2 is artifact11776394238, not the failed attempt1 artifact11776397760. The manifest records both and the actual uplink artifact. Narrow [lifecycle diagnostic](evidence/integrated-19dfc80/native-lifecycle/reproduction-notes.md) is not live-POST/physical evidence.
 
+Saved text logs normalize trailing whitespace only; original CI logs remain linked.
+
 Probe corrections are recorded honestly: QR creation returns201 (not necessarily200); initial HTTP client sent the wrong QR field; empty Next route-announcer live region is not an application error; a first browser screenshot preceded report loading. The final browser gate waits for financial report content and rejects nonempty alerts. Restore comparison is quiesced: additional auth audit events after a dump are new writes, not evidence of backup corruption. No weakened financial assertions, goldens or product authorization checks were used.
 
 ## Blockers and release decision
