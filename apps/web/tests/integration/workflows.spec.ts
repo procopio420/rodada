@@ -114,7 +114,10 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await evidence(page, "cash-success");
 
   // Keep the old access for the explicit stale-session request; SSE may already clear storage.
-  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
+  const oldSession = table.public_token; // Public selector; authorization is an HttpOnly cookie.
+  expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
+  const guestCookies = await guest.context().cookies();
+  expect(guestCookies.some(cookie => cookie.name.startsWith("rodada_guest_") && cookie.httpOnly && cookie.sameSite === "Lax")).toBeTruthy();
   expect(oldSession).toBeTruthy();
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
   const revoked = await guest.evaluate(async oldSession => {

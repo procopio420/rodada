@@ -54,7 +54,10 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   const accessibility = await new AxeBuilder({ page: guest }).include('section[aria-labelledby="guest-service-heading"]').analyze();
   expect(accessibility.violations).toEqual([]);
   // SSE may revoke the page and remove its refresh control before the click.
-  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
+  const oldSession = table.public_token; // Public selector; authorization is an HttpOnly cookie.
+  expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
+  const guestCookies = await guest.context().cookies();
+  expect(guestCookies.some(cookie => cookie.name.startsWith("rodada_guest_") && cookie.httpOnly && cookie.sameSite === "Lax")).toBeTruthy();
   expect(oldSession).toBeTruthy();
   await api(`hospitality/tables/${table.id}/release/`, {});
   const revoked = await guest.evaluate(async oldSession => {

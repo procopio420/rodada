@@ -10,6 +10,6 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${webPort}`, browserName: "chromium", locale: "pt-BR", timezoneId: "America/Sao_Paulo", viewport: { width: 390, height: 844 }, trace: "retain-on-failure" },
   webServer: [
     { command: `"${process.env.RODADA_TEST_PYTHON ?? "python"}" tests/integration/start_api.py`, url: `http://127.0.0.1:${apiPort}/ready/`, reuseExistingServer: false, timeout: 120_000 },
-    { command: `node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port ${webPort}`, url: `http://127.0.0.1:${webPort}/staff`, reuseExistingServer: false, timeout: 120_000, env: { RODADA_API_BASE_URL: `http://127.0.0.1:${apiPort}` } },
+    { command: `node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port ${webPort}`, url: `http://127.0.0.1:${webPort}/staff`, reuseExistingServer: false, timeout: 120_000, env: { RODADA_BFF_HOST_SECRET: "spec025-real-integration-secret-at-least-32-bytes", RODADA_API_BASE_URL: `http://127.0.0.1:${apiPort}` } },
   ],
 });

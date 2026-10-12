@@ -23,6 +23,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
             raise RuntimeError("Real Web tests require dedicated database rodada_web_e2e")
     settings.DEBUG = False
     settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    settings.RODADA_BFF_HOST_SECRET = "spec025-real-integration-secret-at-least-32-bytes"
 
     import django
     django.setup()
@@ -50,6 +51,15 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
             StaffSession.objects.create(venue=venue, staff_member=staff, membership=member, expires_at=past,
                 access_expires_at=past, access_token_hash=hash_token("rat_e2e-expired-only"),
                 refresh_token_hash=hash_token("rrt_e2e-expired-only"))
+    from modules.venue.domains import configure_domain
+    for index, (slug, host) in enumerate((("bar-do-aderlan", "bardoaderlan.rodada.ai"), ("bar-teste", "barteste.rodada.ai"))):
+        tenant = Venue.objects.create(name=slug, slug=slug)
+        configure_domain(venue_id=tenant.pk, hostname=host, is_primary=True,
+                         is_active=True, is_verified=True, reason="Two-Venue browser security fixture")
+        staff = StaffMember.objects.create(display_name=f"Tenant {index}", login_identifier=f"tenant-{index}")
+        staff.set_pin("2468")
+        staff.save()
+        VenueStaffMembership.objects.create(venue=tenant, staff_member=staff, role=StaffRole.MANAGER)
     Product.objects.create(venue=venue, name="Kitchen E2E item", price_cents=1000, fulfillment_station="KITCHEN")
     Product.objects.create(venue=venue, name="Bar E2E item", price_cents=500, fulfillment_station="BAR")
     CashPoint.objects.create(venue=venue, label="E2E drawer")

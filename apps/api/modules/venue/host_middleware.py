@@ -28,7 +28,7 @@ def request_hostname(request):
             fresh = False
         message = f"{timestamp}\n{request.method}\n{request.path}\n{claimed}"
         expected = hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
-        if not secret or not fresh or not hmac.compare_digest(expected, signature):
+        if not secret or not fresh or not hmac.compare_digest(expected.encode("ascii"), signature.encode("utf-8")):
             raise HostResolutionError("HOST_ASSERTION_INVALID", 403)
         actual = claimed.lower()
     elif any(

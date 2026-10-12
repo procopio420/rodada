@@ -36,7 +36,9 @@ def test_production_refuses_wildcard_host_and_insecure_origin():
 def test_production_deploy_check_preserves_preload_warning():
     result = check_profile(DJANGO_SECRET_KEY=secrets.token_urlsafe(64),
         DJANGO_ALLOWED_HOSTS="api.rodada.ai",
-        DJANGO_CSRF_TRUSTED_ORIGINS="https://gerencia.rodada.ai")
+        DJANGO_CSRF_TRUSTED_ORIGINS="https://gerencia.rodada.ai",
+        RODADA_HOST_COMPATIBILITY_HOSTS="api.rodada.ai",
+        RODADA_BFF_HOST_SECRET=secrets.token_urlsafe(32))
     assert result.returncode == 0, result.stderr
     assert "security.W021" in result.stderr
     for code in ("security.W002", "security.W003", "security.W004", "security.W008", "security.W009"):
