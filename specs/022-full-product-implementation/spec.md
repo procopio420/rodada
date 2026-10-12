@@ -30,3 +30,7 @@ Ver [acceptance.md](acceptance.md). A conclusão do documento de planejamento n�
 ## Demo integrada Windows — validação parcial
 
 Revalidar main 7227f7d isoladamente, sem ampliar módulos. Sem Docker/WSL, executar PostgreSQL17 portátil, ASGI, dispatcher e Web com contratos da demo, portas 55459/18764/3119 e banco rodada_demo. Preservar SQLite e serviços 8000/3000. Sem instalação global, apagar histórico, reduzir limites ou confirmação fictícia. Recorte não conclui produto/device físico.
+
+## Explicit secure assisted-pilot runtime — 2026-10-12
+
+Railway runtime defaults to disposable `demo` for compatibility. Explicit `RODADA_RELEASE_MODE=pilot` migrates and starts existing services but never calls demo seed commands. Before migrations it rejects unknown modes, DEBUG/simulation opt-in and absent/short/known demo Django secrets; pilot forces DEBUG=false and simulation=false. Pilot refuses active staff using documented demo PINs after migrations. No automatic merchant, staff, catalog, occupancy or financial provisioning occurs. First owner is provisioned once by a protected operator using existing Venue/StaffMember/membership and AuditEvent contracts; later staff/catalog configuration uses authenticated management APIs. No fiscal/provider approval or production-ready hosting claim is implied.
