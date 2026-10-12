@@ -131,6 +131,24 @@ class PaytimeLiveTests(TestCase):
         self.assertEqual(self.webhook().status_code, 503)
         self.assertEqual(Payment.objects.get(pk=first.data["id"]).status, "PENDING")
 
+    def test_pix_unrecognized_or_approved_status_never_credits_ledger(self):
+        # Only authenticated PAID from provider lookup may move money.
+        # The live semantics of EXPIRED require provider approval; do not
+        # infer cancellation or payment from an unrecognized value.
+        first = self.create()
+        self.assertEqual(first.status_code, 201, first.data)
+        for status in ("APPROVED", "EXPIRED", "UNRECOGNIZED"):
+            with self.subTest(provider_status=status):
+                self.remote["status"] = status
+                response = self.client.post(
+                    f"/payments/{first.data['id']}/integrated/", {}, format="json"
+                )
+                self.assertEqual(response.status_code, 200, response.data)
+                self.assertNotEqual(response.data["status"], "CONFIRMED")
+                self.assertEqual(response.data["payments_cents"], 0)
+                self.assertEqual(response.data["exposure_cents"], 3000)
+                self.assertEqual(Payment.objects.count(), 1)
+
     def test_invalid_credentials_never_enter_inbox(self):
         self.create()
         self.hook.credentials(HTTP_AUTHORIZATION="Basic invalid")
