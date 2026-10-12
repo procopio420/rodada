@@ -47,9 +47,12 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   expect(tableResult.ok()).toBeTruthy();
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: "Ocupar mesa Attendance test" }).click();
+  await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
   await expect(page.getByText("Atendimento browser test", { exact: true }).last()).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: "Voltar" }).click();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
+  await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
   await page.getByRole("button", { name: "Concluir limpeza" }).click();
   await expect(page.getByRole("button", { name: "Ocupar mesa Attendance test" })).toBeVisible();

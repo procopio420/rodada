@@ -18,3 +18,5 @@
 - [x] Mobile, API integration and visual verification.
 
 - [x] Present confirmed-item removal in an accessible native modal dialog, preserving correction safeguards.
+
+- [x] Reusable Attendance action dialogs for table organization, release, Tab close and customization; nonblocking order success feedback.
