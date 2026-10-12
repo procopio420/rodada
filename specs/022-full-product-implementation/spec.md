@@ -34,3 +34,7 @@ Revalidar main 7227f7d isoladamente, sem ampliar módulos. Sem Docker/WSL, execu
 ## Explicit secure assisted-pilot runtime — 2026-10-12
 
 Railway runtime defaults to disposable `demo` for compatibility. Explicit `RODADA_RELEASE_MODE=pilot` migrates and starts existing services but never calls demo seed commands. Before migrations it rejects unknown modes, DEBUG/simulation opt-in and absent/short/known demo Django secrets; pilot forces DEBUG=false and simulation=false. Pilot refuses active staff using documented demo PINs after migrations. No automatic merchant, staff, catalog, occupancy or financial provisioning occurs. First owner is provisioned once by a protected operator using existing Venue/StaffMember/membership and AuditEvent contracts; later staff/catalog configuration uses authenticated management APIs. No fiscal/provider approval or production-ready hosting claim is implied.
+
+## Forwarded origin integrity
+
+The Railway Nginx proxy preserves the request Host including an explicit port when forwarding Host and X-Forwarded-Host. The BFF compares Origin to that authority: same-origin login must succeed on an isolated non-default port, while another origin or cross-site Fetch Metadata remains rejected. This does not relax CSRF checks or certify public HTTPS browser operation.

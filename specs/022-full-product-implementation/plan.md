@@ -22,3 +22,5 @@ O teste de revogação conserva a credencial anterior somente em memória antes 
 Secure pilot runtime slice: add explicit demo/pilot preflight, gate existing demo seed,
 refuse active known demo PINs, document protected first-owner bootstrap via existing
 models/audit; verify shell failures and empty disposable PostgreSQL startup/restart.
+
+Preserve Nginx `$http_host` instead of normalized `$host` on the two authority headers; validate through actual Nginx/Next/Django in Docker smoke.
