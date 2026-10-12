@@ -71,7 +71,7 @@ grep -q "dev $IFACE" <<< "$route_before" || {
 network_is_down=0
 standby_disabled=0
 STANDBY_IFACE=""
-cleanup() {
+restore_primary() {
   if [[ "$network_is_down" == 1 ]]; then
     if [[ "$IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
@@ -79,7 +79,10 @@ cleanup() {
       "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
     fi
   fi
-  # Restore exactly the disabled standby, *after* offline proof.
+}
+cleanup() {
+  restore_primary
+  # Restore exactly the disabled standby on exit, after original-route replay.
   if [[ "$standby_disabled" == 1 ]]; then
     if [[ "$STANDBY_IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
@@ -242,7 +245,10 @@ req=Request("http://127.0.0.1:8000/__fault/disarm", data=b"", method="POST")
 with urlopen(req, timeout=5) as response:
     assert response.status == 200
 PY
-cleanup
+# Keep standby disabled until the original NIC has recovered and replayed.
+# Restoring both here can make AOSP route over the standby instead, hiding
+# recovery of the transport that was actually cut (especially eth0 -> wlan0).
+restore_primary
 network_is_down=0
 recovered=0
 for i in $(seq 1 20); do
@@ -250,7 +256,7 @@ for i in $(seq 1 20); do
   if grep -q "dev $IFACE" <<< "$route_up"; then recovered=1; break; fi
   sleep 1
 done
-test "$recovered" == 1 || { echo "FAIL: Android link did not recover" >&2; exit 1; }
+test "$recovered" == 1 || { echo "ROUTE_AFTER_RESTORE: $route_up"; echo "FAIL: Android link did not recover" >&2; exit 1; }
 echo "PASS: Android network route recovered ($IFACE)"
 
 run_stage replay
