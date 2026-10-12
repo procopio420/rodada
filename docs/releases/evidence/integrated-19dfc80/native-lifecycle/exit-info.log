@@ -1,0 +1,68 @@
+ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)
+Last Timestamp of Persistence Into Persistent Storage: 2026-10-12 18:30:38.084
+  package: com.rodada.attendance
+    Historical Process Exit for uid=10216
+        ApplicationExitInfo #0:
+          timestamp=2026-10-12 19:20:49.689 pid=7691 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7732 state=empty trace=null
+        ApplicationExitInfo #1:
+          timestamp=2026-10-12 19:20:45.257 pid=7668 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #2:
+          timestamp=2026-10-12 19:20:43.730 pid=7632 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #3:
+          timestamp=2026-10-12 19:20:41.183 pid=7575 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7615 state=empty trace=null
+        ApplicationExitInfo #4:
+          timestamp=2026-10-12 19:20:36.868 pid=7552 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #5:
+          timestamp=2026-10-12 19:20:35.223 pid=7516 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #6:
+          timestamp=2026-10-12 19:20:33.056 pid=7455 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7499 state=empty trace=null
+        ApplicationExitInfo #7:
+          timestamp=2026-10-12 19:20:28.617 pid=7432 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #8:
+          timestamp=2026-10-12 19:20:27.106 pid=7395 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #9:
+          timestamp=2026-10-12 19:20:24.735 pid=7338 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7378 state=empty trace=null
+        ApplicationExitInfo #10:
+          timestamp=2026-10-12 19:20:20.307 pid=7315 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #11:
+          timestamp=2026-10-12 19:20:18.773 pid=7280 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #12:
+          timestamp=2026-10-12 19:20:16.253 pid=7221 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7262 state=empty trace=null
+        ApplicationExitInfo #13:
+          timestamp=2026-10-12 19:20:11.914 pid=7198 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #14:
+          timestamp=2026-10-12 19:20:10.321 pid=7162 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=125 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to finished inst state=empty trace=null
+        ApplicationExitInfo #15:
+          timestamp=2026-10-12 19:20:08.114 pid=7105 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.rodada.attendance reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.rodada.attendance due to from pid 7145 state=empty trace=null

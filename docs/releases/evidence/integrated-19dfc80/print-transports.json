@@ -1,0 +1,21 @@
+{
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "file": {
+    "outcome": "OUTPUT_READY",
+    "exact_payload": true
+  },
+  "loopback_network": {
+    "outcome": "SPOOL_ACCEPTED",
+    "bytes_received": 36,
+    "exact_payload": true,
+    "closed_port_outcome": "FAILED_RETRYABLE"
+  },
+  "cups_process_boundary": {
+    "outcome": "SPOOL_ACCEPTED",
+    "exact_argv_payload": true,
+    "real_cups_queue_tested": false
+  },
+  "paper_tested": false,
+  "physical_lan_tested": false,
+  "scope": "Actual FILE/socket/subprocess boundaries using synthetic test ticket and local fake lp executable; no physical hardware"
+}

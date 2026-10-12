@@ -1,0 +1,16 @@
+[
+  {
+    "conclusion": "failure",
+    "head_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+    "html_url": "https://github.com/procopio420/rodada/actions/runs/38314956027",
+    "run_attempt": 1,
+    "status": "completed"
+  },
+  {
+    "conclusion": "success",
+    "head_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+    "html_url": "https://github.com/procopio420/rodada/actions/runs/38314956027",
+    "run_attempt": 2,
+    "status": "completed"
+  }
+]

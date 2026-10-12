@@ -1,0 +1,520 @@
+{
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "scope": "Generic encrypted fake intent and offline instrumentation-to-MainActivity lifecycle only; no HTTP POST, production API, payment or physical hardware",
+  "apk_sha256": {
+    "app-debug.apk": "b78548286052af9476e40244002f5f3f392f0bd9af83925fefe9b629056fab69",
+    "app-debug-androidTest.apk": "e028867cc1bce8a32d56e70930cb054e7efd658c97dce8cf8ad076833fa2b4e9"
+  },
+  "records": [
+    {
+      "round": 1,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.072\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.077\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2613\nWaitTime: 2618\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2685.58,
+      "pids": [
+        {
+          "at_ms": 2792.36,
+          "pid": "6611",
+          "exit": 0
+        },
+        {
+          "at_ms": 2894.16,
+          "pid": "6611",
+          "exit": 0
+        },
+        {
+          "at_ms": 3128.72,
+          "pid": "6611",
+          "exit": 0
+        },
+        {
+          "at_ms": 3663.47,
+          "pid": "6611",
+          "exit": 0
+        },
+        {
+          "at_ms": 4693.94,
+          "pid": "6611",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 2,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.206\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.071\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2297\nWaitTime: 2302\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2342.83,
+      "pids": [
+        {
+          "at_ms": 2424.17,
+          "pid": "6740",
+          "exit": 0
+        },
+        {
+          "at_ms": 2548.05,
+          "pid": "6740",
+          "exit": 0
+        },
+        {
+          "at_ms": 2805.99,
+          "pid": "6740",
+          "exit": 0
+        },
+        {
+          "at_ms": 3335.19,
+          "pid": "6740",
+          "exit": 0
+        },
+        {
+          "at_ms": 4364.87,
+          "pid": "6740",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 3,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.074\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.069\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2167\nWaitTime: 2171\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2207.31,
+      "pids": [
+        {
+          "at_ms": 2286.12,
+          "pid": "6866",
+          "exit": 0
+        },
+        {
+          "at_ms": 2411.61,
+          "pid": "6866",
+          "exit": 0
+        },
+        {
+          "at_ms": 2809.7,
+          "pid": "6866",
+          "exit": 0
+        },
+        {
+          "at_ms": 3338.86,
+          "pid": "6866",
+          "exit": 0
+        },
+        {
+          "at_ms": 4368.66,
+          "pid": "6866",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 4,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.069\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.067\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2140\nWaitTime: 2145\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2188.14,
+      "pids": [
+        {
+          "at_ms": 2340.31,
+          "pid": "6984",
+          "exit": 0
+        },
+        {
+          "at_ms": 2461.12,
+          "pid": "6984",
+          "exit": 0
+        },
+        {
+          "at_ms": 2756.29,
+          "pid": "6984",
+          "exit": 0
+        },
+        {
+          "at_ms": 3296.69,
+          "pid": "6984",
+          "exit": 0
+        },
+        {
+          "at_ms": 4327.5,
+          "pid": "6984",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 5,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.064\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.068\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2344\nWaitTime: 2346\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2383.32,
+      "pids": [
+        {
+          "at_ms": 2433.06,
+          "pid": "7105",
+          "exit": 0
+        },
+        {
+          "at_ms": 2569.6,
+          "pid": "7105",
+          "exit": 0
+        },
+        {
+          "at_ms": 2840.1,
+          "pid": "7105",
+          "exit": 0
+        },
+        {
+          "at_ms": 3368.43,
+          "pid": "7105",
+          "exit": 0
+        },
+        {
+          "at_ms": 4397.86,
+          "pid": "7105",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 6,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.065\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.072\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2134\nWaitTime: 2137\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2172.98,
+      "pids": [
+        {
+          "at_ms": 2312.06,
+          "pid": "7221",
+          "exit": 0
+        },
+        {
+          "at_ms": 2441.81,
+          "pid": "7221",
+          "exit": 0
+        },
+        {
+          "at_ms": 2707.71,
+          "pid": "7221",
+          "exit": 0
+        },
+        {
+          "at_ms": 3236.78,
+          "pid": "7221",
+          "exit": 0
+        },
+        {
+          "at_ms": 4273.94,
+          "pid": "7221",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 7,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.063\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.067\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2189\nWaitTime: 2193\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2233.53,
+      "pids": [
+        {
+          "at_ms": 2375.4,
+          "pid": "7338",
+          "exit": 0
+        },
+        {
+          "at_ms": 2523.22,
+          "pid": "7338",
+          "exit": 0
+        },
+        {
+          "at_ms": 2826.47,
+          "pid": "7338",
+          "exit": 0
+        },
+        {
+          "at_ms": 3355.32,
+          "pid": "7338",
+          "exit": 0
+        },
+        {
+          "at_ms": 4383.8,
+          "pid": "7338",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 8,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.07\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.066\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2304\nWaitTime: 2305\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2342.12,
+      "pids": [
+        {
+          "at_ms": 2418.32,
+          "pid": "7455",
+          "exit": 0
+        },
+        {
+          "at_ms": 2572.19,
+          "pid": "7455",
+          "exit": 0
+        },
+        {
+          "at_ms": 2825.03,
+          "pid": "7455",
+          "exit": 0
+        },
+        {
+          "at_ms": 3365.08,
+          "pid": "7455",
+          "exit": 0
+        },
+        {
+          "at_ms": 4394.34,
+          "pid": "7455",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 9,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.069\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.088\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2133\nWaitTime: 2135\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2172.01,
+      "pids": [
+        {
+          "at_ms": 2258.92,
+          "pid": "7575",
+          "exit": 0
+        },
+        {
+          "at_ms": 2447.78,
+          "pid": "7575",
+          "exit": 0
+        },
+        {
+          "at_ms": 2711.28,
+          "pid": "7575",
+          "exit": 0
+        },
+        {
+          "at_ms": 3240.99,
+          "pid": "7575",
+          "exit": 0
+        },
+        {
+          "at_ms": 4270.28,
+          "pid": "7575",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "round": 10,
+      "prepare": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.067\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "offline": {
+        "exit": 0,
+        "stdout": "\ncom.rodada.attendance.operations.ForceStopOrderRecoveryTest:.\n\nTime: 0.071\n\nOK (1 test)\n\n\n",
+        "stderr": ""
+      },
+      "launch": {
+        "exit": 0,
+        "stdout": "Starting: Intent { cmp=com.rodada.attendance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.rodada.attendance/.MainActivity\nTotalTime: 2313\nWaitTime: 2317\nComplete\n",
+        "stderr": ""
+      },
+      "launch_elapsed_ms": 2352.55,
+      "pids": [
+        {
+          "at_ms": 2406.08,
+          "pid": "7691",
+          "exit": 0
+        },
+        {
+          "at_ms": 2567.95,
+          "pid": "7691",
+          "exit": 0
+        },
+        {
+          "at_ms": 2825.58,
+          "pid": "7691",
+          "exit": 0
+        },
+        {
+          "at_ms": 3357.41,
+          "pid": "7691",
+          "exit": 0
+        },
+        {
+          "at_ms": 4388.26,
+          "pid": "7691",
+          "exit": 0
+        }
+      ],
+      "force_stop": {
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ]
+}

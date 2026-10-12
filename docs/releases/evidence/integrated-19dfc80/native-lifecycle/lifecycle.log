@@ -1,0 +1,337 @@
+--------- beginning of system
+10-12 19:19:24.597   704  1120 I ActivityManager: Process com.android.externalstorage (pid 2406) early provider death
+10-12 19:19:24.597   704  1120 I ActivityManager: Process com.android.externalstorage (pid 2406) has died: cch+5 CEM 
+10-12 19:19:24.658   704  1119 W ActivityManager: pid 2532 com.google.android.documentsui sent binder code 1 with flags 2 to frozen apps and got error -2147483646
+10-12 19:19:24.792   704   741 I ActivityManager: Start proc 6494:com.android.externalstorage/u0a95 for content provider {com.android.externalstorage/com.android.externalstorage.ExternalStorageProvider}
+10-12 19:19:24.792   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:25.273   704  1120 I ActivityManager: Background started FGS: Allowed [callingPackage: com.google.android.apps.wellbeing; callingUid: 10140; uidState: BTOP; uidBFSL: [BFSL]; intent: Intent { xflg=0x4 cmp=com.google.android.apps.wellbeing/com.google.apps.tiktok.concurrent.InternalForegroundService (has extras) }; code:BACKGROUND_ACTIVITY_PERMISSION; tempAllowListReason:<null>; allowWiu:58; targetSdkVersion:35; callerTargetSdkVersion:35; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+10-12 19:19:28.144   704  1447 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:28.156   704   741 I ActivityManager: Start proc 6547:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:28.157   704   741 I ActivityManager: ProcessObserver broadcast disabled
+--------- beginning of main
+10-12 19:19:29.276  6547  6561 I TestRunner: run started: 1 tests
+10-12 19:19:29.277  6547  6561 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:29.345  6547  6561 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:29.347  6547  6561 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:29.358   704  1798 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:29.369   704  1798 E ActivityManager: Unable to freeze binder for 6547: -11
+10-12 19:19:29.370   704  1798 I ActivityManager: Killing 6547:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:29.420   704  1798 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6571
+10-12 19:19:29.769   704  1119 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:29.780   704   741 I ActivityManager: Start proc 6587:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:29.780   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:30.810  6587  6600 I TestRunner: run started: 1 tests
+10-12 19:19:30.811  6587  6600 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:30.884  6587  6600 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:30.886  6587  6600 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:30.891   704  1798 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:30.894   704  1798 E ActivityManager: Unable to freeze binder for 6587: -11
+10-12 19:19:30.895   704  1798 I ActivityManager: Killing 6587:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:30.942   704  1447 W ActivityTaskManager: callingPackage for (uid=0, pid=6608) has no WPC
+10-12 19:19:30.962   704  1447 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:19:30.979   704   741 I ActivityManager: Start proc 6611:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:19:31.018   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:33.557   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s613ms
+10-12 19:19:35.635   704   816 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6661
+10-12 19:19:35.636   704   816 I ActivityManager: Killing 6611:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 6661
+10-12 19:19:35.637   704   816 W ActivityTaskManager: Force removing ActivityRecord{92159152 u0 com.rodada.attendance/.MainActivity t8 f}}: app died, no saved state
+10-12 19:19:35.673   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 6611
+10-12 19:19:35.704   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:35.872   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:36.060   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:36.077   704   741 I ActivityManager: Start proc 6678:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:36.077   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:37.098   704   814 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:19:37.261  6678  6692 I TestRunner: run started: 1 tests
+10-12 19:19:37.262  6678  6692 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:37.455  6678  6692 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:37.467  6678  6692 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:37.480   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:37.497   704  2347 E ActivityManager: Unable to freeze binder for 6678: -11
+10-12 19:19:37.501   704  2347 I ActivityManager: Killing 6678:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:37.614   704  2956 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6701
+10-12 19:19:37.993   704  2956 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:38.004   704   741 I ActivityManager: Start proc 6717:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:38.004   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:39.052  6717  6730 I TestRunner: run started: 1 tests
+10-12 19:19:39.053  6717  6730 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:39.121  6717  6730 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:39.123  6717  6730 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:39.128   704   814 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:39.135   704   814 E ActivityManager: Unable to freeze binder for 6717: -11
+10-12 19:19:39.136   704   814 I ActivityManager: Killing 6717:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:39.179   704  2347 W ActivityTaskManager: callingPackage for (uid=0, pid=6737) has no WPC
+10-12 19:19:39.186   704  2347 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:19:39.200   704   741 I ActivityManager: Start proc 6740:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:19:39.201   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:41.479   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s297ms
+10-12 19:19:43.543   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6785
+10-12 19:19:43.543   704  2347 I ActivityManager: Killing 6740:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 6785
+10-12 19:19:43.545   704  2347 W ActivityTaskManager: Force removing ActivityRecord{21642139 u0 com.rodada.attendance/.MainActivity t9 f}}: app died, no saved state
+10-12 19:19:43.579   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 6740
+10-12 19:19:43.589   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:43.667   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:44.000   704  1799 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:44.013   704   741 I ActivityManager: Start proc 6802:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:44.013   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:44.668   704  1799 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:19:45.581  6802  6815 I TestRunner: run started: 1 tests
+10-12 19:19:45.582  6802  6815 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:45.652  6802  6815 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:45.654  6802  6815 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:45.660   704  1799 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:45.664   704  1799 E ActivityManager: Unable to freeze binder for 6802: -11
+10-12 19:19:45.665   704  1799 I ActivityManager: Killing 6802:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:45.716   704  2232 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6823
+10-12 19:19:46.059   704  2232 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:46.069   704   741 I ActivityManager: Start proc 6842:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:46.069   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:47.137  6842  6855 I TestRunner: run started: 1 tests
+10-12 19:19:47.138  6842  6855 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:47.205  6842  6855 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:47.206  6842  6855 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:47.211   704  2232 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:47.220   704  2232 E ActivityManager: Unable to freeze binder for 6842: -11
+10-12 19:19:47.222   704  2232 I ActivityManager: Killing 6842:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:47.261   704  2956 W ActivityTaskManager: callingPackage for (uid=0, pid=6863) has no WPC
+10-12 19:19:47.268   704  2956 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:19:47.291   704   741 I ActivityManager: Start proc 6866:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:19:47.291   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:49.430   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s167ms
+10-12 19:19:51.631   704  2956 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6908
+10-12 19:19:51.632   704  2956 I ActivityManager: Killing 6866:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 6908
+10-12 19:19:51.633   704  2956 W ActivityTaskManager: Force removing ActivityRecord{40759213 u0 com.rodada.attendance/.MainActivity t10 f}}: app died, no saved state
+10-12 19:19:51.656   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 6866
+10-12 19:19:51.673   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:51.811   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:52.304   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:52.323   704   741 I ActivityManager: Start proc 6925:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:52.323   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:52.738   704  1202 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:19:53.897  6925  6938 I TestRunner: run started: 1 tests
+10-12 19:19:53.898  6925  6938 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:53.963  6925  6938 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:53.965  6925  6938 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:53.970   704  1202 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:53.979   704  1202 E ActivityManager: Unable to freeze binder for 6925: -11
+10-12 19:19:53.979   704  1202 I ActivityManager: Killing 6925:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:54.020   704  1202 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 6945
+10-12 19:19:54.352   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:19:54.363   704   741 I ActivityManager: Start proc 6961:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:19:54.363   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:55.413  6961  6974 I TestRunner: run started: 1 tests
+10-12 19:19:55.414  6961  6974 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:55.479  6961  6974 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:19:55.481  6961  6974 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:19:55.486   704  1202 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:19:55.488   704  1202 E ActivityManager: Unable to freeze binder for 6961: -11
+10-12 19:19:55.489   704  1202 I ActivityManager: Killing 6961:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:19:55.535   704  1202 W ActivityTaskManager: callingPackage for (uid=0, pid=6981) has no WPC
+10-12 19:19:55.542   704  1202 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:19:55.558   704   741 I ActivityManager: Start proc 6984:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:19:55.560   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:19:57.677   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s140ms
+10-12 19:19:59.860   704   719 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7026
+10-12 19:19:59.861   704   719 I ActivityManager: Killing 6984:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7026
+10-12 19:19:59.862   704   719 W ActivityTaskManager: Force removing ActivityRecord{191604668 u0 com.rodada.attendance/.MainActivity t11 f}}: app died, no saved state
+10-12 19:19:59.903   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 6984
+10-12 19:19:59.932   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:19:59.990   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:00.495   704  1202 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:00.531   704   741 I ActivityManager: Start proc 7043:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:00.531   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:00.984   704  1202 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:02.055  7043  7057 I TestRunner: run started: 1 tests
+10-12 19:20:02.056  7043  7057 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:02.118  7043  7057 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:02.120  7043  7057 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:02.124   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:02.135   704  2347 E ActivityManager: Unable to freeze binder for 7043: -11
+10-12 19:20:02.135   704  2347 I ActivityManager: Killing 7043:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:02.178   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7064
+10-12 19:20:02.517   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:02.527   704   741 I ActivityManager: Start proc 7080:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:02.528   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:03.595  7080  7094 I TestRunner: run started: 1 tests
+10-12 19:20:03.596  7080  7094 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:03.660  7080  7094 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:03.662  7080  7094 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:03.667   704   719 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:03.669   704   719 E ActivityManager: Unable to freeze binder for 7080: -11
+10-12 19:20:03.674   704   719 I ActivityManager: Killing 7080:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:03.717   704   719 W ActivityTaskManager: callingPackage for (uid=0, pid=7102) has no WPC
+10-12 19:20:03.724   704   719 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:03.747   704   741 I ActivityManager: Start proc 7105:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:03.747   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:06.063   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s344ms
+10-12 19:20:08.113   704   719 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7145
+10-12 19:20:08.114   704   719 I ActivityManager: Killing 7105:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7145
+10-12 19:20:08.115   704   719 W ActivityTaskManager: Force removing ActivityRecord{44235642 u0 com.rodada.attendance/.MainActivity t12 f}}: app died, no saved state
+10-12 19:20:08.137   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7105
+10-12 19:20:08.179   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:08.277   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:08.737   704   814 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:08.766   704   741 I ActivityManager: Start proc 7162:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:08.766   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:09.247   704   814 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:10.243  7162  7176 I TestRunner: run started: 1 tests
+10-12 19:20:10.244  7162  7176 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:10.307  7162  7176 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:10.308  7162  7176 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:10.313   704   814 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:10.316   704   814 E ActivityManager: Unable to freeze binder for 7162: -11
+10-12 19:20:10.321   704   814 I ActivityManager: Killing 7162:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:10.364   704   814 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7182
+10-12 19:20:10.692   704   814 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:10.705   704   741 I ActivityManager: Start proc 7198:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:10.705   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:11.830  7198  7211 I TestRunner: run started: 1 tests
+10-12 19:20:11.831  7198  7211 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:11.901  7198  7211 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:11.903  7198  7211 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:11.907   704  2249 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:11.911   704  2249 E ActivityManager: Unable to freeze binder for 7198: -11
+10-12 19:20:11.914   704  2249 I ActivityManager: Killing 7198:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:11.961   704   814 W ActivityTaskManager: callingPackage for (uid=0, pid=7218) has no WPC
+10-12 19:20:11.970   704   814 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:11.994   704   741 I ActivityManager: Start proc 7221:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:11.998   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:14.098   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s134ms
+10-12 19:20:16.252   704   720 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7262
+10-12 19:20:16.253   704   720 I ActivityManager: Killing 7221:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7262
+10-12 19:20:16.255   704   720 W ActivityTaskManager: Force removing ActivityRecord{140703847 u0 com.rodada.attendance/.MainActivity t13 f}}: app died, no saved state
+10-12 19:20:16.307   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:16.366   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7221
+10-12 19:20:16.424   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:17.127   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:17.175   704   741 I ActivityManager: Start proc 7280:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:17.175   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:17.398   704   815 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:18.700  7280  7293 I TestRunner: run started: 1 tests
+10-12 19:20:18.702  7280  7293 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:18.762  7280  7293 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:18.764  7280  7293 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:18.768   704  1798 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:18.772   704  1798 E ActivityManager: Unable to freeze binder for 7280: -11
+10-12 19:20:18.773   704  1798 I ActivityManager: Killing 7280:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:18.823   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7299
+10-12 19:20:19.162   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:19.173   704   741 I ActivityManager: Start proc 7315:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:19.173   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:20.230  7315  7328 I TestRunner: run started: 1 tests
+10-12 19:20:20.231  7315  7328 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:20.295  7315  7328 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:20.297  7315  7328 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:20.302   704  1120 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:20.306   704  1120 E ActivityManager: Unable to freeze binder for 7315: -11
+10-12 19:20:20.307   704  1120 I ActivityManager: Killing 7315:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:20.355   704  2347 W ActivityTaskManager: callingPackage for (uid=0, pid=7335) has no WPC
+10-12 19:20:20.364   704  2347 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:20.378   704   741 I ActivityManager: Start proc 7338:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:20.378   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:22.546   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s189ms
+10-12 19:20:24.734   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7378
+10-12 19:20:24.735   704  2347 I ActivityManager: Killing 7338:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7378
+10-12 19:20:24.736   704  2347 W ActivityTaskManager: Force removing ActivityRecord{165527395 u0 com.rodada.attendance/.MainActivity t14 f}}: app died, no saved state
+10-12 19:20:24.771   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7338
+10-12 19:20:24.790   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:24.946   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:25.328   704  1977 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:25.375   704   741 I ActivityManager: Start proc 7395:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:25.376   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:25.904   704  1883 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:27.025  7395  7409 I TestRunner: run started: 1 tests
+10-12 19:20:27.026  7395  7409 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:27.092  7395  7409 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:27.094  7395  7409 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:27.100   704  1977 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:27.104   704  1977 E ActivityManager: Unable to freeze binder for 7395: -11
+10-12 19:20:27.106   704  1977 I ActivityManager: Killing 7395:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:27.155   704  1517 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7416
+10-12 19:20:27.479   704  1517 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:27.490   704   741 I ActivityManager: Start proc 7432:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:27.490   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:28.541  7432  7445 I TestRunner: run started: 1 tests
+10-12 19:20:28.543  7432  7445 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:28.606  7432  7445 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:28.608  7432  7445 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:28.613   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:28.617   704  2347 E ActivityManager: Unable to freeze binder for 7432: -11
+10-12 19:20:28.617   704  2347 I ActivityManager: Killing 7432:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:28.662   704  1517 W ActivityTaskManager: callingPackage for (uid=0, pid=7452) has no WPC
+10-12 19:20:28.670   704  1517 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:28.687   704   741 I ActivityManager: Start proc 7455:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:28.687   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:30.970   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s304ms
+10-12 19:20:33.056   704  1798 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7499
+10-12 19:20:33.056   704  1798 I ActivityManager: Killing 7455:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7499
+10-12 19:20:33.062   704  1798 W ActivityTaskManager: Force removing ActivityRecord{267407153 u0 com.rodada.attendance/.MainActivity t15 f}}: app died, no saved state
+10-12 19:20:33.091   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7455
+10-12 19:20:33.106   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:33.236   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:33.643   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:33.694   704   741 I ActivityManager: Start proc 7516:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:33.695   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:34.178   704  1235 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:35.145  7516  7529 I TestRunner: run started: 1 tests
+10-12 19:20:35.146  7516  7529 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:35.212  7516  7529 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:35.214  7516  7529 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:35.219   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:35.223   704  2347 E ActivityManager: Unable to freeze binder for 7516: -11
+10-12 19:20:35.223   704  2347 I ActivityManager: Killing 7516:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:35.270   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7536
+10-12 19:20:35.629   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:35.640   704   741 I ActivityManager: Start proc 7552:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:35.640   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:36.769  7552  7565 I TestRunner: run started: 1 tests
+10-12 19:20:36.771  7552  7565 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:36.854  7552  7565 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:36.857  7552  7565 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:36.864   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:36.867   704  1235 E ActivityManager: Unable to freeze binder for 7552: -11
+10-12 19:20:36.868   704  1235 I ActivityManager: Killing 7552:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:36.911   704  1235 W ActivityTaskManager: callingPackage for (uid=0, pid=7572) has no WPC
+10-12 19:20:36.919   704  1235 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:36.931   704   741 I ActivityManager: Start proc 7575:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:36.931   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:39.048   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s133ms
+10-12 19:20:41.182   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7615
+10-12 19:20:41.183   704  1235 I ActivityManager: Killing 7575:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7615
+10-12 19:20:41.184   704  1235 W ActivityTaskManager: Force removing ActivityRecord{142022089 u0 com.rodada.attendance/.MainActivity t16 f}}: app died, no saved state
+10-12 19:20:41.222   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7575
+10-12 19:20:41.240   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:41.342   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:41.958   704  1235 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:42.004   704   741 I ActivityManager: Start proc 7632:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:42.004   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:42.364   704  1235 W ActivityManager: pid 704 system sent binder code 7 with flags 1 to frozen apps and got error -32
+10-12 19:20:43.649  7632  7645 I TestRunner: run started: 1 tests
+10-12 19:20:43.650  7632  7645 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:43.714  7632  7645 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:43.716  7632  7645 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:43.721   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:43.724   704  2347 E ActivityManager: Unable to freeze binder for 7632: -11
+10-12 19:20:43.730   704  2347 I ActivityManager: Killing 7632:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:43.773   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7652
+10-12 19:20:44.117   704  2347 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: start instr
+10-12 19:20:44.129   704   741 I ActivityManager: Start proc 7668:com.rodada.attendance/u0a216 for added application com.rodada.attendance
+10-12 19:20:44.130   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:45.177  7668  7681 I TestRunner: run started: 1 tests
+10-12 19:20:45.179  7668  7681 I TestRunner: started: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:45.246  7668  7681 I TestRunner: finished: stagedRecovery(com.rodada.attendance.operations.ForceStopOrderRecoveryTest)
+10-12 19:20:45.248  7668  7681 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-12 19:20:45.253   704  1977 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: finished inst
+10-12 19:20:45.256   704  1977 E ActivityManager: Unable to freeze binder for 7668: -11
+10-12 19:20:45.257   704  1977 I ActivityManager: Killing 7668:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to finished inst
+10-12 19:20:45.299   704  1977 W ActivityTaskManager: callingPackage for (uid=0, pid=7688) has no WPC
+10-12 19:20:45.307   704  1977 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=com.rodada.attendance/.MainActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-12 19:20:45.338   704   741 I ActivityManager: Start proc 7691:com.rodada.attendance/u0a216 for next-top-activity {com.rodada.attendance/com.rodada.attendance.MainActivity}
+10-12 19:20:45.338   704   741 I ActivityManager: ProcessObserver broadcast disabled
+10-12 19:20:47.615   704   731 I ActivityTaskManager: Displayed com.rodada.attendance/.MainActivity for user 0: +2s313ms
+10-12 19:20:49.688   704  1202 I ActivityManager: Force stopping com.rodada.attendance appid=10216 user=0: from pid 7732
+10-12 19:20:49.689   704  1202 I ActivityManager: Killing 7691:com.rodada.attendance/u0a216 (adj 0): stop com.rodada.attendance due to from pid 7732
+10-12 19:20:49.695   704  1202 W ActivityTaskManager: Force removing ActivityRecord{93745338 u0 com.rodada.attendance/.MainActivity t17 f}}: app died, no saved state
+10-12 19:20:49.721   704   734 W ActivityManager: setHasOverlayUi called on unknown pid: 7691
+10-12 19:20:49.766   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread
+10-12 19:20:49.819   704   735 W ActivityTaskManager: Unable to send transaction to client proc com.rodada.attendance: no app thread

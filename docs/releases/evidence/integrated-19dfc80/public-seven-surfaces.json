@@ -1,0 +1,62 @@
+{
+  "kind": "staging-web-routes-read-only",
+  "checked_at": "2026-10-12T22:01:45.133751+00:00",
+  "target": "https://rodada-web-demo.up.railway.app",
+  "results": [
+    {
+      "path": "/staff",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/attendance",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/bar",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/kitchen",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/manage",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/cash",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "path": "/reports",
+      "http_status": 200,
+      "content_type": "text/html",
+      "passed": true,
+      "reason": "ok"
+    }
+  ],
+  "passed": true,
+  "limitations": [
+    "Does not authenticate users or submit orders",
+    "Does not verify actual Railway deployment SHA or database correctness",
+    "Does not authorize a venue to replace its incumbent POS"
+  ]
+}

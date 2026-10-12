@@ -1,0 +1,29 @@
+{
+  "scope": "Disposable PostgreSQL custom dump restored to new database; not cloud restore",
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "source": {
+    "orders": 1,
+    "items": 2,
+    "charges": 2,
+    "charge_cents": 1500,
+    "payments": 0,
+    "refunds": 0,
+    "audits": 24,
+    "staff": 1,
+    "migration_count": 79,
+    "guest_blocked": true
+  },
+  "restored": {
+    "orders": 1,
+    "items": 2,
+    "charges": 2,
+    "charge_cents": 1500,
+    "payments": 0,
+    "refunds": 0,
+    "audits": 24,
+    "staff": 1,
+    "migration_count": 79,
+    "guest_blocked": true
+  },
+  "matching": true
+}
