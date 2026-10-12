@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # A truly severed Android uplink WHILE a real order POST is awaiting its
-# post-commit response. CI uses the emulator's actual eth0 link (not svc wifi).
+# post-commit response. CI disables standby routes before capture and the
+# currently routed interface during capture; mere Wi-Fi toggling is insufficient.
 # A disposable physical phone can instead cut its wlan0 radio.
 # Backend: exclusively disposable Django/PostgreSQL; no live merchant or PSP.
 set -euo pipefail
@@ -68,16 +69,35 @@ grep -q "dev $IFACE" <<< "$route_before" || {
 }
 
 network_is_down=0
+standby_disabled=0
 cleanup() {
   if [[ "$network_is_down" == 1 ]]; then
-    if [[ "$MODE" == emulator-link && "$IFACE" != wlan0 ]]; then
-      "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
-    else
+    if [[ "$IFACE" == wlan0 ]]; then
       "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true
+    else
+      "${ADB[@]}" shell ip link set "$IFACE" up >/dev/null 2>&1 || true
     fi
+  fi
+  # Restore standby Ethernet only AFTER the offline proof, never earlier.
+  if [[ "$standby_disabled" == 1 ]]; then
+    "${ADB[@]}" shell ip link set eth0 up >/dev/null 2>&1 || true
   fi
 }
 trap cleanup EXIT
+
+if [[ "$MODE" == emulator-link && "$IFACE" == wlan0 ]]; then
+  # AOSP emulator automatically switches wlan0 -> eth0 when Wi-Fi goes down.
+  # Make the *standby* eth0 unavailable before starting the real POST, so
+  # Android cannot silently receive the response over another interface.
+  "${ADB[@]}" shell ip link set eth0 down
+  standby_disabled=1
+  echo "PASS: pre-disabled standby eth0 to prohibit emulator Wi-Fi fallback"
+  primary_route=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r')
+  echo "ROUTE_WITHOUT_STANDBY: $primary_route"
+  grep -q 'dev wlan0' <<< "$primary_route" || {
+    echo "FAIL: client cannot reach Django over wlan0 before capture" >&2; exit 1;
+  }
+fi
 
 if [[ "${RODADA_SKIP_ANDROID_BUILD:-0}" != 1 ]]; then
   (cd "$ANDROID_DIR" && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest)
@@ -174,11 +194,17 @@ if [[ "$MODE" == physical-wifi ]]; then
     echo "FAIL: Wi-Fi still enabled on physical phone" >&2; exit 1;
   }
 fi
-if grep -Eq 'dev (wlan|rmnet|ccmni|eth)[0-9]+' <<< "$route_after" &&
-   ! grep -q "dev $IFACE" <<< "$route_after"; then
-  echo "FAIL: alternative network route remains (cellular or Ethernet)" >&2; exit 1
+if grep -Eq 'dev (wlan|rmnet|ccmni|eth)[0-9]+' <<< "$route_after"; then
+  echo "FAIL: a network route remains during disconnect: $route_after" >&2; exit 1
 fi
-echo "PASS: Android actual uplink $IFACE is down while HTTP POST is held"
+if [[ "$standby_disabled" == 1 ]]; then
+  standby_link=$("${ADB[@]}" shell ip -o link show dev eth0 2>&1 | tr -d '\r')
+  echo "STANDBY_LINK_AFTER_CUT: $standby_link"
+  grep -q 'state DOWN' <<< "$standby_link" || {
+    echo "FAIL: standby eth0 came up during offline window" >&2; exit 1;
+  }
+fi
+echo "PASS: all Android uplinks unavailable while committed POST is held"
 
 # Release the REAL upstream bytes after link loss. Because the client is
 # offline, it must receive IOException rather than a successful order ACK.
