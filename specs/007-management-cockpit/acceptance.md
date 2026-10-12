@@ -83,3 +83,6 @@ então o gerente pode receber uma notificação deduplicada.
 Dado um insight do sistema,
 quando o gerente tocar nele,
 então deve ser possível identificar período/base/dados que o sustentam e se ele é fato, estimativa ou hipótese.
+
+Piloto: falha inicial de autorização mostra um aviso e nenhuma conclusão de operação
+sem exceções; após leitura válida, painel de alertas mantém seu tratamento de falhas.

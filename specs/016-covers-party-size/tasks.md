@@ -51,4 +51,9 @@
 - [x] Ratio-of-sums calculation exact.
 - [ ] Reports expose coverage percentage.
 
-Backend release evidence: `apps/api/tests/test_party_size.py` (9 PostgreSQL tests). Current version derives from locked observation history; release snapshot/reference is preserved in release AuditEvent. Metrics helper remains unintegrated with canonical management reporting, and all operational chooser/offline UX stays open.
+Backend release evidence: `apps/api/tests/test_party_size.py` (9 PostgreSQL tests). Current version derives from locked observation history; release snapshot/reference is preserved in release AuditEvent. Metrics helper remains unintegrated with canonical management reporting, and broader offline/post-release operational UX remains open. The pilot chooser slice below is validated independently.
+
+## Frontend piloto — 10/10/2026
+- [x] Captura opcional Web/Android, desconhecido e origem canônica.
+- [x] Conflito de versão exige revisão; retry ambíguo mantém o payload original.
+- [x] Integração Web PostgreSQL e teste instrumentado Android; sem inferência de pessoas.

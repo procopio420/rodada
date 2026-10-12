@@ -1,5 +1,10 @@
 # Plan — Spec 014 — Realtime, Connectivity & Degraded Operation
 
+2026-10-10: add read-only native recovery inventory to Agora using existing
+encrypted store/provenance rules; no new replay or financial confirmation. Test
+operation labels and unresolved state wording. Manager canonical review remains
+backend dependency documented in frontend-pilot-2026-10-10.md.
+
 ## Recommended sequence
 
 1. **Cross-surface runtime contract**

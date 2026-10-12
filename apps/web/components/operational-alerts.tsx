@@ -19,7 +19,7 @@ const labels: Record<string, string> = {
 };
 
 
-export function OperationalAlerts() {
+export function OperationalAlerts({ maxVisible }: { maxVisible?: number } = {}) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState("");
@@ -53,7 +53,7 @@ export function OperationalAlerts() {
     {connectivity.state !== "ONLINE" && <p className="muted">Último estado confirmado. Alertas serão revalidados pela API.</p>}
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}
     {loaded && !error && !alerts.length && <p className="muted">Nenhuma exceção ativa no último estado consultado.</p>}
-    {alerts.map(alert => <div className="movement" key={alert.id}>
+    {alerts.slice(0, maxVisible).map(alert => <div className="movement" key={alert.id}>
       <div><strong>{labels[alert.rule_key] ?? alert.rule_key}</strong>
         <small>{alert.severity === "DANGER" ? "Crítico" : "Atenção"}{alert.source.station ? ` · ${alert.source.station === "BAR" ? "Bar" : "Cozinha"}` : ""}
           {alert.source.destination_label ? ` · ${alert.source.destination_label}` : ""}
@@ -63,5 +63,6 @@ export function OperationalAlerts() {
           <button className="buttonSecondary" disabled={!!pending || !loaded || !!error || connectivity.state === "OFFLINE"} onClick={() => void acknowledge(alert.id)}>{pending === alert.id ? "Registrando…" : "Registrar ciência"}</button>}
       </div>
     </div>)}
+    {maxVisible !== undefined && alerts.length > maxVisible && <details><summary>Ver mais alertas ({alerts.length - maxVisible})</summary>{alerts.slice(maxVisible).map(alert => <div className="dataRow" key={alert.id}><span>{labels[alert.rule_key] ?? alert.rule_key}</span><Link className="backLink" href={`/manage/alerts/${alert.id}`}>Abrir contexto →</Link></div>)}</details>}
   </section>;
 }

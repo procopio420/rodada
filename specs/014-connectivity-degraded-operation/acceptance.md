@@ -1,5 +1,8 @@
 # Acceptance — Spec 014 — Realtime, Connectivity & Degraded Operation
 
+## Frontend pending inventory — 2026-10-10
+- [ ] Native Agora identifies locally retained operation kind/capture time as pending evidence, never confirmed balance; blocked-origin records remain review-only without discard/adoption.
+
 ## Realtime outage only
 
 **Given** SSE/event delivery is unavailable but the HTTP API is healthy  

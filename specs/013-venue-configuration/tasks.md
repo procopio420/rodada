@@ -1,5 +1,10 @@
 # Tasks — Spec 013
 
+## Initial Web pilot setup — 2026-10-10
+- [x] Table/zone setup using existing APIs and ambiguous-create guard.
+- [x] Existing staff membership role/status editing with PIN/version/conflict.
+- [x] Shared mobile/a11y checks and real API evidence.
+
 ## B1 slice — implementation awaiting verification
 - [ ] Execute station blocker, stale preview, authorization and audit tests.
 - [ ] Execute PostgreSQL concurrent-manager and order/deactivation race tests.

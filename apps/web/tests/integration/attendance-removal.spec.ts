@@ -1,0 +1,30 @@
+import { expect, test } from "@playwright/test";
+test("Attendance cancels a confirmed unpaid item through canonical financial reversal", async ({ page }) => {
+ await page.goto("/attendance");
+ await page.getByLabel("Estabelecimento").fill("web-e2e");
+ await page.getByLabel("Operador", { exact: true }).fill("test-staff");
+ await page.getByLabel("PIN", { exact: true }).fill("2468");
+ await page.getByRole("button", { name: "Entrar", exact: true }).click();
+ await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await page.getByLabel("Apelido da comanda (opcional)").fill("Correction E2E");
+ await page.getByRole("button", { name: "Abrir", exact: true }).click();
+ await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
+ await page.getByRole("button", { name: /Confirmar pedido/ }).click();
+ await expect(page.getByText("Novo", { exact: true })).toBeVisible();
+ await page.getByRole("button", { name: "Remover", exact: true }).click();
+ await page.getByLabel("Motivo da remoção").selectOption("WRONG_ITEM_ENTERED");
+ await page.getByRole("button", { name: "Confirmar remoção" }).click();
+ await expect(page.getByText("Cancelado", { exact: true })).toHaveCount(0);
+ const bill = page.getByRole("region", { name: "Valores da comanda" });
+ await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 0,00", { exact: true })).toBeVisible();
+ const canonical = await page.evaluate(async () => {
+  const list = await (await fetch("/api/attendance/tabs/")).json();
+  const tab = list.results.find((tab: { display_label: string }) => tab.display_label === "Correction E2E");
+  return (await fetch(`/api/attendance/tabs/${tab.id}/`)).json();
+ });
+ expect(canonical.orders[0].items[0].state).toBe("CANCELLED");
+ expect(canonical.payable_cents).toBe(0); expect(canonical.exposure_cents).toBe(0);
+ expect(canonical.payments_cents).toBe(0); expect(canonical.orders[0].items).toHaveLength(1);
+ const denied = await page.evaluate(async () => (await fetch("/api/attendance/corrections/test/settle-refund/", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).status);
+ expect(denied).toBe(403);
+});

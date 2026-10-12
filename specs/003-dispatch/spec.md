@@ -182,3 +182,12 @@ Claims são opcionais e exclusivos: outro staff não pode roubar um claim nem
 concluir tarefa já atribuída. Criar, claim e concluir persistem auditoria.
 O guest usa exclusivamente sua sessão autorizada e nunca informa destino/ator.
 Solicitações não lançam valores, não fecham Tabs e não confirmam pagamento.
+
+### Frontend piloto — 10/10/2026
+Atendimento Web/Android mostram a fila canônica de chamadas com tipo, destino,
+idade e responsabilidade própria/outro operador/sem responsável. Claim/conclusão
+usam task ID e preservam a mesma ação em resposta ambígua; nenhuma resposta perdida
+remove tarefa ou confirma sucesso. Falha na consulta desabilita ações da fila,
+sem bloquear pedidos. Conflito reconsulta ownership. Sem idade: tempo desconhecido.
+Não inferir Tab pelo destino textual: navegação exata depende de IDs autorizados
+de mesa/ocupação no contrato de leitura. Não altera delivery passivo/inferência.

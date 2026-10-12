@@ -714,6 +714,7 @@ def update_membership_admin(
     status: str | None = None,
     reason: str = "",
 ) -> VenueStaffMembership:
+    Venue.objects.select_for_update().get(pk=actor_session.venue_id)
     membership = (
         VenueStaffMembership.objects.select_for_update()
         .select_related("venue", "staff_member")
@@ -744,6 +745,14 @@ def update_membership_admin(
                 }
             },
         )
+
+    removing = status in (MembershipStatus.SUSPENDED, MembershipStatus.REVOKED)
+    if removing and membership.staff_member_id == actor_session.staff_member_id:
+        raise AccessServiceError("SELF_REMOVAL_FORBIDDEN", "Use outro proprietário para remover seu acesso.", 409)
+    losing_owner = removing or (role is not None and role != "OWNER")
+    if membership.role == "OWNER" and membership.status == MembershipStatus.ACTIVE and losing_owner:
+        if not VenueStaffMembership.objects.filter(venue_id=membership.venue_id, role="OWNER", status=MembershipStatus.ACTIVE, staff_member__is_active=True).exclude(pk=membership.pk).exists():
+            raise AccessServiceError("LAST_OWNER_REQUIRED", "Mantenha pelo menos um proprietário ativo no estabelecimento.", 409)
 
     before = {
         "role": membership.role,

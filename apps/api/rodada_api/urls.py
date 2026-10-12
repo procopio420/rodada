@@ -1,3 +1,5 @@
+from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
+
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.cash.correction_views import CashCorrectionShiftView, CashCorrectionManagementView, CashCorrectionDecisionView
 from modules.venue.guest_policy_views import GuestPolicyView
@@ -149,6 +151,8 @@ urlpatterns = [
     path("auth/switch-operator/", StaffSwitchOperatorView.as_view(), name="staff-switch-operator"),
     path("auth/reauthenticate/", StaffReauthenticateView.as_view(), name="staff-reauthenticate"),
     path("auth/invalidation-events/", AccessInvalidationFeedView.as_view(), name="access-invalidation-events"),
+    path("developer/staff/", DeveloperStaffListView.as_view()),
+    path("developer/staff/<uuid:membership_id>/", DeveloperStaffDetailView.as_view()),
     path("manage/access/memberships/", StaffMembershipListView.as_view(), name="access-memberships"),
     path("manage/access/memberships/<uuid:membership_id>/", StaffMembershipDetailView.as_view(), name="access-membership-detail"),
     path("manage/access/devices/", DeviceListView.as_view(), name="access-devices"),

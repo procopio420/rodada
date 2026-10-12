@@ -39,11 +39,21 @@ export function ManagementNav() {
   return (
     <nav ref={nav} className="surfaceNav managementNavigation" aria-label="Navegação da Gerência">
       {items.map(([label, href, icon]) => (
-        <Link key={label} href={href} onClick={() => setActive(label)} className={label === active ? "surfaceNavActive" : ""} aria-current={label === active ? "page" : undefined}>
+        <Link key={label} href={href} onClick={() => { setActive(label); window.dispatchEvent(new CustomEvent("rodada.management.navigate", { detail: href.split("#")[1] ?? "" })); }} className={label === active ? "surfaceNavActive" : ""} aria-current={label === active ? "page" : undefined}>
           <OperationalIcon name={icon} />
           <span>{label}</span>
         </Link>
       ))}
     </nav>
   );
+}
+
+export function useManagementSection() {
+  const [section, setSection] = useState("");
+  useEffect(() => {
+    const sync = (event?: Event) => { const hash = event instanceof CustomEvent ? event.detail : window.location.hash.slice(1); setSection(["operacao", "vendas", "gestao", "mais"].includes(hash) ? hash : ""); };
+    sync(); window.addEventListener("hashchange", sync); window.addEventListener("popstate", sync); window.addEventListener("rodada.management.navigate", sync);
+    return () => { window.removeEventListener("hashchange", sync); window.removeEventListener("popstate", sync); window.removeEventListener("rodada.management.navigate", sync); };
+  }, []);
+  return section;
 }
