@@ -1,0 +1,42 @@
+name: Aderlan isolated pilot shift acceptance
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/aderlan-pilot-shift.yml'
+      - 'scripts/verify-aderlan-full-shift.sh'
+      - 'scripts/demo-*'
+      - 'scripts/release-busy-shift.py'
+      - 'demo/**'
+      - 'apps/api/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-full-shift:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CI: 'true'
+      RODADA_DEMO_POSTGRES_IMAGE: public.ecr.aws/docker/library/postgres:17
+    steps:
+      - uses: actions/checkout@v4
+      - name: Complete pilot acceptance against disposable PostgreSQL
+        run: bash scripts/verify-aderlan-full-shift.sh | tee /tmp/rodada-aderlan-full-shift.log
+        shell: bash --noprofile --norc -eo pipefail {0}
+      - name: Upload non-sensitive shift evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aderlan-isolated-acceptance
+          path: |
+            artifacts/aderlan-full-shift.json
+            artifacts/aderlan-busy-shift.json
+            artifacts/aderlan-pilot-qa-summary.json
+            /tmp/rodada-aderlan-full-shift.log
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Stop isolated stack
+        if: always()
+        run: docker compose -f demo/compose.yaml down
