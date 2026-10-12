@@ -630,3 +630,7 @@ a stale inactive binding cannot initiate payment. Disconnect is idempotent and
 retains encrypted credentials when historical payments exist for later investigation
 and refund. Terminal outcomes require authoritative provider evidence. Owner
 capability and recent reauthentication remain mandatory at the API boundary.
+
+## Pilot refund durability — 2026-10-12
+
+An integrated refund reservation and its immutable provider transaction/baseline identity must commit atomically before external submission. Storage failure leaves neither record and sends no POST. Matching persisted refund replay returns without provider I/O; changed amount or reason remains an idempotency conflict during outages.
