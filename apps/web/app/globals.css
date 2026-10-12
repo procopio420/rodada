@@ -442,3 +442,6 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceTabTitle { text-align: center; font-size: var(--text-lg); overflow-wrap: anywhere; }
 .billDetailsToggle { width: fit-content; border: 1px solid var(--color-border); padding: var(--space-2) var(--space-3); margin-top: var(--space-2); }
 .posProducts[hidden] { display: none; }
+
+.removalDialog { width: calc(100% - var(--space-6)); max-width: 520px; max-height: calc(100dvh - var(--space-6)); overflow: auto; margin: auto; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-1); color: var(--color-text); }
+.removalDialog::backdrop { background: color-mix(in srgb, var(--color-bg) 80%, transparent); }

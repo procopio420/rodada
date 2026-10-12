@@ -29,3 +29,7 @@ Attendance refinement evidence: production build/TypeScript passed; 213 visual c
 Remove an unpaid NEW item through Spec 017; canonical charge reversal updates subtotal without Payment creation. Repeating after lost response uses identical key/body; 202 never hides or marks item cancelled. Prepared items require the authorized workflow. Category collapse/reopen preserves cart; centered title has no cart icon; original subtotal appears only in discrete button-like Mais detalhes.
 
 Follow-up evidence: production build/TypeScript passed. Full visual run passed 213 cases; three removal cases initially failed because their list fixture contradicted the canonical detail fixture. After correcting the fixture, all three passed in a focused rerun against the same final build (216 cases covered). Two real Web/API/PostgreSQL journeys passed, including cancellation, preserved item history, zero payable/exposure and no Payment creation. No visual baseline/tolerance changes. Live demo item remained untouched.
+
+Confirmed-item removal uses a native modal dialog with a labelled title, trapped focus and focus restoration. Escape closes only before submission or after a resolved rejection; pending, ambiguous or applied-but-unrefreshed corrections cannot be dismissed. Existing cancellation rules remain unchanged. Dialog uses existing surface, border, spacing and radius tokens; backdrop uses the background token.
+
+Dialog validation: production build/TypeScript and three focused visual/a11y correction scenarios passed; no financial API changes or baseline changes.

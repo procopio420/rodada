@@ -10,6 +10,13 @@ export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange
  const [uncertain, setUncertain] = useState(false), [applied, setApplied] = useState(false);
  const intent = useRef<{ kind: string; reason_code: string; idempotency_key: string } | null>(null);
  const sending = useRef(false);
+ const dialog = useRef<HTMLDialogElement>(null);
+ useEffect(() => {
+  const element = dialog.current;
+  const previous = document.activeElement as HTMLElement | null;
+  element?.showModal();
+  return () => { element?.close(); requestAnimationFrame(() => previous?.focus()); };
+ }, []);
  useEffect(() => { onPendingChange(true); return () => onPendingChange(false); }, [onPendingChange]);
  async function refresh() { await onRefresh(); onClose(); }
  async function remove() {
@@ -32,11 +39,11 @@ export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange
   } catch { if (committed) setMessage("Item removido. Atualize a comanda para conferir os valores."); else if (resolved) setMessage(current => `${current} Não foi possível atualizar a comanda.`); else { setUncertain(true); setMessage("Resultado não confirmado. Verifique a mesma remoção antes de continuar."); } }
   finally { sending.current = false; setBusy(false); }
  }
- return <section className="panel" aria-label="Remover item confirmado">
-  <h3>Remover {item.quantity}× {item.product_name}?</h3>
+ return <dialog ref={dialog} className="removalDialog" aria-labelledby="removal-title" onCancel={event => { event.preventDefault(); if (!sending.current && !uncertain && !applied) onClose(); }}>
+  <h3 id="removal-title">Remover {item.quantity}× {item.product_name}?</h3>
   <p className="muted">Remove toda esta linha do pedido. O histórico e o motivo ficam registrados.</p>
   <div className="field"><label htmlFor="removal-reason">Motivo da remoção</label><select id="removal-reason" value={reason} disabled={busy || uncertain || applied} onChange={event => setReason(event.target.value)}><option value="WRONG_ITEM_ENTERED">Item escolhido por engano</option><option value="CUSTOMER_CHANGED_MIND">Cliente desistiu do item</option></select></div>
   {message && <p className="notice" data-state="warning" role="status">{message}</p>}
   <div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void remove()}>{busy ? "Verificando…" : applied ? "Atualizar comanda" : uncertain ? "Verificar mesma remoção" : "Confirmar remoção"}</button><button className="buttonQuiet" disabled={busy || uncertain || applied} onClick={onClose}>Voltar</button></div>
- </section>;
+ </dialog>;
 }

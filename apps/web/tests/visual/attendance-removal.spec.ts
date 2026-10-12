@@ -20,13 +20,18 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
  const bill = page.getByRole("region", { name: "Valores da comanda" });
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 7,50")).toBeVisible();
  await page.getByRole("button", { name: "Remover", exact: true }).click();
- const form = page.getByRole("region", { name: "Remover item confirmado" });
+ const form = page.getByRole("dialog", { name: "Remover 1× Item confirmado?" });
+ await expect(form).toBeVisible();
+ await page.keyboard.press("Escape");
+ await expect(form).toHaveCount(0);
+ await expect(page.getByRole("button", { name: "Remover", exact: true })).toBeFocused();
+ await page.getByRole("button", { name: "Remover", exact: true }).click();
  await layoutAndA11y(page);
  await page.getByLabel("Motivo da remoção").selectOption("CUSTOMER_CHANGED_MIND");
  await form.getByRole("button", { name: "Confirmar remoção" }).click();
  if (outcome === "lost") {
   await expect(form.getByRole("button", { name: "Verificar mesma remoção" })).toBeEnabled();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true, includeHidden: true })).toBeDisabled();
   await expect(page.getByLabel("Motivo da remoção")).toBeDisabled();
   await form.getByRole("button", { name: "Verificar mesma remoção" }).click();
   await expect(form).toHaveCount(0);
@@ -35,6 +40,8 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
   await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 0,00", { exact: true })).toBeVisible();
  } else {
   await expect(form.getByRole("status")).toContainText(outcome === "paid" ? "ele ainda não foi removido" : "exige fluxo");
+  await form.getByRole("button", { name: "Voltar" }).click();
+  await expect(form).toHaveCount(0);
   await expect(page.getByText("Cancelado", { exact: true })).toHaveCount(0);
   await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 7,50")).toBeVisible();
  }
