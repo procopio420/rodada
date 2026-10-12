@@ -13,6 +13,7 @@
 - [x] Todo Order possui `tab_id`.
 - [x] Cada item confirmado gera efeito financeiro exatamente uma vez.
 - [x] Estados operacionais registram timestamps.
+- [ ] Confirmar pedido mantém item `NEW` e `preparing_at=null`; Cozinha/Bar mostra como aguardando; uma única ação “Iniciar preparo” faz `NEW → PREPARING` e registra timestamp, sem aceite adicional.
 - Item confirmado continua preparo/entrega após pagamento e fechamento financeiro;
   `test_financial_close_does_not_strand_confirmed_production` verifica API/ledger.
 - [ ] Cancelamento pós-confirmação não apaga histórico e exige auditoria.

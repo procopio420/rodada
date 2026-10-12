@@ -52,6 +52,8 @@ Itens confirmados geram charges idempotentes no ledger da Tab.
 
 OrderItem suporta estados mínimos `NEW`, `ACCEPTED`, `PREPARING`, `READY`, `PICKED_UP`, `DELIVERED`, `CANCELLED`.
 
+Confirmar pedido no Atendimento/caixa/guest cria item em `NEW`, sem marcar início de preparo. Na Cozinha/Bar, o operador inicia explicitamente o preparo com uma ação `NEW → PREPARING` (ou `ACCEPTED → PREPARING` para compatibilidade com fluxos existentes). `ACCEPTED` segue disponível quando houver aceite separado, mas não é clique obrigatório para cozinhar. Somente a transição para `PREPARING` preenche `preparing_at`. Itens `NEW`/`ACCEPTED` aparecem como aguardando, nunca como em preparo; agrupamentos de demanda podem somá-los desde que informem o status real.
+
 Fechamento financeiro da Tab não abandona produção já confirmada. Transições
 legais de preparo/entrega continuam autorizadas para esses OrderItems, sem reabrir
 a Tab ou alterar ledger. Novos pedidos/pagamentos e correções financeiras mantêm

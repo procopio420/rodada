@@ -55,10 +55,14 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     await page.goto(route);
     await page.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
     await expect(page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
-    for (const label of ["Aceitar", "Preparar", "Pronto"]) {
-      await page.getByRole("button", { name: new RegExp(`^${label}:.*Real Web E2E tab$`) }).click();
-      await expect(page.getByRole("button", { name: new RegExp(`^${label}:.*Real Web E2E tab$`) })).toHaveCount(0);
-    }
+    const pending = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
+    expect(pending.state).toBe("NEW");
+    await expect(page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ })).toBeVisible();
+    await page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ }).click();
+    await expect(page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ })).toBeVisible();
+    const started = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
+    expect(started.state).toBe("PREPARING");
+    await page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ }).click();
     const item = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
     expect(item.state).toBe("READY");
     await evidence(page, route.slice(1));

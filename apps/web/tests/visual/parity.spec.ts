@@ -16,8 +16,8 @@ test("primary control matches the supplied unchanged kitchen material", async ({
   const reference = await browser.newPage(), actual = await browser.newPage();
   await reference.goto(pathToFileURL(path.resolve(process.cwd(), "../../prototype/material-reference/kitchen/local.html")).href);
   await fixture(actual); await actual.goto("/kitchen");
-  await actual.getByRole("heading", { name: "Em produção", exact: true }).waitFor();
-  // Equivalent geometry/text only. Reference CSS is the supplied original, never rewritten.
+  await actual.getByRole("heading", { name: "Fila de pedidos", exact: true }).waitFor();
+  // Reference and live button have identical "Pronto" text for this fixture.
   for (const control of [reference.locator(".btn").first(), actual.locator(".stationTicket .buttonPrimary").first()]) {
     await control.evaluate(el => { Object.assign((el as HTMLElement).style, { position: "fixed", left: "0px", top: "0px", width: "116px", height: "56px", margin: "0" }); });
   }
@@ -41,8 +41,7 @@ test("kitchen material geometry and Product identity aggregation", async ({ page
   await expect(page.locator(".stationQuantity")).toHaveText(["3", "1"]);
   await expect(page.locator(".stationPass > .stationPassRow .stationPassMeta")).toHaveText("No passe · 2:00");
   await expect(page.locator(".stationTransit")).toContainText("Retirada registrada");
-  await expect(page.getByRole("button", { name: /^Aceitar:/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Preparar:/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(2);
   const boxes = await Promise.all([".stationHeader", ".stationBatches", ".stationTickets", ".stationPass"].map(selector => page.locator(selector).boundingBox()));
   expect(boxes.map(box => box!.width)).toEqual([1280, 420, 520, 340]);
   expect(boxes[0]!.height).toBe(72);
@@ -331,7 +330,7 @@ test("production prioritizes work, sums quantities and preserves individual tran
   await expect(page.getByText("No passe · 0:30", { exact: true })).toBeVisible();
   await expect(page.getByText("No passe · Tempo não informado", { exact: true })).toBeVisible();
   const order = await page.locator("main h2").allTextContents();
-  expect(order.indexOf("Em produção")).toBeLessThan(order.indexOf("Disponibilidade agora"));
+  expect(order.indexOf("Fila de pedidos")).toBeLessThan(order.indexOf("Disponibilidade agora"));
   let requestBody: unknown;
   await page.route("**/api/pos/order-items/one/transition/", async route => {
     requestBody = route.request().postDataJSON();
@@ -340,7 +339,7 @@ test("production prioritizes work, sums quantities and preserves individual tran
   await page.getByRole("button", { name: "Pronto: 2 Fritas, João", exact: true }).click();
   await expect(page.locator(".notice[role=alert]")).toContainText("Último estado confirmado");
   expect(requestBody).toEqual({ state: "READY" });
-  await expect(page.getByRole("button", { name: "Aceitar: 3 Fritas, Maria", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Iniciar preparo: 3 Fritas, Maria", exact: true })).toBeDisabled();
 });
 
 test("new kitchen reference comparison documents the adapted connected layout", async ({ browser }) => {
@@ -418,14 +417,14 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   expect(actualChips).toEqual(refChips);
   await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
-  await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Novo" : "Preparando"));
+  await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Aguardando preparo" : "Em preparo"));
   const refTickets = await reference.locator(".tk").evaluateAll(els => els.map(el => ({ text: el.querySelector(".i")!.textContent, age: el.querySelector(".a .mono")!.textContent, state: (el as HTMLElement).dataset.state })));
   const orderIds = [...new Set(waitingItems.map(item => item.order_id))];
   expect(refTickets).toEqual(orderIds.map(order => {
     const items = waitingItems.filter(item => item.order_id === order);
     return { text: items.map(item => `${item.quantity} ${item.product_name}`).join(" · ") + (items[0].state === "NEW" ? " NOVO" : ""), age: elapsed(items[0].created_at), state: items[0].state };
   }));
-  await expect(actual.locator(".stationSummary b")).toHaveText(["5", "2"]);
+  await expect(actual.locator(".stationSummary b")).toHaveText(["1", "5"]);
   await expect(reference.locator(".k > header b")).toHaveText(["Cozinha", "5", "1", "2"]);
   await expect(reference.locator(".k > header .mono")).toHaveText("23:14");
   expect(await actual.locator(".stationTicket").evaluateAll(els => els.map(el => el.closest(".stationOrder")!.querySelector(":scope > .stationTab")!.textContent))).toEqual(waitingItems.map(item => item.tab_label));
@@ -437,7 +436,7 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await expect(actual.locator(".stationTransit .stationPassMeta")).toHaveText("Retirada registrada");
   await expect(actual.locator(".stationTransit .stationPassRow > div > strong")).toHaveText("1 Torresmo");
   await expect(actual.locator(".stationTransit .stationTab")).toHaveText("P44");
-  await expect(actual.getByRole("button", { name: /^Aceitar:/ })).toHaveCount(1);
+  await expect(actual.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(1);
   await expect(reference.locator(".tk button")).toHaveText(["Pronto", "Pronto", "Pronto", "Pronto", "Aceitar"]);
   await stable(reference); await stable(actual);
   const fonts = await Promise.all([imagesReady(reference), imagesReady(actual)]);
@@ -533,7 +532,7 @@ test("V04 shared Order: marking one item ready never completes its sibling", asy
   await group.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).click();
   await expect(group.locator(".stationTicket")).toHaveCount(1);
   await expect(group.locator(".stationTicketContent > strong")).toHaveText("1 Calabresa");
-  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Preparando");
+  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Em preparo");
   await expect(group.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeEnabled();
   expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
   await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);

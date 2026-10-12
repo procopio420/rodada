@@ -249,7 +249,7 @@ def _order_fingerprint(*, source: str, lines: list[dict]) -> str:
 
 
 _TRANSITIONS = {
-    "NEW": {"ACCEPTED"},
+    "NEW": {"ACCEPTED", "PREPARING"},
     "ACCEPTED": {"PREPARING", "READY"},
     "PREPARING": {"READY"},
     "READY": {"PICKED_UP", "DELIVERED"},
