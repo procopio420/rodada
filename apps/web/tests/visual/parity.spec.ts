@@ -17,12 +17,10 @@ test("primary control matches the supplied unchanged kitchen material", async ({
   await reference.goto(pathToFileURL(path.resolve(process.cwd(), "../../prototype/material-reference/kitchen/local.html")).href);
   await fixture(actual); await actual.goto("/kitchen");
   await actual.getByRole("heading", { name: "Fila de pedidos", exact: true }).waitFor();
-  // Equivalent geometry only: normalize changed action copy in the actual test instance.
-  // Reference CSS and reference material stay unchanged.
+  // Reference and live button have identical "Pronto" text for this fixture.
   for (const control of [reference.locator(".btn").first(), actual.locator(".stationTicket .buttonPrimary").first()]) {
     await control.evaluate(el => { Object.assign((el as HTMLElement).style, { position: "fixed", left: "0px", top: "0px", width: "116px", height: "56px", margin: "0" }); });
   }
-  await actual.locator(".stationTicket .buttonPrimary").first().evaluate(el => { el.textContent = "Aceitar"; });
   await stable(reference); await stable(actual);
   const stats = await comparison(await reference.locator(".btn").first().screenshot(), await actual.locator(".stationTicket .buttonPrimary").first().screenshot(), "material-primary");
   expect(stats.changedPercent).toBeLessThanOrEqual(0.1);
@@ -534,7 +532,7 @@ test("V04 shared Order: marking one item ready never completes its sibling", asy
   await group.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).click();
   await expect(group.locator(".stationTicket")).toHaveCount(1);
   await expect(group.locator(".stationTicketContent > strong")).toHaveText("1 Calabresa");
-  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Preparando");
+  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Em preparo");
   await expect(group.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeEnabled();
   expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
   await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);
