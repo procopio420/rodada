@@ -55,37 +55,21 @@ O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra m�
 
 Antes de iniciar uma instância existente, aplicar as migrações Django (`python manage.py migrate`, em `apps/api`, com o ambiente correto). Elas adicionam ProductIcon e hora de corte do Venue, cujo default 0 preserva meia-noite. Produto novo e existente recebem ícone 1:1 com fallback `GENERATOR_NOT_CONFIGURED`; não há IA/worker configurado nesta entrega, por escolha do usuário. Nenhuma credencial externa é necessária para criar ou vender. O crédito pessoal permanece removido. Consulte [entrega e limites](../../docs/development/web-operational-completion.md).
 
-## Superfícies e hosts
+## Superfícies e hosts — contrato multitenant
 
-Em produção, as superfícies Web/PWA usam os hosts canônicos definidos na arquitetura de superfícies:
-
-```text
-gerencia.rodada.ai  Gerência
-cozinha.rodada.ai   Cozinha
-bar.rodada.ai       Bar
-cliente.rodada.ai   Cliente / QR
-api.rodada.ai       API
-```
-
-`rodada.ai` é o site institucional. **Rodada Atendimento** continua Android nativo.
-
-Durante desenvolvimento, rotas locais podem continuar servindo como entrypoints:
+O domínio oficial continua `rodada.ai`. A nova arquitetura planeja um subdomínio por estabelecimento e módulos no path, por exemplo:
 
 ```text
-/staff      sessão/base de staff
-/bar        produção + disponibilidade
-/kitchen    produção + disponibilidade
-/guest      QR/PWA do cliente
-/manage     gerência
-/reports    relatórios operacionais + calendário/CSV
-/cash       caixa + histórico de turnos
+bardoaderlan.rodada.ai/bar
+bardoaderlan.rodada.ai/cozinha
+bardoaderlan.rodada.ai/gerencia
+bardoaderlan.rodada.ai/caixa
+bardoaderlan.rodada.ai/m/<token>
 ```
 
-Rotas locais são detalhe de implementação e não definem URLs públicas. O runtime/deploy pode resolver a superfície pelo hostname mantendo um único codebase/deploy Next.js.
+**Ainda não está habilitado.** O proxy atual usa hosts separados por superfície (`bar.rodada.ai`, `cozinha.rodada.ai` etc.). O login usa o `Venue.slug` atual `bar-do-aderlan`; não renomear esse slug para criar `bardoaderlan`. Antes de ativar wildcard, implementar registro hostname -> Venue, verificação host/sessão/guest e testes com dois Venues. Ver [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md) e [Spec 025](../../specs/025-tenant-host-routing/spec.md).
 
-`app.rodada.ai` e `pedido.rodada.ai` são aliases de compatibilidade durante a migração. Não criar aliases públicos como `kitchen.rodada.ai`, `owner.rodada.ai` ou `guest.rodada.ai` sem decisão arquitetural.
-
-Compartilhar auth, contratos e design primitives não significa transformar todas as funções em um único frontend escondido por role.
+Rotas internas para desenvolvimento, testes e demo Railway continuam funcionando: `/staff`, `/attendance`, `/bar`, `/kitchen`, `/guest/:token`, `/manage`, `/reports`, `/cash`. Rodada Atendimento permanece Android nativo.
 
 ## Design
 
