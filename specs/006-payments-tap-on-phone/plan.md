@@ -72,3 +72,7 @@ matrix/checklist. PR depends on the existing Paytime PR until it is merged.
 ## Provider readiness — 2026-10-09
 
 Reuse merchant OAuth, PaymentAttempt metadata and canonical settlement. Add a narrowly scoped signed HttpOnly callback cookie, validate current staff authorization, retain sanitized Pix artifacts, and isolate reconciliation failures. Private SDK and employee delegation remain activation gates.
+
+## Pilot refund durability — 2026-10-12
+
+Keep reservation and ProviderRefundRequest creation in one transaction, then submit outside it. Resolve persisted replays before snapshot GET using reserve_refund validation and locking.

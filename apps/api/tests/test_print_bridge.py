@@ -52,7 +52,7 @@ def test_refresh_rotates_only_api_credentials_in_memory():
     accepted = MagicMock()
     accepted.__enter__.return_value.status = 204
     error = urllib.error.HTTPError("https://example.invalid", 401, "expired", {}, None)
-    with patch("urllib.request.urlopen", side_effect=[error, refreshed, accepted]) as request:
+    with patch("urllib.request.OpenerDirector.open", side_effect=[error, refreshed, accepted]) as request:
         assert (
             bridge.api(
                 "https://example.invalid", credentials, "bridge/claim/", {"endpoint_ids": ["file"]}

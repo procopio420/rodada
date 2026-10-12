@@ -1,0 +1,300 @@
+{
+  "run_id": "busy-46cc408803f7",
+  "started_at": "2026-10-12T16:35:24.807299+00:00",
+  "url": "http://127.0.0.1:18874",
+  "workers": 8,
+  "requested_tabs": 64,
+  "payment_classification": "MANUAL_TEST_EXTERNAL_TERMINAL_NO_PROVIDER_SETTLEMENT",
+  "native_android_ui": "NOT_RUN_HTTP_PROTOCOL_ONLY",
+  "mocked_calls": 0,
+  "business_date": "2026-10-12",
+  "workload_seconds": 103.689,
+  "workflow_failures": [],
+  "report_before": {
+    "item_discounts_cents": 0,
+    "tab_discounts_cents": 0,
+    "courtesy_cents": 0,
+    "service_assessed_cents": 0,
+    "service_reductions_cents": 0,
+    "corrections_cents": -600,
+    "service_revenue_cents": 0,
+    "service_pass_through_cents": 0,
+    "gross_cents": 8900,
+    "adjustments_cents": -600,
+    "net_consumption_cents": 8300,
+    "payable_cents": 8300,
+    "net_sales_cents": 8300,
+    "paid_cents": 8900,
+    "refunds_cents": 600,
+    "net_received_cents": 8300,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "report_after": {
+    "item_discounts_cents": 0,
+    "tab_discounts_cents": 0,
+    "courtesy_cents": 0,
+    "service_assessed_cents": 0,
+    "service_reductions_cents": 0,
+    "corrections_cents": -600,
+    "service_revenue_cents": 0,
+    "service_pass_through_cents": 0,
+    "gross_cents": 213700,
+    "adjustments_cents": -600,
+    "net_consumption_cents": 213100,
+    "payable_cents": 213100,
+    "net_sales_cents": 213100,
+    "paid_cents": 213700,
+    "refunds_cents": 600,
+    "net_received_cents": 213100,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "expected_report_delta": {
+    "gross_cents": 204800,
+    "paid_cents": 204800,
+    "adjustments_cents": 0,
+    "refunds_cents": 0,
+    "net_received_cents": 204800,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "actual_report_delta": {
+    "gross_cents": 204800,
+    "paid_cents": 204800,
+    "adjustments_cents": 0,
+    "refunds_cents": 0,
+    "net_received_cents": 204800,
+    "current_open_exposure_cents": 0,
+    "current_open_tabs": 0
+  },
+  "passed": true,
+  "completed_tabs": [
+    "18af5d1f-e27d-4f71-a8e4-9af2c0479927",
+    "1ec961ea-e9be-4eff-a84f-51539793f6ec",
+    "950608a3-ca2d-4eab-8517-0ded3744dbaf",
+    "da83eb04-5c76-4b7f-ace9-88a0b62392b6",
+    "9198cd10-09b8-4db1-badb-1190d1f6034c",
+    "d83dcaaa-d656-4e0f-8333-c264b17e12ba",
+    "0ba3fe5c-2b7f-4494-988d-c5e931bd3890",
+    "a588704a-5f9b-4d87-80ec-e43c6a2d0e7f",
+    "ab0557b1-bf41-4f25-815e-8a301f195a54",
+    "7ff06ad5-c542-4764-a7a2-8072aa6c1d08",
+    "b555489c-4726-4925-b87f-018b24a43fab",
+    "f01d0252-b577-4248-b5b2-387cac4a7942",
+    "1735b4c4-5d42-4c7f-bd0f-b52b6c414a20",
+    "eaa93773-fe29-45bb-b97f-705d2939ffd1",
+    "85f0603c-9286-47c0-b4c4-4f75fa1736f7",
+    "914c4086-27c5-4046-81c5-f0ff9d6e891d",
+    "da86a36e-ebfa-499d-8562-1065b5979e13",
+    "20dd5371-f265-408e-9638-356079d64082",
+    "09913a87-1869-492b-b6c8-a11eb3c15999",
+    "8a34dfb3-c209-45a5-8590-be2412a3742b",
+    "54e3f724-64b3-467e-b048-107b68d31d95",
+    "9afe90ca-185e-40b4-a144-d0d7fe9a6b09",
+    "9f10cdf2-2626-4682-aaf3-7aa52dd192c7",
+    "eddeb2a4-bcd2-41b5-8f92-d257b7ae36d6",
+    "a1dc90aa-5a1b-44f8-a58f-cd1763154ce0",
+    "493b47eb-b48e-4517-af2d-95fba9fea515",
+    "cde96af9-e2bb-4946-b3b5-1603da1fe725",
+    "6da2c05f-1a9a-4434-87a8-b2b555821152",
+    "ab09d417-629d-4de4-8dc2-f11f01edd3e1",
+    "64450fae-b9a7-453e-b1b7-6d3b165b307b",
+    "1010d4e1-597f-49c3-81fa-faf03c1bc8cb",
+    "195e6db8-ac49-4f7d-99bc-52796d83064a",
+    "58229eab-ac77-4f2e-9475-1dadcd9bbc4d",
+    "b65dc1d9-d9e7-4d60-99bb-419a701657a0",
+    "492d4994-721a-4b0b-ac3a-3365acb2f7a6",
+    "d09e2734-a5d4-4b20-8c38-4d42ba963621",
+    "405d1753-a858-4634-a2f8-1b1b85a3d935",
+    "cc23b923-160e-4bb6-b2ab-9b464aa90c2b",
+    "bce6fcad-dcc0-41ff-b5e7-0b59f56f58ce",
+    "411f5082-9464-465d-a657-b71c72fd06f6",
+    "f9f260a1-050b-4fe2-8c65-dd9099f644dc",
+    "38654c3a-efba-491b-b7a1-982cbda6cf9a",
+    "e8c88483-ca97-4a2a-ae26-cc7aff44df95",
+    "10e746c2-7508-453c-bfd5-37c2f6bd29ed",
+    "0a317539-ac67-40a2-9012-cab9e6d5e41e",
+    "540463eb-048e-4cf6-9426-a7f36ac2f474",
+    "c5d5851b-ad34-4e8a-9c32-b55e3b990b8c",
+    "9c26fb1b-3b71-45f5-a302-75f6504dceef",
+    "12b43609-0e4e-4a27-b429-b248da92175b",
+    "dd9fb434-9bed-48ac-8806-c805b2d96a70",
+    "d7fe8abe-30f0-4a1c-9b74-06f2a366d0d6",
+    "91c525ef-7a07-48d5-a07e-1636c8317074",
+    "7d8eab43-cab7-4dc5-bd56-142ec9c9dd58",
+    "e4f2b392-4b3c-40e5-a74e-65fc6e405c2c",
+    "49f9d150-b6da-4d7e-a8a7-6ed555ff0d71",
+    "943a01d1-5548-4f01-942c-35be6aef5e02",
+    "0180e20c-3af6-4dca-85e3-e4bec16f27ff",
+    "5f211a0a-af1a-4560-b845-e01f4a07a26c",
+    "a8f305a2-48bc-479a-a7c1-55a3a3271d9b",
+    "46803393-ea90-44eb-9a6b-92ea48ae8e12",
+    "f77fa374-2440-4894-9789-46d64d492d94",
+    "2a7ea9d9-0105-4ec3-9899-343c74549541",
+    "c6acfb66-38a5-4da3-a301-735a008ccb57",
+    "543a80ea-fbcd-437b-9919-815a2f4e906e"
+  ],
+  "total_seconds": 117.317,
+  "http_errors": [],
+  "request_count": 1366,
+  "mutation_count": 1043,
+  "latency": {
+    "count": 1366,
+    "p50_ms": 520.89,
+    "p95_ms": 1409.27,
+    "p99_ms": 1702.77,
+    "max_ms": 2219.47
+  },
+  "latency_by_operation": {
+    "calendar": {
+      "count": 1,
+      "p50_ms": 50.35,
+      "p95_ms": 50.35,
+      "p99_ms": 50.35,
+      "max_ms": 50.35
+    },
+    "delivery.complete": {
+      "count": 128,
+      "p50_ms": 583.74,
+      "p95_ms": 979.93,
+      "p99_ms": 1187.85,
+      "max_ms": 1190.18
+    },
+    "delivery.queue": {
+      "count": 64,
+      "p50_ms": 149.5,
+      "p95_ms": 344.64,
+      "p99_ms": 415.66,
+      "max_ms": 415.66
+    },
+    "fixture.product": {
+      "count": 2,
+      "p50_ms": 158.7,
+      "p95_ms": 168.53,
+      "p99_ms": 168.53,
+      "max_ms": 168.53
+    },
+    "login": {
+      "count": 17,
+      "p50_ms": 787.26,
+      "p95_ms": 874.84,
+      "p99_ms": 874.84,
+      "max_ms": 874.84
+    },
+    "order.confirm": {
+      "count": 64,
+      "p50_ms": 1155.31,
+      "p95_ms": 1872.89,
+      "p99_ms": 2219.47,
+      "max_ms": 2219.47
+    },
+    "order.exact_retry": {
+      "count": 64,
+      "p50_ms": 953.38,
+      "p95_ms": 1734.48,
+      "p99_ms": 2165.08,
+      "max_ms": 2165.08
+    },
+    "payment.exact_retry": {
+      "count": 128,
+      "p50_ms": 495.82,
+      "p95_ms": 703.19,
+      "p99_ms": 754.99,
+      "max_ms": 760.77
+    },
+    "payment.manual_test": {
+      "count": 128,
+      "p50_ms": 1297.32,
+      "p95_ms": 1641.35,
+      "p99_ms": 1766.3,
+      "max_ms": 1991.76
+    },
+    "production.ACCEPTED": {
+      "count": 128,
+      "p50_ms": 380.93,
+      "p95_ms": 662.8,
+      "p99_ms": 791.98,
+      "max_ms": 889.68
+    },
+    "production.BAR": {
+      "count": 64,
+      "p50_ms": 254.88,
+      "p95_ms": 373.67,
+      "p99_ms": 421.18,
+      "max_ms": 421.18
+    },
+    "production.KITCHEN": {
+      "count": 64,
+      "p50_ms": 136.03,
+      "p95_ms": 269.47,
+      "p99_ms": 341.52,
+      "max_ms": 341.52
+    },
+    "production.PREPARING": {
+      "count": 128,
+      "p50_ms": 382.54,
+      "p95_ms": 599.8,
+      "p99_ms": 697.53,
+      "max_ms": 852.33
+    },
+    "production.READY": {
+      "count": 128,
+      "p50_ms": 552.14,
+      "p95_ms": 939.32,
+      "p99_ms": 1065.53,
+      "max_ms": 1084.27
+    },
+    "report": {
+      "count": 2,
+      "p50_ms": 98.34,
+      "p95_ms": 131.21,
+      "p99_ms": 131.21,
+      "max_ms": 131.21
+    },
+    "tab.close": {
+      "count": 64,
+      "p50_ms": 642.54,
+      "p95_ms": 982.58,
+      "p99_ms": 1065.63,
+      "max_ms": 1065.63
+    },
+    "tab.open": {
+      "count": 64,
+      "p50_ms": 857.81,
+      "p95_ms": 1111.93,
+      "p99_ms": 1327.39,
+      "max_ms": 1327.39
+    },
+    "tab.partial_balance": {
+      "count": 64,
+      "p50_ms": 607.57,
+      "p95_ms": 791.04,
+      "p99_ms": 953.03,
+      "max_ms": 953.03
+    },
+    "tab.reconcile": {
+      "count": 64,
+      "p50_ms": 572.37,
+      "p95_ms": 798.44,
+      "p99_ms": 843.02,
+      "max_ms": 843.02
+    }
+  },
+  "latency_budget": "No pre-agreed busy-shift latency SLA; measurements do not imply SLA approval. Any HTTP/invariant failure fails this harness.",
+  "http_requests_per_second": 11.64,
+  "persistence_verification": {
+    "verified_at": "2026-10-12T16:37:32.963051+00:00",
+    "passed": true,
+    "seconds": 6.691,
+    "latency": {
+      "count": 66,
+      "p50_ms": 92.91,
+      "p95_ms": 106.3,
+      "p99_ms": 569.19,
+      "max_ms": 569.19
+    },
+    "errors": [],
+    "boundary": "Canonical persistence readback only; caller must separately prove which real services were restarted."
+  }
+}

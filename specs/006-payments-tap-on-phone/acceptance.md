@@ -49,3 +49,8 @@
 - [x] One provider merchant transaction has one canonical financial owner; a second settlement remains CONFIRMATION_PENDING (PostgreSQL race + migration checks).
 
 These checks prove TEST_DOUBLE and SIMULATED boundaries only. Private SDK, actual sandbox/live captures and merchant approval remain unchecked external gates.
+
+## Pilot refund durability — 2026-10-12
+
+- Refund request persistence failure rolls back reservation and sends no POST.
+- Matching pending-refund replay succeeds during provider outage without I/O; conflicting replay remains domain 409.

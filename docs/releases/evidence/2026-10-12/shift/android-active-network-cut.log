@@ -1,0 +1,42 @@
+ROUTE_BEFORE: 10.0.2.2 dev wlan0 table wlan0 src 10.0.2.16 uid 0 
+    cache 
+PASS: pre-disabled standby eth0 while primary=wlan0 remains connected
+ROUTE_WITHOUT_STANDBY: 10.0.2.2 dev wlan0 table wlan0 src 10.0.2.16 uid 0 
+    cache 
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+PASS: real Django HTTP 201 committed; Android POST still blocked awaiting response
+ROUTE_AFTER_CUT: RTNETLINK answers: Network is unreachable
+LINK_AFTER_CUT: 16: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noqueue state DOWN mode DEFAULT group default qlen 1000\    link/ether 02:15:cc:00:00:00 brd ff:ff:ff:ff:ff:ff
+STANDBY_LINK_AFTER_CUT: 15: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000\    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
+PASS: all Android uplinks unavailable while committed POST is held
+PASS: committed response released only AFTER link cut
+
+com.rodada.attendance.operations.LivePostDropReconciliationTest:.
+
+Time: 1.591
+
+OK (1 test)
+
+
+PASS before: real PostgreSQL Order=1 Item=1 Charge=1 Payment=0 dropped_responses=1 id=38248408
+PASS: original encrypted CHECKING intent survived lost HTTP response
+PASS: force-stop killed Android PID 4264
+
+com.rodada.attendance.operations.LivePostDropReconciliationTest:.
+
+Time: 0.069
+
+OK (1 test)
+PASS: force-stop killed Android PID 4344
+PASS: Android network route recovered (wlan0; original=wlan0)
+
+com.rodada.attendance.operations.LivePostDropReconciliationTest:.
+
+Time: 0.819
+
+OK (1 test)
+PASS after: real PostgreSQL Order=1 Item=1 Charge=1 Payment=0 dropped_responses=1 id=38248408
+PASS: actual uplink cut during committed POST, offline process death, same-key replay, exactly one order/charge.

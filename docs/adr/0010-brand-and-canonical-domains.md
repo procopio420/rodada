@@ -1,5 +1,8 @@
 # ADR 0010 — Marca Rodada e domínios canônicos
 
+> **Atualização (2026-10-12):** A decisão de usar hosts separados por superfície foi **substituída pela ADR 0016** (subdomínio por estabelecimento; path por módulo). Esta ADR continua válida para a marca Rodada e o domínio raiz `rodada.ai`. As URLs abaixo são histórico de compatibilidade, não o novo contrato público. 
+
+
 **Status:** Accepted  
 **Date:** 2026-10-07
 

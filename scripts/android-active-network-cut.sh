@@ -287,17 +287,37 @@ req=Request("http://127.0.0.1:8000/__fault/disarm", data=b"", method="POST")
 with urlopen(req, timeout=5) as response:
     assert response.status == 200
 PY
+<<<<<<< HEAD
 # Keep standby disabled until the original NIC has recovered and replayed.
 # Restoring both here can make AOSP route over the standby instead, hiding
 # recovery of the transport that was actually cut (especially eth0 -> wlan0).
 restore_primary
 network_is_down=0
+=======
+# Restore the interfaces only after offline/process-death proof. Android may
+# select the other restored NIC (e.g. wlan0 after eth0 loses its DHCP lease).
+# Recovery requires a real routed UP uplink, not the same pre-cut NIC.
+cleanup
+>>>>>>> origin/main
 recovered=0
-for i in $(seq 1 20); do
+recovered_iface=""
+route_up=""
+for i in $(seq 1 60); do
   route_up=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
-  if grep -q "dev $IFACE" <<< "$route_up"; then recovered=1; break; fi
+  recovered_iface=$(sed -n 's/.* dev \([^ ]*\).*/\1/p' <<< "$route_up" | head -1)
+  case "$recovered_iface" in
+    wlan0|eth0)
+      if [[ "$MODE" == physical-wifi && "$recovered_iface" != wlan0 ]]; then
+        sleep 1
+        continue
+      fi
+      link_up=$("${ADB[@]}" shell ip -o link show dev "$recovered_iface" 2>&1 | tr -d '\r' || true)
+      if grep -q 'state UP' <<< "$link_up"; then recovered=1; break; fi
+      ;;
+  esac
   sleep 1
 done
+<<<<<<< HEAD
 test "$recovered" == 1 || {
   echo "ROUTE_AFTER_RESTORE: $route_up"
   "${ADB[@]}" shell ip -4 address show dev "$IFACE"
@@ -306,6 +326,11 @@ test "$recovered" == 1 || {
   echo "FAIL: Android link did not recover" >&2; exit 1;
 }
 echo "PASS: Android network route recovered ($IFACE)"
+=======
+test "$recovered" == 1 || { echo "FAIL: Android link did not recover: $route_up" >&2; exit 1; }
+network_is_down=0
+echo "PASS: Android network route recovered ($recovered_iface; original=$IFACE)"
+>>>>>>> origin/main
 
 run_stage replay
 python3 "$ROOT/scripts/verify-android-live-post-drop.py" after \

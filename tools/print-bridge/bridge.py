@@ -12,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "apps" / "api"))
 from modules.documents_printing.adapters import (
@@ -21,7 +22,35 @@ from modules.documents_printing.adapters import (
 )
 
 
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def validate_api_origin(base):
+    try:
+        parsed = urlsplit(base)
+        port = parsed.port
+    except (TypeError, ValueError) as error:
+        raise ValueError("Invalid API origin") from error
+    if (
+        not parsed.hostname or parsed.username is not None or parsed.password is not None
+        or parsed.path not in ("", "/") or parsed.query or parsed.fragment
+        or any(character.isspace() for character in base)
+        or (port is not None and not 1 <= port <= 65535)
+    ):
+        raise ValueError("Use a credential-free API origin")
+    if parsed.scheme != "https" and not (
+        parsed.scheme == "http" and parsed.hostname in {"127.0.0.1", "localhost", "::1"}
+        and port is not None
+    ):
+        raise ValueError("Use HTTPS outside explicit loopback")
+    return base.rstrip("/")
+
+
 def api(base, token, path, data, allow_refresh=True):
+    base = validate_api_origin(base)
+    opener = urllib.request.build_opener(NoRedirect())
     access = token["access_token"] if isinstance(token, dict) else token
     request = urllib.request.Request(
         base.rstrip("/") + "/printing/" + path,
@@ -32,7 +61,7 @@ def api(base, token, path, data, allow_refresh=True):
         },
     )
     try:
-        with urllib.request.urlopen(request, timeout=15) as response:
+        with opener.open(request, timeout=15) as response:
             return json.load(response) if response.status != 204 else None
     except urllib.error.HTTPError as error:
         if (
@@ -47,7 +76,7 @@ def api(base, token, path, data, allow_refresh=True):
             data=json.dumps({"refresh_token": token["refresh_token"]}).encode(),
             headers={"Content-Type": "application/json"},
         )
-        with urllib.request.urlopen(refresh, timeout=15) as response:
+        with opener.open(refresh, timeout=15) as response:
             credentials = json.load(response)
         token.update(
             access_token=credentials["access_token"],
@@ -161,10 +190,7 @@ def main():
         "access_token": os.environ["RODADA_PRINT_ACCESS_TOKEN"],
         "refresh_token": os.environ.get("RODADA_PRINT_REFRESH_TOKEN", ""),
     }
-    if not base.startswith("https://") and not base.startswith(
-        ("http://127.0.0.1:", "http://localhost:")
-    ):
-        raise SystemExit("Use HTTPS outside loopback.")
+    validate_api_origin(base)
     while True:
         try:
             active = run_once(base, token, config)

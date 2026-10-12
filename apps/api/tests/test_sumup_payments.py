@@ -385,3 +385,60 @@ class SumUpContractTests(provider_tests.PaymentProviderServiceTests):
         payment, _ = reconcile_provider_payment(payment_id=payment.pk, provider=provider, actor=self.actor)
         self.assertEqual(payment.status, "CONFIRMATION_PENDING")
         self.assertEqual(totals(self.tab)["payments_cents"], 0)
+
+    def test_refund_replay_survives_provider_outage_and_rejects_conflict(self):
+        from unittest.mock import Mock
+
+        from modules.payment_provider.refunds import request_provider_refund
+
+        provider = self.provider()
+        payment = self.start(provider)
+        self.remote_state = "PAID"
+        reconcile_provider_payment(payment_id=payment.pk, provider=provider, actor=self.actor)
+        refund = reserve_refund(
+            payment_id=payment.pk, amount_cents=500, key="offline-refund",
+            reason="wrong", actor=self.actor,
+        )[0]
+        provider.transport = Mock(side_effect=TimeoutError("provider offline"))
+        replay = request_provider_refund(
+            payment_id=payment.pk, amount_cents=500, key="offline-refund",
+            reason="wrong", actor=self.actor, provider=provider,
+        )
+        self.assertEqual(replay.pk, refund.pk)
+        self.assertEqual(replay.status, "PENDING")
+        with self.assertRaises(ProviderServiceError) as caught:
+            request_provider_refund(
+                payment_id=payment.pk, amount_cents=501, key="offline-refund",
+                reason="wrong", actor=self.actor, provider=provider,
+            )
+        self.assertEqual(caught.exception.code, "IDEMPOTENCY_CONFLICT")
+        provider.transport.assert_not_called()
+        self.assertEqual(totals(self.tab)["refunds_cents"], 0)
+
+    def test_refund_reconciliation_identity_failure_rolls_back_before_submission(self):
+        from unittest.mock import Mock, patch
+
+        from modules.ledger.models import Refund
+        from modules.payment_provider.models import ProviderRefundRequest
+        from modules.payment_provider.refunds import request_provider_refund
+
+        provider = self.provider()
+        payment = self.start(provider)
+        self.remote_state = "PAID"
+        reconcile_provider_payment(payment_id=payment.pk, provider=provider, actor=self.actor)
+        provider.transport = Mock(return_value={
+            "id": "transaction-1", "merchant_code": "MERCHANT-A",
+            "transaction_events": [],
+        })
+        with (
+            patch.object(ProviderRefundRequest.objects, "create", side_effect=RuntimeError("storage")),
+            self.assertRaises(RuntimeError),
+        ):
+            request_provider_refund(
+                payment_id=payment.pk, amount_cents=500, key="storage-refund",
+                reason="wrong", actor=self.actor, provider=provider,
+            )
+        self.assertFalse(Refund.objects.filter(payment=payment).exists())
+        self.assertFalse(ProviderRefundRequest.objects.exists())
+        self.assertEqual([call.args[0] for call in provider.transport.call_args_list], ["GET"])
+        self.assertEqual(totals(self.tab)["refunds_cents"], 0)
