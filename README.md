@@ -37,23 +37,24 @@ Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API. A [Spec 
 
 A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
 
-Hosts públicos oficiais:
+Hosts públicos planejados, agora **por estabelecimento** (ADR 0016 / Spec 025):
 
-| Superfície | Host |
+| Uso | URL exemplo |
 | --- | --- |
-| Site institucional | `rodada.ai` |
-| Gerência | `gerencia.rodada.ai` |
-| Cozinha | `cozinha.rodada.ai` |
-| Bar | `bar.rodada.ai` |
-| Cliente / QR | `cliente.rodada.ai` |
+| Institucional | `rodada.ai` |
+| Bar do Aderlan | `bardoaderlan.rodada.ai` |
+| Cozinha do bar | `bardoaderlan.rodada.ai/cozinha` |
+| Gerência do bar | `bardoaderlan.rodada.ai/gerencia` |
+| Bar, Caixa e QR | `bardoaderlan.rodada.ai/bar`, `/caixa`, `/m/:token` |
+| Administração da plataforma (futuro) | `admin.rodada.ai` |
 | API | `api.rodada.ai` |
-| Atendimento | app Android nativo |
+| Atendimento | Android nativo; companion Web em `/atendimento` |
+
+**Contrato ainda não publicado.** O alias público `bardoaderlan` deve apontar para o Venue interno `bar-do-aderlan` via registro persistente. Os caminhos/hosts legados (e a demo Railway) permanecem até os testes de isolamento por Venue e migração serem concluídos. Não alterar o slug existente para obter a URL curta.
 
 A frase **“Me vê uma rodada aí.”** pode ser usada como assinatura/campanha da marca.
 
-Os subdomínios são superfícies do mesmo produto e não implicam backends separados. Paths como `/owner`, `/kitchen` e `/guest` podem existir internamente, mas não são o contrato público de URL.
-
-Ver [ADR 0010](./docs/adr/0010-brand-and-canonical-domains.md).
+Ver [ADR 0016](./docs/adr/0016-tenant-hostname-module-paths.md), [Spec 025](./specs/025-tenant-host-routing/spec.md) e [contrato de rotas](./docs/architecture/tenant-routing-contract.md).
 
 ## Princípio de domínio
 
