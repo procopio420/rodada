@@ -25,3 +25,5 @@
   rejeitado sem Payment; `test_invalid_manual_payment_payload_cannot_truncate_cents_or_crash`.
 - [x] Tab com exposure zero pode ser fechada.
 - [ ] Caixa resume recebimentos por método.
+- Web production acceptance waits for canonical READY after its asynchronous confirmation;
+  a successful browser click alone is not evidence that the item persisted as READY.
