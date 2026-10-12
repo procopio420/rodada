@@ -1,5 +1,6 @@
 # Aceite verificável
 
+- A0: pedido confirmado inicia em `NEW`/aguardando na estação sem timestamp de preparo; apenas “Iniciar preparo” altera para `PREPARING`. `READY` exige ação posterior. Quantidades agregadas mostram aguardando versus em preparo, sem rotular tudo como em produção.
 - A1: em Bar/Cozinha, fila e passe precedem catálogo no DOM e na tela; primeiro item/ação de fila normal visível sem scroll a 360×800. Quantidade e nome completos, target >=44 px.
 - A2: snapshot normal/lotado mostra contadores de itens por região; erro inicial/carregamento não apresenta zero confirmado. Estados anteriores e revalidação permanecem.
 - A3: em 768×1024, 1280×800 e 1440×900, produção e passe estão lado a lado; 360×800, 390×844, 430×932 não têm overflow. Axe e foco passam.
