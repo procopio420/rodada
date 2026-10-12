@@ -150,4 +150,4 @@ Estorno nativo real concluído nesta continuação: original600 preservado,1Refu
 - [x] Inspect failing CI trace: alert connectivity mutation during first screenshot.
 - [x] Give finite SSE snapshot fixture consistent disconnected semantics.
 - [x] Fix Date without disabling accessibility timers.
-- [ ] Repeat management gate and complete visual suite.
+- [x] Repeat management gate (12 passed) and complete original visual suite (198 passed); repeat against current integrated main separately.

@@ -42,7 +42,7 @@ Fresh validation from `apps/web`:
 - `npm run typecheck`: PASS.
 - Baseline targeted gate `npm run test:visual -- --grep 'manage: responsive layout and accessibility at 430px' --repeat-each=12`: 12 passed (1.6 min).
 - Corrected targeted repeated gate: **12 passed (1.4 min)**.
-- Required full `npm run test:visual`: awaiting completion.
+- Required full `npm run test:visual` on ff7cc9b: **198 passed (8.1 min)**; new main adds further cases, so integration repeat remains required.
 - `git diff --check`: PASS.
 
 These are browser tests using intercepted fixtures, not deployed end-to-end,
