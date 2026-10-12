@@ -541,3 +541,12 @@ not inferred from an unverified Aderlan printer model.
 
 Comparação golden lê os arquivos existentes como UTF-8 explícito, preservando bytes e igualdade literal de texto/HTML/ESC-POS. Não substituir fixtures nem aplicar normalização que esconda diferenças. O encoding padrão da máquina não define o contrato do documento.
 
+
+### Release security contract — 2026-10-12
+
+The outbound bridge validates the API URL before authentication: only a credential-free
+HTTPS origin, or explicit HTTP loopback with a port, is accepted. Query/fragment and
+embedded credentials are refused. HTTP redirects are refused for both authenticated
+commands and refresh, preventing credential forwarding to another origin. A refused
+redirect after physical submission leaves lease recovery responsible for uncertainty;
+no adapter resend is authorized.
