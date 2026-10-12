@@ -89,7 +89,7 @@ def validate_bridge_config(config):
                 address = ipaddress.ip_address(host)
                 trusted = any(address in network for network in trusted_networks)
             except ValueError:
-                trusted = bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*\\.(?:local|lan)", host))
+                trusted = bool(re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]*\.(?:local|lan)", host))
             if not trusted or type(port) is not int or not (1 <= port <= 65535):
                 raise ValueError("Network printers must use private LAN hosts and valid ports")
         elif adapter == "SPOOL":
