@@ -124,3 +124,7 @@ Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lin
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
 
 Merge validation: CI exposed that restoring eth0 alone does not restore the emulator route. The initial original-NIC restoration experiments are superseded by the pilot RC transport contract from main defcd94 (Spec014 acceptance). Preserve that upstream harness exactly: all uplinks must be unavailable during the held committed POST and offline process death; after restoration, require a routed UP eth0/wlan0 and real same-key/body replay with exactly one order/charge. Physical Wi-Fi remains restricted to wlan0. Do not add manual routing configuration to the emulator. Re-run the integrated PR gates before merging.
+
+## Deterministic visual transport — 2026-10-12
+
+Keep Date fixed with Playwright setFixedTime, preserving timers for axe and hydration. Replace misleading ready+EOF fixture with a finite SSE comment response, so retries cannot briefly publish ONLINE. Verify repeated management gate and full visual suite.
