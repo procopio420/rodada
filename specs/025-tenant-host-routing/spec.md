@@ -1,6 +1,6 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** Specified; implementation pending
+**Status:** P0 implementation in progress; canonical paths and production routing gated
 **Date:** 2026-10-12
 **Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
 
@@ -67,3 +67,12 @@ The first PR may document the contract and add pure lookup scaffolding, but **mu
 ## Evidence
 
 See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md) for slices, [tasks.md](tasks.md) for actions. Keep criteria pending until reproducible test evidence exists.
+
+
+## P0 implementation boundary (2026-10-12)
+
+The first implementation adds VenueDomain, an audited provisioning service and PostgreSQL lifecycle protection, an authoritative resolver, signed BFF host assertions, common staff/guest guards and host validation for establishment pages. It preserves the current paths. The BFF adds a host restriction to the existing opaque-token authentication system; it does not introduce another identity system.
+
+Compatibility hosts are exact infrastructure/legacy names configured explicitly, with loopback defaults only for development. Production configuration requires an explicit compatibility list and dedicated BFF secret. Venue subdomains cannot be configured as compatibility transports. Guest authorization is held in per-QR host-only HttpOnly cookies, and unknown/foreign guest authorization has indistinguishable 404 behavior on establishment hosts.
+
+The rollout gate remains closed for Portuguese path rewrites, tenant-specific manifests/titles, wildcard DNS/TLS, production hostname promotion and QR migration. See [P0 security contract](../../docs/architecture/spec025-p0-security.md) and the criterion-by-criterion [acceptance record](acceptance.md). Custom-domain onboarding and Organization/Tenant billing remain out of scope.

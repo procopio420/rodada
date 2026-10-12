@@ -18,6 +18,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command("seed_demo_catalog", venue_slug="bar-do-aderlan", venue_name="Bar do Aderlan")
         venue = Venue.objects.get(slug="bar-do-aderlan")
+        from modules.venue.domains import configure_domain
+        if not venue.domains.filter(hostname="bardoaderlan.rodada.ai").exists():
+            configure_domain(venue_id=venue.pk, hostname="bardoaderlan.rodada.ai",
+                is_primary=not venue.domains.filter(is_primary=True).exists(),
+                is_active=True, is_verified=True, reason="Pilot demo seed; platform-owned alias")
         # Demo fixture only: the seeded BAR + KITCHEN combo costs R$ 40,
         # exceeding the default R$ 30 visitor policy. Permit a realistic
         # demonstration order without changing the canonical production default.

@@ -39,6 +39,46 @@ class Venue(models.Model):
         return self.name
 
 
+class VenueDomain(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="domains")
+    hostname = models.CharField(max_length=253, unique=True)
+    is_primary = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["venue"], condition=models.Q(is_primary=True),
+                                    name="venue_domain_one_primary"),
+            models.CheckConstraint(condition=models.Q(is_primary=False) | models.Q(
+                is_active=True, is_verified=True), name="venue_domain_primary_enabled"),
+            models.CheckConstraint(condition=models.Q(hostname__regex=r"^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.rodada\.ai$"),
+                                   name="venue_domain_supported_host"),
+            models.CheckConstraint(condition=~models.Q(hostname__in=[
+                f"{label}.rodada.ai" for label in ("api", "admin", "www", "bar", "cozinha", "cliente",
+                "gerencia", "atendimento", "pedido", "app", "kitchen", "owner", "guest", "management",
+                "staff", "cash", "reports", "mail", "static", "assets")]), name="venue_domain_reserved_host"),
+            models.CheckConstraint(condition=models.Q(hostname=models.functions.Lower("hostname")),
+                                   name="venue_domain_lowercase"),
+        ]
+
+    def clean(self):
+        from .hostnames import normalize_hostname
+        self.hostname = normalize_hostname(self.hostname)
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        if not self._state.adding:
+            previous = type(self).objects.get(pk=self.pk)
+            if previous.hostname != self.hostname or previous.venue_id != self.venue_id:
+                from django.core.exceptions import ValidationError
+                raise ValidationError("Domain identity is immutable; disable and provision a new alias")
+        super().save(*args, **kwargs)
+
+
 class OperationalAlertPolicy(models.Model):
     venue = models.OneToOneField(Venue, on_delete=models.PROTECT, primary_key=True)
     version = models.PositiveIntegerField(default=1)
