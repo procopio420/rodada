@@ -1,0 +1,3 @@
+Primeira versão para testes internos com autenticação por estabelecimento, mesas, comandas, catálogo, pedidos, entregas e operações autorizadas de caixa.
+
+Aproximação com cartão não está habilitada para transações reais neste piloto.

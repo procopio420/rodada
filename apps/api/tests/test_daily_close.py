@@ -253,12 +253,17 @@ class DailyCloseTests(TransactionTestCase):
     @skipUnless(connection.vendor == 'postgresql', 'Requires PostgreSQL authority lock ordering')
     def test_membership_revocation_race_does_not_deadlock_admin_or_generate_after_prior_revoke(self):
         from modules.access.services import update_membership_admin
+        admin_staff = StaffMember.objects.create(display_name='Owner', login_identifier='daily-owner')
+        admin_membership = VenueStaffMembership.objects.create(venue=self.venue, staff_member=admin_staff, role='OWNER')
+        admin_session = StaffSession.objects.create(venue=self.venue, staff_member=admin_staff, membership=admin_membership,
+            access_expires_at=timezone.now()+timedelta(minutes=15),
+            expires_at=timezone.now()+timedelta(hours=1), recently_reauthenticated_at=timezone.now())
         barrier = Barrier(2)
         def revoke():
             close_old_connections()
             try:
                 barrier.wait(timeout=10)
-                return update_membership_admin(actor_session=self.session, membership_id=self.membership.pk,
+                return update_membership_admin(actor_session=admin_session, membership_id=self.membership.pk,
                     expected_version=1, status='REVOKED', reason='Concurrent access revocation').status
             finally:
                 close_old_connections()

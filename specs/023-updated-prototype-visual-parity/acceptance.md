@@ -129,7 +129,8 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 
 Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
 
-
+Piloto: campos críticos e ação de pagamento/estorno alcançáveis com fonte 200%,
+nome completo do catálogo e cabeçalho sem sobreposição; testes instrumentados.
 
 ## V02/V05 — catálogo e cobrança com fonte ampliada
 

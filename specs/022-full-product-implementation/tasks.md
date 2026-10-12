@@ -34,3 +34,7 @@
 - [x] DW2: turno HTTP/SSE/restart/SQL conciliados.
 - [x] DW3: browser/pricing/recibos/Android disponível verificados.
 - [x] DW4: gates e evidências publicados em PR draft.
+
+- [x] Specify explicit no-seed secure pilot runtime and existing-contract provisioning.
+- [x] Implement preflight/seed gate with DEBUG/simulation disabled.
+- [x] Verify secure startup/restart and empty database, then record fresh evidence.

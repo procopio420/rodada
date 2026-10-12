@@ -1,5 +1,10 @@
 # Plan — Spec 016
 
+2026-10-10 frontend: reuse Field/Button/notice in an occupancy-scoped component.
+GET current/history, show source and current count; POST explicit version/key.
+Tests cover unknown, stale conflict and lost-response retry. Expand only the
+attendance gateway party-size path, preserving financial exclusions.
+
 ## Recommended sequence
 
 1. **Domain/migration**

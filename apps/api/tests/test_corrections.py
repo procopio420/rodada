@@ -54,13 +54,13 @@ class CorrectionFoundationTests(TestCase):
         assert login.status_code == 200, login.json()
         self.actor = ActorContext.from_session(StaffSession.objects.get(venue=self.venue))
 
-    def item(self, *, state=OrderItemState.ACCEPTED, venue=None, tab=None, name="Cerveja", customization=None):
+    def item(self, *, state=OrderItemState.ACCEPTED, venue=None, tab=None, name="Cerveja", customization=None, quantity=1, price_cents=1200):
         venue = venue or self.venue
         tab = tab or Tab.objects.create(venue=venue, display_label="Ana")
         product = Product.objects.create(
             venue=venue,
             name=name,
-            price_cents=1200,
+            price_cents=price_cents,
             fulfillment_station=FulfillmentStation.BAR,
         )
         order = Order.objects.create(tab=tab, source=OrderSource.STAFF)
@@ -69,7 +69,7 @@ class CorrectionFoundationTests(TestCase):
             product=product,
             product_name_snapshot=product.name,
             unit_price_cents=product.price_cents,
-            quantity=1,
+            quantity=quantity,
             state=state,
             customization_snapshot=customization or {},
             accepted_at=timezone.now() if state == OrderItemState.ACCEPTED else None,
@@ -705,3 +705,98 @@ class CorrectionFoundationTests(TestCase):
         self.assertEqual(settled.status, CorrectionStatus.APPLIED)
         self.assertEqual(replay_refund.id, refund.id)
         self.assertEqual(balance["exposure_cents"], 0)
+
+    def partial_cancel(self, item, quantity, key):
+        return cancel_before_fulfillment(
+            item_id=item.id, kind=CorrectionKind.WRONG_ITEM_ENTERED,
+            reason_code="WRONG_ENTRY", reason_text="", idempotency_key=key,
+            actor=self.actor, financial_reversal_hook=reverse_open_responsibility,
+            quantity=quantity, record_paid_request=True,
+        )
+
+    def test_partial_cancel_preserves_snapshot_projects_remaining_and_replays_exactly(self):
+        from modules.ordering.views import _order_payload
+        item = self.item(quantity=3)
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=3600)
+        correction = self.partial_cancel(item, 1, "partial-1")
+        replay = self.partial_cancel(item, 1, "partial-1")
+        item.refresh_from_db()
+        self.assertEqual(item.quantity, 3)
+        self.assertEqual(item.remaining_quantity, 2)
+        self.assertEqual(item.state, OrderItemState.ACCEPTED)
+        self.assertEqual(correction.quantity_cancelled, 1)
+        self.assertEqual(replay.id, correction.id)
+        self.assertEqual(LedgerAdjustment.objects.filter(order_item=item).count(), 1)
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 2400)
+        projected = _order_payload(item.order)["items"][0]
+        self.assertEqual(projected["quantity"], 2)
+        self.assertEqual(projected["original_quantity"], 3)
+        self.assertEqual(projected["line_total_cents"], 2400)
+        event = AuditEvent.objects.get(event_type="order_item.cancelled", entity_id=str(correction.id))
+        self.assertEqual(event.metadata["remaining_quantity"], 2)
+        self.assertFalse(Payment.objects.exists())
+        with self.assertRaises(CorrectionServiceError) as conflict:
+            self.partial_cancel(item, 2, "partial-1")
+        self.assertEqual(conflict.exception.code, "IDEMPOTENCY_CONFLICT")
+        self.partial_cancel(item, 2, "partial-2")
+        item.refresh_from_db()
+        self.assertEqual(item.state, OrderItemState.CANCELLED)
+        self.assertEqual(item.quantity, 3)
+        self.assertEqual(item.remaining_quantity, 0)
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 0)
+
+    def test_partial_cancel_rounding_with_discount_and_invalid_quantities(self):
+        from modules.ledger.models import AdjustmentKind
+        item = self.item(quantity=3, price_cents=333)
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=999)
+        LedgerAdjustment.objects.create(tab=item.order.tab, order_item=item,
+            kind=AdjustmentKind.ITEM_DISCOUNT, amount_cents=-199,
+            reason_code="EXISTING_DISCOUNT", created_by=self.staff,
+            idempotency_key="existing-discount")
+        for quantity in (0, -1, True, 1.5, "1", 4):
+            with self.assertRaises(CorrectionServiceError):
+                self.partial_cancel(item, quantity, "invalid")
+        self.assertFalse(OrderCorrection.objects.filter(original_order_item=item).exists())
+        first = self.partial_cancel(item, 1, "round-1")
+        self.assertEqual(first.financial_adjustment.amount_cents, -266)
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 534)
+        self.partial_cancel(item, 1, "round-2")
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 267)
+        self.partial_cancel(item, 1, "round-3")
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 0)
+        self.assertEqual(item.quantity, 3)
+
+    def test_partial_paid_and_preparing_are_rejected_without_mutations(self):
+        for state in (OrderItemState.ACCEPTED, OrderItemState.PREPARING):
+            item = self.item(quantity=3, state=state, name=f"Cerveja {state}")
+            Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=3600)
+            if state == OrderItemState.ACCEPTED:
+                Payment.objects.create(tab=item.order.tab, amount_cents=100,
+                    method=PaymentMethod.PIX, status=PaymentStatus.CONFIRMED,
+                    confirmed_at=timezone.now(),
+                    received_by=self.staff, idempotency_key="paid-partial")
+            with self.assertRaises(CorrectionServiceError):
+                self.partial_cancel(item, 1, "blocked")
+            self.assertFalse(OrderCorrection.objects.filter(original_order_item=item).exists())
+            self.assertEqual(item.remaining_quantity, 3)
+            self.assertFalse(LedgerAdjustment.objects.filter(order_item=item).exists())
+
+    def test_wrong_entry_bill_classification_preserves_canonical_totals(self):
+        from modules.ledger.pricing import commercial_summary
+        item = self.item(quantity=3, state=OrderItemState.NEW)
+        Charge.objects.create(tab=item.order.tab, order_item=item, amount_cents=3600)
+        self.partial_cancel(item, 1, "wrong-entry-bill")
+        summary = commercial_summary(item.order.tab)
+        self.assertEqual(summary["wrong_entry_removals_cents"], -1200)
+        self.assertEqual(summary["corrections_cents"], -1200)
+        self.assertEqual(summary["original_subtotal_cents"], 3600)
+        self.assertEqual(summary["payable_cents"], 2400)
+
+        other = self.item(name="Outro item", state=OrderItemState.NEW, tab=item.order.tab)
+        Charge.objects.create(tab=item.order.tab, order_item=other, amount_cents=1200)
+        cancel_before_fulfillment(item_id=other.id, kind=CorrectionKind.CUSTOMER_CHANGED_MIND,
+            reason_code="CUSTOMER_CHANGED_MIND", reason_text="", idempotency_key="customer-change-bill",
+            actor=self.actor, financial_reversal_hook=reverse_open_responsibility)
+        summary = commercial_summary(item.order.tab)
+        self.assertEqual(summary["wrong_entry_removals_cents"], -1200)
+        self.assertEqual(summary["corrections_cents"], -2400)

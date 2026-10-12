@@ -187,7 +187,12 @@ route_after=""
 for i in $(seq 1 20); do
   route_after=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
   link_after=$("${ADB[@]}" shell ip -o link show dev "$IFACE" 2>&1 | tr -d '\r' || true)
-  if grep -qE 'state DOWN|does not exist|Device not found' <<< "$link_after"; then break; fi
+  # Android removes its route asynchronously after reporting the NIC DOWN.
+  # Observe both invariants in the same sample before leaving the bounded wait.
+  if grep -qE 'state DOWN|does not exist|Device not found' <<< "$link_after" &&
+     ! grep -Eq 'dev (wlan|rmnet|ccmni|eth)[0-9]+' <<< "$route_after"; then
+    break
+  fi
   sleep 0.15
 done
 echo "ROUTE_AFTER_CUT: $route_after"

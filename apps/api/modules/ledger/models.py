@@ -22,6 +22,7 @@ class AdjustmentKind(models.TextChoices):
     SERVICE_CHARGE_REDUCTION = "SERVICE_CHARGE_REDUCTION", "Service reduction"
     REVERSAL = "REVERSAL", "Reversal"
     ORDER_ITEM_CANCELLATION = "ORDER_ITEM_CANCELLATION", "Order item cancellation"
+    ORDER_ITEM_PARTIAL_CANCEL = "ORDER_ITEM_PARTIAL_CANCEL", "Partial order item cancellation"
     COURTESY_REPLACEMENT = "COURTESY_REPLACEMENT", "Courtesy replacement"
 
 
@@ -95,7 +96,7 @@ class LedgerAdjustment(models.Model):
                     | models.Q(kind="SERVICE_CHARGE", amount_cents__gte=0)
                     | models.Q(kind="REVERSAL", reverses__isnull=False)
                     | models.Q(
-                        kind=AdjustmentKind.ORDER_ITEM_CANCELLATION,
+                        kind__in=[AdjustmentKind.ORDER_ITEM_CANCELLATION, AdjustmentKind.ORDER_ITEM_PARTIAL_CANCEL],
                         amount_cents__lt=0,
                     )
                     | models.Q(

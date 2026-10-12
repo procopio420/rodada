@@ -333,6 +333,21 @@ Historical analytics must label pre-capture periods as missing data.
 
 ## Deliberately deferred
 
+### Staff Web pilot capture — 2026-10-10
+Active occupancy details in Atendimento Web expose optional explicit covers using
+the existing party-size GET/POST contract. Show unknown until canonical response;
+no default count. Offer 1–8/manual positive integers and optional correction reason.
+Mutations use the read version and a stable original payload/key across ambiguous
+retries; edits freeze until resolved. A version conflict reloads current data and
+requires a new deliberate submission; no auto-overwrite. Capture failure never
+blocks ordering/payment. Historical correction, guest prompts and analytics remain
+separate slices. Do not expose private observation actor IDs as display names.
+
+Android Mesas exposes the same optional chooser for active occupancy with
+table.manage, canonical GET/POST, version conflict and original-payload retry.
+Draft/pending chooser state is in memory only, not an offline replay queue; a
+process restart reconsults canonical state. No historical correction or analytics.
+
 - seat-level identity;
 - inferred people counting;
 - camera/BLE counting;

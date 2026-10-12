@@ -28,10 +28,26 @@ export function CatalogIconEditor() {
     reader.onerror = () => setMessage("Não foi possível ler a imagem.");
     reader.readAsDataURL(file);
   };
+  const [editedName, setEditedName] = useState("");
+  useEffect(() => { setEditedName(product?.name ?? ""); }, [product?.id, product?.name]);
+  async function rename() {
+    if (!product || busy || !editedName.trim()) return;
+    setBusy(true); setMessage("");
+    try {
+      const result = await apiCall(`/api/pos/catalog/products/${product.id}/`, { method: "PATCH", body: JSON.stringify({ name: editedName.trim() }) });
+      if (!result.response.ok) throw new Error(asApiError(result.body).message);
+      setMessage("Nome confirmado. Pedidos anteriores conservam seu histórico.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Resultado não confirmado; consulte o produto antes de tentar novamente."); }
+    finally {
+      try { await load(); }
+      catch { setMessage("Resultado não confirmado; não foi possível consultar o produto. Atualize antes de tentar novamente."); }
+      finally { setBusy(false); }
+    }
+  }
   if (!allowed) return null;
   return <section className="panel"><OperationalHeading as="h2" icon="cart">Cardápio</OperationalHeading><div className="actions"><QuickCatalog station="BAR" onResolved={() => void load()} /><QuickCatalog station="KITCHEN" onResolved={() => void load()} /></div>
-    <details><summary>Editar ícones</summary><div className="field"><label htmlFor="icon-product">Produto</label><select id="icon-product" value={selected} onChange={e => setSelected(e.target.value)}><option value="">Selecionar produto</option>{products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
-    {product && <><div className="catalogOption"><ProductIcon icon={product.icon} /><strong>{product.name}</strong><IconStatus icon={product.icon} /></div><div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void mutate("regenerate", { idempotency_key: crypto.randomUUID() })}>Regenerar ícone</button><button className="buttonQuiet" disabled={busy} onClick={() => void mutate("remove")}>Voltar ao placeholder</button></div><div className="field"><label htmlFor="icon-upload">Substituir por imagem · quadrada, 128–2048 px, até 5 MB</label><input id="icon-upload" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} /></div></>}
+    <details><summary>Editar produto e ícone</summary><div className="field"><label htmlFor="icon-product">Produto</label><select id="icon-product" value={selected} onChange={e => setSelected(e.target.value)}><option value="">Selecionar produto</option>{products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+    {product && <><div className="field"><label htmlFor="product-edit-name">Nome do produto</label><input id="product-edit-name" maxLength={160} value={editedName} disabled={busy} onChange={event => setEditedName(event.target.value)} /></div><button className="buttonSecondary" disabled={busy || !editedName.trim() || editedName.trim()===product.name} onClick={() => void rename()}>Salvar nome</button><div className="catalogOption"><ProductIcon icon={product.icon} /><strong>{product.name}</strong><IconStatus icon={product.icon} /></div><div className="actions"><button className="buttonSecondary" disabled={busy} onClick={() => void mutate("regenerate", { idempotency_key: crypto.randomUUID() })}>Regenerar ícone</button><button className="buttonQuiet" disabled={busy} onClick={() => void mutate("remove")}>Voltar ao placeholder</button></div><div className="field"><label htmlFor="icon-upload">Substituir por imagem · quadrada, 128–2048 px, até 5 MB</label><input id="icon-upload" type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e => { void upload(e.target.files?.[0]); e.target.value = ""; }} /></div></>}
     {message && <p className="notice" role="status">{message}</p>}</details>
   </section>;
 }

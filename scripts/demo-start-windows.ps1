@@ -2,7 +2,8 @@ param(
  [Parameter(Mandatory=$true)][string]$PgBin,
  [Parameter(Mandatory=$true)][string]$Python,
  [Parameter(Mandatory=$true)][string]$Node,
- [Parameter(Mandatory=$true)][string]$StateDirectory
+ [Parameter(Mandatory=$true)][string]$StateDirectory,
+ [switch]$DeveloperTools
 )
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
@@ -15,6 +16,8 @@ $env:POSTGRES_DB='rodada_demo'; $env:POSTGRES_USER='rodada'; if(!$env:POSTGRES_P
 $env:PGPASSWORD=$env:POSTGRES_PASSWORD; $env:POSTGRES_HOST='127.0.0.1'; $env:POSTGRES_PORT='55459'
 $env:DJANGO_SETTINGS_MODULE='rodada_api.settings'; $env:DJANGO_ALLOWED_HOSTS='localhost,127.0.0.1,10.0.2.2'
 $env:RODADA_PAYMENT_SIMULATION='false'
+$env:RODADA_DEVELOPER_TOOLS=if($DeveloperTools){'true'}else{'false'}
+$env:PYTHONUTF8='1'
 $data=Join-Path $state 'pgdata'
 if(!(Test-Path (Join-Path $data 'PG_VERSION'))){
  $pw=Join-Path $state 'init-password.txt'
@@ -37,7 +40,7 @@ try {
 } finally {Pop-Location}
 $env:RODADA_API_BASE_URL='http://127.0.0.1:18764'
 $web=Start-Process -FilePath $Node -ArgumentList 'node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3119' -WorkingDirectory (Join-Path $root 'apps/web') -WindowStyle Hidden -RedirectStandardOutput (Join-Path $state 'web.out.log') -RedirectStandardError (Join-Path $state 'web.err.log') -PassThru
-@{api=$api.Id;dispatcher=$dispatcher.Id;web=$web.Id;root=$root;data=$data;ports=@(55459,18764,3119)} | ConvertTo-Json | Set-Content (Join-Path $state 'runtime.json')
+@{api=$api.Id;dispatcher=$dispatcher.Id;web=$web.Id;root=$root;data=$data;ports=@(55459,18764,3119);developer_tools=[bool]$DeveloperTools} | ConvertTo-Json | Set-Content (Join-Path $state 'runtime.json')
 $ready=$false
 for($attempt=0;$attempt -lt 30;$attempt++){
  try{Invoke-WebRequest 'http://127.0.0.1:18764/ready/' -UseBasicParsing -TimeoutSec 2 | Out-Null;Invoke-WebRequest 'http://127.0.0.1:3119/staff' -UseBasicParsing -TimeoutSec 2 | Out-Null;$ready=$true;break}catch{Start-Sleep -Seconds 1}

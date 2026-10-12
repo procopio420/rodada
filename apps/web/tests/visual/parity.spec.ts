@@ -16,8 +16,8 @@ test("primary control matches the supplied unchanged kitchen material", async ({
   const reference = await browser.newPage(), actual = await browser.newPage();
   await reference.goto(pathToFileURL(path.resolve(process.cwd(), "../../prototype/material-reference/kitchen/local.html")).href);
   await fixture(actual); await actual.goto("/kitchen");
-  await actual.getByRole("heading", { name: "Em produção", exact: true }).waitFor();
-  // Equivalent geometry/text only. Reference CSS is the supplied original, never rewritten.
+  await actual.getByRole("heading", { name: "Fila de pedidos", exact: true }).waitFor();
+  // Reference and live button have identical "Pronto" text for this fixture.
   for (const control of [reference.locator(".btn").first(), actual.locator(".stationTicket .buttonPrimary").first()]) {
     await control.evaluate(el => { Object.assign((el as HTMLElement).style, { position: "fixed", left: "0px", top: "0px", width: "116px", height: "56px", margin: "0" }); });
   }
@@ -41,8 +41,7 @@ test("kitchen material geometry and Product identity aggregation", async ({ page
   await expect(page.locator(".stationQuantity")).toHaveText(["3", "1"]);
   await expect(page.locator(".stationPass > .stationPassRow .stationPassMeta")).toHaveText("No passe · 2:00");
   await expect(page.locator(".stationTransit")).toContainText("Retirada registrada");
-  await expect(page.getByRole("button", { name: /^Aceitar:/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Preparar:/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(2);
   const boxes = await Promise.all([".stationHeader", ".stationBatches", ".stationTickets", ".stationPass"].map(selector => page.locator(selector).boundingBox()));
   expect(boxes.map(box => box!.width)).toEqual([1280, 420, 520, 340]);
   expect(boxes[0]!.height).toBe(72);
@@ -207,6 +206,7 @@ test("management hash navigation selects each real section", async ({ page }) =>
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation").getByRole("link")).toHaveCount(5);
   await expect(page.getByRole("navigation").locator("svg[aria-hidden=true]")).toHaveCount(5);
+  await page.getByRole("navigation").getByRole("link", { name: "Mais", exact: true }).click();
   await expect(page.getByRole("link", { name: "Impressoras", exact: true })).toHaveAttribute("href", "/manage/printing");
   for (const name of ["Operação", "Vendas", "Gestão", "Mais", "Agora"]) {
     const link = page.getByRole("navigation").getByRole("link", { name, exact: true });
@@ -237,16 +237,21 @@ for (const route of ["/bar", "/kitchen"]) for (const viewport of viewports) {
 test("management prioritizes current work and distinguishes preparation from ready", async ({ page }) => {
   await fixture(page, "warnings"); await page.goto("/manage");
   const pulse = page.getByRole("heading", { name: "Agora", exact: true });
-  const house = page.getByRole("heading", { name: "Conta da casa", exact: true });
-  await expect(pulse).toBeVisible(); await expect(house).toBeVisible();
+  await expect(pulse).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Conta da casa", exact: true })).toHaveCount(0);
   const y = async (locator: typeof pulse) => (await locator.boundingBox())!.y;
   expect(await y(page.getByRole("heading", { name: "Divergências de caixa pendentes" }))).toBeLessThan(await y(pulse));
   expect(await y(page.getByRole("heading", { name: "Comandas precisam de atenção" }))).toBeLessThan(await y(pulse));
-  expect(await y(pulse)).toBeLessThan(await y(house));
-  expect(await y(page.getByRole("heading", { name: "Produção e entrega" }))).toBeLessThan(await y(house));
+  await expect(page.getByRole("heading", { name: "Produção e entrega" })).toHaveCount(0);
+  await page.getByRole("link", { name: "Operação", exact: true }).click();
+  await expect(pulse).toHaveCount(0);
   await expect(page.locator(".dataRow").filter({ hasText: "Bar em preparo" })).toHaveText("Bar em preparo1");
   await expect(page.locator(".dataRow").filter({ hasText: "Cozinha em preparo" })).toHaveText("Cozinha em preparo1");
+  await expect(page.getByRole("link", { name: "Atendimento e mesas" })).toHaveAttribute("href", "/attendance");
   await page.getByRole("link", { name: "Gestão", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Consultar comandas" })).toHaveAttribute("href", "/pos");
+  await page.getByRole("link", { name: "Mais", exact: true }).click();
+  await page.getByRole("link", { name: "Clientes e conta da casa", exact: true }).click();
   await expect(page.getByLabel("Inspecionar comanda")).toBeVisible();
 });
 
@@ -325,7 +330,7 @@ test("production prioritizes work, sums quantities and preserves individual tran
   await expect(page.getByText("No passe · 0:30", { exact: true })).toBeVisible();
   await expect(page.getByText("No passe · Tempo não informado", { exact: true })).toBeVisible();
   const order = await page.locator("main h2").allTextContents();
-  expect(order.indexOf("Em produção")).toBeLessThan(order.indexOf("Disponibilidade agora"));
+  expect(order.indexOf("Fila de pedidos")).toBeLessThan(order.indexOf("Disponibilidade agora"));
   let requestBody: unknown;
   await page.route("**/api/pos/order-items/one/transition/", async route => {
     requestBody = route.request().postDataJSON();
@@ -334,7 +339,7 @@ test("production prioritizes work, sums quantities and preserves individual tran
   await page.getByRole("button", { name: "Pronto: 2 Fritas, João", exact: true }).click();
   await expect(page.locator(".notice[role=alert]")).toContainText("Último estado confirmado");
   expect(requestBody).toEqual({ state: "READY" });
-  await expect(page.getByRole("button", { name: "Aceitar: 3 Fritas, Maria", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Iniciar preparo: 3 Fritas, Maria", exact: true })).toBeDisabled();
 });
 
 test("new kitchen reference comparison documents the adapted connected layout", async ({ browser }) => {
@@ -412,14 +417,14 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   expect(actualChips).toEqual(refChips);
   await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
-  await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Novo" : "Preparando"));
+  await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Aguardando preparo" : "Em preparo"));
   const refTickets = await reference.locator(".tk").evaluateAll(els => els.map(el => ({ text: el.querySelector(".i")!.textContent, age: el.querySelector(".a .mono")!.textContent, state: (el as HTMLElement).dataset.state })));
   const orderIds = [...new Set(waitingItems.map(item => item.order_id))];
   expect(refTickets).toEqual(orderIds.map(order => {
     const items = waitingItems.filter(item => item.order_id === order);
     return { text: items.map(item => `${item.quantity} ${item.product_name}`).join(" · ") + (items[0].state === "NEW" ? " NOVO" : ""), age: elapsed(items[0].created_at), state: items[0].state };
   }));
-  await expect(actual.locator(".stationSummary b")).toHaveText(["5", "2"]);
+  await expect(actual.locator(".stationSummary b")).toHaveText(["1", "5"]);
   await expect(reference.locator(".k > header b")).toHaveText(["Cozinha", "5", "1", "2"]);
   await expect(reference.locator(".k > header .mono")).toHaveText("23:14");
   expect(await actual.locator(".stationTicket").evaluateAll(els => els.map(el => el.closest(".stationOrder")!.querySelector(":scope > .stationTab")!.textContent))).toEqual(waitingItems.map(item => item.tab_label));
@@ -431,7 +436,7 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await expect(actual.locator(".stationTransit .stationPassMeta")).toHaveText("Retirada registrada");
   await expect(actual.locator(".stationTransit .stationPassRow > div > strong")).toHaveText("1 Torresmo");
   await expect(actual.locator(".stationTransit .stationTab")).toHaveText("P44");
-  await expect(actual.getByRole("button", { name: /^Aceitar:/ })).toHaveCount(1);
+  await expect(actual.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(1);
   await expect(reference.locator(".tk button")).toHaveText(["Pronto", "Pronto", "Pronto", "Pronto", "Aceitar"]);
   await stable(reference); await stable(actual);
   const fonts = await Promise.all([imagesReady(reference), imagesReady(actual)]);
@@ -527,7 +532,7 @@ test("V04 shared Order: marking one item ready never completes its sibling", asy
   await group.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).click();
   await expect(group.locator(".stationTicket")).toHaveCount(1);
   await expect(group.locator(".stationTicketContent > strong")).toHaveText("1 Calabresa");
-  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Preparando");
+  await expect(group.locator(".stationTicketMeta > span")).toHaveText("Em preparo");
   await expect(group.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeEnabled();
   expect(posts).toEqual([{ id: target.id, body: { state: "READY" } }]);
   await expect(page.locator(".stationPass > .stationPassRow > div > strong")).toContainText(["1 Fritas"]);

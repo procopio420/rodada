@@ -22,6 +22,8 @@ class OrderItemCancelView(APIView):
     required_capability = Capability.ORDER_CORRECT
 
     def post(self, request, item_id):
+        if "quantity" in request.data and request.data["quantity"] is None:
+            return Response({"code": "INVALID_CANCELLATION_QUANTITY", "message": "Quantidade inválida."}, status=400)
         try:
             correction = cancel_before_fulfillment(
                 item_id=item_id,
@@ -32,6 +34,7 @@ class OrderItemCancelView(APIView):
                 actor=request.actor_context,
                 financial_reversal_hook=reverse_open_responsibility,
                 record_paid_request=True,
+                quantity=request.data.get("quantity"),
             )
         except CorrectionServiceError as error:
             payload = {"code": error.code, "message": error.message}
@@ -52,6 +55,8 @@ class OrderItemCancelView(APIView):
             "refund_required_cents": correction.refund_required_cents,
             "order_item_id": str(item.id),
             "order_item_state": item.state,
+            "quantity_cancelled": correction.quantity_cancelled,
+            "remaining_quantity": item.remaining_quantity,
             **totals(item.order.tab),
         }
         if correction.financial_disposition == "REFUND_REQUIRED":

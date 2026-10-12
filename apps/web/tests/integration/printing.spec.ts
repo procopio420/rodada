@@ -64,6 +64,7 @@ test("canonical order, station ticket, partial receipt, final bill and audited c
     && Boolean(response.request().postDataJSON()?.revoke_id));
   await page.getByRole("button", { name: "Revogar link" }).click();
   expect((await revoked).ok()).toBe(true);
+  await expect(page.getByLabel("Link de leitura")).toHaveCount(0);
   await shared.reload();
   await expect(shared.locator("p[role=alert]")).toContainText("expirou");
   await expect(shared.locator("pre")).toHaveCount(0);
@@ -71,6 +72,7 @@ test("canonical order, station ticket, partial receipt, final bill and audited c
   await api(page, `tabs/${tab.id}/payments/`, { amount_cents: 1000, method: "EXTERNAL_TERMINAL", idempotency_key: "printing-e2e-final" });
   await api(page, `tabs/${tab.id}/close/`, {});
   await page.reload();
+  await page.getByRole("button", { name: "Ver histórico de comandas encerradas" }).click();
   await page.getByRole("button", { name: /Printing E2E tab/ }).click();
   await page.getByRole("button", { name: "Ver conta / recibos" }).click();
   await expect(preview.locator("pre")).toContainText("COMANDA ENCERRADA");

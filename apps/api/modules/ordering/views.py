@@ -36,7 +36,7 @@ def _tab_payload(tab: Tab) -> dict:
 
 
 def _order_payload(order) -> dict:
-    items = list(order.items.select_related("product").all())
+    items = list(order.items.select_related("product").prefetch_related("corrections").all())
     return {
         "id": str(order.id),
         "tab_id": str(order.tab_id),
@@ -50,8 +50,11 @@ def _order_payload(order) -> dict:
                 "product_name": item.product_name_snapshot,
                 "customization_snapshot": item.customization_snapshot,
                 "unit_price_cents": item.unit_price_cents,
-                "quantity": item.quantity,
-                "line_total_cents": item.line_total_cents,
+                "quantity": item.quantity if item.state == "CANCELLED" else item.remaining_quantity,
+                "original_quantity": item.quantity,
+                "remaining_quantity": item.remaining_quantity,
+                "line_total_cents": item.line_total_cents if item.state == "CANCELLED" else item.unit_price_cents * item.remaining_quantity,
+                "original_line_total_cents": item.line_total_cents,
                 "state": item.state,
                 "accepted_at": item.accepted_at,
                 "ready_at": item.ready_at,
@@ -201,5 +204,5 @@ class ProductionQueueView(APIView):
         if station not in ("BAR", "KITCHEN"):
             return Response({"code": "INVALID_STATION", "message": "Estação inválida."}, status=400)
         from django.db.models import Q
-        rows = OrderItem.objects.filter(Q(fulfillment_station_snapshot=station) | Q(fulfillment_station_snapshot="", product__fulfillment_station=station), order__tab__venue=request.auth.venue, order__status="CONFIRMED").exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").order_by("created_at")
-        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})
+        rows = OrderItem.objects.filter(Q(fulfillment_station_snapshot=station) | Q(fulfillment_station_snapshot="", product__fulfillment_station=station), order__tab__venue=request.auth.venue, order__status="CONFIRMED").exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").prefetch_related("corrections").order_by("created_at")
+        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.remaining_quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})

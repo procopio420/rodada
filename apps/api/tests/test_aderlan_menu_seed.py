@@ -28,12 +28,12 @@ class AderlanMenuSeedTests(TestCase):
             ("Paleta Suína Defumada - Inteira", 12000, FulfillmentStation.KITCHEN),
             ("Paleta Suína Defumada - Meia", 7000, FulfillmentStation.KITCHEN),
             ("Coxinha de Queijo com Alho", 350, FulfillmentStation.KITCHEN),
-            ("Brahma 600ml", 1200, FulfillmentStation.BAR),
-            ("Brahma 300ml", 600, FulfillmentStation.BAR),
+            ("Brahma 600 ml", 1200, FulfillmentStation.BAR),
+            ("Brahma 300 ml", 600, FulfillmentStation.BAR),
             ("Whisky Black Label (garrafa)", 30000, FulfillmentStation.BAR),
             ("Pinga com Mel (dose)", 500, FulfillmentStation.BAR),
             ("Pinga com Mel (drink)", 1000, FulfillmentStation.BAR),
-            ("Red Bull 355ml", 2500, FulfillmentStation.BAR),
+            ("Red Bull 355 ml", 2500, FulfillmentStation.BAR),
         ]
         for name, cents, station in cases:
             with self.subTest(name=name):
@@ -45,7 +45,7 @@ class AderlanMenuSeedTests(TestCase):
 
     def test_reseed_does_not_overwrite_staff_price_or_duplicate_products(self):
         self.seed()
-        product = Product.objects.get(venue=self.venue, name="Brahma 600ml")
+        product = Product.objects.get(venue=self.venue, name="Brahma 600 ml")
         original_id = product.id
         product.price_cents = 1400
         product.save(update_fields=["price_cents"])
@@ -60,8 +60,27 @@ class AderlanMenuSeedTests(TestCase):
 
     def test_seed_scoped_to_venue(self):
         other = Venue.objects.create(name="Other", slug="other")
-        Product.objects.create(venue=other, name="Brahma 600ml", price_cents=999,
+        Product.objects.create(venue=other, name="Brahma 600 ml", price_cents=999,
                                fulfillment_station=FulfillmentStation.BAR)
         self.seed()
         assert other.products.count() == 1
         assert other.products.first().price_cents == 999
+
+    def test_old_unit_spelling_preserves_identity_price_and_does_not_duplicate(self):
+        old = Product.objects.create(venue=self.venue, name="Brahma 600ml", price_cents=1400,
+                                     fulfillment_station=FulfillmentStation.BAR)
+        self.seed()
+        self.seed()
+        old.refresh_from_db()
+        assert self.venue.products.count() == 143
+        assert old.name == "Brahma 600ml" and old.price_cents == 1400
+        assert not self.venue.products.filter(name="Brahma 600 ml").exists()
+
+    def test_two_unit_spellings_require_review_without_merging(self):
+        from django.core.management.base import CommandError
+        for name in ("Brahma 600ml", "Brahma 600 ml"):
+            Product.objects.create(venue=self.venue, name=name, price_cents=1200,
+                                   fulfillment_station=FulfillmentStation.BAR)
+        with self.assertRaises(CommandError):
+            self.seed()
+        assert self.venue.products.count() == 2

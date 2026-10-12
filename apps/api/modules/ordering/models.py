@@ -155,3 +155,13 @@ class OrderItem(models.Model):
     @property
     def line_total_cents(self) -> int:
         return self.unit_price_cents * self.quantity
+
+    @property
+    def remaining_quantity(self) -> int:
+        if self.state == OrderItemState.CANCELLED:
+            return 0
+        return self.quantity - sum(
+            correction.quantity_cancelled or 0
+            for correction in self.corrections.all()
+            if correction.status == "APPLIED"
+        )

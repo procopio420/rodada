@@ -25,7 +25,7 @@ class DispatchTaskSerializer(serializers.Serializer):
         return task.order_item.product_name_snapshot if task.order_item_id else ""
 
     def get_quantity(self, task):
-        return task.order_item.quantity if task.order_item_id else 0
+        return task.order_item.remaining_quantity if task.order_item_id else 0
 
     def get_tab_label(self, task):
         if not task.order_item_id:

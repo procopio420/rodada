@@ -30,8 +30,8 @@ test("quick create, exact reuse and manager icon lifecycle", async ({ page }) =>
   const product = products.find((p: { name: string }) => p.name === name);
   expect(product.price_cents).toBe(1250);
   expect(product.fulfillment_station).toBe("BAR");
-  await page.goto("/manage");
-  await page.getByText("Editar ícones", { exact: true }).click();
+  await page.goto("/manage/products");
+  await page.getByText("Editar produto e ícone", { exact: true }).click();
   await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
   await page.getByRole("button", { name: "Regenerar ícone", exact: true }).click();
   await expect(page.getByText("Geração solicitada. O ícone atual permanece visível.")).toBeVisible();

@@ -434,3 +434,30 @@ Cobrança: fontScale>1.3 reutiliza limiar da navegação e empilha confirmar/can
 V05 login: verificar a tela real com fonte200% e teclado. Se conteúdo exceder viewport, permitir rolagem apenas na variante ampliada (>1.3, limiar existente), conservando geometria normal, campos/trim/PIN clearing/busy e callback de autenticação. Teste usa fixture somente em androidTest e captura antes de digitar PIN; não mudar política de autenticação ou persistência.
 
 Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua composição por hipótese. Com IME real aberto, captura confirma PIN/Entrar cortados e ausência de rolagem. Adaptação final habilita rolagem somente quando WindowInsets.ime>0, em todas as fontes; sem IME conserva layout central existente. Artefato login-before registra apenas a falta do recurso de scroll no teste inicial; login-keyboard-before é a prova de clipping efetivo.
+
+
+## Gerência progressiva e DEV local (Spec025)
+
+Gerência monta uma única seção da navegação por vez. Agora prioriza exceções,
+comandas abertas e exposição; detalhes auxiliares ficam em details/summary com
+alvo mínimo44, sem retirar a indicação de pendências. Cadastros têm páginas
+próprias e retorno para Mais. Histórico encerrado é disclosure explícito no PDV.
+DEV reutiliza os mesmos Field, panel, OperationalHeading e botões; confirmação
+local informa revogação de sessões e preservação de histórico.
+buttonDangerReadable conserva borda/tinta danger e usa color-text no label para
+contraste AA sobre Surface2. É variante semântica de ação destrutiva usada no DEV;
+não altera o raster canônico do botão danger nem tolerâncias das referências.
+
+
+## Attendance catalog hierarchy
+
+Attendance section headings reuse accent/surface color-mix, border, radius and spacing tokens; selected Tab title keeps its centered disclosure treatment. Confirmed rows use Surface2, border-strong, radius-md and space-3, with wrapping descriptions and compact status pills. The icon-only removal button uses danger color, a subtle danger-tinted surface and touch-min width/height, with a product-specific accessible name and visible focus. Fechar comanda uses a restrained accent-tinted bordered secondary button with receipt icon. These are scoped Attendance variants; canonical reference primitives and POS remain unchanged.
+Use existing category buttons with pressed state and counts, global search Field and ProductIcon cards. Only one category is shown outside search; changing category preserves the draft. Cart quantities/actions wrap below long item names on mobile. Attendance financial summary follows the ordering flow: canonical net Subtotal, then a native Mais detalhes disclosure containing original subtotal and the existing breakdown. Cash/POS keeps full monetary visibility. Use existing tokens/touch targets; no new visual identity.
+
+Attendance follow-up: selected Tab title is centered with no decorative cart. Category buttons remain available while a second tap collapses their product list while search remains visible. Compact Subtotal uses canonical payable total; original gross and breakdown sit inside Mais detalhes, rendered with quiet-button border, padding, focus and touch tokens. Confirmed removal has a reason and explicit confirmation, preserves cancellation history and disables switching while unresolved.
+
+Confirmed-item removal uses a native modal dialog with a labelled title, trapped focus and focus restoration. Escape closes only before submission or after a resolved rejection; pending, ambiguous or applied-but-unrefreshed corrections cannot be dismissed. Existing cancellation rules remain unchanged. Dialog uses existing surface, border, spacing and radius tokens; backdrop uses the background token.
+
+Attendance action dialogs reuse the native modal and removalDialog tokens: labelled title, bounded mobile scrolling, inert background, Escape when idle and focus restoration. Organizar mesa discloses location/association; release and close require explicit confirmation. Product customization is modal only in Attendance. Success uses role=status without blocking; errors use persistent role=alert, also visible inside active dialogs.
+
+Attendance selected Tab: use an accent-derived tinted surface/border and a centered labelled disclosure heading. Its caption and expand/retract cue communicate selection without depending on color. Draft lines precede catalog: name/customization, cent-based line total and grouped minus/output/plus controls. Minus and plus meet 44px touch minimum. Draft surface and active category use restrained color-mix from existing accent/surface tokens. POS retains its layout.

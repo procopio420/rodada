@@ -55,10 +55,14 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     await page.goto(route);
     await page.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
     await expect(page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
-    for (const label of ["Aceitar", "Preparar", "Pronto"]) {
-      await page.getByRole("button", { name: new RegExp(`^${label}:.*Real Web E2E tab$`) }).click();
-      await expect(page.getByRole("button", { name: new RegExp(`^${label}:.*Real Web E2E tab$`) })).toHaveCount(0);
-    }
+    const pending = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
+    expect(pending.state).toBe("NEW");
+    await expect(page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ })).toBeVisible();
+    await page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ }).click();
+    await expect(page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ })).toBeVisible();
+    const started = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
+    expect(started.state).toBe("PREPARING");
+    await page.getByRole("button", { name: /^Pronto:.*Real Web E2E tab$/ }).click();
     const item = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
     expect(item.state).toBe("READY");
     await evidence(page, route.slice(1));
@@ -86,13 +90,13 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await page.goto("/manage");
   await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
   await evidence(page, "manage");
-  await page.getByRole("link", { name: "Abrir caixa", exact: true }).click();
+  await page.getByRole("link", { name: "Abrir Caixa", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Turno de caixa" })).toBeVisible();
   await page.getByLabel("Fundo inicial").fill("100,00");
   await page.getByRole("button", { name: "Confirmar abertura" }).click();
   await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
   await evidence(page, "cash");
-  await page.goto("/manage");
+  await page.goto("/manage#gestao");
   await page.getByRole("link", { name: "Estornos", exact: true }).click();
   await page.getByLabel("Comanda", { exact: true }).selectOption(tab.id);
   await expect(page.getByText("Restante reembolsável")).toHaveCount(0); // No payment invented.
@@ -137,9 +141,8 @@ test("real authorization failure is visible and never becomes an empty success",
   await page.goto("/manage");
   await expect(page.locator("div.notice[role=alert]")).toHaveText("Ação não autorizada para este operador.");
   await expect(page.locator("div.notice[role=alert]")).toBeVisible();
-  const alerts = page.getByRole("region", { name: "Alertas operacionais" }).getByRole("alert");
-  await expect(alerts).toHaveText("Ação não autorizada para este operador.");
-  await expect(alerts).toBeVisible();
+  await expect(page.getByRole("region", { name: "Alertas operacionais" })).toHaveCount(0);
+  await expect(page.locator("div.notice[role=alert]")).toHaveCount(1);
   await expect(page.getByText("Comandas abertas")).toHaveCount(0);
   await evidence(page, "manage-permission-denied");
 });

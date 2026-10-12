@@ -2,6 +2,16 @@
 
 Estado: em implementação; demo validada nos fluxos discriminados, paridade global aberta. Data: 2026-10-08.
 
+## Guidance complementar — fricção operacional (12/10/2026)
+
+Consultar a [Spec 026](../026-operational-ux-friction/spec.md) e o
+[UX Friction Audit](../../docs/design/ux-friction-audit-2026-10-12.md).
+A Spec 023 preserva seu escopo de paridade visual; mudanças de jornada,
+recuperação, confirmação e agrupamento operacional exigem contratos próprios.
+Fidelidade aos exports não é prova de baixa fricção. O relatório diferencia
+inspeção, estimativas e navegação real e registra que PR #98 já altera o fluxo
+de início de preparo medido na demo anterior.
+
 ## Continuação autorizada — sequência completa da demo importante
 
 Primeira correção V02/V05 a verificar: Header Android atual põe identidade e três ações na mesma Row. Extrair sem alterar comportamento para teste instrumentado; reproduzir nomes longos/fonte200% antes da correção. Contrato responsivo: identidade em região superior e ações FlowRow abaixo, tokens16/12/8, targets44, callbacks/busy existentes. Instrumentação verifica cada linha de texto e ações nas seis configurações; comparar regiões com header night60px e declarar extensão, não paridade integral.
@@ -103,6 +113,12 @@ Comparação do ícone isola posição e fundo somente nos espécimes durante o 
 ## Continuação — acabamento compartilhado de todas as telas Web
 
 Aplicar o vocabulário já aceito na Gerência às superfícies Web existentes: entrada/sessão, Atendimento, PDV, Bar/Cozinha, Cliente, Caixa, Gerência e subpáginas de catálogo/preços/impressão/alertas, relatórios, estornos, recibo e documento histórico. Não criar ações/dados/rotas. Títulos conservam nível, texto, id, foco e nome acessível; ícones decorativos distinguem contexto operacional sem substituir ProductIcon ou rótulo. Hierarquia título/seção/subseção, bordas e sombras funcionais usam tokens. Estações conservam composição de lote/fila/passe e SVGs literais existentes; destaque de quantidade/destino/estado não muda transições. Impressos canônicos e HTML histórico no iframe permanecem intocados; só a moldura Web recebe acabamento. Nenhum contrato de API, regra financeira, autenticação ou auditoria muda. Não declarar paridade integral nas superfícies sem export. Android depende de confirmação de escopo e validação nativa própria.
+
+## Slice de acessibilidade para o piloto
+Pagamento e estorno Android permitem rolar o conteúdo e alcançar campos com fonte
+200%; botões empilhados evitam competição horizontal. Catálogo mantém nome completo
+e cabeçalho adapta nomes longos. Correção também permite rolagem. Preservar comandos,
+limites, PIN, idempotência e estados canônicos; não alegar paridade V07 completa.
 
 V06: perda real da API revelou SSE Reconnecting substituindo OFFLINE; o contrato e verificação da menor correção estão na Spec014. Manter SEM SINAL até leitura confirmada, sem executar/confirmar cobrança offline.
 

@@ -47,14 +47,14 @@ docker compose -f demo/compose.yaml exec -T api python manage.py import_catalog_
   --venue-slug bar-do-aderlan --update-existing --apply
 ```
 
-Não deleta/desativa os três antigos placeholders `Fritas`, `Água 500 ml`, `Refrigerante lata`, que podem permanecer em bancos anteriores. Verificar e desativar esses **três nomes exatos** pela gestão se forem de fato fictícios e não mais vendidos. `Brahma 600ml` já corresponde a um item real.
+Não deleta/desativa os três antigos placeholders `Fritas`, `Água 500 ml`, `Refrigerante lata`, que podem permanecer em bancos anteriores. Verificar e desativar esses **três nomes exatos** pela gestão se forem de fato fictícios e não mais vendidos. `Brahma 600 ml` já corresponde a um item real.
 
 No app, conferir Android Atendimento, Gerência/Catálogo, Bar, Cozinha e Guest/QR. Criar um pedido com um item de BAR e outro de KITCHEN; conferir o valor lançado em centavos e o ticket correto. O app continua sem homologação para produção.
 
 ## Pontos que merecem confirmação do Aderlan
 
 1. **Página 3:** `Arroz Negro com Frutos do Mar` (R$35) tem descrição claramente copiada de um hambúrguer. O CSV usa só nome/preço, não replica essa descrição.
-2. **Página 5:** imagem traz `Brahama` em 300ml; normalizado como `Brahma 300ml` (R$6), **confirmar ortografia**.
+2. **Página 5:** imagem traz `Brahama` em 300ml; normalizado como `Brahma 300 ml` (R$6), **confirmar ortografia**.
 3. **Página 7:** `Água Mamba sem Gás` (R$4) e `Água sem Gás` (R$5), além de alternativas com gás e preços distintos; ambas foram mantidas sem mesclar.
 4. **Página 6:** `Pinga com Mel` (R$5) na seção Doses e (R$10) na seção Drinks; nomeado distintamente como `(dose)` e `(drink)`.
 5. **Página 6:** `Cachaça G/P` e `Licor 43 G/P` preservam essa indicação textual, sem inventar mililitros.
@@ -78,3 +78,13 @@ Os ícones usam o pipeline/fallback canônico e não são necessários para real
 - [ ] Executar CI/testes e registrar resultado.
 - [ ] Deploy na máquina via Docker Compose + rodar seed no banco da demo.
 - [ ] Pedido real de teste KITCHEN + BAR validado na UI e API.
+
+
+## Padronização local de 11/10
+
+Spec025 padroniza unidades com espaço (600 ml/2 L) e desativou os três
+placeholders na demo local, preservando preços/identidades/snapshots. O seed
+reconhece a grafia antiga exata de unidades do próprio cardápio e a reutiliza,
+sem alterar o produto. Se coexistirem as duas grafias como Products distintos,
+interrompe a importação para revisão; não faz merge nem fuzzy match. Importação
+CSV genérica mantém correspondência exata pelo nome normalizado.

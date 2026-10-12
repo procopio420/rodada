@@ -23,3 +23,10 @@ Evidências deverão registrar ambiente, versões, comandos/testes, fixtures e r
 Serviços/banco anteriores preservados; PostgreSQL real dedicado e migrations/check sem drift; ASGI/dispatcher/Web acessíveis. Turno idempotente, produção, parcial, fechamento, exceção e restart com saldo conciliado. Pricing/recibos reais; UI/Android separados de script HTTP. Sem afrouxar testes/referências. GO/condicional/NO-GO com SHA e limites; NOT_RUN explícito; publicação saneada sem merge.
 
 Resultado parcial: GO CONDICIONAL, conforme [evidência Windows](../../docs/development/demo-windows-evidence-2026-10-09.md). Não marca gates globais/físicos como concluídos.
+
+## Secure runtime profile regression gate
+
+- Explicit pilot initialization on empty disposable PostgreSQL runs migrations and serves readiness without creating Venue, StaffMember, Product, Tab or Payment fixtures.
+- Restart never seeds/resets credentials; demo default retains existing fixture behavior.
+- Unknown mode, DEBUG/simulation enabled and known/weak secrets fail before migrations; active documented demo PINs refuse pilot startup.
+- First-owner provisioning records audit, hashes credentials and refuses existing identities; credentials stay out of command arguments/logs.

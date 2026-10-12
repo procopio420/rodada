@@ -90,6 +90,8 @@ Reutilizar branch isolada já atualizada com main ae416da e preservar PR65/traba
 
 Para disponibilizar o acabamento na demo3119, transpor somente mudanças de apresentação para a branch própria demo-functional: componentes compartilhados/títulos/CSS, sem absorver rotas ou contratos recentes de Atendimento/alertas ainda ausentes nessa base. Preservar autenticação entregue, backend e banco; revalidar build/visual/fluxo focado dessa composição antes de reconstruir somente Web. Essa adaptação é distinta da branch principal de revisão baseada na main e será documentada por commit. Serviços encontrados parados podem ser reabertos com os caminhos/dados existentes, sem reset.
 
+Piloto: reutilizar componentes acessíveis da branch Spec023, portando apenas UI e
+testes pertinentes, sem mesclar alterações de conectividade ou validações pendentes.
 
 ## Resultado da sequência atual
 
@@ -120,6 +122,8 @@ Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas 
 Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lint e54instrumentados aprovados. Gates Web atuais types/build12auth/realtime197visual13PostgreSQL. [Detalhes e limites](../../docs/design/spec023-refund-validation.md). Jornada nativa financeira/readback atual são verificações separadas, sem usar HTTP como prova de UI.
 
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
+
+Merge validation: CI exposed that restoring eth0 alone does not restore the emulator route. The initial original-NIC restoration experiments are superseded by the pilot RC transport contract from main defcd94 (Spec014 acceptance). Preserve that upstream harness exactly: all uplinks must be unavailable during the held committed POST and offline process death; after restoration, require a routed UP eth0/wlan0 and real same-key/body replay with exactly one order/charge. Physical Wi-Fi remains restricted to wlan0. Do not add manual routing configuration to the emulator. Re-run the integrated PR gates before merging.
 
 ## Deterministic visual transport — 2026-10-12
 

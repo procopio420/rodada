@@ -1,8 +1,9 @@
 package com.rodada.attendance.operations
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.HorizontalDivider
@@ -45,7 +46,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.LifecycleOwner
 import android.net.ConnectivityManager
 import android.net.Network
@@ -188,6 +188,8 @@ fun AttendanceScreen(
                             onOpenTab = { openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
+                            staffId = session.staffId,
+                            onServiceAction = { id, complete -> viewModel.updateServiceRequest(session, id, complete) },
                         )
                         FrontlineSection.TABS -> TabList(
                             state = state,
@@ -204,6 +206,7 @@ fun AttendanceScreen(
                             onRelease = { viewModel.releaseTable(session, it) },
                             onStartCleaning = { viewModel.startTableCleaning(session, it) },
                             onCompleteCleaning = { viewModel.completeTableCleaning(session, it) },
+                            partySizeEditor = { occupancyId -> PartySizeEditor(load = { viewModel.readPartySize(session, occupancyId) }, save = { viewModel.recordPartySize(session, occupancyId, it) }) },
                         )
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
@@ -358,9 +361,22 @@ private fun TabList(
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
+    staffId: String = "",
+    onServiceAction: (String, Boolean) -> Unit = { _, _ -> },
 ) {
     val visibleTabs = tabsForSurface(state.tabs, showDeliveries)
     LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        if (showDeliveries && state.recoveryEvidence.isNotEmpty()) item {
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("PENDÊNCIAS LOCAIS", style = MaterialTheme.typography.titleMedium)
+                Text("Registros preservados no aparelho. Não representam saldo ou operação confirmada.")
+                state.recoveryEvidence.forEach { evidence ->
+                    Text(evidence.label, fontWeight = FontWeight.Bold)
+                    Text("Capturado em ${java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(evidence.capturedAtMillis))}")
+                    Text(if (evidence.reviewOnly) "Outra sessão: revisão pela gerência. Não repita a operação." else "Abra o contexto da operação e confira o resultado antes de repetir.", color = RodadaVisual.Amber)
+                }
+            }
+        }
         if (showDeliveries) item {
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
                 Text(if (peak) "MODO PICO" else "AGORA", style = MaterialTheme.typography.headlineLarge)
@@ -372,7 +388,30 @@ private fun TabList(
             }
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (showDeliveries && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries) item {
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("CHAMADAS DE ATENDIMENTO", style = MaterialTheme.typography.titleMedium)
+                state.serviceRequestsError?.let { Text(it, color = RodadaVisual.Amber) }
+                if (!state.serviceRequestsFresh && state.serviceRequestsError == null) Text("Chamadas ainda não consultadas.")
+                if (state.serviceRequestsFresh && state.serviceRequests.isEmpty()) Text("Nenhuma chamada aberta.")
+                state.pendingServiceAction?.let { pending ->
+                    Text("Resultado não confirmado. Verifique a mesma ação.", color = RodadaVisual.Amber)
+                    OutlinedButton(onClick = { onServiceAction(pending.taskId, pending.complete) }, enabled = !state.loading && !state.submitting && state.serviceRequestsFresh) { Text("Verificar mesma chamada") }
+                }
+            }
+        }
+        if (showDeliveries) items(state.serviceRequests, key = { "service-${it.id}" }) { task ->
+            Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("${task.title} · ${task.destination}", style = MaterialTheme.typography.titleLarge)
+                Text(task.ageLabel, color = RodadaVisual.Muted)
+                Text(task.responsibility(staffId))
+                val enabled = !state.loading && !state.submitting && state.serviceRequestsFresh && !task.belongsToOther(staffId) && state.pendingServiceAction == null
+                if (task.claimedById != staffId) OutlinedButton(onClick = { onServiceAction(task.id, false) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Assumir chamada") }
+                Button(onClick = { onServiceAction(task.id, true) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Concluir chamada") }
+            }
+            HorizontalDivider(color = RodadaVisual.Border)
+        }
+        if (showDeliveries && !state.loading && state.lastSyncedAtMillis != null && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
         if (showDeliveries) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
             Row(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.background(RodadaVisual.Control).padding(horizontal = 10.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -792,7 +831,7 @@ private fun CorrectionDialog(
         onDismissRequest = onDismiss,
         title = { Text("Corrigir ${item.productName}") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
                 availableActions.forEach { candidate ->
                     OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {

@@ -2,6 +2,7 @@
 
 ## Comportamento e regras
 
+- Bar/Cozinha distinguem visualmente demanda aguardando (`NEW`/`ACCEPTED`) de trabalho iniciado (`PREPARING`). Contadores não classificam pedido apenas confirmado como em preparo; ação “Iniciar preparo” faz a transição explícita em um toque. Agregação por produto pode incluir ambos quando identificada como fila/demanda, nunca como produção em andamento.
 - Bar/Cozinha mostram fila e passe antes da disponibilidade e Quick Catalog. Quantidades, produto e comanda permanecem completos; nomes de itens em produção usam a escala `text-lg`. Contadores representam linhas de OrderItem do snapshot, não pedidos nem unidades vendidas. Antes de snapshot não mostrar contagem medida.
 - Tablet/desktop expandem a estação em duas colunas: produção e passe. Ordem de leitura e teclado permanece fila → passe → disponibilidade → cadastro. Mobile mantém coluna única.
 - Gerência mantém divergências e estornos primeiro, depois pulso e produção. Conta da Casa fica na seção Gestão, após o contexto de caixa/salão. Não esconder alertas financeiros já existentes nem alterar controles/permissões.

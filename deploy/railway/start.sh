@@ -7,6 +7,7 @@ for name in DJANGO_SECRET_KEY POSTGRES_HOST POSTGRES_PORT POSTGRES_DB POSTGRES_U
     exit 1
   fi
 done
+source "$(dirname "$0")/runtime-profile.sh"
 export DJANGO_ALLOWED_HOSTS="127.0.0.1,localhost"
 export RODADA_PAYMENT_SIMULATION=false
 export RODADA_API_BASE_URL=http://127.0.0.1:8000
@@ -22,7 +23,19 @@ for attempt in $(seq 1 30); do
   fi
   sleep 3
 done
-python manage.py seed_demo
+if [[ "$RODADA_RELEASE_MODE" == demo ]]; then
+  python manage.py seed_demo
+else
+  python - <<'PYTHON'
+import os
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodada_api.settings")
+django.setup()
+from modules.access.models import StaffMember
+if any(staff.check_pin(pin) for staff in StaffMember.objects.filter(is_active=True) for pin in ("0420", "1234", "2468", "1357")):
+    raise SystemExit("Pilot refuses documented demo staff PINs; revoke/reset them before startup")
+PYTHON
+fi
 
 python - <<'PY'
 from pathlib import Path
@@ -49,7 +62,7 @@ cleanup() {
   wait || true
 }
 trap cleanup EXIT INT TERM
-echo "Rodada demo started; only application-native login is required"
+echo "Rodada $RODADA_RELEASE_MODE started; only application-native login is required"
 wait -n "$api_pid" "$dispatcher_pid" "$web_pid" "$nginx_pid"
 echo "A required service exited; ending container for Railway restart" >&2
 exit 1

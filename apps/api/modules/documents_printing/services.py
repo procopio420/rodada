@@ -90,7 +90,10 @@ def create_document(
         ]
         if not items:
             raise ValidationError("Pedido sem itens confirmados nesta estação.")
-        data["items"] = [item_data(i) for i in items]
+        data["items"] = [
+            {**item_data(i), "quantity": i.remaining_quantity, "total_cents": i.unit_price_cents * i.remaining_quantity}
+            for i in items
+        ]
         data["confirmed_at"] = order.confirmed_at.isoformat()
         data.pop("tab_version")
     else:

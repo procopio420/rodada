@@ -9,11 +9,11 @@ import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { OperationalAlerts } from "@/components/operational-alerts";
 import { ManagementSectionHeader, OperationalIcon } from "@/components/operational-icon";
-import { ManagementNav } from "@/components/management-nav";
-import { HouseAccount } from "@/components/house-account";
+import { ManagementNav, useManagementSection } from "@/components/management-nav";
+import { DeveloperLink } from "@/components/developer-link";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
-import { CatalogIconEditor } from "@/components/catalog-icon-editor";
+
 
 type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
 type TabDetail = Tab & {
@@ -36,6 +36,7 @@ async function getResults<T>(path: string): Promise<T[]> {
 }
 
 export default function ManagementPage() {
+  const section = useManagementSection();
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [bar, setBar] = useState<QueueItem[]>([]);
@@ -63,7 +64,7 @@ export default function ManagementPage() {
         getResults<CashPoint>("/api/pos/cash/points/"),
         getResults<Table>("/api/pos/hospitality/tables/"),
       ]);
-      const openTabs = nextTabs.filter((tab) => tab.state !== "CLOSED");
+      const openTabs = nextTabs.filter((tab) => !["CLOSED", "CANCELLED"].includes(tab.state));
       const details = await Promise.all(openTabs.map(async (tab) => {
         const result = await apiCall<TabDetail>(`/api/pos/tabs/${tab.id}/`);
         if (!result.response.ok) throw new Error(asApiError(result.body).message);
@@ -92,7 +93,7 @@ export default function ManagementPage() {
     });
   }, [cache]);
   const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); setHasSnapshot(false); setLoading(false); setMessage("Sessão encerrada. Entre novamente."); } });
-  const openTabs = useMemo(() => tabs.filter((tab) => tab.state !== "CLOSED"), [tabs]);
+  const openTabs = useMemo(() => tabs.filter((tab) => !["CLOSED", "CANCELLED"].includes(tab.state)), [tabs]);
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
   const activeCash = cashPoints.filter((point) => point.active_shift);
@@ -111,8 +112,9 @@ export default function ManagementPage() {
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
     {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
     {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
-    <OperationalAlerts />
+    {hasSnapshot && section === "" && <OperationalAlerts maxVisible={3} />}
     {hasSnapshot && <>
+    {section === "" && <>
     {pendingCash.length > 0 && <section className="panel panelDanger" aria-labelledby="cash-review-title">
       <ManagementSectionHeader icon="wallet" id="cash-review-title">Divergências de caixa pendentes</ManagementSectionHeader>
       {pendingCash.map(point => <div className="movement" key={point.id}><div><strong>{point.label}</strong><small>Fechamento aguardando revisão</small></div><strong className="cashDifference">{money(point.pending_review_shift?.discrepancy_cents)}</strong></div>)}
@@ -123,26 +125,33 @@ export default function ManagementPage() {
     {attentionTabs.length > 0 && <section className="panel panelWarning" aria-labelledby="tab-attention-title">
       <ManagementSectionHeader icon="now" id="tab-attention-title">Comandas precisam de atenção</ManagementSectionHeader>
       {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tab.display_label || "Comanda sem nome"}</strong><small>Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
-      <Link className="backLink" href="/manage#gestao">Ver comandas em Gestão →</Link>
+      <Link className="backLink" href="/pos">Abrir comandas →</Link>
     </section>}
     <section className="panel"><ManagementSectionHeader icon="now">Agora</ManagementSectionHeader>
       <div className="metricGrid">
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
         <div className="operationalMetric financialMetric"><div className="metricLabel"><OperationalIcon name="wallet" size={20} /><span>Exposição em aberto</span></div><strong>{money(exposure)}</strong></div>
-        <div className="operationalMetric"><span>Estornos aguardando decisão</span><strong className={refunds.length ? "cashDifference" : ""}>{refunds.length}</strong></div>
-        <div className="operationalMetric"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div>
+
       </div>
     </section>
 
+    <details className="panel"><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><Link className="backLink" href="/manage#operacao">Ver operação →</Link></details>
+    <div className="actions"><Link className="buttonSecondary" href="/attendance">Abrir Atendimento</Link><Link className="buttonSecondary" href="/cash">Abrir Caixa</Link></div>
+    </>}
+    {section === "operacao" && <>
     <section className="panel" id="operacao"><ManagementSectionHeader icon="operation">Produção e entrega</ManagementSectionHeader>
       <div className="dataRow"><span>Bar em preparo</span><strong>{bar.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Cozinha em preparo</span><strong>{kitchen.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
-      {deliveries.slice(0, 5).map((task) => <div className="movement" key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></div>)}
+      <details><summary>Ver mais das entregas ({deliveries.length})</summary>{deliveries.map((task) => <div className="movement" key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></div>)}</details>
       <div className="actions"><Link className="backLink" href="/bar">Abrir Bar</Link><Link className="backLink" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <div id="gestao">
+    <section className="panel"><ManagementSectionHeader icon="table">Salão</ManagementSectionHeader><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="actions"><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
+    {unavailable.length ? <details className="panel"><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary>{unavailable.map(product => <div className="dataRow" key={product.id}>{product.name}</div>)}</details> : null}
+    </>}
+    {section === "gestao" && <div id="gestao">
+    <Link className="buttonSecondary" href="/manage/setup">Preparar mesas, zonas e equipe</Link>
     <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
     <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e salão</ManagementSectionHeader>
       {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
@@ -151,13 +160,19 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/manage/daily-close">Fechamento diário e aprovações →</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
     </section>
 
-    <HouseAccount />
-    <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
-    <CatalogIconEditor />
-    </div>
-    <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>
-    {unavailable.length ? <section className="panel"><ManagementSectionHeader icon="operation">Indisponíveis</ManagementSectionHeader>{unavailable.map((product) => <div className="movement" key={product.id}><strong>{product.name}</strong><strong className="cashDifference">Indisponível</strong></div>)}</section> : null}
-    <section className="panel" id="mais"><ManagementSectionHeader icon="more">Mais</ManagementSectionHeader><p className="muted">Consulte o cardápio nas estações e os relatórios em Vendas. Para trocar de operador ou encerrar a sessão, abra Atendimento.</p><Link className="backLink managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link><Link className="backLink" href="/staff">Abrir sessão de atendimento →</Link></section>
+    <Link className="buttonSecondary" href="/pos">Consultar comandas</Link>
+    </div>}
+    {section === "vendas" && <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>}
+    {section === "mais" && <section className="panel" id="mais"><ManagementSectionHeader icon="more">Cadastros e configurações</ManagementSectionHeader><div className="actions">
+      <Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link>
+      <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
+      <Link className="buttonSecondary" href="/manage/customers">Clientes e conta da casa</Link>
+      <Link className="buttonSecondary" href="/manage/setup">Mesas, zonas e equipe</Link>
+      <Link className="buttonSecondary" href="/manage/pricing">Preços e serviço</Link>
+      <Link className="buttonSecondary managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link>
+      <Link className="buttonSecondary" href="/manage/alerts/settings">Alertas e prazos</Link>
+      <Link className="buttonSecondary" href="/staff">Minha sessão</Link><DeveloperLink />
+    </div></section>}
     </>}
   </main>;
 }

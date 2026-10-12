@@ -114,3 +114,6 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 8 * 1024 * 1024
 
 RODADA_ICON_PROVIDER = os.environ.get("RODADA_ICON_PROVIDER", "http")
 RODADA_OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+# Explicit opt-in for local development; never grants capability by itself.
+RODADA_DEVELOPER_TOOLS = os.environ.get("RODADA_DEVELOPER_TOOLS", "false").lower() == "true"

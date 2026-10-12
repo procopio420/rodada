@@ -64,6 +64,15 @@ Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou ac
 
 ## Implementação do produto completo
 
+### Redução de fricção operacional
+
+A [Spec 026](specs/026-operational-ux-friction/spec.md) organiza o
+[UX Friction Audit de 12/10](docs/design/ux-friction-audit-2026-10-12.md):
+35 achados, prioridades e jornadas reais na demo, com medições separadas de
+estimativas. É guidance documental; não declara implementação ou homologação.
+O fluxo de produção medido no deploy c198c9b já foi alterado pelo PR #98 e
+precisa ser revalidado na versão publicada correspondente.
+
 Para reproduzir fielmente os protótipos atualizados, seguir o [plano pixel-perfect](docs/design/pixel-perfect-implementation-plan.md) e a [Spec 023](specs/023-updated-prototype-visual-parity/spec.md): contratos por tela/estado, medidas, fixtures equivalentes e gates Web/Android.
 
 Os recortes parciais V01–V05 e a correção da navegação com fonte ampliada estão reunidos no [inventário para revisão](docs/design/spec023-review.md). Checks locais e limites são registrados; a Spec 023 completa permanece aberta.

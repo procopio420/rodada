@@ -1,5 +1,12 @@
 # Spec 017 — Order Corrections & Exception Handling
 
+## Partial unpaid cancellation (Attendance follow-up)
+Cancel accepts optional integer quantity, 1 through the currently remaining units. Omission preserves legacy whole-line cancellation and its fingerprint. Persist cancelled units on the append-only correction; never edit the confirmed original quantity, price or customization. The remaining quantity is original minus applied cancellations. NEW/ACCEPTED stays in its stage while units remain; only zero remaining units cancels the line. Canonical operational projections (Attendance, kitchen/bar, dispatch, new production tickets and remake/waste) use remaining units; original snapshots and prior documents stay preserved. Whole-line cancelled history retains original quantity explicitly.
+
+Under the existing Tab/item locks, reverse only floor(current net consumption × requested units / remaining units), in integer cents; removing all remaining units reverses the entire current net, preserving rounding cents. No Payment is created/modified. Existing discounts/courtesies remain allocated facts. Transferred responsibility and advanced stages retain current restrictions. A partial request with confirmed money is rejected for explicit manager review, without creating a misleading full refund request. Whole paid cancellation retains the existing refund workflow. Quantity participates in idempotency fingerprint and freezes on ambiguous retry; concurrency cannot over-cancel. Audit records requested/original/remaining units and existing actor/time/reason provenance.
+
+Acceptance: cancel1/3 leaves2 with correct canonical amount and kitchen quantity; repeat same key/body makes no second reversal, different quantity conflicts; repeated cancellations end at zero exactly with discounts/odd-cent rounding; invalid bool/float/zero/excess quantities have no effects; paid partial, transferred and preparing requests remain blocked; successful partial UI refreshes retained units and final close action follows the bill. Payment redirection is separate from this placement change; do not invent a payment endpoint or bypass zero-balance close restrictions.
+
 **Status:** Draft for implementation  
 **Owner capability:** Ordering + Fulfillment correction orchestration
 

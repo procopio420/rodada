@@ -117,7 +117,7 @@ Resultado deste recorte: [evidências e limites](../../docs/design/spec023-manag
 
 Resultado: [cobertura, evidências e limites](../../docs/design/spec023-all-web-hierarchy.md). Acabamento compartilhado entregue; Spec023 global permanece aberta.
 
-
+- [x] Validar pagamento/estorno/cabeçalho/catálogo com fonte ampliada no emulador (360/390/430, 200%).
 
 ## V02/V05 — catálogo e cobrança com fonte ampliada
 
