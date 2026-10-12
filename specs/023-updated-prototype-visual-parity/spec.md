@@ -2,6 +2,16 @@
 
 Estado: em implementação; demo validada nos fluxos discriminados, paridade global aberta. Data: 2026-10-08.
 
+## Guidance complementar — fricção operacional (12/10/2026)
+
+Consultar a [Spec 026](../026-operational-ux-friction/spec.md) e o
+[UX Friction Audit](../../docs/design/ux-friction-audit-2026-10-12.md).
+A Spec 023 preserva seu escopo de paridade visual; mudanças de jornada,
+recuperação, confirmação e agrupamento operacional exigem contratos próprios.
+Fidelidade aos exports não é prova de baixa fricção. O relatório diferencia
+inspeção, estimativas e navegação real e registra que PR #98 já altera o fluxo
+de início de preparo medido na demo anterior.
+
 ## Continuação autorizada — sequência completa da demo importante
 
 Primeira correção V02/V05 a verificar: Header Android atual põe identidade e três ações na mesma Row. Extrair sem alterar comportamento para teste instrumentado; reproduzir nomes longos/fonte200% antes da correção. Contrato responsivo: identidade em região superior e ações FlowRow abaixo, tokens16/12/8, targets44, callbacks/busy existentes. Instrumentação verifica cada linha de texto e ações nas seis configurações; comparar regiões com header night60px e declarar extensão, não paridade integral.
