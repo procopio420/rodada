@@ -31,3 +31,14 @@ This is a **temporary** demonstration containing Django API, SSE dispatcher and 
 - Restart reruns migrations and seeds but does **not** reset database or any created transactions. Use one replica only.
 - Railway resources may cost money. Delete after the demo. Never point this demo at production data.
 - Configuration files are **untested in Railway** until a live build and smoke test prove them working.
+
+## Explicit secure pilot profile
+
+Default `RODADA_RELEASE_MODE=demo` is disposable staging only. For a separately approved
+assisted-pilot target set `RODADA_RELEASE_MODE=pilot`, `DJANGO_DEBUG=false`,
+`RODADA_PAYMENT_SIMULATION=false`, and a newly generated unique Django secret (at least
+50 characters) in the secret manager. Pilot never seeds demo identities/catalog/visits.
+Unsafe configuration fails before migration; documented active demo PINs refuse startup.
+Do not promote a populated public-demo database. Startup cannot prove secret uniqueness;
+release operator owns generation/isolation. One replica remains required by process-local
+Web refresh coordination. See [protected provisioning](pilot-provisioning.md).
