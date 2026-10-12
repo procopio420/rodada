@@ -1,0 +1,7 @@
+ROUTE_BEFORE: 10.0.2.2 dev wlan0 table wlan0 src 10.0.2.17 uid 0 
+    cache 
+ROUTE_WITHOUT_STANDBY: 10.0.2.2 dev wlan0 table wlan0 src 10.0.2.17 uid 0 
+    cache 
+PRIMARY_LINK_BEFORE_POST: 16: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DORMANT group default qlen 1000\    link/ether 02:15:ce:00:00:00 brd ff:ff:ff:ff:ff:ff
+STANDBY_LINK_BEFORE_POST: 15: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN mode DEFAULT group default qlen 1000\    link/ether 52:54:00:12:34:56 brd ff:ff:ff:ff:ff:ff
+PASS: stable primary=wlan0 UP and standby=eth0 DOWN before POST

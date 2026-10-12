@@ -180,3 +180,7 @@ restoration, an emulator may route via either restored eth0 or wlan0; require a
 real routed interface in kernel state UP rather than the original interface name.
 Physical Wi-Fi acceptance still requires wlan0 and onsite evidence. A green HTTP
 shift or an emulator run cannot substitute for that physical acceptance.
+
+- Emulator standby precondition waits for three consecutive original-route/primary-UP/
+  standby-DOWN observations before the held real POST. Async radio commands alone are
+  not accepted as proof; bounded failure stops the harness before any POST.

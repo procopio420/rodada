@@ -101,12 +101,30 @@ if [[ "$MODE" == emulator-link ]]; then
     "${ADB[@]}" shell svc wifi disable
   fi
   standby_disabled=1
-  echo "PASS: pre-disabled standby $STANDBY_IFACE while primary=$IFACE remains connected"
-  primary_route=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r')
+  # Android radio disconnect and policy-route removal are asynchronous. Do
+  # not claim a single primary uplink until three consecutive samples agree.
+  stable_samples=0
+  for i in $(seq 1 60); do
+    primary_route=$("${ADB[@]}" shell ip route get "$HOST_IP" 2>&1 | tr -d '\r' || true)
+    primary_link=$("${ADB[@]}" shell ip -o link show dev "$IFACE" 2>&1 | tr -d '\r' || true)
+    standby_link=$("${ADB[@]}" shell ip -o link show dev "$STANDBY_IFACE" 2>&1 | tr -d '\r' || true)
+    if grep -q "dev $IFACE" <<< "$primary_route" &&
+       grep -q 'state UP' <<< "$primary_link" &&
+       grep -q 'state DOWN' <<< "$standby_link"; then
+      stable_samples=$((stable_samples + 1))
+      if [[ "$stable_samples" == 3 ]]; then break; fi
+    else
+      stable_samples=0
+    fi
+    sleep 0.2
+  done
   echo "ROUTE_WITHOUT_STANDBY: $primary_route"
-  grep -q "dev $IFACE" <<< "$primary_route" || {
-    echo "FAIL: the original transport was lost before the real POST" >&2; exit 1;
+  echo "PRIMARY_LINK_BEFORE_POST: $primary_link"
+  echo "STANDBY_LINK_BEFORE_POST: $standby_link"
+  [[ "$stable_samples" == 3 ]] || {
+    echo "FAIL: no stable original uplink with standby DOWN before the real POST" >&2; exit 1;
   }
+  echo "PASS: stable primary=$IFACE UP and standby=$STANDBY_IFACE DOWN before POST"
 fi
 
 if [[ "${RODADA_SKIP_ANDROID_BUILD:-0}" != 1 ]]; then
