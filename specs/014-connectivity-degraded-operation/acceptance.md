@@ -167,3 +167,13 @@
 Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
 
 Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.
+
+## Pilot RC transport restoration (2026-10-12)
+
+The native Android real-uplink-cut gate must still prove all primary and standby
+uplinks unavailable while the committed POST response is held, encrypted CHECKING
+intent retention, offline process death, and same-key/body reconciliation. After
+restoration, an emulator may route via either restored eth0 or wlan0; require a
+real routed interface in kernel state UP rather than the original interface name.
+Physical Wi-Fi acceptance still requires wlan0 and onsite evidence. A green HTTP
+shift or an emulator run cannot substitute for that physical acceptance.

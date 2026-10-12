@@ -23,16 +23,16 @@ echo "GATE 2: PostgreSQL contractual regressions"
   tests/test_kds_health.py \
   tests/test_restore_rehearsal.py
 echo "GATE 3: 8 concurrent clients x 64 full Tabs with canonical reconciliation"
-python3 scripts/release-busy-shift.py --url http://127.0.0.1:18764 \
+python3 scripts/release-busy-shift.py --url http://127.0.0.1:${RODADA_DEMO_API_PORT:-18764} \
   --workers 8 --tabs 64 --evidence "$ROOT/artifacts/aderlan-busy-shift.json"
 echo "GATE 4: restart services and DB, verify 64 tabs remain financially closed"
 "${compose[@]}" restart db api dispatcher web
 for i in $(seq 1 80); do
-  if curl --fail --silent http://127.0.0.1:18764/ready/ >/dev/null; then break; fi
+  if curl --fail --silent http://127.0.0.1:${RODADA_DEMO_API_PORT:-18764}/ready/ >/dev/null; then break; fi
   [[ "$i" != "80" ]] || { echo "FAIL: no readiness after restart" >&2; exit 1; }
   sleep 2
 done
-python3 scripts/release-busy-shift.py --url http://127.0.0.1:18764 \
+python3 scripts/release-busy-shift.py --url http://127.0.0.1:${RODADA_DEMO_API_PORT:-18764} \
   --workers 8 --tabs 64 --evidence "$ROOT/artifacts/aderlan-busy-shift.json" --verify
 python3 - <<'PY'
 import json
