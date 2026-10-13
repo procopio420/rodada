@@ -28,7 +28,7 @@ test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", a
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     const actualColumns = await nav.evaluate(element =>
-      getComputedStyle(element).gridTemplateColumns.trim().split(/\\s+/).length,
+      getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).length,
     );
     expect(actualColumns, `grid columns at ${width}px`).toBe(columns);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
