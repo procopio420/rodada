@@ -30,3 +30,14 @@ def test_rejects_reserved_and_duplicate_domains():
     VenueDomain.objects.create(venue=venue, hostname="pilot.rodada.bar")
     with pytest.raises(ValidationError):
         VenueDomain.objects.create(venue=venue, hostname="pilot.rodada.bar")
+
+
+@pytest.mark.django_db
+def test_domains_cannot_cross_resolve_between_venues():
+    first = Venue.objects.create(name="Aderlan", slug="bar-do-aderlan")
+    second = Venue.objects.create(name="Outro Bar", slug="outro-bar")
+    VenueDomain.objects.create(venue=first, hostname="bardoaderlan.rodada.bar", is_active=True, is_verified=True)
+    VenueDomain.objects.create(venue=second, hostname="outrobar.rodada.bar", is_active=True, is_verified=True)
+    assert resolve_venue_domain("bardoaderlan.rodada.bar").venue_id == first.id
+    assert resolve_venue_domain("outrobar.rodada.bar").venue_id == second.id
+    assert resolve_venue_domain("inexistente.rodada.bar") is None
