@@ -28,3 +28,10 @@ def assert_staff_venue(venue_id):
     expected = resolved_venue_id.get()
     if expected is not None and str(expected) != str(venue_id):
         raise AccessServiceError("VENUE_HOST_MISMATCH", "Sessão pertence a outro estabelecimento.", 403)
+
+
+def assert_guest_venue(venue_id):
+    from modules.guest_access.services import GuestAccessError
+    expected = resolved_venue_id.get()
+    if expected is not None and str(expected) != str(venue_id):
+        raise GuestAccessError("QR_NOT_FOUND", "QR inválido ou expirado.", 404)
