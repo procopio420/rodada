@@ -25,3 +25,10 @@ Evitar "um agente que altera tudo": subagentes compartilham contrato e base, **n
 - Custo de Actions por PR e duração dos gates após adoção das regras (não aumentar sem benefício comprovado).
 
 **Não faz parte desta fase:** agentes operacionais com acesso a dinheiro de clientes, decisões autônomas de deploy/Play/DNS e habilitação de pagamento real.
+
+## Evidência de execução — 13/10/2026
+
+- **Fase 0:** concluída por PR #121, documentação e regras versionadas na main.
+- **Fase 1 (contrato documental):** ADR 0018 + README/host docs alinhados a `rodada.bar`, código Spec 025 reconciliado com merge do PR #116; **rollout e homologação continuam pendentes**.
+- **Fase 3 (primeiro slice):** `scripts/check_agent_kb.py` + testes stdlib + workflow Knowledge Base com path filters; sem dependências, banco ou runners Android/PostgreSQL. Só verifica documentação, não aceita comportamento.
+- **Fases 2, 4 e 5:** seguem abertas para evidências por SHA e coordenação multiagente automatizada.
