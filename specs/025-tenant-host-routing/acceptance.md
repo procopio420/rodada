@@ -36,3 +36,10 @@
 - [ ] `npm run test:integration` — independent Venues in `start_api.py`, BFF + Django assertions in `tenant-hosts.spec.ts` (CI result required).
 - [ ] `bash scripts/verify-tenant-host-preview.sh` — preview wildcard HTTPS, manifest, reserved/unknown host and health (real DNS/TLS not yet configured).
 - [ ] Aderlan shift and P0 safety gates on the merged #116 code at the current release SHA, followed by manual operator/QR browser verification and canary approval.
+
+## Establishment launcher UI (visual follow-up; not a tenant-security sign-off)
+
+- [ ] Verified tenant root displays the approved Rodada logo, the resolved Venue name and an accessible enter/switch operator link to `/staff`.
+- [ ] All five full-card module links point to the existing same-origin paths and remain protected by existing auth/capability gates.
+- [ ] At 360/390/430, 768/1024 and 1280/1440px, the grid renders 2/3/4 columns respectively, card tap targets are at least 44px tall, and the page does not overflow horizontally.
+- [ ] Browser/keyboard review covers focus, long venue name, mobile touch and reduced-motion behavior; integrate the two-Venue Playwright assertion without replacing the security checks above.
