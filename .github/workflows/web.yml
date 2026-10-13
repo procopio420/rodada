@@ -65,6 +65,10 @@ jobs:
         working-directory: apps/web
         run: npm run test:auth
 
+      - name: Tenant path and hostname regression tests
+        working-directory: apps/web
+        run: npm run test:tenant
+
       - name: Build
         working-directory: apps/web
         env:

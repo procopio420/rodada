@@ -18,12 +18,19 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-rodada-surface", surface.id);
 
   const next = () => NextResponse.next({ request: { headers: requestHeaders } });
-  const rewrite = (path: string) =>
-    NextResponse.rewrite(new URL(path, request.url), { request: { headers: requestHeaders } });
+  const rewrite = (path: string) => {
+    const target = new URL(request.url);
+    target.pathname = path; // Keep original query string and same-origin Host.
+    return NextResponse.rewrite(target, { request: { headers: requestHeaders } });
+  };
 
+  const tenant = tenantHostname(request.headers.get("host"));
+  if (tenant && tenant !== "bardoaderlan.rodada.bar" && process.env.RODADA_ENABLE_TENANT_HOST_UI !== "true") {
+    return new NextResponse("Estabelecimento indisponível.", { status: 421 });
+  }
   if (isInternalPath(pathname)) return next();
 
-  if (tenantHostname(request.headers.get("host"))) {
+  if (tenant) {
     const target = tenantModulePath(pathname);
     return target ? rewrite(target) : next();
   }
