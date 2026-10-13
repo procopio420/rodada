@@ -7,7 +7,7 @@ a full release/homologation suite on every commit.
 | --- | --- | --- | --- |
 | API | PR/push changing `apps/api/**` or `scripts/quality/**` | Yes | Ruff new-line gate + full diagnostic count; Django checks, migration drift and one full PostgreSQL pytest run |
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, added-line Web guard, auth, visual and real BFF integration tests |
-| Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **report-only**, upload report; release AAB smoke on main/manual only |
+| Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
 | Android real POST disconnect | No | Yes | Two emulator + backend network-failure tests |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
 | Railway Aderlan demo Docker smoke | PR changing Railway deployment or staging smoke script | Yes | Build full Railway container and smoke runtime |
@@ -16,7 +16,7 @@ a full release/homologation suite on every commit.
 
 ## Static quality gates
 
-See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory status and legacy-debt handling. **Android Lint is not yet a required pass**; Web uses its existing TypeScript/build/Playwright checks and a new-source guard, not ESLint (not yet installed). Ruff inspects all Python but blocks violations only when their diagnostic lands on a newly added source line.
+See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory status and legacy-debt handling. **Android Lint is a required pass** since PR #129 baseline audit succeeded; Web uses its existing TypeScript/build/Playwright checks and a new-source guard, not ESLint (not yet installed). Ruff inspects all Python but blocks violations only when their diagnostic lands on a newly added source line.
 
 ## Release/homologation gates
 

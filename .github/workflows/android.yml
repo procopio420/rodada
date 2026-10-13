@@ -46,11 +46,8 @@ jobs:
         working-directory: apps/attendance-android
         run: ./gradlew assembleDebug --stacktrace
 
-      # Baseline audit only: do not block existing Android code until report is reviewed.
-      # This uses lintDebug, not lintRelease / Play signing.
-      - name: Android Lint — existing-debt audit (non-blocking)
-        id: android_lint
-        continue-on-error: true
+      # Initial PR #129 lintDebug audit PASSED: now a blocking check, without release signing.
+      - name: Android Lint (blocking)
         working-directory: apps/attendance-android
         run: ./gradlew lintDebug --stacktrace
 
