@@ -26,6 +26,9 @@ test("Spec 025 P1: two real venue hosts have distinct branding and canonical ali
 });
 
 test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next BFF and Django", async ({ request }) => {
+  const csrf = await request.post("/api/auth/login", { headers: { ...headers(A), Origin: "http://" + B, "X-Forwarded-Host": B }, data: login("web-e2e", "test-manager") });
+  expect(csrf.status()).toBe(403);
+  expect(await csrf.json()).toMatchObject({ code: "CSRF_REJECTED" });
   const mismatch = await request.post("/api/auth/login", { headers: { ...headers(A), Origin: "http://" + A }, data: login("other-e2e", "test-other") });
   expect(mismatch.status()).toBe(403);
   expect(await mismatch.json()).toMatchObject({ code: "VENUE_HOST_MISMATCH" });
@@ -43,6 +46,15 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   const forbidden = await request.get("/api/auth/me", { headers: { ...headers(B), Cookie: replayCookie } });
   expect(forbidden.status()).toBe(403);
   expect(await forbidden.json()).toMatchObject({ code: "VENUE_HOST_MISMATCH" });
+
+  const rejectedWrite = await request.post("/api/pos/tabs", { headers: { ...headers(B), Origin: "http://" + B, Cookie: replayCookie }, data: { display_label: "FOREIGN-MUTATION-MUST-NOT-EXIST" } });
+  expect(rejectedWrite.status()).toBe(403);
+  expect(await rejectedWrite.json()).toMatchObject({ code: "VENUE_HOST_MISMATCH" });
+  const refreshCookie = cookies.filter(cookie => cookie.startsWith("rodada_staff_refresh=")).map(cookie => cookie.split(";")[0]).join("; ");
+  const refreshReplay = await request.get("/api/auth/me", { headers: { ...headers(B), Cookie: refreshCookie } });
+  expect(refreshReplay.status()).toBe(403);
+  const stillValid = await request.get("/api/auth/me", { headers: { ...headers(A), Cookie: replayCookie } });
+  expect(stillValid.status()).toBe(200);
 
   const guestLocal = await request.post("/api/guest/qr/resolve", { headers: { ...headers(A), Origin: "http://" + A }, data: { token: "e2e-guest-qr-a" } });
   expect([200, 201]).toContain(guestLocal.status());
