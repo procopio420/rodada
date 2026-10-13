@@ -56,12 +56,19 @@ jobs:
                   staff.set_pin(pin)
                   staff.is_active = True
                   staff.save(update_fields=["pin_hash", "is_active"])
-              membership, _ = VenueStaffMembership.objects.get_or_create(
+              membership, _ = VenueStaffMembership.objects.select_for_update().get_or_create(
                   venue=venue, staff_member=staff,
-                  defaults={"role": StaffRole.STAFF, "status": MembershipStatus.ACTIVE},
+                  defaults={"role": StaffRole.OWNER, "status": MembershipStatus.ACTIVE},
               )
-              if membership.status != MembershipStatus.ACTIVE or membership.role != StaffRole.STAFF:
-                  raise RuntimeError("Reviewer must have an active STAFF membership; refusing to elevate or silently alter existing permissions")
+              if membership.status != MembershipStatus.ACTIVE:
+                  raise RuntimeError("Reviewer membership is inactive; refusing to reactivate silently")
+              # Google Play's reviewer must reach every operational module.
+              # Apply this only to the dedicated reviewer account in the chosen demo Venue.
+              if membership.role != StaffRole.OWNER or membership.capability_overrides:
+                  membership.role = StaffRole.OWNER
+                  membership.capability_overrides = {}
+                  membership.version += 1
+                  membership.save(update_fields=["role", "capability_overrides", "version"])
           print("Reviewer provisioned for venue:", venue.slug)
           print("Login identifier: play-review@rodada.bar")
           print("PIN is stored hashed and will not be printed.")
