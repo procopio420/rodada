@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./test";
 import path from "node:path";
 import { mkdir } from "node:fs/promises";
 async function api(page: Page, route: string, data?: object) {

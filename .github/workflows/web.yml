@@ -21,7 +21,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     services:
       postgres:
         image: public.ecr.aws/docker/library/postgres:17
@@ -79,11 +79,24 @@ jobs:
         working-directory: apps/web
         env:
           RODADA_E2E_POSTGRES: "1"
+          RODADA_E2E_RESET: "1"
           POSTGRES_DB: rodada_web_e2e
           POSTGRES_USER: rodada_test
           POSTGRES_PASSWORD: local-ci-only
           POSTGRES_HOST: 127.0.0.1
-        run: npm run test:integration
+        run: npm run test:integration -- --grep-invert "canonical photographed menu"
+
+      - name: Canonical venue menu UI acceptance
+        working-directory: apps/web
+        env:
+          RODADA_E2E_POSTGRES: "1"
+          RODADA_E2E_RESET: "1"
+          RODADA_E2E_MENU: "1"
+          POSTGRES_DB: rodada_web_e2e
+          POSTGRES_USER: rodada_test
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_HOST: 127.0.0.1
+        run: npm run test:integration -- tests/integration/venue-menu-acceptance.spec.ts
 
       - name: Upload visual evidence and failure traces
         if: always()

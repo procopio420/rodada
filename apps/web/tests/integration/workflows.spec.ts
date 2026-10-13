@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./test";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -208,6 +208,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
   await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
+  await expect(guest.locator('section[aria-label="Rodada 1"] strong')).toHaveText("1× =Teste CSV real");
   await guest.reload();
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();
   const tab = (await api(page, "/api/pos/tabs/")).results.find((row: { display_label: string }) => row.display_label === "Tracking guest");

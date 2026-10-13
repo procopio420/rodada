@@ -47,9 +47,11 @@ npm run test:visual
 npm run test:integration
 ```
 
-Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual tem 102 testes nas nove telas, cinco larguras e estados de operação, incluindo o formulário do Quick Catalog; usa respostas controladas somente nos testes. A integração tem cinco testes de navegador com BFF e Django reais.
+Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual atual tem465 testes de layout, estados, acessibilidade e controles equivalentes; usa respostas controladas somente nos testes. A integração tem87 jornadas com BFF e Django reais, mais três verificações opt-in do cardápio canônico.
 
-Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. O banco local é SQLite temporário; CI usa PostgreSQL 17 isolado. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. No PowerShell: `$env:RODADA_TEST_PYTHON='C:\caminho\python.exe'`. Reserve as portas 3100 (visual), 3110 e 8100 (integração).
+Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. Para a suíte completa, use PostgreSQL17 descartável com banco `rodada_web_e2e`, host `127.0.0.1`, variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`, `RODADA_E2E_POSTGRES=1` e `RODADA_E2E_RESET=1`. A limpeza entre cenários exige esse nome/host/opt-in; nunca use um banco comercial. [Contrato de isolamento](../../docs/development/web-e2e-isolation.md). SQLite temporário continua disponível sem essas flags, mas não certifica concorrência nem isolamento da suíte completa. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. Reserve as portas3100 (visual),3110 e8100 (integração).
+
+Execute `npm run test:integration -- --grep-invert "canonical photographed menu"` para as87 jornadas. Depois, com `RODADA_E2E_MENU=1`, execute `npm run test:integration -- tests/integration/venue-menu-acceptance.spec.ts` para as três larguras do cardápio. A aprovação comercial de preços/roteamento permanece independente dos testes.
 
 O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. A [Spec 020](../../specs/020-web-operational-completion/spec.md) entrega Quick Catalog em Bar/Cozinha, histórico persistido da própria comanda guest com polling de cinco segundos, seleção paginada de turnos antigos em `/cash` e relatórios com filtro de período/CSV em `/reports`. Criação exige `catalog.product.create`; relatórios, `management.reports.read`; configuração do calendário também exige `venue.configure`. A API continua autoritativa.
 

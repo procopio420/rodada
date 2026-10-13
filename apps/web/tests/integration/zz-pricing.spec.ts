@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "./test";
 async function api(page: Page, path: string, data?: unknown, method?: string) {
   const result = await page.evaluate(async ({ path, data, method }) => {
     const r = await fetch(`/api/pos${path}`, { method: method ?? (data ? "POST" : "GET"), headers: { "Content-Type": "application/json" }, body: data ? JSON.stringify(data) : undefined });

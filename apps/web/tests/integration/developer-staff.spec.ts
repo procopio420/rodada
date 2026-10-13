@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 test("DEV provisions an operator, edits role and revokes access with canonical readback", async ({ page, browser }) => {
   await page.goto("/dev/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e");

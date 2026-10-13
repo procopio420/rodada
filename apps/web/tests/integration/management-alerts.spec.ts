@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 
 test("real API alert policy, acknowledgement and canonical resolution", async ({ page }) => {
   await page.goto("/staff");

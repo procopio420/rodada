@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./test";
 import { PNG } from "pngjs";
 
 test("quick create, exact reuse and manager icon lifecycle", async ({ page }) => {

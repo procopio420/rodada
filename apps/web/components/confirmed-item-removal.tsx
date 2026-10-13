@@ -32,7 +32,7 @@ export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange
    if (result.response.ok && result.body && "status" in result.body && result.body.status === "APPLIED" && (result.body.order_item_state === "CANCELLED" || (result.body.quantity_cancelled === intent.current.quantity && typeof result.body.remaining_quantity === "number" && result.body.remaining_quantity >= 0))) {
     committed = true; setApplied(true); setUncertain(false); await refresh();
    } else if (result.response.status === 202 || (result.response.ok && result.body && "financial_disposition" in result.body && result.body.financial_disposition === "REFUND_REQUIRED")) {
-    resolved = true; setUncertain(false); intent.current = null; setMessage("Este item envolve pagamento. A gerência precisa resolver o estorno; ele ainda não foi removido."); await onRefresh();
+    resolved = true; setUncertain(false); intent.current = null; setMessage("Este item envolve pagamento. A gerência precisa revisar a correção; ele ainda não foi removido."); await onRefresh();
    } else if (result.response.status >= 500 || result.response.ok) {
     setUncertain(true); setMessage("Resultado não confirmado. Verifique a mesma remoção antes de continuar.");
    } else {

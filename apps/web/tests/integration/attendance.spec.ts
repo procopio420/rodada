@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./test";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
@@ -49,8 +49,14 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: "Ocupar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
-  await expect(page.getByText("Atendimento browser test", { exact: true }).last()).toBeVisible();
+  const tableId = (await tableResult.json()).id;
+  await expect.poll(async () => {
+    const current = await (await browserRequest.get("/api/attendance/hospitality/tables/")).json();
+    return current.results.find((row: { id: string }) => row.id === tableId)
+      .active_occupancy.tabs.some((attached: { id: string }) => attached.id === tab.id);
+  }).toBe(true);
   await page.getByRole("dialog").getByRole("button", { name: "Voltar" }).click();
+  await expect(page.getByRole("button", { name: new RegExp(`Abrir comanda Atendimento browser test.*${tab.id}`) })).toBeVisible();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();

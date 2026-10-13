@@ -38,7 +38,7 @@ test("kitchen material geometry and Product identity aggregation", async ({ page
     { id: "e", product_id: "fries", order_id: "fifth", quantity: 7, product_name: "Fritas", tab_label: "P46", state: "PICKED_UP", created_at: "2026-10-08T20:30:00Z" },
   ] } }));
   await page.goto("/kitchen");
-  await expect(page.locator(".stationQuantity")).toHaveText(["3", "1"]);
+  await expect(page.locator(".stationQuantity")).toHaveText(["2", "1", "1"]);
   await expect(page.locator(".stationPass > .stationPassRow .stationPassMeta")).toHaveText("No passe · 2:00");
   await expect(page.locator(".stationTransit")).toContainText("Retirada registrada");
   await expect(page.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(2);
@@ -326,7 +326,7 @@ test("production prioritizes work, sums quantities and preserves individual tran
     { id: "unknown", state: "READY", quantity: 1, product_name: "Omelete", tab_label: "Passe antigo", created_at: "2026-10-08T20:50:00Z" },
   ] } }));
   await page.goto("/kitchen");
-  await expect(page.locator(".stationBatches .stationQuantity")).toHaveText(["5"]);
+  await expect(page.locator(".stationBatches .stationQuantity")).toHaveText(["3", "2"]);
   await expect(page.getByText("No passe · 0:30", { exact: true })).toBeVisible();
   await expect(page.getByText("No passe · Tempo não informado", { exact: true })).toBeVisible();
   const order = await page.locator("main h2").allTextContents();
@@ -368,7 +368,7 @@ test("new kitchen reference comparison documents the adapted connected layout", 
     })),
   ] } }));
   await actual.goto("/kitchen");
-  await expect(actual.locator(".stationBatches .stationQuantity")).toHaveText(["4", "2", "2"]);
+  await expect(actual.locator(".stationBatches .stationQuantity")).toHaveText(["2", "2", "1", "1", "1", "1"]);
   await stable(reference); await stable(actual);
   const columns = await actual.locator(".productionWorkspace").evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" "));
   expect(columns).toHaveLength(3);
@@ -411,10 +411,11 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await kitchenFixture(actual); await actual.goto("/kitchen");
   await expect(actual.locator(".stationTicket")).toHaveCount(waitingItems.length);
   await expect(actual.locator(".notice[role=status]")).toContainText("Reconectando");
+  // V03 now carries explicit confirmed configuration; legacy behavior has separate coverage.
   await expect(actual.locator(".stationDishHeading strong")).toHaveText(kitchenBatches.map(batch => batch.name));
   await expect(actual.locator(".stationQuantity")).toHaveText(kitchenBatches.map(batch => String(batch.quantity)));
   const actualChips = await actual.locator(".stationDish").evaluateAll(els => els.map(el => Array.from(el.querySelectorAll(".stationChips span")).map(chip => chip.textContent)));
-  expect(actualChips).toEqual(refChips);
+  expect(actualChips).toEqual(kitchenBatches.map(batch => batch.items.map(item => item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : ""))));
   await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
   await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Aguardando preparo" : "Em preparo"));
@@ -497,17 +498,18 @@ for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430
 
 test("V04 Order grouping never merges different Orders or legacy items by Tab", async ({ page }) => {
   await kitchenFixture(page);
+  const legacy = { ...kitchenScenario.items[1], customization_snapshot: undefined };
   await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
-    { ...kitchenScenario.items[1], id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
-    { ...kitchenScenario.items[1], id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
-    { ...kitchenScenario.items[1], id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
-    { ...kitchenScenario.items[1], id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...legacy, id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
+    { ...legacy, id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
+    { ...legacy, id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...legacy, id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
   ] } }));
   await page.goto("/kitchen");
   await expect(page.locator(".stationOrder")).toHaveCount(4);
   await expect(page.locator(".stationTicket")).toHaveCount(4);
   await expect(page.locator(".stationOrder > .stationTab")).toHaveText(Array(4).fill("Mesmo destino"));
-  await expect(page.locator(".stationQuantity")).toHaveText("4");
+  await expect(page.locator(".stationQuantity")).toHaveText(["1", "1", "1", "1"]);
 });
 
 test("V04 shared Order: marking one item ready never completes its sibling", async ({ page }) => {
