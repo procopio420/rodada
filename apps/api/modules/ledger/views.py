@@ -23,6 +23,7 @@ class PaymentCollectView(APIView):
             method = serializers.CharField(max_length=24)
             idempotency_key = serializers.CharField(max_length=120)
             cash_point_id = serializers.UUIDField(required=False, allow_null=True)
+            originating_session_id = serializers.UUIDField(required=False)
             amount_tendered_cents = serializers.IntegerField(
                 min_value=1, max_value=2147483647, required=False, allow_null=True
             )
@@ -65,6 +66,7 @@ class PaymentRefundView(APIView):
             idempotency_key = serializers.CharField(max_length=120)
             reason = serializers.CharField(max_length=240, required=False, allow_blank=True)
             cash_point_id = serializers.UUIDField(required=False, allow_null=True)
+            originating_session_id = serializers.UUIDField(required=False)
 
         data = Input(data=request.data)
         if not data.is_valid():

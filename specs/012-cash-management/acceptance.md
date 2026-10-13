@@ -95,3 +95,43 @@
 **Given** supply, withdrawal, close, review and late correction  
 **When** audit is inspected  
 **Then** each includes actor, timestamp, CashPoint/shift, amount and required reason.
+
+## Recorte POS Web CASH — Spec026 T03a
+
+- [x] Duplo envio/perda após commit/reload convergem ao mesmo Payment e movimento.
+- [x] Replay divergente de caixa/tender não altera ledger, audit ou snapshots.
+- [x] Sessão distinta/revogada/storage falho preservam pendência sem enviar/adotar.
+- [x] Readback confirma Payment antes de liberar; rejeição inicial permite revisão.
+
+Evidência local: Spec026/revalidation.md, seção T03a. Não cobre estorno,
+fechar aba ou resolução gerencial entre sessões; gates anteriores mantidos.
+
+## T03b — critérios do recorte manual
+
+Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
+
+- [x] Mesmo Refund após duplo toque, resposta perdida, reload e readback falho.
+- [x] Payload congelado; PIN recente, sessão divergente/revogada e storage falho
+  não descartam nem adotam intenção ambígua. Rejeição inicial segura permite edição.
+- [x] Replay divergente rejeitado; saldo/refundable, Payment/snapshots, ledger e
+  auditoria preservados; concorrência produz um único efeito em PostgreSQL.
+- [x] Jornada real Web/API e mobile360/390/430; visual completo, build/tipos e lint
+  registrados sem declarar provider, piloto, aparelho ou deploy homologados.
+
+T11c/026 — critérios locais de conferência: turno original consultado pelo ID,
+caixa operacional preservado, registro criptografado intacto; leitura/atualização
+não cria movimento nem reenvia fechamento. Erros e troca de sessão não mostram
+snapshot de outro turno. Comando guardado é distinguido do estado consultado,
+sem inferir desfecho por semelhança. Evidências e limites em
+specs/026-operational-ux-friction/revalidation.md. Reconciliação gerencial, aparelho
+físico e piloto continuam abertos.
+
+T12a/026: duas propostas mantêm justificativas distintas; confirmação após PIN envia
+ID/versão/motivo originais e limpa somente o rascunho correspondente; cancelar mantém
+rascunhos e solicitação própria permanece sem ação de aprovação. Rótulos humanos na
+UI não alteram status, valores, autorização, auditoria ou movimentos canônicos.
+
+T12b.1/026: links abrem turno histórico exato com outro ativo sem qualquer POST de
+navegação; falha de autorização/identidade/caixa não seleciona alternativa. Resumo
+recebe foco, origem externa não é usada e retorno local permanece acessível.
+Capability/reauth/versão/auditoria das decisões seguem seus contratos existentes.

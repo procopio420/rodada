@@ -154,3 +154,26 @@ Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas 
 Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lint e54instrumentados aprovados. Gates Web atuais types/build12auth/realtime197visual13PostgreSQL. [Detalhes e limites](../../docs/design/spec023-refund-validation.md). Jornada nativa financeira/readback atual são verificações separadas, sem usar HTTP como prova de UI.
 
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
+
+### T09b — catálogo guest em volume
+A melhoria de descoberta contratada em Specs 004/010 usa tokens e componentes
+existentes e a mesma apresentação de categorias do Atendimento. Validar fixture
+de 146 produtos (143 do CSV versionado e três fixtures existentes), Web360/390/430, alvo44/acessibilidade,
+busca, carrinho e bloqueios. Essa evidência operacional não fecha paridade global,
+aparelho físico ou ganho de tempo humano; não alterar referências/tolerâncias.
+
+### T10a — regiões de produção mobile
+Atalhos persistentes de Spec 019/026 reduzem alcance até passe/disponibilidade.
+Validar tokens, nomes, foco, alvos44 e filas de 30 linhas em Cozinha/Bar.
+Desktop preserva a disposição simultânea. Navegação não cria milestones, lote
+ou promessa de SLA. Evidência operacional local não fecha paridade integral,
+tempo humano, dispositivo físico ou produção publicada; tolerâncias preservadas.
+
+### T10b — resumo com configuração confirmada
+Resumo reutiliza CustomizationText e tokens existentes. Fixture histórica V03
+não tem snapshots de configuração: Web deve manter linhas independentes com
+aviso, embora o export agrupe por produto. Validar linhas/quantidades/chips
+canônicos e conservar a derivação/export original. Essa divergência funcional
+não implica nova baseline nem paridade integral; comparações/tolerâncias de
+primitivas permanecem intactas. Testes de configuração agora verificam resumo
+e fila separadamente, pois ambos precisam mostrar as mesmas escolhas.

@@ -8,12 +8,21 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
   const { path } = await context.params;
   if (path.some(segment => !/^[a-zA-Z0-9_-]+$/.test(segment))) return Response.json({ code: "INVALID_PATH", message: "Rota inválida." }, { status: 400 });
   const route = path.join("/");
-  if (!(request.method === "GET" ? reads : commands).test(route)) {
+  const locationMove = request.method === "POST" && /^tabs\/[^/]+\/operations$/.test(route);
+  if (!locationMove && !(request.method === "GET" ? reads : commands).test(route)) {
     return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Esta operação não está disponível no Atendimento Web sem pagamentos." }, { status: 403 });
   }
   let body: Record<string, unknown> | undefined;
   if (request.method === "POST") {
     try { body = await request.json(); } catch { return Response.json({ code: "INVALID_JSON", message: "Pedido inválido." }, { status: 400 }); }
+    if (locationMove && (!body || Array.isArray(body) || body.kind !== "MOVE_LOCATION"
+      || Object.keys(body).some(key => !["kind", "expected_version", "occupancy_id", "reason", "idempotency_key"].includes(key))
+      || !Number.isSafeInteger(body.expected_version) || Number(body.expected_version) < 1
+      || typeof body.occupancy_id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.occupancy_id)
+      || typeof body.idempotency_key !== "string" || !body.idempotency_key || body.idempotency_key.length > 120
+      || (body.reason !== undefined && (typeof body.reason !== "string" || body.reason.length > 240)))) {
+      return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Informe apenas o movimento de comanda para uma mesa ocupada." }, { status: 403 });
+    }
   }
   return forwardAuthenticated(request, "/" + route + "/" + request.nextUrl.search, { method: request.method as "GET" | "POST", body });
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { paymentMethodLabel, closeStatusLabel, cashStatusLabel, cashReviewLabel, proposalStatusLabel } from "@/lib/presentation-labels";
+
 import { OperationalHeading } from "@/components/operational-heading";
 import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-auth";
 
@@ -38,10 +40,6 @@ type ErrorWithCode = Error & { code?: string };
 const money = (n: number | null | undefined) =>
   n == null ? "—" : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n / 100);
 const stamp = (s: string) => new Date(s).toLocaleString("pt-BR");
-const methodName = (name: string) => ({
-  CASH: "Dinheiro", PIX: "Pix", CARD: "Cartão", TAP_TO_PAY: "Tap to Pay",
-  EXTERNAL_TERMINAL: "Maquininha externa", OTHER: "Outro",
-} as Record<string, string>)[name] ?? name;
 const blockerName = (kind: string) => ({
   OPEN_TAB: "Comanda ainda aberta", CASH_SHIFT: "Caixa aberto ou sem revisão",
   OVERDUE_CASH_SHIFT: "Caixa de outro dia em aberto",
@@ -80,7 +78,7 @@ export default function DailyCloseManagement() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [reviewReason, setReviewReason] = useState("");
-  const [decisionReason, setDecisionReason] = useState("");
+  const [decisionReasons, setDecisionReasons] = useState<Record<string, string>>({});
   const [requestShift, setRequestShift] = useState("");
   const [requestAmount, setRequestAmount] = useState("");
   const [requestReason, setRequestReason] = useState("");
@@ -125,7 +123,7 @@ export default function DailyCloseManagement() {
   }, []);
 
   async function submit(action: () => Promise<void>) {
-    if (busy) return;
+    if (busy || pendingAction) return;
     setBusy(true); setError(""); setNotice("");
     try { await action(); }
     catch (cause) {
@@ -193,13 +191,13 @@ export default function DailyCloseManagement() {
   }
 
   function decide(proposal: Proposal, decision: "APPROVED" | "REJECTED") {
-    if (!decisionReason.trim()) { setError("Justifique a aprovação ou rejeição."); return; }
-    const reason = decisionReason.trim();
+    if (!(decisionReasons[proposal.id] ?? "").trim()) { setError("Justifique a aprovação ou rejeição."); return; }
+    const reason = decisionReasons[proposal.id].trim();
     void submit(async () => {
       await call(`/api/pos/cash/correction-requests/${proposal.id}/decision/`, {
         expected_version: proposal.version, decision, reason,
       });
-      setDecisionReason(""); setNotice(decision === "APPROVED"
+      setDecisionReasons(current => { const next = { ...current }; delete next[proposal.id]; return next; }); setNotice(decision === "APPROVED"
         ? "Correção aprovada: novo movimento auditado, histórico original preservado."
         : "Correção rejeitada: nenhum movimento criado.");
       await load(day);
@@ -217,10 +215,10 @@ export default function DailyCloseManagement() {
     <section className="panel">
       <OperationalHeading as="h2" icon="sales">Dia operacional</OperationalHeading>
       <div className="field"><label htmlFor="daily-close-date">Data do fechamento</label>
-        <input id="daily-close-date" type="date" value={day} onChange={event => setDay(event.target.value)} /></div>
+        <input id="daily-close-date" type="date" value={day} disabled={busy || !!pendingAction} onChange={event => setDay(event.target.value)} /></div>
       <div className="actions">
-        <button className="buttonSecondary" disabled={!day || busy || loading} onClick={() => void load(day)}>Consultar</button>
-        <button className="buttonPrimary" disabled={!canReview || !day || busy || loading} onClick={generate}>Gerar revisão do dia</button>
+        <button className="buttonSecondary" disabled={!day || busy || !!pendingAction || loading} onClick={() => void load(day)}>Consultar</button>
+        <button className="buttonPrimary" disabled={!canReview || !day || busy || !!pendingAction || loading} onClick={generate}>Gerar revisão do dia</button>
       </div>
       {!canReview && <p className="muted">Gerar e revisar exige a permissão de gerente e confirmação recente do PIN.</p>}
     </section>
@@ -235,30 +233,32 @@ export default function DailyCloseManagement() {
       {!!closes.length && <>
         <div className="field"><label htmlFor="daily-close-version">Histórico de revisões</label>
           <select id="daily-close-version" value={selected?.id ?? ""} onChange={event => setSelectedId(event.target.value)}>
-            {closes.map(close => <option key={close.id} value={close.id}>Versão {close.version} · {close.status} · {stamp(close.generated_at)}</option>)}
+            {closes.map(close => <option key={close.id} value={close.id}>Versão {close.version} · {closeStatusLabel(close.status)} · {stamp(close.generated_at)}</option>)}
           </select></div>
         {selected && <>
-          <span className="statusBadge" data-state={selected.status === "REVIEWED" ? "success" : selected.status === "INCOMPLETE" ? "danger" : "warning"}>{selected.status}</span>
+          <span className="statusBadge" data-state={selected.status === "REVIEWED" ? "success" : selected.status === "INCOMPLETE" ? "danger" : "warning"}>{closeStatusLabel(selected.status)}</span>
           <div className="dataRow"><span>Vendas líquidas</span><strong>{money(selected.original.financial.net_sales_cents)}</strong></div>
           <div className="dataRow"><span>Recebimentos confirmados</span><strong>{money(selected.original.receipts.paid_cents)}</strong></div>
           <div className="dataRow"><span>Estornos confirmados</span><strong>{money(selected.original.receipts.refunds_cents)}</strong></div>
           <div className="dataRow"><span>Recebimento líquido</span><strong>{money(selected.original.receipts.net_received_cents)}</strong></div>
           <p className="muted">Recebimentos totais do estabelecimento não equivalem ao saldo físico do caixa.</p>
           <h3>Métodos de recebimento</h3>
-          {selected.original.receipts.methods.map(row => <div className="dataRow" key={row.method}><span>{methodName(row.method)}</span><strong>{money(row.net_received_cents)}</strong></div>)}
+          {selected.original.receipts.methods.map(row => <div className="dataRow" key={row.method}><span>{paymentMethodLabel(row.method)}</span><strong>{money(row.net_received_cents)}</strong></div>)}
           <h3>Caixas físicos</h3>
           {selected.original.cash_shifts.map(shift => <div className="reportGroup" key={shift.id}>
-            <strong>{shift.label}</strong><p className="muted">{shift.status} · {shift.review_status}</p>
+            <strong>{shift.label}</strong><p className="muted">{cashStatusLabel(shift.status)} · {cashReviewLabel(shift.review_status)}</p>
             <div className="dataRow"><span>Contado</span><strong>{money(shift.counted_amount_cents)}</strong></div>
             <div className="dataRow"><span>Diferença</span><strong>{money(shift.discrepancy_cents)}</strong></div>
           </div>)}
           <h3>Bloqueios da revisão</h3>
           {!selected.original.blockers.length ? <p className="muted">Nenhum bloqueio no snapshot.</p>
-            : selected.original.blockers.map((blocker, index) => <p key={`${blocker.kind}-${blocker.id ?? index}`} className="notice" data-state="danger">{blockerName(blocker.kind)}{blocker.id ? ` · ${blocker.id.slice(0, 8)}` : ""}</p>)}
+            : selected.original.blockers.map((blocker, index) => <p key={`${blocker.kind}-${blocker.id ?? index}`} className="notice" data-state="danger">{blockerName(blocker.kind)}{blocker.id ? ` · ${blocker.id.slice(0, 8)}` : ""}
+              {blocker.id && ["CASH_SHIFT", "OVERDUE_CASH_SHIFT"].includes(blocker.kind) && <><br /><Link className="backLink" href={`/cash?shift=${encodeURIComponent(blocker.id)}&from=${encodeURIComponent("/manage/daily-close")}`}>Revisar este turno →</Link></>}
+            </p>)}
           {selected.status === "READY_FOR_REVIEW" && !selected.review && <div className="field">
             <label htmlFor="daily-close-review-reason">Justificativa da revisão</label>
             <textarea id="daily-close-review-reason" value={reviewReason} maxLength={240} onChange={event => setReviewReason(event.target.value)} />
-            <button className="buttonPrimary" disabled={!canReview || busy || !reviewReason.trim()} onClick={review}>Confirmar revisão com PIN</button>
+            <button className="buttonPrimary" disabled={!canReview || busy || !!pendingAction || !reviewReason.trim()} onClick={review}>Confirmar revisão com PIN</button>
           </div>}
           {selected.review && <p className="notice" data-state="success">Revisado em {stamp(selected.review.reviewed_at)} · {selected.review.reason}</p>}
           {selected.status === "INCOMPLETE" && <p className="muted">Resolva os bloqueios e gere uma nova versão. Esta revisão permanecerá preservada.</p>}
@@ -281,7 +281,7 @@ export default function DailyCloseManagement() {
         <input id="correction-amount" value={requestAmount} onChange={event => setRequestAmount(event.target.value)} placeholder="Ex.: -10,00" inputMode="decimal" />
         <label htmlFor="correction-reason">Justificativa da proposta</label>
         <textarea id="correction-reason" value={requestReason} onChange={event => setRequestReason(event.target.value)} maxLength={240} />
-        <button className="buttonSecondary" onClick={propose} disabled={busy || !requestShift || !requestReason.trim()}>Solicitar correção</button>
+        <button className="buttonSecondary" onClick={propose} disabled={busy || !!pendingAction || !requestShift || !requestReason.trim()}>Solicitar correção</button>
       </div>}
       {!canRequest && <p className="muted">Este operador não pode propor movimentos de caixa.</p>}
       <h3>Pendentes ({pending.length})</h3>
@@ -289,15 +289,15 @@ export default function DailyCloseManagement() {
       {proposals.map(row => <div className="reportGroup" key={row.id}>
         <div className="dataRow"><strong>{row.cash_point_label}</strong><strong>{money(row.amount_cents)}</strong></div>
         <p>{row.reason}</p>
-        <p className="muted">Solicitada em {stamp(row.requested_at)} · {row.status}</p>
+        <p className="muted">Solicitada em {stamp(row.requested_at)} · {proposalStatusLabel(row.status)}</p>
         {row.status === "PENDING" && canReview && <>
           {session?.staff.id === row.requested_by
             ? <p className="notice" data-state="warning">Solicitação própria: outro gerente precisa decidir.</p>
             : <div className="field">
               <label htmlFor={`decision-${row.id}`}>Motivo da decisão</label>
-              <textarea id={`decision-${row.id}`} value={decisionReason} onChange={event => setDecisionReason(event.target.value)} maxLength={240} />
-              <div className="actions"><button className="buttonPrimary" disabled={busy || !decisionReason.trim()} onClick={() => decide(row, "APPROVED")}>Aprovar</button>
-                <button className="buttonSecondary" disabled={busy || !decisionReason.trim()} onClick={() => decide(row, "REJECTED")}>Rejeitar</button></div>
+              <textarea id={`decision-${row.id}`} value={decisionReasons[row.id] ?? ""} disabled={busy || !!pendingAction} onChange={event => setDecisionReasons(current => ({ ...current, [row.id]: event.target.value }))} maxLength={240} />
+              <div className="actions"><button className="buttonPrimary" disabled={busy || !!pendingAction || !(decisionReasons[row.id] ?? "").trim()} onClick={() => decide(row, "APPROVED")}>Aprovar</button>
+                <button className="buttonSecondary" disabled={busy || !!pendingAction || !(decisionReasons[row.id] ?? "").trim()} onClick={() => decide(row, "REJECTED")}>Rejeitar</button></div>
             </div>}
         </>}
         {row.status !== "PENDING" && <p className="muted">Decisão: {row.decision_reason}{row.movement_id ? ` · Movimento ${row.movement_id.slice(0, 8)}` : ""}</p>}
@@ -310,7 +310,7 @@ export default function DailyCloseManagement() {
       <div className="field"><label htmlFor="daily-close-pin">Seu PIN</label>
         <input id="daily-close-pin" type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={event => setPin(event.target.value)} /></div>
       <div className="actions"><button className="buttonPrimary" disabled={!pin || busy} onClick={() => void reauthenticate()}>Confirmar e continuar</button>
-        <button className="buttonSecondary" onClick={() => { setPendingAction(null); setPin(""); }}>Cancelar</button></div>
+        <button className="buttonSecondary" disabled={busy} onClick={() => { setPendingAction(null); setPin(""); }}>Cancelar</button></div>
     </section>}
     <p><Link className="backLink" href="/cash">Abrir turnos individuais de caixa →</Link></p>
   </main>;

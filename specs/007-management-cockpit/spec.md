@@ -493,3 +493,7 @@ O contrato implementado nesta entrega e seus critérios verificáveis estão na 
 Sem snapshot autorizado, a Gerência mostra a falha de acesso uma vez e não monta
 painéis dependentes. Após snapshot válido, alertas continuam com erros próprios e
 estado desatualizado explícito; falha nunca significa operação sem exceções.
+
+T12a/026: fechamento diário usa justificativas independentes por proposta e rótulos
+humanos de estado. Preserva versão/fingerprint, fatos financeiros e proibição de
+autoaprovação; projeção agregada e deep links permanecem recortes posteriores.

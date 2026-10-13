@@ -36,6 +36,20 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun tabDetail(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.tabDetail(it, tabId) }
 
+    suspend fun exceptionalRecoveryTarget(session: StoredSession, original: RecoveryIntent): ExceptionalRecoveryTarget {
+        val path = when (original) {
+            is RecoveryIntent.Correction -> "/order-items/${original.orderItemId}/recovery-context/"
+            is RecoveryIntent.Refund -> when (original.kind) {
+                RefundRecoveryKind.DIRECT -> "/payments/${original.paymentId}/recovery-context/"
+                RefundRecoveryKind.SETTLE_CORRECTION -> "/corrections/${requireNotNull(original.correctionId)}/recovery-context/?payment_id=${original.paymentId}"
+            }
+            else -> error("Este registro não é uma correção ou estorno.")
+        }
+        return authRepository.withAuthorizedAccess(session) {
+            ExceptionalRecoveryTarget.fromJson(client.request("GET", path, accessToken = it))
+        }.also { it.validate(original) }
+    }
+
     suspend fun products(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::products)
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)

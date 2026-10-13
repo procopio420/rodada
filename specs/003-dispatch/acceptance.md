@@ -19,3 +19,5 @@
 - [ ] Métricas conseguem separar MANUAL, INFERRED e CORRECTED.
 - [ ] É possível medir taxa de correção dos eventos inferidos para calibrar confidence.
 - [ ] POS continua funcional sem conexão realtime.
+
+T11b/026 local: fila Prontos inicial no pico, sem bloqueio visual por pendências ou chamadas. Troca de filtro não dispara conclusão. Conclusão manual preservada; inferência passiva e dispositivo físico não verificados. Evidência detalhada em specs/026-operational-ux-friction/revalidation.md.

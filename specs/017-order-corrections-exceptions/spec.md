@@ -440,9 +440,59 @@ Existing CANCELLED OrderItems remain valid. Where prior history lacks OrderCorre
 - reliable cancellation/remake analytics;
 - non-destructive recovery from mistakes.
 
+## UX-34 — Manager settlement without money to return
+
+After a partial payment, a whole NEW/ACCEPTED item cancellation remains a
+manager decision. With no payment-to-item allocation, confirmed money alone
+does not imply a positive refund. If current exposure covers the net item
+responsibility, the request is MANUAL_REVIEW_REQUIRED with zero refund amount.
+The manager explicitly approves through `POST /corrections/{id}/settle-without-refund/`.
+Require ORDER_CORRECT, active MANAGER/OWNER membership and recent reauthentication.
+The command has no editable financial payload: the correction ID identifies the
+immutable approved request and provides retry identity.
+
+Lock Tab before correction/item, revalidate NEW/ACCEPTED state, remaining whole
+quantity, open Tab and net consumption with canonical discount allocations,
+preserving existing assessed service allocations. Append
+the canonical reversal atomically; reject and roll back if resulting exposure
+would be negative. Never create Refund, Payment or CashMovement. Preserve all
+original snapshots. Record approver, time, reason and financial effect; replay
+has one adjustment and one approval audit. Historical REQUESTED REFUND_REQUIRED
+records with zero amount may use this same explicit command, without data rewrite.
+Positive refunds retain their existing authorized workflow; reject zero-value
+records through settle-refund. Paid partial-quantity removal and post-production
+corrections are outside this slice. The Web review must distinguish approval
+without repayment from actual refund and retain the original operation on an
+ambiguous response.
+
 ## Deliberately deferred
 
 - ingredient inventory write-off;
 - automated staff discipline/scoring;
 - AI blame/root-cause inference;
 - customer self-service cancellation after production start.
+
+
+## T03b — replay do estorno positivo da correção
+
+Gerência congela correction/Payment, valor exato, caixa, motivo canônico
+correction:reason_code e refund_idempotency_key antes do envio. Retomada segue
+Spec006/014 na sessão original e mantém PIN recente. Correção APPLIED só responde
+como replay se Payment/chave e fingerprint do Refund (valor, motivo e caixa CASH)
+coincidirem. Divergência não aplica outra reversão nem altera histórico. O recorte
+sem devolução T02 permanece separado e nunca cria Refund zero.
+
+T11d/026 — contexto de correção e estorno Android: consultas GET mínimas resolvem
+item/pagamento/correção pelo ID no Venue autenticado, com order.correct ou
+refund.create. Settlement exige payment da mesma Tab/Venue da correction.
+Android verifica IDs, snapshot da Tab, sessão e envelope antes de apresentar
+conferência separada, inclusive item cancelado/correção aplicada/Tab encerrada.
+Consulta não exige reauth nem altera regras financeiras; mutations mantêm reauth,
+idempotência, transações e auditoria existentes. Não reenvia, remove registro ou
+infere desfecho pelo estado/valor atual. Contrato e evidências: Spec026 T11d.
+
+T12b.3/026: consulta Web de item/correção valida registro original via resolver
+existente e Tab, inclusive cancelado/encerrado/aplicado. Correção exige pagamento
+explícito da mesma Tab; ausência na lista de pendências não define estado. Conferência
+não aprova/rejeita/cancela/estorna e preserva intenção guardada. Sessão/IDs conferidos,
+falha sem fallback; retorno local e foco no resumo.

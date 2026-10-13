@@ -23,6 +23,8 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
             raise RuntimeError("Real Web tests require dedicated database rodada_web_e2e")
     settings.DEBUG = False
     settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    if os.environ.get("RODADA_E2E_ANDROID") == "1":
+        settings.ALLOWED_HOSTS.append("10.0.2.2")
 
     import django
     django.setup()

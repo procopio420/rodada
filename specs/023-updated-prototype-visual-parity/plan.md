@@ -124,3 +124,12 @@ Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lin
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
 
 Merge validation: CI exposed that restoring eth0 alone does not restore the emulator route. The initial original-NIC restoration experiments are superseded by the pilot RC transport contract from main defcd94 (Spec014 acceptance). Preserve that upstream harness exactly: all uplinks must be unavailable during the held committed POST and offline process death; after restoration, require a routed UP eth0/wlan0 and real same-key/body replay with exactly one order/charge. Physical Wi-Fi remains restricted to wlan0. Do not add manual routing configuration to the emulator. Re-run the integrated PR gates before merging.
+
+### T09b — descoberta guest
+Reutilizar helpers de busca/categoria do Atendimento e Product.category projetada
+pela leitura guest. Filtrar apenas exibição; catálogo completo conserva revisão
+por IDs, quantidades e seleção. Todos inicial, busca global, categoria ao limpar,
+fallback quando removida e contagem/vazio. Acesso Pedido atual fica estável mesmo
+vazio e foca o draft. Ensaiar 146 produtos (143 CSV + três fixtures existentes),
+configuração, bloqueios/atualização/revogação/intent, Web/API PostgreSQL em três
+larguras e visual completo, sem modificar referências ou tolerâncias.

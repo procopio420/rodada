@@ -1,6 +1,7 @@
 package com.rodada.attendance.operations
 
 import java.util.Locale
+import java.math.BigDecimal
 
 data class CustomerSummary(val id: String, val displayName: String, val kind: String)
 
@@ -37,6 +38,8 @@ data class OrderItem(
     val lineTotalCents: Long,
     val state: String,
     val customizationText: String = "",
+    val productId: String? = null,
+    val customization: Customization? = null,
 )
 
 data class TabOrder(
@@ -167,27 +170,16 @@ fun formatCents(cents: Long): String {
 
 /** Parses a Brazilian user-entered amount to integer cents without ever using floating point. */
 fun parseCents(raw: String): Long? {
-    val normalized = raw.trim().replace("R$", "", ignoreCase = true).replace(" ", "")
-    if (normalized.isBlank()) return null
-    val comma = normalized.lastIndexOf(',')
-    val dot = normalized.lastIndexOf('.')
-    val separator = maxOf(comma, dot)
-    val digits = normalized.filter { it.isDigit() }
-    if (digits.isEmpty()) return null
-    val centsDigits =
-        if (separator >= 0) {
-            val fraction = normalized.substring(separator + 1).filter { it.isDigit() }
-            when {
-                fraction.length > 2 -> return null
-                else -> fraction.padEnd(2, '0')
-            }
-        } else {
-            "00"
-        }
-    val whole =
-        if (separator >= 0) normalized.substring(0, separator).filter { it.isDigit() }
-        else digits
-    return (whole.ifBlank { "0" }.toLongOrNull()?.times(100))?.plus(centsDigits.toLong())
+    val input = raw.trim().replace(Regex("^R\\$\\s*", RegexOption.IGNORE_CASE), "")
+    if (!Regex("(?:[0-9]+|[0-9]*[.,][0-9]{1,2}|[0-9]{1,3}(?:\\.[0-9]{3})+,[0-9]{1,2})").matches(input)) return null
+    val normalized = if (',' in input) input.replace(".", "").replace(',', '.') else input
+    return try {
+        BigDecimal(normalized).movePointRight(2).longValueExact()
+    } catch (_: ArithmeticException) {
+        null
+    } catch (_: NumberFormatException) {
+        null
+    }
 }
 
 internal fun tabsForSurface(tabs: List<TabSummary>, agora: Boolean): List<TabSummary> =

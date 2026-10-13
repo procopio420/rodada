@@ -53,3 +53,17 @@ prototype comparisons document differing functionality rather than treating
 unrelated layouts as equivalent. A separate suite exercises the real Django API
 through the Web BFF with a disposable database; mocked visual tests are never
 reported as real API E2E coverage.
+
+
+### Spec 026 T10a — acesso às regiões de produção
+Em 360–430 px, Cozinha/Bar oferecem navegação persistente Fila, Prontos e
+Disponibilidade. Uma ação rola e transfere foco à região nomeada; não registra
+preparo, retirada ou disponibilidade. Fila mostra contagem de linhas aguardando/
+em preparo, Prontos somente READY e Disponibilidade o total de produtos da
+estação. Antes do snapshot, contagem é desconhecida (—); cache/erro conserva
+a sinalização existente de estado antigo. Atalhos permanecem utilizáveis durante
+mutation/erro, mas não liberam ações bloqueadas. Regiões permanecem montadas.
+Iniciar preparo → Pronto continua manual. Lote, agrupamento por configuração,
+concorrência independente e SLA são fora deste recorte. Desktop preserva layout.
+
+T10b/Spec026: resumo da estação reutiliza CustomizationText com configuração confirmada; histórico incompleto fica independente e identificado. API/mutations/autorização e navegação T10a preservadas.

@@ -52,3 +52,18 @@ Create a default CashPoint for existing Venues. Legacy CashShift summaries remai
 ## Dependencies first
 
 Payment/Refund states (006), authorization (008), and canonical daily-close consumption by 007.
+
+## Recorte POS Web CASH — Spec026 T03a
+
+Implementar contrato de recebimento recuperável da Spec006, envelope
+por sessão da014 e fingerprint físico da012. Usar componentes existentes;
+validar Web/API e PostgreSQL descartável, sem alterar snapshot ou provider.
+
+## T03b — execução do estorno manual recuperável
+
+1. Envelope antes do POST; guard síncrono, campos congelados e retomada explícita.
+2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
+3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
+   concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
+
+T11c/026: reutilizar GET shiftDetail e manter snapshot de conferência separado da seleção operacional; revalidar sessão/envelope/shift ID após GET. Evidência e gates em specs/026-operational-ux-friction/revalidation.md.

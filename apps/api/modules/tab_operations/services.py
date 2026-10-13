@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 
 from django.db import transaction
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
 from django.utils import timezone
 
 from modules.access.capabilities import Capability
@@ -57,8 +57,9 @@ def payment_blocker(tab, *, confirmed=True):
 
 
 def responsibility(tab):
-    from django.db.models import Exists, OuterRef, Subquery, IntegerField
+    from django.db.models import Exists, IntegerField, OuterRef, Subquery
     from django.db.models.functions import Coalesce
+
     from modules.ledger.models import AdjustmentAllocation, LedgerAdjustment
     from modules.ledger.pricing import components
 
@@ -290,7 +291,10 @@ def execute(*, tab_id, data, actor):
             table_id = TableOccupancy.objects.filter(pk=occupancy_id, table__venue_id=actor.venue_id).values_list("table_id", flat=True).first()
             if table_id:
                 Table.objects.select_for_update().get(pk=table_id)
-                occupancy = TableOccupancy.objects.select_for_update().filter(pk=occupancy_id, released_at__isnull=True, table__status="OCCUPIED").first()
+                occupancy = TableOccupancy.objects.select_for_update().filter(
+                    pk=occupancy_id, released_at__isnull=True, table__status="OCCUPIED",
+                    generation=F("table__access_generation"),
+                ).first()
             if not occupancy:
                 raise OperationError("OCCUPANCY_NOT_ACTIVE", "Ocupação não está ativa.")
         if point_id:
@@ -305,7 +309,7 @@ def execute(*, tab_id, data, actor):
         source.save(update_fields=["service_point"])
         from modules.dispatch.services import refresh_tab_destination
         refresh_tab_destination(source, actor)
-        emit(actor, "tab.location_changed", source, {"before": before, "occupancy_id": str(occupancy_id) if occupancy_id else None, "service_point_id": str(point_id) if point_id else None})
+        emit(actor, "tab.location_changed", source, {"before": before, "occupancy_id": str(occupancy_id) if occupancy_id else None, "service_point_id": str(point_id) if point_id else None}, reason)
     elif kind == "CANCEL_EMPTY":
         check_open(source)
         from modules.access.capabilities import has_capability

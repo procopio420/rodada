@@ -43,6 +43,18 @@ Ship location move first because it has no ledger effect. Ship financial transfe
 
 Do not silently migrate historical Orders/Payments.
 
+Spec 026 T06d: first reproduce stale destination generation and lost audit reason
+through the existing HTTP command; validate generation under the existing
+Table/Occupancy locks and pass reason to audit. Exercise paid/unpaid moves,
+exact replay, permission denial and move/release races in disposable PostgreSQL.
+Keep the Attendance Web movement UI outside this backend correction.
+
+Web continuation: narrow Attendance gateway, always-mounted ActionDialog for
+reload recovery, source contextual read before confirmation and immutable
+session-scoped intent before POST. Verify auth, operation and Tab/table readback.
+Test mobile, ambiguity, storage/session and real PostgreSQL journeys; preserve
+existing drafts, independent occupancy lifecycle and financial history.
+
 ## Testing strategy
 
 - property/invariant tests for balanced transfer;
@@ -71,3 +83,6 @@ Attendance operation sheet. Preserve existing transport; AuditEvent is the durab
 5. Preserve Android server rejection through a failed refresh and offer state-valid operations only.
 6. Validate persisted HTTP workflows, full-shift smoke, row-lock races and Android unit/build/lint gates.
 7. Record evidence and remaining adjacent-owner integrations; open a follow-up PR without merging.
+
+### T07d — valor parcial Android
+Solicitar teclado decimal, mostrar erro para texto inválido/zero e bloquear preview/commit de novo comando; retirar fallback de parse para zero. Testar callback do preview com centavos exatos e ausência de commit, mantendo recuperação pendente e validação server-side.

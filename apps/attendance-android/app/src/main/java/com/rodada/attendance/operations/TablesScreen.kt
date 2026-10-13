@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import com.rodada.attendance.ui.RodadaButton as Button
 import androidx.compose.material3.Card
@@ -36,6 +39,10 @@ fun TablesScreen(
 ) {
     var occupyingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
+    var releasingLabel by rememberSaveable { mutableStateOf("") }
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
     val assignableTabs = state.tabs.filter { it.state != "CLOSED" && it.id !in attachedTabIds }
 
@@ -59,12 +66,51 @@ fun TablesScreen(
                 canManage = canManageTables,
                 onOccupy = { occupyingTableId = table.id },
                 onAttach = { attachingOccupancyId = it },
-                onRelease = { onRelease(table.id) },
+                onRelease = {
+                    table.activeOccupancy?.let {
+                        releasingTableId = table.id
+                        releasingOccupancyId = it.id
+                        releasingGeneration = it.generation
+                        releasingLabel = table.label
+                    }
+                },
                 onStartCleaning = { onStartCleaning(table.id) },
                 onCompleteCleaning = { onCompleteCleaning(table.id) },
                 partySizeEditor = partySizeEditor,
             )
         }
+    }
+
+    releasingTableId?.let { tableId ->
+        val current = state.tables.firstOrNull { it.id == tableId }
+        val sameOccupancy = current?.status == "OCCUPIED" &&
+            current.activeOccupancy?.id == releasingOccupancyId &&
+            current.activeOccupancy?.generation == releasingGeneration
+        AlertDialog(
+            onDismissRequest = { releasingTableId = null },
+            title = { Text("Liberar mesa $releasingLabel?") },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.")
+                    Text("As comandas e seus saldos permanecem. Esta ação não recebe pagamentos nem fecha comandas.")
+                    if (!sameOccupancy) Text("A ocupação mudou. Cancele e confira a mesa novamente.", color = MaterialTheme.colorScheme.error)
+                    if (!canManageTables) Text("Seu acesso atual não permite liberar a mesa.")
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    modifier = Modifier.heightIn(min = 44.dp),
+                    enabled = sameOccupancy && canManageTables && !state.submitting,
+                    onClick = {
+                        if (releasingTableId == tableId && sameOccupancy && canManageTables && !state.submitting) {
+                            releasingTableId = null
+                            onRelease(tableId)
+                        }
+                    },
+                ) { Text("Confirmar liberação") }
+            },
+            dismissButton = { TextButton(onClick = { releasingTableId = null }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
+        )
     }
 
     occupyingTableId?.let { tableId ->
