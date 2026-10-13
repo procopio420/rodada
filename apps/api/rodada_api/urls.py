@@ -25,6 +25,7 @@ from modules.management.views import (CalendarView, ReportView, AlertListView, A
 from modules.venue.station_views import StationListView, StationPreviewView, StationApplyView
 from modules.cash.views import CashShiftListView
 from modules.hospitality.views import (
+    TableServiceStartView, OccupancyTabOpenView, OccupancyResponsibilityClaimView,
     PartySizeView,
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -187,6 +188,9 @@ urlpatterns = [
     path("catalog/assets/<uuid:icon_id>/<str:filename>/", PublishedIconAssetView.as_view()),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
+    path("hospitality/tables/<uuid:table_id>/service/start/", TableServiceStartView.as_view()),
+    path("hospitality/occupancies/<uuid:occupancy_id>/tabs/open/", OccupancyTabOpenView.as_view()),
+    path("hospitality/occupancies/<uuid:occupancy_id>/responsibility/claim/", OccupancyResponsibilityClaimView.as_view()),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
     path("hospitality/zones/", ZoneListCreateView.as_view(), name="zone-list-create"),
     path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),

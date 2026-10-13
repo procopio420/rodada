@@ -29,6 +29,14 @@ class PendingMutationIntentStore(context: Context) {
         val records = loadAll()
         val original = records.firstOrNull { it.intent.id == intent.id }
         require(original == null || original.sessionId == session.sessionId) { "Não reatribua uma intenção a outra sessão." }
+        if (original != null && intent is RecoveryIntent.TableService) {
+            require(original.intent == intent) { "Uma intenção de mesa não pode trocar destino, payload ou chave." }
+        }
+        if (intent is RecoveryIntent.TableService && original == null) {
+            require(records.none { it.canReplay(session) && it.intent is RecoveryIntent.TableService }) {
+                "Verifique o atendimento pendente antes de iniciar outra intenção."
+            }
+        }
         if (original != null && intent is RecoveryIntent.ConfirmOrder) {
             // Data-class equality deliberately ignores only state; JSON key order does
             // not carry meaning and must not decide whether a financial fact is safe.
@@ -166,6 +174,15 @@ sealed interface RecoveryIntent {
     val createdAtMillis: Long
     val state: RecoveryState
     fun toJson(): JSONObject
+
+    data class TableService(
+        override val id: String, override val staffId: String, override val venueId: String,
+        override val deviceId: String, override val idempotencyKey: String,
+        override val createdAtMillis: Long, override val state: RecoveryState,
+        val path: String, val commandJson: String,
+    ) : RecoveryIntent {
+        override fun toJson() = baseJson("TABLE_SERVICE").put("path", path).put("command_json", commandJson)
+    }
 
     data class Pricing(
         override val id: String, override val staffId: String, override val venueId: String,
@@ -358,6 +375,7 @@ sealed interface RecoveryIntent {
                 state = RecoveryState.valueOf(json.getString("state")),
             )
             when (json.getString("type")) {
+                "TABLE_SERVICE" -> TableService(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("path"), json.getString("command_json"))
                 "PRICING" -> Pricing(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "TAB_STRUCTURE" -> TabStructure(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "CONFIRM_ORDER" -> {

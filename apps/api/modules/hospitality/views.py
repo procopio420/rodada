@@ -21,8 +21,8 @@ from modules.hospitality.services import (
     create_zone,
     occupy_table,
     release_table,
-    set_table_location,
     set_guest_ordering_blocked,
+    set_table_location,
     start_cleaning,
 )
 
@@ -35,27 +35,55 @@ def _error_response(error: HospitalityServiceError) -> Response:
 
 
 def _occupancy_payload(occupancy: TableOccupancy) -> dict:
-    from modules.hospitality.party_size import current_party_size, observation_payload
+    from modules.hospitality.party_size import observation_payload
 
-    assignments = occupancy.tab_assignments.select_related("tab").all()
+    assignments = getattr(occupancy, "current_assignments", None)
+    if assignments is None:
+        assignments = occupancy.tab_assignments.filter(released_at__isnull=True).select_related(
+            "tab"
+        )
+    observations = list(occupancy.party_size_observations.all())
+    owner = occupancy.responsible_staff
+
     return {
         "id": str(occupancy.id),
         "table_id": str(occupancy.table_id),
         "generation": occupancy.generation,
-        "party_size": observation_payload(current_party_size(occupancy_id=occupancy.id)),
+        "party_size": observation_payload(observations[0] if observations else None),
+        "responsible_staff_id": str(occupancy.responsible_staff_id) if owner else None,
+        "responsible_staff": {"id": str(owner.id), "display_name": owner.display_name}
+        if owner
+        else None,
+        "responsible_since": occupancy.responsible_since,
+        "responsibility_version": occupancy.responsibility_version,
+        **getattr(occupancy, "service_attention", {}),
         "started_at": occupancy.started_at,
         "released_at": occupancy.released_at,
         "cleaning_started_at": occupancy.cleaning_started_at,
         "ready_at": occupancy.ready_at,
         "tabs": [
-            {"id": str(assignment.tab_id), "display_label": assignment.tab.display_label}
+            {
+                "id": str(assignment.tab_id),
+                "tab_id": str(assignment.tab_id),
+                "display_label": assignment.tab.display_label,
+                "state": assignment.tab.state,
+                "opened_at": assignment.tab.opened_at,
+                "display_reference": "Comanda " + str(assignment.tab_id)[:8],
+                "table_id": str(occupancy.table_id),
+            }
+            if hasattr(occupancy, "current_assignments")
+            else {"id": str(assignment.tab_id), "display_label": assignment.tab.display_label}
             for assignment in assignments
         ],
     }
 
 
 def _table_payload(table: Table) -> dict:
-    active = table.occupancies.filter(released_at__isnull=True).first()
+    active = (
+        (table.current_occupancies[0] if table.current_occupancies else None)
+        if hasattr(table, "current_occupancies")
+        else table.occupancies.filter(released_at__isnull=True).first()
+    )
     return {
         "id": str(table.id),
         "label": table.label,
@@ -73,11 +101,9 @@ class TableListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        tables = (
-            Table.objects.filter(venue=request.auth.venue)
-            .select_related("zone")
-            .prefetch_related("occupancies__tab_assignments__tab")
-        )
+        from .projections import staff_tables
+
+        tables = staff_tables(request.actor_context.venue_id)
         return Response({"results": [_table_payload(table) for table in tables]})
 
     def post(self, request):
@@ -249,8 +275,8 @@ class PartySizeView(APIView):
         )
 
     def post(self, request, occupancy_id=None, tab_id=None):
+        from modules.hospitality.party_size import observation_payload, record_party_size
         from modules.hospitality.serializers import PartySizeSerializer
-        from modules.hospitality.party_size import record_party_size, observation_payload
 
         serializer = PartySizeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -264,3 +290,55 @@ class PartySizeView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response(observation_payload(row))
+
+
+class TableServiceStartView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.TABLE_MANAGE
+
+    def post(self, request, table_id):
+        from .serializers import ServiceStartSerializer
+        from .table_service import start_table_service
+
+        return _service_command(
+            request, ServiceStartSerializer, start_table_service, table_id=table_id
+        )
+
+
+class OccupancyTabOpenView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.TAB_OPEN
+
+    def post(self, request, occupancy_id):
+        from .serializers import ContextualTabSerializer
+        from .table_service import open_tab_in_occupancy
+
+        return _service_command(
+            request, ContextualTabSerializer, open_tab_in_occupancy, occupancy_id=occupancy_id
+        )
+
+
+class OccupancyResponsibilityClaimView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.TABLE_MANAGE
+
+    def post(self, request, occupancy_id):
+        from .serializers import ResponsibilityClaimSerializer
+        from .table_service import claim_occupancy_responsibility
+
+        return _service_command(
+            request,
+            ResponsibilityClaimSerializer,
+            claim_occupancy_responsibility,
+            occupancy_id=occupancy_id,
+        )
+
+
+def _service_command(request, serializer_type, service, **target):
+    serializer = serializer_type(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    try:
+        result = service(actor=request.actor_context, **target, **serializer.validated_data)
+    except HospitalityServiceError as error:
+        return _error_response(error)
+    return Response(result, status=200 if result["replayed"] else 201)

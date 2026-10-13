@@ -96,6 +96,15 @@ class TableOccupancy(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     table = models.ForeignKey(Table, on_delete=models.PROTECT, related_name="occupancies")
+    responsible_staff = models.ForeignKey(
+        StaffMember,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="responsible_occupancies",
+    )
+    responsible_since = models.DateTimeField(null=True, blank=True)
+    responsibility_version = models.PositiveIntegerField(default=0)
     generation = models.PositiveIntegerField()
     started_at = models.DateTimeField(auto_now_add=True)
     released_at = models.DateTimeField(null=True, blank=True)
@@ -228,4 +237,24 @@ class PartySizeObservation(models.Model):
             models.UniqueConstraint(
                 fields=("venue", "idempotency_key"), name="party_size_request_unique"
             ),
+        ]
+
+
+class ServiceCommand(models.Model):
+    """Durable staff intent/result. Retained indefinitely; no silent key expiry."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT)
+    actor = models.ForeignKey(StaffMember, on_delete=models.PROTECT)
+    action = models.CharField(max_length=16)
+    key = models.CharField(max_length=128)
+    fingerprint = models.CharField(max_length=64)
+    result = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("venue", "actor", "action", "key"), name="hospitality_service_intent_unique"
+            )
         ]

@@ -7,6 +7,7 @@ fun RecoveryIntent.evidence(reviewOnly: Boolean = false) = RecoveryEvidence(id, 
     is RecoveryIntent.StartPayment -> "Recebimento"
     is RecoveryIntent.Correction -> "Correção de pedido"
     is RecoveryIntent.Refund -> "Estorno"
+    is RecoveryIntent.TableService -> "Atendimento de mesa"
     is RecoveryIntent.Pricing -> "Ajuste de conta"
     is RecoveryIntent.TabStructure -> "Operação de comanda"
     is RecoveryIntent.CashMovement -> "Movimento de caixa"

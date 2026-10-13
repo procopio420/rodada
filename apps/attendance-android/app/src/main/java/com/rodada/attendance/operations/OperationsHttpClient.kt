@@ -134,6 +134,11 @@ class OperationsHttpClient(baseUrl: String) {
             .toObjects()
             .map { ZoneSummary(it.getString("id"), it.getString("label")) }
 
+    fun tableService(accessToken: String, path: String, payload: JSONObject): JSONObject {
+        require(Regex("/hospitality/(tables/[a-zA-Z0-9_-]+/service/start|occupancies/[a-zA-Z0-9_-]+/(tabs/open|responsibility/claim))/").matches(path))
+        return request("POST", path, payload, accessToken)
+    }
+
     fun occupyTable(accessToken: String, tableId: String, tabId: String?) {
         request(
             "POST",
@@ -296,8 +301,14 @@ class OperationsHttpClient(baseUrl: String) {
                 TableOccupancy(
                     id = occupancy.getString("id"),
                     generation = occupancy.optInt("generation"),
+                    responsibleStaffId = occupancy.optString("responsible_staff_id").takeIf { it.isNotBlank() && it != "null" },
+                    responsibleStaffName = occupancy.optJSONObject("responsible_staff")?.optString("display_name"),
+                    responsibilityVersion = occupancy.optInt("responsibility_version"),
+                    serviceAttention = occupancy.optString("unassigned_service_attention", "NONE"),
+                    guestOrderCount = occupancy.optInt("unassigned_guest_order_count"),
+                    oldestGuestOrderAt = occupancy.optString("oldest_unassigned_guest_order_at").takeIf { it.isNotBlank() && it != "null" },
                     tabs = occupancy.getJSONArray("tabs").toObjects().map {
-                        TableOccupancyTab(it.getString("id"), it.optString("display_label", "Comanda sem nome"))
+                        TableOccupancyTab(it.getString("id"), it.optString("display_label").ifBlank { "Comanda sem nome" }, it.optString("state", "OPEN"), it.optString("opened_at"), it.optString("display_reference"))
                     },
                 )
             },

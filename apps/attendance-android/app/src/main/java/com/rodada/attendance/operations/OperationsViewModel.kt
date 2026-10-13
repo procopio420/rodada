@@ -52,6 +52,7 @@ data class OperationsUiState(
     val pendingServiceAction: ServiceRequestAction? = null,
     val recoveryEvidence: List<RecoveryEvidence> = emptyList(),
     val tables: List<TableSummary> = emptyList(),
+    val pendingTableService: RecoveryIntent.TableService? = null,
     val selectedTab: TabDetail? = null,
     val cart: List<CartLine> = emptyList(),
     val errorMessage: String? = null,
@@ -175,7 +176,7 @@ class OperationsViewModel(
             repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson))
         } catch (error: OperationsApiException) {
             // Deterministic server rejection means no commit. Network ambiguity retains the exact command.
-            if (error.status in 400..499) {
+            if (error.status in setOf(400, 404, 409, 422)) {
                 pendingMutationIntentStore.remove(intent.id)
                 state = state.copy(pendingTabOperation = null, operationPreview = null,
                     operationState = null, connectivity = ConnectivityState.STALE)
@@ -270,6 +271,7 @@ class OperationsViewModel(
                     cashPoints = snapshot.cashPoints,
                     deliveryTasks = snapshot.deliveryTasks,
                     tables = snapshot.tables,
+                    pendingTableService = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().firstOrNull(),
                     selectedTab = snapshot.detail ?: state.selectedTab,
                     connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
@@ -317,6 +319,7 @@ class OperationsViewModel(
     }
 
     fun openTab(session: StoredSession, label: String, customerId: String? = null) = action {
+        check(state.cart.isEmpty() && state.orderIntentId == null && state.pendingTableService == null) { "Conclua o rascunho ou verifique o atendimento pendente antes de abrir outra comanda." }
         val opened = repository.openTab(session, label, customerId)
         val detail = repository.tabDetail(session, opened.id)
         state = state.copy(
@@ -332,6 +335,8 @@ class OperationsViewModel(
     }
 
     fun selectTab(session: StoredSession, tabId: String) = action {
+        check(state.cart.isEmpty() && state.orderIntentId == null) { "Conclua o rascunho antes de trocar de comanda." }
+        check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de selecionar outra comanda." }
         val detail = repository.tabDetail(session, tabId)
         val retained = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId }
         val retainedPayment = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId }
@@ -356,6 +361,10 @@ class OperationsViewModel(
     }
 
     fun clearSelection() {
+        if (state.cart.isNotEmpty() || state.orderIntentId != null) {
+            state = state.copy(noticeMessage = "Rascunho preservado. Confirme ou remova os itens antes de sair.")
+            return
+        }
         state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
     }
 
@@ -794,6 +803,46 @@ class OperationsViewModel(
         }
     }
 
+    fun startTableService(session: StoredSession, tableId: String) = tableServiceCommand(session,
+        "/hospitality/tables/$tableId/service/start/", org.json.JSONObject())
+
+    fun openTableTab(session: StoredSession, occupancy: TableOccupancy, label: String) = tableServiceCommand(session,
+        "/hospitality/occupancies/${occupancy.id}/tabs/open/", org.json.JSONObject()
+            .put("display_label", label).put("expected_generation", occupancy.generation))
+
+    fun claimTableService(session: StoredSession, occupancy: TableOccupancy) = tableServiceCommand(session,
+        "/hospitality/occupancies/${occupancy.id}/responsibility/claim/", org.json.JSONObject()
+            .put("expected_responsibility_version", occupancy.responsibilityVersion)
+            .put("mode", if (occupancy.responsibleStaffId == null) "CLAIM_UNASSIGNED" else "TAKE_OVER"))
+
+    fun retryTableService(session: StoredSession) = tableServiceCommand(session, "", org.json.JSONObject())
+
+    private fun tableServiceCommand(session: StoredSession, path: String, payload: org.json.JSONObject) = action {
+        check(state.cart.isEmpty() && state.orderIntentId == null) { "Conclua o rascunho antes de alterar a mesa." }
+        val pending = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().firstOrNull()
+        val key = pending?.idempotencyKey ?: UUID.randomUUID().toString()
+        val intent = pending ?: RecoveryIntent.TableService(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, path,
+            payload.put("idempotency_key", key).toString())
+        if (!preserveIntent(intent, session)) return@action
+        state = state.copy(pendingTableService = intent, noticeMessage = "Verificando atendimento…")
+        val result = try {
+            repository.tableService(session, intent.path, org.json.JSONObject(intent.commandJson))
+        } catch (error: OperationsApiException) {
+            if (error.status in setOf(400, 404, 409, 422)) {
+                pendingMutationIntentStore.remove(intent.id)
+                state = state.copy(pendingTableService = null, tables = repository.tables(session))
+            }
+            throw error
+        }
+        pendingMutationIntentStore.remove(intent.id)
+        state = state.copy(pendingTableService = null, tables = repository.tables(session),
+            tabs = repository.tabs(session), noticeMessage = "Atendimento confirmado.")
+        result.optString("tab_id").takeIf { it.isNotBlank() }?.let { id ->
+            state = state.copy(selectedTab = repository.tabDetail(session, id), cart = emptyList())
+        }
+    }
+
     fun occupyTable(session: StoredSession, tableId: String, tabId: String?) = tableAction(session) {
         repository.occupyTable(session, tableId, tabId)
         "Mesa ocupada."
@@ -861,6 +910,7 @@ class OperationsViewModel(
     }
 
     private fun tableAction(session: StoredSession, block: suspend () -> String) = action {
+        check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de alterar a mesa." }
         val notice = block()
         state = state.copy(tables = repository.tables(session), noticeMessage = notice)
     }

@@ -71,6 +71,10 @@ jobs:
           RODADA_API_BASE_URL: http://127.0.0.1:8100
         run: npm run build
 
+      - name: Table-service gateway authentication and financial isolation
+        working-directory: apps/web
+        run: npm run test:table-service
+
       - name: Visual, responsive and accessibility gates
         working-directory: apps/web
         run: npm run test:visual
