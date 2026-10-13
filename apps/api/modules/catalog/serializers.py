@@ -30,5 +30,5 @@ def product_payload(product):
             "description": product.description, "category": product.category,
             "normalized_name": product.normalized_name, "active": product.active,
             "fulfillment_station": product.fulfillment_station,
-            "availability": product.availability.state, "icon": icon_payload(product),
+            "availability": product.availability.state, "availability_version": product.availability.version, "icon": icon_payload(product),
             **ordering_schema(product)}

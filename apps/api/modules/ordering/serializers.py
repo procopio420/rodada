@@ -21,3 +21,22 @@ class OrderLineSerializer(serializers.Serializer):
 class OrderConfirmSerializer(serializers.Serializer):
     lines = OrderLineSerializer(many=True, allow_empty=False)
     idempotency_key = serializers.CharField(max_length=120)
+
+
+class ProductionBatchLineSerializer(serializers.Serializer):
+    item_id = serializers.UUIDField()
+    expected_state = serializers.ChoiceField(choices=("NEW", "ACCEPTED", "PREPARING"))
+    quantity = serializers.IntegerField(min_value=1, max_value=999)
+    snapshot_fingerprint = serializers.RegexField(r"^[a-f0-9]{64}$")
+
+
+class ProductionBatchSerializer(serializers.Serializer):
+    idempotency_key = serializers.CharField(max_length=120)
+    station = serializers.ChoiceField(choices=("BAR", "KITCHEN"))
+    target_state = serializers.ChoiceField(choices=("PREPARING", "READY"))
+    lines = ProductionBatchLineSerializer(many=True, allow_empty=False, max_length=50)
+
+    def validate_lines(self, value):
+        if len({line["item_id"] for line in value}) != len(value):
+            raise serializers.ValidationError("Selecione cada linha uma única vez.")
+        return value

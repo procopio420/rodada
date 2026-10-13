@@ -21,8 +21,8 @@ from modules.hospitality.services import (
     create_zone,
     occupy_table,
     release_table,
-    set_table_location,
     set_guest_ordering_blocked,
+    set_table_location,
     start_cleaning,
 )
 
@@ -37,7 +37,7 @@ def _error_response(error: HospitalityServiceError) -> Response:
 def _occupancy_payload(occupancy: TableOccupancy) -> dict:
     from modules.hospitality.party_size import current_party_size, observation_payload
 
-    assignments = occupancy.tab_assignments.select_related("tab").all()
+    assignments = occupancy.tab_assignments.select_related("tab").filter(released_at__isnull=True)
     return {
         "id": str(occupancy.id),
         "table_id": str(occupancy.table_id),
@@ -249,8 +249,8 @@ class PartySizeView(APIView):
         )
 
     def post(self, request, occupancy_id=None, tab_id=None):
+        from modules.hospitality.party_size import observation_payload, record_party_size
         from modules.hospitality.serializers import PartySizeSerializer
-        from modules.hospitality.party_size import record_party_size, observation_payload
 
         serializer = PartySizeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

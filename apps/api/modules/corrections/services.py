@@ -231,12 +231,9 @@ def cancel_before_fulfillment(
         if requested_quantity < remaining:
             raise CorrectionServiceError("PARTIAL_PAID_CORRECTION_REQUIRES_REVIEW", "Este item envolve pagamento. A remoção parcial exige revisão da gerência.", 409)
         if record_paid_request:
-            # The adjustment is deliberately deferred until the manager settles
-            # the refund.  Still, the client must receive the exact canonical
-            # amount that will bring the tab back to zero once that adjustment
-            # is appended.  Leaving this at the model default made a paid
-            # cancellation look like a R$ 0,00 refund and blocked native
-            # settlement validation.
+            # Defer the adjustment until a manager reviews confirmed money.
+            # Only consumption exceeding the current exposure requires repayment;
+            # zero means a managerial reversal without creating a Refund.
             from modules.ledger.services import totals
 
             current_exposure = totals(item.order.tab)["exposure_cents"]
@@ -252,7 +249,8 @@ def cancel_before_fulfillment(
                 stage_at_request=item.state,
                 reason_code=reason_code,
                 reason_text=reason_text,
-                financial_disposition=FinancialDisposition.REFUND_REQUIRED,
+                financial_disposition=(FinancialDisposition.REFUND_REQUIRED if refund_required_cents
+                                       else FinancialDisposition.MANUAL_REVIEW_REQUIRED),
                 refund_required_cents=refund_required_cents,
                 quantity_cancelled=requested_quantity,
                 idempotency_key=idempotency_key,
@@ -262,7 +260,8 @@ def cancel_before_fulfillment(
             correction._idempotency_replay = False
             record_audit_event(
                 actor=actor,
-                event_type="order_item.refund_required",
+                event_type=("order_item.refund_required" if refund_required_cents
+                            else "order_item.correction_requested"),
                 entity_type="OrderCorrection",
                 entity_id=str(correction.id),
                 reason=reason_code,
@@ -563,6 +562,7 @@ def settle_refund_required_cancellation(
     refund_idempotency_key: str,
     cash_point_id,
     actor: ActorContext,
+    originating_session_id=None,
 ):
     """Settle a paid cancellation through an explicit refund plus reversal.
 
@@ -570,6 +570,8 @@ def settle_refund_required_cancellation(
     inspectable facts: the original Charge, a negative LedgerAdjustment and a
     Refund against the manager-selected confirmed Payment.
     """
+    if originating_session_id is not None and str(originating_session_id) != str(actor.session_id):
+        raise CorrectionServiceError("SESSION_CONTEXT_CHANGED", "Retome o estorno na sessão original.", 403)
     original_id = OrderCorrection.objects.filter(
         pk=correction_id, venue_id=actor.venue_id
     ).values_list("original_order_item_id", flat=True).first()
@@ -597,9 +599,17 @@ def settle_refund_required_cancellation(
             and correction.refund.idempotency_key == refund_idempotency_key
         ):
             correction._idempotency_replay = True
-            from modules.ledger.services import totals
+            from modules.ledger.services import LedgerServiceError, create_refund
 
-            return correction, correction.refund, totals(item.order.tab)
+            try:
+                refund, result = create_refund(
+                    payment_id=payment_id, amount_cents=amount_cents,
+                    idempotency_key=refund_idempotency_key, reason=f"correction:{correction.reason_code}",
+                    cash_point_id=cash_point_id, actor=actor, originating_session_id=originating_session_id,
+                )
+            except LedgerServiceError as error:
+                raise CorrectionServiceError(error.code, error.message, error.status_code) from error
+            return correction, refund, result
         raise CorrectionServiceError(
             "CORRECTION_ALREADY_SETTLED",
             "Esta correção já foi concluída.",
@@ -627,7 +637,11 @@ def settle_refund_required_cancellation(
         raise CorrectionServiceError("TAB_CLOSED", "Comanda fechada não aceita estorno de correção.", 409)
     if not isinstance(amount_cents, int) or isinstance(amount_cents, bool) or amount_cents <= 0:
         raise CorrectionServiceError("INVALID_REFUND", "Valor de estorno inválido.")
-    if correction.refund_required_cents and amount_cents != correction.refund_required_cents:
+    if correction.refund_required_cents == 0:
+        raise CorrectionServiceError(
+            "CORRECTION_REQUIRES_REVIEW", "Esta correção exige revisão sem devolução de dinheiro.", 409,
+        )
+    if amount_cents != correction.refund_required_cents:
         raise CorrectionServiceError(
             "REFUND_AMOUNT_MISMATCH",
             "O estorno precisa cobrir exatamente o saldo de correção pendente.",
@@ -700,3 +714,72 @@ def settle_refund_required_cancellation(
         },
     )
     return correction, refund, result
+
+
+@transaction.atomic
+def settle_cancellation_without_refund(*, correction_id, actor: ActorContext):
+    """Approve the immutable whole-item request without assigning money to items."""
+    from modules.access.models import MembershipStatus
+    from modules.ledger.services import LedgerServiceError, reverse_open_responsibility, totals
+
+    if not VenueStaffMembership.objects.filter(
+        venue_id=actor.venue_id, staff_member_id=actor.staff_id,
+        status=MembershipStatus.ACTIVE, role__in=(StaffRole.MANAGER, StaffRole.OWNER),
+    ).exists():
+        raise CorrectionServiceError("MANAGER_APPROVAL_REQUIRED", "Esta revisão exige gerente.", 403)
+    original_id = OrderCorrection.objects.filter(
+        pk=correction_id, venue_id=actor.venue_id,
+    ).values_list("original_order_item_id", flat=True).first()
+    if original_id is None:
+        raise CorrectionServiceError("CORRECTION_NOT_FOUND", "Correção não encontrada.", 404)
+    _lock_item_financial_aggregate(item_id=original_id, actor=actor)
+    correction = OrderCorrection.objects.select_for_update().get(pk=correction_id)
+    item = OrderItem.objects.select_for_update().select_related("order__tab").get(pk=original_id)
+    if correction.status == CorrectionStatus.APPLIED:
+        if correction.financial_disposition == FinancialDisposition.REVERSE_OPEN_RESPONSIBILITY and not correction.refund_id:
+            correction._idempotency_replay = True
+            return correction, totals(item.order.tab)
+        raise CorrectionServiceError("CORRECTION_ALREADY_SETTLED", "Esta correção já foi concluída.", 409)
+    if (
+        correction.status != CorrectionStatus.REQUESTED
+        or correction.financial_disposition not in (
+            FinancialDisposition.MANUAL_REVIEW_REQUIRED, FinancialDisposition.REFUND_REQUIRED,
+        )
+        or correction.refund_required_cents != 0
+        or correction.financial_adjustment_id or correction.refund_id
+        or correction.replacement_order_item_id or correction.kind not in _CANCEL_KINDS
+    ):
+        raise CorrectionServiceError("CORRECTION_NOT_REVIEWABLE", "Correção exige outro fluxo autorizado.", 409)
+    if item.order.tab.state == TabState.CLOSED:
+        raise CorrectionServiceError("TAB_CLOSED", "Reabra a comanda antes da revisão.", 409)
+    if item.state not in _CANCELLABLE_STATES:
+        raise CorrectionServiceError("CORRECTION_STAGE_REQUIRES_APPROVAL", "O item mudou de estágio; atualize a revisão.", 409)
+    if item.remaining_quantity < 1 or correction.quantity_cancelled not in (None, item.remaining_quantity):
+        raise CorrectionServiceError("CORRECTION_QUANTITY_CHANGED", "A quantidade restante mudou; atualize a revisão.", 409)
+    try:
+        adjustment = reverse_open_responsibility(correction, item, actor)
+    except LedgerServiceError as error:
+        raise CorrectionServiceError(error.code, error.message, error.status_code) from error
+    result = totals(item.order.tab)
+    if result["exposure_cents"] < 0:
+        # The exception rolls back the tentative append and its audit/version.
+        raise CorrectionServiceError("CORRECTION_NOW_REQUIRES_REFUND", "O saldo mudou. Esta correção agora exige estorno autorizado.", 409)
+    _cancel_item_operationally(item=item, actor=actor, correction=correction)
+    correction.financial_adjustment = adjustment
+    correction.financial_disposition = FinancialDisposition.REVERSE_OPEN_RESPONSIBILITY
+    correction.status = CorrectionStatus.APPLIED
+    correction.approved_by_id = actor.staff_id
+    correction.applied_at = timezone.now()
+    correction.save(update_fields=["financial_adjustment", "financial_disposition", "status", "approved_by", "applied_at"])
+    if adjustment is None:
+        from django.db.models import F
+        Tab.objects.filter(pk=item.order.tab_id).update(version=F("version") + 1)
+    correction._idempotency_replay = False
+    record_audit_event(
+        actor=actor, event_type="order_item.cancelled_without_refund", entity_type="OrderCorrection",
+        entity_id=str(correction.id), reason=correction.reason_code,
+        metadata={"order_item_id": str(item.id), "tab_id": str(item.order.tab_id),
+                  "financial_adjustment_id": str(adjustment.id) if adjustment else None,
+                  "financial_disposition": correction.financial_disposition, **result},
+    )
+    return correction, result

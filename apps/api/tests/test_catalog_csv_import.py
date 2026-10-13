@@ -1,6 +1,7 @@
 import io
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -55,6 +56,9 @@ class ImportCatalogCsvTests(TestCase):
         )
         product.availability.state = "UNAVAILABLE"
         product.availability.save(update_fields=["state"])
+        icon_id = product.icon.pk
+        availability_id = product.availability.pk
+        availability_version = product.availability.version
         csv = "name,category,price_brl,station\nágua  500ML,Bebidas,\"6,50\",BAR\n"
         result = self.run_import(csv, "--apply")
         assert "alterações ignoradas=1" in result
@@ -68,6 +72,9 @@ class ImportCatalogCsvTests(TestCase):
         assert product.category == "Bebidas"
         assert product.active is False
         assert product.availability.state == "UNAVAILABLE"
+        assert product.availability.pk == availability_id
+        assert product.availability.version == availability_version
+        assert product.icon.pk == icon_id
         assert Product.objects.filter(venue=self.venue).count() == 1
 
     def test_invalid_later_row_rejects_everything(self):
@@ -105,3 +112,28 @@ class ImportCatalogCsvTests(TestCase):
         local_product.refresh_from_db()
         assert local_product.active is True
         assert Product.objects.filter(venue=self.venue).count() == 2
+
+    def test_missing_venue_cannot_create_products(self):
+        self.venue.delete()
+        with self.assertRaisesMessage(CommandError, "Venue não encontrado"):
+            self.run_import('name,category,price_brl,station\nÁgua,Bebidas,"5,00",BAR\n', "--apply")
+        assert not Product.objects.exists()
+
+    def test_database_failure_rolls_back_prior_update_and_creation(self):
+        existing = Product.objects.create(venue=self.venue, name="Água", price_cents=500,
+                                          fulfillment_station=FulfillmentStation.BAR)
+        content = ('name,category,price_brl,station\nÁgua,Bebidas,"6,00",BAR\n'
+                   'Café,Bebidas,"4,00",BAR\nSuco,Bebidas,"8,00",BAR\n')
+        real_create = Product.objects.create
+        def fail_last(**kwargs):
+            if kwargs["name"] == "Suco":
+                raise RuntimeError("test-only persistence failure")
+            return real_create(**kwargs)
+        with (
+            patch.object(Product.objects, "create", side_effect=fail_last),
+            self.assertRaisesMessage(RuntimeError, "test-only persistence failure"),
+        ):
+            self.run_import(content, "--apply", "--update-existing")
+        existing.refresh_from_db()
+        assert existing.price_cents == 500
+        assert Product.objects.filter(venue=self.venue).count() == 1

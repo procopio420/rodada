@@ -11,12 +11,13 @@ from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
 
-from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
+from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionBatchView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
 from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView,
     TabLimitOverrideView, TabCustomerView, TabReassessView, TabApprovalRequestView, TabHouseHistoryView)
 from modules.corrections.views import (
     CorrectionRefundSettlementView,
+    CorrectionWithoutRefundSettlementView,
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
@@ -178,6 +179,8 @@ urlpatterns = [
     path("order-items/<uuid:item_id>/corrections/cancel/", OrderItemCancelView.as_view(), name="order-item-cancel"),
     path("order-items/<uuid:item_id>/corrections/post-production/", PostProductionCorrectionView.as_view(), name="order-item-post-production-correction"),
     path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
+    path("corrections/<uuid:correction_id>/settle-without-refund/", CorrectionWithoutRefundSettlementView.as_view(), name="correction-settle-without-refund"),
+    path("production/batches/", ProductionBatchView.as_view(), name="production-batch"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
     path("catalog/suggestions/", ProductSuggestView.as_view()),

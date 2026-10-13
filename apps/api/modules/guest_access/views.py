@@ -6,9 +6,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from modules.catalog.customization import ordering_schema
 from modules.catalog.models import AvailabilityState
 from modules.catalog.serializers import icon_payload
-from modules.catalog.customization import ordering_schema
+from modules.hospitality.models import GuestOrderingMode
 from modules.ordering.views import _order_payload, _tab_payload
 
 from .serializers import GuestOrderConfirmSerializer, GuestTabCreateSerializer, QrResolveSerializer
@@ -63,7 +64,18 @@ def _context_payload(session, *, token: str | None = None) -> dict:
 
     party = current_party_size(occupancy_id=session.occupancy_id) if session.occupancy_id else None
     payload = {
-        "guest_policy": getattr(session, "_guest_policy", {"emergency_blocked": False, "policy_version": 1}),
+        "session_scope": {
+            "venue_id": str(table.venue_id),
+            "session_id": str(session.id),
+            "table_id": str(table.id),
+            "occupancy_id": str(session.occupancy_id) if session.occupancy_id else None,
+            "generation": session.generation,
+        },
+        "guest_policy": {
+            **getattr(session, "_guest_policy", {"emergency_blocked": False, "policy_version": 1}),
+            "table_ordering_enabled": not table.guest_ordering_blocked
+            and table.guest_ordering_mode != GuestOrderingMode.DISABLED,
+        },
         "party_size": {
             "covers_count": party.covers_count if party else None,
             "version": party.version if party else 0,
@@ -155,6 +167,7 @@ class GuestCatalogView(APIView):
                     {
                         "id": str(product.id),
                         "name": product.name,
+                        "category": product.category,
                         "price_cents": product.price_cents,
                         "fulfillment_station": product.fulfillment_station,
                         "available": product.availability.state == AvailabilityState.AVAILABLE,
@@ -193,8 +206,8 @@ class GuestPartySizeView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
+        from modules.hospitality.party_size import observation_payload, record_party_size
         from modules.hospitality.serializers import PartySizeSerializer
-        from modules.hospitality.party_size import record_party_size, observation_payload
         from modules.hospitality.services import HospitalityServiceError
 
         limited = _rate_limit(request, "mutation")

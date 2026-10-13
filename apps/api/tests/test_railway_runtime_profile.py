@@ -12,7 +12,7 @@ SECRET = "test-only-" + "aBcdEfGhIjKlMnOpQrStUvWxYz0123456789" * 2
 def run_profile(**overrides):
     env = {**os.environ, "RODADA_RELEASE_MODE": "pilot", "DJANGO_SECRET_KEY": SECRET,
            "DJANGO_DEBUG": "false", "RODADA_PAYMENT_SIMULATION": "false", **overrides}
-    return subprocess.run(["bash", "-c", 'source "$1"; printf "%s %s %s" "$RODADA_RELEASE_MODE" "$DJANGO_DEBUG" "$RODADA_PAYMENT_SIMULATION"', "test", str(PROFILE)], env=env, capture_output=True, text=True, check=False)
+    return subprocess.run([os.environ.get("RODADA_TEST_BASH", "bash"), "-c", 'source "$1"; printf "%s %s %s" "$RODADA_RELEASE_MODE" "$DJANGO_DEBUG" "$RODADA_PAYMENT_SIMULATION"', "test", PROFILE.as_posix()], env=env, capture_output=True, text=True, check=False)
 
 
 @pytest.mark.parametrize("overrides", [

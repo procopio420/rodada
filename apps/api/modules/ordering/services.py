@@ -262,8 +262,11 @@ _TIMESTAMP_FIELDS = {
 
 
 @transaction.atomic
-def transition_order_item(*, item_id, target_state, actor):
-    item = OrderItem.objects.select_for_update().select_related("order__tab").filter(pk=item_id, order__tab__venue_id=actor.venue_id).first()
+def transition_order_item(*, item_id, target_state, actor, command_id=None):
+    tab_id = OrderItem.objects.filter(pk=item_id, order__tab__venue_id=actor.venue_id).values_list("order__tab_id", flat=True).first()
+    if tab_id is not None:
+        Tab.objects.select_for_update().get(pk=tab_id, venue_id=actor.venue_id)
+    item = OrderItem.objects.select_for_update(of=("self",)).select_related("order__tab").filter(pk=item_id, order__tab__venue_id=actor.venue_id).first()
     if not item:
         raise OrderingServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
     # Financial closure must not strand already-confirmed production. These
@@ -273,7 +276,10 @@ def transition_order_item(*, item_id, target_state, actor):
     item.state = target_state
     setattr(item, _TIMESTAMP_FIELDS[target_state], timezone.now())
     item.save(update_fields=["state", _TIMESTAMP_FIELDS[target_state]])
-    record_audit_event(actor=actor, event_type="order_item.transitioned", entity_type="OrderItem", entity_id=str(item.id), metadata={"state": target_state})
+    metadata = {"state": target_state}
+    if command_id is not None:
+        metadata["command_id"] = str(command_id)
+    record_audit_event(actor=actor, event_type="order_item.transitioned", entity_type="OrderItem", entity_id=str(item.id), metadata=metadata)
     if target_state == OrderItemState.READY:
         # Dispatch is derived from canonical per-item readiness.  It is safe to
         # replay and remains inside this transaction, so a READY item cannot
