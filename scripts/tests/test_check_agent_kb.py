@@ -60,9 +60,9 @@ class AgentKbTest(unittest.TestCase):
             file = root / kb.SKILL_ROOT / name / "SKILL.md"
             file.parent.mkdir(parents=True)
             file.write_text("# no front matter\n", encoding="utf-8")
-            errors = kb.check_skill_manifests(root, (name,))
+            errors = kb.check_skill_manifests(root, (name, "rodada-pos-safety"))
             self.assertTrue(any("missing YAML" in error for error in errors))
-            self.assertTrue(any("missing required skill" in error for error in errors))
+            self.assertTrue(any("missing required Codex skill" in error for error in errors))
 
     def test_domain_contract_rejects_old_canonical(self):
         with tempfile.TemporaryDirectory() as temp:
