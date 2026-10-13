@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "widthDp": 360,
+      "tests": 33,
+      "fontScale": 1,
+      "passed": true
+    },
+    {
+      "widthDp": 360,
+      "tests": 33,
+      "fontScale": 2,
+      "passed": true
+    },
+    {
+      "widthDp": 390,
+      "tests": 33,
+      "fontScale": 1,
+      "passed": true
+    },
+    {
+      "widthDp": 390,
+      "tests": 33,
+      "fontScale": 2,
+      "passed": true
+    },
+    {
+      "widthDp": 430,
+      "tests": 33,
+      "fontScale": 1,
+      "passed": true
+    },
+    {
+      "widthDp": 430,
+      "tests": 33,
+      "fontScale": 2,
+      "passed": true
+    }
+  ],
+  "skipped": 0,
+  "nativeAnimationScale": 0,
+  "tests": 198,
+  "platform": "Android API36 emulator"
+}

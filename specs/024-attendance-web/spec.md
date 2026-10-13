@@ -40,3 +40,7 @@ includes destination table/occupancy IDs; never resolve by display label.
 Active occupancy party-size GET/POST is allowed under Spec016, capability
 `table.manage`; capture is optional, preserves idempotency/version and never
 changes financial state. No historical edit or other occupancy commands added.
+
+## Integração de 13/10/2026
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.

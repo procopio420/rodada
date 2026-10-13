@@ -1,0 +1,37 @@
+{
+  "source": "read-only Django ORM on isolated PostgreSQL",
+  "native_android_ui": "API36 emulator",
+  "classification": "MANUAL_TEST",
+  "tab_state": "CLOSED",
+  "orders": 1,
+  "items": [
+    {
+      "name": "Brahma 600 ml",
+      "quantity": 1,
+      "station": "BAR",
+      "state": "DELIVERED",
+      "line_total_cents": 1200
+    },
+    {
+      "name": "Coxinha de Queijo com Alho",
+      "quantity": 1,
+      "station": "KITCHEN",
+      "state": "DELIVERED",
+      "line_total_cents": 350
+    }
+  ],
+  "charges_cents": 1550,
+  "payments_cents": 1850,
+  "refunds_cents": 300,
+  "payment_count": 2,
+  "refund_count": 1,
+  "shift_status": "CLOSED",
+  "cash_expected_cents": 1550,
+  "cash_counted_cents": 1550,
+  "cash_discrepancy_cents": 0,
+  "open_exposure_cents": 0,
+  "passed": true,
+  "refund_actor_timestamp_audit": true,
+  "provider": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}
