@@ -29,6 +29,8 @@ Procedimentos **operacionais**, não autorização para agir. Leia [AGENTS](../.
 - Um agente Codex **não possui execução interativa de shell no Railway por meio dos comandos MCP atualmente disponíveis**. Não inventar `Railway.exec`. Se a operação exigir `manage.py shell`, usar acesso administrativo protegido, auditável e explicitamente autorizado, ou registrar bloqueio.
 - Se rollback de app não for compatível com a migração do DB já aplicada, **não executar rollback de schema destrutivo**: escalar e manter contingência.
 
+Mais exemplos de pedidos copiáveis: [templates de tarefas OPS](TASK-REQUESTS.md).
+
 Template para solicitar ação ao Codex:
 
 > Use `$rodada-ops`; siga o runbook escolhido. Primeiro execute exclusivamente a fase read-only. Entregue inventário, impacto, SHA alvo, plano de testes e rollback; não modifique Railway, dados ou permissões até eu aprovar o destino e a operação.
