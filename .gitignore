@@ -22,6 +22,7 @@ local.properties
 .idea/
 *.iml
 # Android upload keys must be stored offline, never in Git.
+/.secrets/
 *.jks
 *.keystore
 **/key.properties
