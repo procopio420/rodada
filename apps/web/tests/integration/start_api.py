@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "api"))
 os.environ["DJANGO_SETTINGS_MODULE"] = "rodada_api.settings"
+os.environ["RODADA_BFF_HOST_SECRET"] = "rodada-integration-local-only"
 
 from django.conf import settings
 
@@ -32,7 +33,8 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     from modules.access.services import hash_token
     from modules.cash.models import CashPoint
     from modules.catalog.models import Product
-    from modules.venue.models import Venue
+    from modules.venue.models import Venue, VenueDomain
+    from modules.hospitality.models import Table, GuestOrderingMode
 
     call_command("migrate", verbosity=0)
     if settings.DATABASES["default"]["ENGINE"].endswith("sqlite3"):
@@ -40,6 +42,15 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
         with connection.cursor() as cursor:
             cursor.execute("PRAGMA journal_mode=WAL")
     venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e")
+    other_venue = Venue.objects.create(name="Other E2E — test only", slug="other-e2e")
+    VenueDomain.objects.create(venue=venue, hostname="e2ea.rodada.bar", is_active=True, is_verified=True)
+    VenueDomain.objects.create(venue=other_venue, hostname="e2eb.rodada.bar", is_active=True, is_verified=True)
+    Table.objects.create(venue=venue, label="QR-A", guest_ordering_mode=GuestOrderingMode.DIRECT, public_token="e2e-guest-qr-a")
+    Table.objects.create(venue=other_venue, label="QR-B", guest_ordering_mode=GuestOrderingMode.DIRECT, public_token="e2e-guest-qr-b")
+    other_staff = StaffMember.objects.create(display_name="test-other", login_identifier="test-other")
+    other_staff.set_pin("2468")
+    other_staff.save(update_fields=["pin_hash"])
+    VenueStaffMembership.objects.create(venue=other_venue, staff_member=other_staff, role=StaffRole.MANAGER)
     for identifier, role in [("test-manager", StaffRole.MANAGER), ("test-staff", StaffRole.STAFF), ("test-owner", StaffRole.OWNER)]:
         staff = StaffMember.objects.create(display_name=identifier, login_identifier=identifier)
         staff.set_pin("2468")
