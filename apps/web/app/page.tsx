@@ -2,16 +2,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { OperationalIcon, type OperationalIconName } from "@/components/operational-icon";
 import { tenantHostname } from "@/lib/tenant-host";
 import { readVenueContext } from "@/lib/server/venue-context";
+import styles from "./home.module.css";
 
-const modules = [
-  { label: "Atendimento", description: "Mesas, comandas e pedidos", href: "/atendimento" },
-  { label: "Cozinha", description: "Fila de preparo e produção", href: "/cozinha" },
-  { label: "Bar", description: "Bebidas e pedidos", href: "/bar" },
-  { label: "Caixa", description: "Recebimentos e fechamento", href: "/caixa" },
-  { label: "Gerência", description: "Operação e relatórios", href: "/gerencia" },
-] as const;
+const modules: ReadonlyArray<{
+  label: string;
+  description: string;
+  href: string;
+  icon: OperationalIconName;
+}> = [
+  { label: "Atendimento", description: "Mesas, comandas e pedidos", href: "/atendimento", icon: "table" },
+  { label: "Cozinha", description: "Preparo e produção", href: "/cozinha", icon: "chef" },
+  { label: "Bar", description: "Bebidas e pedidos", href: "/bar", icon: "drink" },
+  { label: "Caixa", description: "Recebimentos e fechamento", href: "/caixa", icon: "wallet" },
+  { label: "Gerência", description: "Operação e relatórios", href: "/gerencia", icon: "settings" },
+];
 
 export default async function Home() {
   const requestHeaders = await headers();
@@ -20,21 +27,52 @@ export default async function Home() {
   if (!context) notFound();
 
   return (
-    <main style={{ minHeight: "100dvh", background: "var(--color-bg)", color: "var(--color-text)", padding: "32px 20px" }}>
-      <div style={{ maxWidth: 680, margin: "0 auto" }}>
-        <Image src="/brand/wordmark.svg" width={165} height={40} alt="Rodada" style={{ display: "block", maxWidth: "100%", marginBottom: 26 }} />
-        <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>RODADA / ESTABELECIMENTO</p>
-        <h1 style={{ fontSize: "clamp(28px, 7vw, 44px)", margin: "12px 0" }}>{context.venue.name}</h1>
-        <p style={{ color: "var(--color-text-muted)", marginBottom: 28 }}>Selecione onde deseja trabalhar</p>
-        <nav aria-label="Módulos operacionais" style={{ display: "grid", gap: 12 }}>
-          {modules.map((module) => (
-            <Link key={module.href} href={module.href} style={{ display: "block", minHeight: 64, padding: 16, border: "1px solid var(--color-border)", borderRadius: 12, background: "var(--color-surface-1)", color: "inherit", textDecoration: "none" }}>
-              <strong style={{ display: "block", fontSize: 18 }}>{module.label} →</strong>
-              <span style={{ color: "var(--color-text-muted)", fontSize: 14 }}>{module.description}</span>
-            </Link>
-          ))}
-        </nav>
-        <p style={{ marginTop: 24 }}><Link href="/staff" style={{ color: "var(--color-accent)" }}>Entrar ou trocar operador</Link></p>
+    <main className={styles.shell}>
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <div className={styles.identity}>
+            <Image
+              className={styles.wordmark}
+              src="/brand/wordmark.svg"
+              width={154}
+              height={38}
+              alt="Rodada"
+              priority
+            />
+            <span className={styles.brandDivider} aria-hidden="true" />
+            <span className={styles.venueName}>{context.venue.name}</span>
+          </div>
+          <Link href="/staff" className={styles.operator} aria-label="Entrar ou trocar operador">
+            <OperationalIcon name="people" size={20} />
+            <span className={styles.operatorShort} aria-hidden="true">Operador</span>
+            <span className={styles.operatorLong} aria-hidden="true">Entrar / trocar operador</span>
+          </Link>
+        </header>
+
+        <section aria-labelledby="module-heading">
+          <div className={styles.intro}>
+            <p className={styles.eyebrow}>Áreas de trabalho</p>
+            <h1 className={styles.heading} id="module-heading">Onde vamos trabalhar?</h1>
+            <p className={styles.description}>Escolha um módulo para começar.</p>
+          </div>
+
+          <nav aria-label="Módulos operacionais" className={styles.grid}>
+            {modules.map((module) => (
+              <Link key={module.href} href={module.href} className={styles.card}>
+                <span className={styles.cardTop}>
+                  <span className={styles.iconFrame}>
+                    <OperationalIcon name={module.icon} />
+                  </span>
+                  <span className={styles.arrow} aria-hidden="true">→</span>
+                </span>
+                <span className={styles.cardCopy}>
+                  <strong className={styles.cardTitle}>{module.label}</strong>
+                  <span className={styles.cardDescription}>{module.description}</span>
+                </span>
+              </Link>
+            ))}
+          </nav>
+        </section>
       </div>
     </main>
   );
