@@ -15,6 +15,8 @@ from modules.access.capabilities import Capability, effective_capabilities
 from modules.access.services import AccessServiceError, session_for_access_token
 from modules.guest_access.services import GuestAccessError, guest_session_context
 from modules.guest_access.views import _context_payload, _error_response
+from modules.venue.domain_resolution import resolve_venue_domain
+from modules.venue.hostnames import resolved_venue_id
 
 from .services import replay_batch, snapshot_cursor
 
@@ -107,12 +109,33 @@ class StreamView(APIView):
             else request.headers.get("Authorization", "").split(" ", 1)[-1]
         )
 
+        # The Host middleware resets its ContextVar after returning the HTTP
+        # response, before a lazy async stream is consumed. Capture only its
+        # verified identity; never re-read browser-supplied forwarding headers.
+        trusted_hostname = getattr(request._request, "venue_hostname", None)
+        trusted_venue_id = resolved_venue_id.get()
+
         def authorize():
-            return (
-                guest_session_context(session_token=token)
-                if guest
-                else session_for_access_token(token)
-            )
+            # A domain can be disabled while a stream remains connected.
+            # Revalidate its ownership on each poll before reading the outbox.
+            if trusted_hostname is not None:
+                domain = resolve_venue_domain(trusted_hostname)
+                if domain is None or domain.venue_id != trusted_venue_id:
+                    if guest:
+                        raise GuestAccessError("QR_NOT_FOUND", "QR inválido ou expirado.", 404)
+                    raise AccessServiceError(
+                        "VENUE_HOST_MISMATCH", "Sessão pertence a outro estabelecimento.", 403
+                    )
+
+            scope = resolved_venue_id.set(trusted_venue_id)
+            try:
+                return (
+                    guest_session_context(session_token=token)
+                    if guest
+                    else session_for_access_token(token)
+                )
+            finally:
+                resolved_venue_id.reset(scope)
 
         try:
             identity = authorize()
