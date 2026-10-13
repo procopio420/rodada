@@ -83,3 +83,9 @@ See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md)
 - Tenant metadata, PWA manifest and guest page title use the verified Venue name; legacy/root hosts retain existing metadata, routes and typed login.
 - Browser+BFF integration fixtures seed two distinct Venues only in the isolated test database. Tests cover wrong-host cookies, login, guest QR, refresh and mutation denial.
 - Preview DNS/TLS, end-to-end shift, P0 security review and final rollout remain external gates. Do not describe this PR as deployed or multi-tenant-ready before validation.
+
+## 2026-10-13 — Visual refinement: establishment module launcher
+
+The verified tenant root `/` is an operational module launcher, not a new login mechanism. Show the approved Rodada wordmark alongside the **server-resolved** Venue name and a persistent, accessible `/staff` link to enter or switch operators. The navigation contains exactly five already-existing destinations: Atendimento (`/atendimento`), Cozinha (`/cozinha`), Bar (`/bar`), Caixa (`/caixa`), Gerência (`/gerencia`). Each card exposes its label, a distinct operational icon and a short description; the entire card is a touch-sized link.
+
+The grid is **2 columns below 768px**, **3 columns from 768px to 1099px** and **4 columns at 1100px and above**. Keep 360/390/430px mobile widths readable without horizontal overflow, preserve visible keyboard focus and reduced motion, and use the existing design tokens and approved SVG. No new role/capability filtering, venue selection, session lookup, permission bypass, or routing changes in this visual slice. Destinations remain protected by the existing backend/BFF authority.
