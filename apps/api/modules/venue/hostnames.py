@@ -16,3 +16,15 @@ def normalize_tenant_hostname(hostname):
     if not label[0].isalnum() or not label[-1].isalnum() or any(not (c.isascii() and (c.islower() or c.isdigit() or c == '-')) for c in label):
         raise ValidationError('Invalid tenant label')
     return host
+
+
+# Request-scoped venue identity; None preserves explicit legacy/native transport.
+from contextvars import ContextVar
+resolved_venue_id = ContextVar("rodada_host_venue_id", default=None)
+
+
+def assert_staff_venue(venue_id):
+    from modules.access.services import AccessServiceError
+    expected = resolved_venue_id.get()
+    if expected is not None and str(expected) != str(venue_id):
+        raise AccessServiceError("VENUE_HOST_MISMATCH", "Sessão pertence a outro estabelecimento.", 403)

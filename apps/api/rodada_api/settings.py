@@ -38,6 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "modules.venue.host_middleware.VenueHostMiddleware",
 ]
 
 ROOT_URLCONF = "rodada_api.urls"
@@ -122,3 +123,7 @@ RODADA_OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 # Explicit opt-in for local development; never grants capability by itself.
 RODADA_DEVELOPER_TOOLS = os.environ.get("RODADA_DEVELOPER_TOOLS", "false").lower() == "true"
+
+# Only signed internal BFF assertions can carry the original browser Host.
+USE_X_FORWARDED_HOST = False
+RODADA_BFF_HOST_SECRET = os.environ.get("RODADA_BFF_HOST_SECRET", "")
