@@ -483,7 +483,7 @@ private fun TabWorkspace(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
         item {
@@ -500,7 +500,7 @@ private fun TabWorkspace(
             }
         }
         item {
-            Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
+            Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
@@ -515,7 +515,7 @@ private fun TabWorkspace(
             val selectedLines = currentCart.filter { it.product.id == product.id }
             val selectedQuantity = selectedLines.sumOf { it.quantity }
             val canChange = sellable && !state.submitting && state.orderIntentId == null
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     CatalogProductButton(product, sellable, canChange) {
                         if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
