@@ -4,9 +4,10 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 
 ## Discovery and activation
 
-- **Codex / agents supporting open repository skills:** canonical `.agents/skills/<name>/SKILL.md` folders.
-- **Claude Code:** thin `.claude/skills/<name>/SKILL.md` entrypoints discover each name and link to the exact canonical file; content stays single-source to prevent drift. These are regular Markdown files (not symlinks), safe to clone on Windows.
-- For agents with no auto-discovery, find matching name below and read its canonical `SKILL.md` explicitly. Discovery depends on the agent runtime; a GitHub merge alone does not magically install skills on an existing chat session.
+- **Codex (ferramenta adotada no Rodada):** descobre `.agents/skills/<name>/SKILL.md` no repositório. Não usar nem manter `.claude/skills/`.
+- A descrição em YAML orienta o disparo automático; para selecionar explicitamente, mencione `$rodada-django-api`, `$rodada-nextjs-web`, `$rodada-static-html`, `$rodada-ui-design`, `$rodada-android-compose` ou `$rodada-pos-safety`.
+- Para usar em tarefa de outra pasta do monorepo, execute Codex dentro do checkout; as skills raiz são descobertas a partir do repositório. Se uma alteração recente não aparecer na sessão, reinicie/atualize a sessão Codex.
+- O GitHub não ativa uma skill em sessões já abertas: o agente precisa descobrir a pasta e carregar as instruções.
 
 | Skill | Where to use it | Trigger |
 | --- | --- | --- |
@@ -27,6 +28,6 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 
 ## Maintenance
 
-Only edit canonical `.agents/skills` procedures; keep thin `.claude/skills` wrappers with matching `name` and `description`. The existing lightweight [KB check](../../scripts/check_agent_kb.py) validates discovery manifests and links; it does **not** run app tests or approve deployments. Don't add undocumented permission bypasses, secrets, outside network calls or release authority to skill instructions.
+Edite somente `.agents/skills/<name>/SKILL.md`. O [validador da KB](../../scripts/check_agent_kb.py) valida frontmatter, nomes, descrições e links; não roda testes de aplicação nem autoriza deploy. Não duplique skills em pastas de outras ferramentas. Don't add undocumented permission bypasses, secrets, outside network calls or release authority to skill instructions.
 
-External format references: [Agent Skills standard](https://agentskills.io/) and documentation for your selected runtime.
+Referências: [Codex Skills](https://developers.openai.com/codex/skills) e [Agent Skills standard](https://agentskills.io/).

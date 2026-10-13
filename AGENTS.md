@@ -194,6 +194,6 @@ Este arquivo é o **ponto de entrada**; as regras específicas de API, Web e And
 
 ## Skill packs locais (sob demanda)
 
-Tarefas específicas usam [`docs/agents/SKILLS.md`](docs/agents/SKILLS.md). Os `SKILL.md` canônicos ficam em `.agents/skills/` (Codex e leitores do padrão aberto); `.claude/skills/` contém entradas compatíveis para Claude Code. Uma skill **complementa** este AGENTS, a spec e os procedimentos — não autoriza merge, deploy, acesso financeiro nem inventa evidência.
+Tarefas específicas usam [`docs/agents/SKILLS.md`](docs/agents/SKILLS.md). Codex descobre as skills locais em `.agents/skills/<name>/SKILL.md`; cada skill tem metadados `name` e `description` e instruções carregadas sob demanda. Uma skill **complementa** este AGENTS, a spec e os procedimentos — não autoriza merge, deploy, acesso financeiro nem inventa evidência.
 
 Escolha pelo trabalho: Django/DRF → `rodada-django-api`; Next/Web → `rodada-nextjs-web`; landing HTML → `rodada-static-html`; visual/UX → `rodada-ui-design`; Android → `rodada-android-compose`; money/auth/tenant/replay → acrescente `rodada-pos-safety`. Não carregue todas de uma vez.

@@ -6,7 +6,6 @@ on:
     paths:
       - "AGENTS.md"
       - ".agents/skills/**"
-      - ".claude/skills/**"
       - "README.md"
       - "apps/**/AGENTS.md"
       - "apps/web/README.md"
@@ -21,6 +20,7 @@ on:
     branches: [main]
     paths:
       - "AGENTS.md"
+      - ".agents/skills/**"
       - "README.md"
       - "apps/**/AGENTS.md"
       - "apps/web/README.md"
