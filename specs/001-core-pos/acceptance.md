@@ -182,4 +182,3 @@ PASS,5 unitários,tipos/build/diff PASS. Corrida no teste de retry de lote corri
 sem relaxar asserções;5 repetições e execução completa final PASS. Evidências em
 specs/026-operational-ux-friction/revalidation.md. PostgreSQL descartável encerrado.
 UX23/T10d amplo e gates aparelho/tempo humano/piloto/publicação permanecem abertos.
-

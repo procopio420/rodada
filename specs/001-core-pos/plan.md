@@ -96,4 +96,3 @@ produção. Journal por produto/sessão antes do POST; recibo validado antes de
 remover pendência. Separar controles de disponibilidade das barreiras de
 configuração/legado e verificar sessão dos journals coexistentes. Evidências e
 limites em specs/026-operational-ux-friction/revalidation.md.
-
