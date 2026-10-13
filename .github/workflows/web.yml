@@ -27,7 +27,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: docker.io/library/postgres:17
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_DB: rodada_web_e2e
           POSTGRES_USER: rodada_test
@@ -77,6 +77,14 @@ jobs:
         env:
           RODADA_API_BASE_URL: http://127.0.0.1:8100
         run: npm run build
+
+      - name: Table-service gateway authentication and financial isolation
+        working-directory: apps/web
+        run: npm run test:table-service
+
+      - name: Spec 027 focused responsive and recovery contracts
+        working-directory: apps/web
+        run: npm run test:visual -- table-service.spec.ts
 
       - name: Real Web BFF API workflows
         working-directory: apps/web

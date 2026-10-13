@@ -13,7 +13,8 @@
     "test:realtime:browser": "python tests/visual-realtime.py",
     "test:visual": "playwright test",
     "test:integration": "playwright test --config playwright.integration.config.ts",
-    "test:visual:report": "playwright show-report"
+    "test:visual:report": "playwright show-report",
+    "test:table-service": "node --test tests/table-service-gateway.test.mjs"
   },
   "dependencies": {
     "next": "16.3.8",

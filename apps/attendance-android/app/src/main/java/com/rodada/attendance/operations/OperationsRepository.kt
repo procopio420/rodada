@@ -60,6 +60,9 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         PartySizeSnapshot.fromJson(if (command == null) response.getJSONObject("current") else response)
     }
 
+    suspend fun tableService(session: StoredSession, path: String, payload: org.json.JSONObject) =
+        authRepository.withAuthorizedAccess(session) { client.tableService(it, path, payload) }
+
     suspend fun occupyTable(session: StoredSession, tableId: String, tabId: String?) =
         authRepository.withAuthorizedAccess(session) { client.occupyTable(it, tableId, tabId) }
 

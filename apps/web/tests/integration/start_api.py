@@ -41,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("PRAGMA journal_mode=WAL")
-    venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e")
+    venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e", table_service_enabled=True)
     other_venue = Venue.objects.create(name="Other E2E — test only", slug="other-e2e")
     VenueDomain.objects.create(venue=venue, hostname="e2ea.rodada.bar", is_active=True, is_verified=True)
     VenueDomain.objects.create(venue=other_venue, hostname="e2eb.rodada.bar", is_active=True, is_verified=True)
@@ -51,6 +51,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     other_staff.set_pin("2468")
     other_staff.save(update_fields=["pin_hash"])
     VenueStaffMembership.objects.create(venue=other_venue, staff_member=other_staff, role=StaffRole.MANAGER)
+
     for identifier, role in [("test-manager", StaffRole.MANAGER), ("test-staff", StaffRole.STAFF), ("test-owner", StaffRole.OWNER)]:
         staff = StaffMember.objects.create(display_name=identifier, login_identifier=identifier)
         staff.set_pin("2468")

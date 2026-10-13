@@ -11,6 +11,7 @@ from .services import emit_event
 PREFIXES = (
     "tab.",
     "table.",
+    "occupancy.",
     "table_occupancy.",
     "zone.",
     "guest_tab.",

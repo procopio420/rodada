@@ -29,6 +29,14 @@ class ForceStopOrderRecoveryTest {
         tabId = "test-tab", lines = listOf(PendingOrderLine("test-product", 2)),
     )
 
+    private val tableKey = "force-stop-table-open-original-key"
+    private val tableIntent get() = RecoveryIntent.TableService(
+        tableKey, session.staffId, session.venueId, session.deviceId, tableKey,
+        123456789L, RecoveryState.CHECKING,
+        "/hospitality/occupancies/test-visit/tabs/open/",
+        """{"idempotency_key":"force-stop-table-open-original-key","expected_generation":3,"display_label":"Ana"}""",
+    )
+
     @Test fun stagedRecovery() {
         val phase = InstrumentationRegistry.getArguments().getString("phase")
         assumeTrue("Explicit multi-process smoke only; see scripts/android-force-stop-recovery.sh",
@@ -43,7 +51,9 @@ class ForceStopOrderRecoveryTest {
     private fun prepareEncryptedPendingOrder() {
         val store = PendingMutationIntentStore(context)
         store.remove(key)
+        store.remove(tableKey)
         store.save(intent, session)
+        store.save(tableIntent, session)
         assertEquals(intent, store.orderQueue(session).single { it.id == key })
         val ciphertext = context.getSharedPreferences("rodada_pending_mutation_intents", 0)
             .getString("encrypted_intents", "")!!
@@ -51,11 +61,16 @@ class ForceStopOrderRecoveryTest {
         assertFalse(ciphertext.contains("test-product"))
         assertFalse(ciphertext.contains("test-access"))
         assertFalse(ciphertext.contains(key))
+        assertFalse(ciphertext.contains(tableKey))
     }
 
     private fun verifySurvivesForceStopWhileNetworkUnavailable() {
         // This method MUST run after adb force-stop in a fresh instrumentation process.
         val store = PendingMutationIntentStore(context)
+        val restoredTable = store.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().single { it.id == tableKey }
+        assertEquals(tableIntent, restoredTable)
+        assertFalse(store.loadFor(session.copy(sessionId = "second-login")).any { it.id == tableKey })
+        assertTrue(store.blockedFor(session.copy(sessionId = "second-login")).any { it.id == tableKey })
         val restored = store.orderQueue(session).single { it.id == key }
         assertEquals(intent, restored)
         assertEquals(key, restored.idempotencyKey)
@@ -81,6 +96,8 @@ class ForceStopOrderRecoveryTest {
         store.updateOrderState(original, session, RecoveryState.ACTION_REQUIRED)
         assertTrue(OrderRecoveryPolicy.awaitingReconciliation(store.orderQueue(session)).isEmpty())
         assertEquals(RecoveryState.ACTION_REQUIRED, store.orderQueue(session).single { it.id == key }.state)
+        assertEquals(tableIntent, store.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().single { it.id == tableKey })
+        store.remove(tableKey)
         store.remove(key) // Clean up only after proving all three independently launched stages.
     }
 }
