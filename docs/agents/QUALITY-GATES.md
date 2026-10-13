@@ -1,6 +1,6 @@
 # Quality Gates — Codex changes / Rodada
 
-**Status:** rollout incremental, separado da [review independente](CODE-REVIEW.md) pendente no PR #128. Este documento não confere aprovação de merge, deploy ou aceite de produto.
+**Status:** rollout incremental, separado da [review independente (PR #128)](https://github.com/procopio420/rodada/pull/128) pendente no PR #128. Este documento não confere aprovação de merge, deploy ou aceite de produto.
 
 ## Política
 
@@ -35,4 +35,4 @@ O script [`check_added_lines.py`](../../scripts/quality/check_added_lines.py) us
 5. Migrar Ruff e Android para full blocking após corrigir ou aprovar baselines por regra/arquivo e preservar visibilidade de debt.
 6. Mensurar tempo extra das Actions; se > ganho de detecção, otimizar job sem remover testes.
 
-Referências: [política de CI](../ci-workflows.md), [AGENTS raiz](../../AGENTS.md), [review](CODE-REVIEW.md), [fonte Next 16](https://nextjs.org/docs/app/api-reference/config/eslint).
+Referências: [política de CI](../ci-workflows.md), [AGENTS raiz](../../AGENTS.md), [review (PR #128)](https://github.com/procopio420/rodada/pull/128), [fonte Next 16](https://nextjs.org/docs/app/api-reference/config/eslint).
