@@ -14,7 +14,8 @@
     "test:visual": "playwright test",
     "test:integration": "playwright test --config playwright.integration.config.ts",
     "test:visual:report": "playwright show-report",
-    "test:table-service": "node --test tests/table-service-gateway.test.mjs"
+    "test:table-service": "node --test tests/table-service-gateway.test.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "next": "16.3.8",

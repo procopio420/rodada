@@ -16,7 +16,7 @@
 | API Django | Ruff `E4,E7,E9,F` em todo `apps/api`, compara diagnóstico com linhas **adicionadas pelo PR** | **Bloqueia** violação nova localizada em linha adicionada; informa quantidade total de dívida | `.github/workflows/api.yml` |
 | Web / Next 16 | `npm run typecheck`, build, integração BFF real e visual/a11y existentes | **Bloqueantes**, mantidos | `.github/workflows/web.yml` |
 | Web / código novo | Detectar `@ts-ignore`/`@ts-nocheck`, `eslint-disable`, `eval`/`new Function`, `NEXT_PUBLIC_*` com nomes de secrets e token no storage | **Bloqueia** novas linhas suspeitas | `scripts/quality/check_added_lines.py --kind web` |
-| Web / ESLint | Next 16 removeu `next lint`; ainda não há ESLint nem lockfile compatível no projeto | **Pendente**: implementar `eslint` CLI com config flat e lockfile, medir dívida antes de tornar blocking. Não chamar checagem regex de ESLint. | Próximo slice |
+| Web / ESLint | `eslint@9.39.5` + `eslint-config-next@16.3.8` (Core Web Vitals + TypeScript), versionados no npm lockfile | **Bloqueia** diagnósticos novos ou fatais; conta os achados históricos sem falhar por dívida antiga. `npm run lint` inspeciona o projeto inteiro. | `.github/workflows/web.yml` |
 | Android | `./gradlew lintDebug --stacktrace` | **Bloqueante** após auditoria inicial PASS em [run #38485120931](https://github.com/procopio420/rodada/actions/runs/38485120931); report HTML/XML arquivado por 7 dias. | `.github/workflows/android.yml` |
 | Android | JVM tests e `assembleDebug` existentes | **Bloqueantes**, mantidos | `.github/workflows/android.yml` |
 
@@ -31,8 +31,8 @@ O script [`check_added_lines.py`](../../scripts/quality/check_added_lines.py) us
 1. Rodar `python -m unittest discover -s scripts/tests -p test_quality_added_lines.py -v`; no CI da API esse check é executado explicitamente.
 2. Ler contagem total de Ruff e o resultado de added-line gate; registrar o run/commit.
 3. Inspecionar relatório `android-lint-report` nos artefatos de Actions; classificar warnings. `lintDebug` é agora **bloqueante**; sem artefato ou falha de task, tratar como FAIL. No HEAD anterior (#129, SHA `823b91c5`) a task passou e gerou artefato; validar novamente após esta mudança.
-4. Adicionar ESLint 9 e `eslint-config-next` alinhado com Next 16 via `npm install -D`, atualizar/commitar package-lock, configurar `eslint.config.mjs`; executar `npm ci && npm run lint`, com baseline real e revisão de falsos positivos. Não instalar dependências transitórias via `npx` no CI.
-5. Migrar Ruff para full blocking após corrigir ou aprovar baselines por regra/arquivo e preservar visibilidade de debt. Android já executa `lintDebug` bloqueante, mas problemas de warning permanecem auditáveis.
+4. Após `cd apps/web && npm ci`, executar `npm run lint` para auditoria total. CI usa `check_added_lines.py --kind eslint --base SHA` com JSON real do ESLint e falha em linhas novas ou erros fatais; a dívida antiga permanece visível até sua correção. Dependências não são baixadas pelo verificador.
+5. Migrar Ruff e ESLint para full blocking após corrigir ou aprovar baselines por regra/arquivo e preservar visibilidade de debt. Android já executa `lintDebug` bloqueante, mas problemas de warning permanecem auditáveis.
 6. Mensurar tempo extra das Actions; se > ganho de detecção, otimizar job sem remover testes.
 
 Referências: [política de CI](../ci-workflows.md), [AGENTS raiz](../../AGENTS.md), [review (PR #128)](https://github.com/procopio420/rodada/pull/128), [fonte Next 16](https://nextjs.org/docs/app/api-reference/config/eslint).

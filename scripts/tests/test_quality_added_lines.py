@@ -57,6 +57,23 @@ diff --git a/apps/web/page.tsx b/apps/web/page.tsx
             ["apps/api/a.py:10: F401: unused import"],
         )
 
+    def test_eslint_additions_and_fatal_errors(self):
+        root = Path("/tmp/rodada-quality")
+        results = [{"filePath": str(root / "apps/web/app/page.tsx"),
+                    "messages": [
+                        {"line": 2, "ruleId": "no-unused-vars", "message": "old"},
+                        {"line": 5, "ruleId": "react-hooks/exhaustive-deps",
+                         "message": "new warning"},
+                        {"fatal": True, "message": "unparseable file"},
+                    ]}]
+        count, findings = quality.eslint_findings(
+            results, {"apps/web/app/page.tsx": {5}}, root
+        )
+        self.assertEqual(count, 3)
+        self.assertEqual(len(findings), 2)
+        self.assertIn("react-hooks/exhaustive-deps", findings[0])
+        self.assertIn("ESLINT_FATAL", findings[1])
+
     def test_web_guard_rejects_secret_env_and_eval(self):
         findings = quality.web_findings({
             "apps/web/app/page.tsx": {

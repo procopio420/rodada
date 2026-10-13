@@ -78,6 +78,46 @@ def web_findings(lines: dict[str, dict[int, str]]) -> list[str]:
     return errors
 
 
+def eslint_findings(
+    diagnostics: list[dict], additions: dict[str, set[int]], root: Path
+) -> tuple[int, list[str]]:
+    """Analyze all ESLint diagnostics but block only additions or fatal errors."""
+    errors = []
+    total = 0
+    for result in diagnostics:
+        try:
+            path = Path(result["filePath"]).resolve().relative_to(root.resolve()).as_posix()
+        except (KeyError, ValueError):
+            continue
+        for item in result.get("messages", []):
+            total += 1
+            row = item.get("line")
+            code = item.get("ruleId") or "ESLINT_FATAL"
+            if item.get("fatal") or row in additions.get(path, set()):
+                errors.append(f"{path}:{row or 0}: {code}: {item.get('message', 'lint finding')}")
+    return total, errors
+
+
+def audit_eslint(
+    additions: dict[str, set[int]], root: Path
+) -> tuple[int, list[str], str | None]:
+    """Use committed ESLint CLI; never download or execute untrusted packages."""
+    process = subprocess.run(
+        ["node_modules/.bin/eslint", ".", "--format", "json"],
+        cwd=root / "apps/web", capture_output=True, text=True, check=False,
+    )
+    if process.returncode not in (0, 1):
+        return 0, [], "ESLint invocation/configuration failed: " + process.stderr.strip()[:1200]
+    try:
+        diagnostics = json.loads(process.stdout)
+    except json.JSONDecodeError:
+        return 0, [], "ESLint returned invalid JSON: " + process.stderr.strip()[:500]
+    if not isinstance(diagnostics, list):
+        return 0, [], "ESLint response must be a list"
+    count, failures = eslint_findings(diagnostics, additions, root)
+    return count, failures, None
+
+
 def ruff_findings(
     diagnostics: list[dict], additions: dict[str, set[int]], root: Path
 ) -> list[str]:
@@ -108,6 +148,13 @@ def run(args: argparse.Namespace) -> int:
     if args.kind == "web":
         errors = web_findings(source)
         print(f"Web added-line guard: {sum(len(v) for k, v in additions.items() if k.startswith('apps/web/'))} added lines checked; {len(errors)} findings")
+    elif args.kind == "eslint":
+        total, errors, failure = audit_eslint(additions, root)
+        if failure:
+            print("ERROR " + failure, file=sys.stderr)
+            return 2
+        print(f"ESLint full-source audit: {total} findings (existing + new); "
+              f"{len(errors)} new/fatal findings")
     else:
         process = subprocess.run(
             [sys.executable, "-m", "ruff", "check", "apps/api", "--output-format", "json",
@@ -136,7 +183,7 @@ def run(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", required=True, help="Trusted base commit SHA")
-    parser.add_argument("--kind", choices=("api", "web"), required=True)
+    parser.add_argument("--kind", choices=("api", "web", "eslint"), required=True)
     args = parser.parse_args()
     if not re.fullmatch("[0-9a-fA-F]{7,40}", args.base):
         parser.error("--base must be a git commit SHA")
