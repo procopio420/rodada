@@ -1,5 +1,7 @@
 # Rodada
 
+> **Identidade visual Rodada v1 (13/10/2026):** [guia](docs/design/brand-v1.md) · [SVGs canônicos](assets/brand/v1) · [verificação](scripts/verify-brand-v1.py). Logotipo orgânico e símbolo de líquido/bolhas, base visual da landing e dos apps.
+
 **Rodada é um PDV operacional para bares cheios — com dispatch, comandas flexíveis, identidade opcional e pagamentos no núcleo.**
 
 O primeiro piloto é o Bar do Aderlan: operação de alto fluxo, ambiente físico flexível, muitos clientes recorrentes e atendimento que não cabe bem no modelo tradicional de “mesa fixa + pedido + conta no fim”.
