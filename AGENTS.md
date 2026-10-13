@@ -197,3 +197,7 @@ Este arquivo é o **ponto de entrada**; as regras específicas de API, Web e And
 Tarefas específicas usam [`docs/agents/SKILLS.md`](docs/agents/SKILLS.md). Codex descobre as skills locais em `.agents/skills/<name>/SKILL.md`; cada skill tem metadados `name` e `description` e instruções carregadas sob demanda. Uma skill **complementa** este AGENTS, a spec e os procedimentos — não autoriza merge, deploy, acesso financeiro nem inventa evidência.
 
 Escolha pelo trabalho: Django/DRF → `rodada-django-api`; Next/Web → `rodada-nextjs-web`; landing HTML → `rodada-static-html`; visual/UX → `rodada-ui-design`; Android → `rodada-android-compose`; money/auth/tenant/replay → acrescente `rodada-pos-safety`. Não carregue todas de uma vez.
+
+## Operações assistidas pelo Codex
+
+Deploy Railway, criação de bar/funcionário, incidentes e backups seguem a [skill `rodada-ops`](.agents/skills/rodada-ops/SKILL.md) e o [índice de runbooks](docs/ops/README.md). `Railway MCP` deve iniciar em somente leitura; modificar ambiente, banco, DNS ou permissões requer autorização explícita do alvo e ação. Não inventar shell remoto via Railway MCP.

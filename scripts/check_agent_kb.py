@@ -32,6 +32,7 @@ REQUIRED_SKILLS = (
     "rodada-ui-design",
     "rodada-android-compose",
     "rodada-pos-safety",
+    "rodada-ops",
 )
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<header>.*?)\n---\n", re.DOTALL)
@@ -46,6 +47,7 @@ CURRENT_DOMAIN_DOCS = (
 def guidance_files(root: Path) -> list[Path]:
     paths = [root / item for item in GUIDANCE]
     paths.extend(sorted((root / "docs" / "agents").glob("*.md")))
+    paths.extend(sorted((root / "docs" / "ops").glob("*.md")))
     paths.extend(sorted((root / SKILL_ROOT).glob("*/SKILL.md")))
     return paths
 
