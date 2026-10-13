@@ -75,6 +75,10 @@ jobs:
         working-directory: apps/web
         run: npm run test:table-service
 
+      - name: Spec 027 focused responsive and recovery contracts
+        working-directory: apps/web
+        run: npm run test:visual -- table-service.spec.ts
+
       - name: Visual, responsive and accessibility gates
         working-directory: apps/web
         run: npm run test:visual

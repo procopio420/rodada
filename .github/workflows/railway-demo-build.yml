@@ -98,7 +98,11 @@ jobs:
           for page in staff attendance bar kitchen manage cash reports; do
             status=$(curl -s -L -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
             echo "/$page -> HTTP $status"
-            test "$status" = "200"
+            if [ "$status" != "200" ]; then
+              docker exec rodada-demo-app nginx -T 2>&1 | tail -100
+              docker exec rodada-demo-app node -e 'Promise.all([3000,8000].map(async port => { const response = await fetch(`http://127.0.0.1:${port}/manage`); console.log(`Direct port ${port}: ${response.status}`); })).catch(error => { console.error(error.message); process.exitCode = 1; })'
+              exit 1
+            fi
           done
           python3 scripts/verify-aderlan-staging.py --base http://127.0.0.1:18080 \
             --evidence /tmp/rodada-staging-surface-check.json

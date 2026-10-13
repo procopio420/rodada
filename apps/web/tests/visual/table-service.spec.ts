@@ -4,6 +4,7 @@ import { fixture, layoutAndA11y } from "./fixtures";
 for (const width of [360, 390, 430]) test(`table service start/open recovery and contextual selection at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 844 });
   await fixture(page, "normal", true);
+  await page.route("**/api/attendance/hospitality/occupancies/occupancy-test/party-size/", route => route.fulfill({ json: { current: { covers_count: null, version: 0, source: null }, history: [] } }));
   await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["table.manage", "tab.open"] } }));
   let occupied = false;
   let opened = false;
@@ -43,6 +44,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
 
 test("one QR attention per occupancy and explicit claim removes warning", async ({ page }) => {
   await fixture(page, "normal", true);
+  await page.route("**/api/attendance/hospitality/occupancies/occupancy-test/party-size/", route => route.fulfill({ json: { current: { covers_count: null, version: 0, source: null }, history: [] } }));
   await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["table.manage", "tab.open"] } }));
   let claimed = false;
   await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { results: [{ id: "table-test", label: "12", status: "OCCUPIED", active_occupancy: { id: "occupancy-test", generation: 1, tabs: [], responsibility_version: claimed ? 1 : 0, responsible_staff_id: claimed ? "operator-test" : null, responsible_staff: claimed ? { id: "operator-test", display_name: "Ana" } : null, unassigned_service_attention: claimed ? "NONE" : "UNASSIGNED_READY", unassigned_guest_order_count: 2, oldest_unassigned_guest_order_at: "2026-10-08T20:00:00Z" } }] } }));
