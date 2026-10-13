@@ -42,6 +42,6 @@ Relatórios e checkpoints são **append-only de evidência**: conservar datas, I
 
 ## Dívida documental conhecida
 
-Leia a [auditoria de 13/10](KB-AUDIT-2026-10-13.md) e o [plano de melhoria](IMPROVEMENT-PLAN.md). A landing e a rota do Aderlan usam `rodada.bar` no código recente, enquanto ADRs e READMEs continuam com `rodada.ai`; isso **não** prova que wildcard TLS/DNS/isolamento estejam homologados.
+Leia a [auditoria de 13/10](KB-AUDIT-2026-10-13.md) e o [plano de melhoria](IMPROVEMENT-PLAN.md). A raiz canônica `rodada.bar` está registrada na [ADR 0018](../adr/0018-rodada-bar-canonical-domain.md); a arquitetura de roteamento continua sob Spec 025. **Atualização da decisão documental não comprova wildcard DNS/TLS, isolamento implantado ou homologação.**
 
 Quando não houver evidência suficiente, responda `PENDENTE DE VERIFICAÇÃO` em vez de inferir PASS.

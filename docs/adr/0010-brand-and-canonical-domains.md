@@ -1,3 +1,5 @@
+> **Supersessão em 2026-10-13:** a [ADR 0018](0018-rodada-bar-canonical-domain.md) tornou `rodada.bar` o domínio público canônico. Esta ADR preserva a decisão histórica de `rodada.ai` e a marca Rodada; não use suas URLs como instrução atual de deploy.
+
 # ADR 0010 — Marca Rodada e domínios canônicos
 
 > **Atualização (2026-10-12):** A decisão de usar hosts separados por superfície foi **substituída pela ADR 0016** (subdomínio por estabelecimento; path por módulo). Esta ADR continua válida para a marca Rodada e o domínio raiz `rodada.ai`. As URLs abaixo são histórico de compatibilidade, não o novo contrato público. 

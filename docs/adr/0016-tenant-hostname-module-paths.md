@@ -1,3 +1,5 @@
+> **Supersessão parcial em 2026-10-13:** a [ADR 0018](0018-rodada-bar-canonical-domain.md) substitui `rodada.ai` por `rodada.bar` nos hosts públicos. A decisão **host por Venue e path por módulo** permanece vigente; o texto abaixo é preservado como registro da decisão original.
+
 # ADR 0016 — Tenant no hostname; superfície no path
 
 **Status:** Accepted (architecture contract; rollout not implemented)

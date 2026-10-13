@@ -1,6 +1,6 @@
 # Spec 025 — Acceptance criteria
 
-All items below are **PENDING**, not implementation claims. Evidence: test command + file + CI/deploy result when available.
+**Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
 ## Host mapping and DNS
 
@@ -35,4 +35,4 @@ All items below are **PENDING**, not implementation claims. Evidence: test comma
 - [ ] `npm run test:tenant` — path/host unit regression, `apps/web/tests/tenant-routing.test.mjs` (CI result required).
 - [ ] `npm run test:integration` — independent Venues in `start_api.py`, BFF + Django assertions in `tenant-hosts.spec.ts` (CI result required).
 - [ ] `bash scripts/verify-tenant-host-preview.sh` — preview wildcard HTTPS, manifest, reserved/unknown host and health (real DNS/TLS not yet configured).
-- [ ] Aderlan shift and P0 safety gates on PR #116, followed by manual operator/QR browser verification and canary approval.
+- [ ] Aderlan shift and P0 safety gates on the merged #116 code at the current release SHA, followed by manual operator/QR browser verification and canary approval.
