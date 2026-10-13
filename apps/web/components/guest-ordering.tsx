@@ -110,7 +110,8 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     setLoading(true);
     setNotice("");
     try { const cached = JSON.parse(sessionStorage.getItem(`rodada.guest.catalog.${qrToken}`) || "null"); if (cached) { setProducts(cached.products); setCatalogCachedAt(cached.fetchedAt); } } catch {}
-    const stored = sessionStorage.getItem(storageKey) || "";
+    const stored = qrToken;
+    sessionStorage.removeItem(storageKey);
     const result = await guestApi<Context>("qr/resolve/", stored, {
       method: "POST",
       body: JSON.stringify({ token: qrToken }),
@@ -128,7 +129,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       setLoading(false);
       return;
     }
-    sessionStorage.setItem(storageKey, token);
+    // Authorization stays in a host-only HttpOnly cookie, never sessionStorage.
     setGuestToken(token);
     setContext(body);
     await loadCatalog(token);
