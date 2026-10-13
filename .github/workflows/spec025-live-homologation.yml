@@ -72,3 +72,46 @@ jobs:
           print("LIVE_HOMOLOGATION_JSON="+json.dumps({"passed":not errors,"checks":results}))
           sys.exit(1 if errors else 0)
           PY
+
+      - name: Diagnose HTTP routing over valid Railway TLS (does not certify wildcard)
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, ssl, json, sys
+          BASE="https://rodada-web-demo.up.railway.app"
+          checks=[
+            ("pilot context", "bardoaderlan.rodada.bar", "/api/venue/context",200),
+            ("pilot entry", "bardoaderlan.rodada.bar", "/",200),
+            ("pilot kitchen", "bardoaderlan.rodada.bar", "/cozinha",200),
+            ("pilot attendance", "bardoaderlan.rodada.bar", "/atendimento",200),
+            ("pilot manifest", "bardoaderlan.rodada.bar", "/manifest.webmanifest",200),
+            ("pilot guest page", "bardoaderlan.rodada.bar", "/guest/qr-test-token",200),
+            ("tenant raw Django denied", "bardoaderlan.rodada.bar", "/auth/me/",403),
+            ("tenant no auth", "bardoaderlan.rodada.bar", "/api/auth/me",401),
+            ("unknown tenant", "naocadastrado.rodada.bar", "/api/venue/context",421),
+            ("reserved API", "api.rodada.bar", "/ready/",200),
+          ]
+          failures=[]
+          for label,host,path,expected in checks:
+              req=urllib.request.Request(BASE+path,headers={"Host":host,"User-Agent":"RodadaSpec025Diagnostic/1.0"})
+              try:
+                  try:
+                      with urllib.request.urlopen(req,timeout=12,context=ssl.create_default_context()) as resp:
+                          status=resp.status;body=resp.read(2000)
+                  except urllib.error.HTTPError as e:
+                      status=e.code;body=e.read(2000)
+                  ok=status==expected
+                  if label=="pilot context" and ok:
+                      ok=json.loads(body).get("venue",{}).get("slug")=="bar-do-aderlan"
+                  if label=="pilot manifest" and ok:
+                      ok="Aderlan" in json.loads(body).get("name","")
+                  desc=f"HTTP {status} expected {expected}"
+                  if not ok:desc+=" body="+repr(body[:300])
+              except Exception as e:
+                  ok=False;desc=f"{type(e).__name__}: {e}"
+              print(("PASS" if ok else "FAIL")+" "+label+": "+desc,flush=True)
+              if not ok:failures.append(label)
+          print("Host-routing diagnostics:",len(checks)-len(failures),"passed",len(failures),"failed")
+          sys.exit(bool(failures))
+          PY
