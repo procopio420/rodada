@@ -1,0 +1,68 @@
+name: Provision Google Play reviewer
+on:
+  workflow_dispatch:
+    inputs:
+      venue_slug:
+        description: Existing demo venue slug
+        required: true
+        default: bar-do-aderlan
+      rotate_pin:
+        description: Rotate PIN for an existing reviewer
+        type: boolean
+        default: false
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    environment: play-review
+    timeout-minutes: 10
+    env:
+      POSTGRES_DB: ${{ secrets.REVIEW_POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.REVIEW_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.REVIEW_POSTGRES_PASSWORD }}
+      POSTGRES_HOST: ${{ secrets.REVIEW_POSTGRES_HOST }}
+      POSTGRES_PORT: ${{ secrets.REVIEW_POSTGRES_PORT }}
+      REVIEW_PIN: ${{ secrets.PLAY_REVIEW_PIN }}
+      REVIEW_VENUE_SLUG: ${{ inputs.venue_slug }}
+      ROTATE_PIN: ${{ inputs.rotate_pin }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Django API
+        working-directory: apps/api
+        run: pip install -e .
+      - name: Provision reviewer via Django shell
+        working-directory: apps/api
+        shell: bash
+        run: |
+          python manage.py shell <<'PY'
+          import os
+          from django.db import transaction
+          from modules.venue.models import Venue
+          from modules.access.models import StaffMember, VenueStaffMembership, MembershipStatus, StaffRole
+
+          pin = os.environ["REVIEW_PIN"]
+          if not (pin.isdigit() and 4 <= len(pin) <= 12):
+              raise ValueError("PLAY_REVIEW_PIN must be 4-12 numeric digits")
+          venue = Venue.objects.get(slug=os.environ["REVIEW_VENUE_SLUG"])
+          with transaction.atomic():
+              staff, created = StaffMember.objects.get_or_create(
+                  login_identifier="play-review@rodada.bar",
+                  defaults={"display_name": "Google Play Reviewer", "is_active": True},
+              )
+              if created or os.environ["ROTATE_PIN"].lower() == "true":
+                  staff.set_pin(pin)
+                  staff.is_active = True
+                  staff.save(update_fields=["pin_hash", "is_active"])
+              membership, _ = VenueStaffMembership.objects.get_or_create(
+                  venue=venue, staff_member=staff,
+                  defaults={"role": StaffRole.STAFF, "status": MembershipStatus.ACTIVE},
+              )
+              if membership.status != MembershipStatus.ACTIVE or membership.role != StaffRole.STAFF:
+                  raise RuntimeError("Reviewer must have an active STAFF membership; refusing to elevate or silently alter existing permissions")
+          print("Reviewer provisioned for venue:", venue.slug)
+          print("Login identifier: play-review@rodada.bar")
+          print("PIN is stored hashed and will not be printed.")
+          PY
