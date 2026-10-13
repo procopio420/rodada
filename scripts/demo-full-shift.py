@@ -275,6 +275,20 @@ payment_body = {
 with ThreadPoolExecutor(max_workers=2) as pool:
     partials = list(pool.map(lambda _: api(f"/tabs/{tab['id']}/payments/", payment_body), range(2)))
 assert partials[0]["id"] == partials[1]["id"]
+# UX-34: confirmed money alone does not require repayment. Cover the remaining
+# responsibility first so this scenario exercises a real positive refund.
+before_correction = api(f"/tabs/{tab['id']}/")
+assert before_correction["exposure_cents"] == 4300
+balance_body = {
+    "amount_cents": 4300,
+    "method": "CASH",
+    "cash_point_id": point["id"],
+    "amount_tendered_cents": 4300,
+    "idempotency_key": run_id + "-paid-correction-balance",
+}
+balance_payment = api(f"/tabs/{tab['id']}/payments/", balance_body)
+assert api(f"/tabs/{tab['id']}/payments/", balance_body)["id"] == balance_payment["id"]
+assert api(f"/tabs/{tab['id']}/")["exposure_cents"] == 0
 correction = api(
     f"/order-items/{items[cancel]['id']}/corrections/cancel/",
     {
@@ -285,6 +299,7 @@ correction = api(
     },
 )
 assert correction["financial_disposition"] == "REFUND_REQUIRED"
+assert correction["refund_required_cents"] == 600
 api("/auth/reauthenticate/", {"pin": "2468"})
 refund_body = {
     "payment_id": partials[0]["id"],
@@ -296,7 +311,7 @@ assert (
     api(f"/corrections/{correction['id']}/settle-refund/", refund_body)["refund_id"]
     == refund["refund_id"]
 )
-assert refund["exposure_cents"] == 4300
+assert refund["exposure_cents"] == 0
 # House account: hit limit, reject, partial restores capacity, consume again.
 customer = api("/customers/", {"display_name": "QA House " + run_id, "kind": "HOUSE"})
 house = request("/tabs/", {"customer_id": customer["id"]}, staff)
@@ -345,6 +360,9 @@ for current in (tab, dest, house):
     detail = api(f"/tabs/{current['id']}/")
     if detail["state"] == "CLOSED":
         assert detail["exposure_cents"] == 0
+        continue
+    if detail["exposure_cents"] == 0:
+        api(f"/tabs/{current['id']}/close/", {})
         continue
     body = {
         "amount_cents": detail["exposure_cents"],

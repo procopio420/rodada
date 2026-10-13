@@ -66,4 +66,6 @@ Demo nativa: spec023-native-demo.py --canonical-menu somente em emulador/Venue d
 
 ## Entrega e pendências
 
+A primeira CI do turno descartável em1f25df3 revelou uma expectativa antiga do harness: pagamento parcial1000 com exposição4300 não exige devolver o item600, conforme UX-34 da Spec017. O cenário de estorno agora recebe o saldo4300 por CASH antes da correção, exige estorno positivo600 e exposição final0, preservando relatório8900/600 e caixa14300. Não altera regras do produto, não aceita refund zero e conserva a falha anterior como evidência. Turno HTTP local corrigido PASS em PostgreSQL com dispatcher real, relatório incremental8900/600/8300 e caixa14300/discrepância0; a CI do novo head deve certificar o turno integral/restart/64Tabs. Tentativas locais anteriores: banco novo recusado pelo guard de seed sem criar identidades; execução sem dispatcher falhou antes de pagamentos. Registros mantidos, sem apagamento dos dados anteriores.
+
 Branch para revisão; nenhum merge/publicação comercial/substituição de PDV declarados. Restam referência visual compatível e aceite integral023, conclusão do episódio histórico sem PID se reproduzido e gates externos da matriz. Logs completos em visual-artifacts/spec023-024/runtime ignorados; evidências sanitizadas versionadas e CI verificável pelo head da PR.
