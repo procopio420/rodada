@@ -7,7 +7,6 @@ on:
       - "apps/web/**"
       - "apps/api/**"
       - "prototype/**"
-      - "docs/design/**"
       - ".github/workflows/web.yml"
   push:
     branches: [main]
@@ -15,8 +14,12 @@ on:
       - "apps/web/**"
       - "apps/api/**"
       - "prototype/**"
-      - "docs/design/**"
       - ".github/workflows/web.yml"
+
+concurrency:
+  # Only cancel superseded PR commits, never a manually requested gate or main push.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
