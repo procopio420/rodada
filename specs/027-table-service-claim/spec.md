@@ -74,6 +74,30 @@ Card "Mesa 12 · Em uso · João · 3 comandas". Tocar na mesa abre lista de com
 
 Uma ocupação criada por `DIRECT` (Spec 004) pode ficar `OCCUPIED` e `responsible_staff = null`. O primeiro garçom que abre a ficha vê **Atendimento sem responsável → Assumir atendimento**; não ocupa novamente nem cancela sessão guest. O garçom pode abrir a comanda ou registrar pedido autorizado mesmo sem assumir.
 
+### C.1 Destaque operacional de mesa sem responsável (P0 do piloto)
+
+Uma mesa pode estar `OCCUPIED` sem `responsible_staff`, especialmente se o cliente iniciou pela modalidade `DIRECT` no QR. **Isso não deve ficar invisível aos garçons**.
+
+**Critério de visibilidade derivado de fonte canônica, sem criar tarefa financeira ou claim fictício:**
+
+| Situação da ocupação ativa | Exibição staff | Prioridade |
+| --- | --- | --- |
+| Sem responsável e ainda sem pedidos confirmados | Etiqueta discreta `Sem responsável` na ficha/cartão de Mesa; CTA `Assumir atendimento` | Informativa, não entra em fila de urgência |
+| Sem responsável e existe ao menos um pedido `source=GUEST` confirmado nessa ocupação | Destaque persistente **`Pedido via QR · Sem responsável`** no painel `Agora/Atendimento` e cartão da Mesa; apresentar mesa/zona, quantidade de pedidos guest pendentes de acompanhamento e tempo desde primeiro pedido pertinente; CTA `Ver mesa` e `Assumir atendimento` | Atenção operacional visível sem depender de navegar até a mesa |
+| Mesmo caso, com item pronto aguardando entrega | Conservar destaque e incluir estado **`Pedido pronto`** derivado da fila canônica de produção/entrega, sem antecipar readiness | Maior prioridade de ordenação; não duplicar despacho |
+| Um funcionário assume explicitamente a ocupação | Retirar o aviso **`Sem responsável`** em Android/Web/Agora; manter pedidos e seus estados intactos | Sai da fila de ocupações não atribuídas |
+| Ocupação liberada/encerrada ou antiga `generation` | Remover o aviso dessa sessão; jamais associá-lo à próxima ocupação da mesa | Nenhum aviso órfão |
+
+**Regras:**
+1. O evento relevante é **pedido guest confirmado** (não apenas QR lido, carrinho montado ou Tab aberta). O aviso de atenção não cria `TableOccupancy`, Tab, Order, `DispatchTask` nem novo evento financeiro.
+2. Calcular aviso por `occupancy_id`, `generation`, owner nullable e pedidos canônicos; publicar invalidação realtime após commit de confirmação/claim/liberação e reconstruir por GET para reconexão/reload. Nunca confiar no cliente para inferir `source=GUEST` ou readiness.
+3. **Uma ocupação = um destaque agregado**, mesmo com diversos pedidos e replays de confirmação. Mostrar contagem e antiguidade, não spam de banners/toasts nem duplicação de tarefas; ordenar por pronto/antiguidade sem inventar SLA.
+4. Claim é **ação do funcionário**, nunca disparado pela simples visualização, pedido, entrega ou toque em `Ver mesa`. A equipe pode cuidar de itens e comandas sem claim; não atrasar produção/expedição por ausência de owner.
+5. Prioridade e destaque só são visíveis a funcionários do **mesmo Venue** com acesso operacional; dados internos de staff/filas não aparecem no QR guest. UI não pode usar apenas cor: sempre renderizar texto + ícone/estado acessível.
+6. Em concorrência (A assume, B observa antiga versão), refetch remove aviso; claim repetido/conflitante segue CAS do contrato 6.3. Alertas não sobrevivem à liberação nem migram para nova geração.
+
+**Exemplo:** Cliente lê QR da Mesa 12 e confirma cervejas. A equipe vê `Mesa 12 · Pedido via QR · Sem responsável`, pode tocar `Ver mesa` ou `Assumir atendimento`. Depois que Ana assume, `Sem responsável` desaparece imediatamente após confirmação/releitura; os pedidos não são recriados e a cozinha/bar continuam normalmente.
+
 ### D. Balcão / consumo em pé
 
 Ação separada `Nova comanda · Sem mesa` continua possível. Não cria `TableOccupancy` artificial, não atribui responsável de mesa e utiliza `Tab.service_point` apenas quando houver contexto legítimo.
@@ -92,7 +116,7 @@ Não reinterpretar `DIRTY` como mesa disponível; não concluir limpeza automati
 
 ## 5. Projeção da ficha / seleção de comandas
 
-O snapshot da mesa retorna `table_id`, `label`, `status`, `zone`, `active_occupancy` (ID, generation, timestamps, versão de responsabilidade, responsável opcional e Tabs ativas). Cada comanda listada precisa de `tab_id`, `display_label` ou rótulo humano desambiguador, `state`, localização atual e `opened_at`. Se exibir saldo, obtê-lo da projeção financeira canônica, jamais somar valores de linhas do navegador.
+O snapshot da mesa retorna `table_id`, `label`, `status`, `zone`, `active_occupancy` (ID, generation, timestamps, versão de responsabilidade, responsável opcional e Tabs ativas). A projeção staff destinada a Mesas/Agora deve incluir `unassigned_service_attention` derivado (`NONE` | `UNASSIGNED_NO_ORDER` | `UNASSIGNED_GUEST_ORDER` | `UNASSIGNED_READY`), `unassigned_guest_order_count` e `oldest_unassigned_guest_order_at` quando aplicáveis. Essa projeção não entra no payload guest. Atualização é por leitura canônica + SSE de invalidação, sem objeto de alerta independente. Cada comanda listada precisa de `tab_id`, `display_label` ou rótulo humano desambiguador, `state`, localização atual e `opened_at`. Se exibir saldo, obtê-lo da projeção financeira canônica, jamais somar valores de linhas do navegador.
 
 Duas pessoas chamadas "João" na mesma mesa precisam de contexto adicional (rótulo + identificador operacional não secreto + hora de abertura). Não usar UUID truncado como prova de autorização ou código de guest join. Identificador de exibição não concede acesso guest.
 
@@ -180,6 +204,7 @@ Nenhum comando de claim concede capability financeira ou autoriza tab de outro V
 - Migração de `TableOccupancy` adiciona campos nullable de responsável/tempo e versão com default seguro; ocupações antigas/guest ficam sem responsável **sem backfill especulativo**. Um garçom pode assumi-las explicitamente.
 - Atendimento Web precisa de rota nova expressamente permitida na allowlist, sem expandir pagamento/cash/refund.
 - Android nativo e Web devem mostrar a mesma ocupação/Tab; Web não promete capacidade financeira que não possui.
+- O painel Agora e as fichas de mesa usam a mesma projeção staff de `unassigned_service_attention`; uma notificação visual não altera `DispatchTask` e não deve exigir um polling especial por cartão.
 - Preferir rollout com flag por Venue, fixture isolada, validação do piloto e rollback de UI/rota. Reverter feature não apaga histórico de ocupações nem vínculos.
 
 ## 10. Fora de escopo desta primeira implementação

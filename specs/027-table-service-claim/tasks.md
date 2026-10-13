@@ -15,6 +15,9 @@
 - [ ] T027-10 Integrar Web companion com paridade de fluxo sem pagamento e leitura canônica.
 - [ ] T027-11 Proteger drafts e recuperação de start/open após timeout/kill/reload antes de declarar jornada segura.
 - [ ] T027-12 Garantir que links de Tab na mesa desambiguam homônimos e não dependem de label para selecionar ID.
+- [ ] T027-24 Projetar no backend `unassigned_service_attention` derivado por ocupação, com contagem/antiguidade de pedidos `GUEST` confirmados e prontidão canônica; sem leaks e sem N+1.
+- [ ] T027-25 Exibir destaque persistente `Pedido via QR · Sem responsável` em Agora/Atendimento Android e Web, indicação discreta na mesa sem pedido e CTA `Ver mesa` / `Assumir atendimento`.
+- [ ] T027-26 Testar deduplicação por occupancy/generation, reconexão/reload, claim/release, guest DIRECT, fila de produção e 2 pedidos concorrentes sem geração de DispatchTask.
 
 ## P1 — Claim explícito e polimento
 - [ ] T027-13 Implementar claim/takeover versionado com no-op do mesmo responsável, 409 e auditoria de transição.

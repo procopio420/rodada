@@ -1,6 +1,6 @@
 # Acceptance — Spec 027: início de atendimento e claim de ocupação
 
-**Estado:** proposta ainda não implementada. Todos os critérios permanecem pendentes até haver arquivo de teste, execução e evidência vinculada. IDs TS027-01..TS027-30.
+**Estado:** proposta ainda não implementada. Todos os critérios permanecem pendentes até haver arquivo de teste, execução e evidência vinculada. IDs TS027-01..TS027-36.
 
 ## Início da mesa e responsabilidade
 
@@ -44,9 +44,19 @@
 - [ ] **TS027-29** — Android/Web usam o mesmo contrato; gateway Web não expõe dinheiro/estorno/caixa, nem retorna informação de owner para guest.
 - [ ] **TS027-30** — Em Android real e Web móvel 360–430px, primeira ocupação requer 1 toque, comanda da mesa é clicável, CTAs têm alvos acessíveis e textos de estado/error comunicam intenção e destino.
 
+## Destaque de QR sem responsável
+
+- [ ] **TS027-31** — QR lido e carrinho criado sem pedido confirmado não geram alerta urgente; ocupação sem responsável tem apenas indicação discreta `Sem responsável`.
+- [ ] **TS027-32** — O primeiro pedido `source=GUEST` confirmado numa ocupação sem responsável faz surgir `Pedido via QR · Sem responsável` na Mesa e em Agora, com destino correto, contagem e antiguidade derivadas da API (Android e Web).
+- [ ] **TS027-33** — Pedidos guest adicionais e replays idempotentes atualizam um **único** destaque por `occupancy_id`/`generation`, sem banners duplicados, novos DispatchTasks ou mutações financeiras.
+- [ ] **TS027-34** — Quando item dessa ocupação fica pronto, destaque reflete prontidão real sem iniciar preparo, criar entrega fictícia ou modificar o fluxo de produção.
+- [ ] **TS027-35** — Claim explícito bem-sucedido remove `Sem responsável` após confirmação/readback em ambos clientes, preserva pedidos, origem e filas; navegação, pedido e entrega sem claim não removem alerta.
+- [ ] **TS027-36** — Release, limpeza/geração nova, refresh/reconnect, concorrência de claim e isolamento de Venue não deixam alertas órfãos nem revelam dados operacionais a guest; texto acessível sem depender só de cor.
+
 ## Evidências exigidas para marcar PASS
 
 - Teste de serviço e API para validação, permissões, idempotência, mesma chave/novo payload, relação Tab↔ocupação e semântica de release.
 - Teste integrado em **PostgreSQL com duas conexões reais** para corrida start/start, claim/claim e release/open, verificando estados persistidos e audit events.
 - Testes instrumentados Android / UI Web (Web: `npm run test:visual`, além de integração) com fixtures determinísticas, homônimos e interrupção do fluxo.
+- Testes QR `DIRECT` com pedido não confirmado/confirmado/pronto, equipe sem responsável e com claim, múltiplos pedidos idempotentes, reload e próximo ciclo da mesa; inspecionar também o painel Agora e o limite de dados expostos a guest.
 - Demonstração documentada no Railway isolado sem pagamentos reais e, depois, turno observado no piloto. Registrar versão do deploy e não confundir estimativa com medição.

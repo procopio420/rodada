@@ -12,6 +12,7 @@
 ### Fase 1 — Ownership opcional + leitura canônica
 - Migração aditiva nullable: `TableOccupancy.responsible_staff`, `responsible_since`, `responsibility_version` com default seguro. Preservar ocupações antigas e QR.
 - Criar trilha imutável de responsabilidade (eventos/auditoria, sem alterar `DispatchTask.claimed_by`). Projetar ownership na listagem/detalhe de mesa staff.
+- Projetar no backend o estado staff `unassigned_service_attention` da ocupação + pedidos guest confirmados (contagem/antiguidade/readiness), evitando consultas N+1 e exposição no payload guest.
 - Testes de isolamento por Venue, visibilidade, índices e não-vazamento guest.
 
 ### Fase 2 — Start e abertura contextual transacionais
@@ -27,6 +28,7 @@
 
 ### Fase 4 — UX Android / Web
 - Ficha/lista de mesas com "Iniciar atendimento" em AVAILABLE, painel de comandas clicáveis em OCCUPIED, responsável e CTA contextual.
+- Exibir `Sem responsável` discretamente em Mesa sem pedido confirmado e `Pedido via QR · Sem responsável` em destaque persistente no Agora/Atendimento quando houver pedido guest confirmado; priorizar item realmente pronto, 1 aviso agregado por ocupação, CTAs `Ver mesa` e `Assumir atendimento`.
 - Nova comanda contextual leva direto à seleção de produtos; nome/customer opcionais. Sem roubar foco de pedidos já em rascunho.
 - Android: intent persistente e estado de resultado desconhecido; Web: recuperação segura após reload. Não emitir novo UUID após timeout.
 - BFF Web: allowlist estrita de start/claim/open e GET; proibir pagamento, cash, refunds. Ações irreversíveis de release continuam protegidas.
@@ -35,6 +37,7 @@
 ### Fase 5 — Gates e rollout
 - Testes unitários, API, PostgreSQL concorrente, Android instrumentado, Web integration/visual, regressões de specs adjacentes.
 - Ensaio com 2 funcionários concorrentes, QR e comanda individual/compartilhada em banco descartável; não executar pagamentos reais.
+- Verificar destaque do QR antes/depois de confirmação, segundo pedido, item pronto, claim por outro garçom, reload, release e nova geração da mesa; capturar evidência no Agora sem duplicar tarefas Dispatch.
 - Flag/configuração por Venue com rollback de UI/rotas que preserve dados/auditoria.
 - Validar no Bar do Aderlan com roteiro: mesa vazia, nova pessoa, garçom ajudante, QR anterior, mudança de mesa, rede ruim, abertura errada.
 
