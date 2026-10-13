@@ -22,7 +22,7 @@ class VenueHostMiddleware:
                 fresh = abs(time.time() - int(timestamp or "")) <= 60
             except ValueError:
                 fresh = False
-            message = f"{timestamp}\\n{request.method}\\n{request.path}\\n{claimed}"
+            message = f"{timestamp}\n{request.method}\n{request.path}\n{claimed}"
             expected = hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
             if not secret or not fresh or not claimed or not signature or not hmac.compare_digest(expected, signature):
                 return JsonResponse({"code": "HOST_ASSERTION_INVALID"}, status=403)
