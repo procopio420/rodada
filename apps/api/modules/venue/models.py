@@ -90,3 +90,23 @@ class OperationalAlertEvent(models.Model):
     class Meta:
         ordering = ['occurred_at', 'id']
 
+
+
+class VenueDomain(models.Model):
+    """Persistent host ownership. Hostname alone never grants access."""
+
+    hostname = models.CharField(max_length=253, unique=True)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="domains")
+    is_active = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        super().clean()
+        from .hostnames import normalize_tenant_hostname
+        self.hostname = normalize_tenant_hostname(self.hostname)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
