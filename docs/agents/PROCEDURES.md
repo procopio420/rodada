@@ -1,0 +1,60 @@
+# Rodada — procedimentos para agentes de engenharia
+
+**Política vigente de trabalho**, complementa o [AGENTS raiz](../../AGENTS.md). Aplicável a agentes independentes, Codex, copilotos e revisores. Não autoriza deploy ou merge por si só.
+
+## 1. Intake e investigação (antes de editar)
+
+1. Identificar tarefa, impacto operacional, módulo, spec **pelo caminho completo** e critérios envolvidos. Verificar `git status`, branch, SHA da main, PRs abertos e divergências locais.
+2. Selecionar 3–6 documentos no [mapa da KB](README.md); não ler a KB inteira, não se basear em snippet isolado nem em relatório datado para alegar estado atual.
+3. Definir em texto: antes/depois esperado, não escopo, invariantes, risco (P0/P1/P2), dependências, testes e resultado observável. Se houver dúvida factual, identificar bloqueio e evidência requerida.
+4. Para feature/alteração de comportamento: atualizar spec/acceptance antes da implementação. Para bug dentro de contrato válido: teste de regressão primeiro; documentar quando a correção altera contrato.
+
+## 2. Implementação e concorrência
+
+- Trabalhar em branch própria saindo do HEAD verificado e com diff mínimo. Commits por vertical slice; não misturar upgrade de dependência, UX, migração e documentação histórica sem necessidade.
+- Delegação paralela: tarefas por **ownership não sobreposto** (API, Web, Android, QA/docs). Um agente integrador controla arquivos de contrato compartilhados (`AGENTS.md`, spec, ADR, schema, workflows), conflitos, merges e ordem de branches.
+- Contrato do subagente: objetivo, base SHA, pasta/arquivos permitidos, interface esperada, invariantes, testes/evidências exigidos e exclusões. Resultado deve devolver diff/commit e riscos; não pode reivindicar integração sem merge e testes.
+- Evitar sobreposição de `models/migrations`, APIs, tokens de design, fixtures e snapshots entre agentes. Se inevitável, serializar mudanças e revalidar depois do merge.
+- Rebase/merge da main exige leitura de ambos os lados e teste pós-integração. Não descartar branch alheia, squash histórico de evidência ou usar force push sem motivo e autorização.
+- Não transformar estimativa de automação ou mock em teste end-to-end real.
+
+## 3. Gate por risco/área
+
+| Tipo | Gate mínimo | Gate adicional quando material |
+| --- | --- | --- |
+| API/Django | `manage.py check`; `makemigrations --check --dry-run`; pytest PostgreSQL | Corrida, serialização/locks, idempotência e tenant negativo |
+| Web/BFF | `npm run typecheck`; `npm run test:auth`; `npm run build`; `npm run test:visual` | `npm run test:integration` com BFF real/Django/PostgreSQL, 360/390/430 e desktop |
+| Android | `./gradlew testDebugUnitTest assembleDebug` (+ lint relevante) | Emulador/force-stop/resposta perdida e aparelho para recovery/pagamentos |
+| Domínio financeiro | Casos positivos e negativos, transação, centavos, auditoria | Duplo clique, timeout após commit, replay da mesma UUID, concorrência, reconciliação |
+| Auth/multitenant | Scope/capability/CSRF/Host, cookies, revogação | Dois Venues e rejeição de leitura/write/refresh/SSE/guest cross-tenant |
+| Release/piloto | CI do SHA e smoke em sandbox isolado | Release gates manuais conforme `docs/ci-workflows.md`, operador in loco, rede/dispositivo/fiscal/rollback |
+
+Usar **somente comandos executados de fato** ao declarar PASS. Reportar skips/infra failures e provas inconclusivas. Nunca baixar limiar visual, afrouxar segurança, trocar PostgreSQL por SQLite para obter "verde", nem apagar teste falho sem causa e evidência.
+
+## 4. Operações com efeito externo
+
+- Sem autorização explícita no pedido atual, **não**: mergear na main, publicar/deployar, disparar release/Play, alterar DNS, usar banco remoto, seed/reset/restore, registrar pagamento real ou cancelar runs.
+- Demo compartilhada é ambiente operacional: test mutável só com escopo, tenant e consentimento explícitos; preferir PostgreSQL e containers descartáveis com IDs/rollback.
+- Não logar secrets, PIN, tokens, cookies, contas de usuário ou dados de clientes. Usar placeholders em evidências sanitizadas.
+- Fluxo financeiro de piloto Web-only: recebimento manual somente após prova de dinheiro/maquininha externa. Sem PSP real, sem estado de liquidação presumido; manter opção de rollback ao VR System. Documentos não fiscais não substituem obrigação fiscal.
+- Ativação de roteamento `rodada.bar` ou wildcard exige decisão de domínio, isolamento host/sessão/guest, TLS e prova em preview real; ter código não equivale a rollout.
+
+## 5. Revisão e handoff obrigatório
+
+Checklist do PR/entrega:
+
+- [ ] Spec por caminho, critérios antes/depois e decisões de ADR (se aplicável)
+- [ ] Principal risco e teste negativo; evidência de não duplicidade/tenant/rollback quando relevante
+- [ ] Comandos executados, saída e SHA; desvios, skips e testes **não** executados
+- [ ] Efeitos na KB atualizados no mesmo PR (ou ticket de drift documentado)
+- [ ] Diff revisado para segredos/PII, dados de demo, migration irreversível, alteração visual indevida
+- [ ] Status correto: `IMPLEMENTADO`, `TESTADO_LOCAL`, `CI_APROVADO`, `HOMOLOGADO` ou `BLOQUEADO` **por escopo**; não usar "pronto" sem qualificação
+- [ ] Próxima ação, responsável, link para branch/PR/evidência; nenhuma alegação de deploy sem URL+SHA verificados
+
+Modelo de handoff: **Objetivo · Spec · Branch/HEAD · Arquivos · Contrato preservado/alterado · Testes executados · Testes não executados · Riscos/pendências · Decisão e próxima ação**.
+
+## 6. Fechamento da KB
+
+Ao atualizar uma spec, percorra seus links `spec/plan/tasks/acceptance/evidence`, código impactado, ADR relacionada, documentação do módulo, testes e release status (apenas se escopo de release). Se não conseguir confirmar determinada fonte, **registre o drift**, mantenha o arquivo histórico e não marque critério como concluído.
+
+Política de CI detalhada: [GitHub Actions](../ci-workflows.md). Estado real do piloto: [status por spec](../releases/spec-status-2026-10-13.md) (fotografia antiga) e [homologação Web-only](../releases/aderlan-web-only-homologation-2026-10-14.md).
