@@ -3,11 +3,11 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const modules = [
-  { label: "Atendimento", description: "Mesas, comandas e pedidos", href: "/attendance" },
-  { label: "Cozinha", description: "Fila de preparo e produção", href: "/kitchen" },
+  { label: "Atendimento", description: "Mesas, comandas e pedidos", href: "/atendimento" },
+  { label: "Cozinha", description: "Fila de preparo e produção", href: "/cozinha" },
   { label: "Bar", description: "Bebidas e pedidos", href: "/bar" },
-  { label: "Caixa", description: "Recebimentos e fechamento", href: "/cash" },
-  { label: "Gerência", description: "Operação e relatórios", href: "/manage" },
+  { label: "Caixa", description: "Recebimentos e fechamento", href: "/caixa" },
+  { label: "Gerência", description: "Operação e relatórios", href: "/gerencia" },
 ] as const;
 
 /**

@@ -19,6 +19,22 @@ export function proxy(request: NextRequest) {
   const rewrite = (path: string) =>
     NextResponse.rewrite(new URL(path, request.url), { request: { headers: requestHeaders } });
 
+  // Pilot UI aliases only; not a Venue resolver or authorization boundary.
+  // Never enable wildcard routing based solely on this Host check.
+  const pilotHost = request.headers.get("host")?.toLowerCase().split(":")[0] === "bardoaderlan.rodada.bar";
+  if (pilotHost && !isInternalPath(pathname)) {
+    const aliases: Record<string, string> = {
+      "/atendimento": "/attendance",
+      "/cozinha": "/kitchen",
+      "/caixa": "/cash",
+      "/gerencia": "/manage",
+      "/relatorios": "/reports",
+    };
+    const first = "/" + pathname.split("/")[1];
+    const target = aliases[first];
+    if (target) return rewrite(target + pathname.slice(first.length));
+  }
+
   if (surface.id === "public" || isInternalPath(pathname)) return next();
 
   if (surface.id === "client") {
