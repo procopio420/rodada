@@ -103,3 +103,28 @@ Fechamento da integração 83e3d79: API PostgreSQL **623 passed** (run 384788367
 ## Integração da Spec 025 / KB — main 60a9555
 
 Depois do gate 83e3d79, a main recebeu o gateway/ingress multitenant da Spec 025. Integração preserva contexto assinado, cookies host-only e headers sanitizados; regex explícita mantém páginas Web e acrescenta família venue. Fixture de dois Venues conserva rollout ligado apenas no Venue de teste. Migração de rollout passa a 0011, após lifecycle de VenueDomain 0010. Revalidar API/Web/Docker neste novo head; não confundir PASS anterior com este merge.
+
+## Contagem automatizada de ações e handoff
+
+As contagens abaixo vêm dos testes UI aprovados, excluindo navegação até a ficha, espera, scroll e digitação opcional. Não são medição de turno. O baseline da auditoria de 12/10 distingue estimativa (E) de medição; não converter E em before observado.
+
+| Jornada / contexto inicial | Before conhecido | After em teste |
+| --- | --- | --- |
+| Iniciar atendimento / ficha AVAILABLE | Não medido para o novo comando | 1 ação, sem modal |
+| Abrir comanda / ficha de ocupação ativa | Sem jornada contextual atômica equivalente medida | 2 ações: Nova comanda → Abrir e pedir |
+| Selecionar Tab / ficha da mesa | Texto não clicável; navegação + seleção estimadas | 1 seleção por ID |
+| Mover / ficha da mesa de destino | Transferência Web não medida; Android E4 partia da comanda aberta, contexto diferente | 3 ações: vincular/organizar → escolher Tab → confirmar origem/destino |
+
+Contrato: specs/027-table-service-claim e docs/adr/0018-occupancy-responsibility-and-contextual-tab-opening.md. Implementação: apps/api/modules/hospitality + management/venue, apps/web/components/attendance-web.tsx + order-workspace.tsx + table-service-rollout.tsx, apps/attendance-android/operations + ui/AttendanceNavigation.kt. Branch impl/027-table-service-claim. Resultados e heads são identificados nas seções acima.
+
+GO somente para revisão técnica após gates do head final. NO-GO para declarar piloto observado: falta demonstração nova no ambiente autorizado e turno no Aderlan, com operador e before/after reais. Próximo responsável por essa evidência: operador do piloto com Lucas. Nenhum merge na main, deploy, ativação de Venue real, telefone físico ou pagamento real foi executado neste trabalho.
+
+## Fechamento técnico — código 6420ed251987e2389dc0d1848cbe35ebf79d4f39
+
+- API PostgreSQL: **631 passed, sem skips**, run 38480233172 / job 115580738942.
+- Web: **7 focados + 239 visuais + 18 integrações reais PASS**, run 38480233223 / job 115580739420. O merge deixou duas execuções visuais no workflow; ambas passaram. Fechamento remove a duplicação, mantendo uma execução completa e os gates tenant/auth/gateway.
+- Android JVM/debug: **PASS**, run 38480233116. Código de recuperação/label é o mesmo aprovado no gate instrumentado 83e3d79; resultados de force-stop, movimento e fontes/larguras registrados acima.
+- Docker/ingress multitenant: **PASS**, run 38480233289.
+- Local pós-integração: drift/typecheck/build, 4 testes de auth, 3 de tenant, gateway HTTP e **43 API PASS / 3 skips de locks PostgreSQL**. Os skips locais são cobertos pelo gate PostgreSQL completo.
+
+Branch impl/027-table-service-claim; base integrada main 60a95551bda27af2025c8da08b921e10f0fe1610. GO para revisão do PR #107. Implementação concluída, piloto observado pendente. O commit final altera apenas este registro e remove a execução duplicada de visual; não altera produto, contrato, schema ou testes. Um novo CI pode rodar automaticamente pelo ajuste de workflow; os resultados acima vinculam o código efetivamente homologado em automação.

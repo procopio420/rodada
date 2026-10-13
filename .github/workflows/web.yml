@@ -28,7 +28,6 @@ jobs:
     services:
       postgres:
         image: mirror.gcr.io/library/postgres:17
-
         env:
           POSTGRES_DB: rodada_web_e2e
           POSTGRES_USER: rodada_test
@@ -86,11 +85,6 @@ jobs:
       - name: Spec 027 focused responsive and recovery contracts
         working-directory: apps/web
         run: npm run test:visual -- table-service.spec.ts
-
-      - name: Visual, responsive and accessibility gates
-        working-directory: apps/web
-        run: npm run test:visual
-
 
       - name: Real Web BFF API workflows
         working-directory: apps/web
