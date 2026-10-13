@@ -1,9 +1,20 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// Chromium forbids overriding Host in navigation requests. Fulfill only the document
+// with a real Next HTTP response made against the isolated tenant fixture host;
+// JS/CSS/assets still load normally in the browser from the local test server.
+async function routeTenantDocument(page: Page, host: string) {
+  await page.route("**/*", async route => {
+    if (route.request().resourceType() !== "document") return route.continue();
+    const response = await page.request.get(route.request().url(), { headers: { Host: host } });
+    await route.fulfill({ response });
+  });
+}
 
 // Integration test: Next SSR resolves the real Django VenueDomain seeded in start_api.py.
 // No mocked tenant context or browser-only substitution.
 test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", async ({ page }) => {
-  await page.setExtraHTTPHeaders({ Host: "e2ea.rodada.bar" });
+  await routeTenantDocument(page, "e2ea.rodada.bar");
   const nav = page.getByRole("navigation", { name: "Módulos operacionais" });
 
   for (const [width, columns] of [[360, 2], [390, 2], [430, 2], [768, 3], [1024, 3], [1280, 4], [1440, 4]] as const) {
@@ -36,7 +47,7 @@ test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", a
 });
 
 test("Spec 025: venue hub heading comes from the verified host, not a hardcoded pilot name", async ({ page }) => {
-  await page.setExtraHTTPHeaders({ Host: "e2eb.rodada.bar" });
+  await routeTenantDocument(page, "e2eb.rodada.bar");
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/");
   await expect(page.getByText("Other E2E — test only", { exact: true })).toBeVisible();
