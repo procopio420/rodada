@@ -77,6 +77,7 @@ data class Product(
     val availability: String,
     val variants: List<ProductVariant> = emptyList(),
     val modifierGroups: List<ModifierGroup> = emptyList(),
+    val category: String = "Outros",
 )
 
 /** Server-authoritative READY work; it is never synthesized from a local order cart. */
