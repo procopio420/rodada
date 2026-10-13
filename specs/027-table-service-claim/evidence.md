@@ -14,7 +14,7 @@ Estado: implementação em validação; **não pronta para merge/homologação**
 - Web: início sem modal, abertura com nome opcional, seleção direta da comanda, confirmação de takeover, aviso de QR em Agora/Mesas, intenção congelada em localStorage e recuperação após reload. Pendência de outra sessão bloqueia nova intenção; drafts bloqueiam troca de contexto. BFF não libera pagamentos/caixa/estornos.
 - Android: mesmos contratos, seleção por ID, abertura contextual, claim/takeover, aviso agregado no Agora e intenção cifrada vinculada à sessão original. Retry usa a mesma chave/conteúdo. Sair/trocar de comanda preserva draft; comandos pendentes bloqueiam outra intenção de mesa.
 
-## Resultados executados
+## Resultados locais (histórico anterior ao CI)
 
 | Verificação | Resultado | Limite |
 | --- | --- | --- |
@@ -44,15 +44,32 @@ Permissões: `table.manage` para start/claim; `tab.open` para abertura contextua
 
 Locks: intenção → Table → Occupancy → Tab. Replay consulta resultado antes de revalidar ciclo encerrado, mas passa pela autenticação/capability atual da API. A resposta persistida é histórica; clientes atualizam a projeção canônica após confirmar.
 
-## Gates e trabalho ainda pendentes
+## Validação executada no CI
 
-1. Executar suite PostgreSQL e quatro corridas novas. Nenhum critério dependente de concorrência está PASS.
-2. Executar visual/integration Web e inspecionar 360–430 px, referência adjacente, foco, dialogs, retomada imediata e homônimos. O novo fluxo não tem baseline aprovado.
-3. Compilar Android, executar JVM/lint/instrumentação e ensaio real de perda de resposta + force-stop. Persistência implementada não é prova de recuperação em aparelho.
-4. Completar UX de **Mover comanda** a partir da mesa quando a Tab está vinculada a outra ocupação; hoje esses vínculos são filtrados/rejeitados e a movimentação permanece no fluxo canônico da Spec 009. Não chamar esse refinamento de concluído.
-5. Revisar rótulo da ação global Android `Pedir` (ainda abre comanda sem mesa) com Spec 023 e validar geometria antes de trocar para `Nova comanda`. Start/contextual da mesa já usam rótulos específicos.
-6. Flag de rollout por Venue, ensaio de turno isolado, medidas before/after e validação no Aderlan ainda pendentes. Rollback deve preservar histórico/intenções.
-7. Recuperação de drafts e pedidos Web após reload geral pertence também à Spec 014: este slice preserva draft na troca de contexto e intenção de start/open/claim após reload, mas não declara persistência completa de carrinho/pedido Web.
+| Gate | Resultado | Referência |
+| --- | --- | --- |
+| PostgreSQL completo, incluindo as quatro corridas novas | **605 passed, sem skips** | Job 115459274212 / run 38444508565, código backend `e23a3dd` (inalterado nas correções posteriores) |
+| Web visual/responsivo/acessibilidade completo | **236 passed** | Run 38446240857, `bca0b4b` |
+| Spec 027 Web focado: retry/reload e QR/claim em 360/390/430 px | **4 passed** | Mesmo run, antes da suite completa |
+| Web BFF/API em PostgreSQL | **16 passed** | Mesmo run |
+| Android JVM, debug APK, AAB smoke e lint | **PASS** | Run 38445576387; também run 38446241010 |
+| Android Spec 027 navegação por ID, abertura opcional e bloqueio de pendência | **2 testes instrumentados PASS** | Job 115462947280; fixture de callbacks, não transação backend |
+| Android intenção cifrada de abertura contextual após force-stop/offline/reinício | **PASS** | Mesmo job: record de TableService verificado junto aos três estágios do teste de persistência |
+| Android queda real de POST após commit e corte físico do uplink | **PASS** | Run 38445576415; também 38446240405. Prova pedido/charge existentes; não equivale a POST de start/open de mesa |
+| Turno isolado com PostgreSQL e restart | **PASS** | Runs 38445576109 / 38446240247, roteiro existente; não cobre todos os refinamentos de mesa novos |
+| Docker/Nginx, páginas Web e API direta | **PASS** | Run 38447188457, merge `3a5d98b` |
+
+A primeira execução de alguns jobs falhou por quota ECR; os jobs afetados usam agora mirror público da imagem oficial. Instrumentação teve import inválido corrigido. Os quatro casos Web revelaram retry desabilitado pela própria intenção pendente e uma fixture de covers ausente; corrigidos antes dos resultados PASS acima. Nenhum baseline visual foi relaxado.
+
+A main avançou durante a validação com API direta via Nginx. Integração resolveu colisões de `/manage`, `/cash`, `/refunds` e páginas guest com famílias API, preservando `/auth/login/` sem redirect de POST. O smoke test do container completo aprovou o merge. Os workflows ainda repetem checks automaticamente em novos heads; resultados acima identificam o código efetivamente testado.
+
+## Trabalho ainda pendente para concluir a spec/piloto
+
+1. Completar UX de **Mover comanda** a partir da mesa quando a Tab está vinculada a outra ocupação; hoje esses vínculos são filtrados/rejeitados e a movimentação permanece no fluxo canônico da Spec 009.
+2. Revisar rótulo da ação global Android `Pedir` (ainda abre comanda sem mesa) com Spec 023 e validar geometria antes de trocar para `Nova comanda`. Start/contextual da mesa já usam rótulos específicos.
+3. Flag de rollout por Venue, ensaio específico de mesa com duas pessoas/QR/ajudante, medidas before/after e validação no Aderlan.
+4. Provar perda de resposta de um POST **start/open de mesa** em Android conectado à API: persistência cifrada, UI, idempotência PostgreSQL e perda real de POST de pedido passaram separadamente, sem declarar um ensaio combinado inexistente.
+5. Recuperação completa de carrinho/pedido Web após reload geral pertence também à Spec 014. Este slice preserva draft na troca de contexto e intenção de start/open/claim após reload.
 
 ## Publicação
 

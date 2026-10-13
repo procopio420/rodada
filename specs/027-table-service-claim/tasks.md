@@ -10,7 +10,7 @@
 - [x] T027-05 Implementar `start_table_service` (lock, estados, ownership inicial, audit/outbox, erros e replay).
 - [x] T027-06 Implementar `open_tab_in_occupancy` (atomicidade Tab+Assignment, validação de generation/venue, rollback, replay).
 - [x] T027-07 Registrar endpoints e permitir comandos mínimos no gateway Atendimento Web sem finanças.
-- [ ] T027-08 Criar testes de concorrência PostgreSQL (start/start, release/open), autorização, QR e replays.
+- [x] T027-08 Criar testes de concorrência PostgreSQL (start/start, release/open), autorização, QR e replays.
 - [ ] T027-09 Integrar Android: ficha disponível/ocupada, botão start, nova comanda contextual, navegação direta Tab.
 - [ ] T027-10 Integrar Web companion com paridade de fluxo sem pagamento e leitura canônica.
 - [ ] T027-11 Proteger drafts e recuperação de start/open após timeout/kill/reload antes de declarar jornada segura.
@@ -28,12 +28,12 @@
 - [x] T027-18 Revalidar fluxos de liberação/limpeza/revogação, ownership da próxima ocupação e sessões stale.
 
 ## Gates
-- [ ] T027-19 Executar suite Django + PostgreSQL integração, checar N+1/saldo na projeção de mesas.
+- [x] T027-19 Executar suite Django + PostgreSQL integração, checar N+1/saldo na projeção de mesas.
 - [ ] T027-20 Executar testes Android e UX de recuperação, incluindo offline e reinício de app.
-- [ ] T027-21 Executar Web typecheck/build, `npm run test:visual`, testes integração/rota sem finanças.
+- [x] T027-21 Executar Web typecheck/build, `npm run test:visual`, testes integração/rota sem finanças.
 - [ ] T027-22 Teste de turno isolado com duas contas na mesma mesa, QR guest, ajudante e movimentação entre mesas.
 - [ ] T027-23 Registrar before/after com toques medidos e erros reais; documentar blockers/GO-NO-GO de piloto.
 
 ## Estado dos clientes
 
-Código para T027-09/10/11/12/14/25 e testes para T027-08/16/26 entregue, mas checklist mantido pendente até execução dos gates específicos. T027-17 (mover comanda/rótulo global), rollout por Venue e ensaio do piloto ainda requerem trabalho. Ver `evidence.md` para os limites exatos.
+Código para T027-09/10/11/12/14/25 e testes para T027-16/26 entregue. PostgreSQL, Web completo e instrumentação passaram conforme `evidence.md`; checklist de jornadas permanece pendente onde ainda requer ensaio integrado específico de mesa/piloto. T027-17 (mover comanda/rótulo global), rollout por Venue e ensaio do piloto ainda requerem trabalho. Ver `evidence.md` para os limites exatos.
