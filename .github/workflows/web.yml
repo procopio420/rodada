@@ -24,6 +24,8 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    env:
+      RODADA_TEST_PYTHON: python
     timeout-minutes: 45
     services:
       postgres:
