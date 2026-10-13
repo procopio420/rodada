@@ -5,7 +5,7 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 ## Discovery and activation
 
 - **Codex (ferramenta adotada no Rodada):** descobre `.agents/skills/<name>/SKILL.md` no repositório. Não usar nem manter `.claude/skills/`.
-- A descrição em YAML orienta o disparo automático; para selecionar explicitamente, mencione `$rodada-django-api`, `$rodada-nextjs-web`, `$rodada-static-html`, `$rodada-ui-design`, `$rodada-android-compose` ou `$rodada-pos-safety`, `$rodada-code-review`.
+- A descrição em YAML orienta o disparo automático; para selecionar explicitamente, mencione `$rodada-django-api`, `$rodada-nextjs-web`, `$rodada-static-html`, `$rodada-ui-design`, `$rodada-android-compose` `$rodada-pos-safety` ou `$rodada-code-review`.
 - Para usar em tarefa de outra pasta do monorepo, execute Codex dentro do checkout; as skills raiz são descobertas a partir do repositório. Se uma alteração recente não aparecer na sessão, reinicie/atualize a sessão Codex.
 - O GitHub não ativa uma skill em sessões já abertas: o agente precisa descobrir a pasta e carregar as instruções.
 
