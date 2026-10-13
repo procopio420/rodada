@@ -1,0 +1,74 @@
+name: Spec 025 Live HTTPS Homologation
+on:
+  push:
+    branches:
+      - ops/spec025-live-homologation-20261013
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  https-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Probe public DNS, strict TLS and read-only tenant endpoints
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, ssl, time, urllib.request, urllib.error, sys
+          routes = [
+            ("Railway direct readiness", "https://rodada-web-demo.up.railway.app/ready/", 200),
+            ("Railway direct login page", "https://rodada-web-demo.up.railway.app/staff", 200),
+            ("Landing apex", "https://rodada.bar/", 200),
+            ("Pilot entry", "https://bardoaderlan.rodada.bar/", 200),
+            ("Pilot venue context", "https://bardoaderlan.rodada.bar/api/venue/context", 200),
+            ("Pilot tenant manifest", "https://bardoaderlan.rodada.bar/manifest.webmanifest", 200),
+            ("Pilot attendance", "https://bardoaderlan.rodada.bar/atendimento", 200),
+            ("Pilot kitchen", "https://bardoaderlan.rodada.bar/cozinha", 200),
+            ("Pilot bar", "https://bardoaderlan.rodada.bar/bar", 200),
+            ("Pilot management", "https://bardoaderlan.rodada.bar/gerencia", 200),
+            ("Pilot cash", "https://bardoaderlan.rodada.bar/caixa", 200),
+            ("Pilot reports", "https://bardoaderlan.rodada.bar/relatorios", 200),
+            ("Guest UI without real token", "https://bardoaderlan.rodada.bar/guest/qr-test-token", 200),
+            ("Direct Django auth forbidden", "https://bardoaderlan.rodada.bar/auth/me/", 403),
+            ("BFF no cookie", "https://bardoaderlan.rodada.bar/api/auth/me", 401),
+            ("Unknown tenant rejection", "https://naocadastrado.rodada.bar/api/venue/context", 421),
+            ("Shared API readiness", "https://api.rodada.bar/ready/", 200),
+          ]
+          results = []
+          for title, url, expected in routes:
+              started=time.monotonic()
+              try:
+                  req=urllib.request.Request(url, headers={"User-Agent":"RodadaSpec025ReadOnlyHomologation/1.0"})
+                  try:
+                      with urllib.request.urlopen(req, timeout=12, context=ssl.create_default_context()) as r:
+                          status=r.status
+                          body=r.read(9000)
+                          response_headers=r.headers
+                  except urllib.error.HTTPError as e:
+                      status=e.code
+                      body=e.read(9000)
+                      response_headers=e.headers
+                  passed=status==expected
+                  if title=="Pilot venue context" and passed:
+                      venue=json.loads(body)
+                      passed=venue.get("venue",{}).get("slug")=="bar-do-aderlan"
+                  if title=="Pilot tenant manifest" and passed:
+                      manifest=json.loads(body)
+                      passed=manifest.get("start_url")=="/" and "Aderlan" in manifest.get("name","")
+                  if title=="Railway direct readiness" and passed:
+                      passed=json.loads(body).get("status")=="ready"
+                  details=f"HTTP {status}, expected {expected}"
+              except Exception as e:
+                  passed=False
+                  details=f"{type(e).__name__}: {e}"
+              elapsed=round(time.monotonic()-started,2)
+              results.append({"check":title,"ok":passed,"details":details,"duration_s":elapsed,"url":url})
+              print(f"{'PASS' if passed else 'FAIL'} {title}: {details} ({elapsed}s)",flush=True)
+          errors=[r for r in results if not r["ok"]]
+          print("Summary:", len(results)-len(errors),"passed,",len(errors),"failed")
+          print("LIVE_HOMOLOGATION_JSON="+json.dumps({"passed":not errors,"checks":results}))
+          sys.exit(1 if errors else 0)
+          PY
