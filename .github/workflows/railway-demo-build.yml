@@ -95,18 +95,29 @@ jobs:
           host_status() {
             curl -sS -o /dev/null -w '%{http_code}' -H "Host: $1" "http://127.0.0.1:18080$2"
           }
-          test "$(host_status api.rodada.bar /ready/)" = "200"
-          test "$(host_status bardoaderlan.rodada.bar /api/venue/context)" = "200"
-          test "$(host_status bardoaderlan.rodada.bar /cozinha)" = "200"
-          test "$(host_status bardoaderlan.rodada.bar /auth/me/)" = "403"
-          test "$(host_status bardoaderlan.rodada.bar /guest/qr-test-token)" = "200"
-          test "$(host_status naocadastrado.rodada.bar /api/venue/context)" = "421"
+          assert_host_status() {
+            local host="$1" path="$2" expected="$3" actual
+            actual=$(host_status "$host" "$path")
+            echo "$host $path -> HTTP $actual (expected $expected)"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "FAIL: ingress host routing: $host $path returned $actual, expected $expected" >&2
+              curl -sS -i -H "Host: $host" "http://127.0.0.1:18080$path" | head -c 900 || true
+              exit 1
+            fi
+          }
+          assert_host_status api.rodada.bar /ready/ 200
+          assert_host_status bardoaderlan.rodada.bar /api/venue/context 200
+          assert_host_status bardoaderlan.rodada.bar /cozinha 200
+          assert_host_status bardoaderlan.rodada.bar /auth/me/ 403
+          assert_host_status bardoaderlan.rodada.bar /guest/qr-test-token 200
+          assert_host_status naocadastrado.rodada.bar /api/venue/context 421
           # This SumUp handler ignores unsigned notifications for unknown checkouts;
           # its 204 proves the shared API host is not incorrectly parsed as a Venue.
           status=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
             -H "Host: api.rodada.bar" -H 'Content-Type: application/json' \
             -d '{}' \
             http://127.0.0.1:18080/payments/webhooks/sumup/00000000-0000-0000-0000-000000000000/)
+          echo "api.rodada.bar SumUp webhook -> HTTP $status (expected 204)"
           test "$status" = "204"
           echo "PASS: reserved API, tenant BFF, no direct token endpoints, unknown host, guest QR UI, PSP callback"
           docker logs rodada-demo-app --tail 100
