@@ -47,6 +47,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     // A finite response is disconnected realtime. ready+EOF would briefly render
     // ONLINE on every jittered retry, moving alert warnings during screenshots.
     if (url.pathname.endsWith("/realtime/stream/")) return route.fulfill({ contentType: "text/event-stream", body: ': visual snapshot has no live SSE connection\n\n' });
+    if (url.pathname === "/api/venue/context") body = { mode: "compatibility" };
     if (url.pathname === "/api/dev/status") body = { enabled: false };
     else if (url.pathname === "/api/auth/reauthenticate") body = { ok: true };
     else if (url.pathname === "/api/auth/me") {
