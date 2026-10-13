@@ -58,10 +58,10 @@ jobs:
                   staff.save(update_fields=["pin_hash", "is_active"])
               membership, _ = VenueStaffMembership.objects.get_or_create(
                   venue=venue, staff_member=staff,
-                  defaults={"role": StaffRole.OWNER, "status": MembershipStatus.ACTIVE},
+                  defaults={"role": StaffRole.STAFF, "status": MembershipStatus.ACTIVE},
               )
-              if membership.status != MembershipStatus.ACTIVE:
-                  raise RuntimeError("Reviewer membership is not ACTIVE; refusing to override")
+              if membership.status != MembershipStatus.ACTIVE or membership.role != StaffRole.STAFF:
+                  raise RuntimeError("Reviewer must have an active STAFF membership; refusing to elevate or silently alter existing permissions")
           print("Reviewer provisioned for venue:", venue.slug)
           print("Login identifier: play-review@rodada.bar")
           print("PIN is stored hashed and will not be printed.")
