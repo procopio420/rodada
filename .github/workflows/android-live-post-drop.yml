@@ -2,6 +2,21 @@ name: Android real POST disconnect
 
 on:
   workflow_dispatch:
+  # Keep expensive Android emulator coverage opt-in for regular app changes.
+  # Run the cross-surface gate automatically only if its own proof/code changes.
+  pull_request:
+    paths:
+      - ".github/workflows/android-live-post-drop.yml"
+      - "apps/web/playwright.android-cross-surface.config.ts"
+      - "apps/web/tests/cross-surface/**"
+      - "scripts/verify-android-web-cross-surface.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   real-post-after-commit-disconnect:
@@ -133,6 +148,8 @@ jobs:
           retention-days: 7
 
   actual-network-uplink-cut:
+    # Physical/uplink-style acceptance remains manually dispatched, not every PR.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
