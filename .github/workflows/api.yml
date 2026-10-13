@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       postgres:
-        image: docker.io/library/postgres:17
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_DB: rodada
           POSTGRES_USER: rodada

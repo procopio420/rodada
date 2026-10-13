@@ -136,15 +136,22 @@ data class TableSummary(
     val guestOrderingBlocked: Boolean,
     val zone: ZoneSummary?,
     val activeOccupancy: TableOccupancy?,
+    val tableServiceEnabled: Boolean = true,
 )
 
 data class TableOccupancy(
     val id: String,
     val generation: Int,
     val tabs: List<TableOccupancyTab>,
+    val responsibleStaffId: String? = null,
+    val responsibleStaffName: String? = null,
+    val responsibilityVersion: Int = 0,
+    val serviceAttention: String = "NONE",
+    val guestOrderCount: Int = 0,
+    val oldestGuestOrderAt: String? = null,
 )
 
-data class TableOccupancyTab(val id: String, val displayLabel: String)
+data class TableOccupancyTab(val id: String, val displayLabel: String, val state: String = "OPEN", val openedAt: String = "", val displayReference: String = "")
 
 data class PaymentResult(
     val id: String,
@@ -193,3 +200,10 @@ fun parseCents(raw: String): Long? {
 
 internal fun tabsForSurface(tabs: List<TabSummary>, agora: Boolean): List<TabSummary> =
     if (agora) tabs.filter { it.state != "CLOSED" } else tabs
+
+
+/** API supplies the canonical oldest timestamp; the client formats elapsed time only. */
+fun serviceOrderAgeLabel(timestamp: String?): String = runCatching {
+    val seconds = java.time.Duration.between(java.time.Instant.parse(timestamp), java.time.Instant.now()).seconds.coerceAtLeast(0)
+    if (seconds < 60) "Há menos de 1 min" else "Há ${seconds / 60} min"
+}.getOrDefault("Tempo não informado")
