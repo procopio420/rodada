@@ -1,0 +1,27 @@
+name: Aderlan public Chromium read-only E2E
+on:
+  push:
+    branches:
+      - qa/aderlan-live-browser-20261013
+
+permissions:
+  contents: read
+
+jobs:
+  public-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - name: Install browser runner
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Visit production modules over strict HTTPS and verify unauthorized denial
+        working-directory: apps/web
+        run: node tests/live-tenant-smoke.mjs
