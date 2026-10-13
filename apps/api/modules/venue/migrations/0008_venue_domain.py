@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="VenueDomain",
             fields=[
-                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ("hostname", models.CharField(max_length=253, unique=True)),
                 ("is_active", models.BooleanField(default=False)),
                 ("is_verified", models.BooleanField(default=False)),
