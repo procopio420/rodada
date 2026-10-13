@@ -90,6 +90,31 @@ jobs:
           done
           python3 scripts/verify-aderlan-staging.py --base http://127.0.0.1:18080 \
             --evidence /tmp/rodada-staging-surface-check.json
+      - name: Wait for canonical Django API and completed seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 120); do
+            if [ "$(docker inspect -f '{{.State.Running}}' rodada-demo-app)" != true ]; then
+              echo "App exited before Django API readiness" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            # Django /ready/ verifies a live DB connection. The app container's
+            # startup script completes migrations and demo seed before serving.
+            status=$(docker exec rodada-demo-app python -c "from urllib.request import urlopen; print(urlopen('http://127.0.0.1:8000/ready/', timeout=3).status)" 2>/dev/null || true)
+            if [ "$status" = "200" ]; then break; fi
+            if [ "$i" = "120" ]; then
+              echo "Django API never became ready; final status: $status" >&2
+              docker logs rodada-demo-app --tail 150
+              exit 1
+            fi
+            sleep 2
+          done
+      - name: Verify tenant ingress and shared API after Django readiness
+        shell: bash
+        run: |
+          set -euo pipefail
           # Security review regression: ingress preserves guest pages, shared
           # API for native/webhooks, and fresh pilot domain after migrations.
           host_status() {
@@ -121,27 +146,6 @@ jobs:
           test "$status" = "204"
           echo "PASS: reserved API, tenant BFF, no direct token endpoints, unknown host, guest QR UI, PSP callback"
           docker logs rodada-demo-app --tail 100
-      - name: Wait for canonical Django API and completed seed
-        shell: bash
-        run: |
-          set -euo pipefail
-          for i in $(seq 1 120); do
-            if [ "$(docker inspect -f '{{.State.Running}}' rodada-demo-app)" != true ]; then
-              echo "App exited before Django API readiness" >&2
-              docker logs rodada-demo-app --tail 150
-              exit 1
-            fi
-            # Django /ready/ verifies a live DB connection. The app container's
-            # startup script completes migrations and demo seed before serving.
-            status=$(docker exec rodada-demo-app python -c "from urllib.request import urlopen; print(urlopen('http://127.0.0.1:8000/ready/', timeout=3).status)" 2>/dev/null || true)
-            if [ "$status" = "200" ]; then break; fi
-            if [ "$i" = "120" ]; then
-              echo "Django API never became ready; final status: $status" >&2
-              docker logs rodada-demo-app --tail 150
-              exit 1
-            fi
-            sleep 2
-          done
       - name: Submit canonical test order and verify both production queues
         shell: bash
         run: |
