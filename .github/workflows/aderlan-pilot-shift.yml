@@ -1,6 +1,8 @@
 name: Aderlan isolated pilot shift acceptance
 on:
   workflow_dispatch:
+  push:
+    branches: [qa/aderlan-e2e-20261013]
 
 permissions:
   contents: read
@@ -11,7 +13,7 @@ jobs:
     timeout-minutes: 60
     env:
       CI: 'true'
-      RODADA_DEMO_POSTGRES_IMAGE: public.ecr.aws/docker/library/postgres:17
+      RODADA_DEMO_POSTGRES_IMAGE: docker.io/library/postgres:17
     steps:
       - uses: actions/checkout@v4
       - name: Complete pilot acceptance against disposable PostgreSQL

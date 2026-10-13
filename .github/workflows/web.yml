@@ -9,7 +9,7 @@ on:
       - "prototype/**"
       - ".github/workflows/web.yml"
   push:
-    branches: [main]
+    branches: [main, qa/aderlan-e2e-20261013]
     paths:
       - "apps/web/**"
       - "apps/api/**"
@@ -102,3 +102,8 @@ jobs:
             apps/web/playwright-report/
             apps/web/test-results/
           retention-days: 7
+
+      - name: Live pilot Chromium smoke (read-only)
+        if: github.ref == 'refs/heads/qa/aderlan-e2e-20261013'
+        working-directory: apps/web
+        run: node tests/live-tenant-smoke.mjs
