@@ -3,6 +3,14 @@ server {
     server_name _;
     client_max_body_size 8m;
 
+    # Exact /manage is the Next.js UI; /management/* stays on Django.
+    location = /manage {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $http_host;
+    }
+
     # Exact /cash is the Next.js UI; /cash/* remains the Django API.
     location = /cash {
         proxy_pass http://127.0.0.1:3000;
