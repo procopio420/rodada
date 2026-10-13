@@ -12,6 +12,11 @@ on:
     paths:
       - "apps/attendance-android/**"
 
+concurrency:
+  # Only cancel superseded PR commits, never a manually requested gate or main push.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     runs-on: ubuntu-24.04
@@ -43,6 +48,8 @@ jobs:
 
       # Never upload this artifact: a new ephemeral test key is created on every CI run.
       - name: Smoke-check release AAB with disposable signing key
+        # Keep AAB packaging smoke on main/manual runs; Play publishing stays independent.
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
@@ -61,6 +68,8 @@ jobs:
           rm -f "$RUNNER_TEMP/ci-play-upload.jks"
 
   forced-stop-recovery:
+    # Heavy emulator verification is part of explicit release/recovery checks.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
