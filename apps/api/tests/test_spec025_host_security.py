@@ -3,19 +3,17 @@ import hmac
 import time
 import pytest
 from django.test import override_settings
-from django.core.exceptions import ValidationError
 from modules.venue.models import Venue, VenueDomain
 from modules.venue.hostnames import resolved_venue_id, assert_staff_venue, assert_guest_venue
 from modules.access.services import AccessServiceError
-from modules.guest_access.services import GuestAccessError, resolve_table_qr
-from modules.hospitality.models import Table
+from modules.guest_access.services import GuestAccessError
 
 SECRET = "test-secret-only"
 
 
 def signed(host, method="/", timestamp=None, verb="GET"):
     timestamp = str(int(time.time()) if timestamp is None else timestamp)
-    message = f"{timestamp}\\n{verb}\\n{method}\\n{host}"
+    message = f"{timestamp}\n{verb}\n{method}\n{host}"
     signature = hmac.new(SECRET.encode(), message.encode(), hashlib.sha256).hexdigest()
     return {"HTTP_X_RODADA_BFF_HOST": host, "HTTP_X_RODADA_BFF_TIME": timestamp,
             "HTTP_X_RODADA_BFF_SIGNATURE": signature}
