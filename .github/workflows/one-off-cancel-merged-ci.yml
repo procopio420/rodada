@@ -1,0 +1,43 @@
+name: One-off cleanup of merged PR CI
+
+on:
+  push:
+    branches: [chore/ci-workflow-pruning-20261013]
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel-obsolete:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Cancel obsolete checks, preserve latest Spec 25 and main
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner,repo} = context.repo;
+            const staleBranch = 'chore/ci-workflow-pruning-20261013';
+            const activeBranch = 'feat/spec025-host-session-rebased';
+            const latest = (await github.rest.repos.getBranch({owner,repo,branch:activeBranch})).data.commit.sha;
+            const statuses = ['queued', 'in_progress'];
+            let requested = 0;
+            for (const status of statuses) {
+              const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, 
+                {owner,repo,status,per_page:100});
+              for(const run of runs){
+                if (run.id === context.runId || run.name.startsWith('One-off cleanup')) continue;
+                if (run.head_branch !== staleBranch && run.head_branch !== activeBranch) continue;
+                if (run.head_branch === activeBranch &&
+                    run.head_sha === latest && ['API','Web'].includes(run.name)) continue;
+                try {
+                  await github.rest.actions.cancelWorkflowRun({owner,repo,run_id:run.id});
+                  core.info('Cancellation requested: '+run.name+' #'+run.id+' on '+run.head_branch);
+                  requested++;
+                } catch(error) {
+                  if(error.status === 409 || error.status === 422) continue;
+                  throw error;
+                }
+              }
+            }
+            core.info('Total cancellation requests: '+requested);
