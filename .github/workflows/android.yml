@@ -46,6 +46,24 @@ jobs:
         working-directory: apps/attendance-android
         run: ./gradlew assembleDebug --stacktrace
 
+      # Baseline audit only: do not block existing Android code until report is reviewed.
+      # This uses lintDebug, not lintRelease / Play signing.
+      - name: Android Lint — existing-debt audit (non-blocking)
+        id: android_lint
+        continue-on-error: true
+        working-directory: apps/attendance-android
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: Upload Android Lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-lint-report
+          path: |
+            apps/attendance-android/app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
+          retention-days: 7
+
       # Never upload this artifact: a new ephemeral test key is created on every CI run.
       - name: Smoke-check release AAB with disposable signing key
         # Keep AAB packaging smoke on main/manual runs; Play publishing stays independent.
