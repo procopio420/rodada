@@ -91,3 +91,15 @@ Sem deploy, sem dados/contas reais, sem homologação declarada.
 - Android POST start/open com perda de resposta após commit, force-stop/offline e replay/SQL: PASS, run 38450364117, job 115479387024. Corte de uplink de pedido também PASS.
 - Turno isolado existente: PASS, run 38450361953. Docker/Nginx: PASS, run 38450361743.
 - Android persistência e três cenários de mesas (incluindo mover): PASS no job 115479379501. Navegação falhou por clipping horizontal: alinhamento central em largura intrínseca introduzia limites fracionários para Pedir e Nova comanda. Correção mantém alinhamento original da referência Pedir e reserva largura disponível da linha/coluna para Nova comanda; repetir gate e testar 360/390/430 com fonte 1.5 antes de PASS.
+
+## Integração da main — head 83e3d79
+
+A main 8afd120 foi integrada preservando cardápio inline/categorias, status de envio de pedido, domínios e política de workflows sob demanda. A migração de rollout foi movida para 0009, após 0008_venue_domain. Local: 26 testes de mesas/rollout/domínios PASS, build/typecheck e drift PASS.
+
+Android integrado: PASS, run 38478836744, jobs 115576142388 e 115576142687. O runner aprovou persistência em três processos, três testes de mesas, três testes de navegação e Nova comanda em 360/390/430 px com fonte 1.5. A correção de largura resolveu o clipping sem relaxar a asserção. Docker integrado: PASS, run 38478836754. A exceção temporária para executar o gate neste PR foi removida após PASS; recuperação pesada segue sob demanda, conforme política da main.
+
+Fechamento da integração 83e3d79: API PostgreSQL **623 passed** (run 38478836755 / job 115576142310); Web **7 focados + 239 visuais + 16 integrações reais PASS** (run 38478836740 / job 115576141892). Todos os gates integrados aprovaram. O commit de fechamento altera somente documentação e agendamento de workflow, sem mudança de código de produto ou testes.
+
+## Integração da Spec 025 / KB — main 60a9555
+
+Depois do gate 83e3d79, a main recebeu o gateway/ingress multitenant da Spec 025. Integração preserva contexto assinado, cookies host-only e headers sanitizados; regex explícita mantém páginas Web e acrescenta família venue. Fixture de dois Venues conserva rollout ligado apenas no Venue de teste. Migração de rollout passa a 0011, após lifecycle de VenueDomain 0010. Revalidar API/Web/Docker neste novo head; não confundir PASS anterior com este merge.

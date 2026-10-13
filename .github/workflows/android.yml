@@ -69,8 +69,7 @@ jobs:
 
   forced-stop-recovery:
     # Heavy emulator verification is part of explicit release/recovery checks.
-    # Spec 027 explicitly requires this gate before its recovery changes can land.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.head_ref == 'impl/027-table-service-claim')
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:

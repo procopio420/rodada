@@ -10,12 +10,12 @@
 
 ## P1 — Compatible UI and migration
 
-- [ ] [Web] Tenant-path rewrite matrix and navigation, keeping localhost and Railway URLs unchanged.
-- [ ] [Web] Contextual login on canonical host; retain typed Venue in legacy/local mode only.
-- [ ] [Web] Host-local install manifest/title/start URL and cookie/CSRF validation across two tenant domains.
-- [ ] [Data] Seed public alias `bardoaderlan` against existing `bar-do-aderlan`, without mutating slug.
-- [ ] [Tests] Two-Venue browser/backend E2E, wrong-host QR/credential/cookie and cross-tenant mutations.
-- [ ] [Infra] Preview wildcard DNS + TLS + trusted forwarded headers; rollback plan and synthetic health checks.
+- [x] [Web] Tenant-path rewrite matrix and navigation, keeping localhost and Railway URLs unchanged (PR #116 code; CI pending).
+- [x] [Web] Contextual login on canonical host; retain typed Venue in legacy/local mode only (PR #116 code; CI pending).
+- [x] [Web] Host-local install manifest/title/start URL and cookie/CSRF tests for two venue domains (PR #116 code; CI pending).
+- [x] [Data] Migration added to map public alias `bardoaderlan.rodada.bar` to existing `bar-do-aderlan`; applying/validating on Railway is pending.
+- [x] [Tests] Automated two-Venue Next BFF/Django HTTP E2E added: wrong-host QR, credentials, cookies, refresh and mutation (CI green still required).
+- [ ] [Infra] Actual preview wildcard DNS + TLS and trusted ingress headers not yet provisioned/verified. Rollback runbook and synthetic health script implemented in `docs/ops/spec025-preview-rollout.md` and `scripts/verify-tenant-host-preview.sh`.
 
 ## P2 — Release and followups
 

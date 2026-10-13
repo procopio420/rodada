@@ -4,6 +4,7 @@ from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetai
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.cash.correction_views import CashCorrectionShiftView, CashCorrectionManagementView, CashCorrectionDecisionView
 from modules.venue.guest_policy_views import GuestPolicyView
+from modules.venue.host_views import VenueHostContextView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -144,6 +145,7 @@ urlpatterns = [
     path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
+    path("venue/context/", VenueHostContextView.as_view(), name="venue-host-context"),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),

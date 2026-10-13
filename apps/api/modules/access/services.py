@@ -148,6 +148,8 @@ def _clear_pin_failures(
 
 
 def _session_failure(session: StaffSession) -> AccessServiceError | None:
+    from modules.venue.hostnames import assert_staff_venue
+    assert_staff_venue(session.venue_id)
     now = timezone.now()
     if session.revoked_at:
         return AccessServiceError("SESSION_REVOKED", "Sessão encerrada.", 401)
@@ -325,6 +327,9 @@ def authenticate_staff(
     venue = Venue.objects.filter(slug=venue_slug).first()
     if not venue:
         raise AccessServiceError("INVALID_CREDENTIALS", "Credenciais inválidas.", 401)
+
+    from modules.venue.hostnames import assert_staff_venue
+    assert_staff_venue(venue.pk)
 
     normalized_login = login_identifier.strip().casefold()
     installation_key_hash = hash_installation_id(installation_id)

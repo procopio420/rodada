@@ -1,6 +1,6 @@
 # Spec 027 — Início de atendimento, ownership e abertura contextual de comandas
 
-**Status:** Implementação local em validação. Backend, Web e Android possuem código; gates PostgreSQL, navegador e Android permanecem pendentes. Ver `evidence.md`.
+**Status:** Implementação concluída; homologação automatizada por head em `evidence.md`. Piloto observado e medição real no estabelecimento pendentes.
 **Data:** 2026-10-12
 **Produto:** Rodada / piloto Bar do Aderlan
 **Superfícies:** Atendimento Android (canônico), Atendimento Web (companion, sem pagamento), Gerência (visibilidade).

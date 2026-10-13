@@ -3,7 +3,6 @@ name: Android real POST disconnect
 on:
   workflow_dispatch:
 
-
 jobs:
   real-post-after-commit-disconnect:
     runs-on: ubuntu-24.04

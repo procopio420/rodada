@@ -74,6 +74,8 @@ def _assert_table_accepts_guests(table: Table):
 
 
 def _lock_guest_venue(venue_id, *, require_mutation=True):
+    from modules.venue.hostnames import assert_guest_venue
+    assert_guest_venue(venue_id)
     venue = Venue.objects.select_for_update(no_key=True).get(pk=venue_id)
     if require_mutation and venue.guest_mutations_blocked:
         raise GuestAccessError("VENUE_GUEST_MUTATIONS_BLOCKED",
@@ -160,6 +162,9 @@ def _locked_authorized_session(
         raise GuestAccessError("GUEST_SESSION_REQUIRED", "Sessão guest obrigatória.", 401)
     venue_id = GuestSession.objects.filter(token_digest=_token_digest(token)).values_list("table__venue_id", flat=True).first()
     if venue_id is None:
+        from modules.venue.hostnames import resolved_venue_id
+        if resolved_venue_id.get() is not None:
+            raise GuestAccessError("QR_NOT_FOUND", "QR inválido ou expirado.", 404)
         raise GuestAccessError("GUEST_SESSION_INVALID", "Sessão guest inválida.", 401)
     # Every guest entry point shares Venue first, including read-only context,
     # preventing guest/table lock inversion with QR issuance and order routing.
