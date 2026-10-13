@@ -25,6 +25,7 @@
   "refunds_cents": 300,
   "payment_count": 2,
   "refund_count": 1,
+  "shift_id": "21d9a614-e53e-475a-9fb8-0ec7a211c792",
   "shift_status": "CLOSED",
   "cash_expected_cents": 1550,
   "cash_counted_cents": 1550,

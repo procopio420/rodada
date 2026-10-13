@@ -33,7 +33,12 @@ charges = sum(tab.charges.values_list("amount_cents", flat=True))
 payments = list(tab.payments.order_by("amount_cents"))
 refunds = list(Refund.objects.filter(payment__tab=tab))
 items = list(tab.orders.get().items.all())
-shift = CashShift.objects.filter(venue=tab.venue).latest("opened_at")
+# Follow the immutable financial facts for this journey. A later QA shift in
+# the same Venue must not replace the cash session under verification.
+shift_ids = {payment.cash_movement.shift_id for payment in payments}
+shift_ids.update(refund.cash_movement.shift_id for refund in refunds)
+assert len(shift_ids) == 1, "Journey movements must belong to one original shift"
+shift = CashShift.objects.get(venue=tab.venue, id=next(iter(shift_ids)))
 result = {
     "source": "read-only Django ORM on isolated PostgreSQL",
     "native_android_ui": "API36 emulator", "classification": "MANUAL_TEST",
@@ -44,7 +49,7 @@ result = {
     "charges_cents": charges, "payments_cents": sum(payment.amount_cents for payment in payments),
     "refunds_cents": sum(refund.amount_cents for refund in refunds),
     "payment_count": len(payments), "refund_count": len(refunds),
-    "shift_status": shift.status, "cash_expected_cents": shift.expected_amount_cents_snapshot,
+    "shift_id": str(shift.id), "shift_status": shift.status, "cash_expected_cents": shift.expected_amount_cents_snapshot,
     "cash_counted_cents": shift.counted_amount_cents, "cash_discrepancy_cents": shift.discrepancy_cents,
 }
 result["open_exposure_cents"] = charges - result["payments_cents"] + result["refunds_cents"]
