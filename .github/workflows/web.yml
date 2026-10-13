@@ -119,3 +119,27 @@ jobs:
             apps/web/playwright-report/
             apps/web/test-results/
           retention-days: 7
+
+  # Temporary, non-deploy dependency resolution for PR #129.
+  # Remove after committing the generated, reviewed lockfile.
+  eslint-lockfile:
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 129
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - name: Resolve ESLint 9 for Next 16, without executing install scripts
+        working-directory: apps/web
+        run: npm install --package-lock-only --ignore-scripts --save-dev 'eslint@^9' 'eslint-config-next@16.3.8' --no-audit --no-fund
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eslint-9-next-16-lockfile
+          path: |
+            apps/web/package.json
+            apps/web/package-lock.json
+          retention-days: 2
