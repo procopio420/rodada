@@ -190,4 +190,4 @@ Este arquivo é o **ponto de entrada**; as regras específicas de API, Web e And
 - Handoff final obrigatório: HEAD e branch, paths alterados, spec/ADR, testes **executados** com resultado, testes não executados, riscos, evidências, próximo responsável e decisão GO/NO-GO quando aplicável.
 - Mudanças de comportamento, arquitetura, domínio, operação/deploy ou escopo de piloto devem atualizar os documentos relevantes **no mesmo PR**. Nunca apresentar KB como sincronizada se houver divergências conhecidas.
 
-**Atenção documental conhecida:** landing atual usa `rodada.bar`, enquanto README/ADRs/contrato de hosts ainda citam `rodada.ai`. Tratar como divergência em aberto e conferir decisão/rollout; não extrapolar DNS/TLS/hosts em produção. Ver [auditoria da KB](docs/agents/KB-AUDIT-2026-10-13.md).
+**Contrato de domínio:** `rodada.bar` é o domínio público canônico conforme [ADR 0018](docs/adr/0018-rodada-bar-canonical-domain.md); as ADRs antigas preservam referências históricas a `.ai`. Adoção documental **não** comprova DNS/TLS ou homologação. Ver [auditoria da KB](docs/agents/KB-AUDIT-2026-10-13.md).

@@ -1,8 +1,8 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** PR #116 (draft) contains staged P0/P1 code; CI, two-Venue acceptance and DNS/TLS activation not yet signed off
+**Status:** PR #116 MERGEADO na main em 13/10 (código P0/P1); aceite integrado, DNS/TLS wildcard e ativação pública ainda NÃO HOMOLOGADOS. PR #101 permanece independente e aberto nesta fotografia.
 **Date:** 2026-10-12
-**Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
+**Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md), [ADR 0018](../../docs/adr/0018-rodada-bar-canonical-domain.md)
 
 ## Problem / Outcome
 
@@ -76,7 +76,7 @@ See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md)
 - Do not enable wildcard DNS or claim multi-tenant isolation until registry, API/BFF session binding, guest checks, permissions and two-Venue negative tests pass.
 - Existing internal module URLs remain linked during migration; canonical Portuguese paths are a later slice.
 
-## 2026-10-13 — P1 implementation on PR #116
+## 2026-10-13 — P1 implementation via PR #116 (mergeado, não homologado)
 
 - The PR #110 alias rewrite matrix has been ported and extended to all verified tenant hosts once `RODADA_ENABLE_TENANT_HOST_UI=true` is enabled. The pilot host remains the default canary.
 - Contextual BFF login resolves the authoritative Django `VenueDomain`, and rejects a typed slug mismatch. The login UI hides the slug field only when the signed host is resolved.

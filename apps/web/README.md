@@ -57,17 +57,17 @@ Antes de iniciar uma instância existente, aplicar as migrações Django (`pytho
 
 ## Superfícies e hosts — contrato multitenant
 
-O domínio oficial continua `rodada.ai`. A nova arquitetura planeja um subdomínio por estabelecimento e módulos no path, por exemplo:
+O domínio público selecionado é `rodada.bar` (ADR 0018). A nova arquitetura define um subdomínio por estabelecimento e módulos no path, por exemplo:
 
 ```text
-bardoaderlan.rodada.ai/bar
-bardoaderlan.rodada.ai/cozinha
-bardoaderlan.rodada.ai/gerencia
-bardoaderlan.rodada.ai/caixa
-bardoaderlan.rodada.ai/m/<token>
+bardoaderlan.rodada.bar/bar
+bardoaderlan.rodada.bar/cozinha
+bardoaderlan.rodada.bar/gerencia
+bardoaderlan.rodada.bar/caixa
+bardoaderlan.rodada.bar/m/<token>
 ```
 
-**Ainda não está habilitado.** O proxy atual usa hosts separados por superfície (`bar.rodada.ai`, `cozinha.rodada.ai` etc.). O login usa o `Venue.slug` atual `bar-do-aderlan`; não renomear esse slug para criar `bardoaderlan`. Antes de ativar wildcard, implementar registro hostname -> Venue, verificação host/sessão/guest e testes com dois Venues. Ver [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md) e [Spec 025](../../specs/025-tenant-host-routing/spec.md).
+**O código de roteamento por Venue entrou na main no PR #116, mas o wildcard público e a homologação ainda dependem de preview/TLS e gates da Spec 025.** O modo legado ainda admite hosts separados por superfície (`bar.rodada.bar`, `cozinha.rodada.bar` etc.). O login usa o `Venue.slug` atual `bar-do-aderlan`; não renomear esse slug para criar `bardoaderlan`. Antes de ativar wildcard público, validar registro hostname -> Venue, host/sessão/guest e testes negativos com dois Venues no SHA implantado. Ver [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md) e [Spec 025](../../specs/025-tenant-host-routing/spec.md).
 
 Rotas internas para desenvolvimento, testes e demo Railway continuam funcionando: `/staff`, `/attendance`, `/bar`, `/kitchen`, `/guest/:token`, `/manage`, `/reports`, `/cash`. Rodada Atendimento permanece Android nativo.
 
