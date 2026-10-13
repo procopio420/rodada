@@ -32,3 +32,13 @@ Base: main c634726989a532aafa0d8342740e6f13605977de. Fonte principal: docs/relea
 3. Fechar prova de Android lifecycle e turno completo.
 4. Autenticar Railway e conferir SHA da demo atual antes de qualquer deploy; não criar ambiente pago adicional sem necessidade.
 5. Executar checklist físico e fiscal do piloto assistido.
+
+## Escopo do piloto de 14/10/2026 — decisão de 13/10
+
+Android e pagamentos integrados ficam **fora do escopo e do caminho crítico**: neste piloto Android serviria apenas para pagamentos, que não estarão disponíveis amanhã. Não excluir implementações, testes ou guardrails; retomar após o piloto.
+
+O piloto reduzido usa Web para mesas, comandas, atendimento, pedidos, cozinha, bar e gerência. Recebimentos, quando houver, devem ser feitos por dinheiro ou maquininha externa e registrados manualmente **somente depois da confirmação real**, com conferência no fechamento. Não simular liquidação nem apresentar pagamento integrado como disponível.
+
+Gates remanescentes: deploy identificado, autenticação/isolamento, rede e dispositivos Web, integridade dos pedidos, fechamento/reconciliação, contingência fiscal aprovada, operação presencial e rollback para VR System. Impressão só pode ser dispensada com procedimento manual aceito. Mudança de escopo não transforma automaticamente o NO-GO da release ampla em GO do piloto reduzido; avaliar separadamente.
+
+Prioridade imediata: homologação Web ponta a ponta. Android, SDKs e provedores de pagamento passam para pós-piloto.
