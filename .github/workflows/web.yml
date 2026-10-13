@@ -64,9 +64,12 @@ jobs:
         working-directory: apps/web
         run: npm run typecheck
 
-      - name: Staff session coordination tests
+      - name: Staff session, realtime and production tests
         working-directory: apps/web
-        run: npm run test:auth
+        run: |
+          npm run test:auth
+          npm run test:realtime
+          npm run test:production
 
       - name: Build
         working-directory: apps/web
