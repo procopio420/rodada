@@ -1,5 +1,12 @@
 # Spec 014 — Realtime, Connectivity & Degraded Operation
 
+Spec026 T06d adds the session-scoped, non-secret location intent documented in
+Spec009. Attendance Web resumes explicitly with original payload/key; never
+adopts another session or clears ambiguity based on current balance/location.
+Storage integrity, immutable result and authorized readback are required.
+Scope is the same browser tab/session; cross-device/manager resolution remains
+outside this slice. This does not add an offline execution queue.
+
 **Status:** Draft for implementation  
 **Owner capability:** Cross-cutting reliability contract
 
@@ -693,3 +700,70 @@ flows remain responsible for canonical verification with original identity.
 Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
 
 Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.
+
+## POS Web CASH — envelope local T03a
+
+A intenção já submetida permanece em sessionStorage da mesma aba até replay e
+readback canônicos; não é pagamento offline nem projeção de saldo. Captura mínima
+v1 contém venue/staff/session, tab e payload imutável com captured_at; sem tokens.
+Reload e navegação na mesma aba recuperam a intenção mediante sessão original.
+Sessão diferente/revogada e registro inválido são revisão bloqueada, sem adoção,
+descarte automático ou sobrescrita. Storage indisponível impede primeiro envio.
+Fechar aba/apagar storage e resolução gerencial entre sessões permanecem fora
+desta slice. Replay é ação explícita, validada por auth/me e autorização da API.
+
+
+## T03b — envelope de estorno Web
+
+rodada.intent.refund.v1 em sessionStorage conserva o comando manual original antes
+do envio. Leitura/forma/escrita são verificadas; falha bloqueia nova operação.
+Apenas mesma Venue/staff/sessão pode retomar explicitamente. Sessão diferente ou
+revogada conserva envelope para revisão, sem adoção. PIN não é persistido; reauth
+na mesma sessão não troca a intenção. Resultado sem readback canônico permanece
+pendente mesmo após 2xx. Não há retry automático nem botão de descarte ambíguo.
+Limites de fechamento da aba/storage e resolução em outra sessão permanecem abertos.
+
+## T05a / UX-07 — recuperação de confirmação staff Web
+
+Antes do primeiro envio, Atendimento/POS salva em sessionStorage um envelope
+versionado com Venue, ator, sessão, Tab, gateway original, instante e payload/chave imutáveis.
+Não guarda tokens, PIN ou dados completos do catálogo. Uma intenção por aba;
+ambiguidade bloqueia novos pedidos, troca, edição, descarte e fechamento.
+Após reload, a operação fica visível mesmo sem selecionar a Tab original.
+Retomada é explícita, revalida auth/me e exige Venue/ator/sessão originais;
+sessão revogada/diferente não adota nem descarta a intenção. Não há autoenvio.
+Replay envia o mesmo payload/chave e exige Order canônico; leitura da comanda
+incluindo o mesmo Order deve passar antes de limpar storage e liberar o fluxo.
+Falha de storage antes do envio impede POST. Envelope inválido ou alterado,
+resposta perdida, 5xx ou readback falho preservam bloqueio e orientação.
+Somente rejeição inicial conhecida sem commit permite voltar à edição; em
+retomada, rejeição não prova ausência de commit e mantém a intenção.
+Não afirmar sucesso por saldo, catálogo atual ou simples resposta HTTP vazia.
+Fora de escopo: guest, fechar aba, outra sessão/aparelho, fila offline,
+persistência de draft não enviado e reconciliação gerencial entre sessões.
+
+## T05b / UX-07 — recuperação guest na mesma visita
+
+Guest preserva antes do POST envelope versionado de payload/chave, instante e
+scope não secreto (Venue/GuestSession/Table/occupancy/generation/Tab), sem copiar
+credencial guest. Scope vem do contexto autorizado da API; IDs não autorizam.
+Após resposta perdida/reload, mostra Verificar mesmo pedido, sem autoenvio.
+Revalida contexto e compara scope integral antes de replay; sessão/visita/Tab
+alterada, expirada/revogada, bloqueio QR e contexto indisponível não transferem
+pedido nem descartam a intenção. API continua revalidando autorização sob locks.
+Replay usa payload/chave congelados, valida Order/tab_id e readback no contexto
+original antes de limpar storage/carrinho e anunciar sucesso. Falha/ambiguidade
+bloqueiam outro envio/edição/nova Tab. Só rejeição inicial conhecida sem commit
+permite revisão; replay rejeitado conserva envelope. Storage inválido/falho
+bloqueia confirmação. Não criar nova sessão automaticamente para intenção antiga.
+Fora de escopo: fechar aba, outra sessão/aparelho, drafts após reload, fila
+fully-offline, reconciliação gerencial e novos pagamentos.
+
+## Diagnóstico RST do cenário original — 13/10/2026
+
+Conservar stdout/stderr de am start -W e PID imediato. Somente na falha,
+registrar amostras posteriores, logcat de lifecycle/AndroidRuntime e
+ApplicationExitInfo do pacote de teste. Ausência de PID continua falha;
+diagnóstico não relança nem aprova o teste. CI retém tentativas separadas.
+Não capturar sessão, PIN ou payload. Causa não comprovada mantém confiabilidade
+PARTIAL; não alterar espera/retry apenas para obter uma execução verde.

@@ -107,3 +107,33 @@ Database outbox and replay, authenticated async SSE, native and Web invalidation
 Uma leitura HTTP que falha por IOException estabelece OFFLINE. Sinal SSE Reconnecting não prova recuperação da API: deve preservar OFFLINE, inclusive após 30 segundos, até leitura canônica bem-sucedida. Para estados que não são OFFLINE, preservar regra existente: sem leitura ou idade menor que30s → RECONNECTING; idade maior/igual30s → STALE. Não mudar mutations, cache, cursor, permissões ou idempotência.
 
 Verificar regra por testes unitários de estado/freshness e ensaio API36 com parada/reabertura apenas da API de teste, sem reset do PostgreSQL. Comparação de PR61 confirma ausência de sobreposição em código Android; apresentação/sessão Web permanece fora deste recorte.
+
+## Recorte POS Web CASH — Spec026 T03a
+
+Implementar contrato de recebimento recuperável da Spec006, envelope
+por sessão da014 e fingerprint físico da012. Usar componentes existentes;
+validar Web/API e PostgreSQL descartável, sem alterar snapshot ou provider.
+
+## T03b — execução do estorno manual recuperável
+
+1. Envelope antes do POST; guard síncrono, campos congelados e retomada explícita.
+2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
+3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
+   concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
+
+## T05a — plano do recorte staff Web
+
+Hook client para envelope/scope/storage/replay; OrderWorkspace mantém drafts
+T04 separados e apresenta retomada fora dos controles bloqueados após reload.
+Reutilizar idempotência transacional da API, sem novo efeito financeiro.
+Testar resposta perdida/reload/readback, payload congelado, sessão/revogação,
+storage inválido/falho e rejeição inicial em mobile360/390/430. Confirmar
+Order/Charge/auditoria únicos em PostgreSQL; visual completo, tipos e build.
+
+## T05b — plano mínimo
+
+Acrescentar scope não secreto ao contexto existente; hook guest preserva
+intenção usando a credencial já gerida pelo fluxo, sem duplicá-la. Reutilizar
+confirm_guest_order e seu replay. Cobrir reload/resposta perdida/readback,
+contexto divergente/revogação/bloqueio/storage, Web360/390/430 e PostgreSQL.
+Executar visual completo, build/tipos e lint dos arquivos Python alterados.

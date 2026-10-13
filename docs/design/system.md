@@ -461,3 +461,41 @@ Confirmed-item removal uses a native modal dialog with a labelled title, trapped
 Attendance action dialogs reuse the native modal and removalDialog tokens: labelled title, bounded mobile scrolling, inert background, Escape when idle and focus restoration. Organizar mesa discloses location/association; release and close require explicit confirmation. Product customization is modal only in Attendance. Success uses role=status without blocking; errors use persistent role=alert, also visible inside active dialogs.
 
 Attendance selected Tab: use an accent-derived tinted surface/border and a centered labelled disclosure heading. Its caption and expand/retract cue communicate selection without depending on color. Draft lines precede catalog: name/customization, cent-based line total and grouped minus/output/plus controls. Minus and plus meet 44px touch minimum. Draft surface and active category use restrained color-mix from existing accent/surface tokens. POS retains its layout.
+
+### Navegação de regiões na produção (Spec 026 T10a)
+Em mobile (<768 px), navegação sticky no topo usa três colunas, controles
+buttonSecondary, tokens de superfície/borda/spacing e foco existente. Cada
+controle usa text-xs para o nome sem quebra e text-sm para a contagem em linha
+separada, mantendo o alvo mínimo de toque. Destinos focáveis usam
+scroll-margin de quatro space-5 para permanecer abaixo da navegação.
+Desktop mantém as regiões simultâneas. Não expressa seleção exclusiva nem tabs.
+
+### Resumo de produção por configuração (Spec026 T10b)
+stationDish reutiliza CustomizationText (variação/modificadores/observação),
+stationDishContext para contagens de estado e muted para histórico incompleto.
+A quantidade é do grupo compatível; os chips mantêm cada destino. Nenhuma
+seleção ou nova ação de lote é apresentada neste recorte.
+
+### Revisão de lote de produção (Spec026 T10c.2)
+Usar ActionDialog/removalDialog e customizationChoice para checkbox com alvo44px.
+Buttons secondary abrem seleção, primary confirma ação humana, CustomizationText
+mostra snapshot; notice/status apresenta pendência/resultado por linha. Nenhuma
+linha selecionada por padrão; quantidade inteira, estados/destinos/estação explícitos.
+
+### Pendência individual de produção (Spec026 T10d.1)
+Reutilizar buttonPrimary para ação humana do item e notice/status para sua pendência.
+buttonSecondary recupera o mesmo item pelo identificador curto, mesmo após saída
+da fila. Estado ocupado/desabilitado pertence ao item verificável; outra linha
+verificável mantém seu controle. Lote, legado e disponibilidade conservam barreiras.
+Resultado identifica a linha; nenhuma nova cor, token ou inferência de preparo.
+
+T10d.2: lote persistido desabilita controles individuais das linhas selecionadas;
+outros itens verificáveis mantêm seu controle e sua própria pendência/recuperação.
+Durante revisão ou antes da persistência permanece bloqueio global. Reutilizar
+os mesmos buttons/notice/status; demais ferramentas conservam as barreiras.
+
+T10d.4: disponibilidade versionada reutiliza os controles existentes e notice/status
+por produto, com ação "Verificar mesma disponibilidade" após resultado ambíguo.
+Somente o produto pendente fica bloqueado; outros produtos versionados e itens
+verificáveis podem operar. Revisão/legado, modificadores e QuickCatalog mantêm
+barreiras. Não mostrar sucesso antes de recibo validado e leitura canônica.

@@ -54,3 +54,31 @@ These checks prove TEST_DOUBLE and SIMULATED boundaries only. Private SDK, actua
 
 - Refund request persistence failure rolls back reservation and sends no POST.
 - Matching pending-refund replay succeeds during provider outage without I/O; conflicting replay remains domain 409.
+
+## Recorte POS Web CASH — Spec026 T03a
+
+- [x] Duplo envio/perda após commit/reload convergem ao mesmo Payment e movimento.
+- [x] Replay divergente de caixa/tender não altera ledger, audit ou snapshots.
+- [x] Sessão distinta/revogada/storage falho preservam pendência sem enviar/adotar.
+- [x] Readback confirma Payment antes de liberar; rejeição inicial permite revisão.
+
+Evidência local: Spec026/revalidation.md, seção T03a. Não cobre estorno,
+fechar aba ou resolução gerencial entre sessões; gates anteriores mantidos.
+
+## T03b — critérios do recorte manual
+
+Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
+
+- [x] Mesmo Refund após duplo toque, resposta perdida, reload e readback falho.
+- [x] Payload congelado; PIN recente, sessão divergente/revogada e storage falho
+  não descartam nem adotam intenção ambígua. Rejeição inicial segura permite edição.
+- [x] Replay divergente rejeitado; saldo/refundable, Payment/snapshots, ledger e
+  auditoria preservados; concorrência produz um único efeito em PostgreSQL.
+- [x] Jornada real Web/API e mobile360/390/430; visual completo, build/tipos e lint
+  registrados sem declarar provider, piloto, aparelho ou deploy homologados.
+
+### T07d — entrada financeira Android
+- [x] Decimal e NumberPassword no recorte; máscara/review preservados.
+- [x] Parser exato rejeita sinais/texto/fração excessiva/overflow; confirmações inválidas bloqueadas.
+- [x] Pagamento/limite/estorno testados em emulador e regressões PostgreSQL PASS.
+Evidência Spec 026 revalidation.md: 61 unitários, sete cenários em seis configurações, 48 PostgreSQL, build/lint sem erros. IME físico e seleção automática não homologados.

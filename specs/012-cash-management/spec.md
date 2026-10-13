@@ -419,3 +419,20 @@ Existing basic CashShift rows migrate to one default CashPoint per Venue. Histor
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+
+## Replay de recebimento CASH — Spec026 T03a
+
+O replay do ledger compara o caixa do CashMovement e o valor entregue do
+CashTenderDetail originais; não consulta turno atualmente aberto nem modifica
+snapshots. Omissão/null de tender significa o valor do Payment. Payload
+divergente ou evidência legada ausente gera IDEMPOTENCY_CONFLICT, mantendo
+Payment, movimento, troco e auditoria. Recebimento, movimento e audit têm
+um único efeito sob concorrência em PostgreSQL. Ver contrato POS da Spec006.
+
+
+## T03b — caixa no replay de Refund manual
+
+A mesma chave de Refund CASH deve apontar ao caixa do CashMovement original.
+Caixa ausente/divergente ou histórico sem movimento retorna IDEMPOTENCY_CONFLICT.
+Replay não registra novo débito, auditoria ou snapshot, mesmo após fechar turno.
+Nova devolução exige turno apto conforme contrato existente.

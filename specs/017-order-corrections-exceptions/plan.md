@@ -57,3 +57,19 @@ Start with unpaid NEW/ACCEPTED cancellation. Do not expose delivered/paid correc
 ## Dependencies first
 
 Specs 009–011 and payment Refund semantics must be stable before advanced correction.
+
+## Slice UX-34 (Spec 026 T02)
+
+Reproduzir 3800/1000/800 em PostgreSQL de teste; distinguir revisão sem devolução
+de estorno positivo. Implementar aprovação transacional sem refund com locks no
+aggregate, autorização recente, replay pelo correction ID e suporte a pendência
+legada de zero. Expor na revisão Web e testar rejeição por saldo/estágio alterado,
+descontos/serviço, isolamento e resposta perdida. Gates financeiros e visuais
+sem alterar baseline. Fora de escopo: remoção parcial paga e produção avançada.
+
+## T03b — execução do estorno manual recuperável
+
+1. Envelope antes do POST; guard síncrono, campos congelados e retomada explícita.
+2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
+3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
+   concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
