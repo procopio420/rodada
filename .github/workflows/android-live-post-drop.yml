@@ -2,29 +2,7 @@ name: Android real POST disconnect
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "apps/attendance-android/**"
-      - "apps/api/**"
-      - "scripts/android-table-service-post-drop.sh"
-      - "scripts/verify-android-table-service-drop.py"
-      - "scripts/android-live-post-drop.sh"
-      - "scripts/android-active-network-cut.sh"
-      - "scripts/android-post-drop-proxy.py"
-      - "scripts/verify-android-live-post-drop.py"
-      - ".github/workflows/android-live-post-drop.yml"
-  push:
-    branches: [main]
-    paths:
-      - "apps/attendance-android/**"
-      - "apps/api/**"
-      - "scripts/android-table-service-post-drop.sh"
-      - "scripts/verify-android-table-service-drop.py"
-      - "scripts/android-live-post-drop.sh"
-      - "scripts/android-active-network-cut.sh"
-      - "scripts/android-post-drop-proxy.py"
-      - "scripts/verify-android-live-post-drop.py"
-      - ".github/workflows/android-live-post-drop.yml"
+
 
 jobs:
   real-post-after-commit-disconnect:

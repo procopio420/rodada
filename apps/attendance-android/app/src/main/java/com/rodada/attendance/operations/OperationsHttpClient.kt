@@ -88,6 +88,7 @@ class OperationsHttpClient(baseUrl: String) {
                     priceCents = it.getLong("price_cents"),
                     active = it.getBoolean("active"),
                     fulfillmentStation = it.getString("fulfillment_station"),
+                    category = it.optString("category", "Outros").ifBlank { "Outros" },
                     availability = it.getString("availability"),
                     variants = it.optJSONArray("variants")?.toObjects()?.map { v -> ProductVariant(v.getString("id"), v.getString("name"), v.getLong("price_cents"), v.optBoolean("active", true) && v.getString("availability") == "AVAILABLE", v.optBoolean("is_default")) }.orEmpty(),
                     modifierGroups = it.optJSONArray("modifier_groups")?.toObjects()?.map { g -> ModifierGroup(g.getString("id"), g.getString("name"), g.getInt("min_selections"), g.getInt("max_selections"), g.getString("selection_mode") == "SINGLE", g.getJSONArray("options").toObjects().map { o -> ModifierOption(o.getString("id"), o.getString("name"), o.getLong("price_delta_cents"), o.optBoolean("active", true) && o.getString("availability") == "AVAILABLE", o.optBoolean("default_selected"), o.getString("semantic_kind")) }) }.orEmpty(),

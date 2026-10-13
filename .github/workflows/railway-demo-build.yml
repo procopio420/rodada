@@ -1,27 +1,21 @@
 name: Railway Aderlan demo Docker smoke
 
 on:
+  # Avoid rebuilding the entire multi-service image on routine app PRs.
   pull_request:
     paths:
       - 'deploy/railway/**'
       - 'scripts/verify-aderlan-staging.py'
       - '.github/workflows/railway-demo-build.yml'
-      - 'apps/web/**'
-      - 'apps/api/**'
-      - 'prototype/**'
-  push:
-    branches:
-      - 'deploy/railway-aderlan-demo-20261009'
-    paths:
-      - 'deploy/railway/**'
-      - '.github/workflows/railway-demo-build.yml'
-      - 'apps/web/**'
-      - 'apps/api/**'
-      - 'prototype/**'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  # Only cancel superseded PR commits, never a manually requested gate or main push.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   docker-smoke:

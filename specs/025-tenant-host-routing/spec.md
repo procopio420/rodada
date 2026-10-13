@@ -1,14 +1,14 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** Specified; implementation pending
+**Status:** Partial implementation — pilot entry screen only; security and host registry pending
 **Date:** 2026-10-12
 **Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
 
 ## Problem / Outcome
 
-Public URLs currently encode the surface (`cozinha.rodada.ai`), but Rodada must expose many establishments from one deployment with the establishment encoded in hostname and the module in pathname.
+Public URLs currently encode the surface (`cozinha.rodada.bar`), but Rodada must expose many establishments from one deployment with the establishment encoded in hostname and the module in pathname.
 
-Expected pilot URL: `https://bardoaderlan.rodada.ai/cozinha`. The existing seed's `Venue.slug` is `bar-do-aderlan`; their equality is explicitly **not** assumed.
+Expected pilot URL: `https://bardoaderlan.rodada.bar/cozinha`. The existing seed's `Venue.slug` is `bar-do-aderlan`; their equality is explicitly **not** assumed.
 
 ## Scope
 
@@ -67,3 +67,11 @@ The first PR may document the contract and add pure lookup scaffolding, but **mu
 ## Evidence
 
 See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md) for slices, [tasks.md](tasks.md) for actions. Keep criteria pending until reproducible test evidence exists.
+
+## 2026-10-13 — Adaptation and incremental delivery
+
+- Public canonical domain is now `rodada.bar` (replaces the earlier planned `rodada.ai`).
+- `bardoaderlan.rodada.bar/` is the five-module entry hub: Atendimento, Cozinha, Bar, Caixa, Gerência.
+- First UI slice only recognizes the literal pilot host to display navigation. Existing routes and login remain intact. This is **not** hostname-to-Venue resolution and confers no access.
+- Do not enable wildcard DNS or claim multi-tenant isolation until registry, API/BFF session binding, guest checks, permissions and two-Venue negative tests pass.
+- Existing internal module URLs remain linked during migration; canonical Portuguese paths are a later slice.

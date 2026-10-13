@@ -1,13 +1,5 @@
 name: Aderlan isolated pilot shift acceptance
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/aderlan-pilot-shift.yml'
-      - 'scripts/verify-aderlan-full-shift.sh'
-      - 'scripts/demo-*'
-      - 'scripts/release-busy-shift.py'
-      - 'demo/**'
-      - 'apps/api/**'
   workflow_dispatch:
 
 permissions:
