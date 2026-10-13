@@ -42,3 +42,18 @@ O piloto reduzido usa Web para mesas, comandas, atendimento, pedidos, cozinha, b
 Gates remanescentes: deploy identificado, autenticação/isolamento, rede e dispositivos Web, integridade dos pedidos, fechamento/reconciliação, contingência fiscal aprovada, operação presencial e rollback para VR System. Impressão só pode ser dispensada com procedimento manual aceito. Mudança de escopo não transforma automaticamente o NO-GO da release ampla em GO do piloto reduzido; avaliar separadamente.
 
 Prioridade imediata: homologação Web ponta a ponta. Android, SDKs e provedores de pagamento passam para pós-piloto.
+
+## Atualização documental de 13/10 — após PR #116 e #121
+
+A fotografia acima permanece histórica (`main@c634726`). **Estado verificado na revisão GitHub:** `main@60a95551bda27af2025c8da08b921e10f0fe1610` após merge de #116 e #121. Nenhuma certificação do ambiente Railway, DNS wildcard, certificado ou piloto foi realizada nesta atualização.
+
+| Frente | Mudança desde a fotografia | O que não está encerrado |
+| --- | --- | --- |
+| Spec 025 — `specs/025-tenant-host-routing` | PR #116 mergeado; código host-bound/BFF/paths e testes incluídos na main | Aceite critério a critério, CI do release SHA, preview TLS/Host, isolamento em deployment real, canário |
+| Spec 025 — PR #101 | PR independente ainda aberto; comparar implementação contra main antes de portar mudanças | Não duplicar migrations/host registry nem concluir o trabalho apenas porque dois PRs compartilham número |
+| Spec 026 — `specs/026-operational-ux-friction` | PR #119 aberto com slices de recuperação | Avaliar branch, CI e critérios após integração, sem marcar conclusão antecipada |
+| Spec 027 — claim de atendimento | PR #107 aberto, fora da main desta fotografia | Integração e homologação do QR-first, ownership e readback |
+| Specs 023/024 | PR #118 aberto | Critérios, cross-module E2E e aparelho real |
+| KB/agentes | PR #121 mergeado, com AGENTS por módulo, índice e procedimentos | Reconciliar docs canônicas e checks leves, sem criar deploy |
+
+A escolha de domínio público canônico `rodada.bar` é registrada na [ADR 0018](../adr/0018-rodada-bar-canonical-domain.md). O estado do piloto **permanece sem GO automático**; o roteiro Web-only continua em [homologação de 14/10](aderlan-web-only-homologation-2026-10-14.md).
