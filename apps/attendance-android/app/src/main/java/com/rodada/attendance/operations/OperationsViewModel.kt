@@ -467,8 +467,7 @@ class OperationsViewModel(
                     break
                 }
                 state = state.copy(submitting = true,
-                    noticeMessage = if (now.state == RecoveryState.PENDING)
-                        "Enviando pedido…" else "Verificando pedido pendente; não registre outro pedido.")
+                    noticeMessage = OrderSubmissionStatus.message(now.state))
                 try {
                     // Revalidate authentication, Tab and Catalog before using the exact saved command.
                     repository.tabDetail(session, now.tabId)
