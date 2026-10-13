@@ -115,3 +115,25 @@ jobs:
           print("Host-routing diagnostics:",len(checks)-len(failures),"passed",len(failures),"failed")
           sys.exit(bool(failures))
           PY
+
+      - name: Diagnose public Cloudflare edge certificate and DNS
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          for hostname in bardoaderlan.rodada.bar api.rodada.bar rodada.bar; do
+            echo "======= PUBLIC TLS DIAGNOSTIC: $hostname ======="
+            echo "--- DNS A/AAAA/CNAME"
+            dig +time=3 +tries=1 +short A "$hostname" @1.1.1.1
+            dig +time=3 +tries=1 +short AAAA "$hostname" @1.1.1.1
+            dig +time=3 +tries=1 +short CNAME "$hostname" @1.1.1.1
+            echo "--- TLS CERTIFICATE VIA SNI"
+            timeout 9 bash -c "echo | openssl s_client -connect '$hostname:443' -servername '$hostname' 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName" || true
+            echo "--- STRICT TLS REQUEST"
+            curl -ILsS --max-time 10 -o /dev/null -w 'strict_http=%{http_code} ssl_verify=%{ssl_verify_result} remote_ip=%{remote_ip}\n' "https://$hostname/" || true
+            echo "--- INSECURE DIAGNOSTIC HEADERS ONLY"
+            curl -k -IsS --max-time 10 "https://$hostname/" | head -n 24 || true
+          done
+          echo "======= ACME DNS ======="
+          dig +time=3 +tries=1 +short CNAME _acme-challenge.rodada.bar @1.1.1.1
+          echo "DIAGNOSTICS COMPLETE (read-only)."
