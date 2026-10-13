@@ -24,7 +24,7 @@ GUIDANCE = (
     "specs/025-tenant-host-routing/spec.md",
     "specs/025-tenant-host-routing/acceptance.md",
 )
-SKILL_ROOTS = (".agents/skills", ".claude/skills")
+SKILL_ROOT = ".agents/skills"
 REQUIRED_SKILLS = (
     "rodada-django-api",
     "rodada-nextjs-web",
@@ -46,8 +46,7 @@ CURRENT_DOMAIN_DOCS = (
 def guidance_files(root: Path) -> list[Path]:
     paths = [root / item for item in GUIDANCE]
     paths.extend(sorted((root / "docs" / "agents").glob("*.md")))
-    for folder in SKILL_ROOTS:
-        paths.extend(sorted((root / folder).glob("*/SKILL.md")))
+    paths.extend(sorted((root / SKILL_ROOT).glob("*/SKILL.md")))
     return paths
 
 
@@ -113,45 +112,40 @@ def check_canonical_domains(root: Path) -> list[str]:
 def check_skill_manifests(
     root: Path, expected_names: tuple[str, ...] = REQUIRED_SKILLS
 ) -> list[str]:
-    """Validate minimal Agent Skills front matter and Claude entrypoint mapping."""
+    """Validate Codex repo-local Agent Skills metadata and structure."""
     errors: list[str] = []
-    for folder in SKILL_ROOTS:
-        base = root / folder
-        actual = {p.parent.name for p in base.glob("*/SKILL.md")}
-        if extra := actual.difference(expected_names):
-            errors.append(f"{base}: unregistered skill(s): {', '.join(sorted(extra))}")
-        for name in expected_names:
-            path = base / name / "SKILL.md"
-            if not path.is_file():
-                errors.append(f"{path}: missing required skill")
-                continue
-            if not SKILL_NAME_RE.fullmatch(name):
-                errors.append(f"{path}: invalid directory name")
-            try:
-                data = path.read_text(encoding="utf-8")
-            except UnicodeError:
-                errors.append(f"{path}: invalid UTF-8")
-                continue
-            match = FRONTMATTER_RE.match(data)
-            if not match:
-                errors.append(f"{path}: missing YAML front matter")
-                continue
-            fields: dict[str, str] = {}
-            for line in match.group("header").splitlines():
-                if ":" in line and not line.startswith(" "):
-                    key, value = line.split(":", 1)
-                    fields[key.strip()] = value.strip()
-            if fields.get("name") != name:
-                errors.append(f"{path}: front matter name must match directory")
-            description = fields.get("description", "").strip("'\" ")
-            if len(description) < 20 or len(description) > 1024:
-                errors.append(f"{path}: description must have 20-1024 characters")
-            if len(data[match.end():].strip()) < 40:
-                errors.append(f"{path}: missing procedural body")
-            if folder == ".claude/skills":
-                expected_link = f"../../../.agents/skills/{name}/SKILL.md"
-                if expected_link not in data:
-                    errors.append(f"{path}: missing canonical skill reference {expected_link}")
+    base = root / SKILL_ROOT
+    actual = {p.parent.name for p in base.glob("*/SKILL.md")}
+    if extra := actual.difference(expected_names):
+        errors.append(f"{base}: unregistered skill(s): {', '.join(sorted(extra))}")
+    for name in expected_names:
+        path = base / name / "SKILL.md"
+        if not path.is_file():
+            errors.append(f"{path}: missing required Codex skill")
+            continue
+        if not SKILL_NAME_RE.fullmatch(name):
+            errors.append(f"{path}: invalid directory name")
+        try:
+            data = path.read_text(encoding="utf-8")
+        except UnicodeError:
+            errors.append(f"{path}: invalid UTF-8")
+            continue
+        match = FRONTMATTER_RE.match(data)
+        if not match:
+            errors.append(f"{path}: missing YAML front matter")
+            continue
+        fields: dict[str, str] = {}
+        for line in match.group("header").splitlines():
+            if ":" in line and not line.startswith(" "):
+                key, value = line.split(":", 1)
+                fields[key.strip()] = value.strip()
+        if fields.get("name") != name:
+            errors.append(f"{path}: front matter name must match directory")
+        description = fields.get("description", "").strip("'\\\" ")
+        if len(description) < 20 or len(description) > 1024:
+            errors.append(f"{path}: description must have 20-1024 characters")
+        if len(data[match.end():].strip()) < 40:
+            errors.append(f"{path}: missing procedural body")
     return errors
 
 
@@ -168,7 +162,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"KB check failed: {len(errors)} errors, {checked} links checked", file=sys.stderr)
         return 1
     print(f"KB check PASS: {len(guidance_files(root))} documents, {checked} links, "
-          f"{len(REQUIRED_SKILLS)} dual-discovery skills, canonical rodada.bar")
+          f"{len(REQUIRED_SKILLS)} Codex skills, canonical rodada.bar")
     print("Note: this is NOT a spec acceptance, CI implementation gate or deployed-domain check.")
     return 0
 
