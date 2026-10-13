@@ -3,8 +3,16 @@ server {
     server_name _;
     client_max_body_size 8m;
 
+    # Exact /cash is the Next.js UI; /cash/* remains the Django API.
+    location = /cash {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $http_host;
+    }
+
     # Django API routes must bypass Next.js (which redirects POST /auth/login/ with 308).
-    location ~ ^/(auth|catalog|customers|developer|dispatch|guest|health|ready|hospitality|house-account|management|order-items|payments|pricing|printing|production|receipts|refunds|service-points|tabs)(/|$) {
+    location ~ ^/(auth|catalog|cash|customers|developer|dispatch|guest|health|ready|hospitality|house-account|management|order-items|payments|pricing|printing|production|receipts|refunds|service-points|tabs)(/|$) {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
         proxy_set_header Host $http_host;
