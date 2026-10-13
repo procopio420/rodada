@@ -17,7 +17,7 @@ A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e t
 | Android/recovery | Specs 006/008/014/024/026 + `apps/attendance-android/README.md` | JVM, emulador, force-stop, test device |
 | CI, deploy, piloto | [Política de CI](../ci-workflows.md), [readiness](../releases/aderlan-pilot-final-readiness.md), [escopo Web-only](../releases/aderlan-web-only-homologation-2026-10-14.md) | GitHub Actions do **SHA**, Railway/hardware/operador verificados, não screenshots históricos |
 
-Skills por stack: [catálogo e regras de descoberta](SKILLS.md). Abra a skill correspondente apenas quando a tarefa realmente exigir.
+Operações: [runbooks para Codex](../ops/README.md), incluindo Railway MCP, venues, usuários, incidentes e backups. Skills por stack: [catálogo e regras de descoberta](SKILLS.md). Abra a skill correspondente apenas quando a tarefa realmente exigir.
 
 Entrada universal: [AGENTS raiz](../../AGENTS.md) → [procedimentos](PROCEDURES.md) → [registro de specs](SPEC-REGISTER-2026-10-13.md) → spec exata → implementação e testes. Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
 

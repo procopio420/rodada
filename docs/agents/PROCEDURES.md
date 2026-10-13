@@ -58,3 +58,7 @@ Modelo de handoff: **Objetivo · Spec · Branch/HEAD · Arquivos · Contrato pre
 Ao atualizar uma spec, percorra seus links `spec/plan/tasks/acceptance/evidence`, código impactado, ADR relacionada, documentação do módulo, testes e release status (apenas se escopo de release). Se não conseguir confirmar determinada fonte, **registre o drift**, mantenha o arquivo histórico e não marque critério como concluído.
 
 Política de CI detalhada: [GitHub Actions](../ci-workflows.md). Estado real do piloto: [status por spec](../releases/spec-status-2026-10-13.md) (fotografia antiga) e [homologação Web-only](../releases/aderlan-web-only-homologation-2026-10-14.md).
+
+## 7. Runbooks operacionais
+
+Para trabalho em infraestrutura/cadastro/operação, o agente segue o [índice OPS](../ops/README.md) e `rodada-ops`: primeiro inventário somente leitura, depois change aprovado para alvo explícito, por último evidências e plano de rollback. Railway MCP não equivale a shell no container; jamais mostrar segredos via `list_variables` em relatório. Não fazer novo Railway por Venue.

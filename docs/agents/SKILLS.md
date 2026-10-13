@@ -17,6 +17,7 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 | [`rodada-ui-design`](../../.agents/skills/rodada-ui-design/SKILL.md) | Web, Android, landing, brand | UX, visuals, screenshots, accessibility |
 | [`rodada-android-compose`](../../.agents/skills/rodada-android-compose/SKILL.md) | `apps/attendance-android` | Kotlin, Compose, offline/lifecycle |
 | [`rodada-pos-safety`](../../.agents/skills/rodada-pos-safety/SKILL.md) | Cross-cutting | Money, idempotency, tenant/guest security |
+| [`rodada-ops`](../../.agents/skills/rodada-ops/SKILL.md) | OPS, Railway, cadastro | Runbooks, incidentes e mudanças de ambiente com aprovação |
 
 ## Task routing
 
@@ -24,7 +25,8 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 2. On Web UI work, combine `rodada-nextjs-web` + `rodada-ui-design`. On Android UI, combine `rodada-android-compose` + `rodada-ui-design`.
 3. On money, permission, Host isolation, QR or offline retry, **also** use `rodada-pos-safety`; tests and release evidence remain mandatory.
 4. Landing HTML gets `rodada-static-html` + `rodada-ui-design` only if the task affects visuals. No unnecessary React/Next framework for a static page.
-5. Don't load every skill merely because it's present; keep agent context bounded and inspect project code for actual APIs/version.
+5. For Railway MCP, onboarding de Venue/staff e incidentes, use `rodada-ops` + o runbook específico em [OPS](../ops/README.md); nenhuma mutação externa sem aprovação.
+6. Don't load every skill merely because it's present; keep agent context bounded and inspect project code for actual APIs/version.
 
 ## Maintenance
 

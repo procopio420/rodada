@@ -10,6 +10,7 @@ on:
       - "apps/**/AGENTS.md"
       - "apps/web/README.md"
       - "docs/agents/**"
+      - "docs/ops/**"
       - "docs/adr/**"
       - "docs/architecture/tenant-routing-contract.md"
       - "specs/025-tenant-host-routing/**"
