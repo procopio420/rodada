@@ -5,7 +5,7 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 ## Discovery and activation
 
 - **Codex (ferramenta adotada no Rodada):** descobre `.agents/skills/<name>/SKILL.md` no repositório. Não usar nem manter `.claude/skills/`.
-- A descrição em YAML orienta o disparo automático; para selecionar explicitamente, mencione `$rodada-django-api`, `$rodada-nextjs-web`, `$rodada-static-html`, `$rodada-ui-design`, `$rodada-android-compose` ou `$rodada-pos-safety`.
+- A descrição em YAML orienta o disparo automático; para selecionar explicitamente, mencione `$rodada-django-api`, `$rodada-nextjs-web`, `$rodada-static-html`, `$rodada-ui-design`, `$rodada-android-compose` ou `$rodada-pos-safety`, `$rodada-code-review`.
 - Para usar em tarefa de outra pasta do monorepo, execute Codex dentro do checkout; as skills raiz são descobertas a partir do repositório. Se uma alteração recente não aparecer na sessão, reinicie/atualize a sessão Codex.
 - O GitHub não ativa uma skill em sessões já abertas: o agente precisa descobrir a pasta e carregar as instruções.
 
@@ -18,6 +18,7 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 | [`rodada-android-compose`](../../.agents/skills/rodada-android-compose/SKILL.md) | `apps/attendance-android` | Kotlin, Compose, offline/lifecycle |
 | [`rodada-pos-safety`](../../.agents/skills/rodada-pos-safety/SKILL.md) | Cross-cutting | Money, idempotency, tenant/guest security |
 | [`rodada-ops`](../../.agents/skills/rodada-ops/SKILL.md) | OPS, Railway, cadastro | Runbooks, incidentes e mudanças de ambiente com aprovação |
+| [`rodada-code-review`](../../.agents/skills/rodada-code-review/SKILL.md) | PRs e segurança | Revisão independente, risco R1/R2/R3 e achados reproduzíveis |
 
 ## Task routing
 
@@ -26,7 +27,8 @@ Skills are **task procedures**, not substitutes for [AGENTS](../../AGENTS.md), [
 3. On money, permission, Host isolation, QR or offline retry, **also** use `rodada-pos-safety`; tests and release evidence remain mandatory.
 4. Landing HTML gets `rodada-static-html` + `rodada-ui-design` only if the task affects visuals. No unnecessary React/Next framework for a static page.
 5. For Railway MCP, onboarding de Venue/staff e incidentes, use `rodada-ops` + o runbook específico em [OPS](../ops/README.md); nenhuma mutação externa sem aprovação.
-6. Don't load every skill merely because it's present; keep agent context bounded and inspect project code for actual APIs/version.
+6. Para review de patch/PR, especialmente R3, use `rodada-code-review` em **contexto independente** do autor e inspecione o diff inteiro antes de concluir.
+7. Don't load every skill merely because it's present; keep agent context bounded and inspect project code for actual APIs/version.
 
 ## Maintenance
 

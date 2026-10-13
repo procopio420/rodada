@@ -1,0 +1,20 @@
+# Review contacts for high-impact paths. GitHub enforcement requires branch protection/rulesets.
+# A CODEOWNER is not automatically an independent reviewer if they authored the change.
+/.github/CODEOWNERS @procopio420
+/.github/workflows/ @procopio420
+/AGENTS.md @procopio420
+/.agents/skills/ @procopio420
+/docs/agents/ @procopio420
+/deploy/railway/ @procopio420
+/apps/api/modules/access/ @procopio420
+/apps/api/modules/audit/ @procopio420
+/apps/api/modules/venue/ @procopio420
+/apps/api/modules/guest_access/ @procopio420
+/apps/api/modules/ledger/ @procopio420
+/apps/api/modules/payment_provider/ @procopio420
+/apps/api/modules/cash/ @procopio420
+/apps/api/modules/ordering/ @procopio420
+/apps/api/modules/tab_operations/ @procopio420
+/apps/attendance-android/app/src/main/ @procopio420
+/apps/web/app/api/ @procopio420
+/apps/web/proxy.ts @procopio420
