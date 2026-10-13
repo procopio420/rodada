@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { surfaceForHost } from "@/lib/surfaces";
 import { tenantHostname } from "@/lib/tenant-host";
 import { internalRewriteUrl, tenantModulePath } from "@/lib/tenant-paths";
+import { readVenueContext } from "@/lib/server/venue-context";
 
 const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
@@ -11,7 +12,7 @@ const isInternalPath = (pathname: string) =>
   pathname === "/operational-sw.js" ||
   pathname === "/manifest.webmanifest";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const surface = surfaceForHost(request.headers.get("host"));
   const { pathname } = request.nextUrl;
   const requestHeaders = new Headers(request.headers);
@@ -28,6 +29,11 @@ export function proxy(request: NextRequest) {
   if (isInternalPath(pathname)) return next();
 
   if (tenant) {
+    // A syntactically valid wildcard Host is not necessarily provisioned.
+    // Resolve it through Django before serving *any* establishment UI.
+    if (!(await readVenueContext(requestHeaders))) {
+      return new NextResponse("Estabelecimento não encontrado.", { status: 404 });
+    }
     const target = tenantModulePath(pathname);
     return target ? rewrite(target) : next();
   }
