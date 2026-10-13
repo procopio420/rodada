@@ -69,7 +69,7 @@ test("native Android committed POST, offline replay, then real Web Bar productio
   // Exercise the actual Web station UI against the same persisted Android order.
   await page.goto("/bar");
   await expect(page.getByText("Android Post Drop Test Soda", { exact: true }).first()).toBeVisible();
-  const start = page.getByRole("button", { name: /^Iniciar preparo:/ }).first();
+  const start = page.getByRole("button", { name: /^Iniciar preparo:.*Android TCP reset acceptance$/ }).first();
   await expect(start).toBeVisible();
   await start.click();
 
@@ -78,7 +78,7 @@ test("native Android committed POST, offline replay, then real Web Bar productio
     return detail.orders[0].items[0].state;
   }).toBe("PREPARING");
 
-  const ready = page.getByRole("button", { name: /^Pronto:/ }).first();
+  const ready = page.getByRole("button", { name: /^Pronto:.*Android TCP reset acceptance$/ }).first();
   await expect(ready).toBeVisible();
   await ready.click();
   await expect.poll(async () => {
