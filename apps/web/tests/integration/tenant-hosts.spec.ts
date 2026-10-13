@@ -69,6 +69,22 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   expect(otherData.status()).toBe(200);
   expect((await otherData.json()).results.some((item: { display_label?: string }) => item.display_label === "FOREIGN-MUTATION-MUST-NOT-EXIST")).toBe(false);
 
+  // SSE streams and cursor replay must be bound to each venue as well.
+  const snapshotA = await request.get("/api/realtime/snapshot", { headers: { ...headers(A), Cookie: replayCookie } });
+  const snapshotB = await request.get("/api/realtime/snapshot", { headers: { ...headers(B), Cookie: secondCookies } });
+  expect(snapshotA.status()).toBe(200);
+  expect(snapshotB.status()).toBe(200);
+  const cursorA = (await snapshotA.json()).cursor as string;
+  const cursorB = (await snapshotB.json()).cursor as string;
+  expect(cursorA.split(":")[0]).not.toBe(cursorB.split(":")[0]);
+  const foreignSnapshot = await request.get("/api/realtime/snapshot", { headers: { ...headers(B), Cookie: replayCookie } });
+  expect(foreignSnapshot.status()).toBe(403);
+  const cursorReplay = await request.get(`/api/realtime/stream?once=1&cursor=${encodeURIComponent(cursorA)}`, {
+    headers: { ...headers(B), Cookie: secondCookies },
+  });
+  expect(cursorReplay.status()).toBe(200);
+  expect(await cursorReplay.text()).toContain("event: reset");
+
   const guestLocal = await request.post("/api/guest/qr/resolve", { headers: { ...headers(A), Origin: "http://" + A }, data: { token: "e2e-guest-qr-a" } });
   expect([200, 201]).toContain(guestLocal.status());
   const guestCookie = guestLocal.headersArray().find(header => header.name.toLowerCase() === "set-cookie")?.value.split(";")[0];
