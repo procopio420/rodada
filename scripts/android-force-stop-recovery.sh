@@ -59,3 +59,12 @@ run_stage ambiguous
 "${ADB[@]}" shell am force-stop "$APP_ID"
 echo "PASS: encrypted original-session pending order survived forced termination, offline start, and ambiguous retry."
 echo "NOTE: This validates persistence, not a live backend POST. Full-shift API idempotency has separate PostgreSQL tests."
+
+# Spec 027 UI contracts on the same disposable emulator; no merchant/network mutation.
+ui_output=$("${ADB[@]}" shell am instrument -w -e class com.rodada.attendance.operations.TableServiceNavigationTest "$INSTRUMENTATION")
+printf '%s\n' "$ui_output"
+if ! grep -q 'OK (2 tests)' <<<"$ui_output"; then
+  echo "FAILED: Spec 027 table-service navigation" >&2
+  exit 1
+fi
+echo "PASS: Spec 027 one-tap start, contextual optional-name open, homonyms and pending-intent gates."

@@ -825,7 +825,7 @@ class OperationsViewModel(
             session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, path,
             payload.put("idempotency_key", key).toString())
         if (!preserveIntent(intent, session)) return@action
-        state = state.copy(pendingTableService = intent, noticeMessage = "Verificando atendimento…")
+        state = state.copy(pendingTableService = intent, noticeMessage = null)
         val result = try {
             repository.tableService(session, intent.path, org.json.JSONObject(intent.commandJson))
         } catch (error: OperationsApiException) {
@@ -837,7 +837,7 @@ class OperationsViewModel(
         }
         pendingMutationIntentStore.remove(intent.id)
         state = state.copy(pendingTableService = null, tables = repository.tables(session),
-            tabs = repository.tabs(session), noticeMessage = "Atendimento confirmado.")
+            tabs = repository.tabs(session), noticeMessage = null)
         result.optString("tab_id").takeIf { it.isNotBlank() }?.let { id ->
             state = state.copy(selectedTab = repository.tabDetail(session, id), cart = emptyList())
         }
