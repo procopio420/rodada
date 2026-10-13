@@ -15,7 +15,13 @@ $classes = @(
     'operations.RepeatOrderDialogTest', 'operations.TableReleaseTest'
 ) | ForEach-Object { 'com.rodada.attendance.' + $_ }
 $results = @()
+$animationSettings = @('window_animation_scale', 'transition_animation_scale', 'animator_duration_scale')
+$originalAnimations = @{}
 try {
+    foreach ($setting in $animationSettings) {
+        $originalAnimations[$setting] = (& $Adb -s $Serial shell settings get global $setting).Trim()
+        & $Adb -s $Serial shell settings put global $setting 0
+    }
     & $Adb -s $Serial shell am force-stop com.rodada.attendance
     & $Adb -s $Serial shell wm density 160
     foreach ($width in @(360, 390, 430)) {
@@ -33,9 +39,16 @@ try {
             Write-Output "PASS: width=$width font=$font, 33 tests"
         }
     }
-    @{ platform = 'Android API36 emulator'; cases = $results; tests = 198; skipped = 0 } |
+    @{ platform = 'Android API36 emulator'; nativeAnimationScale = 0; cases = $results; tests = 198; skipped = 0 } |
         ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'matrix.json') -Encoding utf8
 } finally {
+    foreach ($setting in $originalAnimations.Keys) {
+        if ($originalAnimations[$setting] -eq 'null') {
+            & $Adb -s $Serial shell settings delete global $setting | Out-Null
+        } else {
+            & $Adb -s $Serial shell settings put global $setting $originalAnimations[$setting]
+        }
+    }
     & $Adb -s $Serial shell wm size 390x844
     & $Adb -s $Serial shell settings put system font_scale 1
 }

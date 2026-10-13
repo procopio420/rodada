@@ -128,3 +128,25 @@ Merge validation: CI exposed that restoring eth0 alone does not restore the emul
 ## Deterministic visual transport — 2026-10-12
 
 Keep Date fixed with Playwright setFixedTime, preserving timers for axe and hydration. Replace misleading ready+EOF fixture with a finite SSE comment response, so retries cannot briefly publish ONLINE. Verify repeated management gate and full visual suite.
+
+### T09b — descoberta guest
+Reutilizar helpers de busca/categoria do Atendimento e Product.category projetada
+pela leitura guest. Filtrar apenas exibição; catálogo completo conserva revisão
+por IDs, quantidades e seleção. Todos inicial, busca global, categoria ao limpar,
+fallback quando removida e contagem/vazio. Acesso Pedido atual fica estável mesmo
+vazio e foca o draft. Ensaiar 146 produtos (143 CSV + três fixtures existentes),
+configuração, bloqueios/atualização/revogação/intent, Web/API PostgreSQL em três
+larguras e visual completo, sem modificar referências ou tolerâncias.
+
+## Integração de 13/10/2026
+
+Capturas nativas de repouso após click: esperar composição/rolagem/ripple pelo
+relógio de teste, fixar esse relógio durante o par e restaurá-lo depois. Esperar
+também750ms de repouso para o feedback nativo Android que não segue esse relógio.
+Não repetir capturas até obter igualdade; o mesmo par deve passar integralmente.
+Conservar assertArrayEquals byte a byte; nenhuma máscara, CSS, baseline ou tolerância muda.
+Escalas de animação Android0 somente no emulador descartável, restauradas ao final.
+Reproduzir os casos Agora/Pendências e carrinho que variaram entre capturas antes
+da matriz completa. A estabilização do harness não aprova paridade com HTML.
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.
