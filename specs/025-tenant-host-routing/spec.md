@@ -1,6 +1,6 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** Partial implementation — pilot entry screen only; security and host registry pending
+**Status:** PR #116 (draft) contains staged P0/P1 code; CI, two-Venue acceptance and DNS/TLS activation not yet signed off
 **Date:** 2026-10-12
 **Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
 
@@ -75,3 +75,11 @@ See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md)
 - First UI slice only recognizes the literal pilot host to display navigation. Existing routes and login remain intact. This is **not** hostname-to-Venue resolution and confers no access.
 - Do not enable wildcard DNS or claim multi-tenant isolation until registry, API/BFF session binding, guest checks, permissions and two-Venue negative tests pass.
 - Existing internal module URLs remain linked during migration; canonical Portuguese paths are a later slice.
+
+## 2026-10-13 — P1 implementation on PR #116
+
+- The PR #110 alias rewrite matrix has been ported and extended to all verified tenant hosts once `RODADA_ENABLE_TENANT_HOST_UI=true` is enabled. The pilot host remains the default canary.
+- Contextual BFF login resolves the authoritative Django `VenueDomain`, and rejects a typed slug mismatch. The login UI hides the slug field only when the signed host is resolved.
+- Tenant metadata, PWA manifest and guest page title use the verified Venue name; legacy/root hosts retain existing metadata, routes and typed login.
+- Browser+BFF integration fixtures seed two distinct Venues only in the isolated test database. Tests cover wrong-host cookies, login, guest QR, refresh and mutation denial.
+- Preview DNS/TLS, end-to-end shift, P0 security review and final rollout remain external gates. Do not describe this PR as deployed or multi-tenant-ready before validation.

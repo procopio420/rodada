@@ -55,17 +55,23 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   expect(completedQueue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E")).toHaveLength(0);
   const accessibility = await new AxeBuilder({ page: guest }).include('section[aria-labelledby="guest-service-heading"]').analyze();
   expect(accessibility.violations).toEqual([]);
-  // SSE may revoke the page and remove its refresh control before the click.
-  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
-  expect(oldSession).toBeTruthy();
+  // Guest credentials live only in a host-local HttpOnly cookie. The public QR
+  // selector identifies that cookie to the BFF; it is NOT an auth token.
+  // SSE may revoke the page before the explicit stale-session request.
+  const guestCookies = (await context.cookies()).filter(cookie => cookie.name.startsWith("rodada_guest_"));
+  expect(guestCookies).toHaveLength(1);
+  expect(guestCookies[0].httpOnly).toBe(true);
+  expect(guestCookies[0].sameSite).toBe("Lax");
+  expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
+  expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
   await api(`hospitality/tables/${table.id}/release/`, {});
-  const revoked = await guest.evaluate(async oldSession => {
+  const revoked = await guest.evaluate(async qrSelector => {
     const response = await fetch("/api/guest/service-requests/", {
-      method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": oldSession ?? "" },
+      method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": qrSelector },
       body: JSON.stringify({ task_type: "SERVICE_REQUEST", request_id: crypto.randomUUID() }),
     });
     return { status: response.status, body: await response.json() };
-  }, oldSession);
+  }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
   await guest.reload();

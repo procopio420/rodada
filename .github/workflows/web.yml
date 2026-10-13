@@ -27,7 +27,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:17
+        image: docker.io/library/postgres:17
         env:
           POSTGRES_DB: rodada_web_e2e
           POSTGRES_USER: rodada_test
@@ -68,15 +68,15 @@ jobs:
         working-directory: apps/web
         run: npm run test:auth
 
+      - name: Tenant path and hostname regression tests
+        working-directory: apps/web
+        run: npm run test:tenant
+
       - name: Build
         working-directory: apps/web
         env:
           RODADA_API_BASE_URL: http://127.0.0.1:8100
         run: npm run build
-
-      - name: Visual, responsive and accessibility gates
-        working-directory: apps/web
-        run: npm run test:visual
 
       - name: Real Web BFF API workflows
         working-directory: apps/web
@@ -87,6 +87,10 @@ jobs:
           POSTGRES_PASSWORD: local-ci-only
           POSTGRES_HOST: 127.0.0.1
         run: npm run test:integration
+
+      - name: Visual, responsive and accessibility gates
+        working-directory: apps/web
+        run: npm run test:visual
 
       - name: Upload visual evidence and failure traces
         if: always()

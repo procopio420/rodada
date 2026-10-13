@@ -34,6 +34,9 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
   await page.route("**/api/**", async route => {
     const url = new URL(route.request().url());
     url.pathname = url.pathname.replace("/api/attendance/", "/api/pos/");
+    // Tenant-independent legacy context stays available in simulated error/loading states.
+    // Visual tests exercise operational failures, not a hostname registry outage.
+    if (url.pathname === "/api/venue/context") return route.fulfill({ json: { mode: "compatibility" } });
     if (state === "loading") return; // Held until the page closes; no arbitrary sleep.
     if (state === "error") return route.fulfill({ status: 403, json: { code: "CAPABILITY_REQUIRED", message: "Seu perfil não pode executar esta ação." } });
     const longName = "Porção especial com um nome muito longo para conferir leitura durante operação cheia ".repeat(2);
