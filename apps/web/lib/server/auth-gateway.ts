@@ -350,14 +350,14 @@ export async function forwardAuthenticated(
     ["ACCESS_TOKEN_EXPIRED", "AUTH_REQUIRED"].includes(authCode(result.payload)) &&
     refreshToken
   ) {
-    const refresh = await refreshFromCookie(refreshToken);
+    const refresh = await refreshFromCookie(request, refreshToken);
     if (!refresh.ok) {
       return refreshFailureResponse(refresh);
     }
 
     rotated = refresh.payload;
     accessToken = refresh.accessToken;
-    result = await backendRequest(path, {
+    result = await backendRequest(request, path, {
       method,
       body: options.body,
       accessToken,
