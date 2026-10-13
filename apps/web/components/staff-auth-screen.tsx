@@ -40,7 +40,18 @@ function Field({
   );
 }
 
+type VenueLookup = { mode: "loading" | "compatibility" | "unavailable" } | { mode: "establishment"; venue: { slug: string; name: string } };
+
 export function StaffAuthScreen({ renderSession }: { renderSession?: (session: StaffSessionView, logout: () => Promise<void>) => ReactNode } = {}) {
+  const [venueLookup, setVenueLookup] = useState<VenueLookup>({ mode: "loading" });
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/venue/context", { cache: "no-store" })
+      .then(async response => response.ok ? await response.json() : null)
+      .then(payload => { if (active) setVenueLookup(payload?.mode === "establishment" && payload.venue?.slug && payload.venue?.name ? payload : payload?.mode === "compatibility" ? { mode: "compatibility" } : { mode: "unavailable" }); })
+      .catch(() => { if (active) setVenueLookup({ mode: "unavailable" }); });
+    return () => { active = false; };
+  }, []);
   const [session, setSession] = useState<StaffSessionView | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -179,6 +190,7 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
   if (!session) {
     return (
       <LoginPanel
+        venueLookup={venueLookup}
         loading={loading}
         error={error}
         onLogin={async (venueSlug, loginIdentifier, pin) => {
@@ -244,7 +256,9 @@ function LoginPanel({
   loading,
   error,
   onLogin,
+  venueLookup,
 }: {
+  venueLookup: VenueLookup;
   loading: boolean;
   error: ApiError | null;
   onLogin: (venueSlug: string, loginIdentifier: string, pin: string) => Promise<void>;
@@ -257,7 +271,8 @@ function LoginPanel({
     event.preventDefault();
     const currentPin = pin;
     setPin("");
-    await onLogin(venueSlug.trim(), loginIdentifier.trim(), currentPin);
+    if (venueLookup.mode === "loading" || venueLookup.mode === "unavailable") return;
+    await onLogin(venueLookup.mode === "establishment" ? venueLookup.venue.slug : venueSlug.trim(), loginIdentifier.trim(), currentPin);
   }
 
   return (
@@ -265,18 +280,19 @@ function LoginPanel({
       <header className="productHeader">
         <div className="eyebrow">RODADA / STAFF</div>
         <OperationalHeading as="h1" icon="lock">Entrar no atendimento</OperationalHeading>
-        <p className="muted">Identifique o operador sem levar credenciais para o browser.</p>
+        <p className="muted">{venueLookup.mode === "establishment" ? venueLookup.venue.name : "Identifique o operador sem levar credenciais para o browser."}</p>
       </header>
 
       {error ? <ErrorNotice error={error} /> : null}
 
       <form className="panel" onSubmit={submit}>
-        <Field
+        {venueLookup.mode === "compatibility" && <Field
           label="Estabelecimento"
           value={venueSlug}
           onChange={setVenueSlug}
           autoComplete="organization"
-        />
+        />}
+        {venueLookup.mode === "unavailable" && <p role="alert">Não foi possível validar o domínio do estabelecimento. Tente novamente.</p>}
         <Field
           label="Operador"
           value={loginIdentifier}
@@ -295,7 +311,7 @@ function LoginPanel({
           type="submit"
           disabled={
             loading ||
-            !venueSlug.trim() ||
+            (venueLookup.mode !== "establishment" && (venueLookup.mode !== "compatibility" || !venueSlug.trim())) ||
             !loginIdentifier.trim() ||
             !pin
           }

@@ -4,7 +4,7 @@ All items below are **PENDING**, not implementation claims. Evidence: test comma
 
 ## Host mapping and DNS
 
-- [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.ai` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
+- [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
 - [ ] Reserved hostnames cannot be claimed; unrecognized/disabled/lookalike/invalid hostnames fail closed (404 or 421), with no default/demo fallback.
 - [ ] Reverse proxy and application agree on the normalized trusted Host. Browser-supplied `X-Forwarded-Host`, `X-Rodada-*` or `?venue=` cannot choose a different Venue.
 
@@ -29,3 +29,10 @@ All items below are **PENDING**, not implementation claims. Evidence: test comma
 
 - [ ] Wildcard HTTPS, Host routing, explicit app/DB trust boundaries and logging are configured in preview and verified (not inferred).
 - [ ] Switch-on is behind a documented rollback gate; no unsupported production readiness claim.
+
+## Staged P1 evidence (not release approval)
+
+- [ ] `npm run test:tenant` — path/host unit regression, `apps/web/tests/tenant-routing.test.mjs` (CI result required).
+- [ ] `npm run test:integration` — independent Venues in `start_api.py`, BFF + Django assertions in `tenant-hosts.spec.ts` (CI result required).
+- [ ] `bash scripts/verify-tenant-host-preview.sh` — preview wildcard HTTPS, manifest, reserved/unknown host and health (real DNS/TLS not yet configured).
+- [ ] Aderlan shift and P0 safety gates on PR #116, followed by manual operator/QR browser verification and canary approval.

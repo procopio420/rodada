@@ -1,5 +1,5 @@
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 import os
 
@@ -8,7 +8,7 @@ from modules.cash.models import CashPoint
 from modules.house_account.models import DEMO_LIMITS, RelationshipKind, VenueRelationshipPolicy
 from modules.hospitality.models import GuestOrderingMode, Table, TableOccupancy, TableStatus, TabOccupancyAssignment
 from modules.ordering.models import Tab
-from modules.venue.models import Venue
+from modules.venue.models import Venue, VenueDomain
 
 
 class Command(BaseCommand):
@@ -18,6 +18,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         call_command("seed_demo_catalog", venue_slug="bar-do-aderlan", venue_name="Bar do Aderlan")
         venue = Venue.objects.get(slug="bar-do-aderlan")
+        # Fresh installations migrate before seed_demo. Migration 0009 skips an
+        # absent Venue, so provision its alias after the first seed.
+        # Preserve manual suspension during all subsequent restarts.
+        alias, _ = VenueDomain.objects.get_or_create(
+            hostname="bardoaderlan.rodada.bar",
+            defaults={"venue": venue, "is_active": True, "is_verified": True},
+        )
+        if alias.venue_id != venue.pk:
+            raise CommandError("Pilot hostname belongs to a different Venue")
         # Demo fixture only: the seeded BAR + KITCHEN combo costs R$ 40,
         # exceeding the default R$ 30 visitor policy. Permit a realistic
         # demonstration order without changing the canonical production default.

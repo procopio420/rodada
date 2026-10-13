@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { surfaceForHost } from "@/lib/surfaces";
+import { tenantHostname } from "@/lib/tenant-host";
+import { internalRewriteUrl, tenantModulePath } from "@/lib/tenant-paths";
+import { readVenueContext } from "@/lib/server/venue-context";
 
 const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
@@ -9,7 +12,7 @@ const isInternalPath = (pathname: string) =>
   pathname === "/operational-sw.js" ||
   pathname === "/manifest.webmanifest";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const surface = surfaceForHost(request.headers.get("host"));
   const { pathname } = request.nextUrl;
   const requestHeaders = new Headers(request.headers);
@@ -17,9 +20,25 @@ export function proxy(request: NextRequest) {
 
   const next = () => NextResponse.next({ request: { headers: requestHeaders } });
   const rewrite = (path: string) =>
-    NextResponse.rewrite(new URL(path, request.url), { request: { headers: requestHeaders } });
+    NextResponse.rewrite(internalRewriteUrl(request.url, path), { request: { headers: requestHeaders } });
 
-  if (surface.id === "public" || isInternalPath(pathname)) return next();
+  const tenant = tenantHostname(request.headers.get("host"));
+  if (tenant && tenant !== "bardoaderlan.rodada.bar" && process.env.RODADA_ENABLE_TENANT_HOST_UI !== "true") {
+    return new NextResponse("Estabelecimento indisponível.", { status: 421 });
+  }
+  if (isInternalPath(pathname)) return next();
+
+  if (tenant) {
+    // A syntactically valid wildcard Host is not necessarily provisioned.
+    // Resolve it through Django before serving *any* establishment UI.
+    if (!(await readVenueContext(requestHeaders))) {
+      return new NextResponse("Estabelecimento não encontrado.", { status: 404 });
+    }
+    const target = tenantModulePath(pathname);
+    return target ? rewrite(target) : next();
+  }
+
+  if (surface.id === "public") return next();
 
   if (surface.id === "client") {
     // Public QR URLs are intentionally token-shaped paths on the Cliente host.
