@@ -462,7 +462,8 @@ class OperationsViewModel(
             noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
                 "Pedido guardado neste aparelho. Ainda NÃO foi recebido pelo bar."
             else "Pedido guardado. Verificando confirmação no servidor.")
-        if (state.connectivity != ConnectivityState.OFFLINE) revalidateConnection(session)
+        // New order submission must not be misidentified as connection loss.
+        if (state.connectivity != ConnectivityState.OFFLINE) resumePendingOrders(session)
     }
 
     /** Restores encrypted, original-session order records even before canonical HTTP succeeds. */
@@ -506,7 +507,7 @@ class OperationsViewModel(
                     break
                 }
                 state = state.copy(submitting = true,
-                    noticeMessage = "Verificando pedido pendente; não registre outro pedido.")
+                    noticeMessage = OrderSubmissionStatus.message(now.state))
                 try {
                     // Revalidate authentication, Tab and Catalog before using the exact saved command.
                     repository.tabDetail(session, now.tabId)
