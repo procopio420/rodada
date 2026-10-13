@@ -34,7 +34,7 @@ REQUIRED_SKILLS = (
     "rodada-pos-safety",
 )
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-FRONTMATTER_RE = re.compile(r"\\A---\\n(?P<header>.*?)\\n---\\n", re.DOTALL)
+FRONTMATTER_RE = re.compile(r"\A---\n(?P<header>.*?)\n---\n", re.DOTALL)
 
 CURRENT_DOMAIN_DOCS = (
     "README.md",

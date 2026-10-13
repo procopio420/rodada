@@ -44,12 +44,12 @@ class AgentKbTest(unittest.TestCase):
                 if folder == ".claude/skills":
                     body += f" [canonical](../../../.agents/skills/{name}/SKILL.md)"
                 skill_file.write_text(
-                    f"---\\nname: {name}\\ndescription: Use for Django and DRF tasks.\\n---\\n\\n{body}\\n",
+                    f"---\nname: {name}\ndescription: Use for Django and DRF tasks.\n---\n\n{body}\n",
                     encoding="utf-8",
                 )
             self.assertEqual(kb.check_skill_manifests(root, (name,)), [])
             (root / ".claude" / "skills" / name / "SKILL.md").write_text(
-                "---\\nname: mismatch\\ndescription: Too short\\n---\\n\\nBad",
+                "---\nname: mismatch\ndescription: Too short\n---\n\nBad",
                 encoding="utf-8",
             )
             errors = kb.check_skill_manifests(root, (name,))
@@ -62,7 +62,7 @@ class AgentKbTest(unittest.TestCase):
             name = "rodada-nextjs-web"
             file = root / ".agents" / "skills" / name / "SKILL.md"
             file.parent.mkdir(parents=True)
-            file.write_text("# no front matter\\n", encoding="utf-8")
+            file.write_text("# no front matter\n", encoding="utf-8")
             errors = kb.check_skill_manifests(root, (name,))
             self.assertTrue(any("missing YAML" in error for error in errors))
             self.assertTrue(any("missing required skill" in error for error in errors))
