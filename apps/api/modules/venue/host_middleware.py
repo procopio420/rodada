@@ -16,7 +16,8 @@ class VenueHostMiddleware:
         claimed = request.headers.get("X-Rodada-Bff-Host")
         timestamp = request.headers.get("X-Rodada-Bff-Time")
         signature = request.headers.get("X-Rodada-Bff-Signature")
-        if claimed is not None or timestamp is not None or signature is not None:
+        signed = claimed is not None or timestamp is not None or signature is not None
+        if signed:
             secret = settings.RODADA_BFF_HOST_SECRET
             try:
                 fresh = abs(time.time() - int(timestamp or "")) <= 60
@@ -33,6 +34,10 @@ class VenueHostMiddleware:
             if domain is None:
                 return JsonResponse({"code": "VENUE_HOST_NOT_FOUND"}, status=421)
             venue_id = domain.venue_id
+            # Only the Next BFF may use canonical tenant API paths;
+            # native clients and payment callbacks use the shared API host.
+            if not signed and request.path not in ("/health/", "/ready/", "/venue/context/"):
+                return JsonResponse({"code": "HOST_ASSERTION_REQUIRED"}, status=403)
         else:
             venue_id = None
         token = resolved_venue_id.set(venue_id)

@@ -15,7 +15,7 @@ def provision_pilot(apps, schema_editor):
     if existing is not None:
         if existing.venue_id != venue.pk:
             raise RuntimeError("Pilot hostname already belongs to another Venue")
-        VenueDomain.objects.using(db).filter(pk=existing.pk).update(is_active=True, is_verified=True)
+        # Keep pre-existing flags unchanged, including manual suspensions.
     else:
         VenueDomain.objects.using(db).create(venue_id=venue.pk, hostname=hostname, is_active=True, is_verified=True)
 

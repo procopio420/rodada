@@ -51,3 +51,23 @@ def test_verified_host_is_bound_to_staff_and_guest_context(client):
         resolved_venue_id.reset(token)
     # A signed request to a real hostname is allowed past host resolution.
     assert client.get("/", **signed("bardoaderlan.rodada.bar")).status_code != 421
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["testserver", "bardoaderlan.rodada.bar"], RODADA_BFF_HOST_SECRET=SECRET)
+def test_tenant_direct_api_cannot_bypass_signed_bff(client):
+    venue = Venue.objects.create(name="Aderlan", slug="bar-do-aderlan")
+    VenueDomain.objects.create(venue=venue, hostname="bardoaderlan.rodada.bar",
+                               is_active=True, is_verified=True)
+    origin = {"HTTP_HOST": "bardoaderlan.rodada.bar"}
+    for path in ("/auth/login/", "/guest/qr/resolve/", "/tabs/", "/cash/shifts/"):
+        response = client.post(path, data={}, content_type="application/json", **origin)
+        assert response.status_code == 403
+        assert response.json()["code"] == "HOST_ASSERTION_REQUIRED"
+    assert client.get("/health/", **origin).status_code == 200
+    response = client.get("/venue/context/", **origin)
+    assert response.status_code == 200
+    assert response.json()["venue"]["id"] == str(venue.pk)
+    bff = signed("bardoaderlan.rodada.bar", method="/auth/login/", verb="POST")
+    assert client.post("/auth/login/", data={}, content_type="application/json", **bff).status_code == 400
+    assert client.get("/health/", HTTP_X_FORWARDED_HOST="bardoaderlan.rodada.bar").status_code == 200

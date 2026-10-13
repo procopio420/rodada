@@ -20,6 +20,11 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto https;
         proxy_set_header X-Forwarded-Host $http_host;
+        # Public clients cannot supply signed BFF assertions to Django.
+        proxy_set_header X-Rodada-Bff-Host "";
+        proxy_set_header X-Rodada-Bff-Time "";
+        proxy_set_header X-Rodada-Bff-Signature "";
+        proxy_set_header X-Forwarded-For $remote_addr;
         proxy_buffering off;
         proxy_read_timeout 3600s;
     }
