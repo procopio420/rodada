@@ -2,6 +2,8 @@ import "server-only";
 
 import { createHash, randomUUID } from "node:crypto";
 import { venueHostHeaders } from "./venue-host";
+import { readVenueContext } from "./venue-context";
+import { tenantHostname } from "@/lib/tenant-host";
 import { SessionRefreshCoordinator } from "./session-refresh";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -248,8 +250,8 @@ export function rejectCrossOriginMutation(request: NextRequest): NextResponse | 
   const origin = request.headers.get("origin");
   if (!origin) return null;
 
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const host = forwardedHost || request.headers.get("host");
+  // Forwarded headers are not an origin authority; only the ingress Host is used.
+  const host = request.headers.get("host");
   if (!host) {
     return NextResponse.json(
       { code: "CSRF_REJECTED", message: "Host da requisição não pôde ser validado." },
@@ -281,11 +283,20 @@ export async function loginThroughGateway(
   const rejected = rejectCrossOriginMutation(request);
   if (rejected) return rejected;
 
+  let scopedBody = body;
+  if (tenantHostname(request.headers.get("host"))) {
+    const context = await readVenueContext(request.headers);
+    if (!context) return NextResponse.json({ code: "VENUE_HOST_NOT_FOUND" }, { status: 421 });
+    if (body.venue_slug !== undefined && body.venue_slug !== "" && body.venue_slug !== context.venue.slug) {
+      return NextResponse.json({ code: "VENUE_HOST_MISMATCH" }, { status: 403 });
+    }
+    scopedBody = { ...body, venue_slug: context.venue.slug };
+  }
   const deviceId = request.cookies.get(DEVICE_COOKIE)?.value || randomUUID();
   const result = await backendRequest(request, "/auth/login/", {
     method: "POST",
     body: {
-      ...body,
+      ...scopedBody,
       installation_id: deviceId,
       platform: "WEB",
       friendly_label: "Rodada Web/PWA",

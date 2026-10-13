@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { surfaceForHost } from "@/lib/surfaces";
+import { tenantHostname } from "@/lib/tenant-host";
+import { tenantModulePath } from "@/lib/tenant-paths";
 
 const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
@@ -19,7 +21,14 @@ export function proxy(request: NextRequest) {
   const rewrite = (path: string) =>
     NextResponse.rewrite(new URL(path, request.url), { request: { headers: requestHeaders } });
 
-  if (surface.id === "public" || isInternalPath(pathname)) return next();
+  if (isInternalPath(pathname)) return next();
+
+  if (tenantHostname(request.headers.get("host"))) {
+    const target = tenantModulePath(pathname);
+    return target ? rewrite(target) : next();
+  }
+
+  if (surface.id === "public") return next();
 
   if (surface.id === "client") {
     // Public QR URLs are intentionally token-shaped paths on the Cliente host.
