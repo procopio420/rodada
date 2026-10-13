@@ -25,6 +25,9 @@ for attempt in $(seq 1 30); do
 done
 if [[ "$RODADA_RELEASE_MODE" == demo ]]; then
   python manage.py seed_demo
+  if [[ -n "${RODADA_PLAY_REVIEW_PIN:-}" ]]; then
+    python manage.py shell < /app/deploy/railway/provision_play_reviewer.py
+  fi
 else
   python - <<'PYTHON'
 import os

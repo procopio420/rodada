@@ -238,3 +238,7 @@ reauth das ações financeiras. Item/payment/correction e Tab canônicos validá
 inclusive após encerramento/aplicação; envelope preservado e outra sessão bloqueada.
 Critérios/testes e limites em specs/026-operational-ux-friction/revalidation.md.
 Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
+
+- Emulator standby precondition waits for three consecutive original-route/primary-UP/
+  standby-DOWN observations before the held real POST. Async radio commands alone are
+  not accepted as proof; bounded failure stops the harness before any POST.

@@ -3,10 +3,15 @@ import os
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-change-me")
 DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
 ALLOWED_HOSTS = [
-    host
+    host.strip()
     for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host
+    if host.strip()
 ]
+# Railway's public hostname is stable for the demo but may be absent from
+# environment-specific Django settings. Allow it explicitly for this deployment.
+if os.environ.get("RODADA_RELEASE_MODE", "demo") == "demo":
+    ALLOWED_HOSTS.extend(["rodada-web-demo.up.railway.app", "api.rodada.bar", "bardoaderlan.rodada.bar"])
+
 
 INSTALLED_APPS = [
     "django.contrib.auth",

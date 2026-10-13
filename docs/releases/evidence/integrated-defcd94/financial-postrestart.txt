@@ -1,0 +1,5 @@
+orders|1|0
+charges|2|3900
+payments|0|0
+refunds|0|0
+adjustments|0|0

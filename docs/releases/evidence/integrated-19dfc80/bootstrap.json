@@ -1,0 +1,16 @@
+{
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "initial_counts": {
+    "Venue": 0,
+    "StaffMember": 0,
+    "Product": 0,
+    "Tab": 0,
+    "Payment": 0
+  },
+  "debug": false,
+  "payment_simulation": false,
+  "protected_owner_bootstrap": true,
+  "pin_hashed": true,
+  "guest_blocked": true,
+  "bootstrap_audit_count": 1
+}

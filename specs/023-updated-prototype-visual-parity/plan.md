@@ -133,3 +133,7 @@ fallback quando removida e contagem/vazio. Acesso Pedido atual fica estável mes
 vazio e foca o draft. Ensaiar 146 produtos (143 CSV + três fixtures existentes),
 configuração, bloqueios/atualização/revogação/intent, Web/API PostgreSQL em três
 larguras e visual completo, sem modificar referências ou tolerâncias.
+
+## Deterministic visual transport — 2026-10-12
+
+Keep Date fixed with Playwright setFixedTime, preserving timers for axe and hydration. Replace misleading ready+EOF fixture with a finite SSE comment response, so retries cannot briefly publish ONLINE. Verify repeated management gate and full visual suite.

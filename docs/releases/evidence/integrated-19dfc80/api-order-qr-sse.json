@@ -1,0 +1,35 @@
+{
+  "source_sha": "19dfc80e27f619a32c02518fad745e30db09830e",
+  "order_id": "a7681180-e96f-43c2-b076-9dbcca06f8bf",
+  "tab_id": "723a08c2-8b1a-42cb-a0c6-81a5aaffdf3a",
+  "counts": {
+    "orders": 1,
+    "items": 2,
+    "charges": 2,
+    "payments": 0
+  },
+  "totals": {
+    "original_subtotal_cents": 1500,
+    "discounts_cents": 0,
+    "courtesy_cents": 0,
+    "corrections_cents": 0,
+    "wrong_entry_removals_cents": 0,
+    "net_consumption_cents": 1500,
+    "service_charge_cents": 0,
+    "payable_cents": 1500,
+    "service_assessment_stale": false,
+    "transfers_cents": 0,
+    "charges_cents": 1500,
+    "adjustments_cents": 0,
+    "payments_cents": 0,
+    "refunds_cents": 0,
+    "exposure_cents": 1500
+  },
+  "order_replay_status": 200,
+  "bar_kitchen_queues": true,
+  "qr_resolution_status": 201,
+  "guest_mutations_reblocked": true,
+  "guest_mutation_status": 403,
+  "authenticated_snapshot_sse": true,
+  "scope": "Disposable deployed API; no real payment/customer/hardware"
+}

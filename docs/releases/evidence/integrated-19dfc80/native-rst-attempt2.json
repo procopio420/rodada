@@ -1,0 +1,18 @@
+{
+  "all_dropped_requests_identical": true,
+  "charges": 1,
+  "disconnected_responses": 2,
+  "hold_response": false,
+  "order_items": 1,
+  "orders": 1,
+  "original_key_preserved": true,
+  "original_order_id": "9ca30257-1429-4f27-9754-190daef717df",
+  "original_tab_id": "621f674e-c456-4836-befc-32e4421c2b8e",
+  "payments": 0,
+  "phase": "after",
+  "recovery_http_status": 200,
+  "recovery_post_count": 1,
+  "released_after_cut": false,
+  "result": "PASS",
+  "scenario": "real_android_post_server_commit_tcp_reset"
+}

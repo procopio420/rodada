@@ -1,27 +1,21 @@
 name: Railway Aderlan demo Docker smoke
 
 on:
+  # Avoid rebuilding the entire multi-service image on routine app PRs.
   pull_request:
     paths:
       - 'deploy/railway/**'
       - 'scripts/verify-aderlan-staging.py'
       - '.github/workflows/railway-demo-build.yml'
-      - 'apps/web/**'
-      - 'apps/api/**'
-      - 'prototype/**'
-  push:
-    branches:
-      - 'deploy/railway-aderlan-demo-20261009'
-    paths:
-      - 'deploy/railway/**'
-      - '.github/workflows/railway-demo-build.yml'
-      - 'apps/web/**'
-      - 'apps/api/**'
-      - 'prototype/**'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  # Only cancel superseded PR commits, never a manually requested gate or main push.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   docker-smoke:
@@ -173,6 +167,30 @@ jobs:
                          for item in queue["results"]), (station, queue)
           print("PASS: persisted test order appears in BAR and KITCHEN production queues")
           PY
+      - name: Verify same-origin BFF login through non-default port
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_GATE'
+          import json
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
+          base = "http://127.0.0.1:18080"
+          body = json.dumps({"venue_slug": "bar-do-aderlan", "login_identifier": "ana", "pin": "0420"}).encode()
+          for origin, fetch_site, expected in ((base, "same-origin", 200),
+                                               ("http://127.0.0.1:18081", "same-origin", 403),
+                                               ("https://untrusted.example", "cross-site", 403),
+                                               (base, "cross-site", 403)):
+              request = Request(base + "/api/auth/login", data=body,
+                  headers={"Content-Type": "application/json", "Origin": origin, "Sec-Fetch-Site": fetch_site})
+              try:
+                  with urlopen(request, timeout=20) as response:
+                      status = response.status
+              except HTTPError as error:
+                  status = error.code
+              assert status == expected, (origin, fetch_site, status, expected)
+          print("PASS: same-origin BFF login and cross-origin rejection through Nginx")
+          PY_GATE
       - name: Logs on failure
         if: failure()
         run: |

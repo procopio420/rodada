@@ -163,3 +163,8 @@ Estorno nativo real concluído nesta continuação: original600 preservado,1Refu
 - [x] Filtros/atalho preservam configuração, quantidade, draft e intent; indisponibilidade, bloqueio e revogação respeitados; primeira inclusão não desloca catálogo.
 - [x] Web/API PostgreSQL 360/390/430: categoria real, seleção cruzando filtros, bloqueio de mesa, foco/draft e replay sem duplicar Order/Charge.
 - [x] 393 testes visuais PASS (7,6 min), Ruff/tipos/build/diff PASS; detalhes na Spec 026. Não implica paridade global, aparelho físico ou publicação.
+
+## Deterministic visual transport — 2026-10-12
+
+- Finite visual snapshot SSE fixture never emits ready before EOF; reachable API and reconnecting realtime remain visible.
+- Consecutive management screenshots at 430 px remain byte-equal without tolerance increases or golden replacement.

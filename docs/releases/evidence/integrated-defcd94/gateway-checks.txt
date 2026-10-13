@@ -1,0 +1,4 @@
+PASS: authenticated Next gateway /api/auth/me
+PASS: authenticated Next gateway /api/attendance/catalog/products
+PASS: authenticated Next gateway /api/realtime/snapshot
+PASS: SSE through Next.js and Nginx emits frame

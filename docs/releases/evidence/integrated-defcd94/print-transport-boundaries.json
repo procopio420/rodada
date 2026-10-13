@@ -1,0 +1,15 @@
+{
+  "source": "defcd94",
+  "network_loopback": {
+    "outcome": "SPOOL_ACCEPTED",
+    "bytes_received": 38,
+    "exact_payload": true,
+    "paper_tested": false
+  },
+  "cups_process_boundary": {
+    "outcome": "SPOOL_ACCEPTED",
+    "argv_and_payload_match": true,
+    "real_cups_queue_tested": false,
+    "paper_tested": false
+  }
+}

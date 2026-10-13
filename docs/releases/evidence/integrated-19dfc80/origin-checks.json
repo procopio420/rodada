@@ -1,0 +1,22 @@
+[
+  {
+    "origin": "http://127.0.0.1:18095",
+    "fetch_site": "same-origin",
+    "status": 200
+  },
+  {
+    "origin": "http://127.0.0.1:18096",
+    "fetch_site": "same-origin",
+    "status": 403
+  },
+  {
+    "origin": "https://untrusted.example",
+    "fetch_site": "cross-site",
+    "status": 403
+  },
+  {
+    "origin": "http://127.0.0.1:18095",
+    "fetch_site": "cross-site",
+    "status": 403
+  }
+]

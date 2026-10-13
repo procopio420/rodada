@@ -1,0 +1,126 @@
+{
+  "source": "https://github.com/procopio420/rodada/actions/runs/38277399973",
+  "artifact": "web-visual-and-integration/apps/web/test-results/visual/parity-manage-responsive-layout-and-accessibility-at-430px/trace.zip",
+  "events": [
+    {
+      "type": "before",
+      "callId": "call@5503",
+      "startTime": 97991.779,
+      "class": "Page",
+      "method": "screenshot",
+      "params": {
+        "timeout": 0,
+        "type": "png",
+        "fullPage": true
+      },
+      "stepId": "pw:api@69",
+      "pageId": "page@5816b6d456a27422871507d3b5ffe2b8",
+      "beforeSnapshot": "before@call@5503"
+    },
+    {
+      "type": "log",
+      "callId": "call@5503",
+      "time": 98003.05,
+      "message": "taking page screenshot"
+    },
+    {
+      "type": "log",
+      "callId": "call@5503",
+      "time": 98007.003,
+      "message": "waiting for fonts to load..."
+    },
+    {
+      "type": "log",
+      "callId": "call@5503",
+      "time": 98011.079,
+      "message": "fonts loaded"
+    },
+    {
+      "type": "after",
+      "callId": "call@5503",
+      "endTime": 98117.571,
+      "result": {
+        "binary": "<Buffer>"
+      },
+      "afterSnapshot": "after@call@5503"
+    },
+    {
+      "type": "snapshot-mutation-excerpt",
+      "snapshotName": "after@call@5503",
+      "timestamp": 98119.623,
+      "html": [
+        "SECTION",
+        {
+          "class": "panel",
+          "aria-labelledby": "operational-alerts-title"
+        },
+        [
+          [
+            26,
+            64
+          ]
+        ],
+        [
+          [
+            26,
+            66
+          ]
+        ],
+        [
+          "P",
+          {
+            "class": "muted"
+          },
+          "\u00daltimo estado confirmado. Alertas ser\u00e3o revalidados pela API."
+        ],
+        [
+          [
+            23,
+            1
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "before",
+      "callId": "call@5507",
+      "startTime": 98121.533,
+      "class": "Page",
+      "method": "screenshot",
+      "params": {
+        "timeout": 0,
+        "fullPage": true
+      },
+      "stepId": "pw:api@71",
+      "pageId": "page@5816b6d456a27422871507d3b5ffe2b8",
+      "beforeSnapshot": "before@call@5507"
+    },
+    {
+      "type": "log",
+      "callId": "call@5507",
+      "time": 98122.972,
+      "message": "taking page screenshot"
+    },
+    {
+      "type": "log",
+      "callId": "call@5507",
+      "time": 98123.806,
+      "message": "waiting for fonts to load..."
+    },
+    {
+      "type": "log",
+      "callId": "call@5507",
+      "time": 98124.528,
+      "message": "fonts loaded"
+    },
+    {
+      "type": "after",
+      "callId": "call@5507",
+      "endTime": 98216.199,
+      "result": {
+        "binary": "<Buffer>"
+      },
+      "afterSnapshot": "after@call@5507"
+    }
+  ]
+}

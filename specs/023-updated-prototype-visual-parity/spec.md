@@ -177,3 +177,7 @@ canônicos e conservar a derivação/export original. Essa divergência funciona
 não implica nova baseline nem paridade integral; comparações/tolerâncias de
 primitivas permanecem intactas. Testes de configuração agora verificam resumo
 e fila separadamente, pois ambos precisam mostrar as mesmas escolhas.
+
+## Deterministic visual transport — 2026-10-12
+
+Visual snapshots use a fixed Date with timers available for hydration and accessibility analysis. Their finite mock SSE response must represent disconnected realtime consistently: no ready event claiming an open connection immediately before EOF. Actual realtime/polling/recovery tests retain their own explicit transport fixtures.
