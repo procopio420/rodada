@@ -40,9 +40,21 @@ jobs:
             -e POSTGRES_DB=rodada_demo_ci \
             -e POSTGRES_USER=rodada_ci \
             -e POSTGRES_PASSWORD=ci-local-only \
-            --health-cmd="pg_isready -U rodada_ci -d rodada_demo_ci" \
+            --health-cmd="pg_isready -h 127.0.0.1 -U rodada_ci -d rodada_demo_ci" \
             --health-interval=3s --health-retries=30 \
             postgres:17
+          # initdb temporarily starts a socket-only server. Wait for permanent TCP readiness.
+          for attempt in $(seq 1 60); do
+            if [ "$(docker inspect -f '{{.State.Health.Status}}' rodada-demo-postgres)" = healthy ]; then
+              break
+            fi
+            if [ "$attempt" = 60 ]; then
+              docker logs rodada-demo-postgres --tail 100
+              echo "PostgreSQL did not become ready" >&2
+              exit 1
+            fi
+            sleep 2
+          done
           docker run -d --name rodada-demo-app --network rodada-demo-ci \
             -p 127.0.0.1:18080:8080 \
             -e PORT=8080 \

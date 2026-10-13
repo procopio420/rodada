@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 60
     env:
       CI: 'true'
-      RODADA_DEMO_POSTGRES_IMAGE: public.ecr.aws/docker/library/postgres:17
+      RODADA_DEMO_POSTGRES_IMAGE: mirror.gcr.io/library/postgres:17
     steps:
       - uses: actions/checkout@v4
       - name: Complete pilot acceptance against disposable PostgreSQL
