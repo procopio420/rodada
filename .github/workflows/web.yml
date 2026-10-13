@@ -123,12 +123,14 @@ jobs:
   # Temporary, non-deploy dependency resolution for PR #129.
   # Remove after committing the generated, reviewed lockfile.
   eslint-lockfile:
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 129
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 129 && github.event.pull_request.head.repo.full_name == 'procopio420/rodada' && github.event.pull_request.head.ref == 'chore/quality-gates-ruff-android-web'
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
@@ -136,6 +138,19 @@ jobs:
       - name: Resolve ESLint 9 for Next 16, without executing install scripts
         working-directory: apps/web
         run: npm install --package-lock-only --ignore-scripts --save-dev 'eslint@^9' 'eslint-config-next@16.3.8' --no-audit --no-fund
+      - name: Commit generated package manifest and npm lockfile on this PR branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- apps/web/package.json apps/web/package-lock.json
+          if git diff --cached --quiet; then
+            echo "Generated lockfile is already committed."
+            exit 0
+          fi
+          git commit -m "chore(web): lock ESLint 9 and Next 16 lint dependencies"
+          git push origin HEAD:refs/heads/chore/quality-gates-ruff-android-web
       - uses: actions/upload-artifact@v4
         with:
           name: eslint-9-next-16-lockfile
