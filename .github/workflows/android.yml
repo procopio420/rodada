@@ -87,4 +87,8 @@ jobs:
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
-          script: bash scripts/android-force-stop-recovery.sh
+          script: |
+            bash scripts/android-force-stop-recovery.sh
+            adb shell am force-stop com.rodada.attendance
+            adb shell am instrument -w -e class com.rodada.attendance.auth.OperationalAuthRefreshTest com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner | tee /tmp/operational-auth-refresh.txt
+            grep -q 'OK (2 tests)' /tmp/operational-auth-refresh.txt

@@ -191,10 +191,11 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", required=True)
+    parser.add_argument("--listen-host", default="0.0.0.0")
     parser.add_argument("--hold-response", action="store_true",
                         help="Pause a committed POST until externally verified Android uplink cut")
     args = parser.parse_args()
-    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence, hold_response=args.hold_response)
+    app = Proxy((args.listen_host, 8000), Handler, args.evidence, hold_response=args.hold_response)
     app.persist()
     print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :8000 => Django :8101", flush=True)
     app.serve_forever()

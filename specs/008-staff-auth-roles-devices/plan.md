@@ -106,3 +106,17 @@ Spec 001 Venue/StaffMember/AuditEvent foundations. No later operational spec sho
 2. Coordinate refresh in process-global bounded memory shared by route bundles; reuse successful rotations briefly and retry one rejected access credential. Preserve API authorization and terminal failures.
 3. Add coordinator tests and real PostgreSQL browser regression for parallel requests, late stale cookies, adjacent stations and revocation. Run typecheck, build, integration and existing visual suite.
 4. Rebuild/restart only the demo Web process, preserve PostgreSQL and operator data, document evidence and publish a small fix commit on the draft demo PR.
+
+## Bloqueador integrado023/024 — expiração nativa
+
+A jornada real reproduziu ACCESS_TOKEN_EXPIRED em operações após15 minutos.
+Operations/Corrections/RefundsHttpClient retornam OperationsApiException, enquanto
+AuthRepository renova somente AuthApiException. Alinhar a classificação401/código
+ACCESS_TOKEN_EXPIRED ao cliente Cash existente;403 e erros de domínio permanecem
+falhas. Renovação concorrente do mesmo token deve reutilizar a rotação já guardada,
+preservando a sessão original; não criar login novo nem mudar TTL/capabilities.
+Repetir só a requisição rejeitada por autenticação, uma vez, com mesmo corpo/chave;
+resposta perdida e mutation confirmada seguem seus contratos próprios.
+Aceite: teste de transporte401/403 nos três clientes, teste de rotação concorrente,
+jornada nativa retomada na mesma comanda, sem repetir pedido/cobrança. Servidor
+local de teste comprova transporte; readback PostgreSQL comprova efeitos reais.

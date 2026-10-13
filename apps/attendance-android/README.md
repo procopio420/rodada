@@ -232,3 +232,23 @@ SumUpSdkBoundary using the actual artifact and official sample after access is
 granted, map all PaymentEvents, inject approved short-lived OAuth access, initialize
 once and tear down on merchant/operator logout. Never embed an API/client secret.
 See docs/payments/sumup-onboarding.md for the complete activation gates.
+
+### Repetir rodada — Spec 026 T08a
+No histórico da comanda aberta, Repetir rodada abre revisão com valores e configuração históricos/atuais. Adicionar ao carrinho preserva o draft; Confirmar pedido continua separado e cria nova intenção. Produtos/configurações indisponíveis ou legado sem snapshot verificável bloqueiam a inclusão. Evidência local e gates restantes: specs/026-operational-ux-friction/revalidation.md.
+
+### T11a/T11b — recuperação e filas Android (2026-10-13)
+Pendências locais exibem estado, data e resumo do registro original. Abrir contexto
+consulta somente a comanda canônica para pedido/pagamento/preço/estrutura, ou a
+fila e task exata de entrega; não confirma nem substitui payload, chave ou sessão.
+Troca de sessão bloqueia retomada; consulta suspensa revalida a sessão antes de
+publicar contexto. Retry de entrega reutiliza a intenção existente da mesma task.
+Prontos é o filtro inicial, inclusive no pico; Chamadas e Pendências são filtros
+explícitos. Contagem desconhecida usa —. Pendências não ocupam o topo fixo.
+Entrega organiza dados e botão verticalmente para fonte ampliada.
+Correção/estorno/caixa sem contexto canônico continuam revisão explícita.
+UX27: auditoria do backend encontrou conclusão manual; inferência passiva não
+foi demonstrada. Preservada confirmação manual até evidência de source/confidence/
+provenance e correção por exceção. T11 ampla permanece aberta.
+
+### Conferir turno original — Spec 026 T11c
+Pendências de movimento/fechamento abrem consulta do turno original, inclusive encerrado, mantendo caixa atual e registro preservados. Tela oferece retorno e atualização, sem replay financeiro; conferência não prova sucesso/falha da pendência. Evidências e limites: specs/026-operational-ux-friction/revalidation.md.

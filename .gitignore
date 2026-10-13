@@ -27,3 +27,5 @@ local.properties
 *.keystore
 **/key.properties
 **/signing.properties
+# Generated fault-injection diagnostics are CI artifacts, never repository sources.
+/artifacts/

@@ -1,6 +1,7 @@
 package com.rodada.attendance.operations
 
 import org.json.JSONArray
+import com.rodada.attendance.auth.AuthApiException
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -52,6 +53,8 @@ class OperationsHttpClient(baseUrl: String) {
                                 lineTotalCents = item.getLong("line_total_cents"),
                                 state = item.getString("state"),
                                 customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
+                                productId = item.optString("product_id").takeIf { it.isNotBlank() },
+                                customization = historicalCustomization(item.optJSONObject("customization_snapshot")),
                             )
                         },
                 )
@@ -338,10 +341,13 @@ class OperationsHttpClient(baseUrl: String) {
                 ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             if (status !in 200..299) {
                 val json = raw.takeIf { it.isNotBlank() }?.let(::JSONObject)
+                val code = json?.optString("code").orEmpty().ifBlank { "HTTP_$status" }
+                val message = json?.optString("message").orEmpty().ifBlank { "Falha na operação." }
+                if (status == 401 || code == "ACCESS_TOKEN_EXPIRED") throw AuthApiException(status, code, message)
                 throw OperationsApiException(
                     status,
-                    json?.optString("code").orEmpty().ifBlank { "HTTP_$status" },
-                    json?.optString("message").orEmpty().ifBlank { "Falha na operação." },
+                    code,
+                    message,
                 )
             }
             return JSONObject(raw)

@@ -46,7 +46,7 @@ fun AttendanceNavigation(
     canUseCash: Boolean,
     busy: Boolean,
     onSelect: (AttendanceDestination) -> Unit,
-    onOpenTab: () -> Unit,
+    onOrder: () -> Unit,
 ) {
     val expanded = LocalDensity.current.fontScale > 1.3f
     Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface)) {
@@ -67,7 +67,10 @@ fun AttendanceNavigation(
                                 drawContent()
                                 drawRect(RodadaVisual.Ink.copy(alpha = .2f), topLeft = Offset(0f, size.height - AttendanceNavTokens.KeyShadow.toPx()), size = androidx.compose.ui.geometry.Size(size.width, AttendanceNavTokens.KeyShadow.toPx()))
                             }
-                            .clickable(enabled = !busy, role = Role.Button, onClick = onOpenTab)
+                            .clickable(enabled = !busy, role = Role.Button, onClick = {
+                                onSelect(AttendanceDestination.TABS)
+                                onOrder()
+                            })
                             .testTag("attendance-order"),
                         verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
                     ) {

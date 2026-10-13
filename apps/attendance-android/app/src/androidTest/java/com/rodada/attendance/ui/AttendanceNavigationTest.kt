@@ -35,6 +35,7 @@ class AttendanceNavigationTest {
         compose.onNodeWithText("Mesas").assertWidthIsAtLeast(44.dp).assertHeightIsAtLeast(44.dp).performClick(); assertEquals(AttendanceDestination.TABLES, chosen)
         compose.onNodeWithText("Caixa").assertWidthIsAtLeast(44.dp).assertHeightIsAtLeast(44.dp).performClick(); assertEquals(AttendanceDestination.CASH, chosen)
         compose.onNodeWithTag("attendance-order").performClick(); assertEquals(1, orders)
+        assertEquals("Pedir must route to the existing account picker", AttendanceDestination.TABS, chosen)
     }
 
     @Test fun busyAndAdjacentDestination() {

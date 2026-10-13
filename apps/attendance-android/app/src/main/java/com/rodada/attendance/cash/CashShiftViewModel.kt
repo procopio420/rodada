@@ -45,6 +45,41 @@ class CashShiftViewModel(
     var state by mutableStateOf(CashShiftUiState())
         private set
 
+    var recoveryContext by mutableStateOf(CashRecoveryContext())
+        private set
+    private var recoveryReadVersion = 0L
+
+    fun openRecovery(session: StoredSession, intentId: String) {
+        if (state.submitting) return
+        val version = ++recoveryReadVersion
+        recoveryContext = CashRecoveryContext(intentId = intentId, loading = true)
+        viewModelScope.launch {
+            runCatching {
+                val original = pendingMutationIntentStore.loadFor(session).firstOrNull { it.id == intentId }
+                    ?: error("Registro indisponível na sessão original. Não recrie a operação.")
+                val shiftId = when (original) {
+                    is RecoveryIntent.CashMovement -> original.shiftId
+                    is RecoveryIntent.CashClose -> original.shiftId
+                    else -> error("Este registro não pertence a um turno de caixa.")
+                }
+                val detail = gateway.shiftDetail(session, shiftId)
+                authRepository.withAuthorizedAccess(session) { Unit }
+                check(detail.shift.id == shiftId) { "O turno recebido não corresponde ao registro original." }
+                check(pendingMutationIntentStore.loadFor(session).any { it == original }) {
+                    "A pendência mudou durante a leitura. Atualize antes de continuar."
+                }
+                CashRecoveryContext(intentId = intentId, original = original, detail = detail)
+            }.onSuccess { if (version == recoveryReadVersion) recoveryContext = it }
+                .onFailure { if (version == recoveryReadVersion) recoveryContext = CashRecoveryContext(
+                    intentId = intentId, errorMessage = it.message ?: "Não foi possível consultar o turno original. Não repita a operação.") }
+        }
+    }
+
+    fun clearRecoveryContext() {
+        recoveryReadVersion++
+        recoveryContext = CashRecoveryContext()
+    }
+
     private var loadedSessionKey: String? = null
 
     fun ensureLoaded(session: StoredSession) {

@@ -104,6 +104,7 @@ jobs:
           name: android-live-post-disconnect-evidence
           path: |
             artifacts/android-real-post-drop.json
+            artifacts/android-live-lifecycle/**
             /tmp/rodada-android-fault-proxy.log
             /tmp/rodada-android-django.log
           if-no-files-found: warn
