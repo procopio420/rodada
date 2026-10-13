@@ -71,3 +71,18 @@ def test_tenant_direct_api_cannot_bypass_signed_bff(client):
     bff = signed("bardoaderlan.rodada.bar", method="/auth/login/", verb="POST")
     assert client.post("/auth/login/", data={}, content_type="application/json", **bff).status_code == 400
     assert client.get("/health/", HTTP_X_FORWARDED_HOST="bardoaderlan.rodada.bar").status_code == 200
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["api.rodada.bar", "testserver"], RODADA_BFF_HOST_SECRET=SECRET)
+def test_reserved_shared_api_host_remains_legacy_for_native_clients_and_webhooks(client):
+    # api.rodada.bar is a reserved infrastructure hostname, NEVER a Venue.
+    response = client.get("/ready/", HTTP_HOST="api.rodada.bar")
+    assert response.status_code == 200
+    response = client.post("/auth/login/", data={}, content_type="application/json",
+                           HTTP_HOST="api.rodada.bar")
+    assert response.status_code == 400
+    # A forged assertion on the shared API hostname still fails authentication.
+    response = client.get("/ready/", HTTP_HOST="api.rodada.bar",
+                          HTTP_X_RODADA_BFF_HOST="outrobar.rodada.bar")
+    assert response.status_code == 403

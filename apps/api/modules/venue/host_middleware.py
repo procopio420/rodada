@@ -5,7 +5,7 @@ import time
 from django.conf import settings
 from django.http import JsonResponse
 from .domain_resolution import resolve_venue_domain
-from .hostnames import TENANT_DOMAIN, resolved_venue_id
+from .hostnames import TENANT_DOMAIN, RESERVED_LABELS, resolved_venue_id
 
 class VenueHostMiddleware:
     def __init__(self, get_response):
@@ -29,7 +29,8 @@ class VenueHostMiddleware:
                 return JsonResponse({"code": "HOST_ASSERTION_INVALID"}, status=403)
             host = claimed.lower()
         hostname = host.split(":")[0]
-        if hostname.endswith("." + TENANT_DOMAIN):
+        label = hostname[: -len("." + TENANT_DOMAIN)] if hostname.endswith("." + TENANT_DOMAIN) else ""
+        if label and label not in RESERVED_LABELS:
             domain = resolve_venue_domain(hostname)
             if domain is None:
                 return JsonResponse({"code": "VENUE_HOST_NOT_FOUND"}, status=421)
