@@ -76,12 +76,12 @@ fun AttendanceNavigation(
                         if (expanded) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(AttendanceNavTokens.Gap)) {
                                 OrderIcon(ink)
-                                OrderLabel(ink, openTabLabel)
+                                OrderLabel(ink, openTabLabel, if (openTabLabel == "Pedir") Modifier else Modifier.fillMaxWidth())
                             }
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 OrderIcon(ink)
-                                OrderLabel(ink, openTabLabel)
+                                OrderLabel(ink, openTabLabel, if (openTabLabel == "Pedir") Modifier else Modifier.weight(1f))
                             }
                         }
                     }
@@ -137,24 +137,10 @@ private fun OrderIcon(ink: androidx.compose.ui.graphics.Color) {
 }
 
 @Composable
-private fun OrderLabel(ink: androidx.compose.ui.graphics.Color, label: String) {
-    // The center CTA is only 96dp wide when large accessibility text is enabled.
-    // Reserve a measured text width, rather than relying on the unconstrained
-    // glyph advance (which clipped "Pedir" and "Nova comanda" in instrumented CI).
-    val expanded = LocalDensity.current.fontScale > 1.3f
-    val compact = expanded || label != "Pedir"
-    Text(
-        label,
-        modifier = Modifier.width(if (expanded) 88.dp else 84.dp),
-        color = ink,
-        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        maxLines = 2,
-        style = TextStyle(
-            fontFamily = RodadaVisual.Label,
-            fontWeight = FontWeight.Black,
-            fontSize = if (expanded) 11.sp else if (compact) 13.sp else 16.sp,
-            letterSpacing = 0.sp,
-            lineHeight = if (expanded) 13.sp else if (compact) 15.sp else TextUnit.Unspecified,
-        ),
-    )
+private fun OrderLabel(ink: androidx.compose.ui.graphics.Color, label: String, modifier: Modifier) {
+    Text(label, modifier = modifier, color = ink, textAlign = if (label == "Pedir") androidx.compose.ui.text.style.TextAlign.Unspecified else androidx.compose.ui.text.style.TextAlign.Center,
+        style = TextStyle(fontFamily = RodadaVisual.Label, fontWeight = FontWeight.Black,
+            fontSize = if (label == "Pedir") 18.sp else 14.sp,
+            letterSpacing = if (label == "Pedir") 1.44.sp else 0.sp,
+            lineHeight = if (label == "Pedir") TextUnit.Unspecified else 16.sp))
 }

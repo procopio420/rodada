@@ -72,3 +72,13 @@ echo "PASS: Spec 027 one-tap start, contextual optional-name open, homonyms and 
 nav_output=$("${ADB[@]}" shell am instrument -w -e class com.rodada.attendance.ui.AttendanceNavigationTest "$INSTRUMENTATION")
 printf '%s\n' "$nav_output"
 grep -q 'OK (3 tests)' <<<"$nav_output" || { echo "FAILED: navigation geometry and Nova comanda label" >&2; exit 1; }
+# Production text at mobile widths and enlarged system font; no baseline relaxation.
+trap '"${ADB[@]}" shell settings put system font_scale 1 >/dev/null 2>&1 || true; "${ADB[@]}" shell wm size reset >/dev/null 2>&1 || true; "${ADB[@]}" shell wm density reset >/dev/null 2>&1 || true; "${ADB[@]}" shell svc wifi enable >/dev/null 2>&1 || true; "${ADB[@]}" shell svc data enable >/dev/null 2>&1 || true' EXIT
+for width in 360 390 430; do
+  "${ADB[@]}" shell wm density 160
+  "${ADB[@]}" shell wm size "${width}x844"
+  "${ADB[@]}" shell settings put system font_scale 1.5
+  fit_output=$("${ADB[@]}" shell am instrument -w -e class 'com.rodada.attendance.ui.AttendanceNavigationTest#productionNewTabLabelFitsAndOpensOnce' "$INSTRUMENTATION")
+  printf '%s\n' "$fit_output"
+  grep -q 'OK (1 test)' <<<"$fit_output" || { echo "FAILED Nova comanda at $width px / font 1.5" >&2; exit 1; }
+done

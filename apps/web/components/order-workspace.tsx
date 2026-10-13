@@ -60,7 +60,8 @@ export function OrderWorkspace({ withoutPayments = false, onPendingChange, reque
         const saved = JSON.parse(raw);
         if (saved.schema !== 1 || !saved.tab?.id || !Array.isArray(saved.cart) ||
             saved.cart.some((line: { product?: Product; quantity?: number; selection?: Selection }) => !line.product?.id || !Number.isInteger(line.quantity) || !line.selection) ||
-            (!!saved.key !== !!saved.payload)) throw new Error("Invalid recovery record");
+            (!!saved.key !== !!saved.payload) ||
+            (saved.key && (saved.payload.idempotency_key !== saved.key || !Array.isArray(saved.payload.lines)))) throw new Error("Invalid recovery record");
         setSelected(saved.tab); setCart(saved.cart);
         confirmIntentRef.current = saved.key;
         pendingPayload.current = saved.payload;

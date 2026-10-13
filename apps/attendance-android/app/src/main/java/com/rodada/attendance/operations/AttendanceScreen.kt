@@ -399,7 +399,7 @@ private fun TabList(
                     Text("${occupancy.guestOrderCount} pedido(s) · ${if (occupancy.serviceAttention == "UNASSIGNED_READY") "Pedido pronto" else "Confirmado"}")
                     Text(serviceOrderAgeLabel(occupancy.oldestGuestOrderAt))
                     OutlinedButton(onClick = { onViewTable(table.id) }, enabled = !state.submitting && state.pendingTableService == null, modifier = Modifier.fillMaxWidth()) { Text("Ver mesa ${table.label}") }
-                    if (canClaimTable) Button(onClick = { onClaimTable(occupancy) }, enabled = !state.submitting && state.pendingTableService == null, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento") }
+                    if (canClaimTable && table.tableServiceEnabled) Button(onClick = { onClaimTable(occupancy) }, enabled = !state.submitting && state.pendingTableService == null, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento") }
                 }
             }
         }
@@ -752,7 +752,7 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
     var searched by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Abrir comanda") },
+        title = { Text("Nova comanda · Sem mesa") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = label, onValueChange = { label = it; customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())

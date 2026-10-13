@@ -82,3 +82,12 @@ Publicação autorizada pelo usuário em 13/10. Branch `impl/027-table-service-c
 Os resultados anteriores acima identificam seus heads; os novos refinamentos exigem nova execução dos gates.
 
 Sem deploy, sem dados/contas reais, sem homologação declarada.
+
+## CI dos refinamentos — head e39245d
+
+- API PostgreSQL completo: PASS, run 38450361554.
+- Web completo (incluindo 7 cenários Spec 027 e integração real): PASS, run 38450361733.
+- Android JVM/APK/AAB: PASS, job 115479378772.
+- Android POST start/open com perda de resposta após commit, force-stop/offline e replay/SQL: PASS, run 38450364117, job 115479387024. Corte de uplink de pedido também PASS.
+- Turno isolado existente: PASS, run 38450361953. Docker/Nginx: PASS, run 38450361743.
+- Android persistência e três cenários de mesas (incluindo mover): PASS no job 115479379501. Navegação falhou por clipping horizontal: alinhamento central em largura intrínseca introduzia limites fracionários para Pedir e Nova comanda. Correção mantém alinhamento original da referência Pedir e reserva largura disponível da linha/coluna para Nova comanda; repetir gate e testar 360/390/430 com fonte 1.5 antes de PASS.
