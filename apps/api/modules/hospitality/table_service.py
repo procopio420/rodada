@@ -40,6 +40,12 @@ def _intent(actor, action, key, payload):
     return row
 
 
+def _require_rollout(actor):
+    from modules.venue.models import Venue
+    if not Venue.objects.filter(pk=actor.venue_id, table_service_enabled=True).exists():
+        raise HospitalityServiceError("TABLE_SERVICE_DISABLED", "Atendimento contextual desativado neste estabelecimento.", 409)
+
+
 def _finish(row, result):
     row.result = result
     row.save(update_fields=["result"])
@@ -81,6 +87,7 @@ def start_table_service(*, table_id, idempotency_key, actor):
     if row.result:
         return {**row.result, "replayed": True}
     table = _table_for_actor(table_id, actor)
+    _require_rollout(actor)
     if table.status == TableStatus.OCCUPIED:
         occupancy = TableOccupancy.objects.get(table=table, released_at__isnull=True)
         raise HospitalityServiceError(
@@ -143,6 +150,7 @@ def open_tab_in_occupancy(
     if row.result:
         return {**row.result, "replayed": True}
     occupancy = _locked_occupancy(occupancy_id, actor)
+    _require_rollout(actor)
     if (
         expected_generation != occupancy.generation
         or expected_generation != occupancy.table.access_generation
@@ -195,6 +203,7 @@ def claim_occupancy_responsibility(
     if row.result:
         return {**row.result, "replayed": True}
     occupancy = _locked_occupancy(occupancy_id, actor)
+    _require_rollout(actor)
     if occupancy.responsible_staff_id == actor.staff_id:
         return _finish(row, {"active_occupancy": _snapshot(occupancy), "unchanged": True})
     if occupancy.responsibility_version != expected_responsibility_version or (

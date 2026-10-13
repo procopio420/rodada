@@ -60,3 +60,12 @@
 - Testes instrumentados Android / UI Web (Web: `npm run test:visual`, além de integração) com fixtures determinísticas, homônimos e interrupção do fluxo.
 - Testes QR `DIRECT` com pedido não confirmado/confirmado/pronto, equipe sem responsável e com claim, múltiplos pedidos idempotentes, reload e próximo ciclo da mesa; inspecionar também o painel Agora e o limite de dados expostos a guest.
 - Demonstração documentada no Railway isolado sem pagamentos reais e, depois, turno observado no piloto. Registrar versão do deploy e não confundir estimativa com medição.
+
+## Refinamentos verificáveis
+
+- [ ] Venue começa desativado; somente venue.configure altera flag com versão, chave original e audit. Rollback conserva replay de start/open/claim confirmados.
+- [ ] MOVE_LOCATION pela mesa exige confirmação origem/destino e tab.move; não altera ledger/guest/owner.
+- [ ] Android global Nova comanda mantém alvo/medidas e texto sem clipping.
+- [ ] Carrinho Web e pedido desconhecido sobrevivem reload na Tab original, sem nova chave/payload e sem liberar contexto antes de reconciliação.
+- [ ] POST Android start e open realmente commitados com resposta perdida sobrevivem force-stop/offline e replay com exatamente um efeito SQL.
+- [ ] Piloto no estabelecimento observado, com before/after real registrado separadamente do ensaio automatizado.

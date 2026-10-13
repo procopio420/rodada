@@ -1,5 +1,6 @@
 "use client";
 
+import { TableServiceRollout } from "@/components/table-service-rollout";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StaffAuthScreen } from "@/components/staff-auth-screen";
@@ -72,6 +73,7 @@ function Setup({ session }: { session: StaffSessionView }) {
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}{notice && <p className="notice" role="status">{notice}</p>}
     {!fresh && <p className="notice" data-state="warning">Dados ainda não confirmados. Atualize antes de alterar.</p>}
     <button className="buttonSecondary" disabled={busy} onClick={() => void load()}>Atualizar configuração</button>
+    {canConfigure && <TableServiceRollout scope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} />}
     <section className="panel"><OperationalHeading as="h2" icon="table">Mesas e zonas</OperationalHeading>
       {fresh && <><p>Mesas: {tables.length ? tables.map(table => table.label).join(" · ") : "nenhuma cadastrada"}</p><p>Zonas: {zones.length ? zones.map(zone => zone.label).join(" · ") : "nenhuma cadastrada"}</p></>}
       {canConfigure ? <>

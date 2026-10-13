@@ -50,8 +50,19 @@ class AttendanceNavigationTest {
         assertLabelsFit()
     }
 
-    private fun assertLabelsFit() {
-        for (label in listOf("AGORA", "CONTAS", "Pedir", "Mesas")) {
+    @Test fun productionNewTabLabelFitsAndOpensOnce() {
+        var opens = 0
+        compose.setContent { RodadaTheme {
+            AttendanceNavigation(AttendanceDestination.TABLES, false, false, {}, { opens++ }, "Nova\ncomanda")
+        } }
+        compose.onNodeWithTag("attendance-order").assertWidthIsAtLeast(44.dp).assertHeightIsAtLeast(44.dp).performClick()
+        assertEquals(1, opens)
+        assertLabelsFit("Nova\ncomanda")
+        capture("nav-new-tab")
+    }
+
+    private fun assertLabelsFit(action: String = "Pedir") {
+        for (label in listOf("AGORA", "CONTAS", action, "Mesas")) {
             val layouts = mutableListOf<TextLayoutResult>()
             compose.onNodeWithText(label, useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { action -> assertTrue(action(layouts)) }
             assertTrue("Missing text layout: $label", layouts.isNotEmpty())

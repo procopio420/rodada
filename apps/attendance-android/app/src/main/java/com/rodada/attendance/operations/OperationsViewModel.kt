@@ -815,6 +815,10 @@ class OperationsViewModel(
             .put("expected_responsibility_version", occupancy.responsibilityVersion)
             .put("mode", if (occupancy.responsibleStaffId == null) "CLAIM_UNASSIGNED" else "TAKE_OVER"))
 
+    fun moveTableTab(session: StoredSession, occupancyId: String, tab: TabSummary) = tableServiceCommand(session,
+        "/tabs/${tab.id}/operations/", org.json.JSONObject().put("kind", "MOVE_LOCATION")
+            .put("expected_version", tab.version).put("occupancy_id", occupancyId))
+
     fun retryTableService(session: StoredSession) = tableServiceCommand(session, "", org.json.JSONObject())
 
     private fun tableServiceCommand(session: StoredSession, path: String, payload: org.json.JSONObject) = action {

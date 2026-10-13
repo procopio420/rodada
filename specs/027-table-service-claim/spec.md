@@ -223,3 +223,15 @@ Nenhum comando de claim concede capability financeira ou autoriza tab de outro V
 Validar com garçons reais: rótulos "Atendimento: João" vs "Responsável: João", distinção "Nova comanda" vs "Novo pedido", número de comandas por mesa, necessidade de ação explícita de takeover, mesas móveis e como corrigem abertura equivocada. Se a observação contradizer este contrato, alterar a spec antes da implementação adicional.
 
 **Evidência, tarefas e testes:** `acceptance.md`, `plan.md`, `tasks.md`. Implementação e limites de validação registrados em `evidence.md`; sem homologação do piloto.
+
+## Refinamento de recuperação Web
+
+O Atendimento Web persiste, por Venue/staff/sessão, o destino da Tab, linhas e personalizações do rascunho e, antes do POST, a chave e o payload congelado da confirmação. Reload restaura o destino original e oferece `Verificar mesmo pedido`; nunca gera nova chave para uma resposta desconhecida. Falha de storage bloqueia envio. Registros de outra sessão são preservados e bloqueiam novos pedidos até reconciliação autorizada. Apenas sucesso ou rejeição terminal 400/404/409/422 liberam a intenção; 401/403/5xx não provam ausência de commit. O catálogo atual revalida rascunhos ainda não enviados; replay usa exatamente o payload original.
+
+A ação global Android passa a `Nova comanda`, em duas linhas, mantendo geometria e alvos da Spec 023; o nome explicita que a abertura global não herda mesa.
+
+## Rollout por estabelecimento
+
+`Venue.table_service_enabled` inicia falso, sem backfill de responsáveis. Gerência com `venue.configure` ativa/desativa por comando auditado, versionado e idempotente em `/management/table-service-rollout/`. O rollback bloqueia apenas novas intenções start/open/claim; replays já confirmados continuam disponíveis e nenhuma ocupação, Tab, saldo ou QR é alterado. Comandos já admitidos podem terminar durante desativação. Mesas staff expõem a flag; clientes desativados conservam ocupar/vincular/liberar/limpar legados. Piloto real depende de ativação explícita e observação no estabelecimento; testes isolados ativam apenas seus próprios Venues.
+
+Mover comanda entre mesas exige `tab.move`, confirmação origem/destino e `MOVE_LOCATION` versionado da Spec 009. A intenção durável congela ocupação destino, versão da Tab e chave. Atendimento Web permite somente esse kind no endpoint de operações, rejeitando campos e kinds financeiros.

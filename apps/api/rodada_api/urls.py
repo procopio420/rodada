@@ -1,3 +1,4 @@
+from modules.management.views import TableServiceRolloutView
 from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
 
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
@@ -104,6 +105,7 @@ urlpatterns = [
     path("management/correction-requests/", CashCorrectionManagementView.as_view()),
     path("cash/shifts/<uuid:shift_id>/correction-requests/", CashCorrectionShiftView.as_view()),
     path("cash/correction-requests/<uuid:request_id>/decision/", CashCorrectionDecisionView.as_view()),
+    path("management/table-service-rollout/", TableServiceRolloutView.as_view()),
     path("management/guest-policy/", GuestPolicyView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),

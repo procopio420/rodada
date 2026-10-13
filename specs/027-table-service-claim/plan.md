@@ -55,3 +55,7 @@
 - Eventual "Cancelar início de mesa vazia" exige especificação própria de `OCCUPIED -> AVAILABLE` segura, revogação e auditoria; não fazer bypass de limpeza.
 - Automação de atribuição por zona, escala, covers, turnos ou análise de performance fica fora.
 - Mapa visual 2D permanece pertencente à Spec 004 e não bloqueia MVP.
+
+## Refinamentos de conclusão
+
+Reusar MOVE_LOCATION e storage de intenções nos clientes; flag Venue false sem backfill, comando gerencial idempotente/CAS e projeção staff; persistir draft Web e payload de pedido antes do POST; estender fault proxy e runner Android para start/open reais; ensaio API QR/duas Tabs/ajudante/movimento e gates CI completos. Registrar piloto observado como dependência externa.

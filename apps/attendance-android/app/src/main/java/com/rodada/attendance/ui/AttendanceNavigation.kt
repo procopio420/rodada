@@ -47,6 +47,7 @@ fun AttendanceNavigation(
     busy: Boolean,
     onSelect: (AttendanceDestination) -> Unit,
     onOpenTab: () -> Unit,
+    openTabLabel: String = "Pedir",
 ) {
     val expanded = LocalDensity.current.fontScale > 1.3f
     Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface)) {
@@ -75,12 +76,12 @@ fun AttendanceNavigation(
                         if (expanded) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(AttendanceNavTokens.Gap)) {
                                 OrderIcon(ink)
-                                OrderLabel(ink)
+                                OrderLabel(ink, openTabLabel)
                             }
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 OrderIcon(ink)
-                                OrderLabel(ink)
+                                OrderLabel(ink, openTabLabel)
                             }
                         }
                     }
@@ -136,7 +137,10 @@ private fun OrderIcon(ink: androidx.compose.ui.graphics.Color) {
 }
 
 @Composable
-private fun OrderLabel(ink: androidx.compose.ui.graphics.Color) {
-    Text("Pedir", color = ink,
-        style = TextStyle(fontFamily = RodadaVisual.Label, fontWeight = FontWeight.Black, fontSize = 18.sp, letterSpacing = 1.44.sp))
+private fun OrderLabel(ink: androidx.compose.ui.graphics.Color, label: String) {
+    Text(label, color = ink, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        style = TextStyle(fontFamily = RodadaVisual.Label, fontWeight = FontWeight.Black,
+            fontSize = if (label == "Pedir") 18.sp else 14.sp,
+            letterSpacing = if (label == "Pedir") 1.44.sp else 0.sp,
+            lineHeight = if (label == "Pedir") TextUnit.Unspecified else 16.sp))
 }

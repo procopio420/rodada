@@ -6,6 +6,8 @@ on:
     paths:
       - "apps/attendance-android/**"
       - "apps/api/**"
+      - "scripts/android-table-service-post-drop.sh"
+      - "scripts/verify-android-table-service-drop.py"
       - "scripts/android-live-post-drop.sh"
       - "scripts/android-active-network-cut.sh"
       - "scripts/android-post-drop-proxy.py"
@@ -16,6 +18,8 @@ on:
     paths:
       - "apps/attendance-android/**"
       - "apps/api/**"
+      - "scripts/android-table-service-post-drop.sh"
+      - "scripts/verify-android-table-service-drop.py"
       - "scripts/android-live-post-drop.sh"
       - "scripts/android-active-network-cut.sh"
       - "scripts/android-post-drop-proxy.py"
@@ -40,7 +44,7 @@ jobs:
       RODADA_POST_DROP_MARKER: /tmp/rodada-android-live-drop.json
     services:
       postgres:
-        image: postgres:17
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_DB: rodada_android_post_drop
           POSTGRES_USER: rodada_test
@@ -96,7 +100,9 @@ jobs:
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
-          script: bash scripts/android-live-post-drop.sh
+          script: |
+            bash scripts/android-live-post-drop.sh
+            bash scripts/android-table-service-post-drop.sh
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -104,6 +110,7 @@ jobs:
           name: android-live-post-disconnect-evidence
           path: |
             artifacts/android-real-post-drop.json
+            artifacts/android-table-*-response-loss.json
             /tmp/rodada-android-fault-proxy.log
             /tmp/rodada-android-django.log
           if-no-files-found: warn
@@ -127,7 +134,7 @@ jobs:
       RODADA_NETWORK_CUT_MODE: emulator-link
     services:
       postgres:
-        image: postgres:17
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_DB: rodada_android_post_drop_link_cut
           POSTGRES_USER: rodada_test

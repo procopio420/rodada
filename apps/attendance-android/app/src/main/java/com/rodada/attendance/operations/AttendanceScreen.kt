@@ -210,10 +210,12 @@ fun AttendanceScreen(
                             canManageTables = "table.manage" in session.capabilities,
                             staffId = session.staffId,
                             canOpenTabs = "tab.open" in session.capabilities,
-                            onStartService = { viewModel.startTableService(session, it) },
+                            onStartService = { id -> if (state.tables.firstOrNull { it.id == id }?.tableServiceEnabled == true) viewModel.startTableService(session, id) else viewModel.occupyTable(session, id, null) },
                             onOpenTableTab = { occupancy, label -> viewModel.openTableTab(session, occupancy, label) },
                             onClaim = { viewModel.claimTableService(session, it) },
                             onSelectTab = { viewModel.selectTab(session, it) },
+                            canMoveTabs = "tab.move" in session.capabilities,
+                            onMoveTab = { occupancyId, tab -> viewModel.moveTableTab(session, occupancyId, tab) },
                             onAttachTab = { occupancyId, tabId -> viewModel.attachTabToOccupancy(session, occupancyId, tabId) },
                             onRelease = { viewModel.releaseTable(session, it) },
                             onStartCleaning = { viewModel.startTableCleaning(session, it) },
@@ -350,6 +352,7 @@ private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, 
         busy = busy,
         onSelect = { onSelect(FrontlineSection.valueOf(it.name)) },
         onOpenTab = onOpenTab,
+        openTabLabel = "Nova\ncomanda",
     )
 }
 

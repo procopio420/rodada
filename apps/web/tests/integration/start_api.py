@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("PRAGMA journal_mode=WAL")
-    venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e")
+    venue = Venue.objects.create(name="Web E2E — test only", slug="web-e2e", table_service_enabled=True)
     for identifier, role in [("test-manager", StaffRole.MANAGER), ("test-staff", StaffRole.STAFF), ("test-owner", StaffRole.OWNER)]:
         staff = StaffMember.objects.create(display_name=identifier, login_identifier=identifier)
         staff.set_pin("2468")

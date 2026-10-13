@@ -36,4 +36,4 @@
 
 ## Estado dos clientes
 
-Código para T027-09/10/11/12/14/25 e testes para T027-16/26 entregue. PostgreSQL, Web completo e instrumentação passaram conforme `evidence.md`; checklist de jornadas permanece pendente onde ainda requer ensaio integrado específico de mesa/piloto. T027-17 (mover comanda/rótulo global), rollout por Venue e ensaio do piloto ainda requerem trabalho. Ver `evidence.md` para os limites exatos.
+Código para T027-09/10/11/12/14/25 e testes para T027-16/26 entregue. PostgreSQL, Web completo e instrumentação passaram conforme `evidence.md`; checklist de jornadas permanece pendente onde ainda requer ensaio integrado específico de mesa/piloto. T027-17 (mover comanda/rótulo global), rollout por Venue, recuperação Web e ensaio start/open foram implementados no refinamento de 13/10 e aguardam gates do novo head. O piloto observado ainda é externo. Ver `evidence.md` para os limites exatos.

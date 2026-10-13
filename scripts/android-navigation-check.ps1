@@ -57,7 +57,7 @@ try {
             }
         }
     }
-    if ($taskCount -ne 2) { throw 'Expected exactly two executed navigation tests; build success alone is insufficient.' }
+    if ($taskCount -ne 3) { throw 'Expected exactly three executed navigation tests; build success alone is insufficient.' }
     if ($taskHeaderCount -ne 2) { throw 'Expected exactly two executed header tests; build success alone is insufficient.' }
     if ($taskCriticalCount -ne 3) { throw 'Expected exactly three executed critical field tests; build success alone is insufficient.' }
     if ($taskRefundCount -ne 1) { throw 'Expected one executed refund test.' }

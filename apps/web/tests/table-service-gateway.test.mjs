@@ -24,5 +24,13 @@ test('table-service gateway requires authentication and rejects financial paths'
       assert.equal(response.status, status, route);
       assert.equal((await response.json()).code, code, route);
     }
+    for (const body of [
+      { kind: 'MOVE_LOCATION', expected_version: 1, occupancy_id: 'occupancy-test', idempotency_key: 'move' },
+      { kind: 'MERGE', expected_version: 1 },
+      { kind: 'MOVE_LOCATION', expected_version: 1, lines: [] },
+    ]) {
+      const response = await fetch(`http://127.0.0.1:${port}/api/attendance/tabs/tab-test/operations/`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      assert.equal(response.status, body.kind === 'MOVE_LOCATION' && !('lines' in body) ? 401 : 403);
+    }
   } finally { server.kill(); }
 });

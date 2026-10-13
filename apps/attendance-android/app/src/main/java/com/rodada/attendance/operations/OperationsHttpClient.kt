@@ -123,10 +123,9 @@ class OperationsHttpClient(baseUrl: String) {
             }
 
     fun tables(accessToken: String): List<TableSummary> =
-        request("GET", "/hospitality/tables/", accessToken = accessToken)
-            .getJSONArray("results")
-            .toObjects()
-            .map(::tableSummary)
+        request("GET", "/hospitality/tables/", accessToken = accessToken).let { result ->
+            result.getJSONArray("results").toObjects().map { tableSummary(it).copy(tableServiceEnabled = result.optBoolean("table_service_enabled", false)) }
+        }
 
     fun zones(accessToken: String): List<ZoneSummary> =
         request("GET", "/hospitality/zones/", accessToken = accessToken)
@@ -135,7 +134,12 @@ class OperationsHttpClient(baseUrl: String) {
             .map { ZoneSummary(it.getString("id"), it.getString("label")) }
 
     fun tableService(accessToken: String, path: String, payload: JSONObject): JSONObject {
-        require(Regex("/hospitality/(tables/[a-zA-Z0-9_-]+/service/start|occupancies/[a-zA-Z0-9_-]+/(tabs/open|responsibility/claim))/").matches(path))
+        val move = Regex("/tabs/[a-zA-Z0-9_-]+/operations/").matches(path)
+        require(move || Regex("/hospitality/(tables/[a-zA-Z0-9_-]+/service/start|occupancies/[a-zA-Z0-9_-]+/(tabs/open|responsibility/claim))/").matches(path))
+        if (move) {
+            require(payload.optString("kind") == "MOVE_LOCATION")
+            require(payload.keys().asSequence().all { it in setOf("kind", "expected_version", "occupancy_id", "idempotency_key", "reason") })
+        }
         return request("POST", path, payload, accessToken)
     }
 

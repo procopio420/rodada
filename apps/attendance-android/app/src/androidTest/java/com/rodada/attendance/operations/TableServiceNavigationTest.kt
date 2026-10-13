@@ -2,6 +2,7 @@ package com.rodada.attendance.operations
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -51,4 +52,22 @@ class TableServiceNavigationTest {
             "/hospitality/occupancies/visit/responsibility/claim/", "{}")) }
         compose.onNodeWithText("Assumir atendimento").performScrollTo().assertIsNotEnabled()
     }
+    @Test fun moveLinkedTabRequiresOriginDestinationConfirmation() {
+        val tab = TabSummary("linked", "João", "OPEN", 3, 700, 0, 700)
+        val origin = table.copy(status = "OCCUPIED", activeOccupancy = TableOccupancy("origin", 1,
+            listOf(TableOccupancyTab(tab.id, tab.displayLabel))))
+        val destination = table.copy(id = "destination", label = "13", status = "OCCUPIED",
+            activeOccupancy = TableOccupancy("destination-visit", 1, emptyList()))
+        val state = OperationsUiState(tables = listOf(destination, origin), tabs = listOf(tab))
+        var moved: Pair<String, String>? = null
+        compose.setContent { RodadaTheme { TablesScreen(state, true, { _, _ -> error("Linked Tab must not use assign") }, {}, {}, {},
+            canMoveTabs = true, onMoveTab = { visit, chosen -> moved = visit to chosen.id }) } }
+        compose.onAllNodesWithText("Vincular comanda existente")[0].performScrollTo().performClick()
+        compose.onNodeWithText("João · linked · Mesa 12 · Mover").performClick()
+        assertEquals(null, moved)
+        compose.onNodeWithText("João · linked: Mesa 12 → Mesa 13. O saldo permanece nesta comanda.").assertExists()
+        compose.onNodeWithText("Confirmar mudança de mesa").performClick()
+        assertEquals("destination-visit" to "linked", moved)
+    }
+
 }

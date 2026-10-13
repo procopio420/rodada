@@ -104,7 +104,7 @@ class TableListCreateView(APIView):
         from .projections import staff_tables
 
         tables = staff_tables(request.actor_context.venue_id)
-        return Response({"results": [_table_payload(table) for table in tables]})
+        return Response({"table_service_enabled": request.auth.venue.table_service_enabled, "results": [_table_payload(table) for table in tables]})
 
     def post(self, request):
         permission = RequireCapability()

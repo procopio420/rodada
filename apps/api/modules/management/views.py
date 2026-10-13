@@ -256,3 +256,47 @@ class AlertDetailView(APIView):
                 record_audit_event(actor=request.actor_context, event_type='alert.acknowledged',
                     entity_type='OperationalAlert', entity_id=str(alert.pk))
         return Response(payload(alert))
+
+
+class TableServiceRolloutView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.VENUE_CONFIGURE
+
+    @staticmethod
+    def snapshot(venue):
+        return {"enabled": venue.table_service_enabled, "version": venue.table_service_version}
+
+    def get(self, request):
+        return Response(self.snapshot(request.auth.venue))
+
+    def post(self, request):
+        from modules.hospitality.table_service import _intent, _finish
+        from modules.hospitality.services import HospitalityServiceError
+
+        class Input(serializers.Serializer):
+            enabled = serializers.BooleanField()
+            expected_version = serializers.IntegerField(min_value=1)
+            idempotency_key = serializers.CharField(max_length=120)
+
+        data = Input(data=request.data)
+        data.is_valid(raise_exception=True)
+        values = data.validated_data
+        try:
+            with transaction.atomic():
+                row = _intent(request.actor_context, "rollout", values["idempotency_key"],
+                              {"enabled": values["enabled"], "expected_version": values["expected_version"]})
+                if row.result:
+                    return Response({**row.result, "replayed": True})
+                venue = Venue.objects.select_for_update().get(pk=request.actor_context.venue_id)
+                if venue.table_service_version != values["expected_version"]:
+                    raise HospitalityServiceError("VERSION_CONFLICT", "Configuração alterada. Atualize antes de confirmar.", 409)
+                before = self.snapshot(venue)
+                venue.table_service_enabled = values["enabled"]
+                venue.table_service_version += 1
+                venue.save(update_fields=["table_service_enabled", "table_service_version"])
+                after = self.snapshot(venue)
+                record_audit_event(actor=request.actor_context, event_type="table_service.rollout_changed",
+                                   entity_type="Venue", entity_id=str(venue.id), metadata={"before": before, "after": after})
+                return Response(_finish(row, after))
+        except HospitalityServiceError as error:
+            return Response({"code": error.code, "message": error.message}, status=error.status_code)

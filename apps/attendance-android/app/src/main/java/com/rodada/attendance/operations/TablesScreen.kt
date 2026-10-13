@@ -37,6 +37,8 @@ fun TablesScreen(
     onOpenTableTab: (TableOccupancy, String) -> Unit = { _, _ -> },
     onClaim: (TableOccupancy) -> Unit = {},
     onSelectTab: (String) -> Unit = {},
+    canMoveTabs: Boolean = false,
+    onMoveTab: (String, TabSummary) -> Unit = { _, _ -> },
     partySizeEditor: @Composable (String) -> Unit = {},
 ) {
     var openingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
@@ -44,7 +46,8 @@ fun TablesScreen(
     var newLabel by rememberSaveable { mutableStateOf("") }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
-    val assignableTabs = state.tabs.filter { it.state != "CLOSED" && it.id !in attachedTabIds }
+    var movingTabId by rememberSaveable { mutableStateOf<String?>(null) }
+    val assignableTabs = state.tabs.filter { it.state !in setOf("CLOSED", "CANCELLED") && (canMoveTabs || it.id !in attachedTabIds) }
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -66,7 +69,7 @@ fun TablesScreen(
                 canManage = canManageTables,
                 onOccupy = { onStartService(table.id) },
                 staffId = staffId,
-                canOpenTabs = canOpenTabs,
+                canOpenTabs = canOpenTabs && table.tableServiceEnabled,
                 onNewTab = { newLabel = ""; openingOccupancy = it.id },
                 onClaim = { if (it.responsibleStaffId != null && it.responsibleStaffId != staffId) takingOccupancy = it.id else onClaim(it) },
                 onSelectTab = onSelectTab,
@@ -93,14 +96,25 @@ fun TablesScreen(
             confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = { onClaim(occupancy); takingOccupancy = null }) { Text("Confirmar transferência") } },
             dismissButton = { TextButton(onClick = { takingOccupancy = null }) { Text("Atender sem assumir") } })
     }
-    attachingOccupancyId?.let { occupancyId ->
+    movingTabId?.let { id -> state.tabs.firstOrNull { it.id == id }?.let { tab ->
+        val origin = state.tables.firstOrNull { it.activeOccupancy?.tabs?.any { it.id == id } == true }
+        val destination = state.tables.firstOrNull { it.activeOccupancy?.id == attachingOccupancyId }
+        AlertDialog(onDismissRequest = { movingTabId = null }, title = { Text("Mover comanda?") },
+            text = { Text("${tab.displayLabel} · ${tab.id.take(8)}: Mesa ${origin?.label} → Mesa ${destination?.label}. O saldo permanece nesta comanda.") },
+            confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = {
+                attachingOccupancyId?.let { onMoveTab(it, tab) }; movingTabId = null; attachingOccupancyId = null
+            }) { Text("Confirmar mudança de mesa") } },
+            dismissButton = { TextButton(onClick = { movingTabId = null }) { Text("Cancelar") } })
+    } }
+    attachingOccupancyId?.takeIf { movingTabId == null }?.let { occupancyId ->
         AssignTabDialog(
-            tabs = assignableTabs,
+            tabs = assignableTabs.filter { tab -> state.tables.firstOrNull { it.activeOccupancy?.id == occupancyId }?.activeOccupancy?.tabs?.none { it.id == tab.id } != false },
+            locations = state.tables.flatMap { table -> table.activeOccupancy?.tabs.orEmpty().map { it.id to "Mesa ${table.label}" } }.toMap(),
             busy = state.submitting,
             onDismiss = { attachingOccupancyId = null },
             onAssign = { tabId ->
-                onAttachTab(occupancyId, tabId)
-                attachingOccupancyId = null
+                if (tabId in attachedTabIds) movingTabId = tabId
+                else { onAttachTab(occupancyId, tabId); attachingOccupancyId = null }
             },
         )
     }
@@ -139,13 +153,13 @@ private fun TableCard(
                 }
                 occupancy.tabs.forEach { tab -> OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) { Text("${tab.displayLabel} · ${tab.displayReference.ifBlank { tab.id.take(8) }}") } }
                 if (canOpenTabs) Button(onClick = { onNewTab(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
-                if (canManage && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
+                if (canManage && table.tableServiceEnabled && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
             } ?: Text("Sem ocupação ativa")
             if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
             if (!canManage) return@Column
             table.activeOccupancy?.let { occupancy -> androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) } }
             when (table.status) {
-                "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Iniciar atendimento") }
+                "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (table.tableServiceEnabled) "Iniciar atendimento" else "Ocupar mesa") }
                 "OCCUPIED" -> {
                     table.activeOccupancy?.let { occupancy ->
                         OutlinedButton(onClick = { onAttach(occupancy.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
@@ -164,6 +178,7 @@ private fun TableCard(
 @Composable
 private fun AssignTabDialog(
     tabs: List<TabSummary>,
+    locations: Map<String, String>,
     busy: Boolean,
     onDismiss: () -> Unit,
     onAssign: (String) -> Unit,
@@ -175,7 +190,7 @@ private fun AssignTabDialog(
             if (tabs.isEmpty()) Text("Não há comandas abertas disponíveis.")
             tabs.forEach { tab ->
                 OutlinedButton(onClick = { onAssign(tab.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                    Text(tab.displayLabel)
+                    Text("${tab.displayLabel} · ${tab.id.take(8)} · ${locations[tab.id]?.let { "$it · Mover" } ?: "Sem mesa"}")
                 }
             }
         }

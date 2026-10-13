@@ -63,18 +63,22 @@ A primeira execução de alguns jobs falhou por quota ECR; os jobs afetados usam
 
 A main avançou durante a validação com API direta via Nginx. Integração resolveu colisões de `/manage`, `/cash`, `/refunds` e páginas guest com famílias API, preservando `/auth/login/` sem redirect de POST. O smoke test do container completo aprovou o merge. Os workflows ainda repetem checks automaticamente em novos heads; resultados acima identificam o código efetivamente testado.
 
-## Trabalho ainda pendente para concluir a spec/piloto
+## Refinamentos de 13/10 — em validação
 
-1. Completar UX de **Mover comanda** a partir da mesa quando a Tab está vinculada a outra ocupação; hoje esses vínculos são filtrados/rejeitados e a movimentação permanece no fluxo canônico da Spec 009.
-2. Revisar rótulo da ação global Android `Pedir` (ainda abre comanda sem mesa) com Spec 023 e validar geometria antes de trocar para `Nova comanda`. Start/contextual da mesa já usam rótulos específicos.
-3. Flag de rollout por Venue, ensaio específico de mesa com duas pessoas/QR/ajudante, medidas before/after e validação no Aderlan.
-4. Provar perda de resposta de um POST **start/open de mesa** em Android conectado à API: persistência cifrada, UI, idempotência PostgreSQL e perda real de POST de pedido passaram separadamente, sem declarar um ensaio combinado inexistente.
-5. Recuperação completa de carrinho/pedido Web após reload geral pertence também à Spec 014. Este slice preserva draft na troca de contexto e intenção de start/open/claim após reload.
+- Mover comanda nos dois clientes reutiliza MOVE_LOCATION da Spec 009, com capability tab.move, versão da Tab, origem/destino explícitos e intenção durável. Gateway rejeita outros kinds e campos financeiros.
+- Android usa Nova comanda na ação global; teste instrumentado adicional conserva medidas e verifica clipping. O fixture Pedir do protótipo permanece como referência histórica, com a extensão de texto testada separadamente.
+- Rollout por Venue começa desativado, com comando gerencial auditado, CAS e replay. Rollback preserva replays anteriores e fluxos legados. Não houve ativação de estabelecimento real.
+- Web persiste Tab, linhas/personalizações, chave e payload antes de confirmar. Reload recupera o mesmo pedido; sessões diferentes e storage indisponível bloqueiam envio.
+- Ensaio API específico com duas Tabs (QR + staff), pedido de ajudante e movimento para outra mesa: PASS local, junto a 11 testes Spec 027. Ownership, IDs, guest e ledger preservados.
+- Novo ensaio Android real start/open: proxy após commit → força encerramento → leitura offline da intenção cifrada → replay original → SQL exatamente uma ocupação/Tab, sem efeito financeiro. Implementado no CI; ainda não declarar PASS sem execução.
+- Local: typecheck/build/gateway PASS; migrações sem drift. Playwright não executou: Chromium ausente e download retornou arquivo truncado. Navegador/Android/PostgreSQL serão conferidos no CI deste head.
+
+Pendente externo: observação do piloto no Aderlan e medição before/after real, sem inventar tempos, erros ou baseline. Os novos ensaios automatizados não são evidência dessa observação.
 
 ## Publicação
 
 Publicação autorizada pelo usuário em 13/10. Branch `impl/027-table-service-claim` publicada pelo conector GitHub (Git CLI sem credencial de escrita) e PR #107 aberto como draft: https://github.com/procopio420/rodada/pull/107. O bloqueio anterior foi resolvido pela autorização explícita.
 
-CI iniciado. A primeira execução Web falhou antes de checkout/testes por quota do registry ECR (`toomanyrequests: Data limit exceeded`). Seu serviço PostgreSQL foi movido ao mirror público da imagem oficial; gates permanecem pendentes até resultado da nova execução.
+Os resultados anteriores acima identificam seus heads; os novos refinamentos exigem nova execução dos gates.
 
 Sem deploy, sem dados/contas reais, sem homologação declarada.

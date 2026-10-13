@@ -135,6 +135,7 @@ data class TableSummary(
     val guestOrderingBlocked: Boolean,
     val zone: ZoneSummary?,
     val activeOccupancy: TableOccupancy?,
+    val tableServiceEnabled: Boolean = true,
 )
 
 data class TableOccupancy(
