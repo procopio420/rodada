@@ -468,6 +468,7 @@ private fun TabWorkspace(
     val availableProducts = remember(state.products, query) {
         state.products.filter { it.name.contains(query, ignoreCase = true) }
     }
+    val groupedProducts = availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap(compareBy<String> { if (it == "Outros") 1 else 0 }.thenBy { it })
     var configuring by remember { mutableStateOf<Product?>(null) }
     var editing by remember { mutableStateOf<CartLine?>(null) }
     var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
@@ -483,7 +484,7 @@ private fun TabWorkspace(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
         item {
@@ -500,7 +501,7 @@ private fun TabWorkspace(
             }
         }
         item {
-            Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
+            Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
@@ -510,15 +511,48 @@ private fun TabWorkspace(
                 enabled = tab.summary.state != "CLOSED" && !state.submitting,
             )
         }
-        items(availableProducts, key = { it.id }) { product ->
+        groupedProducts.forEach { (category, products) ->
+        item(key = "category:$category") { Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
+        items(products, key = { it.id }) { product ->
             val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-            CatalogProductButton(product, sellable, sellable && !state.submitting && state.orderIntentId == null) {
-                if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
+            val selectedLines = currentCart.filter { it.product.id == product.id }
+            val selectedQuantity = selectedLines.sumOf { it.quantity }
+            val canChange = sellable && !state.submitting && state.orderIntentId == null
+            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    CatalogProductButton(product, sellable, canChange) {
+                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
+                    }
+                }
+                if (selectedQuantity > 0) {
+                    TextButton(onClick = { onQuantity(selectedLines.last().lineId, -1) }, enabled = canChange) { Text("−") }
+                    Text("$selectedQuantity", fontWeight = FontWeight.Bold)
+                    TextButton(onClick = {
+                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onQuantity(selectedLines.last().lineId, 1)
+                        else configuring = product
+                    }, enabled = canChange) { Text("+") }
+                }
             }
+            // Different customizations remain separate lines, editable below the catalog.
+            if (selectedLines.any { it.product.variants.isNotEmpty() || it.product.modifierGroups.isNotEmpty() }) {
+                selectedLines.forEach { line ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(line.product.configurationText(line.customization), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { editing = line; configuring = line.product }, enabled = canChange) { Text("Editar") }
+                    }
+                }
+            }
+        }
         }
         item {
             if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
-            OrderCart(currentCart, cartTotal, state.submitting, state.orderIntentId != null, onQuantity, onConfirmOrder) { line -> editing = line; configuring = line.product }
+            if (currentCart.isNotEmpty()) {
+                val locked = state.orderIntentId != null
+                val valid = currentCart.all { it.product.active && it.product.availability == "AVAILABLE" && it.product.customizationError(it.customization) == null }
+                if (locked) Text("Pedido aguardando confirmação. Não envie novamente.", color = MaterialTheme.colorScheme.error)
+                Text("${currentCart.sumOf { it.quantity }} itens · ${formatCents(cartTotal)}", fontWeight = FontWeight.Bold)
+                Button(onClick = onConfirmOrder, enabled = !state.submitting && (locked || valid), modifier = Modifier.fillMaxWidth()) { Text(if (locked) "Verificar pedido" else "Confirmar pedido") }
+            }
         }
         if (tab.orders.isNotEmpty()) {
             item { Text("Pedidos confirmados", style = MaterialTheme.typography.titleLarge) }
