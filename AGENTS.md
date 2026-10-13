@@ -191,3 +191,9 @@ Este arquivo é o **ponto de entrada**; as regras específicas de API, Web e And
 - Mudanças de comportamento, arquitetura, domínio, operação/deploy ou escopo de piloto devem atualizar os documentos relevantes **no mesmo PR**. Nunca apresentar KB como sincronizada se houver divergências conhecidas.
 
 **Contrato de domínio:** `rodada.bar` é o domínio público canônico conforme [ADR 0018](docs/adr/0018-rodada-bar-canonical-domain.md); as ADRs antigas preservam referências históricas a `.ai`. Adoção documental **não** comprova DNS/TLS ou homologação. Ver [auditoria da KB](docs/agents/KB-AUDIT-2026-10-13.md).
+
+## Skill packs locais (sob demanda)
+
+Tarefas específicas usam [`docs/agents/SKILLS.md`](docs/agents/SKILLS.md). Os `SKILL.md` canônicos ficam em `.agents/skills/` (Codex e leitores do padrão aberto); `.claude/skills/` contém entradas compatíveis para Claude Code. Uma skill **complementa** este AGENTS, a spec e os procedimentos — não autoriza merge, deploy, acesso financeiro nem inventa evidência.
+
+Escolha pelo trabalho: Django/DRF → `rodada-django-api`; Next/Web → `rodada-nextjs-web`; landing HTML → `rodada-static-html`; visual/UX → `rodada-ui-design`; Android → `rodada-android-compose`; money/auth/tenant/replay → acrescente `rodada-pos-safety`. Não carregue todas de uma vez.

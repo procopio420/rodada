@@ -19,3 +19,7 @@ Além de `../../AGENTS.md`, siga `../../docs/agents/PROCEDURES.md`, `../../docs/
 - Mudanças visuais: validar 360/390/430 px e largura desktop, foco/teclado/touch e `npm run test:visual`; não atualizar baselines sem causa e comparação registrada.
 - Gates comuns após `npm ci`: `npm run typecheck`, `npm run test:auth`, `npm run build`, `npm run test:visual`. Com integração Web↔API: `npm run test:integration` em PostgreSQL de teste, conforme `.github/workflows/web.yml`.
 - Spec/PR para alteração de fluxo: incluir happy path, condição de corrida, timeout/resposta perdida, renovação/revogação de sessão e replay sem duplicação quando pertinentes.
+
+## Skill sob demanda
+
+Ative [`rodada-nextjs-web`](../../.agents/skills/rodada-nextjs-web/SKILL.md) para App Router, React e BFF; combine [`rodada-ui-design`](../../.agents/skills/rodada-ui-design/SKILL.md) em mudança visual e [`rodada-pos-safety`](../../.agents/skills/rodada-pos-safety/SKILL.md) quando houver dinheiro, Host/sessão, Guest ou replay. **Não edite** o bloco `nextjs-agent-rules` autogerado acima.

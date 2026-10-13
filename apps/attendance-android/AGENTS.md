@@ -17,3 +17,7 @@ Herde `../../AGENTS.md`, [KB](../../docs/agents/README.md), [procedimentos](../.
 - Mudanças de lifecycle/recovery exigem testes Android e o ensaio manual `Android real POST disconnect` / force-stop de `.github/workflows/android.yml` em ambiente isolado; aprovação JVM isolada não equivale a aparelho.
 - AAB/upload/produção/Play são operações distintas e opt-in. Não gerar ou publicar release como efeito colateral de PR.
 - Handoff registra versão/SHA, teste JVM/Android real, emulador vs aparelho, limitações e risco de perda/duplicidade.
+
+## Skill sob demanda
+
+Ative [`rodada-android-compose`](../../.agents/skills/rodada-android-compose/SKILL.md) para Kotlin/Compose e recuperação; combine [`rodada-ui-design`](../../.agents/skills/rodada-ui-design/SKILL.md) para UI e [`rodada-pos-safety`](../../.agents/skills/rodada-pos-safety/SKILL.md) para ordem/pagamento/tenant/replay.

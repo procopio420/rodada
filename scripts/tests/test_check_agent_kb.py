@@ -33,6 +33,40 @@ class AgentKbTest(unittest.TestCase):
             self.assertTrue(any("broken local link" in x for x in errors))
             self.assertTrue(any("escapes repository" in x for x in errors))
 
+    def test_skill_manifests_and_claude_discovery(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            name = "rodada-django-api"
+            for folder in kb.SKILL_ROOTS:
+                skill_file = root / folder / name / "SKILL.md"
+                skill_file.parent.mkdir(parents=True)
+                body = "Procedure: inspect specs, implement, and validate tests."
+                if folder == ".claude/skills":
+                    body += f" [canonical](../../../.agents/skills/{name}/SKILL.md)"
+                skill_file.write_text(
+                    f"---\nname: {name}\ndescription: Use for Django and DRF tasks.\n---\n\n{body}\n",
+                    encoding="utf-8",
+                )
+            self.assertEqual(kb.check_skill_manifests(root, (name,)), [])
+            (root / ".claude" / "skills" / name / "SKILL.md").write_text(
+                "---\nname: mismatch\ndescription: Too short\n---\n\nBad",
+                encoding="utf-8",
+            )
+            errors = kb.check_skill_manifests(root, (name,))
+            self.assertTrue(any("name must match" in error for error in errors))
+            self.assertTrue(any("missing canonical" in error for error in errors))
+
+    def test_missing_skill_and_missing_frontmatter(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            name = "rodada-nextjs-web"
+            file = root / ".agents" / "skills" / name / "SKILL.md"
+            file.parent.mkdir(parents=True)
+            file.write_text("# no front matter\n", encoding="utf-8")
+            errors = kb.check_skill_manifests(root, (name,))
+            self.assertTrue(any("missing YAML" in error for error in errors))
+            self.assertTrue(any("missing required skill" in error for error in errors))
+
     def test_domain_contract_rejects_old_canonical(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

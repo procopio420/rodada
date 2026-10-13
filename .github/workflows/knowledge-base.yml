@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - "AGENTS.md"
+      - ".agents/skills/**"
+      - ".claude/skills/**"
       - "README.md"
       - "apps/**/AGENTS.md"
       - "apps/web/README.md"

@@ -21,3 +21,7 @@ Herde `../../AGENTS.md`, a [KB](../../docs/agents/README.md) e os [procedimentos
 5. Registrar comando/resultado/SHA e limitações no PR. Migrations exigem revisão de impacto e rollback; nunca aplicar em banco remoto sem aprovação.
 
 Não executar `seed_demo`, `reset-local-tests`, migrations ou scripts de restore contra a demo compartilhada/produção.
+
+## Skill sob demanda
+
+Para trabalho de Django/DRF neste módulo, leia [`rodada-django-api`](../../.agents/skills/rodada-django-api/SKILL.md). Se tocar dinheiro, permissões, tenant, QR ou idempotência, combine [`rodada-pos-safety`](../../.agents/skills/rodada-pos-safety/SKILL.md). As regras acima continuam mandatórias.
