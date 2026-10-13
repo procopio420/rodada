@@ -56,6 +56,8 @@ Locks: intenção → Table → Occupancy → Tab. Replay consulta resultado ant
 
 ## Publicação
 
-Commit local inicial `4e00443` preservado. O push foi rejeitado pela revisão automática: publicação em repositório público considerada fora da autorização explícita deste turno. A branch não foi publicada, não há PR criado nem CI desta mudança disparado. A autorização para push/PR é necessária para continuar a validação no CI existente; nenhum workaround de publicação foi usado.
+Publicação autorizada pelo usuário em 13/10. Branch `impl/027-table-service-claim` publicada pelo conector GitHub (Git CLI sem credencial de escrita) e PR #107 aberto como draft: https://github.com/procopio420/rodada/pull/107. O bloqueio anterior foi resolvido pela autorização explícita.
+
+CI iniciado. A primeira execução Web falhou antes de checkout/testes por quota do registry ECR (`toomanyrequests: Data limit exceeded`). Seu serviço PostgreSQL foi movido ao mirror público da imagem oficial; gates permanecem pendentes até resultado da nova execução.
 
 Sem deploy, sem dados/contas reais, sem homologação declarada.
