@@ -468,6 +468,7 @@ private fun TabWorkspace(
     val availableProducts = remember(state.products, query) {
         state.products.filter { it.name.contains(query, ignoreCase = true) }
     }
+    val groupedProducts = availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap(compareBy<String> { if (it == "Outros") 1 else 0 }.thenBy { it })
     var configuring by remember { mutableStateOf<Product?>(null) }
     var editing by remember { mutableStateOf<CartLine?>(null) }
     var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
@@ -510,7 +511,9 @@ private fun TabWorkspace(
                 enabled = tab.summary.state != "CLOSED" && !state.submitting,
             )
         }
-        items(availableProducts, key = { it.id }) { product ->
+        groupedProducts.forEach { (category, products) ->
+        item(key = "category:$category") { Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
+        items(products, key = { it.id }) { product ->
             val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
             val selectedLines = currentCart.filter { it.product.id == product.id }
             val selectedQuantity = selectedLines.sumOf { it.quantity }
@@ -539,6 +542,7 @@ private fun TabWorkspace(
                     }
                 }
             }
+        }
         }
         item {
             if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
