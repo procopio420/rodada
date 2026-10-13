@@ -492,6 +492,9 @@ internal fun TabWorkspace(
     val availableProducts = remember(state.products, query) {
         state.products.filter { it.name.contains(query, ignoreCase = true) }
     }
+    val groupedProducts = remember(availableProducts) {
+        availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap()
+    }
     var configuring by remember { mutableStateOf<Product?>(null) }
     var editing by remember { mutableStateOf<CartLine?>(null) }
     var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
@@ -538,7 +541,7 @@ internal fun TabWorkspace(
                 }
                 if (!reviewingCart) {
                     item {
-                        Text("Novo pedido", style = MaterialTheme.typography.titleLarge)
+                        Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
                         OutlinedTextField(
                             value = query,
                             onValueChange = { query = it },
@@ -548,10 +551,42 @@ internal fun TabWorkspace(
                             enabled = tab.summary.state != "CLOSED" && !state.submitting,
                         )
                     }
-                    items(availableProducts, key = { it.id }) { product ->
-                        val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-                        CatalogProductButton(product, sellable, sellable && !state.submitting && state.orderIntentId == null) {
-                            if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
+                    groupedProducts.forEach { (category, products) ->
+                        item(key = "category:$category") {
+                            Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
+                        items(products, key = { it.id }) { product ->
+                            val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
+                            val selectedLines = currentCart.filter { it.product.id == product.id }
+                            val selectedQuantity = selectedLines.sumOf { it.quantity }
+                            val canChange = sellable && !state.submitting && state.orderIntentId == null
+                            Row(
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    CatalogProductButton(product, sellable, canChange) {
+                                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization())
+                                        else configuring = product
+                                    }
+                                }
+                                if (selectedQuantity > 0) {
+                                    TextButton(onClick = { onQuantity(selectedLines.last().lineId, -1) }, enabled = canChange) { Text("−") }
+                                    Text("$selectedQuantity", fontWeight = FontWeight.Bold)
+                                    TextButton(onClick = {
+                                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onQuantity(selectedLines.last().lineId, 1)
+                                        else configuring = product
+                                    }, enabled = canChange) { Text("+") }
+                                }
+                            }
+                            // Custom variants are retained per line, rather than merging unlike orders.
+                            selectedLines.filter { it.product.variants.isNotEmpty() || it.product.modifierGroups.isNotEmpty() }
+                                .forEach { line ->
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(line.product.configurationText(line.customization), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                        TextButton(onClick = { editing = line; configuring = line.product }, enabled = canChange) { Text("Editar") }
+                                    }
+                                }
                         }
                     }
                     item {
