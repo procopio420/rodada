@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { surfaceForHost } from "@/lib/surfaces";
 import { tenantHostname } from "@/lib/tenant-host";
-import { tenantModulePath } from "@/lib/tenant-paths";
+import { internalRewriteUrl, tenantModulePath } from "@/lib/tenant-paths";
 
 const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
@@ -18,11 +18,8 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-rodada-surface", surface.id);
 
   const next = () => NextResponse.next({ request: { headers: requestHeaders } });
-  const rewrite = (path: string) => {
-    const target = new URL(request.url);
-    target.pathname = path; // Keep original query string and same-origin Host.
-    return NextResponse.rewrite(target, { request: { headers: requestHeaders } });
-  };
+  const rewrite = (path: string) =>
+    NextResponse.rewrite(internalRewriteUrl(request.url, path), { request: { headers: requestHeaders } });
 
   const tenant = tenantHostname(request.headers.get("host"));
   if (tenant && tenant !== "bardoaderlan.rodada.bar" && process.env.RODADA_ENABLE_TENANT_HOST_UI !== "true") {
