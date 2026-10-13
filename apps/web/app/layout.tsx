@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: surface.description,
     manifest: "/manifest.webmanifest",
     applicationName: surface.title,
+    icons: { icon: [{ url: "/brand/symbol.svg", type: "image/svg+xml" }], shortcut: "/favicon.svg" },
   };
 }
 

@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Rodada monogram. Safe area within 108dp adaptive icon; color from brand tokens. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:fillColor="#F3ECE1"
-        android:pathData="M30,29 L56,29 C73,29 81,37 81,49 C81,58 76,65 67,68 L82,83 L68,83 L53,69 L43,69 L43,83 L30,83 Z M43,41 L43,57 L56,57 C64,57 68,54 68,49 C68,44 64,41 56,41 Z"
-        android:fillType="evenOdd" />
+<!-- Brand v1 geometry derived from assets/brand/v1/symbol.svg; within adaptive icon safe area. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#F3ECE1" android:pathData="M86,54 A32,32 0,1 1,22 54 A32,32 0,1 1,86 54 Z"/>
+    <path android:fillColor="#120F0C" android:pathData="M77,54 A23,23 0,1 1,31 54 A23,23 0,1 1,77 54 Z"/>
+    <path android:fillColor="#F5A524" android:pathData="M32,59 C37,45 48,46 55,56 C61,64 70,63 76,57 A23,23 0,0 1,32 59 Z"/>
+    <path android:fillColor="#F3ECE1" android:pathData="M67,43 A3.3,3.3 0,1 1,60.4 43 A3.3,3.3 0,1 1,67 43 Z M73,50 A2.1,2.1 0,1 1,68.8 50 A2.1,2.1 0,1 1,73 50 Z M58.3,39 A1.7,1.7 0,1 1,54.9 39 A1.7,1.7 0,1 1,58.3 39 Z"/>
 </vector>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -24,6 +25,7 @@ export default async function Home() {
   return (
     <main style={{ minHeight: "100dvh", background: "var(--color-bg)", color: "var(--color-text)", padding: "32px 20px" }}>
       <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        <Image src="/brand/wordmark.svg" width={165} height={40} alt="Rodada" style={{ display: "block", maxWidth: "100%", marginBottom: 26 }} />
         <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>RODADA / ESTABELECIMENTO</p>
         <h1 style={{ fontSize: "clamp(28px, 7vw, 44px)", margin: "12px 0" }}>Bar do Aderlan</h1>
         <p style={{ color: "var(--color-text-muted)", marginBottom: 28 }}>Selecione onde deseja trabalhar</p>
