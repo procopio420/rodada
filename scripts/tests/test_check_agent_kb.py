@@ -40,13 +40,13 @@ class AgentKbTest(unittest.TestCase):
             skill_file = root / kb.SKILL_ROOT / name / "SKILL.md"
             skill_file.parent.mkdir(parents=True)
             skill_file.write_text(
-                f"---\\nname: {name}\\ndescription: Use for Django and DRF tasks.\\n---\\n\\n"
-                "Procedure: inspect specs, implement, and validate tests.\\n",
+                f"---\nname: {name}\ndescription: Use for Django and DRF tasks.\n---\n\n"
+                "Procedure: inspect specs, implement, and validate tests.\n",
                 encoding="utf-8",
             )
             self.assertEqual(kb.check_skill_manifests(root, (name,)), [])
             skill_file.write_text(
-                "---\\nname: mismatch\\ndescription: Too short\\n---\\n\\nBad",
+                "---\nname: mismatch\ndescription: Too short\n---\n\nBad",
                 encoding="utf-8",
             )
             errors = kb.check_skill_manifests(root, (name,))

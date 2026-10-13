@@ -141,7 +141,7 @@ def check_skill_manifests(
                 fields[key.strip()] = value.strip()
         if fields.get("name") != name:
             errors.append(f"{path}: front matter name must match directory")
-        description = fields.get("description", "").strip("'\\\" ")
+        description = fields.get("description", "").strip("'\" ")
         if len(description) < 20 or len(description) > 1024:
             errors.append(f"{path}: description must have 20-1024 characters")
         if len(data[match.end():].strip()) < 40:
