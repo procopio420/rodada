@@ -11,12 +11,9 @@ export async function createAttendanceTable(page: Page, label: string) {
     return { status: response.status, body: await response.text() };
   }, label);
   expect(result.status, result.body).toBe(201);
-  // Refresh the live table inventory before opening a tab through its dialog.
-  const readback = page.waitForResponse(response =>
-    new URL(response.url()).pathname.replace(/\/$/, "") === "/api/attendance/hospitality/tables"
-    && response.request().method() === "GET" && response.status() === 200);
-  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
-  await readback;
+  // Prove the table reached the real Attendance view before using the opening dialog.
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await expect(page.getByRole("button", { name: new RegExp(`Mesa ${label} Disponível`) })).toBeVisible();
 }
 
 /** Real attendance flow: named Tab, table-choice dialog, canonical selection. */
