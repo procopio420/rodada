@@ -37,7 +37,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
-  await expect(page.getByText("Mesa 12 · Comanda de teste", { exact: true })).toBeVisible();
+  await expect(page.getByText("Mesa 12 · Comanda de teste · Comanda TAB-TEST", { exact: true })).toBeVisible();
   expect(opens).toHaveLength(2); expect(opens[0]).toEqual(opens[1]);
   expect(opens[0]).toMatchObject({ expected_generation: 1, display_label: "João" });
   await layoutAndA11y(page);
