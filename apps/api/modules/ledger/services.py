@@ -272,7 +272,9 @@ def collect_payment(
                 cash_point_id=cash_point_id,
                 amount_due_cents=amount_due_cents,
                 amount_tendered_cents=amount_tendered_cents,
-                idempotency_key=f"payment:{idempotency_key}",
+                # Use the immutable Payment identity, not a client key scoped to a Tab.
+                # Two different Tabs may legitimately send the same client key.
+                idempotency_key=f"payment:{payment.id}",
                 actor=actor,
             )
         except CashServiceError as error:
@@ -309,20 +311,36 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
     )
     if not payment:
         raise LedgerServiceError("PAYMENT_NOT_FOUND", "Pagamento não encontrado.", 404)
-    if payment.tab.state == TabState.CLOSED:
-        raise LedgerServiceError(
-            "TAB_CLOSED",
-            "Reabra a comanda antes de registrar um estorno.",
-            409,
-        )
     if amount_cents <= 0 or not idempotency_key:
         raise LedgerServiceError("INVALID_REFUND", "Estorno inválido.")
     existing = Refund.objects.filter(payment=payment, idempotency_key=idempotency_key).first()
     if existing:
         if existing.amount_cents != amount_cents or existing.reason != reason:
             raise LedgerServiceError("IDEMPOTENCY_CONFLICT", "Chave já usada com outro estorno.", 409)
+        if payment.method == PaymentMethod.CASH:
+            from modules.cash.models import CashMovement
+
+            # Replay is read-only (even if the Tab/drawer closed). Check that
+            # the requested drawer is the drawer that actually paid the refund.
+            cash_point = CashMovement.objects.filter(refund=existing).values_list(
+                "shift__cash_point_id", flat=True
+            ).first()
+            if cash_point is None or cash_point_id is None or str(cash_point) != str(cash_point_id):
+                raise LedgerServiceError(
+                    "REFUND_CASH_MOVEMENT_CONFLICT",
+                    "Estorno já registrado em outro caixa ou sem movimento confirmado.",
+                    409,
+                )
         existing._idempotency_replay = True
         return existing, totals(payment.tab)
+    # A committed refund is recoverable after Tab close; only *new* refunds
+    # require an open Tab and all current authorization checks.
+    if payment.tab.state == TabState.CLOSED:
+        raise LedgerServiceError(
+            "TAB_CLOSED",
+            "Reabra a comanda antes de registrar um estorno.",
+            409,
+        )
     if payment.status not in PaymentStatus.confirmed_money_values():
         raise LedgerServiceError("PAYMENT_NOT_CONFIRMED", "Só é possível estornar pagamento confirmado.", 409)
     if payment.provider:
@@ -360,7 +378,8 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
             record_cash_refund_movement(
                 refund_id=refund.id,
                 cash_point_id=cash_point_id,
-                idempotency_key=f"refund:{idempotency_key}",
+                # Keep drawer movement identity unique across different Payments/Tabs.
+                idempotency_key=f"refund:{refund.id}",
                 actor=actor,
             )
         except CashServiceError as error:

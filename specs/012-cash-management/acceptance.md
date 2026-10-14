@@ -95,3 +95,13 @@
 **Given** supply, withdrawal, close, review and late correction  
 **When** audit is inspected  
 **Then** each includes actor, timestamp, CashPoint/shift, amount and required reason.
+
+## Regressão — idempotência financeira entre comandas e recuperação (2026-10-13)
+
+- [ ] **CASH-REPLAY-01** — Duas Tabs diferentes podem usar a mesma chave de cliente sem compartilhar CashMovement; cada Payment confirmado tem exatamente um movimento no mesmo turno (e detalhe de troco próprio). A chave de movimento usa o UUID imutável do Payment, não só o token local à Tab.
+- [ ] **CASH-REPLAY-02** — Repetir uma operação de caixa com chave igual, mas Payment/Refund/shift/amount/kind diferente gera conflito 409 e não retorna movimento de outro dinheiro, mesmo quando uma UniqueConstraint decide a corrida.
+- [ ] **CASH-REPLAY-03** — Estorno confirmado pode ser consultado por replay após fechamento da Tab; não produz novo movimento/audit e continua validando o valor e motivo originais.
+- [ ] **CASH-REPLAY-04** — Replay de Refund CASH com ponto de caixa distinto ou ausente não retorna sucesso, mesmo que o pagamento original exista; deve retornar conflito e manter trilha/auditoria intactas.
+- [ ] **CASH-REPLAY-05** — Teste concorrente em PostgreSQL com Tabs independentes no mesmo turno e mesma chave local gera dois movimentos distintos e saldo agregado correto.
+
+**Aceite pendente:** o código, os testes e esta spec não implicam que a regressão foi aprovada. Exigir CI de API no SHA do PR, avaliação de cenário negativo e confirmação de main após merge. Sem alteração de esquema, pagamentos reais ou deploy nesta correção.
