@@ -54,7 +54,7 @@ are S2 responsibilities; S1 does not ingest arbitrary telemetry or receipt data.
 
 | Slice | Status | PR | CI | Blockers |
 | --- | --- | --- | --- | --- |
-| S1 Foundation | Implemented; gates in progress | Pending publication | Pending | Final tests/CI |
+| S1 Foundation | Implemented; local gates/review pass, awaiting CI/approval | [#149](https://github.com/procopio420/rodada/pull/149) | Running | CI and authorized merge |
 | S2 Pairing | Pending | — | — | S1 approval and merge |
 | S3 Printing MVP | Pending | — | — | S2 approval and merge |
 | S4 Multiagent | Pending | — | — | S3 approval and merge |
@@ -88,3 +88,23 @@ was used solely for the local PostgreSQL binary. No shim or pgserver dependency 
 part of Rodada source, migrations or CI. CI uses its standard PostgreSQL service.
 No shared demo/production database, hardware, financial data, Windows service,
 installer or physically printed output was used or certified.
+
+## Final code gate — 5da5799 (2026-10-14)
+
+- Full API foundation regression: **755 PASS**, 497.96 s, PostgreSQL 16.2;
+  run started on foundation candidate before the Host/import fixes.
+- Final Host/import code: **79 PASS**, 24.93 s, PostgreSQL 16.2, including
+  **32 S1 tests** and all existing test_printing/test_printing_concurrency/
+  test_printing_snapshots cases. No skipped tests or hardware claims.
+- Signed BFF foreign Host: 403, same Venue/native: 200.
+- Django check, no migration drift, zero full/API added-line lint findings;
+  standalone mypy strict and Ruff PASS.
+- API CI first run 38595417557 failed E402 (late model registration import).
+  Corrected with top-level imports and explicit exports, without changing existing
+  model bodies or relaxing lint. Re-review of final import diff found no issues;
+  model registry/export/FK resolution check PASS in independent context.
+- API/Web CI for 5da5799 running. Latest outcome and approval gate are tracked in
+  PR #149; this evidence is a dated snapshot, not a merge or production sign-off.
+
+Gate decision: **WAIT FOR CI**, then request merge authorization for S1 only.
+S2 starts automatically after authorized and confirmed S1 merge, from refreshed main.

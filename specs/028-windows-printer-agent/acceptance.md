@@ -1,7 +1,7 @@
 # Acceptance — Spec 028
 
 **S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
-**Status:** Pending implementation and Windows/hardware evidence.
+**Status:** S1 technical evidence below; CI/merge pending. Remaining Windows/hardware scenarios pending.
 
 ## Matriz de cobertura por slice
 
@@ -119,3 +119,24 @@
 **Given** existing BROWSER, FILE, NETWORK and CUPS/SPOOL endpoints from Spec 015,
 **When** Spec 028 models and APIs are deployed behind a flag,
 **Then** their existing printing workflows remain functional, with identical document/attempt semantics and no automatic migration of a legacy bridge credential.
+
+## S1 technical evidence — 2026-10-14
+
+Implementation/review: [PR #149](https://github.com/procopio420/rodada/pull/149),
+[s1-foundation.md](s1-foundation.md). Final code tree: 5da5799.
+
+- Scenario 3, S1 scope: valid/invalid/expired/revoked machine credentials,
+  atomic rotation/revocation, one live credential, preserved route/audit history.
+- Scenario 12, S1 scope: cross-Venue DB references and identity reparenting denied,
+  signed foreign Host denied, staff/machine separation, unsafe literal TCP targets denied.
+  Executable route claims/shared queue checks remain S3/S4.
+- Scenario 15: legacy printing/bridge semantics retained; focused printing gate
+  79 PASS PostgreSQL, including 32 S1 tests. Full prior candidate regression 755 PASS.
+- Forward/reverse/reapply schema tested with a legacy FILE endpoint retained.
+- Independent R3 review completed; Host P1 fixed and re-reviewed; import/export
+  registration fix re-reviewed with Django model/FK registry checks.
+- Mypy strict standalone contracts, Ruff, Django check and migration drift PASS.
+
+CI is tracked on the PR and must pass before recommending merge. No Windows
+service, pairing, claims, physical print, installation or production acceptance
+is inferred from these results.
