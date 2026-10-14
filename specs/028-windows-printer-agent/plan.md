@@ -1,5 +1,6 @@
 # Plan — Spec 028 (Rodada Impressoras Windows)
 
+**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
 **Status:** Proposed. Plano de execução incremental; nenhuma etapa implica autorização para merge, deploy ou alteração da produção.
 
 ## Baseline real

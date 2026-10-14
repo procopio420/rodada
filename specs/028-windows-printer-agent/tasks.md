@@ -1,5 +1,6 @@
 # Tasks — Spec 028
 
+**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
 **Legend:** [ ] = pending. Writing a spec does not count as implementing an item.
 
 ## Tracking por slice (um PR de implementação por slice)

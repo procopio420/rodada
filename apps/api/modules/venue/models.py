@@ -29,6 +29,7 @@ class Venue(models.Model):
     business_day_cutoff_hour = models.PositiveSmallIntegerField(default=0, db_default=0)
     guest_mutations_blocked = models.BooleanField(default=False, db_default=False)
     guest_policy_version = models.PositiveIntegerField(default=1, db_default=1)
+    print_agents_enabled = models.BooleanField(default=False, db_default=False)
     table_service_enabled = models.BooleanField(default=False, db_default=False)
     table_service_version = models.PositiveIntegerField(default=1, db_default=1)
     created_at = models.DateTimeField(auto_now_add=True)

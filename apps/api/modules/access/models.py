@@ -1,4 +1,5 @@
 import uuid
+from typing import ClassVar
 
 from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
@@ -229,4 +230,34 @@ class AccessInvalidationEvent(models.Model):
             models.Index(fields=("staff_member", "id"), name="access_inv_staff_id_idx"),
             models.Index(fields=("session", "id"), name="access_inv_session_id_idx"),
             models.Index(fields=("device", "id"), name="access_inv_device_id_idx"),
+        ]
+
+
+class AgentCredential(models.Model):
+    """Machine identity; never a staff session or configurable capability grant."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    agent = models.ForeignKey(
+        "documents_printing.PrintAgent", on_delete=models.PROTECT, related_name="credentials"
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    scope = models.CharField(max_length=24, default="PRINT_AGENT_V1")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    revoked_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints: ClassVar = [
+            models.CheckConstraint(
+                condition=models.Q(scope="PRINT_AGENT_V1"), name="access_agent_scope_fixed"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(expires_at__gt=models.F("created_at")),
+                name="access_agent_expiry",
+            ),
+            models.UniqueConstraint(
+                fields=("agent",),
+                condition=models.Q(revoked_at__isnull=True),
+                name="access_agent_one_live_credential",
+            ),
         ]

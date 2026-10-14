@@ -205,3 +205,11 @@ class KdsDeviceHeartbeat(models.Model):
             models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="printing_kds_device_station_valid"),
         ]
 
+
+# Django registers the fleet models in this app; kept separate from immutable receipts.
+from .agent_models import (  # noqa: F401
+    AgentPrinterRoute,
+    DiscoveredPrinter,
+    PrintAgent,
+    PrintPairingRequest,
+)

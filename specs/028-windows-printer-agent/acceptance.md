@@ -1,5 +1,6 @@
 # Acceptance — Spec 028
 
+**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
 **Status:** Pending implementation and Windows/hardware evidence.
 
 ## Matriz de cobertura por slice

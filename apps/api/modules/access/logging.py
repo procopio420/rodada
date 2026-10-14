@@ -1,7 +1,7 @@
 import logging
 import re
 
-_TOKEN_RE = re.compile(r"\b(?:rat|rrt)_[A-Za-z0-9_-]+\b")
+_TOKEN_RE = re.compile(r"\b(?:rat|rrt|rpa|rpp)_[A-Za-z0-9_-]+\b")
 _RECEIPT_URL_RE = re.compile(r"(/(?:receipts?|api/receipt)/)[A-Za-z0-9_-]{43}(?=/|$)")
 _BEARER_RE = re.compile(r"(?i)(authorization\s*[:=]\s*bearer\s+)[^\s,;]+")
 _JSON_PIN_RE = re.compile(r'(?i)("pin"\s*:\s*")[^"]*(")')

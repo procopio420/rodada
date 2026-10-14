@@ -1,5 +1,6 @@
 # Spec 028 — Rodada Impressoras: agente Windows, multiagente e compatibilidade
 
+**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
 **Status:** Proposed / specification only; no Windows agent, installer or hardware certification delivered.
 **Owner:** Access (identidade de dispositivo), Documents/Printing (jobs e endpoints), Web Manage (configuração), Landing (downloads), local Windows agent.
 **Extends:** Spec 015 Receipts/Printing; Specs 008 Access, 013 Venue Configuration, 014 Connectivity, 018 Notifications e 019 Station Routing; ADR 0013 Non-fiscal print delivery.
