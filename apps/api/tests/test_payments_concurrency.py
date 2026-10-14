@@ -4,10 +4,14 @@ from unittest import skipUnless
 
 from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
+from django.utils import timezone
 
 from modules.access.context import ActorContext
 from modules.access.models import StaffMember
 from modules.catalog.models import FulfillmentStation, Product
+from modules.cash.models import CashMovement, CashMovementKind, CashPoint
+from modules.cash.services import cash_shift_position, open_cash_shift
+from modules.ledger.services import collect_payment
 from modules.ledger.models import Charge, Payment
 from modules.ordering.models import Order, OrderItem, Tab
 from modules.payment_provider.fake import DeterministicFakePaymentProvider
@@ -54,6 +58,42 @@ class PaymentConcurrencyTests(TransactionTestCase):
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             return list(pool.map(worker, (0, 1)))
+
+    def test_two_tabs_with_same_client_key_concurrently_record_distinct_cash(self):
+        # PostgreSQL connections race on separate Tabs, but share a single drawer.
+        second = Tab.objects.create(venue=self.tab.venue)
+        product = Product.objects.get(venue=self.tab.venue)
+        order = Order.objects.create(tab=second)
+        item = OrderItem.objects.create(
+            order=order, product=product, product_name_snapshot="Beer",
+            unit_price_cents=3000, quantity=1,
+        )
+        Charge.objects.create(tab=second, order_item=item, amount_cents=3000)
+        point = CashPoint.objects.create(venue=self.tab.venue, label="Race cash drawer")
+        shift = open_cash_shift(
+            cash_point_id=point.id, opening_float_cents=1000,
+            business_date=timezone.localdate(), idempotency_key="open-race",
+            actor=self.actor,
+        )
+        tab_ids = (self.tab.id, second.id)
+
+        def operation(i):
+            payment, _ = collect_payment(
+                tab_id=tab_ids[i], amount_cents=3000, method="CASH",
+                idempotency_key="same-client-payment-key",
+                cash_point_id=point.id, actor=self.actor,
+            )
+            return payment.id
+
+        payment_ids = self.race(operation)
+        self.assertEqual(len(set(payment_ids)), 2)
+        movements = list(CashMovement.objects.filter(
+            shift=shift, kind=CashMovementKind.CASH_PAYMENT
+        ))
+        self.assertEqual(len(movements), 2)
+        self.assertEqual({m.payment_id for m in movements}, set(payment_ids))
+        self.assertEqual(len({m.idempotency_key for m in movements}), 2)
+        self.assertEqual(cash_shift_position(shift)["expected_cents"], 7000)
 
     def test_two_waiters_cannot_start_two_collections_against_one_balance(self):
         def operation(i):

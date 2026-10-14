@@ -291,7 +291,7 @@ def collect_payment(
                 cash_point_id=cash_point_id,
                 amount_due_cents=amount_due_cents,
                 amount_tendered_cents=amount_tendered_cents,
-                idempotency_key=f"payment:{idempotency_key}",
+                idempotency_key=f"payment:{payment.id}",
                 actor=actor,
             )
         except CashServiceError as error:
@@ -384,7 +384,7 @@ def create_refund(*, payment_id, amount_cents, idempotency_key, reason, actor, c
             record_cash_refund_movement(
                 refund_id=refund.id,
                 cash_point_id=cash_point_id,
-                idempotency_key=f"refund:{idempotency_key}",
+                idempotency_key=f"refund:{refund.id}",
                 actor=actor,
             )
         except CashServiceError as error:
