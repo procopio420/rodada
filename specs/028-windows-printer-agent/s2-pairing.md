@@ -84,14 +84,17 @@ retries after storage failure.
 
 Local checks: 89 PostgreSQL printing regression/foundation/pairing tests passed
 before these review corrections; worker now 11 tests passed, strict mypy passed.
-Updated PostgreSQL checks and actual Windows/Manage CI gates remain pending.
+Corrected local PostgreSQL suite: 90 passed, including migration reverse/reapply
+and concurrent approvals. Windows CI run 38641566462 passed actual service
+installation/start/session0, autostart, restart, DPAPI, ACL and revocation.
+Manage integration/screenshot inspection and full API CI remain pending.
 The Windows smoke gate verifies ordinary-user ACL denial; adversarial processes
 running as LocalService without this service SID are not yet separately exercised.
 
 | Slice | Status | PR | CI | Blockers |
 | --- | --- | --- | --- | --- |
 | S1 Foundation | Merged | #149 | API/Web passed | None |
-| S2 Pairing | Implementation/review | Pending | Pending | Windows service and Manage gates |
+| S2 Pairing | PR/review | #155 | Windows passed; API/Web pending | Manage integration/visual evidence |
 | S3 Printing MVP | Pending | — | — | S2 approval/merge |
 | S4 Multiagent | Pending | — | — | S3 approval/merge |
 | S5 Compatibility | Pending | — | — | S4 approval/merge |

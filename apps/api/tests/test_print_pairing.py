@@ -7,7 +7,7 @@ from datetime import timedelta
 from threading import Barrier
 from unittest.mock import patch
 
-from django.db import close_old_connections, connection
+from django.db import IntegrityError, close_old_connections, connection, transaction
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
@@ -163,6 +163,22 @@ class PairingTests(TestCase):
             ).status_code
             == 401
         )
+
+    def test_database_guards_reject_identity_and_delivery_rewrites(self):
+        started = self.start()
+        request = PrintPairingRequest.objects.get(id=started["request_id"])
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PrintAgent.objects.filter(pk=request.agent_id).update(installation_proof_hash="x" * 64)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PrintPairingRequest.objects.filter(pk=request.pk).update(activated_at=timezone.now())
+        self.approve(started)
+        raw = self.status(started).data["credential"]
+        self.device.credentials(HTTP_AUTHORIZATION="Bearer " + raw)
+        assert self.device.post(PREFIX + "me/activate/", {}, format="json").status_code == 200
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PrintPairingRequest.objects.filter(pk=request.pk).update(activated_at=None)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PrintPairingRequest.objects.filter(pk=request.pk).update(credential=None)
 
     def test_approval_near_expiry_has_independent_recovery_window(self):
         started = self.start()
