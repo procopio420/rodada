@@ -90,7 +90,7 @@ print(json.dumps({'assignments':assignments,'reason':event.reason,'actor':str(ev
     expect(facts.operations).toBe(1); expect(facts.events).toBe(1); expect(facts.transfers).toBe(0); expect(facts.reason).toBe("Mudança de lugar"); expect(facts.actor).not.toBe("None"); expect(facts.origin_released).toBeNull();
     expect(facts.assignments).toHaveLength(2); expect(facts.assignments[0].released_at).not.toBeNull(); expect(facts.assignments[1]).toEqual({occupancy_id:destination.active_occupancy.id,released_at:null});
     await page.getByRole("button",{name:"Mesas",exact:true}).click();
-    await expect(page.getByRole("heading",{name:`Mesa A-${width}`,exact:true})).toBeVisible();
+    await expect(page.getByRole("button",{name:new RegExp(`Mesa A-${width} Ocupada`)})).toBeVisible();
     await expect(page.getByRole("button", {name:new RegExp(`Mesa A-${width} Ocupada · 0 comandas abertas`)})).toBeVisible();
     await page.getByRole("button", {name:new RegExp(`Mesa B-${width} Ocupada`)}).click();
     await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
