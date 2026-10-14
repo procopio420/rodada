@@ -8,6 +8,8 @@ on:
       - "apps/api/**"
       - "prototype/**"
       - ".github/workflows/web.yml"
+      - "scripts/quality/**"
+      - "scripts/tests/test_quality_added_lines.py"
   push:
     branches: [main]
     paths:
@@ -39,6 +41,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
@@ -63,6 +67,16 @@ jobs:
       - name: Typecheck
         working-directory: apps/web
         run: npm run typecheck
+
+      - name: ESLint Next.js 16 — full audit, fail on new/fatal diagnostics
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/quality/check_added_lines.py --kind eslint --base "$BASE_SHA"
+
+      - name: New Web source safety directives (added lines only)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/quality/check_added_lines.py --kind web --base "$BASE_SHA"
 
       - name: Staff session coordination tests
         working-directory: apps/web

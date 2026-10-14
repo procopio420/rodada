@@ -19,6 +19,8 @@ GUIDANCE = (
     "apps/web/AGENTS.md",
     "apps/attendance-android/AGENTS.md",
     "apps/landing/AGENTS.md",
+    "docs/agents/CODE-REVIEW.md",
+    "docs/agents/UNTRUSTED-INPUTS.md",
     "docs/architecture/tenant-routing-contract.md",
     "docs/adr/0018-rodada-bar-canonical-domain.md",
     "specs/025-tenant-host-routing/spec.md",
@@ -33,6 +35,7 @@ REQUIRED_SKILLS = (
     "rodada-android-compose",
     "rodada-pos-safety",
     "rodada-ops",
+    "rodada-code-review",
 )
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<header>.*?)\n---\n", re.DOTALL)

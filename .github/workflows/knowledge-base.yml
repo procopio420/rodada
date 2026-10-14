@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - "AGENTS.md"
+      - ".github/CODEOWNERS"
+      - ".github/pull_request_template.md"
       - ".agents/skills/**"
       - "README.md"
       - "apps/**/AGENTS.md"

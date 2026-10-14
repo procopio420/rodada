@@ -14,7 +14,8 @@
     "test:visual": "playwright test",
     "test:integration": "playwright test --config playwright.integration.config.ts",
     "test:visual:report": "playwright show-report",
-    "test:table-service": "node --test tests/table-service-gateway.test.mjs"
+    "test:table-service": "node --test tests/table-service-gateway.test.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "next": "16.3.8",
@@ -28,6 +29,8 @@
     "@types/pngjs": "^6.0.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.8",
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
     "typescript": "5.9.3"

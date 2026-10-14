@@ -17,6 +17,8 @@ Contrato entre módulos (API/DTO/events/schema):
 Testes exigidos e ambiente isolado:
 Evidências a registrar (URL/commit/comando/resultado; refs em [registro](CODEX-EVALS-EVIDENCE.md) se aplicável):
 Bloqueios e ações externas proibidas:
+Classe preliminar de risco R1/R2/R3:
+Fontes não confiáveis recebidas (issue/log/MCP) e controles:
 Critério de handoff ao integrador:
 ```
 
@@ -32,6 +34,8 @@ Testes FAIL, skips e testes NÃO executados:
 Riscos/observações negativas:
 Drift encontrado na KB:
 Conflitos potencialmente concorrentes:
+Revisão independente? (identificador do outro contexto, head SHA, findings e status; se ausente, REVIEW_BLOCKED em R3):
+Entradas suspeitas / prompt injection / mitigação:
 Merge/deploy/publicação executados? (sim/não e evidência):
 Próxima ação + responsável:
 ```
