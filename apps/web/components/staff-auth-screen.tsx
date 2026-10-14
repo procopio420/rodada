@@ -36,6 +36,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         type={type}
+        inputMode={type === "password" ? "numeric" : undefined}
         autoComplete={autoComplete}
       />
     </div>
@@ -57,6 +58,7 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
   }, []);
   const [session, setSession] = useState<StaffSessionView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
   const loadSession = useCallback(async () => {
@@ -83,6 +85,7 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
       });
     } finally {
       setLoading(false);
+      setSessionChecked(true);
     }
   }, []);
 
@@ -185,6 +188,10 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!session && !sessionChecked) {
+    return <main className={styles.shell}><p className={styles.loading} role="status">Carregando acesso…</p></main>;
   }
 
   if (!session) {
