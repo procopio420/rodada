@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .agent_views import AgentContractView
 from .kds_views import KdsDetectorView, KdsHealthView, KdsHeartbeatView
 
 from .views import (
@@ -13,6 +14,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path("agents/v1/me/contract/", AgentContractView.as_view()),
     path("kds/", KdsHealthView.as_view()),
     path("kds/<str:station>/heartbeat/", KdsHeartbeatView.as_view()),
     path("kds/<str:station>/detector/", KdsDetectorView.as_view()),

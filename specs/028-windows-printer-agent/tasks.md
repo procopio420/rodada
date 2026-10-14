@@ -1,10 +1,11 @@
 # Tasks — Spec 028
 
+**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
 **Legend:** [ ] = pending. Writing a spec does not count as implementing an item.
 
 ## Tracking por slice (um PR de implementação por slice)
 
-Estes itens de tracking agregam as tarefas detalhadas abaixo; **todos continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
+Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está implementada no PR #149, ainda aguardando CI/aprovação; S2–S7 continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
 
 - [ ] **S1 — Foundation:** schema/API/Access/credencial de máquina/isolamento/compatibilidade da Spec 015. Gate: acceptance **3 (parcial), 12, 15**; testes de migrations, permissão e regressão bridge; sem instalador.
 - [ ] **S2 — Pairing:** serviço Windows inicial, proof-of-possession, pareamento Manager/Owner no Manage, heartbeat e revogação. Gate: acceptance **2, 3, 13 (start no Windows)**; teste de código vencido/replay e host sem usuário logado.
@@ -17,10 +18,10 @@ Estes itens de tracking agregam as tarefas detalhadas abaixo; **todos continuam 
 **Ordem:** S1 -> S2 -> S3 -> (S4 || S5) -> S6 -> S7. S6 pode ter preparação de CI em paralelo, mas depende da integração dos drivers/rotas para conclusão. Manter ownership distinto entre S4 e S5 e apontar todos os PRs para esta spec e ADR 0020.
 
 ## Contracts / backend
-- [ ] Trace Spec 015 state/route APIs and freeze backwards compatibility for legacy bridge.
-- [ ] Add scoped PrintAgent identity (Access), lifecycle and audit migrations.
+- [x] Trace Spec 015 state/route APIs and freeze backwards compatibility for legacy bridge (S1 evidence in s1-foundation.md).
+- [x] Add scoped PrintAgent identity (Access), lifecycle and audit migrations (S1).
 - [ ] Implement pairing start/status/approval: high-entropy single-use expiring codes, proof of possession, throttling and Venue membership.
-- [ ] Implement device-scoped credential issue/rotation/revocation and API authentication middleware; never reuse staff refresh token.
+- [x] Implement device-scoped credential issue/rotation/revocation and dedicated API authentication; never reuse staff refresh token (S1; provisioning via pairing is S2).
 - [ ] Add discovered devices and AgentPrinterRoute, route profile/capability/version CAS, schema+indexes+retention.
 - [ ] Implement agent heartbeat/version and manager status APIs without conflating physical printer health.
 - [ ] Implement agent-limited claim/results using existing PrintJob lease/attempt token and mapping checks.
@@ -30,7 +31,7 @@ Estes itens de tracking agregam as tarefas detalhadas abaixo; **todos continuam 
 - [ ] New backend tests: isolation, replay, races, negative auth, CAS, health and failover safety.
 
 ## Windows agent
-- [ ] Skeleton at apps/printer-agent with typed contracts and tests; no Django model dependencies.
+- [x] Standalone typed contracts and interfaces at apps/printer-agent, with contract parity test; no Django model dependencies (S1; no runtime service yet).
 - [ ] Windows Service + optional local wizard/status window, no logged-in desktop session requirement.
 - [ ] Installer setup/remove/repair + machine-scope DPAPI secrets/ACL and safe unpair.
 - [ ] Windows Print Spooler printer/queue enumeration in service context.
