@@ -105,11 +105,21 @@ for (const surface of ["attendance", "pos"]) test(`Pending order remains recover
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   const saved = await page.evaluate(k => sessionStorage.getItem(k), key);
   await page.route(/\/api\/(attendance|pos)\/tabs\/tab-test\/$/, route => route.fulfill({ json: {
-    id: "tab-test", display_label: "Comanda de teste", state: "CLOSED", exposure_cents: 0, version: 3,
+    id: "tab-test", display_label: "Comanda encerrada", state: "CLOSED", exposure_cents: 0, version: 3,
     orders: [{ id: "order-recovered", items: [] }], payments: [], refund_required_corrections: [],
   } }));
-  await page.route(/\/api\/(attendance|pos)\/tabs\/\?*/, route => route.fulfill({ json: { results: [], pagination: { next_offset: null } } }));
+  await page.route(/\/api\/(attendance|pos)\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: surface === "pos" ? [{ id: "tab-test", display_label: "Comanda encerrada", state: "CLOSED", exposure_cents: 0, version: 3 }] : [], next_offset: null } }));
+  if (surface === "pos") {
+    await page.clock.runFor(16000);
+    await expect(page.getByRole("heading", { name: "Comanda encerrada", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Verificar mesmo pedido", exact: true })).toBeEnabled();
+    expect(state.attempts).toHaveLength(1);
+  }
   await page.reload();
+  if (surface === "attendance") {
+    await expect(page.getByRole("heading", { name: "Comanda encerrada", exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Pedido atual" })).toHaveCount(0);
+  }
   const verify = page.getByRole("button", { name: "Verificar mesmo pedido", exact: true });
   await expect(verify).toBeEnabled();
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBe(saved);
