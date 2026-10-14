@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
@@ -46,16 +46,16 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   const tableResult = await browserRequest.post("/api/pos/hospitality/tables/", { data: { label: "Attendance test", guest_ordering_mode: "DIRECT" } });
   expect(tableResult.ok()).toBeTruthy();
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  await page.getByRole("button", { name: "Ocupar mesa Attendance test" }).click();
+  await page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
-  await expect(page.getByText("Atendimento browser test", { exact: true }).last()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Voltar" }).click();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
   await page.getByRole("button", { name: "Concluir limpeza" }).click();
-  await expect(page.getByRole("button", { name: "Ocupar mesa Attendance test" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" })).toBeVisible();
   await page.getByRole("button", { name: "Sair", exact: true }).click();
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeVisible();
   expect(errors).toEqual([]);

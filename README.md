@@ -1,5 +1,7 @@
 # Rodada
 
+> **Identidade visual Rodada v1 (13/10/2026):** [guia](docs/design/brand-v1.md) · [SVGs canônicos](assets/brand/v1) · [verificação](scripts/verify-brand-v1.py). Logotipo orgânico e símbolo de líquido/bolhas, base visual da landing e dos apps.
+
 **Rodada é um PDV operacional para bares cheios — com dispatch, comandas flexíveis, identidade opcional e pagamentos no núcleo.**
 
 O primeiro piloto é o Bar do Aderlan: operação de alto fluxo, ambiente físico flexível, muitos clientes recorrentes e atendimento que não cabe bem no modelo tradicional de “mesa fixa + pedido + conta no fim”.
@@ -21,9 +23,9 @@ A tese não é construir só um CRM ou uma camada em cima de outro PDV. Vamos **
 - o sistema deve funcionar melhor no pico, não pior.
 
 
-## Meta de entrega: 09/10/2026 à noite
+## Fotografia histórica: meta de 09/10/2026 à noite
 
-A prioridade imediata é uma **demo operacional integrada e repetível em ambiente de teste** (Atendimento Android → pedido → Bar/Cozinha → pagamento parcial/manual → fechamento → Gerência), com evidência real em PostgreSQL, segurança financeira e resultado GO/NO-GO documentado. **Não equivale a homologação de produção nem substituição do VRSystem.** Veja o [plano de execução de sexta-feira](docs/architecture/2026-10-09-demo-readiness.md) para prioridades P0/P1, frentes paralelas, roteiro de turno, freeze, critérios e riscos externos.
+Naquela data, a prioridade era uma **demo operacional integrada e repetível em ambiente de teste** (Atendimento Android → pedido → Bar/Cozinha → pagamento parcial/manual → fechamento → Gerência), com evidência real em PostgreSQL, segurança financeira e resultado GO/NO-GO documentado. **Não equivale a homologação de produção nem substituição do VRSystem.** Veja o [plano de execução de sexta-feira](docs/architecture/2026-10-09-demo-readiness.md) para prioridades P0/P1, frentes paralelas, roteiro de turno, freeze, critérios e riscos externos.
 
 ## Marca e domínios canônicos
 
@@ -35,22 +37,22 @@ Os cinco ZIPs em `prototype/` foram integrados como [referências executáveis](
 
 Cozinha, Bar, Cliente/QR e Gerência têm interfaces conectadas à API. A [Spec 020](specs/020-web-operational-completion/spec.md) entrega Quick Catalog com busca/reutilização e criação auditada, histórico da comanda do cliente com atualização a cada cinco segundos, seleção/revisão de fechamentos antigos mesmo com turno ativo e relatórios operacionais por período com CSV. Os ícones usam fallback; a integração de IA foi adiada pelo usuário. Consulte a [entrega e validação](docs/development/web-operational-completion.md), o [relatório visual](docs/design/visual-parity-audit.md) e as [instruções Web](apps/web/README.md). O roadmap abaixo também descreve capacidades futuras; não implica que todo módulo esteja implementado. Paridade visual total e publicação em produção não são declaradas.
 
-A marca do produto é **Rodada** e o domínio canônico é **`rodada.ai`**.
+A marca do produto é **Rodada** e o domínio canônico é **`rodada.bar`**.
 
 Hosts públicos planejados, agora **por estabelecimento** (ADR 0016 / Spec 025):
 
 | Uso | URL exemplo |
 | --- | --- |
-| Institucional | `rodada.ai` |
-| Bar do Aderlan | `bardoaderlan.rodada.ai` |
-| Cozinha do bar | `bardoaderlan.rodada.ai/cozinha` |
-| Gerência do bar | `bardoaderlan.rodada.ai/gerencia` |
-| Bar, Caixa e QR | `bardoaderlan.rodada.ai/bar`, `/caixa`, `/m/:token` |
-| Administração da plataforma (futuro) | `admin.rodada.ai` |
-| API | `api.rodada.ai` |
+| Institucional | `rodada.bar` |
+| Bar do Aderlan | `bardoaderlan.rodada.bar` |
+| Cozinha do bar | `bardoaderlan.rodada.bar/cozinha` |
+| Gerência do bar | `bardoaderlan.rodada.bar/gerencia` |
+| Bar, Caixa e QR | `bardoaderlan.rodada.bar/bar`, `/caixa`, `/m/:token` |
+| Administração da plataforma (futuro) | `admin.rodada.bar` |
+| API | `api.rodada.bar` |
 | Atendimento | Android nativo; companion Web em `/atendimento` |
 
-**Contrato ainda não publicado.** O alias público `bardoaderlan` deve apontar para o Venue interno `bar-do-aderlan` via registro persistente. Os caminhos/hosts legados (e a demo Railway) permanecem até os testes de isolamento por Venue e migração serem concluídos. Não alterar o slug existente para obter a URL curta.
+**Implementação parcial integrada (#116); publicação não homologada.** O código de vínculo host/sessão e aliases existe na main, mas a habilitação pública do wildcard depende de DNS/TLS, testes e aceite do canário em ambiente real. O alias público `bardoaderlan` deve apontar para o Venue interno `bar-do-aderlan` via registro persistente. Os caminhos/hosts legados (e a demo Railway) permanecem até os testes de isolamento por Venue e migração serem concluídos. Não alterar o slug existente para obter a URL curta.
 
 A frase **“Me vê uma rodada aí.”** pode ser usada como assinatura/campanha da marca.
 

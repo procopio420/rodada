@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat real visit ${scenario}`, async ({ page, browser }) => {
   await page.goto("/staff");

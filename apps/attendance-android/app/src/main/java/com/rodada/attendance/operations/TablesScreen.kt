@@ -30,21 +30,33 @@ import androidx.compose.ui.unit.dp
 fun TablesScreen(
     state: OperationsUiState,
     canManageTables: Boolean,
-    onOccupy: (tableId: String, tabId: String?) -> Unit,
     onAttachTab: (occupancyId: String, tabId: String) -> Unit,
     onRelease: (tableId: String) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
+    onOccupy: (String, String?) -> Unit = { _, _ -> },
+    staffId: String = "",
+    canOpenTabs: Boolean = false,
+    onStartService: (String) -> Unit = {},
+    onOpenTableTab: (TableOccupancy, String) -> Unit = { _, _ -> },
+    onClaim: (TableOccupancy) -> Unit = {},
+    onSelectTab: (String) -> Unit = {},
+    canMoveTabs: Boolean = false,
+    onMoveTab: (String, TabSummary) -> Unit = { _, _ -> },
     partySizeEditor: @Composable (String) -> Unit = {},
 ) {
     var occupyingTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var openingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
+    var takingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
+    var newLabel by rememberSaveable { mutableStateOf("") }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
     var releasingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var releasingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
     var releasingGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
     var releasingLabel by rememberSaveable { mutableStateOf("") }
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
-    val assignableTabs = state.tabs.filter { it.state != "CLOSED" && it.id !in attachedTabIds }
+    var movingTabId by rememberSaveable { mutableStateOf<String?>(null) }
+    val assignableTabs = state.tabs.filter { it.state !in setOf("CLOSED", "CANCELLED") && (canMoveTabs || it.id !in attachedTabIds) }
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -62,9 +74,14 @@ fun TablesScreen(
         items(state.tables, key = { it.id }) { table ->
             TableCard(
                 table = table,
-                busy = state.submitting,
+                busy = state.submitting || state.pendingTableService != null,
                 canManage = canManageTables,
-                onOccupy = { occupyingTableId = table.id },
+                onOccupy = { if (table.tableServiceEnabled) onStartService(table.id) else occupyingTableId = table.id },
+                staffId = staffId,
+                canOpenTabs = canOpenTabs && table.tableServiceEnabled,
+                onNewTab = { newLabel = ""; openingOccupancy = it.id },
+                onClaim = { if (it.responsibleStaffId != null && it.responsibleStaffId != staffId) takingOccupancy = it.id else onClaim(it) },
+                onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
                     table.activeOccupancy?.let {
@@ -124,14 +141,40 @@ fun TablesScreen(
             },
         )
     }
-    attachingOccupancyId?.let { occupancyId ->
+
+    state.tables.mapNotNull { it.activeOccupancy }.firstOrNull { it.id == openingOccupancy }?.let { occupancy ->
+        AlertDialog(onDismissRequest = { if (!state.submitting && state.pendingTableService == null) openingOccupancy = null },
+            title = { Text("Nova comanda nesta mesa") }, text = {
+                androidx.compose.material3.OutlinedTextField(value = newLabel, onValueChange = { newLabel = it.take(120) },
+                    label = { Text("Nome ou apelido (opcional)") }, enabled = !state.submitting && state.pendingTableService == null)
+            }, confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = { onOpenTableTab(occupancy, newLabel); openingOccupancy = null }) { Text("Abrir e pedir") } },
+            dismissButton = { TextButton(enabled = !state.submitting && state.pendingTableService == null, onClick = { openingOccupancy = null }) { Text("Cancelar") } })
+    }
+    state.tables.mapNotNull { it.activeOccupancy }.firstOrNull { it.id == takingOccupancy }?.let { occupancy ->
+        AlertDialog(onDismissRequest = { takingOccupancy = null }, title = { Text("Assumir atendimento?") },
+            text = { Text("${occupancy.responsibleStaffName} está responsável. Você também pode atender sem assumir.") },
+            confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = { onClaim(occupancy); takingOccupancy = null }) { Text("Confirmar transferência") } },
+            dismissButton = { TextButton(onClick = { takingOccupancy = null }) { Text("Atender sem assumir") } })
+    }
+    movingTabId?.let { id -> state.tabs.firstOrNull { it.id == id }?.let { tab ->
+        val origin = state.tables.firstOrNull { it.activeOccupancy?.tabs?.any { it.id == id } == true }
+        val destination = state.tables.firstOrNull { it.activeOccupancy?.id == attachingOccupancyId }
+        AlertDialog(onDismissRequest = { movingTabId = null }, title = { Text("Mover comanda?") },
+            text = { Text("${tab.displayLabel} · ${tab.id.take(8)}: Mesa ${origin?.label} → Mesa ${destination?.label}. O saldo permanece nesta comanda.") },
+            confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = {
+                attachingOccupancyId?.let { onMoveTab(it, tab) }; movingTabId = null; attachingOccupancyId = null
+            }) { Text("Confirmar mudança de mesa") } },
+            dismissButton = { TextButton(onClick = { movingTabId = null }) { Text("Cancelar") } })
+    } }
+    attachingOccupancyId?.takeIf { movingTabId == null }?.let { occupancyId ->
         AssignTabDialog(
-            tabs = assignableTabs,
+            tabs = assignableTabs.filter { tab -> state.tables.firstOrNull { it.activeOccupancy?.id == occupancyId }?.activeOccupancy?.tabs?.none { it.id == tab.id } != false },
+            locations = state.tables.flatMap { table -> table.activeOccupancy?.tabs.orEmpty().map { it.id to "Mesa ${table.label}" } }.toMap(),
             busy = state.submitting,
             onDismiss = { attachingOccupancyId = null },
             onAssign = { tabId ->
-                onAttachTab(occupancyId, tabId)
-                attachingOccupancyId = null
+                if (tabId in attachedTabIds) movingTabId = tabId
+                else { onAttachTab(occupancyId, tabId); attachingOccupancyId = null }
             },
         )
     }
@@ -147,6 +190,11 @@ private fun TableCard(
     onRelease: () -> Unit,
     onStartCleaning: () -> Unit,
     onCompleteCleaning: () -> Unit,
+    staffId: String,
+    canOpenTabs: Boolean,
+    onNewTab: (TableOccupancy) -> Unit,
+    onClaim: (TableOccupancy) -> Unit,
+    onSelectTab: (String) -> Unit,
     partySizeEditor: @Composable (String) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -157,17 +205,25 @@ private fun TableCard(
             }
             table.activeOccupancy?.let { occupancy ->
                 Text("Em uso · ${occupancy.tabs.size} comanda${if (occupancy.tabs.size == 1) "" else "s"}")
-                occupancy.tabs.forEach { tab -> Text("• ${tab.displayLabel}") }
+                Text(if (occupancy.responsibleStaffId == staffId) "Atendimento: você" else occupancy.responsibleStaffName?.let { "Atendimento: $it" } ?: "Sem responsável")
+                if (occupancy.serviceAttention in setOf("UNASSIGNED_GUEST_ORDER", "UNASSIGNED_READY")) {
+                    Text("Pedido via QR · Sem responsável", fontWeight = FontWeight.Bold)
+                    Text("${occupancy.guestOrderCount} pedido(s) · ${if (occupancy.serviceAttention == "UNASSIGNED_READY") "Pedido pronto" else "Confirmado"}")
+                    Text(serviceOrderAgeLabel(occupancy.oldestGuestOrderAt))
+                }
+                occupancy.tabs.forEach { tab -> OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) { Text("${tab.displayLabel} · ${tab.displayReference.ifBlank { tab.id.take(8) }}") } }
+                if (canOpenTabs) Button(onClick = { onNewTab(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
+                if (canManage && table.tableServiceEnabled && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
             } ?: Text("Sem ocupação ativa")
             if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
             if (!canManage) return@Column
             table.activeOccupancy?.let { occupancy -> androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) } }
             when (table.status) {
-                "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Ocupar mesa") }
+                "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (table.tableServiceEnabled) "Iniciar atendimento" else "Ocupar mesa") }
                 "OCCUPIED" -> {
                     table.activeOccupancy?.let { occupancy ->
                         OutlinedButton(onClick = { onAttach(occupancy.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                            Text("Adicionar comanda")
+                            Text("Vincular comanda existente")
                         }
                     }
                     Button(onClick = onRelease, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Liberar mesa") }
@@ -178,6 +234,40 @@ private fun TableCard(
         }
     }
 }
+
+@Composable
+private fun AssignTabDialog(
+    tabs: List<TabSummary>,
+    locations: Map<String, String>,
+    busy: Boolean,
+    onDismiss: () -> Unit,
+    onAssign: (String) -> Unit,
+) = AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Vincular comanda existente") },
+    text = {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (tabs.isEmpty()) Text("Não há comandas abertas disponíveis.")
+            tabs.forEach { tab ->
+                OutlinedButton(onClick = { onAssign(tab.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text("${tab.displayLabel} · ${tab.id.take(8)} · ${locations[tab.id]?.let { "$it · Mover" } ?: "Sem mesa"}")
+                }
+            }
+        }
+    },
+    confirmButton = {},
+    dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+)
+
+private fun String.tableStatusLabel(): String =
+    when (this) {
+        "AVAILABLE" -> "DISPONÍVEL"
+        "OCCUPIED" -> "EM USO"
+        "DIRTY" -> "AGUARDA LIMPEZA"
+        "CLEANING" -> "LIMPANDO"
+        "OUT_OF_SERVICE" -> "FORA DE SERVIÇO"
+        else -> this
+    }
 
 @Composable
 private fun OccupyTableDialog(
@@ -203,36 +293,3 @@ private fun OccupyTableDialog(
     confirmButton = {},
     dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
 )
-
-@Composable
-private fun AssignTabDialog(
-    tabs: List<TabSummary>,
-    busy: Boolean,
-    onDismiss: () -> Unit,
-    onAssign: (String) -> Unit,
-) = AlertDialog(
-    onDismissRequest = onDismiss,
-    title = { Text("Adicionar comanda") },
-    text = {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (tabs.isEmpty()) Text("Não há comandas abertas disponíveis.")
-            tabs.forEach { tab ->
-                OutlinedButton(onClick = { onAssign(tab.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                    Text(tab.displayLabel)
-                }
-            }
-        }
-    },
-    confirmButton = {},
-    dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
-)
-
-private fun String.tableStatusLabel(): String =
-    when (this) {
-        "AVAILABLE" -> "DISPONÍVEL"
-        "OCCUPIED" -> "EM USO"
-        "DIRTY" -> "AGUARDA LIMPEZA"
-        "CLEANING" -> "LIMPANDO"
-        "OUT_OF_SERVICE" -> "FORA DE SERVIÇO"
-        else -> this
-    }

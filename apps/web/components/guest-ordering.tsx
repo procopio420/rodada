@@ -127,10 +127,10 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     setLoading(true);
     setNotice("");
     try { const cached = JSON.parse(sessionStorage.getItem(`rodada.guest.catalog.${qrToken}`) || "null"); if (cached) { setProducts(cached.products); setCatalogCachedAt(cached.fetchedAt); } } catch {}
-    let stored: string, recovering: boolean;
-    try { stored = sessionStorage.getItem(storageKey) || ""; recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
+    const stored = qrToken;
+    let recovering: boolean;
+    try { sessionStorage.removeItem(storageKey); recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
     catch { setNotice("Não foi possível acessar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
-    if (recovering && !stored) { setNotice("Há um pedido da visita original aguardando confirmação. Peça ajuda à equipe."); setLoading(false); return; }
     const result = recovering ? await guestApi<Context>("context/", stored) : await guestApi<Context>("qr/resolve/", stored, {
       method: "POST", body: JSON.stringify({ token: qrToken }),
     });
@@ -141,13 +141,13 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       return;
     }
     const body = result.body as Context;
-    const token = body.guest_session_token || stored;
+    const token = stored;
     if (!token) {
       setNotice("Não foi possível iniciar sua sessão. Escaneie o QR novamente.");
       setLoading(false);
       return;
     }
-    try { sessionStorage.setItem(storageKey, token); } catch { setNotice("Não foi possível guardar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
+    // Authorization stays in a host-only HttpOnly cookie, never sessionStorage.
     setGuestToken(token);
     setContext(body);
     await loadCatalog(token);

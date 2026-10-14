@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 for (const scenario of [360, 390, 430, "revoked"] as const) test(`Guest committed order recovery ${scenario}`, async ({ page, browser }) => {
   await page.goto("/staff");

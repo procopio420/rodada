@@ -1,40 +1,39 @@
 # Public routing contract — Rodada multiestabelecimento
 
-Updated 2026-10-12. **Design/implementation backlog, not an announcement of live domains.**
+**Atualizado:** 2026-10-13. **Decisão canônica:** `rodada.bar` ([ADR 0018](../adr/0018-rodada-bar-canonical-domain.md)). **Importante:** contrato de domínio e código mergeado **não são** certificado de DNS/TLS público nem homologação de piloto.
 
-## Canonical example
+O hostname identifica o estabelecimento (Venue); o path identifica o módulo. `bardoaderlan` é um alias externo para o `Venue.slug` interno `bar-do-aderlan`, sem alterar seu ID.
 
-The hostname names the physical Venue; URL path names an experience. Public alias `bardoaderlan` is mapped to existing internal Venue `bar-do-aderlan` through a future persistent host registry.
-
-| Audience | Target URL | Current internal app route |
+| Uso | URL canônica desejada | Rota interna compatível |
 | --- | --- | --- |
-| Entry/login | `https://bardoaderlan.rodada.ai/` | `/staff` |
-| Attendance companion | `https://bardoaderlan.rodada.ai/atendimento` | `/attendance` |
-| Bar | `https://bardoaderlan.rodada.ai/bar` | `/bar` |
-| Kitchen | `https://bardoaderlan.rodada.ai/cozinha` | `/kitchen` |
-| Management | `https://bardoaderlan.rodada.ai/gerencia` | `/manage` |
-| Cash | `https://bardoaderlan.rodada.ai/caixa` | `/cash` |
-| Reports | `https://bardoaderlan.rodada.ai/relatorios` | `/reports` |
-| Guest QR | `https://bardoaderlan.rodada.ai/m/<opaque-token>` | `/guest/<opaque-token>` |
+| Site institucional | `https://rodada.bar/` | `apps/landing` |
+| Entrada / staff do Aderlan | `https://bardoaderlan.rodada.bar/` | `/staff` |
+| Atendimento Web | `https://bardoaderlan.rodada.bar/atendimento` | `/attendance` |
+| Bar | `https://bardoaderlan.rodada.bar/bar` | `/bar` |
+| Cozinha | `https://bardoaderlan.rodada.bar/cozinha` | `/kitchen` |
+| Gerência | `https://bardoaderlan.rodada.bar/gerencia` | `/manage` |
+| Caixa | `https://bardoaderlan.rodada.bar/caixa` | `/cash` |
+| Relatórios | `https://bardoaderlan.rodada.bar/relatorios` | `/reports` |
+| Guest QR | `https://bardoaderlan.rodada.bar/m/<opaque-token>` | `/guest/<opaque-token>` |
+| API técnica compartilhada | `https://api.rodada.bar/` | Django API, sujeito a deploy/ingress |
+| Admin da plataforma (futuro) | `https://admin.rodada.bar/` | Não implementado |
 
-`rodada.ai` is product marketing; `admin.rodada.ai` is future platform administration; `api.rodada.ai` is shared API infrastructure. They are not Venues.
-
-## Trust flow
+## Fluxo de confiança
 
 ```text
-HTTPS ingress (trusted Host; sanitized forwarded headers)
-    -> hostname registry (unique hostname -> Venue UUID; fail closed)
-    -> Next BFF/proxy (module path -> existing internal route)
-    -> Django API checks:
-         staff: session.venue_id == host venue_id + capability
-         guest: token/session/occupancy.venue_id == host venue_id
-    -> only authorized Venue business rows
+HTTPS / ingress confiável
+  → Host normalizado, reservado/verificado e VenueDomain → Venue UUID
+  → Next BFF same-origin e prova assinada ao Django
+  → sessão staff / guest / tokens / cookies correspondem ao Venue
+  → Django autoriza capability e consulta/ação com scoping por Venue
 ```
 
-The host does not confer auth. No client-controlled `X-Rodada-Venue`, `X-Forwarded-Host` or `venue_id` may expand access. Legacy demo paths stay while enforcing API scopes; canonical URLs only go live after binding and two-Venue negative tests.
+A presença de `Host` **não autentica**. Headers controlados pelo navegador (`X-Forwarded-Host`, `X-Rodada-*`, query `venue`) não escolhem Venue. Desconhecido/inativo falha fechado; token guest de outro Venue não revela existência. Não usar labels do domínio como slug de banco.
 
-## Hostname vs slug
+## Estado de implementação vs rollout
 
-`bardoaderlan.rodada.ai` is a short brand-facing alias. Existing `bar-do-aderlan` is the database slug and stays unchanged. A network of Venues may later belong to a single `Organization/Tenant`, but that is not implemented or silently implied by hostname routing.
+- **Código:** PR [#116](https://github.com/procopio420/rodada/pull/116) mergeado em 13/10, acrescentando sessão/BFF/guest vinculados a host, aliases e testes; `RODADA_ENABLE_TENANT_HOST_UI` controla liberação ampliada. PR [#101](https://github.com/procopio420/rodada/pull/101) ainda aberto na fotografia inicial desta atualização; não presumir que seus commits foram todos incorporados.
+- **Ambiente:** wildcard DNS, TLS, forwarded headers e isolamento de dois Venues no deploy real devem ser observados e registrados; ainda não certificados por este documento.
+- **Compatibilidade:** preservar Railway e localhost, rotas internas/Android e QR antigo enquanto migração não tiver aceite. Não redirecionar tokens de QR entre domínios nem compartilhar cookies entre subdomínios.
 
-See [ADR 0016](../adr/0016-tenant-hostname-module-paths.md) and [Spec 025](../../specs/025-tenant-host-routing/spec.md).
+Critérios de aceite: [Spec 025](../../specs/025-tenant-host-routing/spec.md), [acceptance](../../specs/025-tenant-host-routing/acceptance.md), [preview/rollback](../ops/spec025-preview-rollout.md). Decisão arquitetural original de hostname por Venue em [ADR 0016](../adr/0016-tenant-hostname-module-paths.md); troca de raiz em ADR 0018.

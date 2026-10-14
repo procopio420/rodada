@@ -64,5 +64,5 @@ for (const mode of ["rejection", "snapshot", "readback", "tampered", "session", 
   await page.getByRole("button", { name: "Verificar mesmo item: A", exact: true }).click();
   await expect(page.getByText(mode === "session" ? /pertencem à sessão original/ : /Resultado ainda não confirmado/)).toBeVisible();
   expect(await page.evaluate(key => sessionStorage.getItem(key), key)).toBe(saved);
-  expect(attempts).toHaveLength(mode === "readback" ? 2 : 1);
+  await expect.poll(() => attempts.length).toBe(mode === "readback" ? 2 : 1);
 });

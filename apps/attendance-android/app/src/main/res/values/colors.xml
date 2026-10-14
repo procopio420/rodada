@@ -3,4 +3,5 @@
     <!-- Shared tokens: docs/design/system.md / Spec 021. -->
     <color name="rodada_background">#120F0C</color>
     <color name="rodada_paper">#F3ECE1</color>
+    <color name="rodada_amber">#F5A524</color>
 </resources>

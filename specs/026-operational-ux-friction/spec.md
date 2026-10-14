@@ -433,3 +433,14 @@ não exibem contexto alternativo. Correção sem pagamento explícito não é in
 Fora de escopo: correções sem pagamento, telas de decisão, PIN contextual e projeção.
 Aceite: item exato entre vários, correção aplicada vinculada a pagamento original,
 IDs/autorizações/sessão/falhas, zero POST, retorno local e mobile/a11y/visual completo.
+
+## Integração de release com Spec027/tenant
+Preservar rascunhos de todas as Tabs da mesma sessão no armazenamento durável de
+Spec027, mantendo o journal financeiro imutável de Spec026 como única origem de
+replay. Formato de rascunho v2 guarda seleção e mapa de drafts; v1 sem comando pode
+ser migrado. V1 com chave/payload ambíguos fica preservado e bloqueia nova ação para
+revisão; não criar outro comando. Sessão guest usa cookie HttpOnly, QR é apenas
+seletor público; pendência consulta contexto existente, sem iniciar outra visita.
+Atendimento por mesa, responsabilidade e modo legado coexistem com confirmação de
+liberação e navegação contextual. Integração exige testes de ambas as specs e
+revisor independente no SHA final, sem relaxar auditoria, pagamentos ou autorização.

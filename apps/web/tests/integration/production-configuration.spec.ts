@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Real confirmed production configurations ${station} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/staff");

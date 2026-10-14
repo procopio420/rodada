@@ -8,9 +8,10 @@ for name in DJANGO_SECRET_KEY POSTGRES_HOST POSTGRES_PORT POSTGRES_DB POSTGRES_U
   fi
 done
 source "$(dirname "$0")/runtime-profile.sh"
-export DJANGO_ALLOWED_HOSTS="127.0.0.1,localhost"
+export DJANGO_ALLOWED_HOSTS="${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost}"
 export RODADA_PAYMENT_SIMULATION=false
 export RODADA_API_BASE_URL=http://127.0.0.1:8000
+export RODADA_BFF_HOST_SECRET="${RODADA_BFF_HOST_SECRET:-$(python -c 'import secrets; print(secrets.token_hex(32))')}"
 
 cd /app/apps/api
 for attempt in $(seq 1 30); do

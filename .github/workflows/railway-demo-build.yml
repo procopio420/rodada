@@ -34,9 +34,21 @@ jobs:
             -e POSTGRES_DB=rodada_demo_ci \
             -e POSTGRES_USER=rodada_ci \
             -e POSTGRES_PASSWORD=ci-local-only \
-            --health-cmd="pg_isready -U rodada_ci -d rodada_demo_ci" \
+            --health-cmd="pg_isready -h 127.0.0.1 -U rodada_ci -d rodada_demo_ci" \
             --health-interval=3s --health-retries=30 \
             postgres:17
+          # initdb temporarily starts a socket-only server. Wait for permanent TCP readiness.
+          for attempt in $(seq 1 60); do
+            if [ "$(docker inspect -f '{{.State.Health.Status}}' rodada-demo-postgres)" = healthy ]; then
+              break
+            fi
+            if [ "$attempt" = 60 ]; then
+              docker logs rodada-demo-postgres --tail 100
+              echo "PostgreSQL did not become ready" >&2
+              exit 1
+            fi
+            sleep 2
+          done
           docker run -d --name rodada-demo-app --network rodada-demo-ci \
             -p 127.0.0.1:18080:8080 \
             -e PORT=8080 \
@@ -80,11 +92,14 @@ jobs:
           for page in staff attendance bar kitchen manage cash reports; do
             status=$(curl -s -L -o /dev/null -w '%{http_code}' "http://127.0.0.1:18080/$page")
             echo "/$page -> HTTP $status"
-            test "$status" = "200"
+            if [ "$status" != "200" ]; then
+              docker exec rodada-demo-app nginx -T 2>&1 | tail -100
+              docker exec rodada-demo-app node -e 'Promise.all([3000,8000].map(async port => { const response = await fetch(`http://127.0.0.1:${port}/manage`); console.log(`Direct port ${port}: ${response.status}`); })).catch(error => { console.error(error.message); process.exitCode = 1; })'
+              exit 1
+            fi
           done
           python3 scripts/verify-aderlan-staging.py --base http://127.0.0.1:18080 \
             --evidence /tmp/rodada-staging-surface-check.json
-          docker logs rodada-demo-app --tail 100
       - name: Wait for canonical Django API and completed seed
         shell: bash
         run: |
@@ -106,6 +121,41 @@ jobs:
             fi
             sleep 2
           done
+      - name: Verify tenant ingress and shared API after Django readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Security review regression: ingress preserves guest pages, shared
+          # API for native/webhooks, and fresh pilot domain after migrations.
+          host_status() {
+            curl -sS -o /dev/null -w '%{http_code}' -H "Host: $1" "http://127.0.0.1:18080$2"
+          }
+          assert_host_status() {
+            local host="$1" path="$2" expected="$3" actual
+            actual=$(host_status "$host" "$path")
+            echo "$host $path -> HTTP $actual (expected $expected)"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "FAIL: ingress host routing: $host $path returned $actual, expected $expected" >&2
+              curl -sS -i -H "Host: $host" "http://127.0.0.1:18080$path" | head -c 900 || true
+              exit 1
+            fi
+          }
+          assert_host_status api.rodada.bar /ready/ 200
+          assert_host_status bardoaderlan.rodada.bar /api/venue/context 200
+          assert_host_status bardoaderlan.rodada.bar /cozinha 200
+          assert_host_status bardoaderlan.rodada.bar /auth/me/ 403
+          assert_host_status bardoaderlan.rodada.bar /guest/qr-test-token 200
+          assert_host_status naocadastrado.rodada.bar /api/venue/context 421
+          # This SumUp handler ignores unsigned notifications for unknown checkouts;
+          # its 204 proves the shared API host is not incorrectly parsed as a Venue.
+          status=$(curl -sS -o /dev/null -w '%{http_code}' -X POST \
+            -H "Host: api.rodada.bar" -H 'Content-Type: application/json' \
+            -d '{}' \
+            http://127.0.0.1:18080/payments/webhooks/sumup/00000000-0000-0000-0000-000000000000/)
+          echo "api.rodada.bar SumUp webhook -> HTTP $status (expected 204)"
+          test "$status" = "204"
+          echo "PASS: reserved API, tenant BFF, no direct token endpoints, unknown host, guest QR UI, PSP callback"
+          docker logs rodada-demo-app --tail 100
       - name: Submit canonical test order and verify both production queues
         shell: bash
         run: |

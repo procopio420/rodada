@@ -8,6 +8,8 @@ on:
       - "apps/api/**"
       - "prototype/**"
       - ".github/workflows/web.yml"
+      - "scripts/quality/**"
+      - "scripts/tests/test_quality_added_lines.py"
   push:
     branches: [main]
     paths:
@@ -29,7 +31,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: public.ecr.aws/docker/library/postgres:17
+        image: mirror.gcr.io/library/postgres:17
         env:
           POSTGRES_DB: rodada_web_e2e
           POSTGRES_USER: rodada_test
@@ -41,6 +43,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
@@ -66,9 +70,23 @@ jobs:
         working-directory: apps/web
         run: npm run typecheck
 
+      - name: ESLint Next.js 16 — full audit, fail on new/fatal diagnostics
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/quality/check_added_lines.py --kind eslint --base "$BASE_SHA"
+
+      - name: New Web source safety directives (added lines only)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/quality/check_added_lines.py --kind web --base "$BASE_SHA"
+
       - name: Staff session coordination tests
         working-directory: apps/web
         run: npm run test:auth
+
+      - name: Tenant path and hostname regression tests
+        working-directory: apps/web
+        run: npm run test:tenant
 
       - name: Build
         working-directory: apps/web
@@ -76,9 +94,13 @@ jobs:
           RODADA_API_BASE_URL: http://127.0.0.1:8100
         run: npm run build
 
-      - name: Visual, responsive and accessibility gates
+      - name: Table-service gateway authentication and financial isolation
         working-directory: apps/web
-        run: npm run test:visual
+        run: npm run test:table-service
+
+      - name: Spec 027 focused responsive and recovery contracts
+        working-directory: apps/web
+        run: npm run test:visual -- table-service.spec.ts
 
       - name: Real Web BFF API workflows
         working-directory: apps/web
@@ -89,6 +111,10 @@ jobs:
           POSTGRES_PASSWORD: local-ci-only
           POSTGRES_HOST: 127.0.0.1
         run: npm run test:integration
+
+      - name: Visual, responsive and accessibility gates
+        working-directory: apps/web
+        run: npm run test:visual
 
       - name: Upload visual evidence and failure traces
         if: always()

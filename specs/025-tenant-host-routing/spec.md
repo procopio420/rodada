@@ -1,8 +1,8 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** Partial implementation — pilot entry screen only; security and host registry pending
+**Status:** PR #116 MERGEADO na main em 13/10 (código P0/P1); aceite integrado, DNS/TLS wildcard e ativação pública ainda NÃO HOMOLOGADOS. PR #101 permanece independente e aberto nesta fotografia.
 **Date:** 2026-10-12
-**Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md)
+**Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md), [ADR 0018](../../docs/adr/0018-rodada-bar-canonical-domain.md)
 
 ## Problem / Outcome
 
@@ -75,3 +75,21 @@ See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md)
 - First UI slice only recognizes the literal pilot host to display navigation. Existing routes and login remain intact. This is **not** hostname-to-Venue resolution and confers no access.
 - Do not enable wildcard DNS or claim multi-tenant isolation until registry, API/BFF session binding, guest checks, permissions and two-Venue negative tests pass.
 - Existing internal module URLs remain linked during migration; canonical Portuguese paths are a later slice.
+
+## 2026-10-13 — P1 implementation via PR #116 (mergeado, não homologado)
+
+- The PR #110 alias rewrite matrix has been ported and extended to all verified tenant hosts once `RODADA_ENABLE_TENANT_HOST_UI=true` is enabled. The pilot host remains the default canary.
+- Contextual BFF login resolves the authoritative Django `VenueDomain`, and rejects a typed slug mismatch. The login UI hides the slug field only when the signed host is resolved.
+- Tenant metadata, PWA manifest and guest page title use the verified Venue name; legacy/root hosts retain existing metadata, routes and typed login.
+- Browser+BFF integration fixtures seed two distinct Venues only in the isolated test database. Tests cover wrong-host cookies, login, guest QR, refresh and mutation denial.
+- Preview DNS/TLS, end-to-end shift, P0 security review and final rollout remain external gates. Do not describe this PR as deployed or multi-tenant-ready before validation.
+
+## 2026-10-13 — Visual refinement: establishment module launcher
+
+The verified tenant root `/` is an operational module launcher, not a new login mechanism. Show the approved Rodada wordmark alongside the **server-resolved** Venue name and a persistent, accessible `/staff` link to enter or switch operators. The navigation contains exactly five already-existing destinations: Atendimento (`/atendimento`), Cozinha (`/cozinha`), Bar (`/bar`), Caixa (`/caixa`), Gerência (`/gerencia`). Each card exposes its label, a distinct operational icon and a short description; the entire card is a touch-sized link.
+
+The grid is **2 columns below 768px**, **3 columns from 768px to 1099px** and **4 columns at 1100px and above**. Keep 360/390/430px mobile widths readable without horizontal overflow, preserve visible keyboard focus and reduced motion, and use the existing design tokens and approved SVG. No new role/capability filtering, venue selection, session lookup, permission bypass, or routing changes in this visual slice. Destinations remain protected by the existing backend/BFF authority.
+
+### 2026-10-13 — Larger module pictograms
+
+The five module launch cards should make their pictograms prominent enough to scan quickly during operation. The pictogram remains the existing shared line icon, in the approved accent color; do not create new logos or change module identity. The cards have a **74px icon container and 44px pictogram** below 768px, and **88px / 56px** respectively at tablet/desktop widths. Increase card vertical room to preserve readable labels and at least 44px touch targets; keep the two/three/four-column grid, keyboard focus, route destinations and venue-bound behavior unchanged. These dimensions are pinned in the existing real-Venue Playwright integration test.

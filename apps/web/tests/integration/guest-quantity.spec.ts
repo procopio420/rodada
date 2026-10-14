@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 for (const width of [360, 390, 430]) test(`Guest quantities grouping and committed replay ${width}`, async ({ page, browser }) => {
   await page.goto("/staff"); await page.getByLabel("Estabelecimento").fill("web-e2e");

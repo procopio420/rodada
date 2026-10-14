@@ -35,3 +35,10 @@
 - **NO-GO** if host can choose another Venue, if guest token works under another host, if staff cookies are domain-wide, or if a new hostname routes to default demo.
 - **NO-GO** if DNS, HTTPS, payments, SSE or data isolation are only assumed instead of tested.
 - Feature complete != production-ready. Keep a separate audit trail for any preexisting cross-tenant issues discovered.
+
+## Visual follow-up — Verified Venue launcher (2026-10-13)
+
+- Keep the existing server component and authoritative `readVenueContext` lookup, so no client-supplied tenant name or login token is introduced.
+- Replace the narrow inline-styled root with a CSS-module page shell and approved `/brand/wordmark.svg`; place the operator link in the header and reuse the shared operational SVG icon vocabulary.
+- Define explicit 2/3/4-column CSS breakpoints without modifying module paths or BFF routes.
+- Prove branding and responsive navigation with Playwright against the seeded two-Venue Next/Django integration environment, then review actual mobile/desktop screenshots before rollout.

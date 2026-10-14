@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -119,14 +119,19 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
   await evidence(page, "cash-success");
 
-  // Keep the old access for the explicit stale-session request; SSE may already clear storage.
-  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
-  expect(oldSession).toBeTruthy();
+  // Keep the guest cookie in the browser; JS only supplies the public QR selector
+  // to the BFF. A released visit must revoke the server-side session.
+  const guestCookies = (await guestContext.cookies()).filter(cookie => cookie.name.startsWith("rodada_guest_"));
+  expect(guestCookies).toHaveLength(1);
+  expect(guestCookies[0].httpOnly).toBe(true);
+  expect(guestCookies[0].sameSite).toBe("Lax");
+  expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
+  expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
-  const revoked = await guest.evaluate(async oldSession => {
-    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": oldSession ?? "" } });
+  const revoked = await guest.evaluate(async qrSelector => {
+    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": qrSelector } });
     return { status: result.status, body: await result.json() };
-  }, oldSession);
+  }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
   await guest.reload();
