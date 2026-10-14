@@ -475,7 +475,8 @@ internal fun TabList(
         if (!peak && (!showDeliveries || queue == NowQueue.READY)) items(visibleTabs, key = { it.id }) { tab ->
             TextButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp), enabled = !state.loading && !state.submitting) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(tab.displayLabel.ifBlank { "Sem identificação" }, style = MaterialTheme.typography.headlineSmall, color = RodadaVisual.Paper)
+                    Text(tab.operationalLabel(), style = MaterialTheme.typography.headlineSmall, color = RodadaVisual.Paper)
+                    Text(tab.operationalSubtitle(), style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
                     Text("Comanda ${tab.id.take(8)}", style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
                     Text("${tab.stateLabel()} · ${formatCents(tab.exposureCents)} em aberto", fontFamily = RodadaVisual.Number, color = if (tab.consumptionBlocked) RodadaVisual.Danger else RodadaVisual.Money)
                 }
@@ -567,7 +568,8 @@ internal fun TabWorkspace(
                 item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
                 item {
                     TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
-                    Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text(tab.summary.operationalLabel(), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text(tab.summary.operationalSubtitle(), color = RodadaVisual.Muted)
                     Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
                     OutlinedButton(onClick = onOperations, enabled = !state.submitting) { Text("Operações da comanda") }
                     BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)

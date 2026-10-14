@@ -56,6 +56,8 @@ def lines(document, reprint=False):
         f"Conta gerada em: {data['generated_at']}",
         f"Dia operacional: {data['business_date']}",
     ]
+    if data.get("table_label"):
+        result.insert(result.index("Comanda: " + str(data["tab_label"])), "Local: " + str(data["table_label"]))
     if document.station:
         result += [
             f"Estação: {'Bar' if document.station == 'BAR' else 'Cozinha'}",

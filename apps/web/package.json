@@ -16,6 +16,7 @@
     "test:integration": "playwright test --config playwright.integration.config.ts",
     "test:visual:report": "playwright show-report",
     "test:table-service": "node --test tests/table-service-gateway.test.mjs",
+    "test:identity": "node --experimental-strip-types --test tests/tab-identity.test.mjs",
     "lint": "eslint ."
   },
   "dependencies": {

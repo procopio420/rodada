@@ -36,6 +36,7 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360, 
   await page.getByRole("button", { name: /^Comanda A ·/ }).click();
   await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Fechar comanda", exact: true })).toBeDisabled();
+  await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
   await page.getByLabel("Apelido da comanda (opcional)").fill("Comanda C");
   await page.getByRole("button", { name: "Abrir", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Comanda C", exact: true })).toBeVisible();

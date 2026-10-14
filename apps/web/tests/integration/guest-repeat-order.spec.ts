@@ -23,6 +23,7 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     let resolves = 0;
     guest.on("request", request => { if (request.url().includes("/api/guest/qr/resolve")) resolves++; });
     await guest.goto(`/guest/${table.public_token}`);
+    await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
     await guest.getByLabel("Seu nome ou apelido (opcional)").fill(`Guest repeat ${scenario}`);
     await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
     await guest.getByRole("button", { name: /^Kitchen E2E item/ }).click();

@@ -283,6 +283,8 @@ class OperationsHttpClient(baseUrl: String) {
             consumptionBlocked = json.getBoolean("consumption_blocked"),
             limitWarning = json.getBoolean("limit_warning"),
             actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
+            tableLabel = if (json.isNull("table_label")) null else json.optString("table_label").ifBlank { null },
+            lastTableLabel = if (json.isNull("last_table_label")) null else json.optString("last_table_label").ifBlank { null },
         )
 
     fun requestApproval(accessToken: String, tabId: String, reason: String, key: String) {

@@ -13,6 +13,7 @@ for (const width of [360, 390, 430]) test(`Guest quantities grouping and committ
   const context = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, viewport: { width, height: 900 } });
   try {
     const guest = await context.newPage(); await guest.goto(`/guest/${table.public_token}`);
+    await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
     await guest.getByLabel("Seu nome ou apelido (opcional)").fill(label); await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
     const kitchen = guest.getByRole("button", { name: /^Kitchen E2E item/ }); await kitchen.dblclick();
     const draft = guest.getByRole("region", { name: "Pedido atual" });

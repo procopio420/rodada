@@ -23,6 +23,7 @@ Product.objects.filter(venue__slug='web-e2e',name='Bar E2E item').update(categor
   const context = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`, viewport: { width, height: 900 } });
   try {
     const guest = await context.newPage(); await guest.goto(`/guest/${table.public_token}`);
+    await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
     await guest.getByLabel("Seu nome ou apelido (opcional)").fill(label); await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
     const categories = guest.getByRole("navigation", { name: "Categorias do cardápio" });
     await categories.getByRole("button", { name: "Bebidas (1)", exact: true }).click();

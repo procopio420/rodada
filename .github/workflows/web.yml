@@ -95,6 +95,10 @@ jobs:
         working-directory: apps/web
         run: npm run test:tenant
 
+      - name: Table-first identity regression tests
+        working-directory: apps/web
+        run: npm run test:identity
+
       - name: Build
         working-directory: apps/web
         env:
