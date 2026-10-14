@@ -24,13 +24,13 @@ class ResetGuardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "reset.lock"
             script = (
-                "import sys; from pathlib import Path; "
-                f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r}); "
-                "from e2e_db_guard import file_lock; "
-                "with file_lock(Path(sys.argv[1]), exclusive=False): print('acquired', flush=True)"
+                "import sys\\n"
+                "from pathlib import Path\\n"
+                f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\\n"
+                "from e2e_db_guard import file_lock\\n"
+                "with file_lock(Path(sys.argv[1]), exclusive=False):\\n"
+                "    print('acquired', flush=True)\\n"
             )
-            # A 'with' statement after semicolons is invalid Python. Use lines.
-            script = script.replace("; with file_lock", "\\nwith file_lock")
             with file_lock(path, exclusive=True):
                 process = subprocess.Popen(
                     [sys.executable, "-c", script, str(path)],
