@@ -1,0 +1,263 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][191,169]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,169][380,200]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,200][125,226]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,246][148,334]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[58,268][123,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[188,268][325,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[413,268][503,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa 02 · Comanda sem nome",
+    "content-desc": "",
+    "bounds": "[0,362][451,406]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Rascunho preservado. Confirme ou remova os itens antes de sair.",
+    "content-desc": "",
+    "bounds": "[0,406][780,494]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Taxa de serviço R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,494][409,503]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Total a pagar R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,519][370,563]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pagamentos recebidos R$ 0,00 · estornos R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,579][716,667]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Limite R$ 1.000,00 · disponível R$ 1.000,00",
+    "content-desc": "",
+    "bounds": "[64,683][690,727]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "0% do limite utilizado",
+    "content-desc": "",
+    "bounds": "[64,743][376,787]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pagar",
+    "content-desc": "",
+    "bounds": "[179,837][265,881]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Fechar",
+    "content-desc": "",
+    "bounds": "[507,829][609,873]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Solicitar / aprovar limite",
+    "content-desc": "",
+    "bounds": "[80,973][440,1017]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Adicionar itens",
+    "content-desc": "",
+    "bounds": "[32,1055][302,1098]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Suco",
+    "content-desc": "",
+    "bounds": "[32,1098][748,1230]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText"
+  },
+  {
+    "text": "Buscar no catálogo",
+    "content-desc": "",
+    "bounds": "[64,1098][308,1138]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Sem álcool · 1",
+    "content-desc": "",
+    "bounds": "[32,1242][283,1285]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Suco de maracujá",
+    "content-desc": "",
+    "bounds": "[80,1313][450,1357]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "R$ 9,00",
+    "content-desc": "",
+    "bounds": "[80,1357][450,1401]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "BAR",
+    "content-desc": "",
+    "bounds": "[80,1401][144,1445]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "−",
+    "content-desc": "",
+    "bounds": "[547,1357][566,1401]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1",
+    "content-desc": "",
+    "bounds": "[614,1357][632,1401]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "+",
+    "content-desc": "",
+    "bounds": "[681,1357][700,1401]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "6 itens · R$ 129,00",
+    "content-desc": "",
+    "bounds": "[32,1473][299,1517]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Confirmar pedido",
+    "content-desc": "",
+    "bounds": "[261,1551][520,1595]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

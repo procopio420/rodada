@@ -1,0 +1,272 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][303,207]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "● rodada"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,207][678,264]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Operador de demonstração"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,264][219,316]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "ONLINE"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,332][197,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Ativar modo pico | Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,332][197,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View",
+    "label": "Ativar modo pico"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[56,348][173,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[213,332][506,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Atualizar"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[237,348][482,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Atualizar"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[522,332][776,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Conta"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[570,348][728,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Conta"
+  },
+  {
+    "text": "Mesa 05 · Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[0,468][860,622]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Mesa 05 · Rodadas · demonstração"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,574][828,660]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "KITCHEN"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[80,622][327,644]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "KITCHEN"
+  },
+  {
+    "text": "Pedidos confirmados",
+    "content-desc": "",
+    "bounds": "[32,684][594,762]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedidos confirmados"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[56,798][234,875]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedido"
+  },
+  {
+    "text": "2× Água mineral · R$ 10,00",
+    "content-desc": "",
+    "bounds": "[56,883][501,1037]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "2× Água mineral · R$ 10,00"
+  },
+  {
+    "text": "Pronto",
+    "content-desc": "",
+    "bounds": "[56,1037][215,1094]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pronto"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[501,933][804,1045]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Corrigir"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[549,949][756,1029]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Corrigir"
+  },
+  {
+    "text": "1× Cerveja artesanal · R$ 12,00",
+    "content-desc": "",
+    "bounds": "[56,1102][501,1333]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "1× Cerveja artesanal · R$ 12,00"
+  },
+  {
+    "text": "Em preparo",
+    "content-desc": "",
+    "bounds": "[56,1333][330,1390]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Em preparo"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[501,1190][804,1302]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Corrigir"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[549,1206][756,1286]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Corrigir"
+  },
+  {
+    "text": "1× Fritas da casa · R$ 28,00",
+    "content-desc": "",
+    "bounds": "[56,1398][501,1552]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "1× Fritas da casa · R$ 28,00"
+  },
+  {
+    "text": "Novo",
+    "content-desc": "",
+    "bounds": "[56,1552][181,1609]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Novo"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[501,1448][804,1560]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Corrigir"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[549,1464][756,1544]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Corrigir"
+  }
+]

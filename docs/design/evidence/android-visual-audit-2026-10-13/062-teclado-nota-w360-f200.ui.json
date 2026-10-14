@@ -1,0 +1,152 @@
+[
+  {
+    "text": "Hambúrguer artesanal com queijo curado e molho da casa",
+    "content-desc": "",
+    "bounds": "[0,0][0,0]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Hambúrguer artesanal com queijo curado e molho da casa"
+  },
+  {
+    "text": "Variação · obrigatória",
+    "content-desc": "",
+    "bounds": "[72,0][609,14]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Variação · obrigatória"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,30][648,222]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "✓ Individual · R$ 32,00"
+  },
+  {
+    "text": "✓ Individual · R$ 32,00",
+    "content-desc": "",
+    "bounds": "[120,46][600,206]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "✓ Individual · R$ 32,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,238][648,350]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Duplo · R$ 42,00"
+  },
+  {
+    "text": "Duplo · R$ 42,00",
+    "content-desc": "",
+    "bounds": "[148,254][572,334]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Duplo · R$ 42,00"
+  },
+  {
+    "text": "Complementos · opcional (0–2)",
+    "content-desc": "",
+    "bounds": "[72,366][648,520]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Complementos · opcional (0–2)"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,536][648,728]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Queijo extra + R$ 4,00"
+  },
+  {
+    "text": "Queijo extra + R$ 4,00",
+    "content-desc": "",
+    "bounds": "[120,552][600,712]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Queijo extra + R$ 4,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,744][648,856]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Sem cebola"
+  },
+  {
+    "text": "Sem cebola",
+    "content-desc": "",
+    "bounds": "[206,760][515,831]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Sem cebola"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,872][648,1090]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText",
+    "label": "Pedido especial (opcional)"
+  },
+  {
+    "text": "Pedido especial (opcional)",
+    "content-desc": "",
+    "bounds": "[104,831][616,981]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedido especial (opcional)"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[72,1106][648,1124]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Adicionar · R$ 32,00"
+  },
+  {
+    "text": "Adicionar · R$ 32,00",
+    "content-desc": "",
+    "bounds": "[120,1122][600,1124]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Adicionar · R$ 32,00"
+  }
+]

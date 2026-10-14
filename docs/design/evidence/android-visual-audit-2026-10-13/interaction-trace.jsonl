@@ -1,0 +1,164 @@
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791935201.1714444, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Suco de maracujá", "time_machine": 1791935203.4838781, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791935214.290013, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791935216.6255085, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Duplo · R$ 42,00", "time_machine": 1791935234.360938, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Queijo extra + R$ 4,00", "time_machine": 1791935237.0210586, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Pedido especial (opcional)", "time_machine": 1791935241.4989767, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Adicionar · R$ 46,00", "time_machine": 1791935246.5626245, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791935249.2037647, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Individual · R$ 32,00", "time_machine": 1791935251.860784, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "✓ Queijo extra + R$ 4,00", "time_machine": 1791935254.4705584, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Sem cebola", "time_machine": 1791935257.093477, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Pedido especial (opcional)", "time_machine": 1791935262.2494369, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Adicionar · R$ 32,00", "time_machine": 1791935264.586708, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Editar", "time_machine": 1791935284.6818845, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Individual · R$ 32,00", "time_machine": 1791935287.3483367, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Adicionar · R$ 36,00", "time_machine": 1791935289.9902892, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791935296.0120504, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791935311.5094755, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935325.2835765, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "← Comandas", "time_machine": 1791935329.7896686, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935368.2498903, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar depois de restaurar disponibilidade", "time_machine": 1791935432.2408898, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Confirmar pedido", "time_machine": 1791935495.4072878, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Entendi", "time_machine": 1791935527.9108312, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935538.3686361, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "← Comandas", "time_machine": 1791935545.6002057, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "AGORA", "time_machine": 1791935548.2479248, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Ativar modo pico", "time_machine": 1791935550.8602257, "note": "Automation timestamp; not human service duration"}
+{"kind": "journey-start", "label": "Pico topo → primeira entrega real", "time_machine": 1791935596.207593, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935601.4697459, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935606.7538135, "note": "Automation timestamp; not human service duration"}
+{"kind": "journey-end", "label": "Pico topo → primeira entrega real", "time_machine": 1791935609.1192284, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Assumir chamada", "time_machine": 1791935641.493276, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Sair do modo pico", "time_machine": 1791935647.904181, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "CONTAS", "time_machine": 1791935650.5529099, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Mesas", "time_machine": 1791935699.1319122, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935704.6731281, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935709.9698486, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935720.2139533, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935725.455706, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935757.6848576, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Nova comanda nesta mesa", "time_machine": 1791935764.5302727, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Nome ou apelido (opcional)", "time_machine": 1791935768.8800037, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Abrir e pedir", "time_machine": 1791935771.1945775, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "← Comandas", "time_machine": 1791935795.087573, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "CONTAS", "time_machine": 1791935797.7438512, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935803.3052115, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Rodadas · demonstração", "time_machine": 1791935812.7859623, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935821.0384502, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791935827.4942858, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935849.4360633, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935858.6326113, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935867.726727, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935876.7901773, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935881.983272, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935891.093292, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935896.1429214, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935901.1937227, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935906.2765, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935911.3267128, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935916.3591492, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935921.4263952, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935926.5097485, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935931.5595543, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935936.594303, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791935941.642976, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935952.8092763, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935957.8427176, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935962.9094822, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935967.992722, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935973.0778143, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935978.8626275, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935984.742444, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791935990.1427794, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Entendi", "time_machine": 1791936023.9358294, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791936026.5453677, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936036.860237, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936041.972911, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936051.0065477, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936056.202297, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936065.2270281, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936070.374847, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936075.594846, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936084.7938783, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791936091.3144267, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936115.960877, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936124.9858484, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Entendi", "time_machine": 1791936198.138484, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791936200.791193, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791936246.8279192, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936273.518088, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936297.040247, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936302.1424296, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936307.282356, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936312.3832507, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936317.472582, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936322.541607, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936327.6738505, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936332.7891464, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936337.8927293, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936342.9584472, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936348.0417562, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936353.1440456, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936358.2230196, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936363.3331351, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936368.4644916, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936373.5410073, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936378.6067708, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936383.7217913, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936421.4469013, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936424.3881142, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936427.3601477, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936432.5300872, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936439.3772202, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936442.344063, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936445.3105142, "note": "Automation timestamp; not human service duration"}
+{"kind": "seek-direction-reversal", "label": "Buscar no catálogo", "time_machine": 1791936447.5074458, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936448.2111654, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936451.194197, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936454.160098, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936459.3221304, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936466.1828468, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936469.1720827, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936472.092786, "note": "Automation timestamp; not human service duration"}
+{"kind": "seek-direction-reversal", "label": "Buscar no catálogo", "time_machine": 1791936474.2722416, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936474.9821155, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936477.992405, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791936483.1550243, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "up", "time_machine": 1791936490.1208353, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791936496.2068396, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Cerveja artesanal", "time_machine": 1791936498.5022688, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Confirmar pedido", "time_machine": 1791936546.8984296, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791936899.6714382, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Entendi", "time_machine": 1791936954.5064719, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Atualizar", "time_machine": 1791936957.1951826, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Mesas", "time_machine": 1791937082.2363307, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Alex · Comanda bb60319a", "time_machine": 1791937087.3157318, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "← Comandas", "time_machine": 1791937092.8893058, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "CONTAS", "time_machine": 1791937095.5952158, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937099.0148005, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Rodadas · demonstração", "time_machine": 1791937103.6618748, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937146.4096458, "note": "Automation timestamp; not human service duration"}
+{"kind": "field", "label": "Buscar no catálogo", "time_machine": 1791937152.500306, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937158.93415, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937171.48222, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937177.5543194, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937190.0826283, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937196.186294, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937208.7739768, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937213.3000314, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937216.2838733, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937220.8476458, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937226.911769, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937236.3155005, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937242.3711164, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937248.4271235, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937257.8368971, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937263.9386861, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937269.9859345, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937279.3837454, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Hambúrguer artesanal com queijo curado e molho da casa", "time_machine": 1791937312.9584258, "note": "Automation timestamp; not human service duration"}
+{"kind": "scroll", "label": "down", "time_machine": 1791937323.9268582, "note": "Automation timestamp; not human service duration"}
+{"kind": "tap", "label": "Voltar", "time_machine": 1791937328.47272, "note": "Automation timestamp; not human service duration"}

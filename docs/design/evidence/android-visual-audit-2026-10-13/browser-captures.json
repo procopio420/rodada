@@ -1,0 +1,274 @@
+[
+  {
+    "file": "ref-night-0.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 1",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nAGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:19\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:33\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:55\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:39\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:15\nP29 · 3 Caipirinha\nCARLOS\n0:42\nB2 · Chamou atendimento\nRÊ\nAGORA\nPedir\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-1.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 2",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nAGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:18\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:32\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:54\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:14\nP29 · 3 Caipirinha\nCARLOS\n0:41\nB2 · Chamou atendimento\nRÊ\nAGORA\nPedir\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-2.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 3",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-3.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 4",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS\nCLIENTE\nJOÃO DA OFICINA\nDA CASA\n12 visitas · última sexta\nLimite\nR$ 500\nPendências\nNenhuma\nABRIR CONTA",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-4.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 5",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS\nJOÃO DA OFICINA · OPCIONAL\nONDE ELE ESTÁ?\nBAR PRINCIPAL\nIMÓVEL 2\nCALÇADA\nRUA\nP32\nlivre\nP33\nSeu\nP34\nlivre\nP35\nlivre\nP36\nlivre\nP37\nlivre\nP38\nPedrinho\nP39\nlivre\nP40\nlivre\nP41\nCarlos\nP42\nJuninho\nP43\nlivre\nP44\nMesa\nP45\nlivre\nP46\nlivre\nP47\nlivre\nToque na área no mapa e depois no ponto. Dá pra mover a noite toda.",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-5.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 6",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nHistórico\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n0\nABERTO\nLIMITE\nR$ 500\nFaltam R$ 500 para o limite\nConsumo R$ 0 · Da Casa começa com R$ 500\nHOJE\n—\nNada lançado ainda\nPEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n4\nPedir\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-night-6.png",
+    "source": "night/Main.dc.html",
+    "steps": "rail .step 7",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "text": "PEDIDO PARA · RUA P37\nJoão da Oficina\nCOZINHA\nCADA TOQUE = +1\nFRITAS\nporção\n×1\nCALABRESA\nacebolada\nR$ 42\nBOLINHO\nbacalhau · 6\nR$ 38\nBAR\nÁGUA\nsem gás\nR$ 5\nDOSE\ncachaça\nR$ 9\nGUARANÁ\nlata\nR$ 7\nCOCA\nlata\nR$ 7\nCAIPIRINHA\nlimão\nR$ 22\nORIGINAL\n600 ml\nR$ 16\nBRAHMA\n600 ml\n×4\nHEINEKEN\n600 ml\nR$ 18\n4\nBrahma\n1\nFritas\n→ BAR 4 · COZINHA 1\nR$ 90\nENVIAR · P37",
+    "inspected": false
+  },
+  {
+    "file": "ref-peak-0.png",
+    "source": "peak/Pico.dc.html",
+    "steps": "literal export instance 0",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nMODO PICO · SÓ O ESSENCIAL\n23:14\n7\nPRONTOS\n3\nATRASADOS\n2\nCONTA\nRODADA · RUA\nP37 · P41 · P44 · P46\nMONTAR · 4\nMAIS ANTIGO PRIMEIRO\nCHAMOU\n8:12\nP42\nCalçada\nChamou atendimento\nASSUMIR\nPRONTO\n5:40\nP08\nImóvel 2\n3 Brahma\nPEGAR\nCONTA\n5:02\nP12\nImóvel 2\nPediu a conta\nASSUMIR\nPRONTO\n4:10\nP25\nCalçada\n2 Caipirinha\nPEGAR\nPRONTO\n2:20\nP07\nImóvel 2\n4 Heineken\nPEGAR\nAGORA\n+ PEDIR\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-connectivity-0.png",
+    "source": "connectivity/Offline.dc.html",
+    "steps": "literal export instance 0",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nSem sinal\n3 ações aguardando envio\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n248\nABERTO\nCalculado no aparelho · confirma ao sincronizar\nHOJE\n4\nBrahma\nENTREGUE 21:46\n2\nBrahma\nNA FILA\nPAGAMENTOS\n·\nDinheiro · 22:31\nR$ 200 · NA FILA\nPode seguir atendendo. Pedidos e pagamentos ficam guardados e vão sozinhos quando o sinal voltar. Pix e cartão esperam o sinal.\n+ PEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n+ PEDIR\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-connectivity-1.png",
+    "source": "connectivity/Offline.dc.html",
+    "steps": "literal export instance 1",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 490,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "text": "rodada\nDani · Rua\nSincronizado\n3 ações enviadas · some em 3 s\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n248\nABERTO\nFaltam R$ 252 para o limite\nHOJE\n4\nBrahma\nENTREGUE 21:46\n2\nBrahma\nNO BAR\nPAGAMENTOS\n✓\nDinheiro · 22:31\nR$ 200\n+ PEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n+ PEDIR\nCONTAS",
+    "inspected": false
+  },
+  {
+    "file": "ref-system-0.png",
+    "source": "system/Sistema.dc.html",
+    "steps": "literal export instance 0",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1760,
+      "height": 6743
+    },
+    "text": "rodada\nO PAINEL DE CONTROLE DE UM BAR LOTADO\n\nUm sistema pequeno de propósito. Fundo de bar à noite, papel creme para o que se toca, âmbar de lâmpada para o que pede atenção. Cor só aparece quando quer dizer alguma coisa.\n\n01 · COR\n\nFUNDO QUENTE, SINAIS COM SIGNIFICADO\n\nSeis sinais, cada um com um trabalho só. Eles também diferem em claridade, não só em matiz, para funcionar com daltonismo e sob luz ruim.\n\nChão\n#120F0C · #1B1713 · #252019 · #312A21\nQuatro degraus de superfície. Nada é preto puro.\nPapel\n#F3ECE1\nTexto e botão principal. O que você toca é claro como uma comanda.\nPronto · ok\n#93DB8C\nEstá pronto, foi entregue, foi pago.\nAtenção\n#F5A524\nAlguém chamou, está demorando, algo novo chegou. Também é a marca.\nAtrasado\n#FF5D47\nPassou do tempo ou está travado. Sempre um bloco cheio, nunca só texto.\nDinheiro\n#C3A6FF\nQuer pagar, perto do limite. Separado de \"atrasado\" de propósito.\nEm andamento\n#82B8FF\nAlguém pegou. Azul = já tem dono, não vá junto.\nDA CASA\nDa Casa\n#4A2617 · #F2CFA4\nRelação, não alerta. Cor de madeira de balcão, nunca vermelho.\n\n02 · TEMPO\n\nA IDADE É O SINAL MAIS ALTO DA TELA\n\nToda tarefa carrega um relógio à esquerda. A coluna esquenta aos poucos: o olho vai sozinho para o que está esperando há mais tempo.\n\n0:48\nNovo · neutro\n2:20\nPronto há 2 min\n4:10\nPronto há 4 min\n5:18\nAtrasado · 5 min\n8:12\n8 min · pulsa devagar\n\nChamou atendimento esquenta duas vezes mais rápido (1 e 2 min). Perto do limite não esquenta — dinheiro não é emergência.\n\n03 · TIPO\n\nESTREITO PARA LER DE LONGE, MONO PARA O RELÓGIO\n\nArchivo em largura variável: condensada para nomes e lugares, normal para corpo. JetBrains Mono só para tempo, quantidade e código de lugar — os números não pulam quando mudam. Nada abaixo de 14 px.\n\nTela\nArchivo 900 · 46 · largura 68\nAGORA\nNome\nArchivo 900 · 40 · largura 68\nJOÃO DA OFICINA\nLugar\nArchivo 850 · 30 · largura 76\nP37 · Rua\nDinheiro\nArchivo 800 · 58 · tabular\nR$\n420\nABERTO\nRelógio\nJetBrains Mono 800 · 22–28\n3:42 · P37 · ×4\nCorpo\nArchivo 600 · 18\n4 Brahma prontas\nRótulo\nArchivo 800 · 14 · caixa alta · +0,1em\nCOM A EQUIPE\n\n04 · ESPAÇO E TOQUE\n\nDENSO NA INFORMAÇÃO, LARGO NAS AÇÕES\nESCALA\n4 · 8 · 12 · 16 · 20 · 24 · 32. Margem lateral do celular: 20.\nALVOS\n56 ação de linha · 68 ação principal · 112 ENTREGUE na rodada. Nunca menos de 44.\nSUPERFÍCIES\nLinhas separadas por fio, não cartões. Cartão só para o que flutua: sugestão de rodada, folhas e contadores do pico. Cantos 8 em botões, 0 em listas.\n\n05 · PEÇAS\n\nDOZE PEÇAS FAZEM O PRODUTO INTEIRO\nBOTÕES\nPEGAR\nMOVER\nMONTAR · 3\nENTREGUE\nCOBRAR\nPapel = faça agora. Escuro = secundário. Cor no botão só quando ela já é o significado da linha. A base mais escura dá sensação de tecla.\nRELACIONAMENTO\nDA CASA\nREGULAR\nCONHECIDO\nPAGA NA HORA\nVisitante: sem selo\nVisitante\nR$ 30\nConhecido\nR$ 80\nRegular\nR$ 200\nDa Casa\nR$ 500\nPaga na hora\nR$ 0\nLimite herdado ao abrir a conta. \"Paga na hora\" é como o RESTRICTED aparece para a equipe — nunca \"bloqueado\" ou \"risco\". Na fila, Da Casa vira só a casinha ao lado do nome.\nDINHEIRO E LIMITE\nR$\n420\nLIMITE R$ 500\nFaltam R$ 80 para o limite\nAberto = consumo confirmado − pagamentos. No limite a conta pede ação: receber antes ou um gerente libera — com nome, valor antes/depois e hora na trilha. Sem nota, sem risco, sem score.\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nPRONTO\n0:40\nP37 · Rua\n4 Brahma\nJoão da Oficina\nLEVAR\n✓ confirmado\n1:10\nP29 · 3 Caipirinha\nC\nCARLOS\n\nLinha de tarefa em três estados: livre (botão papel), sua (fundo azul, botão muda de verbo) e da equipe (uma linha só, apagada, com o nome de quem pegou). Ninguém precisa perguntar \"alguém já levou?\".\n\n06 · ESTADOS\n\nNADA TRAVA O ATENDIMENTO\nSEM SINAL\nSem sinal\n3 ações aguardando envio\nFaixa fina, não tela de erro. Tudo continua; o que não foi aparece como na fila.\nSINCRONIZADO\nSincronizado\ntudo foi enviado\nAparece por 3 segundos quando o sinal volta e some sozinho.\nNÃO FOI\nBar não recebeu · P37\nTENTAR\nSó quando o servidor recusa. Diz o que falhou e oferece uma ação.\nVAZIO\nTudo em dia\nNinguém esperando por você agora.\nVazio é bom notícia; dizemos isso em uma linha.\n\n07 · ÍCONES E IMAGENS\n\nDESENHADO PARA O BAR, NÃO TIRADO DE BANCO DE IMAGEM\n\nÍcones de traço 2,2 px, cantos redondos, sempre ao lado de uma palavra — nunca sozinhos num botão que importa. Ilustrações chapadas nas cores da casa: produtos sem marca registrada, retratos no lugar das fotos até o bar ter as reais.\n\nAgora\nContas\nPedir\nBuscar\nPronto\nChamou\nDinheiro\nPix\nCartão\nLugar\nRodada\nDa Casa\nFechar\nBar\nCozinha\nPico\nSem sinal\nNa fila\nPRODUTOS · TILES DO PEDIR, LISTA DA CONTA, LOTE DO BAR\nBrahma 600\nOriginal 600\nHeineken 600\nCaipirinha\nDose\nCoca lata\nGuaraná\nÁgua\nFritas\nCalabresa\nBolinho\nTorresmo\nPESSOAS · ANEL AZUL = EQUIPE\nDani · equipe\nCarlos · equipe\nRê · equipe\nAderlan · gerente\nJoão da Oficina\nDona Cida\nCarlos Mecânico\nJuninho\nBia\nSeu Zé\nRosto ajuda a achar o regular mais rápido que o nome. Sem foto, a inicial no mesmo círculo.\nPLANTA DO BAR · ESCOLHER LUGAR E TRAÇAR A RODADA\nBar principal e Imóvel 2 em cima, calçada no meio, rua embaixo — como o garçom anda. O balcão é a saída de toda rodada.\n\n08 · MOVIMENTO\n\nSÓ QUANDO O ESTADO MUDA\nPEGOU\nA linha pisca azul e sobe para \"Com você\". Embaixo: enviando… → ✓ confirmado.\nENVIOU\nFolha mostra Bar e Cozinha recebendo, um por um. Fecha sozinha.\nCHEGOU NO BAR\nO número do lote pula e fica âmbar; o pedido entra com etiqueta NOVO.\nPAGOU\nCírculo verde cresce uma vez. A barra do limite desce em meio segundo.",
+    "inspected": false
+  },
+  {
+    "file": "ref-kitchen-0.png",
+    "source": "kitchen/Cozinha.dc.html",
+    "steps": "literal export instance 0",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "text": "COZINHA\nchapa · fritadeira · meta 12 min\n6 pedidos\n1 passou da meta\n3 no passe\n23:14\nFAZER AGORA · POR PRATO\nPORÇÕES\nFRITAS\n4\nFRITADEIRA 1 · CESTO CHEIO = 2\nP37\nP08\nP25 ×2\nBOLINHO\n3\nFRITADEIRA 2 · 6 UN. CADA\nP22 ×2\nB4\nCALABRESA\n2\nCHAPA\nP41\nP12\nTORRESMO\n1\nFRITADEIRA 2\nP44\nPOR PEDIDO · MAIS ANTIGO PRIMEIRO\nMONTAR E SOLTAR\nP22\nCalçada\n2 Bolinho de bacalhau\nGalera da 22\n13:10\nPRONTO\nP08\nImóvel 2\n1 Fritas · 1 Calabresa\nRenata\n9:22\nPRONTO\nP25\nCalçada\n2 Fritas\nTurma do Vasco\n6:15\nPRONTO\nP41\nRua\n1 Calabresa\nCarlos Mecânico\n4:10\nPRONTO\nP37\nRua\n1 Fritas NOVO\nJoão da Oficina\n0:31\nPRONTO\nNO PASSE · ESPERANDO GARÇOM\n3\nP12\n1 Calabresa\nNINGUÉM PEGOU · 3:40\nB4\n1 Bolinho\nESPERANDO · 1:20\nP44\n1 Torresmo\nCARLOS LEVANDO\nPrato no passe vira tarefa no celular dos garçons da área. Quem pegar aparece aqui em azul.",
+    "inspected": false
+  },
+  {
+    "file": "ref-legacy.png",
+    "source": "prototype/index.html",
+    "steps": "initial",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1760,
+      "height": 1060
+    },
+    "text": "RODADA\nBAR DO ADERLAN\nPILOTO\nPDV\nCozinha\nDispatch\nDa Casa\nTAB C-184 · RUA / P37\nJOÃO DA OFICINA\nDA CASA\nR$ 184,00\nAberto · limite operacional R$ 500\nPEDIDO\nNovo pedido\nRASCUNHO\n4× Brahma\nBar\nR$ 48\n1× Fritas\nCozinha\nR$ 72\nENVIAR PEDIDO\n+ item\nBar\n4 itens prontos\nCozinha\n1 preparando\nRECEBER / FECHAR",
+    "inspected": false
+  },
+  {
+    "file": "web-agora-390.png",
+    "source": "Atendimento Web API real",
+    "steps": "login fictício",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 1253.34375
+    },
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAGORA\nContas\nMesas\nEntregas prontas\n\nCarregando entregas…\n\nChamadas de atendimento\nAtualizar chamadas\nAtendimento · Mesa 01\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nPedido de conta · Mesa 07\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nAtendimento · Mesa 08\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA",
+    "inspected": false
+  },
+  {
+    "file": "web-mesas-390.png",
+    "source": "Atendimento Web API real",
+    "steps": "Mesas",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\n\nCarregando mesas…",
+    "inspected": false
+  },
+  {
+    "file": "web-contas-390.png",
+    "source": "Atendimento Web API real",
+    "steps": "Contas",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 1043.84375
+    },
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAtualizando ou dados desatualizados. Verifique a conexão.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA",
+    "inspected": false
+  }
+]

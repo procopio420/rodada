@@ -1,0 +1,155 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][303,207]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,207][678,264]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "SEM SINAL",
+    "content-desc": "OFFLINE · não inicie cobranças",
+    "bounds": "[32,264][299,316]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,332][197,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[56,348][173,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[237,348][482,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[80,476][238,556]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa 05 · Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[0,596][780,750]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Em preparo",
+    "content-desc": "",
+    "bounds": "[56,750][330,801]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Fritas da casa · R$ 28,00",
+    "content-desc": "",
+    "bounds": "[56,809][421,1040]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Novo",
+    "content-desc": "",
+    "bounds": "[56,1040][181,1097]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[469,913][676,993]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[56,1157][234,1234]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "2× Água mineral · R$ 10,00",
+    "content-desc": "",
+    "bounds": "[56,1242][421,1473]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pronto",
+    "content-desc": "",
+    "bounds": "[56,1473][215,1530]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[469,1346][676,1426]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Cerveja artesanal · R$ 12,00",
+    "content-desc": "",
+    "bounds": "[56,1538][421,1640]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

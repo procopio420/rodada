@@ -1,0 +1,173 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][303,207]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,207][678,264]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,264][219,316]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,332][197,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[56,348][173,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[237,348][482,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[570,348][728,428]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesas",
+    "content-desc": "",
+    "bounds": "[32,468][217,550]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa é contexto físico. Cada comanda mantém seu próprio saldo.",
+    "content-desc": "",
+    "bounds": "[32,550][828,781]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa 01",
+    "content-desc": "",
+    "bounds": "[64,833][285,911]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "EM USO",
+    "content-desc": "",
+    "bounds": "[577,833][796,910]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Em uso · 3 comandas",
+    "content-desc": "",
+    "bounds": "[64,927][605,1004]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atendimento: você",
+    "content-desc": "",
+    "bounds": "[64,1020][541,1097]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Alex · Comanda b9fe3602",
+    "content-desc": "",
+    "bounds": "[112,1129][748,1289]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesas",
+    "content-desc": "",
+    "bounds": "[172,1334][339,1411]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Caixa",
+    "content-desc": "",
+    "bounds": "[543,1334][688,1411]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "AGORA",
+    "content-desc": "",
+    "bounds": "[64,1522][263,1579]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Nova\ncomanda",
+    "content-desc": "",
+    "bounds": "[334,1492][526,1620]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "CONTAS",
+    "content-desc": "",
+    "bounds": "[583,1522][812,1579]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

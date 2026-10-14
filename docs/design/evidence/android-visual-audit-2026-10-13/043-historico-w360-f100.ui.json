@@ -1,0 +1,299 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,109][191,164]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,164][380,195]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,195][125,221]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,241][148,329]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[58,263][123,307]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[188,263][325,307]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[413,263][503,307]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa 05 · Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[0,357][518,401]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Adicionar itens",
+    "content-desc": "",
+    "bounds": "[32,401][302,404]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "sem-correspondencia",
+    "content-desc": "",
+    "bounds": "[32,404][688,536]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText"
+  },
+  {
+    "text": "Buscar no catálogo",
+    "content-desc": "",
+    "bounds": "[64,404][308,444]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Nenhum produto encontrado.",
+    "content-desc": "",
+    "bounds": "[32,548][460,592]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pedidos confirmados",
+    "content-desc": "",
+    "bounds": "[32,604][406,656]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[56,692][160,736]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "2× Água mineral · R$ 10,00",
+    "content-desc": "",
+    "bounds": "[56,755][446,799]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pronto",
+    "content-desc": "",
+    "bounds": "[56,799][142,830]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,770][616,814]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Cerveja artesanal · R$ 12,00",
+    "content-desc": "",
+    "bounds": "[56,848][453,936]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Em preparo",
+    "content-desc": "",
+    "bounds": "[56,936][204,967]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,886][616,930]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Fritas da casa · R$ 28,00",
+    "content-desc": "",
+    "bounds": "[56,975][453,1063]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Novo",
+    "content-desc": "",
+    "bounds": "[56,1063][123,1094]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,1013][616,1057]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[56,1154][160,1198]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "2× Água mineral · R$ 10,00",
+    "content-desc": "",
+    "bounds": "[56,1217][446,1261]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pronto",
+    "content-desc": "",
+    "bounds": "[56,1261][142,1292]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,1232][616,1276]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Cerveja artesanal · R$ 12,00",
+    "content-desc": "",
+    "bounds": "[56,1310][453,1398]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Em preparo",
+    "content-desc": "",
+    "bounds": "[56,1398][204,1429]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,1348][616,1392]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "1× Fritas da casa · R$ 28,00",
+    "content-desc": "",
+    "bounds": "[56,1437][453,1525]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Novo",
+    "content-desc": "",
+    "bounds": "[56,1525][123,1556]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[501,1475][616,1519]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "proxy": {
+    "status": 200,
+    "url": "http://127.0.0.1:18080/health/"
+  },
+  "api": {
+    "status": 200,
+    "url": "http://127.0.0.1:18081/health/"
+  },
+  "web": {
+    "status": 200,
+    "url": "http://127.0.0.1:13120/attendance"
+  },
+  "gallery": {
+    "status": 200,
+    "url": "http://127.0.0.1:13121/docs/design/evidence/android-visual-audit-2026-10-13/index.html"
+  },
+  "android": {
+    "boot": "1",
+    "package_manager": "package:/system/framework/framework-res.apk",
+    "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+    "wm_density": "Physical density: 420\nOverride density: 320",
+    "fontScale": "1.0",
+    "reverse": "host-17 tcp:18080 tcp:18080",
+    "activity": "com.rodada.attendance/.MainActivity; am start -W: Status ok / delivered to running top-most instance",
+    "ui_last_verified": "ONLINE; Mesa 05 · Rodadas · demonstração; catalog and confirmed order history accessible"
+  },
+  "postgres": "/var/run/postgresql:5432 - accepting connections",
+  "utc": "2026-10-14T00:25:09.689886+00:00",
+  "own_services": [
+    "PostgreSQL container rodada-visual-audit-20261013 :15483",
+    "API ASGI PID3104260 :18081",
+    "dispatch_realtime PID3104359",
+    "proxy PID3232823 :18080",
+    "Next Web :13120",
+    "static references/gallery :13121",
+    "AVD rodada-visual-audit-20261013 emulator-5584 KVM SwiftShader"
+  ]
+}

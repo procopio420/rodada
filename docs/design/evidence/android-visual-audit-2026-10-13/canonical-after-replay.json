@@ -1,0 +1,69 @@
+{
+  "stage": "after-replay",
+  "intent_key": "37b21935-8d59-4a98-95a8-d92444e82f20",
+  "payload_sha256": "9745b56ea234b6a2f1a9adb0cf31b0c8f98c493325f3c6088e07a53cf3565af7",
+  "orders_for_intent": 1,
+  "order_ids": [
+    "2e265d1a-6e20-4367-bf4f-4f07e67827a4"
+  ],
+  "charge_count": 1,
+  "charge_cents": 1200,
+  "confirmed_actor_ids": [
+    "77f453d5-dd43-49cf-bcdc-649747659d89"
+  ],
+  "confirmed_at": [
+    "2026-10-14 00:09:07.265644+00:00"
+  ],
+  "transport": [
+    {
+      "path": "/tabs/370ba2bd-314b-4e8c-8386-12e254bc082f/orders/confirm/",
+      "payload_sha256": "9745b56ea234b6a2f1a9adb0cf31b0c8f98c493325f3c6088e07a53cf3565af7",
+      "body": {
+        "lines": [
+          {
+            "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          }
+        ],
+        "idempotency_key": "37b21935-8d59-4a98-95a8-d92444e82f20"
+      },
+      "timestamp_machine": 1791936547.1806219,
+      "stage": "received"
+    },
+    {
+      "path": "/tabs/370ba2bd-314b-4e8c-8386-12e254bc082f/orders/confirm/",
+      "payload_sha256": "9745b56ea234b6a2f1a9adb0cf31b0c8f98c493325f3c6088e07a53cf3565af7",
+      "status": 201,
+      "timestamp_machine": 1791936547.3333333,
+      "stage": "upstream_response"
+    },
+    {
+      "path": "/tabs/370ba2bd-314b-4e8c-8386-12e254bc082f/orders/confirm/",
+      "payload_sha256": "9745b56ea234b6a2f1a9adb0cf31b0c8f98c493325f3c6088e07a53cf3565af7",
+      "body": {
+        "lines": [
+          {
+            "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          }
+        ],
+        "idempotency_key": "37b21935-8d59-4a98-95a8-d92444e82f20"
+      },
+      "timestamp_machine": 1791936774.3558118,
+      "stage": "received"
+    },
+    {
+      "path": "/tabs/370ba2bd-314b-4e8c-8386-12e254bc082f/orders/confirm/",
+      "payload_sha256": "9745b56ea234b6a2f1a9adb0cf31b0c8f98c493325f3c6088e07a53cf3565af7",
+      "status": 200,
+      "timestamp_machine": 1791936774.4152732,
+      "stage": "upstream_response"
+    }
+  ]
+}

@@ -1,0 +1,218 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][191,169]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,169][380,200]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,200][125,226]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,246][148,334]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[58,268][123,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[188,268][325,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[413,268][503,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Mesa 02 · Comanda sem nome",
+    "content-desc": "",
+    "bounds": "[0,362][451,406]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Solicitar / aprovar limite",
+    "content-desc": "",
+    "bounds": "[80,476][440,520]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Adicionar itens",
+    "content-desc": "",
+    "bounds": "[32,558][302,601]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Buscar no catálogo",
+    "content-desc": "",
+    "bounds": "[64,655][345,699]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Cervejas · 10",
+    "content-desc": "",
+    "bounds": "[32,745][266,788]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Cerveja artesanal",
+    "content-desc": "",
+    "bounds": "[80,816][700,860]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "R$ 12,00",
+    "content-desc": "",
+    "bounds": "[80,860][700,904]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "BAR",
+    "content-desc": "",
+    "bounds": "[80,904][144,948]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Demo 01 · opção de cardápio com nome extenso",
+    "content-desc": "",
+    "bounds": "[80,992][700,1080]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "R$ 7,00",
+    "content-desc": "",
+    "bounds": "[80,1080][700,1124]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "BAR",
+    "content-desc": "",
+    "bounds": "[80,1124][144,1168]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Demo 05 · opção de cardápio com nome extenso",
+    "content-desc": "",
+    "bounds": "[80,1212][700,1300]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "R$ 9,00",
+    "content-desc": "",
+    "bounds": "[80,1300][700,1344]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "BAR",
+    "content-desc": "",
+    "bounds": "[80,1344][144,1388]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Demo 09 · opção de cardápio com nome extenso",
+    "content-desc": "",
+    "bounds": "[80,1432][700,1520]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "R$ 11,00",
+    "content-desc": "",
+    "bounds": "[80,1520][700,1564]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "BAR",
+    "content-desc": "",
+    "bounds": "[80,1564][144,1608]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

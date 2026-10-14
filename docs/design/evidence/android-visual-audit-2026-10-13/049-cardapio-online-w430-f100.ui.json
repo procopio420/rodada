@@ -1,0 +1,342 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,114][191,169]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "● rodada"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,169][380,200]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Operador de demonstração"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,200][125,226]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "ONLINE"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,242][148,338]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Ativar modo pico | Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,246][148,334]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View",
+    "label": "Ativar modo pico"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[58,268][123,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[164,242][349,338]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Atualizar"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[188,268][325,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Atualizar"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[365,242][551,338]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Conta"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[413,268][503,312]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Conta"
+  },
+  {
+    "text": "Mesa 05 · Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[0,362][518,406]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Mesa 05 · Rodadas · demonstração"
+  },
+  {
+    "text": "Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[32,406][616,421]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Rodadas · demonstração"
+  },
+  {
+    "text": "ABERTA · versão 4",
+    "content-desc": "",
+    "bounds": "[32,421][310,465]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "ABERTA · versão 4"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,465][476,561]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Operações da comanda"
+  },
+  {
+    "text": "Operações da comanda",
+    "content-desc": "",
+    "bounds": "[80,491][428,535]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Operações da comanda"
+  },
+  {
+    "text": "Saldo em aberto",
+    "content-desc": "",
+    "bounds": "[64,593][305,625]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Saldo em aberto"
+  },
+  {
+    "text": "R$ 100,00",
+    "content-desc": "",
+    "bounds": "[64,641][293,710]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "R$ 100,00"
+  },
+  {
+    "text": "Subtotal original R$ 100,00",
+    "content-desc": "",
+    "bounds": "[64,726][455,770]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Subtotal original R$ 100,00"
+  },
+  {
+    "text": "Descontos R$ 0,00 · cortesias R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,786][616,830]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Descontos R$ 0,00 · cortesias R$ 0,00"
+  },
+  {
+    "text": "Taxa de serviço R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,846][409,890]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Taxa de serviço R$ 0,00"
+  },
+  {
+    "text": "Total a pagar R$ 100,00",
+    "content-desc": "",
+    "bounds": "[64,906][406,950]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Total a pagar R$ 100,00"
+  },
+  {
+    "text": "Pagamentos recebidos R$ 0,00 · estornos R$ 0,00",
+    "content-desc": "",
+    "bounds": "[64,966][790,1010]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pagamentos recebidos R$ 0,00 · estornos R$ 0,00"
+  },
+  {
+    "text": "Limite R$ 1.000,00 · disponível R$ 900,00",
+    "content-desc": "",
+    "bounds": "[64,1026][663,1070]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Limite R$ 1.000,00 · disponível R$ 900,00"
+  },
+  {
+    "text": "10% do limite utilizado",
+    "content-desc": "",
+    "bounds": "[64,1086][394,1130]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "10% do limite utilizado"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[64,1146][420,1258]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Pagar"
+  },
+  {
+    "text": "Pagar",
+    "content-desc": "",
+    "bounds": "[199,1180][285,1224]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pagar"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[440,1146][796,1242]",
+    "enabled": "false",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Fechar"
+  },
+  {
+    "text": "Fechar",
+    "content-desc": "",
+    "bounds": "[567,1172][669,1216]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Fechar"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,1290][488,1386]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Solicitar / aprovar limite"
+  },
+  {
+    "text": "Solicitar / aprovar limite",
+    "content-desc": "",
+    "bounds": "[80,1316][440,1360]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Solicitar / aprovar limite"
+  },
+  {
+    "text": "Adicionar itens",
+    "content-desc": "",
+    "bounds": "[32,1398][302,1441]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Adicionar itens"
+  },
+  {
+    "text": "Hamb",
+    "content-desc": "",
+    "bounds": "[32,1441][828,1573]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText",
+    "label": "Hamb | Buscar no catálogo"
+  },
+  {
+    "text": "Buscar no catálogo",
+    "content-desc": "",
+    "bounds": "[64,1441][308,1481]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Buscar no catálogo"
+  },
+  {
+    "text": "Lanches · 1",
+    "content-desc": "",
+    "bounds": "[32,1585][237,1628]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Lanches · 1"
+  }
+]

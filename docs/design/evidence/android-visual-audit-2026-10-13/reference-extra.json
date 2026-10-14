@@ -1,0 +1,189 @@
+[
+  {
+    "file": "ref-night-extra-7.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/references/night/Main.dc.html",
+    "steps": "rail step 8",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-night-extra-8.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/references/night/Main.dc.html",
+    "steps": "rail step 9",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-night-extra-9.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/references/night/Main.dc.html",
+    "steps": "rail step 10",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-night-extra-13.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/references/night/Main.dc.html",
+    "steps": "rail step 14",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-night-extra-15.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/references/night/Main.dc.html",
+    "steps": "rail step 16",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-material-night.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/material-reference/night/local.html",
+    "steps": "literal local export; no API",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 410,
+      "y": 40,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-material-peak.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/material-reference/peak/local.html",
+    "steps": "literal local export; no API",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-material-connectivity.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/material-reference/connectivity/local.html",
+    "steps": "literal local export; no API",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-material-system.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/material-reference/system/local.html",
+    "steps": "literal local export; no API",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1760,
+      "height": 6743
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-material-kitchen.png",
+    "source": "Referência HTML simulada",
+    "entry": "prototype/material-reference/kitchen/local.html",
+    "steps": "literal local export; no API",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 1280,
+      "height": 800
+    },
+    "inspected": false
+  },
+  {
+    "file": "ref-brand-official.png",
+    "source": "Referência HTML simulada",
+    "entry": "assets/brand/v1/wordmark.svg",
+    "steps": "official vector unchanged on Noite background",
+    "viewport": {
+      "width": 1760,
+      "height": 1060
+    },
+    "bounds": {
+      "x": 8,
+      "y": 8,
+      "width": 1744,
+      "height": 1044
+    },
+    "inspected": false
+  }
+]

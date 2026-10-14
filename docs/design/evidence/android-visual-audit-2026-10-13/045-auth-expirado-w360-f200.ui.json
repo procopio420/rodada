@@ -1,0 +1,29 @@
+[
+  {
+    "text": "Atenção",
+    "content-desc": "",
+    "bounds": "[88,601][322,692]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "ACCESS_TOKEN_EXPIRED: Token de acesso expirado.",
+    "content-desc": "",
+    "bounds": "[88,724][632,964]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Entendi",
+    "content-desc": "",
+    "bounds": "[377,1028][584,1108]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

@@ -1,0 +1,101 @@
+[
+  {
+    "text": "Hambúrguer artesanal com queijo curado e molho da casa",
+    "content-desc": "",
+    "bounds": "[102,341][678,449]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Variação · obrigatória",
+    "content-desc": "",
+    "bounds": "[102,465][415,509]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Individual · R$ 32,00",
+    "content-desc": "",
+    "bounds": "[240,551][541,595]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "✓ Duplo · R$ 42,00",
+    "content-desc": "",
+    "bounds": "[254,663][526,707]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Complementos · opcional (0–2)",
+    "content-desc": "",
+    "bounds": "[102,749][562,793]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "✓ Queijo extra + R$ 4,00",
+    "content-desc": "",
+    "bounds": "[211,835][570,879]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Sem cebola",
+    "content-desc": "",
+    "bounds": "[305,947][476,991]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Molho separado",
+    "content-desc": "",
+    "bounds": "[102,1033][678,1165]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText"
+  },
+  {
+    "text": "Pedido especial (opcional)",
+    "content-desc": "",
+    "bounds": "[134,1033][471,1073]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Adicionar · R$ 46,00",
+    "content-desc": "",
+    "bounds": "[242,1207][539,1251]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Voltar",
+    "content-desc": "",
+    "bounds": "[345,1319][436,1363]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

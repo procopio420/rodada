@@ -1,0 +1,242 @@
+[
+  {
+    "text": "● rodada",
+    "content-desc": "",
+    "bounds": "[32,109][303,202]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "● rodada"
+  },
+  {
+    "text": "Operador de demonstração",
+    "content-desc": "",
+    "bounds": "[32,202][678,259]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Operador de demonstração"
+  },
+  {
+    "text": "ONLINE",
+    "content-desc": "ONLINE · API atualizada por consulta",
+    "bounds": "[32,259][219,311]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "ONLINE"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,327][197,439]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Ativar modo pico | Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "Ativar modo pico",
+    "bounds": "[32,327][197,439]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.view.View",
+    "label": "Ativar modo pico"
+  },
+  {
+    "text": "Pico",
+    "content-desc": "",
+    "bounds": "[56,343][173,423]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pico"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[213,327][506,439]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Atualizar"
+  },
+  {
+    "text": "Atualizar",
+    "content-desc": "",
+    "bounds": "[237,343][482,423]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Atualizar"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,455][286,567]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Conta"
+  },
+  {
+    "text": "Conta",
+    "content-desc": "",
+    "bounds": "[80,471][238,551]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Conta"
+  },
+  {
+    "text": "Mesa 05 · Rodadas · demonstração",
+    "content-desc": "",
+    "bounds": "[0,591][720,745]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Mesa 05 · Rodadas · demonstração"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[32,697][688,1016]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Hambúrguer artesanal com queijo curado e molho da casa | R$ 32,00 | KITCHEN"
+  },
+  {
+    "text": "Hambúrguer artesanal com queijo curado e molho da casa",
+    "content-desc": "",
+    "bounds": "[80,745][640,840]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Hambúrguer artesanal com queijo curado e molho da casa"
+  },
+  {
+    "text": "R$ 32,00",
+    "content-desc": "",
+    "bounds": "[80,840][640,920]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "R$ 32,00"
+  },
+  {
+    "text": "KITCHEN",
+    "content-desc": "",
+    "bounds": "[80,920][327,1000]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "KITCHEN"
+  },
+  {
+    "text": "Pedidos confirmados",
+    "content-desc": "",
+    "bounds": "[32,1040][594,1118]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedidos confirmados"
+  },
+  {
+    "text": "Pedido",
+    "content-desc": "",
+    "bounds": "[56,1154][234,1231]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedido"
+  },
+  {
+    "text": "2× Água mineral · R$ 10,00",
+    "content-desc": "",
+    "bounds": "[56,1239][361,1470]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "2× Água mineral · R$ 10,00"
+  },
+  {
+    "text": "Pronto",
+    "content-desc": "",
+    "bounds": "[56,1470][215,1527]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pronto"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[361,1327][664,1439]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Corrigir"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[409,1343][616,1423]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Corrigir"
+  },
+  {
+    "text": "1× Cerveja artesanal · R$ 12,00",
+    "content-desc": "",
+    "bounds": "[56,1535][361,1640]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "1× Cerveja artesanal · R$ 12,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[361,1623][664,1688]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Corrigir"
+  },
+  {
+    "text": "Corrigir",
+    "content-desc": "",
+    "bounds": "[409,1639][616,1640]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Corrigir"
+  }
+]

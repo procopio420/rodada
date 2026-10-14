@@ -1,0 +1,29 @@
+[
+  {
+    "text": "Atenção",
+    "content-desc": "",
+    "bounds": "[118,643][352,734]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Sem conexão com o Rodada.",
+    "content-desc": "",
+    "bounds": "[118,766][662,926]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Entendi",
+    "content-desc": "",
+    "bounds": "[407,990][614,1070]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

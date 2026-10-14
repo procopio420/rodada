@@ -1,0 +1,3049 @@
+{
+  "environment": {
+    "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+    "branch": "detached origin/main",
+    "apk_sha256": "60462639301ced8035d1bbf7accbd009ab381350f3226ac70b01ff544ff591bd",
+    "apk_version": "0.1.0",
+    "version_code": 1,
+    "compile_sdk": 37,
+    "target_sdk": 37,
+    "runtime_api": 36,
+    "runtime_android": "16",
+    "runtime_image_revision": 7,
+    "renderer": "SwiftShader",
+    "acceleration": "KVM",
+    "fixture": "audit-aderlan-v1",
+    "postgres": "17.11",
+    "api": "Django/DRF real, ASGI + dispatcher",
+    "debug_base_url": "http://127.0.0.1:18080/",
+    "database_isolated": true,
+    "services": {
+      "postgres": "127.0.0.1:15483",
+      "api": "0.0.0.0:18081",
+      "fault_proxy": "0.0.0.0:18080",
+      "web": "127.0.0.1:13120",
+      "references": "127.0.0.1:13121",
+      "emulator": "emulator-5584"
+    },
+    "matrix": [
+      {
+        "px": [
+          720,
+          1688
+        ],
+        "density_dpi": 320,
+        "dp": [
+          360,
+          844
+        ],
+        "fontScale": [
+          1,
+          2
+        ]
+      },
+      {
+        "px": [
+          780,
+          1688
+        ],
+        "density_dpi": 320,
+        "dp": [
+          390,
+          844
+        ],
+        "fontScale": [
+          1,
+          2
+        ]
+      },
+      {
+        "px": [
+          860,
+          1688
+        ],
+        "density_dpi": 320,
+        "dp": [
+          430,
+          844
+        ],
+        "fontScale": [
+          1,
+          2
+        ]
+      }
+    ],
+    "note": "Runtime API36 is the documented development target. TargetSdk37 is not homologated by this audit.",
+    "jvm": {
+      "tests": 63,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "instrumented": {
+      "class": "com.rodada.attendance.ui.AttendanceNavigationTest#productionNewTabLabelFitsAndOpensOnce",
+      "configuration": "360dp,320dpi,fontScale2,API36",
+      "tests": 1,
+      "failures": 1,
+      "message": "Vertical text clipping: Nova\\ncomanda"
+    },
+    "android_locale": "en-US (AVD default)",
+    "browser_locale": "pt-BR"
+  },
+  "captures": [
+    {
+      "file": "001-first-login.png",
+      "state": "",
+      "steps": "",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "5f1389d694729c253a4117ae48a9424ad6807698c640e22c3bad72784a71e2b5",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "002-live-check.png",
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "3e487efbeeb5173439b41e81204f2738376abfc23f6985bf697080f2e0a7b201",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "003-agora-390.png",
+      "state": "normal",
+      "steps": "Retornar da Conta; Atualizar ASGI real",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "c34df2890c26b61d95e2c31ef3687dac98de8b543fb8f65bf1aa2ac0e15194d6",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "004-mesas-390.png",
+      "state": "normal",
+      "steps": "Agora → Mesas",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "1a74342815fa77c4803acf58ce46f719e711d87e18714cdb9e72f1e778899ec6",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "005-mesa-disponivel-390.png",
+      "state": "normal",
+      "steps": "Mesas; rolar até Mesa 02",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "afd06af3751970bd3d66e0158ad1ab5492aa603781e9f1747cea7f65e8eb7713",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "006-atendimento-iniciado-390.png",
+      "state": "normal",
+      "steps": "Mesa 02 → Iniciar atendimento (1 toque)",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "0736f341143104931e2c3f35aa4b9efa527ad14450fe66a819a126bf1934fccf",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "007-abrir-anonima-390.png",
+      "state": "normal",
+      "steps": "Mesa 02 ocupada → Nova comanda nesta mesa; nome vazio",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "a3de464ece45446b1a5afa6d1fa6d268575927170dd413c38b08de0e557542e5",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "008-comanda-vazia-390.png",
+      "state": "vazio",
+      "steps": "Abrir e pedir sem nome; Tab distinta da mesa",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "baf46c72697f6a5d5722e171500e36951f8378b847dd99de20e3b16d51ae0b03",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "009-cardapio-390.png",
+      "state": "normal",
+      "steps": "Comanda vazia; scroll até Adicionar itens",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "a9c2438a6d7a7db68af4634cd483e35af18d6f22f335647d79b1dd429bad310d",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "010-quantidade-inline-390.png",
+      "state": "normal",
+      "steps": "Toque Cerveja artesanal; quantidade inline",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "c02d6a88f6d04153a75dd6bd7923ca31abb56158ffe51c03d6e19d32b860de05",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "011-quantidade-dois-390.png",
+      "state": "normal",
+      "steps": "Aumentar para duas unidades",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "448f31275e91e82976c620f180151b92b683a47ea631d89164530700c0a5a3ad",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "012-busca-fritas-390.png",
+      "state": "normal",
+      "steps": "Busca Fritas; adicionar categoria Porções",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "d65aca84c4deaa87acbca561a74988e1ac9c5b8e06ceae224b65fdb51b63c217",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "013-tres-categorias-390.png",
+      "state": "normal",
+      "steps": "Cerveja 2×, Fritas 1×, Suco 1×; três categorias",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6ede0be2f11d1b58ffdba9ad220b7f12f0c44bd8acb0134bdbb63519ef41306c",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "014-customizacao-390.png",
+      "state": "normal",
+      "steps": "Produto com variantes e modificadores",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6085b12ea1f67f46983b34e20c45f09d6b2c979bd6cd88a0c3b65362020761ef",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "015-customizado-390.png",
+      "state": "normal",
+      "steps": "Duplo + queijo; observação não precificada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "b2547ea6617b311ba06890dc283799b40f566964989e2131623feece6874dcfa",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "016-configuracoes-distintas-390.png",
+      "state": "normal",
+      "steps": "Duas configurações distintas do mesmo Product",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "b98e5d317217a2ee032d08a79438b6162ce7fcf77e18f30278d23cdd78c6f81a",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "017-produto-simples-sem-editar-390.png",
+      "state": "normal",
+      "steps": "Buscar produto simples selecionado; sem controle Editar/observação",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "b32410c8c0ac4135e71235b3a0eecf833791e723e2a84ca9adf78b92bdfdcc17",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "018-indisponivel-bloqueado-390.png",
+      "state": "item indisponível",
+      "steps": "Suco selecionado → API canônica UNAVAILABLE → Atualizar",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "7fceb2c17cda3143c9ab37edff803fff0feac59cf8f5e97283deb9c5384a3616",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "019-voltar-rascunho-bloqueado-390.png",
+      "state": "bloqueio",
+      "steps": "Tocar ← Comandas com rascunho; seleção permanece",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "b766305f9c4cb07a2ae7a431bcfdec67fd7876eb768644168d204005871cf520",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "020-comanda-bloqueada-360.png",
+      "state": "bloqueio",
+      "steps": "Rascunho bloqueia saída; fonte normal",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "91d65152780834fbcf161faabf7b72b7fd176eb04c1d6cfad18da669cb169c67",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "020-comanda-bloqueada-430.png",
+      "state": "bloqueio",
+      "steps": "Rascunho bloqueia saída; fonte normal",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "174f54c103b3bc40a4f0ae79ee319eb64f90db228c9fc3c3692f86460929c500",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "021-indisponivel-estado-controles-390.png",
+      "state": "item indisponível",
+      "steps": "API indisponível; controles reais de remoção/confirmar",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "d54d8fc92f0c5096ba26272d2d679a8fb2381ff42d682fa98025b7d89dc7d2f3",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "022-indisponivel-360.png",
+      "state": "item indisponível",
+      "steps": "Mesmo rascunho/fixture; largura efetiva",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "938352652e00f2c8462056864599471953003551326d615d4efa7f062463ab2a",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "022-indisponivel-430.png",
+      "state": "item indisponível",
+      "steps": "Mesmo rascunho/fixture; largura efetiva",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "6f2f2c01477e61010508aefd08d9a5682bbb90b90342521ae0a1cab81d9f74ac",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "023-rascunho-restaurado-390.png",
+      "state": "normal",
+      "steps": "API fixture restaurou Suco; atualizar",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6846666b33ba205aafe2bc771e6c8139b6ccc07b49cb50e8ec74c6a29931cce7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "024-revisao-agregada-390.png",
+      "state": "pré-confirmação",
+      "steps": "6 unidades R$129; itens de busca ocultam os demais",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "ba2bc39e89ae87d90f90bcf4ba9105fdbdc481b39ea217f74b3054e3dde0da6b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "025-lancamento-w360-f100.png",
+      "state": "pré-confirmação",
+      "steps": "Mesmo rascunho com busca ativa; fonte solicitada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "90d77ea09b938cb6ab3d097e281882cdf429a53efa1be21b11ab41869213b336",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "025-lancamento-w360-f200.png",
+      "state": "pré-confirmação",
+      "steps": "Mesmo rascunho com busca ativa; fonte solicitada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "5a74dc55b8a799fa4845a1135115c35fbbd7fe2d1822435f38c1a6ac599d6f8b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "025-lancamento-w390-f200.png",
+      "state": "pré-confirmação",
+      "steps": "Mesmo rascunho com busca ativa; fonte solicitada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "32c40c611409a6bb171ecf033581a3331355cea03cf0f3ef389ffeeef0aae4cc",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "025-lancamento-w430-f100.png",
+      "state": "pré-confirmação",
+      "steps": "Mesmo rascunho com busca ativa; fonte solicitada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "4bdae516eaa9d1616ed71116eb29a6c0c220cad547da264dd833243d6b053cde",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "025-lancamento-w430-f200.png",
+      "state": "pré-confirmação",
+      "steps": "Mesmo rascunho com busca ativa; fonte solicitada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "29f59fe076e6649b3ebd8d87d520b9bc6f2a017bd8582e2bd096869d9f9995dc",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "026-teclado-cardapio-390.png",
+      "state": "teclado",
+      "steps": "Focar busca do catálogo; IME Android real",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "f85ab76e90230f3cfea4c1390f2208f6ec481a276521c00e92bc7c65f701569e",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "027-pedido-em-confirmacao-390.png",
+      "state": "pedido em confirmação",
+      "steps": "POST real; proxy retém ACK 18s depois da resposta canônica",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "71bc716131c09f1b02564b9d85a0c1dca74a8d1d656135e2a0425f1b891c3fa3",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "028-confirmado-feedback-390.png",
+      "state": "pedido confirmado",
+      "steps": "Aguardar ACK real da API + releitura da Tab",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "e9862d1c32b6e7ac21578c71a98ad552812c78424095e05a3f2b8ec047f5eacc",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "029-historico-pedido-390.png",
+      "state": "comanda com múltiplos itens",
+      "steps": "ACK real; rolar até Pedidos confirmados",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "1b68e0ee9664c11ded1699f3d049b90d24afbdd7b3d005568b035e427f89d973",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "030-saldo-canonico-390.png",
+      "state": "pedido confirmado",
+      "steps": "Saldo canônico após ACK: R$129 recebido0",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "1951f85cb376fde13b1ed86e59e7f0976ed32521076dbb7ca211ca7a0030807a",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "031-pico-topo-390.png",
+      "state": "pico controlado",
+      "steps": "Agora → Pico; 6 entregas READY +3 chamadas e1 QR",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "c229e888291cec05cf470aeda8d808e4da527845fe15740224d6c21c3eafc83f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "032-pico-topo-w360-f100.png",
+      "state": "pico controlado",
+      "steps": "Pico ativo com6READY+3chamadas+QR; mesmo offset",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "6cb19e342f4f61446a1ea7d7430939675b8571cf03cc52dded7736c3a950d99e",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "032-pico-topo-w360-f200.png",
+      "state": "pico controlado",
+      "steps": "Pico ativo com6READY+3chamadas+QR; mesmo offset",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "8ab5e2880347448197dd3238e39fc6d741c126b1d4a833cf0c52eb0eb1e1364b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "032-pico-topo-w390-f200.png",
+      "state": "pico controlado",
+      "steps": "Pico ativo com6READY+3chamadas+QR; mesmo offset",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "67ce98f543ff6f1d35413473dc470a876f8089261e0f60b0d66d3bb5034d0e82",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "032-pico-topo-w430-f100.png",
+      "state": "pico controlado",
+      "steps": "Pico ativo com6READY+3chamadas+QR; mesmo offset",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "6d82d8cb2df6cc51d41293390f53ccc1ccb26e47aa629435f7c4e3bfbe7f7afa",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "032-pico-topo-w430-f200.png",
+      "state": "pico controlado",
+      "steps": "Pico ativo com6READY+3chamadas+QR; mesmo offset",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "394116b5b30e95af336b4ea8f4e98317d6878905c1d0839243e222940e647b6b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "033-pico-entregas-390.png",
+      "state": "pico controlado",
+      "steps": "Rolar até primeira entrega READY; sem concluir para alimentar métricas",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "8cfe39e74ba401567c171642452a9801f3389c35bb1e4de2b9e9dda08afac7c7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "034-chamada-assumida-390.png",
+      "state": "normal",
+      "steps": "Assumir uma chamada da fixture; ownership retornado pela API",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "b8cad319cd83ee68596b025a76cb4e71abe6b0d8216fc31cf775ba3f52b009b2",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "035-contas-homonimas-390.png",
+      "state": "normal",
+      "steps": "Pico → Contas; lista canônica",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "7ff635cb7d7e70d963ddc7a9625a9e8ce6bb4e84478367be2cd2febbf1272502",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "036-mesas-limpeza-fora-servico-390.png",
+      "state": "normal",
+      "steps": "Rolar até Mesa03/04; estados de limpeza e fora de serviço",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "06fdeb4ba9977787404fc2720c2ed57ad2f0be4621f3080a221e0c2c57e9306f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w360-f100.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "ac94420c6b8a960dbb16ffcfd0e5791a5fb2f4a799afebe2d78c41d7c2ccca61",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w360-f200.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "d125b65529bd022b5923ccc40b0cead7db88226378a46afc870a3adb05bd3632",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w390-f100.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "2bac6a176f1fbe02f6310182f43a7821c4e5081eb7a991f4b469e9a79a4680b7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w390-f200.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "903a9a204ad84470aa591fd63cd6af12116eef2c3549d7b69ce13dfcbbc0169f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w430-f100.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "f7da007dead798cf1b4dcbab8352c1f1e0d182daf73f6fdd68c4beb725a0ce11",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "037-mesas-w430-f200.png",
+      "state": "mesas e comandas",
+      "steps": "Mesa01 com3Tabs; homônimos e anônima; targets de seleção",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "f51b9cc3dcc233fb0b71ab8eba57cc8f32929023aa6c0507ff7b3814cce5f8b3",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "038-segunda-comanda-mesa02-390.png",
+      "state": "normal",
+      "steps": "Segunda Tab na mesma TableOccupancy, nome fictício",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "760e96116048fc2210768e7e4498ba6f734a3f2338382c1fb3d007333534f911",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "039-homonimos-lista-global-390.png",
+      "state": "normal",
+      "steps": "Contas → rolar até duas comandas Alex",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "c03e040617570033425870ed8951eb088aded7545f0bccf32203526222ce44e6",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "040-comanda-rodadas-topo-390.png",
+      "state": "comanda com múltiplos pedidos",
+      "steps": "Selecionar comanda da Mesa05; R$100 canônicos",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "38891e7550854998648c9feb190d2f7cb03c22e6bf0f0170b7e57af1224152eb",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "041-historico-rodadas-390.png",
+      "state": "comanda com múltiplos pedidos",
+      "steps": "Busca sem match como contorno explícito para alcançar histórico; dois Orders estadosdistintos",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "04a50caa0396cf79d66d7139bac120c62d4893e804411a351c7972b2b972b28c",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "042-rodadas-estados-390.png",
+      "state": "comanda com múltiplos pedidos",
+      "steps": "Dois pedidos da fixture; Pronto, Em preparo e Novo",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "2a8f489a28e8668c2f221f2be2062eee20ee65b2987e74aff6bbfab090221d7d",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "043-historico-w360-f100.png",
+      "state": "comanda com múltiplos pedidos",
+      "steps": "Mesma Tab da Mesa05; buscarsem-match para expor histórico; rolar",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "d55068e54f0a716a88946042143969ab4c9bfc72207ee53ab1f7a4728b42dad4",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "043-historico-w430-f100.png",
+      "state": "comanda com múltiplos pedidos",
+      "steps": "Mesma Tab da Mesa05; buscarsem-match para expor histórico; rolar",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "318d58e83060d7de7f16f8f777ea4015e805f1b995d7f6c26c1efc86ec81aaaa",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "043b-historico-w360-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Mesma Tab Mesa05; fonte200%; após dismiss de auth; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "7d0370bd16e339b7e68c9450b95c16dbd17ac541e053262e62d4de6ab87bb150",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "043b-historico-w390-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Mesma Tab Mesa05; fonte200%; após dismiss de auth; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "e8a8c1931ec2fe1cd414979080690a94443539cfc9e9396efb1aaf44a5bdeb8b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "043b-historico-w430-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Mesma Tab Mesa05; fonte200%; após dismiss de auth; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "a76be24d7f1cf496b8d03b8f08f593efa1ee82de3873db9694d6e4c55a6b1910",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w360-f100.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "2b0c416f1fe31b3771aa363d98fdd481ce40e1ccdf89cc0702560c703c068cd3",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w360-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "933bf27a91ffab10c2d7eeaa177c94ec998dd5bbdc4ab814124c617cd86ed152",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w390-f100.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6c73564fb81e85d6cf047d628a3cf604031ada380f9836823876baba4314ed7f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w390-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "c2934974d874af12de8f2139cbe10ce2a2a023be12c17ef97030822db9cfe27e",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w430-f100.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "4fcaf1fb2f0e0f485d9281351649469725c5bf5e872392e4318ab5e6fe792496",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "044-cardapio-w430-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Catálogo real comnome longo/preço; busca Hamb; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "f32545737c710e4f3eba212e4e6ea3af55f12f0fee335db5abd3348053acc824",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "045-auth-expirado-w360-f200.png",
+      "state": "erro de autenticação observado",
+      "steps": "Após expiração natural de access token (~15min), leitura operacional mostra ACCESS_TOKEN_EXPIRED; SSE conseguiu refresh depois. Não é captura limpa de histórico.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "6a983ecd8c1e60661739a23b48ec564f2e5a5417e308f239e4ad96c60a7bb3c6",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "046-auth-recuperado-390-f200.png",
+      "state": "snapshot em cache durante interrupção do proxy local",
+      "steps": "Reconhecer aviso e Atualizar após refresh de sessão pelo realtime; proxy local foi encontrado parado (exit143), API18081 saudável. Não atribuir SEM SINAL nesses arquivos a bug de auth. Novas capturas online serão separadas.",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "5c92be43f94067fea5e9833c6cf11166a501496314f95ce3dccb7e1afce0f9da",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "047-rede-proxy-restaurado-390.png",
+      "state": "recuperação",
+      "steps": "Proxy reiniciado e health200; Atualizar; distinguir falha de ambiente de auth",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "d4c452e42770162330974b6d33dcf3161423872087358b3c5696e3c171f8ba24",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "048-revalidacao-canonica-390.png",
+      "state": "recuperação",
+      "steps": "API e proxy health200; segunda revalidação após transporte SSE",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "4dcbcd1efd8c347ff1f7c12e94a642fa65d472f0b6a285bca18427e9f70923ec",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049-cardapio-online-w360-f100.png",
+      "state": "catálogo após reconexão",
+      "steps": "Busca Hamb; health e leituras canônicas restaurados; adaptar scroll à fonte",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "47cc058fecd473228f89a58e9602b59c38a7dd843ff8de1305a1b5c01bc5edcb",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049-cardapio-online-w390-f100.png",
+      "state": "catálogo após reconexão",
+      "steps": "Busca Hamb; health e leituras canônicas restaurados; adaptar scroll à fonte",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "3ec879b1a7c710bd38a7da67876eb01bae499f1725fdd499aa7a153be784227d",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049-cardapio-online-w430-f100.png",
+      "state": "catálogo após reconexão",
+      "steps": "Busca Hamb; health e leituras canônicas restaurados; adaptar scroll à fonte",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "92c0b860b292e8cdb752ca7caa174d0e36ada6a03714e9fc09965d223a7b9a5f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049b-cardapio-online-w360-f200.png",
+      "state": "catálogo após reconexão",
+      "steps": "Fonte200%; scroll efetivo para exibir nome longo e preço",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "3466cf83db9f89fb203732cf203ff2754b8b8e84af88f4424a1ce43375f2ab2d",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049b-cardapio-online-w390-f200.png",
+      "state": "catálogo após reconexão",
+      "steps": "Fonte200%; scroll efetivo para exibir nome longo e preço",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "e6f6e94604a0afb44c5e88b9b50783e83e4a590ae7f4afb60e9e4b56d21dfdd3",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "049b-cardapio-online-w430-f200.png",
+      "state": "catálogo após reconexão",
+      "steps": "Fonte200%; scroll efetivo para exibir nome longo e preço",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "e0f3a9288cf6d1f6f35b20bc3670523adaee8bc55c6d32c0f64bc387df00835e",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "050-intencao-antes-envio-390.png",
+      "state": "pré-confirmação",
+      "steps": "Segundo pedido UI na Tab Mesa05: Cerveja1×R$12; resposta perdida",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "fe200e5dd7f5b85fa8088b572f01283df852fc54a12032ef0847895a9a1f83a1",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "051-ack-retido-pendente-390.png",
+      "state": "pedido em confirmação",
+      "steps": "POST real; ACK retido30s para ensaio de force-stop",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "fc56c0a0513b52757807e6724874f97563424666acd26952f349ab0f419422fd",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "052-offline-reinicio-pendente-390.png",
+      "state": "perda de conexão e pendência",
+      "steps": "Force-stop apóscommit; reverse removido; abrir offline com fila cifrada original",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "071ef9846db716e400af3152d9bd8e7affdb33ea9e0612fbf7691c39a3920946",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "053-retorno-reconciliacao-390.png",
+      "state": "recuperação da conexão",
+      "steps": "Restore auth existente após reverse; sem novo login/PIN; replay da intençãooriginal",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "203891d444eaeed675e74de7a2d903d2aaca70a7801ce3143ccb5a0964a49d66",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "054-replay-resultado-390.png",
+      "state": "pedido confirmado após recuperação",
+      "steps": "Mesmo comando anterior; ACK/readback após restabelecer reverse",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "028f548d29318289061be2440d10da280332d000c56098fe9b7831b310b05844",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "055-api-500-390.png",
+      "state": "erro da API controlado",
+      "steps": "HTTP500 injetado no catálogo pelo proxy; upstream saudável; snapshotpreservado",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "7ea6716f8e9caba8c6b5fb0abeca0055de94d0661a4b312aec5bde1e283cb0bd",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "056-api-recuperada-390.png",
+      "state": "recuperação",
+      "steps": "Retirar HTTP500 do harness; Atualizar → leituras canônicas",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "bb667668f0733b2c51400a32a890dd9d197ac5838794ca86d74ce8323b4f408b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "057-carregamento-inicial-390.png",
+      "state": "carregamento controlado",
+      "steps": "Auth existente real; atrasar primeira leitura de Tabs8s; sem inventar zeros/sucesso",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "ba65ba0cbe47eaf407f5d04de259659f682e916851e7a4fa72bde8cda6f1effb",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "058-selecionar-homonimo-por-id-390.png",
+      "state": "normal",
+      "steps": "Mesa01 → segundoAlex porreferência bb60319a (1 toque); abrir Tab correta",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "87844dd2da16e9d3e702aabc416006f92b17f9397ec715a9a43de9b638e63345",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "059-saldo-apos-replay-390.png",
+      "state": "pedido confirmado após recuperação",
+      "steps": "Mesa05 agoraR$112: doisOrdersdafixture+1UI; recebido0 separado",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "2d7f9d989ea45c4924315cae4e60331470e028151b7e0b3734f8b02aca817cb2",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w360-f100.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "9859374adc25ceb0da38b7f98bb34dd2375ab687a5e1ec2ab8b3e817c49b1759",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w360-f200.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "1440c6972bb289de3659c6cd9abb9e386c9caa5546c6f59e593a07a0495399d2",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w390-f100.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6598dff724e4ffaf723baf4cb5a181ce6f47df4a22c6eb395a1565c7cbdcae28",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w390-f200.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "d89ed01ac274a90733d679d262c4a16a23ae44e01ca37fc69dce46480fe7531c",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w430-f100.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "121220016db8d770708cadec38b0ac7437632aef007c94dd059bebfe56fd5a23",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "060-editor-cardapio-w430-f200.png",
+      "state": "catálogo e configuração",
+      "steps": "Abrir produto real comnome longo e opções; nenhuma linha adicionada",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "e8a5229b48052471d7619bbaaf0d0da000db58a7037933af22e93d098d7876fd",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w360-f100.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "9859374adc25ceb0da38b7f98bb34dd2375ab687a5e1ec2ab8b3e817c49b1759",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w360-f200.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "334ec50b031da6162202a5636772d9dbab3a81c9a0ca28726938678064aa5b9e",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w390-f100.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "6598dff724e4ffaf723baf4cb5a181ce6f47df4a22c6eb395a1565c7cbdcae28",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w390-f200.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 780x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        780,
+        1688
+      ],
+      "sha256": "67e714a17e45c10aac22c4d5aaf29f8e73e046b00b064e6a8c9348d4f4babef4",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w430-f100.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "1",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "524f9df4cad729eacf5a948d46f810f101ff311ba77cf12303df9163d4020741",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "061-editor-decisoes-w430-f200.png",
+      "state": "configuração e fonte ampliada",
+      "steps": "Rolar no sheet até preço/observação/Adicionar; decisão alcançável",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 860x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        860,
+        1688
+      ],
+      "sha256": "6e2eda0368b6db9fd24e8b6cbeb762cc9a08c87a150efca595caee3e6b5f0671",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "062-teclado-nota-w360-f200.png",
+      "state": "teclado e fonte ampliada",
+      "steps": "Focar nota doProduto comfont200%; IME real; sem dadosprivados",
+      "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+      "fixture": "audit-aderlan-v1",
+      "serial": "emulator-5584",
+      "wm_size": "Physical size: 1080x2400\nOverride size: 720x1688",
+      "wm_density": "Physical density: 420\nOverride density: 320",
+      "fontScale": "2.0",
+      "android": "16",
+      "api": "36",
+      "inspected": true,
+      "kind": "Android executado / API real",
+      "pixels": [
+        720,
+        1688
+      ],
+      "sha256": "2ab7eeddd381266199fb48830c0802bebb69378bde3cd75952a14f4c4ae2d4b9",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "compare-cardapio.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        820,
+        960
+      ],
+      "sha256": "914619ed458c9c572c3fe6c3d69cde5dcefe1c4a5741b91df614838328a2ddef",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "compare-comanda.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        820,
+        960
+      ],
+      "sha256": "82c89cdaf355576dd0a1b4428e0a5c50593ae20a50c5394de49b1ead8f2891ab",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "compare-lancamento.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        820,
+        960
+      ],
+      "sha256": "dc0d3e3e8fd3a19f7d4ca4610ad2af1d4804f11daf4fb25e7f012eb4f2fe744a",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "compare-mesas.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        820,
+        960
+      ],
+      "sha256": "fecc8839b210a03d581df51d29918bc8b32d0df78ab1d6169bf7e9949f541c15",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "compare-pico.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        820,
+        960
+      ],
+      "sha256": "578c07b5a7a193c3086cefc9137944e6816431a52bb8095050e99cd5500a3138",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "five-experiences-montage.png",
+      "kind": "Montagem/comparação",
+      "pixels": [
+        1650,
+        780
+      ],
+      "sha256": "9c785b3a9d1d91ac88d398bb26440a2c4b5c3f63b7e002d4c3c37b7ea8b52ea2",
+      "inspected": true,
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-brand-official.png",
+      "source": "Referência HTML simulada",
+      "entry": "assets/brand/v1/wordmark.svg",
+      "steps": "official vector unchanged on Noite background",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 8,
+        "y": 8,
+        "width": 1744,
+        "height": 1044
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1744,
+        1044
+      ],
+      "sha256": "7cb62648b992f46553c0f73fe061bea283a4f9fc3c42f23bbde6528b9e5b160f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-connectivity-0.png",
+      "source": "connectivity/Offline.dc.html",
+      "steps": "literal export instance 0",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nSem sinal\n3 ações aguardando envio\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n248\nABERTO\nCalculado no aparelho · confirma ao sincronizar\nHOJE\n4\nBrahma\nENTREGUE 21:46\n2\nBrahma\nNA FILA\nPAGAMENTOS\n·\nDinheiro · 22:31\nR$ 200 · NA FILA\nPode seguir atendendo. Pedidos e pagamentos ficam guardados e vão sozinhos quando o sinal voltar. Pix e cartão esperam o sinal.\n+ PEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n+ PEDIR\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "ac9a5b6cc875aae10404000984fd41e7f4c2f7c660a52a9fe2209d2b14250929",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-connectivity-1.png",
+      "source": "connectivity/Offline.dc.html",
+      "steps": "literal export instance 1",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 490,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nSincronizado\n3 ações enviadas · some em 3 s\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n248\nABERTO\nFaltam R$ 252 para o limite\nHOJE\n4\nBrahma\nENTREGUE 21:46\n2\nBrahma\nNO BAR\nPAGAMENTOS\n✓\nDinheiro · 22:31\nR$ 200\n+ PEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n+ PEDIR\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "d4988c09218e7af2ebeb96a165631041b62293c4f1ad2eed2977385e7e47d06b",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-kitchen-0.png",
+      "source": "kitchen/Cozinha.dc.html",
+      "steps": "literal export instance 0",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "text": "COZINHA\nchapa · fritadeira · meta 12 min\n6 pedidos\n1 passou da meta\n3 no passe\n23:14\nFAZER AGORA · POR PRATO\nPORÇÕES\nFRITAS\n4\nFRITADEIRA 1 · CESTO CHEIO = 2\nP37\nP08\nP25 ×2\nBOLINHO\n3\nFRITADEIRA 2 · 6 UN. CADA\nP22 ×2\nB4\nCALABRESA\n2\nCHAPA\nP41\nP12\nTORRESMO\n1\nFRITADEIRA 2\nP44\nPOR PEDIDO · MAIS ANTIGO PRIMEIRO\nMONTAR E SOLTAR\nP22\nCalçada\n2 Bolinho de bacalhau\nGalera da 22\n13:10\nPRONTO\nP08\nImóvel 2\n1 Fritas · 1 Calabresa\nRenata\n9:22\nPRONTO\nP25\nCalçada\n2 Fritas\nTurma do Vasco\n6:15\nPRONTO\nP41\nRua\n1 Calabresa\nCarlos Mecânico\n4:10\nPRONTO\nP37\nRua\n1 Fritas NOVO\nJoão da Oficina\n0:31\nPRONTO\nNO PASSE · ESPERANDO GARÇOM\n3\nP12\n1 Calabresa\nNINGUÉM PEGOU · 3:40\nB4\n1 Bolinho\nESPERANDO · 1:20\nP44\n1 Torresmo\nCARLOS LEVANDO\nPrato no passe vira tarefa no celular dos garçons da área. Quem pegar aparece aqui em azul.",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1280,
+        800
+      ],
+      "sha256": "7d3809225f4f3e975dc3bee88cdc86b623640aae4290c2cd630115203b887a63",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-legacy.png",
+      "source": "prototype/index.html",
+      "steps": "initial",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1760,
+        "height": 1060
+      },
+      "text": "RODADA\nBAR DO ADERLAN\nPILOTO\nPDV\nCozinha\nDispatch\nDa Casa\nTAB C-184 · RUA / P37\nJOÃO DA OFICINA\nDA CASA\nR$ 184,00\nAberto · limite operacional R$ 500\nPEDIDO\nNovo pedido\nRASCUNHO\n4× Brahma\nBar\nR$ 48\n1× Fritas\nCozinha\nR$ 72\nENVIAR PEDIDO\n+ item\nBar\n4 itens prontos\nCozinha\n1 preparando\nRECEBER / FECHAR",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1760,
+        1060
+      ],
+      "sha256": "ffb9350564599ab4720c0283b0280119ccb6be21ce3036122d68bf64d9013a20",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-material-connectivity.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/material-reference/connectivity/local.html",
+      "steps": "literal local export; no API",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "ac9a5b6cc875aae10404000984fd41e7f4c2f7c660a52a9fe2209d2b14250929",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-material-kitchen.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/material-reference/kitchen/local.html",
+      "steps": "literal local export; no API",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1280,
+        800
+      ],
+      "sha256": "678c15adbe6341af7a5b86799a738a26f9691d551dbdaf8b02defb9011ca5177",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-material-night.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/material-reference/night/local.html",
+      "steps": "literal local export; no API",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "9dd85f18b7d32ef9a467aac5123738897c9a9ef8f074e1906701f22dd5be1d41",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-material-peak.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/material-reference/peak/local.html",
+      "steps": "literal local export; no API",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "3b861a1b174a1209a6e4c286381e4ed4162f0955a7eef50a42e0f0f9275e25d7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-material-system.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/material-reference/system/local.html",
+      "steps": "literal local export; no API",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1760,
+        "height": 6743
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1760,
+        6743
+      ],
+      "sha256": "09ba8caecf8872aa178e5b64962adcc12abd2e520daad3d9ab7e152dcc26d19f",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-0.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 1",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nAGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:19\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:33\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:55\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:39\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:15\nP29 · 3 Caipirinha\nCARLOS\n0:42\nB2 · Chamou atendimento\nRÊ\nAGORA\nPedir\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "743957684a7759fc8eb94f3d9a92316711f8b2ebb147889bf058018abf6128f8",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-1.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 2",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nAGORA\n21:38\n2\nPRONTOS\n1\nCHAMANDO\n1\nCONTA\nRODADA ·\nRUA\nP44 · P41\n2 entregas prontas no mesmo caminho\nMONTAR ·\n2\nPRECISA DE ALGUÉM\n4\nCHAMOU\n5:18\nP42 · Calçada\nChamou atendimento\nJuninho\nASSUMIR\nPRONTO\n2:32\nP44 · Rua\n3 Brahma · 1 Coca\nMesa do Beto\nPEGAR\nCONTA\n0:54\nP12 · Imóvel 2\nPediu a conta\nDona Cida\nASSUMIR\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nCOM A EQUIPE\n2\n1:14\nP29 · 3 Caipirinha\nCARLOS\n0:41\nB2 · Chamou atendimento\nRÊ\nAGORA\nPedir\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "b6826535a3216d39ed2e09a610763dd6b0a4509747f0bbc9673f1d236ed4d896",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-2.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 3",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "cfcbbcfca1c891952a26eed4e5cf0a50109c42fca6929efe069fe9a782553ec7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-3.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 4",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS\nCLIENTE\nJOÃO DA OFICINA\nDA CASA\n12 visitas · última sexta\nLimite\nR$ 500\nPendências\nNenhuma\nABRIR CONTA",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "5da0cf6603f86711035621cd312712097950b53c339d82ac4f62628c06b343c6",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-4.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 5",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nCONTAS\n21:38\nRESULTADO\n4\nJoão da Oficina\nDA CASA\núltima vez sexta\nSeu Zé\nREGULAR\nBar · B2\nR$ 45\nde R$ 200\nJoana\nREGULAR\núltima vez ontem\nJoãozinho\nCONHECIDO\núltima vez sábado\n+\nNovo: “jo”\nSó o nome. O resto dá pra completar depois.\nAGORA\n4\nPedir\nCONTAS\nJOÃO DA OFICINA · OPCIONAL\nONDE ELE ESTÁ?\nBAR PRINCIPAL\nIMÓVEL 2\nCALÇADA\nRUA\nP32\nlivre\nP33\nSeu\nP34\nlivre\nP35\nlivre\nP36\nlivre\nP37\nlivre\nP38\nPedrinho\nP39\nlivre\nP40\nlivre\nP41\nCarlos\nP42\nJuninho\nP43\nlivre\nP44\nMesa\nP45\nlivre\nP46\nlivre\nP47\nlivre\nToque na área no mapa e depois no ponto. Dá pra mover a noite toda.",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "a639071d562db676037581d2fd4a50ed3ff68ceaf1e8ae7961f13ad39c121316",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-5.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 6",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nHistórico\nJOÃO DA OFICINA\nDA CASA\nRua · P37\nR$\n0\nABERTO\nLIMITE\nR$ 500\nFaltam R$ 500 para o limite\nConsumo R$ 0 · Da Casa começa com R$ 500\nHOJE\n—\nNada lançado ainda\nPEDIR\nRECEBER\nMOVER\nCHAMAR\nFECHAR\nAGORA\n4\nPedir\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "b411eb8e6dc60cfeaa78b23ef30954582066215eb485606cb267e7865953d472",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-6.png",
+      "source": "night/Main.dc.html",
+      "steps": "rail .step 7",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "text": "PEDIDO PARA · RUA P37\nJoão da Oficina\nCOZINHA\nCADA TOQUE = +1\nFRITAS\nporção\n×1\nCALABRESA\nacebolada\nR$ 42\nBOLINHO\nbacalhau · 6\nR$ 38\nBAR\nÁGUA\nsem gás\nR$ 5\nDOSE\ncachaça\nR$ 9\nGUARANÁ\nlata\nR$ 7\nCOCA\nlata\nR$ 7\nCAIPIRINHA\nlimão\nR$ 22\nORIGINAL\n600 ml\nR$ 16\nBRAHMA\n600 ml\n×4\nHEINEKEN\n600 ml\nR$ 18\n4\nBrahma\n1\nFritas\n→ BAR 4 · COZINHA 1\nR$ 90\nENVIAR · P37",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "a89c8cf30ca79c98dfcbfbb4340dd10212c0e7046f956d5ca6a8ed782ffc08f1",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-extra-13.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/references/night/Main.dc.html",
+      "steps": "rail step 14",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "350b360f8346fc58f94b3d44cef55951e9e3ebccdc2df31cafc27d84bda3dd6d",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-extra-15.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/references/night/Main.dc.html",
+      "steps": "rail step 16",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "ba3f5070755a30ca05043d0f11488f11f6b7c7cbb36512c7252751c761d8a6a7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-extra-7.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/references/night/Main.dc.html",
+      "steps": "rail step 8",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "a85570294bc9548246b727654ee35c8c9175bc934ada8cf93430acd1b7f23650",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-extra-8.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/references/night/Main.dc.html",
+      "steps": "rail step 9",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "213e8338ba49b7a069c31b12f99bb33ee6f34b1cf52cf2a78b42214e81468f6a",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-night-extra-9.png",
+      "source": "Referência HTML simulada",
+      "entry": "prototype/references/night/Main.dc.html",
+      "steps": "rail step 10",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 410,
+        "y": 40,
+        "width": 390,
+        "height": 844
+      },
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "ddf9e156ac7c8ffcf13b499209e0c932c8ae4f3058076373e5229801723eb211",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-peak-0.png",
+      "source": "peak/Pico.dc.html",
+      "steps": "literal export instance 0",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "text": "rodada\nDani · Rua\nMODO PICO · SÓ O ESSENCIAL\n23:14\n7\nPRONTOS\n3\nATRASADOS\n2\nCONTA\nRODADA · RUA\nP37 · P41 · P44 · P46\nMONTAR · 4\nMAIS ANTIGO PRIMEIRO\nCHAMOU\n8:12\nP42\nCalçada\nChamou atendimento\nASSUMIR\nPRONTO\n5:40\nP08\nImóvel 2\n3 Brahma\nPEGAR\nCONTA\n5:02\nP12\nImóvel 2\nPediu a conta\nASSUMIR\nPRONTO\n4:10\nP25\nCalçada\n2 Caipirinha\nPEGAR\nPRONTO\n2:20\nP07\nImóvel 2\n4 Heineken\nPEGAR\nAGORA\n+ PEDIR\nCONTAS",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "3b861a1b174a1209a6e4c286381e4ed4162f0955a7eef50a42e0f0f9275e25d7",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "ref-system-0.png",
+      "source": "system/Sistema.dc.html",
+      "steps": "literal export instance 0",
+      "viewport": {
+        "width": 1760,
+        "height": 1060
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1760,
+        "height": 6743
+      },
+      "text": "rodada\nO PAINEL DE CONTROLE DE UM BAR LOTADO\n\nUm sistema pequeno de propósito. Fundo de bar à noite, papel creme para o que se toca, âmbar de lâmpada para o que pede atenção. Cor só aparece quando quer dizer alguma coisa.\n\n01 · COR\n\nFUNDO QUENTE, SINAIS COM SIGNIFICADO\n\nSeis sinais, cada um com um trabalho só. Eles também diferem em claridade, não só em matiz, para funcionar com daltonismo e sob luz ruim.\n\nChão\n#120F0C · #1B1713 · #252019 · #312A21\nQuatro degraus de superfície. Nada é preto puro.\nPapel\n#F3ECE1\nTexto e botão principal. O que você toca é claro como uma comanda.\nPronto · ok\n#93DB8C\nEstá pronto, foi entregue, foi pago.\nAtenção\n#F5A524\nAlguém chamou, está demorando, algo novo chegou. Também é a marca.\nAtrasado\n#FF5D47\nPassou do tempo ou está travado. Sempre um bloco cheio, nunca só texto.\nDinheiro\n#C3A6FF\nQuer pagar, perto do limite. Separado de \"atrasado\" de propósito.\nEm andamento\n#82B8FF\nAlguém pegou. Azul = já tem dono, não vá junto.\nDA CASA\nDa Casa\n#4A2617 · #F2CFA4\nRelação, não alerta. Cor de madeira de balcão, nunca vermelho.\n\n02 · TEMPO\n\nA IDADE É O SINAL MAIS ALTO DA TELA\n\nToda tarefa carrega um relógio à esquerda. A coluna esquenta aos poucos: o olho vai sozinho para o que está esperando há mais tempo.\n\n0:48\nNovo · neutro\n2:20\nPronto há 2 min\n4:10\nPronto há 4 min\n5:18\nAtrasado · 5 min\n8:12\n8 min · pulsa devagar\n\nChamou atendimento esquenta duas vezes mais rápido (1 e 2 min). Perto do limite não esquenta — dinheiro não é emergência.\n\n03 · TIPO\n\nESTREITO PARA LER DE LONGE, MONO PARA O RELÓGIO\n\nArchivo em largura variável: condensada para nomes e lugares, normal para corpo. JetBrains Mono só para tempo, quantidade e código de lugar — os números não pulam quando mudam. Nada abaixo de 14 px.\n\nTela\nArchivo 900 · 46 · largura 68\nAGORA\nNome\nArchivo 900 · 40 · largura 68\nJOÃO DA OFICINA\nLugar\nArchivo 850 · 30 · largura 76\nP37 · Rua\nDinheiro\nArchivo 800 · 58 · tabular\nR$\n420\nABERTO\nRelógio\nJetBrains Mono 800 · 22–28\n3:42 · P37 · ×4\nCorpo\nArchivo 600 · 18\n4 Brahma prontas\nRótulo\nArchivo 800 · 14 · caixa alta · +0,1em\nCOM A EQUIPE\n\n04 · ESPAÇO E TOQUE\n\nDENSO NA INFORMAÇÃO, LARGO NAS AÇÕES\nESCALA\n4 · 8 · 12 · 16 · 20 · 24 · 32. Margem lateral do celular: 20.\nALVOS\n56 ação de linha · 68 ação principal · 112 ENTREGUE na rodada. Nunca menos de 44.\nSUPERFÍCIES\nLinhas separadas por fio, não cartões. Cartão só para o que flutua: sugestão de rodada, folhas e contadores do pico. Cantos 8 em botões, 0 em listas.\n\n05 · PEÇAS\n\nDOZE PEÇAS FAZEM O PRODUTO INTEIRO\nBOTÕES\nPEGAR\nMOVER\nMONTAR · 3\nENTREGUE\nCOBRAR\nPapel = faça agora. Escuro = secundário. Cor no botão só quando ela já é o significado da linha. A base mais escura dá sensação de tecla.\nRELACIONAMENTO\nDA CASA\nREGULAR\nCONHECIDO\nPAGA NA HORA\nVisitante: sem selo\nVisitante\nR$ 30\nConhecido\nR$ 80\nRegular\nR$ 200\nDa Casa\nR$ 500\nPaga na hora\nR$ 0\nLimite herdado ao abrir a conta. \"Paga na hora\" é como o RESTRICTED aparece para a equipe — nunca \"bloqueado\" ou \"risco\". Na fila, Da Casa vira só a casinha ao lado do nome.\nDINHEIRO E LIMITE\nR$\n420\nLIMITE R$ 500\nFaltam R$ 80 para o limite\nAberto = consumo confirmado − pagamentos. No limite a conta pede ação: receber antes ou um gerente libera — com nome, valor antes/depois e hora na trilha. Sem nota, sem risco, sem score.\nPRONTO\n1:38\nP41 · Rua\n2 Heineken\nCarlos Mecânico\nPEGAR\nPRONTO\n0:40\nP37 · Rua\n4 Brahma\nJoão da Oficina\nLEVAR\n✓ confirmado\n1:10\nP29 · 3 Caipirinha\nC\nCARLOS\n\nLinha de tarefa em três estados: livre (botão papel), sua (fundo azul, botão muda de verbo) e da equipe (uma linha só, apagada, com o nome de quem pegou). Ninguém precisa perguntar \"alguém já levou?\".\n\n06 · ESTADOS\n\nNADA TRAVA O ATENDIMENTO\nSEM SINAL\nSem sinal\n3 ações aguardando envio\nFaixa fina, não tela de erro. Tudo continua; o que não foi aparece como na fila.\nSINCRONIZADO\nSincronizado\ntudo foi enviado\nAparece por 3 segundos quando o sinal volta e some sozinho.\nNÃO FOI\nBar não recebeu · P37\nTENTAR\nSó quando o servidor recusa. Diz o que falhou e oferece uma ação.\nVAZIO\nTudo em dia\nNinguém esperando por você agora.\nVazio é bom notícia; dizemos isso em uma linha.\n\n07 · ÍCONES E IMAGENS\n\nDESENHADO PARA O BAR, NÃO TIRADO DE BANCO DE IMAGEM\n\nÍcones de traço 2,2 px, cantos redondos, sempre ao lado de uma palavra — nunca sozinhos num botão que importa. Ilustrações chapadas nas cores da casa: produtos sem marca registrada, retratos no lugar das fotos até o bar ter as reais.\n\nAgora\nContas\nPedir\nBuscar\nPronto\nChamou\nDinheiro\nPix\nCartão\nLugar\nRodada\nDa Casa\nFechar\nBar\nCozinha\nPico\nSem sinal\nNa fila\nPRODUTOS · TILES DO PEDIR, LISTA DA CONTA, LOTE DO BAR\nBrahma 600\nOriginal 600\nHeineken 600\nCaipirinha\nDose\nCoca lata\nGuaraná\nÁgua\nFritas\nCalabresa\nBolinho\nTorresmo\nPESSOAS · ANEL AZUL = EQUIPE\nDani · equipe\nCarlos · equipe\nRê · equipe\nAderlan · gerente\nJoão da Oficina\nDona Cida\nCarlos Mecânico\nJuninho\nBia\nSeu Zé\nRosto ajuda a achar o regular mais rápido que o nome. Sem foto, a inicial no mesmo círculo.\nPLANTA DO BAR · ESCOLHER LUGAR E TRAÇAR A RODADA\nBar principal e Imóvel 2 em cima, calçada no meio, rua embaixo — como o garçom anda. O balcão é a saída de toda rodada.\n\n08 · MOVIMENTO\n\nSÓ QUANDO O ESTADO MUDA\nPEGOU\nA linha pisca azul e sobe para \"Com você\". Embaixo: enviando… → ✓ confirmado.\nENVIOU\nFolha mostra Bar e Cozinha recebendo, um por um. Fecha sozinha.\nCHEGOU NO BAR\nO número do lote pula e fica âmbar; o pedido entra com etiqueta NOVO.\nPAGOU\nCírculo verde cresce uma vez. A barra do limite desce em meio segundo.",
+      "inspected": true,
+      "kind": "Referência HTML simulada",
+      "pixels": [
+        1760,
+        6743
+      ],
+      "sha256": "7b7d7dc76a21121c51c97692b6828553b7a1960f923a1db8d9e5949c20e01281",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-agora-390.png",
+      "source": "Atendimento Web API real",
+      "steps": "login fictício",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1253.34375
+      },
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAGORA\nContas\nMesas\nEntregas prontas\n\nCarregando entregas…\n\nChamadas de atendimento\nAtualizar chamadas\nAtendimento · Mesa 01\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nPedido de conta · Mesa 07\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nAtendimento · Mesa 08\n\nSolicitado há 2 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        1254
+      ],
+      "sha256": "affd3424950af63ce80f9a3d48be04dfaa0bd143bfce4d19206458f302276d9c",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-agora-loaded-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAGORA\nContas\nMesas\nMesa 06 ·\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\nVer mesa\nEntregas prontas\n2× Água mineral\n\nMesa 05 · Rodadas · demonstração\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 05 · Rodadas · demonstração\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 07 · Fila 07\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n1× Cerveja artesanal\n\nMesa 07 · Fila 07\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 08 · Fila 08\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n1× Cerveja artesanal\n\nMesa 08 · Fila 08\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\nChamadas de atendimento\nAtualizar chamadas\nAtendimento · Mesa 01\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nPedido de conta · Mesa 07\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nAtendimento · Mesa 08\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        2610
+      ],
+      "sha256": "5f523c66819e57ae0151913829421d9fde90e334d4b9ea3572f39d73b8876f07",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-comanda-loaded-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n0 itens\n\nSelecione os itens no catálogo abaixo.\n\nCONFIRMAR PEDIDO · R$ 0,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        3127
+      ],
+      "sha256": "e6481b57661af796422f7be1c35297673b8abf446305a28e4e5bcd4b755faeda",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-contas-390.png",
+      "source": "Atendimento Web API real",
+      "steps": "Contas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1043.84375
+      },
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAtualizando ou dados desatualizados. Verifique a conexão.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        1044
+      ],
+      "sha256": "d0963464258f3a158d91fdf158663f916ad5ba5993917e8e52c9c2d92ee50f66",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-draft-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n1 itens\n1× Água mineral\nR$ 5,00\n−\n1\n+\nEditar\nCONFIRMAR PEDIDO · R$ 5,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        3200
+      ],
+      "sha256": "4cea0aa3bc6d42c341c1291966c6ae74f97a0071e104d9c39a966f8f3de9ac68",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-mesas-390.png",
+      "source": "Atendimento Web API real",
+      "steps": "Mesas",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizando…\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\n\nCarregando mesas…",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        844
+      ],
+      "sha256": "316f3f4b3feab3c4725457228b971af8e9deee23d26c212dfc809a269152d6ad",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-mesas-loaded-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\nMesa 01\n\nOcupada\n\nAtendimento: você\n\n3 comandas\n\nAlex · Comanda b9fe3602 · 20:40:24Alex · Comanda bb60319a · 20:40:24Comanda sem nome · Comanda ba6da06c · 20:40:24NOVA COMANDA NESTA MESAOrganizar mesa 01\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 01\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 02\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nComanda sem nome · Comanda e80e9d00 · 20:45:16NOVA COMANDA NESTA MESAOrganizar mesa 02\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 02\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 03\n\nEm limpeza\n\nOrganizar mesa 03CONCLUIR LIMPEZA\nMesa 04\n\nFora de serviço\n\nOrganizar mesa 04\nMesa 05\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nRodadas · demonstração · Comanda 370ba2bd · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 05\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 05\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 06\n\nOcupada\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\n\n1 comandas\n\nQR · sem responsável · Comanda b1556404 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 06\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 06\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 07\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 07 · Comanda 47c28dc3 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 07\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 07\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 08\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 08 · Comanda 1b07d4a4 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 08\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 08\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        7050
+      ],
+      "sha256": "2b4590f4262a44aa84f82b12d01bf2d659decedee01f971bc37037a4f838e8bf",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-multicomanda-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\nMesa 01\n\nOcupada\n\nAtendimento: você\n\n3 comandas\n\nAlex · Comanda b9fe3602 · 20:40:24Alex · Comanda bb60319a · 20:40:24Comanda sem nome · Comanda ba6da06c · 20:40:24NOVA COMANDA NESTA MESAOrganizar mesa 01\nOrganizar mesa 01\nLOCALIZAÇÃO DA MESA 01\nSem zona\nASSOCIAR COMANDA À MESA 01\nSelecionar comanda\nSem identificação · e80e9d00 · Mesa 02 · Mover\nQR · sem responsável · b1556404 · Mesa 06 · Mover\nFila 08 · 1b07d4a4 · Mesa 08 · Mover\nFila 07 · 47c28dc3 · Mesa 07 · Mover\nRodadas · demonstração · 370ba2bd · Mesa 05 · Mover\nVoltar\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 01\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 02\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nComanda sem nome · Comanda e80e9d00 · 20:45:16NOVA COMANDA NESTA MESAOrganizar mesa 02\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 02\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 03\n\nEm limpeza\n\nOrganizar mesa 03CONCLUIR LIMPEZA\nMesa 04\n\nFora de serviço\n\nOrganizar mesa 04\nMesa 05\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nRodadas · demonstração · Comanda 370ba2bd · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 05\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 05\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 06\n\nOcupada\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\n\n1 comandas\n\nQR · sem responsável · Comanda b1556404 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 06\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 06\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 07\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 07 · Comanda 47c28dc3 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 07\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 07\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 08\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 08 · Comanda 1b07d4a4 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 08\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 08\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        6786
+      ],
+      "sha256": "df120456e0b9ad4984912712ad096a64130f47e805cfe09171acd4dfaa69c129",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    },
+    {
+      "file": "web-nota-produto-simples-390.png",
+      "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n1 itens\n1× Água mineral\nR$ 5,00\n−\n1\n+\nEditar\nCONFIRMAR PEDIDO · R$ 5,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nPersonalizar Água mineral\nÁgua mineral\nPEDIDO ESPECIAL (OPCIONAL)\nVoltar\nADICIONAR · R$ 5,00\nVoltar\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "fixture": "audit-aderlan-v1",
+      "api": "real PostgreSQL",
+      "inspected": true,
+      "kind": "Atendimento Web / API real",
+      "pixels": [
+        390,
+        3200
+      ],
+      "sha256": "a96d80221814b1963661d3f6ffdb52658031433ad733350519f94b45faef47c9",
+      "inspection_method": "Opened with tools.view_image and visually inspected during this audit; derived comparisons inspected separately."
+    }
+  ],
+  "comparisons": [
+    {
+      "file": "compare-mesas.png",
+      "note": "Referência: escolha de localização; lista nativa é extensão, sem paridade literal."
+    },
+    {
+      "file": "compare-cardapio.png",
+      "note": "Referência simulada vs catálogo da fixture; dados diferentes."
+    },
+    {
+      "file": "compare-lancamento.png",
+      "note": "Pedido completo no rodapé da referência vs total agregado no app."
+    },
+    {
+      "file": "compare-comanda.png",
+      "note": "Referência simulada vs saldo canônico da fixture, sem receber dinheiro."
+    },
+    {
+      "file": "compare-pico.png",
+      "note": "Referência expõe tarefas; app real mantém QR/chamadas antes das entregas."
+    }
+  ]
+}

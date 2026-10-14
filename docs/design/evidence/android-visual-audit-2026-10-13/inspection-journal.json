@@ -1,0 +1,982 @@
+[
+  {
+    "file": "001-first-login.png",
+    "sha256": "5f1389d694729c253a4117ae48a9424ad6807698c640e22c3bad72784a71e2b5",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "002-live-check.png",
+    "sha256": "3e487efbeeb5173439b41e81204f2738376abfc23f6985bf697080f2e0a7b201",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "003-agora-390.png",
+    "sha256": "c34df2890c26b61d95e2c31ef3687dac98de8b543fb8f65bf1aa2ac0e15194d6",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "004-mesas-390.png",
+    "sha256": "1a74342815fa77c4803acf58ce46f719e711d87e18714cdb9e72f1e778899ec6",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "005-mesa-disponivel-390.png",
+    "sha256": "afd06af3751970bd3d66e0158ad1ab5492aa603781e9f1747cea7f65e8eb7713",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "006-atendimento-iniciado-390.png",
+    "sha256": "0736f341143104931e2c3f35aa4b9efa527ad14450fe66a819a126bf1934fccf",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "007-abrir-anonima-390.png",
+    "sha256": "a3de464ece45446b1a5afa6d1fa6d268575927170dd413c38b08de0e557542e5",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "008-comanda-vazia-390.png",
+    "sha256": "baf46c72697f6a5d5722e171500e36951f8378b847dd99de20e3b16d51ae0b03",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "009-cardapio-390.png",
+    "sha256": "a9c2438a6d7a7db68af4634cd483e35af18d6f22f335647d79b1dd429bad310d",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "010-quantidade-inline-390.png",
+    "sha256": "c02d6a88f6d04153a75dd6bd7923ca31abb56158ffe51c03d6e19d32b860de05",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "011-quantidade-dois-390.png",
+    "sha256": "448f31275e91e82976c620f180151b92b683a47ea631d89164530700c0a5a3ad",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "012-busca-fritas-390.png",
+    "sha256": "d65aca84c4deaa87acbca561a74988e1ac9c5b8e06ceae224b65fdb51b63c217",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "013-tres-categorias-390.png",
+    "sha256": "6ede0be2f11d1b58ffdba9ad220b7f12f0c44bd8acb0134bdbb63519ef41306c",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "014-customizacao-390.png",
+    "sha256": "6085b12ea1f67f46983b34e20c45f09d6b2c979bd6cd88a0c3b65362020761ef",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "015-customizado-390.png",
+    "sha256": "b2547ea6617b311ba06890dc283799b40f566964989e2131623feece6874dcfa",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "016-configuracoes-distintas-390.png",
+    "sha256": "b98e5d317217a2ee032d08a79438b6162ce7fcf77e18f30278d23cdd78c6f81a",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "017-produto-simples-sem-editar-390.png",
+    "sha256": "b32410c8c0ac4135e71235b3a0eecf833791e723e2a84ca9adf78b92bdfdcc17",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "018-indisponivel-bloqueado-390.png",
+    "sha256": "7fceb2c17cda3143c9ab37edff803fff0feac59cf8f5e97283deb9c5384a3616",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "019-voltar-rascunho-bloqueado-390.png",
+    "sha256": "b766305f9c4cb07a2ae7a431bcfdec67fd7876eb768644168d204005871cf520",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "020-comanda-bloqueada-360.png",
+    "sha256": "91d65152780834fbcf161faabf7b72b7fd176eb04c1d6cfad18da669cb169c67",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "020-comanda-bloqueada-430.png",
+    "sha256": "174f54c103b3bc40a4f0ae79ee319eb64f90db228c9fc3c3692f86460929c500",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "021-indisponivel-estado-controles-390.png",
+    "sha256": "d54d8fc92f0c5096ba26272d2d679a8fb2381ff42d682fa98025b7d89dc7d2f3",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "022-indisponivel-360.png",
+    "sha256": "938352652e00f2c8462056864599471953003551326d615d4efa7f062463ab2a",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "022-indisponivel-430.png",
+    "sha256": "6f2f2c01477e61010508aefd08d9a5682bbb90b90342521ae0a1cab81d9f74ac",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "023-rascunho-restaurado-390.png",
+    "sha256": "6846666b33ba205aafe2bc771e6c8139b6ccc07b49cb50e8ec74c6a29931cce7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "024-revisao-agregada-390.png",
+    "sha256": "ba2bc39e89ae87d90f90bcf4ba9105fdbdc481b39ea217f74b3054e3dde0da6b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "025-lancamento-w360-f100.png",
+    "sha256": "90d77ea09b938cb6ab3d097e281882cdf429a53efa1be21b11ab41869213b336",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "025-lancamento-w360-f200.png",
+    "sha256": "5a74dc55b8a799fa4845a1135115c35fbbd7fe2d1822435f38c1a6ac599d6f8b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "025-lancamento-w390-f200.png",
+    "sha256": "32c40c611409a6bb171ecf033581a3331355cea03cf0f3ef389ffeeef0aae4cc",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "025-lancamento-w430-f100.png",
+    "sha256": "4bdae516eaa9d1616ed71116eb29a6c0c220cad547da264dd833243d6b053cde",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "025-lancamento-w430-f200.png",
+    "sha256": "29f59fe076e6649b3ebd8d87d520b9bc6f2a017bd8582e2bd096869d9f9995dc",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "026-teclado-cardapio-390.png",
+    "sha256": "f85ab76e90230f3cfea4c1390f2208f6ec481a276521c00e92bc7c65f701569e",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "027-pedido-em-confirmacao-390.png",
+    "sha256": "71bc716131c09f1b02564b9d85a0c1dca74a8d1d656135e2a0425f1b891c3fa3",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "028-confirmado-feedback-390.png",
+    "sha256": "e9862d1c32b6e7ac21578c71a98ad552812c78424095e05a3f2b8ec047f5eacc",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "029-historico-pedido-390.png",
+    "sha256": "1b68e0ee9664c11ded1699f3d049b90d24afbdd7b3d005568b035e427f89d973",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "030-saldo-canonico-390.png",
+    "sha256": "1951f85cb376fde13b1ed86e59e7f0976ed32521076dbb7ca211ca7a0030807a",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "031-pico-topo-390.png",
+    "sha256": "c229e888291cec05cf470aeda8d808e4da527845fe15740224d6c21c3eafc83f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "032-pico-topo-w360-f100.png",
+    "sha256": "6cb19e342f4f61446a1ea7d7430939675b8571cf03cc52dded7736c3a950d99e",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "032-pico-topo-w360-f200.png",
+    "sha256": "8ab5e2880347448197dd3238e39fc6d741c126b1d4a833cf0c52eb0eb1e1364b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "032-pico-topo-w390-f200.png",
+    "sha256": "67ce98f543ff6f1d35413473dc470a876f8089261e0f60b0d66d3bb5034d0e82",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "032-pico-topo-w430-f100.png",
+    "sha256": "6d82d8cb2df6cc51d41293390f53ccc1ccb26e47aa629435f7c4e3bfbe7f7afa",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "032-pico-topo-w430-f200.png",
+    "sha256": "394116b5b30e95af336b4ea8f4e98317d6878905c1d0839243e222940e647b6b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "033-pico-entregas-390.png",
+    "sha256": "8cfe39e74ba401567c171642452a9801f3389c35bb1e4de2b9e9dda08afac7c7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "034-chamada-assumida-390.png",
+    "sha256": "b8cad319cd83ee68596b025a76cb4e71abe6b0d8216fc31cf775ba3f52b009b2",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "035-contas-homonimas-390.png",
+    "sha256": "7ff635cb7d7e70d963ddc7a9625a9e8ce6bb4e84478367be2cd2febbf1272502",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "036-mesas-limpeza-fora-servico-390.png",
+    "sha256": "06fdeb4ba9977787404fc2720c2ed57ad2f0be4621f3080a221e0c2c57e9306f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w360-f100.png",
+    "sha256": "ac94420c6b8a960dbb16ffcfd0e5791a5fb2f4a799afebe2d78c41d7c2ccca61",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w360-f200.png",
+    "sha256": "d125b65529bd022b5923ccc40b0cead7db88226378a46afc870a3adb05bd3632",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w390-f100.png",
+    "sha256": "2bac6a176f1fbe02f6310182f43a7821c4e5081eb7a991f4b469e9a79a4680b7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w390-f200.png",
+    "sha256": "903a9a204ad84470aa591fd63cd6af12116eef2c3549d7b69ce13dfcbbc0169f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w430-f100.png",
+    "sha256": "f7da007dead798cf1b4dcbab8352c1f1e0d182daf73f6fdd68c4beb725a0ce11",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "037-mesas-w430-f200.png",
+    "sha256": "f51b9cc3dcc233fb0b71ab8eba57cc8f32929023aa6c0507ff7b3814cce5f8b3",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "038-segunda-comanda-mesa02-390.png",
+    "sha256": "760e96116048fc2210768e7e4498ba6f734a3f2338382c1fb3d007333534f911",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "039-homonimos-lista-global-390.png",
+    "sha256": "c03e040617570033425870ed8951eb088aded7545f0bccf32203526222ce44e6",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "040-comanda-rodadas-topo-390.png",
+    "sha256": "38891e7550854998648c9feb190d2f7cb03c22e6bf0f0170b7e57af1224152eb",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "041-historico-rodadas-390.png",
+    "sha256": "04a50caa0396cf79d66d7139bac120c62d4893e804411a351c7972b2b972b28c",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "042-rodadas-estados-390.png",
+    "sha256": "2a8f489a28e8668c2f221f2be2062eee20ee65b2987e74aff6bbfab090221d7d",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "043-historico-w360-f100.png",
+    "sha256": "d55068e54f0a716a88946042143969ab4c9bfc72207ee53ab1f7a4728b42dad4",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "043-historico-w430-f100.png",
+    "sha256": "318d58e83060d7de7f16f8f777ea4015e805f1b995d7f6c26c1efc86ec81aaaa",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "043b-historico-w360-f200.png",
+    "sha256": "7d0370bd16e339b7e68c9450b95c16dbd17ac541e053262e62d4de6ab87bb150",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "043b-historico-w390-f200.png",
+    "sha256": "e8a8c1931ec2fe1cd414979080690a94443539cfc9e9396efb1aaf44a5bdeb8b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "043b-historico-w430-f200.png",
+    "sha256": "a76be24d7f1cf496b8d03b8f08f593efa1ee82de3873db9694d6e4c55a6b1910",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w360-f100.png",
+    "sha256": "2b0c416f1fe31b3771aa363d98fdd481ce40e1ccdf89cc0702560c703c068cd3",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w360-f200.png",
+    "sha256": "933bf27a91ffab10c2d7eeaa177c94ec998dd5bbdc4ab814124c617cd86ed152",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w390-f100.png",
+    "sha256": "6c73564fb81e85d6cf047d628a3cf604031ada380f9836823876baba4314ed7f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w390-f200.png",
+    "sha256": "c2934974d874af12de8f2139cbe10ce2a2a023be12c17ef97030822db9cfe27e",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w430-f100.png",
+    "sha256": "4fcaf1fb2f0e0f485d9281351649469725c5bf5e872392e4318ab5e6fe792496",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "044-cardapio-w430-f200.png",
+    "sha256": "f32545737c710e4f3eba212e4e6ea3af55f12f0fee335db5abd3348053acc824",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "045-auth-expirado-w360-f200.png",
+    "sha256": "6a983ecd8c1e60661739a23b48ec564f2e5a5417e308f239e4ad96c60a7bb3c6",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "046-auth-recuperado-390-f200.png",
+    "sha256": "5c92be43f94067fea5e9833c6cf11166a501496314f95ce3dccb7e1afce0f9da",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "047-rede-proxy-restaurado-390.png",
+    "sha256": "d4c452e42770162330974b6d33dcf3161423872087358b3c5696e3c171f8ba24",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "048-revalidacao-canonica-390.png",
+    "sha256": "4dcbcd1efd8c347ff1f7c12e94a642fa65d472f0b6a285bca18427e9f70923ec",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049-cardapio-online-w360-f100.png",
+    "sha256": "47cc058fecd473228f89a58e9602b59c38a7dd843ff8de1305a1b5c01bc5edcb",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049-cardapio-online-w390-f100.png",
+    "sha256": "3ec879b1a7c710bd38a7da67876eb01bae499f1725fdd499aa7a153be784227d",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049-cardapio-online-w430-f100.png",
+    "sha256": "92c0b860b292e8cdb752ca7caa174d0e36ada6a03714e9fc09965d223a7b9a5f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049b-cardapio-online-w360-f200.png",
+    "sha256": "3466cf83db9f89fb203732cf203ff2754b8b8e84af88f4424a1ce43375f2ab2d",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049b-cardapio-online-w390-f200.png",
+    "sha256": "e6f6e94604a0afb44c5e88b9b50783e83e4a590ae7f4afb60e9e4b56d21dfdd3",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "049b-cardapio-online-w430-f200.png",
+    "sha256": "e0f3a9288cf6d1f6f35b20bc3670523adaee8bc55c6d32c0f64bc387df00835e",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "050-intencao-antes-envio-390.png",
+    "sha256": "fe200e5dd7f5b85fa8088b572f01283df852fc54a12032ef0847895a9a1f83a1",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "051-ack-retido-pendente-390.png",
+    "sha256": "fc56c0a0513b52757807e6724874f97563424666acd26952f349ab0f419422fd",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "052-offline-reinicio-pendente-390.png",
+    "sha256": "071ef9846db716e400af3152d9bd8e7affdb33ea9e0612fbf7691c39a3920946",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "053-retorno-reconciliacao-390.png",
+    "sha256": "203891d444eaeed675e74de7a2d903d2aaca70a7801ce3143ccb5a0964a49d66",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "054-replay-resultado-390.png",
+    "sha256": "028f548d29318289061be2440d10da280332d000c56098fe9b7831b310b05844",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "055-api-500-390.png",
+    "sha256": "7ea6716f8e9caba8c6b5fb0abeca0055de94d0661a4b312aec5bde1e283cb0bd",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "056-api-recuperada-390.png",
+    "sha256": "bb667668f0733b2c51400a32a890dd9d197ac5838794ca86d74ce8323b4f408b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "057-carregamento-inicial-390.png",
+    "sha256": "ba65ba0cbe47eaf407f5d04de259659f682e916851e7a4fa72bde8cda6f1effb",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "058-selecionar-homonimo-por-id-390.png",
+    "sha256": "87844dd2da16e9d3e702aabc416006f92b17f9397ec715a9a43de9b638e63345",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "059-saldo-apos-replay-390.png",
+    "sha256": "2d7f9d989ea45c4924315cae4e60331470e028151b7e0b3734f8b02aca817cb2",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w360-f100.png",
+    "sha256": "9859374adc25ceb0da38b7f98bb34dd2375ab687a5e1ec2ab8b3e817c49b1759",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w360-f200.png",
+    "sha256": "1440c6972bb289de3659c6cd9abb9e386c9caa5546c6f59e593a07a0495399d2",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w390-f100.png",
+    "sha256": "6598dff724e4ffaf723baf4cb5a181ce6f47df4a22c6eb395a1565c7cbdcae28",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w390-f200.png",
+    "sha256": "d89ed01ac274a90733d679d262c4a16a23ae44e01ca37fc69dce46480fe7531c",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w430-f100.png",
+    "sha256": "121220016db8d770708cadec38b0ac7437632aef007c94dd059bebfe56fd5a23",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "060-editor-cardapio-w430-f200.png",
+    "sha256": "e8a5229b48052471d7619bbaaf0d0da000db58a7037933af22e93d098d7876fd",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w360-f100.png",
+    "sha256": "9859374adc25ceb0da38b7f98bb34dd2375ab687a5e1ec2ab8b3e817c49b1759",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w360-f200.png",
+    "sha256": "334ec50b031da6162202a5636772d9dbab3a81c9a0ca28726938678064aa5b9e",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w390-f100.png",
+    "sha256": "6598dff724e4ffaf723baf4cb5a181ce6f47df4a22c6eb395a1565c7cbdcae28",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w390-f200.png",
+    "sha256": "67e714a17e45c10aac22c4d5aaf29f8e73e046b00b064e6a8c9348d4f4babef4",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w430-f100.png",
+    "sha256": "524f9df4cad729eacf5a948d46f810f101ff311ba77cf12303df9163d4020741",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "061-editor-decisoes-w430-f200.png",
+    "sha256": "6e2eda0368b6db9fd24e8b6cbeb762cc9a08c87a150efca595caee3e6b5f0671",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "062-teclado-nota-w360-f200.png",
+    "sha256": "2ab7eeddd381266199fb48830c0802bebb69378bde3cd75952a14f4c4ae2d4b9",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "compare-cardapio.png",
+    "sha256": "914619ed458c9c572c3fe6c3d69cde5dcefe1c4a5741b91df614838328a2ddef",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "compare-comanda.png",
+    "sha256": "82c89cdaf355576dd0a1b4428e0a5c50593ae20a50c5394de49b1ead8f2891ab",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "compare-lancamento.png",
+    "sha256": "dc0d3e3e8fd3a19f7d4ca4610ad2af1d4804f11daf4fb25e7f012eb4f2fe744a",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "compare-mesas.png",
+    "sha256": "fecc8839b210a03d581df51d29918bc8b32d0df78ab1d6169bf7e9949f541c15",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "compare-pico.png",
+    "sha256": "578c07b5a7a193c3086cefc9137944e6816431a52bb8095050e99cd5500a3138",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "five-experiences-montage.png",
+    "sha256": "9c785b3a9d1d91ac88d398bb26440a2c4b5c3f63b7e002d4c3c37b7ea8b52ea2",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-brand-official.png",
+    "sha256": "7cb62648b992f46553c0f73fe061bea283a4f9fc3c42f23bbde6528b9e5b160f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-connectivity-0.png",
+    "sha256": "ac9a5b6cc875aae10404000984fd41e7f4c2f7c660a52a9fe2209d2b14250929",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-connectivity-1.png",
+    "sha256": "d4988c09218e7af2ebeb96a165631041b62293c4f1ad2eed2977385e7e47d06b",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-kitchen-0.png",
+    "sha256": "7d3809225f4f3e975dc3bee88cdc86b623640aae4290c2cd630115203b887a63",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-legacy.png",
+    "sha256": "ffb9350564599ab4720c0283b0280119ccb6be21ce3036122d68bf64d9013a20",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-material-connectivity.png",
+    "sha256": "ac9a5b6cc875aae10404000984fd41e7f4c2f7c660a52a9fe2209d2b14250929",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-material-kitchen.png",
+    "sha256": "678c15adbe6341af7a5b86799a738a26f9691d551dbdaf8b02defb9011ca5177",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-material-night.png",
+    "sha256": "9dd85f18b7d32ef9a467aac5123738897c9a9ef8f074e1906701f22dd5be1d41",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-material-peak.png",
+    "sha256": "3b861a1b174a1209a6e4c286381e4ed4162f0955a7eef50a42e0f0f9275e25d7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-material-system.png",
+    "sha256": "09ba8caecf8872aa178e5b64962adcc12abd2e520daad3d9ab7e152dcc26d19f",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-0.png",
+    "sha256": "743957684a7759fc8eb94f3d9a92316711f8b2ebb147889bf058018abf6128f8",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-1.png",
+    "sha256": "b6826535a3216d39ed2e09a610763dd6b0a4509747f0bbc9673f1d236ed4d896",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-2.png",
+    "sha256": "cfcbbcfca1c891952a26eed4e5cf0a50109c42fca6929efe069fe9a782553ec7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-3.png",
+    "sha256": "5da0cf6603f86711035621cd312712097950b53c339d82ac4f62628c06b343c6",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-4.png",
+    "sha256": "a639071d562db676037581d2fd4a50ed3ff68ceaf1e8ae7961f13ad39c121316",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-5.png",
+    "sha256": "b411eb8e6dc60cfeaa78b23ef30954582066215eb485606cb267e7865953d472",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-6.png",
+    "sha256": "a89c8cf30ca79c98dfcbfbb4340dd10212c0e7046f956d5ca6a8ed782ffc08f1",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-extra-13.png",
+    "sha256": "350b360f8346fc58f94b3d44cef55951e9e3ebccdc2df31cafc27d84bda3dd6d",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-extra-15.png",
+    "sha256": "ba3f5070755a30ca05043d0f11488f11f6b7c7cbb36512c7252751c761d8a6a7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-extra-7.png",
+    "sha256": "a85570294bc9548246b727654ee35c8c9175bc934ada8cf93430acd1b7f23650",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-extra-8.png",
+    "sha256": "213e8338ba49b7a069c31b12f99bb33ee6f34b1cf52cf2a78b42214e81468f6a",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-night-extra-9.png",
+    "sha256": "ddf9e156ac7c8ffcf13b499209e0c932c8ae4f3058076373e5229801723eb211",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-peak-0.png",
+    "sha256": "3b861a1b174a1209a6e4c286381e4ed4162f0955a7eef50a42e0f0f9275e25d7",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "ref-system-0.png",
+    "sha256": "7b7d7dc76a21121c51c97692b6828553b7a1960f923a1db8d9e5949c20e01281",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-agora-390.png",
+    "sha256": "affd3424950af63ce80f9a3d48be04dfaa0bd143bfce4d19206458f302276d9c",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-agora-loaded-390.png",
+    "sha256": "5f523c66819e57ae0151913829421d9fde90e334d4b9ea3572f39d73b8876f07",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-comanda-loaded-390.png",
+    "sha256": "e6481b57661af796422f7be1c35297673b8abf446305a28e4e5bcd4b755faeda",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-contas-390.png",
+    "sha256": "d0963464258f3a158d91fdf158663f916ad5ba5993917e8e52c9c2d92ee50f66",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-draft-390.png",
+    "sha256": "4cea0aa3bc6d42c341c1291966c6ae74f97a0071e104d9c39a966f8f3de9ac68",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-mesas-390.png",
+    "sha256": "316f3f4b3feab3c4725457228b971af8e9deee23d26c212dfc809a269152d6ad",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-mesas-loaded-390.png",
+    "sha256": "2b4590f4262a44aa84f82b12d01bf2d659decedee01f971bc37037a4f838e8bf",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-multicomanda-390.png",
+    "sha256": "df120456e0b9ad4984912712ad096a64130f47e805cfe09171acd4dfaa69c129",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  },
+  {
+    "file": "web-nota-produto-simples-390.png",
+    "sha256": "a96d80221814b1963661d3f6ffdb52658031433ad733350519f94b45faef47c9",
+    "inspected": true,
+    "method": "tools.view_image",
+    "note": "Technical inspection, not acceptance. Findings and limits in the report."
+  }
+]

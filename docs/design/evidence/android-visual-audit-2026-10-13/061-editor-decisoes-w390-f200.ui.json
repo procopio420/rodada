@@ -1,0 +1,162 @@
+[
+  {
+    "text": "Variação · obrigatória",
+    "content-desc": "",
+    "bounds": "[102,90][639,162]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Variação · obrigatória"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,178][678,370]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "✓ Individual · R$ 32,00"
+  },
+  {
+    "text": "✓ Individual · R$ 32,00",
+    "content-desc": "",
+    "bounds": "[150,194][630,354]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "✓ Individual · R$ 32,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,386][678,498]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Duplo · R$ 42,00"
+  },
+  {
+    "text": "Duplo · R$ 42,00",
+    "content-desc": "",
+    "bounds": "[178,402][602,482]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Duplo · R$ 42,00"
+  },
+  {
+    "text": "Complementos · opcional (0–2)",
+    "content-desc": "",
+    "bounds": "[102,514][678,668]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Complementos · opcional (0–2)"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,684][678,876]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Queijo extra + R$ 4,00"
+  },
+  {
+    "text": "Queijo extra + R$ 4,00",
+    "content-desc": "",
+    "bounds": "[150,700][630,860]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Queijo extra + R$ 4,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,892][678,1004]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Sem cebola"
+  },
+  {
+    "text": "Sem cebola",
+    "content-desc": "",
+    "bounds": "[236,908][545,988]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Sem cebola"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,1020][678,1272]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.widget.EditText",
+    "label": "Pedido especial (opcional)"
+  },
+  {
+    "text": "Pedido especial (opcional)",
+    "content-desc": "",
+    "bounds": "[134,1086][646,1240]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Pedido especial (opcional)"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,1288][678,1480]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Adicionar · R$ 32,00"
+  },
+  {
+    "text": "Adicionar · R$ 32,00",
+    "content-desc": "",
+    "bounds": "[150,1304][630,1464]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Adicionar · R$ 32,00"
+  },
+  {
+    "text": "",
+    "content-desc": "",
+    "bounds": "[102,1496][678,1608]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "true",
+    "class": "android.view.View",
+    "label": "Voltar"
+  },
+  {
+    "text": "Voltar",
+    "content-desc": "",
+    "bounds": "[309,1512][472,1592]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView",
+    "label": "Voltar"
+  }
+]

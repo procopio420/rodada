@@ -1,0 +1,408 @@
+[
+  {
+    "id": "08e9f903-d56e-40d1-92b6-2cddffa7532a",
+    "tab_id": "b1556404-fa86-4e9f-bf38-8cb7ce91ccea",
+    "intent_key": "be99879e-73ed-46d9-a756-f8395f7de9ee",
+    "source": "GUEST",
+    "confirmed_at": "2026-10-13 23:40:25.681910+00:00",
+    "items": [
+      {
+        "product": "Água mineral",
+        "quantity": 1,
+        "unit_price_cents": 500,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+          "product_name": "Água mineral",
+          "base_price_cents": 500,
+          "line_total_cents": 500,
+          "unit_price_cents": 500,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "a8211698-ec85-42d2-bb9f-0435dc278fbc",
+    "tab_id": "370ba2bd-314b-4e8c-8386-12e254bc082f",
+    "intent_key": "94066a5c-2820-455b-868f-f46ff2f4328a",
+    "source": "STAFF",
+    "confirmed_at": "2026-10-13 23:40:25.791766+00:00",
+    "items": [
+      {
+        "product": "Água mineral",
+        "quantity": 2,
+        "unit_price_cents": 500,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 2,
+          "modifiers": [],
+          "product_id": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+          "product_name": "Água mineral",
+          "base_price_cents": 500,
+          "line_total_cents": 1000,
+          "unit_price_cents": 500,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Cerveja artesanal",
+        "quantity": 1,
+        "unit_price_cents": 1200,
+        "state": "PREPARING",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+          "product_name": "Cerveja artesanal",
+          "base_price_cents": 1200,
+          "line_total_cents": 1200,
+          "unit_price_cents": 1200,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Fritas da casa",
+        "quantity": 1,
+        "unit_price_cents": 2800,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "daebbe95-b279-413b-85fe-133723315043",
+          "product_name": "Fritas da casa",
+          "base_price_cents": 2800,
+          "line_total_cents": 2800,
+          "unit_price_cents": 2800,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "ca09e6c1-d037-4c49-8994-2dedac8d44d1",
+    "tab_id": "370ba2bd-314b-4e8c-8386-12e254bc082f",
+    "intent_key": "1770b43e-825e-4ed1-ba29-d6c7f1fb856e",
+    "source": "STAFF",
+    "confirmed_at": "2026-10-13 23:40:26.046926+00:00",
+    "items": [
+      {
+        "product": "Água mineral",
+        "quantity": 2,
+        "unit_price_cents": 500,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 2,
+          "modifiers": [],
+          "product_id": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+          "product_name": "Água mineral",
+          "base_price_cents": 500,
+          "line_total_cents": 1000,
+          "unit_price_cents": 500,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Cerveja artesanal",
+        "quantity": 1,
+        "unit_price_cents": 1200,
+        "state": "PREPARING",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+          "product_name": "Cerveja artesanal",
+          "base_price_cents": 1200,
+          "line_total_cents": 1200,
+          "unit_price_cents": 1200,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Fritas da casa",
+        "quantity": 1,
+        "unit_price_cents": 2800,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "daebbe95-b279-413b-85fe-133723315043",
+          "product_name": "Fritas da casa",
+          "base_price_cents": 2800,
+          "line_total_cents": 2800,
+          "unit_price_cents": 2800,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "9bb97f25-ef42-4a78-9a41-f8652afd29d5",
+    "tab_id": "47c28dc3-e170-4e94-84f7-93842ad5d3dd",
+    "intent_key": "1879cb3e-488e-4256-9165-4180f0df4a4f",
+    "source": "STAFF",
+    "confirmed_at": "2026-10-13 23:40:26.420148+00:00",
+    "items": [
+      {
+        "product": "Água mineral",
+        "quantity": 2,
+        "unit_price_cents": 500,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 2,
+          "modifiers": [],
+          "product_id": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+          "product_name": "Água mineral",
+          "base_price_cents": 500,
+          "line_total_cents": 1000,
+          "unit_price_cents": 500,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Cerveja artesanal",
+        "quantity": 1,
+        "unit_price_cents": 1200,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+          "product_name": "Cerveja artesanal",
+          "base_price_cents": 1200,
+          "line_total_cents": 1200,
+          "unit_price_cents": 1200,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Fritas da casa",
+        "quantity": 1,
+        "unit_price_cents": 2800,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "daebbe95-b279-413b-85fe-133723315043",
+          "product_name": "Fritas da casa",
+          "base_price_cents": 2800,
+          "line_total_cents": 2800,
+          "unit_price_cents": 2800,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "5824f597-9029-4b3d-9283-6e8389c3f763",
+    "tab_id": "1b07d4a4-af50-4df8-85ca-487ff982dfda",
+    "intent_key": "3e8480cb-4204-47ef-88af-f8d5db949e7b",
+    "source": "STAFF",
+    "confirmed_at": "2026-10-13 23:40:26.790040+00:00",
+    "items": [
+      {
+        "product": "Água mineral",
+        "quantity": 2,
+        "unit_price_cents": 500,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 2,
+          "modifiers": [],
+          "product_id": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+          "product_name": "Água mineral",
+          "base_price_cents": 500,
+          "line_total_cents": 1000,
+          "unit_price_cents": 500,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Cerveja artesanal",
+        "quantity": 1,
+        "unit_price_cents": 1200,
+        "state": "READY",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+          "product_name": "Cerveja artesanal",
+          "base_price_cents": 1200,
+          "line_total_cents": 1200,
+          "unit_price_cents": 1200,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Fritas da casa",
+        "quantity": 1,
+        "unit_price_cents": 2800,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "daebbe95-b279-413b-85fe-133723315043",
+          "product_name": "Fritas da casa",
+          "base_price_cents": 2800,
+          "line_total_cents": 2800,
+          "unit_price_cents": 2800,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "682a98af-260e-4065-b2f0-1d79086c2ba8",
+    "tab_id": "e80e9d00-82c2-4ab4-8b47-4b38f1468f30",
+    "intent_key": "1026e96b-2b3f-4b33-9262-6d410efde3be",
+    "source": "STAFF",
+    "confirmed_at": "2026-10-13 23:51:35.875564+00:00",
+    "items": [
+      {
+        "product": "Cerveja artesanal",
+        "quantity": 2,
+        "unit_price_cents": 1200,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 2,
+          "modifiers": [],
+          "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+          "product_name": "Cerveja artesanal",
+          "base_price_cents": 1200,
+          "line_total_cents": 2400,
+          "unit_price_cents": 1200,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Fritas da casa",
+        "quantity": 1,
+        "unit_price_cents": 2800,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "daebbe95-b279-413b-85fe-133723315043",
+          "product_name": "Fritas da casa",
+          "base_price_cents": 2800,
+          "line_total_cents": 2800,
+          "unit_price_cents": 2800,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Suco de maracujá",
+        "quantity": 1,
+        "unit_price_cents": 900,
+        "state": "NEW",
+        "customization": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "bea42e8b-13e2-4c0d-8d94-7799120197d2",
+          "product_name": "Suco de maracujá",
+          "base_price_cents": 900,
+          "line_total_cents": 900,
+          "unit_price_cents": 900,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        }
+      },
+      {
+        "product": "Hambúrguer artesanal com queijo curado e molho da casa",
+        "quantity": 1,
+        "unit_price_cents": 3600,
+        "state": "NEW",
+        "customization": {
+          "variant": {
+            "id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "name": "Individual",
+            "price_cents": 3200,
+            "price_delta_cents": 0
+          },
+          "quantity": 1,
+          "modifiers": [
+            {
+              "name": "Queijo extra",
+              "group_id": "f863c5cd-4600-45f4-b0a1-0f9cb6979d1c",
+              "option_id": "3f5ab6a6-f41a-48cb-b0bc-79f57f493389",
+              "group_name": "Complementos",
+              "semantic_kind": "ADD",
+              "price_delta_cents": 400
+            }
+          ],
+          "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+          "product_name": "Hambúrguer artesanal com queijo curado e molho da casa",
+          "base_price_cents": 3200,
+          "line_total_cents": 3600,
+          "unit_price_cents": 3600,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": "Molho separado"
+        }
+      },
+      {
+        "product": "Hambúrguer artesanal com queijo curado e molho da casa",
+        "quantity": 1,
+        "unit_price_cents": 3200,
+        "state": "NEW",
+        "customization": {
+          "variant": {
+            "id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "name": "Individual",
+            "price_cents": 3200,
+            "price_delta_cents": 0
+          },
+          "quantity": 1,
+          "modifiers": [
+            {
+              "name": "Sem cebola",
+              "group_id": "f863c5cd-4600-45f4-b0a1-0f9cb6979d1c",
+              "option_id": "62049c32-aa2d-47ba-b13d-33599b2b6cb8",
+              "group_name": "Complementos",
+              "semantic_kind": "REMOVE",
+              "price_delta_cents": 0
+            }
+          ],
+          "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+          "product_name": "Hambúrguer artesanal com queijo curado e molho da casa",
+          "base_price_cents": 3200,
+          "line_total_cents": 3200,
+          "unit_price_cents": 3200,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": "Sem sal"
+        }
+      }
+    ]
+  }
+]

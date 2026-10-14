@@ -1,0 +1,47 @@
+{
+  "venue": "audit-aderlan",
+  "tables": {
+    "01": "94df7ceb-4865-48ac-92e4-7fcf37e9e66b",
+    "02": "ad05881c-0fe9-49bf-825c-3973b6d0fb15",
+    "03": "a5b5d3f1-3850-44ab-aa4f-0c62b3e91557",
+    "04": "5a2ee1f2-facc-424e-997e-c9b0f40e16ac",
+    "05": "4ee12677-d9b9-4237-acf2-a2f9a2b21c00",
+    "06": "a91cef15-2ec7-4128-88df-cdd8d3cfec04",
+    "07": "739f9997-1a58-42c7-96da-240b5c5192e3",
+    "08": "bc9a150a-115e-47d0-a1ae-39214f761e02"
+  },
+  "tabs": [
+    [
+      "01",
+      "b9fe3602-68db-48b4-8dbb-29225e006648"
+    ],
+    [
+      "01",
+      "bb60319a-64a2-42b0-979a-88395e0b15c0"
+    ],
+    [
+      "01",
+      "ba6da06c-b159-497c-925a-e61d083184a7"
+    ],
+    [
+      "05",
+      "370ba2bd-314b-4e8c-8386-12e254bc082f"
+    ],
+    [
+      "07",
+      "47c28dc3-e170-4e94-84f7-93842ad5d3dd"
+    ],
+    [
+      "08",
+      "1b07d4a4-af50-4df8-85ca-487ff982dfda"
+    ]
+  ],
+  "products": {
+    "Água mineral": "b4aec3ad-adbe-4643-8961-350e1078ef4d",
+    "Cerveja artesanal": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+    "Fritas da casa": "daebbe95-b279-413b-85fe-133723315043",
+    "Hambúrguer artesanal com queijo curado e molho da casa": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+    "Suco de maracujá": "bea42e8b-13e2-4c0d-8d94-7799120197d2",
+    "Bolinho indisponível": "0832df4c-3d32-4cc0-90c1-543749072c39"
+  }
+}

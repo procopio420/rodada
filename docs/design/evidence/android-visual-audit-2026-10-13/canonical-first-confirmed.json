@@ -1,0 +1,133 @@
+{
+  "stage": "first-confirmed",
+  "intent_key": "1026e96b-2b3f-4b33-9262-6d410efde3be",
+  "payload_sha256": "73265a1289d54cac0c9b85c8c498c6ddd8f44ce117dd1736a9d5a6c97296d122",
+  "orders_for_intent": 1,
+  "order_ids": [
+    "682a98af-260e-4065-b2f0-1d79086c2ba8"
+  ],
+  "charge_count": 5,
+  "charge_cents": 12900,
+  "confirmed_actor_ids": [
+    "77f453d5-dd43-49cf-bcdc-649747659d89"
+  ],
+  "confirmed_at": [
+    "2026-10-13 23:51:35.875564+00:00"
+  ],
+  "transport": [
+    {
+      "path": "/tabs/e80e9d00-82c2-4ab4-8b47-4b38f1468f30/orders/confirm/",
+      "payload_sha256": "73265a1289d54cac0c9b85c8c498c6ddd8f44ce117dd1736a9d5a6c97296d122",
+      "body": {
+        "lines": [
+          {
+            "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+            "quantity": 2,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "daebbe95-b279-413b-85fe-133723315043",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "bea42e8b-13e2-4c0d-8d94-7799120197d2",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+            "quantity": 1,
+            "variant_id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "modifier_option_ids": [
+              "3f5ab6a6-f41a-48cb-b0bc-79f57f493389"
+            ],
+            "special_instructions": "Molho separado"
+          },
+          {
+            "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+            "quantity": 1,
+            "variant_id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "modifier_option_ids": [
+              "62049c32-aa2d-47ba-b13d-33599b2b6cb8"
+            ],
+            "special_instructions": "Sem sal"
+          }
+        ],
+        "idempotency_key": "1026e96b-2b3f-4b33-9262-6d410efde3be"
+      },
+      "timestamp_machine": 1791935495.7618377,
+      "stage": "received"
+    },
+    {
+      "path": "/tabs/e80e9d00-82c2-4ab4-8b47-4b38f1468f30/orders/confirm/",
+      "payload_sha256": "73265a1289d54cac0c9b85c8c498c6ddd8f44ce117dd1736a9d5a6c97296d122",
+      "status": 201,
+      "timestamp_machine": 1791935495.962954,
+      "stage": "upstream_response"
+    },
+    {
+      "path": "/tabs/e80e9d00-82c2-4ab4-8b47-4b38f1468f30/orders/confirm/",
+      "payload_sha256": "73265a1289d54cac0c9b85c8c498c6ddd8f44ce117dd1736a9d5a6c97296d122",
+      "body": {
+        "lines": [
+          {
+            "product_id": "9bad3d80-4dd3-45be-ab54-300b218ed180",
+            "quantity": 2,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "daebbe95-b279-413b-85fe-133723315043",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "bea42e8b-13e2-4c0d-8d94-7799120197d2",
+            "quantity": 1,
+            "variant_id": null,
+            "modifier_option_ids": [],
+            "special_instructions": ""
+          },
+          {
+            "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+            "quantity": 1,
+            "variant_id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "modifier_option_ids": [
+              "3f5ab6a6-f41a-48cb-b0bc-79f57f493389"
+            ],
+            "special_instructions": "Molho separado"
+          },
+          {
+            "product_id": "9d04b5be-a8ae-4900-ac2c-6a907e29dbb6",
+            "quantity": 1,
+            "variant_id": "cf0a0127-3f3c-48f1-82bc-4f80f2ea0040",
+            "modifier_option_ids": [
+              "62049c32-aa2d-47ba-b13d-33599b2b6cb8"
+            ],
+            "special_instructions": "Sem sal"
+          }
+        ],
+        "idempotency_key": "1026e96b-2b3f-4b33-9262-6d410efde3be"
+      },
+      "timestamp_machine": 1791935509.1546903,
+      "stage": "received"
+    },
+    {
+      "path": "/tabs/e80e9d00-82c2-4ab4-8b47-4b38f1468f30/orders/confirm/",
+      "payload_sha256": "73265a1289d54cac0c9b85c8c498c6ddd8f44ce117dd1736a9d5a6c97296d122",
+      "status": 200,
+      "timestamp_machine": 1791935509.2184417,
+      "stage": "upstream_response"
+    }
+  ]
+}

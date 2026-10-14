@@ -1,0 +1,90 @@
+{
+  "sha": "41e32d9853bc18ad08f136f5ead8bddc80afec77",
+  "branch": "detached origin/main",
+  "apk_sha256": "60462639301ced8035d1bbf7accbd009ab381350f3226ac70b01ff544ff591bd",
+  "apk_version": "0.1.0",
+  "version_code": 1,
+  "compile_sdk": 37,
+  "target_sdk": 37,
+  "runtime_api": 36,
+  "runtime_android": "16",
+  "runtime_image_revision": 7,
+  "renderer": "SwiftShader",
+  "acceleration": "KVM",
+  "fixture": "audit-aderlan-v1",
+  "postgres": "17.11",
+  "api": "Django/DRF real, ASGI + dispatcher",
+  "debug_base_url": "http://127.0.0.1:18080/",
+  "database_isolated": true,
+  "services": {
+    "postgres": "127.0.0.1:15483",
+    "api": "0.0.0.0:18081",
+    "fault_proxy": "0.0.0.0:18080",
+    "web": "127.0.0.1:13120",
+    "references": "127.0.0.1:13121",
+    "emulator": "emulator-5584"
+  },
+  "matrix": [
+    {
+      "px": [
+        720,
+        1688
+      ],
+      "density_dpi": 320,
+      "dp": [
+        360,
+        844
+      ],
+      "fontScale": [
+        1,
+        2
+      ]
+    },
+    {
+      "px": [
+        780,
+        1688
+      ],
+      "density_dpi": 320,
+      "dp": [
+        390,
+        844
+      ],
+      "fontScale": [
+        1,
+        2
+      ]
+    },
+    {
+      "px": [
+        860,
+        1688
+      ],
+      "density_dpi": 320,
+      "dp": [
+        430,
+        844
+      ],
+      "fontScale": [
+        1,
+        2
+      ]
+    }
+  ],
+  "note": "Runtime API36 is the documented development target. TargetSdk37 is not homologated by this audit.",
+  "jvm": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "instrumented": {
+    "class": "com.rodada.attendance.ui.AttendanceNavigationTest#productionNewTabLabelFitsAndOpensOnce",
+    "configuration": "360dp,320dpi,fontScale2,API36",
+    "tests": 1,
+    "failures": 1,
+    "message": "Vertical text clipping: Nova\\ncomanda"
+  },
+  "android_locale": "en-US (AVD default)",
+  "browser_locale": "pt-BR"
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "method": "GET",
+    "path": "/dispatch/requests/",
+    "status": 401
+  },
+  {
+    "method": "GET",
+    "path": "/payments/capabilities/",
+    "status": 401
+  },
+  {
+    "method": "GET",
+    "path": "/tabs/",
+    "status": 401
+  },
+  {
+    "method": "GET",
+    "path": "/realtime/stream/",
+    "status": 401
+  },
+  {
+    "method": "POST",
+    "path": "/auth/refresh/",
+    "status": 200
+  }
+]

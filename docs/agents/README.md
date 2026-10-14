@@ -25,6 +25,19 @@ Codex Evals & Evidence: [cenários, trace grading e registro de critérios](CODE
 
 Entrada universal: [AGENTS raiz](../../AGENTS.md) → [procedimentos](PROCEDURES.md) → [registro de specs](SPEC-REGISTER-2026-10-13.md) → spec exata → implementação e testes. Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
 
+## Evidência visual Android — 13/10/2026
+
+[Auditoria visual executada](../design/android-visual-audit-2026-10-13.md),
+[galeria e PNGs originais](../design/evidence/android-visual-audit-2026-10-13/index.html),
+[manifesto](../design/evidence/android-visual-audit-2026-10-13/manifest.json) e
+[plano em slices / screenshots Play Store](../design/android-visual-audit-2026-10-13-slices.md).
+Base auditada: `41e32d9853bc18ad08f136f5ead8bddc80afec77`, APK real, API/PostgreSQL
+isolados, cinco experiências executadas em emulador API 36. **NO-GO visual do produto**:
+63 testes JVM e 44 PostgreSQL aprovados; teste instrumentado focado reprovado por
+clipping com fonte 200%. Fotografia histórica, não homologação da main posterior,
+hardware, release ou operação no bar. Dependências e repetição no
+[runbook local](../design/evidence/android-visual-audit-2026-10-13/REPRODUCE.md).
+
 ## Fonte de verdade: regras para conflitos
 
 1. **Contrato pretendido:** princípios + spec por pasta + ADR vigente. Um documento que diz "planejado" não confirma deploy.

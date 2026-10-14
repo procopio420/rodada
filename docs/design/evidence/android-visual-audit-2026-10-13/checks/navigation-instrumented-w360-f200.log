@@ -1,0 +1,47 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.ui.AttendanceNavigationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.ui.AttendanceNavigationTest:
+INSTRUMENTATION_STATUS: test=productionNewTabLabelFitsAndOpensOnce
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.ui.AttendanceNavigationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Vertical text clipping: Nova
+comanda
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.assertLabelsFit(AttendanceNavigationTest.kt:72)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.productionNewTabLabelFitsAndOpensOnce(AttendanceNavigationTest.kt:60)
+
+INSTRUMENTATION_STATUS: stream=
+Error in productionNewTabLabelFitsAndOpensOnce(com.rodada.attendance.ui.AttendanceNavigationTest):
+java.lang.AssertionError: Vertical text clipping: Nova
+comanda
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.assertLabelsFit(AttendanceNavigationTest.kt:72)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.productionNewTabLabelFitsAndOpensOnce(AttendanceNavigationTest.kt:60)
+
+INSTRUMENTATION_STATUS: test=productionNewTabLabelFitsAndOpensOnce
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 3.258
+There was 1 failure:
+1) productionNewTabLabelFitsAndOpensOnce(com.rodada.attendance.ui.AttendanceNavigationTest)
+java.lang.AssertionError: Vertical text clipping: Nova
+comanda
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.assertLabelsFit(AttendanceNavigationTest.kt:72)
+	at com.rodada.attendance.ui.AttendanceNavigationTest.productionNewTabLabelFitsAndOpensOnce(AttendanceNavigationTest.kt:60)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

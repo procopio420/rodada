@@ -1,0 +1,68 @@
+[
+  {
+    "file": "web-agora-loaded-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAGORA\nContas\nMesas\nMesa 06 ·\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\nVer mesa\nEntregas prontas\n2× Água mineral\n\nMesa 05 · Rodadas · demonstração\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 05 · Rodadas · demonstração\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 07 · Fila 07\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n1× Cerveja artesanal\n\nMesa 07 · Fila 07\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n2× Água mineral\n\nMesa 08 · Fila 08\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\n1× Cerveja artesanal\n\nMesa 08 · Fila 08\n\nPronto há 13 min\n\nCONCLUIR ENTREGA\nChamadas de atendimento\nAtualizar chamadas\nAtendimento · Mesa 01\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nPedido de conta · Mesa 07\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA\nAtendimento · Mesa 08\n\nSolicitado há 13 min\n\nSem responsável\n\nAssumir chamada\nCONCLUIR CHAMADA",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  },
+  {
+    "file": "web-mesas-loaded-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\nMesa 01\n\nOcupada\n\nAtendimento: você\n\n3 comandas\n\nAlex · Comanda b9fe3602 · 20:40:24Alex · Comanda bb60319a · 20:40:24Comanda sem nome · Comanda ba6da06c · 20:40:24NOVA COMANDA NESTA MESAOrganizar mesa 01\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 01\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 02\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nComanda sem nome · Comanda e80e9d00 · 20:45:16NOVA COMANDA NESTA MESAOrganizar mesa 02\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 02\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 03\n\nEm limpeza\n\nOrganizar mesa 03CONCLUIR LIMPEZA\nMesa 04\n\nFora de serviço\n\nOrganizar mesa 04\nMesa 05\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nRodadas · demonstração · Comanda 370ba2bd · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 05\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 05\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 06\n\nOcupada\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\n\n1 comandas\n\nQR · sem responsável · Comanda b1556404 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 06\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 06\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 07\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 07 · Comanda 47c28dc3 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 07\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 07\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 08\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 08 · Comanda 1b07d4a4 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 08\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 08\nPessoas na ocupação\n\nQuantidade ainda não consultada\n\nConsultar quantidade\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  },
+  {
+    "file": "web-multicomanda-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:34\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nContas\nMESAS\nMesas\nMesa 01\n\nOcupada\n\nAtendimento: você\n\n3 comandas\n\nAlex · Comanda b9fe3602 · 20:40:24Alex · Comanda bb60319a · 20:40:24Comanda sem nome · Comanda ba6da06c · 20:40:24NOVA COMANDA NESTA MESAOrganizar mesa 01\nOrganizar mesa 01\nLOCALIZAÇÃO DA MESA 01\nSem zona\nASSOCIAR COMANDA À MESA 01\nSelecionar comanda\nSem identificação · e80e9d00 · Mesa 02 · Mover\nQR · sem responsável · b1556404 · Mesa 06 · Mover\nFila 08 · 1b07d4a4 · Mesa 08 · Mover\nFila 07 · 47c28dc3 · Mesa 07 · Mover\nRodadas · demonstração · 370ba2bd · Mesa 05 · Mover\nVoltar\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 01\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 02\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nComanda sem nome · Comanda e80e9d00 · 20:45:16NOVA COMANDA NESTA MESAOrganizar mesa 02\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 02\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 03\n\nEm limpeza\n\nOrganizar mesa 03CONCLUIR LIMPEZA\nMesa 04\n\nFora de serviço\n\nOrganizar mesa 04\nMesa 05\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nRodadas · demonstração · Comanda 370ba2bd · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 05\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 05\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 06\n\nOcupada\n\nPedido via QR · Sem responsável\n\n1 pedido(s) · Desde 20:40:25\n\nAssumir atendimento\n\n1 comandas\n\nQR · sem responsável · Comanda b1556404 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 06\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 06\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 07\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 07 · Comanda 47c28dc3 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 07\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 07\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade\nMesa 08\n\nOcupada\n\nAtendimento: você\n\n1 comandas\n\nFila 08 · Comanda 1b07d4a4 · 20:40:25NOVA COMANDA NESTA MESAOrganizar mesa 08\n\nLiberar encerra o acesso por QR. As comandas permanecem abertas.\n\nLiberar mesa 08\nPessoas na ocupação\n\nQuantidade não informada\n\nOpcional. Não altera o saldo nem impede pedidos.\n\nQUANTIDADE DE PESSOAS\n1\n2\n3\n4\n5\n6\n7\n8\nMOTIVO DA CORREÇÃO (OPCIONAL)\nConfirmar quantidade",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  },
+  {
+    "file": "web-comanda-loaded-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n0 itens\n\nSelecione os itens no catálogo abaixo.\n\nCONFIRMAR PEDIDO · R$ 0,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  },
+  {
+    "file": "web-draft-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n1 itens\n1× Água mineral\nR$ 5,00\n−\n1\n+\nEditar\nCONFIRMAR PEDIDO · R$ 5,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  },
+  {
+    "file": "web-nota-produto-simples-390.png",
+    "text": "RODADA / ATENDIMENTO\nBAR DO ADERLAN · DEMONSTRAÇÃO\n\nOperador de demonstração · Atualizado às 20:53:36\n\nTeste sem pagamentos. O saldo das comandas permanece em aberto.\nAtualizar\nSair\nAgora\nCONTAS\nMesas\nRODADA / ATENDIMENTO\nCOMANDAS E PEDIDOS\n\nEstado financeiro e operacional persistido.\n\nAbrir comanda\nABRIR\nComandas abertas\nBUSCAR COMANDA\nSem identificação · R$ 129,00QR · sem responsável · R$ 5,00Fila 08 · R$ 50,00Fila 07 · R$ 50,00Rodadas · demonstração · R$ 100,00Sem identificação · R$ 0,00Alex · R$ 0,00Alex · R$ 0,00\nComanda selecionada\nRodadas · demonstração\nRecolher ▴\nPedido atual\n1 itens\n1× Água mineral\nR$ 5,00\n−\n1\n+\nEditar\nCONFIRMAR PEDIDO · R$ 5,00\nPedidos confirmados\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\n2× Água mineral\nRetirada exige revisão da gerência.\nPronto\n1× Cerveja artesanal\nRetirada exige revisão da gerência.\nEm preparo\n1× Fritas da casa\nNovo\nCatálogo\nBUSCAR ITEM NO CARDÁPIO\nCervejas (10)\nLanches (10)\nPorções (11)\nSem álcool (11)\nTodos (42)\n\nBusca em todas as categorias · 1 itens\n\nÁgua mineral\nR$ 5,00\nPersonalizar Água mineral\nÁgua mineral\nPEDIDO ESPECIAL (OPCIONAL)\nVoltar\nADICIONAR · R$ 5,00\nVoltar\nResumo da comanda\nSubtotal\nR$ 100,00\nMais detalhes\nFechar comanda",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixture": "audit-aderlan-v1",
+    "api": "real PostgreSQL",
+    "inspected": false
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "text": "Rodada",
+    "content-desc": "",
+    "bounds": "[158,713][318,781]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Pedido confirmado pelo servidor.",
+    "content-desc": "",
+    "bounds": "[158,813][597,857]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Entendi",
+    "content-desc": "",
+    "bounds": "[459,939][574,983]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

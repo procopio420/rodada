@@ -1,0 +1,65 @@
+[
+  {
+    "text": "Rodada Atendimento",
+    "content-desc": "",
+    "bounds": "[48,415][550,484]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Entre rápido no estabelecimento. O PIN nunca é salvo pelo app.",
+    "content-desc": "",
+    "bounds": "[48,500][732,576]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Estabelecimento",
+    "content-desc": "",
+    "bounds": "[80,678][328,722]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Operador",
+    "content-desc": "",
+    "bounds": "[80,834][220,878]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "PIN",
+    "content-desc": "",
+    "bounds": "[80,990][133,1034]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Entrar",
+    "content-desc": "",
+    "bounds": "[343,1142][437,1186]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Política de privacidade",
+    "content-desc": "",
+    "bounds": "[220,1246][561,1290]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]

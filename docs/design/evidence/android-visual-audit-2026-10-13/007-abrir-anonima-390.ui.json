@@ -1,0 +1,38 @@
+[
+  {
+    "text": "Nova comanda nesta mesa",
+    "content-desc": "",
+    "bounds": "[118,635][662,771]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Nome ou apelido (opcional)",
+    "content-desc": "",
+    "bounds": "[150,857][553,901]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Cancelar",
+    "content-desc": "",
+    "bounds": "[208,1009][343,1053]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  },
+  {
+    "text": "Abrir e pedir",
+    "content-desc": "",
+    "bounds": "[431,1017][614,1061]",
+    "enabled": "true",
+    "selected": "false",
+    "clickable": "false",
+    "class": "android.widget.TextView"
+  }
+]
