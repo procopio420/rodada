@@ -32,10 +32,14 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  const a = tabs.find((t: {display_label:string}) => t.display_label === "Table entry A"), b = tabs.find((t: {display_label:string}) => t.display_label === "Table entry B");
  const firstPage = (await read(page,"tabs/")).results; expect(firstPage.some((t: {id:string}) => t.id === a.id || t.id === b.id)).toBe(false);
  await page.getByLabel("Buscar mesa").fill("mesa patio 24");
+ const summary = page.getByRole("button", { name: /Mesa Pátio 24 Ocupada/ });
+ await expect(summary).toHaveAttribute("aria-expanded", "false");
+ await summary.click();
+ await expect(summary).toHaveAttribute("aria-expanded", "true");
  for (const [index,width] of [360,390,430].entries()) {
   await page.setViewportSize({width,height:900});
   await page.locator(`button[data-tab-id="${a.id}"]`).click();
-  await expect(page.getByRole("heading", {name:"Mesa Pátio 24",exact:true})).toBeFocused();
+  await expect(page.locator(`#attendance-table-${table.id}`)).toBeFocused();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", {name:/^Kitchen E2E item/}).click();
   await page.getByRole("button", {name:"Voltar à mesa Pátio 24",exact:true}).click();
   await expect(page.getByRole("heading", {name:"Mesa Pátio 24",exact:true})).toBeFocused(); await expect(page.getByLabel("Buscar mesa")).toHaveValue("mesa patio 24");
