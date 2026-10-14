@@ -488,12 +488,26 @@ for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430
     await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeVisible();
     await stable(page); await layoutAndA11y(page);
     const destination = await sharedOrder.locator(".stationTab").boundingBox();
+    const detail = await sharedOrder.locator(".stationTicketContent").first().boundingBox();
     const action = await sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).boundingBox();
     expect(action!.height).toBe(56);
-    if (width === 1280) { expect(destination!.width).toBe(84); expect(action!.width).toBe(116); }
-    else { expect(action!.width).toBeGreaterThanOrEqual(44); expect(action!.y).toBeGreaterThan(destination!.y); }
+    if (width === 1280) {
+      expect(destination!.width).toBe(84);
+      expect(action!.width).toBe(116);
+      // Layout must not squeeze dish names into the 84px destination track.
+      expect(detail!.x).toBeGreaterThanOrEqual(destination!.x + destination!.width + 8);
+      expect(detail!.width).toBeGreaterThanOrEqual(140);
+      expect(action!.x).toBeGreaterThan(detail!.x + detail!.width);
+      const passDestination = await page.locator(".stationPassRow > .stationTab").first().boundingBox();
+      const passDetail = await page.locator(".stationPassRow > div").first().boundingBox();
+      expect(passDetail!.x).toBeGreaterThan(passDestination!.x + passDestination!.width);
+      expect(passDetail!.width).toBeGreaterThanOrEqual(150);
+    } else {
+      expect(action!.width).toBeGreaterThanOrEqual(44);
+      expect(action!.y).toBeGreaterThan(destination!.y);
+    }
     await page.screenshot({ path: path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.png`), fullPage: true });
-    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, action }, null, 2));
+    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, detail, action }, null, 2));
     await context.close();
   });
 }
