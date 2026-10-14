@@ -2,6 +2,9 @@ import { expect, type Page } from "./fixtures";
 
 /** Create only disposable web-e2e fixture tables; never touch a shared venue. */
 export async function createAttendanceTable(page: Page, label: string) {
+  // Login click can resolve before the HttpOnly staff session is installed.
+  // Wait for authenticated Attendance navigation; never bypass the auth boundary.
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeEnabled();
   const result = await page.evaluate(async label => {
     const response = await fetch("/api/pos/hospitality/tables/", {
       method: "POST",
