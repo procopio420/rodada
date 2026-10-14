@@ -10,7 +10,38 @@
 - Landing está em apps/landing/ (estático Nginx); acrescentar downloads.html e rota/rewrite coerente, não mover a landing para Next desnecessariamente.
 - Descoberta da Bematech por foto não revela como está conectada. Hardware real ainda não foi inventariado. Ver checklist docs/development/printing-hardware-checklist.md.
 
-## Ordem de implementação por fatias verticais
+## Slices de entrega — 7 PRs independentes
+
+**Tracking:** cada slice corresponde a **um PR de implementação** e tem evidência própria. Nenhum dos PRs abaixo está criado nem concluído. Estes cortes são a unidade de merge; as fases P0–P6 mais abaixo descrevem frentes de trabalho, não sete PRs adicionais. Usar branch curta feat/028-sN-<tema> e referenciar Spec 028 + ADR 0020 no corpo do PR. Fazer rebase/merge da main atual antes de começar e verificar conflitos semânticos.
+
+| Slice / PR previsto | Entrega testável | Depends on | Contratos de aceite da acceptance.md |
+| --- | --- | --- | --- |
+| **S1 Foundation** | Entidades/migrações aditivas, identidade/credencial escopada de PrintAgent, contrato API versionado, compatibilidade com bridge legado | Spec 015 | 3 (política de revogação), 12, 15 |
+| **S2 Pairing** | Windows service mínimo com heartbeat, configuração segura e código de uso único, aprovação no Manage e revogação | S1 | 2, 3, 13 (início do serviço) |
+| **S3 Printing MVP** | Descoberta de filas locais, um agente/uma rota lógica configurada, transporte WinSpool ou TCP, ESC/POS ou WindowsDriver seguro; job real via pipeline 015 | S2 | 4, 5 (um agente), 8 (driver básico), 9, 10, 11, 15 |
+| **S4 Multiagent** | Várias instalações no mesmo Venue, múltiplas rotas por endpoint, claim exclusivo, failover só antes de envio e falhas concorrentes | S3 | 5, 6, 7, 10, 12 |
+| **S5 Compatibility** | Perfis e capabilities por modelo, fallback WindowsDriver, encoding/corte/status, diagnóstico e impressão teste; Bematech primeiro modelo candidato | S3; pode ocorrer em paralelo a S4 | 4, 8, 11, 14 (somente preparação, homologação física na S7) |
+| **S6 Distribution** | Build em runner Windows, instalador universal, testes install/uninstall, assinatura/manifesto/atualização, landing /downloads e Manage usando mesmo release | S2–S5 integradas; preparação de pipeline pode começar após S2 | 1, 13, 15 |
+| **S7 Pilot** | Inventário físico do Aderlan, ensaio completo e incidentes, matriz de compatibilidade verificada, rollout gradual e go/no-go | S1–S6 | 1–15, com evidência física obrigatória de 14 |
+
+### Gate de entrega para cada PR
+
+- **S1** — Migrações aditivas reversíveis/testadas, esquemas publicados, ataques de cross-Venue e claim sem autorização negados, bridge antigo passa regressão. **Sem instalar ou imprimir**.
+- **S2** — Duas instalações de teste; manager aprova uma, tentativa do outro dispositivo de resgatar o código falha; revogação bloqueia novos requests. Windows service sobe sem desktop logado. Execução local/script de desenvolvimento é suficiente nesta fase: instalador distribuível só na S6.
+- **S3** — Cenário API confirmado -> ReceiptDocument -> PrintJob -> claim exclusivo single-agent -> spool mock -> SPOOL_ACCEPTED, sem marcar PRINTED; desconexão antes/durante envio demonstrada. Hardware real é teste exploratório opcional, **não gate de CI**; apenas um endpoint e rota são necessários. Não adicionar segundo mecanismo de dedupe concorrente.
+- **S4** — Dois agentes enxergam mesma impressora LAN, mas somente uma tentativa executa; rota USB offline não se transfere magicamente; lease expirado após envio ambíguo não dispara outra comanda; testes PostgreSQL concorrentes.
+- **S5** — Golden fixtures 58/80 e acentos; Windows GDI vs RAW não se confundem; cut/status/QR habilitam apenas mediante capacidade verificada. Certificação da Bematech depende do hardware na S7.
+- **S6** — Artefato autocontido com SHA-256, instalação/remoção/upgrade testados em runner Windows, assinatura Authenticode e rollback seguro; os dois downloads referenciam o mesmo manifesto. Preparar a página/fluxo antes da S7, mas **não publicar como stable pública** até o gate físico e assinatura aprovados.
+- **S7** — Evidência de impressão física na Bematech (interface e driver documentados), teste de turno simulado, USB/rede/compartilhamento conforme equipamento real, interrupção e recuperação sem duplicata, aprovação do piloto. Habilitar apenas mecanismos realmente homologados.
+
+### Dependências e paralelismo
+
+S1 -> S2 -> S3 -> **[S4 em paralelo com S5]** -> S6 -> S7.
+S4 é dono de routing/claims/concorrência no backend; S5 é dono dos profiles, renderer, drivers e diagnósticos. Não editar os mesmos arquivos sem contrato e handoff de commit, conforme AGENTS.md. S3 só exige roteamento single-agent mínimo; S4 generaliza esse contrato sem reescrever PrintJob. O trabalho de empacotamento e documentação de S6 pode começar após S2, mas a release integrada só fecha após S4/S5.
+
+**Marcos verificáveis:** após S3, um PC pareado consegue imprimir via spooler/simulador; após S5, tipos variados de impressora têm perfis seguros e testes; após S6, o instalador está tecnicamente distribuível; após S7, o piloto pode ser liberado. CI não comprova impressão no papel.
+
+## Fases técnicas P0–P6 (referência para as tarefas dos slices)
 
 ### P0 — Contratos e ADR
 - Trancar invariantes da Spec 015/ADR 0013; registrar matriz de decisões em ADR da 028.
