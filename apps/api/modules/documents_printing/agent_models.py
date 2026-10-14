@@ -34,6 +34,7 @@ class PrinterTransport(models.TextChoices):
 class PrintAgent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     installation_id = models.UUIDField(unique=True)
+    installation_proof_hash = models.CharField(max_length=64, blank=True, default="")
     venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT, null=True)
     device = models.OneToOneField("access.DeviceRegistration", on_delete=models.PROTECT, null=True)
     label = models.CharField(max_length=120)
@@ -91,6 +92,8 @@ class PrintPairingRequest(models.Model):
     approved_by = models.ForeignKey("access.StaffMember", on_delete=models.PROTECT, null=True)
     approved_venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT, null=True)
     failed_attempts = models.PositiveIntegerField(default=0)
+    credential = models.OneToOneField("access.AgentCredential", on_delete=models.PROTECT, null=True)
+    activated_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints: ClassVar = [
@@ -189,3 +192,9 @@ class AgentPrinterRoute(models.Model):
         if self.transport != self.printer.transport:
             raise ValidationError("Route transport must match discovered printer.")
         validate_destination(self.transport, self.destination, self.port)
+
+
+class PrintAgentThrottle(models.Model):
+    key_hash = models.CharField(max_length=64, primary_key=True)
+    window_started_at = models.DateTimeField()
+    count = models.PositiveIntegerField(default=0)

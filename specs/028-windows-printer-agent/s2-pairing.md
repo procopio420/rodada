@@ -1,0 +1,99 @@
+# S2 Pairing — implementation contract (before code)
+
+Base main 2a04379; S1 PR #149 merged with user approval on 2026-10-14.
+Risk R3: anonymous bootstrap, proof possession, credentials, Windows service.
+S1 CI: API 756 PASS / Web 91 integrations PASS. No deployment authorized.
+
+## Decisions / adaptations
+
+- Versioned paths /printing/agents/v1/ retained. Status is POST, not the proposed
+  GET: proof secret belongs in a request body, never URL/query/logs.
+- Device creates persistent installation UUID and 256-bit proof. Start retries use
+  the same identity/proof; 80-bit human code expires after 10 minutes. Existing
+  installation cannot be hijacked by another proof or silently re-paired.
+- Manager inspects code, confirms installation UUID, then atomically approves once.
+  Browser never receives the machine credential. Server derives an opaque token
+  with a dedicated >=32-character deployment secret, request UUID and proof hash;
+  only its hash persists. PoP status can recover an approval response lost in
+  transit until machine acknowledges activation. After acknowledgement no raw
+  credential is served again. Approval replay is rejected.
+- Anonymous start/status and manager code lookup have durable DB throttle buckets;
+  REMOTE_ADDR only (untrusted forwarded headers ignored). No process-local limiter.
+- RODADA_AGENT_PAIRING_SECRET is required for pairing; absent/weak secret fails
+  closed. Configuration is documented, never written to production by tests.
+- Feature enable is explicit print.manage Venue configuration, not a side effect
+  of installer/pairing. Does not change KDS/printing trigger modes.
+- Dedicated heartbeat records server clock/version only. Printer health is untouched.
+- Windows service runs as LocalService with its service SID. Machine-scope DPAPI
+  plus a protected ACL grants private state to that service SID, SYSTEM and admins.
+  Public diagnostics contain only pairing code/expiry/status; no proof/token.
+- No runtime queue, printer enumeration, spool submission or claims: S3 scope.
+- Development service commands are sufficient in S2; packaged EXE/update/signing S6.
+
+## Gates
+
+PostgreSQL: expiry, wrong proof/second installation, approval replay/brute force,
+negative capability/foreign Venue, concurrent approval, response lost/recovery/ack,
+heartbeat/revocation/flag toggle and full legacy regression. Worker tests inject
+network loss/restart/revocation and prove no staff credentials or print side effects.
+Windows runner: DPAPI/ACL isolation, register service, autostart/start/stop under
+noninteractive service identity, local diagnostics and clean uninstall. No physical
+printer/hardware certification. Manage: real BFF workflow, responsive/visual checks.
+
+## Development operation (not distribution)
+
+On a disposable/administered Windows 11 x64 test host, use Python 3.12 and
+`pip install -e apps/printer-agent`. Run pywin32_postinstall.py -install, then:
+
+```powershell
+python -m rodada_printer_agent.service --startup auto install
+python -m rodada_printer_agent configure --api-origin https://api.rodada.bar
+python -m rodada_printer_agent.service start
+python -m rodada_printer_agent.ui
+```
+
+No service credentials in command arguments. Configure before starting; repeated
+configuration preserves protected installation identity. LocalService + service SID
+are set by configure. Private DPAPI state in ProgramData/Rodada/Impressoras/private;
+readable public diagnostics separate. DPAPI decryption is UI-forbidden. A protected
+OWNER_RIGHTS ACL prevents other processes sharing LocalService from changing the
+private file DACL via implicit ownership. Existing junction/symlink paths refused.
+
+Stop/remove with service CLI. Removing service does not implicitly unpair/delete
+server audit. For lost/revoked authorization, revoke the old PC in Manage, stop the
+service and explicitly replace private local state under administrator control;
+installer repair/uninstall safe cleanup is S6. Keep flag false for production until
+rollout authorized. Configure dedicated pairing key through normal ops separately;
+never use Django's fallback development SECRET_KEY. Rotate pairing key only with
+pending codes drained/expired; changing it invalidates pending credential recovery.
+
+`cleanup_print_agent_pairing` removes expired unconsumed requests/throttle windows
+older than24h. Install identity proof hashes persist so cleanup does not permit
+UUID takeover. Approved requests and AuditEvent remain historical.
+
+
+## Review corrections and current evidence
+
+Approval-code validity is ten minutes. After approval, proof-of-possession
+credential recovery has a separate ten-minute grace period from approval, until
+activation acknowledgment. Status and activation serialize on the agent lock.
+Expired pending requests return 410; already-paired bootstrap returns 409 and
+pauses the local installation for explicit administrative recovery. The worker
+persists the credential before every unacknowledged activation attempt, including
+retries after storage failure.
+
+Local checks: 89 PostgreSQL printing regression/foundation/pairing tests passed
+before these review corrections; worker now 11 tests passed, strict mypy passed.
+Updated PostgreSQL checks and actual Windows/Manage CI gates remain pending.
+The Windows smoke gate verifies ordinary-user ACL denial; adversarial processes
+running as LocalService without this service SID are not yet separately exercised.
+
+| Slice | Status | PR | CI | Blockers |
+| --- | --- | --- | --- | --- |
+| S1 Foundation | Merged | #149 | API/Web passed | None |
+| S2 Pairing | Implementation/review | Pending | Pending | Windows service and Manage gates |
+| S3 Printing MVP | Pending | — | — | S2 approval/merge |
+| S4 Multiagent | Pending | — | — | S3 approval/merge |
+| S5 Compatibility | Pending | — | — | S4 approval/merge |
+| S6 Distribution | Pending | — | — | S5 approval/merge; signing certificate |
+| S7 Pilot | Pending | — | — | Previous slices; physical evidence |

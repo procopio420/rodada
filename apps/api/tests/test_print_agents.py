@@ -107,7 +107,7 @@ class AgentFoundationTests(TestCase):
             "agent_id": str(self.agent.id),
             "venue_id": str(self.venue.id),
             "scope": "PRINT_AGENT_V1",
-            "operations": ["contract"],
+            "operations": ["contract", "activate", "heartbeat"],
             "delivery_enabled": False,
         }
         assert self.raw not in repr(response.data)
@@ -209,7 +209,7 @@ class AgentFoundationTests(TestCase):
 
     def test_revocation_possible_with_flag_off(self):
         Venue.objects.filter(id=self.venue.id).update(print_agents_enabled=False)
-        assert self.client.get(CONTRACT).status_code == 401
+        assert self.client.get(CONTRACT).status_code == 403
         revoke_agent(agent_id=self.agent.id, session=self.session, reason="Flag disabled")
         assert self.client.get(CONTRACT).status_code == 401
 
