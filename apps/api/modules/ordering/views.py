@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db import transaction
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -79,12 +81,18 @@ class TabListCreateView(APIView):
         class Query(serializers.Serializer):
             offset = serializers.IntegerField(min_value=0, default=0)
             active = serializers.BooleanField(default=False)
+            q = serializers.CharField(max_length=120, allow_blank=True, default="")
         query = Query(data=request.query_params)
         query.is_valid(raise_exception=True)
         offset = query.validated_data["offset"]
         tabs = Tab.objects.filter(venue=request.auth.venue)
         if query.validated_data["active"]:
             tabs = tabs.filter(state__in=["OPEN", "REQUIRES_ACTION", "SETTLING"])
+        from .search import normalize_tab_label
+
+        label_query = normalize_tab_label(query.validated_data["q"])
+        if label_query:
+            tabs = tabs.filter(search_label__contains=label_query)
         rows = list(tabs.order_by("-opened_at", "id")[offset:offset + 201])
         locations = tab_location_labels([tab.id for tab in rows[:200]], include_history=True)
         return Response({"results": [_tab_payload(tab, locations=locations) for tab in rows[:200]],
@@ -115,6 +123,30 @@ class TabDetailView(APIView):
                 {"code": "TAB_NOT_FOUND", "message": "Comanda não encontrada."},
                 status=404,
             )
+        from rest_framework import serializers
+
+        class ContextQuery(serializers.Serializer):
+            occupancy_id = serializers.UUIDField(required=False)
+            table_id = serializers.UUIDField(required=False)
+
+        context_query = ContextQuery(data=request.query_params)
+        context_query.is_valid(raise_exception=True)
+        context = context_query.validated_data
+        if bool(context.get("occupancy_id")) != bool(context.get("table_id")):
+            return Response({"code": "INVALID_TABLE_CONTEXT", "message": "Informe mesa e ocupação juntas."}, status=400)
+        if context:
+            from django.db.models import F
+
+            from modules.hospitality.models import TabOccupancyAssignment
+
+            valid = TabOccupancyAssignment.objects.filter(
+                tab=tab, occupancy_id=context["occupancy_id"], occupancy__table_id=context["table_id"],
+                released_at__isnull=True, occupancy__released_at__isnull=True,
+                occupancy__table__venue=request.auth.venue, occupancy__table__status="OCCUPIED",
+                occupancy__generation=F("occupancy__table__access_generation"),
+            ).exists()
+            if not valid:
+                return Response({"code": "TABLE_CONTEXT_CHANGED", "message": "O vínculo da comanda com a mesa mudou. Atualize as mesas."}, status=409)
         payload = _tab_payload(tab)
         payload["orders"] = [
             _order_payload(order)
@@ -156,12 +188,13 @@ class TabDetailView(APIView):
                 "order_item_id": str(correction.original_order_item_id),
                 "item_name": correction.original_order_item.product_name_snapshot,
                 "reason_code": correction.reason_code,
+                "financial_disposition": correction.financial_disposition,
                 "refund_required_cents": correction.refund_required_cents,
             }
             for correction in OrderCorrection.objects.filter(
                 original_order_item__order__tab=tab,
                 status="REQUESTED",
-                financial_disposition="REFUND_REQUIRED",
+                financial_disposition__in=("REFUND_REQUIRED", "MANUAL_REVIEW_REQUIRED"),
             ).select_related("original_order_item")
         ]
         return Response(payload)
@@ -204,15 +237,32 @@ class OrderItemTransitionView(APIView):
         return Response({"id": str(item.id), "state": item.state, "ready_at": item.ready_at})
 
 
+class ProductionBatchView(APIView):
+    permission_classes: ClassVar[list] = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.ORDER_CONFIRM
+
+    def post(self, request):
+        from .production import execute_production_batch
+        from .serializers import ProductionBatchSerializer
+
+        serializer = ProductionBatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            receipt = execute_production_batch(actor=request.actor_context, **serializer.validated_data)
+        except OrderingServiceError as error:
+            return _error_response(error)
+        return Response(receipt, status=409 if receipt["status"] == "REJECTED" else 200)
+
+
 class ProductionQueueView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, station):
+        from .production import snapshot_fingerprint
         if station not in ("BAR", "KITCHEN"):
             return Response({"code": "INVALID_STATION", "message": "Estação inválida."}, status=400)
         from django.db.models import Q
         rows = OrderItem.objects.filter(Q(fulfillment_station_snapshot=station) | Q(fulfillment_station_snapshot="", product__fulfillment_station=station), order__tab__venue=request.auth.venue, order__status="CONFIRMED").exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").prefetch_related("corrections").order_by("created_at")
-        from modules.hospitality.tab_display import tab_location_labels
         rows = list(rows)
         current, _ = tab_location_labels({item.order.tab_id for item in rows})
-        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.remaining_quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "tab_label": item.order.tab.display_label, "table_label": current.get(str(item.order.tab_id)), "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})
+        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.remaining_quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "snapshot_fingerprint": snapshot_fingerprint(item.customization_snapshot), "tab_label": item.order.tab.display_label, "table_label": current.get(str(item.order.tab_id)), "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})

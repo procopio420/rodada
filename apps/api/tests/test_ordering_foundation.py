@@ -1,12 +1,11 @@
 from django.test import TestCase
-from rest_framework.test import APIClient
-
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
 from modules.catalog.models import AvailabilityState, FulfillmentStation, Product
 from modules.ordering.models import OrderItem, OrderSource, Tab, TabState
 from modules.ordering.services import OrderingServiceError, confirm_order
 from modules.venue.models import Venue
+from rest_framework.test import APIClient
 
 
 class OrderingFoundationTests(TestCase):
@@ -404,3 +403,53 @@ class OrderingFoundationTests(TestCase):
         assert first.status_code == 201
         assert conflict.status_code == 409
         assert conflict.json()["code"] == "IDEMPOTENCY_CONFLICT"
+
+    def test_tab_pages_cover_more_than_200_and_remain_venue_scoped(self):
+        Tab.objects.bulk_create([Tab(venue=self.venue, display_label=f"Page {i}") for i in range(201)])
+        Tab.objects.create(venue=self.other_venue, display_label="Other venue")
+        first = self.client.get("/tabs/").json()
+        self.assertEqual(len(first["results"]), 200)
+        self.assertEqual(first["next_offset"], 200)
+        second = self.client.get("/tabs/?offset=200").json()
+        self.assertEqual(len(second["results"]), 1)
+        self.assertIsNone(second["next_offset"])
+        ids = {row["id"] for row in first["results"] + second["results"]}
+        self.assertEqual(ids, {str(pk) for pk in Tab.objects.filter(venue=self.venue).values_list("id", flat=True)})
+        self.assertEqual(self.client.get("/tabs/?offset=-1").status_code, 400)
+
+    def test_global_label_search_normalization_and_homonyms(self):
+        older = Tab.objects.create(venue=self.venue, display_label="  João   DA Praça ")
+        same = Tab.objects.create(venue=self.venue, display_label="JOÃO DA PRAÇA")
+        unnamed = Tab.objects.create(venue=self.venue)
+        Tab.objects.bulk_create([Tab(venue=self.venue, display_label=f"Other {i}") for i in range(201)])
+        Tab.objects.create(venue=self.other_venue, display_label="João da Praça")
+        result = self.client.get("/tabs/", {"q": " JOAO  da praca "}).json()
+        self.assertEqual({row["id"] for row in result["results"]}, {str(older.id), str(same.id)})
+        self.assertIsNone(result["next_offset"])
+        self.assertEqual(self.client.get("/tabs/", {"q": "missing"}).json()["results"], [])
+        literal = Tab.objects.create(venue=self.venue, display_label="100% _teste")
+        result = self.client.get("/tabs/", {"q": "% _"}).json()
+        self.assertEqual([row["id"] for row in result["results"]], [str(literal.id)])
+        older.display_label = "Mudança"
+        older.save(update_fields=["display_label"])
+        self.assertEqual(self.client.get("/tabs/", {"q": "MUDANCA"}).json()["results"][0]["id"], str(older.id))
+        self.assertEqual(self.client.get("/tabs/", {"q": "x" * 121}).status_code, 400)
+        self.assertTrue(Tab.objects.filter(pk=unnamed.pk, search_label="").exists())
+
+    def test_label_search_paginates_and_backfill_matches_save(self):
+        from importlib import import_module
+
+        from django.apps import apps
+        from django.db import connection
+        from modules.ordering.search import normalize_tab_label
+
+        Tab.objects.bulk_create([Tab(venue=self.venue, display_label="Álvaro  Café") for _ in range(201)])
+        migration = import_module("modules.ordering.migrations.0007_tab_search_label")
+        migration.backfill(apps, connection.schema_editor(atomic=False))
+        self.assertEqual(Tab.objects.filter(search_label=normalize_tab_label("Álvaro Café")).count(), 201)
+        first = self.client.get("/tabs/", {"q": "alvaro cafe"}).json()
+        second = self.client.get("/tabs/", {"q": "alvaro cafe", "offset": 200}).json()
+        self.assertEqual(len(first["results"]), 200)
+        self.assertEqual(first["next_offset"], 200)
+        self.assertEqual(len(second["results"]), 1)
+        self.assertIsNone(second["next_offset"])

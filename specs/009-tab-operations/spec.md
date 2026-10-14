@@ -134,6 +134,36 @@ Rules:
 
 Manager permission is not required for ordinary relocation unless Venue policy says so.
 
+### Spec 026 T06d — destination validity and audit
+
+A new location move requires the destination occupancy generation to equal the
+locked Table.access_generation, in addition to same Venue, unreleased occupancy
+and OCCUPIED table. Reject stale generation with OCCUPANCY_NOT_ACTIVE and roll
+back the operation, assignments, version and audit. An exact committed replay
+returns its stored response even after the destination is released, but still
+requires current authorization. Preserve the supplied optional reason in the
+location audit. Neither move nor replay alters financial snapshots or releases
+the origin occupancy. The Web continuation below exposes this protected command.
+
+### Spec 026 T06d — Attendance Web
+Authorized staff selects a linked Tab by ID and another already occupied table,
+then confirms origin/destination and optional reason. Read the source Tab with
+table context before confirmation to capture version. This is a point-in-time
+read, not a durable source table lock; command version and destination locks
+remain authoritative. No automatic occupancy/release or financial transfer.
+Attendance gateway permits only MOVE_LOCATION with expected_version,
+occupancy_id, reason and idempotency_key; financial fields/operations are denied.
+
+Persist an exact non-secret intent before POST in sessionStorage, scoped to
+Venue/staff/session. Pending movement freezes navigation, editing and logout.
+Reload shows explicit retry, never auto-resends or adopts another session.
+Fresh auth, immutable operation response and authorized Tab/table readback are
+required before clearing. Readback can show a later move/released destination;
+report that current state without creating a replacement command. Only a first
+known definitive rejection clears the intent; rejected replay stays pending.
+Missing/corrupt/unavailable storage blocks sending. Closing tab, other sessions
+or devices and manager reconciliation are outside this slice.
+
 ## Split Tab
 
 A split creates or chooses a destination OPEN Tab and commits one TabTransfer.
@@ -418,3 +448,6 @@ it clears the preview and requires an explicit refresh before another financial 
 Management current open exposure includes committed incoming/outgoing transfer effects before
 clamping each Tab's balance. Transfers remain excluded from gross/net sales and product mix;
 merging into a survivor must not make unpaid consumption disappear from management reports.
+
+### T07d — entrada parcial Android
+Valor parcial usa teclado decimal e parser exato da Spec 006/T07d. Texto inválido ou zero bloqueia conferência/commit de novo comando e mostra erro; nunca substituir falha de parse por amount_cents zero. Preview, autoria, destino, snapshot e recuperação existentes permanecem.

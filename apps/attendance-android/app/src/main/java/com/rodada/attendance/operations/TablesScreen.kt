@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import com.rodada.attendance.ui.RodadaButton as Button
 import androidx.compose.material3.Card
@@ -31,6 +34,7 @@ fun TablesScreen(
     onRelease: (tableId: String) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
+    onOccupy: (String, String?) -> Unit = { _, _ -> },
     staffId: String = "",
     canOpenTabs: Boolean = false,
     onStartService: (String) -> Unit = {},
@@ -41,11 +45,16 @@ fun TablesScreen(
     onMoveTab: (String, TabSummary) -> Unit = { _, _ -> },
     partySizeEditor: @Composable (String) -> Unit = {},
 ) {
+    var occupyingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var openingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
     var takingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
     var newLabel by rememberSaveable { mutableStateOf("") }
     var showOptionalName by rememberSaveable { mutableStateOf(false) }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var releasingGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
+    var releasingLabel by rememberSaveable { mutableStateOf("") }
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
     var movingTabId by rememberSaveable { mutableStateOf<String?>(null) }
     val assignableTabs = state.tabs.filter { it.state !in setOf("CLOSED", "CANCELLED") && (canMoveTabs || it.id !in attachedTabIds) }
@@ -68,19 +77,70 @@ fun TablesScreen(
                 table = table,
                 busy = state.submitting || state.pendingTableService != null,
                 canManage = canManageTables,
-                onOccupy = { onStartService(table.id) },
+                onOccupy = { if (table.tableServiceEnabled) onStartService(table.id) else occupyingTableId = table.id },
                 staffId = staffId,
                 canOpenTabs = canOpenTabs && table.tableServiceEnabled,
                 onNewTab = { newLabel = ""; showOptionalName = false; openingOccupancy = it.id },
                 onClaim = { if (it.responsibleStaffId != null && it.responsibleStaffId != staffId) takingOccupancy = it.id else onClaim(it) },
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
-                onRelease = { onRelease(table.id) },
+                onRelease = {
+                    table.activeOccupancy?.let {
+                        releasingTableId = table.id
+                        releasingOccupancyId = it.id
+                        releasingGeneration = it.generation
+                        releasingLabel = table.label
+                    }
+                },
                 onStartCleaning = { onStartCleaning(table.id) },
                 onCompleteCleaning = { onCompleteCleaning(table.id) },
                 partySizeEditor = partySizeEditor,
             )
         }
+    }
+
+    releasingTableId?.let { tableId ->
+        val current = state.tables.firstOrNull { it.id == tableId }
+        val sameOccupancy = current?.status == "OCCUPIED" &&
+            current.activeOccupancy?.id == releasingOccupancyId &&
+            current.activeOccupancy?.generation == releasingGeneration
+        AlertDialog(
+            onDismissRequest = { releasingTableId = null },
+            title = { Text("Liberar mesa $releasingLabel?") },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.")
+                    Text("As comandas e seus saldos permanecem. Esta ação não recebe pagamentos nem fecha comandas.")
+                    if (!sameOccupancy) Text("A ocupação mudou. Cancele e confira a mesa novamente.", color = MaterialTheme.colorScheme.error)
+                    if (!canManageTables) Text("Seu acesso atual não permite liberar a mesa.")
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    modifier = Modifier.heightIn(min = 44.dp),
+                    enabled = sameOccupancy && canManageTables && !state.submitting,
+                    onClick = {
+                        if (releasingTableId == tableId && sameOccupancy && canManageTables && !state.submitting) {
+                            releasingTableId = null
+                            onRelease(tableId)
+                        }
+                    },
+                ) { Text("Confirmar liberação") }
+            },
+            dismissButton = { TextButton(onClick = { releasingTableId = null }, modifier = Modifier.heightIn(min = 44.dp)) { Text("Cancelar") } },
+        )
+    }
+
+    occupyingTableId?.let { tableId ->
+        OccupyTableDialog(
+            tabs = assignableTabs,
+            busy = state.submitting,
+            onDismiss = { occupyingTableId = null },
+            onOccupy = { tabId ->
+                onOccupy(tableId, tabId)
+                occupyingTableId = null
+            },
+        )
     }
 
     state.tables.mapNotNull { it.activeOccupancy }.firstOrNull { it.id == openingOccupancy }?.let { occupancy ->
@@ -219,3 +279,28 @@ private fun String.tableStatusLabel(): String =
         "OUT_OF_SERVICE" -> "FORA DE SERVIÇO"
         else -> this
     }
+
+@Composable
+private fun OccupyTableDialog(
+    tabs: List<TabSummary>,
+    busy: Boolean,
+    onDismiss: () -> Unit,
+    onOccupy: (String?) -> Unit,
+) = AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Ocupar mesa") },
+    text = {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Você pode associar uma comanda agora ou fazê-lo depois.")
+            OutlinedButton(onClick = { onOccupy(null) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Ocupar sem comanda") }
+            tabs.forEach { tab ->
+                OutlinedButton(onClick = { onOccupy(tab.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                    Text("Ocupar com ${tab.displayLabel}")
+                }
+            }
+            if (tabs.isEmpty()) Text("Abra uma comanda para associá-la à mesa.")
+        }
+    },
+    confirmButton = {},
+    dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+)

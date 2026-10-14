@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import com.rodada.attendance.ui.RodadaButton as Button
 import com.rodada.attendance.ui.RodadaOutlinedButton as OutlinedButton
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,7 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
     val busy = state.submitting
     val financial = kind in setOf("SPLIT", "MOVE_ITEMS", "MERGE")
     val pending = state.pendingTabOperation
+    val amountsValid = amounts.values.filter { it.isNotBlank() }.all { (parseCents(it) ?: 0) > 0 }
     LaunchedEffect(source) {
         submitted = null
         quantities = emptyMap()
@@ -52,7 +55,7 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                     put("lines", JSONArray().apply {
                         quantities.filterValues { it > 0 }.forEach { (id, quantity) -> put(JSONObject().put("charge_id", id).put("quantity", quantity)) }
                         amounts.filterValues { it.isNotBlank() }.forEach { (id, value) ->
-                            if ((quantities[id] ?: 0) == 0) put(JSONObject().put("charge_id", id).put("amount_cents", parseCents(value) ?: 0))
+                            if ((quantities[id] ?: 0) == 0) put(JSONObject().put("charge_id", id).put("amount_cents", requireNotNull(parseCents(value))))
                         }
                     })
                 } else if (kind == "MOVE_LOCATION") {
@@ -111,7 +114,8 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                                         Text("${quantities[id] ?: 0}")
                                         TextButton(onClick = { quantities = quantities + (id to ((quantities[id] ?: 0) + 1)); amounts = amounts - id; changed() }, enabled = !busy && unit > 0 && ((quantities[id] ?: 0) + 1) * unit <= available) { Text("+") }
                                     }
-                                    OutlinedTextField(amounts[id].orEmpty(), { amounts = amounts + (id to it); quantities = quantities - id; changed() }, label = { Text("Ou valor parcial (R$)") }, enabled = !busy, singleLine = true)
+                                    OutlinedTextField(amounts[id].orEmpty(), { amounts = amounts + (id to it); quantities = quantities - id; changed() }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Ou valor parcial (R$)") }, enabled = !busy, singleLine = true)
+                                    if (amounts[id].orEmpty().isNotBlank() && (parseCents(amounts[id].orEmpty()) ?: 0) <= 0) Text("Informe um valor válido em reais, com até duas casas decimais.", color = MaterialTheme.colorScheme.error)
                                 }
                             }
                         }
@@ -134,7 +138,7 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                             Text("Origem após: ${formatCents(preview.getLong("source_after_cents"))}")
                             Text("Destino após: ${formatCents(preview.getLong("destination_after_cents"))}")
                         }
-                        val valid = online && !busy && tabOperationOptions(session.capabilities, source.getJSONObject("tab").getString("state")).any { it.first == kind } && (!financial || source.optJSONObject("blocker") == null) && (kind != "MERGE" || destination != null) && (kind != "REOPEN" || reason.isNotBlank())
+                        val valid = online && !busy && tabOperationOptions(session.capabilities, source.getJSONObject("tab").getString("state")).any { it.first == kind } && (!financial || (amountsValid && source.optJSONObject("blocker") == null)) && (kind != "MERGE" || destination != null) && (kind != "REOPEN" || reason.isNotBlank())
                         if (financial && state.operationPreview == null) Button(onClick = { val cmd = command(); submitted = cmd; onPreview(cmd) }, enabled = valid) { Text("Conferir transferência") }
                         else Button(onClick = { val cmd = submitted ?: command().also { submitted = it }; onCommit(cmd) }, enabled = valid) { Text("Confirmar operação") }
                     }

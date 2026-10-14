@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -75,8 +75,8 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   guest.on("pageerror", error => errors.push(error.message));
-  await guest.goto(`/guest/${table.public_token}`);
   await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
+  await guest.goto(`/guest/${table.public_token}`);
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Real guest E2E");
   await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
   await expect(guest.getByRole("heading", { name: "Real guest E2E" })).toBeVisible();
@@ -214,6 +214,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+  await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
   await guest.reload();
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();

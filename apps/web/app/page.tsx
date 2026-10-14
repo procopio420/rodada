@@ -13,10 +13,10 @@ const modules: ReadonlyArray<{
   href: string;
   icon: OperationalIconName;
 }> = [
-  { label: "Atendimento", description: "Mesas, comandas e pedidos", href: "/atendimento", icon: "table" },
+  { label: "Atendimento", description: "Mesas e pedidos", href: "/atendimento", icon: "table" },
   { label: "Cozinha", description: "Preparo e produção", href: "/cozinha", icon: "chef" },
   { label: "Bar", description: "Bebidas e pedidos", href: "/bar", icon: "drink" },
-  { label: "Caixa", description: "Recebimentos e fechamento", href: "/caixa", icon: "wallet" },
+  { label: "Caixa", description: "Receber e fechar", href: "/caixa", icon: "wallet" },
   { label: "Gerência", description: "Operação e relatórios", href: "/gerencia", icon: "settings" },
 ];
 

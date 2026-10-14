@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 test("Attendance cancels a confirmed unpaid item through canonical financial reversal", async ({ page }) => {
  await page.goto("/attendance");
  await page.getByLabel("Estabelecimento").fill("web-e2e");

@@ -2,6 +2,31 @@
 
 ## Location move
 
+Web T06d criteria (local scope):
+- [x] Explicit Tab ID/origin/destination confirmation; only another occupied table is eligible, with no automatic occupancy/release.
+- [x] Exact session-scoped replay after lost response/reload and failed readback, without duplicate location/financial effects.
+- [x] Gateway rejects financial operations/fields; drafts and Orders/Charges/Payments remain unchanged.
+- [x] Mobile 360/390/430, complete visual regression, build/types and PostgreSQL checks pass.
+
+Web evidence: 331 visual tests PASS (7.2m), including 13 new movement scenarios;
+one real Web/API PostgreSQL journey covers all three mobile widths, paid/unpaid
+Tabs, exact replay/reload, readback failure and financial gateway rejection.
+58 API PostgreSQL tests PASS (122.306s); build/types, Ruff and 12 auth/realtime
+tests PASS. See Spec026 revalidation.md, T06d Web, for limits and commands.
+
+Spec 026 T06d regression criteria:
+- [x] Stale destination generation rejects atomically without changing source location/version, financial records or audit.
+- [x] Valid paid and unpaid moves preserve financial snapshots, origin occupancy and optional audit reason.
+- [x] Exact concurrent retries produce one operation/assignment/event; release races leave no active assignment to a released occupancy.
+- [x] Replay after destination release returns the original response, rechecks authorization and does not resurrect an assignment.
+
+Local evidence: six tests in test_tab_location_safety on disposable PostgreSQL
+(17.981s), plus a 57-test hospitality/ledger/tab_operations regression run
+(118.264s, including five of those six tests before the final isolation case).
+Ruff and Django system/migration checks pass. That backend-only run implies no
+Web/device/deploy verification; Web evidence is recorded separately above.
+Full details: Spec 026 revalidation.md, T06d backend section.
+
 **Given** an OPEN Tab at TableOccupancy A  
 **When** authorized staff moves it to active TableOccupancy B  
 **Then** current location becomes B, no Charge/Payment changes, historical events keep prior context, and occupancy A is not released.
@@ -113,3 +138,7 @@ Additional regression criteria:
 - Concurrent identical splits create one destination, one operation and one transfer.
 - Concurrent payment and full split cannot both commit against the same responsibility.
 - Failed refresh after Android server rejection retains that rejection and clears stale preview.
+
+### T07d — entrada parcial Android
+- [x] Valor inválido/zero bloqueia preview e não vira comando de zero; ponto decimal produz centavos exatos sem commit automático.
+Evidência em Spec 026 revalidation.md: Compose em seis configurações e 48 testes PostgreSQL PASS, mantendo contrato server-side e replay existentes.

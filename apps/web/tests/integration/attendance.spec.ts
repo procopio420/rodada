@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));

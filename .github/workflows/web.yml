@@ -26,6 +26,8 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    env:
+      RODADA_TEST_PYTHON: python
     timeout-minutes: 20
     services:
       postgres:
@@ -85,10 +87,10 @@ jobs:
       - name: Tenant path and hostname regression tests
         working-directory: apps/web
         run: npm run test:tenant
-
       - name: Table-first identity regression tests
         working-directory: apps/web
         run: npm run test:identity
+
 
       - name: Build
         working-directory: apps/web

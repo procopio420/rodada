@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import AxeBuilder from "@axe-core/playwright";
 
 test("guest service calls persist in Dispatch and revoke with the visit", async ({ page, browser }) => {

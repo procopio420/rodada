@@ -163,3 +163,100 @@ creates and configures a burger via Gerência and confirms staff/guest totals.
 Generated Web images/reports remain in `apps/web/test-results/`,
 `apps/web/playwright-report/` and `visual-artifacts/`. Native APK and unit/lint reports
 remain in `apps/attendance-android/app/build/`. These build outputs are not committed.
+
+### T08a — evidência de repetição
+- [x] Android preserva IDs/nota, valida catálogo atual e bloqueia seleção removida/indisponível/legado; preço atual e snapshot histórico imutável comprovados em unitários e PostgreSQL.
+- [ ] Journey completa Android/API e repetição Web/guest.
+
+### T08b — repetição staff Web local
+- [x] Snapshot com IDs, seleção e preço atuais, diferenças explícitas, bloqueios de legado/produto/configuração inválidos e configuração distinta do default comprovados em testes de navegador. Original preservado na jornada PostgreSQL.
+- [ ] Repetição guest/Web POS e verificação publicada.
+
+### T08c — evidência local guest
+- [x] Revisão atual por IDs/preço/configuração, sem defaults; cancelar preserva draft e inclusão não envia.
+- [x] Releitura impede visita/Tab/token divergentes e bloqueio/revogação/falha/conteúdo alterado; configuração distinta não se funde.
+- [x] PostgreSQL/Web em 360/390/430: nova intenção, resposta perdida/replay sem duplicação, histórico/Payments preservados; bloqueio de mesa após revisão impede inclusão.
+
+Detalhes, checks completos e limites em specs/026-operational-ux-friction/revalidation.md.
+
+### T08d — repetição no PDV Web
+- [x] Revisão por IDs/preço/configuração atuais, exclusões e bloqueios, sem defaults ou envio automático.
+- [x] Cancelamento/falha preservam draft; inclusão única na mesma Tab; personalização, recebimento ambíguo, encerramento e conteúdo alterado bloqueiam repetição.
+- [x] Web/API PostgreSQL 360/390/430: preço atual, nova intenção, replay sem duplicação, histórico/snapshot/Payments e draft da outra Tab preservados.
+- [x] 371 testes visuais PASS (7,2 min), tipos/build e diff finais PASS; sem alteração de baseline/tolerância.
+
+### T09a — quantidade guest local
+- [x] +/− acessíveis, zero remove, agrupamento por configuração idêntica e edição conserva quantidade; limite 99 rejeita inclusão/edição/repetição inteira sem perder draft.
+- [x] Variantes/opções/notas diferentes permanecem distintas, ordem de option IDs não cria configuração nova; controles e payload pendente preservados nos bloqueios.
+- [x] Web/API PostgreSQL 360/390/430: quantidade agrupada enviada uma vez, replay idêntico, exposição/charges corretos e Payments preservados; bloqueio real de mesa em 390.
+- [x] 385 testes visuais PASS (7,3 min), tipos/build/diff PASS; resultado final e limites em Spec 026/revalidation.md.
+
+### T09b — evidência local guest
+- [x] Busca global por nome, acentos/caixa/espaços nas bordas, categorias consistentes, retorno ao limpar, fallback e vazio; fixture de 146 produtos.
+- [x] Filtros/atalho preservam configuração, quantidade, draft e intent; indisponibilidade, bloqueio e revogação respeitados; primeira inclusão não desloca catálogo.
+- [x] Web/API PostgreSQL 360/390/430: categoria real, seleção cruzando filtros, bloqueio de mesa, foco/draft e replay sem duplicar Order/Charge.
+- [x] 393 testes visuais PASS (7,6 min), Ruff/tipos/build/diff PASS; detalhes na Spec 026. Não implica paridade global, aparelho físico ou publicação.
+
+T10b/Spec026: resumo separa variação/modificador/nota/semântica confirmados, mantém legado independente e não consulta configuração atual para reconstruir preparo. Validar igualdade independentemente de preço/quantidade, mobile e Web/API PostgreSQL.
+
+Evidência T10b local:5 unitários,6 Web/API PostgreSQL,47 PostgreSQL e408 visuais completos PASS; tipos/build/diff PASS. Lote e validação publicada permanecem pendentes; detalhes na revalidation da Spec026.
+
+
+### T10c.1 — API de lote (evidência local)
+- [x] Lote compatível, replay imutável e rejeição integral por estado/quantidade/snapshot/configuração/Venue.
+- [x] Concorrência, rollback de Dispatch, auditoria por comando e preservação financeira em PostgreSQL.
+- [x] T10c.2: revisão e recuperação Web mobile entregue em slice própria; não faz parte de T10c.1.
+
+Evidência T10c.1: 96 testes PostgreSQL PASS (108.595s), incluindo 17 testes novos
+de lote, Dispatch, ordering, turno completo, customização, ledger/Payments e
+concorrência financeira/correções/pedidos. Django check/migration drift, compilação
+Python, tipos Web e diff PASS. Ruff dos arquivos novos PASS; os arquivos existentes
+models/views/urls mantêm 12 avisos (10 RUF012/2 I001), reproduzidos em HEAD ad5d64f.
+Não houve alteração de UI: visual/build Web e jornada browser/mobile não executados
+nesta slice. Log: visual-artifacts/spec026/runtime/t10c-postgres-final.log.
+
+### T10c.2 — evidência local
+- [x] Seleção explícita e revisão obsoleta bloqueada; sem auto-preparo.
+- [x] Envelope anterior ao envio, replay original, sessão/armazenamento/readback protegidos e resultado por linha.
+- [x] Web/API PostgreSQL mobile360/390/430, tipos/build/visual completo sem relaxar baselines.
+
+T10c.2:425 visuais completos PASS (8.9m), incluindo17 de lote, mais1 teste
+de volume51/limite50 executado separadamente após discovery;6 Web/API PostgreSQL
+PASS (50.1s),49 PostgreSQL PASS (66.270s),5 unitários, tipos/build/diff PASS.
+Sem baseline/tolerância novos. Capturas fixture/reais360 inspecionadas;390/430
+cobertas por testes. Ledger/Payments/snapshots e12 comandos/12 auditorias/24
+transições/12 entregas verificados na base exclusiva de teste. Não há script
+Web lint/test genérico; executados test:visual/test:integration/test:production
+por CLI Node documentada. UX23/T10d, aparelho, piloto e publicação seguem abertos.
+
+### T10d.1 — evidência local
+- [x] Itens verificados distintos avançam independentemente; mesmo item/lote/legado protegidos.
+- [x] Intenções persistidas sobrevivem mudança de estado/reload; replay original, rejeição e falha isolados.
+- [x] Web/API mobile PostgreSQL, regressões financeiras, tipos/build/visual completo.
+
+438 visuais completos PASS (9.4m),29 focados,6 Web/API PostgreSQL (1.0m),
+49 PostgreSQL (70.813s),5 unitários,tipos/build/diff PASS. Sem baseline/tolerância
+novos. Base exclusiva:18 comandos/18 auditorias/18 transições de comando,
+6 transições de setup,12 entregas,6 Payments; replay,ledger e snapshots preservados.
+Capturas fixture/reais360 inspecionadas;360/390/430 testados nas duas estações.
+Logs:visual-artifacts/spec026/runtime/t10d1-{focused,integration,postgres-tests,
+readback,build,visual}.log. Web não possui script test/lint genérico.
+UX23/T10d parcial; lote/legado/disponibilidade permanecem protegidos. Próximo
+recorte T10d.2. Aparelho,piloto,tempo humano e publicação não verificados.
+
+### T10d.2 — evidência local
+- [x] Item fora do lote avança; linhas selecionadas e barreiras conservadas.
+- [x] Journals separados e vinculados à sessão; replay/readback preservados.
+- [x] Web/API PostgreSQL mobile, regressões financeiras, tipos/build/visual completo.
+
+447 visuais completos PASS (9.2m),38 focados PASS (51.1s),6 Web/API PostgreSQL
+PASS (1.1m),49 PostgreSQL PASS (68.929s),5 unitários,tipos/build final/diff PASS.
+Sem alteração de baseline/tolerância/export. 360/390/430 nas duas estações;
+capturas fixture360 inspecionadas. Base exclusiva:18 comandos/18 auditorias,
+30 transições,12 entregas,6 Payments; command_id/ledger/snapshots preservados.
+Logs:visual-artifacts/spec026/runtime/t10d2-{focused,integration,postgres-tests,
+readback,build-final,visual-final}.log. Sem script Web test/lint genérico.
+UX23/T10d parcial; próximo T10d.3: investigar disponibilidade por produto,
+versionamento e recuperação antes de liberar esse escopo. Legado/QuickCatalog
+e novo lote durante pendência conservam barreiras. Aparelho/piloto/publicação
+não verificados; sem commit/push/merge/deploy.

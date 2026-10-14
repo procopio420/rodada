@@ -174,6 +174,26 @@ class GuestAccessServiceTests(TestCase):
 
 
 class GuestAccessApiTests(TestCase):
+    def test_guest_catalog_projects_stored_category_and_preserves_scope(self):
+        self.product.category = "Bebidas"
+        self.product.save(update_fields=["category"])
+        resolved = self.guest_client.post(
+            "/guest/qr/resolve/", {"token": self.table.public_token}, format="json"
+        ).json()
+        self.guest_client.credentials(HTTP_X_GUEST_SESSION=resolved["guest_session_token"])
+        before = self.guest_client.get("/guest/context/").json()
+        response = self.guest_client.get("/guest/catalog/")
+        assert response.status_code == 200
+        assert len(response.json()["results"]) == 1
+        item = response.json()["results"][0]
+        assert item["id"] == str(self.product.pk)
+        assert item["category"] == "Bebidas"
+        assert item["price_cents"] == self.product.price_cents
+        self.product.category = ""
+        self.product.save(update_fields=["category"])
+        assert self.guest_client.get("/guest/catalog/").json()["results"][0]["category"] == ""
+        assert self.guest_client.get("/guest/context/").json()["session_scope"] == before["session_scope"]
+
     def setUp(self):
         self.guest_client = APIClient()
         self.staff_client = APIClient()
@@ -209,6 +229,42 @@ class GuestAccessApiTests(TestCase):
         assert login.status_code == 200, login.json()
         self.staff_client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
 
+    def test_guest_context_projects_table_ordering_policy_without_hiding_history(self):
+        resolved = self.guest_client.post(
+            "/guest/qr/resolve/", {"token": self.table.public_token}, format="json"
+        )
+        self.guest_client.credentials(HTTP_X_GUEST_SESSION=resolved.json()["guest_session_token"])
+        tab = self.guest_client.post("/guest/tabs/", {}, format="json").json()
+        original = self.guest_client.post(
+            "/guest/orders/confirm/",
+            {"idempotency_key": "policy-original", "lines": [{"product_id": str(self.product.id), "quantity": 1}]},
+            format="json",
+        ).json()
+        context = self.guest_client.get("/guest/context/").json()
+        assert context["tab"]["orders"][0]["id"] == original["id"]
+        original = context["tab"]["orders"][0]
+        assert context["guest_policy"]["table_ordering_enabled"] is True
+        assert context["tab"]["id"] == tab["id"]
+        for blocked, mode in [(True, GuestOrderingMode.DIRECT), (False, GuestOrderingMode.DISABLED)]:
+            self.table.guest_ordering_blocked = blocked
+            self.table.guest_ordering_mode = mode
+            self.table.save(update_fields=["guest_ordering_blocked", "guest_ordering_mode"])
+            response = self.guest_client.get("/guest/context/")
+            assert response.status_code == 200
+            paused = response.json()
+            assert paused["guest_policy"]["table_ordering_enabled"] is False
+            assert paused["session_scope"] == context["session_scope"]
+            assert paused["tab"]["orders"][0] == original
+            assert self.guest_client.get("/guest/catalog/").status_code == 200
+        self.table.guest_ordering_mode = GuestOrderingMode.DIRECT
+        self.table.save(update_fields=["guest_ordering_mode"])
+        self.venue.guest_mutations_blocked = True
+        self.venue.save(update_fields=["guest_mutations_blocked"])
+        emergency = self.guest_client.get("/guest/context/").json()
+        assert emergency["guest_policy"]["table_ordering_enabled"] is True
+        assert emergency["guest_policy"]["emergency_blocked"] is True
+        assert emergency["tab"]["orders"][0] == original
+
     def test_guest_http_flow_uses_only_guest_endpoints_and_feeds_production(self):
         resolved = self.guest_client.post(
             "/guest/qr/resolve/", {"token": self.table.public_token}, format="json"
@@ -236,3 +292,45 @@ class GuestAccessApiTests(TestCase):
         queue = self.staff_client.get("/production/BAR/")
         assert queue.status_code == 200, queue.json()
         assert [item["id"] for item in queue.json()["results"]] == [order.json()["items"][0]["id"]]
+
+    def test_guest_recovery_scope_is_non_secret_and_replay_preserves_financial_history(self):
+        resolved = self.guest_client.post("/guest/qr/resolve/", {"token": self.table.public_token}, format="json")
+        token = resolved.json()["guest_session_token"]
+        self.guest_client.credentials(HTTP_X_GUEST_SESSION=token)
+        tab = self.guest_client.post("/guest/tabs/", {"display_label": "Recovery"}, format="json").json()
+        before = self.guest_client.get("/guest/context/").json()
+        scope = before["session_scope"]
+        session = GuestSession.objects.get(tab_id=tab["id"])
+        assert scope == {"venue_id": str(self.venue.pk), "session_id": str(session.pk),
+                         "table_id": str(self.table.pk), "occupancy_id": str(session.occupancy_id),
+                         "generation": session.generation}
+        assert "guest_session_token" not in before
+        payload = {"idempotency_key": "guest-recovery", "lines": [{"product_id": str(self.product.pk), "quantity": 1}]}
+        first = self.guest_client.post("/guest/orders/confirm/", payload, format="json")
+        replay = self.guest_client.post("/guest/orders/confirm/", payload, format="json")
+        assert first.status_code == 201, first.json()
+        assert replay.status_code == 200, replay.json()
+        assert replay.json()["id"] == first.json()["id"]
+        after = self.guest_client.get("/guest/context/").json()
+        assert after["session_scope"] == scope
+        assert len(after["tab"]["orders"]) == 1
+        assert after["tab"]["exposure_cents"] == 2200
+        assert session.tab.charges.count() == 1
+        assert session.tab.payments.count() == 0
+        assert AuditEvent.objects.filter(event_type="guest_order.confirmed", entity_id=first.json()["id"]).count() == 1
+
+    def test_guest_recovery_cannot_replay_committed_order_after_generation_revocation(self):
+        resolution = resolve_table_qr(public_token=self.table.public_token)
+        tab = create_or_get_guest_tab(session_token=resolution.token)
+        payload = {"idempotency_key": "guest-revoked-recovery", "lines": [{"product_id": str(self.product.pk), "quantity": 1}]}
+        self.guest_client.credentials(HTTP_X_GUEST_SESSION=resolution.token)
+        first = self.guest_client.post("/guest/orders/confirm/", payload, format="json")
+        assert first.status_code == 201, first.json()
+        self.table.access_generation += 1
+        self.table.save(update_fields=["access_generation"])
+        assert self.guest_client.get("/guest/context/").status_code == 403
+        replay = self.guest_client.post("/guest/orders/confirm/", payload, format="json")
+        assert replay.status_code == 403, replay.json()
+        assert replay.json()["code"] == "GUEST_SESSION_REVOKED"
+        assert tab.orders.count() == tab.charges.count() == 1
+        assert tab.payments.count() == 0

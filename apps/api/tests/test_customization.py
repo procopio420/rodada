@@ -106,6 +106,34 @@ class CustomizationTests(TestCase):
             format="json",
         )
 
+    def test_repeat_snapshot_with_new_intent_reprices_and_replay_preserves_history(self):
+        original = self.confirm().json()
+        item = original["items"][0]
+        snapshot = item["customization_snapshot"]
+        ProductVariant.objects.filter(pk=self.double).update(price_cents=3200)
+        repeated_line = {
+            "product_id": item["product_id"],
+            "quantity": item["quantity"],
+            "variant_id": snapshot["variant"]["id"],
+            "modifier_option_ids": [option["option_id"] for option in snapshot["modifiers"]],
+            "special_instructions": snapshot["special_instructions"],
+        }
+        repeated = self.confirm(repeated_line, key="repeat-new-intent")
+        assert repeated.status_code == 201, repeated.json()
+        assert repeated.json()["id"] != original["id"]
+        assert repeated.json()["items"][0]["unit_price_cents"] == 4000
+        replay = self.confirm(repeated_line, key="repeat-new-intent")
+        assert replay.status_code == 200
+        assert replay.json()["id"] == repeated.json()["id"]
+        assert Charge.objects.filter(tab=self.tab).count() == 2
+        persisted = OrderItem.objects.get(pk=item["id"])
+        assert persisted.unit_price_cents == 3800
+        assert persisted.customization_snapshot == snapshot
+        ModifierOption.objects.filter(pk=self.bacon).update(availability="UNAVAILABLE")
+        rejected = self.confirm(repeated_line, key="repeat-unavailable")
+        assert rejected.status_code == 409, rejected.json()
+        assert Charge.objects.filter(tab=self.tab).count() == 2
+
     def test_complete_persisted_burger_guest_kitchen_and_availability(self):
         first = self.confirm()
         assert first.status_code == 201, first.json()
