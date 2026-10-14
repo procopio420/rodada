@@ -16,7 +16,7 @@ import win32security
 import win32service
 import win32serviceutil
 
-from rodada_printer_agent.windows_store import ROOT, SERVICE_NAME, WindowsStore
+from rodada_printer_agent.windows_store import ROOT, SERVICE_NAME, WindowsStore, secure_directory
 
 
 def wait_for(predicate, seconds=40):
@@ -88,6 +88,35 @@ def main():
                 pass
             else:
                 raise AssertionError("Unsafe precreated parent accepted")
+        with tempfile.TemporaryDirectory() as temporary:
+            unsafe_store = WindowsStore(Path(temporary) / "Rodada" / "Impressoras")
+            secure_directory(unsafe_store.root.parent, public=True)
+            secure_directory(unsafe_store.root, public=True)
+            unsafe_store.private.mkdir()  # Inherits public BU read: never acceptable for secrets.
+            try:
+                unsafe_store.provision(f"http://127.0.0.1:{server.server_port}")
+            except OSError:
+                pass
+            else:
+                raise AssertionError("Readable precreated private directory accepted")
+        with tempfile.TemporaryDirectory() as temporary:
+            unsafe_store = WindowsStore(Path(temporary) / "Rodada" / "Impressoras")
+            origin = f"http://127.0.0.1:{server.server_port}"
+            unsafe_store.provision(origin)
+            readable = win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
+                "D:P(A;;FA;;;BA)(A;;GR;;;BU)", 1
+            )
+            win32security.SetFileSecurity(
+                str(unsafe_store.private / "state.dpapi"),
+                win32security.DACL_SECURITY_INFORMATION,
+                readable,
+            )
+            try:
+                unsafe_store.provision(origin)
+            except OSError:
+                pass
+            else:
+                raise AssertionError("Readable retained credential file accepted")
         store = WindowsStore()
         state = store.load()
         installation_id = state.installation_id
