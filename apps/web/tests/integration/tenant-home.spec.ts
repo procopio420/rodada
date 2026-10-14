@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, type Page } from "@playwright/test";
 
 // Chromium forbids overriding Host in navigation requests. Fulfill only the document
 // with a real Next HTTP response made against the isolated tenant fixture host;
@@ -23,7 +23,7 @@ test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", a
     await expect(page.getByRole("img", { name: "Rodada" })).toBeVisible();
     await expect(page.getByText("Web E2E — test only", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Onde vamos trabalhar?" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Entrar ou trocar operador" })).toHaveAttribute("href", "/staff");
+    await expect(page.getByRole("link", { name: "Entrar no Rodada" })).toHaveAttribute("href", "/staff");
 
     const destinations = [
       ["Atendimento", "/atendimento"],

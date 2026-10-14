@@ -36,16 +36,22 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
     import uvicorn
     from django.db import close_old_connections, OperationalError
     from modules.realtime.services import dispatch_pending
+    from e2e_db_guard import e2e_database_guard
 
     def publish():
         while True:
             close_old_connections()
             try:
-                dispatch_pending()
+                # In PostgreSQL E2E, the per-file TRUNCATE/seed must never
+                # overlap this publisher's queries/transactions.
+                with e2e_database_guard(exclusive=False):
+                    dispatch_pending()
             except OperationalError:
                 # SQLite's single writer may be occupied by a test command.
                 # The durable outbox remains pending and retries on the next pass.
                 pass
+            finally:
+                close_old_connections()
             time.sleep(0.5)
 
     threading.Thread(target=publish, daemon=True).start()

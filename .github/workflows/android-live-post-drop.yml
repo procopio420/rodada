@@ -2,6 +2,21 @@ name: Android real POST disconnect
 
 on:
   workflow_dispatch:
+  # Keep expensive Android emulator coverage opt-in for regular app changes.
+  # Run the cross-surface gate automatically only if its own proof/code changes.
+  pull_request:
+    paths:
+      - ".github/workflows/android-live-post-drop.yml"
+      - "apps/web/playwright.android-cross-surface.config.ts"
+      - "apps/web/tests/cross-surface/**"
+      - "scripts/verify-android-web-cross-surface.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   real-post-after-commit-disconnect:
@@ -17,6 +32,7 @@ jobs:
       POSTGRES_PORT: "5432"
       DJANGO_SECRET_KEY: disposable-only-not-used-in-production
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2
+      RODADA_BFF_HOST_SECRET: rodada-integration-local-only
       RODADA_POST_DROP_FIXTURE: /tmp/rodada-android-live-fixture.json
       RODADA_POST_DROP_MARKER: /tmp/rodada-android-live-drop.json
     services:
@@ -80,6 +96,40 @@ jobs:
           script: |
             bash scripts/android-live-post-drop.sh
             bash scripts/android-table-service-post-drop.sh
+      # The native emulator just committed and recovered the order in this
+      # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
+      # Web must read and mutate the native-origin Order/Tab, not a mock order.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - name: Install and build actual Web station for native-origin order
+        working-directory: apps/web
+        env:
+          RODADA_API_BASE_URL: http://127.0.0.1:8101
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          npm run typecheck
+          npm run build
+      - name: Cross-client Chromium Web Bar preparation of Android-created order
+        working-directory: apps/web
+        env:
+          RODADA_API_BASE_URL: http://127.0.0.1:8101
+          RODADA_ANDROID_PROOF: ${{ github.workspace }}/artifacts/android-real-post-drop.json
+        run: |
+          set -euo pipefail
+          node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110 >/tmp/rodada-cross-surface-next.log 2>&1 &
+          next_pid=$!
+          trap 'kill "$next_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 80); do
+            if curl -fsS http://127.0.0.1:3110/staff >/dev/null; then break; fi
+            if [ "$i" -eq 80 ]; then cat /tmp/rodada-cross-surface-next.log; exit 1; fi
+            sleep 2
+          done
+          npx playwright test --config playwright.android-cross-surface.config.ts
+      - name: Independently reconcile native order and Web READY state in PostgreSQL
+        run: python scripts/verify-android-web-cross-surface.py
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -87,6 +137,10 @@ jobs:
           name: android-live-post-disconnect-evidence
           path: |
             artifacts/android-real-post-drop.json
+            artifacts/android-web-cross-surface.json
+            apps/web/test-results/android-cross-surface/
+            apps/web/playwright-report/android-cross-surface/
+            /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json
             /tmp/rodada-android-fault-proxy.log
             /tmp/rodada-android-django.log
@@ -94,6 +148,8 @@ jobs:
           retention-days: 7
 
   actual-network-uplink-cut:
+    # Physical/uplink-style acceptance remains manually dispatched, not every PR.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:

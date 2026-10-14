@@ -41,6 +41,9 @@ class VenueHostMiddleware:
                 return JsonResponse({"code": "HOST_ASSERTION_REQUIRED"}, status=403)
         else:
             venue_id = None
+        # Preserve only the already-validated tenant Host for lazy SSE reauthorization.
+        # Raw browser forwarding headers must never become stream authority.
+        request.venue_hostname = hostname if venue_id is not None else None
         token = resolved_venue_id.set(venue_id)
         try:
             return self.get_response(request)
