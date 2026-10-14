@@ -2,6 +2,20 @@
 
 **Legend:** [ ] = pending. Writing a spec does not count as implementing an item.
 
+## Tracking por slice (um PR de implementação por slice)
+
+Estes itens de tracking agregam as tarefas detalhadas abaixo; **todos continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
+
+- [ ] **S1 — Foundation:** schema/API/Access/credencial de máquina/isolamento/compatibilidade da Spec 015. Gate: acceptance **3 (parcial), 12, 15**; testes de migrations, permissão e regressão bridge; sem instalador.
+- [ ] **S2 — Pairing:** serviço Windows inicial, proof-of-possession, pareamento Manager/Owner no Manage, heartbeat e revogação. Gate: acceptance **2, 3, 13 (start no Windows)**; teste de código vencido/replay e host sem usuário logado.
+- [ ] **S3 — Printing MVP:** um PC -> uma rota -> printer endpoint, WinSpool/ESC-POS ou WindowsDriver, job da Spec 015 até SPOOL_ACCEPTED. Gate: acceptance **4, 5 (parcial), 8 (básico), 9, 10, 11, 15**; mocks Windows e teste E2E sem hardware obrigatório.
+- [ ] **S4 — Multiagent:** múltiplos computadores/rotas e claim com lease/fencing; failover pré-envio e sem reenvio incerto. Gate: acceptance **5, 6, 7, 10, 12**; corrida real PostgreSQL + dois agentes simulados.
+- [ ] **S5 — Compatibility:** perfis ESC/POS/Bematech candidata/WindowsDriver, 58/80, acentos, corte/diagnóstico e teste. Gate: acceptance **4, 8, 11, 14 (pré-requisitos)**; golden tests e spool virtual; aprovação física só na S7.
+- [ ] **S6 — Distribution:** pipeline Windows, setup EXE, assinatura Authenticode, atualização, /downloads e Manage apontando para mesma release. Gate: acceptance **1, 13, 15**; install/uninstall/upgrade, SHA e assinatura; não declarar release pública stable antes do gate S7.
+- [ ] **S7 — Pilot:** documentação da conexão real da Bematech, tickets reais, matriz, falhas, rollback e decisão de ativação. Gate: acceptance **1–15**, especialmente **14 físico**; testemunho e fotos do papel sem PII.
+
+**Ordem:** S1 -> S2 -> S3 -> (S4 || S5) -> S6 -> S7. S6 pode ter preparação de CI em paralelo, mas depende da integração dos drivers/rotas para conclusão. Manter ownership distinto entre S4 e S5 e apontar todos os PRs para esta spec e ADR 0020.
+
 ## Contracts / backend
 - [ ] Trace Spec 015 state/route APIs and freeze backwards compatibility for legacy bridge.
 - [ ] Add scoped PrintAgent identity (Access), lifecycle and audit migrations.
