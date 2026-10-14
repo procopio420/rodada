@@ -57,7 +57,7 @@ def lines(document, reprint=False):
         f"Dia operacional: {data['business_date']}",
     ]
     if data.get("table_label"):
-        result.insert(result.index(f"Comanda: {data[\'tab_label\']}"), f"Local: {data[\'table_label\']}")
+        result.insert(result.index("Comanda: " + str(data["tab_label"])), "Local: " + str(data["table_label"]))
     if document.station:
         result += [
             f"Estação: {'Bar' if document.station == 'BAR' else 'Cozinha'}",
