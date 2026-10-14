@@ -7,6 +7,24 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from .agent_models import AgentPrinterRoute, DiscoveredPrinter, PrintAgent, PrintPairingRequest
+
+__all__ = (
+    "AgentPrinterRoute",
+    "DiscoveredPrinter",
+    "ImmutableDocumentQuerySet",
+    "KdsDeviceHeartbeat",
+    "KdsStationHealth",
+    "PrintAgent",
+    "PrintAttempt",
+    "PrintJob",
+    "PrintPairingRequest",
+    "PrinterEndpoint",
+    "ReceiptAccessToken",
+    "ReceiptDocument",
+    "StationPrinterBinding",
+)
+
 
 class ImmutableDocumentQuerySet(models.QuerySet):
     def update(self, **kwargs):
@@ -205,11 +223,3 @@ class KdsDeviceHeartbeat(models.Model):
             models.CheckConstraint(condition=models.Q(station__in=("BAR", "KITCHEN")), name="printing_kds_device_station_valid"),
         ]
 
-
-# Django registers the fleet models in this app; kept separate from immutable receipts.
-from .agent_models import (  # noqa: F401
-    AgentPrinterRoute,
-    DiscoveredPrinter,
-    PrintAgent,
-    PrintPairingRequest,
-)
