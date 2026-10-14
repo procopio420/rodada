@@ -50,8 +50,15 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
+  // The Tab is already attached to Entry attendance: association now requires an explicit move.
+  const move = page.getByRole("dialog", { name: "Mover comanda?" });
+  await expect(move).toContainText("Mesa Entry attendance → Mesa Attendance test");
+  await move.getByRole("button", { name: "Confirmar mudança de mesa", exact: true }).click();
+  await expect(move).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
-  await page.getByRole("dialog").getByRole("button", { name: "Voltar" }).click();
+  const moved = await (await browserRequest.get(`/api/attendance/tabs/${tab.id}/`)).json();
+  expect(moved.table_label).toBe("Mesa Attendance test");
+  expect(moved.exposure_cents).toBe(2000);
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
