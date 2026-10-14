@@ -31,6 +31,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   expect(starts).toHaveLength(2); expect(starts[0]).toEqual(starts[1]);
   await page.getByRole("button", { name: "Nova comanda nesta mesa" }).click();
+  await page.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
   await page.getByLabel("Nome ou apelido (opcional)").fill("João");
   await page.getByRole("button", { name: "Abrir e pedir" }).click();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
