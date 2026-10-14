@@ -13,7 +13,7 @@ test("manager configures real persisted customization; guest prices and kitchen 
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const { product } = await api(page, "/api/pos/catalog/resolve-or-create/", { name: "Hambúrguer configurável", price_cents: 1000, fulfillment_station: "KITCHEN" });
   await page.goto("/manage/catalog");
   await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
