@@ -282,7 +282,7 @@ test("staff login keyboard order and submitted failure", async ({ page }) => {
   await page.getByLabel("PIN", { exact: true }).focus(); await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeFocused();
   await page.route("**/api/auth/login", route => route.fulfill({ status: 401, json: { code: "AUTH_INVALID", message: "Credenciais inválidas." } }));
-  await page.keyboard.press("Enter"); await expect(page.getByRole("alert")).toContainText("Credenciais inválidas.");
+  await page.keyboard.press("Enter"); await expect(page.locator("main [role=alert]")).toContainText("Credenciais inválidas.");
   await expect(page.getByLabel("PIN", { exact: true })).toHaveValue("");
 });
 
