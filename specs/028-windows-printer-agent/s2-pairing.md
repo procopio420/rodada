@@ -1,6 +1,6 @@
 # S2 Pairing — implementation contract (before code)
 
-Base main 2a04379; S1 PR #149 merged with user approval on 2026-10-14.
+Base main 2a04379, synchronized with bbaa147 before final review; S1 PR #149 merged with user approval on 2026-10-14.
 Risk R3: anonymous bootstrap, proof possession, credentials, Windows service.
 S1 CI: API 756 PASS / Web 91 integrations PASS. No deployment authorized.
 
@@ -118,3 +118,10 @@ ProgramData ACL is untouched. Windows smoke now rejects an unsafe precreated
 parent and verifies an ordinary user cannot rename the service namespace.
 Administrative recovery must stop the service and move/remove unsafe preexisting
 paths under trusted control before provisioning; do not merely rewrite the ACL.
+
+
+Windows runtime at 865db94 passed run 38642910878, including unsafe precreated
+parent/private ACL and readable retained-file rejection. Source gating evidence
+and final SHA are maintained in PR #155; this document records tested snapshots,
+not automatic completion of the slice. Latest verification also reconfigures the
+service after LocalService writes its state, preserving installation/credential.

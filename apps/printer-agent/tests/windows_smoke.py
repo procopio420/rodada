@@ -191,6 +191,15 @@ def main():
             )
         )
         assert store.load().installation_id == installation_id
+        run(
+            "-m",
+            "rodada_printer_agent",
+            "configure",
+            "--api-origin",
+            f"http://127.0.0.1:{server.server_port}",
+        )
+        assert store.load().installation_id == installation_id
+        assert store.load().credential == state.credential
         Handler.response_status = 401
         win32serviceutil.StartService(SERVICE_NAME)
         wait_for(lambda: store.load().authorization_lost)
