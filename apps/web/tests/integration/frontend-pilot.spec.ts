@@ -56,10 +56,21 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   const table = page.locator("article").filter({ has: page.getByRole("heading", { name: "Mesa Pilot frontend table", exact: true }) });
-  await expect(table.getByText("Quantidade não informada", { exact: true })).toBeVisible();
-  await table.getByRole("button", { name: "Selecionar 4 pessoas" }).click();
-  await table.getByRole("button", { name: "Confirmar quantidade" }).click();
-  await expect(table.getByText("4 pessoa(s) · Informado pela equipe")).toBeVisible();
+  const summary = table.getByRole("button", { name: /Mesa Pilot frontend table Ocupada/ });
+  await expect(summary).toHaveAttribute("aria-expanded", "false");
+  await summary.click();
+  await expect(summary).toHaveAttribute("aria-expanded", "true");
+  await expect(table.getByText("0 comandas", { exact: true })).toBeVisible();
+  // Party size is no longer an action in Attendance, but the canonical staff API remains auditable.
+  const recorded = await page.evaluate(async id => {
+    const response = await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ covers_count: 4, expected_version: 0, idempotency_key: crypto.randomUUID() }),
+    });
+    if (!response.ok) throw new Error(`party size update ${response.status}`);
+    return response.json();
+  }, created.occupancyId);
+  expect(recorded).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
   const observation = await page.evaluate(async id => (await (await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`)).json()).current, created.occupancyId);
   expect(observation).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
   await evidence(page, "covers");
