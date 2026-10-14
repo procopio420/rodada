@@ -150,7 +150,6 @@ export default function CashPage() {
     } catch { setNotice({ code: "NETWORK_ERROR", message: "Não foi possível atualizar o caixa. Confira a conexão." }); }
     finally { setLoading(false); }
   // pointId is deliberately read as the current selection when no preference is supplied.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => { void load(); }, [load]);

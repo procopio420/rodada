@@ -82,6 +82,8 @@ export function HouseAccount() {
   const [notice, setNotice] = useState("");
   const [visits, setVisits] = useState<Tab[]>([]);
   const overrideIntent = useRef<{ key: string; limit_cents: number; expires_at: string; reason: string } | null>(null);
+  // The ref guards retries synchronously; this state is the source for rendered disabled controls.
+  const [overrideIntentPending, setOverrideIntentPending] = useState(false);
   const actorContext = useRef("");
   const canApprove = session?.capabilities.includes("tab.limit.override");
   const canManage = session?.capabilities.includes("customer.manage");
@@ -94,6 +96,7 @@ export function HouseAccount() {
       if (actorContext.current && actorContext.current !== key) {
         setPin(""); setSelected(null); setHistory([]); setCustomers([]); setVisits([]);
         overrideIntent.current = null;
+        setOverrideIntentPending(false);
       }
       actorContext.current = key;
       setSession(me); setTabs(data); setStale(false); setError("");
@@ -119,7 +122,9 @@ export function HouseAccount() {
   }
   async function reauth() { await call("/api/auth/reauthenticate", { pin }); }
   async function inspect(tab: Tab) {
-    setSelected(tab); setHistory([]); setReason(""); setAmount(""); overrideIntent.current = null;
+    setSelected(tab); setHistory([]); setReason(""); setAmount("");
+    overrideIntent.current = null;
+    setOverrideIntentPending(false);
     await action(async () => { const data = await call<{ results: Audit[] }>(`/api/pos/tabs/${tab.id}/house-history/`); setHistory(data.results); });
   }
   async function approve() {
@@ -131,13 +136,18 @@ export function HouseAccount() {
       const intent = overrideIntent.current ?? { key: crypto.randomUUID(), limit_cents: cents,
         reason, expires_at: new Date(Date.now() + Number(minutes) * 60000).toISOString() };
       overrideIntent.current = intent;
+      setOverrideIntentPending(true);
       try {
         await call(`/api/pos/tabs/${selected.id}/limit-override/`, { ...intent, idempotency_key: intent.key });
       } catch (failure) {
-        if (failure instanceof ApiFailure && failure.status < 500) overrideIntent.current = null;
+        if (failure instanceof ApiFailure && failure.status < 500) {
+          overrideIntent.current = null;
+          setOverrideIntentPending(false);
+        }
         throw failure;
       }
       overrideIntent.current = null;
+      setOverrideIntentPending(false);
       const data = await call<{ results: Audit[] }>(`/api/pos/tabs/${selected.id}/house-history/`); setHistory(data.results);
     });
   }
@@ -163,12 +173,12 @@ export function HouseAccount() {
       <div className="dataRow"><span>Capacidade disponível</span><strong>{money(selected.remaining_capacity_cents)}</strong></div>
       {selected.override_expires_at && <p>Válido até {new Date(selected.override_expires_at).toLocaleString("pt-BR")}</p>}
       <p className="muted">Receba um pagamento parcial no Atendimento ou aprove um limite temporário. A aprovação operacional não registra pagamento ou garantia financeira.</p>
-      <div className="field"><label htmlFor="house-limit">Novo limite total (centavos)</label><input id="house-limit" type="number" min="1" value={amount} disabled={busy || stale || !!overrideIntent.current} onChange={e => setAmount(e.target.value)} /></div>
-      <div className="field"><label htmlFor="house-minutes">Validade (minutos, até 1440)</label><input id="house-minutes" type="number" min="1" max="1440" value={minutes} disabled={busy || stale || !!overrideIntent.current} onChange={e => setMinutes(e.target.value)} /></div>
-      <div className="field"><label htmlFor="house-reason">Motivo</label><input id="house-reason" maxLength={240} value={reason} disabled={busy || stale || !!overrideIntent.current} onChange={e => setReason(e.target.value)} /></div>
+      <div className="field"><label htmlFor="house-limit">Novo limite total (centavos)</label><input id="house-limit" type="number" min="1" value={amount} disabled={busy || stale || overrideIntentPending} onChange={e => setAmount(e.target.value)} /></div>
+      <div className="field"><label htmlFor="house-minutes">Validade (minutos, até 1440)</label><input id="house-minutes" type="number" min="1" max="1440" value={minutes} disabled={busy || stale || overrideIntentPending} onChange={e => setMinutes(e.target.value)} /></div>
+      <div className="field"><label htmlFor="house-reason">Motivo</label><input id="house-reason" maxLength={240} value={reason} disabled={busy || stale || overrideIntentPending} onChange={e => setReason(e.target.value)} /></div>
       <div className="field"><label htmlFor="house-pin">Seu PIN de aprovação</label><input id="house-pin" type="password" autoComplete="off" value={pin} disabled={busy || stale} onChange={e => setPin(e.target.value)} /></div>
       <div className="actions"><button className="buttonPrimary" disabled={busy || stale || !pin || !reason || !amount} onClick={() => void approve()}>{busy ? "Confirmando…" : "Aprovar limite temporário"}</button>
-      <button className="buttonQuiet" disabled={busy || stale || !pin || !reason || !!overrideIntent.current} onClick={() => void action(async () => { await reauth(); await call(`/api/pos/tabs/${selected.id}/reassess-policy/`, { reason }); })}>Reavaliar com política atual</button></div>
+      <button className="buttonQuiet" disabled={busy || stale || !pin || !reason || overrideIntentPending} onClick={() => void action(async () => { await reauth(); await call(`/api/pos/tabs/${selected.id}/reassess-policy/`, { reason }); })}>Reavaliar com política atual</button></div>
       <h3>Histórico de decisões</h3>{history.map(event => <div className="movement" key={event.id}><div><strong>{eventLabels[event.event_type] || "Decisão registrada"}</strong><small>{event.reason} · {event.actor_name}</small><small>{decisionDetails(event.metadata)}</small></div><time>{new Date(event.occurred_at).toLocaleString("pt-BR")}</time></div>)}
     </>}
     {canManage && <>
