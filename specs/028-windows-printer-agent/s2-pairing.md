@@ -100,3 +100,10 @@ running as LocalService without this service SID are not yet separately exercise
 | S5 Compatibility | Pending | — | — | S4 approval/merge |
 | S6 Distribution | Pending | — | — | S5 approval/merge; signing certificate |
 | S7 Pilot | Pending | — | — | Previous slices; physical evidence |
+
+
+After syncing main bbaa147, the existing Attendance integration tests still
+selected the removed optional-name accordion. Initial Web trace proved the current
+UI exposes Nome da Comanda / Abrir comanda instead. Four integration fixtures were
+updated only for those selectors; financial assertions and application behavior
+are unchanged. This inherited gate failure is separate from printer pairing.

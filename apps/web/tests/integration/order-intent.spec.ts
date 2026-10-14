@@ -8,9 +8,8 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   const label = `Order recovery ${width}`;
-  await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-  await page.getByLabel("Apelido da comanda (opcional)").fill(label);
-  await page.getByRole("button", { name: "Abrir", exact: true }).click();
+  await page.getByLabel("Nome da Comanda").fill(label);
+  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
