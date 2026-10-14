@@ -319,7 +319,12 @@ class HospitalityTableApiTests(TestCase):
         TabOccupancyAssignment.objects.create(tab=tab, occupancy=b)
         rows = {row["id"]: row for row in self.client.get("/hospitality/tables/").json()["results"]}
         self.assertEqual(rows[str(first.id)]["active_occupancy"]["tabs"], [])
-        self.assertEqual(rows[str(second.id)]["active_occupancy"]["tabs"], [{"id": str(tab.id), "display_label": tab.display_label}])
+        self.assertEqual(rows[str(second.id)]["active_occupancy"]["tabs"], [{
+            "id": str(tab.id), "tab_id": str(tab.id), "display_label": tab.display_label,
+            "state": tab.state, "table_id": str(second.id),
+            "opened_at": tab.opened_at.isoformat().replace("+00:00", "Z"),
+            "display_reference": "Comanda " + str(tab.id)[:8],
+        }])
         self.assertEqual(TabOccupancyAssignment.objects.filter(tab=tab).count(), 2)
         self.assertEqual(self.client.get(f"/tabs/{tab.id}/", {"table_id": str(first.id), "occupancy_id": str(a.id)}).status_code, 409)
         self.assertEqual(self.client.get(f"/tabs/{tab.id}/", {"table_id": str(second.id), "occupancy_id": str(b.id)}).status_code, 200)
