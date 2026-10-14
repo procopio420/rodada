@@ -93,3 +93,7 @@ The grid is **2 columns below 768px**, **3 columns from 768px to 1099px** and **
 ### 2026-10-13 — Larger module pictograms
 
 The five module launch cards should make their pictograms prominent enough to scan quickly during operation. The pictogram remains the existing shared line icon, in the approved accent color; do not create new logos or change module identity. The cards have a **74px icon container and 44px pictogram** below 768px, and **88px / 56px** respectively at tablet/desktop widths. Increase card vertical room to preserve readable labels and at least 44px touch targets; keep the two/three/four-column grid, keyboard focus, route destinations and venue-bound behavior unchanged. These dimensions are pinned in the existing real-Venue Playwright integration test.
+
+### 2026-10-13 — Consistent top-aligned launcher copy
+
+Module cards use a fixed icon row followed immediately by a top-aligned title/description block. Remove `margin-top: auto` from the copy; the title baseline must match across cards in the same grid row even when descriptions have different lengths. Keep descriptions concise enough to remain fully readable within two lines at 360px and larger viewports (two-line clamp is a safety net, not a substitute for readable copy). The final fifth card spans both columns **only on mobile**, while tablet/desktop retain the 3/4-column grid. Integration tests cover baseline alignment, copy visibility, span and overflow at the existing viewport matrix.
