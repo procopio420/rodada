@@ -25,7 +25,7 @@ test('table-service gateway requires authentication and rejects financial paths'
       assert.equal((await response.json()).code, code, route);
     }
     for (const body of [
-      { kind: 'MOVE_LOCATION', expected_version: 1, occupancy_id: 'occupancy-test', idempotency_key: 'move' },
+      { kind: 'MOVE_LOCATION', expected_version: 1, occupancy_id: '11111111-1111-4111-8111-111111111111', idempotency_key: 'move' },
       { kind: 'MERGE', expected_version: 1 },
       { kind: 'MOVE_LOCATION', expected_version: 1, lines: [] },
     ]) {

@@ -12,7 +12,7 @@
 Base conferida: `main` / `origin/main` em `ad5d64f`, após pull fast-forward.
 O audit continua histórico: PR #98 e `0bd28d0` alteraram produção e atendimento.
 Os checks documentados na Spec 025 não são PASS automático da Spec 026.
-Estado atual: T01 concluída; recortes locais documentados abaixo, incluindo T10a/T10b/T10c/T10d.1/T10d.2/T10d.3/T10d.4. Próxima tarefa do plano T11; critérios amplos não comprovados e gates externos permanecem abertos.
+Estado atual: T01 concluída e recortes locais de T02–T12b.3 entregues conforme evidências abaixo. T11/T12 amplas, partes de T02/T06/T07/T10 e T13/T14 permanecem abertas. O resumo de entrega e pendências está em [release-summary.md](release-summary.md); nenhum gate externo é encerrado apenas pelo merge.
 Demais tarefas e gates amplos permanecem pendentes. Evidência em [revalidation.md](revalidation.md).
 
 Cada tarefa deve registrar achados, spec proprietária, antes/depois, fora de

@@ -111,8 +111,9 @@ export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRec
       setSuccess("Pedido confirmado."); setMessage("");
     };
   });
+  const revealRecoveredDraft = useEffectEvent(() => onRecoveryNeeded?.());
   useEffect(() => { onPendingChange?.(!orderIntent.ready || orderIntent.busy || !!orderIntent.pending || correctionPending || cashPending || selecting || opening || repeatLoading || !!repeatReview); }, [confirming, orderIntent.pending, orderIntent.busy, orderIntent.ready, correctionPending, cashPending, selecting, opening, repeatLoading, repeatReview, onPendingChange]);
-  useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || (orderIntent.pending && !selected)) onRecoveryNeeded?.(); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
+  useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) onRecoveryNeeded?.(); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
   useEffect(() => {
     if (!recoveryKey) return;
     let active = true;
@@ -133,7 +134,7 @@ export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRec
             !Object.values(savedDrafts).every(value => Array.isArray(value) && value.every((line: DraftLine) =>
               line.product?.id && Number.isSafeInteger(line.quantity) && line.quantity > 0 && line.quantity <= 99 && line.selection)) ||
             saved.key || saved.payload) throw new Error("Invalid or ambiguous legacy recovery record");
-        setSelected(saved.tab); setDrafts(savedDrafts);
+        setSelected(saved.tab); setDrafts(savedDrafts); revealRecoveredDraft();
         setMessage("Rascunho recuperado na comanda original.");
         void apiCall<Tab>(`${apiRoot}/tabs/${saved.tab.id}/`).then(result => {
           if (result.response.ok) setSelected(result.body as Tab);
