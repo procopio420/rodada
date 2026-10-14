@@ -17,6 +17,58 @@ O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para
 9. **Touch primeiro.** Alvos interativos devem ter pelo menos 44 px; ações de produção usam 56 px.
 10. **Português operacional.** Rótulos curtos, concretos e orientados à ação.
 
+## UX operacional — task-first, padrões transversais (14/10/2026)
+
+**Diretriz de design para propostas e redesigns, não confirmação de implementação.** Aplica-se ao Android nativo, Web/PWA e às demais superfícies com trabalho operacional análogo. A spec relevante define o comportamento do domínio; mudança de jornada precisa ser especificada e validada antes de alterar código. Conservar marca, tokens, permissões e regras financeiras.
+
+### Dez premissas de UX
+
+1. **Tarefa antes da tela:** identificar operador, gatilho, objetivo, contexto, frequência, próxima decisão, custo do erro e recuperação. Mapear normal, vazio, loading, pico, erro, interrupção e reconexão.
+2. **Uma tarefa dominante por viewport:** contexto e CTA devem ser visíveis sem procurar; nunca obrigar o garçom a atravessar financeiro, histórico ou controles administrativos para pedir.
+3. **Profundidade sob demanda:** detalhamento financeiro, registros longos, filtros raros, limites e operações especiais ficam em contexto, disclosure, diálogo curto ou tela própria; alertas e bloqueios relevantes continuam visíveis.
+4. **Scroll é para explorar, não navegar:** listas e catálogos podem rolar, mas abrir, adicionar, revisar, cobrar e voltar não dependem de scroll manual para achar o botão. Preservar filtro/foco/posição ao retornar; evitar rolagem aninhada conflitante.
+5. **Reconhecimento antes da memória:** busca, categorias, recentes, nomes legíveis e referências canônicas. Nunca escolher homônimos por nome ou tratar Table como identidade de Tab.
+6. **Interrupção é normal:** o operador pode alternar de tarefa, mesa e comanda mantendo rascunhos não enviados separados por escopo; intenções já enviadas e respostas ambíguas continuam congeladas até reconciliação.
+7. **Densidade operacional, sem ruído:** linhas compactas e acionáveis em vez de cards altos e repetitivos. Um painel só agrupa informações relacionadas; não empilhar toda a aplicação na mesma página.
+8. **Ação proporcional ao risco:** operações frequentes com pouco atrito; alterações destrutivas, limites, estorno, transferência e pagamentos conservam verificação/confirmação/autorização apropriadas.
+9. **Mesmo significado, UI adaptativa:** labels e efeitos consistentes entre Android e Web; formato próprio de cada plataforma. Mobile-first 360/390/430dp, fontScale 1x e 2x, IME, safe areas, foco, leitor de tela, contraste e alvos >=44px (preferir 48dp para ações Android e 56px nas ações de produção).
+10. **Evidência e validação:** separar tela observada, código lido, hipótese e meta; comparar screenshots reais antes/depois na mesma fixture/versão, medir toques e scroll só quando executados, nunca declarar UX aprovada por CI verde.
+
+### Atendimento — arquitetura de tarefas
+
+- **Agora**: trabalho imediato (prontos, chamadas, QR sem responsável e pendências). No pico, próxima tarefa real e ação devem aparecer no primeiro viewport da fixture; informações complementares não empurram a fila para baixo. Não exigir botões de entrega apenas para telemetria.
+- **Comandas**: localizar, abrir e acompanhar; busca por nome/código/mesa com identificação estável, mesa atual opcional, estado e saldo canônico; homônimos e anônimas distinguíveis. A abertura não fica como formulário permanente dentro da lista.
+- **Mesas**: contexto físico, ocupação, responsável e comandas acionáveis da ocupação. Múltiplas Tabs na mesma mesa nunca são fundidas; retorno à mesa preserva o contexto.
+- **Caixa**: módulo separado por permissão; cobrança da Tab é ação contextual.
+- **Comanda selecionada**: workspace compacto, não página monolítica. Primeira área: referência/nome, mesa se houver, estado, saldo canônico, avisos críticos, ações ADICIONAR ITENS e COBRAR (quando habilitadas). Histórico, ver conta, limite e operações ficam em telas/disclosures contextuais, sem perder visibilidade de bloqueio importante.
+
+### Ações principais e padrões de entrada
+
+1. **Abrir comanda**: botão explícito na lista ou na mesa; abre diálogo curto para nome/apelido opcional e contexto de mesa quando pertinente, com decisão Abrir. Sem CPF ou cadastro obrigatório, sem criação implícita, Tab sem mesa é válida.
+2. **Ação central + = Adicionar itens**: com Tab selecionada abre catálogo daquela Tab; sem Tab selecionada abre seletor rápido (busca por nome/código/mesa e recentes), com Abrir nova comanda como ação SEPARADA. Toque no + não deve criar comanda silenciosamente.
+3. **Catálogo como workspace próprio**: no mobile tela ou sheet grande/fullscreen, não diálogo minúsculo com cardápio extenso. Busca global, categorias, disponibilidade, preço, quantidade -/N/+ ao lado do produto, personalização/nota contextual inclusive item simples. Configurações diferentes ficam distintas.
+4. **Carrinho sempre alcançável**: barra/resumo persistente de quantidade e valor durante o catálogo; nunca deixar a única entrada do carrinho depois de todos os produtos. Uma única fonte de draft.
+5. **Revisão integral antes de enviar**: mostrar TODAS as linhas, variantes, notas, quantidades, destino e total, mesmo com busca/categoria filtrando o catálogo. Voltar à edição preserva a composição; confirmar envia a intenção exata revisada.
+6. **Última rodada e repetir**: histórico separado com hora/referência canônicas; repetir gera novo draft e revalida preço, disponibilidade e modificadores, sem reutilizar chave de intenção anterior.
+7. **Troca A → B → A**: conservar draft local por Venue, operador/sessão e Tab. Intenção submetida/conclusão desconhecida exige reconciliação do mesmo UUID/payload; nunca transferir pedido entre Tabs/sessões ou repetir às cegas.
+8. **Item esgotado no draft**: permitir remoção/redução da linha local NÃO submetida, impedir aumento/envio e revalidar com servidor. Jamais mutar item confirmado por este atalho.
+9. **Estado e feedback**: Enviando, Verificando, Offline/desatualizado, Ação necessária e Confirmado são estados diferentes. Loading normal não é falta de conexão. Sucesso ordinário usa feedback não bloqueante; erro fornece próxima ação segura; só API canônica confirma pedido ou pagamento.
+
+### Gates de UX verificáveis
+
+| Jornada | Aceite proposto |
+| --- | --- |
+| Primeira dobra | Contexto e CTA imediatamente visíveis; Agora/Pico mostra primeira tarefa real sem scroll |
+| Comanda | Abrir explicitamente; selecionar homônimos por referência e ID, não pelo nome |
+| Pedido de três produtos | Selecionar e adicionar sem cruzar histórico ou financeiro; quantidade junto do item |
+| Revisão | Todas as linhas e observações visíveis com qualquer filtro de catálogo ativo |
+| Interrupção | A → B → A preserva draft sem misturar destino; freeze/retry não duplica |
+| Estados adversos | Invalidez, timeout, perda de ACK, logout, offline e force-stop têm retomada segura |
+| Visual real | Android 360/390/430dp x fontScale 1 e 2; IME; Web mobile+desktop, teclado, toque, leitor de tela |
+| Evidência | Capturas antes/depois da mesma fixture/SHA, testes de jornada e medidas executadas separadas de estimativas |
+
+Base: docs/design/ux-friction-audit-2026-10-12.md, auditoria Android de 13/10 (preservada em branch de evidências), specs relevantes 023, 026 e 027 por caminho completo. Revisar também heurísticas de Nielsen Norman Group, WCAG 2.2 e diretrizes de interface Android. Os fluxos existentes não mudam automaticamente por este texto; divergências demandam spec e PR de implementação.
+
 ## Linguagem visual
 
 Rodada usa uma estética de bar noturno: neutros quentes, contraste alto e acento tungstênio/âmbar.

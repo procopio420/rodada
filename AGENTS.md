@@ -117,6 +117,10 @@ Antes de alterar comportamento:
 - Antes de aceitar uma nova tela, revisar consistência com pelo menos uma superfície adjacente do fluxo.
 - Mudanças em Web/PWA que alterem UI devem executar `cd apps/web && npm run test:visual`; quando houver referência executável correspondente, atualizar a comparação com fixture determinística e corrigir diferenças em vez de aceitar baseline novo sem justificativa.
 
+
+- Redesigns operacionais devem seguir a seção **UX operacional — task-first** de `docs/design/system.md`: uma tarefa dominante, criação explícita de Tab, ação central para adicionar itens, catálogo/revisão distintos e rascunho por contexto.
+- Para UX nova ou revista, acionar seletivamente `rodada-ux-research`, `rodada-ux-critique`, `rodada-ux-handoff` e `rodada-accessibility-review` conforme `docs/agents/SKILLS.md`; capturas reais e jornada executada são evidência, não screenshot isolado.
+
 ## Qualidade financeira
 
 Toda regra financeira precisa de:

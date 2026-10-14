@@ -27,3 +27,9 @@
 25. **Servidor decide se pode vender.** A UI pode esconder/desabilitar, mas a confirmação do pedido sempre revalida disponibilidade e preserva pedidos já confirmados.
 26. **Medição não pode virar trabalho.** No happy path, o garçom não deve precisar tocar em “peguei”, “saí para entrega” ou “entreguei” só para alimentar telemetria. O sistema observa, infere e pede ação humana apenas para exceções ou correções.
 27. **Inferência não é confirmação.** Todo marco inferido deve preservar origem, confiança e evidência suficiente para que métricas não tratem estimativa como fato confirmado.
+28. **Uma tarefa principal por contexto.** Scroll serve para explorar listas e cardápios, não para navegar entre pedido, cobrança, histórico, correção e volta.
+29. **Ação nomeada não muda de significado.** Abrir comanda é explícito; adicionar itens resolve uma Tab existente ou escolhe destino primeiro, nunca cria Tab silenciosamente.
+30. **Revisão integral antes de confirmar.** Filtro de catálogo não pode esconder do checkout linhas que serão enviadas; draft e destino permanecem verificáveis.
+31. **Interrupção não apaga trabalho.** Alternância de mesas/comandas preserva rascunhos separados por Tab e sessão; resultado submetido ambíguo conserva identidade e intenção para reconciliação.
+32. **O primeiro viewport é operacional.** Exibir a próxima ação, contexto e bloqueio relevante antes de dados secundários; pico, acessibilidade e fontes ampliadas não autorizam esconder risco.
+33. **Padrão visual não é prova de usabilidade.** Testes de tarefa, captura real e recuperação complementam lint/CI e devem distinguir medição de hipótese.
