@@ -52,7 +52,7 @@ Table.objects.create(venue=v,label='Available move destination')`);
       return Promise.all(cases.map(async body=>(await fetch(`/api/attendance/tabs/${id}/operations`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).status));
     },{id:tab.id,base}); expect(disabled.every((s:number)=>s===403)).toBe(true);
     await page.getByRole("button",{name:"Mesas",exact:true}).click();
-    await page.getByRole("button",{name:`Mover comanda Web move ${width} · ID ${tab.id}`,exact:true}).click();
+    await page.getByRole("button",{name:`Mover comanda Mesa A-${width} · Web move ${width} · ID ${tab.id}`,exact:true}).click();
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
     expect(await page.getByLabel("Mesa de destino").locator("option").allTextContents()).not.toContain("Mesa Available move destination");
     await page.getByLabel("Mesa de destino").selectOption(destination.active_occupancy.id); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");

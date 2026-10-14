@@ -27,7 +27,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   await page.getByRole("button", { name: new RegExp(`^${first.display_label} ·`) }).click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   const input = page.getByLabel("Buscar comanda por apelido"); await input.fill("JOAO da praca"); await input.press("Enter");
-  for (const match of matches) await expect(page.getByRole("button", { name: new RegExp(`ID ${match.id}`) })).toBeVisible();
+  for (const match of matches) await expect(page.getByRole("button", { name: new RegExp(`Comanda ${match.id.slice(0, 8).toUpperCase()}`) })).toBeVisible();
   await expect(page.getByRole("heading", { name: first.display_label, exact: true })).toBeVisible();
   await expect(page.getByText(`${[360,390,430].indexOf(width)+1}× Kitchen E2E item`, { exact: true })).toBeVisible();
   await expect(page.getByText("Página 1", { exact: true })).toBeVisible();

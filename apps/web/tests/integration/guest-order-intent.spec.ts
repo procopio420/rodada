@@ -21,9 +21,10 @@ for (const scenario of [360, 390, 430, "revoked"] as const) test(`Guest committe
   try {
     const guest = await guestContext.newPage();
     await guest.goto(`/guest/${table.public_token}`);
+    await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
     await guest.getByLabel("Seu nome ou apelido (opcional)").fill(`Guest recovery ${scenario}`);
     await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
-    await expect(guest.getByRole("heading", { name: `Guest recovery ${scenario}`, exact: true })).toBeVisible();
+    await expect(guest.getByRole("heading", { name: `Mesa Guest recovery ${scenario}`, exact: true })).toBeVisible();
     await guest.getByRole("button", { name: /^Kitchen E2E item/ }).click();
     const attempts: string[] = []; let orderId = "", tabId = "";
     await guest.route("**/api/guest/orders/confirm/", async route => {

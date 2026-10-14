@@ -23,7 +23,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Pagination test {i}') for i
  const first = pages[0].results[0], last = pages[1].results[0];
  for (const width of [360, 390, 430]) {
   await page.setViewportSize({ width, height: 900 });
-  await page.getByRole("button", { name: `${first.display_label} · R$ 0,00`, exact: true }).click();
+  await page.getByRole("button", { name: new RegExp(`^${first.display_label} · Comanda [A-F0-9]+ ·`) }).click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Próxima página", exact: true }).click();
   await expect(page.getByRole("button", { name: new RegExp(`^${last.display_label} ·`) })).toBeVisible();
