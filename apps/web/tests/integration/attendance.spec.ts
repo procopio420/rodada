@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { createAttendanceTable, openAttendanceTab } from "./attendance-open";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
@@ -8,11 +9,9 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
+  await createAttendanceTable(page, "Entry attendance");
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByText("Identificar por nome (opcional)").click();
-  await page.getByLabel("Apelido da comanda (opcional)").fill("Atendimento browser test");
-  await page.getByRole("button", { name: "Abrir", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Atendimento browser test", exact: true })).toBeVisible();
+  await openAttendanceTab(page, "Atendimento browser test", "Entry attendance");
   await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();
@@ -47,6 +46,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   const tableResult = await browserRequest.post("/api/pos/hospitality/tables/", { data: { label: "Attendance test", guest_ordering_mode: "DIRECT" } });
   expect(tableResult.ok()).toBeTruthy();
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa Attendance test Disponível/ }).click();
   await page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
