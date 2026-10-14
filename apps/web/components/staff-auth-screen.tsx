@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./staff-auth-screen.module.css";
 
 import { FormEvent, ReactNode, useCallback, useEffect, useId, useState } from "react";
@@ -44,6 +45,7 @@ function Field({
 type VenueLookup = { mode: "loading" | "compatibility" | "unavailable" } | { mode: "establishment"; venue: { slug: string; name: string } };
 
 export function StaffAuthScreen({ renderSession }: { renderSession?: (session: StaffSessionView, logout: () => Promise<void>) => ReactNode } = {}) {
+  const router = useRouter();
   const [venueLookup, setVenueLookup] = useState<VenueLookup>({ mode: "loading" });
   useEffect(() => {
     let active = true;
@@ -200,7 +202,7 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
           if (result) {
             await loadSession();
             // The tenant landing page is the operational entry, not /staff.
-            if (!renderSession && venueLookup.mode === "establishment") window.location.assign("/");
+            if (!renderSession && venueLookup.mode === "establishment") router.replace("/");
           }
         }}
       />
