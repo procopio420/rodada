@@ -78,6 +78,57 @@ class DispatchFoundationTests(TestCase):
         )
         return table, occupancy
 
+    def test_table_first_projections_follow_moves_and_keep_split_tabs_distinct(self):
+        first = Tab.objects.create(venue=self.venue, display_label="João")
+        second = Tab.objects.create(venue=self.venue, display_label="João")
+        table, occupancy = self.assign_to_active_table(first)
+        TabOccupancyAssignment.objects.create(occupancy=occupancy, tab=second)
+        item = self.ready_item(tab=first)
+        item.order.status = "CONFIRMED"
+        item.order.save(update_fields=["status"])
+
+        listing = self.client.get("/tabs/").json()["results"]
+        first_payload = next(row for row in listing if row["id"] == str(first.id))
+        second_payload = next(row for row in listing if row["id"] == str(second.id))
+        assert first_payload["table_label"] == second_payload["table_label"] == "Mesa 24"
+        assert first_payload["display_label"] == second_payload["display_label"] == "João"
+        assert first_payload["id"] != second_payload["id"]
+        queue = self.client.get("/production/BAR/").json()["results"]
+        assert next(row for row in queue if row["id"] == str(item.id))["table_label"] == "Mesa 24"
+
+        assignment = TabOccupancyAssignment.objects.get(tab=first, released_at__isnull=True)
+        assignment.released_at = timezone.now()
+        assignment.save(update_fields=["released_at"])
+        destination = Table.objects.create(venue=self.venue, label="12")
+        visit = TableOccupancy.objects.create(table=destination, generation=destination.access_generation)
+        TabOccupancyAssignment.objects.create(occupancy=visit, tab=first)
+        moved = self.client.get(f"/tabs/{first.id}/").json()
+        assert moved["table_label"] == "Mesa 12"
+        assert moved["last_table_label"] == "Mesa 12"
+        assert moved["display_label"] == "João"
+        queue = self.client.get("/production/BAR/").json()["results"]
+        assert next(row for row in queue if row["id"] == str(item.id))["table_label"] == "Mesa 12"
+        first.refresh_from_db()
+        assert first.display_label == "João"
+
+        occupancy.released_at = timezone.now()
+        occupancy.save(update_fields=["released_at"])
+        history = self.client.get(f"/tabs/{second.id}/").json()
+        assert history["table_label"] is None
+        assert history["last_table_label"] == "Mesa 24"
+
+    def test_unassigned_tab_does_not_inherit_any_other_table(self):
+        tab = Tab.objects.create(venue=self.venue)
+        payload = self.client.get(f"/tabs/{tab.id}/").json()
+        assert payload["table_label"] is None
+        assert payload["last_table_label"] is None
+        assert payload["display_label"] == ""
+        item = self.ready_item(tab=tab)
+        item.order.status = "CONFIRMED"
+        item.order.save(update_fields=["status"])
+        queue = self.client.get("/production/BAR/").json()["results"]
+        assert next(row for row in queue if row["id"] == str(item.id))["table_label"] is None
+
     def test_ready_item_creates_one_delivery_task_with_table_destination_snapshot(self):
         tab = Tab.objects.create(venue=self.venue, display_label="Ana")
         table, occupancy = self.assign_to_active_table(tab)

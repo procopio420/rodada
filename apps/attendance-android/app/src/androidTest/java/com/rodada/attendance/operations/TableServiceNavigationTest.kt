@@ -32,6 +32,7 @@ class TableServiceNavigationTest {
         assertEquals(listOf("table"), starts)
         compose.onNodeWithText("Atendimento: você").assertExists()
         compose.onNodeWithText("Nova comanda nesta mesa").performScrollTo().performClick()
+        compose.onNodeWithText("Adicionar nome ou apelido (opcional)").performClick()
         compose.onNodeWithText("Nome ou apelido (opcional)").assertExists()
         compose.onNodeWithText("Abrir e pedir").performClick()
         assertEquals("visit" to "", opened)

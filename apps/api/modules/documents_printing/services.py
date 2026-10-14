@@ -8,6 +8,7 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from modules.audit.services import record_audit_event
+from modules.hospitality.tab_display import tab_location_labels
 from modules.ledger.models import PaymentStatus, Refund, RefundStatus
 from modules.ledger.services import totals
 from modules.ordering.models import Order, Tab
@@ -59,8 +60,13 @@ def create_document(
         raise ValidationError("Referência canônica do pedido/pagamento obrigatória.")
     now = timezone.now()
     local = now.astimezone(ZoneInfo(tab.venue.timezone))
+    current, historical = tab_location_labels([tab.id], include_history=True)
+    location = current.get(str(tab.id)) or historical.get(str(tab.id))
+    if location and str(tab.id) not in current:
+        location += " (última)"
     data = {
         "venue": tab.venue.name,
+        "table_label": location,
         "tab_id": str(tab.id),
         "tab_label": tab.display_label or str(tab.id),
         "tab_state": tab.state,
