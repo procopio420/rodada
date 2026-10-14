@@ -13,3 +13,12 @@
 - Real Web/BFF/API tests exercise staff login, queues, availability, production
   transitions, guest ordering, management, cash/refund navigation and auth failures.
 - No personal developer credit or personal WhatsApp link is rendered on any Web surface.
+
+### Spec 026 T10a
+
+- Atalhos mobile Fila/Prontos/Disponibilidade persistem após rolagem e transferem foco em uma ação.
+- Contagens desconhecidas antes do snapshot; comandos permanecem protegidos em falha/mutation.
+- Filas de 30 linhas em ambas estações, alvos44/acessibilidade e 360/390/430.
+- Layout desktop e início manual preservados; valores financeiros não mudam ao navegar.
+
+Evidência local T10a:401 visuais completos +1 pendência,6 Web/API PostgreSQL,42 regressões PostgreSQL, tipos/build/diff PASS; ver revalidation da Spec026. Gates publicados/humanos permanecem separados.

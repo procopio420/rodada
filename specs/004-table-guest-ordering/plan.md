@@ -1,5 +1,10 @@
 # Plan — Spec 004
 
+T06d Web continuation reuses MOVE_LOCATION of Spec009, occupied destinations,
+contextual Tab read and existing tokens/dialogs. Preserve origin occupancy and
+guest context. Validate immutable intent/replay and financial snapshots in
+disposable PostgreSQL, mobile 360/390/430 and complete visual regression.
+
 ## Slice 1 — Table + Floor + Occupancy
 
 - Table e estados;
@@ -70,3 +75,45 @@
 Round 2: usar DispatchTask existente para chamadas SERVICE_REQUEST/BILL_REQUEST;
 API guest autorizada pela sessão original da ocupação, UUID retry-safe, botões
 acessíveis na home e teste navegador com backend/PostgreSQL reais.
+
+## T05b — plano mínimo
+
+Acrescentar scope não secreto ao contexto existente; hook guest preserva
+intenção usando a credencial já gerida pelo fluxo, sem duplicá-la. Reutilizar
+confirm_guest_order e seu replay. Cobrir reload/resposta perdida/readback,
+contexto divergente/revogação/bloqueio/storage, Web360/390/430 e PostgreSQL.
+Executar visual completo, build/tipos e lint dos arquivos Python alterados.
+
+### T06c
+Reutilizar TableOccupancy/TabOccupancyAssignment e detalhe autorizado de Tab; acrescentar precondição opcional de contexto ao GET existente, sem novos locks ou mutations. Listagem de ocupação filtra vínculos liberados. AttendanceWeb preserva contexto de retorno e solicita seleção ao workspace já montado, reutilizando seleção serializada e rascunhos por Tab. Validar múltiplas comandas, conflito/vínculo antigo, outro Venue, falha/retry, pendência, foco/retorno e Web/API 360/390/430.
+
+### T07b — confirmação de liberação Android
+TablesScreen captura mesa/ocupação/generation ao abrir revisão, informa revogação QR e estado de limpeza e só chama o callback após confirmar. Revalida inventário local, permissão e busy; API permanece com contrato existente. Testar cancelamento sem callback, confirmação única e contexto alterado em Compose; regressões PostgreSQL de mesas/guest/ledger.
+
+### T08c — repetição guest
+Reutilizar reviewRepeatedOrder/RepeatOrderDialog, adaptando o catálogo guest ativo
+à disponibilidade operacional. Ler contexto e catálogo ao abrir e ao incluir;
+comparar token, scope, Tab e conteúdo completo da revisão. Projetar
+guest_policy.table_ordering_enabled a partir da mesa já autorizada/locked.
+Inclusão somente local, única e preservando linhas anteriores; envio e replay
+reutilizam a intenção T05b. Validar fixtures adversariais, mobile, jornada real
+em PostgreSQL, bloqueios e preservação do histórico. Não alterar mutations ou
+regras financeiras.
+
+### T09a — quantidade e agrupamento guest
+Agrupar localmente Product/variant/options/note idênticos, preservando unidades
+na edição e repetição. Validar o resultado inteiro antes de substituir o draft;
+limite 99 sem truncamento. Reutilizar grid/controles de quantidade existentes e
+feedback acessível. Alterações de quantidade não modificam intenções pendentes.
+Cobrir configuração distinta e ordem de opções, notas exatas, limite de inclusão/
+edição/repetição, dados obsoletos, disponibilidade, bloqueios e jornadas reais em
+PostgreSQL 360/390/430 com resposta perdida e replay. Sem regra/API nova.
+
+### T09b — descoberta guest
+Reutilizar helpers de busca/categoria do Atendimento e Product.category projetada
+pela leitura guest. Filtrar apenas exibição; catálogo completo conserva revisão
+por IDs, quantidades e seleção. Todos inicial, busca global, categoria ao limpar,
+fallback quando removida e contagem/vazio. Acesso Pedido atual fica estável mesmo
+vazio e foca o draft. Ensaiar 146 produtos (143 CSV + três fixtures existentes),
+configuração, bloqueios/atualização/revogação/intent, Web/API PostgreSQL em três
+larguras e visual completo, sem modificar referências ou tolerâncias.

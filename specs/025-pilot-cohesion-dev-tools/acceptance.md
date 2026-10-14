@@ -63,3 +63,15 @@ History header placement (2026-10-12): accessible icon-only Histórico control i
 History return action (2026-10-12): Voltar uses full-width secondary border/accent surface and separated spacing. Build/TypeScript and seven focused visual history/dialog checks passed at 360/390/430 with focus restoration preserved. Demo HTTP 200 verified.
 
 Integrated release validation (2026-10-12): integrated explicit kitchen/bar preparation start from main; build/TypeScript, 61 ordering/correction/pricing API tests and all 232 visual cases passed without baseline changes. Subsequent Spec 026 documentation update also integrated; no executable code changed after validation. Demo frontend HTTP 200 and API readiness confirmed.
+
+## T04 — aceite do recorte local
+
+- [x] A→B→A e nova Tab preservam linhas/configurações isoladas; confirmar limpa
+  só a Tab enviada, sem transportar linhas para outra conta.
+- [x] Reseleção revela o workspace; recolher explícito preserva rascunho e foco.
+- [x] Descarte confirmado afeta só a Tab ativa; cancelar preserva conteúdo/foco.
+- [x] Leitura falha mantém destino; durante switch/envio/ambiguidade não editar,
+  trocar, recolher ou descartar; catálogo atual continua revalidando as linhas.
+- [x] Jornada Web/API/PostgreSQL e360/390/430, visual completo/build/tipos/diff.
+
+Memória apenas enquanto workspace montado. Reload e recuperação durável T05 abertas.

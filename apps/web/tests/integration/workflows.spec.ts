@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -212,6 +212,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+  await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
   await guest.reload();
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();

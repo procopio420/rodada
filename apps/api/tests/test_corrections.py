@@ -21,7 +21,15 @@ from modules.corrections.services import (
     cancel_before_fulfillment,
     create_post_production_correction,
 )
-from modules.ledger.models import Charge, LedgerAdjustment, Payment, PaymentMethod, PaymentStatus, RefundStatus
+from modules.ledger.models import (
+    Charge,
+    LedgerAdjustment,
+    Payment,
+    PaymentMethod,
+    PaymentStatus,
+    Refund,
+    RefundStatus,
+)
 from modules.ledger.services import reverse_open_responsibility, totals
 from modules.ordering.models import Order, OrderItem, OrderItemState, OrderSource, Tab
 from modules.venue.models import Venue
@@ -351,8 +359,22 @@ class CorrectionFoundationTests(TestCase):
         assert denied.json()["code"] == "REAUTH_REQUIRED"
         reauth = manager_client.post("/auth/reauthenticate/", {"pin": "4321"}, format="json")
         assert reauth.status_code == 200, reauth.json()
+        for invalid in [1.9, True, 2147483648, None, "nan"]:
+            rejected = manager_client.post(f"/corrections/{pending.id}/settle-refund/", {**body, "amount_cents": invalid}, format="json")
+            self.assertEqual(rejected.status_code, 400, rejected.json())
+            self.assertFalse(Refund.objects.exists())
         settled = manager_client.post(f"/corrections/{pending.id}/settle-refund/", body, format="json")
         replay = manager_client.post(f"/corrections/{pending.id}/settle-refund/", body, format="json")
+        divergent = manager_client.post(f"/corrections/{pending.id}/settle-refund/", {**body, "amount_cents": 400}, format="json")
+        self.assertEqual(divergent.json()["code"], "IDEMPOTENCY_CONFLICT")
+        original_session = manager_client.get("/auth/me/").json()["session"]["id"]
+        wrong_session = manager_client.post(f"/corrections/{pending.id}/settle-refund/", {**body, "originating_session_id": str(self.actor.session_id or self.staff.pk)}, format="json")
+        self.assertEqual(wrong_session.json()["code"], "SESSION_CONTEXT_CHANGED")
+        same_session = manager_client.post(f"/corrections/{pending.id}/settle-refund/", {**body, "originating_session_id": original_session}, format="json")
+        self.assertEqual(same_session.status_code, 200, same_session.json())
+        self.assertEqual(Refund.objects.count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.refunded").count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="order_item.cancelled_after_refund").count(), 1)
         item.refresh_from_db()
         pending.refresh_from_db()
 
@@ -368,6 +390,145 @@ class CorrectionFoundationTests(TestCase):
         assert pending.refund_id is not None
         assert pending.financial_adjustment_id is not None
         assert AuditEvent.objects.filter(event_type="order_item.cancelled_after_refund").exists()
+
+    def review_fixture(self, *, payment_cents=1000):
+        item = self.item(price_cents=800, state=OrderItemState.NEW)
+        other = self.item(tab=item.order.tab, price_cents=3000, name="Outro consumo")
+        for line in (item, other):
+            Charge.objects.create(tab=item.order.tab, order_item=line, amount_cents=line.line_total_cents)
+        payment = Payment.objects.create(tab=item.order.tab, amount_cents=payment_cents,
+            method=PaymentMethod.OTHER, status=PaymentStatus.CONFIRMED,
+            confirmed_at=timezone.now(), received_by=self.staff, idempotency_key="review-payment")
+        pending = cancel_before_fulfillment(item_id=item.id, kind=CorrectionKind.CANCEL_ITEM,
+            reason_code="WRONG_ENTRY", reason_text="", idempotency_key="review-cancel",
+            actor=self.actor, financial_reversal_hook=reverse_open_responsibility, record_paid_request=True)
+        member = VenueStaffMembership.objects.get(venue=self.venue, staff_member=self.staff)
+        member.role = StaffRole.MANAGER
+        member.save(update_fields=["role"])
+        return item, payment, pending
+
+    def test_partial_payment_without_refund_has_executable_review_and_single_reversal(self):
+        from modules.cash.models import CashMovement
+        from modules.corrections.services import settle_cancellation_without_refund
+        from modules.ledger.models import Refund
+        item, payment, pending = self.review_fixture()
+        original = Payment.objects.values().get(pk=payment.id)
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 2800)
+        self.assertEqual(pending.financial_disposition, FinancialDisposition.MANUAL_REVIEW_REQUIRED)
+        self.assertEqual(pending.refund_required_cents, 0)
+        correction, result = settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        replay, _ = settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(result["exposure_cents"], 2000)
+        self.assertEqual(result["payable_cents"], 3000)
+        self.assertEqual(result["adjustments_cents"], -800)
+        self.assertEqual(correction.id, replay.id)
+        self.assertTrue(replay._idempotency_replay)
+        self.assertEqual(LedgerAdjustment.objects.count(), 1)
+        self.assertEqual(Refund.objects.count(), 0)
+        self.assertEqual(CashMovement.objects.count(), 0)
+        self.assertEqual(Payment.objects.values().get(pk=payment.id), original)
+        item.refresh_from_db()
+        self.assertEqual(item.state, OrderItemState.CANCELLED)
+        self.assertEqual(item.unit_price_cents, 800)
+        self.assertEqual(Charge.objects.get(order_item=item).amount_cents, 800)
+        self.assertEqual(AuditEvent.objects.filter(event_type="order_item.cancelled_without_refund").count(), 1)
+
+    def test_review_accepts_historical_zero_but_not_positive_refund(self):
+        from modules.corrections.services import settle_cancellation_without_refund
+        _item, _, pending = self.review_fixture()
+        pending.financial_disposition = FinancialDisposition.REFUND_REQUIRED
+        pending.save(update_fields=["financial_disposition"])
+        correction, _ = settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(correction.status, CorrectionStatus.APPLIED)
+
+    def test_review_rolls_back_when_new_payment_requires_refund(self):
+        from modules.corrections.services import settle_cancellation_without_refund
+        item, _, pending = self.review_fixture()
+        Payment.objects.create(tab=item.order.tab, amount_cents=2200, method=PaymentMethod.OTHER,
+            status=PaymentStatus.CONFIRMED, confirmed_at=timezone.now(),
+            received_by=self.staff, idempotency_key="review-later-payment")
+        with self.assertRaises(CorrectionServiceError) as captured:
+            settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(captured.exception.code, "CORRECTION_NOW_REQUIRES_REFUND")
+        self.assertEqual(LedgerAdjustment.objects.count(), 0)
+        self.assertEqual(totals(item.order.tab)["exposure_cents"], 600)
+        pending.refresh_from_db()
+        item.refresh_from_db()
+        self.assertEqual(pending.status, CorrectionStatus.REQUESTED)
+        self.assertEqual(item.state, OrderItemState.NEW)
+
+    def test_review_rejects_positive_refund_and_advanced_state(self):
+        from modules.corrections.services import settle_cancellation_without_refund
+        item, _, pending = self.review_fixture(payment_cents=3500)
+        self.assertEqual(pending.refund_required_cents, 500)
+        with self.assertRaises(CorrectionServiceError):
+            settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        pending.refund_required_cents = 0
+        pending.save(update_fields=["refund_required_cents"])
+        item.state = OrderItemState.PREPARING
+        item.save(update_fields=["state"])
+        with self.assertRaises(CorrectionServiceError) as captured:
+            settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(captured.exception.code, "CORRECTION_STAGE_REQUIRES_APPROVAL")
+        self.assertEqual(LedgerAdjustment.objects.count(), 0)
+
+    def test_zero_pending_cannot_be_settled_with_positive_refund(self):
+        from modules.corrections.services import settle_refund_required_cancellation
+        _item, payment, pending = self.review_fixture()
+        pending.financial_disposition = FinancialDisposition.REFUND_REQUIRED
+        pending.save(update_fields=["financial_disposition"])
+        with self.assertRaises(CorrectionServiceError) as captured:
+            settle_refund_required_cancellation(correction_id=pending.id, payment_id=payment.id,
+                amount_cents=100, refund_idempotency_key="wrong-zero", cash_point_id=None, actor=self.actor)
+        self.assertEqual(captured.exception.code, "CORRECTION_REQUIRES_REVIEW")
+
+    def test_review_endpoint_requires_manager_recent_pin_and_immutable_request(self):
+        item, _, pending = self.review_fixture()
+        login = self.client.post("/auth/login/", {"venue_slug": self.venue.slug,
+            "login_identifier": self.staff.login_identifier, "pin": "1234",
+            "installation_id": "review-device", "platform": "WEB"}, format="json")
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + login.json()["access_token"])
+        path = f"/corrections/{pending.id}/settle-without-refund/"
+        denied = self.client.post(path, {}, format="json")
+        self.assertEqual(denied.status_code, 403)
+        self.assertEqual(denied.json()["code"], "REAUTH_REQUIRED")
+        self.client.post("/auth/reauthenticate/", {"pin": "1234"}, format="json")
+        self.assertEqual(self.client.post(path, {"amount_cents": 0}, format="json").status_code, 400)
+        detail = self.client.get(f"/tabs/{item.order.tab_id}/").json()
+        self.assertEqual(detail["refund_required_corrections"][0]["financial_disposition"], "MANUAL_REVIEW_REQUIRED")
+        self.assertEqual(self.client.post(path, {}, format="json").status_code, 201)
+        self.assertEqual(self.client.post(path, {}, format="json").status_code, 200)
+
+    def test_review_rejects_staff_and_other_venue(self):
+        from modules.corrections.services import settle_cancellation_without_refund
+        _, _, pending = self.review_fixture()
+        member = VenueStaffMembership.objects.get(venue=self.venue, staff_member=self.staff)
+        member.role = StaffRole.STAFF
+        member.save(update_fields=["role"])
+        with self.assertRaises(CorrectionServiceError) as captured:
+            settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(captured.exception.code, "MANAGER_APPROVAL_REQUIRED")
+        VenueStaffMembership.objects.create(venue=self.other_venue, staff_member=self.staff, role=StaffRole.MANAGER)
+        other_actor = ActorContext(venue_id=self.other_venue.id, staff_id=self.staff.id, session_id=self.actor.session_id, device_id=None)
+        with self.assertRaises(CorrectionServiceError) as captured:
+            settle_cancellation_without_refund(correction_id=pending.id, actor=other_actor)
+        self.assertEqual(captured.exception.code, "CORRECTION_NOT_FOUND")
+
+    def test_review_uses_discounted_consumption_and_preserves_service_allocation(self):
+        from modules.corrections.services import settle_cancellation_without_refund
+        from modules.ledger.models import AdjustmentAllocation
+        item, _, pending = self.review_fixture()
+        charge = Charge.objects.get(order_item=item)
+        for kind, amount in (("ITEM_DISCOUNT", -200), ("SERVICE_CHARGE", 80)):
+            adjustment = LedgerAdjustment.objects.create(tab=item.order.tab, order_item=item,
+                kind=kind, amount_cents=amount, idempotency_key=kind,
+                reason_code="TEST", created_by=self.staff)
+            AdjustmentAllocation.objects.create(adjustment=adjustment, charge=charge,
+                amount_cents=amount, basis_cents=800)
+        correction, result = settle_cancellation_without_refund(correction_id=pending.id, actor=self.actor)
+        self.assertEqual(correction.financial_adjustment.amount_cents, -600)
+        self.assertEqual(result["exposure_cents"], 2080)
+        self.assertEqual(AdjustmentAllocation.objects.count(), 2)
 
     def test_other_venue_cannot_cancel_item(self):
         other_item = self.item(venue=self.other_venue)

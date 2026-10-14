@@ -19,7 +19,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import com.rodada.attendance.ui.RodadaButton as Button
@@ -32,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.activity.compose.LocalActivity
@@ -55,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
 import com.rodada.attendance.cash.CashShiftScreen
 import com.rodada.attendance.cash.CashShiftViewModel
+import com.rodada.attendance.cash.CashRecoveryScreen
 import com.rodada.attendance.corrections.CorrectionAction
 import com.rodada.attendance.corrections.CorrectionCommand
 import com.rodada.attendance.corrections.correctionActionsFor
@@ -95,6 +100,7 @@ fun AttendanceScreen(
     var operatingTab by remember { mutableStateOf(false) }
     LaunchedEffect(state.operationCompleted) { if (state.operationCompleted) operatingTab = false }
     var openingTab by rememberSaveable { mutableStateOf(false) }
+    var choosingOrderDestination by rememberSaveable { mutableStateOf(false) }
     var adjustingPricing by rememberSaveable { mutableStateOf(false) }
     var takingPayment by rememberSaveable { mutableStateOf(false) }
     var viewingIntegrated by rememberSaveable { mutableStateOf(false) }
@@ -122,7 +128,7 @@ fun AttendanceScreen(
         if (correctionItemId != null && correctionItem == null) correctionItemId = null
     }
 
-    LaunchedEffect(session.staffId, session.venueId, session.deviceId, session.sessionId) { viewModel.ensureLoaded(session) }
+    LaunchedEffect(session.staffId, session.venueId, session.deviceId, session.sessionId) { cashShiftViewModel.clearRecoveryContext(); viewModel.ensureLoaded(session) }
     val activity = LocalActivity.current as? ComponentActivity
     DisposableEffect(session.staffId, session.venueId, session.deviceId, session.sessionId, activity) {
         val observer = LifecycleEventObserver { _, event ->
@@ -151,32 +157,6 @@ fun AttendanceScreen(
                 onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
-            if (state.queuedOrders.isNotEmpty()) {
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("${state.queuedOrders.size} PEDIDO(S) GUARDADO(S) · NÃO CONFIRMADOS",
-                            style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Amber)
-                        state.queuedOrders.take(3).forEach { intent ->
-                            Text("Comanda ${intent.tabId.take(8)} · ${OrderRecoveryPolicy.stateLabel(intent.state)}",
-                                style = MaterialTheme.typography.bodySmall)
-                        }
-                        val reviewCount = state.queuedOrders.count {
-                            it.state == RecoveryState.ACTION_REQUIRED || it.state == RecoveryState.FAILED_TERMINAL
-                        }
-                        if (reviewCount > 0) Text("$reviewCount requer(em) revisão da gerência. Não recrie o pedido.",
-                            color = RodadaVisual.Danger, style = MaterialTheme.typography.bodySmall)
-                        if (state.queuedOrders.any {
-                            it.state in setOf(RecoveryState.PENDING, RecoveryState.CHECKING, RecoveryState.SAFE_TO_RETRY)
-                        }) {
-                            OutlinedButton(
-                                onClick = { viewModel.revalidateConnection(session) },
-                                enabled = !state.loading && !state.submitting,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            ) { Text("Conferir pedidos no servidor") }
-                        }
-                    }
-                }
-            }
             state.pendingTableService?.let {
                 Text("Verificando atendimento. Intenção original preservada.")
                 OutlinedButton(enabled = !state.submitting && !state.loading, onClick = { viewModel.retryTableService(session) }) { Text("Verificar mesma intenção") }
@@ -197,10 +177,16 @@ fun AttendanceScreen(
                             onClaimTable = { viewModel.claimTableService(session, it) },
                             canClaimTable = "table.manage" in session.capabilities,
                             onServiceAction = { id, complete -> viewModel.updateServiceRequest(session, id, complete) },
+                            onOpenRecovery = { id ->
+                                if (state.pendingEvidence().any { it.id == id && it.shiftId != null && it.canOpenContext }) cashShiftViewModel.openRecovery(session, id)
+                                else viewModel.openRecovery(session, id)
+                            },
+                            onCheckOrders = { viewModel.revalidateConnection(session) },
                         )
                         FrontlineSection.TABS -> TabList(
                             state = state,
                             showDeliveries = false,
+                            choosingOrderDestination = choosingOrderDestination,
                             onOpenTab = { if (state.pendingTableService == null) openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
@@ -210,6 +196,7 @@ fun AttendanceScreen(
                             canManageTables = "table.manage" in session.capabilities,
                             staffId = session.staffId,
                             canOpenTabs = "tab.open" in session.capabilities,
+                            onOccupy = { tableId, tabId -> viewModel.occupyTable(session, tableId, tabId) },
                             onStartService = { id -> if (state.tables.firstOrNull { it.id == id }?.tableServiceEnabled == true) viewModel.startTableService(session, id) else viewModel.occupyTable(session, id, null) },
                             onOpenTableTab = { occupancy, label -> viewModel.openTableTab(session, occupancy, label) },
                             onClaim = { viewModel.claimTableService(session, it) },
@@ -244,12 +231,27 @@ fun AttendanceScreen(
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
+                    onRepeatOrder = { review -> viewModel.repeatOrder(selected.summary.id, review) },
                 )
                 }
             }
+            if (cashShiftViewModel.recoveryContext.intentId != null) {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    CashRecoveryScreen(cashShiftViewModel.recoveryContext,
+                        onRefresh = { cashShiftViewModel.recoveryContext.intentId?.let { cashShiftViewModel.openRecovery(session, it) } },
+                        onBack = { cashShiftViewModel.clearRecoveryContext() })
+                }
             }
-            if (state.selectedTab == null) {
-                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it }, onOpenTab = { if (state.pendingTableService == null) openingTab = true }, busy = state.submitting || state.pendingTableService != null)
+            state.exceptionalRecoveryContext?.let { context ->
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    ExceptionalRecoveryScreen(context, state.submitting,
+                        onRefresh = { viewModel.openRecovery(session, context.original.id) },
+                        onBack = viewModel::clearExceptionalRecoveryContext)
+                }
+            }
+            }
+            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
             }
         }
     }
@@ -345,14 +347,13 @@ fun AttendanceScreen(
 private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Comandas"), TABLES("Mesas"), CASH("Caixa") }
 
 @Composable
-private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit, onOpenTab: () -> Unit, busy: Boolean) {
+private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit, onOrder: () -> Unit, busy: Boolean) {
     com.rodada.attendance.ui.AttendanceNavigation(
         selected = com.rodada.attendance.ui.AttendanceDestination.valueOf(section.name),
         canUseCash = canUseCash,
         busy = busy,
         onSelect = { onSelect(FrontlineSection.valueOf(it.name)) },
-        onOpenTab = onOpenTab,
-        openTabLabel = "Nova\ncomanda",
+        onOrder = onOrder,
     )
 }
 
@@ -373,10 +374,11 @@ private fun Header(
 }
 
 @Composable
-private fun TabList(
+internal fun TabList(
     state: OperationsUiState,
     showDeliveries: Boolean,
     peak: Boolean = false,
+    choosingOrderDestination: Boolean = false,
     onOpenTab: () -> Unit,
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
@@ -385,9 +387,15 @@ private fun TabList(
     onClaimTable: (TableOccupancy) -> Unit = {},
     canClaimTable: Boolean = false,
     onServiceAction: (String, Boolean) -> Unit = { _, _ -> },
+    onOpenRecovery: (String) -> Unit = {},
+    onCheckOrders: () -> Unit = {},
 ) {
-    val visibleTabs = tabsForSurface(state.tabs, showDeliveries)
-    LazyColumn(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+    val visibleTabs = tabsForSurface(state.tabs, showDeliveries).filter { !choosingOrderDestination || it.state != "CLOSED" }
+    var queue by rememberSaveable { mutableStateOf(NowQueue.READY) }
+    val listState = rememberLazyListState()
+    LaunchedEffect(peak, state.recoveryDeliveryTaskId) { if (peak || state.recoveryDeliveryTaskId != null) queue = NowQueue.READY }
+    LaunchedEffect(queue) { listState.scrollToItem(0) }
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
         if (showDeliveries) {
             val attention = state.tables.filter { it.activeOccupancy?.serviceAttention in setOf("UNASSIGNED_GUEST_ORDER", "UNASSIGNED_READY") }
                 .sortedWith(compareByDescending<TableSummary> { it.activeOccupancy?.serviceAttention == "UNASSIGNED_READY" }.thenBy { it.activeOccupancy?.oldestGuestOrderAt })
@@ -403,29 +411,23 @@ private fun TabList(
                 }
             }
         }
-        if (showDeliveries && state.recoveryEvidence.isNotEmpty()) item {
+        if (!showDeliveries) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("PENDÊNCIAS LOCAIS", style = MaterialTheme.typography.titleMedium)
-                Text("Registros preservados no aparelho. Não representam saldo ou operação confirmada.")
-                state.recoveryEvidence.forEach { evidence ->
-                    Text(evidence.label, fontWeight = FontWeight.Bold)
-                    Text("Capturado em ${java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT).format(java.util.Date(evidence.capturedAtMillis))}")
-                    Text(if (evidence.reviewOnly) "Outra sessão: revisão pela gerência. Não repita a operação." else "Abra o contexto da operação e confira o resultado antes de repetir.", color = RodadaVisual.Amber)
-                }
+                if (choosingOrderDestination) Text("Escolha a comanda para pedir", style = MaterialTheme.typography.titleLarge)
+                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda") }
             }
         }
         if (showDeliveries) item {
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
                 Text(if (peak) "MODO PICO" else "AGORA", style = MaterialTheme.typography.headlineLarge)
-                if (peak) Text("Só entregas · mais antigo primeiro", color = RodadaVisual.Amber)
-                Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("${state.deliveryTasks.size} PRONTOS", color = RodadaVisual.Success, style = MaterialTheme.typography.labelLarge)
-                    Text("${visibleTabs.size} CONTAS", color = RodadaVisual.Money, style = MaterialTheme.typography.labelLarge)
-                }
+                if (peak) Text("Prontos primeiro · chamadas e pendências nos filtros", color = RodadaVisual.Amber)
+                Text("Escolha a fila de trabalho.", style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
             }
+            NowQueueNavigation(queue, nowQueueCounts(state), onSelect = { queue = it })
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (showDeliveries) item {
+        if (showDeliveries && queue == NowQueue.PENDING) item { RecoveryPanel(state, onOpenRecovery, onCheckOrders) }
+        if (showDeliveries && queue == NowQueue.CALLS) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("CHAMADAS DE ATENDIMENTO", style = MaterialTheme.typography.titleMedium)
                 state.serviceRequestsError?.let { Text(it, color = RodadaVisual.Amber) }
@@ -437,7 +439,7 @@ private fun TabList(
                 }
             }
         }
-        if (showDeliveries) items(state.serviceRequests, key = { "service-${it.id}" }) { task ->
+        if (showDeliveries && queue == NowQueue.CALLS) items(state.serviceRequests, key = { "service-${it.id}" }) { task ->
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("${task.title} · ${task.destination}", style = MaterialTheme.typography.titleLarge)
                 Text(task.ageLabel, color = RodadaVisual.Muted)
@@ -448,29 +450,31 @@ private fun TabList(
             }
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (showDeliveries && !state.loading && state.lastSyncedAtMillis != null && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
-        if (showDeliveries) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
-            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (showDeliveries && queue == NowQueue.READY && !state.loading && state.lastSyncedAtMillis != null && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries && queue == NowQueue.READY) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
+            Column(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp)) {
                 Column(modifier = Modifier.background(RodadaVisual.Control).padding(horizontal = 10.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("PRONTO", color = RodadaVisual.Success, style = MaterialTheme.typography.labelSmall)
                     Text(deliveryAge(task.ageSeconds), fontFamily = RodadaVisual.Number, fontWeight = FontWeight.ExtraBold, color = RodadaVisual.Success)
                 }
-                Column(modifier = Modifier.weight(1f).padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (state.recoveryDeliveryTaskId == task.id) Text("Entrega pendente · operação original", color = RodadaVisual.Amber)
                     Text("${task.quantity} ${task.productName}", style = MaterialTheme.typography.titleLarge)
                     Text(task.destinationLabel.ifBlank { "Destino não informado" }, style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
                     if (task.tabLabel.isNotBlank()) Text(task.tabLabel, color = RodadaVisual.Muted, style = MaterialTheme.typography.bodySmall)
                 }
-                Button(onClick = { onCompleteDelivery(task.id) }, enabled = !state.submitting, modifier = Modifier.padding(end = 16.dp)) { Text("ENTREGUE") }
+                Button(onClick = { onCompleteDelivery(task.id) }, enabled = !state.submitting, modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp).heightIn(min = 48.dp)) { Text("ENTREGUE") }
             }
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (!peak) item { Text(if (showDeliveries) "CONTAS ABERTAS" else "CONTAS", modifier = Modifier.padding(20.dp), style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Muted) }
+        if (!peak && (!showDeliveries || queue == NowQueue.READY)) item { Text(if (showDeliveries) "CONTAS ABERTAS" else "CONTAS", modifier = Modifier.padding(20.dp), style = MaterialTheme.typography.labelLarge, color = RodadaVisual.Muted) }
         if (state.loading && visibleTabs.isEmpty()) item { LoadingRow() }
-        if (!peak && !state.loading && visibleTabs.isEmpty()) item { Text("Nenhuma comanda aberta neste dispositivo.", modifier = Modifier.padding(20.dp)) }
-        if (!peak) items(visibleTabs, key = { it.id }) { tab ->
-            TextButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp), enabled = !state.submitting) {
+        if (!peak && (!showDeliveries || queue == NowQueue.READY) && !state.loading && visibleTabs.isEmpty()) item { Text("Nenhuma comanda aberta neste dispositivo.", modifier = Modifier.padding(20.dp)) }
+        if (!peak && (!showDeliveries || queue == NowQueue.READY)) items(visibleTabs, key = { it.id }) { tab ->
+            TextButton(onClick = { onSelect(tab.id) }, modifier = Modifier.fillMaxWidth().heightIn(min = 88.dp), enabled = !state.loading && !state.submitting) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(tab.displayLabel.ifBlank { "Sem identificação" }, style = MaterialTheme.typography.headlineSmall, color = RodadaVisual.Paper)
+                    Text("Comanda ${tab.id.take(8)}", style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
                     Text("${tab.stateLabel()} · ${formatCents(tab.exposureCents)} em aberto", fontFamily = RodadaVisual.Number, color = if (tab.consumptionBlocked) RodadaVisual.Danger else RodadaVisual.Money)
                 }
             }
@@ -484,7 +488,7 @@ private fun deliveryAge(seconds: Long): String =
     if (seconds < 60) "agora" else "${seconds / 60} min"
 
 @Composable
-private fun TabWorkspace(
+internal fun TabWorkspace(
     state: OperationsUiState,
     tab: TabDetail,
     onBack: () -> Unit,
@@ -500,12 +504,34 @@ private fun TabWorkspace(
     onCorrectItem: (OrderItem) -> Unit,
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
+    onRepeatOrder: (RepeatOrderReview) -> Unit = {},
 ) {
     var query by rememberSaveable(tab.summary.id) { mutableStateOf("") }
+    var reviewingCart by rememberSaveable(tab.summary.id) { mutableStateOf(false) }
+    var repeatReview by remember(tab.summary.id) { mutableStateOf<RepeatOrderReview?>(null) }
+    val repeatEnabled = !state.loading && !state.submitting && state.orderIntentId == null &&
+        state.queuedOrders.none { it.tabId == tab.summary.id } && tab.summary.state != "CLOSED" && state.connectivity == ConnectivityState.ONLINE
+    repeatReview?.let { review ->
+        val unchanged = tab.orders.firstOrNull { it.id == review.orderId }?.let { reviewRepeatedOrder(it, state.products) == review } == true
+        RepeatOrderDialog(review, repeatEnabled && unchanged, { repeatReview = null }) {
+            repeatReview = null
+            onRepeatOrder(review)
+            reviewingCart = true
+        }
+    }
+    val catalogScroll = rememberLazyListState()
+    val cartScroll = rememberLazyListState()
+    var catalogIndex by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
+    var catalogOffset by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
+    LaunchedEffect(tab.summary.id, reviewingCart) {
+        if (!reviewingCart) catalogScroll.scrollToItem(catalogIndex, catalogOffset)
+    }
     val availableProducts = remember(state.products, query) {
         state.products.filter { it.name.contains(query, ignoreCase = true) }
     }
-    val groupedProducts = availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap(compareBy<String> { if (it == "Outros") 1 else 0 }.thenBy { it })
+    val groupedProducts = remember(availableProducts) {
+        availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap()
+    }
     var configuring by remember { mutableStateOf<Product?>(null) }
     var editing by remember { mutableStateOf<CartLine?>(null) }
     var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
@@ -519,168 +545,203 @@ private fun TabWorkspace(
     val currentCart = state.cart.map { line -> line.copy(product = state.products.firstOrNull { it.id == line.product.id } ?: line.product.copy(active = false)) }
     val cartTotal = currentCart.sumOf { it.unitPriceCents * it.quantity }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
-        item {
-            TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
-            Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
-            OutlinedButton(onClick = onOperations, enabled = !state.submitting) { Text("Operações da comanda") }
-            BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
-            if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
-                Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
-            }
-            if (tab.summary.state != "CLOSED") {
-                OutlinedButton(onClick = onResolveLimit, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE) { Text("Solicitar / aprovar limite") }
-            }
-        }
-        item {
-            Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                label = { Text("Buscar no catálogo") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                enabled = tab.summary.state != "CLOSED" && !state.submitting,
-            )
-        }
-        groupedProducts.forEach { (category, products) ->
-        item(key = "category:$category") { Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
-        items(products, key = { it.id }) { product ->
-            val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-            val selectedLines = currentCart.filter { it.product.id == product.id }
-            val selectedQuantity = selectedLines.sumOf { it.quantity }
-            val canChange = sellable && !state.submitting && state.orderIntentId == null
-            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    CatalogProductButton(product, sellable, canChange) {
-                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization()) else configuring = product
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        key(tab.summary.id, reviewingCart) {
+            LazyColumn(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                state = if (reviewingCart) cartScroll else catalogScroll,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                if (reviewingCart) {
+                    item {
+                        Text(tab.summary.displayLabel, style = MaterialTheme.typography.titleLarge)
+                        if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
+                            Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
+                        }
+                        if (tab.summary.serviceAssessmentStale) Text("Atualize a taxa de serviço no caixa antes de receber.")
+                        OrderCart(currentCart, cartTotal, state.submitting, state.orderIntentId != null, onQuantity, onConfirmOrder) { line -> editing = line; configuring = line.product }
                     }
                 }
-                if (selectedQuantity > 0) {
-                    TextButton(onClick = { onQuantity(selectedLines.last().lineId, -1) }, enabled = canChange) { Text("−") }
-                    Text("$selectedQuantity", fontWeight = FontWeight.Bold)
-                    TextButton(onClick = {
-                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onQuantity(selectedLines.last().lineId, 1)
-                        else configuring = product
-                    }, enabled = canChange) { Text("+") }
-                }
-            }
-            // Different customizations remain separate lines, editable below the catalog.
-            if (selectedLines.any { it.product.variants.isNotEmpty() || it.product.modifierGroups.isNotEmpty() }) {
-                selectedLines.forEach { line ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(line.product.configurationText(line.customization), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { editing = line; configuring = line.product }, enabled = canChange) { Text("Editar") }
+                item { OutlinedButton(onClick = onAdjustPricing, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE, modifier = Modifier.fillMaxWidth()) { Text("Ajustar conta / serviço") } }
+                item {
+                    TextButton(onClick = onBack, enabled = !state.submitting) { Text("← Comandas") }
+                    Text(tab.summary.displayLabel, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text("${tab.summary.stateLabel()} · versão ${tab.summary.version}")
+                    OutlinedButton(onClick = onOperations, enabled = !state.submitting) { Text("Operações da comanda") }
+                    BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
+                    if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
+                        Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
+                    }
+                    if (tab.summary.state != "CLOSED") {
+                        OutlinedButton(onClick = onResolveLimit, enabled = !state.submitting && state.connectivity == ConnectivityState.ONLINE) { Text("Solicitar / aprovar limite") }
                     }
                 }
-            }
-        }
-        }
-        item {
-            if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
-            if (currentCart.isNotEmpty()) {
-                val locked = state.orderIntentId != null
-                val valid = currentCart.all { it.product.active && it.product.availability == "AVAILABLE" && it.product.customizationError(it.customization) == null }
-                if (locked) Text("Pedido aguardando confirmação. Não envie novamente.", color = MaterialTheme.colorScheme.error)
-                Text("${currentCart.sumOf { it.quantity }} itens · ${formatCents(cartTotal)}", fontWeight = FontWeight.Bold)
-                Button(onClick = onConfirmOrder, enabled = !state.submitting && (locked || valid), modifier = Modifier.fillMaxWidth()) { Text(if (locked) "Verificar pedido" else "Confirmar pedido") }
-            }
-        }
-        if (tab.orders.isNotEmpty()) {
-            item { Text("Pedidos confirmados", style = MaterialTheme.typography.titleLarge) }
-            items(tab.orders, key = { it.id }) { order ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Pedido", fontWeight = FontWeight.Bold)
-                        order.items.forEach { item ->
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (!reviewingCart) {
+                    item {
+                        Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
+                        OutlinedTextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            label = { Text("Buscar no catálogo") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            enabled = tab.summary.state != "CLOSED" && !state.submitting,
+                        )
+                    }
+                    groupedProducts.forEach { (category, products) ->
+                        item(key = "category:$category") {
+                            Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
+                        items(products, key = { it.id }) { product ->
+                            val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
+                            val selectedLines = currentCart.filter { it.product.id == product.id }
+                            val selectedQuantity = selectedLines.sumOf { it.quantity }
+                            val canChange = sellable && !state.submitting && state.orderIntentId == null
+                            Row(
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
-                                    if (item.customizationText.isNotBlank()) Text(item.customizationText)
-                                    Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
+                                    CatalogProductButton(product, sellable, canChange) {
+                                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization())
+                                        else configuring = product
+                                    }
                                 }
-                                // A cancelled line is retained as operational history, not an
-                                // actionable item.  Keeping a disabled "Corrigir" beside it made
-                                // the next valid action ambiguous during a live shift.
-                                if (item.state != "CANCELLED") {
-                                    OutlinedButton(
-                                        onClick = { onCorrectItem(item) },
-                                        enabled = !state.submitting && tab.summary.state != "CLOSED",
-                                    ) { Text("Corrigir") }
+                                if (selectedQuantity > 0) {
+                                    TextButton(onClick = { onQuantity(selectedLines.last().lineId, -1) }, enabled = canChange) { Text("−") }
+                                    Text("$selectedQuantity", fontWeight = FontWeight.Bold)
+                                    TextButton(onClick = {
+                                        if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onQuantity(selectedLines.last().lineId, 1)
+                                        else configuring = product
+                                    }, enabled = canChange) { Text("+") }
+                                }
+                            }
+                            // Custom variants are retained per line, rather than merging unlike orders.
+                            selectedLines.filter { it.product.variants.isNotEmpty() || it.product.modifierGroups.isNotEmpty() }
+                                .forEach { line ->
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(line.product.configurationText(line.customization), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                        TextButton(onClick = { editing = line; configuring = line.product }, enabled = canChange) { Text("Editar") }
+                                    }
+                                }
+                        }
+                    }
+                    item {
+                        if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
+                    }
+                }
+                if (tab.orders.isNotEmpty()) {
+                    item { Text("Pedidos confirmados", style = MaterialTheme.typography.titleLarge) }
+                    items(tab.orders, key = { it.id }) { order ->
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("Pedido", fontWeight = FontWeight.Bold)
+                                OutlinedButton(onClick = { repeatReview = reviewRepeatedOrder(order, state.products) }, enabled = repeatEnabled) { Text("Repetir rodada") }
+                                order.items.forEach { item ->
+                                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text("${item.quantity}× ${item.productName} · ${formatCents(item.lineTotalCents)}")
+                                            if (item.customizationText.isNotBlank()) Text(item.customizationText)
+                                            Text(itemStateLabel(item.state), style = MaterialTheme.typography.bodySmall)
+                                        }
+                                        // A cancelled line is retained as operational history, not an
+                                        // actionable item.  Keeping a disabled "Corrigir" beside it made
+                                        // the next valid action ambiguous during a live shift.
+                                        if (item.state != "CANCELLED") {
+                                            OutlinedButton(
+                                                onClick = { onCorrectItem(item) },
+                                                enabled = !state.submitting && tab.summary.state != "CLOSED",
+                                            ) { Text("Corrigir") }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        }
-        if (tab.payments.isNotEmpty()) {
-            item { Text("Pagamentos", style = MaterialTheme.typography.titleLarge) }
-            items(tab.payments, key = { it.id }) { payment ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
-                        Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
-                        if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
-                        val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
-                        if (available > 0) {
-                            OutlinedButton(
-                                onClick = { onRefundPayment(payment) },
-                                enabled = !state.submitting,
-                                modifier = Modifier.fillMaxWidth(),
-                            ) { Text("Estornar ${formatCents(available)}") }
+                if (tab.payments.isNotEmpty()) {
+                    item { Text("Pagamentos", style = MaterialTheme.typography.titleLarge) }
+                    items(tab.payments, key = { it.id }) { payment ->
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
+                                Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
+                                if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
+                                val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
+                                if (available > 0) {
+                                    OutlinedButton(
+                                        onClick = { onRefundPayment(payment) },
+                                        enabled = !state.submitting,
+                                        modifier = Modifier.fillMaxWidth(),
+                                    ) { Text("Estornar ${formatCents(available)}") }
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-        if (tab.refundRequiredCorrections.isNotEmpty()) {
-            item { Text("Estorno necessário", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error) }
-            items(tab.refundRequiredCorrections, key = { it.id }) { correction ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(correction.itemName, fontWeight = FontWeight.Bold)
-                        Text("A correção ainda precisa de ${formatCents(correction.refundRequiredCents)} em estorno.")
-                        OutlinedButton(
-                            onClick = { onSettleCorrection(correction) },
-                            enabled = tab.payments.any { it.amountCents > it.refundedCents } && !state.submitting,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) { Text("Resolver estorno") }
+                if (tab.refundRequiredCorrections.isNotEmpty()) {
+                    item { Text("Estorno necessário", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.error) }
+                    items(tab.refundRequiredCorrections, key = { it.id }) { correction ->
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(correction.itemName, fontWeight = FontWeight.Bold)
+                                Text("A correção ainda precisa de ${formatCents(correction.refundRequiredCents)} em estorno.")
+                                OutlinedButton(
+                                    onClick = { onSettleCorrection(correction) },
+                                    enabled = tab.payments.any { it.amountCents > it.refundedCents } && !state.submitting,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) { Text("Resolver estorno") }
+                            }
+                        }
                     }
                 }
+                item { Spacer(Modifier.height(24.dp)) }
             }
         }
-        item { Spacer(Modifier.height(24.dp)) }
+        OutlinedButton(
+            onClick = {
+                if (!reviewingCart) {
+                    catalogIndex = catalogScroll.firstVisibleItemIndex
+                    catalogOffset = catalogScroll.firstVisibleItemScrollOffset
+                }
+                reviewingCart = !reviewingCart
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            val count = currentCart.sumOf { it.quantity }
+            Text(if (reviewingCart) "Voltar ao catálogo" else "Ver carrinho · $count ${if (count == 1) "item" else "itens"} · ${formatCents(cartTotal)}")
+        }
     }
 }
 
 @Composable
-private fun BalanceCard(
+internal fun BalanceCard(
     tab: TabSummary,
     onPay: () -> Unit,
     onClose: () -> Unit,
     busy: Boolean,
     canInitiatePayment: Boolean,
 ) {
+    var expanded by rememberSaveable(tab.id) { mutableStateOf(false) }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
             Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Subtotal original ${formatCents(tab.originalSubtotalCents)}")
-            Text("Descontos ${formatCents(tab.discountsCents)} · cortesias ${formatCents(tab.courtesyCents)}")
-            if (tab.correctionsCents != 0L) Text("Correções ${formatCents(tab.correctionsCents)}")
-            Text("Taxa de serviço ${formatCents(tab.serviceChargeCents)}")
-            Text("Total a pagar ${formatCents(tab.payableCents)}")
-            Text("Pagamentos recebidos ${formatCents(tab.paymentsCents)} · estornos ${formatCents(tab.refundsCents)}")
+            TextButton(onClick = { expanded = !expanded }) {
+                Text(if (expanded) "Recolher detalhes da conta" else "Ver detalhes da conta")
+            }
+            if (expanded) {
+                Text("Subtotal original ${formatCents(tab.originalSubtotalCents)}")
+                Text("Descontos ${formatCents(tab.discountsCents)} · cortesias ${formatCents(tab.courtesyCents)}")
+                if (tab.correctionsCents != 0L) Text("Correções ${formatCents(tab.correctionsCents)}")
+                Text("Taxa de serviço ${formatCents(tab.serviceChargeCents)}")
+                Text("Total a pagar ${formatCents(tab.payableCents)}")
+                Text("Pagamentos recebidos ${formatCents(tab.paymentsCents)} · estornos ${formatCents(tab.refundsCents)}")
+                if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
+                Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
+                tab.percentageUsed?.let { Text("$it% do limite utilizado") }
+            }
             if (tab.serviceAssessmentStale) Text("Atualize a taxa de serviço no caixa antes de receber.")
-            if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
-            Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
-            tab.percentageUsed?.let { Text("$it% do limite utilizado") }
             if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Button(onClick = onPay, enabled = !tab.serviceAssessmentStale && tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
@@ -695,7 +756,7 @@ private fun BalanceCard(
 }
 
 @Composable
-private fun LimitResolutionDialog(
+internal fun LimitResolutionDialog(
     tab: TabSummary,
     canApprove: Boolean,
     busy: Boolean,
@@ -714,13 +775,14 @@ private fun LimitResolutionDialog(
         onDismissRequest = { if (!busy) onDismiss() },
         title = { Text(if (canApprove) "Aprovar limite temporário" else "Solicitar aprovação") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Em aberto ${formatCents(tab.exposureCents)} · limite ${formatCents(tab.effectiveLimitCents)}")
                 message?.let { Text(it) }
                 if (canApprove) {
                     Text("Aprovação operacional válida por uma hora. Não registra pagamento ou garantia financeira.")
-                    OutlinedTextField(value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, label = { Text("Novo limite total (R$)") })
-                    OutlinedTextField(value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, visualTransformation = PasswordVisualTransformation())
+                    OutlinedTextField(value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Novo limite total (R$)") })
+                    if (amount.isNotBlank() && (cents == null || cents <= tab.effectiveLimitCents)) Text("Informe um limite válido maior que ${formatCents(tab.effectiveLimitCents)}.", color = MaterialTheme.colorScheme.error)
+                    OutlinedTextField(value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
                 } else Text("A gerência receberá a solicitação. Para pagar, volte à comanda e toque em Pagar; um operador autorizado confirma o recebimento.")
                 OutlinedTextField(value = reason, onValueChange = { reason = it.take(240) }, enabled = !busy && !submitted, label = { Text("Motivo") })
                 if (submitted) Text("Confira a mensagem na comanda. Em caso de perda de conexão, repita esta mesma solicitação após atualizar.")
@@ -843,7 +905,7 @@ internal fun PaymentDialog(
                 Text("Serviço: ${formatCents(tab.serviceChargeCents)} · Total: ${formatCents(tab.payableCents)}")
                 Text("Recebido: ${formatCents(tab.paymentsCents)} · Estornado: ${formatCents(tab.refundsCents)}")
                 Text("Saldo restante: ${formatCents(tab.exposureCents)}")
-                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
@@ -934,7 +996,7 @@ private fun CorrectionDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         enabled = !busy,
-                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation(),
                     )
                 } else {
                     Text("O valor será atualizado pela comanda canônica.", style = MaterialTheme.typography.bodySmall)
@@ -1033,7 +1095,7 @@ internal fun RefundDialog(
                         }
                     }
                 } else selectedPayment?.let { Text("Pagamento: ${paymentMethodLabel(it.method)}") }
-                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, label = { Text("Valor do estorno") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
+                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor do estorno") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
                 if (target is RefundTarget.Payment) {
                     OutlinedTextField(value = reason, onValueChange = { reason = it }, label = { Text("Motivo") }, modifier = Modifier.fillMaxWidth(), enabled = !busy)
                 }
@@ -1046,7 +1108,7 @@ internal fun RefundDialog(
                     }
                 }
                 Text("Confirme sua identidade como operador autorizado; o PIN não é salvo.", color = MaterialTheme.colorScheme.error)
-                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, visualTransformation = PasswordVisualTransformation())
+                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
                 if (!valid) Text("Informe um valor válido e um pagamento disponível.", color = MaterialTheme.colorScheme.error)
             }
         },
@@ -1070,7 +1132,7 @@ private fun LoadingRow() {
     Row(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.Center) { CircularProgressIndicator() }
 }
 
-private fun TabSummary.stateLabel(): String =
+internal fun TabSummary.stateLabel(): String =
     when (state) {
         "OPEN" -> "ABERTA"
         "REQUIRES_ACTION" -> "ATENÇÃO"
@@ -1090,16 +1152,18 @@ private fun itemStateLabel(state: String): String =
         else -> state
     }
 
-private fun paymentMethodLabel(method: String): String =
+internal fun paymentMethodLabel(method: String): String =
     when (method) {
         "CASH" -> "Dinheiro"
         "EXTERNAL_TERMINAL" -> "Maquininha externa"
         else -> method
     }
 
-private fun paymentStatusLabel(status: String): String =
+internal fun paymentStatusLabel(status: String): String =
     when (status) {
         "CONFIRMED" -> "Pago"
+        "PARTIALLY_REFUNDED" -> "Estornado parcialmente"
+        "REFUNDED" -> "Estornado"
         "PENDING" -> "Pendente"
         "CONFIRMATION_PENDING" -> "Verificando"
         "FAILED" -> "Falhou"

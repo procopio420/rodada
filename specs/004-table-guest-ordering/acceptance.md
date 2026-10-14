@@ -1,5 +1,9 @@
 # Acceptance — Spec 004
 
+T06d Web movement criteria:
+- [x] Explicit occupied destination and independent origin lifecycle verified in 360/390/430.
+- [x] Web/API PostgreSQL proves one movement after lost response/reload, with immutable financial snapshots and preserved assignment history.
+
 ## Validação integrada da demo — revogação realtime
 
 O teste de chamadas guest preserva em memória o token anterior antes de liberar a mesa. Depois da liberação, exige403/GUEST_SESSION_REVOKED em nova solicitação com esse token e ausência dos controles de chamada após reload. SSE pode remover a superfície imediatamente; não depender de clicar em um botão já removido. Contrato de domínio e status/code exigidos permanecem inalterados.
@@ -42,3 +46,44 @@ O teste de chamadas guest preserva em memória o token anterior antes de liberar
 - [ ] NFC pode ser reutilizado em outra Tab após revogação/fechamento.
 - [ ] Perfil Customer é opcional e pode ser ligado depois sem migrar a Tab.
 - [x] Sistema registra timestamps para ocupação, liberação, início e fim da limpeza.
+
+## T05b — aceite do recorte guest
+
+- [x] Resposta perdida/reload retoma payload/chave originais sem duplicar Order/Charge/audit.
+- [x] Readback/duplo toque/contexto indisponível mantêm bloqueio até prova canônica.
+- [x] Sessão/Tab/ocupação/generation divergentes e revogação/bloqueio não adotam intenção.
+- [x] Storage inválido/falho impede POST; rejeição inicial segura permite revisão.
+- [x] Jornada real PostgreSQL, Web360/390/430, visual/build/tipos/lint/diff registrados.
+
+Mesma aba com storage íntegro; gates externos e persistência de drafts abertos.
+
+### T06c
+- [x] Mesa Web permite filtrar nome/número normalizado e escolher individualmente comandas vinculadas, inclusive fora da página de Contas.
+- [x] Abertura direta e retorno preservam filtro, foco, destino e rascunhos; falha mantém contexto anterior e bloqueios pendentes.
+- [x] GET contextual rejeita vínculo liberado/movido, ocupação liberada, mesa divergente, IDs inválidos e outro Venue; leitura não altera financeiro/histórico.
+
+Evidência local: 70 testes PostgreSQL PASS; jornada real com 203 Tabs, confirmação única e preservação de ocupação/Payments em 360/390/430 PASS; suíte visual final **318 PASS (6,7 min)**. Build/tipos/diff PASS; Ruff sem avisos novos (15 RUF012 preexistentes nas views, teste PASS). Ver revalidation.md.
+
+### T07b — liberação Android
+- [x] Revisão identifica mesa e efeito sobre QR/limpeza; cancelar não chama mutation.
+- [x] Alvo original preservado; mudança local de ocupação/generation, busy e permissão bloqueiam.
+Evidência: três cenários em seis configurações de emulador, 59 unitários, build/lint e 48 testes PostgreSQL PASS (Spec 026 revalidation.md). Aparelho, Android/API e disputa após snapshot não homologados.
+
+### T08c — evidência local guest
+- [x] Revisão atual por IDs/preço/configuração, sem defaults; cancelar preserva draft e inclusão não envia.
+- [x] Releitura impede visita/Tab/token divergentes e bloqueio/revogação/falha/conteúdo alterado; configuração distinta não se funde.
+- [x] PostgreSQL/Web em 360/390/430: nova intenção, resposta perdida/replay sem duplicação, histórico/Payments preservados; bloqueio de mesa após revisão impede inclusão.
+
+Detalhes, checks completos e limites em specs/026-operational-ux-friction/revalidation.md.
+
+### T09a — quantidade guest local
+- [x] +/− acessíveis, zero remove, agrupamento por configuração idêntica e edição conserva quantidade; limite 99 rejeita inclusão/edição/repetição inteira sem perder draft.
+- [x] Variantes/opções/notas diferentes permanecem distintas, ordem de option IDs não cria configuração nova; controles e payload pendente preservados nos bloqueios.
+- [x] Web/API PostgreSQL 360/390/430: quantidade agrupada enviada uma vez, replay idêntico, exposição/charges corretos e Payments preservados; bloqueio real de mesa em 390.
+- [x] 385 testes visuais PASS (7,3 min), tipos/build/diff PASS; resultado final e limites em Spec 026/revalidation.md.
+
+### T09b — evidência local guest
+- [x] Busca global por nome, acentos/caixa/espaços nas bordas, categorias consistentes, retorno ao limpar, fallback e vazio; fixture de 146 produtos.
+- [x] Filtros/atalho preservam configuração, quantidade, draft e intent; indisponibilidade, bloqueio e revogação respeitados; primeira inclusão não desloca catálogo.
+- [x] Web/API PostgreSQL 360/390/430: categoria real, seleção cruzando filtros, bloqueio de mesa, foco/draft e replay sem duplicar Order/Charge.
+- [x] 393 testes visuais PASS (7,6 min), Ruff/tipos/build/diff PASS; detalhes na Spec 026. Não implica paridade global, aparelho físico ou publicação.

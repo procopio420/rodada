@@ -52,6 +52,8 @@ class OperationsHttpClient(baseUrl: String) {
                                 lineTotalCents = item.getLong("line_total_cents"),
                                 state = item.getString("state"),
                                 customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
+                                productId = item.optString("product_id").takeIf { it.isNotBlank() },
+                                customization = historicalCustomization(item.optJSONObject("customization_snapshot")),
                             )
                         },
                 )

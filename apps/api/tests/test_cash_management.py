@@ -189,6 +189,48 @@ class CashManagementTests(TestCase):
         shift.refresh_from_db()
         self.assertEqual(cash_shift_position(shift)["expected_cents"], 27_200)
 
+
+    def test_same_legacy_movement_key_cannot_alias_another_payment_or_refund(self):
+        shift = self.open_shift()
+        first = self.confirmed_cash_payment(amount=1200)
+        other = self.confirmed_cash_payment(amount=1200)
+        recorded = record_cash_payment_movement(
+            payment_id=first.id, cash_point_id=self.point.id,
+            amount_due_cents=1200, amount_tendered_cents=1200,
+            idempotency_key="payment:legacy-shared-key", actor=self.actor,
+        )
+        with self.assertRaises(CashServiceError) as conflicting:
+            record_cash_payment_movement(
+                payment_id=other.id, cash_point_id=self.point.id,
+                amount_due_cents=1200, amount_tendered_cents=1200,
+                idempotency_key="payment:legacy-shared-key", actor=self.actor,
+            )
+        self.assertEqual(conflicting.exception.code, "IDEMPOTENCY_CONFLICT")
+        self.assertEqual(CashMovement.objects.filter(kind=CashMovementKind.CASH_PAYMENT).count(), 1)
+        self.assertFalse(CashTenderDetail.objects.filter(payment=other).exists())
+        self.assertEqual(CashMovement.objects.get(pk=recorded.pk).payment_id, first.pk)
+
+        refund_a = Refund.objects.create(
+            payment=first, amount_cents=200, idempotency_key="refund-a",
+            status=RefundStatus.CONFIRMED, confirmed_at=timezone.now(), created_by=self.staff,
+        )
+        refund_b = Refund.objects.create(
+            payment=other, amount_cents=200, idempotency_key="refund-b",
+            status=RefundStatus.CONFIRMED, confirmed_at=timezone.now(), created_by=self.staff,
+        )
+        record_cash_refund_movement(
+            refund_id=refund_a.id, cash_point_id=self.point.id,
+            idempotency_key="refund:legacy-shared-key", actor=self.actor,
+        )
+        with self.assertRaises(CashServiceError) as refund_conflict:
+            record_cash_refund_movement(
+                refund_id=refund_b.id, cash_point_id=self.point.id,
+                idempotency_key="refund:legacy-shared-key", actor=self.actor,
+            )
+        self.assertEqual(refund_conflict.exception.code, "IDEMPOTENCY_CONFLICT")
+        self.assertEqual(CashMovement.objects.filter(kind=CashMovementKind.CASH_REFUND).count(), 1)
+        self.assertEqual(cash_shift_position(shift)["expected_cents"], 21_000)
+
     def test_count_close_review_and_late_correction_preserve_snapshot(self):
         shift = self.open_shift()
         supply_cash(

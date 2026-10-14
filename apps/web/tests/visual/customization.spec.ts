@@ -25,9 +25,11 @@ for (const width of [360, 390, 768]) {
     await expect(page.getByText("Observação: Molho separado")).toBeVisible();
     await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [{ id: "custom-item", state: "PREPARING", quantity: 2, product_name: "Hambúrguer", tab_label: "Mesa 27", created_at: "2026-10-08T20:00:00Z", customization_snapshot: { variant: { name: "Duplo" }, modifiers: [{ name: "Bacon", group_name: "Adicionais", semantic_kind: "ADD" }, { name: "Queijo", group_name: "Adicionais", semantic_kind: "ADD" }], special_instructions: "Molho separado" } }] } }));
     await page.goto("/kitchen");
-    await expect(page.getByText("+ Bacon", { exact: true })).toBeVisible();
-    await expect(page.getByText("Variação: Duplo")).toBeVisible();
-    await expect(page.getByText("Observação: Molho separado")).toBeVisible();
+    for (const region of [page.locator(".stationBatches"), page.locator(".stationTickets")]) {
+      await expect(region.getByText("+ Bacon", { exact: true })).toBeVisible();
+      await expect(region.getByText("Variação: Duplo")).toBeVisible();
+      await expect(region.getByText("Observação: Molho separado")).toBeVisible();
+    }
     await stable(page); await layoutAndA11y(page);
     await page.screenshot({ path: `test-results/customization-kitchen-${width}.png`, fullPage: true });
   });

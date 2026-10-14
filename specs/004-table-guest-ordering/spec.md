@@ -1,5 +1,10 @@
 # Spec 004 — Table Ops + Guest Ordering
 
+Spec 026 T06d Web: mover uma Tab usa MOVE_LOCATION da Spec 009; não libera
+origem, ocupa destino vazio ou migra GuestSession. A escolha aceita somente
+outra mesa já ocupada; contexto e versão são revalidados antes de confirmar.
+Recuperação da intenção segue o contrato de sessão da Spec 009.
+
 **Status:** Draft for implementation after Core POS foundation
 
 ## Objetivo
@@ -321,3 +326,90 @@ A sessão determina mesa/ocupação; payload aceita apenas tipo e UUID da inten�
 A interface guarda o UUID antes de enviar, conserva-o em resultado desconhecido
 para retry e anuncia sucesso somente após resposta canônica. Criar solicitação
 não paga nem fecha a comanda e não expõe identidade/ownership do staff ao guest.
+
+## T05b / UX-07 — recuperação guest na mesma visita
+
+Guest preserva antes do POST envelope versionado de payload/chave, instante e
+scope não secreto (Venue/GuestSession/Table/occupancy/generation/Tab), sem copiar
+credencial guest. Scope vem do contexto autorizado da API; IDs não autorizam.
+Após resposta perdida/reload, mostra Verificar mesmo pedido, sem autoenvio.
+Revalida contexto e compara scope integral antes de replay; sessão/visita/Tab
+alterada, expirada/revogada, bloqueio QR e contexto indisponível não transferem
+pedido nem descartam a intenção. API continua revalidando autorização sob locks.
+Replay usa payload/chave congelados, valida Order/tab_id e readback no contexto
+original antes de limpar storage/carrinho e anunciar sucesso. Falha/ambiguidade
+bloqueiam outro envio/edição/nova Tab. Só rejeição inicial conhecida sem commit
+permite revisão; replay rejeitado conserva envelope. Storage inválido/falho
+bloqueia confirmação. Não criar nova sessão automaticamente para intenção antiga.
+Fora de escopo: fechar aba, outra sessão/aparelho, drafts após reload, fila
+fully-offline, reconciliação gerencial e novos pagamentos.
+
+### T06c — Mesa como entrada para a comanda Web
+Atendimento Web filtra pelo nome/número normalizado da mesa no inventário completo já entregue por GET hospitality/tables. Mostra todas as comandas da ocupação ativa como escolhas explícitas por ID, sem mesclar ou selecionar homônimos automaticamente. Apenas associações não liberadas aparecem. Abrir uma escolha lê GET tabs/{id}/?occupancy_id=...&table_id=...: valida UUIDs, Venue, mesa/ocupação vigentes e vínculo não liberado; conflito responde 409 e mantém seleção/rascunho anteriores. Esse contexto é uma precondição de leitura, não nova autorização nem bloqueio duradouro da mesa; comandos posteriores mantêm as regras próprias da Tab. Busca/abertura não fazem mutations. A comanda pode estar fora da página de Contas. Voltar à mesa preserva filtro e rascunhos, com foco na mesa de origem. Pedidos/correções/recebimentos ambíguos e abertura em andamento impedem navegação. Fora de escopo: nova comanda automaticamente associada, movimento A→B, transferência financeira, código curto, Android e persistência do contexto após reload.
+
+Retorno T06c reutiliza a última lista autorizada, atualização periódica e Atualizar explícito; não dispara outra varredura de comandas. A abertura revalida o vínculo no backend independentemente dessa lista.
+
+### T07b / UX-10 — confirmação local da liberação Android
+Liberar mesa abre revisão com nome da mesa, encerramento da ocupação, revogação
+do acesso guest atual e encaminhamento para limpeza. Não fecha nem paga comandas.
+Cancelar, voltar ou tocar fora não chamam a mutation. Confirmar exige permissão,
+nenhuma submissão em curso e a mesma ocupação ativa do inventário local; mudança
+local de ocupação/status invalida a revisão, sem substituir seu alvo. O servidor
+mantém autorização e regras existentes. Este recorte não acrescenta precondição
+transacional ao endpoint: disputa após a última atualização local e recuperação
+durável de resposta ambígua continuam gates separados, sem alegar proteção nova.
+
+### T08c / UX-13 — repetir rodada guest
+Repetir rodada por pedido histórico lê contexto e catálogo autorizados com o token
+já ativo. Não resolve QR, cria sessão/comanda ou troca destino para repetir.
+Venue/session/table/occupancy/generation e Tab devem coincidir com o contexto e
+token originais; exigir ocupação ativa, Tab aberta, leitura saudável, ausência de
+limite/bloqueio emergencial e de envio/recuperação/configuração em andamento.
+Reutilizar revisão de T08b com IDs, configuração e centavos anteriores/atuais,
+exclusões explícitas e inclusão inteira bloqueada por item inválido/legado.
+Catálogo guest fornece só Products ativos: ausência bloqueia; available é a fonte
+operacional. Não inferir produto por nome nem substituir seleção por defaults.
+Adicionar ao carrinho relê contexto/catálogo da mesma visita; mudança de conteúdo
+exige nova revisão, bloqueio/revogação/falha preservam draft e não enviam pedido.
+Inclusão única preserva draft/configurações distintos; Enviar é ação separada com
+nova intenção e recuperação T05b. API revalida política/disponibilidade/limite.
+Nenhum snapshot, Payment ou ledger histórico é alterado. Sem reserva entre GETs
+e envio, persistência de drafts, novo pagamento, Web POS ou ganho humano medido.
+
+T08c acrescenta guest_policy.table_ordering_enabled no payload autorizado de contexto/QR: true somente se a mesa não estiver bloqueada e guest_ordering_mode não for DISABLED, a partir da mesa travada pela leitura existente. É projeção de leitura; não substitui política emergencial, validade da ocupação/sessão ou validação transacional de mutations. Repetição exige true explícito; campo ausente bloqueia. Contexto/cardápio continuam consultáveis quando pedidos estão pausados.
+
+### T09a / UX-14 — quantidade no rascunho guest
+Toques repetidos e inclusão de rodada agrupam somente Product ID, variant ID,
+conjunto de option IDs e observação exatamente iguais. A ordem dos IDs de opções
+não muda a configuração; a nota não é normalizada. Edição preserva quantidade e
+reagrupa somente a configuração idêntica. Limite por linha agrupada: 1–99;
+excedê-lo rejeita toda a inclusão/edição, preserva o draft e informa o problema,
+sem truncar, descartar unidades ou confirmar automaticamente.
+Controles +/− acessíveis ajustam quantidade; zero remove a linha. Aumento exige
+catálogo atual/disponível, configuração válida e visita aberta sem bloqueio de
+mesa/Venue/consumo. Diminuição/remoção permitem corrigir item indisponível ou
+rascunho obsoleto, mas ficam bloqueadas durante intenção pendente/envio/revisão.
+Nenhum controle altera o payload pendente: replay usa a intenção original T05b.
+API segue revalidando catálogo, autorização e limite no envio. Histórico,
+Payments e ledger não são editados. Fora de escopo: busca/categorias de T09b,
+criação automática de comanda, persistência de draft e ganhos humanos medidos.
+
+### T09b / UX-15 — descoberta no catálogo guest
+API guest projeta Product.category já persistida, sem inferir categorias pelo
+routing nem alterar catálogo/domínio. UI reutiliza a apresentação de categorias
+do Atendimento; ausência de categoria pertence a Outros. Todos inicia selecionado,
+para preservar descoberta de qualquer produto. Categoria filtra por apresentação;
+busca por nome ignora acentos/caixa e espaços nas bordas, pesquisando o catálogo
+inteiro. Limpar busca volta à categoria selecionada; selecionar categoria limpa
+busca. Categoria removida após atualização retorna a Todos. Resultado vazio tem
+feedback e contagem acessível; filtros não mudam Product IDs, configurações,
+quantidades, draft, histórico ou intenções pendentes.
+Acesso explícito ao Pedido atual no catálogo leva ao draft existente sem enviar,
+criando comanda nem resolver QR novamente. Nenhum item se torna vendável pela
+busca: indisponibilidade, dados obsoletos, bloqueios de mesa/Venue/consumo, visita
+revogada e intenção pendente conservam os guards T05b/T09a. Catálogo vazio tem
+mensagem própria. Fora de escopo: recomendação/fuzzy matching, categorias novas
+no banco, criação automática da comanda, persistência de draft e medição humana.
+
+Descoberta T09b: Pedido atual permanece visível, desativado com carrinho vazio,
+para que a primeira inclusão não desloque os produtos durante toques repetidos.

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 test("DEV provisions an operator, edits role and revokes access with canonical readback", async ({ page, browser }) => {
   await page.goto("/dev/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
@@ -15,7 +15,7 @@ test("DEV provisions an operator, edits role and revokes access with canonical r
   await expect(page.getByRole("button",{name:"Gerenciar Developer E2E operator"})).toBeVisible();
   const context=await browser.newContext();const operator=await context.newPage();
   await operator.goto("/staff");await operator.getByLabel("Estabelecimento").fill("web-e2e");await operator.getByLabel("Operador",{exact:true}).fill("developer.e2e.operator");await operator.getByLabel("PIN",{exact:true}).fill("7319");await operator.getByRole("button",{name:"Entrar",exact:true}).click();
-  await expect(operator.getByRole("heading", { name: "Developer E2E operator" })).toBeVisible();
+  await expect(operator.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   await page.getByRole("button",{name:"Gerenciar Developer E2E operator"}).click();
   await page.getByLabel("Função",{exact:true}).selectOption("CASHIER");
   await page.getByLabel("Seu PIN para confirmar").fill("2468");await page.getByRole("button",{name:"Salvar acesso"}).click();

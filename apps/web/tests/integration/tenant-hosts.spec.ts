@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 const A = "e2ea.rodada.bar";
 const B = "e2eb.rodada.bar";

@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +10,7 @@ from modules.corrections.services import (
     CorrectionServiceError,
     cancel_before_fulfillment,
     create_post_production_correction,
+    settle_cancellation_without_refund,
     settle_refund_required_cancellation,
 )
 from modules.ledger.services import LedgerServiceError, reverse_open_responsibility, totals
@@ -59,9 +61,29 @@ class OrderItemCancelView(APIView):
             "remaining_quantity": item.remaining_quantity,
             **totals(item.order.tab),
         }
-        if correction.financial_disposition == "REFUND_REQUIRED":
+        if correction.status == "REQUESTED":
             return Response(payload, status=200 if getattr(correction, "_idempotency_replay", False) else 202)
         return Response(payload, status=200 if getattr(correction, "_idempotency_replay", False) else 201)
+
+
+class CorrectionWithoutRefundSettlementView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability, RequireRecentReauthentication)
+    required_capability = Capability.ORDER_CORRECT
+
+    def post(self, request, correction_id):
+        if request.data:
+            return Response({"code": "INVALID_REVIEW", "message": "A revisão usa somente a correção original."}, status=400)
+        try:
+            correction, result = settle_cancellation_without_refund(
+                correction_id=correction_id, actor=request.actor_context,
+            )
+        except CorrectionServiceError as error:
+            return Response({"code": error.code, "message": error.message}, status=error.status_code)
+        return Response({"id": str(correction.id), "status": correction.status,
+                         "financial_disposition": correction.financial_disposition,
+                         "financial_adjustment_id": str(correction.financial_adjustment_id) if correction.financial_adjustment_id else None,
+                         "refund_id": None, **result},
+                        status=200 if getattr(correction, "_idempotency_replay", False) else 201)
 
 
 class CorrectionRefundSettlementView(APIView):
@@ -69,14 +91,24 @@ class CorrectionRefundSettlementView(APIView):
     required_capability = Capability.REFUND_CREATE
 
     def post(self, request, correction_id):
+        class Input(serializers.Serializer):
+            payment_id = serializers.UUIDField()
+            amount_cents = serializers.IntegerField(min_value=1, max_value=2147483647)
+            refund_idempotency_key = serializers.CharField(max_length=120)
+            cash_point_id = serializers.UUIDField(required=False, allow_null=True)
+            originating_session_id = serializers.UUIDField(required=False)
+
+        data = Input(data=request.data)
+        if not data.is_valid():
+            return Response({"code": "INVALID_REFUND", "message": "Estorno inválido.", "errors": data.errors}, status=400)
         try:
-            amount_cents = int(request.data.get("amount_cents"))
             correction, refund, result = settle_refund_required_cancellation(
                 correction_id=correction_id,
-                payment_id=request.data.get("payment_id"),
-                amount_cents=amount_cents,
-                refund_idempotency_key=request.data.get("refund_idempotency_key", ""),
-                cash_point_id=request.data.get("cash_point_id"),
+                amount_cents=data.validated_data["amount_cents"],
+                payment_id=data.validated_data["payment_id"],
+                refund_idempotency_key=data.validated_data["refund_idempotency_key"],
+                cash_point_id=data.validated_data.get("cash_point_id"),
+                originating_session_id=data.validated_data.get("originating_session_id"),
                 actor=request.actor_context,
             )
         except (TypeError, ValueError):
