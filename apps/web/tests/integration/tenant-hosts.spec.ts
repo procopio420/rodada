@@ -113,6 +113,6 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   expect(cookieB).toBeTruthy();
   const reverseQR = await request.post("/api/guest/qr/resolve", { headers: { ...headers(A), Origin: "http://" + A }, data: { token: "e2e-guest-qr-b" } });
   expect(reverseQR.status()).toBe(404);
-  const reverseGuest = await request.get("/api/guest/context", { headers: { ...headers(A), Cookie: cookieB! } });
+  const reverseGuest = await request.get("/api/guest/context", { headers: { ...headers(A), "X-Guest-Session": "e2e-guest-qr-b", Cookie: cookieB! } });
   expect(reverseGuest.status()).toBe(404);
 });
