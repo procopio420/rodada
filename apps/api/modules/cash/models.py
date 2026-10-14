@@ -1,7 +1,7 @@
 import uuid
 
-from .daily_close_models import DailyClose, DailyCloseReview
-from .correction_models import CashCorrectionRequest
+from .daily_close_models import DailyClose as DailyClose, DailyCloseReview as DailyCloseReview
+from .correction_models import CashCorrectionRequest as CashCorrectionRequest
 
 from django.db import models
 from django.db.models import Q

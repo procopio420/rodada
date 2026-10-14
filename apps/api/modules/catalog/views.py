@@ -1,14 +1,23 @@
-from django.db import transaction
-from rest_framework.permissions import IsAuthenticated
+import base64
+import binascii
+from pathlib import PurePosixPath
+
+from django.core.files.storage import default_storage
+from django.http import FileResponse, Http404
+from rest_framework.exceptions import ValidationError
+from modules.catalog.services import suggestions, resolve_or_create_product, enqueue_icon, replace_icon, audit
+
+from django.db import IntegrityError, transaction
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
 from modules.audit.services import record_audit_event
-from modules.catalog.models import AvailabilityState, ProductAvailability
+from modules.catalog.models import AvailabilityState, ProductAvailability, Product, ProductIcon
 from modules.catalog.queries import catalog_for_venue
-from modules.catalog.serializers import product_payload
+from modules.catalog.serializers import QuickProductInput, icon_payload, product_payload
 from modules.catalog.models import normalize_product_name
 
 
@@ -43,17 +52,6 @@ class ProductAvailabilityView(APIView):
         return Response({"product_id": str(product_id), "state": state, "version": availability.version})
 
 
-from pathlib import PurePosixPath
-import base64
-import binascii
-from django.core.files.storage import default_storage
-from django.db import transaction, IntegrityError
-from django.http import FileResponse, Http404
-from rest_framework.permissions import AllowAny
-from rest_framework.exceptions import ValidationError
-from modules.catalog.models import Product, ProductIcon
-from modules.catalog.serializers import QuickProductInput, icon_payload
-from modules.catalog.services import suggestions, resolve_or_create_product, enqueue_icon, replace_icon, audit
 
 
 class ProductSuggestView(APIView):
