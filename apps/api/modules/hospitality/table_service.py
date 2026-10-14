@@ -114,6 +114,57 @@ def start_table_service(*, table_id, idempotency_key, actor):
     )
 
 
+@transaction.atomic
+def start_table_service_and_open_tab(*, table_id, display_label, idempotency_key, actor):
+    """Start a new visit and its first named Tab as one recoverable command."""
+    row = _intent(
+        actor,
+        "start_open",
+        idempotency_key,
+        {"table_id": str(table_id), "display_label": display_label},
+    )
+    if row.result:
+        return {**row.result, "replayed": True}
+    table = _table_for_actor(table_id, actor)
+    _require_rollout(actor)
+    if table.status == TableStatus.OCCUPIED:
+        occupancy = TableOccupancy.objects.get(table=table, released_at__isnull=True)
+        raise HospitalityServiceError(
+            "OCCUPANCY_ALREADY_ACTIVE",
+            "Mesa já em uso. Escolha uma mesa disponível.",
+            409,
+            {"active_occupancy": _snapshot(occupancy), "occupancy_id": str(occupancy.id)},
+        )
+    if table.status != TableStatus.AVAILABLE:
+        raise HospitalityServiceError(
+            "TABLE_NOT_AVAILABLE",
+            "Mesa não está disponível.",
+            409,
+            {"status": table.status},
+        )
+    occupancy = occupy_table(table_id=table_id, actor=actor)
+    occupancy.responsible_staff_id = actor.staff_id
+    occupancy.responsible_since = timezone.now()
+    occupancy.responsibility_version = 1
+    occupancy.save(
+        update_fields=["responsible_staff", "responsible_since", "responsibility_version"]
+    )
+    _audit(occupancy, actor, "assigned", None, idempotency_key)
+    tab = open_tab(actor=actor, display_label=display_label)
+    _assign_tab(occupancy=occupancy, tab_id=tab.id, actor=actor)
+    return _finish(
+        row,
+        {
+            "tab_id": str(tab.id),
+            "occupancy_id": str(occupancy.id),
+            "table_id": str(table.id),
+            "table_label": table.label,
+            "display_label": tab.display_label,
+            "state": tab.state,
+        },
+    )
+
+
 def _audit(occupancy, actor, kind, previous, key):
     record_audit_event(
         actor=actor,

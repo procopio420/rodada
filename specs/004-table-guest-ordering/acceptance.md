@@ -96,3 +96,6 @@ desmarcados nas issues #144–#148. QR opaco estável é reutilizável em nova v
 a sessão antiga perde autorização ao liberar/limpar. Não é revogação automática
 do QR físico. Gate E2E Web+Android integral permanece #106. Gates do SHA final
 e revisão independente são necessários antes do fechamento da #3.
+
+## Gestão de mesas
+Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).

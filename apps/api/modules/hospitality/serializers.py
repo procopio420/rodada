@@ -53,6 +53,16 @@ class ServiceStartSerializer(serializers.Serializer):
     idempotency_key = serializers.CharField(max_length=128)
 
 
+class ServiceStartOpenTabSerializer(ServiceStartSerializer):
+    display_label = serializers.CharField(max_length=120)
+
+    def validate_display_label(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("Nome da comanda é obrigatório.")
+        return value
+
+
 class ContextualTabSerializer(ServiceStartSerializer):
     expected_generation = serializers.IntegerField(min_value=1)
     display_label = serializers.CharField(
@@ -64,3 +74,18 @@ class ContextualTabSerializer(ServiceStartSerializer):
 class ResponsibilityClaimSerializer(ServiceStartSerializer):
     expected_responsibility_version = serializers.IntegerField(min_value=0)
     mode = serializers.ChoiceField(choices=["CLAIM_UNASSIGNED", "TAKE_OVER"])
+
+
+class TableInventorySerializer(serializers.Serializer):
+    enabled = serializers.BooleanField()
+    expected_status = serializers.ChoiceField(
+        choices=["AVAILABLE", "OCCUPIED", "DIRTY", "CLEANING", "OUT_OF_SERVICE"]
+    )
+
+
+class TableCountSerializer(serializers.Serializer):
+    target_count = serializers.IntegerField(min_value=0, max_value=500)
+    expected_count = serializers.IntegerField(min_value=0)
+    retire_ids = serializers.ListField(
+        child=serializers.UUIDField(), required=False, default=list, max_length=500
+    )

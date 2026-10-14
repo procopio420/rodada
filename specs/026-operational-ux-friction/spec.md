@@ -444,3 +444,8 @@ seletor público; pendência consulta contexto existente, sem iniciar outra visi
 Atendimento por mesa, responsabilidade e modo legado coexistem com confirmação de
 liberação e navegação contextual. Integração exige testes de ambas as specs e
 revisor independente no SHA final, sem relaxar auditoria, pagamentos ou autorização.
+
+### Paginação compacta Web (14/10/2026)
+Contas usa setas anterior/próxima com nomes acessíveis e indicação da página atual, em uma linha centralizada. Alvos mínimos de 44 px, foco visível e estados desabilitados preservados. A mudança é de apresentação: não altera paginação da API, seleção, rascunhos ou bloqueios operacionais.
+
+Contas do Atendimento Web exibe até 10 comandas abertas por página; a busca continua global e reinicia na página 1. A API mantém seu contrato de até 200 resultados por leitura, e o PDV mantém 200 por página. Seleção e rascunhos são preservados.

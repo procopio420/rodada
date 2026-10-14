@@ -104,7 +104,12 @@ class TableListCreateView(APIView):
         from .projections import staff_tables
 
         tables = staff_tables(request.actor_context.venue_id)
-        return Response({"table_service_enabled": request.auth.venue.table_service_enabled, "results": [_table_payload(table) for table in tables]})
+        return Response(
+            {
+                "table_service_enabled": request.auth.venue.table_service_enabled,
+                "results": [_table_payload(table) for table in tables],
+            }
+        )
 
     def post(self, request):
         permission = RequireCapability()
@@ -112,7 +117,10 @@ class TableListCreateView(APIView):
         permission.has_permission(request, self)
         serializer = TableCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        table = create_table(actor=request.actor_context, **serializer.validated_data)
+        try:
+            table = create_table(actor=request.actor_context, **serializer.validated_data)
+        except HospitalityServiceError as error:
+            return _error_response(error)
         return Response(_table_payload(table), status=201)
 
 
@@ -305,6 +313,30 @@ class TableServiceStartView(APIView):
         )
 
 
+class TableServiceStartOpenTabView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.TABLE_MANAGE
+
+    def post(self, request, table_id):
+        from modules.access.capabilities import has_capability
+        from modules.access.errors import AccessPermissionDenied
+        from .serializers import ServiceStartOpenTabSerializer
+        from .table_service import start_table_service_and_open_tab
+
+        if not has_capability(request.auth.membership, Capability.TAB_OPEN):
+            raise AccessPermissionDenied(
+                "CAPABILITY_REQUIRED",
+                "Ação não autorizada para este operador.",
+                capability=Capability.TAB_OPEN,
+            )
+        return _service_command(
+            request,
+            ServiceStartOpenTabSerializer,
+            start_table_service_and_open_tab,
+            table_id=table_id,
+        )
+
+
 class OccupancyTabOpenView(APIView):
     permission_classes = (IsAuthenticated, RequireCapability)
     required_capability = Capability.TAB_OPEN
@@ -342,3 +374,39 @@ def _service_command(request, serializer_type, service, **target):
     except HospitalityServiceError as error:
         return _error_response(error)
     return Response(result, status=200 if result["replayed"] else 201)
+
+
+class TableInventoryView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.VENUE_CONFIGURE
+
+    def post(self, request, table_id):
+        from .serializers import TableInventorySerializer
+        from .table_inventory import set_table_enabled
+
+        serializer = TableInventorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            table = set_table_enabled(
+                table_id=table_id, actor=request.actor_context, **serializer.validated_data
+            )
+        except HospitalityServiceError as error:
+            return _error_response(error)
+        return Response(_table_payload(table))
+
+
+class TableCountView(APIView):
+    permission_classes = (IsAuthenticated, RequireCapability)
+    required_capability = Capability.VENUE_CONFIGURE
+
+    def post(self, request):
+        from .serializers import TableCountSerializer
+        from .table_inventory import set_working_table_count
+
+        serializer = TableCountSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            set_working_table_count(actor=request.actor_context, **serializer.validated_data)
+        except HospitalityServiceError as error:
+            return _error_response(error)
+        return Response({"confirmed": True})

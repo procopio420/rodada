@@ -1,6 +1,72 @@
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 
+test("attendance requires a tab name and selects an available table before opening", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page, "normal", true);
+  await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["table.manage", "tab.open"] } }));
+  let opened = false;
+  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { table_service_enabled: true, results: [{ id: "table-test", label: "12", status: opened ? "OCCUPIED" : "AVAILABLE", active_occupancy: null }] } }));
+  await page.route("**/api/attendance/hospitality/tables/table-test/service/open-tab/", route => {
+    expect(route.request().postDataJSON()).toMatchObject({ display_label: "João" });
+    opened = true;
+    return route.fulfill({ status: 201, json: { tab_id: "tab-test", table_id: "table-test", table_label: "12" } });
+  });
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: "Contas", exact: true }).click();
+  const open = page.getByRole("button", { name: "Abrir comanda", exact: true });
+  await expect(open).toBeDisabled();
+  await page.getByLabel("Nome da Comanda").fill("João");
+  await expect(open).toBeEnabled();
+  await open.click();
+  await expect(page.getByRole("dialog", { name: "Qual mesa o cliente está?" })).toBeVisible();
+  await page.getByRole("button", { name: "Mesa 12", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Comanda de teste", exact: true })).toBeVisible();
+  await expect(page.locator('.notice[data-state="info"]')).toHaveCount(0);
+  await layoutAndA11y(page);
+});
+
+test("global opening adds a tab to an occupied table and excludes unavailable tables", async ({ page }) => {
+  await fixture(page, "normal", true);
+  await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["table.manage", "tab.open"] } }));
+  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { table_service_enabled: true, results: [
+    { id: "occupied", label: "12", status: "OCCUPIED", active_occupancy: { id: "visit", generation: 7 } },
+    { id: "dirty", label: "13", status: "DIRTY" },
+  ] } }));
+  let opens = 0;
+  await page.route("**/api/attendance/hospitality/occupancies/visit/tabs/open/", route => {
+    expect(route.request().postDataJSON()).toMatchObject({ display_label: "João", expected_generation: 7 });
+    opens++;
+    return route.fulfill({ json: { tab_id: "tab-test", table_label: "12" } });
+  });
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: "Contas", exact: true }).click();
+  await page.getByLabel("Nome da Comanda").fill("João");
+  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Qual mesa o cliente está?" });
+  await expect(dialog.getByRole("button", { name: /Mesa 13/ })).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Mesa 12 · Em uso", exact: true }).click();
+  await expect.poll(() => opens).toBe(1);
+  await expect(dialog).toHaveCount(0);
+});
+
+test("attendance preserves named opening without table when contextual service is disabled", async ({ page }) => {
+  await fixture(page, "normal", true);
+  await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["tab.open"] } }));
+  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { table_service_enabled: false, results: [] } }));
+  let opens = 0;
+  await page.route("**/api/attendance/tabs/", route => {
+    if (route.request().method() === "POST") { opens++; return route.fulfill({ status: 201, json: { id: "tab-new", display_label: "João", state: "OPEN", version: 1 } }); }
+    return route.fallback();
+  });
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: "Contas", exact: true }).click();
+  await page.getByLabel("Nome da Comanda").fill("João");
+  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
+  await expect.poll(() => opens).toBe(1);
+  await expect(page.getByRole("dialog", { name: "Qual mesa o cliente está?" })).toHaveCount(0);
+});
+
 for (const width of [360, 390, 430]) test(`table service start/open recovery and contextual selection at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: 844 });
   await fixture(page, "normal", true);
@@ -23,6 +89,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
   await page.getByRole("button", { name: "Iniciar atendimento · Mesa 12", exact: true }).click();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
@@ -37,7 +104,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
-  await expect(page.getByText("Mesa 12 · Comanda de teste · Comanda TAB-TEST", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Comanda de teste", exact: true })).toBeVisible();
   expect(opens).toHaveLength(2); expect(opens[0]).toEqual(opens[1]);
   expect(opens[0]).toMatchObject({ expected_generation: 1, display_label: "João" });
   await layoutAndA11y(page);
@@ -59,6 +126,7 @@ test("one QR attention per occupancy and explicit claim removes warning", async 
   await page.getByRole("button", { name: "Assumir atendimento", exact: true }).click();
   await expect(page.getByText("Pedido via QR · Sem responsável", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   await layoutAndA11y(page);
 });
@@ -112,6 +180,7 @@ test("linked Tab moves with confirmation and frozen recovery intent", async ({ p
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 13 Ocupada/ }).click();
   await page.getByRole("button", { name: "Organizar mesa 13" }).click();
   await page.getByLabel("Associar comanda à mesa 13").selectOption("tab-test");
   await expect(page.getByText(/Mesa 12 → Mesa 13/)).toBeVisible();
@@ -131,6 +200,7 @@ test("disabled Venue retains legacy occupy without offering contextual service",
   await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { table_service_enabled: false, results: [{ id: "table-test", label: "12", status: "AVAILABLE" }] } }));
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
   await expect(page.getByRole("button", { name: "Ocupar mesa", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /Iniciar atendimento/ })).toHaveCount(0);
 });

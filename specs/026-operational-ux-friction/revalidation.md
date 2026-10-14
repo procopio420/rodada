@@ -1968,3 +1968,13 @@ A única falha observada, bloqueio visual de journal de lote adulterado, foi
 corrigida mantendo a proteção pré-POST; três regressões focadas e build PASS.
 Demais critérios amplos e gates externos continuam abertos. Nenhum deploy ou
 medição humana é inferido da integração Git.
+
+## 14/10/2026 — paginação compacta Web
+Base main@06e46156, alterações locais sem commit. OrderWorkspace compartilhado por Contas/PDV: setas do OperationalIcon, alvos de 44 px, indicador central e nomes acessíveis; handlers/bloqueios preservados. Arquivos: apps/web/components/{order-workspace,operational-icon}.tsx, apps/web/app/globals.css e tests/visual/tab-pagination.spec.ts; contrato atualizado em spec/plan/tasks/acceptance.
+
+Validações executadas: tsc --noEmit PASS; next build PASS; ESLint nos três arquivos TypeScript afetados PASS; test:auth (4) PASS; suíte test:visual (525, 8.8 min) PASS; paginação/busca focadas (14) PASS e captura mobile (6) PASS. As invocações locais usam os executáveis node dos mesmos scripts de package.json. Testes verificam ícones, nomes, alvos mínimos e navegação com mais de 200 comandas/rascunhos em 360/390/430; aplicação local real conferida em /attendance → Contas. Captura local ignorada: visual-artifacts/pagination-ux/attendance-390.png. Diff check PASS.
+
+next-env.d.ts já modificado pelo servidor de desenvolvimento antes desta tarefa, preservado. Sem alteração de API/dados/pagamentos. Integração PostgreSQL e dispositivo físico não executados nesta mudança de apresentação. GO para revisão local de UX; homologação em aparelho continua com o operador. Nenhum commit/push/deploy.
+
+### Limite de 10 em Contas — 14/10/2026
+Base main@06e46156 com alterações locais anteriores preservadas. OrderWorkspace apresenta 10 resultados no Atendimento e deriva próximo offset em passos de 10 quando a leitura contém mais itens. API continua com máximo de 200 por leitura; PDV permanece com 200. Atualizados testes de paginação e busca para validar 10 botões na primeira página, 11º na segunda, retorno e rascunhos em 360/390/430. Tipos/build PASS; suíte visual focada tab-pagination/tab-search: 14 PASS (24.6 s). Suíte completa de 525 registrada acima precede este ajuste e não foi repetida; integração PostgreSQL/dispositivo físico não executados neste ajuste. GO local, sem commit/push/deploy.

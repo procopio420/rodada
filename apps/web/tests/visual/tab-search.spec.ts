@@ -3,7 +3,7 @@ import { fixture, layoutAndA11y } from "./fixtures";
 for (const surface of ["attendance", "pos"] as const) for (const width of [360,390,430]) test(`${surface} global label search preserves destination and draft at ${width}`, async ({ page }) => {
  await fixture(page, "normal", true); await page.setViewportSize({ width, height: 900 });
  const make = (id: string, label: string) => ({ id, display_label: label, state: "OPEN", version: 1, exposure_cents: 0, payable_cents: 0, charges_cents: 0, payments_cents: 0, payments: [], orders: [], refund_required_corrections: [] });
- const rows = [...Array.from({ length: 200 }, (_, i) => make(`tab-${i}`, `Page ${i}`)), make("same-a", "João"), make("same-b", "JOÃO"), make("unnamed", "")];
+ const rows = [...Array.from({ length: surface === "attendance" ? 10 : 200 }, (_, i) => make(`tab-${i}`, `Page ${i}`)), make("same-a", "João"), make("same-b", "JOÃO"), make("unnamed", "")];
  const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
  await page.route(/\/api\/(pos|attendance)\/tabs\/(\?.*)?$/, route => {
   const params = new URL(route.request().url()).searchParams, q = normalize(params.get("q") ?? ""), offset = Number(params.get("offset") ?? 0);

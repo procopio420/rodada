@@ -32,6 +32,15 @@ def _table_for_actor(table_id, actor: ActorContext) -> Table:
 
 @transaction.atomic
 def create_table(*, label: str, guest_ordering_mode: str, actor: ActorContext) -> Table:
+    from modules.venue.models import Venue
+
+    Venue.objects.select_for_update(no_key=True).get(pk=actor.venue_id)
+    if Table.objects.filter(venue_id=actor.venue_id, label=label.strip()).exists():
+        raise HospitalityServiceError(
+            "TABLE_LABEL_EXISTS",
+            "Já existe uma mesa com essa identificação. Reative a mesa existente se estiver fora de uso.",
+            409,
+        )
     table = Table.objects.create(
         venue_id=actor.venue_id,
         label=label.strip(),
@@ -196,6 +205,7 @@ def _assign_tab(
 @transaction.atomic
 def assign_tab(*, occupancy_id, tab_id, actor: ActorContext) -> TabOccupancyAssignment:
     from modules.hospitality.table_service import _locked_occupancy
+
     occupancy = _locked_occupancy(occupancy_id, actor)
     return _assign_tab(occupancy=occupancy, tab_id=tab_id, actor=actor)
 
@@ -232,8 +242,12 @@ def release_table(*, table_id, actor: ActorContext) -> TableOccupancy:
 
 def _released_party_size(occupancy):
     from modules.hospitality.party_size import current_party_size
+
     row = current_party_size(occupancy_id=occupancy.id)
-    return {"observation_id": str(row.id) if row else None, "covers_count": row.covers_count if row else None}
+    return {
+        "observation_id": str(row.id) if row else None,
+        "covers_count": row.covers_count if row else None,
+    }
 
 
 @transaction.atomic

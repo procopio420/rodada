@@ -14,6 +14,7 @@ test('table-service gateway requires authentication and rejects financial paths'
     });
     for (const [route, status, code] of [
       ['hospitality/tables/table-test/service/start/', 401, 'AUTH_REQUIRED'],
+      ['hospitality/tables/table-test/service/open-tab/', 401, 'AUTH_REQUIRED'],
       ['hospitality/occupancies/occupancy-test/tabs/open/', 401, 'AUTH_REQUIRED'],
       ['hospitality/occupancies/occupancy-test/responsibility/claim/', 401, 'AUTH_REQUIRED'],
       ['tabs/tab-test/payments/', 403, 'ATTENDANCE_OPERATION_DISABLED'],

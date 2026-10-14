@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 
-export type OperationalIconName = "now" | "operation" | "sales" | "settings" | "more" | "printer" | "wallet" | "lock" | "people" | "table" | "cart" | "check" | "warning" | "receipt" | "trash" | "history" | "chef" | "drink";
+export type OperationalIconName = "chevron-left" | "chevron-right" | "now" | "operation" | "sales" | "settings" | "more" | "printer" | "wallet" | "lock" | "people" | "table" | "cart" | "check" | "warning" | "receipt" | "trash" | "history" | "chef" | "drink";
 const shapes: Record<OperationalIconName, ReactNode> = {
+  "chevron-left": <path d="m15 6-6 6 6 6" />,
+  "chevron-right": <path d="m9 6 6 6-6 6" />,
   history: <><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2" /></>,
   trash: <><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></>,
   lock: <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3" /></>,

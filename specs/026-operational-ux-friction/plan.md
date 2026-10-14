@@ -230,3 +230,7 @@ T12b.3: componente read-only para item/correção reutiliza padrão de conferên
 Payment, resolvers existentes e detalhe Tab, com validação de identidade e sessão.
 Links em alerta e estornos; fixtures incluindo estados históricos, divergência e
 sessão; build/tipos/visual completo sem mudar baseline.
+
+Paginação compacta (14/10/2026): reutilizar OperationalIcon e Button secundário, com setas de 44 px e status central. Manter handlers e bloqueios; conferir mobile, busca, rascunhos e histórico nos testes existentes.
+
+Contas: limitar apresentação a 10 resultados e avançar offset em 10 quando a leitura tiver mais itens; usar next_offset canônico no fim. Preservar PDV com 200 e busca global.

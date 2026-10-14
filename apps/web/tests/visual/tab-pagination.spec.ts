@@ -1,26 +1,38 @@
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
-for (const surface of ["attendance", "pos"] as const) for (const width of [360, 390, 430]) test(`${surface} paginates beyond 200 and retains draft at ${width}`, async ({ page }) => {
+for (const surface of ["attendance", "pos"] as const) for (const width of [360, 390, 430]) test(`${surface} paginates at the surface page size and retains draft at ${width}`, async ({ page }) => {
  await fixture(page, "normal", true); await page.setViewportSize({ width, height: 900 });
- const tabs = Array.from({ length: 201 }, (_, i) => ({ id: `page-${i}`, display_label: `Comanda ${i+1}`, state: "OPEN", version: 1, exposure_cents: 0, payable_cents: 0, charges_cents: 0, payments_cents: 0, orders: [], payments: [], refund_required_corrections: [] }));
+ const pageSize = surface === "attendance" ? 10 : 200;
+ const tabs = Array.from({ length: pageSize + 1 }, (_, i) => ({ id: `page-${i}`, display_label: `Comanda ${i+1}`, state: "OPEN", version: 1, exposure_cents: 0, payable_cents: 0, charges_cents: 0, payments_cents: 0, orders: [], payments: [], refund_required_corrections: [] }));
  let fail = false;
  await page.route(/\/api\/(attendance|pos)\/tabs\/(\?.*)?$/, route => {
   const offset = Number(new URL(route.request().url()).searchParams.get("offset") ?? 0);
   if (offset && fail) { fail = false; return route.abort(); }
-  return route.fulfill({ json: { results: tabs.slice(offset, offset+200), next_offset: offset ? null : 200 } });
+  return route.fulfill({ json: { results: tabs.slice(offset, offset+200), next_offset: tabs.length > offset+200 ? offset+200 : null } });
  });
  await page.route(/\/api\/(attendance|pos)\/tabs\/page-\d+\/$/, route => route.fulfill({ json: tabs.find(t => route.request().url().endsWith(`/${t.id}/`)) }));
  await page.route(/\/api\/pos\/tabs\/page-\d+\/pricing\/$/, route => route.fulfill({ json: { version: 1, policy: { service_basis_points: 0 }, history: [], charges: [] } }));
  await page.goto(`/${surface}`); if (surface === "attendance") await page.getByRole("button", { name: "Contas", exact: true }).click();
+ const pagination = page.getByRole("navigation", { name: "Páginas de comandas" });
+ for (const name of ["Página anterior", "Próxima página"]) {
+  const button = pagination.getByRole("button", { name, exact: true });
+  await expect(button.locator("svg")).toBeVisible();
+  await expect(button).toHaveText("");
+  const box = await button.boundingBox();
+  expect(box?.width).toBeGreaterThanOrEqual(44);
+  expect(box?.height).toBeGreaterThanOrEqual(44);
+ }
+ await pagination.screenshot({ path: `test-results/pagination-${surface}-${width}.png` });
+ await expect(page.getByRole("button", { name: /^Comanda \d+ ·/ })).toHaveCount(pageSize);
  await page.getByRole("button", { name: /^Comanda 1 ·/ }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
  fail = true; await page.getByRole("button", { name: "Próxima página", exact: true }).click();
  await expect(page.getByText("Não foi possível atualizar. Os dados podem estar desatualizados.")).toBeVisible();
  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();
  await page.getByRole("button", { name: "Próxima página", exact: true }).click();
- await expect(page.getByRole("button", { name: /^Comanda 201 ·/ })).toBeVisible();
+ await expect(page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1} ·`) })).toBeVisible();
  await expect(page.getByRole("button", { name: "Próxima página", exact: true })).toBeDisabled();
  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
- await page.getByRole("button", { name: /^Comanda 201 ·/ }).click(); await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
+ await page.getByRole("button", { name: new RegExp(`^Comanda ${pageSize+1} ·`) }).click(); await expect(page.getByText("1× Fritas", { exact: true })).toHaveCount(0);
  await page.getByRole("button", { name: "Página anterior", exact: true }).click(); await page.getByRole("button", { name: /^Comanda 1 ·/ }).click();
  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await layoutAndA11y(page);
 });

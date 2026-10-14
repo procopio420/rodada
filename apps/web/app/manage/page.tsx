@@ -153,6 +153,7 @@ export default function ManagementPage() {
     {unavailable.length ? <details className="panel"><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary>{unavailable.map(product => <div className="dataRow" key={product.id}>{product.name}</div>)}</details> : null}
     </>}
     {section === "gestao" && <div id="gestao">
+    <Link className="buttonSecondary managementUtilityLink" href="/manage/tables"><OperationalIcon name="table" size={20} />Mesas</Link>
     <Link className="buttonSecondary" href="/manage/setup">Preparar mesas, zonas e equipe</Link>
     <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
     <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e salão</ManagementSectionHeader>

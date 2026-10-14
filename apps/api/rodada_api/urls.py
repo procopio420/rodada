@@ -32,13 +32,15 @@ from modules.venue.station_views import StationListView, StationPreviewView, Sta
 from modules.cash.views import CashShiftListView
 from modules.corrections.recovery_views import OrderItemRecoveryContextView, PaymentRecoveryContextView, CorrectionRecoveryContextView
 from modules.hospitality.views import (
-    TableServiceStartView, OccupancyTabOpenView, OccupancyResponsibilityClaimView,
+    TableServiceStartView, TableServiceStartOpenTabView, OccupancyTabOpenView, OccupancyResponsibilityClaimView,
     PartySizeView,
     OccupancyAssignTabView,
     TableCleaningCompleteView,
     TableCleaningStartView,
     TableGuestOrderingBlockView,
     TableListCreateView,
+    TableInventoryView,
+    TableCountView,
     TableLocationView,
     TableOccupyView,
     TableReleaseView,
@@ -197,8 +199,11 @@ urlpatterns = [
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
     path("hospitality/tables/<uuid:table_id>/service/start/", TableServiceStartView.as_view()),
+    path("hospitality/tables/<uuid:table_id>/service/open-tab/", TableServiceStartOpenTabView.as_view()),
     path("hospitality/occupancies/<uuid:occupancy_id>/tabs/open/", OccupancyTabOpenView.as_view()),
     path("hospitality/occupancies/<uuid:occupancy_id>/responsibility/claim/", OccupancyResponsibilityClaimView.as_view()),
+    path("hospitality/tables/count/", TableCountView.as_view()),
+    path("hospitality/tables/<uuid:table_id>/inventory/", TableInventoryView.as_view()),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
     path("hospitality/zones/", ZoneListCreateView.as_view(), name="zone-list-create"),
     path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),

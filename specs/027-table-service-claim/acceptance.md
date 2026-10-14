@@ -15,6 +15,7 @@
 ## Comandas vinculadas e pedido
 
 - [x] **TS027-08** — Da ocupação ativa, "Nova comanda" exige apenas confirmação e nome opcional; associa Tab + ocupação atômica e abre cardápio com Mesa/Tab corretas.
+- [x] **TS027-08a** — Em Contas no Atendimento Web, Nome da Comanda é obrigatório e permanece visível; “Abrir comanda” apresenta mesas AVAILABLE e OCCUPIED com ocupação ativa. Mesa disponível inicia visita e comanda atomicamente; mesa em uso recebe nova comanda na ocupação existente, preservando o responsável. Mesas sujas, em limpeza e fora de uso não aparecem.
 - [x] **TS027-09** — Se associação falha, Tab nova e efeitos relacionados são revertidos; não há Tab órfã por race.
 - [x] **TS027-10** — A ocupação comporta duas ou mais Tabs com pagamentos/exposições independentes.
 - [x] **TS027-11** — Comandas aparecem como ações clicáveis na mesa e abrem imediatamente a Tab selecionada no Android/Web.
@@ -38,6 +39,7 @@
 - [x] **TS027-23** — Start concorrente por dois funcionários em PostgreSQL gera exatamente uma ocupação e só um responsável inicial; perdedor vê snapshot existente.
 - [x] **TS027-24** — Mesmo `idempotency_key` + fingerprint repete resposta/IDs sem novos efeitos; mesma chave com payload divergente produz 409.
 - [x] **TS027-25** — Timeout após commit, reload Web, kill/restart Android e retry não duplicam ocupação, claim, Tab nem eventos; o resultado desconhecido é exibido como verificação, não sucesso.
+- [x] **TS027-25a** — Replay de `service/open-tab` retorna a mesma mesa e Tab; uma mesa que deixou de estar AVAILABLE falha sem criar Tab ou ocupação parcial.
 - [x] **TS027-26** — `release_table` concorrente a `tabs/open` termina em Tab vinculada antes do release **ou** rollback integral do open; sem Tab órfã.
 - [x] **TS027-27** — Liberar mesa não fecha Tabs, revoga autorizações guest pertinentes e inicia DIRTY; limpeza preserva fluxo/geração da Spec 004; owner não vaza para próxima ocupação.
 - [x] **TS027-28** — SSE/outbox publica somente após commit; Android/Web se atualizam a partir de leitura canônica, sem confirmação prematura.

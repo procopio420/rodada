@@ -369,6 +369,19 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceNav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin-bottom: var(--space-4); }
 .attendanceItem { padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
 .attendanceItem h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+.attendanceTable { margin-top: var(--space-3); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-2); }
+.attendanceTable[data-state="OCCUPIED"] { border-color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border)); }
+.attendanceTableSummary { border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border)); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-1)); }
+.attendanceTableSummary[aria-expanded="true"] { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)); }
+.attendanceTableSummary svg { color: var(--color-accent); }
+.attendanceMoveButton { display: flex; align-items: center; justify-content: center; gap: var(--space-2); margin: var(--space-2) 0 var(--space-4); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-1)); border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-border)); }
+.attendanceMoveButton svg { color: var(--color-accent); }
+.attendanceTableSummary { width: 100%; display: grid; grid-template-columns: 1fr auto; text-align: left; gap: var(--space-2); }
+.attendanceTableSummary small { grid-column: 1; font-weight: normal; }
+.attendanceTableSummary svg { grid-column: 2; grid-row: 1 / 3; align-self: center; }
+.attendanceTable > div { padding: var(--space-3) 0; }
+.attendanceTable details { margin-bottom: var(--space-3); }
+.attendanceTable summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 
 /* Spec023 partial: management extension; no literal full-screen reference exists. */
 :root {
@@ -494,3 +507,12 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .guestRegionNav { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); padding: var(--space-2); background: var(--color-surface-1); border-bottom: 1px solid var(--color-border); }
 .guestRegionNav button { min-width: 0; padding-inline: var(--space-1); font-size: var(--text-sm); }
 .guestShell section[tabindex="-1"] { scroll-margin-top: calc(var(--touch-min) + var(--space-4)); }
+
+.tabPagination { display: flex; align-items: center; justify-content: center; gap: var(--space-3); margin-block: var(--space-3); }
+.tabPagination > [role="status"] { text-align: center; font-variant-numeric: tabular-nums; }
+.tabPagination .tabPaginationButton { display: inline-flex; align-items: center; justify-content: center; width: var(--touch-min); min-width: var(--touch-min); min-height: var(--touch-min); flex: 0 0 var(--touch-min); padding: 0; }
+
+.tableInventoryChoice { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-min); }
+.tableInventoryRow { padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
+.tableInventoryRow p, .tableInventoryRow details { margin-bottom: var(--space-3); }
+.tableInventoryRow .dataRow { gap: var(--space-3); flex-wrap: wrap; }

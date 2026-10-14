@@ -60,9 +60,15 @@ Hoje, "ocupar mesa", "associar comanda", "abrir comanda", "assumir tarefa" e "fa
 4. `+ Nova comanda` abre folha curta "Nome ou apelido (opcional)" com botão **Abrir e pedir**. Nunca exige busca por cliente cadastrado. Pode sugerir clientes existentes sem bloquear o fluxo.
 5. Após confirmação, o servidor cria Tab + assignment atômicos; o Android/Web navega ao **cardápio da Tab**, com cabeçalho persistente "Mesa 12 · Ana/Comanda sem nome", e só então o primeiro pedido é montado e confirmado.
 
-Se a intenção imediata foi pedir, futura CTA "Novo pedido" pode compor start + open em um único comando **somente após** definir/testar contrato transacional próprio; não fazer duas mutations silenciosas em paralelo nem criar Tab na operação simples de start.
+Com o serviço de mesas habilitado e permissões `table.manage` + `tab.open`, a abertura global de comanda do Atendimento Web exige o **Nome da Comanda** e escolhe uma mesa AVAILABLE. A CTA abre um diálogo com as mesas disponíveis e confirma por um comando próprio atômico `service/open-tab`; ele cria ocupação, responsabilidade inicial, Tab e vínculo juntos. Sem o rollout ou essas permissões, o Atendimento preserva a abertura legada sem mesa; o contrato simples de `service/start` continua sem criar Tab e o cliente nunca faz duas mutations silenciosas em paralelo.
 
 ### B. Mesa ocupada
+
+O botão “Mover comanda” abre diretamente o diálogo de movimento; nele, o operador pode selecionar outra mesa já ocupada. Usar as superfícies quentes e destaque âmbar de Contas, preservando foco e alvos de toque.
+
+No Atendimento Web móvel, Mesas apresenta uma lista compacta: nome, estado e contagem de comandas abertas. Tocar na mesa expande suas comandas e ações; os demais detalhes ficam recolhidos. Abrir comanda é a ação principal; movimentação e organização são secundárias. Não exibir UUID completo nem formulário de pessoas/motivo nessa superfície. Contagem de comandas não representa contagem exata de pessoas. Liberação continua confirmada e não encerra comandas.
+
+O diálogo global “Qual mesa o cliente está?” também lista mesas OCCUPIED com ocupação ativa, identificadas como “Em uso”. A seleção abre uma nova Tab pelo comando `occupancies/{id}/tabs/open`, com a geração observada, sem criar outra ocupação nem alterar o responsável. Mesas DIRTY, CLEANING e OUT_OF_SERVICE não aparecem nesse diálogo.
 
 Card "Mesa 12 · Em uso · João · 3 comandas". Tocar na mesa abre lista de comandas *clicáveis* com nome/identificador desambiguador, status e destino; selecionar uma abre pedido diretamente, sem pesquisa global.
 
@@ -151,7 +157,17 @@ Permissão `table.manage` do Venue, já presente no papel-base STAFF; autentica�
 
 Se mesa já ocupada por outro comando: **409 `OCCUPANCY_ALREADY_ACTIVE`**, com `occupancy_id`, `responsible_staff_id` e `responsibility_version` (sem transferir responsabilidade); cliente lê snapshot atual e abre a mesa. Reenvio com mesma chave+payload da intenção previamente confirmada responde 200 com o mesmo resultado, sem efeitos novos. Chave repetida com payload diferente: 409 `IDEMPOTENCY_CONFLICT`. `DIRTY/CLEANING/OUT_OF_SERVICE`: 409 `TABLE_NOT_AVAILABLE` com estado canônico.
 
-### 6.2 Abrir uma comanda na ocupação
+### 6.2 Abrir a primeira comanda numa mesa disponível
+
+`POST /hospitality/tables/{table_id}/service/open-tab/`
+
+```json
+{ "idempotency_key": "uuid-v4-do-comando", "display_label": "Nome da Comanda" }
+```
+
+Exige `table.manage` e `tab.open`. `display_label` não pode ser vazio. Em uma transação, bloqueia a mesa AVAILABLE, inicia a ocupação com o staff responsável, cria a Tab e registra o vínculo. A repetição da mesma intenção devolve os mesmos IDs; mesa já ocupada ou indisponível retorna conflito sem criar efeito parcial.
+
+### 6.3 Abrir uma comanda na ocupação
 
 `POST /hospitality/occupancies/{occupancy_id}/tabs/open/`
 

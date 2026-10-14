@@ -236,3 +236,11 @@ Dependência: slices entregues; manter gates externos abertos.
 - [ ] Especificar circuito de exceção UX-09/20/21/25/26/30.
 - [ ] Aplicar quick wins com checks proporcionais e gates existentes.
 - [ ] Validar antes/depois e preparar turno observado no piloto.
+
+### Paginação compacta Web — 14/10/2026
+- [x] Substituir textos dos botões por setas do sistema, preservando nomes acessíveis e regras.
+- [x] Validar alvos de 44 px e navegação em 360/390/430 px.
+- [x] Concluir suíte visual completa e registrar evidência.
+
+- [x] Limitar Contas do Atendimento a 10 comandas por página.
+- [x] Validar limite, próxima/anterior, busca e rascunhos em mobile.

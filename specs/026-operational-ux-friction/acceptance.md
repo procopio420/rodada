@@ -91,6 +91,7 @@ Guest, drafts após reload e fechar aba permanecem abertos.
 Mesma aba com storage íntegro; gates externos e persistência de drafts abertos.
 
 ### T06a — Paginação Web
+- [x] Setas compactas com nomes acessíveis, foco visível e alvos de 44 px em 360/390/430 px; indicação de página e regras existentes preservadas.
 - [x] Próxima/anterior página permite alcançar comandas além das primeiras 200 no PDV e Atendimento; histórico acompanha a página consultada.
 - [x] Falha de navegação conserva página, seleção e rascunho; resposta anterior não sobrescreve navegação concluída.
 - [x] Filtro local informa seu alcance; seleção não muda automaticamente entre páginas.
@@ -458,3 +459,5 @@ UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continua
   consulta não realiza POST nem muda intenção financeira guardada.
 - Mobile360/390/430+a11y, regressão de estornos, build/tipos/visual completo.
   Correção sem pagamento e telas de decisão permanecem fora deste recorte.
+
+- [x] Contas do Atendimento limita cada página a 10 comandas e permite próxima/anterior, busca global e preservação de rascunhos; PDV permanece com 200.

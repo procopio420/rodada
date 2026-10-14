@@ -433,3 +433,6 @@ inferir entrega ou tempo. Conta usa a projeção da própria Tab.
 Quick-add mantém revisão de variantes e grupos com escolha obrigatória.
 Grupos somente opcionais não exigem painel intermediário; defaults válidos
 entram no rascunho e podem ser alterados em Editar antes de Enviar.
+
+## Gestão de mesas
+Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).

@@ -125,3 +125,6 @@ negativas PostgreSQL, Web real BFF/API/PostgreSQL e visual proporcional.
 Slices de mapa/grupos/identificadores/perfil/relatórios permanecem #144–#148;
 checklists originais preservadas. Revisão independente antes do merge; #106
 continua responsável pelo turno integrado Web+Android.
+
+## Gestão de mesas
+Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).

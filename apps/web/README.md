@@ -105,3 +105,6 @@ closure requires zero canonical balance. Native NFC/BLE and payment SDKs require
 the Android app. API connectivity is required; no offline command queue exists.
 Keep the page open while verifying an ambiguous order: retries preserve its payload
 and idempotency key in memory. Reload recovery is outside this slice.
+
+## Gestão de mesas
+Em Gerência → Gestão → Mesas (/manage/tables), o gerente configura mesas para trabalhar, adiciona identificações e retira/reativa mesas disponíveis. Resumo e detalhes distinguem mesas ocupadas de comandas abertas na ocupação. Retirada preserva histórico e bloqueia mesas ocupadas/em limpeza. Contrato e limites: specs/004-table-guest-ordering/management-tables.md e management-tables-evidence.md.

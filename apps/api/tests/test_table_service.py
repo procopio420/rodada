@@ -53,6 +53,13 @@ class TableServiceTests(TestCase):
             format="json",
         )
 
+    def start_and_open(self, client=None, key="start-open", **extra):
+        return (client or self.client).post(
+            f"/hospitality/tables/{self.table.id}/service/open-tab/",
+            {"idempotency_key": key, "display_label": "Comanda 12", **extra},
+            format="json",
+        )
+
     def open(self, occupancy, key="open", client=None, **extra):
         return (client or self.client).post(
             f"/hospitality/occupancies/{occupancy.id}/tabs/open/",
@@ -94,6 +101,38 @@ class TableServiceTests(TestCase):
         )
         assert mismatch.status_code == 409 and mismatch.json()["code"] == "IDEMPOTENCY_CONFLICT"
         assert ServiceCommand.objects.count() == 1
+
+    def test_start_and_open_is_atomic_requires_name_and_replays(self):
+        missing_name = self.start_and_open(display_label="   ")
+        assert missing_name.status_code == 400
+        assert not TableOccupancy.objects.exists() and not Tab.objects.exists()
+
+        result = self.start_and_open(display_label="João")
+        assert result.status_code == 201, result.json()
+        payload = result.json()
+        occupancy = TableOccupancy.objects.get(table=self.table)
+        tab = Tab.objects.get(pk=payload["tab_id"])
+        assert tab.display_label == "João"
+        assert occupancy.responsible_staff_id == self.staff.id
+        assert TabOccupancyAssignment.objects.filter(occupancy=occupancy, tab=tab).exists()
+
+        replay = self.start_and_open(display_label="João")
+        assert replay.status_code == 200 and replay.json()["replayed"]
+        assert replay.json()["tab_id"] == payload["tab_id"]
+        assert TableOccupancy.objects.count() == Tab.objects.count() == 1
+        assert self.start_and_open(key="other", display_label="Outro").json()["code"] == "OCCUPANCY_ALREADY_ACTIVE"
+
+    def test_start_and_open_assignment_failure_rolls_back_every_effect(self):
+        from modules.hospitality.services import HospitalityServiceError
+
+        with patch(
+            "modules.hospitality.table_service._assign_tab",
+            side_effect=HospitalityServiceError("TEST", "Failure", 409),
+        ):
+            assert self.start_and_open().status_code == 409
+        assert not TableOccupancy.objects.exists()
+        assert not Tab.objects.exists()
+        assert not ServiceCommand.objects.filter(action="start_open").exists()
 
     def test_open_atomic_replay_homonyms_and_release(self):
         self.start()

@@ -96,3 +96,6 @@ permanecem pendentes: FloorPlan/Placement #144; TableGroup #145;
 TabIdentifier/código/QR/NFC #146; perfil Customer #147; métricas/queries #148.
 Navegação/status foram gaps reais implementados neste fechamento; evidências executadas e gates por SHA
 registrados em closeout.md. Não confundir inspeção com homologação de campo.
+
+## Gestão de mesas
+Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
