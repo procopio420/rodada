@@ -176,7 +176,13 @@
   transform: translateX(3px);
 }
 
-.cardCopy { display: grid; gap: 6px; margin-top: auto; }
+/* Keep every title at a stable offset below the equally-sized icon row. */
+.cardCopy {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  margin-top: 0;
+}
 .cardTitle {
   display: block;
   font-size: clamp(18px, 1.9vw, 23px);
@@ -190,6 +196,15 @@
   color: var(--color-text-muted);
   font-size: 14px;
   line-height: 1.28;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Five modules in a two-column mobile grid: the last card spans the row. */
+@media (max-width: 767px) {
+  .card:last-child { grid-column: 1 / -1; }
 }
 
 @media (min-width: 768px) {
