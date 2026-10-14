@@ -55,7 +55,7 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  const table = page.locator("article").filter({ has: page.getByRole("heading", { name: "Mesa Pilot frontend table", exact: true }) });
+  const table = page.locator("article").filter({ has: page.getByRole("button", { name: /Mesa Pilot frontend table Ocupada/ }) });
   const summary = table.getByRole("button", { name: /Mesa Pilot frontend table Ocupada/ });
   await expect(summary).toHaveAttribute("aria-expanded", "false");
   await summary.click();
