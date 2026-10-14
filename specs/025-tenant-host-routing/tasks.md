@@ -25,6 +25,23 @@
   Refund IDs foreignA/B,B/A; suite focada9PASS local, gates do complemento/main
   rastreados no relatório final130. Não alterar implementação sem falha provada.
 
+## Existing Railway homologation #151 — controlled preparation
+
+- [x] Fresh main/source and public DNS/TLS/HTTP revalidation; [checkpoint](railway-151-checkpoint.md).
+- [x] Prepare seed opt-out and fail-closed preflight to preserve Aderlan on shared
+  runtime restart; test-first 19 profile cases and independent R3 review.
+- [x] Disposable Docker seed-preservation and same-build flag backout rehearsal.
+- [ ] Restore all API/Web/Docker/KB gates on PR156 final SHA; do not merge while
+  source/autodeploy and operational restart safety remain unverified.
+- [ ] Connect Railway and inspect deployment, variable names, staged changes,
+  DB connection, backup and eligible backout; no secret disclosure.
+- [ ] Prepare/apply scoped idempotent A/B bootstrap after inventory, preserving
+  Aderlan and append-only test ledger. No global simulation/PSP changes.
+- [ ] Obtain specific approval for the concrete shared flag change and any
+  necessary public DNS/proxy change, then execute real HTTPS A/B proof.
+- [ ] Resolve original preview/rollback contract formally before issue closure;
+  keep #151/#130 open until demonstrated, canary/rollout remains #152.
+
 ## P0 — Prerequisites (must land before tenant URL is exposed)
 
 - [ ] [Backend] Registry/migration: public hostname -> immutable Venue UUID; normalization, uniqueness, verified/active state, reserved labels, audit.

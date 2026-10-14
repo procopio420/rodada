@@ -55,12 +55,26 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  const table = page.locator("article").filter({ has: page.getByRole("heading", { name: "Mesa Pilot frontend table", exact: true }) });
-  await expect(table.getByText("Quantidade não informada", { exact: true })).toBeVisible();
-  await table.getByRole("button", { name: "Selecionar 4 pessoas" }).click();
-  await table.getByRole("button", { name: "Confirmar quantidade" }).click();
-  await expect(table.getByText("4 pessoa(s) · Informado pela equipe")).toBeVisible();
-  const observation = await page.evaluate(async id => (await (await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`)).json()).current, created.occupancyId);
-  expect(observation).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
+  const table = page.locator("article").filter({ has: page.getByRole("button", { name: /^Mesa Pilot frontend table/ }) });
+  await table.getByRole("button", { name: /^Mesa Pilot frontend table/ }).click();
+  // The current Attendance UI hides covers; retain the authenticated canonical
+  // contract and replay proof through the real BFF instead of a removed control.
+  await expect(table.getByRole("button", { name: "Selecionar 4 pessoas" })).toHaveCount(0);
+  const observations = await page.evaluate(async id => {
+    const path = `/api/attendance/hospitality/occupancies/${id}/party-size/`;
+    const before = await (await fetch(path)).json();
+    const payload = { covers_count: 4, expected_version: before.current.version, reason: "Integration fixture", idempotency_key: crypto.randomUUID() };
+    const write = async () => {
+      const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      return { status: response.status, body: await response.json() };
+    };
+    const first = await write(), replay = await write();
+    return { before, first, replay, after: await (await fetch(path)).json() };
+  }, created.occupancyId);
+  expect(observations.before.current).toMatchObject({ covers_count: null, version: 0 });
+  expect(observations.first.status).toBe(200); expect(observations.replay.status).toBe(200);
+  expect(observations.replay.body).toEqual(observations.first.body);
+  expect(observations.after.current).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
+  expect(observations.after.history).toHaveLength(1);
   await evidence(page, "covers");
 });

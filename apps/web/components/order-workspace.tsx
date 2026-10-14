@@ -48,6 +48,7 @@ export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRec
   const [category, setCategory] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [tabs, setTabs] = useState<Tab[]>([]), [products, setProducts] = useState<Product[]>([]), [cashPoints, setCashPoints] = useState<CashPoint[]>([]), [selected, setSelected] = useState<Tab | null>(null), [label, setLabel] = useState(""), [message, setMessage] = useState(""), [confirming, setConfirming] = useState(false);
+  const handledRequestedTab = useRef<string | null>(null);
   const [opening, setOpening] = useState(false);
   const [selecting, setSelecting] = useState(false);
   const [discardDialog, setDiscardDialog] = useState(false);
@@ -181,15 +182,21 @@ export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRec
     <button className="buttonSecondary tabPaginationButton" aria-label="Próxima página" title="Próxima página" disabled={paging || nextOffset === null || correctionPending || confirming || !!orderIntent.pending} onClick={() => { if (nextOffset !== null) void changePage(nextOffset); }}><OperationalIcon name="chevron-right" /></button>
   </nav>;
   useEffect(() => {
-    if (!requestedTabId || selected?.id === requestedTabId || cart.length || orderIntent.pending || correctionPending) return;
+    if (!requestedTabId || handledRequestedTab.current === requestedTabId) return;
+    if (selected?.id === requestedTabId) { handledRequestedTab.current = requestedTabId; return; }
+    if (orderIntent.pending || correctionPending) return;
     let active = true;
     void apiCall<Tab>(`${apiRoot}/tabs/${requestedTabId}/`).then(result => {
       if (!active) return;
-      if (result.response.ok) { setSelected(result.body as Tab); setTabCollapsed(false); setCatalogCollapsed(false); }
+      if (result.response.ok) {
+        if (!result.body || !("id" in result.body) || result.body.id !== requestedTabId) throw new Error("Invalid requested tab detail");
+        handledRequestedTab.current = requestedTabId;
+        setSelected(result.body as Tab); setTabCollapsed(false); setCatalogCollapsed(false);
+      }
       else setMessage(asApiError(result.body).message);
     }).catch(() => setMessage("Não foi possível abrir esta comanda. Atualize e tente novamente."));
     return () => { active = false; };
-  }, [requestedTabId, apiRoot, selected?.id, cart.length, orderIntent.pending, correctionPending]);
+  }, [requestedTabId, apiRoot, selected?.id, orderIntent.pending, correctionPending]);
   const rows = useMemo(() => cart.map(row => ({ ...row, product: products.find(p => p.id === row.product.id) ?? { ...row.product, active: false } })), [products, cart]);
   const catalog = withoutPayments ? products.filter(product => product.active) : products;
   const categories = [...new Set(catalog.map(attendanceCategory))].filter(name => name !== "Outros" && name !== "Todos").sort(compareAttendanceCategories).concat("Todos");

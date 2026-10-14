@@ -72,6 +72,47 @@ running configuration is verified and the seed is disabled for the approved
 change. Local typecheck, tenant/auth tests, build and the baseline-comparison
 ESLint gate passed (24 historical diagnostics, zero new/fatal diagnostics).
 
+At candidate `542efabd5903e34b7458d5e4882947c4c539c834`,
+[API CI](https://github.com/procopio420/rodada/actions/runs/38647755210) passed
+827 tests with PostgreSQL;
+[Docker smoke](https://github.com/procopio420/rodada/actions/runs/38647755200)
+and [KB](https://github.com/procopio420/rodada/actions/runs/38647755215) passed.
+[Web CI](https://github.com/procopio420/rodada/actions/runs/38647755286)
+uncovered 13 failures / 82 passes after the main lint failure was fixed:
+integration interactions still referenced removed Attendance controls.
+The focused test follow-up uses the current named/contextual opening, expands
+table details, exercises the 10-item pages through item 201 at mobile widths,
+and awaits canonical guest order persistence. Financial/auth/replay assertions
+remain. Covers is proved through authenticated API/BFF with replay/history, not
+the upstream-removed UI. New Tab list navigation is proved after the visible
+Buscar refresh; automatic list refresh after contextual opening is not asserted.
+Final follow-up CI is recorded on PR156 before any merge/activation decision.
+
+The retained A/B/C draft test also reproduced an actual regression: after an
+explicit contextual opening creates C, an unsent draft on A prevents the requested
+Tab effect from selecting C. The candidate removes that cart-only guard, retains
+pending-order/correction guards, validates the returned canonical Tab ID and
+consumes each successful explicit request once so later manual selection remains
+stable. Drafts remain keyed by original Tab ID. This is a runtime correction,
+not solely a selector update; acceptance requires the unchanged draft/ledger/
+replay assertions to pass on the final candidate.
+The corrected selection code passed 10 focused real Next/BFF/Django/PostgreSQL
+cases locally: A/B/C drafts at 360/390/430 and staff/guest committed-order
+recovery/revocation. The 201-Tab pagination test also passed with canonical
+readback before page assertions. Typecheck/build and lint gate passed after the
+runtime correction. The complete final CI remains required; earlier partial
+local runs and the failed Web run are not relabeled as successful full suites.
+
+A separate local Docker rehearsal built the exact candidate `542efab` image,
+using only a new disposable PostgreSQL container: bootstrap once, change fictitious
+staff PIN/name/membership and guest policy, then restart with seed disabled and
+tenant flag enabled, followed by same-build flag-off backout. Sanitized snapshot
+digests for staff/policy and ledger counts stayed identical; readiness passed
+after both restarts. Containers/database were removed. This proves the startup
+opt-out on that image, **not operational Railway backup or rollback**. No real
+PSP/payment/pilot data was used. Script/log are retained in the local
+`pilot-artifacts/issue151/` directory; reproduction/result is attached to PR156.
+
 ## Production change cannot yet be approved concretely
 
 Railway connection is unavailable in the executor session: discovery reports the

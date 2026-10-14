@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { openNamedAttendanceTab } from "./attendance-helpers";
 test("Attendance cancels a confirmed unpaid item through canonical financial reversal", async ({ page }) => {
  await page.goto("/attendance");
  await page.getByLabel("Estabelecimento").fill("web-e2e");
@@ -6,9 +7,7 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await page.getByLabel("PIN", { exact: true }).fill("2468");
  await page.getByRole("button", { name: "Entrar", exact: true }).click();
  await page.getByRole("button", { name: "Contas", exact: true }).click();
- await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
- await page.getByLabel("Apelido da comanda (opcional)").fill("Correction E2E");
- await page.getByRole("button", { name: "Abrir", exact: true }).click();
+  await openNamedAttendanceTab(page, "Correction E2E");
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();

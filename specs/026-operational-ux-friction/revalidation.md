@@ -1978,3 +1978,14 @@ next-env.d.ts já modificado pelo servidor de desenvolvimento antes desta tarefa
 
 ### Limite de 10 em Contas — 14/10/2026
 Base main@06e46156 com alterações locais anteriores preservadas. OrderWorkspace apresenta 10 resultados no Atendimento e deriva próximo offset em passos de 10 quando a leitura contém mais itens. API continua com máximo de 200 por leitura; PDV permanece com 200. Atualizados testes de paginação e busca para validar 10 botões na primeira página, 11º na segunda, retorno e rascunhos em 360/390/430. Tipos/build PASS; suíte visual focada tab-pagination/tab-search: 14 PASS (24.6 s). Suíte completa de 525 registrada acima precede este ajuste e não foi repetida; integração PostgreSQL/dispositivo físico não executados neste ajuste. GO local, sem commit/push/deploy.
+# Contextual opening regression — #151 preparation (2026-10-14)
+
+On baseline `bbaa147` with the current named/table opening, the retained real
+PostgreSQL A/B/C test reproduces: C is created but A remains selected when A has
+an unsent draft. Candidate PR156 selects the explicitly requested canonical C
+without deleting A's draft, validates the response ID and consumes that request
+once to preserve later manual selection. Pending-order and correction guards
+remain. `apps/web/tests/integration/tab-drafts.spec.ts` retains quantities,
+isolated Orders/Charges/exposure and zero Payments for all three Tabs at
+360/390/430 px. Final test/CI results are recorded on PR156; no operational
+Railway/UI acceptance is implied.

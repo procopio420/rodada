@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import { openNamedAttendanceTab } from "./attendance-helpers";
 
 async function api(page: Page, path: string, body?: unknown) {
   return page.evaluate(async ({ path, body }) => {
@@ -20,15 +21,13 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await expect(page.getByRole("button", { name: "Contas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   for (const name of ["A", "B"]) {
-    if (!(await page.getByLabel("Apelido da comanda (opcional)").isVisible())) await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-    await page.getByLabel("Apelido da comanda (opcional)").fill(`Draft ${name} ${width}`);
-    await page.getByRole("button", { name: "Abrir", exact: true }).click();
-    await expect(page.getByRole("heading", { name: `Draft ${name} ${width}`, exact: true })).toBeVisible();
+    await openNamedAttendanceTab(page, `Draft ${name} ${width}`);
+    await expect(page.getByRole("heading", { name: `Mesa Fixture Draft ${name} ${width}`, exact: true })).toBeVisible();
   }
   const list = (await api(page, "tabs/")).results;
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
-  const a = page.getByRole("button", { name: new RegExp(`^Draft A ${width} ·`) });
-  const b = page.getByRole("button", { name: new RegExp(`^Draft B ${width} ·`) });
+  const a = page.locator("button.attendanceTabOption").filter({ hasText: `Draft A ${width}` });
+  const b = page.locator("button.attendanceTabOption").filter({ hasText: `Draft B ${width}` });
   await expect(a).toBeVisible(); await a.click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
@@ -39,10 +38,8 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByRole("button", { name: /^Bar E2E item/ }).click();
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await a.click(); await expect(draft).toBeVisible();
-  if (!(await page.getByLabel("Apelido da comanda (opcional)").isVisible())) await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-    await page.getByLabel("Apelido da comanda (opcional)").fill(`Draft C ${width}`);
-  await page.getByRole("button", { name: "Abrir", exact: true }).click();
-  await expect(page.getByRole("heading", { name: `Draft C ${width}`, exact: true })).toBeVisible();
+  await openNamedAttendanceTab(page, `Draft C ${width}`);
+  await expect(page.getByRole("heading", { name: `Mesa Fixture Draft C ${width}`, exact: true })).toBeVisible();
   await expect(draft.locator("article")).toHaveCount(0);
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();
