@@ -5,7 +5,7 @@ origem, ocupa destino vazio ou migra GuestSession. A escolha aceita somente
 outra mesa já ocupada; contexto e versão são revalidados antes de confirmar.
 Recuperação da intenção segue o contrato de sessão da Spec 009.
 
-**Status:** Draft for implementation after Core POS foundation
+**Status:** MVP operational closeout in progress (2026-10-14); evidence and roadmap in `closeout.md`.
 
 ## Objetivo
 
@@ -413,3 +413,23 @@ no banco, criação automática da comanda, persistência de draft e medição h
 
 Descoberta T09b: Pedido atual permanece visível, desativado com carrinho vazio,
 para que a primeira inclusão não desloque os produtos durante toques repetidos.
+
+## Fechamento MVP contratado — 14/10/2026
+
+O MVP usa Table/Zone textual e GuestSession do dispositivo. FloorPlan,
+TablePlacement/arrasto/versionamento e TableGroup, assim como join por código
+curto, QR dinâmico, NFC e claim por perfil autenticado, permanecem roadmap
+explícito: os critérios originais são preservados e vinculados em closeout.md.
+Customer opcional no domínio não comprova login/claim guest por perfil.
+
+Navegação contínua usa três atalhos persistentes para regiões montadas
+Cardápio/Pedidos/Conta; trocar região rola e focaliza, sem mutation ou perda
+de draft/intent. Cardápio continua montado após qualquer pedido. Status por
+item projeta NEW/ACCEPTED como Recebido, PREPARING como Preparando e
+READY/PICKED_UP como Pronto / chegando. DELIVERED permanece Entregue,
+CANCELLED permanece Cancelado, desconhecido é Estado indisponível; nunca
+inferir entrega ou tempo. Conta usa a projeção da própria Tab.
+
+Quick-add mantém revisão de variantes e grupos com escolha obrigatória.
+Grupos somente opcionais não exigem painel intermediário; defaults válidos
+entram no rascunho e podem ser alterados em Editar antes de Enviar.

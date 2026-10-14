@@ -8,8 +8,8 @@ T06d Web movement criteria:
 
 O teste de chamadas guest preserva em memória o token anterior antes de liberar a mesa. Depois da liberação, exige403/GUEST_SESSION_REVOKED em nova solicitação com esse token e ausência dos controles de chamada após reload. SSE pode remover a superfície imediatamente; não depender de clicar em um botão já removido. Contrato de domínio e status/code exigidos permanecem inalterados.
 
-- [ ] Mesa possui QR com token opaco não sequencial.
-- [ ] QR permanece o mesmo quando a mesa muda de lugar.
+- [x] Mesa possui QR com token opaco não sequencial.
+- [x] QR permanece o mesmo quando a mesa muda de lugar.
 - [x] Scan do QR resolve a Table sem expor PK interno.
 - [ ] Table pode existir AVAILABLE sem placement ativo.
 - [x] Staff autorizado pode associar/remover o contexto textual de Zone sem alterar ocupação, Tabs, pedidos, ledger ou QR.
@@ -27,7 +27,7 @@ O teste de chamadas guest preserva em memória o token anterior antes de liberar
 - [x] Uma TableOccupancy suporta duas ou mais Tabs independentes.
 - [x] Todo pedido guest pertence a uma Tab e possui `source=GUEST`.
 - [x] Pedido guest chega à mesma pipeline de fulfillment de um pedido staff.
-- [ ] Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.
+- [x] Item marcado indisponível por Bar/Cozinha aparece indisponível no menu guest sem criar regra paralela.
 - [x] Guest não confirma item que ficou indisponível depois de entrar no carrinho.
 - [x] Staff bloqueia guest ordering sem fechar Tab nem impedir pedido interno.
 - [x] Fechar a última Tab não libera a Table automaticamente.
@@ -36,11 +36,11 @@ O teste de chamadas guest preserva em memória o token anterior antes de liberar
 - [x] Staff conclui limpeza `CLEANING → AVAILABLE`.
 - [x] Concluir limpeza incrementa `access_generation`.
 - [x] GuestSession de geração anterior não consegue criar novos pedidos.
-- [ ] Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.
-- [ ] Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.
-- [ ] Guest vê status simplificado RECEBIDO / PREPARANDO / PRONTO-CHEGANDO derivado do fulfillment.
-- [ ] Guest consegue pedir novamente um item anterior ainda disponível.
-- [ ] Guest consegue criar solicitação estruturada de atendimento/conta que entra no Dispatch.
+- [x] Guest mantém Cardápio como home durante a sessão e consegue fazer vários pedidos.
+- [x] Guest navega por Cardápio / Pedidos / Conta sem precisar entender estados internos do restaurante.
+- [x] Guest vê status simplificado RECEBIDO / PREPARANDO / PRONTO-CHEGANDO derivado do fulfillment.
+- [x] Guest consegue pedir novamente um item anterior ainda disponível.
+- [x] Guest consegue criar solicitação estruturada de atendimento/conta que entra no Dispatch.
 - [ ] Guest pode assumir Tab por código curto.
 - [ ] Uma Tab pode receber e revogar associação NFC.
 - [ ] NFC pode ser reutilizado em outra Tab após revogação/fechamento.
@@ -87,3 +87,12 @@ Detalhes, checks completos e limites em specs/026-operational-ux-friction/revali
 - [x] Filtros/atalho preservam configuração, quantidade, draft e intent; indisponibilidade, bloqueio e revogação respeitados; primeira inclusão não desloca catálogo.
 - [x] Web/API PostgreSQL 360/390/430: categoria real, seleção cruzando filtros, bloqueio de mesa, foco/draft e replay sem duplicar Order/Charge.
 - [x] 393 testes visuais PASS (7,6 min), Ruff/tipos/build/diff PASS; detalhes na Spec 026. Não implica paridade global, aparelho físico ou publicação.
+
+## Fechamento operacional de 14/10/2026
+
+MVP e roadmap separados em [closeout.md](closeout.md), com matriz de cada
+critério original, código, teste, evidência e decisão. Itens opcionais continuam
+desmarcados nas issues #144–#148. QR opaco estável é reutilizável em nova visita;
+a sessão antiga perde autorização ao liberar/limpar. Não é revogação automática
+do QR físico. Gate E2E Web+Android integral permanece #106. Gates do SHA final
+e revisão independente são necessários antes do fechamento da #3.

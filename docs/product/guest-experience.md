@@ -255,3 +255,13 @@ Cardápio continua ativo
 - `docs/adr/0006-dynamic-table-placement-and-floorplan.md`
 - `docs/domain/model.md`
 - `docs/design/system.md`
+
+## Escopo operacional entregue versus roadmap — 14/10/2026
+
+No MVP, localização é Zone textual e acesso é GuestSession de dispositivo.
+Navegação Cardápio/Pedidos/Conta usa atalhos persistentes com foco nas regiões
+montadas; não perde draft nem confirma pedido ao navegar. Microestados são
+projetados como Recebido/Preparando/Pronto-chegando; entrega e cancelamento
+exigem fato canônico. O mapa e seus fluxos acima são intenção futura (#144),
+grupo #145, código/QR de Tab/NFC #146, perfil/claim #147 e relatórios #148.
+Não exigir mapa/código/login no pedido anônimo. Ver Spec004/closeout.md.
