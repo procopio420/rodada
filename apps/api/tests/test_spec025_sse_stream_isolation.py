@@ -195,6 +195,46 @@ class TenantSseStreamIsolationTests(TransactionTestCase):
         self.assertEqual(len(seen), 2)
         self.assertEqual(seen, [(self.a.pk, self.a.pk)] * 2)
 
+    def test_concurrent_asgi_guest_streams_do_not_mix_two_venues(self):
+        table_b = Table.objects.create(
+            venue=self.b, label="SSE QR B",
+            guest_ordering_mode=GuestOrderingMode.DIRECT,
+        )
+        token_b = resolve_table_qr(public_token=table_b.public_token).token
+        observed = []
+
+        def traced(venue_id, cursor):
+            observed.append((resolved_venue_id.get(), venue_id))
+            return replay_batch(venue_id, cursor)
+
+        async def consume(venue, host, token):
+            path = "/guest/realtime/stream/"
+            headers = {
+                key.removeprefix("HTTP_").replace("_", "-"): value
+                for key, value in signed_headers(host, path).items()
+            }
+            headers["X-Guest-Session"] = token
+            response = await AsyncClient().get(
+                path, {"cursor": f"{venue.pk}:0"}, headers=headers,
+            )
+            self.assertEqual(response.status_code, 200)
+            return await first_stream_event(response)
+
+        async def run_pair():
+            return await asyncio.gather(
+                consume(self.a, HOST_A, self.guest_token),
+                consume(self.b, HOST_B, token_b),
+            )
+
+        with patch("modules.realtime.views.replay_batch", side_effect=traced):
+            first_a, first_b = asyncio.run(run_pair())
+
+        self.assertIn(b"event: ready", first_a)
+        self.assertIn(b"event: ready", first_b)
+        self.assertCountEqual(
+            observed, [(self.a.pk, self.a.pk), (self.b.pk, self.b.pk)],
+        )
+
     def test_disabled_host_revokes_active_staff_and_guest_streams(self):
         for guest in (False, True):
             with self.subTest(guest=guest):
