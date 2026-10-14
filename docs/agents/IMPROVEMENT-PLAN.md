@@ -32,3 +32,7 @@ Evitar "um agente que altera tudo": subagentes compartilham contrato e base, **n
 - **Fase 1 (contrato documental):** ADR 0018 + README/host docs alinhados a `rodada.bar`, código Spec 025 reconciliado com merge do PR #116; **rollout e homologação continuam pendentes**.
 - **Fase 3 (primeiro slice):** `scripts/check_agent_kb.py` + testes stdlib + workflow Knowledge Base com path filters; sem dependências, banco ou runners Android/PostgreSQL. Só verifica documentação, não aceita comportamento.
 - **Fases 2, 4 e 5:** seguem abertas para evidências por SHA e coordenação multiagente automatizada.
+
+## PR 3 — primeiro slice de evals/aceite (2026-10-13)
+
+Iniciado em branch `chore/codex-evals-evidence-registry`: [contrato de Evals & Evidence](CODEX-EVALS-EVIDENCE.md), 16 casos positivos/negativos das oito skills ativas na main, gradador de trace JSONL **conservador**, registro inicial de critérios 008/025/027 como **UNVERIFIED**, inventário de specs e testes stdlib no workflow KB. Fases 2 e 5 permanecem **parciais**: nenhuma execução do Codex nem consulta ao CI remoto/aceite de Venue foi conduzida pelo harness. A evidência de uso real, revisão semântica e ligação confiável CI→SHA→release ainda são gates posteriores.

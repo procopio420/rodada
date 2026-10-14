@@ -15,7 +15,7 @@ Fora de escopo:
 Invariantes (financeiro, tenant, auth, replay, design, dados):
 Contrato entre módulos (API/DTO/events/schema):
 Testes exigidos e ambiente isolado:
-Evidências a registrar (URL/commit/comando/resultado):
+Evidências a registrar (URL/commit/comando/resultado; refs em [registro](CODEX-EVALS-EVIDENCE.md) se aplicável):
 Bloqueios e ações externas proibidas:
 Classe preliminar de risco R1/R2/R3:
 Fontes não confiáveis recebidas (issue/log/MCP) e controles:
