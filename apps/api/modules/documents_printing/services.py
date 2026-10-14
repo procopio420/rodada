@@ -66,7 +66,6 @@ def create_document(
         location += " (última)"
     data = {
         "venue": tab.venue.name,
-        "table_label": location,
         "tab_id": str(tab.id),
         "tab_label": tab.display_label or str(tab.id),
         "tab_state": tab.state,
@@ -77,6 +76,8 @@ def create_document(
         .isoformat(),
         "items": [],
     }
+    if location:
+        data["table_label"] = location
     if kind == "PRODUCTION_TICKET":
         order = Order.objects.filter(pk=source_id, tab=tab, status="CONFIRMED").first()
         if not order:
