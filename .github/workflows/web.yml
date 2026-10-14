@@ -118,6 +118,7 @@ jobs:
         run: python -m unittest discover -s apps/web/tests/integration -p 'test_e2e_db_guard.py' -v
 
       - name: Real Web BFF API workflows
+        id: baseline_e2e
         working-directory: apps/web
         env:
           RODADA_E2E_POSTGRES: "1"
@@ -142,7 +143,8 @@ jobs:
         run: npm run test:integration -- venue-menu-acceptance.spec.ts
 
       - name: Visual, responsive and accessibility gates
-        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118) }}
+        # Preserve the full visual evidence even when the independent menu run fails.
+        if: ${{ always() && steps.baseline_e2e.outcome == 'success' && ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) }}
         working-directory: apps/web
         run: npm run test:visual
 
