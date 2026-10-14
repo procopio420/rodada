@@ -179,3 +179,18 @@ def test_expired_pending_retries_but_paired_conflict_pauses():
     calls = len(api.calls)
     worker.tick("PC")
     assert len(api.calls) == calls
+
+
+def test_revocation_before_first_credential_delivery_pauses_installation():
+    store, api = Store(), Api()
+    worker = Worker(store, api)
+    worker.tick("PC")
+    assert store.state.request_id and not store.state.credential
+    # Approval can be revoked while the installation is waiting for its next poll.
+    api.failure = AgentHttpError(401)
+    worker.tick("PC")
+    assert store.state.authorization_lost and not store.state.proof and not store.state.code
+    assert store.public["state"] == "AUTHORIZATION_LOST"
+    calls = len(api.calls)
+    Worker(store, api).tick("PC")
+    assert len(api.calls) == calls

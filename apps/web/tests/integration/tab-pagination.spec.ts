@@ -3,7 +3,8 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
 test("Real PostgreSQL Attendance navigates beyond 200 tabs at mobile widths", async ({ page }) => {
- test.setTimeout(120000);
+ // 120 real page navigations at the current ten-row page size (measured in CI).
+ test.setTimeout(300000);
  execFileSync(process.env.RODADA_TEST_PYTHON!, ["-c", `import os
 os.environ['DJANGO_SETTINGS_MODULE']='rodada_api.settings'
 import django; django.setup()

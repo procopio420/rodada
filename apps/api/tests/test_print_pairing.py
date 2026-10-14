@@ -7,6 +7,7 @@ from datetime import timedelta
 from threading import Barrier
 from unittest.mock import patch
 
+from django.core.management import call_command
 from django.db import IntegrityError, close_old_connections, connection, transaction
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.utils import timezone
@@ -163,6 +164,33 @@ class PairingTests(TestCase):
             ).status_code
             == 401
         )
+
+    def test_expired_request_cleanup_preserves_installation_reconnect(self):
+        started = self.start()
+        request = PrintPairingRequest.objects.get(id=started["request_id"])
+        with patch(
+            "modules.documents_printing.pairing.timezone.now",
+            return_value=request.expires_at + timedelta(days=1, seconds=1),
+        ):
+            call_command("cleanup_print_agent_pairing", verbosity=0)
+            assert not PrintPairingRequest.objects.filter(pk=request.pk).exists()
+            assert self.status(started).status_code == 410
+            renewed = self.start()
+        assert renewed["request_id"] != started["request_id"]
+        assert renewed["installation_id"] == started["installation_id"]
+
+    def test_revocation_before_credential_recovery_denies_proof_poll(self):
+        started = self.start()
+        approved = self.approve(started)
+        revoked = self.manager.post(
+            PREFIX + approved["agent_id"] + "/revoke/",
+            {"reason": "Synthetic revocation before delivery"},
+            format="json",
+        )
+        assert revoked.status_code == 200
+        response = self.status(started)
+        assert response.status_code == 401
+        assert "credential" not in response.data
 
     def test_database_guards_reject_identity_and_delivery_rewrites(self):
         started = self.start()

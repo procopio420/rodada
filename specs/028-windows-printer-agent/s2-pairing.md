@@ -139,3 +139,35 @@ asynchronously). No application financial, table or fulfillment logic is changed
 Pairing screenshots at 360/390/430/1280 were actually inspected: readable without
 horizontal overflow. The pairing test now also waits for the ten-second fleet
 poll to show the server heartbeat as ONLINE. Final revalidation follows in PR155.
+
+
+A 401 from proof polling also pauses the installation and clears local proof/code:
+approval can be revoked before the service retrieves its first credential. This
+negative lifecycle is now covered alongside post-activation revocation; it does
+not repeatedly poll a permanently invalid proof or silently request new pairing.
+
+
+Second Web trace (0396c50): 88/99 passed, including pairing and full movement
+recovery. Bound-tab primary labels are Mesa <label>; customer names remain in the
+subtitle. Fixtures must assert that subtitle, retaining exact table focus.
+The existing PartySizeEditor was not mounted anywhere in the current app (also
+absent from the S1 base). Preserve its existing UI test by mounting that existing
+component in Organizar mesa, avoiding a replacement with API-only assertions.
+This is an observational UI repair; no order, payment, money or fulfillment rule
+changes. Main compact cards remain compact.
+Pagination trace completed 85 clicks before the 120-second total deadline, with
+successful canonical reads (103 tab GET 200 responses). The now-expanded test
+executes 120 page navigations across three widths instead of six; its total
+budget is 300 seconds, with individual 5-second assertions unchanged. No skips
+or finance/recovery/idempotency assertions removed.
+
+
+Expired unconsumed requests may be cleaned while an unpaired installation is
+offline. Missing status requests therefore return generic 410 recovery-expired;
+renewal still validates the persisted installation proof via bootstrap, preventing
+identity takeover. Incorrect proof for an existing request remains 401 and pauses
+local authorization. Added real PostgreSQL cleanup/reconnect negative coverage.
+
+The restored observation editor locks the enclosing dialog and its other mutations
+while a save is in flight or its result is uncertain, preserving the same retry
+intent until canonical confirmation.

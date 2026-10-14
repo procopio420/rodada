@@ -207,7 +207,11 @@ def pairing_status(*, request_id, proof: str) -> dict:
         .filter(pk=request_id)
         .first()
     )
-    if not request or not secrets.compare_digest(request.proof_hash, token_digest(proof)):
+    if not request:
+        # Expired unconsumed requests can be removed while an installation is offline.
+        # Bootstrap still proves the immutable installation identity before renewal.
+        raise PairingExpired()
+    if not secrets.compare_digest(request.proof_hash, token_digest(proof)):
         raise AuthenticationFailed("Invalid pairing proof.")
     # Match activation/approval lock ordering; no stale pre-ACK credential response.
     agent = (

@@ -21,7 +21,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   for (const name of ["A", "B"]) {
   await openAttendanceTab(page, `Draft ${name} ${width}`);
-    await expect(page.getByRole("heading", { name: `Draft ${name} ${width}`, exact: true })).toBeVisible();
+    await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(`Draft ${name} ${width}`);
   }
   const list = (await api(page, "tabs/")).results;
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
@@ -38,7 +38,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await a.click(); await expect(draft).toBeVisible();
   await openAttendanceTab(page, `Draft C ${width}`);
-  await expect(page.getByRole("heading", { name: `Draft C ${width}`, exact: true })).toBeVisible();
+  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(`Draft C ${width}`);
   await expect(draft.locator("article")).toHaveCount(0);
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();

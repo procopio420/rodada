@@ -10,7 +10,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   await openAttendanceTab(page, "Atendimento browser test");
-  await expect(page.getByRole("heading", { name: "Atendimento browser test", exact: true })).toBeVisible();
+  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText("Atendimento browser test");
   await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();

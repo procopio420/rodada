@@ -56,11 +56,27 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await expandAttendanceTable(page, "Pilot frontend table");
-  const table = page.locator("article").filter({ has: page.getByRole("heading", { name: /^Mesa Pilot frontend table / }) });
+  await page.getByRole("button", { name: "Organizar mesa Pilot frontend table", exact: true }).click();
+  const table = page.getByRole("dialog", { name: "Organizar mesa Pilot frontend table", exact: true });
   await expect(table.getByText("Quantidade não informada", { exact: true })).toBeVisible();
   await table.getByRole("button", { name: "Selecionar 4 pessoas" }).click();
+  const partySizePath = `**/api/attendance/hospitality/occupancies/${created.occupancyId}/party-size/`;
+  await page.route(partySizePath, async route => {
+    if (route.request().method() !== "POST") return route.continue();
+    const committed = await route.fetch();
+    expect(committed.ok()).toBe(true);
+    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ message: "Synthetic lost confirmation" }) });
+  }, { times: 1 });
   await table.getByRole("button", { name: "Confirmar quantidade" }).click();
+  await expect(table.getByRole("button", { name: "Verificar mesma quantidade" })).toBeVisible();
+  await expect(table.getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(table.getByLabel("Localização da mesa Pilot frontend table")).toBeDisabled();
+  await expect(table.getByLabel("Associar comanda à mesa Pilot frontend table")).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(table).toBeVisible();
+  await table.getByRole("button", { name: "Verificar mesma quantidade" }).click();
   await expect(table.getByText("4 pessoa(s) · Informado pela equipe")).toBeVisible();
+  await expect(table.getByRole("button", { name: "Voltar", exact: true })).toBeEnabled();
   const observation = await page.evaluate(async id => (await (await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`)).json()).current, created.occupancyId);
   expect(observation).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
   await evidence(page, "covers");

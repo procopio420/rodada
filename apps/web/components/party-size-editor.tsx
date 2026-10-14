@@ -6,7 +6,7 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 type Observation = { covers_count: number | null; version: number; source: string | null };
 type Intent = { covers_count: number; expected_version: number; reason: string; idempotency_key: string };
 
-export function PartySizeEditor({ occupancyId }: { occupancyId: string }) {
+export function PartySizeEditor({ occupancyId, onRecoveryLock }: { occupancyId: string; onRecoveryLock?: (locked: boolean) => void }) {
   const path = `/api/attendance/hospitality/occupancies/${occupancyId}/party-size/`;
   const id = useId();
   const [current, setCurrent] = useState<Observation | null>(null);
@@ -15,6 +15,7 @@ export function PartySizeEditor({ occupancyId }: { occupancyId: string }) {
   const [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [pending, setPending] = useState<Intent | null>(null);
   const sending = useRef(false);
+  useEffect(() => { onRecoveryLock?.(busy || !!pending); }, [busy, pending, onRecoveryLock]);
   const load = useCallback(async () => {
     try {
       const result = await apiCall<{ current: Observation }>(path);

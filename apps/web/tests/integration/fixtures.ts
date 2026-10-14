@@ -26,7 +26,8 @@ export async function openAttendanceTab(page: Page, label: string) {
   const destination = page.getByRole("dialog", { name: "Qual mesa o cliente está?", exact: true });
   await expect(destination).toBeVisible();
   await destination.getByRole("button", { name: /^Mesa QR-A(?: · Em uso)?$/ }).click();
-  await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mesa QR-A", exact: true })).toBeVisible();
+  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(label);
 }
 
 export async function expandAttendanceTable(page: Page, label: string) {

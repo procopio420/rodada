@@ -91,9 +91,7 @@ class Worker:
                 raise ValueError("Unsupported service contract.")
             self.publish("ONLINE")
         except AgentHttpError as exc:
-            if (exc.status == 401 and state.credential) or (
-                exc.status == 409 and not state.credential
-            ):
+            if exc.status == 401 or (exc.status == 409 and not state.credential):
                 state.credential, state.proof, state.code = "", "", ""
                 state.authorization_lost = True
                 self.store.save(state)
