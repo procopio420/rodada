@@ -200,7 +200,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     if (!catalog.ok) throw catalog.body;
     const next = detail.body as Context, currentProducts = (catalog.body as { results: Product[] }).results;
     const live = currentVisit.current;
-    if (sessionStorage.getItem(storageKey) !== expected.token || live.token !== expected.token ||
+    if (live.token !== expected.token ||
       !validScope(live.context?.session_scope) || !sameScope(live.context.session_scope, expected.scope) || live.context.tab?.id !== expected.tabId ||
       !validScope(next.session_scope) || !sameScope(next.session_scope, expected.scope) || next.tab?.id !== expected.tabId || !next.occupancy_active)
       throw { message: "Esta rodada pertence à visita original. Ela não será incluída em outra sessão ou comanda." };

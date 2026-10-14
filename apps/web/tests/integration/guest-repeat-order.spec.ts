@@ -36,6 +36,9 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     const before = await api(`tabs/${tab.id}/`);
     const tokenKey = `rodada.guest.session.${table.public_token}`;
     const originalToken = await guest.evaluate(k => sessionStorage.getItem(k), tokenKey);
+    expect(originalToken).toBeNull();
+    const guestCookies = await context.cookies();
+    expect(guestCookies.some(cookie => cookie.name.startsWith("rodada_guest_") && cookie.httpOnly)).toBe(true);
     await guest.getByRole("button", { name: /^Bar E2E item/ }).click();
     const repeat = guest.getByRole("button", { name: "Repetir rodada 1", exact: true });
     await repeat.click();
