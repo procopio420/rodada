@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 
-export type OperationalIconName = "now" | "operation" | "sales" | "settings" | "more" | "printer" | "wallet" | "lock" | "people" | "table" | "cart" | "check" | "warning" | "receipt" | "trash" | "history";
+export type OperationalIconName = "now" | "operation" | "sales" | "settings" | "more" | "printer" | "wallet" | "lock" | "people" | "table" | "cart" | "check" | "warning" | "receipt" | "trash" | "history" | "chef" | "drink";
 const shapes: Record<OperationalIconName, ReactNode> = {
   history: <><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2" /></>,
   trash: <><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" /></>,
   lock: <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3" /></>,
   people: <><circle cx="9" cy="7" r="3" /><path d="M3 21v-4a6 6 0 0 1 12 0v4M17 4a3 3 0 0 1 0 6M18 14a4 4 0 0 1 3 4v3" /></>,
   table: <><path d="M3 8h18v5H3zM5 13v7M19 13v7M8 8V4h8v4" /></>,
+  chef: <><path d="M5 13a4 4 0 0 1-.5-7.7A5 5 0 0 1 12 4a5 5 0 0 1 7.5 1.3A4 4 0 0 1 19 13M5 13v7h14v-7M8 17h8" /></>,
+  drink: <><path d="M4 3h16l-2 10a6 6 0 0 1-12 0L4 3ZM12 19v3M7 22h10M6 8h12" /></>,
   cart: <><path d="M2 3h3l3 12h11l3-9H6" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></>,
   check: <><circle cx="12" cy="12" r="9" /><path d="m7 12 3 3 7-7" /></>,
   warning: <><path d="m12 3 10 18H2zM12 9v5M12 17h.01" /></>,
