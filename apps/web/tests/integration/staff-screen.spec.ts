@@ -22,7 +22,7 @@ async function mockSession(page: import("@playwright/test").Page, trusted: boole
 
 test("personal device offers simple account controls without disabled switch form", async ({ page }) => {
   await mockSession(page, false);
-  await page.route("**/api/auth/logout", route => route.fulfill({ status: 200, json: {} }));
+  await page.route("**/api/auth/logout", route => route.fulfill({ status: 204, body: "" }));
   await page.goto("/staff");
 
   await expect(page.getByRole("heading", { name: "Ana Gerente" })).toBeVisible();
@@ -49,9 +49,12 @@ test("shared trusted terminal reveals fast switch only when requested", async ({
 
 test("logout and lock are tucked under deliberate security controls", async ({ page }) => {
   await mockSession(page, false);
+  await page.route("**/api/auth/lock", route => route.fulfill({ status: 204, body: "" }));
   await page.goto("/staff");
   await expect(page.getByRole("button", { name: "Bloquear acesso" })).not.toBeVisible();
   await page.getByText("Opções de segurança").click();
   await expect(page.getByRole("button", { name: "Bloquear acesso" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sair desta conta" })).toBeVisible();
+  await page.getByRole("button", { name: "Bloquear acesso" }).click();
+  await expect(page.getByRole("heading", { name: "Quem vai trabalhar?" })).toBeVisible();
 });
