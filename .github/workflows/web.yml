@@ -2,6 +2,12 @@ name: Web
 
 on:
   workflow_dispatch:
+    inputs:
+      run_visual:
+        description: "Run full Playwright visual, responsive and accessibility checks"
+        type: boolean
+        required: false
+        default: false
   pull_request:
     paths:
       - "apps/web/**"
@@ -28,7 +34,8 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       RODADA_TEST_PYTHON: python
-    timeout-minutes: 45
+    # Give extra time only to deliberately requested visual checks.
+    timeout-minutes: ${{ ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) && 45 || 20 }}
     services:
       postgres:
         image: mirror.gcr.io/library/postgres:17
@@ -88,6 +95,10 @@ jobs:
         working-directory: apps/web
         run: npm run test:tenant
 
+      - name: Table-first identity regression tests
+        working-directory: apps/web
+        run: npm run test:identity
+
       - name: Build
         working-directory: apps/web
         env:
@@ -99,6 +110,7 @@ jobs:
         run: npm run test:table-service
 
       - name: Spec 027 focused responsive and recovery contracts
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118) }}
         working-directory: apps/web
         run: npm run test:visual -- table-service.spec.ts
 
@@ -115,10 +127,10 @@ jobs:
           POSTGRES_HOST: 127.0.0.1
         run: npm run test:integration
 
-      # Separate run, after the ordinary suite, with an explicit opt-in and a
-      # strictly guarded reset of the disposable PostgreSQL Web E2E database.
-      # This must never import the photographed menu into a real Venue.
+      # Spec 024: full import/order regression on the PR, backed by the
+      # disposable Web E2E PostgreSQL database only.
       - name: Canonical 143-item menu — Web/API/Bar/Kitchen E2E
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 118 }}
         working-directory: apps/web
         env:
           RODADA_E2E_POSTGRES: "1"
@@ -130,6 +142,7 @@ jobs:
         run: npm run test:integration -- venue-menu-acceptance.spec.ts
 
       - name: Visual, responsive and accessibility gates
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118) }}
         working-directory: apps/web
         run: npm run test:visual
 

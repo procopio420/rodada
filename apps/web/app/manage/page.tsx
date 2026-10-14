@@ -1,4 +1,6 @@
 "use client";
+import { tabPrimaryLabel, tabSecondaryLabel } from "@/lib/client/tab-identity";
+
 
 import { OperationalHeading } from "@/components/operational-heading";
 
@@ -15,7 +17,7 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
 
 
-type Tab = { id: string; display_label: string; state: string; exposure_cents: number };
+type Tab = { id: string; display_label: string; table_label?: string | null; last_table_label?: string | null; state: string; exposure_cents: number };
 type TabDetail = Tab & {
   refund_required_corrections?: { id: string; item_name: string; refund_required_cents: number }[];
   payments?: { status: string }[];
@@ -72,12 +74,12 @@ export default function ManagementPage() {
       }));
       setTabs(nextTabs); setProducts(nextProducts); setBar(nextBar); setKitchen(nextKitchen);
       setDeliveries(nextDeliveries); setCashPoints(nextCash); setTables(nextTables);
-      cache.save({ tabs: nextTabs.map(tab => ({ ...tab, display_label: "" })), products: nextProducts, bar: nextBar.map(item => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map(item => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
+      cache.save({ tabs: nextTabs.map(tab => ({ ...tab, display_label: "", table_label: null, last_table_label: null })), products: nextProducts, bar: nextBar.map(item => ({ ...item, tab_label: "" })), kitchen: nextKitchen.map(item => ({ ...item, tab_label: "" })), deliveries: nextDeliveries, cash: nextCash, tables: nextTables });
       setHasSnapshot(true);
       setRefunds(details.flatMap((detail) => {
         if (!detail) return [];
         return (detail.refund_required_corrections ?? []).map((row) => ({
-          tab: detail.display_label || "Comanda sem nome", item: row.item_name, cents: row.refund_required_cents,
+          tab: tabPrimaryLabel(detail), item: row.item_name, cents: row.refund_required_cents,
         }));
       }));
     } catch (error) {
@@ -124,7 +126,7 @@ export default function ManagementPage() {
 
     {attentionTabs.length > 0 && <section className="panel panelWarning" aria-labelledby="tab-attention-title">
       <ManagementSectionHeader icon="now" id="tab-attention-title">Comandas precisam de atenção</ManagementSectionHeader>
-      {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tab.display_label || "Comanda sem nome"}</strong><small>Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
+      {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tabPrimaryLabel(tab)}</strong><small>{tabSecondaryLabel(tab)} · Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
       <Link className="backLink" href="/pos">Abrir comandas →</Link>
     </section>}
     <section className="panel"><ManagementSectionHeader icon="now">Agora</ManagementSectionHeader>

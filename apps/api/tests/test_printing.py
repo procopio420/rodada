@@ -83,6 +83,34 @@ class PrintingTests(TestCase):
             **kwargs,
         )
 
+    def test_table_is_visible_in_new_document_but_never_rewrites_old_snapshot(self):
+        from modules.hospitality.models import Table, TableOccupancy, TabOccupancyAssignment
+
+        without_table = self.document()
+        assert "table_label" not in without_table.snapshot
+        table = Table.objects.create(venue=self.venue, label="08")
+        occupancy = TableOccupancy.objects.create(table=table, generation=table.access_generation)
+        link = TabOccupancyAssignment.objects.create(occupancy=occupancy, tab=self.tab)
+        self.tab.version += 1
+        self.tab.save(update_fields=["version"])
+
+        with_table = self.document()
+        assert with_table.snapshot["table_label"] == "Mesa 08"
+        assert "Local: Mesa 08" in render_text(with_table, 80)
+        link.released_at = timezone.now()
+        link.save(update_fields=["released_at"])
+        destination = Table.objects.create(venue=self.venue, label="12")
+        new_occupancy = TableOccupancy.objects.create(table=destination, generation=destination.access_generation)
+        TabOccupancyAssignment.objects.create(occupancy=new_occupancy, tab=self.tab)
+        self.tab.version += 1
+        self.tab.save(update_fields=["version"])
+
+        moved = self.document()
+        assert moved.snapshot["table_label"] == "Mesa 12"
+        with_table.refresh_from_db()
+        assert with_table.snapshot["table_label"] == "Mesa 08"
+        assert "Local: Mesa 08" in render_text(with_table, 80)
+
     def test_snapshot_and_new_financial_version(self):
         first = self.document()
         self.assertEqual(first.snapshot["totals"]["exposure_cents"], 4800)

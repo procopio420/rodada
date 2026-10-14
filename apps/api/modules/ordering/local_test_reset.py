@@ -44,13 +44,16 @@ def reset_test_tabs(*, tab_ids, actor):
         items = list(OrderItem.objects.select_for_update().filter(order__tab=tab).exclude(state__in=("DELIVERED", "CANCELLED")))
         for item in items:
             old = item.state
-            item.state = "CANCELLED"; item.cancelled_at = timezone.now()
+            item.state = "CANCELLED"
+            item.cancelled_at = timezone.now()
             item.save(update_fields=["state", "cancelled_at"])
             record_audit_event(actor=actor, event_type="demo.order_item_archived", entity_type="OrderItem",
                                entity_id=str(item.pk), reason=REASON, metadata={"before":old,"after":"CANCELLED","tab_id":str(tab.pk)})
         tasks = DispatchTask.objects.select_for_update().filter(venue_id=actor.venue_id, order_item__order__tab=tab).exclude(state__in=("DONE", "CANCELLED"))
         for task in tasks:
-            old = task.state; task.state = "CANCELLED"; task.save(update_fields=["state", "updated_at"])
+            old = task.state
+            task.state = "CANCELLED"
+            task.save(update_fields=["state", "updated_at"])
             record_audit_event(actor=actor,event_type="demo.task_archived",entity_type="DispatchTask",
                                entity_id=str(task.pk),reason=REASON,metadata={"before":old,"after":"CANCELLED"})
         tab.guest_sessions.filter(revoked_at__isnull=True).update(revoked_at=timezone.now(),revoked_reason=REASON)

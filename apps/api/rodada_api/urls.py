@@ -1,3 +1,6 @@
+from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
+from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
+from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 from modules.management.views import TableServiceRolloutView
 from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
 
@@ -94,12 +97,6 @@ def readiness(request):
         cursor.fetchone()
     return JsonResponse({"status": "ready"})
 
-
-from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
-
-from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
-
-from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
 
 urlpatterns = [
     path("management/daily-closes/", DailyCloseListView.as_view()),

@@ -28,7 +28,31 @@ data class TabSummary(
     val consumptionBlocked: Boolean = false,
     val limitWarning: Boolean = false,
     val actionReasons: List<String> = emptyList(),
+    val tableLabel: String? = null,
+    val lastTableLabel: String? = null,
 )
+
+/** Mesa atual é uma projeção operacional; nunca substitui o ID da comanda. */
+fun TabSummary.operationalReference(): String = "Comanda ${id.take(8).uppercase()}"
+
+private fun TabSummary.optionalName(): String? =
+    displayLabel.takeIf { it.isNotBlank() && it != "Comanda sem nome" }
+
+fun TabSummary.operationalLabel(historical: Boolean = false): String =
+    tableLabel?.takeIf { it.isNotBlank() }
+        ?: (if (historical) lastTableLabel?.let { "$it (última)" } else null)
+        ?: optionalName()
+        ?: operationalReference()
+
+fun TabSummary.operationalSubtitle(historical: Boolean = false): String {
+    val locationShown = !tableLabel.isNullOrBlank() || (historical && !lastTableLabel.isNullOrBlank())
+    return listOfNotNull(if (locationShown) optionalName() else null, operationalReference()).joinToString(" · ")
+}
+
+fun TabSummary.matchesOperationalQuery(query: String): Boolean =
+    listOfNotNull(displayLabel, tableLabel, lastTableLabel, operationalReference())
+        .any { it.contains(query, ignoreCase = true) }
+
 
 data class OrderItem(
     val id: String,
@@ -173,7 +197,7 @@ class OperationsApiException(
 fun formatCents(cents: Long): String {
     val absolute = kotlin.math.abs(cents)
     val sign = if (cents < 0) "-" else ""
-    return String.format(Locale("pt", "BR"), "%sR$ %,d,%02d", sign, absolute / 100, absolute % 100)
+    return String.format(Locale.forLanguageTag("pt-BR"), "%sR$ %,d,%02d", sign, absolute / 100, absolute % 100)
 }
 
 /** Parses a Brazilian user-entered amount to integer cents without ever using floating point. */

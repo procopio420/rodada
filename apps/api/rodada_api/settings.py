@@ -1,3 +1,4 @@
+import json
 import os
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-change-me")
@@ -105,7 +106,6 @@ LOGGING = {
 }
 
 # JSON is injected by the deployment secret manager, keyed by Venue UUID.
-import json
 RODADA_PAYMENT_PROVIDERS = json.loads(os.environ.get("RODADA_PAYMENT_PROVIDERS", "{}"))
 RODADA_PAYMENT_CREDENTIAL_KEY = os.environ.get("RODADA_PAYMENT_CREDENTIAL_KEY", "")
 RODADA_SUMUP_OAUTH = json.loads(os.environ.get("RODADA_SUMUP_OAUTH", "{}"))

@@ -196,9 +196,10 @@ class TableServiceTests(TestCase):
         occupancy = TableOccupancy.objects.create(table=self.table, generation=1)
         tab = Tab.objects.create(venue=self.venue)
         TabOccupancyAssignment.objects.create(occupancy=occupancy, tab=tab)
-        listing = lambda: self.client.get("/hospitality/tables/").json()["results"][0][
-            "active_occupancy"
-        ]
+        def listing():
+            return self.client.get("/hospitality/tables/").json()["results"][0][
+                "active_occupancy"
+            ]
         assert listing()["unassigned_service_attention"] == "UNASSIGNED_NO_ORDER"
         product = Product.objects.create(
             venue=self.venue, name="Beer", price_cents=100, fulfillment_station="BAR"

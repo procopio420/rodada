@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
+from modules.hospitality.tab_display import tab_location_labels
 from modules.ordering.models import OrderItem, Tab
 from modules.ordering.serializers import OrderConfirmSerializer, TabCreateSerializer
 from modules.ordering.services import (
@@ -24,11 +25,16 @@ def _error_response(error: OrderingServiceError) -> Response:
     return Response(payload, status=error.status_code)
 
 
-def _tab_payload(tab: Tab) -> dict:
+def _tab_payload(tab: Tab, *, locations=None) -> dict:
     from modules.house_account.services import financial_position
+    if locations is None:
+        locations = tab_location_labels([tab.id], include_history=True)
+    current, previous = locations
     return {
         "id": str(tab.id),
         "display_label": tab.display_label,
+        "table_label": current.get(str(tab.id)),
+        "last_table_label": previous.get(str(tab.id)),
         "state": tab.state,
         "version": tab.version,
         "opened_at": tab.opened_at,
@@ -88,7 +94,8 @@ class TabListCreateView(APIView):
         if label_query:
             tabs = tabs.filter(search_label__contains=label_query)
         rows = list(tabs.order_by("-opened_at", "id")[offset:offset + 201])
-        return Response({"results": [_tab_payload(tab) for tab in rows[:200]],
+        locations = tab_location_labels([tab.id for tab in rows[:200]], include_history=True)
+        return Response({"results": [_tab_payload(tab, locations=locations) for tab in rows[:200]],
                          "next_offset": offset + 200 if len(rows) > 200 else None})
 
     def post(self, request):
@@ -256,4 +263,6 @@ class ProductionQueueView(APIView):
             return Response({"code": "INVALID_STATION", "message": "Estação inválida."}, status=400)
         from django.db.models import Q
         rows = OrderItem.objects.filter(Q(fulfillment_station_snapshot=station) | Q(fulfillment_station_snapshot="", product__fulfillment_station=station), order__tab__venue=request.auth.venue, order__status="CONFIRMED").exclude(state__in=["CANCELLED", "DELIVERED"]).select_related("order__tab", "product").prefetch_related("corrections").order_by("created_at")
-        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.remaining_quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "snapshot_fingerprint": snapshot_fingerprint(item.customization_snapshot), "tab_label": item.order.tab.display_label, "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})
+        rows = list(rows)
+        current, _ = tab_location_labels({item.order.tab_id for item in rows})
+        return Response({"results": [{"id": str(item.id), "product_id": str(item.product_id), "order_id": str(item.order_id), "tab_id": str(item.order.tab_id), "state": item.state, "quantity": item.remaining_quantity, "product_name": item.product_name_snapshot, "customization_snapshot": item.customization_snapshot, "snapshot_fingerprint": snapshot_fingerprint(item.customization_snapshot), "tab_label": item.order.tab.display_label, "table_label": current.get(str(item.order.tab_id)), "created_at": item.created_at, "ready_at": item.ready_at} for item in rows]})

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.dispatch.models import DispatchTask, DispatchTaskState, DispatchTaskType
+from modules.hospitality.tab_display import tab_location_labels
 from modules.dispatch.serializers import DeliveryCompleteSerializer, DispatchTaskSerializer
 from modules.dispatch.services import DispatchServiceError, complete_delivery_task
 
@@ -15,8 +16,16 @@ def _error_response(error: DispatchServiceError) -> Response:
     return Response(payload, status=error.status_code)
 
 
-def _task_payload(task: DispatchTask) -> dict:
+def _task_payload(task: DispatchTask, *, current_locations=None) -> dict:
     payload = DispatchTaskSerializer(task).data
+    if current_locations is not None and task.order_item_id:
+        # Prefer the current live placement while preserving the original task
+        # snapshot for audit, retries and historical printouts.
+        current = current_locations.get(str(task.order_item.order.tab_id))
+        if current:
+            payload["destination_label"] = current
+        elif task.destination_table_id:
+            payload["destination_label"] = "Sem mesa atual · confirmar destino"
     payload["age_seconds"] = (
         max(0, int((timezone.now() - task.ready_at).total_seconds())) if task.ready_at else 0
     )
@@ -38,7 +47,9 @@ class DeliveryQueueView(APIView):
             .select_related("destination_table", "order_item__order__tab")
             .order_by("-priority", "ready_at", "created_at", "id")[:200]
         )
-        return Response({"results": [_task_payload(task) for task in tasks]})
+        tasks = list(tasks)
+        current, _ = tab_location_labels({task.order_item.order.tab_id for task in tasks if task.order_item_id})
+        return Response({"results": [_task_payload(task, current_locations=current) for task in tasks]})
 
 
 class DeliveryCompleteView(APIView):

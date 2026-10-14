@@ -5,7 +5,8 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
  const width = { lost: 360, paid: 390, preparing: 430 }[outcome];
  await page.setViewportSize({ width, height: 900 });
  const item = { id: "item-cancel", product_name: "Item confirmado", quantity: 1, state: "NEW" };
- let payable = 750, attempts: string[] = [];
+ let payable = 750;
+  const attempts: string[] = [];
  await page.route("**/api/attendance/tabs/", route => route.fulfill({ json: { results: [{ id: "tab-test", display_label: "Comanda de teste", state: "OPEN", version: 1, exposure_cents: payable, payable_cents: payable, original_subtotal_cents: 1000, discounts_cents: 250, orders: [{ id: "order-test", items: [item] }] }] } }));
  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: { id: "tab-test", display_label: "Comanda de teste", state: "OPEN", version: 1, exposure_cents: payable, payable_cents: payable, original_subtotal_cents: 1000, discounts_cents: 250, orders: [{ id: "order-test", items: [item] }] } }));
  await page.route("**/api/attendance/order-items/item-cancel/corrections/cancel/", async route => {

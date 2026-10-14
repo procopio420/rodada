@@ -31,7 +31,7 @@ test("history reaches a closed tab on the next page", async ({ page }) => {
  await page.route("**/api/attendance/tabs/closed-201/", route => route.fulfill({ json: tab }));
  await page.goto("/attendance"); await page.getByRole("button", { name: "Contas", exact: true }).click(); await page.getByRole("button", { name: "Histórico", exact: true }).click();
  const dialog = page.getByRole("dialog", { name: "Histórico de comandas" });
- await dialog.getByRole("button", { name: "Próxima página", exact: true }).click(); await dialog.getByRole("button", { name: "Encerrada 201 · Encerrada" }).click();
+ await dialog.getByRole("button", { name: "Próxima página", exact: true }).click(); await dialog.getByRole("button", { name: "Encerrada 201 · Comanda CLOSED-2 · Encerrada", exact: true }).click();
  await expect(dialog.getByRole("heading", { name: "Encerrada 201", exact: true })).toBeVisible();
 });
 

@@ -32,7 +32,7 @@ async function setup(page: Page) {
 async function open(page: Page) {
   await page.goto("/attendance"); await stable(page);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  await page.getByRole("button", { name: `Mover comanda Comanda móvel · ID ${tabId}`, exact: true }).click();
+  await page.getByRole("button", { name: `Mover comanda Mesa A · Comanda móvel · ID ${tabId}`, exact: true }).click();
   await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
 }
 const result = { operation_id: operationId, source: { id: tabId, version: 2, occupancy_id: ob } };
@@ -46,7 +46,7 @@ for (const width of [360,390,430]) {
     await page.locator(`button[data-tab-id="${tabId}"]`).click();
     await page.getByRole("button", {name:/^Fritas/}).click();
     await page.getByRole("button", {name:"Voltar à mesa A",exact:true}).click();
-    await page.getByRole("button", {name:`Mover comanda Comanda móvel · ID ${tabId}`,exact:true}).click();
+    await page.getByRole("button", {name:`Mover comanda Mesa A · Comanda móvel · ID ${tabId}`,exact:true}).click();
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled(); await page.getByLabel("Mesa de destino").selectOption(ob); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");
     await page.getByRole("button", {name:"Confirmar movimento",exact:true}).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
     await expect(page.getByText("Movimento confirmado. Local atual: mesa B.",{exact:true})).toBeVisible();
@@ -84,7 +84,7 @@ test("storage failure prevents a location POST", async ({page}) => {
 test("stale origin cannot reach confirmation", async ({page}) => {
   const state=await setup(page); state.contextError=true;
   await page.goto("/attendance"); await stable(page); await page.getByRole("button",{name:"Mesas",exact:true}).click();
-  await page.getByRole("button",{name:`Mover comanda Comanda móvel · ID ${tabId}`,exact:true}).click();
+  await page.getByRole("button",{name:`Mover comanda Mesa A · Comanda móvel · ID ${tabId}`,exact:true}).click();
   await expect(page.getByText("O vínculo mudou. Atualize as mesas.",{exact:true})).toBeVisible(); await expect(page.getByRole("button",{name:"Confirmar movimento",exact:true})).toBeDisabled();
 });
 
@@ -99,7 +99,7 @@ test("definitive first rejection clears intent and requires a reviewed new choic
   await expect(page.getByText("Destino não está ativo.",{exact:true})).toBeVisible();
   expect(await page.evaluate(key=>sessionStorage.getItem(key),storage)).toBeNull(); await expect(page.getByRole("button",{name:"Confirmar movimento",exact:true})).toBeDisabled();
   await page.getByRole("dialog").getByRole("button",{name:"Voltar",exact:true}).click();
-  await page.getByRole("button",{name:`Mover comanda Comanda móvel · ID ${tabId}`,exact:true}).click(); await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
+  await page.getByRole("button",{name:`Mover comanda Mesa A · Comanda móvel · ID ${tabId}`,exact:true}).click(); await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
   await page.getByLabel("Mesa de destino").selectOption(ob); await page.getByRole("button",{name:"Confirmar movimento",exact:true}).click();
   await expect(page.getByText("Movimento confirmado. Local atual: mesa B.",{exact:true})).toBeVisible();
   expect(requests).toHaveLength(2); expect(JSON.parse(requests[0]).idempotency_key).not.toBe(JSON.parse(requests[1]).idempotency_key);
