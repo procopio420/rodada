@@ -361,8 +361,14 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: 0; border-bottom: 0; }
 @media (min-width: 1200px) {
   .stationOrder { grid-template-columns: minmax(0, var(--production-ticket-destination)) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  /* Explicit placement prevents the order label, item detail and action from
+     being packed into the narrow destination track at desktop widths. */
+  .stationOrder > .stationTab { grid-column: 1; grid-row: 1; }
+  .stationOrder > .stationOrderItems { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
   .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr) var(--production-ticket-action); gap: var(--space-4); }
   .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
+  .stationPassRow > .stationTab { grid-column: 1; }
+  .stationPassRow > div { grid-column: 2; min-width: 0; }
 }
 
 /* Atendimento reuses canonical operational tokens and touch targets. */
