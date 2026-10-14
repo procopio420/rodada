@@ -80,3 +80,5 @@
 @media (prefers-reduced-motion: reduce) {
   .primary, .secondary { transition: none; }
 }
+
+.loading { color: var(--color-text-muted); text-align: center; font-size: 15px; }
