@@ -21,7 +21,7 @@ for (const width of [360, 390, 430]) test(`Attendance history is separate and re
  await trigger.click();
  const dialog = page.getByRole("dialog", { name: "Histórico de comandas" });
  await expect(dialog).toBeVisible();
- await dialog.getByRole("button", { name: "Comanda encerrada · Encerrada", exact: true }).click();
+ await dialog.getByRole("button", { name: "Comanda encerrada · Comanda CLOSED-T · Encerrada", exact: true }).click();
  await expect(dialog.getByRole("region", { name: "Detalhes da comanda encerrada" })).toBeVisible();
  await expect(dialog.getByRole("button", { name: "Fechar comanda", exact: true })).toHaveCount(0);
  await expect(page.locator(".attendanceSelectedTab")).toHaveCount(0);
