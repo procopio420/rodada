@@ -36,7 +36,6 @@ def test_verified_host_is_bound_to_staff_and_guest_context(client):
     second = Venue.objects.create(name="Other", slug="other")
     VenueDomain.objects.create(venue=first, hostname="bardoaderlan.rodada.bar", is_active=True, is_verified=True)
     VenueDomain.objects.create(venue=second, hostname="outrobar.rodada.bar", is_active=True, is_verified=True)
-    from modules.venue.hostnames import assert_staff_venue, assert_guest_venue
     token = resolved_venue_id.set(first.pk)
     try:
         assert_staff_venue(first.pk)

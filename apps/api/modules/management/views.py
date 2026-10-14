@@ -36,8 +36,10 @@ class CalendarView(APIView):
             timezone = serializers.CharField(max_length=64)
             cutoff_hour = serializers.IntegerField(min_value=0, max_value=23)
             def validate_timezone(self, value):
-                try: ZoneInfo(value)
-                except (ZoneInfoNotFoundError, ValueError): raise serializers.ValidationError("Timezone inválido.")
+                try:
+                    ZoneInfo(value)
+                except (ZoneInfoNotFoundError, ValueError):
+                    raise serializers.ValidationError("Timezone inválido.")
                 return value
         data = Input(data=request.data)
         data.is_valid(raise_exception=True)
@@ -50,9 +52,12 @@ class CalendarView(APIView):
                 # A quiet live service alone cannot protect that history: until
                 # effective-dated policy exists, reject edits once facts exist.
                 blockers = []
-                if Charge.objects.filter(tab__venue=venue).exists(): blockers.append('CHARGE_HISTORY')
-                if Payment.objects.filter(tab__venue=venue).exists(): blockers.append('PAYMENT_HISTORY')
-                if CashShift.objects.filter(venue=venue).exists(): blockers.append('CASH_SHIFT_HISTORY')
+                if Charge.objects.filter(tab__venue=venue).exists():
+                    blockers.append('CHARGE_HISTORY')
+                if Payment.objects.filter(tab__venue=venue).exists():
+                    blockers.append('PAYMENT_HISTORY')
+                if CashShift.objects.filter(venue=venue).exists():
+                    blockers.append('CASH_SHIFT_HISTORY')
                 if blockers:
                     return Response({'code': 'HISTORICAL_POLICY_CHANGE_BLOCKED',
                         'message': 'O calendário possui histórico. Alteração exige política versionada.',
@@ -86,7 +91,8 @@ class ReportView(APIView):
         adjustments = LedgerAdjustment.objects.filter(tab__venue=venue, created_at__gte=lower, created_at__lt=upper)
         payments = Payment.objects.filter(tab__venue=venue, status__in=PaymentStatus.confirmed_money_values(), confirmed_at__gte=lower, confirmed_at__lt=upper)
         refunds = Refund.objects.filter(payment__tab__venue=venue, status=RefundStatus.CONFIRMED, confirmed_at__gte=lower, confirmed_at__lt=upper)
-        total = lambda rows: rows.aggregate(value=Sum("amount_cents"))["value"] or 0
+        def total(rows):
+            return rows.aggregate(value=Sum("amount_cents"))["value"] or 0
         gross, adjustment, paid, refunded = map(total, (charges, adjustments, payments, refunds))
         from modules.ledger.pricing import category
         commercial = {"item_discounts_cents": 0, "tab_discounts_cents": 0, "courtesy_cents": 0,
