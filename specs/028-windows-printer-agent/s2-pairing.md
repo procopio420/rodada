@@ -179,3 +179,11 @@ must preserve headers and avoid Next trailing-slash redirects, as existing fault
 fixtures already do. Pagination now waits for the actual canonical response
 (up to 30s: measured 12.9s under CI load), retaining individual 5s UI assertions
 and all navigation/draft/financial checks. No finance code or skips changed.
+
+Web 7e0be59 passed 96/99: only the three bound-tab draft cases remained.
+Network trace confirms the OrderWorkspace list was read before table-service
+creation and had not reached its existing 15-second poll; parent active-tab
+reads are separate. The fixture now awaits list visibility up to 20s, with a
+60s total budget for this multi-tab workflow. All per-tab canonical order,
+quantity, money, payment and empty-draft assertions are retained. No product
+refresh behavior or financial contract changed.

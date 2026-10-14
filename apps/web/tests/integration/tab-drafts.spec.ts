@@ -12,6 +12,7 @@ async function api(page: Page, path: string, body?: unknown) {
 }
 
 for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts create orders only on selected Tab at ${width}`, async ({ page }) => {
+  test.setTimeout(60000);
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
@@ -27,7 +28,8 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
   const a = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft A ${width} ·`) });
   const b = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft B ${width} ·`) });
-  await expect(a).toBeVisible(); await a.click();
+  // Table-service creation updates the parent; this existing list polls every 15s.
+  await expect(a).toBeVisible({ timeout: 20000 }); await a.click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   const draft = page.getByRole("region", { name: "Pedido atual" });
