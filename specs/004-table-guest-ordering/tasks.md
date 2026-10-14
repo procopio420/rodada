@@ -42,15 +42,15 @@
 - [x] menu/catalog consumindo disponibilidade operacional compartilhada
 - [x] item indisponível visualmente desabilitado
 - [x] tratamento de carrinho stale quando disponibilidade muda antes do submit
-- [ ] add item / notes
+- [x] add item / notes
 - [x] submit order
-- [ ] persistent navigation: Cardápio / Pedidos / Conta
-- [ ] quick-add item; modifiers only when required
-- [ ] live order summary
-- [ ] simplified guest order status
-- [ ] reorder previous available items
-- [ ] structured service/bill requests to Dispatch
-- [ ] tab total / own-part projection when available
+- [x] persistent navigation: Cardápio / Pedidos / Conta
+- [x] quick-add item; modifiers only when required
+- [x] live order summary
+- [x] simplified guest order status
+- [x] reorder previous available items
+- [x] structured service/bill requests to Dispatch
+- [x] tab total / own-part projection when available
 - [ ] show dynamic Tab QR
 
 ## Staff Web
@@ -60,13 +60,13 @@
 - [ ] clear placement when Table is physically removed/stored
 - [ ] drag/reposition active Table without touching occupancy/tab
 - [ ] create/dissolve TableGroup
-- [ ] table board: AVAILABLE / OCCUPIED / DIRTY / CLEANING / OUT_OF_SERVICE
-- [ ] occupancy detail with multiple Tabs
-- [ ] release table
-- [ ] start cleaning
-- [ ] mark clean/available
-- [ ] guest ordering block toggle
-- [ ] associate/move Tab
+- [x] table board: AVAILABLE / OCCUPIED / DIRTY / CLEANING / OUT_OF_SERVICE
+- [x] occupancy detail with multiple Tabs
+- [x] release table
+- [x] start cleaning
+- [x] mark clean/available
+- [x] guest ordering block toggle
+- [x] associate/move Tab
 - [ ] issue/revoke NFC tag
 - [ ] show/copy short code
 
@@ -75,7 +75,7 @@
 - [x] cannot order against sequential/raw table id
 - [x] old GuestSession rejected after occupancy release/generation change
 - [x] guest block rejects guest mutation but staff still orders
-- [ ] two Tabs on same occupancy remain financially independent
+- [x] two Tabs on same occupancy remain financially independent
 - [x] closing last Tab does not release table
 - [ ] cleaning timestamps produce deterministic metrics
 - [ ] NFC reassignment revokes previous association
@@ -83,8 +83,16 @@
 - [ ] guest floorplan does not expose internal operational state
 - [ ] concurrent placement update rejects stale version
 - [ ] grouping Tables never merges financial identity
-- [ ] rate limit tests
+- [x] rate limit tests
 - [x] authorization tests
 
 - [x] Round 2: guest service/bill buttons call persisted Dispatch requests without financial mutations.
-- [ ] Round 2: retain integrated browser/visual evidence at final release SHA.
+- [x] Round 2: retain integrated browser/visual evidence at final release SHA.
+
+## Reconciliação de 14/10/2026
+
+Ver [matriz completa e gates por SHA](closeout.md). Checkboxes de roadmap
+permanecem pendentes: FloorPlan/Placement #144; TableGroup #145;
+TabIdentifier/código/QR/NFC #146; perfil Customer #147; métricas/queries #148.
+Navegação/status foram gaps reais implementados neste fechamento; evidências executadas e gates por SHA
+registrados em closeout.md. Não confundir inspeção com homologação de campo.

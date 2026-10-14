@@ -43,6 +43,16 @@ for (const scenario of [360, 390, 430, "revoked"] as const) test(`Guest committe
     await guest.reload();
     const verify = guest.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
     expect(attempts).toHaveLength(1);
+    if (scenario !== "revoked") {
+      const nav = guest.getByRole("navigation", { name: "Navegação do cliente" });
+      for (const name of ["Pedidos", "Conta", "Cardápio"]) {
+        await nav.getByRole("button", { name, exact: true }).click();
+        await expect(guest.getByRole("region", { name, exact: true })).toBeFocused();
+        expect(await guest.evaluate(k => sessionStorage.getItem(k), storageKey)).toBe(saved);
+        expect(attempts).toHaveLength(1);
+      }
+      await expect(guest.getByRole("button", { name: /^Kitchen E2E item/ })).toBeDisabled();
+    }
     await verify.dblclick();
     if (scenario === "revoked") {
       await expect(guest.getByText("Não foi possível validar esta visita. O pedido pendente foi preservado; peça ajuda à equipe.", { exact: true })).toBeVisible();

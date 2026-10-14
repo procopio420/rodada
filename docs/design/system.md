@@ -506,3 +506,10 @@ Com fontScale > 1.3, os três filtros usam coluna com largura total; na fonte pa
 T11c Android: conferência de caixa usa Surface sobre a fila existente e LazyColumn com os tokens tipográficos/semânticos existentes, retorno e atualização em RodadaOutlinedButton de largura total, alvo mínimo48dp. Não apresentar botões de mutation na conferência de resultado ambíguo.
 
 T11d Android: conferência de correção/estorno usa Surface sobre a fila existente, LazyColumn, tokens e os mesmos rótulos de comanda/pagamento da superfície adjacente. Item/pagamento original têm destaque semântico; estado guardado e consultado são distintos. Retorno/consulta em RodadaOutlinedButton com largura total e mínimo48dp; não apresentar ação financeira em conferência de resultado ambíguo.
+
+### Atalhos Guest por região (Spec004)
+
+Cardápio, Pedidos e Conta usam navegação sticky de três botões semânticos,
+com os mesmos tokens, espaçamento e alvo de toque dos atalhos de produção.
+Disponível também no desktop. Atalho rola e transfere foco; região montada
+preserva rascunho/intenção. Margem de rolagem evita ocultar o título sob a barra.

@@ -117,3 +117,11 @@ fallback quando removida e contagem/vazio. Acesso Pedido atual fica estável mes
 vazio e foca o draft. Ensaiar 146 produtos (143 CSV + três fixtures existentes),
 configuração, bloqueios/atualização/revogação/intent, Web/API PostgreSQL em três
 larguras e visual completo, sem modificar referências ou tolerâncias.
+
+## Fechamento MVP 14/10/2026
+
+Executar matriz closeout.md, patch mínimo Guest navegação/status, regressões
+negativas PostgreSQL, Web real BFF/API/PostgreSQL e visual proporcional.
+Slices de mapa/grupos/identificadores/perfil/relatórios permanecem #144–#148;
+checklists originais preservadas. Revisão independente antes do merge; #106
+continua responsável pelo turno integrado Web+Android.

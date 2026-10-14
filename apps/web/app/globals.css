@@ -489,3 +489,8 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceOpenHeading > button { display: inline-flex; align-items: center; justify-content: center; width: var(--touch-min); min-width: var(--touch-min); color: var(--color-text-muted); }
 
 .workspaceLock { min-width: 0; margin: 0; padding: 0; border: 0; }
+
+/* Guest navigation follows the station region shortcuts, at every width. */
+.guestRegionNav { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); padding: var(--space-2); background: var(--color-surface-1); border-bottom: 1px solid var(--color-border); }
+.guestRegionNav button { min-width: 0; padding-inline: var(--space-1); font-size: var(--text-sm); }
+.guestShell section[tabindex="-1"] { scroll-margin-top: calc(var(--touch-min) + var(--space-4)); }

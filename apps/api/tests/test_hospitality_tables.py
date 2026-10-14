@@ -206,6 +206,7 @@ class HospitalityTableApiTests(TestCase):
         )
         assert occupied.status_code == 201, occupied.json()
         manager = self.manager_client()
+        original_token = table.public_token
 
         assert manager.post("/hospitality/zones/", {"label": "Rua"}, format="json").status_code == 201
         zones = self.client.get("/hospitality/zones/")
@@ -224,7 +225,7 @@ class HospitalityTableApiTests(TestCase):
         table.refresh_from_db()
         assert table.status == TableStatus.OCCUPIED
         assert table.access_generation == 1
-        assert table.public_token
+        assert table.public_token == original_token
         event = AuditEvent.objects.get(
             venue=self.venue,
             event_type="table.location_changed",
@@ -239,6 +240,8 @@ class HospitalityTableApiTests(TestCase):
         assert cleared.status_code == 200, cleared.json()
         assert cleared.json()["zone"] is None
         assert cleared.json()["active_occupancy"]["id"] == occupied.json()["id"]
+        table.refresh_from_db()
+        assert table.public_token == original_token
 
     def test_zone_is_venue_scoped_and_creation_requires_manager_capability(self):
         table = self.table()
