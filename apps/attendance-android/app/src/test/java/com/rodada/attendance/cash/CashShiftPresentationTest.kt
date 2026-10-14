@@ -17,5 +17,7 @@ class CashShiftPresentationTest {
     fun `formatted cash remains brazilian operational currency`() {
         assertEquals("R$ 1.234,56", formatCashCents(123_456L))
         assertEquals("-R$ 20,00", formatCashCents(-2_000L))
+        // Larger than IEEE-754 exact integer range: cents may never be rounded.
+        assertEquals("R$ 90.071.992.547.409,93", formatCashCents(9_007_199_254_740_993L))
     }
 }
