@@ -24,12 +24,12 @@ class ResetGuardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "reset.lock"
             script = (
-                "import sys\\n"
-                "from pathlib import Path\\n"
-                f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\\n"
-                "from e2e_db_guard import file_lock\\n"
-                "with file_lock(Path(sys.argv[1]), exclusive=False):\\n"
-                "    print('acquired', flush=True)\\n"
+                "import sys\n"
+                "from pathlib import Path\n"
+                f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\n"
+                "from e2e_db_guard import file_lock\n"
+                "with file_lock(Path(sys.argv[1]), exclusive=False):\n"
+                "    print('acquired', flush=True)\n"
             )
             with file_lock(path, exclusive=True):
                 process = subprocess.Popen(
