@@ -38,6 +38,6 @@
 
 ## Release-grade evidence
 
-Each cleanup PR reports its **head SHA**, `findings.json` before/after by rule/file, exact test commands and run URLs, and separately records **NOT RUN** for missing cross-device/hardware/manual acceptance. A green incremental PR gate is not proof of baseline zero, and no zero-debt claim is valid before both full lint commands succeed. Changes to money/tenant/recovery/CI require review by another agent/session or human per [Code Review](CODE-REVIEW.md).
+Each cleanup PR reports its **head SHA**, `findings.json` before/after by rule/file, exact test commands and run URLs, and separately records **NOT RUN** for missing cross-device/hardware/manual acceptance. A green incremental PR gate is not proof of baseline zero, and no zero-debt claim is valid before both full lint commands succeed. Changes to money/tenant/recovery/CI require review by another agent/session or human per [Code Review protocol (PR #128)](https://github.com/procopio420/rodada/pull/128).
 
 **Completion:** API full Ruff 0, Web full ESLint 0, TypeScript/build 0, Android unit/build/lint pass with reviewed warnings, full PostgreSQL + BFF + visual tests passing, independent R3 review, and no unexplained critical regressions. Architecture improvements can be tracked as separately scoped work when zero is not demonstrable from automated tools.
