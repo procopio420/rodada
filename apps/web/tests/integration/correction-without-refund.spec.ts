@@ -17,7 +17,7 @@ test("Manager resolves 38/10/8 correction with no refund through real Web and Po
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   for (const [name, price] of [["Correction target E2E", 800], ["Correction remainder E2E", 3000]] as const)
     await api(page, "catalog/resolve-or-create/", { name, price_cents: price, fulfillment_station: "BAR" });
   const products = (await api(page, "catalog/products/")).results.filter((p: { name: string }) => p.name.startsWith("Correction "));

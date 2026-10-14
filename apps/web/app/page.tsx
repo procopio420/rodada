@@ -3,6 +3,7 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { OperationalIcon, type OperationalIconName } from "@/components/operational-icon";
+import { OperatorEntryLink } from "./operator-entry-link";
 import { tenantHostname } from "@/lib/tenant-host";
 import { readVenueContext } from "@/lib/server/venue-context";
 import styles from "./home.module.css";
@@ -42,11 +43,7 @@ export default async function Home() {
             <span className={styles.brandDivider} aria-hidden="true" />
             <span className={styles.venueName}>{context.venue.name}</span>
           </div>
-          <Link href="/staff" className={styles.operator} aria-label="Entrar ou trocar operador">
-            <OperationalIcon name="people" size={20} />
-            <span className={styles.operatorShort} aria-hidden="true">Operador</span>
-            <span className={styles.operatorLong} aria-hidden="true">Entrar / trocar operador</span>
-          </Link>
+          <OperatorEntryLink />
         </header>
 
         <section aria-labelledby="module-heading">

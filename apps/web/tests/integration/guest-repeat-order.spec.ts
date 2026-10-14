@@ -6,7 +6,7 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const api = (path: string, body?: unknown) => page.evaluate(async ({ path, body }) => {
     const response = await fetch(`/api/pos/${path}`, body === undefined ? {} : {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),

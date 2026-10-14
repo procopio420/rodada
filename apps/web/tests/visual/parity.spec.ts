@@ -112,7 +112,7 @@ for (const [name, prototype, web] of primitives) {
 }
 
 const surfaces = [
-  ["staff", "/staff", "Entrar no atendimento"], ["bar", "/bar", "Bar"], ["kitchen", "/kitchen", "Cozinha"],
+  ["staff", "/staff", "Quem vai trabalhar?"], ["bar", "/bar", "Bar"], ["kitchen", "/kitchen", "Cozinha"],
   ["guest", "/guest/visual-test", "Mesa 24"], ["manage", "/manage", "O que precisa de atenção"],
   ["cash", "/cash", "Turno de caixa"], ["refunds", "/refunds", "Estornos"], ["pos", "/pos", "Comandas e pedidos"],
   ["reports", "/reports", "Relatórios operacionais"],
@@ -144,7 +144,7 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
     const title = page.getByRole("heading", { level: 1, name: heading, exact: true });
-    if (name !== "bar" && name !== "kitchen") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    if (name !== "bar" && name !== "kitchen" && name !== "staff") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
     if (width === 390) await page.screenshot({ path: path.join(artifactRoot, "spec023-all-web", `${name}-viewport.png`), fullPage: false });
     if (name === "manage") await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
     if (name === "cash") await expect(page.getByText("Caixa aberto", { exact: true })).toBeVisible();
@@ -282,7 +282,7 @@ test("staff login keyboard order and submitted failure", async ({ page }) => {
   await page.getByLabel("PIN", { exact: true }).focus(); await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeFocused();
   await page.route("**/api/auth/login", route => route.fulfill({ status: 401, json: { code: "AUTH_INVALID", message: "Credenciais inválidas." } }));
-  await page.keyboard.press("Enter"); await expect(page.locator(".notice[role=alert]")).toContainText("AUTH_INVALID");
+  await page.keyboard.press("Enter"); await expect(page.locator("main [role=alert]")).toContainText("Credenciais inválidas.");
   await expect(page.getByLabel("PIN", { exact: true })).toHaveValue("");
 });
 

@@ -28,7 +28,7 @@ for (const width of [360, 390, 430]) test(`Real POS repeated round current price
   await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468"); await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible(); await page.goto("/pos"); const catalog = (await api(page, "catalog/products/")).results;
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible(); await page.goto("/pos"); const catalog = (await api(page, "catalog/products/")).results;
   const product = catalog.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: `POS Repeat ${width}` });
   const other = await api(page, "tabs/", { display_label: `POS Other ${width}` });
