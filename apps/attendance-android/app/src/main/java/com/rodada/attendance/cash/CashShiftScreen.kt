@@ -324,7 +324,7 @@ internal fun parseCashInput(value: String): Long? {
 }
 
 internal fun formatCashCents(cents: Long): String =
-    NumberFormat.getCurrencyInstance(Locale("pt", "BR")).format(cents / 100.0)
+    NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR")).format(cents / 100.0)
 
 private fun String.cashMovementLabel(): String = when (this) {
     "OPENING_FLOAT" -> "Fundo inicial"
