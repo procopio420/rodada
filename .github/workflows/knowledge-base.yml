@@ -14,7 +14,7 @@ on:
       - "docs/adr/**"
       - "docs/architecture/tenant-routing-contract.md"
       - "specs/025-tenant-host-routing/**"
-      - "scripts/check_agent_kb.py"
+      - "scripts/check_agent_kb.py"\n      - "scripts/agent_evals.py"\n      - "scripts/spec_evidence.py"\n      - "scripts/tests/test_agent_evals.py"\n      - "scripts/tests/test_spec_evidence.py"
       - "scripts/tests/test_check_agent_kb.py"
       - ".github/workflows/knowledge-base.yml"
   push:

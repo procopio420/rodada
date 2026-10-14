@@ -19,7 +19,7 @@ A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e t
 
 Operações: [runbooks para Codex](../ops/README.md), incluindo Railway MCP, venues, usuários, incidentes e backups. Skills por stack: [catálogo e regras de descoberta](SKILLS.md). Abra a skill correspondente apenas quando a tarefa realmente exigir.
 
-Entrada universal: [AGENTS raiz](../../AGENTS.md) → [procedimentos](PROCEDURES.md) → [registro de specs](SPEC-REGISTER-2026-10-13.md) → spec exata → implementação e testes. Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
+Codex Evals & Evidence: [cenários, trace grading e registro de critérios](CODEX-EVALS-EVIDENCE.md). É um gate estrutural, **não** execução de modelo ou homologação.\n\nEntrada universal: [AGENTS raiz](../../AGENTS.md) → [procedimentos](PROCEDURES.md) → [registro de specs](SPEC-REGISTER-2026-10-13.md) → spec exata → implementação e testes. Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
 
 ## Fonte de verdade: regras para conflitos
 

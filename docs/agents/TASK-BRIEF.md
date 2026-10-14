@@ -15,7 +15,7 @@ Fora de escopo:
 Invariantes (financeiro, tenant, auth, replay, design, dados):
 Contrato entre módulos (API/DTO/events/schema):
 Testes exigidos e ambiente isolado:
-Evidências a registrar (URL/commit/comando/resultado):
+Evidências a registrar (URL/commit/comando/resultado; refs em [registro](CODEX-EVALS-EVIDENCE.md) se aplicável):
 Bloqueios e ações externas proibidas:
 Critério de handoff ao integrador:
 ```
