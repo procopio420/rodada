@@ -284,19 +284,51 @@ correction = api(
         "idempotency_key": run_id + "-correct",
     },
 )
-assert correction["financial_disposition"] == "REFUND_REQUIRED"
+assert correction["financial_disposition"] == "MANUAL_REVIEW_REQUIRED"
+assert correction["refund_required_cents"] == 0
 api("/auth/reauthenticate/", {"pin": "2468"})
+approval_path = f"/corrections/{correction['id']}/settle-without-refund/"
+approved = api(approval_path, {})
+assert approved["exposure_cents"] == 3700
+assert approved["refund_id"] is None and approved["status"] == "APPLIED"
+assert approved["financial_disposition"] == "REVERSE_OPEN_RESPONSIBILITY"
+approval_replay = api(approval_path, {})
+for field in ("id", "financial_adjustment_id", "exposure_cents", "refunds_cents", "refund_id"):
+    assert approval_replay[field] == approved[field]
+assert approval_replay["adjustments_cents"] == -600 and approval_replay["refunds_cents"] == 0
+
+# A positive refund requires money to return, not merely a partial payment.
+# Use an independent fully paid Tab to preserve both UX-34 and refund coverage.
+refundable = api("/tabs/", {"display_label": "Refund " + run_id})
+refund_order = api(f"/tabs/{refundable['id']}/orders/confirm/", {
+    "idempotency_key": run_id + "-refund-order",
+    "lines": [{"product_id": cancel, "quantity": 1}],
+})
+refund_payment = api(f"/tabs/{refundable['id']}/payments/", {
+    "amount_cents": 600, "method": "EXTERNAL_TERMINAL",
+    "idempotency_key": run_id + "-refund-payment",
+})
+refund_correction = api(
+    f"/order-items/{refund_order['items'][0]['id']}/corrections/cancel/", {
+        "kind": "WRONG_ITEM_ENTERED", "reason_code": "DUPLICATE_ENTRY",
+        "reason_text": "QA fully paid correction", "idempotency_key": run_id + "-paid-correct",
+    },
+)
+assert refund_correction["financial_disposition"] == "REFUND_REQUIRED"
+assert refund_correction["refund_required_cents"] == 600
 refund_body = {
-    "payment_id": partials[0]["id"],
+    "payment_id": refund_payment["id"],
     "amount_cents": 600,
     "refund_idempotency_key": run_id + "-refund",
 }
-refund = api(f"/corrections/{correction['id']}/settle-refund/", refund_body)
+refund_path = f"/corrections/{refund_correction['id']}/settle-refund/"
+refund = api(refund_path, refund_body)
 assert (
-    api(f"/corrections/{correction['id']}/settle-refund/", refund_body)["refund_id"]
+    api(refund_path, refund_body)["refund_id"]
     == refund["refund_id"]
 )
-assert refund["exposure_cents"] == 4300
+assert refund["exposure_cents"] == 0
+api(f"/tabs/{refundable['id']}/close/", {})
 # House account: hit limit, reject, partial restores capacity, consume again.
 customer = api("/customers/", {"display_name": "QA House " + run_id, "kind": "HOUSE"})
 house = request("/tabs/", {"customer_id": customer["id"]}, staff)
@@ -371,13 +403,13 @@ api(f"/hospitality/tables/{table['id']}/cleaning/complete/", {})
 count = api(f"/cash/shifts/{shift['id']}/count/start/", {})
 closed = api(
     f"/cash/shifts/{shift['id']}/close/",
-    {"counted_amount_cents": 14300, "expected_version": count["version"]},
+    {"counted_amount_cents": 13700, "expected_version": count["version"]},
 )
 assert closed["discrepancy_cents"] == 0
 report = api(f"/management/reports/?start={business_date}&end={business_date}")["totals"]
 expected_delta = {
-    "gross_cents": 8900,
-    "adjustments_cents": -600,
+    "gross_cents": 9500,
+    "adjustments_cents": -1200,
     "net_sales_cents": 8300,
     "paid_cents": 8900,
     "refunds_cents": 600,
@@ -404,12 +436,12 @@ evidence = {
     "run_id": run_id,
     "payment_classification": "MANUAL_TEST",
     "native_android_ui": "NOT_RUN",
-    "tabs": [tab["id"], dest["id"], house["id"]],
+    "tabs": [tab["id"], dest["id"], house["id"], refundable["id"]],
     "shift_id": shift["id"],
     "business_date": business_date,
     "report_totals": report,
     "report_delta": expected_delta,
-    "cash_expected_cents": 14300,
+    "cash_expected_cents": 13700,
     "cash_discrepancy_cents": 0,
     "sse_replay": True,
     "duplicate_order": order["id"],
