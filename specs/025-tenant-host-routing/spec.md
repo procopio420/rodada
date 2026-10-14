@@ -62,6 +62,14 @@ Internal URLs remain compatible; anonymous public requests cannot read staff dat
 
 ## Rollout guardrails
 
+For a controlled activation on the existing shared Railway runtime, demo startup
+must support explicitly disabling automatic seed/provisioning. Enabling tenant
+UI while automatic demo seeding remains enabled must fail preflight before
+database contact; a strong explicitly provisioned BFF secret is also required.
+This preserves pilot credentials, permissions and guest policy across restart.
+It does not authorize activation, bypass the separate-preview acceptance gate,
+or change operational payment simulation globally.
+
 The first PR may document the contract and add pure lookup scaffolding, but **must not turn on tenant-host routing until backend host/session and guest checks have proven isolation**. Staging canary first, with two Venues and negative cross-tenant tests. Do not redirect canonical domains or regenerate/republish guest QR before this gate passes.
 
 ## Evidence

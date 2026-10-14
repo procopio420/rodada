@@ -41,6 +41,11 @@ com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentid
 
 ## Host mapping and DNS
 
+Current read-only Railway revalidation (2026-10-14, base `bbaa147`):
+[checkpoint #151](railway-151-checkpoint.md). Public edge TLS is valid, A/B still
+return 421, and current operational inventory/backup/rollback remain blocked by
+missing Railway access. No deployment or acceptance is implied.
+
 - [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
 - [ ] Reserved hostnames cannot be claimed; unrecognized/disabled/lookalike/invalid hostnames fail closed (404 or 421), with no default/demo fallback.
 - [ ] Reverse proxy and application agree on the normalized trusted Host. Browser-supplied `X-Forwarded-Host`, `X-Rodada-*` or `?venue=` cannot choose a different Venue.

@@ -140,3 +140,8 @@ Probes HTTPS no HEADacbc5c5 para **A e B** terminaram421 no manifest/exit22;
 [#151](https://github.com/procopio420/rodada/issues/151#issuecomment-6173300748)
 preserva bloqueio. O relatório final da #130 registra o merge do complemento,
 CI de seus SHAs e main; não transfere nem reduz o critério de borda.
+# Existing Railway follow-up
+
+[Checkpoint #151](railway-151-checkpoint.md) records the fresh public HTTPS
+observations at base `bbaa147` and remaining operational gates. It does not
+supersede the original separate-preview criterion or the audit evidence below.

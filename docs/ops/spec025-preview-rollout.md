@@ -11,6 +11,24 @@ tracks later canary/backout. These tickets do not authorize DNS/deployment.
 
 ## Shared deployment
 
+The current request selects the existing Railway project/environment for a
+controlled A/B exercise without new paid resources. See the [fresh checkpoint](../../specs/025-tenant-host-routing/railway-151-checkpoint.md).
+Do not treat that decision as completion of the separate-preview criterion below.
+Verify runtime release mode before any restart: default `demo` startup executes
+`seed_demo`, including writes to existing Aderlan staff credentials/memberships.
+Do not apply a flag/deploy change until pilot preservation and exact backout are
+proved. Do not run `rehearse_restore.sh` on operational PostgreSQL; it seeds its
+source. Restore verification belongs in a protected disposable destination.
+The startup opt-out `RODADA_DEMO_SEED_ON_START=false` skips automatic demo seed
+and reviewer provisioning while retaining the release mode. Tenant activation
+in demo refuses seed-on-start and weak/missing explicit HMAC before DB contact.
+Default legacy demo startup still seeds; this code does not configure Railway.
+On backout, keep `RODADA_DEMO_SEED_ON_START=false` even with tenant UI disabled.
+An older build without the opt-out ignores that variable and seeds again: it is
+not an eligible pilot-preserving rollback candidate in demo mode. First establish
+a healthy build with opt-out and seed disabled, then seek approval for flag-on.
+Do not switch release mode to pilot as a shortcut around seeding/preflight.
+
 All venues use one Railway deployment: Next.js (public module URLs) + Django API + one PostgreSQL.
 Hostname (verified in `VenueDomain`) resolves to an immutable Venue UUID. Never create a Railway project/database per venue.
 Do not equate `Venue.slug` with the hostname label.
@@ -50,7 +68,10 @@ identity or reset an operational DB to simulate rollback.
 
 - Disable `RODADA_ENABLE_TENANT_HOST_UI` (or set `false`): non-pilot venue hosts return HTTP 421 at the Next edge.
 - Remove preview wildcard routing / revoke preview aliases if any isolation anomaly appears. Keep existing hostname records for audit; prefer disabling `VenueDomain.is_active` over deleting/reassigning identity.
-- Roll back application deploy to last known stable build, preserving DB schema/migrations (no destructive rollback).
+- Roll back only to a verified healthy build that preserves pilot data on startup,
+  retaining `RODADA_DEMO_SEED_ON_START=false` and the DB schema/migrations. An old
+  demo build without the opt-out is ineligible; do not remove the existing shared
+  wildcard or perform destructive schema rollback to simulate containment.
 - Validate Railway hostname and /health, /ready, /staff, login and Aderlan staff sessions on the stable deployment.
 - Do not redirect guest QR tokens between domains or copy authentication cookies to new hosts.
 

@@ -12,6 +12,7 @@ SECRET = "test-only-" + "aBcdEfGhIjKlMnOpQrStUvWxYz0123456789" * 2
 def run_profile(**overrides):
     env = {**os.environ, "RODADA_RELEASE_MODE": "pilot", "DJANGO_SECRET_KEY": SECRET,
            "RODADA_BFF_HOST_SECRET": SECRET,
+           "RODADA_ENABLE_TENANT_HOST_UI": "false", "RODADA_DEMO_SEED_ON_START": "true",
            "DJANGO_DEBUG": "false", "RODADA_PAYMENT_SIMULATION": "false", **overrides}
     return subprocess.run(["bash", "-c", 'source "$1"; printf "%s %s %s" "$RODADA_RELEASE_MODE" "$DJANGO_DEBUG" "$RODADA_PAYMENT_SIMULATION"', "test", str(PROFILE)], env=env, capture_output=True, text=True, check=False)
 
@@ -43,3 +44,33 @@ def test_pilot_rejects_missing_or_weak_bff_secret_before_database_contact(secret
     assert result.stdout == ""
     if secret:
         assert secret not in result.stderr
+
+
+def test_shared_demo_tenant_activation_refuses_automatic_seed():
+    result = run_profile(RODADA_RELEASE_MODE="demo", RODADA_ENABLE_TENANT_HOST_UI="true")
+    assert result.returncode != 0
+    assert result.stdout == ""
+    assert "RODADA_DEMO_SEED_ON_START=false" in result.stderr
+
+
+@pytest.mark.parametrize("secret", ["", "short", "a" * 64])
+def test_shared_demo_tenant_activation_requires_explicit_strong_hmac(secret):
+    result = run_profile(RODADA_RELEASE_MODE="demo", RODADA_ENABLE_TENANT_HOST_UI="true",
+                         RODADA_DEMO_SEED_ON_START="false", RODADA_BFF_HOST_SECRET=secret)
+    assert result.returncode != 0
+    assert result.stdout == ""
+    assert "RODADA_BFF_HOST_SECRET" in result.stderr
+
+
+def test_shared_demo_tenant_activation_accepts_seed_disabled_and_valid_hmac():
+    result = run_profile(RODADA_RELEASE_MODE="demo", RODADA_ENABLE_TENANT_HOST_UI="true",
+                         RODADA_DEMO_SEED_ON_START="false")
+    assert result.returncode == 0
+    assert result.stdout == "demo false false"
+
+
+@pytest.mark.parametrize("value", ["", "TRUE", "0", "unexpected"])
+def test_invalid_seed_switch_fails_closed(value):
+    result = run_profile(RODADA_RELEASE_MODE="demo", RODADA_DEMO_SEED_ON_START=value)
+    assert result.returncode != 0
+    assert result.stdout == ""
