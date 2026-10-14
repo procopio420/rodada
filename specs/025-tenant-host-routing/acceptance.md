@@ -34,6 +34,11 @@ esse requisito de fechamento.** Assets publicados e recibos por capability são
 portáveis intencionalmente; A/B nesses GETs é PASS autorizado, enquanto gestão,
 sessões, QR e finanças devem negar acesso cruzado.
 
+Integração153: `110f970456b9b67c076020b0052a27674b0fc2df`; headacbc API746/Web91/Docker/KB
+SUCCESS. [Complemento de provas](audit-130-evidence.md) amplia OAuth A/A,B/B,A/B,B/A
+com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentidos;
+9PASS locais, CI/main registrados no relatório final130. Sem delta de runtime.
+
 ## Host mapping and DNS
 
 - [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.

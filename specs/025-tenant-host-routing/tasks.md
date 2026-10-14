@@ -19,6 +19,11 @@
 - [ ] **BLOCKED #151:** preview real de dois Venues/ingress/HMAC; script421.
 - [ ] Fechar #130 somente após comprovar todos os critérios originais,
   incluindo #151. Canary separado #152; E2E Android+Web #106 preservado.
+- [x] PR153 mergeado110f970 após headacbc API/Web/Docker/KB verdes;
+  revisão pós-integração inclui o delta Guest do PR150 sem P0/P1.
+- [x] Ampliar casos ausentes de OAuth simétrico/replay cookie original e
+  Refund IDs foreignA/B,B/A; suite focada9PASS local, gates do complemento/main
+  rastreados no relatório final130. Não alterar implementação sem falha provada.
 
 ## P0 — Prerequisites (must land before tenant URL is exposed)
 

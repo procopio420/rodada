@@ -106,3 +106,37 @@ Os gates de turno iniciais [38596746197](https://github.com/procopio420/rodada/a
 Revisão independente ampliada a **41ce213ec00f3a982d3eee2d0222a1df5890cab3**, sem P0/P1. P2 documental (suite final descrita prematuramente como executada) corrigido emd77. Roteiro/replays/deltas conferidos pelo revisor; HTTP/CI conferidos pelo integrador. As revisões são registradas no PR153, sem autoaprovação formal GitHub.
 
 **#130 permanece OPEN enquanto #151 não cumprir seu contrato.** Testes, CI e merge não homologam preview, wildcard ou piloto físico. #152 acompanha canary posterior. Não usar `Closes #130` no PR.
+
+## Integração e complemento de provas — 2026-10-14
+
+PR153 integrado em **110f970456b9b67c076020b0052a27674b0fc2df**, após API746/Web91/Docker/KB
+SUCCESS no HEADacbc5c5. [API head](https://github.com/procopio420/rodada/actions/runs/38599251287)
+746PASS/680.55s; [Web head](https://github.com/procopio420/rodada/actions/runs/38599251500)
+91PASS/7.9min; [Docker](https://github.com/procopio420/rodada/actions/runs/38599250983)
+e [KB](https://github.com/procopio420/rodada/actions/runs/38599251169) SUCCESS.
+O merge também incorpora o PR150 (`8053b44`), integrado durante a CI: testsAPI
+adicionais e navegação/status Guest. A árvore completa não é idêntica ao HEAD153;
+revisão independente pós-integração110f970 não encontrou enfraquecimento de
+Host/GuestSession/BFF/financeiro. [API main](https://github.com/procopio420/rodada/actions/runs/38601261533)
+e [Web main](https://github.com/procopio420/rodada/actions/runs/38601261201) devem
+ser conferidos no próprio SHA antes do relatório final, sem extrapolar head anterior.
+
+Conferência da matriz identificou duas provas específicas ainda faltantes, sem
+vulnerabilidade nova demonstrada. Complemento apenas de testes, baseado110f970:
+
+- OAuth: amplia a regressão existente para **A/A200, B/B200, A/B403, B/A403**,
+  operadores/sessões/states/merchants independentes; negativos validam código
+  `VENUE_HOST_MISMATCH`, nenhum exchange/consume/connection. Replays restauram o
+  cookie assinado original e retornam409 sem novos transport calls ou connections/audits.
+  Transport é double explícito; não houve conexão PSP real nem efeito financeiro.
+- Financeiro: **Refund IDs** estrangeiros no endpoint de reconciliação retornam404
+  `REFUND_NOT_FOUND` nos dois sentidos antes de selecionar provider, mantendo
+  contagens Tab/Order/Charge/Payment/Refund. Complementa Payment IDs já testados.
+- Suíte focada `MerchantCallbackTests` + `AuditTwoVenueTests`: **9PASS/32.27s**
+  em PostgreSQL17.6 descartável (candidato de testes, ainda antes do commit do
+  complemento; gate final é seu PR/CI). Nenhuma mudança de runtime/API/BFF.
+
+Probes HTTPS no HEADacbc5c5 para **A e B** terminaram421 no manifest/exit22;
+[#151](https://github.com/procopio420/rodada/issues/151#issuecomment-6173300748)
+preserva bloqueio. O relatório final da #130 registra o merge do complemento,
+CI de seus SHAs e main; não transfere nem reduz o critério de borda.

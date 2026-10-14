@@ -114,6 +114,14 @@ class AuditTwoVenueTests(TestCase):
             self.assertEqual(replay.json()["id"], first.json()["id"])
             before = self.counts()
         self.assertEqual(self.counts(), (2, 2, 2, 2, 2))
+        # Refund identifiers are independently scoped before provider lookup.
+        for own, foreign in ((self.rows[0], self.rows[1]), (self.rows[1], self.rows[0])):
+            _, host, client, _, _, _ = own
+            foreign_refund = Refund.objects.get(payment_id=foreign[5]["id"])
+            response = self.request(client, host, f"/refunds/{foreign_refund.pk}/reconcile/", {})
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.json()["code"], "REFUND_NOT_FOUND")
+            self.assertEqual(self.counts(), (2, 2, 2, 2, 2))
 
     def test_published_assets_are_portable_but_private_assets_and_mutations_are_not(self):
         public = APIClient()
