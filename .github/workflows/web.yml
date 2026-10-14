@@ -115,6 +115,20 @@ jobs:
           POSTGRES_HOST: 127.0.0.1
         run: npm run test:integration
 
+      # Separate run, after the ordinary suite, with an explicit opt-in and a
+      # strictly guarded reset of the disposable PostgreSQL Web E2E database.
+      # This must never import the photographed menu into a real Venue.
+      - name: Canonical 143-item menu — Web/API/Bar/Kitchen E2E
+        working-directory: apps/web
+        env:
+          RODADA_E2E_POSTGRES: "1"
+          RODADA_E2E_MENU: "1"
+          POSTGRES_DB: rodada_web_e2e
+          POSTGRES_USER: rodada_test
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_HOST: 127.0.0.1
+        run: npm run test:integration -- venue-menu-acceptance.spec.ts
+
       - name: Visual, responsive and accessibility gates
         working-directory: apps/web
         run: npm run test:visual
