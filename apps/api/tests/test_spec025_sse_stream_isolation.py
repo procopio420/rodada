@@ -7,14 +7,14 @@ import time
 from unittest.mock import patch
 
 from asgiref.sync import sync_to_async
-from django.test import TransactionTestCase, override_settings
+from django.test import AsyncClient, TransactionTestCase, override_settings
 from rest_framework.test import APIClient
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.access.services import session_for_access_token
 from modules.guest_access.services import guest_session_context, resolve_table_qr
 from modules.hospitality.models import GuestOrderingMode, Table
-from modules.realtime.services import snapshot_cursor
+from modules.realtime.services import replay_batch, snapshot_cursor
 from modules.venue.hostnames import resolved_venue_id
 from modules.venue.models import Venue, VenueDomain
 
@@ -138,6 +138,62 @@ class TenantSseStreamIsolationTests(TransactionTestCase):
         self.assertIn(b"event: ready", first)
         self.assertGreaterEqual(len(seen), 2)
         self.assertEqual(seen, [self.a.pk] * len(seen))
+
+    def test_replay_poll_remains_bound_during_outbox_query(self):
+        # Token checks alone are insufficient: helpers reading the outbox must
+        # execute under the same validated request-scoped Venue identity.
+        seen = []
+
+        def traced(venue_id, cursor):
+            seen.append((resolved_venue_id.get(), venue_id))
+            return replay_batch(venue_id, cursor)
+
+        with patch("modules.realtime.views.replay_batch", side_effect=traced):
+            for guest in (False, True):
+                with self.subTest(guest=guest):
+                    response = self.stream(guest=guest)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertIn(
+                        b"event: ready", asyncio.run(first_stream_event(response)),
+                    )
+
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(seen, [(self.a.pk, self.a.pk)] * 2)
+
+    def test_asgi_request_enforces_venue_through_lazy_stream(self):
+        # AsyncClient makes an actual ASGIRequest, unlike APIClient's WSGI
+        # request. This exercises the production response/iterator code path.
+        seen = []
+
+        def traced(venue_id, cursor):
+            seen.append((resolved_venue_id.get(), venue_id))
+            return replay_batch(venue_id, cursor)
+
+        async def exercise(guest):
+            path = "/guest/realtime/stream/" if guest else "/realtime/stream/"
+            headers = {
+                key.removeprefix("HTTP_").replace("_", "-"): value
+                for key, value in signed_headers(HOST_A, path).items()
+            }
+            if guest:
+                headers["X-Guest-Session"] = self.guest_token
+            else:
+                headers["Authorization"] = "Bearer " + self.staff_token
+            response = await AsyncClient().get(
+                path, {"cursor": f"{self.a.pk}:0"}, headers=headers,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.is_async)
+            return await first_stream_event(response)
+
+        with patch("modules.realtime.views.replay_batch", side_effect=traced):
+            for guest in (False, True):
+                with self.subTest(guest=guest):
+                    first = asyncio.run(exercise(guest))
+                    self.assertIn(b"event: ready", first)
+
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(seen, [(self.a.pk, self.a.pk)] * 2)
 
     def test_disabled_host_revokes_active_staff_and_guest_streams(self):
         for guest in (False, True):
