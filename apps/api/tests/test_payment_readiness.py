@@ -243,6 +243,27 @@ class MerchantCallbackTests(TestCase):
         self.assertEqual(response.status_code, 403, response.data)
         exchange.assert_not_called()
 
+    @override_settings(RODADA_BFF_HOST_SECRET="test-secret-only")
+    def test_foreign_host_callback_fails_closed_without_consuming_state(self):
+        from modules.venue.models import Venue, VenueDomain
+        from tests.test_spec025_host_security import signed
+
+        state = self.begin()
+        other = Venue.objects.create(name="Other OAuth", slug="other-oauth")
+        VenueDomain.objects.create(
+            venue=other, hostname="e2eb.rodada.bar", is_active=True, is_verified=True,
+        )
+        path = "/payments/merchant-connections/callback/"
+        with patch("modules.payment_provider.merchant_views.complete_connection") as exchange:
+            response = self.client.get(
+                path, {"state": state, "code": "private-code"},
+                **signed("e2eb.rodada.bar", method=path),
+            )
+        self.assertEqual(response.status_code, 403)
+        exchange.assert_not_called()
+        self.assertIsNone(OAuthAuthorization.objects.get().consumed_at)
+        self.assertFalse(MerchantConnection.objects.exists())
+
     def begin(self):
         self.membership.role = StaffRole.OWNER
         self.membership.save()

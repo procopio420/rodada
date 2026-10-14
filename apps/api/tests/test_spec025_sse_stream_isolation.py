@@ -7,6 +7,7 @@ import time
 from unittest.mock import patch
 
 from asgiref.sync import sync_to_async
+from django.db import transaction
 from django.test import AsyncClient, TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -15,14 +16,13 @@ from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.access.services import session_for_access_token
 from modules.guest_access.services import guest_session_context, resolve_table_qr
 from modules.hospitality.models import GuestOrderingMode, Table
-from modules.realtime.services import replay_batch, snapshot_cursor
+from modules.realtime.services import dispatch_pending, emit_event, replay_batch, snapshot_cursor
 from modules.venue.hostnames import resolved_venue_id
 from modules.venue.models import Venue, VenueDomain
 
-
 SECRET = "test-sse-tenant-signature-only"
-HOST_A = "ssetesta.rodada.bar"
-HOST_B = "ssetestb.rodada.bar"
+HOST_A = "e2ea.rodada.bar"
+HOST_B = "e2eb.rodada.bar"
 
 
 def signed_headers(host, path="/realtime/stream/"):
@@ -309,3 +309,73 @@ class TenantSseStreamIsolationTests(TransactionTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"event: ready", asyncio.run(first_stream_event(response)))
+
+    def test_symmetric_staff_guest_reconnect_and_outbox_partition(self):
+        staff_b = StaffMember.objects.create(display_name="B", login_identifier="sse-b")
+        staff_b.set_pin("1234")
+        staff_b.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(
+            venue=self.b, staff_member=staff_b, role=StaffRole.MANAGER,
+        )
+        login = APIClient().post("/auth/login/", {
+            "venue_slug": self.b.slug, "login_identifier": "sse-b", "pin": "1234",
+            "installation_id": "sse-b", "platform": "ANDROID",
+        }, format="json")
+        self.assertEqual(login.status_code, 200)
+        table_b = Table.objects.create(venue=self.b, label="B", guest_ordering_mode="DIRECT")
+        guest_b = resolve_table_qr(public_token=table_b.public_token).token
+        with transaction.atomic():
+            for venue in (self.a, self.b):
+                emit_event(venue_id=venue.pk, event_type="product.updated",
+                           aggregate_type="Product", aggregate_id=venue.pk,
+                           payload={"marker": str(venue.pk)})
+        dispatch_pending()
+        identities = (
+            (self.a, HOST_A, self.staff_token, self.guest_token),
+            (self.b, HOST_B, login.json()["access_token"], guest_b),
+        )
+        for own, foreign in ((identities[0], identities[1]), (identities[1], identities[0])):
+            venue, host, staff_token, guest_token = own
+            other, other_host, _, _ = foreign
+            for guest in (False, True):
+                path = "/guest/realtime/stream/" if guest else "/realtime/stream/"
+                client = APIClient()
+                client.credentials(**({"HTTP_X_GUEST_SESSION": guest_token} if guest else
+                                      {"HTTP_AUTHORIZATION": "Bearer " + staff_token}))
+                self.assertEqual(client.get(path, **signed_headers(other_host, path)).status_code,
+                                 404 if guest else 403)
+                # Reconnecting from the original baseline replays only local events.
+                for _ in range(2):
+                    response = client.get(path, {"once": "1", "cursor": f"{venue.pk}:0"},
+                                          **signed_headers(host, path))
+                    self.assertEqual(response.status_code, 200)
+                    body = b"".join(response.streaming_content).decode()
+                    self.assertIn("event: change", body)
+                    self.assertIn(str(venue.pk), body)
+                    self.assertNotIn(str(other.pk), body)
+                response = client.get(path, {"once": "1", "cursor": f"{other.pk}:0"},
+                                      **signed_headers(host, path))
+                body = b"".join(response.streaming_content).decode()
+                self.assertIn("event: reset", body)
+                self.assertNotIn("event: change", body)
+
+    def test_membership_revocation_ends_stream_and_denies_reconnect(self):
+        response = self.stream()
+        record = session_for_access_token(self.staff_token)
+
+        async def exercise():
+            iterator = response.streaming_content.__aiter__()
+            try:
+                self.assertIn(b"event: ready", await iterator.__anext__())
+                await sync_to_async(VenueStaffMembership.objects.filter(
+                    pk=record.membership_id).update)(status="REVOKED")
+                for _ in range(3):
+                    frame = await asyncio.wait_for(iterator.__anext__(), timeout=4)
+                    if b"event: revoked" in frame:
+                        return
+                self.fail("Membership revocation did not stop the stream")
+            finally:
+                await iterator.aclose()
+
+        asyncio.run(exercise())
+        self.assertEqual(self.stream().status_code, 403)

@@ -37,3 +37,14 @@ A presença de `Host` **não autentica**. Headers controlados pelo navegador (`X
 - **Compatibilidade:** preservar Railway e localhost, rotas internas/Android e QR antigo enquanto migração não tiver aceite. Não redirecionar tokens de QR entre domínios nem compartilhar cookies entre subdomínios.
 
 Critérios de aceite: [Spec 025](../../specs/025-tenant-host-routing/spec.md), [acceptance](../../specs/025-tenant-host-routing/acceptance.md), [preview/rollback](../ops/spec025-preview-rollout.md). Decisão arquitetural original de hostname por Venue em [ADR 0016](../adr/0016-tenant-hostname-module-paths.md); troca de raiz em ADR 0018.
+
+## Auditoria P0 de 14/10/2026
+
+#101 está fechado sem merge; #131 (SSE) e #140 (caixa/idempotência) estão
+integrados e foram reutilizados. A [matriz #130](../../specs/025-tenant-host-routing/audit-130-evidence.md)
+explicita todas as fronteiras, evidências por SHA e controles públicos:
+imagens efetivamente publicadas são públicas; recibos por token são capabilities
+portáveis read-only com TTL/revogação; gestão continua escopada ao Venue.
+O hardening de código valida authorities assinadas e segredos production/pilot,
+e converte erro de mismatch no OAuth em403 antes de qualquer troca.
+Preview421 mantém #151/#130 bloqueados; CI/review de código não autorizam wildcard.

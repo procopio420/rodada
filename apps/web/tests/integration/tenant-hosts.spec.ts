@@ -65,6 +65,13 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   const secondIdentity = await request.get("/api/auth/me", { headers: { ...headers(B), Cookie: secondCookies } });
   expect(secondIdentity.status()).toBe(200);
   expect(await secondIdentity.json()).toMatchObject({ venue: { slug: "other-e2e" } });
+  const reverseRead = await request.get("/api/auth/me", { headers: { ...headers(A), Cookie: secondCookies } });
+  expect(reverseRead.status()).toBe(403);
+  const reverseWrite = await request.post("/api/pos/tabs", { headers: { ...headers(A), Origin: "http://" + A, Cookie: secondCookies }, data: { display_label: "REVERSE-FOREIGN-MUTATION-MUST-NOT-EXIST" } });
+  expect(reverseWrite.status()).toBe(403);
+  const dataA = await request.get("/api/pos/tabs", { headers: { ...headers(A), Cookie: replayCookie } });
+  expect(dataA.status()).toBe(200);
+  expect((await dataA.json()).results.some((item: { display_label?: string }) => item.display_label === "REVERSE-FOREIGN-MUTATION-MUST-NOT-EXIST")).toBe(false);
   const otherData = await request.get("/api/pos/tabs", { headers: { ...headers(B), Cookie: secondCookies } });
   expect(otherData.status()).toBe(200);
   expect((await otherData.json()).results.some((item: { display_label?: string }) => item.display_label === "FOREIGN-MUTATION-MUST-NOT-EXIST")).toBe(false);
@@ -84,6 +91,11 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   });
   expect(cursorReplay.status()).toBe(200);
   expect(await cursorReplay.text()).toContain("event: reset");
+  const reverseCursor = await request.get(`/api/realtime/stream?once=1&cursor=${encodeURIComponent(cursorB)}`, {
+    headers: { ...headers(A), Cookie: replayCookie },
+  });
+  expect(reverseCursor.status()).toBe(200);
+  expect(await reverseCursor.text()).toContain("event: reset");
 
   const guestLocal = await request.post("/api/guest/qr/resolve", { headers: { ...headers(A), Origin: "http://" + A }, data: { token: "e2e-guest-qr-a" } });
   expect([200, 201]).toContain(guestLocal.status());
@@ -95,4 +107,12 @@ test("Spec 025 P1: cross-venue credential, replay and QR isolation via real Next
   const foreignSession = await request.get("/api/guest/context", { headers: { ...headers(B), "X-Guest-Session": "e2e-guest-qr-a", Cookie: guestCookie! } });
   expect(foreignSession.status()).toBe(404);
   expect(await foreignSession.json()).toMatchObject({ code: "QR_NOT_FOUND" });
+  const guestB = await request.post("/api/guest/qr/resolve", { headers: { ...headers(B), Origin: "http://" + B }, data: { token: "e2e-guest-qr-b" } });
+  expect([200, 201]).toContain(guestB.status());
+  const cookieB = guestB.headersArray().find(header => header.name.toLowerCase() === "set-cookie")?.value.split(";")[0];
+  expect(cookieB).toBeTruthy();
+  const reverseQR = await request.post("/api/guest/qr/resolve", { headers: { ...headers(A), Origin: "http://" + A }, data: { token: "e2e-guest-qr-b" } });
+  expect(reverseQR.status()).toBe(404);
+  const reverseGuest = await request.get("/api/guest/context", { headers: { ...headers(A), "X-Guest-Session": "e2e-guest-qr-b", Cookie: cookieB! } });
+  expect(reverseGuest.status()).toBe(404);
 });
