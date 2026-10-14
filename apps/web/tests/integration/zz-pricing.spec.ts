@@ -10,7 +10,7 @@ async function api(page: Page, path: string, data?: unknown, method?: string) {
 test("cashier bill shows canonical discount service partial payment correction and final reconciliation", async ({ page }) => {
   await page.goto("/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager"); await page.getByLabel("PIN", { exact: true }).fill("2468");
-  await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   await page.evaluate(() => fetch("/api/auth/reauthenticate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin: "2468" }) }));
   const policy = await api(page, "/pricing/policy/"); const { version, ...fields } = policy;
   await api(page, "/pricing/policy/", { ...fields, expected_version: version, service_enabled: true, service_basis_points: 1000, allow_post_payment: true }, "PUT");
