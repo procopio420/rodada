@@ -107,3 +107,14 @@ selected the removed optional-name accordion. Initial Web trace proved the curre
 UI exposes Nome da Comanda / Abrir comanda instead. Four integration fixtures were
 updated only for those selectors; financial assertions and application behavior
 are unchanged. This inherited gate failure is separate from printer pairing.
+
+
+Security review found a precreated-parent namespace substitution risk. Provisioning
+now creates the dedicated Rodada parent and all service directories atomically
+with their final protected ACL. Existing directories with an untrusted owner,
+broad write/delete/ownership rights or unsupported ACLs are rejected rather than
+repaired: tightening an ACL cannot revoke attacker handles already open. Global
+ProgramData ACL is untouched. Windows smoke now rejects an unsafe precreated
+parent and verifies an ordinary user cannot rename the service namespace.
+Administrative recovery must stop the service and move/remove unsafe preexisting
+paths under trusted control before provisioning; do not merely rewrite the ACL.

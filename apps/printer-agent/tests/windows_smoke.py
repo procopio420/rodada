@@ -4,9 +4,11 @@ import json
 import secrets
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 import win32net
 import win32netcon
@@ -67,6 +69,25 @@ def main():
             "--api-origin",
             f"http://127.0.0.1:{server.server_port}",
         )
+        # A precreated writable parent must fail closed rather than be repaired:
+        # changing its ACL cannot revoke privileged handles already held by attackers.
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary) / "Rodada"
+            parent.mkdir()
+            unsafe = win32security.ConvertStringSecurityDescriptorToSecurityDescriptor(
+                "D:P(A;OICI;FA;;;WD)", 1
+            )
+            win32security.SetFileSecurity(
+                str(parent), win32security.DACL_SECURITY_INFORMATION, unsafe
+            )
+            try:
+                WindowsStore(parent / "Impressoras").provision(
+                    f"http://127.0.0.1:{server.server_port}"
+                )
+            except OSError:
+                pass
+            else:
+                raise AssertionError("Unsafe precreated parent accepted")
         store = WindowsStore()
         state = store.load()
         installation_id = state.installation_id
@@ -105,6 +126,12 @@ def main():
                 pass
             else:
                 raise AssertionError("Unprivileged user can read DPAPI state")
+            try:
+                ROOT.rename(ROOT.with_name("StolenNamespace"))
+            except PermissionError:
+                pass
+            else:
+                raise AssertionError("Unprivileged user can replace service namespace")
         finally:
             win32security.RevertToSelf()
             token.Close()

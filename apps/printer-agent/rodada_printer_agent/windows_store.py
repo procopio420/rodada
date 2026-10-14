@@ -29,18 +29,56 @@ def service_sid() -> str:
     return str(security.ConvertSidToStringSid(sid))
 
 
-def protect(path: Path, *, public: bool = False) -> None:
+def secure_directory(path: Path, *, public: bool = False) -> None:
+    """Create with its final ACL; never repair an untrusted namespace in place."""
+    import pywintypes
+    import win32api
+    import win32con
+    import win32file
+
     _, security = windows_modules()
     sid = service_sid()
+    admins = security.CreateWellKnownSid(security.WinBuiltinAdministratorsSid)
+    if not security.CheckTokenMembership(None, admins):
+        raise OSError("Administrative provisioning required.")
+    token = security.OpenProcessToken(win32api.GetCurrentProcess(), win32con.TOKEN_QUERY)
+    try:
+        caller = security.GetTokenInformation(token, security.TokenUser)[0]
+    finally:
+        token.Close()
+    trusted = {"S-1-5-18", "S-1-5-32-544", sid, security.ConvertSidToStringSid(caller)}
     dacl = f"D:P(A;OICI;RC;;;OW)(A;OICI;FA;;;SY)(A;OICI;FA;;;BA)(A;OICI;FA;;;{sid})"
     if public:
         dacl += "(A;OICI;GR;;;BU)"
     descriptor = security.ConvertStringSecurityDescriptorToSecurityDescriptor(dacl, 1)
-    security.SetFileSecurity(
-        str(path),
-        security.DACL_SECURITY_INFORMATION | security.PROTECTED_DACL_SECURITY_INFORMATION,
-        descriptor,
-    )
+    attributes = pywintypes.SECURITY_ATTRIBUTES()
+    attributes.SECURITY_DESCRIPTOR = descriptor
+    try:
+        win32file.CreateDirectory(str(path), attributes)
+    except pywintypes.error as error:
+        if error.winerror != 183:  # ERROR_ALREADY_EXISTS
+            raise
+        if path.is_symlink() or path.is_junction() or not path.is_dir():
+            raise OSError("Unsafe service directory.") from error
+        existing = security.GetFileSecurity(
+            str(path), security.OWNER_SECURITY_INFORMATION | security.DACL_SECURITY_INFORMATION
+        )
+        if security.ConvertSidToStringSid(existing.GetSecurityDescriptorOwner()) not in trusted:
+            raise OSError("Untrusted service directory owner; administrative recovery required.")
+        acl = existing.GetSecurityDescriptorDacl()
+        if acl is None:
+            raise OSError("Unprotected service directory.")
+        # Generic write/all and file write/append/EA/attributes/delete-child,
+        # DELETE, WRITE_DAC and WRITE_OWNER allow namespace or state substitution.
+        dangerous = 0x40000000 | 0x10000000 | 0xD0156
+        for index in range(acl.GetAceCount()):
+            ace = acl.GetAce(index)
+            if ace[0][0] == security.ACCESS_ALLOWED_ACE_TYPE:
+                principal = security.ConvertSidToStringSid(ace[2])
+                if principal not in trusted and ace[1] & dangerous:
+                    raise OSError("Unsafe service directory ACL; administrative recovery required.")
+            elif ace[0][0] != security.ACCESS_DENIED_ACE_TYPE:
+                raise OSError("Unsupported service directory ACL.")
 
 
 def atomic_write(path: Path, payload: bytes) -> None:
@@ -68,11 +106,11 @@ class WindowsStore:
         for existing in (self.root, *self.root.parents, self.private, self.public):
             if existing.is_symlink() or (os.name == "nt" and existing.is_junction()):
                 raise OSError("Reparse point refused in service configuration path.")
-        self.root.mkdir(parents=True, exist_ok=True)
-        protect(self.root, public=True)
+        # Protect the dedicated parent before creating any service descendants.
+        secure_directory(self.root.parent, public=True)
+        secure_directory(self.root, public=True)
         for folder, public in ((self.private, False), (self.public, True)):
-            folder.mkdir(exist_ok=True)
-            protect(folder, public=public)
+            secure_directory(folder, public=public)
         atomic_write(
             self.private / "api.json", json.dumps({"origin": validate_origin(api_origin)}).encode()
         )
