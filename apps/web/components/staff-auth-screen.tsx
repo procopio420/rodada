@@ -190,6 +190,21 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
     }
   }
 
+  async function endCurrentSession(path: "/api/auth/lock" | "/api/auth/logout") {
+    setLoading(true);
+    setError(null);
+    try {
+      // The API intentionally responds 204 without JSON on successful lock/logout.
+      const result = await apiCall(path, { method: "POST", body: "{}" });
+      if (result.response.ok) setSession(null);
+      else setError(asApiError(result.body));
+    } catch {
+      setError({ code: "NETWORK_ERROR", message: "Não foi possível encerrar a sessão. Confira a conexão." });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (!session && !sessionChecked) {
     return <main className={styles.shell}><p className={styles.loading} role="status">Carregando acesso…</p></main>;
   }
@@ -230,12 +245,8 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
       destination={venueLookup.mode === "establishment" ? "/" : "/attendance"}
       loading={loading}
       error={error}
-      onLock={async () => {
-        if (await submitJson("/api/auth/lock", {})) setSession(null);
-      }}
-      onLogout={async () => {
-        if (await submitJson("/api/auth/logout", {})) setSession(null);
-      }}
+      onLock={() => endCurrentSession("/api/auth/lock")}
+      onLogout={() => endCurrentSession("/api/auth/logout")}
       onSwitch={async (loginIdentifier, pin) => {
         const result = await submitJson<Record<string, unknown>>(
           "/api/auth/switch-operator",
