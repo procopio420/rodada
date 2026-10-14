@@ -31,7 +31,7 @@ type CashPoint = { id: string; label: string; active_shift: { id: string; status
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
 export type TableTabSelection = { requestId: number; tabId: string; occupancyId: string; tableId: string; tableLabel: string };
-export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
+export function OrderWorkspace({ withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, recoveryScope }: { requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
   const tabPageSize = withoutPayments ? 10 : 200;
   const apiRoot = withoutPayments ? "/api/attendance" : "/api/pos";
   const [closingDialog, setClosingDialog] = useState(false), [closing, setClosing] = useState(false), [success, setSuccess] = useState("");
