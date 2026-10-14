@@ -8,6 +8,8 @@ export const test = base.extend<{ isolatedFile: void }>({
     if (process.env.RODADA_E2E_POSTGRES === "1" && seededFile !== info.file) {
       execFileSync(process.env.RODADA_TEST_PYTHON ?? "python", [resolve("tests/integration/seed_api.py")], {
         cwd: resolve("../api"), env: process.env, stdio: ["ignore", "pipe", "pipe"],
+        // A stalled reset should fail with a bounded, actionable timeout.
+        timeout: 60_000,
       });
       seededFile = info.file;
     }

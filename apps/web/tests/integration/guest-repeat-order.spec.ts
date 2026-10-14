@@ -46,8 +46,12 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     await expect(dialog).toBeVisible();
     if (scenario === "blocked") {
       await api(`hospitality/tables/${table.id}/guest-ordering/`, { blocked: true });
-      await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).click();
+      // The guest restriction is live: the button may already be disabled.
+      // Playwright click() waits for an enabled target, so attempting a click
+      // here times out and never tests the rejection contract.
       await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+      // This branch must not add a second Order or alter the confirmed round.
+      expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);
       await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
       await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
       expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);

@@ -55,8 +55,14 @@ if __name__ == "__main__":
     django.setup()
     from django.conf import settings
     from django.core.management import call_command
+    from e2e_db_guard import e2e_database_guard, retry_transient_reset
     assert os.environ.get("RODADA_E2E_POSTGRES") == "1", "Reset requires explicit test opt-in"
     db = settings.DATABASES["default"]
     assert db["NAME"] == "rodada_web_e2e" and db["HOST"] in {"127.0.0.1", "localhost"}, "Reset requires disposable local test DB"
-    call_command("flush", interactive=False, verbosity=0)
-    seed_api()
+    # Playwright is single-worker, so no test request is intentionally active
+    # between files. The long-lived realtime publisher still needs to pause.
+    with e2e_database_guard(exclusive=True):
+        # A previous test may have a lingering HTTP read. Retry PostgreSQL
+        # deadlock/lock-timeout only; other DB errors remain hard failures.
+        retry_transient_reset(lambda: call_command("flush", interactive=False, verbosity=0))
+        seed_api()
