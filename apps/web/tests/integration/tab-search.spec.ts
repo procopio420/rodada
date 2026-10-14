@@ -30,7 +30,15 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   for (const match of matches) await expect(page.getByRole("button", { name: new RegExp(`ID ${match.id}`) })).toBeVisible();
   await expect(page.getByRole("heading", { name: first.display_label, exact: true })).toBeVisible();
   await expect(page.getByText(`${[360,390,430].indexOf(width)+1}× Kitchen E2E item`, { exact: true })).toBeVisible();
-  await expect(page.getByText("Página 1", { exact: true })).toBeVisible(); await input.fill(""); await input.press("Enter");
+  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();
+  await input.fill("");
+  const cleared = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return url.pathname.replace(/\/$/, "") === "/api/attendance/tabs" && !url.searchParams.has("q")
+      && !url.searchParams.has("active") && response.request().method() === "GET" && response.status() === 200;
+  });
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await cleared;
   await expect(page.getByRole("button", { name: new RegExp(`^${first.display_label} ·`) })).toBeVisible();
  }
  const detail = await page.evaluate(async id => (await (await fetch(`/api/attendance/tabs/${id}/`)).json()), first.id);
