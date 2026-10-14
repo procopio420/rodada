@@ -1,6 +1,6 @@
 # Spec 025 — Tenant hostname and module paths
 
-**Status:** PR #116 MERGEADO na main em 13/10 (código P0/P1); aceite integrado, DNS/TLS wildcard e ativação pública ainda NÃO HOMOLOGADOS. PR #101 permanece independente e aberto nesta fotografia.
+**Status:** PR #116 MERGEADO na main em 13/10 (código P0/P1); #131 e #140 integrados. #101 fechado sem merge. Auditoria #130 em execução; aceite integrado, DNS/TLS wildcard e ativação pública ainda NÃO HOMOLOGADOS.
 **Date:** 2026-10-12
 **Architecture:** [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md), [ADR 0018](../../docs/adr/0018-rodada-bar-canonical-domain.md)
 
@@ -67,6 +67,28 @@ The first PR may document the contract and add pure lookup scaffolding, but **mu
 ## Evidence
 
 See [acceptance.md](acceptance.md) for verifiable assertions, [plan.md](plan.md) for slices, [tasks.md](tasks.md) for actions. Keep criteria pending until reproducible test evidence exists.
+
+## Public capabilities and production hardening — audit #130
+
+Published icon bytes are intentionally public and portable across hosts. Only the
+current `published_asset` and exact filename are served; authenticated management
+remains Venue-scoped. Previously distributed immutable-cache bytes cannot be
+made confidential by removing the origin reference.
+
+A shared receipt is a portable, read-only bearer capability for one customer
+document, valid for 24 hours and revocable. It can reveal that document's intended
+snapshot across hosts, but grants no staff, mutation or printing authority.
+Invalid/expired/revoked tokens return 404. Production tickets are not shareable.
+
+Production and Railway pilot preflight reject missing, short or repetitive BFF
+secrets before startup/database mutation. Provision a cryptographically generated,
+independent secret; length/diversity checks are a minimum, not proof of entropy.
+Signed authorities require valid hostname/port syntax, authoritative tenant
+registry or explicitly accepted compatibility host. The optional refund reason
+normalizes to an empty string before invoking the scoped financial service.
+
+See [audit-130-evidence.md](audit-130-evidence.md) for tests, trust matrix and
+limitations. Security audit completion does not authorize wildcard/canary.
 
 ## 2026-10-13 — Adaptation and incremental delivery
 

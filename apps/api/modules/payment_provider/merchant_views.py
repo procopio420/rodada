@@ -10,7 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
+from modules.access.errors import AccessPermissionDenied
 from modules.access.permissions import RequireCapability, RequireRecentReauthentication
+from modules.access.services import AccessServiceError
 
 from .merchant_services import begin_connection, complete_connection, disconnect_connection
 from .models import DeviceAuthorization, MerchantConnection
@@ -148,6 +150,10 @@ class OAuthCallbackAuthentication(BaseAuthentication):
             ).get(pk=session_id)
             if _session_failure(session):
                 raise ValueError("Session unavailable")
+        except AccessServiceError as error:
+            # _session_failure also enforces the verified Host's Venue binding.
+            # Convert domain errors into DRF responses before any OAuth exchange.
+            raise AccessPermissionDenied(error.code, error.message) from error
         except (KeyError, ValueError, signing.BadSignature, StaffSession.DoesNotExist) as error:
             raise AuthenticationFailed("Autorização inválida ou expirada.") from error
         request.actor_context = ActorContext.from_session(session)

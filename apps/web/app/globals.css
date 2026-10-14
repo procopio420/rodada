@@ -361,14 +361,13 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: 0; border-bottom: 0; }
 @media (min-width: 1200px) {
   .stationOrder { grid-template-columns: minmax(0, var(--production-ticket-destination)) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
-  /* Explicit placement prevents the order label, item detail and action from
-     being packed into the narrow destination track at desktop widths. */
+  /* Keep the content in the readable track and destinations in their own column. */
   .stationOrder > .stationTab { grid-column: 1; grid-row: 1; }
   .stationOrder > .stationOrderItems { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
   .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr) var(--production-ticket-action); gap: var(--space-4); }
-  .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
   .stationPassRow > .stationTab { grid-column: 1; }
   .stationPassRow > div { grid-column: 2; min-width: 0; }
+  .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
 }
 
 /* Atendimento reuses canonical operational tokens and touch targets. */
@@ -495,3 +494,8 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .attendanceOpenHeading > button { display: inline-flex; align-items: center; justify-content: center; width: var(--touch-min); min-width: var(--touch-min); color: var(--color-text-muted); }
 
 .workspaceLock { min-width: 0; margin: 0; padding: 0; border: 0; }
+
+/* Guest navigation follows the station region shortcuts, at every width. */
+.guestRegionNav { position: sticky; top: 0; z-index: 5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); padding: var(--space-2); background: var(--color-surface-1); border-bottom: 1px solid var(--color-border); }
+.guestRegionNav button { min-width: 0; padding-inline: var(--space-1); font-size: var(--text-sm); }
+.guestShell section[tabindex="-1"] { scroll-margin-top: calc(var(--touch-min) + var(--space-4)); }

@@ -38,6 +38,11 @@ Default `RODADA_RELEASE_MODE=demo` is disposable staging only. For a separately 
 assisted-pilot target set `RODADA_RELEASE_MODE=pilot`, `DJANGO_DEBUG=false`,
 `RODADA_PAYMENT_SIMULATION=false`, and a newly generated unique Django secret (at least
 50 characters) in the secret manager. Pilot never seeds demo identities/catalog/visits.
+Provision an independent cryptographically generated `RODADA_BFF_HOST_SECRET`
+(at least32 characters); missing, short or repetitive values now refuse pilot
+preflight before database contact. Default demo retains a process-local random
+fallback shared by Next/Django. This validation does not measure entropy or certify
+ingress/TLS; see the [Spec025 preview runbook](../../docs/ops/spec025-preview-rollout.md).
 Unsafe configuration fails before migration; documented active demo PINs refuse startup.
 Do not promote a populated public-demo database. Startup cannot prove secret uniqueness;
 release operator owns generation/isolation. One replica remains required by process-local

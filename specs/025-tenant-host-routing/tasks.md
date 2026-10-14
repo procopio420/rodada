@@ -1,5 +1,30 @@
 # Spec 025 — Tasks
 
+## Auditoria P0 #130 — checkpoint 2026-10-14
+
+- [x] Fetch main, inventário #101/#116/#131/#140 e checks por SHA;
+  [matriz/evidência](audit-130-evidence.md), base d5acc98.
+- [x] Código42a14ef: regressões e correções OAuth/HMAC/authority/segredo
+  production+pilot/reason opcional; preservar controles #116/#131/#140.
+- [x] PostgreSQL descartável A/B,B/A financeiro/assets/recibos e SSE ASGI;
+  smoke de autenticação Android na API compartilhada.
+- [x] Contrato explícito de assets públicos e recibos capability portáveis,
+  sem transformar publicação legítima em vulnerabilidade presumida.
+- [x] Review técnico independente42a14ef, sem P0/P1 aberto; lacunas externas
+  documentadas, sem autoaprovação GitHub.
+- [x] API congelada local/CI746PASS, Web tenant focado2PASS, turno64Tabs/8clientes
+  e restartPASS, DockerPASS; ver matriz por SHA.
+- Gate de CI do HEAD e integração: PR153/relatório final #130 registra checks e
+  merge SHA; integração somente após todos os gates verdes.
+- [ ] **BLOCKED #151:** preview real de dois Venues/ingress/HMAC; script421.
+- [ ] Fechar #130 somente após comprovar todos os critérios originais,
+  incluindo #151. Canary separado #152; E2E Android+Web #106 preservado.
+- [x] PR153 mergeado110f970 após headacbc API/Web/Docker/KB verdes;
+  revisão pós-integração inclui o delta Guest do PR150 sem P0/P1.
+- [x] Ampliar casos ausentes de OAuth simétrico/replay cookie original e
+  Refund IDs foreignA/B,B/A; suite focada9PASS local, gates do complemento/main
+  rastreados no relatório final130. Não alterar implementação sem falha provada.
+
 ## P0 — Prerequisites (must land before tenant URL is exposed)
 
 - [ ] [Backend] Registry/migration: public hostname -> immutable Venue UUID; normalization, uniqueness, verified/active state, reserved labels, audit.

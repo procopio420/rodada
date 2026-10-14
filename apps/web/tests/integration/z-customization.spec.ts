@@ -63,8 +63,14 @@ test("manager configures real persisted customization; guest prices and kitchen 
   await guest.getByLabel("Pedido especial (opcional)").fill("Molho separado");
   await expect(guest.getByRole("button", { name: /^Adicionar ·/ })).toContainText("28,00");
   await guest.getByRole("button", { name: /^Adicionar ·/ }).click();
+  const confirmation = guest.waitForResponse(response => response.url().includes("/api/guest/orders/confirm") && response.request().method() === "POST" && ![307, 308].includes(response.status()));
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
-  await expect(guest.getByText("Confirmado", { exact: true })).toBeVisible();
+  const confirmed = await confirmation;
+  expect(confirmed.status()).toBe(201);
+  const guestOrder = await confirmed.json();
+  expect(guestOrder.items[0].state).toBe("NEW");
+  expect(guestOrder.items[0].unit_price_cents).toBe(2800);
+  await expect(guest.getByText("Recebido", { exact: true })).toBeVisible();
   await page.goto("/kitchen");
   await expect(page.getByText("+ Bacon", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("Observação: Molho separado").first()).toBeVisible();

@@ -243,6 +243,91 @@ class MerchantCallbackTests(TestCase):
         self.assertEqual(response.status_code, 403, response.data)
         exchange.assert_not_called()
 
+    @override_settings(RODADA_BFF_HOST_SECRET="test-secret-only")
+    def test_foreign_host_callback_fails_closed_without_consuming_state(self):
+        from modules.access.models import StaffMember, VenueStaffMembership
+        from modules.audit.models import AuditEvent
+        from modules.payment_provider.merchant_services import complete_connection
+        from modules.venue.models import Venue, VenueDomain
+        from rest_framework.test import APIClient
+        from tests.test_spec025_host_security import signed
+
+        VenueDomain.objects.create(
+            venue=self.venue, hostname="e2ea.rodada.bar", is_active=True, is_verified=True,
+        )
+        state_a = self.begin()
+        other = Venue.objects.create(name="Other OAuth", slug="other-oauth")
+        VenueDomain.objects.create(
+            venue=other, hostname="e2eb.rodada.bar", is_active=True, is_verified=True,
+        )
+        staff_b = StaffMember.objects.create(display_name="OAuth B", login_identifier="oauth-b")
+        staff_b.set_pin("5678")
+        staff_b.save(update_fields=["pin_hash"])
+        VenueStaffMembership.objects.create(venue=other, staff_member=staff_b, role=StaffRole.OWNER)
+        client_b = APIClient()
+        tokens_b = client_b.post("/auth/login/", {
+            "venue_slug": other.slug, "login_identifier": staff_b.login_identifier, "pin": "5678",
+            "installation_id": "oauth-independent-b", "platform": "ANDROID",
+        }, format="json", HTTP_HOST="api.rodada.bar").json()
+        client_b.credentials(HTTP_AUTHORIZATION="Bearer " + tokens_b["access_token"])
+        self.assertEqual(client_b.post(
+            "/auth/reauthenticate/", {"pin": "5678"}, format="json",
+        ).status_code, 200)
+        started = client_b.post("/payments/merchant-connections/", {}, format="json")
+        self.assertEqual(started.status_code, 200)
+        state_b = parse_qs(urlparse(started.json()["authorization_url"]).query)["state"][0]
+        client_b.credentials()
+        identities = (
+            (self.venue, "e2ea.rodada.bar", self.client, state_a),
+            (other, "e2eb.rodada.bar", client_b, state_b),
+        )
+        path = "/payments/merchant-connections/callback/"
+        with patch("modules.payment_provider.merchant_views.complete_connection") as exchange:
+            for own, foreign in ((identities[0], identities[1]), (identities[1], identities[0])):
+                venue, _, client, state = own
+                response = client.get(path, {"state": state, "code": "private-code"},
+                                      **signed(foreign[1], method=path))
+                self.assertEqual(response.status_code, 403)
+                self.assertEqual(response.json()["code"], "VENUE_HOST_MISMATCH")
+                self.assertIsNone(OAuthAuthorization.objects.get(venue=venue).consumed_at)
+        exchange.assert_not_called()
+        self.assertFalse(MerchantConnection.objects.exists())
+
+        # Exchange contract doubles; no provider network or financial settlement.
+        bindings = {str(venue.pk): client.cookies["rodada_payment_oauth"].value
+                    for venue, _, client, _ in identities}
+        transports = []
+
+        def complete(**kwargs):
+            venue_id = str(kwargs["actor"].venue_id)
+
+            def transport(endpoint, body=None, access_token=None):
+                transports.append((venue_id, endpoint))
+                if endpoint == "/v0.1/me":
+                    return {"merchant_profile": {"merchant_code": "MERCHANT-" + venue_id}}
+                return {"access_token": "private-access", "refresh_token": "private-refresh",
+                        "expires_in": 3600, "scope": "payments transactions.history"}
+
+            return complete_connection(**kwargs, transport=transport)
+
+        with patch("modules.payment_provider.merchant_views.complete_connection", side_effect=complete):
+            for venue, host, client, state in identities:
+                response = client.get(path, {"state": state, "code": "private-code"},
+                                      **signed(host, method=path))
+                self.assertEqual(response.status_code, 200)
+                self.assertNotIn(b"private", response.content)
+                self.assertEqual(response["Cache-Control"], "no-store")
+                self.assertTrue(MerchantConnection.objects.filter(
+                    venue=venue, merchant_code="MERCHANT-" + str(venue.pk)).exists())
+                # Replay the original browser cookie, not just an empty deleted cookie.
+                client.cookies["rodada_payment_oauth"] = bindings[str(venue.pk)]
+                replay = client.get(path, {"state": state, "code": "private-code"},
+                                    **signed(host, method=path))
+                self.assertEqual(replay.status_code, 409)
+        self.assertEqual(len(transports), 4)
+        self.assertEqual(MerchantConnection.objects.count(), 2)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.merchant_connected").count(), 2)
+
     def begin(self):
         self.membership.role = StaffRole.OWNER
         self.membership.save()
