@@ -73,6 +73,32 @@ class PaymentConcurrencyTests(TransactionTestCase):
         self.assertCountEqual(self.race(operation), ["started", "PAYMENT_ALREADY_PENDING"])
         self.assertEqual(Payment.objects.count(), 1)
 
+    def test_cash_same_intent_has_one_payment_drawer_effect_and_audit(self):
+        from django.utils import timezone
+
+        from modules.audit.models import AuditEvent
+        from modules.cash.models import CashMovement, CashPoint, CashShift
+        from modules.ledger.services import collect_payment
+
+        point = CashPoint.objects.create(venue_id=self.actor.venue_id, label="Race drawer")
+        shift = CashShift.objects.create(
+            venue_id=self.actor.venue_id, cash_point=point, business_date=timezone.localdate(),
+            opened_by_id=self.actor.staff_id, opening_float_cents=0, opening_idempotency_key="open-race",
+        )
+        def collect(_):
+            return collect_payment(tab_id=self.tab.pk, amount_cents=1000, method="CASH",
+                                   cash_point_id=point.pk, idempotency_key="same-cash",
+                                   expected_version=1, actor=self.actor)[0].pk
+
+        ids = self.race(collect)
+        self.assertEqual(ids[0], ids[1])
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(CashMovement.objects.filter(shift=shift).count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.collected").count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="cash.payment_recorded").count(), 1)
+        self.tab.refresh_from_db()
+        self.assertEqual(self.tab.version, 2)
+
     def test_duplicate_intent_concurrent_confirmation_and_refund_reservation(self):
         def start(i):
             return initiate_provider_payment(
@@ -174,3 +200,52 @@ class PaymentConcurrencyTests(TransactionTestCase):
 
         self.assertCountEqual(self.race(settle), ["CONFIRMED", "CONFIRMATION_PENDING"])
         self.assertEqual(Payment.objects.filter(status="CONFIRMED").count(), 1)
+
+    def manual_refund_race(self, same_key):
+        from django.utils import timezone
+
+        from modules.audit.models import AuditEvent
+        from modules.cash.models import CashMovement, CashPoint, CashShift
+        from modules.ledger.models import Refund
+        from modules.ledger.services import (
+            LedgerServiceError,
+            collect_payment,
+            create_refund,
+            totals,
+        )
+
+        point = CashPoint.objects.create(venue_id=self.actor.venue_id, label="Refund race drawer")
+        shift = CashShift.objects.create(venue_id=self.actor.venue_id, cash_point=point,
+            business_date=timezone.localdate(), opened_by_id=self.actor.staff_id,
+            opening_float_cents=0, opening_idempotency_key="refund-race-open")
+        payment, _ = collect_payment(tab_id=self.tab.pk, amount_cents=1000, method="CASH",
+            cash_point_id=point.pk, idempotency_key="refund-race-payment", actor=self.actor)
+        original = Payment.objects.values().get(pk=payment.pk)
+        def operation(i):
+            try:
+                refund, _ = create_refund(payment_id=payment.pk, amount_cents=700,
+                    idempotency_key="refund-race" if same_key else f"refund-race-{i}",
+                    reason="Race test", cash_point_id=point.pk, actor=self.actor)
+                return str(refund.pk)
+            except LedgerServiceError as error:
+                return error.code
+        outcomes = self.race(operation)
+        if same_key:
+            self.assertEqual(outcomes[0], outcomes[1])
+        else:
+            self.assertEqual(outcomes.count("REFUND_EXCEEDS_PAYMENT"), 1)
+        self.assertEqual(Refund.objects.count(), 1)
+        self.assertEqual(CashMovement.objects.filter(shift=shift, refund__isnull=False).count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.refunded").count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="cash.refund_recorded").count(), 1)
+        self.assertEqual(totals(self.tab)["exposure_cents"], 2700)
+        current = Payment.objects.values().get(pk=payment.pk)
+        self.assertEqual(current.pop("status"), "PARTIALLY_REFUNDED")
+        original.pop("status")
+        self.assertEqual(current, original)
+
+    def test_same_manual_refund_is_exactly_once_under_postgres_lock(self):
+        self.manual_refund_race(same_key=True)
+
+    def test_distinct_manual_refunds_cannot_exceed_refundable_concurrently(self):
+        self.manual_refund_race(same_key=False)

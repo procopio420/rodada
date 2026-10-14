@@ -61,10 +61,35 @@ Attendance confirmed-item list excludes CANCELLED items after canonical refresh.
 ## Attendance selected Tab and draft controls
 
 Confirmed removal with multiple remaining units asks quantity, initially1, using centered minus/output/plus controls bounded1..remaining units. Freeze quantity/reason/key during submit and ambiguous retry. Applied partial cancellation refreshes canonical remaining units; remove the row only when all remaining units are cancelled. Fechar comanda is the final visible action after the bill/details, keeping existing close restrictions until a separately specified payment navigation flow is implemented.
-Repeat tap on the active Tab in the list or its centered heading collapses/reopens its contents without clearing drafts or issuing mutations. Switching to another Tab retains the existing deliberate draft reset. Pending/ambiguous orders and corrections lock collapse/switch. Draft appears directly below the selected Tab heading, before confirmed history and catalog. Each line shows product/customization, line price and 44px minus/plus controls. Minus at one removes only the unconfirmed draft line; plus caps at 99. Repeated identical Attendance selections reuse the same draft line up to the cap; distinct variants/modifiers/instructions remain separate. Confirmation still uses immutable payload/key and canonical API. POS quantity/ordering remains unchanged. Active Tab and selected catalog category use restrained accent-derived surfaces; no arbitrary colors or ornamental dashboard components.
+The T04 contract below supersedes list-based collapse and draft reset: selecting the active Tab reveals its contents; only the heading explicitly collapses. Switching Tabs preserves drafts by destination. Pending/ambiguous orders and corrections lock collapse/switch. Draft appears directly below the selected Tab heading, before confirmed history and catalog. Each line shows product/customization, line price and 44px minus/plus controls. Minus at one removes only the unconfirmed draft line; plus caps at 99. Repeated identical Attendance selections reuse the same draft line up to the cap; distinct variants/modifiers/instructions remain separate. Confirmation still uses immutable payload/key and canonical API. POS quantity/ordering remains unchanged. Active Tab and selected catalog category use restrained accent-derived surfaces; no arbitrary colors or ornamental dashboard components.
 
 Attendance bill disclosure omits applied pre-fulfillment WRONG_ITEM_ENTERED removals entirely, excluding their signed value from the displayed Correções line without adding a removal row. Hide the Correções row when its remaining value is zero. Keep canonical original subtotal, payable, payments, adjustments and audit unchanged; POS retains its original complete correction aggregate.
 
 Attendance history opens from a discreet right-aligned Histórico button inside the Abrir comanda heading, aligned at its right edge. A separate read-only dialog lists only CLOSED/CANCELLED Tabs and reveals canonical details on request. History must not mix with open Tabs, switch the active Tab, clear drafts or offer operational mutations. Preserve POS history behavior, focus restoration, 44px touch target and pending-order/correction locks.
 
 The history dialog Voltar action uses a full-width bordered secondary button with a restrained accent surface and spacing, clearly distinct from history entries. Preserve close/focus behavior.
+
+
+## T04 / UX-06/35 — rascunho por comanda no workspace Web
+
+Atendimento e POS mantêm rascunhos não enviados separados por Tab.id enquanto
+o workspace está montado. Trocar A→B→A, abrir outra comanda, navegar pelas seções
+montadas do Atendimento, pesquisar ou recolher não apaga nem transporta linhas.
+Produto/quantidade/variant/modifiers/instruções ficam ligados ao destino original;
+catálogo atual revalida preço, configuração e disponibilidade antes de confirmar.
+Seleção da Tab atual sempre revela o workspace; recolher continua explícito no
+cabeçalho. Após seleção bem-sucedida, foco vai ao título da comanda.
+
+Descartar rascunho exige diálogo nomeando a comanda e confirmação; Voltar/Escape
+preservam linhas e foco. Descarte e confirmação limpam somente o destino ativo.
+Com rascunho não vazio, fechamento fica bloqueado com orientação de confirmar ou
+descartar. Tab nova começa vazia sem limpar o rascunho anterior. Falha na leitura
+da Tab mantém destino/rascunho anteriores. Seleção/abertura em andamento bloqueia
+edição/envio e outro switch; respostas não podem deslocar uma intenção enviada.
+
+Pedido em envio/ambíguo, correção pendente e recebimento pendente continuam
+bloqueando troca, recolher e descarte; nunca converter payload já enviado em draft
+editável. T04 não modifica os endpoints financeiros nem o replay existente.
+Limite deste recorte: memória do workspace, sem persistir credenciais ou conteúdo
+em storage. Reload, fechar aba, outra sessão/aparelho e recuperação durável de
+pedido enviado são contratos de continuação T05; não declarar resolvidos.

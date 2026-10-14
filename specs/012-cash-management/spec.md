@@ -419,3 +419,32 @@ Existing basic CashShift rows migrate to one default CashPoint per Venue. Histor
 ## Entrega executável Web — Spec 020
 
 O contrato implementado nesta entrega e seus critérios verificáveis estão na [Spec 020](../020-web-operational-completion/spec.md). Inclui catálogo com fallback de ícones (IA/worker adiados pelo usuário), histórico da própria comanda guest, seleção/revisão de turnos antigos, relatórios operacionais e calendário auditado. Não marca todo o roadmap desta spec como concluído. Consulte [validação e limites](../../docs/development/web-operational-completion.md).
+
+## Replay de recebimento CASH — Spec026 T03a
+
+O replay do ledger compara o caixa do CashMovement e o valor entregue do
+CashTenderDetail originais; não consulta turno atualmente aberto nem modifica
+snapshots. Omissão/null de tender significa o valor do Payment. Payload
+divergente ou evidência legada ausente gera IDEMPOTENCY_CONFLICT, mantendo
+Payment, movimento, troco e auditoria. Recebimento, movimento e audit têm
+um único efeito sob concorrência em PostgreSQL. Ver contrato POS da Spec006.
+
+
+## T03b — caixa no replay de Refund manual
+
+A mesma chave de Refund CASH deve apontar ao caixa do CashMovement original.
+Caixa ausente/divergente ou histórico sem movimento retorna IDEMPOTENCY_CONFLICT.
+Replay não registra novo débito, auditoria ou snapshot, mesmo após fechar turno.
+Nova devolução exige turno apto conforme contrato existente.
+
+T11c/026 Android: conferência da pendência consulta turno original pelo ID, mesmo encerrado, sem substituir a seleção de caixa atual. Tela de consulta mostra comando guardado e movimentos canônicos, sem oferecer suprimento, sangria, contagem, fechamento ou replay; valores semelhantes não comprovam identidade ou resultado. Registro permanece preservado para reconciliação autorizada. Sem mudança nas regras de caixa ou contrato financeiro da API.
+
+T12a/026: cada proposta possui rascunho de motivo por ID; decisão captura motivo,
+versão e alvo antes do PIN, mantém campos bloqueados durante autorização e limpa
+somente o rascunho decidido. Cancelamento preserva motivos; autoaprovação proibida.
+Estados humanos são apresentação, sem mudar os enums ou os fatos financeiros.
+
+T12b.1/026: atalhos de alerta/bloqueio abrem turno exato pelo endpoint autenticado,
+mesmo encerrado ou fora da primeira página. IDs/caixa autorizados são conferidos;
+falha não seleciona alternativa. Navegação não registra movimentos, não aprova
+revisão e não altera divergência. Foco no resumo e retorno ao alerta/fechamento.

@@ -634,3 +634,100 @@ capability and recent reauthentication remain mandatory at the API boundary.
 ## Pilot refund durability — 2026-10-12
 
 An integrated refund reservation and its immutable provider transaction/baseline identity must commit atomically before external submission. Storage failure leaves neither record and sends no POST. Matching persisted refund replay returns without provider I/O; changed amount or reason remains an idempotency conflict during outages.
+
+## POS Web — recebimento CASH recuperável (Spec026 T03a / UX-08)
+
+Antes do primeiro envio, persistir na aba do navegador a intenção mínima v1:
+Venue, staff, sessão original, Tab, timestamp e payload com chave, centavos,
+CASH, caixa e expected_version. Nenhuma credencial é persistida. Dinheiro
+continua confirmação humana explícita e server-side, sem cobrança automática.
+Double tap é bloqueado sincronamente. Valor, destino, caixa e chave congelam
+até resultado canônico; rede/5xx/JSON inválido mantêm pendência. A retomada
+suportada é reload/navegação na mesma aba e sessão, com sessionStorage íntegro.
+Fechar a aba, armazenamento apagado e reconciliação entre sessões não são
+cobertos. Storage indisponível/corrompido bloqueia envio e substituição.
+
+O payload POS inclui originating_session_id; a API confere contra a sessão
+autenticada antes de qualquer efeito/replay (SESSION_CONTEXT_CHANGED403 se difere).
+Campo opcional para compatibilidade com clientes anteriores, sem novo privilégio.
+Consultar sessão antes de enviar/repetir; sessão/Venue/staff distintos não adotam
+a intenção. Revogação/401/403 preserva pendência para revisão, sem nova chave.
+Nenhum replay é automático. Verificar mesmo recebimento envia o payload exato
+à API: chave já aplicada retorna Payment original e totais atuais, mesmo após
+mudança de versão/fechamento. Readback autorizado deve conter o mesmo Payment
+antes de limpar pendência/liberar nova operação. Rejeição estruturada de domínio
+400/409 no primeiro envio pode liberar edição; após ambiguidade, conflitos
+permanecem bloqueados. IDEMPOTENCY_CONFLICT nunca permite substituição cega.
+
+Replay CASH confere amount/method, CashMovement.shift.cash_point e tender normalizado
+(omitido/null equivale ao amount). Divergência retorna409 sem mudar histórico.
+expected_version é precondição do primeiro efeito, não fingerprint de replay.
+Pagamentos CASH legados sem evidência de caixa/tender exigem revisão, não
+suposição ou reconstrução. Permissão payment.collect continua exigida na API.
+Estorno UX-22, offline emergency, providers e outras abas/dispositivos ficam fora.
+
+
+## T03b / UX-22 — intenção de estorno manual recuperável
+
+Antes do POST, Gerência conserva em sessionStorage um envelope mínimo com
+Venue, staff, sessão, Tab, Payment, correction opcional, valor positivo em
+centavos, caixa (ou null), motivo e chave. Não contém PIN/token/nome de cliente.
+Uma ref síncrona impede duplo toque; alvo e payload ficam imutáveis durante envio
+e ambiguidade. Reload na mesma aba nunca envia automaticamente. A ação explícita
+Verificar mesmo estorno repete o endpoint e corpo originais, após conferir sessão.
+
+A API aceita originating_session_id opcional e rejeita sessão divergente antes
+de efeito ou replay. Autorização e PIN recente continuam obrigatórios inclusive
+no replay. REAUTH_REQUIRED conserva a intenção e permite confirmar o PIN da mesma
+sessão. Rede, 5xx, conflito, sessão inválida e readback falho nunca liberam outra
+intenção. Rejeição inicial comprovadamente sem efeito (400 INVALID_REFUND ou
+409 de precondição financeira/caixa) permite corrigir e confirmar nova intenção;
+após ambiguidade, nenhuma rejeição descarta a original.
+
+Sucesso exige Refund CONFIRMED canônico e leitura autorizada da Tab mostrando
+esse Refund no Payment original, com mesmo valor/motivo; correção exige também
+APPLIED e ausência da pendência original. Só então liberar formulário e limpar
+o envelope. Recuperação opera também se a comanda/turno fechou depois do commit:
+replay é leitura do efeito original, nova operação continua bloqueada em fechado.
+Caixa CASH faz parte do fingerprint, conferido pelo movimento original; evidência
+legada ausente fica em conflito/revisão, sem inventar movimento. Divergir valor,
+motivo ou caixa na mesma chave retorna IDEMPOTENCY_CONFLICT, sem novos efeitos.
+
+Escopo: endpoints manuais de Refund e settle-refund, sem provider. Estorno
+integrado permanece no contrato do provider; esta UI não confirma dinheiro PSP.
+Retomada cobre mesma aba/sessão com storage íntegro. Fechar aba, remover storage,
+recuperar em outra sessão/aparelho e resolução gerencial dessa pendência não são
+entregues; storage corrompido/indisponível bloqueia e pede revisão do histórico.
+
+### T07d / UX-17 — entrada monetária Android
+Campos monetários de pagamento, estorno, limite e transferência solicitam teclado
+decimal; PIN solicita NumberPassword e mantém máscara, sem persistir credencial.
+KeyboardOptions não autoriza mutation nem substitui validação. Parsing compartilhado
+aceita reais inteiros, decimal vírgula/ponto com uma ou duas casas (inclusive ,5),
+agrupamento brasileiro como 1.234,56 e prefixo R$ opcional. Rejeita sinais negativos,
+letras, formatos ambíguos/múltiplos separadores, mais de duas casas e overflow de
+centavos Long; zero continua parseável, com positividade exigida pelo chamador.
+Conversão exata, sem float/arredondamento. Não filtrar silenciosamente texto inválido
+para produzir pagamento válido. Valor inválido mantém confirmação desabilitada e
+feedback explícito. Preserve review, caixa, PIN, chaves/replay e regras da API.
+Seleção automática do valor e homologação do IME físico ficam fora deste recorte.
+
+T11d/026 — contexto de correção e estorno Android: consultas GET mínimas resolvem
+item/pagamento/correção pelo ID no Venue autenticado, com order.correct ou
+refund.create. Settlement exige payment da mesma Tab/Venue da correction.
+Android verifica IDs, snapshot da Tab, sessão e envelope antes de apresentar
+conferência separada, inclusive item cancelado/correção aplicada/Tab encerrada.
+Consulta não exige reauth nem altera regras financeiras; mutations mantêm reauth,
+idempotência, transações e auditoria existentes. Não reenvia, remove registro ou
+infere desfecho pelo estado/valor atual. Contrato e evidências: Spec026 T11d.
+
+T12a/026: métodos e estados de Payment/Refund têm rótulos humanos na página de
+estornos; enums continuam sendo usados nas comparações e no payload original.
+Estado desconhecido não é apresentado como confirmado; histórico conserva motivo
+original e valores. Elegibilidade, reauth e ledger não são modificados por esta slice.
+
+T12b.2/026: conferência Web do pagamento usa resolver por ID autorizado e detalhe
+canônico da Tab, inclusive encerrada/fora da página. Sem mutations de recebimento,
+estorno ou conciliação. Sessão/Venue/operador e IDs são verificados; erro limpa dados.
+Saldo reembolsável só aparece numericamente para estados monetários confirmados;
+pendente permanece não confirmado. Histórico conserva valores/motivo/status originais.

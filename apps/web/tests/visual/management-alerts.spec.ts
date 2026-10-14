@@ -4,6 +4,24 @@ const id = "80606137-578d-40f6-94c4-c11f7931a004";
 const sourceId = "72543d61-4a0a-466c-a1a2-c34482e8ba00";
 const base = { id, rule_key: "FULFILLMENT_SLA", rule_version: 1, status: "ACTIVE", severity: "DANGER",
   source: { target: "FULFILLMENT_ITEM", id: sourceId, station: "KITCHEN", state: "READY", age_seconds: 1260, source: "CANONICAL_TIMESTAMP" } };
+
+test("alerta de caixa abre o turno original e conserva retorno ao alerta", async ({ page }) => {
+  await fixture(page);
+  await page.route(`**/api/pos/management/alerts/${id}/`, route => route.fulfill({ json: {
+    ...base, rule_key: "CASH_DISCREPANCY", source: { target: "CASH_SHIFT", id: sourceId }, history: [],
+  } }));
+  await page.goto(`/manage/alerts/${id}`);
+  await expect(page.getByRole("link", { name: "Abrir operação →" })).toHaveAttribute("href", `/cash?shift=${sourceId}&from=${encodeURIComponent(`/manage/alerts/${id}`)}`);
+});
+
+test("alerta de pagamento abre conferência exata com retorno", async ({ page }) => {
+  await fixture(page);
+  await page.route(`**/api/pos/management/alerts/${id}/`, route => route.fulfill({ json: {
+    ...base, rule_key: "PAYMENT_PENDING", source: { target: "PAYMENT", id: sourceId }, history: [],
+  } }));
+  await page.goto(`/manage/alerts/${id}`);
+  await expect(page.getByRole("link", { name: "Abrir operação →" })).toHaveAttribute("href", `/manage/payments/${sourceId}?from=${encodeURIComponent(`/manage/alerts/${id}`)}`);
+});
 test("manager canonical alert at mobile width: acknowledgement preserves condition", async ({ page }) => {
   await fixture(page);
   let status = "ACTIVE";
@@ -26,6 +44,7 @@ test("resolved alert keeps exact source reference and provenance history", async
   await page.goto(`/manage/alerts/${id}`);
   await expect(page.getByText("Resolvido pela condição canônica. Este alerta permanece no histórico.")).toBeVisible();
   await expect(page.getByText(`Contexto: Item do pedido · ${sourceId}`)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Abrir operação →" })).toHaveAttribute("href", `/manage/items/${sourceId}?from=${encodeURIComponent(`/manage/alerts/${id}`)}`);
   await expect(page.getByText("A condição original deixou de exigir ação.", { exact: true })).toBeVisible();
   await layoutAndA11y(page);
 });

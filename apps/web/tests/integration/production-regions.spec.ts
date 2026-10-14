@@ -1,0 +1,41 @@
+import { expect, test } from "./fixtures";
+
+for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Real production region access ${station} ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto("/staff"); await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-manager"); await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  const api = (path: string, body?: unknown) => page.evaluate(async ({ path, body }) => {
+    const response = await fetch(`/api/pos/${path}`, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!response.ok) throw new Error(`${path}: ${response.status} ${await response.text()}`); return response.json();
+  }, { path, body });
+  const product = (await api("catalog/products/")).results.find((p: { fulfillment_station: string }) => p.fulfillment_station === station);
+  const label = `Production region ${station} ${width}`;
+  const tab = await api("tabs/", { display_label: label });
+  await api("auth/reauthenticate/", { pin: "2468" });
+  await api(`tabs/${tab.id}/limit-override/`, { limit_cents: 100000, reason: "Disposable production navigation test", expires_at: new Date(Date.now() + 3600000).toISOString(), idempotency_key: `region-limit-${station}-${width}` });
+  const order = await api(`tabs/${tab.id}/orders/confirm/`, { idempotency_key: `production-region-${station}-${width}`, lines: Array.from({ length: 30 }, (_, i) => ({ product_id: product.id, quantity: 1, special_instructions: `Linha ${i + 1}` })) });
+  const before = await api(`tabs/${tab.id}/`);
+  await page.goto(station === "KITCHEN" ? "/kitchen" : "/bar");
+  const nav = page.getByRole("navigation", { name: "Regiões da produção" });
+  await nav.getByRole("button", { name: /^Prontos/ }).click(); await expect(page.getByRole("region", { name: "Pronto para retirada" })).toBeFocused();
+  await nav.getByRole("button", { name: /^Disponibilidade/ }).click();
+  const availability = page.getByRole("region", { name: "Disponibilidade agora" }); await expect(availability).toBeFocused();
+  const untouched = await api(`tabs/${tab.id}/`); expect(untouched).toEqual(before);
+  await availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true }).click();
+  await expect(availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
+  expect((await api("catalog/products/")).results.find((p: { id: string }) => p.id === product.id).availability).toBe("UNAVAILABLE");
+  expect(await api(`tabs/${tab.id}/`)).toEqual(before);
+  await availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
+  await expect(availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
+  await nav.getByRole("button", { name: /^Fila/ }).click(); await expect(page.getByRole("region", { name: "Fila de pedidos" })).toBeFocused();
+  const start = page.getByRole("button", { name: `Iniciar preparo: 1 ${product.name}, ${label}`, exact: true }).first(); await start.click();
+  const finish = page.getByRole("button", { name: `Pronto: 1 ${product.name}, ${label}`, exact: true }); await expect(finish).toBeEnabled(); await finish.click();
+  await nav.getByRole("button", { name: /^Prontos/ }).click();
+  await expect(page.getByRole("region", { name: "Pronto para retirada" }).getByText(label, { exact: true })).toBeVisible();
+  const after = await api(`tabs/${tab.id}/`);
+  expect(after.orders.find((o: { id: string }) => o.id === order.id).items.filter((i: { state: string }) => i.state === "READY")).toHaveLength(1);
+  expect(after.orders[0].items.filter((i: { state: string }) => i.state === "NEW")).toHaveLength(29);
+  for (const field of ["exposure_cents", "charges_cents", "payments_cents", "payments"]) expect(after[field]).toEqual(before[field]);
+  await page.screenshot({ path: `test-results/production-regions-real-${station}-${width}.png` });
+});

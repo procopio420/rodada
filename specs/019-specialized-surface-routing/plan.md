@@ -12,3 +12,9 @@
    existing routes, plus warning, saving, loading, error, empty and crowded states.
 8. Enforce visual/a11y and real Django/BFF workflows in Web CI. Keep fixture data
    disposable; use PostgreSQL in CI and isolated SQLite for local smoke checks.
+
+### Spec 026 T10a
+Adicionar atalhos sticky somente mobile às regiões montadas, com foco e contagens
+do snapshot. Não mudar API, mutations, autorização ou disposição desktop.
+Cobrir filas de 30 linhas nas duas estações, 360/390/430 e estados desconhecido,
+vazio, erro; executar testes visuais completos e Web/API em PostgreSQL descartável.

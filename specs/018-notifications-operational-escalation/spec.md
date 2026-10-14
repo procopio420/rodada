@@ -634,3 +634,15 @@ Spec 007 alert projections/rules migrate into OperationalAlert semantics:
 - customer marketing push;
 - external PagerDuty-style incident management;
 - predictive/ML alerts.
+
+T12b.1/026: CASH_SHIFT nos alertas aponta ao turno original, conservando a página
+do alerta como origem. Permissão e Venue são revalidados na consulta do destino;
+403/404 e ID inválido não abrem outro turno. Outros tipos aguardam recortes próprios.
+
+T12b.2/026: PAYMENT no alerta aponta à conferência do ID original e preserva retorno
+ao alerta. Consulta protegida por refund.create conforme resolver existente; não
+registra ciência nem resolve condição automaticamente. Falha não oferece outro alvo.
+
+T12b.3/026: alerta FULFILLMENT_ITEM abre item exato com retorno ao alerta, consultando
+capability e Venue pelo resolver existente. Não muda preparo/pedido nem registra
+ciência automaticamente; referência continua consultável quando item cancelado.
