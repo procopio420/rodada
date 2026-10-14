@@ -118,8 +118,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 172px;
-  gap: 18px;
+  min-height: 194px;
+  gap: 16px;
   padding: clamp(14px, 1.9vw, 22px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -146,14 +146,20 @@
 
 .iconFrame {
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 74px;
+  height: 74px;
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
   background: var(--color-surface-2);
   color: var(--color-accent);
+}
+
+/* The module pictogram is the primary visual affordance, not a small badge. */
+.iconFrame svg {
+  width: 44px;
+  height: 44px;
 }
 
 .arrow {
@@ -188,14 +194,16 @@
 
 @media (min-width: 768px) {
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .card { min-height: 196px; }
+  .card { min-height: 218px; }
+  .iconFrame { width: 88px; height: 88px; }
+  .iconFrame svg { width: 56px; height: 56px; }
   .operatorShort { display: none; }
   .operatorLong { display: inline; }
 }
 
 @media (min-width: 1100px) {
   .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
-  .card { min-height: 214px; }
+  .card { min-height: 236px; }
 }
 
 @media (max-width: 359px) {

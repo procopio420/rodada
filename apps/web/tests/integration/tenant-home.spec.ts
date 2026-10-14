@@ -42,6 +42,16 @@ test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", a
       getComputedStyle(element).gridTemplateColumns.trim().split(/\s+/).length,
     );
     expect(actualColumns, `grid columns at ${width}px`).toBe(columns);
+    // Icons must remain a dominant, legible visual cue on both mobile and desktop.
+    const pictogram = nav.getByRole("link").first().locator("svg");
+    const iconSize = await pictogram.evaluate(svg => ({
+      width: svg.getBoundingClientRect().width,
+      height: svg.getBoundingClientRect().height,
+      frame: svg.parentElement!.getBoundingClientRect().width,
+    }));
+    const expectedIcon = width >= 768 ? 56 : 44;
+    const expectedFrame = width >= 768 ? 88 : 74;
+    expect(iconSize, `module icon at ${width}px`).toEqual({ width: expectedIcon, height: expectedIcon, frame: expectedFrame });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 });
