@@ -44,6 +44,7 @@ fun TablesScreen(
     var openingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
     var takingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
     var newLabel by rememberSaveable { mutableStateOf("") }
+    var showOptionalName by rememberSaveable { mutableStateOf(false) }
     var attachingOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
     var movingTabId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -70,7 +71,7 @@ fun TablesScreen(
                 onOccupy = { onStartService(table.id) },
                 staffId = staffId,
                 canOpenTabs = canOpenTabs && table.tableServiceEnabled,
-                onNewTab = { newLabel = ""; openingOccupancy = it.id },
+                onNewTab = { newLabel = ""; showOptionalName = false; openingOccupancy = it.id },
                 onClaim = { if (it.responsibleStaffId != null && it.responsibleStaffId != staffId) takingOccupancy = it.id else onClaim(it) },
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
@@ -85,8 +86,18 @@ fun TablesScreen(
     state.tables.mapNotNull { it.activeOccupancy }.firstOrNull { it.id == openingOccupancy }?.let { occupancy ->
         AlertDialog(onDismissRequest = { if (!state.submitting && state.pendingTableService == null) openingOccupancy = null },
             title = { Text("Nova comanda nesta mesa") }, text = {
-                androidx.compose.material3.OutlinedTextField(value = newLabel, onValueChange = { newLabel = it.take(120) },
-                    label = { Text("Nome ou apelido (opcional)") }, enabled = !state.submitting && state.pendingTableService == null)
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("A mesa já está selecionada. Você pode abrir a comanda sem informar o nome.")
+                    TextButton(onClick = { showOptionalName = !showOptionalName },
+                        enabled = !state.submitting && state.pendingTableService == null) {
+                        Text(if (showOptionalName) "Ocultar nome" else "Adicionar nome ou apelido (opcional)")
+                    }
+                    if (showOptionalName) androidx.compose.material3.OutlinedTextField(
+                        value = newLabel, onValueChange = { newLabel = it.take(120) },
+                        label = { Text("Nome ou apelido (opcional)") },
+                        enabled = !state.submitting && state.pendingTableService == null,
+                    )
+                }
             }, confirmButton = { Button(enabled = !state.submitting && state.pendingTableService == null, onClick = { onOpenTableTab(occupancy, newLabel); openingOccupancy = null }) { Text("Abrir e pedir") } },
             dismissButton = { TextButton(enabled = !state.submitting && state.pendingTableService == null, onClick = { openingOccupancy = null }) { Text("Cancelar") } })
     }
@@ -151,7 +162,7 @@ private fun TableCard(
                     Text("${occupancy.guestOrderCount} pedido(s) · ${if (occupancy.serviceAttention == "UNASSIGNED_READY") "Pedido pronto" else "Confirmado"}")
                     Text(serviceOrderAgeLabel(occupancy.oldestGuestOrderAt))
                 }
-                occupancy.tabs.forEach { tab -> OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) { Text("${tab.displayLabel} · ${tab.displayReference.ifBlank { tab.id.take(8) }}") } }
+                occupancy.tabs.forEach { tab -> OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) { Text("${tab.displayLabel.takeUnless { it.isBlank() || it == "Comanda sem nome" }?.let { "$it · " } ?: ""}${tab.displayReference.ifBlank { "Comanda ${tab.id.take(8)}" }}") } }
                 if (canOpenTabs) Button(onClick = { onNewTab(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
                 if (canManage && table.tableServiceEnabled && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
             } ?: Text("Sem ocupação ativa")

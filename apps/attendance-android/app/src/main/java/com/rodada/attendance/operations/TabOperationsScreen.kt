@@ -87,12 +87,12 @@ fun TabOperationsDialog(session: StoredSession, state: OperationsUiState, onDism
                         item {
                             source.optJSONObject("blocker")?.let { Text(it.getString("message"), color = MaterialTheme.colorScheme.error) }
                             OutlinedTextField(query, { query = it }, label = { Text("Buscar comanda de destino") }, enabled = !busy, modifier = Modifier.fillMaxWidth())
-                            state.tabs.filter { it.id != state.selectedTab?.summary?.id && it.state in setOf("OPEN", "REQUIRES_ACTION") && it.displayLabel.contains(query, true) }.take(20).forEach { tab ->
-                                TextButton(onClick = { destination = tab; changed() }, enabled = !busy) { Text("${if (destination?.id == tab.id) "✓ " else ""}${tab.displayLabel} · ${formatCents(tab.exposureCents)}") }
+                            state.tabs.filter { it.id != state.selectedTab?.summary?.id && it.state in setOf("OPEN", "REQUIRES_ACTION") && it.matchesOperationalQuery(query) }.take(20).forEach { tab ->
+                                TextButton(onClick = { destination = tab; changed() }, enabled = !busy) { Text("${if (destination?.id == tab.id) "✓ " else ""}${tab.operationalLabel()} · ${tab.operationalSubtitle()} · ${formatCents(tab.exposureCents)}") }
                             }
                             if (kind != "MERGE") {
                                 TextButton(onClick = { destination = null; changed() }, enabled = !busy) { Text("Criar nova comanda") }
-                                if (destination == null) OutlinedTextField(newLabel, { newLabel = it; changed() }, label = { Text("Nome da nova comanda") }, enabled = !busy)
+                                if (destination == null) OutlinedTextField(newLabel, { newLabel = it; changed() }, label = { Text("Nome ou apelido da nova comanda (opcional)") }, enabled = !busy)
                             }
                             if (kind == "MERGE") Text("A origem será cancelada. Sessões guest serão revogadas e não serão transferidas.")
                         }
