@@ -1,5 +1,7 @@
 "use client";
 
+import { tabPrimaryLabel, tabSecondaryLabel } from "@/lib/client/tab-identity";
+
 import { OperationalHeading } from "@/components/operational-heading";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -14,7 +16,10 @@ import { ProductIcon, type IconData } from "./product-icon";
 
 import { CustomizationText, type Snapshot, type OrderingProduct } from "./product-customization";
 import { CustomizationAvailability } from "./customization-availability";
-type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; created_at: string };
+type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; table_label?: string | null; created_at: string };
+
+const itemPrimary = (item: Item) => tabPrimaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
+const itemSecondary = (item: Item) => tabSecondaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
 type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "PREPARING", label: "Iniciar preparo" },
@@ -58,7 +63,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       const nextProducts = (catalog.body as { results: Product[] }).results.filter(product => product.fulfillment_station === station);
       setItems(previous => JSON.stringify(previous) === JSON.stringify(nextItems) ? previous : nextItems);
       setProducts(previous => JSON.stringify(previous) === JSON.stringify(nextProducts) ? previous : nextProducts);
-      cache.save({ items: nextItems.map(item => ({ ...item, tab_label: "" })), products: nextProducts });
+      cache.save({ items: nextItems.map(item => ({ ...item, tab_label: "", table_label: null })), products: nextProducts });
       setHasSnapshot(true);
       setMessage("");
     } catch (error) {
@@ -142,15 +147,15 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         {loading ? <div className="loadingState" role="status">Carregando produção…</div> : batches.map(batch => <article className="stationDish" key={batch.items[0].product_id ?? batch.items[0].id}>
           <div className="stationDishHeading"><div><ProductIcon name={batch.name} icon={batch.product?.icon} /><strong>{batch.name}</strong></div><span className="stationQuantity">{batch.quantity}</span></div>
           <span className="stationDishContext">{batch.items.filter(item => item.state !== "PREPARING").length} aguardando · {batch.items.filter(item => item.state === "PREPARING").length} em preparo</span>
-          <div className="stationChips">{batch.items.map(item => <span key={item.id}>{item.tab_label || "Sem identificação"}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
+          <div className="stationChips">{batch.items.map(item => <span key={item.id}>{itemPrimary(item)} · {itemSecondary(item)}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
         </article>)}
         {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum prato aguardando preparo.</div>}
       </section>
       <section className="stationTickets" aria-labelledby="queue-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="operation" id="queue-title">Fila de pedidos</OperationalHeading>{hasSnapshot && <span>{waiting.length} {waiting.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">O preparo só começa ao tocar em Iniciar preparo · mais antigo primeiro</p>
-        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${group[0].tab_label || "Sem identificação"}`}>
-          <strong className="stationTab">{group[0].tab_label || "Sem identificação"}</strong>
+        {loading ? <div className="loadingState" role="status">Carregando fila…</div> : [...orderGroups].map(([key, group]) => <div className="stationOrder" key={key} role="group" aria-label={`Pedido: ${itemPrimary(group[0])}`}>
+          <strong className="stationTab">{itemPrimary(group[0])}</strong><small className="muted">{itemSecondary(group[0])}</small>
           <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
           <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
           {next[item.state] && <button className="buttonPrimary" disabled={disabled} aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`} onClick={() => void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id)}>{changingItemId === item.id ? "Salvando…" : next[item.state].label}</button>}
@@ -161,14 +166,14 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <section className="stationPass" aria-labelledby="ready-title" aria-busy={loading}>
         <div className="stationLabel"><OperationalHeading as="h2" icon="check" id="ready-title">Pronto para retirada</OperationalHeading>{hasSnapshot && <span>{ready.length} {ready.length === 1 ? "item" : "itens"}</span>}</div>
         <p className="stationCaption">No passe · esperando retirada</p>
-        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
+        {loading ? <div className="loadingState" role="status">Carregando passe…</div> : ready.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{itemPrimary(item)}</strong><small className="muted">{itemSecondary(item)}</small><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">No passe · <time>{age(item.ready_at)}</time></div></div></article>)}
         {!loading && hasSnapshot && !ready.length && <div className="emptyState">Nada no passe.</div>}
-        {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{item.tab_label || "Sem identificação"}</strong><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
+        {!!inTransit.length && <div className="stationTransit"><h3>Em entrega</h3>{inTransit.map(item => <article className="stationPassRow" key={item.id}><strong className="stationTab">{itemPrimary(item)}</strong><small className="muted">{itemSecondary(item)}</small><div><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationPassMeta">Retirada registrada</div></div></article>)}</div>}
         <p className="stationFootnote">Estado confirmado pela operação. Atualizações ao vivo.</p>
       </section>
     </div>
     <div className="stationTools">
-    <section className="panel"><OperationalHeading as="h2" icon="operation">Tickets de produção</OperationalHeading>{[...new Map(items.filter(i => i.order_id && i.tab_id).map(i => [i.order_id, i])).values()].map(item => <div className="dataRow" key={item.order_id}><strong>{item.tab_label || "Comanda"} · {item.order_id?.slice(0, 8)}</strong><ReceiptPrinting tabId={item.tab_id!} orderId={item.order_id} station={station} /></div>)}</section>
+    <section className="panel"><OperationalHeading as="h2" icon="operation">Tickets de produção</OperationalHeading>{[...new Map(items.filter(i => i.order_id && i.tab_id).map(i => [i.order_id, i])).values()].map(item => <div className="dataRow" key={item.order_id}><strong>{itemPrimary(item)} · {item.order_id?.slice(0, 8)}</strong><ReceiptPrinting tabId={item.tab_id!} orderId={item.order_id} station={station} /></div>)}</section>
     <section className="panel" aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
       <OperationalHeading as="h2" icon="operation" id="availability-title">Disponibilidade agora</OperationalHeading>
