@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from asgiref.sync import sync_to_async
 from django.test import AsyncClient, TransactionTestCase, override_settings
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
@@ -267,6 +268,40 @@ class TenantSseStreamIsolationTests(TransactionTestCase):
                 )
                 # Re-enable only the test fixture for the other subtest.
                 VenueDomain.objects.filter(pk=self.domain_a.pk).update(is_active=True)
+
+    def test_revoked_staff_and_guest_session_stop_live_tenant_stream(self):
+        for guest in (False, True):
+            with self.subTest(guest=guest):
+                response = self.stream(guest=guest)
+                self.assertEqual(response.status_code, 200)
+                record = (
+                    guest_session_context(session_token=self.guest_token)
+                    if guest else session_for_access_token(self.staff_token)
+                )
+
+                async def revoke_and_read():
+                    iterator = response.streaming_content.__aiter__()
+                    try:
+                        first = await asyncio.wait_for(iterator.__anext__(), timeout=3)
+                        self.assertIn(b"event: ready", first)
+                        await sync_to_async(
+                            type(record).objects.filter(pk=record.pk).update,
+                            thread_sensitive=True,
+                        )(revoked_at=timezone.now())
+                        received = []
+                        for _ in range(3):
+                            frame = await asyncio.wait_for(iterator.__anext__(), timeout=4)
+                            received.append(frame)
+                            if b"event: revoked" in frame:
+                                break
+                        return received
+                    finally:
+                        await iterator.aclose()
+
+                frames = asyncio.run(revoke_and_read())
+                self.assertTrue(
+                    any(b"event: revoked" in frame for frame in frames), frames,
+                )
 
     def test_legacy_shared_api_stream_remains_compatible(self):
         response = self.staff_client.get(
