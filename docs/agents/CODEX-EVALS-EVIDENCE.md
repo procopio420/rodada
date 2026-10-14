@@ -1,6 +1,6 @@
 # Codex Evals & Evidence — Rodada
 
-Este slice do PR 3 adiciona **14 cenários** (`positive` + `negative` por cada uma das **7 skills na main**), um **analisador conservador de traces** e um **registro inicial** de aceites em specs. O trabalho automatizado no CI é **somente validação de contratos**, não uma bateria de modelo, não um relatório de homologação nem um deploy. Uma skill nova como `rodada-code-review` do PR #128 só entrará no catálogo quando estiver na main.
+Este slice do PR 3 adiciona **16 cenários** (`positive` + `negative` por cada uma das **8 skills na main**), um **analisador conservador de traces** e um **registro inicial** de aceites em specs. O trabalho automatizado no CI é **somente validação de contratos**, não uma bateria de modelo, não um relatório de homologação nem um deploy. Uma skill nova como `rodada-code-review` do PR #128 só entrará no catálogo quando estiver na main.
 
 ## 1. Casos e execução real no Codex (manual)
 
@@ -45,8 +45,8 @@ O validador é **estrutural**: não acessa URL, não confirma que workflow passo
 
 ## 3. Critérios de evolução
 
-- Rodar estas 14 avaliações **manualmente** no Codex sem MCPs com escrita e registrar os dois tipos de falha: `skill routing` e comportamento/ação.
-- Incluir a oitava skill quando [PR #128](https://github.com/procopio420/rodada/pull/128) entrar na main. Atualizar casos positivo/negativo **no mesmo PR** que criar skill nova.
+- Rodar estas 16 avaliações **manualmente** no Codex sem MCPs com escrita e registrar os dois tipos de falha: `skill routing` e comportamento/ação.
+- A oitava skill `rodada-code-review`, integrada pelo [PR #128](https://github.com/procopio420/rodada/pull/128), já tem par positivo/negativo. Para skills futuras, atualizar os casos **no mesmo PR** que criar a skill.
 - Revisar os critérios sem IDs e padronizar novos aceites com identificadores únicos por spec; automatizar verificação **real** de workflows via API autenticada e contexto de confiança antes de promover `CI_VERIFIED`.
 - Avaliações que precisam de ação mutável devem ser em sandbox descartável, com credenciais fake, ferramentas stub e gate de custo/safety; nunca em Railway ou dados de cliente.
 

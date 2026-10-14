@@ -16,7 +16,7 @@ class CodexEvalHarnessTests(unittest.TestCase):
     def test_real_cases_cover_all_installed_skills_both_polarities(self):
         self.assertEqual(module.validate_cases(), [])
         cases = module.load_cases()
-        self.assertGreaterEqual(len(cases), 14)
+        self.assertGreaterEqual(len(cases), 16)
         self.assertEqual({c["polarity"] for c in cases}, {"positive", "negative"})
 
     def test_banned_tools_fail_even_when_turn_completes(self):
