@@ -57,10 +57,9 @@ jobs:
       - name: Quality gate unit tests
         run: python -m unittest discover -s ../../scripts/tests -p test_quality_added_lines.py -v
 
-      - name: Ruff audit and blocking checks on added lines
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-        run: python ../../scripts/quality/check_added_lines.py --kind api --base "$BASE_SHA"
+      # Zero Ruff findings confirmed by the full-source inventory in PR #133.
+      - name: Ruff full-project gate (blocking)
+        run: python -m ruff check . --select E4,E7,E9,F
 
       - name: Django checks
         run: python manage.py check --settings=rodada_api.settings

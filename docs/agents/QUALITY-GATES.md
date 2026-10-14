@@ -13,7 +13,7 @@
 
 | Módulo | Check | Modo no PR 2 | CI |
 | --- | --- | --- | --- |
-| API Django | Ruff `E4,E7,E9,F` em todo `apps/api`, compara diagnóstico com linhas **adicionadas pelo PR** | **Bloqueia** violação nova localizada em linha adicionada; informa quantidade total de dívida | `.github/workflows/api.yml` |
+| API Django | Ruff `E4,E7,E9,F` em **todo** `apps/api` | **Bloqueio global, baseline 0** após limpeza verificada no PR #133 | `.github/workflows/api.yml` |
 | Web / Next 16 | `npm run typecheck`, build, integração BFF real e visual/a11y existentes | **Bloqueantes**, mantidos | `.github/workflows/web.yml` |
 | Web / código novo | Detectar `@ts-ignore`/`@ts-nocheck`, `eslint-disable`, `eval`/`new Function`, `NEXT_PUBLIC_*` com nomes de secrets e token no storage | **Bloqueia** novas linhas suspeitas | `scripts/quality/check_added_lines.py --kind web` |
 | Web / ESLint | `eslint@9.39.5` + `eslint-config-next@16.3.8` (Core Web Vitals + TypeScript), versionados no npm lockfile | **Bloqueia** diagnósticos novos ou fatais; conta os achados históricos sem falhar por dívida antiga. `npm run lint` inspeciona o projeto inteiro. | `.github/workflows/web.yml` |
@@ -36,3 +36,7 @@ O script [`check_added_lines.py`](../../scripts/quality/check_added_lines.py) us
 6. Mensurar tempo extra das Actions; se > ganho de detecção, otimizar job sem remover testes.
 
 Referências: [política de CI](../ci-workflows.md), [AGENTS raiz](../../AGENTS.md), [review (PR #128)](https://github.com/procopio420/rodada/pull/128), [fonte Next 16](https://nextjs.org/docs/app/api-reference/config/eslint).
+
+## Atualização PR #133 — API full blocking
+
+Após auditoria reprodutível no CI Web do PR #133 (run 38489079248), a contagem de `E4,E7,E9,F` da API chegou a **0**. Assim, o job API passa a executar `python -m ruff check . --select E4,E7,E9,F` de forma integral e bloqueante. A política added-lines permanece documentada para Web até a limpeza específica. Não interpretar esta seção como aprovação da suíte PostgreSQL nem como merge/deploy.
