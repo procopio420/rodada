@@ -95,6 +95,9 @@ class DispatchFoundationTests(TestCase):
         assert first_payload["id"] != second_payload["id"]
         queue = self.client.get("/production/BAR/").json()["results"]
         assert next(row for row in queue if row["id"] == str(item.id))["table_label"] == "Mesa 24"
+        delivery = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
+        live = self.client.get("/dispatch/delivery/").json()["results"]
+        assert next(row for row in live if row["id"] == str(delivery.id))["destination_label"] == "Mesa 24"
 
         assignment = TabOccupancyAssignment.objects.get(tab=first, released_at__isnull=True)
         assignment.released_at = timezone.now()
@@ -108,6 +111,10 @@ class DispatchFoundationTests(TestCase):
         assert moved["display_label"] == "João"
         queue = self.client.get("/production/BAR/").json()["results"]
         assert next(row for row in queue if row["id"] == str(item.id))["table_label"] == "Mesa 12"
+        live = self.client.get("/dispatch/delivery/").json()["results"]
+        assert next(row for row in live if row["id"] == str(delivery.id))["destination_label"] == "Mesa 12"
+        delivery.refresh_from_db()
+        assert delivery.destination_label == "Mesa 24"  # Immutable original destination snapshot
         first.refresh_from_db()
         assert first.display_label == "João"
 
