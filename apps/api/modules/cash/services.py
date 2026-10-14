@@ -128,15 +128,60 @@ def _require_key(idempotency_key: str) -> None:
         raise CashServiceError("IDEMPOTENCY_KEY_REQUIRED", "Chave de idempotência inválida.")
 
 
+def _assert_movement_identity(
+    movement: CashMovement,
+    *,
+    shift: CashShift,
+    idempotency_key: str,
+    kind: str,
+    amount_cents: int,
+    reason: str,
+    payment_id=None,
+    refund_id=None,
+    correction_of: CashMovement | None = None,
+    is_post_close_correction: bool = False,
+) -> None:
+    """A matching amount/key is not enough to identify the underlying money.
+
+    A movement belongs to one payment/refund and one drawer shift. Never
+    silently replay a different transaction with an identical client key.
+    """
+    if (
+        movement.shift_id != shift.pk
+        or movement.idempotency_key != idempotency_key
+        or movement.kind != kind
+        or movement.amount_cents != amount_cents
+        or movement.reason != reason
+        or movement.payment_id != payment_id
+        or movement.refund_id != refund_id
+        or movement.correction_of_id != (correction_of.pk if correction_of else None)
+        or movement.is_post_close_correction != is_post_close_correction
+    ):
+        raise CashServiceError(
+            "IDEMPOTENCY_CONFLICT",
+            "Chave já usada para outro movimento de caixa.",
+            409,
+        )
+
+
 def _replay_or_conflict(
-    *, shift: CashShift, idempotency_key: str, kind: str, amount_cents: int, reason: str
+    *, shift: CashShift, idempotency_key: str, kind: str, amount_cents: int, reason: str,
+    payment_id=None, refund_id=None, correction_of: CashMovement | None = None,
+    is_post_close_correction: bool = False,
 ) -> CashMovement | None:
     existing = CashMovement.objects.filter(shift=shift, idempotency_key=idempotency_key).first()
-    if not existing:
-        return None
-    if existing.kind != kind or existing.amount_cents != amount_cents or existing.reason != reason:
-        raise CashServiceError(
-            "IDEMPOTENCY_CONFLICT", "Chave já usada para outro movimento de caixa.", 409
+    if existing:
+        _assert_movement_identity(
+            existing,
+            shift=shift,
+            idempotency_key=idempotency_key,
+            kind=kind,
+            amount_cents=amount_cents,
+            reason=reason,
+            payment_id=payment_id,
+            refund_id=refund_id,
+            correction_of=correction_of,
+            is_post_close_correction=is_post_close_correction,
         )
     return existing
 
@@ -161,6 +206,10 @@ def _create_movement(
         kind=kind,
         amount_cents=amount_cents,
         reason=reason,
+        payment_id=payment_id,
+        refund_id=refund_id,
+        correction_of=correction_of,
+        is_post_close_correction=is_post_close_correction,
     )
     if replay:
         return replay, False
@@ -195,6 +244,18 @@ def _create_movement(
         else:
             movement = None
         if movement:
+            _assert_movement_identity(
+                movement,
+                shift=shift,
+                idempotency_key=idempotency_key,
+                kind=kind,
+                amount_cents=amount_cents,
+                reason=reason,
+                payment_id=payment_id,
+                refund_id=refund_id,
+                correction_of=correction_of,
+                is_post_close_correction=is_post_close_correction,
+            )
             return movement, False
         raise
     return movement, True

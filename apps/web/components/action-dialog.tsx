@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useId, useRef, type ReactNode } from "react";
-export function ActionDialog({ title, children, locked = false, onClose, closeButtonClassName = "buttonQuiet" }: { title: string; children: ReactNode; locked?: boolean; onClose: () => void; closeButtonClassName?: string }) {
+export function ActionDialog({ title, children, locked = false, onClose, closeButtonClassName = "buttonQuiet", returnFocus }: { title: string; children: ReactNode; locked?: boolean; onClose: () => void; closeButtonClassName?: string; returnFocus?: HTMLElement | null }) {
  const ref = useRef<HTMLDialogElement>(null);
  const titleId = useId();
  useEffect(() => {
-  const previous = document.activeElement as HTMLElement | null;
+  const previous = returnFocus ?? document.activeElement as HTMLElement | null;
   const element = ref.current;
   element?.showModal();
   return () => { element?.close(); requestAnimationFrame(() => previous?.focus()); };

@@ -181,6 +181,64 @@ real routed interface in kernel state UP rather than the original interface name
 Physical Wi-Fi acceptance still requires wlan0 and onsite evidence. A green HTTP
 shift or an emulator run cannot substitute for that physical acceptance.
 
+## Recorte POS Web CASH — Spec026 T03a
+
+- [x] Duplo envio/perda após commit/reload convergem ao mesmo Payment e movimento.
+- [x] Replay divergente de caixa/tender não altera ledger, audit ou snapshots.
+- [x] Sessão distinta/revogada/storage falho preservam pendência sem enviar/adotar.
+- [x] Readback confirma Payment antes de liberar; rejeição inicial permite revisão.
+
+Evidência local: Spec026/revalidation.md, seção T03a. Não cobre estorno,
+fechar aba ou resolução gerencial entre sessões; gates anteriores mantidos.
+
+## T03b — critérios do recorte manual
+
+Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
+
+- [x] Mesmo Refund após duplo toque, resposta perdida, reload e readback falho.
+- [x] Payload congelado; PIN recente, sessão divergente/revogada e storage falho
+  não descartam nem adotam intenção ambígua. Rejeição inicial segura permite edição.
+- [x] Replay divergente rejeitado; saldo/refundable, Payment/snapshots, ledger e
+  auditoria preservados; concorrência produz um único efeito em PostgreSQL.
+- [x] Jornada real Web/API e mobile360/390/430; visual completo, build/tipos e lint
+  registrados sem declarar provider, piloto, aparelho ou deploy homologados.
+
+## T05a — aceite staff Web
+
+- [x] Resposta perdida/reload retoma mesmo payload/chave e um Order/Charge/audit.
+- [x] Readback falho e duplo toque não liberam outra confirmação.
+- [x] Sessão diferente/revogada, envelope inválido/alterado e storage falho bloqueiam.
+- [x] Rejeição inicial conhecida permite revisão; replay ambíguo mantém bloqueio.
+- [x] Web/API/PostgreSQL, mobile360/390/430, visual completo, tipos/build e diff.
+
+Guest, drafts após reload e fechar aba permanecem abertos.
+
+## T05b — aceite do recorte guest
+
+- [x] Resposta perdida/reload retoma payload/chave originais sem duplicar Order/Charge/audit.
+- [x] Readback/duplo toque/contexto indisponível mantêm bloqueio até prova canônica.
+- [x] Sessão/Tab/ocupação/generation divergentes e revogação/bloqueio não adotam intenção.
+- [x] Storage inválido/falho impede POST; rejeição inicial segura permite revisão.
+- [x] Jornada real PostgreSQL, Web360/390/430, visual/build/tipos/lint/diff registrados.
+
+Mesma aba com storage íntegro; gates externos e persistência de drafts abertos.
+
+T11a/026 local: navegação ao contexto canônico preserva envelope/chave/sessão e não dispara mutation. Registro de outra sessão exige revisão; resolução direta de correção/estorno/caixa continua aberta. Jornada Android/API e limites em specs/026-operational-ux-friction/revalidation.md.
+
+T11c/026 — critérios locais de conferência: turno original consultado pelo ID,
+caixa operacional preservado, registro criptografado intacto; leitura/atualização
+não cria movimento nem reenvia fechamento. Erros e troca de sessão não mostram
+snapshot de outro turno. Comando guardado é distinguido do estado consultado,
+sem inferir desfecho por semelhança. Evidências e limites em
+specs/026-operational-ux-friction/revalidation.md. Reconciliação gerencial, aparelho
+físico e piloto continuam abertos.
+
+T11d/026 local: resolução de alvo por capability/Venue sem mutation e sem alterar
+reauth das ações financeiras. Item/payment/correction e Tab canônicos validáveis
+inclusive após encerramento/aplicação; envelope preservado e outra sessão bloqueada.
+Critérios/testes e limites em specs/026-operational-ux-friction/revalidation.md.
+Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
+
 - Emulator standby precondition waits for three consecutive original-route/primary-UP/
   standby-DOWN observations before the held real POST. Async radio commands alone are
   not accepted as proof; bounded failure stops the harness before any POST.

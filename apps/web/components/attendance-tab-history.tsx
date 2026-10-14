@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { ActionDialog } from "@/components/action-dialog";
 import { BillSummary, type Bill } from "@/components/bill-summary";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 
 type HistoryTab = Bill & { id: string; display_label: string; state: string; orders?: { id: string; items: { id: string; product_name: string; quantity: number; state: string }[] }[] };
-export function AttendanceTabHistory({ tabs, apiRoot, onClose }: { tabs: HistoryTab[]; apiRoot: string; onClose: () => void }) {
+export function AttendanceTabHistory({ tabs, apiRoot, onClose, pagination, searchControls }: { tabs: HistoryTab[]; pagination: ReactNode; searchControls: ReactNode; apiRoot: string; onClose: () => void }) {
  const [detail, setDetail] = useState<HistoryTab | null>(null);
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState("");
@@ -19,7 +19,9 @@ export function AttendanceTabHistory({ tabs, apiRoot, onClose }: { tabs: History
   finally { setLoading(false); }
  }
  return <ActionDialog title="Histórico de comandas" onClose={onClose} closeButtonClassName="buttonSecondary dialogReturn">
-  <p className="muted">Comandas encerradas · somente consulta.</p>
+  <p className="muted">Comandas encerradas nesta página · somente consulta.</p>
+  {searchControls}
+  {pagination}
   {!tabs.length && <p className="muted">Nenhuma comanda encerrada.</p>}
   {tabs.map(tab => <button key={tab.id} className="buttonQuiet" disabled={loading} onClick={() => void inspect(tab)} aria-pressed={detail?.id === tab.id}>{tab.display_label || "Sem identificação"} · {tab.state === "CANCELLED" ? "Cancelada" : "Encerrada"}</button>)}
   {loading && <p role="status">Carregando comanda…</p>}

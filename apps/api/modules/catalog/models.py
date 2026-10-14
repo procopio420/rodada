@@ -1,10 +1,11 @@
 import re
 import unicodedata
 import uuid
+from typing import ClassVar
 
 from django.db import models, transaction
 
-from modules.access.models import StaffMember
+from modules.access.models import StaffMember, StaffSession
 from modules.venue.models import Venue
 
 
@@ -22,6 +23,22 @@ class FulfillmentStation(models.TextChoices):
 class AvailabilityState(models.TextChoices):
     AVAILABLE = "AVAILABLE", "Available"
     UNAVAILABLE = "UNAVAILABLE", "Unavailable"
+
+
+class AvailabilityCommand(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT)
+    session = models.ForeignKey(StaffSession, on_delete=models.PROTECT)
+    actor = models.ForeignKey(StaffMember, on_delete=models.PROTECT)
+    idempotency_key = models.CharField(max_length=120)
+    request_fingerprint = models.CharField(max_length=64)
+    receipt = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints: ClassVar[list] = [models.UniqueConstraint(
+            fields=("venue", "session", "idempotency_key"), name="catalog_availability_session_key",
+        )]
 
 
 class Product(models.Model):

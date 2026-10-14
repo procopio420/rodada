@@ -26,6 +26,8 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    env:
+      RODADA_TEST_PYTHON: python
     timeout-minutes: 20
     services:
       postgres:
@@ -78,19 +80,6 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
         run: python scripts/quality/check_added_lines.py --kind web --base "$BASE_SHA"
 
-      # Temporary advisory inventory for debt eradication. The existing gates remain blocking.
-      - name: Full-source quality inventory (advisory)
-        run: python scripts/quality/debt_inventory.py --out-dir quality-debt
-
-      - name: Upload complete static-quality findings
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-quality-inventory
-          path: quality-debt/
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Staff session coordination tests
         working-directory: apps/web
         run: npm run test:auth
@@ -112,6 +101,9 @@ jobs:
       - name: Spec 027 focused responsive and recovery contracts
         working-directory: apps/web
         run: npm run test:visual -- table-service.spec.ts
+
+      - name: E2E PostgreSQL reset coordination regressions
+        run: python -m unittest discover -s apps/web/tests/integration -p 'test_e2e_db_guard.py' -v
 
       - name: Real Web BFF API workflows
         working-directory: apps/web

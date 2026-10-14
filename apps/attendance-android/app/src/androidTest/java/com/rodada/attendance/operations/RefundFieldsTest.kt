@@ -27,6 +27,8 @@ class RefundFieldsTest {
         compose.onNode(hasSetTextAction() and hasText("Motivo")).performScrollTo().performTextReplacement(" motivo de teste ")
         compose.onNode(hasSetTextAction() and hasText("Valor do estorno")).performScrollTo().performTextReplacement("3,00")
         val pin = compose.onNode(hasSetTextAction() and hasText("Seu PIN"))
+        pin.performScrollTo().performClick()
+        assertEditorType(android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD)
         pin.performScrollTo().performTextReplacement("1357")
         confirm.assertHeightIsAtLeast(44.dp).assertIsEnabled().performClick()
         assertEquals(300L,commands[0].amountCents);assertEquals("motivo de teste",commands[0].reason)

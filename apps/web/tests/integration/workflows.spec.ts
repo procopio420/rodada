@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -14,7 +14,7 @@ async function login(page: Page, operator = "test-manager") {
   await page.getByLabel("Operador", { exact: true }).fill(operator);
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
 }
 
 async function api(page: Page, path: string, data?: unknown) {
@@ -164,7 +164,7 @@ test("real expired session clears privileged cookies", async ({ page, context })
   const result = await response;
   expect(result.status()).toBe(401);
   expect((await result.json()).code).toBe("SESSION_EXPIRED");
-  await expect(page.getByRole("heading", { name: "Entrar no atendimento" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Quem vai trabalhar?" })).toBeVisible();
   expect((await context.cookies()).filter(c => c.name === "rodada_staff_access" || c.name === "rodada_staff_refresh")).toEqual([]);
 });
 
@@ -212,6 +212,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+  await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
   await guest.reload();
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();

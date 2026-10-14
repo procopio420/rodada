@@ -16,12 +16,13 @@ from django.db import connection
 from django.http import JsonResponse
 from django.urls import include, path
 
-from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionQueueView, TabDetailView, TabListCreateView
+from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionBatchView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
 from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView,
     TabLimitOverrideView, TabCustomerView, TabReassessView, TabApprovalRequestView, TabHouseHistoryView)
 from modules.corrections.views import (
     CorrectionRefundSettlementView,
+    CorrectionWithoutRefundSettlementView,
     OrderItemCancelView,
     PostProductionCorrectionView,
 )
@@ -29,6 +30,7 @@ from modules.catalog.views import (ProductAvailabilityView, ProductListView, Pro
 from modules.management.views import (CalendarView, ReportView, AlertListView, AlertDetailView, AlertPolicyView)
 from modules.venue.station_views import StationListView, StationPreviewView, StationApplyView
 from modules.cash.views import CashShiftListView
+from modules.corrections.recovery_views import OrderItemRecoveryContextView, PaymentRecoveryContextView, CorrectionRecoveryContextView
 from modules.hospitality.views import (
     TableServiceStartView, OccupancyTabOpenView, OccupancyResponsibilityClaimView,
     PartySizeView,
@@ -176,10 +178,15 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),
     path("payments/<uuid:payment_id>/refunds/", PaymentRefundView.as_view(), name="payment-refund"),
     path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
+    path("order-items/<uuid:item_id>/recovery-context/", OrderItemRecoveryContextView.as_view()),
+    path("payments/<uuid:payment_id>/recovery-context/", PaymentRecoveryContextView.as_view()),
+    path("corrections/<uuid:correction_id>/recovery-context/", CorrectionRecoveryContextView.as_view()),
     path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
     path("order-items/<uuid:item_id>/corrections/cancel/", OrderItemCancelView.as_view(), name="order-item-cancel"),
     path("order-items/<uuid:item_id>/corrections/post-production/", PostProductionCorrectionView.as_view(), name="order-item-post-production-correction"),
     path("corrections/<uuid:correction_id>/settle-refund/", CorrectionRefundSettlementView.as_view(), name="correction-settle-refund"),
+    path("corrections/<uuid:correction_id>/settle-without-refund/", CorrectionWithoutRefundSettlementView.as_view(), name="correction-settle-without-refund"),
+    path("production/batches/", ProductionBatchView.as_view(), name="production-batch"),
     path("production/<str:station>/", ProductionQueueView.as_view(), name="production-queue"),
     path("dispatch/", include("modules.dispatch.urls")),
     path("catalog/suggestions/", ProductSuggestView.as_view()),

@@ -23,3 +23,9 @@
 - [ ] Migrate customer-facing links/QR and define redirects for legacy hosts after verification; no token-in-URL handoff.
 - [ ] Remove compat hosts in a separate reviewed change after usage becomes negligible.
 - [ ] Plan Organization/Tenant billing + multi-Venue permissions separately, not as an implicit rename of Venue.
+
+## Visual follow-up — Establishment home
+
+- [x] [Web branch] Build approved-brand header and icon-based launcher with 2 mobile / 3 tablet / 4 desktop columns.
+- [x] [Web branch] Add two-Venue browser integration assertions for branding, links, breakpoints and overflow.
+- [ ] [QA] Run Web CI and inspect rendered browser screenshots at 360/390/430, 768 and 1280+ before merge/deploy.

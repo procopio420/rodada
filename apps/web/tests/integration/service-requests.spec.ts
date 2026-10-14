@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import AxeBuilder from "@axe-core/playwright";
 
 test("guest service calls persist in Dispatch and revoke with the visit", async ({ page, browser }) => {
@@ -7,7 +7,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const api = async (url: string, body?: unknown) => page.evaluate(async ({ url, body }) => {
     const result = await fetch(`/api/pos/${url}`, {
       method: body === undefined ? "GET" : "POST",

@@ -37,3 +37,11 @@ Reuse ActionDialog for read-only closed Tab history; move its discreet icon/text
 History trigger placement supersedes footer position: icon-only Histórico control lives at the right edge inside the Abrir comanda heading surface, using existing touch and accent tokens.
 
 Reuse secondary button and existing accent surface styling for the history dialog return action; retain quiet defaults in other dialogs.
+
+## T04 — rascunhos locais por destino
+
+1. Substituir carrinho único por mapa Tab→linhas; setter ligado à Tab original.
+2. Remover resets em seleção/abertura; manter limpeza da Tab confirmada apenas.
+3. Seleção assíncrona bloqueada, reseleção revela e foca título; descarte confirmado.
+4. Validar A→B→A, nova Tab, configurações distintas, catálogo alterado, foco,
+   pendência e regressões; Web/API/PostgreSQL, mobile360/390/430 e visual completo.

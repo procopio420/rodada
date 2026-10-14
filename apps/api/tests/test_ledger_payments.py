@@ -262,6 +262,100 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(movement.amount_cents, 1200)
         self.assertEqual(payment.cash_tender_detail.change_given_cents, 800)
 
+    def test_same_client_key_on_different_tabs_creates_distinct_cash_movements(self):
+        first_tab = self.order_tab()
+        second_tab = self.order_tab()
+        drawer = CashPoint.objects.create(venue=self.venue, label="Caixa compartilhado")
+        opened = self.client.post(
+            "/cash/shifts/",
+            {"cash_point_id": str(drawer.id), "opening_float_cents": 5000,
+             "business_date": "2026-10-07", "idempotency_key": "open-shared"},
+            format="json",
+        )
+        self.assertEqual(opened.status_code, 201, opened.json())
+        payload = {"amount_cents": 1200, "method": "CASH",
+                   "cash_point_id": str(drawer.id), "idempotency_key": "same-client-key"}
+        one = self.client.post(f"/tabs/{first_tab['id']}/payments/", payload, format="json")
+        two = self.client.post(f"/tabs/{second_tab['id']}/payments/", payload, format="json")
+        self.assertEqual(one.status_code, 201, one.json())
+        self.assertEqual(two.status_code, 201, two.json())
+        self.assertNotEqual(one.json()["id"], two.json()["id"])
+        movements = CashMovement.objects.filter(payment__isnull=False)
+        self.assertEqual(movements.count(), 2)
+        self.assertEqual({str(m.payment_id) for m in movements}, {one.json()["id"], two.json()["id"]})
+        self.assertEqual(sum(m.amount_cents for m in movements), 2400)
+        self.assertEqual(len({m.idempotency_key for m in movements}), 2)
+        replay = self.client.post(f"/tabs/{first_tab['id']}/payments/", payload, format="json")
+        self.assertEqual(replay.status_code, 201, replay.json())
+        self.assertEqual(replay.json()["id"], one.json()["id"])
+        self.assertEqual(CashMovement.objects.filter(payment__isnull=False).count(), 2)
+        shift = self.client.get(f"/cash/shifts/{opened.json()['id']}/")
+        self.assertEqual(shift.status_code, 200, shift.json())
+        self.assertEqual(shift.json()["expected_cents"], 7400)
+
+    def test_cash_refund_replay_checks_drawer_and_survives_closed_tab(self):
+        tab = self.order_tab()
+        primary = CashPoint.objects.create(venue=self.venue, label="Caixa de estorno")
+        foreign = CashPoint.objects.create(venue=self.venue, label="Outro caixa")
+        for point, key in ((primary, "open-refund-one"), (foreign, "open-refund-two")):
+            opened = self.client.post(
+                "/cash/shifts/",
+                {"cash_point_id": str(point.id), "opening_float_cents": 5000,
+                 "business_date": "2026-10-07", "idempotency_key": key},
+                format="json",
+            )
+            self.assertEqual(opened.status_code, 201, opened.json())
+        payment = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 2400, "method": "CASH",
+             "cash_point_id": str(primary.id), "idempotency_key": "cash-refund-source"},
+            format="json",
+        )
+        self.assertEqual(payment.status_code, 201, payment.json())
+        _, manager = self.manager_client()
+        self.assertEqual(manager.post("/auth/reauthenticate/", {"pin": "4321"}, format="json").status_code, 200)
+        endpoint = f"/payments/{payment.json()['id']}/refunds/"
+        payload = {"amount_cents": 400, "idempotency_key": "refund-lost-response",
+                   "reason": "Cliente devolveu item", "cash_point_id": str(primary.id)}
+        first = manager.post(endpoint, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        self.assertEqual(Refund.objects.count(), 1)
+        self.assertEqual(CashMovement.objects.filter(refund__isnull=False).count(), 1)
+        another_drawer = manager.post(
+            endpoint, {**payload, "cash_point_id": str(foreign.id)}, format="json"
+        )
+        self.assertEqual(another_drawer.status_code, 409, another_drawer.json())
+        self.assertEqual(another_drawer.json()["code"], "IDEMPOTENCY_CONFLICT")
+        no_drawer = manager.post(endpoint, {k: v for k, v in payload.items() if k != "cash_point_id"}, format="json")
+        self.assertEqual(no_drawer.status_code, 409, no_drawer.json())
+        self.assertEqual(Refund.objects.count(), 1)
+
+        # Refund reopens 400 cents of exposure; settle and close the Tab.
+        settled = self.client.post(
+            f"/tabs/{tab['id']}/payments/",
+            {"amount_cents": 400, "method": "EXTERNAL_TERMINAL",
+             "idempotency_key": "refund-recovery-settlement"},
+            format="json",
+        )
+        self.assertEqual(settled.status_code, 201, settled.json())
+        self.assertEqual(self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json").status_code, 200)
+        replay = manager.post(endpoint, payload, format="json")
+        self.assertEqual(replay.status_code, 200, replay.json())
+        self.assertEqual(replay.json()["id"], first.json()["id"])
+        self.assertEqual(CashMovement.objects.filter(refund__isnull=False).count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.refunded").count(), 1)
+        conflict = manager.post(
+            endpoint, {**payload, "amount_cents": 300}, format="json"
+        )
+        self.assertEqual(conflict.status_code, 409, conflict.json())
+        self.assertEqual(conflict.json()["code"], "IDEMPOTENCY_CONFLICT")
+        brand_new = manager.post(
+            endpoint, {**payload, "idempotency_key": "new-refund-after-close"},
+            format="json",
+        )
+        self.assertEqual(brand_new.status_code, 409, brand_new.json())
+        self.assertEqual(brand_new.json()["code"], "TAB_CLOSED")
+
     def test_cash_shift_detail_is_a_complete_recovery_snapshot(self):
         point = CashPoint.objects.create(venue=self.venue, label="Gaveta de recuperação")
         opened = self.client.post(
@@ -353,3 +447,177 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(detail["payments_cents"], 1000)
         self.assertEqual(detail["refunds_cents"], 0)
         self.assertEqual(detail["exposure_cents"], 1400)
+
+    def cash_receipt(self, *, amount=1200, tender=None):
+        tab = self.order_tab()
+        point = CashPoint.objects.create(venue=self.venue, label="Replay drawer")
+        opened = self.client.post("/cash/shifts/", {
+            "cash_point_id": str(point.id), "opening_float_cents": 0,
+            "business_date": "2026-10-12", "idempotency_key": "replay-open",
+        }, format="json")
+        self.assertEqual(opened.status_code, 201, opened.json())
+        detail = self.client.get(f"/tabs/{tab['id']}/").json()
+        session = self.client.get("/auth/me/").json()["session"]["id"]
+        payload = {"amount_cents": amount, "method": "CASH", "cash_point_id": str(point.id),
+                   "idempotency_key": "cash-recover", "expected_version": detail["version"],
+                   "originating_session_id": session}
+        if tender is not None:
+            payload["amount_tendered_cents"] = tender
+        return f"/tabs/{tab['id']}/payments/", payload, opened.json()["id"]
+
+    def test_cash_replay_rejects_changed_fingerprint_and_preserves_facts(self):
+        path, payload, shift_id = self.cash_receipt(tender=2000)
+        first = self.client.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        before_shift = self.client.get(f"/cash/shifts/{shift_id}/").json()
+        other = CashPoint.objects.create(venue=self.venue, label="Other drawer")
+        for changed in ({"cash_point_id": str(other.id)}, {"cash_point_id": None},
+                        {"amount_tendered_cents": 2100}, {"amount_tendered_cents": None},
+                        {"amount_cents": 1000}, {"method": "OTHER"}):
+            with self.subTest(changed=changed):
+                conflict = self.client.post(path, {**payload, **changed}, format="json")
+                self.assertEqual(conflict.status_code, 409, conflict.json())
+                self.assertEqual(conflict.json()["code"], "IDEMPOTENCY_CONFLICT")
+        self.assertEqual(self.client.get(f"/cash/shifts/{shift_id}/").json(), before_shift)
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertEqual(CashMovement.objects.filter(payment__isnull=False).count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.collected").count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="cash.payment_recorded").count(), 1)
+        self.assertEqual(Payment.objects.get().cash_tender_detail.change_given_cents, 800)
+
+    def test_cash_replay_recovers_after_tab_and_shift_close_without_new_audit(self):
+        path, payload, shift_id = self.cash_receipt(amount=2400)
+        first = self.client.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        tab_path = path.removesuffix("payments/")
+        self.assertEqual(self.client.post(tab_path + "close/", {}, format="json").status_code, 200)
+        counting = self.client.post(f"/cash/shifts/{shift_id}/count/start/", {}, format="json").json()
+        closed = self.client.post(f"/cash/shifts/{shift_id}/close/", {
+            "counted_amount_cents": 2400, "expected_version": counting["version"],
+        }, format="json")
+        self.assertEqual(closed.status_code, 200, closed.json())
+        closed_snapshot = self.client.get(f"/cash/shifts/{shift_id}/").json()
+        for tender in (None, 2400):
+            replay = self.client.post(path, {**payload, "amount_tendered_cents": tender}, format="json")
+            self.assertEqual(replay.status_code, 201, replay.json())
+            self.assertEqual(replay.json()["id"], first.json()["id"])
+            self.assertEqual(replay.json()["exposure_cents"], 0)
+        self.assertEqual(self.client.get(f"/cash/shifts/{shift_id}/").json(), closed_snapshot)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.collected").count(), 1)
+
+    def test_cash_receipt_never_adopts_changed_or_revoked_session(self):
+        from modules.access.models import StaffSession
+
+        path, payload, _ = self.cash_receipt()
+        _, manager = self.manager_client()
+        wrong_session = manager.post(path, payload, format="json")
+        self.assertEqual(wrong_session.status_code, 403, wrong_session.json())
+        self.assertEqual(wrong_session.json()["code"], "SESSION_CONTEXT_CHANGED")
+        self.assertFalse(Payment.objects.exists())
+        self.assertEqual(self.client.post(path, payload, format="json").status_code, 201)
+        self.assertEqual(manager.post(path, payload, format="json").json()["code"], "SESSION_CONTEXT_CHANGED")
+        StaffSession.objects.filter(pk=payload["originating_session_id"]).update(revoked_at=timezone.now())
+        rejected = self.client.post(path, payload, format="json")
+        self.assertIn(rejected.status_code, (401, 403))
+        self.assertEqual(Payment.objects.count(), 1)
+
+    def test_cash_initial_rejection_rolls_back_payment_and_allows_review(self):
+        path, payload, _ = self.cash_receipt()
+        rejected = self.client.post(path, {**payload, "amount_tendered_cents": 500}, format="json")
+        self.assertEqual(rejected.status_code, 400, rejected.json())
+        self.assertFalse(Payment.objects.exists())
+        self.assertFalse(CashMovement.objects.filter(payment__isnull=False).exists())
+        self.assertFalse(AuditEvent.objects.filter(event_type="payment.collected").exists())
+        self.assertEqual(self.client.post(path, payload, format="json").status_code, 201)
+
+    def test_legacy_cash_without_physical_evidence_is_review_only(self):
+        path, payload, _ = self.cash_receipt()
+        Payment.objects.create(tab_id=path.split("/")[2], amount_cents=1200, method="CASH",
+                               status="CONFIRMED", idempotency_key=payload["idempotency_key"],
+                               received_by=self.cashier, confirmed_at=timezone.now())
+        replay = self.client.post(path, payload, format="json")
+        self.assertEqual(replay.json()["code"], "IDEMPOTENCY_CONFLICT")
+        self.assertEqual(Payment.objects.count(), 1)
+        self.assertFalse(CashMovement.objects.filter(payment__isnull=False).exists())
+
+    def refund_intent(self):
+        payment_path, collection, shift_id = self.cash_receipt(amount=1200)
+        received = self.client.post(payment_path, collection, format="json")
+        self.assertEqual(received.status_code, 201, received.json())
+        _, manager = self.manager_client()
+        self.assertEqual(manager.post("/auth/reauthenticate/", {"pin": "4321"}, format="json").status_code, 200)
+        session = manager.get("/auth/me/").json()["session"]["id"]
+        payload = {"amount_cents": 500, "reason": "Correction test", "idempotency_key": "refund-recovery",
+                   "cash_point_id": collection["cash_point_id"], "originating_session_id": session}
+        return manager, f"/payments/{received.json()['id']}/refunds/", payload, shift_id
+
+    def test_manual_refund_replay_fingerprint_and_payment_history(self):
+        manager, path, payload, shift_id = self.refund_intent()
+        original = Payment.objects.values().get()
+        first = manager.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        self.assertEqual(first.json()["exposure_cents"], 1700)
+        shift = self.client.get(f"/cash/shifts/{shift_id}/").json()
+        self.assertEqual(shift["expected_cents"], 700)
+        other = CashPoint.objects.create(venue=self.venue, label="Refund other drawer")
+        for changed in ({"amount_cents": 400}, {"reason": "Other reason"},
+                        {"cash_point_id": str(other.id)}, {"cash_point_id": None}):
+            conflict = manager.post(path, {**payload, **changed}, format="json")
+            self.assertEqual(conflict.status_code, 409, conflict.json())
+            self.assertEqual(conflict.json()["code"], "IDEMPOTENCY_CONFLICT")
+        replay = manager.post(path, payload, format="json")
+        self.assertEqual(replay.status_code, 200, replay.json())
+        self.assertEqual(replay.json()["id"], first.json()["id"])
+        self.assertEqual(self.client.get(f"/cash/shifts/{shift_id}/").json(), shift)
+        self.assertEqual(Refund.objects.count(), 1)
+        self.assertEqual(CashMovement.objects.filter(refund__isnull=False).count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(event_type="payment.refunded").count(), 1)
+        current = Payment.objects.values().get()
+        self.assertEqual(current.pop("status"), "PARTIALLY_REFUNDED")
+        original.pop("status")
+        self.assertEqual(current, original)
+        excess = manager.post(path, {**payload, "amount_cents": 701, "idempotency_key": "excess-refund"}, format="json")
+        self.assertEqual(excess.json()["code"], "REFUND_EXCEEDS_PAYMENT")
+        self.assertEqual(Refund.objects.count(), 1)
+
+    def test_manual_refund_replay_survives_closed_tab_and_shift_but_requires_pin(self):
+        from modules.access.models import StaffSession
+        from modules.ordering.models import Tab
+
+        manager, path, payload, shift_id = self.refund_intent()
+        first = manager.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        Tab.objects.filter(pk=Payment.objects.get().tab_id).update(state="CLOSED")
+        counting = self.client.post(f"/cash/shifts/{shift_id}/count/start/", {}, format="json").json()
+        closed = self.client.post(f"/cash/shifts/{shift_id}/close/", {
+            "counted_amount_cents": 700, "expected_version": counting["version"],
+        }, format="json")
+        self.assertEqual(closed.status_code, 200, closed.json())
+        snapshot = self.client.get(f"/cash/shifts/{shift_id}/").json()
+        replay = manager.post(path, payload, format="json")
+        self.assertEqual(replay.status_code, 200, replay.json())
+        self.assertEqual(replay.json()["id"], first.json()["id"])
+        new = manager.post(path, {**payload, "idempotency_key": "new-refund"}, format="json")
+        self.assertEqual(new.json()["code"], "TAB_CLOSED")
+        StaffSession.objects.filter(pk=payload["originating_session_id"]).update(recently_reauthenticated_at=None)
+        required = manager.post(path, payload, format="json")
+        self.assertEqual(required.json()["code"], "REAUTH_REQUIRED")
+        self.assertEqual(self.client.get(f"/cash/shifts/{shift_id}/").json(), snapshot)
+        self.assertEqual(Refund.objects.count(), 1)
+
+    def test_refund_context_and_legacy_physical_evidence_fail_closed(self):
+        from modules.access.models import StaffSession
+
+        manager, path, payload, _ = self.refund_intent()
+        wrong = manager.post(path, {**payload, "originating_session_id": self.client.get("/auth/me/").json()["session"]["id"]}, format="json")
+        self.assertEqual(wrong.json()["code"], "SESSION_CONTEXT_CHANGED")
+        self.assertFalse(Refund.objects.exists())
+        first = manager.post(path, payload, format="json")
+        self.assertEqual(first.status_code, 201, first.json())
+        CashMovement.objects.filter(refund__isnull=False).delete()
+        missing = manager.post(path, payload, format="json")
+        self.assertEqual(missing.json()["code"], "IDEMPOTENCY_CONFLICT")
+        self.assertFalse(CashMovement.objects.filter(refund__isnull=False).exists())
+        StaffSession.objects.filter(pk=payload["originating_session_id"]).update(revoked_at=timezone.now())
+        self.assertIn(manager.post(path, payload, format="json").status_code, (401, 403))
+        self.assertEqual(Refund.objects.count(), 1)

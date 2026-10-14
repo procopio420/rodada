@@ -71,7 +71,14 @@ Nome, perfil Rodada, QR, NFC e sessão do celular são formas de encontrar ou ac
 A [Spec 026](specs/026-operational-ux-friction/spec.md) organiza o
 [UX Friction Audit de 12/10](docs/design/ux-friction-audit-2026-10-12.md):
 35 achados, prioridades e jornadas reais na demo, com medições separadas de
-estimativas. É guidance documental; não declara implementação ou homologação.
+estimativas. T01 foi revalidada; os recortes T02 (revisão sem devolução) e
+T03a (recebimento CASH recuperável), T03b (estorno manual recuperável) e T04
+(rascunhos por comanda em memória e reseleção previsível) foram
+implementados e testados localmente; consulte a
+[revalidação](specs/026-operational-ux-friction/revalidation.md).
+T05a recupera a confirmação de pedidos staff Web na mesma aba/sessão após
+reload; T05b cobre guest na mesma aba e visita, com validação de ocupação/revogação. Os demais gates e a homologação
+permanecem abertos.
 O fluxo de produção medido no deploy c198c9b já foi alterado pelo PR #98 e
 precisa ser revalidado na versão publicada correspondente.
 
