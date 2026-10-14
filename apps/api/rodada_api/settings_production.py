@@ -1,6 +1,9 @@
 """Fail-closed deployment profile; selecting it does not certify infrastructure."""
+import os
+
 from django.core.exceptions import ImproperlyConfigured
-from .settings import *  # noqa: F403
+from .settings import *  # noqa: F403  # Django settings profile exports globals
+from .settings import ALLOWED_HOSTS, MIDDLEWARE, SECRET_KEY
 
 DEBUG = False
 if not os.environ.get("DJANGO_SECRET_KEY") or len(SECRET_KEY) < 50 or len(set(SECRET_KEY)) < 5:

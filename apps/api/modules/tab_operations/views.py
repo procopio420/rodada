@@ -51,7 +51,7 @@ class OperationView(APIView):
 
         from .models import TabTransfer
         payload["transfers"] = [{"id": str(t.id), "kind": t.kind, "source_tab_id": str(t.source_tab_id),
-            "destination_tab_id": str(t.destination_tab_id), "amount_cents": sum(l.amount_cents for l in t.lines.all())}
+            "destination_tab_id": str(t.destination_tab_id), "amount_cents": sum(line.amount_cents for line in t.lines.all())}
             for t in TabTransfer.objects.filter(Q(source_tab=tab) | Q(destination_tab=tab)).prefetch_related("lines")]
         return Response(payload)
 

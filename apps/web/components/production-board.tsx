@@ -27,7 +27,6 @@ const next: Record<string, { state: string; label: string }> = {
   PREPARING: { state: "READY", label: "Pronto" },
 };
 const labels: Record<string, string> = { NEW: "Aguardando preparo", ACCEPTED: "Aguardando preparo", PREPARING: "Em preparo", READY: "Pronto" };
-const tone = (state: string) => state === "READY" ? "success" : state === "PREPARING" ? "warning" : "info";
 const apiMessage = (body: unknown) => { const error = asApiError(body); return `${error.code} · ${error.message}`; };
 
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {

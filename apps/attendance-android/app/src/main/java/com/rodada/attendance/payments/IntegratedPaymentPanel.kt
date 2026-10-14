@@ -1,5 +1,6 @@
 package com.rodada.attendance.payments
 
+import android.content.ClipData
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.foundation.Image
@@ -13,15 +14,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Composable
 fun IntegratedPaymentPanel(payment: IntegratedPayment, busy: Boolean, onCheck: () -> Unit, onDismiss: () -> Unit) {
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val clipboardScope = rememberCoroutineScope()
     val bitmap = remember(payment.qrCode) {
         runCatching {
             val bytes = Base64.decode(payment.qrCode.substringAfter(","), Base64.DEFAULT)
@@ -43,7 +47,11 @@ fun IntegratedPaymentPanel(payment: IntegratedPayment, busy: Boolean, onCheck: (
                     if (payment.copyPaste.isNotBlank()) {
                         Text("Pix copia e cola")
                         SelectionContainer { Text(payment.copyPaste) }
-                        TextButton(onClick = { clipboard.setText(AnnotatedString(payment.copyPaste)) }) { Text("Copiar código Pix") }
+                        TextButton(onClick = {
+                            clipboardScope.launch {
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Código Pix", payment.copyPaste)))
+                            }
+                        }) { Text("Copiar código Pix") }
                     }
                 }
             }

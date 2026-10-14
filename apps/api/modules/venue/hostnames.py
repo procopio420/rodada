@@ -1,3 +1,5 @@
+from contextvars import ContextVar
+
 from django.core.exceptions import ValidationError
 
 TENANT_DOMAIN = 'rodada.bar'
@@ -19,7 +21,6 @@ def normalize_tenant_hostname(hostname):
 
 
 # Request-scoped venue identity; None preserves explicit legacy/native transport.
-from contextvars import ContextVar
 resolved_venue_id = ContextVar("rodada_host_venue_id", default=None)
 
 

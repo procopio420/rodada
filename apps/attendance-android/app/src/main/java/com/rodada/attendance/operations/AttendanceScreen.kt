@@ -256,8 +256,10 @@ fun AttendanceScreen(
         }
     }
 
-    if (adjustingPricing && state.selectedTab != null) PricingDialog(session, state.selectedTab!!.summary, viewModel,
-        onDismiss = { adjustingPricing = false })
+    if (adjustingPricing) state.selectedTab?.let { selectedTab ->
+        PricingDialog(session, selectedTab.summary, viewModel,
+            onDismiss = { adjustingPricing = false })
+    }
 
     if (operatingTab) TabOperationsDialog(session, state,
         onDismiss = { operatingTab = false },

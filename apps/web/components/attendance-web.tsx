@@ -39,6 +39,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const [openingAt, setOpeningAt] = useState<Table | null>(null);
   const [newLabel, setNewLabel] = useState("");
   const [takeoverAt, setTakeoverAt] = useState<Table | null>(null);
+  const [error, setError] = useState(""), [message, setMessage] = useState(""), [updated, setUpdated] = useState("");
   useEffect(() => {
     try {
       const prefix = `rodada:table-service:${session.venue.id}:${session.staff.id}:`;
@@ -64,7 +65,6 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
 
   const [screen, setScreen] = useState("now"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
   const [tables, setTables] = useState<Table[]>([]), [deliveries, setDeliveries] = useState<Delivery[]>([]), [tabs, setTabs] = useState<Tab[]>([]), [zones, setZones] = useState<{ id: string; label: string }[]>([]);
-  const [error, setError] = useState(""), [message, setMessage] = useState(""), [updated, setUpdated] = useState("");
   const refresh = useCallback(async () => {
     try {
       const [tableList, queue, zoneList] = await Promise.all([request<{ results: Table[]; table_service_enabled: boolean }>("hospitality/tables/"), request<{ results: Delivery[] }>("dispatch/delivery/"), request<{ results: { id: string; label: string }[] }>("hospitality/zones/")]);

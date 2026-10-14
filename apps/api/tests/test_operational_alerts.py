@@ -40,7 +40,8 @@ class OperationalAlertTests(AlertFixtures, TestCase):
         self.assertEqual(self.client.post('/auth/reauthenticate/', {'pin':'1234'}, format='json').status_code, 200)
 
     def test_dedupe_escalation_resolution_recurrence_and_provenance(self):
-        for _ in range(10): evaluate_alerts(self.venue, self.now)
+        for _ in range(10):
+            evaluate_alerts(self.venue, self.now)
         alert = OperationalAlert.objects.get(venue=self.venue)
         self.assertEqual(alert.severity, 'WARNING')
         self.assertEqual(alert.source['station'], 'KITCHEN')
@@ -174,8 +175,10 @@ class OperationalAlertConcurrencyTests(AlertFixtures, TransactionTestCase):
         self.assertEqual(connection.vendor, 'postgresql', 'Real PostgreSQL required for lock evidence')
         def worker(_):
             close_old_connections()
-            try: return evaluate_alerts(Venue.objects.get(pk=self.venue.pk), self.now).count()
-            finally: connections.close_all()
+            try:
+                return evaluate_alerts(Venue.objects.get(pk=self.venue.pk), self.now).count()
+            finally:
+                connections.close_all()
         with ThreadPoolExecutor(max_workers=4) as pool:
             self.assertEqual(list(pool.map(worker, range(8))), [1]*8)
         self.assertEqual(OperationalAlert.objects.filter(venue=self.venue).count(), 1)

@@ -1,6 +1,7 @@
 """Dedicated disposable PostgreSQL customization/concurrency verification."""
 
-from .settings_test import *
+# Django settings profiles intentionally inherit all uppercase settings.
+from .settings_test import *  # noqa: F403
 
 DATABASES = {
     "default": {

@@ -15,7 +15,6 @@ from modules.access.models import (
     StaffSession,
     VenueStaffMembership,
 )
-from modules.audit.models import AuditEvent
 from modules.audit.services import record_audit_event
 from modules.venue.models import Venue
 

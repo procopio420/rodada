@@ -173,7 +173,7 @@ class OperationsApiException(
 fun formatCents(cents: Long): String {
     val absolute = kotlin.math.abs(cents)
     val sign = if (cents < 0) "-" else ""
-    return String.format(Locale("pt", "BR"), "%sR$ %,d,%02d", sign, absolute / 100, absolute % 100)
+    return String.format(Locale.forLanguageTag("pt-BR"), "%sR$ %,d,%02d", sign, absolute / 100, absolute % 100)
 }
 
 /** Parses a Brazilian user-entered amount to integer cents without ever using floating point. */

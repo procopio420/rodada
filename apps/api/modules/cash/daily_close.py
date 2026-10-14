@@ -88,7 +88,8 @@ def _snapshot(venue, day):
         blockers.append(dict(kind='OPEN_TAB', id=tab['id'], exposure_cents=tab['exposure_cents']))
     charges = Charge.objects.filter(tab__venue=venue, created_at__gte=lower, created_at__lt=upper)
     adjustments = LedgerAdjustment.objects.filter(tab__venue=venue, created_at__gte=lower, created_at__lt=upper)
-    aggregate = lambda rows: rows.aggregate(value=Sum('amount_cents'))['value'] or 0
+    def aggregate(rows):
+        return rows.aggregate(value=Sum('amount_cents'))['value'] or 0
     gross, adjustment = aggregate(charges), aggregate(adjustments)
     from modules.ledger.pricing import category
     service_pass_through = 0
