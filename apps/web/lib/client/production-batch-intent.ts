@@ -55,6 +55,19 @@ export function useProductionBatchIntent(station: "BAR" | "KITCHEN", onReadback:
     });
     return () => { active = false; };
   }, []);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (!usable.current) return;
+      try {
+        const expected = intent.current ? JSON.stringify(intent.current) : null;
+        if (sessionStorage.getItem(key) !== expected) throw new Error("Batch journal changed");
+      } catch {
+        usable.current = false; setReady(false);
+        setMessage("Não foi possível preservar o lote neste navegador. Solicite revisão antes de continuar.");
+      }
+    }, 15000);
+    return () => window.clearInterval(timer);
+  }, []);
   const locked = () => !ready || busy || pending !== null;
   const locksItem = (id: string) => !ready || (busy && !pending) || !!pending?.payload.lines.some(line => line.item_id === id);
   async function submit(draft?: BatchDraft) {

@@ -1957,3 +1957,14 @@ Diff do recorte revisado e sem contexto pessoal; servidores encerrados pelo runn
 Fixtures não equivalem a prova integrada real API/PG. Correções sem pagamento,
 telas de decisão/PIN contextual, projeção gerencial e G1 continuam pendentes.
 Sem commit/push/deploy; alterações anteriores preservadas.
+
+
+## Fechamento de integração — 14/10/2026
+
+Estado de testes e pendências finais registrado em [release-summary.md](release-summary.md).
+API/PostgreSQL, Android, Knowledge Base e 88 jornadas reais Web passam na CI
+em b1d811d. O gate visual completo foi interrompido por timeout e não é PASS.
+A única falha observada, bloqueio visual de journal de lote adulterado, foi
+corrigida mantendo a proteção pré-POST; três regressões focadas e build PASS.
+Demais critérios amplos e gates externos continuam abertos. Nenhum deploy ou
+medição humana é inferido da integração Git.

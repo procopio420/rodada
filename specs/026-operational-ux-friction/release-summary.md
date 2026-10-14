@@ -65,3 +65,26 @@ Ruff de linhas adicionadas, tipos/build/ESLint Web, integração real BFF/API,
 visual/acessibilidade e Android. Resultados históricos constam da revalidação;
 falhas de integração intermediária não são apresentadas como PASS final.
 Este fechamento não inclui deploy e não encerra os gates externos acima.
+
+## Registro final do fechamento — 14/10/2026
+
+- CI em `b1d811d396f2455ab7fb478a458cb80ff7b506cb`: API/PostgreSQL,
+  Android e Knowledge Base PASS; 88 jornadas reais Web/BFF/API PASS.
+- Tipos, ESLint de linhas adicionadas, build e gateway de isolamento financeiro
+  PASS na mesma CI. Não foram desabilitados testes, regras ou assertions.
+- Visual/acessibilidade: cancelado pelo limite de 20 minutos do job; chegou ao
+  cenário 479 de 519 e registrou uma falha de barreira de lote adulterado.
+  Portanto, a suíte completa não recebe PASS.
+- Ajuste mínimo posterior: monitor de integridade do journal de lote a cada
+  15 segundos publica o bloqueio quando o registro muda; conserva o envelope
+  original e as guardas síncronas antes de POST. Build PASS; os três casos
+  focados sessão/malformed/tampered PASS (3,7 s).
+- Revisão independente dos clientes sobre esse delta: NO_FINDINGS_WITH_GAPS,
+  somente leitura, sem autoria. A API não mudou após sua revisão independente.
+- O fechamento registra os checks por SHA/recorte; não declara GO de produção
+  nem encerra a matriz visual completa, aparelho ou piloto.
+
+Para outra execução: concluir os 519 cenários visuais/acessibilidade, investigar
+um orçamento de tempo de CI suficiente sem reduzir cobertura e executar os
+critérios amplos ainda abertos na seção de pendências. Preservar evidência
+anterior; não aceitar novos baselines apenas para esconder diferença.
