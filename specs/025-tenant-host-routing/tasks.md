@@ -1,5 +1,22 @@
 # Spec 025 — Tasks
 
+## Auditoria P0 #130 — checkpoint 2026-10-14
+
+- [x] Fetch main, inventário #101/#116/#131/#140 e checks por SHA;
+  [matriz/evidência](audit-130-evidence.md), base d5acc98.
+- [x] Código42a14ef: regressões e correções OAuth/HMAC/authority/segredo
+  production+pilot/reason opcional; preservar controles #116/#131/#140.
+- [x] PostgreSQL descartável A/B,B/A financeiro/assets/recibos e SSE ASGI;
+  smoke de autenticação Android na API compartilhada.
+- [x] Contrato explícito de assets públicos e recibos capability portáveis,
+  sem transformar publicação legítima em vulnerabilidade presumida.
+- [x] Review técnico independente42a14ef, sem P0/P1 aberto; lacunas externas
+  documentadas, sem autoaprovação GitHub.
+- [ ] CI final API/Web/Docker/turno, PR integrado e evidência SHA main.
+- [ ] **BLOCKED #151:** preview real de dois Venues/ingress/HMAC; script421.
+- [ ] Fechar #130 somente após comprovar todos os critérios originais,
+  incluindo #151. Canary separado #152; E2E Android+Web #106 preservado.
+
 ## P0 — Prerequisites (must land before tenant URL is exposed)
 
 - [ ] [Backend] Registry/migration: public hostname -> immutable Venue UUID; normalization, uniqueness, verified/active state, reserved labels, audit.

@@ -2,6 +2,35 @@
 
 **Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
+## Auditoria #130 — evidência de 14/10/2026
+
+Base `d5acc98f0267483ec3ca3a5154babccbcad88eb0`; correções e testes no código
+`42a14efcc1ac3e8eb156aef6d28fd67b8d33e6ae`. A [matriz completa](audit-130-evidence.md)
+registra controle, implementação, teste, falha, resultado e ambiente/SHA.
+Os PASS locais são separados de CI final/merge e do aceite operacional abaixo.
+
+- [x] Regressões test-first de OAuth Host mismatch500, assinatura Unicode500,
+  authority inválida/lookalike, segredo BFF produção/pilot e reasonomitido500.
+- [x] Nova prova PostgreSQL17.6 A/A,B/B,A/B,B/A de finanças, idempotência,
+  ausência de efeitos estrangeiros e capabilities públicas de asset/recibo.
+- [x] Revalidação SSE ASGI/sync_to_async, outbox/reconnect nos dois sentidos,
+  sessão/domínio/membership revogados e API compartilhada.
+- [x] Revisão técnica independente do código42a14ef sem P0/P1 aberto; status
+  `NO_FINDINGS_WITH_GAPS`, sem aprovação de produção/GitHub.
+- [ ] CI API/Web e integração na main do SHA final: registrar nos gates finais
+  da matriz; não inferir dos runs dos PRs anteriores.
+- [ ] **BLOCKED #151:** prova real ingress/Host/HMAC e preview A/B. Script em
+  14/10 retornou exit22/HTTP421 no manifest de e2ea.rodada.bar; não demonstra
+  cookies Secure, stripping externo, canário ou operação crítica em preview.
+- [ ] Rollout/canary e rollback operacional: [#152](https://github.com/procopio420/rodada/issues/152),
+  após os gates P0. Android+Web completo permanece #106.
+
+**Auditoria P0 concluída ≠ wildcard de produção homologado. #130 continua aberta
+enquanto seu critério de borda estiver bloqueado; #151 não transfere nem reduz
+esse requisito de fechamento.** Assets publicados e recibos por capability são
+portáveis intencionalmente; A/B nesses GETs é PASS autorizado, enquanto gestão,
+sessões, QR e finanças devem negar acesso cruzado.
+
 ## Host mapping and DNS
 
 - [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
