@@ -2,6 +2,20 @@
 
 **Status:** Pending implementation and Windows/hardware evidence.
 
+## Matriz de cobertura por slice
+
+| Slice | Cenários desta especificação | Evidência requerida para fechar o PR |
+| --- | --- | --- |
+| S1 Foundation | 3 (credencial/revogação de contrato), 12, 15 | API schema/migration, segurança cross-Venue, regressão legacy |
+| S2 Pairing | 2, 3, 13 (service startup) | integração Access/Manage + Windows service, replay/expiry/ACL |
+| S3 Printing MVP | 4, 5 (single-agent), 8 (driver básico), 9, 10, 11, 15 | mocks spool/TCP e fluxo E2E sem afirmar papel físico |
+| S4 Multiagent | 5, 6, 7, 10, 12 | duas instâncias concorrentes, fencing, USB offline, isolamento |
+| S5 Compatibility | 4, 8, 11, 14 (pré-homologação) | golden bytes/layout, Windows GDI vs RAW, capabilities; prova física só S7 |
+| S6 Distribution | 1, 13, 15 | Windows installer/upgrade/signed artifact e 2 entry points idênticos |
+| S7 Pilot | 1–15 | aceite operacional com impressora real, logs redigidos, teste de turno e go/no-go |
+
+**Interpretação:** os cenários parcialmente atribuídos a um slice têm uma parte definida no plan.md; a aprovação integral e física do caso 14 ocorre exclusivamente na S7. Um slice não pode alegar o cenário completo antes de todas as suas dependências e evidências estarem presentes. Os sete PRs são previstos, não estão abertos por esta atualização documental.
+
 ## 1 — Universal download and install
 **Given** a Windows 11 x64 PC without Python and with administrative permission for installation,
 **When** the operator downloads Rodada Impressoras from rodada.bar/downloads or Manage > Impressoras > Adicionar computador,
