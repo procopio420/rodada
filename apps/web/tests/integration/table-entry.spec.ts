@@ -34,18 +34,18 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  await page.getByLabel("Buscar mesa").fill("mesa patio 24");
  for (const [index,width] of [360,390,430].entries()) {
   await page.setViewportSize({width,height:900});
-  await page.getByRole("button", { name: `Abrir comanda Table entry A · ID ${a.id}`, exact:true }).click();
+  await page.locator(`button[data-tab-id="${a.id}"]`).click();
   await expect(page.getByRole("heading", {name:"Table entry A",exact:true})).toBeFocused();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", {name:/^Kitchen E2E item/}).click();
   await page.getByRole("button", {name:"Voltar à mesa Pátio 24",exact:true}).click();
   await expect(page.getByRole("heading", {name:"Mesa Pátio 24",exact:true})).toBeFocused(); await expect(page.getByLabel("Buscar mesa")).toHaveValue("mesa patio 24");
-  await page.getByRole("button", {name:`Abrir comanda Table entry B · ID ${b.id}`,exact:true}).click();
+  await page.locator(`button[data-tab-id="${b.id}"]`).click();
   await expect(page.getByText(`${index+1}× Kitchen E2E item`, {exact:true})).toHaveCount(0);
   await page.getByRole("button", {name:"Voltar à mesa Pátio 24",exact:true}).click();
-  await expect(page.getByRole("button", {name:`Abrir comanda Table entry A · ID ${a.id}`,exact:true})).toBeVisible();
+  await expect(page.locator(`button[data-tab-id="${a.id}"]`)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
  }
- await page.getByRole("button", {name:`Abrir comanda Table entry A · ID ${a.id}`,exact:true}).click();
+ await page.locator(`button[data-tab-id="${a.id}"]`).click();
  const before = await read(page,`tabs/${a.id}/`); expect(before.orders).toHaveLength(0); expect(before.payments).toHaveLength(0); expect(before.version).toBe(1);
  await expect(page.getByText("3× Kitchen E2E item", {exact:true})).toBeVisible(); const confirmation = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === `/api/attendance/tabs/${a.id}/orders/confirm` && (response.status() < 300 || response.status() >= 400) && response.request().method() === "POST");
  let readbackStart = Infinity;
