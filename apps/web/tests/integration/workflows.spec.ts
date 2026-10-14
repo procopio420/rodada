@@ -76,6 +76,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   const guest = await guestContext.newPage();
   guest.on("pageerror", error => errors.push(error.message));
   await guest.goto(`/guest/${table.public_token}`);
+  await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Real guest E2E");
   await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
   await expect(guest.getByRole("heading", { name: "Real guest E2E" })).toBeVisible();
@@ -208,6 +209,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   await guest.goto(`/guest/${table.public_token}`);
+  await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Tracking guest");
   await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
