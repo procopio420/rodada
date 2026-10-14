@@ -4,6 +4,7 @@ import hmac
 import time
 from django.conf import settings
 from django.http import JsonResponse
+from django.http.request import split_domain_port, validate_host
 from .domain_resolution import resolve_venue_domain
 from .hostnames import TENANT_DOMAIN, RESERVED_LABELS, resolved_venue_id
 
@@ -25,10 +26,12 @@ class VenueHostMiddleware:
                 fresh = False
             message = f"{timestamp}\n{request.method}\n{request.path}\n{claimed}"
             expected = hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
-            if not secret or not fresh or not claimed or not signature or not hmac.compare_digest(expected, signature):
+            if not secret or not fresh or not claimed or not signature or not signature.isascii() or not hmac.compare_digest(expected, signature):
                 return JsonResponse({"code": "HOST_ASSERTION_INVALID"}, status=403)
             host = claimed.lower()
-        hostname = host.split(":")[0]
+        hostname, port = split_domain_port(host)
+        if not hostname or (port and (len(port) > 5 or not 1 <= int(port) <= 65535)):
+            return JsonResponse({"code": "HOST_ASSERTION_INVALID"}, status=403)
         label = hostname[: -len("." + TENANT_DOMAIN)] if hostname.endswith("." + TENANT_DOMAIN) else ""
         if label and label not in RESERVED_LABELS:
             domain = resolve_venue_domain(hostname)
@@ -40,6 +43,10 @@ class VenueHostMiddleware:
             if not signed and request.path not in ("/health/", "/ready/", "/venue/context/"):
                 return JsonResponse({"code": "HOST_ASSERTION_REQUIRED"}, status=403)
         else:
+            # Compatibility hosts are explicit ingress configuration, not an
+            # escape hatch for a signed lookalike outside the tenant domain.
+            if signed and not validate_host(hostname, settings.ALLOWED_HOSTS):
+                return JsonResponse({"code": "HOST_ASSERTION_INVALID"}, status=403)
             venue_id = None
         # Preserve only the already-validated tenant Host for lazy SSE reauthorization.
         # Raw browser forwarding headers must never become stream authority.

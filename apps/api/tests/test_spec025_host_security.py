@@ -85,3 +85,52 @@ def test_reserved_shared_api_host_remains_legacy_for_native_clients_and_webhooks
     response = client.get("/ready/", HTTP_HOST="api.rodada.bar",
                           HTTP_X_RODADA_BFF_HOST="outrobar.rodada.bar")
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["testserver"], RODADA_BFF_HOST_SECRET=SECRET)
+def test_non_ascii_signature_is_rejected_without_server_error(client):
+    assertion = signed("e2ea.rodada.bar", method="/ready/")
+    assertion["HTTP_X_RODADA_BFF_SIGNATURE"] = "é" * 64
+    response = client.get("/ready/", **assertion)
+    assert response.status_code == 403
+    assert response.json()["code"] == "HOST_ASSERTION_INVALID"
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["testserver"], RODADA_BFF_HOST_SECRET=SECRET)
+@pytest.mark.parametrize("host", [
+    "e2ea.rodada.bar:evil", "e2ea.rodada.bar:99999", "e2ea.rodada.bar:0",
+    "e2ea.rodada.bar@evil.invalid", "e2ea.rodada.bar.evil.invalid",
+    "ｅ2ea.rodada.bar", "e2ea.rodada.bar ",
+])
+def test_signed_malformed_or_lookalike_authority_fails_closed(client, host):
+    venue = Venue.objects.create(name="A", slug="authority-a")
+    VenueDomain.objects.create(venue=venue, hostname="e2ea.rodada.bar",
+                               is_active=True, is_verified=True)
+    response = client.get("/venue/context/", **signed(host, method="/venue/context/"))
+    assert response.status_code in (403, 421)
+    assert "venue" not in response.json()
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["testserver", "api.rodada.bar", "localhost"],
+                   RODADA_BFF_HOST_SECRET=SECRET)
+def test_signed_valid_ports_and_explicit_compatibility_hosts(client):
+    venue = Venue.objects.create(name="A", slug="valid-authority-a")
+    VenueDomain.objects.create(venue=venue, hostname="e2ea.rodada.bar",
+                               is_active=True, is_verified=True)
+    for host in ("e2ea.rodada.bar:443", "E2EA.RODADA.BAR:3130"):
+        response = client.get("/venue/context/", **signed(host, method="/venue/context/"))
+        assert response.status_code == 200
+        assert response.json()["venue"]["id"] == str(venue.pk)
+    for host in ("localhost:3130", "api.rodada.bar"):
+        assert client.get("/ready/", **signed(host, method="/ready/")).status_code == 200
+
+
+@pytest.mark.django_db
+@override_settings(ALLOWED_HOSTS=["testserver"], RODADA_BFF_HOST_SECRET=SECRET)
+def test_assertion_cannot_be_reused_for_other_method_or_path(client):
+    assertion = signed("testserver", method="/ready/")
+    assert client.get("/health/", **assertion).status_code == 403
+    assert client.post("/ready/", **assertion).status_code == 403

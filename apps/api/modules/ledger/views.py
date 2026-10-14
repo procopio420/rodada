@@ -64,7 +64,7 @@ class PaymentRefundView(APIView):
         class Input(serializers.Serializer):
             amount_cents = serializers.IntegerField(min_value=1, max_value=2147483647)
             idempotency_key = serializers.CharField(max_length=120)
-            reason = serializers.CharField(max_length=240, required=False, allow_blank=True)
+            reason = serializers.CharField(max_length=240, required=False, allow_blank=True, default="")
             cash_point_id = serializers.UUIDField(required=False, allow_null=True)
             originating_session_id = serializers.UUIDField(required=False)
 
