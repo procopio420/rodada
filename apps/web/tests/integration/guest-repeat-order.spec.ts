@@ -46,10 +46,17 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     await expect(dialog).toBeVisible();
     if (scenario === "blocked") {
       await api(`hospitality/tables/${table.id}/guest-ordering/`, { blocked: true });
-      // The guest restriction is live: the button may already be disabled.
-      // Playwright click() waits for an enabled target, so attempting a click
-      // here times out and never tests the rejection contract.
-      await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+      // The already-open review may still show the previous guest policy.
+      // Either realtime disables Add, or an attempted Add re-reads the policy
+      // and refuses the repeat. Never assume a stale dialog is disabled.
+      const addButton = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+      if (await addButton.isEnabled()) {
+        await addButton.click({ timeout: 5000 }).catch(async error => {
+          // Realtime can disable the button between isEnabled and click.
+          if (await addButton.isEnabled()) throw error;
+        });
+      }
+      await expect(addButton).toBeDisabled();
       // This branch must not add a second Order or alter the confirmed round.
       expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);
       await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
