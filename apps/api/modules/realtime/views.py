@@ -149,6 +149,16 @@ class StreamView(APIView):
         cursor = request.headers.get("Last-Event-ID") or request.query_params.get("cursor", "")
 
         def read(cursor):
+            # Keep the verified Host's Venue bound for the *whole* poll, not
+            # just token reauthorization. This also guards future ORM helpers
+            # added to replay_batch/visibility filtering.
+            scope = resolved_venue_id.set(trusted_venue_id)
+            try:
+                return read_scoped(cursor)
+            finally:
+                resolved_venue_id.reset(scope)
+
+        def read_scoped(cursor):
             try:
                 identity = authorize()
             except AccessServiceError as error:
