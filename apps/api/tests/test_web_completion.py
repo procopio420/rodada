@@ -38,7 +38,8 @@ class WebCompletionTests(HouseFixture, TestCase):
         Product.objects.create(venue=other, name="Omelete outro", price_cents=100, fulfillment_station="BAR")
         assert len(self.manager.get("/catalog/products/?q=omelete").json()["results"]) == 1
         product = Product.objects.get(pk=created["product"]["id"])
-        product.active = False; product.save()
+        product.active = False
+        product.save()
         assert not self.manager.get("/catalog/products/?q=omelete").json()["results"]
         assert len(self.manager.get("/catalog/products/?q=omelete&include_inactive=true").json()["results"]) == 1
         replay = self.post(self.manager, "/catalog/products/resolve/", body, status=200)
@@ -53,7 +54,8 @@ class WebCompletionTests(HouseFixture, TestCase):
         Refund.objects.create(payment=payment, amount_cents=200, idempotency_key="report-refund", confirmed_at=timezone.now(), created_by=payment.received_by)
         item = OrderItem.objects.get(order__tab_id=tab["id"])
         LedgerAdjustment.objects.create(tab_id=tab["id"], order_item=item, kind="ORDER_ITEM_CANCELLATION", amount_cents=-500, idempotency_key="report-adjust", reason_code="test", created_by=payment.received_by)
-        self.product.name = "Renamed"; self.product.save()
+        self.product.name = "Renamed"
+        self.product.save()
         today = business_date(self.venue)
         response = self.manager.get(f"/management/reports/?start={today}&end={today}")
         assert response.status_code == 200, response.json()
@@ -106,8 +108,10 @@ class WebCompletionTests(HouseFixture, TestCase):
         assert self.manager.get(f'/cash/shifts/history/?cash_point_id={point["id"]}&offset=2').json()["results"] == []
 
     def test_report_cutoff_and_payment_confirmation_dates(self):
-        self.venue.business_day_cutoff_hour = 4; self.venue.save()
-        tab = self.tab(); self.order(tab)
+        self.venue.business_day_cutoff_hour = 4
+        self.venue.save()
+        tab = self.tab()
+        self.order(tab)
         from modules.ledger.models import Charge
         at = datetime(2026, 10, 9, 6, 59, tzinfo=dt_timezone.utc)
         Charge.objects.filter(tab_id=tab).update(created_at=at)
@@ -129,7 +133,8 @@ class WebCompletionTests(HouseFixture, TestCase):
         staff = self.venue.staff_memberships.first().staff_member
         CashShift.objects.bulk_create([CashShift(venue=self.venue, cash_point=point, business_date=business_date(self.venue), opened_by=staff, status="CLOSED", opening_idempotency_key=f"page-{i}") for i in range(51)])
         path = f"/cash/shifts/history/?cash_point_id={point.id}"
-        first = self.manager.get(path).json(); second = self.manager.get(path + "&offset=50").json()
+        first = self.manager.get(path).json()
+        second = self.manager.get(path + "&offset=50").json()
         assert len(first["results"]) == 50 and first["next_offset"] == 50
         assert len(second["results"]) == 1 and second["next_offset"] is None
         assert not ({r["id"] for r in first["results"]} & {r["id"] for r in second["results"]})
@@ -150,7 +155,8 @@ class CatalogConcurrencyTests(HouseFixture, TransactionTestCase):
                 barrier.wait(timeout=10)
                 product, created = resolve_or_create_product(actor=actor, name=name, price_cents=1500, fulfillment_station="KITCHEN")
                 return str(product.id), created
-            finally: connections.close_all()
+            finally:
+                connections.close_all()
         with ThreadPoolExecutor(max_workers=2) as pool:
             rows = list(pool.map(create, ["Omelete", "  OMELETE  "]))
         assert rows[0][0] == rows[1][0] and sum(row[1] for row in rows) == 1

@@ -1,5 +1,9 @@
 """Real canonical DispatchTask alert lifecycle, policy and tenant evidence."""
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+
+from django.db import close_old_connections, connection, connections
+from django.test import TransactionTestCase
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -110,11 +114,6 @@ class GuestRequestAlertTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['guest_request_warning_seconds'], 10)
         self.assertEqual(response.data['guest_request_danger_seconds'], 20)
-
-
-from concurrent.futures import ThreadPoolExecutor
-from django.db import close_old_connections, connection, connections
-from django.test import TransactionTestCase
 
 
 class GuestRequestAlertConcurrencyTests(TransactionTestCase):

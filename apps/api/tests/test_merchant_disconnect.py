@@ -1,5 +1,9 @@
 """Provider-contract doubles only; these tests do not establish settlement."""
-from django.test import TestCase
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+
+from django.db import close_old_connections, connection
+from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
 from modules.ledger.models import Payment
 from modules.payment_provider.models import MerchantConnection
@@ -58,12 +62,6 @@ class MerchantDisconnectTests(TestCase):
         self.assertEqual(error.exception.code, "MERCHANT_DISCONNECTED")
         self.assertFalse(Payment.objects.exists())
         self.assertEqual(provider.start_calls, [])
-
-
-from concurrent.futures import ThreadPoolExecutor
-from threading import Barrier
-from django.db import close_old_connections, connection
-from django.test import TransactionTestCase
 
 
 class MerchantDisconnectConcurrencyTests(TransactionTestCase):
