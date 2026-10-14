@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { createAttendanceTable, openAttendanceTab } from "./attendance-open";
 
 for (const width of [360, 390, 430]) test(`Staff order committed without response recovers after reload once ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
@@ -6,12 +7,10 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  const label = `Order recovery ${width}`, table = `Recovery table ${width}`;
+  await createAttendanceTable(page, table);
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  const label = `Order recovery ${width}`;
-  await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-  await page.getByLabel("Apelido da comanda (opcional)").fill(label);
-  await page.getByRole("button", { name: "Abrir", exact: true }).click();
-  await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
+  await openAttendanceTab(page, label, table);
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
