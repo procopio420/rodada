@@ -45,6 +45,12 @@ def seed_api():
                 refresh_token_hash=hash_token("rrt_e2e-expired-only"))
     Product.objects.create(venue=venue, name="Kitchen E2E item", price_cents=1000, fulfillment_station="KITCHEN")
     Product.objects.create(venue=venue, name="Bar E2E item", price_cents=500, fulfillment_station="BAR")
+    if os.environ.get("RODADA_E2E_MENU") == "1":
+        # Opt-in only: the photographed menu belongs to this disposable test Venue,
+        # never to a merchant's live catalog.
+        from modules.catalog.management.commands.seed_demo_catalog import MENU_CSV
+        call_command("import_catalog_csv", file=str(MENU_CSV), venue_slug=venue.slug,
+                     apply=True, update_existing=False, verbosity=0)
     CashPoint.objects.create(venue=venue, label="E2E drawer")
 
 
