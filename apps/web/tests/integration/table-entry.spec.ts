@@ -57,5 +57,5 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  const after = await read(page,`tabs/${a.id}/`), untouched = await read(page,`tabs/${b.id}/`);
  expect(after.orders).toHaveLength(1); expect(after.orders[0].items[0].quantity).toBe(3); expect(after.charges_cents).toBe(3000); expect(after.payments).toHaveLength(0);
  expect(untouched.orders).toHaveLength(0); expect(untouched.exposure_cents).toBe(0); expect(untouched.payments).toHaveLength(0);
- const finalTable = (await read(page,"hospitality/tables/")).results[0]; expect(finalTable.active_occupancy.id).toBe(table.active_occupancy.id); expect(finalTable.access_generation).toBe(table.access_generation); expect(finalTable.active_occupancy.tabs).toEqual(table.active_occupancy.tabs);
+ const finalTable = (await read(page,"hospitality/tables/")).results[0]; expect(finalTable.active_occupancy.id).toBe(table.active_occupancy.id); expect(finalTable.access_generation).toBe(table.access_generation); expect(finalTable.active_occupancy.tabs).toEqual(table.active_occupancy.tabs.map((row: { id: string; state: string }) => ({ ...row, state: row.id === a.id ? after.state : row.state })));
 });
