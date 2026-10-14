@@ -51,6 +51,9 @@ data class OperationsUiState(
     val serviceRequestsError: String? = null,
     val pendingServiceAction: ServiceRequestAction? = null,
     val recoveryEvidence: List<RecoveryEvidence> = emptyList(),
+    val recoveryEvidenceReadable: Boolean = false,
+    val recoveryDeliveryTaskId: String? = null,
+    val exceptionalRecoveryContext: ExceptionalRecoveryContext? = null,
     val tables: List<TableSummary> = emptyList(),
     val pendingTableService: RecoveryIntent.TableService? = null,
     val selectedTab: TabDetail? = null,
@@ -248,8 +251,8 @@ class OperationsViewModel(
             runCatching {
                 pendingMutationIntentStore.loadFor(session).map { it.evidence() } +
                     pendingMutationIntentStore.blockedFor(session).map { it.evidence(reviewOnly = true) }
-            }.onSuccess { state = state.copy(recoveryEvidence = it.sortedBy { row -> row.capturedAtMillis }) }
-                .onFailure { state = state.copy(recoveryEvidence = emptyList(), noticeMessage = pendingMutationIntentStore.reviewMessage(session)) }
+            }.onSuccess { state = state.copy(recoveryEvidence = it.sortedBy { row -> row.capturedAtMillis }, recoveryEvidenceReadable = true) }
+                .onFailure { state = state.copy(recoveryEvidence = emptyList(), recoveryEvidenceReadable = false, noticeMessage = pendingMutationIntentStore.reviewMessage(session)) }
             readServiceRequests(session)
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
@@ -334,12 +337,45 @@ class OperationsViewModel(
         state = state.copy(customers = repository.customers(session, query))
     }
 
-    fun selectTab(session: StoredSession, tabId: String) = action {
-        check(state.cart.isEmpty() && state.orderIntentId == null) { "Conclua o rascunho antes de trocar de comanda." }
+    fun selectTab(session: StoredSession, tabId: String) = action { loadTabContext(session, tabId) }
+
+    fun openRecovery(session: StoredSession, intentId: String) = action {
+        state = state.copy(exceptionalRecoveryContext = null)
+        check(state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }
+        val original = pendingMutationIntentStore.loadFor(session).firstOrNull { it.id == intentId }
+            ?: error("Registro indisponível na sessão original. Atualize as pendências; não recrie a operação.")
+        val destination = original.evidence()
+        check(destination.canOpenContext) { "Este registro exige revisão do contexto original pela gerência." }
+        if (destination.needsExceptionalContext) {
+            val target = repository.exceptionalRecoveryTarget(session, original)
+            val detail = repository.tabDetail(session, target.tabId)
+            target.validate(detail)
+            authRepository.withAuthorizedAccess(session) { Unit }
+            check(pendingMutationIntentStore.loadFor(session).any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
+            state = state.copy(exceptionalRecoveryContext = ExceptionalRecoveryContext(original, target, detail))
+        }
+        destination.tabId?.let { tabId -> loadTabContext(session, tabId, original) }
+        destination.taskId?.let { taskId ->
+            val deliveries = repository.deliveryTasks(session)
+            authRepository.withAuthorizedAccess(session) { Unit }
+            check(pendingMutationIntentStore.loadFor(session).any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
+            state = state.copy(deliveryTasks = deliveries, recoveryDeliveryTaskId = taskId,
+                noticeMessage = if (deliveries.none { it.id == taskId }) "Entrega ausente da fila atual. Isso não comprova conclusão; peça revisão do histórico original." else null)
+        }
+    }
+
+    fun clearExceptionalRecoveryContext() {
+        state = state.copy(exceptionalRecoveryContext = null)
+    }
+
+    private suspend fun loadTabContext(session: StoredSession, tabId: String, original: RecoveryIntent? = null) {
         check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de selecionar outra comanda." }
         val detail = repository.tabDetail(session, tabId)
-        val retained = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId }
-        val retainedPayment = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId }
+        if (original != null) authRepository.withAuthorizedAccess(session) { Unit }
+        val records = pendingMutationIntentStore.loadFor(session)
+        if (original != null) check(records.any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
+        val retained = records.filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId && (original !is RecoveryIntent.ConfirmOrder || it.id == original.id) }
+        val retainedPayment = records.filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId && (original !is RecoveryIntent.StartPayment || it.id == original.id) }
         val retainedCorrection = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId in detail.orders.flatMap { order -> order.items }.map { item -> item.id } }
         val retainedRefund = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Refund>().firstOrNull { refund -> detail.payments.any { it.id == refund.paymentId } }
         val retainedCart = retained?.toCart(state.products).orEmpty()
@@ -381,6 +417,10 @@ class OperationsViewModel(
             if (existing == null) state.cart + CartLine(product, 1, customization)
             else state.cart.map { if (it.lineId == existing.lineId) it.copy(quantity = it.quantity + 1) else it }
         state = state.copy(cart = next, noticeMessage = null)
+    }
+
+    fun repeatOrder(tabId: String, review: RepeatOrderReview) {
+        state = state.withRepeatedOrder(tabId, review)
     }
 
     fun editCartLine(lineId: String, customization: Customization) {
@@ -430,8 +470,7 @@ class OperationsViewModel(
             noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
                 "Pedido guardado neste aparelho. Ainda NÃO foi recebido pelo bar."
             else "Pedido guardado. Verificando confirmação no servidor.")
-        // A new order is an ordinary submission, not a reconnection attempt.
-        // Keep the durable intent, but avoid a full refresh changing ONLINE to STALE.
+        // New order submission must not be misidentified as connection loss.
         if (state.connectivity != ConnectivityState.OFFLINE) resumePendingOrders(session)
     }
 
@@ -784,8 +823,10 @@ class OperationsViewModel(
 
     fun completeDelivery(session: StoredSession, taskId: String) {
         if (state.submitting) return
-        val key = UUID.randomUUID().toString()
-        val intent = RecoveryIntent.CompleteDelivery(
+        val retained = runCatching { pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.CompleteDelivery>().firstOrNull { it.deliveryTaskId == taskId } }
+            .getOrElse { state = state.copy(errorMessage = "Registro de entrega ilegível. Preserve a evidência para revisão."); return }
+        val key = retained?.idempotencyKey ?: UUID.randomUUID().toString()
+        val intent = retained ?: RecoveryIntent.CompleteDelivery(
             key, session.staffId, session.venueId, session.deviceId, key,
             System.currentTimeMillis(), RecoveryState.CHECKING, taskId,
         )

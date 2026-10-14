@@ -66,9 +66,13 @@ test("one QR attention per occupancy and explicit claim removes warning", async 
 test("draft and committed order with lost response retain original Tab and payload across reload", async ({ page }) => {
   await fixture(page, "normal", true);
   const confirmations: unknown[] = [];
+  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: {
+    id: "tab-test", display_label: "Comanda de teste", state: "OPEN", version: 2, exposure_cents: 7200,
+    orders: confirmations.length ? [{ id: "order-test", items: [] }] : [], payments: [], refund_required_corrections: [],
+  } }));
   await page.route("**/api/attendance/tabs/tab-test/orders/confirm/", route => {
     confirmations.push(route.request().postDataJSON());
-    return confirmations.length === 1 ? route.abort() : route.fulfill({ json: { id: "order-test" } });
+    return confirmations.length === 1 ? route.abort() : route.fulfill({ json: { id: "order-test", tab_id: "tab-test" } });
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Contas", exact: true }).click();

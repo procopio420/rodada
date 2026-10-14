@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 // Chromium forbids overriding Host in navigation requests. Fulfill only the document
 // with a real Next HTTP response made against the isolated tenant fixture host;

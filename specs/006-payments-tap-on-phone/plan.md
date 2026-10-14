@@ -76,3 +76,19 @@ Reuse merchant OAuth, PaymentAttempt metadata and canonical settlement. Add a na
 ## Pilot refund durability — 2026-10-12
 
 Keep reservation and ProviderRefundRequest creation in one transaction, then submit outside it. Resolve persisted replays before snapshot GET using reserve_refund validation and locking.
+
+## Recorte POS Web CASH — Spec026 T03a
+
+Implementar contrato de recebimento recuperável da Spec006, envelope
+por sessão da014 e fingerprint físico da012. Usar componentes existentes;
+validar Web/API e PostgreSQL descartável, sem alterar snapshot ou provider.
+
+## T03b — execução do estorno manual recuperável
+
+1. Envelope antes do POST; guard síncrono, campos congelados e retomada explícita.
+2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
+3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
+   concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
+
+### T07d — entrada financeira Android
+Gramática explícita em parseCents e BigDecimal.longValueExact após deslocamento decimal, sem float. Opções Decimal/NumberPassword nos campos financeiros pendentes; teste unitário de sinais/texto/overflow e Compose de pagamento/limite/estorno, incluindo InputType real do editor via diagnóstico Android sem armazenar conteúdo. Revisão financeira e replay preservados.

@@ -120,7 +120,7 @@ export default function ManagementPage() {
       {pendingCash.map(point => <div className="movement" key={point.id}><div><strong>{point.label}</strong><small>Fechamento aguardando revisão</small></div><strong className="cashDifference">{money(point.pending_review_shift?.discrepancy_cents)}</strong></div>)}
       <Link className="backLink" href="/cash">Revisar caixa →</Link>
     </section>}
-    {refunds.length ? <section className="panel panelDanger"><ManagementSectionHeader icon="wallet">Estornos pendentes</ManagementSectionHeader>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{money(refund.cents)}</strong></div>)}<Link className="backLink" href="/refunds">Resolver estornos →</Link></section> : null}
+    {refunds.length ? <section className="panel panelDanger"><ManagementSectionHeader icon="wallet">Correções financeiras pendentes</ManagementSectionHeader>{refunds.map((refund, index) => <div className="movement" key={`${refund.tab}-${refund.item}-${index}`}><div><strong>{refund.tab}</strong><small>{refund.item}</small></div><strong className="cashDifference">{refund.cents > 0 ? money(refund.cents) : "Revisão sem devolução"}</strong></div>)}<Link className="backLink" href="/refunds">Revisar correções →</Link></section> : null}
 
     {attentionTabs.length > 0 && <section className="panel panelWarning" aria-labelledby="tab-attention-title">
       <ManagementSectionHeader icon="now" id="tab-attention-title">Comandas precisam de atenção</ManagementSectionHeader>

@@ -191,3 +191,5 @@ remove tarefa ou confirma sucesso. Falha na consulta desabilita ações da fila,
 sem bloquear pedidos. Conflito reconsulta ownership. Sem idade: tempo desconhecido.
 Não inferir Tab pelo destino textual: navegação exata depende de IDs autorizados
 de mesa/ocupação no contrato de leitura. Não altera delivery passivo/inferência.
+
+T11a/T11b (026): Prontos/Chamadas/Pendências são filas explícitas no Android, com Prontos inicial no pico. Retomar entrega consulta task ID exata e reutiliza intenção/chave original no retry. Nenhuma navegação confirma entrega; fluxo manual preservado enquanto inferência passiva não tiver evidência de source/confidence/provenance. Gates físicos e de piloto continuam abertos.

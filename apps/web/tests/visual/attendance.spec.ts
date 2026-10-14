@@ -130,8 +130,12 @@ test("ambiguous order retry preserves payload after catalog changes", async ({ p
   const attempts: unknown[] = [];
   await page.route("**/api/attendance/tabs/tab-test/orders/confirm/", async route => {
     attempts.push(route.request().postDataJSON());
-    await route.fulfill({ status: attempts.length === 1 ? 503 : 200, json: attempts.length === 1 ? { code: "TEMPORARY", message: "Resultado ainda não confirmado." } : { id: "same-order" } });
+    await route.fulfill({ status: attempts.length === 1 ? 503 : 200, json: attempts.length === 1 ? { code: "TEMPORARY", message: "Resultado ainda não confirmado." } : { id: "same-order", tab_id: "tab-test" } });
   });
+  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: {
+    id: "tab-test", display_label: "Comanda de teste", state: "OPEN", exposure_cents: 14400,
+    orders: attempts.length > 1 ? [{ id: "same-order", items: [] }] : [], payments: [], refund_required_corrections: [],
+  } }));
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
@@ -148,8 +152,9 @@ test("ambiguous order retry preserves payload after catalog changes", async ({ p
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [] } }));
   await page.clock.runFor(15000);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
-  expect(attempts).toHaveLength(2);
+  await expect.poll(() => attempts.length).toBe(2);
   expect(attempts[1]).toEqual(attempts[0]);
+  await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
 });
 
 test("Atendimento hostname selects the dedicated browser entry", async ({ request }) => {

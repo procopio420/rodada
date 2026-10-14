@@ -28,6 +28,21 @@ const correction = {
   decided_by: null, decision_reason: "", movement_id: null,
 };
 
+test("bloqueios de caixa abrem turno original sem aprovar fechamento", async ({ page }) => {
+  await fixture(page);
+  await page.route("**/api/pos/management/daily-closes/**", route => route.fulfill({ json: { results: [{ ...closed,
+    status: "INCOMPLETE", review: null, original: { ...snapshot, blockers: [{ kind: "CASH_SHIFT", id: shiftId }, { kind: "OVERDUE_CASH_SHIFT", id: requestId }] },
+  }] } }));
+  await page.route("**/api/pos/management/correction-requests/**", route => route.fulfill({ json: { results: [] } }));
+  await page.goto("/manage/daily-close");
+  const links = page.getByRole("link", { name: "Revisar este turno →" });
+  await expect(links).toHaveCount(2);
+  await expect(links.nth(0)).toHaveAttribute("href", `/cash?shift=${shiftId}&from=${encodeURIComponent("/manage/daily-close")}`);
+  await expect(links.nth(1)).toHaveAttribute("href", `/cash?shift=${requestId}&from=${encodeURIComponent("/manage/daily-close")}`);
+  await expect(page.getByRole("button", { name: "Confirmar revisão com PIN" })).toHaveCount(0);
+  await layoutAndA11y(page);
+});
+
 test("gerência mostra snapshot imutável e só confirma correção após PIN e aprovação", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await fixture(page);
@@ -59,4 +74,51 @@ test("gerência mostra snapshot imutável e só confirma correção após PIN e 
   await expect(page.getByText(/Correção aprovada: novo movimento auditado/)).toBeVisible();
   expect(approvals).toBe(2);
   await layoutAndA11y(page);
+});
+
+for (const width of [360, 390, 430]) test(`motivos por proposta preservam alvo no PIN e outros rascunhos em ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 844 });
+  await fixture(page);
+  const second = { ...correction, id: "proposal-second", reason: "Correção independente" };
+  const own = { ...correction, id: "proposal-own", requested_by: "operator-test", reason: "Solicitação própria" };
+  let rows = [correction, second, own];
+  let authorized = false;
+  const commands: { id: string; body: Record<string, unknown> }[] = [];
+  await page.route("**/api/pos/management/daily-closes/**", route => route.fulfill({ json: { results: [closed] } }));
+  await page.route("**/api/pos/management/correction-requests/**", route => route.fulfill({ json: { results: rows } }));
+  await page.route("**/api/pos/cash/correction-requests/*/decision/**", route => {
+    const id = route.request().url().split("/correction-requests/")[1].split("/")[0];
+    const body = route.request().postDataJSON(); commands.push({ id, body });
+    if (!authorized) return route.fulfill({ status: 403, json: { code: "REAUTH_REQUIRED", message: "Confirme seu PIN." } });
+    rows = rows.map(row => row.id === id ? { ...row, status: body.decision, decision_reason: body.reason } : row);
+    return route.fulfill({ json: rows.find(row => row.id === id) });
+  });
+  await page.route("**/api/auth/reauthenticate", route => { authorized = true; return route.fulfill({ json: { status: "OK" } }); });
+  await page.goto("/manage/daily-close");
+  const first = page.locator(`#decision-${requestId}`), other = page.locator("#decision-proposal-second");
+  await first.fill("Documento da primeira proposta");
+  await expect(other).toHaveValue("");
+  await other.fill("Conferência da segunda proposta");
+  await expect(first).toHaveValue("Documento da primeira proposta");
+  const ownCard = page.locator(".reportGroup").filter({ hasText: "Solicitação própria" });
+  await expect(ownCard.getByRole("button")).toHaveCount(0);
+  await expect(page.getByText("Fechado · Revisado", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Aprovar", exact: true }).first().click();
+  await expect(first).toBeDisabled(); await expect(other).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Consultar", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Cancelar", exact: true }).click();
+  await expect(first).toHaveValue("Documento da primeira proposta");
+  await expect(other).toHaveValue("Conferência da segunda proposta");
+  await page.getByRole("button", { name: "Aprovar", exact: true }).first().click();
+  await page.getByLabel("Seu PIN").fill("2468");
+  await page.getByRole("button", { name: "Confirmar e continuar" }).click();
+  await expect(first).toHaveCount(0);
+  await expect(other).toHaveValue("Conferência da segunda proposta");
+  expect(commands).toHaveLength(3);
+  expect(commands.every(command => command.id === requestId && command.body.reason === "Documento da primeira proposta" && command.body.expected_version === 1 && command.body.decision === "APPROVED")).toBe(true);
+  await page.getByRole("button", { name: "Rejeitar", exact: true }).click();
+  await expect(other).toHaveCount(0);
+  expect(commands[3]).toEqual({ id: second.id, body: { expected_version: 1, decision: "REJECTED", reason: "Conferência da segunda proposta" } });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec026/t12a-decisions-${width}.png`, fullPage: true });
 });

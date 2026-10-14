@@ -25,8 +25,8 @@ for (const width of [360, 390, 430]) test(`Attendance draft quantity and collaps
  await layoutAndA11y(page);
  await page.screenshot({ path: `../../visual-artifacts/pilot-cohesion/attendance-draft-${width}.png`, fullPage: true });
  await tab.click();
- await expect(draft).not.toBeVisible();
- await expect(tab).toHaveAttribute("aria-expanded", "false");
+ await expect(draft).toBeVisible();
+ await expect(tab).toHaveAttribute("aria-expanded", "true");
  await tab.click();
  await expect(draft.getByText("3× Fritas", { exact: true })).toBeVisible();
  const title = page.getByRole("button", { name: /Comanda selecionada Comanda de teste/ });

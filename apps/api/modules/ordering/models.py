@@ -1,11 +1,28 @@
 import uuid
+from typing import ClassVar
 
 from django.db import models
 from django.db.models import Q
 
-from modules.access.models import StaffMember
+from modules.access.models import StaffMember, StaffSession
 from modules.catalog.models import Product
 from modules.venue.models import Venue
+
+
+class ProductionBatch(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT)
+    session = models.ForeignKey(StaffSession, on_delete=models.PROTECT)
+    actor = models.ForeignKey(StaffMember, on_delete=models.PROTECT)
+    idempotency_key = models.CharField(max_length=120)
+    request_fingerprint = models.CharField(max_length=64)
+    receipt = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints: ClassVar[list] = [models.UniqueConstraint(
+            fields=("venue", "session", "idempotency_key"), name="ordering_batch_session_key_unique",
+        )]
 
 
 class TabState(models.TextChoices):
@@ -41,6 +58,7 @@ class Tab(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="tabs")
     display_label = models.CharField(max_length=120, blank=True)
+    search_label = models.TextField(blank=True, editable=False, default="")
     customer = models.ForeignKey("house_account.Customer", on_delete=models.PROTECT, null=True, blank=True, related_name="tabs")
     relationship_snapshot = models.CharField(max_length=16, default="VISITOR")
     policy_version_snapshot = models.PositiveIntegerField(default=1)
@@ -66,6 +84,17 @@ class Tab(models.Model):
         indexes = [
             models.Index(fields=("venue", "state", "opened_at"), name="ordering_tab_v_state_idx"),
         ]
+
+
+    def save(self, *args, **kwargs):
+        from .search import normalize_tab_label
+
+        fields = kwargs.get("update_fields")
+        if fields is None or "display_label" in fields:
+            self.search_label = normalize_tab_label(self.display_label)
+            if fields is not None:
+                kwargs["update_fields"] = set(fields) | {"search_label"}
+        return super().save(*args, **kwargs)
 
 
 class Order(models.Model):

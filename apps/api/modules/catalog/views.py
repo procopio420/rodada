@@ -33,6 +33,20 @@ class ProductAvailabilityView(APIView):
         state = request.data.get("state")
         if state not in AvailabilityState.values:
             return Response({"code": "INVALID_AVAILABILITY", "message": "Disponibilidade inválida."}, status=400)
+        if "idempotency_key" in request.data or "expected_version" in request.data:
+            from modules.catalog.availability import AvailabilityError, execute_availability
+            key, version, reason = request.data.get("idempotency_key"), request.data.get("expected_version"), request.data.get("reason", "")
+            if (not isinstance(key, str) or not key.strip() or len(key) > 120
+                    or type(version) is not int or not 1 <= version <= 2147483647
+                    or not isinstance(reason, str) or len(reason) > 600
+                    or set(request.data) - {"state", "idempotency_key", "expected_version", "reason"}):
+                return Response({"code": "INVALID_AVAILABILITY_COMMAND", "message": "Comando de disponibilidade inválido."}, status=400)
+            try:
+                receipt = execute_availability(actor=request.actor_context, product_id=product_id,
+                    state=state, idempotency_key=key, expected_version=version, reason=reason)
+            except AvailabilityError as error:
+                return Response({"code": error.code, "message": error.message}, status=error.status)
+            return Response(receipt, status=409 if receipt["status"] == "REJECTED" else 200)
         availability = ProductAvailability.objects.select_for_update().select_related("product").filter(product_id=product_id, product__venue_id=request.actor_context.venue_id).first()
         if not availability:
             return Response({"code": "PRODUCT_NOT_FOUND", "message": "Produto não encontrado."}, status=404)
