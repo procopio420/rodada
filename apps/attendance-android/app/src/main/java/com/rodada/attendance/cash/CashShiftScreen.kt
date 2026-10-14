@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.auth.StoredSession
+import java.math.BigDecimal
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -324,7 +325,7 @@ internal fun parseCashInput(value: String): Long? {
 }
 
 internal fun formatCashCents(cents: Long): String =
-    NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR")).format(cents / 100.0)
+    NumberFormat.getCurrencyInstance(Locale.forLanguageTag("pt-BR")).format(BigDecimal.valueOf(cents, 2))
 
 private fun String.cashMovementLabel(): String = when (this) {
     "OPENING_FLOAT" -> "Fundo inicial"
