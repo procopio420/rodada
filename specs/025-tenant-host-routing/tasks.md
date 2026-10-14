@@ -12,7 +12,10 @@
   sem transformar publicação legítima em vulnerabilidade presumida.
 - [x] Review técnico independente42a14ef, sem P0/P1 aberto; lacunas externas
   documentadas, sem autoaprovação GitHub.
-- [ ] CI final API/Web/Docker/turno, PR integrado e evidência SHA main.
+- [x] API congelada local/CI746PASS, Web tenant focado2PASS, turno64Tabs/8clientes
+  e restartPASS, DockerPASS; ver matriz por SHA.
+- Gate de CI do HEAD e integração: PR153/relatório final #130 registra checks e
+  merge SHA; integração somente após todos os gates verdes.
 - [ ] **BLOCKED #151:** preview real de dois Venues/ingress/HMAC; script421.
 - [ ] Fechar #130 somente após comprovar todos os critérios originais,
   incluindo #151. Canary separado #152; E2E Android+Web #106 preservado.

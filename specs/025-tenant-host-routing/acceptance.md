@@ -17,8 +17,11 @@ Os PASS locais são separados de CI final/merge e do aceite operacional abaixo.
   sessão/domínio/membership revogados e API compartilhada.
 - [x] Revisão técnica independente do código42a14ef sem P0/P1 aberto; status
   `NO_FINDINGS_WITH_GAPS`, sem aprovação de produção/GitHub.
-- [ ] CI API/Web e integração na main do SHA final: registrar nos gates finais
-  da matriz; não inferir dos runs dos PRs anteriores.
+- [x] API completa congelada local746PASS e CI746PASS emd77; BFF focado2PASS
+  A/B,B/A. Turno41ce213PASS (64Tabs/8clientes/restart), DockerPASS.
+- Gate do HEAD final e merge SHA: [PR153](https://github.com/procopio420/rodada/pull/153)
+  e relatório final da #130, conforme [registro executado](audit-130-evidence.md).
+  O integrador exige API/Web verdes no HEAD antes de merge; não extrapolar SHA anterior.
 - [ ] **BLOCKED #151:** prova real ingress/Host/HMAC e preview A/B. Script em
   14/10 retornou exit22/HTTP421 no manifest de e2ea.rodada.bar; não demonstra
   cookies Secure, stripping externo, canário ou operação crítica em preview.
