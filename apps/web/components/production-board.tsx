@@ -19,7 +19,7 @@ import { CustomizationAvailability } from "./customization-availability";
 type Item = { customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; table_label?: string | null; created_at: string };
 
 const itemPrimary = (item: Item) => tabPrimaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
-const itemSecondary = (item: Item) => tabSecondaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
+const itemSecondary = (item: Item) => item.tab_id ? tabSecondaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label }) : "";
 type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "PREPARING", label: "Iniciar preparo" },
@@ -147,7 +147,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
         {loading ? <div className="loadingState" role="status">Carregando produção…</div> : batches.map(batch => <article className="stationDish" key={batch.items[0].product_id ?? batch.items[0].id}>
           <div className="stationDishHeading"><div><ProductIcon name={batch.name} icon={batch.product?.icon} /><strong>{batch.name}</strong></div><span className="stationQuantity">{batch.quantity}</span></div>
           <span className="stationDishContext">{batch.items.filter(item => item.state !== "PREPARING").length} aguardando · {batch.items.filter(item => item.state === "PREPARING").length} em preparo</span>
-          <div className="stationChips">{batch.items.map(item => <span key={item.id}>{itemPrimary(item)} · {itemSecondary(item)}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
+          <div className="stationChips">{batch.items.map(item => <span key={item.id}>{itemPrimary(item)}{itemSecondary(item) ? ` · ${itemSecondary(item)}` : ""}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
         </article>)}
         {!loading && hasSnapshot && !batches.length && <div className="emptyState">Nenhum prato aguardando preparo.</div>}
       </section>
