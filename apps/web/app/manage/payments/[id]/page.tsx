@@ -32,7 +32,7 @@ export default function PaymentContextPage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     const candidate = new URLSearchParams(window.location.search).get("from") ?? "";
     const prefix = "/manage/alerts/";
-    setOrigin(candidate.startsWith(prefix) && uuid.test(candidate.slice(prefix.length)) ? candidate : "/manage");
+    queueMicrotask(() => setOrigin(candidate.startsWith(prefix) && uuid.test(candidate.slice(prefix.length)) ? candidate : "/manage"));
   }, [id]);
   const load = useCallback(async () => {
     const request = ++generation.current;

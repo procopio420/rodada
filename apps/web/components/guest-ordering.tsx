@@ -3,7 +3,7 @@
 import { OperationalHeading } from "@/components/operational-heading";
 
 import { BillSummary } from "./bill-summary";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { guestApi } from "@/lib/client/guest-api";
 import { guestOrderStorageKey, useGuestOrderIntent, validScope, sameScope, type GuestScope } from "@/lib/client/guest-order-intent";
@@ -73,8 +73,8 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const repeatReading = useRef(false);
   const repeatConsumed = useRef(false);
   const currentVisit = useRef({ token: guestToken, context });
-  currentVisit.current = { token: guestToken, context };
-  useEffect(() => { setRepeatReview(null); }, [guestToken, context?.tab?.id]);
+  useLayoutEffect(() => { currentVisit.current = { token: guestToken, context }; }, [guestToken, context]);
+  useEffect(() => { queueMicrotask(() => setRepeatReview(null)); }, [guestToken, context?.tab?.id]);
   const orderIntent = useGuestOrderIntent(qrToken, guestToken, detail => {
     setContext(detail as Context); setCart([]); setNotice("");
   });

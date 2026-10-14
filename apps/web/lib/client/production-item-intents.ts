@@ -32,14 +32,19 @@ export function useProductionItemIntents(station: "BAR" | "KITCHEN", onReadback:
     intents.current = next; publish();
   }
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       intents.current = read(); sessionStorage.setItem(`${key}.probe`, "1"); sessionStorage.removeItem(`${key}.probe`);
       // Refuse noncanonical storage rather than rewriting an unresolved intent.
       assertStorage(); usable.current = true; setReady(true); publish();
     } catch { setMessage("Não foi possível preservar as ações de produção. Solicite revisão antes de continuar."); }
+    });
+    return () => { active = false; };
   }, []);
-  const anyPending = () => !usable.current || sending.current.size > 0 || Object.keys(intents.current).length > 0;
-  const locked = (id: string) => !usable.current || sending.current.has(id) || Object.hasOwn(intents.current, id);
+  const anyPending = () => !ready || busy.length > 0 || pending.length > 0;
+  const locked = (id: string) => !ready || busy.includes(id) || pending.some(i => i.payload.lines.some(line => line.item_id === id));
   async function submit(id: string, draft?: BatchDraft) {
     if (!usable.current || sending.current.has(id)) return;
     const original = intents.current[id];

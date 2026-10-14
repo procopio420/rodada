@@ -33,7 +33,7 @@ const apiMessage = (body: unknown) => { const error = asApiError(body); return `
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {
   const [review, setReview] = useState<{ target: "PREPARING" | "READY"; items: Item[] } | null>(null);
   const reviewRef = useRef(false);
-  const reviewOpener = useRef<HTMLElement | null>(null);
+  const [reviewOrigin, setReviewOrigin] = useState<HTMLElement | null>(null);
   const batchReadback = useRef(false);
   const deferredRead = useRef(false);
   const readbackTail = useRef<Promise<void>>(Promise.resolve());
@@ -119,7 +119,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     return () => window.clearInterval(timer);
   }, []);
 
-  async function change(path: string, state: string, kind: "product" | "item", id: string) {
+  const change = useCallback(async (path: string, state: string, kind: "product" | "item", id: string) => {
     if (mutating.current || reviewRef.current || batchIntent.locked() || itemIntents.anyPending() || availabilityIntents.anyPending() || message) return;
     mutating.current = true;
     if (kind === "product") setChangingProductId(id); else setChangingItemId(id);
@@ -134,7 +134,19 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       setChangingProductId(null);
       setChangingItemId(null);
     }
-  }
+  }, [batchIntent, itemIntents, availabilityIntents, message, load]);
+
+  const openReview = useCallback((origin: HTMLElement, target: "PREPARING" | "READY", candidates: Item[]) => {
+    if (mutating.current || batchIntent.locked() || itemIntents.anyPending() || availabilityIntents.anyPending() || reviewRef.current) return;
+    setReviewOrigin(origin); reviewRef.current = true;
+    setReview({ target, items: candidates.map(item => ({ ...item })) });
+  }, [batchIntent, itemIntents, availabilityIntents]);
+
+  const transitionItem = useCallback((item: Item) => {
+    if (mutating.current || !availabilityIntents.valid() || availabilityIntents.message || reviewRef.current || batchIntent.locksItem(item.id) || message) return;
+    if (verifiedItem(item, station)) void itemIntents.submit(item.id, { station, target_state: next[item.state].state as "PREPARING" | "READY", lines: [{ item_id: item.id, expected_state: item.state, quantity: item.quantity, snapshot_fingerprint: item.snapshot_fingerprint! }] });
+    else void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id);
+  }, [availabilityIntents, batchIntent, itemIntents, message, station, change]);
 
   const waiting = items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
   const pending = waiting.filter(item => item.state !== "PREPARING");
@@ -148,12 +160,12 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   }
   const ready = items.filter(item => item.state === "READY");
   const inTransit = items.filter(item => item.state === "PICKED_UP");
-  const independentDisabled = !availabilityIntents.ready || !availabilityIntents.valid() || !!availabilityIntents.message || !itemIntents.ready || !!itemIntents.message || !batchIntent.ready || batchIntent.locksItem("") || !!review || connectivity.state === "OFFLINE" || !!message || changingProductId !== null || changingItemId !== null;
+  const independentDisabled = !availabilityIntents.ready || !!availabilityIntents.message || !itemIntents.ready || !!itemIntents.message || !batchIntent.ready || batchIntent.locksItem("") || !!review || connectivity.state === "OFFLINE" || !!message || changingProductId !== null || changingItemId !== null;
   const disabled = independentDisabled || !!batchIntent.pending || batchIntent.busy || availabilityIntents.pending.length > 0 || availabilityIntents.busy.length > 0;
   const individualDisabled = independentDisabled;
   const versionedProduct = (product: Product) => Number.isSafeInteger(product.availability_version) && product.availability_version! >= 1 && product.availability_version! <= 2147483647;
 
-  const verified = (item: Item) => /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && productionConfiguration(item, station) !== null;
+  const verified = (item: Item) => verifiedItem(item, station);
   const batches = groupProductionItems(waiting, station).map(group => ({ ...group, product: products.find(product => product.id === group.items[0].product_id) }));
   const age = (timestamp?: string | null) => {
     if (!timestamp || !Number.isFinite(Date.parse(timestamp))) return "Tempo não informado";
@@ -208,10 +220,8 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
           {!batch.knownConfiguration && <span className="muted">Configuração não registrada</span>}
           {batch.knownConfiguration && ["PREPARING", "READY"].map(target => {
             const candidates = batch.items.filter(item => /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && (target === "PREPARING" ? ["NEW", "ACCEPTED"].includes(item.state) : item.state === "PREPARING"));
-            return candidates.length > 1 && <button key={target} className="buttonSecondary" disabled={disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0} aria-label={`${target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}: ${batch.name}`} onClick={event => {
-              if (mutating.current || batchIntent.locked() || itemIntents.anyPending() || availabilityIntents.anyPending() || reviewRef.current) return;
-              reviewOpener.current = event.currentTarget; reviewRef.current = true; setReview({ target: target as "PREPARING" | "READY", items: candidates.map(item => ({ ...item })) });
-            }}>{target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}</button>;
+            return candidates.length > 1 && <BatchSelectionButton key={target} name={batch.name} target={target as "PREPARING" | "READY"}
+              disabled={disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0} candidates={candidates} onSelect={openReview} />;
           })}
           <div className="stationChips">{batch.items.map(item => <span key={item.id}>{item.tab_label || "Sem identificação"}{item.quantity > 1 ? ` ×${item.quantity}` : ""}</span>)}</div>
         </article>)}
@@ -224,11 +234,9 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
           <strong className="stationTab">{group[0].tab_label || "Sem identificação"}</strong>
           <div className="stationOrderItems">{group.map(item => <article className="stationTicket" key={item.id}>
           <div className="stationTicketContent"><strong>{item.quantity} {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><div className="stationTicketMeta"><span>{labels[item.state] ?? item.state}</span><time aria-label="Tempo desde o pedido">{age(item.created_at)}</time></div></div>
-          {next[item.state] && <button className="buttonPrimary" disabled={verified(item) ? individualDisabled || batchIntent.locksItem(item.id) || itemIntents.locked(item.id) : disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0} aria-label={`${next[item.state].label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`} onClick={() => {
-            if (mutating.current || !availabilityIntents.valid() || availabilityIntents.message || reviewRef.current || batchIntent.locksItem(item.id) || message) return;
-            if (verified(item)) void itemIntents.submit(item.id, { station, target_state: next[item.state].state as "PREPARING" | "READY", lines: [{ item_id: item.id, expected_state: item.state, quantity: item.quantity, snapshot_fingerprint: item.snapshot_fingerprint! }] });
-            else void change(`/api/pos/order-items/${item.id}/transition/`, next[item.state].state, "item", item.id);
-          }}>{changingItemId === item.id || itemIntents.busy.includes(item.id) ? "Salvando…" : next[item.state].label}</button>}
+          {next[item.state] && <ItemTransitionButton item={item} label={next[item.state].label}
+            disabled={verified(item) ? individualDisabled || batchIntent.locksItem(item.id) || itemIntents.locked(item.id) : disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0}
+            saving={changingItemId === item.id || itemIntents.busy.includes(item.id)} onTransition={transitionItem} />}
           </article>)}</div>
         </div>)}
         {!loading && hasSnapshot && !waiting.length && <div className="emptyState">Nenhum item aguardando preparo.</div>}
@@ -273,7 +281,24 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     </div>
     </div>
     {review && <ProductionBatchReview station={station} target={review.target} captured={review.items} current={items}
-      returnFocus={reviewOpener.current} unavailable={connectivity.state === "OFFLINE" || !!message || batchIntent.locked() || mutating.current} onClose={closeReview}
+      returnFocus={reviewOrigin} unavailable={connectivity.state === "OFFLINE" || !!message || batchIntent.locked() || !!changingItemId || !!changingProductId} onClose={closeReview}
       onConfirm={draft => { if (batchIntent.locked() || mutating.current || message) return; void batchIntent.submit(draft); closeReview(); }} />}
   </main>;
+}
+
+function verifiedItem(item: Item, station: "BAR" | "KITCHEN") {
+  return /^[a-f0-9]{64}$/.test(item.snapshot_fingerprint ?? "") && productionConfiguration(item, station) !== null;
+}
+function BatchSelectionButton({ name, target, disabled, candidates, onSelect }: {
+  name: string; target: "PREPARING" | "READY"; disabled: boolean; candidates: Item[];
+  onSelect: (origin: HTMLElement, target: "PREPARING" | "READY", candidates: Item[]) => void;
+}) {
+  return <button className="buttonSecondary" disabled={disabled} aria-label={`${target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}: ${name}`}
+    onClick={event => onSelect(event.currentTarget, target, candidates)}>{target === "PREPARING" ? "Selecionar preparo" : "Selecionar prontos"}</button>;
+}
+function ItemTransitionButton({ item, label, disabled, saving, onTransition }: {
+  item: Item; label: string; disabled: boolean; saving: boolean; onTransition: (item: Item) => void;
+}) {
+  return <button className="buttonPrimary" disabled={disabled} aria-label={`${label}: ${item.quantity} ${item.product_name}, ${item.tab_label || "sem identificação"}`}
+    onClick={() => onTransition(item)}>{saving ? "Salvando…" : label}</button>;
 }

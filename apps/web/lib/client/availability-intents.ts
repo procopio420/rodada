@@ -56,15 +56,20 @@ export function useAvailabilityIntents(station: "BAR" | "KITCHEN", onReadback: (
     intents.current = bag; publish();
   }
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       const raw = sessionStorage.getItem(key); intents.current = raw === null ? Object.create(null) : parse(raw);
       sessionStorage.setItem(`${key}.probe`, "1"); sessionStorage.removeItem(`${key}.probe`); assertStorage();
       usable.current = true; setReady(true); publish();
     } catch { setMessage("Não foi possível preservar a disponibilidade. Solicite revisão antes de continuar."); }
+    });
+    return () => { active = false; };
   }, []);
   const valid = () => { try { assertStorage(); return usable.current; } catch { return false; } };
-  const anyPending = () => !valid() || sending.current.size > 0 || Object.keys(intents.current).length > 0;
-  const locked = (id: string) => !valid() || sending.current.has(id) || Object.hasOwn(intents.current, id);
+  const anyPending = () => !ready || busy.length > 0 || pending.length > 0;
+  const locked = (id: string) => !ready || busy.includes(id) || pending.some(i => i.product_id === id);
   async function submit(id: string, draft?: Draft) {
     if (!usable.current || sending.current.has(id) || (!intents.current[id] && !draft)) return;
     if ((intents.current[id]?.station ?? draft?.station) !== station || (draft && draft.product_id !== id)) return;

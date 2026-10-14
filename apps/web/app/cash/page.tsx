@@ -166,13 +166,15 @@ export default function CashPage() {
   }, []);
 
   useEffect(() => {
+    let current = true;
+    queueMicrotask(() => {
+    if (!current) return;
     const query = new URLSearchParams(window.location.search);
     const target = query.get("shift");
     if (target === null) { void load(); return; }
     const origin = query.get("from") ?? "";
     setContextOrigin(origin === "/manage/daily-close" || /^\/manage\/alerts\/[0-9a-f-]{36}$/i.test(origin) ? origin : "/manage");
     setContextShiftId(target);
-    let current = true;
     void (async () => {
       try {
         if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target)) throw new Error("Identificador do turno inválido.");
@@ -187,6 +189,7 @@ export default function CashPage() {
           setNotice({ code: "CASH_CONTEXT_UNAVAILABLE", message: cause instanceof Error ? cause.message : "Não foi possível abrir o turno original." }); }
       }
     })();
+    });
     return () => { current = false; };
   }, [load]);
   useEffect(() => {

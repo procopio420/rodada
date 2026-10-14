@@ -65,7 +65,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       setMessage("Não foi possível preservar o recebimento neste navegador. Confira o histórico com a gerência antes de continuar.");
     }
   }
-  useEffect(() => { void initialize(); }, []);
+  useEffect(() => { queueMicrotask(() => void initialize()); }, []);
   useEffect(() => { onPendingChange(!ready || !!pending || busy); }, [ready, pending, busy, onPendingChange]);
 
   const activePoint = pointId || points[0]?.id || "";

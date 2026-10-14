@@ -38,11 +38,16 @@ export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (con
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intent = useRef<Intent | null>(null), sending = useRef(false);
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       const saved = read(key);
       sessionStorage.setItem(`${key}.probe`, "1"); sessionStorage.removeItem(`${key}.probe`);
       intent.current = saved; setPending(saved); setReady(true);
     } catch { setMessage("Não foi possível preservar seu pedido neste navegador. Peça ajuda à equipe antes de enviar."); }
+    });
+    return () => { active = false; };
   }, [key]);
   function assertSaved(i: Intent) { if (sessionStorage.getItem(key) !== JSON.stringify(i)) throw new Error("Guest envelope changed"); }
   async function submit(draft?: { tab: string; lines: Line[] }) {

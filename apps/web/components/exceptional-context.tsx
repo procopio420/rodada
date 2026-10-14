@@ -33,7 +33,7 @@ export function ExceptionalContext({ id, kind }: { id: string; kind: "item" | "c
   useEffect(() => {
     const candidate = new URLSearchParams(window.location.search).get("from") ?? "";
     const prefix = "/manage/alerts/";
-    setOrigin(candidate === "/refunds" ? candidate : candidate.startsWith(prefix) && uuid.test(candidate.slice(prefix.length)) ? candidate : "/manage");
+    queueMicrotask(() => setOrigin(candidate === "/refunds" ? candidate : candidate.startsWith(prefix) && uuid.test(candidate.slice(prefix.length)) ? candidate : "/manage"));
   }, [id, kind]);
   const load = useCallback(async () => {
     const request = ++generation.current;

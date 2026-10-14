@@ -20,14 +20,16 @@ class RecoveryContextTests(TestCase):
         self.clients = {}
         for role in (StaffRole.STAFF, StaffRole.MANAGER):
             staff = StaffMember.objects.create(display_name=role, login_identifier=f"recovery-{role}")
-            staff.set_pin("2468"); staff.save(update_fields=["pin_hash"])
+            staff.set_pin("2468")
+            staff.save(update_fields=["pin_hash"])
             VenueStaffMembership.objects.create(venue=self.venue, staff_member=staff, role=role)
             client = APIClient()
             response = client.post("/auth/login/", {"venue_slug": self.venue.slug, "login_identifier": staff.login_identifier, "pin": "2468", "installation_id": f"recovery-device-{role}", "platform": "WEB"}, format="json")
             self.assertEqual(response.status_code, 200)
             client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.json()['access_token']}")
             self.clients[role] = client
-            if role == StaffRole.MANAGER: self.manager = staff
+            if role == StaffRole.MANAGER:
+                self.manager = staff
         self.tab, self.item, self.payment, self.correction = self.fixture(self.venue)
         self.foreign_tab, self.foreign_item, self.foreign_payment, self.foreign_correction = self.fixture(self.other)
 

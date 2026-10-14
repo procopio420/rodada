@@ -1,3 +1,5 @@
+import type { AvailabilityIntent } from "@/lib/client/availability-intents";
+import type { BatchLine } from "@/lib/client/production-batch-intent";
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
 const key = "rodada.intent.availability.v1";
@@ -10,19 +12,19 @@ async function setup(page: Page, station = "KITCHEN") {
   await page.route(`**/api/pos/production/${station}/`, r => r.fulfill({ json: { results: rows } }));
   return { catalog, rows };
 }
-function receipt(id: string, p: any, rejected = false) { return { command_id: `command-${p.idempotency_key}`, product_id: id, ...p, requested_state: p.state,
+function receipt(id: string, p: AvailabilityIntent["payload"], rejected = false) { return { command_id: `command-${p.idempotency_key}`, product_id: id, ...p, requested_state: p.state,
   state: rejected ? "AVAILABLE" : p.state, version: p.expected_version + 1, status: rejected ? "REJECTED" : "APPLIED", changed: !rejected, conflicts: rejected ? ["VERSION_CONFLICT"] : [] }; }
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Availability independent recovery ${station} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); const { catalog, rows } = await setup(page, station);
-  let release!: () => void; const held = new Promise<void>(resolve => { release = resolve; }); const attempts: any[] = [], receipts = new Map();
+  let release!: () => void; const held = new Promise<void>(resolve => { release = resolve; }); const attempts: { id: string; p: AvailabilityIntent["payload"] }[] = [], receipts = new Map();
   await page.route("**/api/pos/catalog/products/*/availability/", async route => {
     const id = route.request().url().split("/").at(-3)!; const p = route.request().postDataJSON(); attempts.push({ id, p });
-    expect(await page.evaluate(({ key, p }) => JSON.parse(sessionStorage.getItem(key)!).entries.some((i: any) => JSON.stringify(i.payload) === JSON.stringify(p)), { key, p })).toBe(true);
+    expect(await page.evaluate(({ key, p }) => JSON.parse(sessionStorage.getItem(key)!).entries.some((i: AvailabilityIntent) => JSON.stringify(i.payload) === JSON.stringify(p)), { key, p })).toBe(true);
     if (!receipts.has(p.idempotency_key)) { receipts.set(p.idempotency_key, receipt(id, p)); const product = catalog.find(c => c.id === id)!; product.availability = p.state; product.availability_version++; }
     if (attempts.length === 1) { await held; return route.abort(); } await route.fulfill({ json: receipts.get(p.idempotency_key) });
   });
   await page.route("**/api/pos/production/batches/", async route => { const p = route.request().postDataJSON(); rows[0].state = p.target_state;
-    await route.fulfill({ json: { ...p, command_id: "item-command", status: "APPLIED", lines: p.lines.map((l: any) => ({ item_id: l.item_id, status: "APPLIED", state: p.target_state, conflicts: [] })) } }); });
+    await route.fulfill({ json: { ...p, command_id: "item-command", status: "APPLIED", lines: p.lines.map((l: BatchLine) => ({ item_id: l.item_id, status: "APPLIED", state: p.target_state, conflicts: [] })) } }); });
   try {
     await page.goto(station === "KITCHEN" ? "/kitchen" : "/bar");
     await page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true }).click(); await expect.poll(() => attempts.length).toBe(1);
@@ -41,7 +43,7 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
 for (const mode of ["rejection", "receipt", "readback", "tampered", "session", "storage", "invalid"]) test(`Availability protection ${mode}`, async ({ page }) => {
   if (mode === "storage") await page.addInitScript(() => { const original = Storage.prototype.setItem; Storage.prototype.setItem = function(k, v) { if (k.startsWith("rodada.intent.availability")) throw new Error("Test storage failure"); return original.call(this, k, v); }; });
   if (mode === "invalid") await page.addInitScript(key => sessionStorage.setItem(key, '{"schema":1,"entries":[{}]}'), key);
-  await setup(page); const attempts: any[] = [];
+  await setup(page); const attempts: AvailabilityIntent["payload"][] = [];
   await page.route("**/api/pos/catalog/products/fries/availability/", async route => {
     const p = route.request().postDataJSON(); attempts.push(p);
     if (["session", "tampered"].includes(mode)) return route.abort();

@@ -26,7 +26,7 @@ async function setup(page: Page, mode = "valid") {
   }
   let failRead = false;
   await page.route("**/api/pos/catalog/products/", route => route.fulfill({ json: { results: catalog } }));
-  await page.route(/\/api\/pos\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: [detail].map(({ orders, ...summary }) => summary), next_offset: null } }));
+  await page.route(/\/api\/pos\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: [{ ...detail, orders: undefined }], next_offset: null } }));
   await page.route("**/api/pos/tabs/tab-test/", route => route.fulfill({ status: failRead ? 503 : 200, json: failRead ? { message: "Read failed" } : detail }));
   const posts: unknown[] = [];
   await page.route("**/api/pos/tabs/tab-test/orders/confirm/", route => { posts.push(route.request().postDataJSON()); return route.abort(); });

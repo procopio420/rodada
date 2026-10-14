@@ -34,11 +34,16 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
   const intent = useRef<Intent | null>(null), sending = useRef(false), status = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (message.startsWith("Movimento confirmado.")) status.current?.focus(); }, [message]);
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       const saved = readIntent(); sessionStorage.setItem(`${key}.probe`, "1"); sessionStorage.removeItem(`${key}.probe`);
       intent.current = saved; setPending(saved); setReady(true);
       if (saved) setMessage("Movimento aguardando confirmação. Verifique a mesma operação.");
     } catch { setMessage("Não foi possível preservar o movimento neste navegador. Solicite revisão antes de continuar."); }
+    });
+    return () => { active = false; };
   }, []);
   useEffect(() => { onLockChange(!ready || !!pending || !!selection || busy); }, [ready, pending, selection, busy, onLockChange]);
   useEffect(() => {

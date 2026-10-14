@@ -31,12 +31,18 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string) => Prom
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intentRef = useRef<Intent | null>(null), sending = useRef(false);
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       const saved = readIntent();
       sessionStorage.setItem(`${storageKey}.probe`, "1"); sessionStorage.removeItem(`${storageKey}.probe`);
       intentRef.current = saved; setPending(saved); setReady(true);
       if (saved) setMessage("Há um pedido aguardando confirmação. Verifique o mesmo pedido antes de enviar outro.");
     } catch { setMessage("Não foi possível preservar o pedido neste navegador. Confira o histórico antes de continuar."); }
+
+    });
+    return () => { active = false; };
   }, []);
   async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos") {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;

@@ -86,7 +86,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     tableOpeningLock.current = false; setTableOpening(false);
     if (failure) { setError(failure); return; }
     setTableOrigin(selection); setScreen("tabs");
-  }, []);
+  }, [setError]);
   function returnToTable() {
     if (!tableOrigin || busy || moveLocked || pendingOrder || tableOpeningLock.current) return;
     setReturnFocus(tableOrigin.tableId); setScreen("tables");
@@ -94,7 +94,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   useEffect(() => {
     if (screen !== "tables" || !returnFocus) return;
     const heading = document.getElementById(`attendance-table-${returnFocus}`);
-    heading?.focus(); heading?.scrollIntoView({ block: "nearest" }); setReturnFocus(null);
+    heading?.focus(); heading?.scrollIntoView({ block: "nearest" }); queueMicrotask(() => setReturnFocus(null));
   }, [screen, returnFocus]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);
