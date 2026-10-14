@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import { createAttendanceTable, openAttendanceTab } from "./attendance-open";
 
 async function api(page: Page, path: string, body?: unknown) {
   return page.evaluate(async ({ path, body }) => {
@@ -17,18 +18,15 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  const table = `Draft table ${width}`;
+  await createAttendanceTable(page, table);
   await expect(page.getByRole("button", { name: "Contas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  for (const name of ["A", "B"]) {
-    if (!(await page.getByLabel("Apelido da comanda (opcional)").isVisible())) await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-    await page.getByLabel("Apelido da comanda (opcional)").fill(`Draft ${name} ${width}`);
-    await page.getByRole("button", { name: "Abrir", exact: true }).click();
-    await expect(page.getByRole("heading", { name: `Draft ${name} ${width}`, exact: true })).toBeVisible();
-  }
+  for (const name of ["A", "B"]) await openAttendanceTab(page, `Draft ${name} ${width}`, table);
   const list = (await api(page, "tabs/")).results;
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
-  const a = page.getByRole("button", { name: new RegExp(`^Draft A ${width} ·`) });
-  const b = page.getByRole("button", { name: new RegExp(`^Draft B ${width} ·`) });
+  const a = page.locator(".attendanceTabOption").filter({ hasText: `Draft A ${width}` });
+  const b = page.locator(".attendanceTabOption").filter({ hasText: `Draft B ${width}` });
   await expect(a).toBeVisible(); await a.click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
@@ -39,10 +37,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByRole("button", { name: /^Bar E2E item/ }).click();
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await a.click(); await expect(draft).toBeVisible();
-  if (!(await page.getByLabel("Apelido da comanda (opcional)").isVisible())) await page.getByText("Identificar por nome (opcional)", { exact: true }).click();
-    await page.getByLabel("Apelido da comanda (opcional)").fill(`Draft C ${width}`);
-  await page.getByRole("button", { name: "Abrir", exact: true }).click();
-  await expect(page.getByRole("heading", { name: `Draft C ${width}`, exact: true })).toBeVisible();
+  await openAttendanceTab(page, `Draft C ${width}`, table);
   await expect(draft.locator("article")).toHaveCount(0);
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();
