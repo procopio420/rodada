@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, openAttendanceTab, type Page } from "./fixtures";
 
 async function api(page: Page, path: string, body?: unknown) {
   return page.evaluate(async ({ path, body }) => {
@@ -20,8 +20,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await expect(page.getByRole("button", { name: "Contas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   for (const name of ["A", "B"]) {
-    await page.getByLabel("Nome da Comanda").fill(`Draft ${name} ${width}`);
-    await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
+  await openAttendanceTab(page, `Draft ${name} ${width}`);
     await expect(page.getByRole("heading", { name: `Draft ${name} ${width}`, exact: true })).toBeVisible();
   }
   const list = (await api(page, "tabs/")).results;
@@ -38,8 +37,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByRole("button", { name: /^Bar E2E item/ }).click();
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await a.click(); await expect(draft).toBeVisible();
-    await page.getByLabel("Nome da Comanda").fill(`Draft C ${width}`);
-  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
+  await openAttendanceTab(page, `Draft C ${width}`);
   await expect(page.getByRole("heading", { name: `Draft C ${width}`, exact: true })).toBeVisible();
   await expect(draft.locator("article")).toHaveCount(0);
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();

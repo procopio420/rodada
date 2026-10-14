@@ -34,6 +34,9 @@ for (const width of [360, 390, 430, 1280]) {
     expect(credential).toMatch(/^rpa_/);
     const heartbeat = await request.post(base + "me/heartbeat/", { headers: { Authorization: "Bearer " + credential }, data: { protocol_version: 1, version: "0.2.0" } });
     expect(heartbeat.status()).toBe(200);
+    const computer = panel.locator(".dataRow").filter({ has: page.getByText(`Computador sintético ${width}`, { exact: true }) });
+    await expect(computer.getByText("Conectado · Versão 0.2.0", { exact: true })).toBeVisible({ timeout: 15000 });
+
     const browserMachine = await page.evaluate(async () => {
       const result = await fetch("/api/pos/printing/agents/v1/me/heartbeat/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ protocol_version: 1, version: "0.2.0" }) });
       return result.status;

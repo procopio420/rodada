@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, expandAttendanceTable, type Page } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
@@ -52,7 +52,8 @@ Table.objects.create(venue=v,label='Available move destination')`);
       return Promise.all(cases.map(async body=>(await fetch(`/api/attendance/tabs/${id}/operations`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).status));
     },{id:tab.id,base}); expect(disabled.every((s:number)=>s===403)).toBe(true);
     await page.getByRole("button",{name:"Mesas",exact:true}).click();
-    await page.getByRole("button",{name:`Mover comanda Mesa A-${width} · Web move ${width} · ID ${tab.id}`,exact:true}).click();
+    await expandAttendanceTable(page, `A-${width}`);
+    await page.locator(`button[data-tab-id="${tab.id}"]`).locator("..").getByRole("button", { name: "Mover comanda", exact: true }).click();
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
     expect(await page.getByLabel("Mesa de destino").locator("option").allTextContents()).not.toContain("Mesa Available move destination");
     await page.getByLabel("Mesa de destino").selectOption(destination.active_occupancy.id); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");
@@ -87,7 +88,8 @@ print(json.dumps({'assignments':assignments,'reason':event.reason,'actor':str(ev
     expect(facts.operations).toBe(1); expect(facts.events).toBe(1); expect(facts.transfers).toBe(0); expect(facts.reason).toBe("Mudança de lugar"); expect(facts.actor).not.toBe("None"); expect(facts.origin_released).toBeNull();
     expect(facts.assignments).toHaveLength(2); expect(facts.assignments[0].released_at).not.toBeNull(); expect(facts.assignments[1]).toEqual({occupancy_id:destination.active_occupancy.id,released_at:null});
     await page.getByRole("button",{name:"Mesas",exact:true}).click();
-    await expect(page.getByRole("heading",{name:`Mesa A-${width}`,exact:true})).toBeVisible();
+    await expect(page.getByRole("heading",{name:new RegExp(`^Mesa A-${width} `)})).toBeVisible();
+    await expandAttendanceTable(page, `B-${width}`);
     await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
     await page.unroute(endpoint);

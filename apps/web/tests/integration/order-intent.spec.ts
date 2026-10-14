@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test, openAttendanceTab } from "./fixtures";
 
 for (const width of [360, 390, 430]) test(`Staff order committed without response recovers after reload once ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
@@ -8,8 +8,7 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   const label = `Order recovery ${width}`;
-  await page.getByLabel("Nome da Comanda").fill(label);
-  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
+  await openAttendanceTab(page, label);
   await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();

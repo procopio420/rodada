@@ -125,3 +125,17 @@ parent/private ACL and readable retained-file rejection. Source gating evidence
 and final SHA are maintained in PR #155; this document records tested snapshots,
 not automatic completion of the slice. Latest verification also reconfigures the
 service after LocalService writes its state, preserving installation/credential.
+
+
+Final-head verification snapshot (48c8876): API run 38643282466 passed all 830
+PostgreSQL 17 tests and migration/check gates; Windows run 38643282481 passed.
+Web run 38643282461 passed 87/99, including all four pairing/revocation cases.
+The 12 failures were obsolete main Attendance flows: required table picker,
+collapsed table cards, generic scoped move action and ten-row mobile pagination.
+Updated fixtures preserve financial/idempotency/recovery assertions, explicitly
+exercise the current table flow and retain navigation beyond 200 tabs. They wait
+for Venue configuration before opening a tab (main initially loads that flag
+asynchronously). No application financial, table or fulfillment logic is changed.
+Pairing screenshots at 360/390/430/1280 were actually inspected: readable without
+horizontal overflow. The pairing test now also waits for the ten-second fleet
+poll to show the server heartbeat as ONLINE. Final revalidation follows in PR155.

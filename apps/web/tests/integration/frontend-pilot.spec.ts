@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test, expandAttendanceTable } from "./fixtures";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -55,7 +55,8 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  const table = page.locator("article").filter({ has: page.getByRole("heading", { name: "Mesa Pilot frontend table", exact: true }) });
+  await expandAttendanceTable(page, "Pilot frontend table");
+  const table = page.locator("article").filter({ has: page.getByRole("heading", { name: /^Mesa Pilot frontend table / }) });
   await expect(table.getByText("Quantidade não informada", { exact: true })).toBeVisible();
   await table.getByRole("button", { name: "Selecionar 4 pessoas" }).click();
   await table.getByRole("button", { name: "Confirmar quantidade" }).click();
