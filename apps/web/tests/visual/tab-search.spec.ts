@@ -18,10 +18,10 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360,3
  await page.getByRole("button", { name: "Próxima página", exact: true }).click(); await expect(page.getByText("Página 2", { exact: true })).toBeVisible();
  const input = page.getByLabel("Buscar comanda por apelido"); await input.fill("joao"); await input.press("Enter");
  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();
- await expect(page.getByRole("button", { name: /Comanda same-a/ })).toBeVisible(); await expect(page.getByRole("button", { name: /Comanda same-b/ })).toBeVisible();
+ await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeVisible(); await expect(page.getByRole("button", { name: /Comanda SAME-B/ })).toBeVisible();
  await expect(page.getByRole("heading", { name: "Page 0", exact: true })).toBeVisible(); await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
  await input.fill("failure"); await input.press("Enter"); await expect(page.getByText("Não foi possível atualizar. Os dados podem estar desatualizados.")).toBeVisible();
- await expect(page.getByText(/Resultados para “joao”/)).toBeVisible(); await expect(page.getByRole("button", { name: /Comanda same-a/ })).toBeVisible();
+ await expect(page.getByText(/Resultados para “joao”/)).toBeVisible(); await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeVisible();
  await input.fill(""); await input.press("Enter"); await page.getByRole("button", { name: "Próxima página", exact: true }).click();
- await expect(page.getByRole("button", { name: /Comanda unnamed/ })).toBeVisible(); await layoutAndA11y(page);
+ await expect(page.getByRole("button", { name: /Comanda UNNAMED/ })).toBeVisible(); await layoutAndA11y(page);
 });
