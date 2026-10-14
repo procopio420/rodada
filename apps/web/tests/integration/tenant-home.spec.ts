@@ -69,8 +69,13 @@ test("Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive", a
     }));
     expect(alignedCopy.every(card => card.titleY > card.iconBottom && card.titleY - card.iconBottom < 30)).toBe(true);
     expect(alignedCopy.every(card => card.copyMarginTop === "0px" && card.lineClamp === "2" && !card.subtitleClipped)).toBe(true);
-    expect(Math.abs(alignedCopy[0].titleY - alignedCopy[1].titleY)).toBeLessThan(2);
-    expect(Math.abs(alignedCopy[2].titleY - alignedCopy[3].titleY)).toBeLessThan(2);
+    // Only compare cards sharing a physical grid row at this breakpoint.
+    for (let start = 0; start < alignedCopy.length; start += columns) {
+      const sameRow = alignedCopy.slice(start, start + columns);
+      for (const card of sameRow.slice(1)) {
+        expect(Math.abs(card.titleY - sameRow[0].titleY)).toBeLessThan(2);
+      }
+    }
 
     const lastCard = await nav.getByRole("link").last().boundingBox();
     const grid = await nav.boundingBox();
