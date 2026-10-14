@@ -79,7 +79,8 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
   await guest.getByLabel("Seu nome ou apelido (opcional)").fill("Real guest E2E");
   await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
-  await expect(guest.getByRole("heading", { name: "Real guest E2E" })).toBeVisible();
+  await expect(guest.getByRole("heading", { name: "Mesa Web E2E 24", exact: true })).toBeVisible();
+  await expect(guest.getByText(/Real guest E2E · Comanda /)).toBeVisible();
   await guest.getByRole("button", { name: new RegExp(kitchen.name) }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
   await expect(guest.getByRole("heading", { name: "Meus pedidos", exact: true })).toBeVisible();
