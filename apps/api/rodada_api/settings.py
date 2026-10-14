@@ -13,6 +13,14 @@ ALLOWED_HOSTS = [
 if os.environ.get("RODADA_RELEASE_MODE", "demo") == "demo":
     ALLOWED_HOSTS.extend(["rodada-web-demo.up.railway.app", "api.rodada.bar", "bardoaderlan.rodada.bar"])
 
+# Additive, explicit ingress hosts for controlled A/B tenant verification. Do not
+# replace DJANGO_ALLOWED_HOSTS: it can contain existing Railway and API aliases.
+ALLOWED_HOSTS.extend(
+    host.strip()
+    for host in os.environ.get("DJANGO_ADDITIONAL_ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+)
+
 
 INSTALLED_APPS = [
     "django.contrib.auth",

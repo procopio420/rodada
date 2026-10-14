@@ -47,3 +47,22 @@ Unsafe configuration fails before migration; documented active demo PINs refuse 
 Do not promote a populated public-demo database. Startup cannot prove secret uniqueness;
 release operator owns generation/isolation. One replica remains required by process-local
 Web refresh coordination. See [protected provisioning](pilot-provisioning.md).
+# Controlled multitenant activation on an existing shared runtime
+
+Do not create a service/database per Venue. Before an approved shared-runtime
+activation, verify backup, current deployment/configuration and pilot health.
+If release mode is `demo`, set `RODADA_DEMO_SEED_ON_START=false` in the reviewed
+change to prevent automatic writes to existing Aderlan credentials/guest policy
+on restart. This also skips automatic Play reviewer provisioning. Default remains
+`true` for existing isolated demo bootstrap. Only literal `true`/`false` is valid.
+Enabling tenant UI with demo seeding still enabled fails preflight before database
+contact. Enabled tenant UI requires an explicitly provisioned strong shared BFF
+secret; the runtime-generated demo fallback is insufficient for this gate.
+To add A/B hostnames without overwriting existing trusted aliases, use
+`DJANGO_ADDITIONAL_ALLOWED_HOSTS=e2ea.rodada.bar,e2eb.rodada.bar`.
+It is additive to `DJANGO_ALLOWED_HOSTS`, is not a wildcard, and by itself
+never provisions VenueDomain rows or activates tenant UI. Keep the original
+`DJANGO_ALLOWED_HOSTS` value unchanged in Railway.
+These settings do not disable migrations, authorize activation, prove origin TLS,
+or complete the original separate-preview criterion. See the [#151 checkpoint](../../specs/025-tenant-host-routing/railway-151-checkpoint.md)
+and [runbook](../../docs/ops/spec025-preview-rollout.md).

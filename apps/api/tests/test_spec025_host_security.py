@@ -1,4 +1,8 @@
 import hashlib
+import json
+import os
+import subprocess
+import sys
 import hmac
 import time
 import pytest
@@ -134,3 +138,22 @@ def test_assertion_cannot_be_reused_for_other_method_or_path(client):
     assertion = signed("testserver", method="/ready/")
     assert client.get("/health/", **assertion).status_code == 403
     assert client.post("/ready/", **assertion).status_code == 403
+
+
+@pytest.mark.parametrize("additional,expected", [
+    ("", ["localhost", "api.rodada.bar"]),
+    (" e2ea.rodada.bar, e2eb.rodada.bar, ",
+     ["localhost", "api.rodada.bar", "e2ea.rodada.bar", "e2eb.rodada.bar"]),
+])
+def test_additional_ingress_hosts_preserve_existing_django_allowlist(additional, expected):
+    # Fresh interpreter proves env-based settings without mutating Django test settings.
+    env = {**os.environ, "DJANGO_ALLOWED_HOSTS": "localhost,api.rodada.bar",
+           "DJANGO_ADDITIONAL_ALLOWED_HOSTS": additional, "RODADA_RELEASE_MODE": "pilot"}
+    result = subprocess.run(
+        [sys.executable, "-c", "import json; from rodada_api.settings import ALLOWED_HOSTS; print(json.dumps(ALLOWED_HOSTS))"],
+        env=env, capture_output=True, text=True, check=True,
+    )
+    hosts = json.loads(result.stdout)
+    assert hosts == expected
+    assert "unregistered-preview.rodada.bar" not in hosts
+

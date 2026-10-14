@@ -86,6 +86,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(guest.getByRole("heading", { name: "Meus pedidos", exact: true })).toBeVisible();
   const guestTab = (await api(page, "/api/pos/tabs/")).results.find((t: { display_label: string }) => t.display_label === "Real guest E2E");
   expect(guestTab.id).not.toBe(tab.id);
+  await expect.poll(async () => (await api(page, `/api/pos/tabs/${guestTab.id}/`)).orders.length).toBe(1);
   const guestDetail = await api(page, `/api/pos/tabs/${guestTab.id}/`);
   expect(guestDetail.orders[0].source).toBe("GUEST");
   expect(guestDetail.exposure_cents).toBe(kitchen.price_cents);
