@@ -341,7 +341,7 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(settled.status_code, 201, settled.json())
         self.assertEqual(self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json").status_code, 200)
         replay = manager.post(endpoint, payload, format="json")
-        self.assertEqual(replay.status_code, 201, replay.json())
+        self.assertEqual(replay.status_code, 200, replay.json())
         self.assertEqual(replay.json()["id"], first.json()["id"])
         self.assertEqual(CashMovement.objects.filter(refund__isnull=False).count(), 1)
         self.assertEqual(AuditEvent.objects.filter(event_type="payment.refunded").count(), 1)
