@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
@@ -30,16 +30,15 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   for (const match of matches) await expect(page.getByRole("button", { name: new RegExp(`ID ${match.id}`) })).toBeVisible();
   await expect(page.getByRole("heading", { name: first.display_label, exact: true })).toBeVisible();
   await expect(page.getByText(`${[360,390,430].indexOf(width)+1}× Kitchen E2E item`, { exact: true })).toBeVisible();
-  await expect(page.getByText("Página 1", { exact: true })).toBeVisible(); await input.fill("");
-  // Clearing the filter reads the whole first page. Await that actual canonical
-  // read (not its308 redirect) before inspecting rows; never retry the test.
+  await expect(page.getByText("Página 1", { exact: true })).toBeVisible();
+  await input.fill("");
   const cleared = page.waitForResponse(response => {
-   const url = new URL(response.url());
-   return /\/api\/attendance\/tabs\/?$/.test(url.pathname) &&
-    url.searchParams.get("active") === "true" && url.searchParams.get("offset") === "0" &&
-    !url.searchParams.get("q") && response.status() === 200;
+    const url = new URL(response.url());
+    return url.pathname.replace(/\/$/, "") === "/api/attendance/tabs" && !url.searchParams.has("q")
+      && !url.searchParams.has("active") && response.request().method() === "GET" && response.status() === 200;
   });
-  await input.press("Enter"); await (await cleared).finished();
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  await cleared;
   await expect(page.getByRole("button", { name: new RegExp(`^${first.display_label} ·`) })).toBeVisible();
  }
  const detail = await page.evaluate(async id => (await (await fetch(`/api/attendance/tabs/${id}/`)).json()), first.id);

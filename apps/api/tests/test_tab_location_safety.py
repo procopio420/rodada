@@ -6,7 +6,6 @@ from unittest import skipUnless
 
 from django.db import close_old_connections, connection
 from django.test import TestCase, TransactionTestCase
-
 from modules.access.context import ActorContext
 from modules.access.models import StaffSession, VenueStaffMembership
 from modules.audit.models import AuditEvent
@@ -17,6 +16,7 @@ from modules.ordering.models import Order, Tab
 from modules.tab_operations.models import TabOperation, TabTransferLine
 from modules.tab_operations.services import OperationError, execute
 from modules.venue.models import Venue
+
 from tests.test_tab_operations import OperationFixture
 
 

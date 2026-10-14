@@ -155,10 +155,6 @@ Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lin
 
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
 
-## Deterministic visual transport — 2026-10-12
-
-Visual snapshots use a fixed Date with timers available for hydration and accessibility analysis. Their finite mock SSE response must represent disconnected realtime consistently: no ready event claiming an open connection immediately before EOF. Actual realtime/polling/recovery tests retain their own explicit transport fixtures.
-
 ### T09b — catálogo guest em volume
 A melhoria de descoberta contratada em Specs 004/010 usa tokens e componentes
 existentes e a mesma apresentação de categorias do Atendimento. Validar fixture
@@ -182,6 +178,6 @@ não implica nova baseline nem paridade integral; comparações/tolerâncias de
 primitivas permanecem intactas. Testes de configuração agora verificam resumo
 e fila separadamente, pois ambos precisam mostrar as mesmas escolhas.
 
-## Integração de 13/10/2026
+## Deterministic visual transport — 2026-10-12
 
-Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.
+Visual snapshots use a fixed Date with timers available for hydration and accessibility analysis. Their finite mock SSE response must represent disconnected realtime consistently: no ready event claiming an open connection immediately before EOF. Actual realtime/polling/recovery tests retain their own explicit transport fixtures.

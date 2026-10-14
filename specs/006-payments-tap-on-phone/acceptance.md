@@ -82,3 +82,18 @@ Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
 - [x] Parser exato rejeita sinais/texto/fração excessiva/overflow; confirmações inválidas bloqueadas.
 - [x] Pagamento/limite/estorno testados em emulador e regressões PostgreSQL PASS.
 Evidência Spec 026 revalidation.md: 61 unitários, sete cenários em seis configurações, 48 PostgreSQL, build/lint sem erros. IME físico e seleção automática não homologados.
+
+T11d/026 local: resolução de alvo por capability/Venue sem mutation e sem alterar
+reauth das ações financeiras. Item/payment/correction e Tab canônicos validáveis
+inclusive após encerramento/aplicação; envelope preservado e outra sessão bloqueada.
+Critérios/testes e limites em specs/026-operational-ux-friction/revalidation.md.
+Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
+
+T12a/026: rótulos humanos de Payment/Refund preservam método/status canônicos,
+valores e motivo do histórico; estado desconhecido é explícito. Fixtures mobile
+verificam somente apresentação, sem mutation financeira ou mudança de elegibilidade.
+
+T12b.2/026: consulta por ID exato alcança Payment em Tab encerrada sem listar Tabs;
+histórico/valores/estado originais preservados, sem POST nem mudança em intenção.
+Estado pendente não é apresentado como dinheiro confirmado. Autorização/sessão/IDs
+conferidos; erro de acesso/identidade não oferece pagamento alternativo.

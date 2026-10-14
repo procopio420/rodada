@@ -89,6 +89,9 @@ export default function CashPage() {
   const currentPointId = useRef("");
   const [history, setHistory] = useState<CashShift[]>([]);
   const [historyOffset, setHistoryOffset] = useState<number | null>(null);
+  const [contextOrigin, setContextOrigin] = useState("");
+  const [contextShiftId, setContextShiftId] = useState("");
+  const contextHeading = useRef<HTMLHeadingElement>(null);
 
   const load = useCallback(async (preferredPointId?: string, preferredShiftId?: string) => {
     setLoading(true);
@@ -107,6 +110,11 @@ export default function CashPage() {
       return;
     }
     const result = (pointsResult.body as { results: CashPoint[] }).results;
+    if (preferredShiftId && !result.some(point => point.id === preferredPointId)) {
+      setShift(null); setPoints([]); setPointId(""); setHistory([]);
+      setNotice({ code: "CASH_CONTEXT_UNAVAILABLE", message: "O caixa deste turno não está disponível para esta sessão." });
+      return;
+    }
     setPoints(result);
     const nextPointId = preferredPointId && result.some((point) => point.id === preferredPointId)
       ? preferredPointId
@@ -129,7 +137,11 @@ export default function CashPage() {
     } else {
       const detail = await apiCall<CashShift>(`/api/pos/cash/shifts/${preferredShiftId ?? active?.id}/`);
       if (detail.response.ok && detail.body) {
-        const loaded = detail.body as CashShift; setShift(loaded);
+        const loaded = detail.body as CashShift;
+        if (preferredShiftId && (loaded.id !== preferredShiftId || loaded.cash_point_id !== nextPointId)) {
+          setShift(null); setNotice({ code: "CASH_CONTEXT_MISMATCH", message: "O turno consultado não corresponde ao caixa original." }); return;
+        }
+        setShift(loaded);
         summaryDay = loaded.business_date ?? summaryDay;
         setHistory(rows => rows.some(row => row.id === loaded.id) ? rows : [...rows, loaded]);
       } else {
@@ -153,7 +165,36 @@ export default function CashPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    let current = true;
+    queueMicrotask(() => {
+    if (!current) return;
+    const query = new URLSearchParams(window.location.search);
+    const target = query.get("shift");
+    if (target === null) { void load(); return; }
+    const origin = query.get("from") ?? "";
+    setContextOrigin(origin === "/manage/daily-close" || /^\/manage\/alerts\/[0-9a-f-]{36}$/i.test(origin) ? origin : "/manage");
+    setContextShiftId(target);
+    void (async () => {
+      try {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target)) throw new Error("Identificador do turno inválido.");
+        const result = await apiCall<CashShift>(`/api/pos/cash/shifts/${target}/`);
+        if (!current) return;
+        if (!result.response.ok) throw new Error(asApiError(result.body).message);
+        const original = result.body as CashShift;
+        if (original.id !== target || !original.cash_point_id) throw new Error("O turno consultado não corresponde ao contexto original.");
+        await load(original.cash_point_id, target);
+      } catch (cause) {
+        if (current) { setShift(null); setPoints([]); setPointId(""); setHistory([]); setLoading(false);
+          setNotice({ code: "CASH_CONTEXT_UNAVAILABLE", message: cause instanceof Error ? cause.message : "Não foi possível abrir o turno original." }); }
+      }
+    })();
+    });
+    return () => { current = false; };
+  }, [load]);
+  useEffect(() => {
+    if (contextOrigin && !loading) contextHeading.current?.focus();
+  }, [contextOrigin, loading]);
 
   const handleError = useCallback((body: unknown, retry?: () => Promise<void>) => {
     const error = asApiError(body);
@@ -289,6 +330,11 @@ export default function CashPage() {
       <Link className="backLink" href="/pos">← Voltar ao atendimento</Link>
     </header>
 
+    {contextOrigin && <section className="panel" aria-labelledby="cash-context-title">
+      <h2 id="cash-context-title" ref={contextHeading} tabIndex={-1}>Turno da exceção</h2>
+      <p>{shift?.id === contextShiftId ? "Turno original carregado. Confira o histórico antes de decidir." : "O turno original não foi carregado."}</p>
+      <Link className="backLink" href={contextOrigin}>Voltar à revisão de origem →</Link>
+    </section>}
     {notice ? <div className="notice" data-state="danger" role="alert"><strong>{notice.code}</strong><br />{notice.message}</div> : null}
     {loading && <div className="loadingState" role="status">Carregando caixa…</div>}
     {confirmation && <div className="notice" data-state="success" role="status">{confirmation}</div>}

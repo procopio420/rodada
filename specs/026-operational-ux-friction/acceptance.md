@@ -372,3 +372,89 @@ CashRecoveryApiTest.kt, CashRecoveryScreenTest.kt; docs026/012/014, design e REA
 Android atualizados. Não comprova ergonomia física nem tempos humanos. Próximo
 recorte: consulta canônica de correção/estorno; T11/UX26 amplo, UX27 inferência,
 aparelho e piloto seguem abertos.
+
+### T11d — conferência de correção e estorno (2026-10-13)
+Três GETs canônicos resolvem item/Tab, payment/Tab e correction/item/payment/Tab.
+OrderItem requer order.correct; payment/correction requerem refund.create.
+Settlement exige payment da mesma Tab/Venue. Foreign/missing retornam404 indistintos;
+query inválida400; capability403; sem autenticação401; POST405. Leitura não exige
+reauth e não concede mutations; reauth e autorização financeira permanecem.
+Android valida IDs conhecidos do envelope, alvo na Tab, sessão e registro após I/O.
+Conferência separada não altera cart/seleção nem reenvia operação; alvo cancelado,
+payment estornado, correction aplicada e Tab encerrada continuam investigáveis.
+Registro/chave/payload preservados; nova sessão não adota e erro não publica contexto.
+Retorno conserva fila/filtro; estado guardado e estado consultado são distintos.
+Rótulos REFUNDED/PARTIALLY_REFUNDED traduzidos somente na apresentação compartilhada.
+Ausência de correction nas pendências não comprova falha; estado do alvo não prova
+resultado do envelope. Reconciliação gerencial e critérios de inferência continuam.
+
+Validação final T11d: 76 unitários Android PASS;12 Compose PASS (2 cenários x
+360/390/430dp x fontScale1.0/2.0),7 Compose adjacentes de filas/caixa PASS;
+1 jornada Android/API PostgreSQL PASS na versão final (5.692s), repetida durante
+validação com3 fixtures independentes. Consulta item cancelado, payment estornado,
+correction aplicada e Tab encerrada; store/envelope e snapshots financeiros iguais
+antes/depois, alvo inexistente e nova sessão bloqueados, sem marcar confirmação.
+71 Django PostgreSQL PASS (124.110s), incluindo6 novos testes de resolução/read-only,
+capability/autenticação, foreign/missing, cross-Tab, query inválida e estado histórico.
+Build/APKs/lint PASS (0 erros,8 warnings,2 hints). Readback do banco exclusivo:
+3 Orders,3 Payments,3 OrderCorrections,3 Refunds, todos fixtures das3 jornadas;
+nenhuma nova operação em consulta, verificado pelos snapshots antes/depois.
+Captura final360/f200 inspecionada, rótulo Estornado corrigido só na UI. Sem baseline,
+tolerância, migration ou regra financeira nova; Web/PWA não recebeu UI neste recorte.
+Primeiros testes locais falharam por fixtures sem confirmed_at e Product duplicado;
+fixtures corrigidas. Primeira matriz teve falhas em360/390 com fonte ampliada por
+asserções sobre nós fora da composição/viewport; rolagem específica adicionada,
+mantendo visibilidade/conteúdo e proibição de replay; nova matriz completa PASS.
+Logs visual-artifacts/spec026/runtime/t11d-build-final-labels.log,
+t11d-final-{360,390,430}-{1.0,2.0}.log, t11d-adjacent-final.log,
+t11d-real-validated.log, t11d-postgres-tests.log, t11d-readback.log;
+capturas t11d-final-labels-evidence/. Diff do recorte revisado, alterações anteriores
+preservadas e sem contexto pessoal. API/emulador/PostgreSQL exclusivos encerrados.
+Sem commit/push/merge/deploy. Arquivos finais T11d: API recovery_views.py,
+test_recovery_context.py e rodada_api/urls.py; Android ExceptionalRecovery.kt,
+ExceptionalRecoveryScreen.kt, ExceptionalRecoveryTest.kt, ExceptionalRecoveryApiTest.kt,
+ExceptionalRecoveryScreenTest.kt, OperationsRepository.kt, OperationsViewModel.kt,
+RecoveryPresentation.kt, RecoveryPresentationTest.kt e AttendanceScreen.kt;
+docs026/006/014/017, design e README Android. Gates UX26/G1 integrado, inferência
+UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continuam.
+
+## T12a — Critérios verificáveis
+- Motivos de duas propostas permanecem independentes por ID; decisão envia motivo,
+  versão e alvo capturados antes do PIN. Cancelar PIN preserva ambos os rascunhos.
+- Enquanto aguarda PIN, motivos/decisões e consulta de outro dia ficam bloqueados;
+  sucesso remove só o rascunho da proposta decidida. Solicitação própria não oferece decisão.
+- Fechamento, caixa, propostas, pagamentos e histórico de estorno usam rótulos humanos;
+  desconhecido é sinalizado sem atribuir sucesso. Contratos/enums/valores não mudam.
+- Fixtures mobile 360/390/430 com acessibilidade, tipos/build e visual completo sem
+  alteração de baselines. Sem mudança financeira/API, integração real não declarada.
+
+## T12b.1 — Turno original da exceção
+- Alerta CASH_SHIFT e bloqueios CASH_SHIFT/OVERDUE_CASH_SHIFT apontam ao ID original,
+  com retorno ao alerta/fechamento. Destino focaliza resumo acessível após consulta.
+- Turno fechado fora da primeira página é selecionado mesmo com outro turno ativo;
+  caixa da resposta deve estar na lista autorizada e coincidir na segunda leitura.
+- UUID inválido, 403/404, resposta com outro ID/caixa e caixa não listado não selecionam
+  turno alternativo. Origem externa é substituída por /manage. Navegação não faz POST.
+- Fixtures mobile 360/390/430, a11y, tipos/build e visual completo; não declarar prova
+  real de API/PostgreSQL a partir das fixtures. Outros alvos de T12 continuam abertos.
+
+## T12b.2 — Conferência de Payment por ID
+- Alerta PAYMENT abre registro exato com retorno; consulta não depende da lista de
+  Tabs e encontra pagamento em Tab encerrada mesmo com outro pagamento na comanda.
+- Valor, método/status humanos, histórico original e IDs para auditoria são exibidos;
+  pendente não recebe saldo reembolsável confirmado. Consulta não oferece mutations.
+- UUID inválido, 403/404, resolver/Tab divergentes, pagamento ausente e troca de sessão
+  não publicam contexto. Atualização negada remove leitura anterior; origem externa
+  retorna a /manage; intenção de estorno em storage permanece inalterada.
+- Fixtures360/390/430+a11y/foco, build/tipos e visual completo; API existente preservada.
+  Não declarar integração financeira real a partir das fixtures.
+
+## T12b.3 — Critérios da conferência de item/correção
+- Item exato entre vários, cancelado/Tab encerrada; estado original e valor/quantidade
+  canônicos. Correção aplicada fora da lista de pendências vem do resolver existente.
+- Correção confere pagamento explicitamente vinculado e presente na mesma Tab;
+  ausência/ID incompatível/403/404/sessão trocada não publica contexto alternativo.
+- Links de alerta/item e estornos/correção conservam origem local; foco acessível;
+  consulta não realiza POST nem muda intenção financeira guardada.
+- Mobile360/390/430+a11y, regressão de estornos, build/tipos/visual completo.
+  Correção sem pagamento e telas de decisão permanecem fora deste recorte.

@@ -20,8 +20,9 @@ class TableReleaseTest {
 
     private fun render() {
         compose.setContent { RodadaTheme { Surface {
-            TablesScreen(state.value, allowed.value, { _, _ -> }, { _, _ -> },
-                { released.add(it) }, {}, {})
+            TablesScreen(state = state.value, canManageTables = allowed.value,
+                onOccupy = { _, _ -> }, onAttachTab = { _, _ -> },
+                onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
         compose.onNodeWithText("Liberar mesa").performScrollTo().performClick()
     }

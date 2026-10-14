@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "api"))
 os.environ["DJANGO_SETTINGS_MODULE"] = "rodada_api.settings"
+os.environ["RODADA_BFF_HOST_SECRET"] = "rodada-integration-local-only"
 
 from django.conf import settings
 
@@ -23,32 +24,34 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
             raise RuntimeError("Real Web tests require dedicated database rodada_web_e2e")
     settings.DEBUG = False
     settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    if os.environ.get("RODADA_E2E_ANDROID") == "1":
+        settings.ALLOWED_HOSTS.append("10.0.2.2")
 
     import django
     django.setup()
-    from django.core.management import call_command
-    from django.utils import timezone
-    from fixture_backend import seed
-    call_command("migrate", verbosity=0)
-    if os.environ.get("RODADA_E2E_RESET") == "1":
-        import reset_fixture  # Guarded reset seeds exactly once.
-    else:
-        seed()
+    from seed_api import seed_api
+    seed_api()
     import threading
     import time
     import uvicorn
     from django.db import close_old_connections, OperationalError
     from modules.realtime.services import dispatch_pending
+    from e2e_db_guard import e2e_database_guard
 
     def publish():
         while True:
             close_old_connections()
             try:
-                dispatch_pending()
+                # In PostgreSQL E2E, the per-file TRUNCATE/seed must never
+                # overlap this publisher's queries/transactions.
+                with e2e_database_guard(exclusive=False):
+                    dispatch_pending()
             except OperationalError:
                 # SQLite's single writer may be occupied by a test command.
                 # The durable outbox remains pending and retries on the next pass.
                 pass
+            finally:
+                close_old_connections()
             time.sleep(0.5)
 
     threading.Thread(target=publish, daemon=True).start()

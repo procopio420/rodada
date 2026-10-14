@@ -113,13 +113,15 @@ class AvailabilityCommandTests(AvailabilityFixture, TestCase):
         self.assertEqual(error.exception.code, "SESSION_INVALID")
         from modules.venue.models import Venue
         foreign = Product.objects.create(venue=Venue.objects.create(name="Other venue", slug="other-availability"), name="Foreign", price_cents=100, fulfillment_station="BAR")
-        self.membership.capability_overrides = {}; self.membership.save()
+        self.membership.capability_overrides = {}
+        self.membership.save()
         with self.assertRaises(AvailabilityError) as error:
             self.execute({**self.command, "product_id": foreign.pk, "idempotency_key": "foreign"}, actor=actor)
         self.assertEqual(error.exception.code, "PRODUCT_NOT_FOUND")
 
     def test_api_optin_validation_legacy_and_catalog_version(self):
-        client = APIClient(); path = f"/catalog/products/{self.product.pk}/availability/"
+        client = APIClient()
+        path = f"/catalog/products/{self.product.pk}/availability/"
         self.assertIn(client.post(path, {"state": "UNAVAILABLE"}, format="json").status_code, (401, 403))
         login = client.post("/auth/login/", {"venue_slug": self.venue.slug, "login_identifier": self.staff.login_identifier,
             "pin": "2468", "installation_id": "availability-api-test", "platform": "WEB"}, format="json")
@@ -159,12 +161,14 @@ class AvailabilityConcurrencyTests(AvailabilityFixture, TransactionTestCase):
 
     def test_same_key_one_effect(self):
         results = self.race([self.command, self.command])
-        self.assertEqual(results[0], results[1]); self.assertEqual(AvailabilityCommand.objects.count(), 1)
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(AvailabilityCommand.objects.count(), 1)
         self.assertEqual(AuditEvent.objects.filter(event_type="product.availability_changed").count(), 1)
 
     def test_changed_same_key_conflicts(self):
         results = self.race([self.command, {**self.command, "reason": "Outro"}])
-        self.assertIn("IDEMPOTENCY_CONFLICT", results); self.assertEqual(AvailabilityCommand.objects.count(), 1)
+        self.assertIn("IDEMPOTENCY_CONFLICT", results)
+        self.assertEqual(AvailabilityCommand.objects.count(), 1)
 
     def test_other_session_same_product_one_version_wins(self):
         results = self.race([self.command, self.command], [self.actor, self.other_actor()])

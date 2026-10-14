@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 

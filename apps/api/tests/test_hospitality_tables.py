@@ -1,11 +1,10 @@
 from django.test import TestCase
-from rest_framework.test import APIClient
-
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
 from modules.hospitality.models import Table, TableStatus, Zone
 from modules.ordering.models import Tab, TabState
 from modules.venue.models import Venue
+from rest_framework.test import APIClient
 
 
 class HospitalityTableApiTests(TestCase):
@@ -278,7 +277,6 @@ class HospitalityTableApiTests(TestCase):
 
     def test_contextual_tab_read_requires_current_venue_table_and_assignment(self):
         from django.utils import timezone
-
         from modules.hospitality.models import TableOccupancy, TabOccupancyAssignment
         from modules.ledger.models import Payment
 
@@ -310,7 +308,6 @@ class HospitalityTableApiTests(TestCase):
 
     def test_table_projection_excludes_released_assignments_without_erasing_history(self):
         from django.utils import timezone
-
         from modules.hospitality.models import TableOccupancy, TabOccupancyAssignment
 
         first, second = self.table("A"), self.table("B")
@@ -322,7 +319,12 @@ class HospitalityTableApiTests(TestCase):
         TabOccupancyAssignment.objects.create(tab=tab, occupancy=b)
         rows = {row["id"]: row for row in self.client.get("/hospitality/tables/").json()["results"]}
         self.assertEqual(rows[str(first.id)]["active_occupancy"]["tabs"], [])
-        self.assertEqual(rows[str(second.id)]["active_occupancy"]["tabs"], [{"id": str(tab.id), "display_label": tab.display_label}])
+        self.assertEqual(rows[str(second.id)]["active_occupancy"]["tabs"], [{
+            "id": str(tab.id), "tab_id": str(tab.id), "display_label": tab.display_label,
+            "state": tab.state, "table_id": str(second.id),
+            "opened_at": tab.opened_at.isoformat().replace("+00:00", "Z"),
+            "display_reference": "Comanda " + str(tab.id)[:8],
+        }])
         self.assertEqual(TabOccupancyAssignment.objects.filter(tab=tab).count(), 2)
         self.assertEqual(self.client.get(f"/tabs/{tab.id}/", {"table_id": str(first.id), "occupancy_id": str(a.id)}).status_code, 409)
         self.assertEqual(self.client.get(f"/tabs/{tab.id}/", {"table_id": str(second.id), "occupancy_id": str(b.id)}).status_code, 200)

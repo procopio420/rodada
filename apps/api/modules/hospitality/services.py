@@ -195,14 +195,8 @@ def _assign_tab(
 
 @transaction.atomic
 def assign_tab(*, occupancy_id, tab_id, actor: ActorContext) -> TabOccupancyAssignment:
-    occupancy = (
-        TableOccupancy.objects.select_for_update()
-        .select_related("table")
-        .filter(pk=occupancy_id, table__venue_id=actor.venue_id)
-        .first()
-    )
-    if occupancy is None:
-        raise HospitalityServiceError("OCCUPANCY_NOT_FOUND", "Ocupação não encontrada.", 404)
+    from modules.hospitality.table_service import _locked_occupancy
+    occupancy = _locked_occupancy(occupancy_id, actor)
     return _assign_tab(occupancy=occupancy, tab_id=tab_id, actor=actor)
 
 

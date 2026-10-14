@@ -3,14 +3,6 @@
 Estado: execução incremental com recortes locais documentados até T10b; próxima implementação T10c. Critérios amplos e gates globais permanecem abertos.
 Data: 2026-10-12. Base documental: main em 0a2038d.
 
-## Revalidação integrada — recebimento em comanda encerrada
-
-Uma comanda encerrada selecionada no histórico não deve exibir formulário para
-novo recebimento em dinheiro. A intenção ambígua já preservada continua visível
-para conferência na comanda original, inclusive encerrada; ocultar o formulário
-nunca remove ou troca seu envelope. Regressão: jornada real de impressão com
-fechamento da comanda e recuperação de recebimento com resposta perdida.
-
 ## Objetivo
 
 Reduzir esforço, tempo e carga cognitiva nas operações frequentes do Rodada,
@@ -366,3 +358,89 @@ IDs divergentes, falha de acesso/rede/storage ou troca de sessão durante a leit
 não publicam contexto. Voltar preserva a seleção operacional anterior. Navegação
 e atualização repetem apenas a leitura do turno original. Correção/estorno seguem
 fora deste recorte até contrato canônico específico, sem varredura de comandas.
+
+### T11d — contexto canônico de correção e estorno no Android
+GET /order-items/{id}/recovery-context/ exige order.correct e resolve item/Tab
+do Venue autenticado. GET /payments/{id}/recovery-context/ exige refund.create
+e resolve payment/Tab. GET /corrections/{id}/recovery-context/?payment_id={id}
+exige refund.create, resolve correction/item/Tab e valida que o payment pertence
+à mesma Tab/Venue. IDs desconhecidos ou de outro Venue retornam404; query inválida
+retorna400; acesso não autorizado mantém403. Não exigir reauth para consultar IDs;
+reauth e demais barreiras das mutations permanecem obrigatórias.
+Consultas não alteram ledger, estados, auditoria de domínio ou comandos. Android
+confere todos os IDs da resposta contra o envelope, lê a Tab canônica e revalida
+sessão/envelope após I/O. Tela de conferência separada destaca item ou pagamento,
+inclusive em Tab encerrada e correção já aplicada, com comando original e estado
+consultado distintos. Abrir/atualizar/voltar não oferece replay nem marca sucesso,
+remove registro ou abandona draft. Falha, ID divergente ou sessão trocada não
+publica snapshot. Não inferir resultado por amount/reason, status atual do alvo
+ou ausência de correction na lista de pendências; reconciliação segue autorizada.
+
+## T12a — Justificativas independentes e linguagem operacional
+Proprietárias: 007/012 para fechamento e propostas; 006/017 para estornos.
+Antes: todas as propostas compartilham uma justificativa; estados técnicos aparecem na UI.
+Depois: cada proposta guarda motivo por ID; envio captura ID, versão, decisão e motivo
+antes da reautenticação. Sucesso limpa somente o motivo da proposta decidida.
+Campos e decisões ficam bloqueados enquanto há decisão aguardando PIN; cancelar
+preserva os rascunhos. A proibição de autoaprovação e as validações da API permanecem.
+Rótulos humanos traduzem métodos/estados apenas na apresentação; enums enviados,
+comparações, valores, elegibilidade e histórico canônico não mudam. Enum desconhecido
+aparece como estado/método não reconhecido, sem inventar um resultado.
+Fora de escopo: deep links, comandas fechadas no seletor, reauth de estorno contextual,
+projeção gerencial, resolução de bloqueios e inferência de entrega; T12 ampla parcial.
+Aceite: duas propostas com motivos distintos; decisão/PIN mantém alvo e motivo original;
+sucesso não apaga outro motivo; solicitação própria sem botão de decisão; rótulos humanos
+em fechamento/estornos; regressão visual mobile e suíte completa sem alterar baselines.
+
+## T12b.1 — Contexto exato do turno de caixa
+Proprietárias 012/018/007: alertas CASH_SHIFT e bloqueios CASH_SHIFT/OVERDUE_CASH_SHIFT
+abrem /cash?shift=<UUID>&from=<origem autorizada local>. GET do turno resolve seu
+caixa e consulta canônica seleciona esse turno, mesmo fechado ou fora da primeira
+página do histórico. Validar ID/caixa da resposta e presença do caixa autorizado;
+falta/permissão/ID inválido gera erro sem escolher turno alternativo.
+Entrada abre somente leitura, nunca uma mutation; ações existentes preservam capability,
+reauth, versão e auditoria. Resumo do destino recebe foco e oferece retorno ao alerta
+ou fechamento; from aceita somente rotas locais previstas, sem redirects externos.
+Fora de escopo: outros alvos de deep link, pagamento pendente, PIN de estorno e
+projeção gerencial. Aceite: turno histórico exato com outro turno ativo, origem/retorno,
+UUID inválido, 403/404, caixa inconsistente e zero POST na navegação; mobile/a11y.
+
+## T12b.2 — Conferência do pagamento original
+Proprietárias 006/017/018: alerta PAYMENT abre /manage/payments/<payment UUID>,
+com retorno ao próprio alerta. Consulta autenticada resolve Tab por pagamento,
+sem procurar na primeira página da lista; GET da Tab confere IDs canônicos e
+mostra estado, valor, reembolsado, saldo reembolsável e histórico, inclusive Tab
+encerrada. Estado pendente nunca é apresentado como recebimento confirmado.
+A conferência é somente leitura: sem botão de estornar, cobrar ou conciliar;
+reauth/mutations continuam nas superfícies existentes. ID inválido, 403/404,
+resposta divergente e troca/revogação da sessão limpam contexto, sem fallback.
+Não adota nem modifica intenção financeira guardada. Resumo recebe foco após
+leitura; origem aceita apenas /manage ou alerta local válido, sem URL externa.
+Fora de escopo: edição/retry do estorno, links de item/correction e projeção gerencial.
+Aceite: pagamento exato em Tab fechada com outro pagamento; pending/falhas,
+403/404/IDs inconsistentes/sessão trocada e zero POST; mobile/a11y/tipos/build/visual.
+
+## T12b.3 — Item original e correção vinculada ao pagamento
+Proprietárias017/018/006: alerta FULFILLMENT_ITEM abre conferência do item original;
+estornos oferece consulta da correção selecionada com pagamento explícito.
+Consultas reutilizam resolvers existentes e GET Tab: conferem Tab/item/payment/
+correction por ID e sessão antes/depois, inclusive item cancelado/Tab encerrada e
+correção aplicada ausente da lista de pendências. Estado da correção vem do resolver,
+nunca da ausência na lista. Exibir somente consulta com foco/retorno e auditoria;
+nenhuma mutation, retry, aprovação ou adoção de intenção financeira.
+UUID inválido, pagamento ausente, 403/404, alvo incompatível e troca de sessão
+não exibem contexto alternativo. Correção sem pagamento explícito não é inferida.
+Fora de escopo: correções sem pagamento, telas de decisão, PIN contextual e projeção.
+Aceite: item exato entre vários, correção aplicada vinculada a pagamento original,
+IDs/autorizações/sessão/falhas, zero POST, retorno local e mobile/a11y/visual completo.
+
+## Integração de release com Spec027/tenant
+Preservar rascunhos de todas as Tabs da mesma sessão no armazenamento durável de
+Spec027, mantendo o journal financeiro imutável de Spec026 como única origem de
+replay. Formato de rascunho v2 guarda seleção e mapa de drafts; v1 sem comando pode
+ser migrado. V1 com chave/payload ambíguos fica preservado e bloqueia nova ação para
+revisão; não criar outro comando. Sessão guest usa cookie HttpOnly, QR é apenas
+seletor público; pendência consulta contexto existente, sem iniciar outra visita.
+Atendimento por mesa, responsabilidade e modo legado coexistem com confirmação de
+liberação e navegação contextual. Integração exige testes de ambas as specs e
+revisor independente no SHA final, sem relaxar auditoria, pagamentos ou autorização.

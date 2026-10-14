@@ -1,8 +1,9 @@
 package com.rodada.attendance.operations
 
 data class RecoveryEvidence(val id: String, val label: String, val capturedAtMillis: Long, val reviewOnly: Boolean,
-    val tabId: String? = null, val taskId: String? = null, val summary: String = "", val status: String = "", val shiftId: String? = null) {
-    val canOpenContext: Boolean get() = !reviewOnly && (tabId != null || taskId != null || shiftId != null)
+    val tabId: String? = null, val taskId: String? = null, val summary: String = "", val status: String = "", val shiftId: String? = null,
+    val needsExceptionalContext: Boolean = false) {
+    val canOpenContext: Boolean get() = !reviewOnly && (tabId != null || taskId != null || shiftId != null || needsExceptionalContext)
 }
 
 fun RecoveryIntent.evidence(reviewOnly: Boolean = false) = RecoveryEvidence(id, when (this) {
@@ -10,6 +11,7 @@ fun RecoveryIntent.evidence(reviewOnly: Boolean = false) = RecoveryEvidence(id, 
     is RecoveryIntent.StartPayment -> "Recebimento"
     is RecoveryIntent.Correction -> "Correção de pedido"
     is RecoveryIntent.Refund -> "Estorno"
+    is RecoveryIntent.TableService -> "Atendimento de mesa"
     is RecoveryIntent.Pricing -> "Ajuste de conta"
     is RecoveryIntent.TabStructure -> "Operação de comanda"
     is RecoveryIntent.CashMovement -> "Movimento de caixa"
@@ -32,7 +34,8 @@ fun RecoveryIntent.evidence(reviewOnly: Boolean = false) = RecoveryEvidence(id, 
         is RecoveryIntent.CashMovement -> shiftId
         is RecoveryIntent.CashClose -> shiftId
         else -> null
-    }.takeUnless { reviewOnly })
+    }.takeUnless { reviewOnly }, needsExceptionalContext = !reviewOnly && (this is RecoveryIntent.Correction ||
+        this is RecoveryIntent.Refund && (kind == RefundRecoveryKind.DIRECT || !correctionId.isNullOrBlank())))
 
 fun OperationsUiState.pendingEvidence(): List<RecoveryEvidence> =
     (recoveryEvidence + queuedOrders.map { it.evidence() }).distinctBy { it.id }.sortedBy { it.capturedAtMillis }

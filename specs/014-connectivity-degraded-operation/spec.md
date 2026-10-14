@@ -759,11 +759,27 @@ bloqueia confirmação. Não criar nova sessão automaticamente para intenção 
 Fora de escopo: fechar aba, outra sessão/aparelho, drafts após reload, fila
 fully-offline, reconciliação gerencial e novos pagamentos.
 
-## Diagnóstico RST do cenário original — 13/10/2026
+### T11a/T11b — recuperação e filas Android (2026-10-13)
+Pendências locais exibem estado, data e resumo do registro original. Abrir contexto
+consulta somente a comanda canônica para pedido/pagamento/preço/estrutura, ou a
+fila e task exata de entrega; não confirma nem substitui payload, chave ou sessão.
+Troca de sessão bloqueia retomada; consulta suspensa revalida a sessão antes de
+publicar contexto. Retry de entrega reutiliza a intenção existente da mesma task.
+Prontos é o filtro inicial, inclusive no pico; Chamadas e Pendências são filtros
+explícitos. Contagem desconhecida usa —. Pendências não ocupam o topo fixo.
+Entrega organiza dados e botão verticalmente para fonte ampliada.
+Correção/estorno/caixa sem contexto canônico continuam revisão explícita.
+UX27: auditoria do backend encontrou conclusão manual; inferência passiva não
+foi demonstrada. Preservada confirmação manual até evidência de source/confidence/
+provenance e correção por exceção. T11 ampla permanece aberta.
 
-Conservar stdout/stderr de am start -W e PID imediato. Somente na falha,
-registrar amostras posteriores, logcat de lifecycle/AndroidRuntime e
-ApplicationExitInfo do pacote de teste. Ausência de PID continua falha;
-diagnóstico não relança nem aprova o teste. CI retém tentativas separadas.
-Não capturar sessão, PIN ou payload. Causa não comprovada mantém confiabilidade
-PARTIAL; não alterar espera/retry apenas para obter uma execução verde.
+T11c/026 Android: CashMovement/CashClose abre GET do shiftId original em conferência separada, preservando envelope/chave/sessão e caixa operacional. Revalida sessão/envelope/ID após leitura; falha não prova desfecho. Consulta/retorno não reenvia mutation, não adota registro nem marca confirmado. Reconciliação gerencial e contextos de correção/estorno continuam abertos.
+
+T11d/026 — contexto de correção e estorno Android: consultas GET mínimas resolvem
+item/pagamento/correção pelo ID no Venue autenticado, com order.correct ou
+refund.create. Settlement exige payment da mesma Tab/Venue da correction.
+Android verifica IDs, snapshot da Tab, sessão e envelope antes de apresentar
+conferência separada, inclusive item cancelado/correção aplicada/Tab encerrada.
+Consulta não exige reauth nem altera regras financeiras; mutations mantêm reauth,
+idempotência, transações e auditoria existentes. Não reenvia, remove registro ou
+infere desfecho pelo estado/valor atual. Contrato e evidências: Spec026 T11d.

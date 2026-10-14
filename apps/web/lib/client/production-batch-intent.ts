@@ -44,19 +44,32 @@ export function useProductionBatchIntent(station: "BAR" | "KITCHEN", onReadback:
   const [result, setResult] = useState<BatchReceipt | null>(null);
   const intent = useRef<Intent | null>(null), sending = useRef(false), usable = useRef(false);
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
     try {
       const saved = read(); sessionStorage.setItem(`${key}.probe`, "1"); sessionStorage.removeItem(`${key}.probe`);
       intent.current = saved; setPending(saved); usable.current = true; setReady(true);
       if (saved) setMessage("Há um lote aguardando confirmação. Verifique o mesmo lote para liberar suas linhas.");
     } catch { setMessage("Não foi possível preservar o lote neste navegador. Solicite revisão antes de continuar."); }
+    });
+    return () => { active = false; };
   }, []);
-  const locked = () => !usable.current || sending.current || intent.current !== null;
-  const locksItem = (id: string) => {
-    if (!usable.current || (sending.current && !intent.current)) return true;
-    if (!intent.current) return false;
-    try { assertSaved(intent.current); } catch { return true; }
-    return intent.current.payload.lines.some(line => line.item_id === id);
-  };
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (!usable.current) return;
+      try {
+        const expected = intent.current ? JSON.stringify(intent.current) : null;
+        if (sessionStorage.getItem(key) !== expected) throw new Error("Batch journal changed");
+      } catch {
+        usable.current = false; setReady(false);
+        setMessage("Não foi possível preservar o lote neste navegador. Solicite revisão antes de continuar.");
+      }
+    }, 15000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const locked = () => !ready || busy || pending !== null;
+  const locksItem = (id: string) => !ready || (busy && !pending) || !!pending?.payload.lines.some(line => line.item_id === id);
   async function submit(draft?: BatchDraft) {
     if (sending.current || !usable.current || (!intent.current && !draft)) return;
     if ((intent.current?.payload.station ?? draft?.station) !== station) return;

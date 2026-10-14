@@ -114,3 +114,13 @@ Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
   auditoria preservados; concorrência produz um único efeito em PostgreSQL.
 - [x] Jornada real Web/API e mobile360/390/430; visual completo, build/tipos e lint
   registrados sem declarar provider, piloto, aparelho ou deploy homologados.
+
+T11d/026 local: resolução de alvo por capability/Venue sem mutation e sem alterar
+reauth das ações financeiras. Item/payment/correction e Tab canônicos validáveis
+inclusive após encerramento/aplicação; envelope preservado e outra sessão bloqueada.
+Critérios/testes e limites em specs/026-operational-ux-friction/revalidation.md.
+Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
+
+T12b.3/026: item/correção históricos conferíveis sem mutation financeira; pagamento
+explícito validado junto do item/Tab e sessão. IDs inválidos, sem acesso e ausentes
+não exibem alvo alternativo; intenções existentes ficam intactas.

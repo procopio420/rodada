@@ -1,8 +1,8 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Real independent production ${station} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager"); await page.getByLabel("PIN", { exact: true }).fill("2468");
-  await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const api = (path: string, body?: unknown) => page.evaluate(async ({ path, body }) => {
     const response = await fetch(`/api/pos/${path}`, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!response.ok) throw new Error(`${path}: ${response.status} ${await response.text()}`); return response.json();
@@ -31,7 +31,7 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
     await page.goto(station === "KITCHEN" ? "/kitchen" : "/bar");
     await page.getByRole("button", { name: `Pronto: 2 ${name}, ${name} A`, exact: true }).click();
     await expect.poll(() => commandIds.length).toBe(1);
-    await expect(page.getByRole("button", { name: `Pronto: 2 ${name}, ${name} A`, exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: `Verificar mesmo item: ${a.id.slice(0, 8)}`, exact: true })).toBeDisabled();
     await page.getByRole("button", { name: `Iniciar preparo: 1 ${name}, ${name} B`, exact: true }).click();
     await expect(page.getByText(`Item confirmado. · ${b.id.slice(0, 8)}`, { exact: true })).toBeVisible();
     expect(attempts).toHaveLength(2); release();

@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
@@ -34,18 +34,18 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  await page.getByLabel("Buscar mesa").fill("mesa patio 24");
  for (const [index,width] of [360,390,430].entries()) {
   await page.setViewportSize({width,height:900});
-  await page.getByRole("button", { name: `Abrir comanda Table entry A · ID ${a.id}`, exact:true }).click();
+  await page.locator(`button[data-tab-id="${a.id}"]`).click();
   await expect(page.getByRole("heading", {name:"Table entry A",exact:true})).toBeFocused();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", {name:/^Kitchen E2E item/}).click();
   await page.getByRole("button", {name:"Voltar à mesa Pátio 24",exact:true}).click();
   await expect(page.getByRole("heading", {name:"Mesa Pátio 24",exact:true})).toBeFocused(); await expect(page.getByLabel("Buscar mesa")).toHaveValue("mesa patio 24");
-  await page.getByRole("button", {name:`Abrir comanda Table entry B · ID ${b.id}`,exact:true}).click();
+  await page.locator(`button[data-tab-id="${b.id}"]`).click();
   await expect(page.getByText(`${index+1}× Kitchen E2E item`, {exact:true})).toHaveCount(0);
   await page.getByRole("button", {name:"Voltar à mesa Pátio 24",exact:true}).click();
-  await expect(page.getByRole("button", {name:`Abrir comanda Table entry A · ID ${a.id}`,exact:true})).toBeVisible();
+  await expect(page.locator(`button[data-tab-id="${a.id}"]`)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
  }
- await page.getByRole("button", {name:`Abrir comanda Table entry A · ID ${a.id}`,exact:true}).click();
+ await page.locator(`button[data-tab-id="${a.id}"]`).click();
  const before = await read(page,`tabs/${a.id}/`); expect(before.orders).toHaveLength(0); expect(before.payments).toHaveLength(0); expect(before.version).toBe(1);
  await expect(page.getByText("3× Kitchen E2E item", {exact:true})).toBeVisible(); const confirmation = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === `/api/attendance/tabs/${a.id}/orders/confirm` && (response.status() < 300 || response.status() >= 400) && response.request().method() === "POST");
  let readbackStart = Infinity;
@@ -57,5 +57,5 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  const after = await read(page,`tabs/${a.id}/`), untouched = await read(page,`tabs/${b.id}/`);
  expect(after.orders).toHaveLength(1); expect(after.orders[0].items[0].quantity).toBe(3); expect(after.charges_cents).toBe(3000); expect(after.payments).toHaveLength(0);
  expect(untouched.orders).toHaveLength(0); expect(untouched.exposure_cents).toBe(0); expect(untouched.payments).toHaveLength(0);
- const finalTable = (await read(page,"hospitality/tables/")).results[0]; expect(finalTable.active_occupancy.id).toBe(table.active_occupancy.id); expect(finalTable.access_generation).toBe(table.access_generation); expect(finalTable.active_occupancy.tabs).toEqual(table.active_occupancy.tabs);
+ const finalTable = (await read(page,"hospitality/tables/")).results[0]; expect(finalTable.active_occupancy.id).toBe(table.active_occupancy.id); expect(finalTable.access_generation).toBe(table.access_generation); expect(finalTable.active_occupancy.tabs).toEqual(table.active_occupancy.tabs.map((row: { id: string; state: string }) => ({ ...row, state: row.id === a.id ? after.state : row.state })));
 });

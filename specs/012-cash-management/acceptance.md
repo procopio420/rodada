@@ -117,3 +117,31 @@ Evidências em Spec026/revalidation.md; gates externos permanecem abertos.
   auditoria preservados; concorrência produz um único efeito em PostgreSQL.
 - [x] Jornada real Web/API e mobile360/390/430; visual completo, build/tipos e lint
   registrados sem declarar provider, piloto, aparelho ou deploy homologados.
+
+T11c/026 — critérios locais de conferência: turno original consultado pelo ID,
+caixa operacional preservado, registro criptografado intacto; leitura/atualização
+não cria movimento nem reenvia fechamento. Erros e troca de sessão não mostram
+snapshot de outro turno. Comando guardado é distinguido do estado consultado,
+sem inferir desfecho por semelhança. Evidências e limites em
+specs/026-operational-ux-friction/revalidation.md. Reconciliação gerencial, aparelho
+físico e piloto continuam abertos.
+
+T12a/026: duas propostas mantêm justificativas distintas; confirmação após PIN envia
+ID/versão/motivo originais e limpa somente o rascunho correspondente; cancelar mantém
+rascunhos e solicitação própria permanece sem ação de aprovação. Rótulos humanos na
+UI não alteram status, valores, autorização, auditoria ou movimentos canônicos.
+
+T12b.1/026: links abrem turno histórico exato com outro ativo sem qualquer POST de
+navegação; falha de autorização/identidade/caixa não seleciona alternativa. Resumo
+recebe foco, origem externa não é usada e retorno local permanece acessível.
+Capability/reauth/versão/auditoria das decisões seguem seus contratos existentes.
+
+## Regressão — idempotência financeira entre comandas e recuperação (2026-10-13)
+
+- [ ] **CASH-REPLAY-01** — Duas Tabs diferentes podem usar a mesma chave de cliente sem compartilhar CashMovement; cada Payment confirmado tem exatamente um movimento no mesmo turno (e detalhe de troco próprio). A chave de movimento usa o UUID imutável do Payment, não só o token local à Tab.
+- [ ] **CASH-REPLAY-02** — Repetir uma operação de caixa com chave igual, mas Payment/Refund/shift/amount/kind diferente gera conflito 409 e não retorna movimento de outro dinheiro, mesmo quando uma UniqueConstraint decide a corrida.
+- [ ] **CASH-REPLAY-03** — Estorno confirmado pode ser consultado por replay após fechamento da Tab; não produz novo movimento/audit e continua validando o valor e motivo originais.
+- [ ] **CASH-REPLAY-04** — Replay de Refund CASH com ponto de caixa distinto ou ausente não retorna sucesso, mesmo que o pagamento original exista; deve retornar conflito e manter trilha/auditoria intactas.
+- [ ] **CASH-REPLAY-05** — Teste concorrente em PostgreSQL com Tabs independentes no mesmo turno e mesma chave local gera dois movimentos distintos e saldo agregado correto.
+
+**Aceite pendente:** o código, os testes e esta spec não implicam que a regressão foi aprovada. Exigir CI de API no SHA do PR, avaliação de cenário negativo e confirmação de main após merge. Sem alteração de esquema, pagamentos reais ou deploy nesta correção.

@@ -1845,3 +1845,126 @@ CashRecoveryApiTest.kt, CashRecoveryScreenTest.kt; docs026/012/014, design e REA
 Android atualizados. Não comprova ergonomia física nem tempos humanos. Próximo
 recorte: consulta canônica de correção/estorno; T11/UX26 amplo, UX27 inferência,
 aparelho e piloto seguem abertos.
+
+T11d em validação (checkpoint posterior à T11c): adiciona API modules/corrections/recovery_views.py, tests/test_recovery_context.py e rotas em rodada_api/urls.py; Android ExceptionalRecovery.kt/ExceptionalRecoveryScreen.kt, ExceptionalRecoveryTest.kt, ExceptionalRecoveryApiTest.kt, ExceptionalRecoveryScreenTest.kt e extensões em OperationsRepository/OperationsViewModel/RecoveryPresentation/RecoveryPresentationTest/AttendanceScreen. Spec/plan026 atualizados antes do código. Não incorporar como checkpoint T11c; evidências finais serão registradas separadamente.
+
+### T11d — conferência de correção e estorno (2026-10-13)
+Três GETs canônicos resolvem item/Tab, payment/Tab e correction/item/payment/Tab.
+OrderItem requer order.correct; payment/correction requerem refund.create.
+Settlement exige payment da mesma Tab/Venue. Foreign/missing retornam404 indistintos;
+query inválida400; capability403; sem autenticação401; POST405. Leitura não exige
+reauth e não concede mutations; reauth e autorização financeira permanecem.
+Android valida IDs conhecidos do envelope, alvo na Tab, sessão e registro após I/O.
+Conferência separada não altera cart/seleção nem reenvia operação; alvo cancelado,
+payment estornado, correction aplicada e Tab encerrada continuam investigáveis.
+Registro/chave/payload preservados; nova sessão não adota e erro não publica contexto.
+Retorno conserva fila/filtro; estado guardado e estado consultado são distintos.
+Rótulos REFUNDED/PARTIALLY_REFUNDED traduzidos somente na apresentação compartilhada.
+Ausência de correction nas pendências não comprova falha; estado do alvo não prova
+resultado do envelope. Reconciliação gerencial e critérios de inferência continuam.
+
+Validação final T11d: 76 unitários Android PASS;12 Compose PASS (2 cenários x
+360/390/430dp x fontScale1.0/2.0),7 Compose adjacentes de filas/caixa PASS;
+1 jornada Android/API PostgreSQL PASS na versão final (5.692s), repetida durante
+validação com3 fixtures independentes. Consulta item cancelado, payment estornado,
+correction aplicada e Tab encerrada; store/envelope e snapshots financeiros iguais
+antes/depois, alvo inexistente e nova sessão bloqueados, sem marcar confirmação.
+71 Django PostgreSQL PASS (124.110s), incluindo6 novos testes de resolução/read-only,
+capability/autenticação, foreign/missing, cross-Tab, query inválida e estado histórico.
+Build/APKs/lint PASS (0 erros,8 warnings,2 hints). Readback do banco exclusivo:
+3 Orders,3 Payments,3 OrderCorrections,3 Refunds, todos fixtures das3 jornadas;
+nenhuma nova operação em consulta, verificado pelos snapshots antes/depois.
+Captura final360/f200 inspecionada, rótulo Estornado corrigido só na UI. Sem baseline,
+tolerância, migration ou regra financeira nova; Web/PWA não recebeu UI neste recorte.
+Primeiros testes locais falharam por fixtures sem confirmed_at e Product duplicado;
+fixtures corrigidas. Primeira matriz teve falhas em360/390 com fonte ampliada por
+asserções sobre nós fora da composição/viewport; rolagem específica adicionada,
+mantendo visibilidade/conteúdo e proibição de replay; nova matriz completa PASS.
+Logs visual-artifacts/spec026/runtime/t11d-build-final-labels.log,
+t11d-final-{360,390,430}-{1.0,2.0}.log, t11d-adjacent-final.log,
+t11d-real-validated.log, t11d-postgres-tests.log, t11d-readback.log;
+capturas t11d-final-labels-evidence/. Diff do recorte revisado, alterações anteriores
+preservadas e sem contexto pessoal. API/emulador/PostgreSQL exclusivos encerrados.
+Sem commit/push/merge/deploy. Arquivos finais T11d: API recovery_views.py,
+test_recovery_context.py e rodada_api/urls.py; Android ExceptionalRecovery.kt,
+ExceptionalRecoveryScreen.kt, ExceptionalRecoveryTest.kt, ExceptionalRecoveryApiTest.kt,
+ExceptionalRecoveryScreenTest.kt, OperationsRepository.kt, OperationsViewModel.kt,
+RecoveryPresentation.kt, RecoveryPresentationTest.kt e AttendanceScreen.kt;
+docs026/006/014/017, design e README Android. Gates UX26/G1 integrado, inferência
+UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continuam.
+
+## T12a — Validação local concluída
+Recorte: motivo por proposta e rótulos humanos em fechamento/estornos. Arquivos:
+apps/web/app/manage/daily-close/page.tsx, app/refunds/page.tsx,
+lib/presentation-labels.ts, tests/visual/daily-close.spec.ts e refund-labels.spec.ts;
+documentos 026/012/006/007. Preservadas alterações anteriores no checkout.
+Build/typecheck PASS; 7 testes focados PASS, incluindo 3 larguras móveis, PIN,
+cancelamento, autoaprovação proibida e rótulos desconhecidos. Capturas t12a-decisions-
+{360,390,430}.png e t12a-refund-labels-{360,390,430}.png; 360 inspecionadas visualmente.
+Logs em visual-artifacts/spec026/runtime/t12a-{build,types,focused,visual-full}.log.
+Suíte visual completa: 471 PASS, sem skips/falhas ou alteração de baselines.
+Build e typecheck PASS; diff do recorte revisado, sem contexto pessoal.
+Servidores locais de validação encerrados pelo runner. Sem commit/push/deploy. Deep links, histórico de comandas encerradas,
+reauth contextual de estorno, projeção gerencial e bloqueios acionáveis permanecem.
+
+## T12b.1 — Validação local concluída
+Recorte de UX09/30: contexto exato de turno de caixa via alerta/bloqueio de fechamento.
+Arquivos: apps/web/app/cash/page.tsx, manage/alerts/[id]/page.tsx,
+manage/daily-close/page.tsx, tests/visual/cash-context.spec.ts,
+management-alerts.spec.ts e daily-close.spec.ts; documentos026/012/018.
+Build/typecheck PASS, 21 testes focados PASS. Capturas t12b1-cash-{360,390,430}.png;
+360 inspecionada: turno antigo selecionado, foco/retorno e revisão manual preservada.
+Primeira execução teve 4 falhas de locator genérico por role=alert do anúncio Next;
+locator do erro do produto especificado, nova execução completa focada PASS.
+Logs visual-artifacts/spec026/runtime/t12b1-build.log, t12b1-types.log,
+t12b1-focused-final.log, t12b1-visual-full.log. Regressão completa: 482 testes PASS em 10,9 minutos, sem skips/falhas ou alteração de baselines.
+Diff do recorte revisado e sem contexto pessoal; servidores encerrados pelo runner.
+API existente preservada: CashShiftDetailView exige payment.collect e usa Venue do
+ator em cash_close_preview e CashShift. Fixtures não equivalem a prova real integrada.
+Outros alvos/deep links, histórico de pagamentos/comandas elegíveis, PIN contextual
+de estorno, projeção gerencial e G1 continuam pendentes. Sem commit/push/deploy.
+
+## T12b.2 — Validação local concluída
+Recorte PAYMENT: página read-only apps/web/app/manage/payments/[id]/page.tsx;
+link manage/alerts/[id]/page.tsx; tests/visual/payment-context.spec.ts e
+management-alerts.spec.ts; documentos026/006/018. Resolver protegido existente
+preserva refund.create e Venue; sem mudança financeira/backend/migration.
+Build/typecheck PASS, 19 testes focados PASS. Conferência encontra pagamento
+original em comanda encerrada fora da lista, preserva intenção financeira guardada,
+rejeita IDs/permissão/sessão divergentes e elimina leitura após acesso negado.
+Capturas t12b2-payment-{360,390,430}.png; 360 inspecionada visualmente.
+Logs visual-artifacts/spec026/runtime/t12b2-{build,types,focused,visual-full}.log.
+Suíte visual completa: 494 PASS em 11,8 minutos, sem skips/falhas ou mudança de baselines.
+Diff revisado, sem contexto pessoal; servidores locais encerrados pelo runner.
+Fixtures não equivalem a integração real API/PG.
+Item/correction, retry/edição de estorno contextual, projeção gerencial e G1 continuam.
+Sem commit/push/deploy; alterações anteriores preservadas.
+
+## T12b.3 — Validação local concluída
+Arquivos: components/exceptional-context.tsx; app/manage/items/[id]/page.tsx,
+manage/corrections/[id]/page.tsx, manage/alerts/[id]/page.tsx e refunds/page.tsx;
+tests/visual/exceptional-context.spec.ts, management-alerts.spec.ts; docs026/017/018.
+Build final/typecheck PASS; 37 testes focados finais PASS, incluindo regressão de
+estorno e preservação de intenção guardada. Capturas t12b3-{items,corrections}-
+{360,390,430}.png; correção360 inspecionada visualmente. Resolver/capability/Venue
+existentes preservados, sem backend/migration/regra financeira nova.
+Primeira fixture do link de estorno omitia refunds obrigatório e causava erro da
+página de teste; histórico vazio adicionado à fixture conforme contrato. Execução
+completa inicial interrompida; focused-final PASS antes de nova execução completa.
+Logs visual-artifacts/spec026/runtime/t12b3-build-final.log, t12b3-types-final.log,
+t12b3-focused-final.log, t12b3-visual-final.log. Visual completo final: 510 PASS, sem skips/falhas ou mudança de baselines.
+Diff do recorte revisado e sem contexto pessoal; servidores encerrados pelo runner.
+Fixtures não equivalem a prova integrada real API/PG. Correções sem pagamento,
+telas de decisão/PIN contextual, projeção gerencial e G1 continuam pendentes.
+Sem commit/push/deploy; alterações anteriores preservadas.
+
+
+## Fechamento de integração — 14/10/2026
+
+Estado de testes e pendências finais registrado em [release-summary.md](release-summary.md).
+API/PostgreSQL, Android, Knowledge Base e 88 jornadas reais Web passam na CI
+em b1d811d. O gate visual completo foi interrompido por timeout e não é PASS.
+A única falha observada, bloqueio visual de journal de lote adulterado, foi
+corrigida mantendo a proteção pré-POST; três regressões focadas e build PASS.
+Demais critérios amplos e gates externos continuam abertos. Nenhum deploy ou
+medição humana é inferido da integração Git.

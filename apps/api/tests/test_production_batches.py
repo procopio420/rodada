@@ -8,8 +8,6 @@ from unittest.mock import patch
 from django.db import close_old_connections, connection
 from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
-from rest_framework.test import APIClient
-
 from modules.access.context import ActorContext
 from modules.access.models import StaffMember, StaffSession, VenueStaffMembership
 from modules.audit.models import AuditEvent
@@ -20,6 +18,7 @@ from modules.ordering.models import OrderItem, ProductionBatch, Tab
 from modules.ordering.production import execute_production_batch, snapshot_fingerprint
 from modules.ordering.services import OrderingServiceError, confirm_order, transition_order_item
 from modules.venue.models import Venue
+from rest_framework.test import APIClient
 
 
 class BatchFixture:

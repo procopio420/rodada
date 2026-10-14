@@ -499,3 +499,10 @@ por produto, com ação "Verificar mesma disponibilidade" após resultado ambíg
 Somente o produto pendente fica bloqueado; outros produtos versionados e itens
 verificáveis podem operar. Revisão/legado, modificadores e QuickCatalog mantêm
 barreiras. Não mostrar sucesso antes de recibo validado e leitura canônica.
+
+T11a/T11b Android: filtros Prontos/Chamadas/Pendências reutilizam RodadaOutlinedButton, seleção semântica e alvo mínimo de 48dp. Contagem não consultada usa —. Pendências exibem evidência e revisão explícita. Entrega dispõe status, produto/destino e ação em coluna para preservar leitura com fonte ampliada, sem mudar a semântica de confirmação.
+Com fontScale > 1.3, os três filtros usam coluna com largura total; na fonte padrão usam linha. O texto não deve ser comprimido para manter os filtros lado a lado.
+
+T11c Android: conferência de caixa usa Surface sobre a fila existente e LazyColumn com os tokens tipográficos/semânticos existentes, retorno e atualização em RodadaOutlinedButton de largura total, alvo mínimo48dp. Não apresentar botões de mutation na conferência de resultado ambíguo.
+
+T11d Android: conferência de correção/estorno usa Surface sobre a fila existente, LazyColumn, tokens e os mesmos rótulos de comanda/pagamento da superfície adjacente. Item/pagamento original têm destaque semântico; estado guardado e consultado são distintos. Retorno/consulta em RodadaOutlinedButton com largura total e mínimo48dp; não apresentar ação financeira em conferência de resultado ambíguo.

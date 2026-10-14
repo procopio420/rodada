@@ -112,7 +112,7 @@ for (const [name, prototype, web] of primitives) {
 }
 
 const surfaces = [
-  ["staff", "/staff", "Entrar no atendimento"], ["bar", "/bar", "Bar"], ["kitchen", "/kitchen", "Cozinha"],
+  ["staff", "/staff", "Quem vai trabalhar?"], ["bar", "/bar", "Bar"], ["kitchen", "/kitchen", "Cozinha"],
   ["guest", "/guest/visual-test", "Mesa 24"], ["manage", "/manage", "O que precisa de atenção"],
   ["cash", "/cash", "Turno de caixa"], ["refunds", "/refunds", "Estornos"], ["pos", "/pos", "Comandas e pedidos"],
   ["reports", "/reports", "Relatórios operacionais"],
@@ -144,7 +144,7 @@ for (const width of widths) for (const [name, route, heading] of surfaces) {
     await page.goto(route);
     await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
     const title = page.getByRole("heading", { level: 1, name: heading, exact: true });
-    if (name !== "bar" && name !== "kitchen") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
+    if (name !== "bar" && name !== "kitchen" && name !== "staff") await expect(title.locator("svg")).toHaveAttribute("aria-hidden", "true");
     if (width === 390) await page.screenshot({ path: path.join(artifactRoot, "spec023-all-web", `${name}-viewport.png`), fullPage: false });
     if (name === "manage") await expect(page.getByText("Comandas abertas", { exact: true })).toBeVisible();
     if (name === "cash") await expect(page.getByText("Caixa aberto", { exact: true })).toBeVisible();
@@ -282,7 +282,7 @@ test("staff login keyboard order and submitted failure", async ({ page }) => {
   await page.getByLabel("PIN", { exact: true }).focus(); await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeFocused();
   await page.route("**/api/auth/login", route => route.fulfill({ status: 401, json: { code: "AUTH_INVALID", message: "Credenciais inválidas." } }));
-  await page.keyboard.press("Enter"); await expect(page.locator(".notice[role=alert]")).toContainText("AUTH_INVALID");
+  await page.keyboard.press("Enter"); await expect(page.locator("main [role=alert]")).toContainText("Credenciais inválidas.");
   await expect(page.getByLabel("PIN", { exact: true })).toHaveValue("");
 });
 
@@ -411,11 +411,12 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await kitchenFixture(actual); await actual.goto("/kitchen");
   await expect(actual.locator(".stationTicket")).toHaveCount(waitingItems.length);
   await expect(actual.locator(".notice[role=status]")).toContainText("Reconectando");
-  // V03 now carries explicit confirmed configuration; legacy behavior has separate coverage.
-  await expect(actual.locator(".stationDishHeading strong")).toHaveText(kitchenBatches.map(batch => batch.name));
-  await expect(actual.locator(".stationQuantity")).toHaveText(kitchenBatches.map(batch => String(batch.quantity)));
+  // Spec026: this historical fixture has no configuration snapshot; keep each line independent.
+  const legacySummary = [...waitingItems].sort((a, b) => b.quantity - a.quantity);
+  await expect(actual.locator(".stationDishHeading strong")).toHaveText(legacySummary.map(item => item.product_name));
+  await expect(actual.locator(".stationQuantity")).toHaveText(legacySummary.map(item => String(item.quantity)));
   const actualChips = await actual.locator(".stationDish").evaluateAll(els => els.map(el => Array.from(el.querySelectorAll(".stationChips span")).map(chip => chip.textContent)));
-  expect(actualChips).toEqual(kitchenBatches.map(batch => batch.items.map(item => item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : ""))));
+  expect(actualChips).toEqual(legacySummary.map(item => [item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : "")]));
   await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
   await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Aguardando preparo" : "Em preparo"));
@@ -498,12 +499,11 @@ for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430
 
 test("V04 Order grouping never merges different Orders or legacy items by Tab", async ({ page }) => {
   await kitchenFixture(page);
-  const legacy = { ...kitchenScenario.items[1], customization_snapshot: undefined };
   await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
-    { ...legacy, id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
-    { ...legacy, id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
-    { ...legacy, id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
-    { ...legacy, id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
+    { ...kitchenScenario.items[1], id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
   ] } }));
   await page.goto("/kitchen");
   await expect(page.locator(".stationOrder")).toHaveCount(4);

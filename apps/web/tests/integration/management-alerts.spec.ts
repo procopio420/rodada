@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 
 test("real API alert policy, acknowledgement and canonical resolution", async ({ page }) => {
   await page.goto("/staff");
@@ -6,7 +6,7 @@ test("real API alert policy, acknowledgement and canonical resolution", async ({
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   async function call(path: string, method = "GET", body?: unknown) {
     const result = await page.evaluate(async ({ path, method, body }) => {
       const response = await fetch(path, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });

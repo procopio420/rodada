@@ -23,7 +23,7 @@ async function open(page: Page, surface: "attendance" | "pos") {
 }
 
 for (const surface of ["attendance", "pos"] as const) for (const width of [360, 390, 430]) test(`${surface} drafts A B A new tab and deliberate discard at ${width}`, async ({ page }) => {
-  const tabs = await setup(page); await page.setViewportSize({ width, height: 900 }); await open(page, surface);
+  await setup(page); await page.setViewportSize({ width, height: 900 }); await open(page, surface);
   const product = page.getByRole("button", { name: /^Fritas/ });
   await product.click();
   await page.getByRole("button", { name: /^Comanda B ·/ }).click();
@@ -102,7 +102,7 @@ for (const width of [360, 390, 430]) test(`Distinct configurations retain quanti
 });
 
 test("Failed tab read preserves A and selection in flight cannot mutate or switch", async ({ page }) => {
-  const tabs = await setup(page); await open(page, "attendance"); await page.getByRole("button", { name: /^Fritas/ }).click();
+  await setup(page); await open(page, "attendance"); await page.getByRole("button", { name: /^Fritas/ }).click();
   let release!: () => void; const held = new Promise<void>(resolve => { release = resolve; });
   await page.route("**/api/attendance/tabs/tab-B/", async route => { await held; await route.fulfill({ status: 503, json: { code: "UNAVAILABLE", message: "Comanda indisponível" } }); });
   await page.getByRole("button", { name: /^Comanda B ·/ }).click();

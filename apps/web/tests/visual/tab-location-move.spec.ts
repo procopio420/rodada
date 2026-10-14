@@ -43,7 +43,7 @@ for (const width of [360,390,430]) {
     await open(page); const dialog = page.getByRole("dialog"); await layoutAndA11y(page);
     expect(await page.getByLabel("Mesa de destino").locator("option").allTextContents()).toEqual(["Escolha outra mesa ocupada", "Mesa B"]);
     await dialog.getByRole("button", {name:"Voltar",exact:true}).click(); expect(requests).toHaveLength(0);
-    await page.getByRole("button", {name:`Abrir comanda Comanda móvel · ID ${tabId}`,exact:true}).click();
+    await page.locator(`button[data-tab-id="${tabId}"]`).click();
     await page.getByRole("button", {name:/^Fritas/}).click();
     await page.getByRole("button", {name:"Voltar à mesa A",exact:true}).click();
     await page.getByRole("button", {name:`Mover comanda Comanda móvel · ID ${tabId}`,exact:true}).click();

@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "notice": "Initial mapping only. All entries remain UNVERIFIED and no test/CI/homologation results are asserted.",
+  "entries": [
+    {
+      "spec_path": "specs/027-table-service-claim",
+      "criterion_key": "ts027-01",
+      "criterion_selector": {
+        "type": "id",
+        "value": "TS027-01"
+      },
+      "planned_tests": [
+        "apps/api/tests/test_table_service.py",
+        "apps/web/tests/visual/table-service.spec.ts"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/027-table-service-claim",
+      "criterion_key": "ts027-20",
+      "criterion_selector": {
+        "type": "id",
+        "value": "TS027-20"
+      },
+      "planned_tests": [
+        "apps/api/tests/test_table_service_concurrency.py"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/027-table-service-claim",
+      "criterion_key": "ts027-25",
+      "criterion_selector": {
+        "type": "id",
+        "value": "TS027-25"
+      },
+      "planned_tests": [
+        "apps/attendance-android/app/src/test/java/com/rodada/attendance/operations/TableServiceRecoveryTest.kt"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/027-table-service-claim",
+      "criterion_key": "ts027-30",
+      "criterion_selector": {
+        "type": "id",
+        "value": "TS027-30"
+      },
+      "planned_tests": [
+        "apps/web/tests/visual/table-service.spec.ts"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/025-tenant-host-routing",
+      "criterion_key": "reserved-unknown-host",
+      "criterion_selector": {
+        "type": "contains",
+        "value": "Reserved hostnames cannot be claimed"
+      },
+      "planned_tests": [
+        "apps/api/tests/test_venue_hostnames.py"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/025-tenant-host-routing",
+      "criterion_key": "host-a-login-b",
+      "criterion_selector": {
+        "type": "contains",
+        "value": "Login on host A cannot authenticate venue B"
+      },
+      "planned_tests": [
+        "apps/web/tests/integration/tenant-hosts.spec.ts"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/025-tenant-host-routing",
+      "criterion_key": "wildcard-preview-https",
+      "criterion_selector": {
+        "type": "contains",
+        "value": "Wildcard HTTPS, Host routing"
+      },
+      "planned_tests": [
+        "scripts/verify-tenant-host-preview.sh"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    },
+    {
+      "spec_path": "specs/008-staff-auth-roles-devices",
+      "criterion_key": "guest-not-staff",
+      "criterion_selector": {
+        "type": "contains",
+        "value": "GuestSession"
+      },
+      "planned_tests": [
+        "apps/api/tests/test_access_security.py"
+      ],
+      "status": "UNVERIFIED",
+      "proofs": {}
+    }
+  ]
+}

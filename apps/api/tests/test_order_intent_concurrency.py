@@ -4,7 +4,6 @@ from unittest import skipUnless
 
 from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
-
 from modules.access.context import ActorContext
 from modules.access.models import StaffMember
 from modules.audit.models import AuditEvent

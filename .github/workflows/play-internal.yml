@@ -1,6 +1,12 @@
 name: Play Store internal release
 
 on:
+  # Build a signed bundle when the release workflow itself changes.
+  # Normal code pushes do not create extra release artifacts.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/play-internal.yml'
   workflow_dispatch:
     inputs:
       upload_to_play:

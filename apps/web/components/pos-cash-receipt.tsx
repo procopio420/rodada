@@ -65,7 +65,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       setMessage("Não foi possível preservar o recebimento neste navegador. Confira o histórico com a gerência antes de continuar.");
     }
   }
-  useEffect(() => { void initialize(); }, []);
+  useEffect(() => { queueMicrotask(() => void initialize()); }, []);
   useEffect(() => { onPendingChange(!ready || !!pending || busy); }, [ready, pending, busy, onPendingChange]);
 
   const activePoint = pointId || points[0]?.id || "";
@@ -133,7 +133,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
     } finally { sending.current = false; setBusy(false); }
   }
 
-  if ((!tab || tab.state === "CLOSED") && !pending && ready) return null;
+  if (ready && !pending && (!tab || ["CLOSED", "CANCELLED"].includes(tab.state))) return null;
   return <section className="panel" aria-label="Recebimento em dinheiro">
     <OperationalHeading as="h2" icon="wallet">Receber em dinheiro</OperationalHeading>
     {message && <p className="notice" role="status" data-state={pending || !ready ? "warning" : "info"}>{message}</p>}

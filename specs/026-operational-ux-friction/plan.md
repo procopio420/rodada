@@ -203,3 +203,30 @@ T11c: usar CashGateway.shiftDetail com shiftId do envelope original, revalidar
 sessão e envelope após GET, manter snapshot de conferência separado do caixa
 operacional e testar navegação/retorno sem mutation, inclusive turno fechado,
 falha e outra sessão. Não alterar o contrato nem a regra financeira do backend.
+
+T11d: três consultas mínimas por IDs canônicos e capability, isoladas por Venue;
+resolver payment e correction conjuntamente para settlement, sem listar comandas.
+Android valida contrato antes de GET da Tab e publica contexto de conferência
+separado somente após validar sessão e envelope novamente. Testar autorização,
+cross-Venue/cross-Tab, alvos inexistentes/aplicados/encerrados e ausência de efeitos
+financeiros, com instrumentação Android/API e matriz de fonte/tamanho.
+
+T12a: estado Record por ID para justificativas, captura imutável no closure existente,
+lock durante PIN e limpeza seletiva. Rótulos de apresentação compartilhados para
+pagamentos/estornos/fechamento, fallback explícito desconhecido; fixtures com duas
+propostas, PIN, cancelamento e autoaprovação. Tipos/build/visual completo obrigatório.
+
+T12b.1: resolver shift pela API autenticada existente, conferir IDs/caixa antes da
+seleção, validar preferred shift em load e impedir fallback. Query via location no
+efeito inicial; foco em resumo acessível após leitura. Links por tipo canônico e
+origem allowlist; fixtures de autorização/falha/histórico, build/tipos/visual completo.
+
+T12b.2: nova conferência Web read-only com resolver existente protegido por
+refund.create e GET Tab; comparar alvos e identidade de sessão antes/depois,
+invalidar respostas antigas na revogação. Link PAYMENT no alerta com origem
+local validada; foco após leitura e fixtures mobile/falhas sem mutation financeira.
+
+T12b.3: componente read-only para item/correção reutiliza padrão de conferência
+Payment, resolvers existentes e detalhe Tab, com validação de identidade e sessão.
+Links em alerta e estornos; fixtures incluindo estados históricos, divergência e
+sessão; build/tipos/visual completo sem mudar baseline.

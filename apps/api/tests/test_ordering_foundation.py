@@ -1,12 +1,11 @@
 from django.test import TestCase
-from rest_framework.test import APIClient
-
 from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
 from modules.audit.models import AuditEvent
 from modules.catalog.models import AvailabilityState, FulfillmentStation, Product
 from modules.ordering.models import OrderItem, OrderSource, Tab, TabState
 from modules.ordering.services import OrderingServiceError, confirm_order
 from modules.venue.models import Venue
+from rest_framework.test import APIClient
 
 
 class OrderingFoundationTests(TestCase):
@@ -442,7 +441,6 @@ class OrderingFoundationTests(TestCase):
 
         from django.apps import apps
         from django.db import connection
-
         from modules.ordering.search import normalize_tab_label
 
         Tab.objects.bulk_create([Tab(venue=self.venue, display_label="Álvaro  Café") for _ in range(201)])

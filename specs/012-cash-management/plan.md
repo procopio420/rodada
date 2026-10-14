@@ -65,3 +65,5 @@ validar Web/API e PostgreSQL descartável, sem alterar snapshot ou provider.
 2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
 3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
    concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
+
+T11c/026: reutilizar GET shiftDetail e manter snapshot de conferência separado da seleção operacional; revalidar sessão/envelope/shift ID após GET. Evidência e gates em specs/026-operational-ux-friction/revalidation.md.

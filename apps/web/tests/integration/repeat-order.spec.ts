@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./test";
+import { expect, test, type Page } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 

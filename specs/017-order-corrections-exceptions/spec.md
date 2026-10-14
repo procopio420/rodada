@@ -481,3 +481,18 @@ Spec006/014 na sessão original e mantém PIN recente. Correção APPLIED só re
 como replay se Payment/chave e fingerprint do Refund (valor, motivo e caixa CASH)
 coincidirem. Divergência não aplica outra reversão nem altera histórico. O recorte
 sem devolução T02 permanece separado e nunca cria Refund zero.
+
+T11d/026 — contexto de correção e estorno Android: consultas GET mínimas resolvem
+item/pagamento/correção pelo ID no Venue autenticado, com order.correct ou
+refund.create. Settlement exige payment da mesma Tab/Venue da correction.
+Android verifica IDs, snapshot da Tab, sessão e envelope antes de apresentar
+conferência separada, inclusive item cancelado/correção aplicada/Tab encerrada.
+Consulta não exige reauth nem altera regras financeiras; mutations mantêm reauth,
+idempotência, transações e auditoria existentes. Não reenvia, remove registro ou
+infere desfecho pelo estado/valor atual. Contrato e evidências: Spec026 T11d.
+
+T12b.3/026: consulta Web de item/correção valida registro original via resolver
+existente e Tab, inclusive cancelado/encerrado/aplicado. Correção exige pagamento
+explícito da mesma Tab; ausência na lista de pendências não define estado. Conferência
+não aprova/rejeita/cancela/estorna e preserva intenção guardada. Sessão/IDs conferidos,
+falha sem fallback; retorno local e foco no resumo.

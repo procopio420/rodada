@@ -47,11 +47,9 @@ npm run test:visual
 npm run test:integration
 ```
 
-Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual atual tem465 testes de layout, estados, acessibilidade e controles equivalentes; usa respostas controladas somente nos testes. A integração tem87 jornadas com BFF e Django reais, mais três verificações opt-in do cardápio canônico.
+Os testes iniciam servidores de produção próprios: execute o build antes. A suíte visual tem 102 testes nas nove telas, cinco larguras e estados de operação, incluindo o formulário do Quick Catalog; usa respostas controladas somente nos testes. A integração tem cinco testes de navegador com BFF e Django reais.
 
-Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. Para a suíte completa, use PostgreSQL17 descartável com banco `rodada_web_e2e`, host `127.0.0.1`, variáveis `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_PORT`, `RODADA_E2E_POSTGRES=1` e `RODADA_E2E_RESET=1`. A limpeza entre cenários exige esse nome/host/opt-in; nunca use um banco comercial. [Contrato de isolamento](../../docs/development/web-e2e-isolation.md). SQLite temporário continua disponível sem essas flags, mas não certifica concorrência nem isolamento da suíte completa. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. Reserve as portas3100 (visual),3110 e8100 (integração).
-
-Execute `npm run test:integration -- --grep-invert "canonical photographed menu"` para as87 jornadas. Depois, com `RODADA_E2E_MENU=1`, execute `npm run test:integration -- tests/integration/venue-menu-acceptance.spec.ts` para as três larguras do cardápio. A aprovação comercial de preços/roteamento permanece independente dos testes.
+Antes da integração, na raiz do repositório: `python -m pip install -e "apps/api[dev]"`. O banco local é SQLite temporário; CI usa PostgreSQL 17 isolado. Se Python não estiver no PATH, defina `RODADA_TEST_PYTHON` com o caminho completo do executável. No PowerShell: `$env:RODADA_TEST_PYTHON='C:\caminho\python.exe'`. Reserve as portas 3100 (visual), 3110 e 8100 (integração).
 
 O [relatório de paridade](../../docs/design/visual-parity-audit.md) registra métricas, cobertura e limitações. A [Spec 020](../../specs/020-web-operational-completion/spec.md) entrega Quick Catalog em Bar/Cozinha, histórico persistido da própria comanda guest com polling de cinco segundos, seleção paginada de turnos antigos em `/cash` e relatórios com filtro de período/CSV em `/reports`. Criação exige `catalog.product.create`; relatórios, `management.reports.read`; configuração do calendário também exige `venue.configure`. A API continua autoritativa.
 
@@ -59,17 +57,17 @@ Antes de iniciar uma instância existente, aplicar as migrações Django (`pytho
 
 ## Superfícies e hosts — contrato multitenant
 
-O domínio oficial continua `rodada.ai`. A nova arquitetura planeja um subdomínio por estabelecimento e módulos no path, por exemplo:
+O domínio público selecionado é `rodada.bar` (ADR 0018). A nova arquitetura define um subdomínio por estabelecimento e módulos no path, por exemplo:
 
 ```text
-bardoaderlan.rodada.ai/bar
-bardoaderlan.rodada.ai/cozinha
-bardoaderlan.rodada.ai/gerencia
-bardoaderlan.rodada.ai/caixa
-bardoaderlan.rodada.ai/m/<token>
+bardoaderlan.rodada.bar/bar
+bardoaderlan.rodada.bar/cozinha
+bardoaderlan.rodada.bar/gerencia
+bardoaderlan.rodada.bar/caixa
+bardoaderlan.rodada.bar/m/<token>
 ```
 
-**Ainda não está habilitado.** O proxy atual usa hosts separados por superfície (`bar.rodada.ai`, `cozinha.rodada.ai` etc.). O login usa o `Venue.slug` atual `bar-do-aderlan`; não renomear esse slug para criar `bardoaderlan`. Antes de ativar wildcard, implementar registro hostname -> Venue, verificação host/sessão/guest e testes com dois Venues. Ver [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md) e [Spec 025](../../specs/025-tenant-host-routing/spec.md).
+**O código de roteamento por Venue entrou na main no PR #116, mas o wildcard público e a homologação ainda dependem de preview/TLS e gates da Spec 025.** O modo legado ainda admite hosts separados por superfície (`bar.rodada.bar`, `cozinha.rodada.bar` etc.). O login usa o `Venue.slug` atual `bar-do-aderlan`; não renomear esse slug para criar `bardoaderlan`. Antes de ativar wildcard público, validar registro hostname -> Venue, host/sessão/guest e testes negativos com dois Venues no SHA implantado. Ver [ADR 0016](../../docs/adr/0016-tenant-hostname-module-paths.md) e [Spec 025](../../specs/025-tenant-host-routing/spec.md).
 
 Rotas internas para desenvolvimento, testes e demo Railway continuam funcionando: `/staff`, `/attendance`, `/bar`, `/kitchen`, `/guest/:token`, `/manage`, `/reports`, `/cash`. Rodada Atendimento permanece Android nativo.
 

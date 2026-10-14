@@ -36,6 +36,20 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun tabDetail(session: StoredSession, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.tabDetail(it, tabId) }
 
+    suspend fun exceptionalRecoveryTarget(session: StoredSession, original: RecoveryIntent): ExceptionalRecoveryTarget {
+        val path = when (original) {
+            is RecoveryIntent.Correction -> "/order-items/${original.orderItemId}/recovery-context/"
+            is RecoveryIntent.Refund -> when (original.kind) {
+                RefundRecoveryKind.DIRECT -> "/payments/${original.paymentId}/recovery-context/"
+                RefundRecoveryKind.SETTLE_CORRECTION -> "/corrections/${requireNotNull(original.correctionId)}/recovery-context/?payment_id=${original.paymentId}"
+            }
+            else -> error("Este registro não é uma correção ou estorno.")
+        }
+        return authRepository.withAuthorizedAccess(session) {
+            ExceptionalRecoveryTarget.fromJson(client.request("GET", path, accessToken = it))
+        }.also { it.validate(original) }
+    }
+
     suspend fun products(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::products)
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
@@ -59,6 +73,9 @@ class OperationsRepository(private val authRepository: AuthRepository) {
         val response = client.request(if (command == null) "GET" else "POST", "/hospitality/occupancies/$occupancyId/party-size/", command?.toJson(), it)
         PartySizeSnapshot.fromJson(if (command == null) response.getJSONObject("current") else response)
     }
+
+    suspend fun tableService(session: StoredSession, path: String, payload: org.json.JSONObject) =
+        authRepository.withAuthorizedAccess(session) { client.tableService(it, path, payload) }
 
     suspend fun occupyTable(session: StoredSession, tableId: String, tabId: String?) =
         authRepository.withAuthorizedAccess(session) { client.occupyTable(it, tableId, tabId) }

@@ -98,3 +98,35 @@ test("Attendance pending order recovers from POS through original gateway", asyn
   expect(state.attempts).toHaveLength(2); expect(state.attempts[1]).toBe(state.attempts[0]);
   expect(paths).toEqual(["/api/attendance/tabs/tab-test/orders/confirm/"]);
 });
+
+for (const surface of ["attendance", "pos"]) test(`Pending order remains recoverable after closed tab reload ${surface}`, async ({ page }) => {
+  const state = await setup(page, surface);
+  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
+  const saved = await page.evaluate(k => sessionStorage.getItem(k), key);
+  await page.route(/\/api\/(attendance|pos)\/tabs\/tab-test\/$/, route => route.fulfill({ json: {
+    id: "tab-test", display_label: "Comanda encerrada", state: "CLOSED", exposure_cents: 0, version: 3,
+    orders: [{ id: "order-recovered", items: [] }], payments: [], refund_required_corrections: [],
+  } }));
+  await page.route(/\/api\/(attendance|pos)\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: surface === "pos" ? [{ id: "tab-test", display_label: "Comanda encerrada", state: "CLOSED", exposure_cents: 0, version: 3 }] : [], next_offset: null } }));
+  if (surface === "pos") {
+    await page.clock.runFor(16000);
+    await expect(page.getByRole("heading", { name: "Comanda encerrada", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Verificar mesmo pedido", exact: true })).toBeEnabled();
+    expect(state.attempts).toHaveLength(1);
+  }
+  await page.reload();
+  if (surface === "attendance") {
+    await expect(page.getByRole("heading", { name: "Comanda encerrada", exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Pedido atual" })).toHaveCount(0);
+  }
+  const verify = page.getByRole("button", { name: "Verificar mesmo pedido", exact: true });
+  await expect(verify).toBeEnabled();
+  expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBe(saved);
+  expect(state.attempts).toHaveLength(1);
+  await verify.click();
+  await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+  expect(state.attempts).toHaveLength(2);
+  expect(state.attempts[1]).toBe(state.attempts[0]);
+  expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeNull();
+});

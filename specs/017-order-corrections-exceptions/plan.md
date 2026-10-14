@@ -73,3 +73,5 @@ sem alterar baseline. Fora de escopo: remoção parcial paga e produção avanç
 2. Validar sessão e fingerprint de replay CASH/correção; preservar locks/auditoria.
 3. Testar perda após commit/readback, reload, PIN/sessão/storage, divergência e
    concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
+
+T11d/026: resolver alvo por ID/capability/Venue e validar vínculo payment/correction, sem mutation. Conferência Android separada mantém o envelope e seleção anterior; evidências em specs/026-operational-ux-friction/revalidation.md.

@@ -3,7 +3,7 @@
 import { OperationalHeading } from "@/components/operational-heading";
 
 import { BillSummary } from "./bill-summary";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { guestApi } from "@/lib/client/guest-api";
 import { guestOrderStorageKey, useGuestOrderIntent, validScope, sameScope, type GuestScope } from "@/lib/client/guest-order-intent";
@@ -73,8 +73,8 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const repeatReading = useRef(false);
   const repeatConsumed = useRef(false);
   const currentVisit = useRef({ token: guestToken, context });
-  currentVisit.current = { token: guestToken, context };
-  useEffect(() => { setRepeatReview(null); }, [guestToken, context?.tab?.id]);
+  useLayoutEffect(() => { currentVisit.current = { token: guestToken, context }; }, [guestToken, context]);
+  useEffect(() => { queueMicrotask(() => setRepeatReview(null)); }, [guestToken, context?.tab?.id]);
   const orderIntent = useGuestOrderIntent(qrToken, guestToken, detail => {
     setContext(detail as Context); setCart([]); setNotice("");
   });
@@ -127,10 +127,10 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     setLoading(true);
     setNotice("");
     try { const cached = JSON.parse(sessionStorage.getItem(`rodada.guest.catalog.${qrToken}`) || "null"); if (cached) { setProducts(cached.products); setCatalogCachedAt(cached.fetchedAt); } } catch {}
-    let stored: string, recovering: boolean;
-    try { stored = sessionStorage.getItem(storageKey) || ""; recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
+    const stored = qrToken;
+    let recovering: boolean;
+    try { sessionStorage.removeItem(storageKey); recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
     catch { setNotice("Não foi possível acessar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
-    if (recovering && !stored) { setNotice("Há um pedido da visita original aguardando confirmação. Peça ajuda à equipe."); setLoading(false); return; }
     const result = recovering ? await guestApi<Context>("context/", stored) : await guestApi<Context>("qr/resolve/", stored, {
       method: "POST", body: JSON.stringify({ token: qrToken }),
     });
@@ -141,13 +141,13 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       return;
     }
     const body = result.body as Context;
-    const token = body.guest_session_token || stored;
+    const token = stored;
     if (!token) {
       setNotice("Não foi possível iniciar sua sessão. Escaneie o QR novamente.");
       setLoading(false);
       return;
     }
-    try { sessionStorage.setItem(storageKey, token); } catch { setNotice("Não foi possível guardar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
+    // Authorization stays in a host-only HttpOnly cookie, never sessionStorage.
     setGuestToken(token);
     setContext(body);
     await loadCatalog(token);
@@ -200,7 +200,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     if (!catalog.ok) throw catalog.body;
     const next = detail.body as Context, currentProducts = (catalog.body as { results: Product[] }).results;
     const live = currentVisit.current;
-    if (sessionStorage.getItem(storageKey) !== expected.token || live.token !== expected.token ||
+    if (live.token !== expected.token ||
       !validScope(live.context?.session_scope) || !sameScope(live.context.session_scope, expected.scope) || live.context.tab?.id !== expected.tabId ||
       !validScope(next.session_scope) || !sameScope(next.session_scope, expected.scope) || next.tab?.id !== expected.tabId || !next.occupancy_active)
       throw { message: "Esta rodada pertence à visita original. Ela não será incluída em outra sessão ou comanda." };

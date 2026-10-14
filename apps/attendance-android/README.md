@@ -252,3 +252,6 @@ provenance e correção por exceção. T11 ampla permanece aberta.
 
 ### Conferir turno original — Spec 026 T11c
 Pendências de movimento/fechamento abrem consulta do turno original, inclusive encerrado, mantendo caixa atual e registro preservados. Tela oferece retorno e atualização, sem replay financeiro; conferência não prova sucesso/falha da pendência. Evidências e limites: specs/026-operational-ux-friction/revalidation.md.
+
+### Conferir correção/estorno — Spec026 T11d
+Pendência abre o alvo original pela API, incluindo comanda encerrada e correção aplicada. Item/payment/correction/Tab são validados; tela de consulta mantém registro e fila, sem replay financeiro. ID inconsistente, alvo ausente, falha ou outra sessão não publica contexto. Evidências e gates em specs/026-operational-ux-friction/revalidation.md.

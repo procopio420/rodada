@@ -1,10 +1,10 @@
 # Spec 025 — Acceptance criteria
 
-All items below are **PENDING**, not implementation claims. Evidence: test command + file + CI/deploy result when available.
+**Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
 ## Host mapping and DNS
 
-- [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.ai` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
+- [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
 - [ ] Reserved hostnames cannot be claimed; unrecognized/disabled/lookalike/invalid hostnames fail closed (404 or 421), with no default/demo fallback.
 - [ ] Reverse proxy and application agree on the normalized trusted Host. Browser-supplied `X-Forwarded-Host`, `X-Rodada-*` or `?venue=` cannot choose a different Venue.
 
@@ -29,3 +29,17 @@ All items below are **PENDING**, not implementation claims. Evidence: test comma
 
 - [ ] Wildcard HTTPS, Host routing, explicit app/DB trust boundaries and logging are configured in preview and verified (not inferred).
 - [ ] Switch-on is behind a documented rollback gate; no unsupported production readiness claim.
+
+## Staged P1 evidence (not release approval)
+
+- [ ] `npm run test:tenant` — path/host unit regression, `apps/web/tests/tenant-routing.test.mjs` (CI result required).
+- [ ] `npm run test:integration` — independent Venues in `start_api.py`, BFF + Django assertions in `tenant-hosts.spec.ts` (CI result required).
+- [ ] `bash scripts/verify-tenant-host-preview.sh` — preview wildcard HTTPS, manifest, reserved/unknown host and health (real DNS/TLS not yet configured).
+- [ ] Aderlan shift and P0 safety gates on the merged #116 code at the current release SHA, followed by manual operator/QR browser verification and canary approval.
+
+## Establishment launcher UI (visual follow-up; not a tenant-security sign-off)
+
+- [ ] Verified tenant root displays the approved Rodada logo, the resolved Venue name and an accessible enter/switch operator link to `/staff`.
+- [ ] All five full-card module links point to the existing same-origin paths and remain protected by existing auth/capability gates.
+- [ ] At 360/390/430, 768/1024 and 1280/1440px, the grid renders 2/3/4 columns respectively, card tap targets are at least 44px tall, and the page does not overflow horizontally.
+- [ ] Browser/keyboard review covers focus, long venue name, mobile touch and reduced-motion behavior; integrate the two-Venue Playwright assertion without replacing the security checks above.

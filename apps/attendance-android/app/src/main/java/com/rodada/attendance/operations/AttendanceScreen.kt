@@ -157,6 +157,10 @@ fun AttendanceScreen(
                 onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
             ) { viewModel.refresh(session) }
+            state.pendingTableService?.let {
+                Text("Verificando atendimento. Intenção original preservada.")
+                OutlinedButton(enabled = !state.submitting && !state.loading, onClick = { viewModel.retryTableService(session) }) { Text("Verificar mesma intenção") }
+            }
             Box(modifier = Modifier.weight(1f)) {
             when (val selected = state.selectedTab) {
                 null -> {
@@ -165,10 +169,13 @@ fun AttendanceScreen(
                             state = state,
                             showDeliveries = true,
                             peak = peak,
-                            onOpenTab = { openingTab = true },
+                            onOpenTab = { if (state.pendingTableService == null) openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
                             staffId = session.staffId,
+                            onViewTable = { section = FrontlineSection.TABLES },
+                            onClaimTable = { viewModel.claimTableService(session, it) },
+                            canClaimTable = "table.manage" in session.capabilities,
                             onServiceAction = { id, complete -> viewModel.updateServiceRequest(session, id, complete) },
                             onOpenRecovery = { id ->
                                 if (state.pendingEvidence().any { it.id == id && it.shiftId != null && it.canOpenContext }) cashShiftViewModel.openRecovery(session, id)
@@ -180,14 +187,22 @@ fun AttendanceScreen(
                             state = state,
                             showDeliveries = false,
                             choosingOrderDestination = choosingOrderDestination,
-                            onOpenTab = { openingTab = true },
+                            onOpenTab = { if (state.pendingTableService == null) openingTab = true },
                             onSelect = { viewModel.selectTab(session, it) },
                             onCompleteDelivery = { viewModel.completeDelivery(session, it) },
                         )
                         FrontlineSection.TABLES -> TablesScreen(
                             state = state,
                             canManageTables = "table.manage" in session.capabilities,
+                            staffId = session.staffId,
+                            canOpenTabs = "tab.open" in session.capabilities,
                             onOccupy = { tableId, tabId -> viewModel.occupyTable(session, tableId, tabId) },
+                            onStartService = { id -> if (state.tables.firstOrNull { it.id == id }?.tableServiceEnabled == true) viewModel.startTableService(session, id) else viewModel.occupyTable(session, id, null) },
+                            onOpenTableTab = { occupancy, label -> viewModel.openTableTab(session, occupancy, label) },
+                            onClaim = { viewModel.claimTableService(session, it) },
+                            onSelectTab = { viewModel.selectTab(session, it) },
+                            canMoveTabs = "tab.move" in session.capabilities,
+                            onMoveTab = { occupancyId, tab -> viewModel.moveTableTab(session, occupancyId, tab) },
                             onAttachTab = { occupancyId, tabId -> viewModel.attachTabToOccupancy(session, occupancyId, tabId) },
                             onRelease = { viewModel.releaseTable(session, it) },
                             onStartCleaning = { viewModel.startTableCleaning(session, it) },
@@ -197,10 +212,13 @@ fun AttendanceScreen(
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
                 }
-                else -> TabWorkspace(
+                else -> Column {
+                    state.tables.firstOrNull { table -> table.activeOccupancy?.tabs?.any { it.id == selected.summary.id } == true }?.let { Text("Mesa ${it.label} · ${selected.summary.displayLabel}") }
+                    if (state.cart.isNotEmpty() || state.orderIntentId != null) Text("Rascunho preservado. Confirme ou remova os itens antes de sair.")
+                    TabWorkspace(
                     state = state,
                     tab = selected,
-                    onBack = { viewModel.clearSelection(); viewModel.refresh(session) },
+                    onBack = { if (state.cart.isEmpty() && state.orderIntentId == null) { viewModel.clearSelection(); viewModel.refresh(session) } },
                     onAdd = { product, selection -> viewModel.addProduct(product, selection) },
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
@@ -215,6 +233,7 @@ fun AttendanceScreen(
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                     onRepeatOrder = { review -> viewModel.repeatOrder(selected.summary.id, review) },
                 )
+                }
             }
             if (cashShiftViewModel.recoveryContext.intentId != null) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -223,9 +242,16 @@ fun AttendanceScreen(
                         onBack = { cashShiftViewModel.clearRecoveryContext() })
                 }
             }
+            state.exceptionalRecoveryContext?.let { context ->
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    ExceptionalRecoveryScreen(context, state.submitting,
+                        onRefresh = { viewModel.openRecovery(session, context.original.id) },
+                        onBack = viewModel::clearExceptionalRecoveryContext)
+                }
             }
-            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null) {
-                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting)
+            }
+            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
             }
         }
     }
@@ -357,6 +383,9 @@ internal fun TabList(
     onSelect: (String) -> Unit,
     onCompleteDelivery: (String) -> Unit,
     staffId: String = "",
+    onViewTable: (String) -> Unit = {},
+    onClaimTable: (TableOccupancy) -> Unit = {},
+    canClaimTable: Boolean = false,
     onServiceAction: (String, Boolean) -> Unit = { _, _ -> },
     onOpenRecovery: (String) -> Unit = {},
     onCheckOrders: () -> Unit = {},
@@ -367,6 +396,21 @@ internal fun TabList(
     LaunchedEffect(peak, state.recoveryDeliveryTaskId) { if (peak || state.recoveryDeliveryTaskId != null) queue = NowQueue.READY }
     LaunchedEffect(queue) { listState.scrollToItem(0) }
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        if (showDeliveries) {
+            val attention = state.tables.filter { it.activeOccupancy?.serviceAttention in setOf("UNASSIGNED_GUEST_ORDER", "UNASSIGNED_READY") }
+                .sortedWith(compareByDescending<TableSummary> { it.activeOccupancy?.serviceAttention == "UNASSIGNED_READY" }.thenBy { it.activeOccupancy?.oldestGuestOrderAt })
+            items(attention, key = { "attention-${it.activeOccupancy!!.id}" }) { table ->
+                Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val occupancy = table.activeOccupancy!!
+                    Text("Mesa ${table.label} · ${table.zone?.label.orEmpty()}", style = MaterialTheme.typography.titleMedium)
+                    Text("Pedido via QR · Sem responsável", fontWeight = FontWeight.Bold, color = RodadaVisual.Amber)
+                    Text("${occupancy.guestOrderCount} pedido(s) · ${if (occupancy.serviceAttention == "UNASSIGNED_READY") "Pedido pronto" else "Confirmado"}")
+                    Text(serviceOrderAgeLabel(occupancy.oldestGuestOrderAt))
+                    OutlinedButton(onClick = { onViewTable(table.id) }, enabled = !state.submitting && state.pendingTableService == null, modifier = Modifier.fillMaxWidth()) { Text("Ver mesa ${table.label}") }
+                    if (canClaimTable && table.tableServiceEnabled) Button(onClick = { onClaimTable(occupancy) }, enabled = !state.submitting && state.pendingTableService == null, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento") }
+                }
+            }
+        }
         if (!showDeliveries) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (choosingOrderDestination) Text("Escolha a comanda para pedir", style = MaterialTheme.typography.titleLarge)
@@ -804,7 +848,7 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
     var searched by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Nova comanda") },
+        title = { Text("Nova comanda · Sem mesa") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = label, onValueChange = { label = it; customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
@@ -1088,7 +1132,7 @@ private fun LoadingRow() {
     Row(modifier = Modifier.fillMaxWidth().padding(24.dp), horizontalArrangement = Arrangement.Center) { CircularProgressIndicator() }
 }
 
-private fun TabSummary.stateLabel(): String =
+internal fun TabSummary.stateLabel(): String =
     when (state) {
         "OPEN" -> "ABERTA"
         "REQUIRES_ACTION" -> "ATENÇÃO"
@@ -1108,16 +1152,18 @@ private fun itemStateLabel(state: String): String =
         else -> state
     }
 
-private fun paymentMethodLabel(method: String): String =
+internal fun paymentMethodLabel(method: String): String =
     when (method) {
         "CASH" -> "Dinheiro"
         "EXTERNAL_TERMINAL" -> "Maquininha externa"
         else -> method
     }
 
-private fun paymentStatusLabel(status: String): String =
+internal fun paymentStatusLabel(status: String): String =
     when (status) {
         "CONFIRMED" -> "Pago"
+        "PARTIALLY_REFUNDED" -> "Estornado parcialmente"
+        "REFUNDED" -> "Estornado"
         "PENDING" -> "Pendente"
         "CONFIRMATION_PENDING" -> "Verificando"
         "FAILED" -> "Falhou"

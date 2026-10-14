@@ -32,6 +32,7 @@ class Proxy(ThreadingHTTPServer):
         super().__init__(address, handler)
         self.lock = threading.Lock()
         self.armed = True
+        self.mode = "order"
         self.events = []
         self.replays = []
         self.evidence = evidence
@@ -41,7 +42,7 @@ class Proxy(ThreadingHTTPServer):
         self.release_after_cut = False
 
     def snapshot(self):
-        return {"armed": self.armed, "events": self.events, "replays": self.replays,
+        return {"mode": self.mode, "armed": self.armed, "events": self.events, "replays": self.replays,
                 "hold_response": self.hold_response, "holding": self.holding,
                 "released_after_cut": self.release_after_cut}
 
@@ -84,6 +85,19 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
             return
+        if self.path in ("/__fault/arm-table-start", "/__fault/arm-table-open"):
+            with self.server.lock:
+                self.server.mode = "start" if self.path.endswith("start") else "open"
+                self.server.armed = True
+                self.server.events = []
+                self.server.replays = []
+                self.server.persist()
+            payload = b'{"armed":true}'
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
         if self.path == "/__fault/disarm":
             with self.server.lock:
                 if not self.server.events:
@@ -115,13 +129,22 @@ class Handler(BaseHTTPRequestHandler):
             response_body = upstream.read()  # upstream response => transaction committed
             status = upstream.status
             response_headers = upstream.getheaders()
-            if method == "POST" and MATCH.fullmatch(urlsplit(self.path).path) and 200 <= status < 300:
+            mode = self.server.mode
+            route = urlsplit(self.path).path
+            matches = MATCH.fullmatch(route) if mode == "order" else re.fullmatch(
+                r"/hospitality/tables/[0-9a-fA-F-]+/service/start/" if mode == "start" else
+                r"/hospitality/occupancies/[0-9a-fA-F-]+/tabs/open/", route)
+            if method == "POST" and matches and 200 <= status < 300:
                 original = json.loads(body or b"{}")
                 data = json.loads(response_body)
                 event = {
                     "upstream_status": status,
-                    "order_id": data["id"],
-                    "tab_id": data["tab_id"],
+                    "mode": mode,
+                    "path": route,
+                    "order_id": data.get("id"),
+                    "tab_id": data.get("tab_id"),
+                    "table_id": data.get("table_id"),
+                    "occupancy_id": data.get("occupancy_id") or data.get("active_occupancy", {}).get("id"),
                     "idempotency_key": original["idempotency_key"],
                     "body_sha256": hashlib.sha256(body or b"").hexdigest(),
                 }
@@ -129,7 +152,7 @@ class Handler(BaseHTTPRequestHandler):
                     if self.server.armed:
                         self.server.events.append(event)
                         self.server.persist()
-                        print(f"POST_COMMITTED_BUT_RESPONSE_DROPPED status={status} order_id={data['id']}", flush=True)
+                        print(f"POST_COMMITTED_BUT_RESPONSE_DROPPED status={status} mode={mode}", flush=True)
                         if self.server.hold_response:
                             self.server.holding += 1
                             self.server.persist()
@@ -191,11 +214,10 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", required=True)
-    parser.add_argument("--listen-host", default="0.0.0.0")
     parser.add_argument("--hold-response", action="store_true",
                         help="Pause a committed POST until externally verified Android uplink cut")
     args = parser.parse_args()
-    app = Proxy((args.listen_host, 8000), Handler, args.evidence, hold_response=args.hold_response)
+    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence, hold_response=args.hold_response)
     app.persist()
     print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :8000 => Django :8101", flush=True)
     app.serve_forever()

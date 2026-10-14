@@ -59,7 +59,7 @@ for (const mode of ["absent", "unavailable", "legacy", "variant", "quantity"]) t
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" }); await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); expect(state.attempts).toHaveLength(0); expect(state.resolves()).toBe(1);
 });
-for (const change of ["price", "block", "emergency", "revoke", "fail", "scope", "tab", "token"]) test(`Guest repeat inclusion revalidates ${change} and preserves draft`, async ({ page }) => {
+for (const change of ["price", "block", "emergency", "revoke", "fail", "scope", "tab", "session"]) test(`Guest repeat inclusion revalidates ${change} and preserves draft`, async ({ page }) => {
   const state = await setup(page); await page.getByRole("button", { name: /^Fritas / }).click();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" }); await expect(dialog).toBeVisible();
@@ -69,7 +69,7 @@ for (const change of ["price", "block", "emergency", "revoke", "fail", "scope", 
   if (change === "revoke") state.revoke(); if (change === "fail") state.fail();
   if (change === "scope") state.context.session_scope.generation++;
   if (change === "tab") state.context.tab.id = "other-tab";
-  if (change === "token") await page.evaluate(() => sessionStorage.setItem("rodada.guest.session.test-qr", "other-token"));
+  if (change === "session") state.context.session_scope.session_id = "other-guest-session";
   await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click();

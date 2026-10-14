@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 
 for (const width of [360, 390, 430]) test(`Staff order committed without response recovers after reload once ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");

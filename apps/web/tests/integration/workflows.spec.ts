@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./test";
+import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -14,7 +14,7 @@ async function login(page: Page, operator = "test-manager") {
   await page.getByLabel("Operador", { exact: true }).fill(operator);
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
 }
 
 async function api(page: Page, path: string, data?: unknown) {
@@ -119,14 +119,19 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await expect(page.getByText("Divergência revisada.")).toBeVisible();
   await evidence(page, "cash-success");
 
-  // Keep the old access for the explicit stale-session request; SSE may already clear storage.
-  const oldSession = await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token);
-  expect(oldSession).toBeTruthy();
+  // Keep the guest cookie in the browser; JS only supplies the public QR selector
+  // to the BFF. A released visit must revoke the server-side session.
+  const guestCookies = (await guestContext.cookies()).filter(cookie => cookie.name.startsWith("rodada_guest_"));
+  expect(guestCookies).toHaveLength(1);
+  expect(guestCookies[0].httpOnly).toBe(true);
+  expect(guestCookies[0].sameSite).toBe("Lax");
+  expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
+  expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
   await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
-  const revoked = await guest.evaluate(async oldSession => {
-    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": oldSession ?? "" } });
+  const revoked = await guest.evaluate(async qrSelector => {
+    const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": qrSelector } });
     return { status: result.status, body: await result.json() };
-  }, oldSession);
+  }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
   await guest.reload();
@@ -159,7 +164,7 @@ test("real expired session clears privileged cookies", async ({ page, context })
   const result = await response;
   expect(result.status()).toBe(401);
   expect((await result.json()).code).toBe("SESSION_EXPIRED");
-  await expect(page.getByRole("heading", { name: "Entrar no atendimento" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Quem vai trabalhar?" })).toBeVisible();
   expect((await context.cookies()).filter(c => c.name === "rodada_staff_access" || c.name === "rodada_staff_refresh")).toEqual([]);
 });
 
@@ -207,8 +212,8 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
   await guest.getByRole("button", { name: new RegExp("Teste CSV real") }).click();
   await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+  await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   await expect(guest.getByRole("heading", { name: "Meus pedidos" })).toBeVisible();
-  await expect(guest.locator('section[aria-label="Rodada 1"] strong')).toHaveText("1× =Teste CSV real");
   await guest.reload();
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toBeVisible();
   const tab = (await api(page, "/api/pos/tabs/")).results.find((row: { display_label: string }) => row.display_label === "Tracking guest");

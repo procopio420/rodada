@@ -1,6 +1,6 @@
 # Aceite
 
-## Continuação histórica — gates da demo
+## Continuação completa — gates da demo
 
 - [x] Cinco fontes verificadas e34 contratos dos estados principais versionados, crops/medidas/fontes/normalizações e hashes idênticos entre execuções.
 - [x] Alterações de componentes por clipping comprovado; callbacks/busy/targets/estados preservados, sem dados demonstrativos no produto.
@@ -13,7 +13,7 @@
 - [ ] Todas telas/jornadas internas nativas com fonte200%/teclado e estorno em UI nativa.
 - [ ] Publicação/CI final documentadas por head; critérios globais somente com confronto correspondente.
 
-Evidência desse recorte: [relatório](../../docs/design/spec023-demo-validation.md), conteúdo dos commits41a42bd/20e3649/bb29b5d/1d22393. A [integração atual](../../docs/development/spec023-024-completion.md) registra a nova jornada com CSV e turno1550centavos. Critérios globais abaixo continuam independentes e abertos onde não comprovados.
+Evidência atual: [relatório](../../docs/design/spec023-demo-validation.md), conteúdo dos commits41a42bd/20e3649/bb29b5d/1d22393. Critérios globais abaixo continuam independentes e abertos onde não comprovados.
 ## Recorte anterior V01 — night/Agora e Bar
 
 - [x] ZIP corresponde ao manifesto; HTML/assets originais mantêm hashes antes/depois.
@@ -22,19 +22,19 @@ Evidência desse recorte: [relatório](../../docs/design/spec023-demo-validation
 - [x] Auditoria distingue presença de código, checks históricos e validação atual; demais jornadas/exports e V02–V07 permanecem abertos.
 - [x] Evidências identificam base, ambiente e reprodução; publicação SHA remoto/PR rascunho comprovada.
 
-Evidência histórica bc9575b em origin/codex/spec023-next; [PR68 posteriormente integrado à main](https://github.com/procopio420/rodada/pull/68). Somente aceite parcial V01; nenhum gate de paridade integral do produto foi concluído.
+Evidência bc9575b confirmada em origin/codex/spec023-next, [PR68 em rascunho](https://github.com/procopio420/rodada/pull/68). Somente aceite parcial V01; nenhum gate de paridade integral do produto foi concluído.
 
 ## Planejamento
 
-- [x] Plano identifica fontes, estado atual, sequência, arquivos-alvo, métricas e limites de comparação entre plataformas.
+- [x] Plano identifica fontes, estado atual, sequÃªncia, arquivos-alvo, mÃ©tricas e limites de comparaÃ§Ã£o entre plataformas.
 
-## Implementação pendente
+## ImplementaÃ§Ã£o pendente
 
-- [x] Cinco exports têm contratos versionados por estado, selector, dimensão, crop, fixture e hash;34 contratos/pares atuais em7ac9389.
+- [ ] Cinco exports têm contratos versionados por estado, selector, dimensão, crop, fixture e hash.
 - [ ] Primitives novas usam typography/axes e medidas da referência, com comparação estrita.
 - [ ] Cozinha/Bar equivalentes passam assertions ≤0,1% e revisão de geometria por região; teste não é apenas auditoria.
 - [ ] Atendimento, pico e recovery Android possuem evidência HTML↔Compose e gates nativos no emulador fixado.
-- [x] Fixtures reproduzem dados/relógio/assets; snapshots confirmados e legados têm testes próprios; conflito visual documentado no ADR0020, sem produção incorreta.
+- [ ] Fixtures reproduzem dados/relógio/assets; inconsistências do export têm derivação documentada, sem produção incorreta.
 - [ ] Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteúdo longo passam.
 - [ ] CI retém referência/actual/diff/overlay/stats e falha em regressão; não usa baseline atual ou masks para ocultar diferenças.
 - [ ] Audit/KB registram cobertura completa e diferenças restantes; nenhuma tela sem referência é declarada pixel-perfect.
@@ -76,13 +76,21 @@ Evidências e limites: [inventário](../../docs/design/v01-kitchen-inventory.md)
 
 Resultados: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md).
 
+- [ ] Cinco exports tÃªm contratos versionados por estado, selector, dimensÃ£o, crop, fixture e hash.
+- [ ] Primitives novas usam typography/axes e medidas da referÃªncia, com comparaÃ§Ã£o estrita.
+- [ ] Cozinha/Bar equivalentes passam assertions â‰¤0,1% e revisÃ£o de geometria por regiÃ£o; teste nÃ£o Ã© apenas auditoria.
+- [ ] Atendimento, pico e recovery Android possuem evidÃªncia HTMLâ†”Compose e gates nativos no emulador fixado.
+- [ ] Fixtures reproduzem dados/relÃ³gio/assets; inconsistÃªncias do export tÃªm derivaÃ§Ã£o documentada, sem produÃ§Ã£o incorreta.
+- [ ] Responsive 360/430/768 tem contratos derivados; acessibilidade, toque, foco e conteÃºdo longo passam.
+- [ ] CI retÃ©m referÃªncia/actual/diff/overlay/stats e falha em regressÃ£o; nÃ£o usa baseline atual ou masks para ocultar diferenÃ§as.
+- [ ] Audit/KB registram cobertura completa e diferenÃ§as restantes; nenhuma tela sem referÃªncia Ã© declarada pixel-perfect.
 
-## V05 parcial — navegação do Atendimento
+## V05 parcial â€” navegaÃ§Ã£o do Atendimento
 
-- [x] Região nativa 84 dp, centro 136 dp no telefone de 390 dp; alvos ≥44 dp.
-- [x] Agora/Contas/Pedir mantêm callbacks; seleção explícita; busy bloqueia Pedir.
-- [x] Mesas/Caixa preservados por capability; evidência adjacente.
-- [x] Referência original preservada; comparação documentada sem baseline aprovado por aparência atual.
+- [x] RegiÃ£o nativa 84 dp, centro 136 dp no telefone de 390 dp; alvos â‰¥44 dp.
+- [x] Agora/Contas/Pedir mantÃªm callbacks; seleÃ§Ã£o explÃ­cita; busy bloqueia Pedir.
+- [x] Mesas/Caixa preservados por capability; evidÃªncia adjacente.
+- [x] ReferÃªncia original preservada; comparaÃ§Ã£o documentada sem baseline aprovado por aparÃªncia atual.
 
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
@@ -142,17 +150,6 @@ Verificação: fixture V03 antes/depois1280×800, títulos reais21px/line-height
 
 ## V05 — estorno nativo e fonte ampliada
 
-### Jornada integrada com catálogo canônico
-
-Executar em emulador exclusivo e PostgreSQL descartável desta integração. Login real;
-comanda pela UI; Brahma 600 ml (1200) e Coxinha de Queijo com Alho (350) selecionados
-do CSV, confirmação de pedido (1550); preparo/READY pelas superfícies Web reais;
-entrega registrada pelo Atendimento nativo; pagamento manual de teste (1550),
-estorno autorizado (300), recomposição (300), comanda e caixa encerrados (1550,
-diferença zero). Readback deve preservar dois itens, charges1550, payments1850,
-refunds300 e exposição zero. Falha depois de mutation exige leitura canônica antes
-de repetir; nenhum provider, homologação comercial ou aparelho físico é aprovado.
-
 Validar jornada existente de estorno direto com dinheiro de teste e autorização do operador; não criar novo método/provider/endpoint. Antes: instrumentar RefundDialog real em360/font200 e verificar acesso a valor/motivo/PIN/decisões. Se clipping confirmado, aplicar o contrato rolável e footer ampliado já aprovado para PaymentDialog, mantendo valid/busy, PIN limpo após submit, chave idempotente estável durante a edição, centavos e caixa. Não capturar PIN/token. Testes devem conservar callback original e comando300centavos, motivo trim e mesma chave quando valor muda. Capturas antes/depois e matriz API36; fluxo real separado em PostgreSQL55523 com leitura de Refund/Payment/CashMovement/auditoria. Não alegar execução de hardware/provider nem reescrever pagamentos confirmados.
 
 Resultado do experimento de tickets: fonte21px/metadata6px corrigiu quebra, mas aumentou região16.241→17.8714%. Candidata descartada; CSS e testes de apresentação restaurados byte a byte ao head. Não aceitar nova baseline. Diferenças estruturais incluem conectividade/heading/campos canônicos distintos e múltiplas ações de P08; dependências documentadas, não copiar metadados/SLA do mock.
@@ -161,17 +158,13 @@ Resultado parcial atual: estorno rolável/decisões acessíveis;51unit/build/lin
 
 Estorno nativo real concluído nesta continuação: original600 preservado,1Refund300 com ator/timestamp/auditoria/movimento−300, recomposição300, Tab/caixa fechados comsaldo0/discrepância0. [Evidência atual](../../docs/design/evidence/spec023-refund/native/native-refund-readback.json). Gates54instrumentados/51unit/build/lint eWeb197visual13PostgreSQL12auth-realtime/types/build passam. Apenas jornadas internas adicionais/fidelidade integral/hardware/provider permanecem sem aprovação global.
 
-## Deterministic visual transport — 2026-10-12
-
-- Finite visual snapshot SSE fixture never emits ready before EOF; reachable API and reconnecting realtime remain visible.
-- Consecutive management screenshots at 430 px remain byte-equal without tolerance increases or golden replacement.
-
 ### T09b — evidência local guest
 - [x] Busca global por nome, acentos/caixa/espaços nas bordas, categorias consistentes, retorno ao limpar, fallback e vazio; fixture de 146 produtos.
 - [x] Filtros/atalho preservam configuração, quantidade, draft e intent; indisponibilidade, bloqueio e revogação respeitados; primeira inclusão não desloca catálogo.
 - [x] Web/API PostgreSQL 360/390/430: categoria real, seleção cruzando filtros, bloqueio de mesa, foco/draft e replay sem duplicar Order/Charge.
 - [x] 393 testes visuais PASS (7,6 min), Ruff/tipos/build/diff PASS; detalhes na Spec 026. Não implica paridade global, aparelho físico ou publicação.
 
-## Integração de 13/10/2026
+## Deterministic visual transport — 2026-10-12
 
-Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.
+- Finite visual snapshot SSE fixture never emits ready before EOF; reachable API and reconnecting realtime remain visible.
+- Consecutive management screenshots at 430 px remain byte-equal without tolerance increases or golden replacement.

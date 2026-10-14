@@ -45,14 +45,16 @@ class RecoveryPresentationTest {
         assertEquals("original", intent.idempotencyKey)
     }
 
-    @Test fun `delivery links only exact task while unresolved refunds require review`() {
+    @Test fun `delivery and refund resolve only within the original session`() {
         val delivery = RecoveryIntent.CompleteDelivery("delivery", "staff", "venue", "device", "original", 42, RecoveryState.CHECKING, "task")
         assertEquals("task", delivery.evidence().taskId)
         assertTrue(delivery.evidence().canOpenContext)
         assertFalse(delivery.evidence(true).canOpenContext)
         val refund = RecoveryIntent.Refund("refund", "staff", "venue", "device", "original", 42,
             RecoveryState.CHECKING, RefundRecoveryKind.DIRECT, "payment", null, 100, null, null)
-        assertFalse(refund.evidence().canOpenContext)
+        assertTrue(refund.evidence().canOpenContext)
+        assertTrue(refund.evidence().needsExceptionalContext)
+        assertFalse(refund.evidence(true).canOpenContext)
     }
 
     @Test fun `queue evidence is deduplicated oldest first and retains blocked records`() {

@@ -452,7 +452,8 @@ class CorrectionFoundationTests(TestCase):
         self.assertEqual(captured.exception.code, "CORRECTION_NOW_REQUIRES_REFUND")
         self.assertEqual(LedgerAdjustment.objects.count(), 0)
         self.assertEqual(totals(item.order.tab)["exposure_cents"], 600)
-        pending.refresh_from_db(); item.refresh_from_db()
+        pending.refresh_from_db()
+        item.refresh_from_db()
         self.assertEqual(pending.status, CorrectionStatus.REQUESTED)
         self.assertEqual(item.state, OrderItemState.NEW)
 

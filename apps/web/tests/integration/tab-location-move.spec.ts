@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./test";
+import { expect, test, type Page } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
@@ -88,7 +88,7 @@ print(json.dumps({'assignments':assignments,'reason':event.reason,'actor':str(ev
     expect(facts.assignments).toHaveLength(2); expect(facts.assignments[0].released_at).not.toBeNull(); expect(facts.assignments[1]).toEqual({occupancy_id:destination.active_occupancy.id,released_at:null});
     await page.getByRole("button",{name:"Mesas",exact:true}).click();
     await expect(page.getByRole("heading",{name:`Mesa A-${width}`,exact:true})).toBeVisible();
-    await expect(page.getByRole("button",{name:`Abrir comanda Web move ${width} · ID ${tab.id}`,exact:true})).toBeVisible();
+    await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
     await page.unroute(endpoint);
   }

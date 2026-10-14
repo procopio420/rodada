@@ -130,3 +130,10 @@
 **Given** an alert was activated, escalated, acknowledged and resolved  
 **When** history is inspected  
 **Then** canonical source references, rule/version, timestamps, actor for acknowledgement, severity transitions and resolution reason are recoverable.
+
+T12b.1/026: alerta de divergência mantém shift ID e retorno ao próprio alerta no
+atalho de caixa; consulta no destino revalida acesso, sem registrar ciência,
+resolver alerta, revisar divergência ou produzir movimento automaticamente.
+
+T12b.2/026: link PAYMENT aponta à conferência do ID original com retorno ao alerta,
+sem registrar ciência, conciliar pagamento ou resolver condição automaticamente.

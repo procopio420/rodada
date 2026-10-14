@@ -34,6 +34,9 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
   await page.route("**/api/**", async route => {
     const url = new URL(route.request().url());
     url.pathname = url.pathname.replace("/api/attendance/", "/api/pos/");
+    // Tenant-independent legacy context stays available in simulated error/loading states.
+    // Visual tests exercise operational failures, not a hostname registry outage.
+    if (url.pathname === "/api/venue/context") return route.fulfill({ json: { mode: "compatibility" } });
     if (state === "loading") return; // Held until the page closes; no arbitrary sleep.
     if (state === "error") return route.fulfill({ status: 403, json: { code: "CAPABILITY_REQUIRED", message: "Seu perfil não pode executar esta ação." } });
     const longName = "Porção especial com um nome muito longo para conferir leitura durante operação cheia ".repeat(2);
@@ -74,6 +77,7 @@ export async function fixture(page: Page, state: State = "normal", staffSession 
     else if (url.pathname === "/api/pos/hospitality/tables/") body = { results: state === "empty" ? [] : [{ id: "table-test", label: "24", status: "OCCUPIED", active_occupancy: { id: "occupancy-test" } }] };
     else if (url.pathname === "/api/guest/qr/resolve/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, guest_session_token: "visual-test-only", tab: state === "empty" ? null : detail };
     else if (url.pathname === "/api/guest/context/") body = { table: { label: "24" }, occupancy_active: true, can_start_occupancy: false, tab: state === "empty" ? null : detail };
+    else if (url.pathname === "/api/pos/management/table-service-rollout/") body = { enabled: false, version: 1 };
     else if (url.pathname === "/api/pos/management/alerts/") body = { results: [] };
     else if (url.pathname === "/api/pos/management/calendar/") body = { timezone: "America/Sao_Paulo", cutoff_hour: 4, business_date: "2026-10-08" };
     else if (url.pathname === "/api/pos/management/reports/") body = {

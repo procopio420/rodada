@@ -21,7 +21,7 @@ def prepare(path):
         raise SystemExit("Refusing to overwrite a pre-existing test Venue")
     venue = Venue.objects.create(
         name="Isolated Android POST Drop CI", slug="android-post-drop-ci",
-        timezone="America/Sao_Paulo", business_day_cutoff_hour=4
+        timezone="America/Sao_Paulo", business_day_cutoff_hour=4, table_service_enabled=True
     )
     staff = StaffMember(display_name="Android Fault Test", login_identifier="android-post-drop-operator")
     staff.set_pin("2468")  # disposable CI fixture, no live staff or merchant
@@ -31,8 +31,10 @@ def prepare(path):
         venue=venue, name="Android Post Drop Test Soda",
         price_cents=700, fulfillment_station="BAR", active=True
     )
+    from modules.hospitality.models import Table
+    table = Table.objects.create(venue=venue, label="Fault 027", guest_ordering_mode="DIRECT")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"product_id": str(product.pk),
+    path.write_text(json.dumps({"table_id": str(table.pk), "product_id": str(product.pk),
                                 "venue_slug": venue.slug, "price_cents": 700}))
     print("PASS: disposable PostgreSQL venue, staff and product created", flush=True)
 

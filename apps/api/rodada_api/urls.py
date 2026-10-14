@@ -1,8 +1,10 @@
+from modules.management.views import TableServiceRolloutView
 from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
 
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
 from modules.cash.correction_views import CashCorrectionShiftView, CashCorrectionManagementView, CashCorrectionDecisionView
 from modules.venue.guest_policy_views import GuestPolicyView
+from modules.venue.host_views import VenueHostContextView
 from modules.catalog.customization_views import CustomizationView, ChoiceAvailabilityView
 from modules.payment_provider.refund_views import IntegratedRefundView, IntegratedRefundReconcileView
 from modules.payment_provider.merchant_views import MerchantConnectionView, PaymentDeviceAuthorizationView, MerchantOAuthCallbackView
@@ -25,7 +27,9 @@ from modules.catalog.views import (ProductAvailabilityView, ProductListView, Pro
 from modules.management.views import (CalendarView, ReportView, AlertListView, AlertDetailView, AlertPolicyView)
 from modules.venue.station_views import StationListView, StationPreviewView, StationApplyView
 from modules.cash.views import CashShiftListView
+from modules.corrections.recovery_views import OrderItemRecoveryContextView, PaymentRecoveryContextView, CorrectionRecoveryContextView
 from modules.hospitality.views import (
+    TableServiceStartView, OccupancyTabOpenView, OccupancyResponsibilityClaimView,
     PartySizeView,
     OccupancyAssignTabView,
     TableCleaningCompleteView,
@@ -104,6 +108,7 @@ urlpatterns = [
     path("management/correction-requests/", CashCorrectionManagementView.as_view()),
     path("cash/shifts/<uuid:shift_id>/correction-requests/", CashCorrectionShiftView.as_view()),
     path("cash/correction-requests/<uuid:request_id>/decision/", CashCorrectionDecisionView.as_view()),
+    path("management/table-service-rollout/", TableServiceRolloutView.as_view()),
     path("management/guest-policy/", GuestPolicyView.as_view()),
     path("receipts/<str:token>/", SharedReceiptView.as_view()),
     path("guest/receipt/", GuestReceiptView.as_view()),
@@ -142,6 +147,7 @@ urlpatterns = [
     path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
+    path("venue/context/", VenueHostContextView.as_view(), name="venue-host-context"),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
     path("auth/login/", StaffLoginView.as_view(), name="staff-login"),
@@ -175,6 +181,9 @@ urlpatterns = [
     path("tabs/<uuid:tab_id>/payments/", PaymentCollectView.as_view(), name="payment-collect"),
     path("payments/<uuid:payment_id>/refunds/", PaymentRefundView.as_view(), name="payment-refund"),
     path("tabs/<uuid:tab_id>/close/", TabCloseView.as_view(), name="tab-close"),
+    path("order-items/<uuid:item_id>/recovery-context/", OrderItemRecoveryContextView.as_view()),
+    path("payments/<uuid:payment_id>/recovery-context/", PaymentRecoveryContextView.as_view()),
+    path("corrections/<uuid:correction_id>/recovery-context/", CorrectionRecoveryContextView.as_view()),
     path("order-items/<uuid:item_id>/transition/", OrderItemTransitionView.as_view(), name="order-item-transition"),
     path("order-items/<uuid:item_id>/corrections/cancel/", OrderItemCancelView.as_view(), name="order-item-cancel"),
     path("order-items/<uuid:item_id>/corrections/post-production/", PostProductionCorrectionView.as_view(), name="order-item-post-production-correction"),
@@ -190,6 +199,9 @@ urlpatterns = [
     path("catalog/assets/<uuid:icon_id>/<str:filename>/", PublishedIconAssetView.as_view()),
     path("catalog/products/", ProductListView.as_view(), name="product-list"),
     path("catalog/products/<uuid:product_id>/availability/", ProductAvailabilityView.as_view(), name="product-availability"),
+    path("hospitality/tables/<uuid:table_id>/service/start/", TableServiceStartView.as_view()),
+    path("hospitality/occupancies/<uuid:occupancy_id>/tabs/open/", OccupancyTabOpenView.as_view()),
+    path("hospitality/occupancies/<uuid:occupancy_id>/responsibility/claim/", OccupancyResponsibilityClaimView.as_view()),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
     path("hospitality/zones/", ZoneListCreateView.as_view(), name="zone-list-create"),
     path("hospitality/tables/<uuid:table_id>/occupy/", TableOccupyView.as_view(), name="table-occupy"),

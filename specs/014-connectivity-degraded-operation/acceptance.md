@@ -181,10 +181,6 @@ real routed interface in kernel state UP rather than the original interface name
 Physical Wi-Fi acceptance still requires wlan0 and onsite evidence. A green HTTP
 shift or an emulator run cannot substitute for that physical acceptance.
 
-- Emulator standby precondition waits for three consecutive original-route/primary-UP/
-  standby-DOWN observations before the held real POST. Async radio commands alone are
-  not accepted as proof; bounded failure stops the harness before any POST.
-
 ## Recorte POS Web CASH — Spec026 T03a
 
 - [x] Duplo envio/perda após commit/reload convergem ao mesmo Payment e movimento.
@@ -226,3 +222,23 @@ Guest, drafts após reload e fechar aba permanecem abertos.
 - [x] Jornada real PostgreSQL, Web360/390/430, visual/build/tipos/lint/diff registrados.
 
 Mesma aba com storage íntegro; gates externos e persistência de drafts abertos.
+
+T11a/026 local: navegação ao contexto canônico preserva envelope/chave/sessão e não dispara mutation. Registro de outra sessão exige revisão; resolução direta de correção/estorno/caixa continua aberta. Jornada Android/API e limites em specs/026-operational-ux-friction/revalidation.md.
+
+T11c/026 — critérios locais de conferência: turno original consultado pelo ID,
+caixa operacional preservado, registro criptografado intacto; leitura/atualização
+não cria movimento nem reenvia fechamento. Erros e troca de sessão não mostram
+snapshot de outro turno. Comando guardado é distinguido do estado consultado,
+sem inferir desfecho por semelhança. Evidências e limites em
+specs/026-operational-ux-friction/revalidation.md. Reconciliação gerencial, aparelho
+físico e piloto continuam abertos.
+
+T11d/026 local: resolução de alvo por capability/Venue sem mutation e sem alterar
+reauth das ações financeiras. Item/payment/correction e Tab canônicos validáveis
+inclusive após encerramento/aplicação; envelope preservado e outra sessão bloqueada.
+Critérios/testes e limites em specs/026-operational-ux-friction/revalidation.md.
+Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
+
+- Emulator standby precondition waits for three consecutive original-route/primary-UP/
+  standby-DOWN observations before the held real POST. Async radio commands alone are
+  not accepted as proof; bounded failure stops the harness before any POST.

@@ -1,3 +1,4 @@
+import type { Intent, BatchLine } from "@/lib/client/production-batch-intent";
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Independent item beside batch ${station} ${width}`, async ({ page }) => {
@@ -7,12 +8,12 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
     snapshot_fingerprint: id === "legacy" ? undefined : "a".repeat(64), tab_label: id, created_at: "2026-10-08T20:00:00Z" }));
   await page.route(`**/api/pos/production/${station}/`, route => route.fulfill({ json: { results: rows } }));
   await page.route("**/api/pos/catalog/products/", route => route.fulfill({ json: { results: [{ ...products[0], fulfillment_station: station }] } }));
-  const attempts: any[] = [], receipts = new Map<string, unknown>();
+  const attempts: Intent["payload"][] = [], receipts = new Map<string, unknown>();
   await page.route("**/api/pos/production/batches/", async route => {
     const p = route.request().postDataJSON(); attempts.push(p);
     if (!receipts.has(p.idempotency_key)) {
-      p.lines.forEach((line: any) => { rows.find(row => row.id === line.item_id)!.state = p.target_state; });
-      receipts.set(p.idempotency_key, { ...p, command_id: p.idempotency_key, status: "APPLIED", lines: p.lines.map((line: any) => ({ item_id: line.item_id, status: "APPLIED", state: p.target_state, conflicts: [] })) });
+      p.lines.forEach((line: BatchLine) => { rows.find(row => row.id === line.item_id)!.state = p.target_state; });
+      receipts.set(p.idempotency_key, { ...p, command_id: p.idempotency_key, status: "APPLIED", lines: p.lines.map((line: BatchLine) => ({ item_id: line.item_id, status: "APPLIED", state: p.target_state, conflicts: [] })) });
     }
     if (attempts.length <= 2) return route.abort();
     await route.fulfill({ json: receipts.get(p.idempotency_key) });

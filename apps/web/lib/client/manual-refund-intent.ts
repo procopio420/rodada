@@ -50,7 +50,7 @@ export function useManualRefundIntent(onConfirmed: (tabId: string) => Promise<vo
       setReady(false); setMessage("Não foi possível preservar o estorno neste navegador. Confira o histórico com a gerência antes de continuar.");
     }
   }
-  useEffect(() => { initialize(); }, []);
+  useEffect(() => { queueMicrotask(initialize); }, []);
 
   async function submit(draft?: RefundDraft) {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;

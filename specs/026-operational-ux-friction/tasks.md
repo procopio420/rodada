@@ -12,7 +12,7 @@
 Base conferida: `main` / `origin/main` em `ad5d64f`, após pull fast-forward.
 O audit continua histórico: PR #98 e `0bd28d0` alteraram produção e atendimento.
 Os checks documentados na Spec 025 não são PASS automático da Spec 026.
-Estado atual: T01 concluída; recortes locais documentados abaixo, incluindo T10a/T10b/T10c/T10d.1/T10d.2/T10d.3/T10d.4. Próxima tarefa do plano T11; critérios amplos não comprovados e gates externos permanecem abertos.
+Estado atual: T01 concluída e recortes locais de T02–T12b.3 entregues conforme evidências abaixo. T11/T12 amplas, partes de T02/T06/T07/T10 e T13/T14 permanecem abertas. O resumo de entrega e pendências está em [release-summary.md](release-summary.md); nenhum gate externo é encerrado apenas pelo merge.
 Demais tarefas e gates amplos permanecem pendentes. Evidência em [revalidation.md](revalidation.md).
 
 Cada tarefa deve registrar achados, spec proprietária, antes/depois, fora de
@@ -181,18 +181,22 @@ Proprietárias: 001, 003, 019 e 023; atualizar design system se alterar seu cont
 
 ### T11 — Entregas, pico e recuperação Android (UX-26/27/28)
 Dependências: T05/T07. Proprietárias: 003, 014 e 018.
-- [ ] Pendência abre sua operação original sem substituir payload ou sessão.
+- [x] Pendência verificável abre contexto original sem substituir payload ou sessão (T11a/c/d locais; G1 integrado e aparelho abertos).
 - [x] Prontos/Chamadas/Pendências com prioridade e nomenclatura coerentes (T11b local; evidência em revalidation.md).
 - [ ] Investigar obrigatoriedade de taps antes de alterar entrega; inferência
   conserva source/confidence/provenance e ação manual por exceção.
 
 - [x] T11a local: contexto canônico de pedido/pagamento/preço/estrutura e task de entrega, sem mutation na navegação, preservando intenção e sessão.
 - [x] T11c local: conferência do turno original de caixa, sem mutation ou troca da seleção operacional; registros preservados e sessão revalidada.
-- [ ] T11a restante: resolução canônica de correção/estorno; T11/UX26 amplo permanece parcial.
+- [x] T11d local: consulta canônica de correção/estorno, inclusive alvo histórico/Tab encerrada, com capability/Venue, envelope e snapshots preservados.
+- [ ] UX26/G1 integrado e UX27 inferência, aparelho e tempos humanos: T11 ampla permanece parcial.
 
 ### T12 — Circuito de exceções e gerência (UX-09/20/21/25/29/30)
 Dependências: T02/T03/T06. Proprietárias: 007, 008, 012, 017 e 018.
-- [ ] Primeiro isolar motivo por proposta e traduzir enums apenas na UI.
+- [x] T12a: motivo por proposta e enums traduzidos apenas na UI; PIN conserva alvo/motivo e cancelamento preserva rascunhos. Build/tipos e 471 testes visuais PASS; T12 ampla parcial.
+- [x] T12b.1: alertas/bloqueios de caixa abrem turno original, inclusive histórico fora da primeira página, com foco/retorno e rejeição de ID/permissão/caixa inconsistentes. Build/tipos e 482 testes visuais PASS; demais alvos continuam abertos.
+- [x] T12b.2: alerta PAYMENT abre conferência read-only do pagamento original em Tab inclusive encerrada, com foco/retorno, validação de IDs/sessão e histórico. Build/tipos e 494 testes visuais PASS; edição/retry de estorno e demais alvos abertos.
+- [x] T12b.3: conferência de item original e correção vinculada a pagamento explícito, inclusive cancelado/encerrado/aplicado, com foco/retorno e validação de IDs/sessão. Build/tipos, 37 focados e 510 visuais PASS; correções sem pagamento e decisões contextuais abertas.
 - [ ] Deep links autorizados por Venue selecionam tab/payment/shift/item/correction,
   inclusive histórico elegível, com foco e retorno; testar ID inválido/sem permissão.
 - [ ] Reauth junto da decisão sem remover exigência; bloqueios de fechamento

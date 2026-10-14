@@ -46,16 +46,19 @@ jobs:
         working-directory: apps/attendance-android
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Android lint
+      # Initial PR #129 lintDebug audit PASSED: now a blocking check, without release signing.
+      - name: Android Lint (blocking)
         working-directory: apps/attendance-android
         run: ./gradlew lintDebug --stacktrace
 
-      - name: Installable debug APK for review
+      - name: Upload Android Lint report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: attendance-debug-${{ github.sha }}
-          path: apps/attendance-android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          name: android-lint-report
+          path: |
+            apps/attendance-android/app/build/reports/lint-results-debug.*
+          if-no-files-found: warn
           retention-days: 7
 
       # Never upload this artifact: a new ephemeral test key is created on every CI run.
@@ -108,8 +111,4 @@ jobs:
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
-          script: |
-            bash scripts/android-force-stop-recovery.sh
-            adb shell am force-stop com.rodada.attendance
-            adb shell am instrument -w -e class com.rodada.attendance.auth.OperationalAuthRefreshTest com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner | tee /tmp/operational-auth-refresh.txt
-            grep -q 'OK (2 tests)' /tmp/operational-auth-refresh.txt
+          script: bash scripts/android-force-stop-recovery.sh

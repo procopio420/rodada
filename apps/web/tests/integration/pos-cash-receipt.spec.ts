@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "./test";
+import { expect, test, type Page } from "./fixtures";
 
 async function api(page: Page, path: string, body?: unknown) {
   return page.evaluate(async ({ path, body }) => {
@@ -17,7 +17,7 @@ test("POS lost cash response after PostgreSQL commit survives reload with one dr
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const point = (await api(page, "cash/points/")).results[0];
   const shift = point.active_shift ?? await api(page, "cash/shifts/", {
     cash_point_id: point.id, opening_float_cents: 0, business_date: "2026-10-12", idempotency_key: "t03-cash-shift",

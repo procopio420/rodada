@@ -5,14 +5,18 @@ a full release/homologation suite on every commit.
 
 | Workflow | Automatic | Manual | Purpose |
 | --- | --- | --- | --- |
-| API | PR/push changing `apps/api/**` | Yes | Django checks, migration drift and one full PostgreSQL pytest run |
-| Web | PR/push changing web, API, prototype or this workflow | Yes | Next.js build, typecheck, auth, visual and real BFF integration tests |
-| Android | PR/push changing Android | Yes | Unit tests and debug build; release AAB smoke on main/manual only |
+| API | PR/push changing `apps/api/**` or `scripts/quality/**` | Yes | Ruff new-line gate + full diagnostic count; Django checks, migration drift and one full PostgreSQL pytest run |
+| Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
+| Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
 | Android real POST disconnect | No | Yes | Two emulator + backend network-failure tests |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
 | Railway Aderlan demo Docker smoke | PR changing Railway deployment or staging smoke script | Yes | Build full Railway container and smoke runtime |
 | Integrated release demo | No | Yes | Restart/concurrency and full shift gate |
 | Play Store internal release | No | Yes | Signed AAB and optional explicit Google Play upload |
+
+## Static quality gates
+
+See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory status and legacy-debt handling. **Android Lint is a required pass** since PR #129 baseline audit succeeded; Web uses ESLint 9 / Next 16 Core Web Vitals + TypeScript with a full audit and a new/fatal diagnostics gate, in addition to TypeScript/build/Playwright. Ruff inspects all Python but blocks violations only when their diagnostic lands on a newly added source line.
 
 ## Release/homologation gates
 

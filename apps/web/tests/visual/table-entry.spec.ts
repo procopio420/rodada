@@ -19,7 +19,7 @@ for (const width of [360,390,430]) test(`table entry and return preserve isolate
   const url = new URL(route.request().url()); contexts.push(url.searchParams);
   return route.fulfill({ json: tabs.find(tab => url.pathname.includes(tab.id)) });
  });
- const open = (id: string) => page.getByRole("button", { name: `Abrir comanda Mesmo apelido · ID ${id}`, exact: true });
+ const open = (id: string) => page.locator(`button[data-tab-id="${id}"]`);
  await layoutAndA11y(page); await open(ids[0]).click();
  await expect(page.getByRole("heading", { name: "Mesmo apelido", exact: true })).toBeFocused();
  await page.getByRole("button", { name: /^Fritas/ }).click();
@@ -34,7 +34,7 @@ for (const width of [360,390,430]) test(`table entry and return preserve isolate
 for (const width of [360,390,430]) test(`table conflict does not replace the existing destination at ${width}`, async ({ page }) => {
  await page.setViewportSize({ width, height: 900 }); const tabs = await setup(page); let fail = false;
  await page.route(/\/api\/attendance\/tabs\/[0-9a-f-]+\/(\?.*)?$/, route => fail ? route.fulfill({ status: 409, json: { code: "TABLE_CONTEXT_CHANGED", message: "O vínculo da comanda com a mesa mudou. Atualize as mesas." } }) : route.fulfill({ json: tabs[0] }));
- const open = page.getByRole("button", { name: `Abrir comanda Mesmo apelido · ID ${ids[0]}`, exact: true });
+ const open = page.locator(`button[data-tab-id="${ids[0]}"]`);
  await open.click(); await page.getByRole("button", { name: /^Fritas/ }).click(); await page.getByRole("button", { name: "Voltar à mesa Pátio 24", exact: true }).click();
  fail = true; await open.click(); await expect(page.getByRole("alert").filter({ hasText: "O vínculo" })).toBeVisible();
  await expect(page.getByLabel("Buscar mesa")).toBeVisible(); await page.getByRole("button", { name: "Contas", exact: true }).click();
@@ -44,7 +44,7 @@ test("ambiguous order blocks return to the originating table", async ({ page }) 
  const tabs = await setup(page);
  await page.route(/\/api\/attendance\/tabs\/[0-9a-f-]+\/(\?.*)?$/, route => route.fulfill({ json: tabs[0] }));
  await page.route(`**/api/attendance/tabs/${ids[0]}/orders/confirm/`, route => route.abort());
- await page.getByRole("button", { name: `Abrir comanda Mesmo apelido · ID ${ids[0]}`, exact: true }).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
+ await page.locator(`button[data-tab-id="${ids[0]}"]`).click(); await page.getByRole("button", { name: /^Fritas/ }).click();
  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
  await expect(page.getByRole("button", { name: "Voltar à mesa Pátio 24", exact: true })).toBeDisabled(); await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeDisabled();
 });
@@ -54,9 +54,9 @@ test("table entry is serialized and blocks navigation while reading", async ({ p
  await page.route(/\/api\/attendance\/tabs\/[0-9a-f-]+\/(\?.*)?$/, async route => {
   reads++; await new Promise<void>(resolve => { release = resolve; }); await route.fulfill({json:tabs[0]});
  });
- await page.getByRole("button", {name:`Abrir comanda Mesmo apelido · ID ${ids[0]}`,exact:true}).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
+ await page.locator(`button[data-tab-id="${ids[0]}"]`).evaluate(button => { (button as HTMLButtonElement).click(); (button as HTMLButtonElement).click(); });
  await expect.poll(() => reads).toBe(1);
  await expect(page.getByRole("button", {name:"Contas",exact:true})).toBeDisabled(); await expect(page.getByRole("button", {name:"Sair",exact:true})).toBeDisabled();
- await expect(page.getByRole("button", {name:`Abrir comanda Mesmo apelido · ID ${ids[1]}`,exact:true})).toBeDisabled();
+ await expect(page.locator(`button[data-tab-id="${ids[1]}"]`)).toBeDisabled();
  release!(); await expect(page.getByRole("heading", {name:"Mesmo apelido",exact:true})).toBeFocused(); expect(reads).toBe(1);
 });

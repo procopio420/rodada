@@ -1,4 +1,4 @@
-import { expect, test } from "./test";
+import { expect, test } from "./fixtures";
 
 for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat real visit ${scenario}`, async ({ page, browser }) => {
   await page.goto("/staff");
@@ -6,7 +6,7 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   const api = (path: string, body?: unknown) => page.evaluate(async ({ path, body }) => {
     const response = await fetch(`/api/pos/${path}`, body === undefined ? {} : {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -36,6 +36,9 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     const before = await api(`tabs/${tab.id}/`);
     const tokenKey = `rodada.guest.session.${table.public_token}`;
     const originalToken = await guest.evaluate(k => sessionStorage.getItem(k), tokenKey);
+    expect(originalToken).toBeNull();
+    const guestCookies = await context.cookies();
+    expect(guestCookies.some(cookie => cookie.name.startsWith("rodada_guest_") && cookie.httpOnly)).toBe(true);
     await guest.getByRole("button", { name: /^Bar E2E item/ }).click();
     const repeat = guest.getByRole("button", { name: "Repetir rodada 1", exact: true });
     await repeat.click();
@@ -43,8 +46,19 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
     await expect(dialog).toBeVisible();
     if (scenario === "blocked") {
       await api(`hospitality/tables/${table.id}/guest-ordering/`, { blocked: true });
-      await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).click();
-      await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+      // The already-open review may still show the previous guest policy.
+      // Either realtime disables Add, or an attempted Add re-reads the policy
+      // and refuses the repeat. Never assume a stale dialog is disabled.
+      const addButton = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+      if (await addButton.isEnabled()) {
+        await addButton.click({ timeout: 5000 }).catch(async error => {
+          // Realtime can disable the button between isEnabled and click.
+          if (await addButton.isEnabled()) throw error;
+        });
+      }
+      await expect(addButton).toBeDisabled();
+      // This branch must not add a second Order or alter the confirmed round.
+      expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);
       await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
       await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
       expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);

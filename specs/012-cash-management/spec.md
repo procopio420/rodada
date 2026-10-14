@@ -436,3 +436,15 @@ A mesma chave de Refund CASH deve apontar ao caixa do CashMovement original.
 Caixa ausente/divergente ou histórico sem movimento retorna IDEMPOTENCY_CONFLICT.
 Replay não registra novo débito, auditoria ou snapshot, mesmo após fechar turno.
 Nova devolução exige turno apto conforme contrato existente.
+
+T11c/026 Android: conferência da pendência consulta turno original pelo ID, mesmo encerrado, sem substituir a seleção de caixa atual. Tela de consulta mostra comando guardado e movimentos canônicos, sem oferecer suprimento, sangria, contagem, fechamento ou replay; valores semelhantes não comprovam identidade ou resultado. Registro permanece preservado para reconciliação autorizada. Sem mudança nas regras de caixa ou contrato financeiro da API.
+
+T12a/026: cada proposta possui rascunho de motivo por ID; decisão captura motivo,
+versão e alvo antes do PIN, mantém campos bloqueados durante autorização e limpa
+somente o rascunho decidido. Cancelamento preserva motivos; autoaprovação proibida.
+Estados humanos são apresentação, sem mudar os enums ou os fatos financeiros.
+
+T12b.1/026: atalhos de alerta/bloqueio abrem turno exato pelo endpoint autenticado,
+mesmo encerrado ou fora da primeira página. IDs/caixa autorizados são conferidos;
+falha não seleciona alternativa. Navegação não registra movimentos, não aprova
+revisão e não altera divergência. Foco no resumo e retorno ao alerta/fechamento.

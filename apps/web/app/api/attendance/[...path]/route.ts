@@ -3,7 +3,7 @@ import { forwardAuthenticated } from "@/lib/server/auth-gateway";
 
 // This companion deliberately has no payment or refund command path.
 const reads = /^(tabs|tabs\/[^/]+|catalog\/products|dispatch\/(delivery|requests)|hospitality\/tables|hospitality\/zones|hospitality\/occupancies\/[^/]+\/party-size)$/;
-const commands = /^(order-items\/[^/]+\/corrections\/cancel|tabs|tabs\/[^/]+\/(orders\/confirm|close)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|party-size))$/;
+const commands = /^(order-items\/[^/]+\/corrections\/cancel|tabs|tabs\/[^/]+\/(orders\/confirm|close|operations)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|service\/start|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|tabs\/open|responsibility\/claim|party-size))$/;
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   if (path.some(segment => !/^[a-zA-Z0-9_-]+$/.test(segment))) return Response.json({ code: "INVALID_PATH", message: "Rota inválida." }, { status: 400 });
@@ -22,6 +22,12 @@ async function forward(request: NextRequest, context: { params: Promise<{ path: 
       || typeof body.idempotency_key !== "string" || !body.idempotency_key || body.idempotency_key.length > 120
       || (body.reason !== undefined && (typeof body.reason !== "string" || body.reason.length > 240)))) {
       return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Informe apenas o movimento de comanda para uma mesa ocupada." }, { status: 403 });
+    }
+  }
+  if (request.method === "POST" && /^tabs\/[^/]+\/operations$/.test(route)) {
+    const allowed = new Set(["kind", "expected_version", "occupancy_id", "idempotency_key", "reason"]);
+    if (body?.kind !== "MOVE_LOCATION" || Object.keys(body).some(key => !allowed.has(key))) {
+      return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Somente mover a localização da comanda está disponível." }, { status: 403 });
     }
   }
   return forwardAuthenticated(request, "/" + route + "/" + request.nextUrl.search, { method: request.method as "GET" | "POST", body });

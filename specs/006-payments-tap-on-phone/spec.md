@@ -711,3 +711,23 @@ Conversão exata, sem float/arredondamento. Não filtrar silenciosamente texto i
 para produzir pagamento válido. Valor inválido mantém confirmação desabilitada e
 feedback explícito. Preserve review, caixa, PIN, chaves/replay e regras da API.
 Seleção automática do valor e homologação do IME físico ficam fora deste recorte.
+
+T11d/026 — contexto de correção e estorno Android: consultas GET mínimas resolvem
+item/pagamento/correção pelo ID no Venue autenticado, com order.correct ou
+refund.create. Settlement exige payment da mesma Tab/Venue da correction.
+Android verifica IDs, snapshot da Tab, sessão e envelope antes de apresentar
+conferência separada, inclusive item cancelado/correção aplicada/Tab encerrada.
+Consulta não exige reauth nem altera regras financeiras; mutations mantêm reauth,
+idempotência, transações e auditoria existentes. Não reenvia, remove registro ou
+infere desfecho pelo estado/valor atual. Contrato e evidências: Spec026 T11d.
+
+T12a/026: métodos e estados de Payment/Refund têm rótulos humanos na página de
+estornos; enums continuam sendo usados nas comparações e no payload original.
+Estado desconhecido não é apresentado como confirmado; histórico conserva motivo
+original e valores. Elegibilidade, reauth e ledger não são modificados por esta slice.
+
+T12b.2/026: conferência Web do pagamento usa resolver por ID autorizado e detalhe
+canônico da Tab, inclusive encerrada/fora da página. Sem mutations de recebimento,
+estorno ou conciliação. Sessão/Venue/operador e IDs são verificados; erro limpa dados.
+Saldo reembolsável só aparece numericamente para estados monetários confirmados;
+pendente permanece não confirmado. Histórico conserva valores/motivo/status originais.
