@@ -11,7 +11,7 @@ O teste de chamadas guest preserva em memória o token anterior antes de liberar
 - [x] Mesa possui QR com token opaco não sequencial.
 - [x] QR permanece o mesmo quando a mesa muda de lugar.
 - [x] Scan do QR resolve a Table sem expor PK interno.
-- [ ] Table pode existir AVAILABLE sem placement ativo.
+- [x] Table pode existir AVAILABLE sem placement ativo.
 - [x] Staff autorizado pode associar/remover o contexto textual de Zone sem alterar ocupação, Tabs, pedidos, ledger ou QR.
 - [x] Guest abre PWA sem instalar app ou criar conta.
 - [ ] Ao escanear Table sem placement, guest pode selecionar posição aproximada num floorplan 2D sanitizado.

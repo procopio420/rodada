@@ -5,7 +5,7 @@ origem, ocupa destino vazio ou migra GuestSession. A escolha aceita somente
 outra mesa já ocupada; contexto e versão são revalidados antes de confirmar.
 Recuperação da intenção segue o contrato de sessão da Spec 009.
 
-**Status:** MVP operational closeout in progress (2026-10-14); evidence and roadmap in `closeout.md`.
+**Status:** MVP operacional implementado e validado; integração condicionada aos gates do PR #150. Roadmap explicitamente rastreado em `closeout.md` (#144–#148).
 
 ## Objetivo
 

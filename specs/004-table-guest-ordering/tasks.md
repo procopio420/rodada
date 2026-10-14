@@ -87,12 +87,12 @@
 - [x] authorization tests
 
 - [x] Round 2: guest service/bill buttons call persisted Dispatch requests without financial mutations.
-- [ ] Round 2: retain integrated browser/visual evidence at final release SHA.
+- [x] Round 2: retain integrated browser/visual evidence at final release SHA.
 
 ## Reconciliação de 14/10/2026
 
 Ver [matriz completa e gates por SHA](closeout.md). Checkboxes de roadmap
 permanecem pendentes: FloorPlan/Placement #144; TableGroup #145;
 TabIdentifier/código/QR/NFC #146; perfil Customer #147; métricas/queries #148.
-Navegação/status foram gaps reais implementados neste fechamento; gates finais
-ainda estão em execução. Não confundir inspeção com homologação de campo.
+Navegação/status foram gaps reais implementados neste fechamento; evidências executadas e gates por SHA
+registrados em closeout.md. Não confundir inspeção com homologação de campo.

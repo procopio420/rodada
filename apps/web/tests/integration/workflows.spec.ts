@@ -223,8 +223,9 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   const detail = await api(page, `/api/pos/tabs/${tab.id}/`);
   const item = detail.orders[0].items[0];
   for (const state of ["ACCEPTED", "PREPARING", "READY"]) await api(page, `/api/pos/order-items/${item.id}/transition/`, { state });
-  await expect(guest.getByText("Pronto", { exact: true })).toBeVisible({ timeout: 10000 });
-  await guest.reload(); await expect(guest.getByText("Pronto", { exact: true })).toBeVisible();
+  expect((await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items[0].state).toBe("READY");
+  await expect(guest.getByText("Pronto / chegando", { exact: true })).toBeVisible({ timeout: 10000 });
+  await guest.reload(); await expect(guest.getByText("Pronto / chegando", { exact: true })).toBeVisible();
   const point = await api(page, "/api/pos/cash/points/create/", { label: "Historical E2E" });
   const old = await api(page, "/api/pos/cash/shifts/", { cash_point_id: point.id, opening_float_cents: 1000, idempotency_key: "history-old" });
   await api(page, `/api/pos/cash/shifts/${old.id}/count/start/`, {});
