@@ -22,18 +22,29 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Pagination test {i}') for i
  const pages = await page.evaluate(async () => Promise.all([0, 200].map(async offset => (await fetch(`/api/attendance/tabs/?offset=${offset}`)).json())));
  expect(pages[0].results).toHaveLength(200); expect(pages[0].next_offset).toBe(200); expect(pages[1].results).toHaveLength(1); expect(pages[1].next_offset).toBeNull();
  const first = pages[0].results[0], last = pages[1].results[0];
+ async function navigate(name: string, offset: number) {
+  // The canonical 200-row read took up to 12.9s under concurrent API CI load.
+  const read = page.waitForResponse(response => {
+   const url = new URL(response.url());
+   return url.pathname.replace(/\/$/, "") === "/api/attendance/tabs"
+    && Number(url.searchParams.get("offset") ?? "0") === offset
+    && !url.searchParams.has("active") && response.status() === 200;
+  }, { timeout: 30000 });
+  await page.getByRole("button", { name, exact: true }).click();
+  await read;
+ }
  for (const width of [360, 390, 430]) {
   await page.setViewportSize({ width, height: 900 });
   await page.getByRole("button", { name: new RegExp(`^${first.display_label} · Comanda [A-F0-9]+ ·`) }).click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   for (let index = 1; index < 21; index++) {
-   await page.getByRole("button", { name: "Próxima página", exact: true }).click();
+   await navigate("Próxima página", index * 10);
    await expect(page.getByRole("navigation", { name: "Páginas de comandas" }).getByRole("status")).toHaveText(`Página ${index + 1}`);
   }
   await expect(page.getByRole("button", { name: new RegExp(`^${last.display_label} ·`) })).toBeVisible();
   await expect(page.getByText(`${[360,390,430].indexOf(width)+1}× Kitchen E2E item`, { exact: true })).toBeVisible();
   for (let index = 20; index > 0; index--) {
-   await page.getByRole("button", { name: "Página anterior", exact: true }).click();
+   await navigate("Página anterior", (index - 1) * 10);
    await expect(page.getByRole("navigation", { name: "Páginas de comandas" }).getByRole("status")).toHaveText(`Página ${index}`);
   }
  }

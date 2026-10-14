@@ -52,6 +52,8 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
   await page.getByRole("dialog", { name: "Mover comanda?", exact: true }).getByRole("button", { name: "Confirmar mudança de mesa", exact: true }).click();
   await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Mover comanda?", exact: true })).not.toBeVisible();
+  await page.getByRole("button", { name: "Organizar mesa Attendance test", exact: true }).click();
   await page.getByRole("dialog", { name: "Organizar mesa Attendance test", exact: true }).getByRole("button", { name: "Voltar" }).click();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();

@@ -171,3 +171,11 @@ local authorization. Added real PostgreSQL cleanup/reconnect negative coverage.
 The restored observation editor locks the enclosing dialog and its other mutations
 while a save is in flight or its result is uncertain, preserving the same retry
 intent until canonical confirmation.
+
+Final-head Web run a2d5aed passed 93/99, including all four pairing workflows.
+Trace corrections: bound draft buttons include the table prefix; moving closes
+Organizar, which must be reopened before testing dismissal. Fault interception
+must preserve headers and avoid Next trailing-slash redirects, as existing fault
+fixtures already do. Pagination now waits for the actual canonical response
+(up to 30s: measured 12.9s under CI load), retaining individual 5s UI assertions
+and all navigation/draft/financial checks. No finance code or skips changed.

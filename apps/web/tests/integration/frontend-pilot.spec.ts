@@ -63,7 +63,7 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   const partySizePath = `**/api/attendance/hospitality/occupancies/${created.occupancyId}/party-size/`;
   await page.route(partySizePath, async route => {
     if (route.request().method() !== "POST") return route.continue();
-    const committed = await route.fetch();
+    const committed = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
     expect(committed.ok()).toBe(true);
     await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ message: "Synthetic lost confirmation" }) });
   }, { times: 1 });
@@ -74,7 +74,11 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   await expect(table.getByLabel("Associar comanda à mesa Pilot frontend table")).toBeDisabled();
   await page.keyboard.press("Escape");
   await expect(table).toBeVisible();
+  const retry = page.waitForResponse(response => response.request().method() === "POST"
+    && response.url().replace(/\/$/, "").endsWith(`/occupancies/${created.occupancyId}/party-size`)
+    && response.status() === 200);
   await table.getByRole("button", { name: "Verificar mesma quantidade" }).click();
+  await retry;
   await expect(table.getByText("4 pessoa(s) · Informado pela equipe")).toBeVisible();
   await expect(table.getByRole("button", { name: "Voltar", exact: true })).toBeEnabled();
   const observation = await page.evaluate(async id => (await (await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`)).json()).current, created.occupancyId);

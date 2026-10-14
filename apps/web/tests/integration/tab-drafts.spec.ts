@@ -25,8 +25,8 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   }
   const list = (await api(page, "tabs/")).results;
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
-  const a = page.getByRole("button", { name: new RegExp(`^Draft A ${width} ·`) });
-  const b = page.getByRole("button", { name: new RegExp(`^Draft B ${width} ·`) });
+  const a = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft A ${width} ·`) });
+  const b = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft B ${width} ·`) });
   await expect(a).toBeVisible(); await a.click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
