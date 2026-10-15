@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 
@@ -51,6 +52,17 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
     await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
     expect(attempts).toHaveLength(2);
     expect(attempts[1]).toBe(attempts[0]);
+    await guest.unroute("**/api/guest/orders/confirm/");
+    const changedPayload = JSON.parse(attempts[0]);
+    changedPayload.lines[0].quantity += 1;
+    const conflict = await guest.evaluate(async ({ payload, selector }) => {
+      const r = await fetch("/api/guest/orders/confirm/", { method: "POST", headers: {
+        "Content-Type": "application/json", "X-Guest-Session": selector,
+      }, body: JSON.stringify(payload) });
+      return { status: r.status, body: await r.json() };
+    }, { payload: changedPayload, selector: table.public_token });
+    expect(conflict.status).toBe(409);
+    expect(conflict.body.code).toBe("IDEMPOTENCY_CONFLICT");
     await page.goto("/attendance");
     await page.getByRole("button", { name: new RegExp(`^Mesa ${label}`) }).click();
     await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
@@ -94,7 +106,8 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
       sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
       table_id: table.id, occupancy_id: snapshot.active_occupancy.id, tab_ids: details.map(d => d.id),
       order_ids: details.map(d => d.orders[0].id), guest_replays: attempts.length,
-      kitchen_reconnected: true, status: "PASS",
+      kitchen_reconnected: true, changed_payload_status: conflict.status,
+      original_key_sha256: createHash("sha256").update(JSON.parse(attempts[0]).idempotency_key).digest("hex"), status: "PASS",
     }, null, 2));
   } finally { await guestContext.close(); await kitchenContext.close(); }
 });

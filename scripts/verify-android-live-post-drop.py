@@ -58,6 +58,40 @@ def prepare(path):
     print("PASS: disposable PostgreSQL venue, staff and product created", flush=True)
 
 
+def extend_resilience(path):
+    """Extend this exact disposable fixture; never seed a second backend."""
+    from cross_surface_fixture import VENUE_SLUG
+    from modules.hospitality.models import Table, TableOccupancy
+    from modules.house_account.services import snapshot
+    from modules.ordering.models import Tab
+    data = json.loads(path.read_text())
+    assert data["database_instance_id"] == database_instance_identity(connection)
+    assert data["database"] == connection.settings_dict["NAME"]
+    venue = Venue.objects.get(pk=data["venue_id"], slug=VENUE_SLUG)
+    if "race_tables" in data:
+        raise SystemExit("Refusing to overwrite an existing resilience fixture")
+    other = StaffMember(display_name="Concurrent Fixture Staff", login_identifier="android-post-drop-other")
+    other.set_pin("2468")
+    other.save()
+    VenueStaffMembership.objects.create(venue=venue, staff_member=other, role="STAFF")
+    tables = {kind: Table.objects.create(venue=venue, label=f"Race {kind}", guest_ordering_mode="DIRECT") for kind in ("start", "claim", "release")}
+    tables["claim"].status = "OCCUPIED"
+    tables["claim"].save()
+    claim_visit = TableOccupancy.objects.create(table=tables["claim"], generation=1)
+    foreign = Venue.objects.create(name="Isolated foreign control", slug="android-post-drop-foreign-ci", table_service_enabled=True)
+    foreign_staff = StaffMember(display_name="Foreign Fixture Staff", login_identifier="android-post-drop-foreign-operator")
+    foreign_staff.set_pin("2468")
+    foreign_staff.save()
+    VenueStaffMembership.objects.create(venue=foreign, staff_member=foreign_staff, role="MANAGER")
+    foreign_product = Product.objects.create(venue=foreign, name="Foreign control item", price_cents=300, fulfillment_station="BAR")
+    foreign_tab = Tab.objects.create(venue=foreign, display_label="Foreign control Tab", **snapshot(foreign.pk))
+    data.update(other_staff_id=str(other.pk), race_tables={k:str(t.pk) for k,t in tables.items()},
+                claim_occupancy_id=str(claim_visit.pk), foreign_venue_id=str(foreign.pk),
+                foreign_tab_id=str(foreign_tab.pk), foreign_product_id=str(foreign_product.pk))
+    path.write_text(json.dumps(data, indent=2) + "\n")
+    print("PASS: extended only the same guarded cluster/Venue with concurrency and foreign control fixtures")
+
+
 def verify(stage, marker, fixture, receipt):
     evidence = json.loads(marker.read_text())
     events = evidence["events"]
@@ -129,13 +163,15 @@ def verify(stage, marker, fixture, receipt):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("prepare", "before", "after"))
+    parser.add_argument("action", choices=("prepare", "prepare-resilience", "before", "after"))
     parser.add_argument("--fixture", type=Path, default=Path("/tmp/rodada-android-live-fixture.json"))
     parser.add_argument("--marker", type=Path, default=Path("/tmp/rodada-android-live-drop.json"))
     parser.add_argument("--receipt", type=Path, default=Path("artifacts/android-real-post-drop.json"))
     args = parser.parse_args()
     if args.action == "prepare":
         prepare(args.fixture)
+    elif args.action == "prepare-resilience":
+        extend_resilience(args.fixture)
     else:
         verify(args.action, args.marker, args.fixture, args.receipt)
 

@@ -25,10 +25,11 @@ command -v adb >/dev/null
 mkdir -p artifacts
 run_id="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 run_dir="$ROOT/artifacts/runs/$run_id"
-mkdir -p "$run_dir/preexisting"
+history_dir="$ROOT/artifacts/history/preexisting-$run_id"
+mkdir -p "$run_dir" "$history_dir"
 # Preserve earlier evidence before producers use their compatible fixed paths.
 # Moving it aside creates a fresh capture boundary without deleting any history.
-"$PYTHON" - "$run_dir/preexisting" <<'PYARCHIVE'
+"$PYTHON" - "$history_dir" <<'PYARCHIVE'
 from pathlib import Path
 import shutil,sys
 out=Path(sys.argv[1])
@@ -71,6 +72,7 @@ trap cleanup EXIT
 step=migrations
 "$PYTHON" apps/api/manage.py migrate --noinput > "$run_dir/migrations.txt" 2>&1
 "$PYTHON" scripts/verify-android-live-post-drop.py prepare --fixture "$RODADA_POST_DROP_FIXTURE"
+"$PYTHON" scripts/verify-android-live-post-drop.py prepare-resilience --fixture "$RODADA_POST_DROP_FIXTURE"
 "$PYTHON" -m uvicorn rodada_api.asgi:application --host 127.0.0.1 --port 8101 > "$run_dir/django.txt" 2>&1 &
 api_pid=$!
 "$PYTHON" scripts/android-post-drop-proxy.py --evidence "$RODADA_POST_DROP_MARKER" > "$run_dir/proxy.txt" 2>&1 &
@@ -80,6 +82,8 @@ for i in $(seq 1 60); do
   if [[ "$i" == 60 ]]; then exit 1; fi
   sleep 1
 done
+step=shared-concurrency
+"$PYTHON" scripts/run-issue106-concurrency.py
 step=native-recovery
 unset RODADA_SKIP_ANDROID_BUILD
 bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrumentation.txt
@@ -102,6 +106,7 @@ step=independent-sql
 "$PYTHON" scripts/verify-android-web-cross-surface.py
 "$PYTHON" scripts/verify-qr-lifecycle.py
 "$PYTHON" scripts/verify-browser-origins.py
+"$PYTHON" scripts/verify-issue106-concurrency.py
 step=financial-browser
 (cd apps/web && RODADA_CROSS_PHASE=financial npx playwright test --config playwright.android-cross-surface.config.ts)
 step=financial-sql

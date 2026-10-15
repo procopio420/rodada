@@ -33,6 +33,7 @@ for tab_id in r["tab_ids"]:
         cursor.execute("SELECT sum(amount_cents) FROM ledger_charge WHERE tab_id = %s", [tab_id])
         assert cursor.fetchone() == (1700,)
     assert not Payment.objects.filter(tab_id=tab_id).exists()
+assert r["changed_payload_status"] == 409
 assert r["guest_replays"] == 2 and r["kitchen_reconnected"] is True
 r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], status="PASS", orders=2, items=4, charges=4, payments=0)
 Path("artifacts/browser-origins-sql.json").write_text(json.dumps(r, indent=2) + "\n")
