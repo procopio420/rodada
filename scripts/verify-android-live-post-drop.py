@@ -3,11 +3,24 @@
 import argparse
 import json
 import os
+import subprocess
 from pathlib import Path
 
+from cross_surface_fixture import (
+    require_connected_database,
+    require_disposable_database,
+    require_fixture_order,
+    database_instance_identity,
+)
+
+require_disposable_database()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodada_api.settings")
 import django
+
 django.setup()
+from django.db import connection
+
+require_connected_database(connection)
 
 from modules.access.models import StaffMember, VenueStaffMembership
 from modules.catalog.models import Product
@@ -31,10 +44,16 @@ def prepare(path):
         venue=venue, name="Android Post Drop Test Soda",
         price_cents=700, fulfillment_station="BAR", active=True
     )
+    from modules.cash.models import CashPoint
+    cash_point = CashPoint.objects.create(venue=venue, label="Issue106 disposable drawer")
+    kitchen_product = Product.objects.create(venue=venue, name="Android Compose Test Meal", price_cents=1000, fulfillment_station="KITCHEN", active=True)
     from modules.hospitality.models import Table
     table = Table.objects.create(venue=venue, label="Fault 027", guest_ordering_mode="DIRECT")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"table_id": str(table.pk), "product_id": str(product.pk),
+    path.write_text(json.dumps({"venue_id": str(venue.pk), "database": connection.settings_dict["NAME"],
+                                "database_instance_id": database_instance_identity(connection),
+                                "table_id": str(table.pk), "product_id": str(product.pk),
+                                "kitchen_product_id": str(kitchen_product.pk), "cash_point_id": str(cash_point.pk),
                                 "venue_slug": venue.slug, "price_cents": 700}))
     print("PASS: disposable PostgreSQL venue, staff and product created", flush=True)
 
@@ -51,6 +70,10 @@ def verify(stage, marker, fixture, receipt):
     assert len({event["tab_id"] for event in events}) == 1
     first = events[0]
     order = Order.objects.get(pk=first["order_id"])
+    fixture_data = json.loads(fixture.read_text())
+    assert fixture_data["database"] == connection.settings_dict["NAME"], "fixture from another database"
+    assert fixture_data["database_instance_id"] == database_instance_identity(connection)
+    require_fixture_order(order, fixture_data)
     assert str(order.tab_id) == first["tab_id"]
     assert order.idempotency_key == first["idempotency_key"]
     assert Order.objects.filter(tab_id=order.tab_id).count() == 1, "DUPLICATED ORDER"
@@ -74,6 +97,11 @@ def verify(stage, marker, fixture, receipt):
         for field in ("order_id", "tab_id", "idempotency_key", "body_sha256"):
             assert replay[field] == first[field], f"Recovered POST changed {field}"
     summary = {
+        "sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+        "database": connection.settings_dict["NAME"],
+        "database_instance_id": fixture_data["database_instance_id"],
+        "venue_id": str(order.tab.venue_id),
+        "venue_slug": order.tab.venue.slug,
         "scenario": (
             "real_android_post_server_commit_held_response_uplink_cut"
             if evidence.get("hold_response")

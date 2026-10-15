@@ -9,7 +9,7 @@ a full release/homologation suite on every commit.
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
 | Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL; no installer/release |
 | Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
-| Android real POST disconnect | No | Yes | Two emulator + backend network-failure tests |
+| Android real POST disconnect | PRs changing its workflow, cross-surface config/tests/verifiers or shared fixture guard | Yes | Native emulator transport/recovery → Web Bar on the same PostgreSQL; separate manual uplink cut |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
 | Railway Aderlan demo Docker smoke | PR changing Railway deployment or staging smoke script | Yes | Build full Railway container and smoke runtime |
 | Integrated release demo | No | Yes | Restart/concurrency and full shift gate |
@@ -37,3 +37,48 @@ See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory stat
 
 This change modifies workflow scheduling and removes the duplicated API job,
 but **does not delete the underlying tests**.
+
+## Issue #106 shared-fixture safety
+
+`scripts/cross_surface_fixture.py` is the shared destination/Venue boundary for
+the native fixture preparer and Android→Web reconciler. It requires an exact
+allowlisted local PostgreSQL database, validates Django's effective connection
+and independently reads `current_database()` / `inet_server_addr()` before ORM
+access. libpq destination overrides are rejected. The fixture and native receipt
+carry database/Venue IDs; verification rejects a foreign Venue or generation.
+
+Fast safety regressions: `python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v`.
+These tests do not prove Android, browser or PostgreSQL execution. The existing
+native workflow executes the real connected guard and shared fixture. Its native
+transport instrumentation does not by itself prove ordering via Compose UI.
+The complete #106 release suite remains incomplete; see the
+[checkpoint](releases/issue-106-checkpoint.md). Never start the Web-only fixture
+runner to validate the native order: it seeds a different database.
+
+### #106 local continuation (2026-10-15)
+
+The cross-surface stack now starts Django with Uvicorn/ASGI: WSGI runserver
+cannot sustain the asynchronous realtime stream required by the native UI.
+After the HTTP/storage recovery checks, `android-compose-order.sh` installs a
+Debug APK targeting that same local backend on 8101 and drives production
+MainActivity login/open/catalog/confirmation via Compose instrumentation.
+The runner clears only the test app on an explicitly verified emulator, then
+runs independent PostgreSQL reconciliation. It never selects a release build.
+The browser consumes both native receipts and drives explicit Bar transitions;
+QR-first/claim/two empty Tabs/release/cleaning are separate browser actions on
+the same fixture Venue and PostgreSQL. These partial slices do not certify
+all E2E-01..14, Kitchen, financial UI or physical gates.
+
+Successful traces are retained. Only archives exported by
+`scripts/sanitize-cross-surface-traces.py` are uploaded, with credentials/PIN
+redacted; raw traces remain local. Review the sanitized archive before treating
+it as shareable evidence. Scenario completion still requires actual execution
+at the reported SHA and the fail-closed #106 evidence contract.
+
+Local execution of those shared-client slices is documented in
+`docs/releases/issue-106-local-runner.md`. Receipts also bind to a hash of the
+actual PostgreSQL cluster system_identifier and database, not just its name.
+Runner captures are isolated per invocation and preserve previous evidence.
+Repository workflows inspected on 2026-10-15 contain a Railway Docker build/smoke
+job, not an application deploy action. This does not verify Railway's external
+GitHub autodeploy setting; no merge/deploy is authorized by those checks.

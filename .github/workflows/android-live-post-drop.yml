@@ -10,6 +10,18 @@ on:
       - "apps/web/playwright.android-cross-surface.config.ts"
       - "apps/web/tests/cross-surface/**"
       - "scripts/verify-android-web-cross-surface.py"
+      - "scripts/verify-android-live-post-drop.py"
+      - "scripts/cross_surface_fixture.py"
+      - "scripts/android-compose-order.sh"
+      - "scripts/verify-android-compose-order.py"
+      - "scripts/verify-qr-lifecycle.py"
+      - "scripts/verify-browser-origins.py"
+      - "scripts/verify-financial-ui.py"
+      - "apps/web/tests/cross-surface-financial/**"
+      - "scripts/sanitize-cross-surface-traces.py"
+      - "scripts/tests/test_trace_redaction.py"
+      - "apps/attendance-android/app/src/androidTest/**/LiveComposeOrderTest.kt"
+      - "scripts/tests/test_cross_surface_fixture.py"
 
 permissions:
   contents: read
@@ -58,15 +70,22 @@ jobs:
           python-version: "3.13"
       - name: Install disposable Django backend
         run: python -m pip install -e "apps/api[dev]"
+      - name: Test trace credential redaction
+        run: python -m unittest discover -s scripts/tests -p test_trace_redaction.py -v
+      - name: Reject unsafe shared-fixture destinations before any seed
+        run: python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v
       - name: Migrate isolated PostgreSQL and create only test Venue, user and product
         run: |
+          echo "RODADA_TEST_DB_CONTAINER_ADDRESS=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' '${{ job.services.postgres.id }}')" >> "$GITHUB_ENV"
           python apps/api/manage.py migrate --noinput
+      - name: Prepare fixture against the inspected disposable PostgreSQL service
+        run: |
           python scripts/verify-android-live-post-drop.py prepare
       - name: Start real Django and TCP response-drop proxy
         shell: bash
         run: |
           set -euo pipefail
-          (cd apps/api && nohup python manage.py runserver 0.0.0.0:8101 --noreload </dev/null >/tmp/rodada-android-django.log 2>&1 &)
+          (cd apps/api && nohup python -m uvicorn rodada_api.asgi:application --host 0.0.0.0 --port 8101 </dev/null >/tmp/rodada-android-django.log 2>&1 &)
           nohup python3 scripts/android-post-drop-proxy.py \
             --evidence "$RODADA_POST_DROP_MARKER" </dev/null >/tmp/rodada-android-fault-proxy.log 2>&1 &
           for i in $(seq 1 80); do
@@ -96,6 +115,7 @@ jobs:
           script: |
             bash scripts/android-live-post-drop.sh
             bash scripts/android-table-service-post-drop.sh
+            bash scripts/android-compose-order.sh
       # The native emulator just committed and recovered the order in this
       # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
       # Web must read and mutate the native-origin Order/Tab, not a mock order.
@@ -117,6 +137,7 @@ jobs:
         env:
           RODADA_API_BASE_URL: http://127.0.0.1:8101
           RODADA_ANDROID_PROOF: ${{ github.workspace }}/artifacts/android-real-post-drop.json
+          RODADA_ANDROID_COMPOSE_PROOF: ${{ github.workspace }}/artifacts/android-compose-order.json
         run: |
           set -euo pipefail
           node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110 >/tmp/rodada-cross-surface-next.log 2>&1 &
@@ -129,7 +150,30 @@ jobs:
           done
           npx playwright test --config playwright.android-cross-surface.config.ts
       - name: Independently reconcile native order and Web READY state in PostgreSQL
-        run: python scripts/verify-android-web-cross-surface.py
+        run: |
+          python scripts/verify-android-web-cross-surface.py
+          python scripts/verify-qr-lifecycle.py
+          python scripts/verify-browser-origins.py
+      - name: Financial UI on the same native-origin Tab and disposable drawer
+        working-directory: apps/web
+        env:
+          RODADA_API_BASE_URL: http://127.0.0.1:8101
+          RODADA_ANDROID_COMPOSE_PROOF: ${{ github.workspace }}/artifacts/android-compose-order.json
+          RODADA_CROSS_PHASE: financial
+        run: |
+          node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110 >/tmp/rodada-cross-financial-next.log 2>&1 &
+          next_pid=$!
+          trap 'kill "$next_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3110/staff >/dev/null; then break; fi
+            sleep 1
+          done
+          npx playwright test --config playwright.android-cross-surface.config.ts
+      - name: Independently reconcile partial payments and drawer SQL
+        run: python scripts/verify-financial-ui.py
+      - name: Export redacted traces
+        if: always()
+        run: python scripts/sanitize-cross-surface-traces.py
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -138,8 +182,13 @@ jobs:
           path: |
             artifacts/android-real-post-drop.json
             artifacts/android-web-cross-surface.json
-            apps/web/test-results/android-cross-surface/
-            apps/web/playwright-report/android-cross-surface/
+            artifacts/android-compose-*.json
+            artifacts/android-compose-*.txt
+            artifacts/android-compose-*.png
+            artifacts/qr-lifecycle-*.json
+            artifacts/browser-origins*.json
+            artifacts/financial*.json
+            artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json
             /tmp/rodada-android-fault-proxy.log
@@ -190,13 +239,16 @@ jobs:
         run: python -m pip install -e "apps/api[dev]"
       - name: Migrate PostgreSQL and seed unique isolated venue
         run: |
+          echo "RODADA_TEST_DB_CONTAINER_ADDRESS=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' '${{ job.services.postgres.id }}')" >> "$GITHUB_ENV"
           python apps/api/manage.py migrate --noinput
+      - name: Prepare link-cut fixture against the inspected disposable PostgreSQL service
+        run: |
           python scripts/verify-android-live-post-drop.py prepare
       - name: Start Django and HOLD real committed HTTP response (no TCP RST)
         shell: bash
         run: |
           set -euo pipefail
-          (cd apps/api && nohup python manage.py runserver 0.0.0.0:8101 --noreload </dev/null >/tmp/rodada-android-django.log 2>&1 &)
+          (cd apps/api && nohup python -m uvicorn rodada_api.asgi:application --host 0.0.0.0 --port 8101 </dev/null >/tmp/rodada-android-django.log 2>&1 &)
           nohup python3 scripts/android-post-drop-proxy.py --hold-response \
             --evidence "$RODADA_POST_DROP_MARKER" </dev/null >/tmp/rodada-android-fault-proxy.log 2>&1 &
           for i in $(seq 1 80); do

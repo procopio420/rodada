@@ -282,6 +282,9 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     if (!result.ok) { setNotice(messageFor(result.body as ApiError, "Não foi possível abrir a comanda.")); return; }
     setContext((current) => current ? { ...current, tab: result.body as Tab } : current);
     setLabel("");
+    // DIRECT may have created the visit with the Tab. Reload canonical occupancy
+    // before enabling ordering; the pre-open scan had occupancy_active=false.
+    await refresh();
   }
 
   async function submitOrder() {
