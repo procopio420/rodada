@@ -72,13 +72,10 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
-  // Release intentionally closes the table dialog; reopen the released table.
-  // The current Attendance UI offers direct DIRTY → AVAILABLE cleaning completion.
-  // API coverage separately protects the optional DIRTY → CLEANING → AVAILABLE path.
+  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
-  const cleaningDialog = page.getByRole("dialog", { name: `Mesa ${table.label}` });
-  await expect(cleaningDialog.getByRole("button", { name: "Concluir limpeza", exact: true })).toBeVisible();
-  await cleaningDialog.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Iniciar limpeza", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("AVAILABLE");
   const final = await snapshot();
   expect(final.public_token).toBe(table.public_token);
@@ -107,7 +104,7 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
     table_id: table.id, occupancy_id: initial.active_occupancy.id, tab_ids: tabs.map((t: { id: string }) => t.id),
     new_occupancy_id: nextVisit.active_occupancy.id, new_tab_id: nextVisit.active_occupancy.tabs[0].id,
-    initial_generation: initial.access_generation, final_generation: final.access_generation,
+    initial_generation: initial.access_generation, final_generation: final.access_generation, cleaning_mode: "direct",
     status: "PASS", revoked_status: revoked.status,
   }, null, 2));
   await nextVisitContext.close();

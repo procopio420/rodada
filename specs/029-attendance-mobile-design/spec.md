@@ -186,3 +186,34 @@ a mesma leitura em andamento. Não acumular consultas completas de todas as Tabs
 a ponto de impedir abrir uma comanda. Após uma mutation, a confirmação de estado
 deve aguardar qualquer leitura anterior e executar uma nova leitura canônica;
 resposta iniciada antes do POST não confirma liberação nem conclusão de limpeza.
+
+
+## Cardápio por categorias e quantidade — 2026-10-15
+
+Pedido aprovado: Cardápio mostra somente busca e categorias com contagem. Tocar
+uma categoria abre popup grande com seus produtos em grade, nome completo, ícone,
+preço e quantidade no rascunho; não repetir steppers/personalização na grade.
+Tocar produto abre segundo popup com quantidade1–99 e ação Personalizar para
+variantes, complementos e observação existentes. Opções obrigatórias aparecem
+quando necessárias; defaults e validações existentes permanecem. Cancelar não
+insere. Adicionar insere a quantidade escolhida na Tab atual e volta à categoria.
+Mesma configuração agrega; diferentes configurações permanecem distintas. Não
+truncar quantidade silenciosamente ao exceder99 na linha.
+
+Busca global filtra categorias pelos produtos correspondentes; lista vazia é
+diferente de catálogo carregando/desatualizado ou sem resultados. Agrupamentos
+existentes de cada plataforma preservados, sem alterar classificação no backend.
+Ver pedido atual sempre acessível e revisão integral independente da busca.
+Nenhuma seleção confirma Order, pagamento ou cria Tab.
+
+Back/Escape/toque fora fecha só camada ativa quando seguro; retorno preserva
+categoria, busca e foco. Modais não contornam leitura/mutation/recuperação pendente.
+Mudança de Tab reinicia seleções transitórias, preservando drafts A/B/A existentes.
+Produto/opções/preço revalidados antes de inserir; removido, indisponível, catálogo
+desatualizado ou operação pendente impede adicionar.
+
+Android nativo e Web reutilizam tokens/componentes; popup com altura limitada,
+rolagem da lista ativa, grade2colunas no telefone/1com fonte ampliada, ações44px/48dp
+e IME sem esconder confirmação. POS/Caixa/Guest fora desta mudança. Sem API, banco,
+auth, ledger, providers ou alteração de idempotência/persistência. RiscoR3 no draft:
+revisão independente antes de recomendar integração; sem push/merge/deploy neste pedido.

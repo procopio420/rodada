@@ -313,3 +313,12 @@ Novas comandas staff exigem Nome ou apelido sempre visivel e nao vazio, ate120
 caracteres. Abrir bloqueado para vazio/espacos. Sem botao de mostrar/ocultar.
 Aplica-se a mesa livre, ocupada e sem mesa, sem exigir Customer/cadastro. Recibos
 antigos continuam repetiveis com corpo/chave originais, sem editar nomes legados.
+
+### Cardápio por categorias
+Na comanda, Cardápio mostra busca e categorias com contagem. A categoria abre
+uma grade em Dialog; tocar um produto abre quantidade e Personalizar. Adicionar
+insere a quantidade escolhida no rascunho e retorna à grade. Cancelar conserva
+o rascunho. Ver pedido atual abre a revisão integral; selecionar não envia pedido.
+Quantidade máxima99 por configuração, inclusive em incrementos/edições. Opções
+obrigatórias e disponibilidade continuam validadas. Fonte ampliada usa uma coluna.
+Contrato/evidências: `specs/029-attendance-mobile-design/category-evidence.md`.

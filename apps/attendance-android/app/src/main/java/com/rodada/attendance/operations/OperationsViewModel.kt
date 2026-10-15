@@ -469,18 +469,19 @@ class OperationsViewModel(
         state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null, contextRecoveryPending = false)
     }
 
-    fun addProduct(product: Product, customization: Customization = product.defaults()) {
+    fun addProduct(product: Product, customization: Customization = product.defaults(), quantity: Int = 1) {
         if (
             !product.active ||
                 product.availability != "AVAILABLE" ||
                 state.selectedTab?.summary?.state == "CLOSED" ||
                 state.orderIntentId != null
         ) return
-        if (product.customizationError(customization) != null) return
-        val existing = state.cart.firstOrNull { it.product.id == product.id && it.customization == customization }
-        val next =
-            if (existing == null) state.cart + CartLine(product, 1, customization)
-            else state.cart.map { if (it.lineId == existing.lineId) it.copy(quantity = it.quantity + 1) else it }
+        if (!state.canLeaveTabContext() || product.customizationError(customization) != null) return
+        val next = addDraftQuantity(state.cart, product, customization, quantity)
+        if (next == null) {
+            state = state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.")
+            return
+        }
         state = state.copy(cart = next, noticeMessage = null)
     }
 
@@ -495,19 +496,21 @@ class OperationsViewModel(
     }
 
     fun editCartLine(lineId: String, customization: Customization) {
-        if (state.orderIntentId != null || state.submitting) return
-        state = state.copy(cart = state.cart.map { line ->
-            if (line.lineId == lineId) line.copy(customization = customization, product = state.products.firstOrNull { it.id == line.product.id } ?: line.product) else line
-        })
+        if (!state.canLeaveTabContext()) return
+        val line = state.cart.firstOrNull { it.lineId == lineId } ?: return
+        val product = state.products.firstOrNull { it.id == line.product.id } ?: return
+        if (product.customizationError(customization) != null) return
+        val next = editDraftConfiguration(state.cart, lineId, product, customization)
+        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.") else state.copy(cart = next)
     }
 
-    fun changeCartQuantity(productId: String, delta: Int) {
-        if (state.orderIntentId != null) return
-        val next = state.cart.mapNotNull { line ->
-            if (line.lineId != productId) line
-            else line.copy(quantity = line.quantity + delta).takeIf { it.quantity > 0 }
-        }
-        state = state.copy(cart = next)
+    fun changeCartQuantity(lineId: String, delta: Int) {
+        if (!state.canLeaveTabContext()) return
+        val line = state.cart.firstOrNull { it.lineId == lineId } ?: return
+        val product = state.products.firstOrNull { it.id == line.product.id }
+        if (delta > 0 && (product == null || !product.active || product.availability != "AVAILABLE")) return
+        val next = changeDraftQuantity(state.cart, lineId, delta)
+        state = if (next == null) state.copy(noticeMessage = "Máximo de 99 unidades por configuração. Revise a quantidade.") else state.copy(cart = next)
     }
 
     /**

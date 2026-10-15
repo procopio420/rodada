@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "./fixtures";
 import { openNamedAttendanceTab } from "./attendance-helpers";
 
@@ -12,7 +13,7 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await openNamedAttendanceTab(page, label);
   await expect(page.locator(".attendanceOrderDialog")).toContainText(`Mesa Fixture ${label}`);
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
-  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+  await addCatalogItem(page, "Kitchen E2E item");
   await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   const attempts: string[] = []; let orderId = "", tabId = "";

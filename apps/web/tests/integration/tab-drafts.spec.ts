@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test, type Page } from "./fixtures";
 import { openNamedAttendanceTab, selectExistingAttendanceTab } from "./attendance-helpers";
 
@@ -20,13 +21,13 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
   const aLabel = `Draft A ${width}`, bLabel = `Draft B ${width}`, cLabel = `Draft C ${width}`;
   await openNamedAttendanceTab(page, aLabel);
   const popup = page.locator(".attendanceOrderDialog");
-  await popup.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+  await addCatalogItem(page, "Kitchen E2E item");
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
   await popup.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await expect(popup.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
 
   await openNamedAttendanceTab(page, bLabel);
-  await popup.getByRole("button", { name: /^Bar E2E item/ }).click();
+  await addCatalogItem(page, "Bar E2E item");
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
 

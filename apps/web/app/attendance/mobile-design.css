@@ -64,3 +64,19 @@
 }
 
 .attendanceShell .attendanceTableDialog > button, .attendanceTableDialog > div > button { width: 100%; margin-top: var(--space-2); }
+
+.attendanceCategoryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.attendanceCategoryGrid > button { display: flex; flex-direction: column; align-items: flex-start; min-height: var(--touch-primary); padding: var(--space-3); overflow-wrap: anywhere; }
+.attendanceCategoryGrid small { color: var(--color-text-muted); }
+.attendanceShell .attendanceCategoryDialog { max-width: 880px; height: calc(100dvh - var(--space-6)); overflow: hidden; }
+.attendanceCategoryDialog[open] { display: flex; flex-direction: column; gap: var(--space-2); }
+.attendanceCategoryDialog > .posProducts { flex: 1; min-height: 0; overflow-y: auto; align-content: start; overscroll-behavior: contain; }
+.attendanceCategoryDialog > h2, .attendanceCategoryDialog > button { flex-shrink: 0; margin: 0; }
+.attendanceCategoryDialog .posProduct { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
+.attendanceCategoryDialog .posProduct .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
+.attendanceCategoryDialog .posProduct output { font-size: var(--text-sm); color: var(--color-text-muted); }
+.attendanceItemQuantity { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-block: var(--space-3); }
+.attendanceItemQuantity output { font: 800 var(--text-xl) var(--font-mono); }
+.attendanceItemQuantity button { min-width: var(--touch-primary); min-height: var(--touch-primary); }
+.attendanceItemDialog .customizationPanel { margin: 0; padding: 0; border: 0; }
+@media (min-width: 768px) { .attendanceCategoryGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

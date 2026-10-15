@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y, stable } from "./fixtures";
+import { addCatalogItem, chooseCatalogItem, openProductCategory, expectCatalogQuantity } from "./category-actions";
 
 async function setup(page: Page, enabled = true, capabilities = ["table.manage", "tab.open"]) {
   await fixture(page, "normal", true);
@@ -24,6 +25,86 @@ async function openTable(page: Page) {
   await expect(popup).toBeVisible();
   return popup;
 }
+
+for (const width of [360, 390, 430, 1280]) test(`category and quantity popups keep selection compact at ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await setup(page); await page.goto("/attendance");
+  const popup = await openTable(page);
+  await expect(popup.getByRole("button", { name: "Escolher Fritas", exact: true })).toHaveCount(0);
+  await expect(popup.getByRole("navigation", { name: "Categorias do cardápio" })).toBeVisible();
+  await page.screenshot({ path: `visual-artifacts/029/categories/home-${width}.png` });
+  const item = await chooseCatalogItem(page, "Fritas");
+  await expect(item.getByRole("status", { name: "Quantidade escolhida", exact: true })).toHaveText("1");
+  await expect(item.getByLabel("Pedido especial (opcional)")).toHaveCount(0);
+  await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
+  await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `visual-artifacts/029/categories/quantity-${width}.png` });
+  await item.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await expect(item).not.toBeVisible();
+  const category = page.locator(".attendanceCategoryDialog");
+  await expect(category).toBeVisible();
+  await page.screenshot({ path: `visual-artifacts/029/categories/products-${width}.png` });
+  await category.getByRole("button", { name: "Ver pedido atual · 3 itens", exact: true }).click();
+  await expect(popup.getByText("3× Fritas", { exact: true })).toBeVisible();
+});
+
+test("item cancel leaves draft untouched and personalization separates configurations", async ({ page }) => {
+  await setup(page); await page.goto("/attendance"); await openTable(page);
+  let writes = 0;
+  await page.route("**/orders/confirm/**", route => { writes++; return route.abort(); });
+  let item = await chooseCatalogItem(page, "Fritas");
+  await page.keyboard.press("Escape");
+  await expect(item).not.toBeVisible();
+  await expect(page.locator(".attendanceCategoryDialog").getByRole("button", { name: "Ver pedido atual · 0 itens", exact: true })).toBeVisible();
+  await page.locator(".attendanceCategoryDialog").getByRole("button", { name: "Escolher Fritas", exact: true }).click();
+  item = page.locator(".attendanceItemDialog");
+  await item.getByRole("button", { name: "Personalizar", exact: true }).click();
+  await item.getByLabel("Pedido especial (opcional)").fill("Separado");
+  await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
+  await item.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await page.locator(".attendanceCategoryDialog").locator(":scope > button").last().click();
+  await addCatalogItem(page, "Fritas");
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
+  await expect(page.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(2);
+  await expect(page.getByRole("region", { name: "Pedido atual" }).getByText("2× Fritas", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Pedido atual" }).getByText("Separado", { exact: false })).toBeVisible();
+  expect(writes).toBe(0);
+});
+
+test("quantity and configuration edits cannot exceed 99 units", async ({ page }) => {
+  await setup(page); await page.goto("/attendance"); await openTable(page);
+  await addCatalogItem(page, "Fritas", 60);
+  const item = await chooseCatalogItem(page, "Fritas");
+  await item.getByRole("button", { name: "Personalizar", exact: true }).click();
+  await item.getByLabel("Pedido especial (opcional)").fill("Separado");
+  for (let count = 1; count < 40; count++) await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
+  await item.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await page.locator(".attendanceCategoryDialog").getByRole("button", { name: "Ver pedido atual · 100 itens", exact: true }).click();
+  const draft = page.getByRole("region", { name: "Pedido atual" });
+  await draft.locator("article").last().getByRole("button", { name: "Editar", exact: true }).click();
+  const edit = page.getByRole("dialog", { name: "Personalizar Fritas", exact: true });
+  await edit.getByLabel("Pedido especial (opcional)").fill("");
+  await expect(edit.getByRole("button", { name: /^Adicionar ·/ })).toBeDisabled();
+  await expect(edit.getByText(/Máximo de 99 unidades/)).toBeVisible();
+  await edit.locator(":scope > button").last().click();
+  await expect(draft.locator("article")).toHaveCount(2);
+  await expect(draft.getByText("60× Fritas", { exact: true })).toBeVisible();
+  await expect(draft.getByText("40× Fritas", { exact: true })).toBeVisible();
+});
+
+test("quantity popup remains usable with doubled text", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await setup(page); await page.goto("/attendance"); await openTable(page);
+  const item = await chooseCatalogItem(page, "Fritas");
+  await item.getByRole("button", { name: "Personalizar", exact: true }).click();
+  await item.getByLabel("Pedido especial (opcional)").fill("Separado");
+  await item.evaluate(element => { for (const node of element.querySelectorAll<HTMLElement>("*")) node.style.fontSize = `${parseFloat(getComputedStyle(node).fontSize) * 2}px`; });
+  await item.getByRole("button", { name: /^Adicionar ·/ }).scrollIntoViewIfNeeded();
+  await expect(item.getByRole("button", { name: /^Adicionar ·/ })).toBeVisible();
+  await layoutAndA11y(page);
+  await page.screenshot({ path: "visual-artifacts/029/categories/quantity-360-font200.png" });
+});
 
 test("overlapping list refreshes share one read and leave tab selection responsive", async ({ page }) => {
   await setup(page);
@@ -51,6 +132,9 @@ test("overlapping list refreshes share one read and leave tab selection responsi
 
 test("release waits for a fresh canonical read after an older list refresh", async ({ page }) => {
   const { tables } = await setup(page);
+  // Pause before mount so only the explicit interval below can initiate polling.
+  // Real elapsed time and SSE reconnect timers must not add a third unrelated read.
+  await page.clock.pauseAt(new Date("2026-10-08T21:01:00Z"));
   await page.goto("/attendance");
   await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click();
   await page.getByRole("button", { name: "Liberar mesa 02", exact: true }).click();
@@ -92,9 +176,9 @@ for (const width of [360, 390, 430, 1280]) test(`unified tables and popup journe
   await expect(popup).toContainText("Mesa 02");
   await expect(popup.getByRole("heading", { name: "Comandas abertas" })).toHaveCount(0);
   await expect(popup.getByRole("button", { name: "Abrir comanda", exact: true })).toHaveCount(0);
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
-  await expect(popup.getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("2");
+  await addCatalogItem(page, "Fritas");
+  await addCatalogItem(page, "Fritas");
+  await expectCatalogQuantity(page, "Fritas", 2);
   await expect(popup.getByRole("navigation", { name: "Nesta comanda" })).toContainText("2 itens");
   await layoutAndA11y(page);
   await expect(popup.locator(":scope > button")).toBeInViewport({ ratio: 1 });
@@ -113,16 +197,16 @@ for (const width of [360, 390, 430, 1280]) test(`unified tables and popup journe
 });
 
 test("A to B to A preserves drafts and returns focus to the selected table", async ({ page }) => {
-  await setup(page); await page.goto("/attendance"); const popup = await openTable(page);
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
+  await setup(page); await page.goto("/attendance"); await openTable(page);
+  await addCatalogItem(page, "Fritas");
   await page.keyboard.press("Escape");
   await expect(page.locator('button[data-tab-id="tab-test"]')).toBeFocused();
   await page.locator('button[data-tab-id="tab-other"]').click();
-  await expect(popup.getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("0");
-  await popup.getByRole("button", { name: "Adicionar Omelete", exact: true }).click();
+  await expectCatalogQuantity(page, "Fritas", 0);
+  await addCatalogItem(page, "Omelete");
   await page.keyboard.press("Escape"); await page.locator('button[data-tab-id="tab-test"]').click();
-  await expect(popup.getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("1");
-  await expect(popup.getByRole("status", { name: "Quantidade selecionada de Omelete", exact: true })).toHaveText("0");
+  await expectCatalogQuantity(page, "Fritas", 1);
+  await expectCatalogQuantity(page, "Omelete", 0);
 });
 
 test("table options open in a modal and Escape restores focus without expanding the grid", async ({ page }) => {
@@ -192,7 +276,7 @@ for (const target of ["available", "occupied", "lost"]) test(`open a tab from it
   });
   await page.route("**/api/attendance/tabs/tab-new/", route => route.fulfill({ json: { id: "tab-new", display_label: "Comanda de teste", table_label: target === "occupied" ? "02" : "01", state: "OPEN", exposure_cents: 0, payable_cents: 0, orders: [] } }));
   await page.goto("/attendance");
-  if (target === "available") { const previous = await openTable(page); await previous.getByRole("button", { name: "Adicionar Fritas", exact: true }).click(); await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); }
+  if (target === "available") { const previous = await openTable(page); await addCatalogItem(page, "Fritas"); await page.keyboard.press("Escape"); await expect(previous).not.toBeVisible(); await page.keyboard.press("Escape"); await expect(page.locator(".attendanceTableDialog")).not.toBeVisible(); }
   await page.getByRole("button", { name: new RegExp(`Mesa ${tables.find(table => table.id === tableId)!.label} `) }).click();
   await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
   const form = page.getByRole("dialog", { name: /Nova comanda/ });
@@ -208,9 +292,9 @@ for (const target of ["available", "occupied", "lost"]) test(`open a tab from it
   }
   expect(attempts[0]).toMatchObject({ display_label: "Comanda de teste", ...(target === "occupied" ? { expected_generation: 7 } : {}) });
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
-  await expect(page.locator(".attendanceOrderDialog").getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeVisible();
+  await expect(page.locator(".attendanceOrderDialog").getByRole("navigation", { name: "Categorias do cardápio" })).toBeVisible();
   await layoutAndA11y(page);
-  if (target === "available") { await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click(); await page.locator('button[data-tab-id="tab-test"]').click(); await expect(page.locator(".attendanceOrderDialog").getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("1"); }
+  if (target === "available") { await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click(); await page.locator('button[data-tab-id="tab-test"]').click(); await expectCatalogQuantity(page, "Fritas", 1); }
 });
 
 test("uncertain order locks popup and reload retries the identical original intent", async ({ page }) => {
@@ -222,7 +306,7 @@ test("uncertain order locks popup and reload retries the identical original inte
     return route.fulfill({ json: { id: "confirmed", tab_id: "tab-test" } });
   });
   await page.goto("/attendance"); const popup = await openTable(page);
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
+  await addCatalogItem(page, "Fritas");
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
   await popup.getByRole("button", { name: /Confirmar pedido/ }).click();
   await expect(popup.getByRole("button", { name: "Verificar mesmo pedido", exact: true })).toBeEnabled();
@@ -238,7 +322,7 @@ test("uncertain order locks popup and reload retries the identical original inte
 
 test("nested customization and discard dialogs retain the parent and draft", async ({ page }) => {
   await setup(page); await page.goto("/attendance"); const popup = await openTable(page);
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
+  await addCatalogItem(page, "Fritas");
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
   await popup.getByRole("button", { name: "Editar", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Personalizar Fritas", exact: true })).toBeVisible();
@@ -259,11 +343,12 @@ test("missing capability keeps tab creation out of the table", async ({ page }) 
 
 test("unavailable draft item can decrease but cannot increase or be sent", async ({ page }) => {
   await setup(page); await page.goto("/attendance"); const popup = await openTable(page);
-  await popup.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
+  await addCatalogItem(page, "Fritas");
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [{ id: "fries", name: "Fritas", active: true, availability: "UNAVAILABLE", price_cents: 7200 }] } }));
   await page.clock.runFor(15000);
-  await expect(popup.getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeDisabled();
-  await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
+  const category = await openProductCategory(page, "Fritas");
+  await expect(category.getByRole("button", { name: "Escolher Fritas", exact: true })).toBeDisabled();
+  await category.locator(":scope > button").last().click();
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
   // Editing/removing an existing draft remains possible after inventory changes.
   await popup.getByRole("button", { name: "Editar", exact: true }).click();
@@ -279,8 +364,7 @@ for (const failure of ["unavailable", "stale"] as const) {
     await setup(page);
     await page.goto("/attendance");
     const popup = await openTable(page);
-    await popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" }).click();
-    const customize = page.getByRole("dialog", { name: "Personalizar Fritas", exact: true });
+    const customize = await chooseCatalogItem(page, "Fritas");
     const add = customize.getByRole("button", { name: /Adicionar ·/ });
     await expect(add).toBeEnabled();
     await page.route("**/api/attendance/catalog/products/", route =>
@@ -292,7 +376,9 @@ for (const failure of ["unavailable", "stale"] as const) {
     await expect(add).toBeDisabled();
     await expect(customize.getByText("Produto indisponível ou catálogo desatualizado.")).toBeVisible();
     await customize.getByRole("region", { name: "Configurar Fritas" }).getByRole("button", { name: "Voltar", exact: true }).click();
-    await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
+    const category = page.locator(".attendanceCategoryDialog");
+    await expect(category.getByRole("button", { name: "Escolher Fritas", exact: true })).toBeDisabled();
+    await category.locator(":scope > button").last().click();
     await popup.getByRole("button", { name: /Pedido atual/ }).click();
     await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
   });
@@ -314,7 +400,7 @@ test("legacy venue can still create a standalone tab in the unified area", async
   await expect(popup.getByRole("button", { name: "Abrir comanda", exact: true })).toBeDisabled();
   await popup.getByLabel("Nome ou apelido", { exact: true }).fill("Comanda de teste");
   await popup.getByRole("button", { name: "Abrir comanda", exact: true }).click();
-  await expect(popup.getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeVisible();
+  await expect(popup.getByRole("navigation", { name: "Categorias do cardápio" })).toBeVisible();
   expect(writes).toBe(1);
 });
 

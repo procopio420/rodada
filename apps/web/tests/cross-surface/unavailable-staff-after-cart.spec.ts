@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
@@ -34,7 +35,7 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     await page.getByRole("dialog").getByRole("textbox").fill("E2E05 staff");
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.locator(".attendanceOrderDialog");
-    await dialog.getByRole("button", { name: new RegExp("^" + product.name) }).click();
+    await addCatalogItem(page, product.name);
     await dialog.getByRole("button", { name: /Pedido atual/ }).click();
     await expect(dialog.getByRole("button", { name: /^Confirmar pedido/ })).toBeEnabled();
 

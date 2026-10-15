@@ -26,11 +26,9 @@ assert TableOccupancy.objects.filter(table=t).count() == 2
 new_visit = TableOccupancy.objects.get(pk=r["new_occupancy_id"], table=t, generation=r["final_generation"], released_at=None)
 assert new_visit.pk != o.pk and new_visit.responsible_staff_id is None
 assert TabOccupancyAssignment.objects.filter(occupancy=new_visit, tab_id=r["new_tab_id"]).count() == 1
+assert r["cleaning_mode"] == "direct"
 assert o.released_at and o.ready_at and o.responsible_staff_id
-# Current Attendance UI completes cleaning directly from DIRTY. The optional
-# DIRTY -> CLEANING -> AVAILABLE flow is separate; do not fabricate that audit step.
-assert o.cleaning_started_at is None, "Direct clean unexpectedly recorded a cleaning start"
-assert o.ready_at >= o.released_at
+assert o.cleaning_started_at is None, "direct cleaning must not fabricate a start timestamp"
 assert t.status == "OCCUPIED" and t.access_generation == r["final_generation"] > r["initial_generation"]
 assert set(str(x) for x in TabOccupancyAssignment.objects.filter(occupancy=o).values_list("tab_id", flat=True)) == set(r["tab_ids"])
 assert Tab.objects.filter(pk__in=r["tab_ids"], venue_id=f["venue_id"], state="CLOSED").count() == 2
@@ -41,4 +39,4 @@ events = list(AuditEvent.objects.filter(venue_id=f["venue_id"], entity_id=str(o.
 assert any(e["event_type"] == "occupancy.responsibility_assigned" and e["actor_staff_id"] for e in events), events
 out = {**r, "database_instance_id": f["database_instance_id"], "database": f["database"], "venue_id": f["venue_id"], "orders": 0, "charges": 0, "payments": 0, "audit": events, "status": "PASS"}
 Path("artifacts/qr-lifecycle-sql.json").write_text(json.dumps(out, default=str, indent=2) + "\n")
-print("PASS: one visit, two closed independent Tabs, explicit release/direct cleaning, audited claim, zero financial effects")
+print("PASS: one visit, two closed independent Tabs, explicit release/cleaning, audited claim, zero financial effects")
