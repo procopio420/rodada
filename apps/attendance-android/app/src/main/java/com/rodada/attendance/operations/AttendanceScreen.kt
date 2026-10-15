@@ -231,7 +231,7 @@ fun AttendanceScreen(
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
-                    onRepeatOrder = { review -> viewModel.repeatOrder(selected.summary.id, review) },
+                    onRepeatOrder = { review, quantities -> viewModel.repeatOrder(session, selected.summary.id, review, quantities) },
                 )
                 }
             }
@@ -507,7 +507,7 @@ internal fun TabWorkspace(
     onCorrectItem: (OrderItem) -> Unit,
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
-    onRepeatOrder: (RepeatOrderReview) -> Unit = {},
+    onRepeatOrder: (RepeatOrderReview, Map<String, Int>) -> Unit = { _, _ -> },
 ) {
     var query by rememberSaveable(tab.summary.id) { mutableStateOf("") }
     var reviewingCart by rememberSaveable(tab.summary.id) { mutableStateOf(false) }
@@ -516,10 +516,9 @@ internal fun TabWorkspace(
         state.queuedOrders.none { it.tabId == tab.summary.id } && tab.summary.state != "CLOSED" && state.connectivity == ConnectivityState.ONLINE
     repeatReview?.let { review ->
         val unchanged = tab.orders.firstOrNull { it.id == review.orderId }?.let { reviewRepeatedOrder(it, state.products) == review } == true
-        RepeatOrderDialog(review, repeatEnabled && unchanged, { repeatReview = null }) {
+        RepeatOrderDialog(review, repeatEnabled && unchanged, { repeatReview = null }) { quantities ->
             repeatReview = null
-            onRepeatOrder(review)
-            reviewingCart = true
+            onRepeatOrder(review, quantities)
         }
     }
     val catalogScroll = rememberLazyListState()
@@ -640,7 +639,7 @@ internal fun TabWorkspace(
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text("Pedido", fontWeight = FontWeight.Bold)
-                                OutlinedButton(onClick = { repeatReview = reviewRepeatedOrder(order, state.products) }, enabled = repeatEnabled) { Text("Repetir rodada") }
+                                OutlinedButton(onClick = { repeatReview = reviewRepeatedOrder(order, state.products) }, enabled = repeatEnabled) { Text("Mais uma rodada") }
                                 order.items.forEach { item ->
                                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                         Column(modifier = Modifier.weight(1f)) {

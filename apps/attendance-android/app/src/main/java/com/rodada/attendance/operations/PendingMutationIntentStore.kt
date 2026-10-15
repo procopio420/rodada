@@ -217,8 +217,11 @@ sealed interface RecoveryIntent {
         override val state: RecoveryState,
         val tabId: String,
         val lines: List<PendingOrderLine>,
+        val clearCartOnConfirmation: Boolean = true,
     ) : RecoveryIntent {
-        override fun toJson() = baseJson("CONFIRM_ORDER").put("tab_id", tabId).put("lines", JSONArray().apply { lines.forEach { put(JSONObject().put("product_id", it.productId).put("quantity", it.quantity).put("variant_id", it.customization.variantId ?: JSONObject.NULL).put("modifier_option_ids", JSONArray(it.customization.optionIds)).put("special_instructions", it.customization.note)) } })
+        override fun toJson() = baseJson("CONFIRM_ORDER").put("tab_id", tabId)
+            .put("clear_cart_on_confirmation", clearCartOnConfirmation)
+            .put("lines", JSONArray().apply { lines.forEach { put(JSONObject().put("product_id", it.productId).put("quantity", it.quantity).put("variant_id", it.customization.variantId ?: JSONObject.NULL).put("modifier_option_ids", JSONArray(it.customization.optionIds)).put("special_instructions", it.customization.note)) } })
     }
 
     data class StartPayment(
@@ -380,7 +383,7 @@ sealed interface RecoveryIntent {
                 "TAB_STRUCTURE" -> TabStructure(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getString("command_json"))
                 "CONFIRM_ORDER" -> {
                     val lines = json.getJSONArray("lines")
-                    ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity"), Customization(if (it.isNull("variant_id")) null else it.optString("variant_id").ifBlank { null }, it.optJSONArray("modifier_option_ids")?.let { ids -> List(ids.length()) { i -> ids.getString(i) } }.orEmpty(), it.optString("special_instructions"))) } })
+                    ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity"), Customization(if (it.isNull("variant_id")) null else it.optString("variant_id").ifBlank { null }, it.optJSONArray("modifier_option_ids")?.let { ids -> List(ids.length()) { i -> ids.getString(i) } }.orEmpty(), it.optString("special_instructions"))) } }, json.optBoolean("clear_cart_on_confirmation", true))
                 }
                 "START_PAYMENT" -> {
                     StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null }, if (json.has("expected_version")) json.getInt("expected_version") else null)

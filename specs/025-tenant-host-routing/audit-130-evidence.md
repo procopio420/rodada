@@ -2,6 +2,20 @@
 
 Estado: auditoria de código/provas locais executadas; gates de CI e integração são rastreados no PR #153 e no comentário final da #130, com SHA exato. **Fechamento #130 BLOCKED pela prova real de borda, #151. Spec025 e wildcard de produção NÃO HOMOLOGADOS.**
 
+## Complemento operacional — 2026-10-15 UTC
+
+[Checkpoint verificável por SHA/deployment](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc):
+PR166 integrado4056adbd, API/Web/KB SUCCESS, backup lógico restaurado e autenticado,
+A/B provisionados e rerun idempotente; TLS/HMAC/Host/stripping reais, autenticação
+API nativa positiva/cruzada e contenção de dois streams ASGI executados. Runtime
+b63b611/ef830243 após merge concorrente164 preservado. Ao final A/B suspensos,
+flag Web desligada, sem dados financeiros simulados no banco operacional.
+
+Não extrapolar para PASS de browser/guest/QR, cookies reais ou flag backout.
+Piloto autenticado permanece NOT TESTED (PIN de teste indisponível ao SSH),
+preview compartilhado depende de exceção formal; #151/#130 continuam OPEN.
+Registros históricos e matrizes locais abaixo mantêm seus próprios SHAs/ambientes.
+
 ## Identidade e ambiente
 
 - Base atualizada por `git fetch origin`: `d5acc98f0267483ec3ca3a5154babccbcad88eb0`.
@@ -140,3 +154,109 @@ Probes HTTPS no HEADacbc5c5 para **A e B** terminaram421 no manifest/exit22;
 [#151](https://github.com/procopio420/rodada/issues/151#issuecomment-6173300748)
 preserva bloqueio. O relatório final da #130 registra o merge do complemento,
 CI de seus SHAs e main; não transfere nem reduz o critério de borda.
+# Existing Railway follow-up
+
+[Checkpoint #151](railway-151-checkpoint.md) records the fresh public HTTPS
+observations at base `bbaa147` and remaining operational gates. It does not
+supersede the original separate-preview criterion or the audit evidence below.
+
+## PR #159 — provisionamento e contenção seguros, 2026-10-15 UTC
+
+Código congelado/revisado: `ca2e0903a27b49320c20d3e18c8772f97327eb30`,
+base main `47043184408c090ddae33df17d4d72010603f764` após integração concorrente
+do PR #118. Branch `ops/spec025-qa-bootstrap-safe`, [PR159](https://github.com/procopio420/rodada/pull/159).
+O head final e seus gates são registrados no PR; commits documentais posteriores
+não alteram as árvores API testadas. Não extrapolar CI do head antigo `a04e5b9`.
+
+| Controle | Implementação/teste | Falha comprovada antes | Resultado e ambiente |
+| --- | --- | --- | --- |
+| Provisão inerte | `provision_spec025_ab`, `test_provision_does_not_enable_shared_api_login_before_activation` | Login nativo QA era permitido antes da ativação | PASS local: novos memberships SUSPENDED; ativação explícita restaura somente gestor reservado |
+| Contenção de todos operadores QA | `test_containment_suspends_other_local_operators_without_affecting_foreign_access` | Segundo operador local permanecia ACTIVE e podia renovar acesso | PASS local: todos vínculos ACTIVE locais suspensos, versão/invalidation, sessões revogadas; acesso estrangeiro preservado |
+| Colisão concorrente | `test_committed_foreign_login_claim_after_preflight_aborts_entire_provision` | Identidade estrangeira criada/commitada após preflight recebia MANAGER QA | PASS local: resultados reais revalidados sob locks; rollback integral A/B, vínculo estrangeiro intacto |
+| Idempotência/serialização | `test_parallel_provision_is_idempotent_on_postgresql` e teste de repetição/piloto | Ausência de lock para namespace ainda inexistente | PASS local: advisory transaction lock; dois comandos produzem dois Venues, gestores, aliases, mesas e eventos de provisão, sem duplicação |
+| Corrida com autenticação | Testes `test_containment_refuses_inflight_login_atomically_then_retry_revokes_it` e `test_containment_refuses_inflight_operator_switch_then_revokes_both_sessions` | DeadlockDetected reproduzido entre login e containment antes do patch | PASS local: NOWAIT/no_key, SQLSTATE55P03 vira REFUSE após rollback inteiro; retry contém sessões criadas pela operação concluída |
+| Sessões/ASGI/SSE | `test_containment_ends_live_asgi_staff_guest_streams_and_denies_reconnect`, dois Venues e dois modos Host/native | Cobertura operacional do comando não existia | PASS local: quatro streams staff/guest ativos por caso encerram revoked, reconnect negado; QR novo e tokens antigos negados após containment |
+| Estado reportado | `test_reprovision_after_activation_reports_preserved_state` | Rerun em aliases ativos anunciava inatividade | PASS local: estado preservado reportado corretamente; IDs/PIN hashes não rotacionados |
+| Credenciais QA | `test_provision_rejects_shared_pin_before_writing` | PINs iguais não eram rejeitados | PASS local: PINs distintos exigidos antes das escritas; entropia aleatória continua obrigação operacional |
+
+Executado em PostgreSQL **17.11**, container local exclusivo `rodada159-audit-pg`,
+porta **127.0.0.1:55539**, banco de teste descartável, sem dados do piloto:
+
+```bash
+cd apps/api
+# POSTGRES_* apontam exclusivamente para o container descartável acima.
+python -m pytest tests/test_spec025_qa_provisioning.py \
+  tests/test_spec025_host_security.py tests/test_spec025_domain_lifecycle.py \
+  tests/test_spec025_sse_stream_isolation.py tests/test_spec025_audit_matrix.py \
+  tests/test_railway_runtime_profile.py --ds=rodada_api.settings \
+  --tb=short --reuse-db -o addopts='' -q
+```
+
+**67 passed / 56.91s** (inclui 16 regressões de provisão/contenção).
+Complemento posterior apenas de testes: colisões de hostname e slug
+commitadas por outra conexão após preflight também preservam o proprietário
+estrangeiro e revertem A/B. Suíte final do comando: **18 passed / 24.80s**,
+mesmo código de implementação, sem alterar serviços ou infraestrutura.
+Django check:0 issues; migration drift:no changes; Ruff:0 findings;
+`git diff --check` e KB check PASS. Antes das correções, quatro regressões
+falharam no candidato antigo; o teste adicional de corrida reproduziu deadlock
+antes de NOWAIT. Falhas de fixture SSE sem cursor foram corrigidas enviando o
+cursor canônico, sem alterar o serviço nem remover assertions de segurança.
+Revisor independente `/root/review_159`, contexto próprio sem autoria:
+**INDEPENDENT/R3/NO_FINDINGS_WITH_GAPS** em ca2e0903, sem P0/P1/P2 reproduzível;
+somente leitura e diff check executados pelo revisor, sem autoaprovação GitHub.
+
+Revalidação pública nesta execução: DNS A/B/unknown/piloto/API via Cloudflare;
+TLS validado por hostname, SAN `*.rodada.bar`/`rodada.bar`, expiração
+2027-01-11T17:35:11Z. A/B e unknown retornam **421** em root/manifest/context,
+inclusive com forwarded/BFF headers falsificados. Script obrigatório em **A e B**:
+**exit22/HTTP421** no manifest. Aderlan health/ready/staff/context200; contexto
+público permanece `Bar do Aderlan` sob headers forjados. API compartilhada
+health/ready200, auth/me anônimo401; landing200/TLS válido. Esses são smokes
+anônimos, não prova autenticada de pedido, dinheiro, SSE, Android ou stripping
+de headers privados. Prova da origem Railway/SSL mode segue NOT TESTED.
+
+GitHub deployment `7080524766` reporta main4704318 SUCCESS em
+`rodada-aderlan-demo-20261009 / demo` (2026-10-15T00:23:30Z), confirmando o vínculo
+GitHub→Railway. Não revela ID Railway/runtime/variáveis/backups. Railway CLI
+**5.68.0** instalado; `whoami` inicialmente Unauthorized; autenticação oficial
+browserless solicitada, não concluída nesta fotografia. Discovery do conector
+informa Railway não instalado nesta sessão; nenhum MCP Railway disponível.
+Comando de backup confirmado via help oficial:
+`railway postgres pitr backup create --project <project> --environment demo --service <postgres-confirmed> --name pre-spec025-ab`.
+**NOT RUN**: inventário privado/SSH, backup on-demand, recuperação verificada,
+provision/activate/deactivate remoto, flag, homologação habilitada e rollback
+operacional. Não houve escrita operacional, mudança DNS/proxy, criação de
+infraestrutura, pagamentos reais nem exposição PostgreSQL. #151/#130 permanecem
+OPEN; exceção ao preview fisicamente separado exige decisão formal, não inferida.
+
+### Atualização autenticada após merge159
+
+O bloqueio de acesso acima foi resolvido; [checkpoint atual](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+PR159 integrado em18da0109436bc76b199ec82ca7f7c75e5c54b57d após head7436deb
+API849/Web98/KB PASS e revisão independente R3 sem achados reproduzíveis.
+SSH confirmou seed-off/flag-off/HMAC explícito com preflight válido e PostgreSQL
+privado18.6; piloto/alias verificado e QA ausentes. Inventário sem staged changes,
+três serviços online e certificado Railway wildcard válido.
+Backup oficial **FAIL/BLOCKED**: listas de backup/agenda vazias, PITR desligado;
+create on-demand recusado por exigir Pro. Não existe ID de backup nem prova de
+recuperação. Nenhum provision/apply, ativação, flag ou rollback remoto executado.
+Decisão sobre custo/alternativa de backup e exceção de preview continua humana;
+#151/#130 abertas. Gates do merge e deployment exato são vinculados no checkpoint.
+Sondas posteriores read-only no runtime4704318 confirmaram TLS direto da origem
+para A/B/piloto, HMAC interno válido200 e inválido/expirado/adulterado403,
+assinatura ausente em rota privada tenant403 e stripping de assertiva válida
+apresentada externamente. Resultados/limites no checkpoint; nenhum token/sessão
+de cliente usado. Isso não converte o gate de homologação A/B em PASS.
+
+### Backup lógico autorizado e recuperado
+
+Em2026-10-15 o usuário escolheu backup lógico por SSH, sem Pro. A decisão formal
+substitui apenas o método de backup desta execução; preview separado e ativação
+continuam decisões distintas. [Prova completa/hash](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15):
+snapshot PostgreSQL18.6 read-only, dump criptografado em streaming, autenticação
+AES-GCM/SHA e restore local18 descartável/tmpfs; **90/90 contagens do mesmo
+snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
+Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
+regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
+reclassifica as provas A/B, flag ou rollback como executadas.

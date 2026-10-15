@@ -9,7 +9,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useRealtime } from "@/lib/client/use-realtime";
 import { guestApi } from "@/lib/client/guest-api";
 import { guestOrderStorageKey, useGuestOrderIntent, validScope, sameScope, type GuestScope } from "@/lib/client/guest-order-intent";
-import { RepeatOrderDialog, reviewRepeatedOrder } from "./repeat-order";
+import { RepeatOrderDialog, reviewRepeatedOrder, selectedRepeatedLines, type RepeatQuantities } from "./repeat-order";
 import { ConnectivityNotice } from "./connectivity-notice";
 import { ProductIcon, type IconData } from "./product-icon";
 import { attendanceCategory, compareAttendanceCategories, normalizeCatalogSearch } from "@/lib/client/attendance-catalog";
@@ -27,8 +27,7 @@ type ApiError = { code?: string; message?: string };
 
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
-const repeatSuccessMessage = "Rodada adicionada ao carrinho. Confira antes de enviar o novo pedido.";
-type DraftLine = { product: Product; selection: Selection; quantity: number };
+ type DraftLine = { product: Product; selection: Selection; quantity: number };
 function groupedDraft(lines: DraftLine[]): DraftLine[] | null {
   const result: DraftLine[] = [];
   for (const line of lines) {
@@ -84,8 +83,10 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const currentVisit = useRef({ token: guestToken, context });
   useLayoutEffect(() => { currentVisit.current = { token: guestToken, context }; }, [guestToken, context]);
   useEffect(() => { queueMicrotask(() => setRepeatReview(null)); }, [guestToken, context?.tab?.id]);
-  const orderIntent = useGuestOrderIntent(qrToken, guestToken, detail => {
-    setContext(detail as Context); setCart([]); setNotice("");
+  const orderIntent = useGuestOrderIntent(qrToken, guestToken, (detail, origin) => {
+    setContext(detail as Context);
+    if (origin === "draft") setCart([]);
+    setNotice("");
   });
   const [requestSending, setRequestSending] = useState(false);
   const [serviceNotice, setServiceNotice] = useState("");
@@ -233,7 +234,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     } catch (error) { setNotice(messageFor(error as ApiError, "Não foi possível conferir a rodada. Seu carrinho foi preservado.")); setStale(true); }
     finally { repeatReading.current = false; setRepeatLoading(false); }
   }
-  async function addRepeatedDraft() {
+  async function confirmRepeatedOrder(quantities: RepeatQuantities) {
     if (!repeatAllowed || !repeatUnchanged || !repeatReview?.review.canAdd || repeatReading.current || repeatConsumed.current) return;
     repeatReading.current = true; setRepeatLoading(true); setNotice("");
     try {
@@ -242,11 +243,15 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       const current = order && reviewRepeatedOrder(order, repeatCatalog(currentProducts));
       if (!current?.canAdd || JSON.stringify(current) !== JSON.stringify(repeatReview.review))
         throw { message: "A rodada mudou. Feche e abra novamente a revisão." };
-      const grouped = groupedDraft([...cart, ...current.lines.map(({ product, quantity, selection }) => ({ product, quantity, selection }))]);
+      const selectedLines = selectedRepeatedLines(current, quantities);
+      if (!selectedLines) throw { message: "Selecione itens e quantidades válidas para repetir." };
+      // The repeated Order is independent of any manual items waiting in the cart.
+      const grouped = groupedDraft(selectedLines);
       if (!grouped) throw { message: quantityLimitMessage };
       repeatConsumed.current = true;
-      setCart(grouped);
-      setRepeatReview(null); setNotice(repeatSuccessMessage);
+      setRepeatReview(null);
+      await orderIntent.submit({ tab: next.tab!.id, lines: grouped.map(({ product, quantity, selection }) =>
+        ({ product_id: product.id, quantity, ...selection })) }, "repeat");
     } catch (error) { setNotice(messageFor(error as ApiError, "Não foi possível incluir a rodada. Seu carrinho foi preservado.")); setStale(true); }
     finally { repeatReading.current = false; setRepeatLoading(false); }
   }
@@ -296,7 +301,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     </nav>}
     {recovery}
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? catalogCachedAt} />
-    {notice && <div className="notice" data-state={notice === repeatSuccessMessage ? "success" : "danger"} role={notice === repeatSuccessMessage ? "status" : "alert"}>{notice}</div>}
+    {notice && <div className="notice" data-state="danger" role="alert">{notice}</div>}
     {stale && <div className="notice" data-state="warning" role="status">Dados desatualizados. Reconecte para confirmar seu pedido.</div>}
     <button className="buttonQuiet" disabled={repeatLoading || sending} onClick={() => void refresh().catch(() => {})}>Atualizar comanda</button>
     {context.occupancy_active && <section className="panel" aria-labelledby="guest-service-heading">
@@ -316,7 +321,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
       {!!rows.length && <section className="panel" aria-label="Pedido atual" ref={draftRegion} tabIndex={-1}><OperationalHeading as="h2" icon="cart">Revisar pedido</OperationalHeading>{rows.map((row, index) => <div key={index} className="attendanceDraftLine" role="group" aria-label={`Item ${index + 1} do pedido`}><div><strong>{row.quantity}× {row.product.name}</strong><CustomizationText snapshot={{ variant: row.product.variants?.find(v => v.id === row.selection.variant_id), modifiers: row.product.modifier_groups?.flatMap(g => g.options.filter(o => row.selection.modifier_option_ids.includes(o.id)).map(o => ({ ...o, group_name: g.name }))), special_instructions: row.selection.special_instructions }} />{(!row.product.available || selectionError(row.product, row.selection)) && <p className="notice" data-state="danger">{!row.product.available ? "Produto indisponível" : selectionError(row.product, row.selection)}</p>}</div><div className="attendanceQuantity"><button className="buttonSecondary" aria-label={`Diminuir quantidade de ${row.product.name}`} disabled={draftLocked} onClick={() => changeQuantity(index, -1)}>−</button><output aria-label={`Quantidade selecionada de ${row.product.name}`} aria-live="polite">{row.quantity}</output><button className="buttonSecondary" aria-label={`Aumentar quantidade de ${row.product.name}`} disabled={draftLocked || increaseBlocked || !row.product.available || !!selectionError(row.product, row.selection) || row.quantity >= 99} onClick={() => changeQuantity(index, 1)}>+</button></div><div className="attendanceDraftControls"><button className="buttonQuiet" disabled={draftLocked} onClick={() => { setEditing(index); setConfiguring(row.product); }}>Editar</button><button className="buttonQuiet" disabled={draftLocked} onClick={() => setCart(c => c.filter((_, i) => i !== index))}>Remover</button></div></div>)}</section>}
       {!configuring && !orderIntent.pending && <section className="guestCart"><span>{rows.length ? `${rows.reduce((sum, row) => sum + row.quantity, 0)} item(ns)` : "Seu carrinho está vazio"}</span><button className="buttonPrimary" disabled={draftLocked || increaseBlocked || !rows.length || (cartError && !orderIntent.pending) || (context.tab.consumption_blocked && !orderIntent.pending)} onClick={() => void submitOrder()}>{sending ? "Enviando…" : `Enviar · ${money(total)}`}</button></section>}
       <section className="panel"><OperationalHeading as="h2" icon="wallet">Conta não fiscal</OperationalHeading><button className="buttonSecondary" disabled={repeatLoading || stale} onClick={() => { setReceiptError(""); void guestApi<{ text: string }>("receipt/", guestToken).then(result => { if (result.ok) setReceipt((result.body as { text: string }).text); else { setReceipt(""); setReceiptError("Conta indisponível. Confira sua sessão e conexão."); } }).catch(() => { setReceipt(""); setReceiptError("Não foi possível consultar a conta."); }); }}>Ver minha conta</button>{receiptError && <p role="alert">{receiptError}</p>}{receipt && <><pre className="receiptText">{receipt}</pre><button className="buttonSecondary" onClick={() => setReceipt("")}>Fechar conta</button></>}</section>
-      {repeatLoading && !repeatReview && <p role="status">Conferindo rodada… Seu carrinho está preservado.</p>}<section className="panel" ref={ordersRegion} tabIndex={-1} aria-label="Pedidos"><OperationalHeading as="h2" icon="cart">Meus pedidos</OperationalHeading><p className="muted">Estado registrado pela operação. Atualizações ao vivo da sua comanda.</p>{!context.tab.orders?.length && <p>Nenhum pedido confirmado.</p>}{context.tab.orders?.map((order, index) => <section key={order.id} aria-label={`Rodada ${index + 1}`}><div className="actions"><h3>Rodada {index + 1}</h3><button className="buttonSecondary" aria-label={`Repetir rodada ${index + 1}`} disabled={!repeatAllowed || !!repeatReview} onClick={() => void startRepeat(order.id)}>Repetir rodada</button></div>{order.items.map(item => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><small className="muted"> · {money(item.line_total_cents)}{item.ready_at ? ` · pronto às ${new Date(item.ready_at).toLocaleTimeString("pt-BR")}` : ""}</small></span><span className="statusBadge" data-state={item.state === "CANCELLED" ? "danger" : ["READY", "DELIVERED"].includes(item.state) ? "success" : "info"}>{guestItemStatus(item.state)}</span></div>)}</section>)}</section>
-    </>}{repeatReview && <RepeatOrderDialog review={repeatReview.review} enabled={repeatAllowed && repeatUnchanged} busy={repeatLoading} message={repeatLoading ? "Conferindo visita e cardápio…" : notice} onAdd={() => void addRepeatedDraft()} onClose={() => setRepeatReview(null)} />}
+      {repeatLoading && !repeatReview && <p role="status">Conferindo rodada… Seu carrinho está preservado.</p>}<section className="panel" ref={ordersRegion} tabIndex={-1} aria-label="Pedidos"><OperationalHeading as="h2" icon="cart">Meus pedidos</OperationalHeading><p className="muted">Estado registrado pela operação. Atualizações ao vivo da sua comanda.</p>{!context.tab.orders?.length && <p>Nenhum pedido confirmado.</p>}{context.tab.orders?.map((order, index) => <section key={order.id} aria-label={`Rodada ${index + 1}`}><div className="actions"><h3>Rodada {index + 1}</h3><button className="buttonSecondary" aria-label={`Repetir rodada ${index + 1}`} disabled={!repeatAllowed || !!repeatReview} onClick={() => void startRepeat(order.id)}>Mais uma rodada</button></div>{order.items.map(item => <div className="dataRow" key={item.id}><span><strong>{item.quantity}× {item.product_name}</strong><CustomizationText snapshot={item.customization_snapshot} /><small className="muted"> · {money(item.line_total_cents)}{item.ready_at ? ` · pronto às ${new Date(item.ready_at).toLocaleTimeString("pt-BR")}` : ""}</small></span><span className="statusBadge" data-state={item.state === "CANCELLED" ? "danger" : ["READY", "DELIVERED"].includes(item.state) ? "success" : "info"}>{guestItemStatus(item.state)}</span></div>)}</section>)}</section>
+    </>}{repeatReview && <RepeatOrderDialog review={repeatReview.review} enabled={repeatAllowed && repeatUnchanged} busy={repeatLoading} message={repeatLoading ? "Conferindo visita e cardápio…" : notice} onAdd={quantities => void confirmRepeatedOrder(quantities)} onClose={() => setRepeatReview(null)} />}
   </main>;
 }

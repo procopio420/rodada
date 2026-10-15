@@ -24,12 +24,12 @@ for attempt in $(seq 1 30); do
   fi
   sleep 3
 done
-if [[ "$RODADA_RELEASE_MODE" == demo ]]; then
+if [[ "$RODADA_RELEASE_MODE" == demo && "$RODADA_DEMO_SEED_ON_START" == true ]]; then
   python manage.py seed_demo
   if [[ -n "${RODADA_PLAY_REVIEW_PIN:-}" ]]; then
     python manage.py shell < /app/deploy/railway/provision_play_reviewer.py
   fi
-else
+elif [[ "$RODADA_RELEASE_MODE" == pilot ]]; then
   python - <<'PYTHON'
 import os
 import django

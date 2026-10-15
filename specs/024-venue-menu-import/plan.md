@@ -9,3 +9,7 @@
 7. Executar tests e smoke em PostgreSQL. Registrar evidências e limitações.
 
 Não alterar a lógica monetária nem o ciclo de pedidos nesta spec.
+
+## Integração de 13/10/2026
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.

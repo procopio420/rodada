@@ -1,4 +1,4 @@
-import { expect, test, expandAttendanceTable } from "./fixtures";
+import { expect, test } from "./fixtures";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
@@ -55,33 +55,26 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  await expandAttendanceTable(page, "Pilot frontend table");
-  await page.getByRole("button", { name: "Organizar mesa Pilot frontend table", exact: true }).click();
-  const table = page.getByRole("dialog", { name: "Organizar mesa Pilot frontend table", exact: true });
-  await expect(table.getByText("Quantidade não informada", { exact: true })).toBeVisible();
-  await table.getByRole("button", { name: "Selecionar 4 pessoas" }).click();
-  const partySizePath = `**/api/attendance/hospitality/occupancies/${created.occupancyId}/party-size/`;
-  await page.route(partySizePath, async route => {
-    if (route.request().method() !== "POST") return route.continue();
-    const committed = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
-    expect(committed.ok()).toBe(true);
-    await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ message: "Synthetic lost confirmation" }) });
-  }, { times: 1 });
-  await table.getByRole("button", { name: "Confirmar quantidade" }).click();
-  await expect(table.getByRole("button", { name: "Verificar mesma quantidade" })).toBeVisible();
-  await expect(table.getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
-  await expect(table.getByLabel("Localização da mesa Pilot frontend table")).toBeDisabled();
-  await expect(table.getByLabel("Associar comanda à mesa Pilot frontend table")).toBeDisabled();
-  await page.keyboard.press("Escape");
-  await expect(table).toBeVisible();
-  const retry = page.waitForResponse(response => response.request().method() === "POST"
-    && response.url().replace(/\/$/, "").endsWith(`/occupancies/${created.occupancyId}/party-size`)
-    && response.status() === 200);
-  await table.getByRole("button", { name: "Verificar mesma quantidade" }).click();
-  await retry;
-  await expect(table.getByText("4 pessoa(s) · Informado pela equipe")).toBeVisible();
-  await expect(table.getByRole("button", { name: "Voltar", exact: true })).toBeEnabled();
-  const observation = await page.evaluate(async id => (await (await fetch(`/api/attendance/hospitality/occupancies/${id}/party-size/`)).json()).current, created.occupancyId);
-  expect(observation).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
+  const table = page.locator("article").filter({ has: page.getByRole("button", { name: /^Mesa Pilot frontend table/ }) });
+  await table.getByRole("button", { name: /^Mesa Pilot frontend table/ }).click();
+  // The current Attendance UI hides covers; retain the authenticated canonical
+  // contract and replay proof through the real BFF instead of a removed control.
+  await expect(table.getByRole("button", { name: "Selecionar 4 pessoas" })).toHaveCount(0);
+  const observations = await page.evaluate(async id => {
+    const path = `/api/attendance/hospitality/occupancies/${id}/party-size/`;
+    const before = await (await fetch(path)).json();
+    const payload = { covers_count: 4, expected_version: before.current.version, reason: "Integration fixture", idempotency_key: crypto.randomUUID() };
+    const write = async () => {
+      const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      return { status: response.status, body: await response.json() };
+    };
+    const first = await write(), replay = await write();
+    return { before, first, replay, after: await (await fetch(path)).json() };
+  }, created.occupancyId);
+  expect(observations.before.current).toMatchObject({ covers_count: null, version: 0 });
+  expect(observations.first.status).toBe(200); expect(observations.replay.status).toBe(200);
+  expect(observations.replay.body).toEqual(observations.first.body);
+  expect(observations.after.current).toMatchObject({ covers_count: 4, version: 1, source: "STAFF" });
+  expect(observations.after.history).toHaveLength(1);
   await evidence(page, "covers");
 });

@@ -361,7 +361,12 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: 0; border-bottom: 0; }
 @media (min-width: 1200px) {
   .stationOrder { grid-template-columns: minmax(0, var(--production-ticket-destination)) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  /* Keep the content in the readable track and destinations in their own column. */
+  .stationOrder > .stationTab { grid-column: 1; grid-row: 1; }
+  .stationOrder > .stationOrderItems { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
   .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr) var(--production-ticket-action); gap: var(--space-4); }
+  .stationPassRow > .stationTab { grid-column: 1; }
+  .stationPassRow > div { grid-column: 2; min-width: 0; }
   .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
 }
 
@@ -516,3 +521,19 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .tableInventoryRow { padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
 .tableInventoryRow p, .tableInventoryRow details { margin-bottom: var(--space-3); }
 .tableInventoryRow .dataRow { gap: var(--space-3); flex-wrap: wrap; }
+
+
+/* Fast repeat review: one selectable line, current price and a 44px quantity control. */
+.repeatOrderList { display: grid; gap: var(--space-2); }
+.repeatOrderLine { padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
+.repeatOrderChoice { display: flex; gap: var(--space-3); align-items: center; min-height: var(--touch-min); cursor: pointer; }
+.repeatOrderChoice > input { width: 22px; height: 22px; flex-shrink: 0; accent-color: var(--color-accent); }
+.repeatOrderChoice > span { display: grid; gap: var(--space-1); min-width: 0; }
+.repeatOrderChoice .muted { font-variant-numeric: tabular-nums; }
+.repeatOrderQuantity { display: flex; align-items: end; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+.repeatOrderQuantity > button { min-width: var(--touch-min); min-height: var(--touch-min); font-size: var(--text-lg); padding: var(--space-2); }
+.repeatOrderQuantity .field { width: 86px; margin: 0; }
+.repeatOrderQuantity .field label { font-size: var(--text-sm); }
+.repeatOrderQuantity input { text-align: center; font-variant-numeric: tabular-nums; }
+.repeatOrderTotal { font-weight: 800; font-variant-numeric: tabular-nums; }
+@media (max-width: 390px) { .repeatOrderQuantity { justify-content: flex-start; } }

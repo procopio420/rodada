@@ -403,3 +403,17 @@ session identity. Native authenticated requests carry X-Rodada-Originating-Sessi
 the API rejects a mismatch before mutation and revalidates revocation/expiry on every
 request. Recovery after a new login requires canonical history review, never rebinding
 old records. Pending record writes are synchronous before issuing business commands.
+
+## Bloqueador integrado023/024 — expiração nativa
+
+A jornada real reproduziu ACCESS_TOKEN_EXPIRED em operações após15 minutos.
+Operations/Corrections/RefundsHttpClient retornam OperationsApiException, enquanto
+AuthRepository renova somente AuthApiException. Alinhar a classificação401/código
+ACCESS_TOKEN_EXPIRED ao cliente Cash existente;403 e erros de domínio permanecem
+falhas. Renovação concorrente do mesmo token deve reutilizar a rotação já guardada,
+preservando a sessão original; não criar login novo nem mudar TTL/capabilities.
+Repetir só a requisição rejeitada por autenticação, uma vez, com mesmo corpo/chave;
+resposta perdida e mutation confirmada seguem seus contratos próprios.
+Aceite: teste de transporte401/403 nos três clientes, teste de rotação concorrente,
+jornada nativa retomada na mesma comanda, sem repetir pedido/cobrança. Servidor
+local de teste comprova transporte; readback PostgreSQL comprova efeitos reais.

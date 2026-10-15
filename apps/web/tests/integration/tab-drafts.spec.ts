@@ -1,4 +1,5 @@
-import { expect, test, openAttendanceTab, type Page } from "./fixtures";
+import { expect, test, type Page } from "./fixtures";
+import { openNamedAttendanceTab } from "./attendance-helpers";
 
 async function api(page: Page, path: string, body?: unknown) {
   return page.evaluate(async ({ path, body }) => {
@@ -12,7 +13,6 @@ async function api(page: Page, path: string, body?: unknown) {
 }
 
 for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts create orders only on selected Tab at ${width}`, async ({ page }) => {
-  test.setTimeout(60000);
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
@@ -21,15 +21,14 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await expect(page.getByRole("button", { name: "Contas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   for (const name of ["A", "B"]) {
-  await openAttendanceTab(page, `Draft ${name} ${width}`);
-    await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(`Draft ${name} ${width}`);
+    await openNamedAttendanceTab(page, `Draft ${name} ${width}`);
+    await expect(page.getByRole("heading", { name: `Mesa Fixture Draft ${name} ${width}`, exact: true })).toBeVisible();
   }
   const list = (await api(page, "tabs/")).results;
   const tabs = ["A", "B"].map(name => list.find((t: { display_label: string }) => t.display_label === `Draft ${name} ${width}`));
-  const a = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft A ${width} ·`) });
-  const b = page.getByRole("button", { name: new RegExp(`^Mesa QR-A · Draft B ${width} ·`) });
-  // Table-service creation updates the parent; this existing list polls every 15s.
-  await expect(a).toBeVisible({ timeout: 20000 }); await a.click();
+  const a = page.locator("button.attendanceTabOption").filter({ hasText: `Draft A ${width}` });
+  const b = page.locator("button.attendanceTabOption").filter({ hasText: `Draft B ${width}` });
+  await expect(a).toBeVisible(); await a.click();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   const draft = page.getByRole("region", { name: "Pedido atual" });
@@ -39,8 +38,8 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolated drafts creat
   await page.getByRole("button", { name: /^Bar E2E item/ }).click();
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await a.click(); await expect(draft).toBeVisible();
-  await openAttendanceTab(page, `Draft C ${width}`);
-  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(`Draft C ${width}`);
+  await openNamedAttendanceTab(page, `Draft C ${width}`);
+  await expect(page.getByRole("heading", { name: `Mesa Fixture Draft C ${width}`, exact: true })).toBeVisible();
   await expect(draft.locator("article")).toHaveCount(0);
   await a.click(); await expect(draft.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();

@@ -25,6 +25,62 @@
   Refund IDs foreignA/B,B/A; suite focada9PASS local, gates do complemento/main
   rastreados no relatório final130. Não alterar implementação sem falha provada.
 
+## Existing Railway homologation #151 — controlled preparation
+
+- [x] Exceção de backup autorizada pelo usuário: lógico privado SSH sem Pro;
+  snapshot/dump AES-GCM e restore18/tmpfs,90 contagens iguais/constraints válidas;
+  [hash/ambiente/limites](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15).
+- [x] Integrar contrato `logical-sha256` + attestation após regressões,
+  revisão independente e API/Web CI; só então provisionar A/B com esse backup.
+
+Authenticated follow-up: [runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+- [x] PR159 head7436deb: API849/Web98/KB PASS, independent final R3 review,
+  merge18da010; deployment/main CI tracked separately.
+- [x] Fresh MCP+private SSH: existing service/main/source, no staged changes,
+  seed-off/flag-off/HMAC preflight, private PostgreSQL18.6, QA absent, pilot alias valid.
+- [x] PR159 deployment40f0c485 SUCCESS, exact runtime18da010 confirmed by SSH;
+  deployed inspection and provision dry-run executed, no writes.
+- [x] Resolver entitlement sem Pro por exceção lógica autorizada, arquivo cifrado
+  e recuperação verificada; referência real usada no provisionamento protegido.
+- [x] Provisionar A/B, provar rerun idempotente e executar autenticação nativa
+  positiva/cruzada, HMAC/TLS/Host e contenção real com SSE concorrente.
+- [x] Corrigir gate de imagem descartável sem skip: PR168, standalone contract
+  incluído, Integrated release854PASS/428.63s no head f02d11d, revisão independente.
+- [ ] Validar piloto autenticado, obter aprovação específica da flag, executar
+  browser/guest HTTPS e backout da flag; exceção de preview ainda não aceita.
+  [Checkpoint atual](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).
+
+Fresh PR159 checkpoint (2026-10-15 UTC), codeca2e0903:
+[executed evidence](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
+
+- [x] Correct independently reviewed provisioning/containment findings test-first:
+  foreign concurrent identity claim, all QA memberships, initial suspension,
+  accurate repeat output and auth lock inversion.
+- [x] Execute 67 focused PostgreSQL17.11 tests after merging main4704318 into
+  the candidate; staff/guest ASGI streams and native API containment included.
+- [x] Independent R3 review of aggregate ca2e0903: no reproducible P0/P1/P2.
+- [x] Install Railway CLI5.68.0 and prepare official login/SSH/backup commands.
+- [ ] Complete Railway login and fresh private inventory; CLI Unauthorized
+  at start, connector not installed in this executor. No operational writes.
+- [ ] Final PR159 API/Web/KB CI, merge, deployment verification and backup/restore.
+- [ ] Operational A/B provisioning, real enabled edge proof, controlled flag
+  approval, rollback and formal preview exception (if required). #151/#130 OPEN.
+
+- [x] Fresh main/source and public DNS/TLS/HTTP revalidation; [checkpoint](railway-151-checkpoint.md).
+- [x] Prepare seed opt-out and fail-closed preflight to preserve Aderlan on shared
+  runtime restart; test-first 19 profile cases and independent R3 review.
+- [x] Disposable Docker seed-preservation and same-build flag backout rehearsal.
+- [ ] Restore all API/Web/Docker/KB gates on PR156 final SHA; do not merge while
+  source/autodeploy and operational restart safety remain unverified.
+- [ ] Connect Railway and inspect deployment, variable names, staged changes,
+  DB connection, backup and eligible backout; no secret disclosure.
+- [ ] Prepare/apply scoped idempotent A/B bootstrap after inventory, preserving
+  Aderlan and append-only test ledger. No global simulation/PSP changes.
+- [ ] Obtain specific approval for the concrete shared flag change and any
+  necessary public DNS/proxy change, then execute real HTTPS A/B proof.
+- [ ] Resolve original preview/rollback contract formally before issue closure;
+  keep #151/#130 open until demonstrated, canary/rollout remains #152.
+
 ## P0 — Prerequisites (must land before tenant URL is exposed)
 
 - [ ] [Backend] Registry/migration: public hostname -> immutable Venue UUID; normalization, uniqueness, verified/active state, reserved labels, audit.

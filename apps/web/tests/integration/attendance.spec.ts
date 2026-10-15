@@ -1,4 +1,5 @@
-import { expect, test, openAttendanceTab, expandAttendanceTable } from "./fixtures";
+import { expect, test } from "./fixtures";
+import { openNamedAttendanceTab } from "./attendance-helpers";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
@@ -9,8 +10,8 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await openAttendanceTab(page, "Atendimento browser test");
-  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText("Atendimento browser test");
+  await openNamedAttendanceTab(page, "Atendimento browser test");
+  await expect(page.getByRole("heading", { name: "Mesa Fixture Atendimento browser test", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();
@@ -45,16 +46,12 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   const tableResult = await browserRequest.post("/api/pos/hospitality/tables/", { data: { label: "Attendance test", guest_ordering_mode: "DIRECT" } });
   expect(tableResult.ok()).toBeTruthy();
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
-  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
-  await expandAttendanceTable(page, "Attendance test");
+  await page.getByRole("button", { name: /^Mesa Attendance test/ }).click();
   await page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
-  await page.getByRole("dialog", { name: "Mover comanda?", exact: true }).getByRole("button", { name: "Confirmar mudança de mesa", exact: true }).click();
+  await page.getByRole("dialog", { name: "Mover comanda?" }).getByRole("button", { name: "Confirmar mudança de mesa" }).click();
   await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
-  await expect(page.getByRole("dialog", { name: "Mover comanda?", exact: true })).not.toBeVisible();
-  await page.getByRole("button", { name: "Organizar mesa Attendance test", exact: true }).click();
-  await page.getByRole("dialog", { name: "Organizar mesa Attendance test", exact: true }).getByRole("button", { name: "Voltar" }).click();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();

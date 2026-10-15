@@ -36,6 +36,10 @@ REQUIRED_SKILLS = (
     "rodada-pos-safety",
     "rodada-ops",
     "rodada-code-review",
+    "rodada-ux-research",
+    "rodada-ux-critique",
+    "rodada-ux-handoff",
+    "rodada-accessibility-review",
 )
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<header>.*?)\n---\n", re.DOTALL)

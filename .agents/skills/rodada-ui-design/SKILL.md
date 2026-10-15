@@ -28,3 +28,21 @@ UI hierarchy, navigation, visual fidelity, labels, status states, icons, screens
 
 ## Validation / evidence
 Web: `cd apps/web && npm run test:visual` with visual/accessibility review at target widths; real browser if practical. Android: relevant Compose previews/instrumented tests and emulator/device; JVM tests aren't visual acceptance. Landing: keyboard, responsive, SEO and artwork checks. Cite spec, design contracts, viewport, state, commit and untested devices in handoff.
+
+
+## Skill routing for richer UX work
+Use this as the **coordination skill**, not a replacement for specialists. Load selectively:
+- Before changing task architecture with uncertain operator needs → [rodada-ux-research](../rodada-ux-research/SKILL.md).
+- When screenshots look wrong, scrolling is excessive or priority is unclear → [rodada-ux-critique](../rodada-ux-critique/SKILL.md).
+- When a concept needs navigation, states and acceptance tests → [rodada-ux-handoff](../rodada-ux-handoff/SKILL.md).
+- Whenever interaction, typography or navigation changes → [rodada-accessibility-review](../rodada-accessibility-review/SKILL.md).
+- For Android implementation add rodada-android-compose; for Web add rodada-nextjs-web; when money/session/recovery is affected add rodada-pos-safety.
+
+## Required operational UX principles
+- A Tab is a persistent **task context**; opening a Tab is explicit, while central + means **add items**, with a destination picker when needed.
+- Do not place creation form, list, accounting, history, catalog and cart as stacked sections in one long operational page.
+- Keep destination, current task, error/blocker and primary action immediately available; use separate catalog/review task surfaces.
+- Keep the draft review independent of catalog search/category; show every item, variant, note and quantity before confirmation.
+- Preserve interruption and return without mixing Tabs or resubmitting an ambiguous intent; never hide validation/risk behind aesthetic simplification.
+- A visual PASS requires real pixels **and** task walkthrough; do not infer measured actions/scroll or accessibility compliance from code alone.
+

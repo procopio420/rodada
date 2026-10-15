@@ -187,3 +187,17 @@ reads are separate. The fixture now awaits list visibility up to 20s, with a
 60s total budget for this multi-tab workflow. All per-tab canonical order,
 quantity, money, payment and empty-draft assertions are retained. No product
 refresh behavior or financial contract changed.
+
+## Reconciliation with current main 89e85c89
+
+Main advanced during long CI runs. Synced it before final integration: existing
+44c2fdd0 already fixes the P1 persistent requestedTab selection and preserves
+per-tab drafts; reuse that code without reimplementation. Main has canonical
+Attendance helpers, draft/identity fixes and bounded boundary pagination coverage.
+Resolve overlapping fixtures to those current main contracts. The current main
+explicitly hides occupancy covers in Attendance; remove S2's incidental editor
+mount/recovery callback and retain main's real-BFF observation/replay coverage.
+The earlier UI-restoration and expanded-pagination experiments above are historical,
+superseded by this reconciliation. Final product changes relative to current main
+are only printer pairing/service/auth and its Manage UI. No financial, ordering,
+payment or fulfillment rule change belongs to S2. Run full final-head CI anew.

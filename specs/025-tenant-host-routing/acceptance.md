@@ -2,6 +2,32 @@
 
 **Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
+## Checkpoint operacional — 2026-10-15 UTC, antes da flag
+
+[Execução e limites por SHA](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).
+PR166 integrado4056adbd com API/Web/KB verdes; runtime avançou por PR164 para
+b63b611, preservado e revalidado. Backup lógico privado autenticado/restaurado
+substitui somente o backup oficial autorizado, sem Pro.
+
+- [x] Provisionamento real A/B inativo/suspenso, IDs distintos, rerun sem mudança;
+  preservação transacional dos registros preexistentes.
+- [x] TLS público/origem, Host/HMAC/stripping reais nos dois SHAs; unknown BFF421,
+  raw API400 fail-closed. Cloudflare Full Strict administrativo não verificado.
+- [x] Login/refresh/logout e leituras próprias A/B na API compartilhada; credenciais
+  cruzadas403; token cruzado em ASGI canônico403, sem payload estrangeiro.
+- [x] Ensaio real de contenção de A/B em b63: dois SSE staff revogados, sessões
+  encerradas, refresh/acesso401, reconnect421, novo login403; histórico preservado.
+- [ ] Smoke autenticado Aderlan: credencial protegida indisponível no processo SSH;
+  verificação manual solicitada, sem reset de acesso.
+- [ ] Aprovação específica da flag compartilhada e exercício real de seu backout.
+- [ ] HTTPS script/manifest e matriz completa browser/QR/guest/read/write habilitada.
+- [ ] Exceção formal para substituir preview fisicamente separado pelo compartilhado.
+- [ ] Fechar #151/#130 somente após os critérios originais; #152 continua rollout.
+
+Os estados anteriores abaixo são fotografias históricas, não bloqueios atuais de
+acesso Railway/backup nem prova de homologação. A/B terminaram este ensaio com
+domínios inativos, memberships SUSPENDED, guest bloqueado e flag Web desligada.
+
 ## Auditoria #130 — evidência de 14/10/2026
 
 Base `d5acc98f0267483ec3ca3a5154babccbcad88eb0`; correções e testes no código
@@ -41,6 +67,19 @@ com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentid
 
 ## Host mapping and DNS
 
+Authenticated update 2026-10-15: [fresh runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+Railway access is resolved, PR159 integrated as18da010 after headAPI849/Web98/KB
+PASS and independent R3 review. Runtime seed-off, flag-off, private DB and HMAC
+preflight verified over SSH. Official volume backup was denied because Pro is required; the user-authorized
+logical recovery substitute, actual provision and containment are now recorded
+in the newer checkpoint above. A/B browser edge acceptance remains pending.
+Do not interpret historical missing-access statements below as current status.
+
+Current read-only Railway revalidation (2026-10-14, base `bbaa147`):
+[checkpoint #151](railway-151-checkpoint.md). Public edge TLS is valid, A/B still
+return 421, and current operational inventory/backup/rollback remain blocked by
+missing Railway access. No deployment or acceptance is implied.
+
 - [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
 - [ ] Reserved hostnames cannot be claimed; unrecognized/disabled/lookalike/invalid hostnames fail closed (404 or 421), with no default/demo fallback.
 - [ ] Reverse proxy and application agree on the normalized trusted Host. Browser-supplied `X-Forwarded-Host`, `X-Rodada-*` or `?venue=` cannot choose a different Venue.
@@ -63,6 +102,40 @@ com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentid
 - [ ] Two independently seeded Venues can run end-to-end in parallel, without cross-tenant state leakage.
 
 ## Operational
+
+### PR #159 — safe QA provisioning contract (not edge acceptance)
+
+Backup exception authorized by the user on 2026-10-15: use a privately streamed,
+encrypted logical PostgreSQL backup over SSH without upgrading to Pro. Provision
+and activation may accept `logical-sha256:<64 lowercase hex>` only with explicit
+`--logical-backup-verified`, attesting a completed independent disposable restore
+and integrity verification of that exact archive. This is not a Railway volume
+backup ID, nor approval of a shared-preview exception or tenant UI activation.
+The command cannot itself inspect operator-held backup artifacts; the operator
+must attach real hash/source/destination/restore results before any write.
+
+- [x] Logical references reject malformed hashes and missing restore attestation
+  before any write; existing official Railway backup references remain compatible.
+
+Local proof at code SHA `ca2e0903a27b49320c20d3e18c8772f97327eb30`:
+PostgreSQL17.11 disposable, 67 tests passed and independent R3 review;
+[matrix and limits](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
+These checks certify the command locally, not its execution on Railway.
+
+- [x] Initial QA memberships are SUSPENDED; only explicit activation enables
+  the reserved manager. Domains and guest mutations remain inactive/blocked.
+- [x] Concurrent claims of reserved slug/host/login abort the whole provision
+  without attaching an identity owned by another Venue. Repeated provision
+  preserves state and reports it accurately, including after activation.
+- [x] Containment suspends every ACTIVE QA membership, revokes staff/guest
+  sessions and denies new shared-API login/QR issuance. Foreign memberships
+  and sessions remain intact; activation restores only the reserved manager,
+  never revoked credentials or other suspended operators automatically.
+- [x] Concurrent auth locks cause an explicit, atomic refusal, never deadlock
+  or partial success. A subsequent containment attempt revokes sessions created
+  by the completed login/operator switch, with foreign access preserved.
+- [x] Verify the above against disposable PostgreSQL, including a committed
+  concurrent foreign identity claim and live ASGI staff/guest streams.
 
 - [ ] Wildcard HTTPS, Host routing, explicit app/DB trust boundaries and logging are configured in preview and verified (not inferred).
 - [ ] Switch-on is behind a documented rollback gate; no unsupported production readiness claim.

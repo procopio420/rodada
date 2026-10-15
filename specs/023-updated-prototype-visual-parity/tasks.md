@@ -21,14 +21,14 @@ Resultados, ambiente, reprodução e limites: [relatório atual](../../docs/desi
 - [x] Validar hashes/assets/fontes; revisar imagens e documentar ambiente/limites.
 - [x] Commit e publicação remota com PR rascunho, sem conclusão global.
 
-Resultado parcial: [V01 Agora/Bar](../../docs/design/v01-night-agora-inventory.md), evidência bc9575b publicada no [PR68 em rascunho](https://github.com/procopio420/rodada/pull/68). V01 global permanece aberto.
+Resultado parcial histórico: [V01 Agora/Bar](../../docs/design/v01-night-agora-inventory.md), evidência bc9575b publicada no [PR68 posteriormente integrado à main](https://github.com/procopio420/rodada/pull/68). Inventário atual dos cinco exports:34 contratos/pares em7ac9389. V01 não aprova paridade integral.
 
-- [x] Documentar plano especÃ­fico de pixel-perfect e corrigir o foco da documentaÃ§Ã£o.
-- [ ] V01: inventÃ¡rio e contratos por tela/estado/recorte.
+- [x] Documentar plano específico de pixel-perfect e corrigir o foco da documentação.
+- [ ] V01: inventário e contratos por tela/estado/recorte.
 - [ ] V02: medidas, tokens e componentes atualizados Web/Compose.
-- [ ] V03: fixtures equivalentes e normalizaÃ§Ãµes rastreÃ¡veis.
-- [ ] V04: composiÃ§Ã£o fiel de Cozinha/Bar e assertions completas.
-- [ ] V05: shell/jornadas Android e screenshots contra referÃªncia.
+- [ ] V03: fixtures equivalentes e normalizações rastreáveis.
+- [ ] V04: composição fiel de Cozinha/Bar e assertions completas.
+- [ ] V05: shell/jornadas Android e screenshots contra referência.
 - [ ] V06: pico e conectividade em todos os estados demonstrados.
 - [ ] V07: gates CI, contratos responsivos e relatório final de cobertura.
 
@@ -72,14 +72,14 @@ Este recorte não conclui V04 global nem declara fidelidade total.
 
 Resultados: [relatório V04 parcial](../../docs/design/v04-kitchen-tickets.md).
 
-- [ ] V07: gates CI, contratos responsivos e relatÃ³rio final de cobertura.
+- [ ] V07: gates CI, contratos responsivos e relatório final de cobertura.
 
-## V05 parcial â€” navegaÃ§Ã£o do Atendimento
+## V05 parcial — navegação do Atendimento
 
-- [x] Contrato antes do cÃ³digo e tokens documentados.
+- [x] Contrato antes do código e tokens documentados.
 - [x] Composable integrado sem alterar comandos.
-- [x] ReferÃªncia e Android comparados por regiÃ£o.
-- [x] Unit/build/lint/instrumentaÃ§Ã£o e limitaÃ§Ãµes documentados.
+- [x] Referência e Android comparados por região.
+- [x] Unit/build/lint/instrumentação e limitações documentados.
 
 Contrato: [V05](../../docs/design/v05-atendimento-shell-contract.md). V05 global permanece aberta.
 
@@ -151,3 +151,7 @@ Estorno nativo real concluído nesta continuação: original600 preservado,1Refu
 - [x] Give finite SSE snapshot fixture consistent disconnected semantics.
 - [x] Fix Date without disabling accessibility timers.
 - [x] Repeat management gate (12 passed) and complete original visual suite (198 passed); repeat against current integrated main separately.
+
+## Integração de 13/10/2026
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.

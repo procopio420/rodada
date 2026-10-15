@@ -73,12 +73,35 @@ class CriticalFieldsTest {
 }
 
 internal fun captureCriticalEvidence(compose: ComposeContentTestRule, name: String, node: SemanticsNodeInteraction) {
+        // Capture the resting component after its preceding interaction, with
+        // one fixed Compose clock for both images. Preserve exact-byte equality.
+        compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
+        // Android's native ripple/render thread does not follow the Compose
+        // test clock. Allow its preceding touch feedback to reach rest as well.
+        android.os.SystemClock.sleep(750)
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val metrics = instrumentation.targetContext.resources.displayMetrics
         val font = instrumentation.targetContext.resources.configuration.fontScale
-        val bytes = (0..1).map {
-            ByteArrayOutputStream().also { output -> node.captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, output) }.toByteArray()
+        val automaticClock = compose.mainClock.autoAdvance
+        compose.mainClock.autoAdvance = false
+        val bytes = try {
+            (0..1).map {
+                ByteArrayOutputStream().also { output -> node.captureToImage().asAndroidBitmap().compress(Bitmap.CompressFormat.PNG, 100, output) }.toByteArray()
+            }
+        } finally {
+            compose.mainClock.autoAdvance = automaticClock
+        }
+        if (!bytes[0].contentEquals(bytes[1])) {
+            bytes.forEachIndexed { index, diagnostic ->
+                val payload = android.util.Base64.encodeToString(diagnostic, android.util.Base64.NO_WRAP)
+                val diagnosticShell = instrumentation.uiAutomation.executeShellCommandRw("sh")
+                val diagnosticFile = "$name-pair$index-w${metrics.widthPixels}-f${(font * 100).toInt()}.png"
+                ParcelFileDescriptor.AutoCloseOutputStream(diagnosticShell[1]).use {
+                    it.write("mkdir -p /data/local/tmp/rodada-critical-evidence\necho $payload | base64 -d > /data/local/tmp/rodada-critical-evidence/$diagnosticFile\n".toByteArray())
+                }
+                ParcelFileDescriptor.AutoCloseInputStream(diagnosticShell[0]).use { it.readBytes() }
+            }
         }
         assertArrayEquals(bytes[0], bytes[1])
         val encoded = android.util.Base64.encodeToString(bytes[0], android.util.Base64.NO_WRAP)

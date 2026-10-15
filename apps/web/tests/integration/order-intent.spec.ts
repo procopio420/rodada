@@ -1,4 +1,5 @@
-import { expect, test, openAttendanceTab } from "./fixtures";
+import { expect, test } from "./fixtures";
+import { openNamedAttendanceTab } from "./attendance-helpers";
 
 for (const width of [360, 390, 430]) test(`Staff order committed without response recovers after reload once ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
@@ -8,8 +9,8 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   const label = `Order recovery ${width}`;
-  await openAttendanceTab(page, label);
-  await expect(page.locator(".attendanceSelectedTab .attendanceTabTitle small")).toContainText(label);
+  await openNamedAttendanceTab(page, label);
+  await expect(page.getByRole("heading", { name: `Mesa Fixture ${label}`, exact: true })).toBeVisible();
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();

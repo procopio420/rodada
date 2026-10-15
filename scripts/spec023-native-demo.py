@@ -15,9 +15,12 @@ from xml.etree import ElementTree as ET
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--adb', required=True)
 p.add_argument('--serial', required=True)
-p.add_argument('--phase', choices=['login', 'tab', 'order', 'payment-guard', 'cash-open', 'payment', 'payment-open', 'refund', 'refund-return', 'refund-repay', 'cash-close', 'inspect', 'offline', 'recovery'], required=True)
+p.add_argument('--phase', choices=['login', 'tab', 'order', 'payment-guard', 'cash-open', 'payment', 'payment-open', 'refund', 'refund-return', 'refund-repay', 'cash-close', 'delivery', 'inspect', 'offline', 'recovery'], required=True)
 p.add_argument('--out', required=True)
+p.add_argument('--canonical-menu', action='store_true', help='Use the existing143-row CSV in a disposable test Venue')
 a = p.parse_args()
+total = '15,50' if a.canonical_menu else '6,00'
+gross_after_refund = '18,50' if a.canonical_menu else '9,00'
 assert a.serial.startswith('emulator-'), 'Only isolated emulator accepted'
 out = Path(a.out)
 out.mkdir(parents=True, exist_ok=True)
@@ -96,6 +99,18 @@ def seek(label, up=False):
             adb('shell','input','swipe',x,high if up else low,x,low if up else high,'350')
     raise AssertionError('Scrolled control absent: ' + label)
 
+def select_saved_tab():
+    saved = json.loads((out/'native-tab.json').read_text(encoding='utf-8'))
+    labels = [n['text'] for n in saved if n['text'].startswith('Spec023 test ')]
+    assert len(labels) == 1
+    if not any(n.get('text') == 'CONTAS' for n in tree().iter('node')):
+        seek('← Comandas',up=True)
+        tap('← Comandas')
+    tap('CONTAS')
+    seek(labels[0])
+    tap(labels[0])
+    wait('Atualizar')
+
 if a.phase == 'login':
     try:
         find('ONLINE')
@@ -123,7 +138,11 @@ elif a.phase == 'tab':
     except AssertionError:
         pass
     tap('Pedir')
-    wait('Abrir comanda')
+    try:
+        tap('Nova comanda')
+    except AssertionError:
+        pass
+    wait('Nova comanda')
     tab_label = 'Spec023 test ' + str(int(time.time()))
     enter('Nome ou apelido (opcional)', tab_label.replace(' ', '%s'))
     tap('Abrir')
@@ -132,29 +151,55 @@ elif a.phase == 'tab':
     find('ABERTA · versão 1')
     capture('native-tab')
 elif a.phase == 'order':
-    seek('Buscar no catálogo')
-    enter('Buscar no catálogo','QA%sWrong%sitem')
-    nodes = [n for n in tree().iter('node') if n.get('text','').startswith('QA Wrong item ')]
-    assert len(nodes) == 1, 'Expected the existing full-shift fixture product, not invented data'
-    tap_node(nodes[0])
+    names = ['Brahma 600 ml', 'Coxinha de Queijo com Alho'] if a.canonical_menu else ['QA Wrong item ']
+    for name in names:
+        seek('Buscar no catálogo', up=True)
+        tap('Buscar no catálogo', True)
+        adb('shell','input','keyevent','KEYCODE_MOVE_END')
+        for _ in range(64): adb('shell','input','keyevent','KEYCODE_DEL')
+        adb('shell','input','text',name.replace(' ', '%s'))
+        adb('shell','input','keyevent','4')
+        nodes = [n for n in tree().iter('node') if n.get('class') != 'android.widget.EditText' and
+                 (n.get('text','') == name or (not a.canonical_menu and n.get('text','').startswith(name)))]
+        assert len(nodes) == 1, 'Expected existing canonical product: ' + name
+        tap_node(nodes[0])
+    tap('Ver carrinho · ' + ('2' if a.canonical_menu else '1') + ' itens · R$ ' + total)
     seek('Confirmar pedido')
     capture('native-cart')
     tap('Confirmar pedido')
     # Confirmed balance is durable evidence; a transient notice can disappear
     # during SSE revalidation and is insufficient to prove order confirmation.
     wait('Atualizar')
-    seek('Total a pagar R$ 6,00', up=True)
+    try:
+        tap('Ver detalhes da conta')
+    except AssertionError:
+        pass
+    seek('Total a pagar R$ ' + total, up=True)
     capture('native-order-confirmed')
+elif a.phase == 'delivery':
+    seek('← Comandas',up=True)
+    tap('← Comandas')
+    tap('AGORA')
+    wait('ENTREGUE')
+    for _ in range(2 if a.canonical_menu else 1):
+        seek('ENTREGUE')
+        tap('ENTREGUE')
+        wait('Entrega concluída.')
+        tap('Entendi')
+    wait('Nenhuma entrega aguardando no último estado consultado.')
+    capture('native-delivered')
 elif a.phase == 'payment-guard':
-    seek('Pagar', up=True)
+    select_saved_tab()
+    seek('Pagar')
     tap('Pagar')
     wait('Pagar comanda')
     seek('Abra ou selecione um caixa com turno ativo antes de receber dinheiro.')
     capture('native-payment-guard')
     tap('Cancelar')
 elif a.phase == 'cash-open':
-    seek('← Comandas', up=True)
-    tap('← Comandas')
+    if not any(n.get('text') == 'CONTAS' for n in tree().iter('node')):
+        seek('← Comandas', up=True)
+        tap('← Comandas')
     tap('Caixa')
     wait('Caixa fechado')
     tap('Abrir caixa')
@@ -164,22 +209,21 @@ elif a.phase == 'cash-open':
     wait('Iniciar contagem')
     capture('native-cash-open')
 elif a.phase in ('payment', 'payment-open'):
-    tap('CONTAS')
-    saved = json.loads((out/'native-tab.json').read_text(encoding='utf-8'))
-    labels = [n['text'] for n in saved if n['text'].startswith('Spec023 test ')]
-    assert len(labels) == 1
-    seek(labels[0])
-    tap(labels[0])
-    wait('Atualizar')
-    seek('Pagar',up=True)
+    select_saved_tab()
+    seek('Pagar')
     tap('Pagar')
     wait('Pagar comanda')
-    find('Saldo restante: R$ 6,00')
+    find('Saldo restante: R$ ' + total)
     capture('native-payment-manual-test')
     tap('Confirmar pagamento')
     wait('Atualizar')
+    try:
+        seek('Ver detalhes da conta', up=True)
+        tap('Ver detalhes da conta')
+    except AssertionError:
+        pass
     seek('R$ 0,00',up=True)
-    find('Pagamentos recebidos R$ 6,00 · estornos R$ 0,00')
+    find('Pagamentos recebidos R$ ' + total + ' · estornos R$ 0,00')
     capture('native-payment-confirmed')
     if a.phase == 'payment':
         tap('Fechar')
@@ -187,8 +231,16 @@ elif a.phase in ('payment', 'payment-open'):
         seek('Fechada',up=True)
         capture('native-tab-closed')
 elif a.phase == 'refund':
-    seek('Estornar R$ 6,00')
-    tap('Estornar R$ 6,00')
+    select_saved_tab()
+    # The canonical menu has143 rows before history. Use its ordinary search
+    # control to keep the existing product and reach history without bypassing UI.
+    seek('← Comandas', up=True)
+    seek('Buscar no catálogo')
+    tap('Buscar no catálogo', True)
+    adb('shell','input','text','Brahma%s600%sml' if a.canonical_menu else 'Brahma')
+    adb('shell','input','keyevent','4')
+    seek('Estornar R$ ' + total)
+    tap('Estornar R$ ' + total)
     wait('Estornar pagamento')
     tap('Valor do estorno',True)
     adb('shell','input','keyevent','KEYCODE_MOVE_END')
@@ -217,15 +269,21 @@ elif a.phase == 'refund-return':
     seek('Já estornado: R$ 3,00')
     capture('native-refund-confirmed')
 elif a.phase == 'refund-repay':
-    seek('Pagar',up=True)
+    select_saved_tab()
+    seek('Pagar')
     tap('Pagar')
     wait('Pagar comanda')
     find('Saldo restante: R$ 3,00')
     capture('native-refund-repay')
     tap('Confirmar pagamento')
     wait('Atualizar')
+    try:
+        seek('Ver detalhes da conta', up=True)
+        tap('Ver detalhes da conta')
+    except AssertionError:
+        pass
     seek('R$ 0,00',up=True)
-    find('Pagamentos recebidos R$ 9,00 · estornos R$ 3,00')
+    find('Pagamentos recebidos R$ ' + gross_after_refund + ' · estornos R$ 3,00')
     capture('native-refund-reconciled')
     tap('Fechar')
     wait('Atualizar')
@@ -244,13 +302,13 @@ elif a.phase == 'cash-close':
         wait('Iniciar contagem')
         # Cash uses Java NumberFormat's literal NBSP; do not normalize away
         # a difference from the Tab formatter's ordinary space.
-        find('R$\u00a06,00')
+        find('R$\u00a0' + total)
         capture('native-cash-received')
         tap('Iniciar contagem')
         wait('Informar contagem')
         tap('Informar contagem')
     wait('Valor contado')
-    enter('Valor contado','6,00')
+    enter('Valor contado',total)
     capture('native-cash-count')
     tap('Fechar caixa')
     wait('Caixa fechado')
