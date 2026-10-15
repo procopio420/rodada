@@ -109,6 +109,8 @@ step=independent-sql
 "$PYTHON" scripts/verify-qr-lifecycle.py
 "$PYTHON" scripts/verify-browser-origins.py
 "$PYTHON" scripts/verify-issue106-unavailable.py
+step=native-context-readback
+RODADA_COMPOSE_READBACK=true bash scripts/android-compose-order.sh
 "$PYTHON" scripts/verify-issue106-concurrency.py
 "$PYTHON" scripts/verify-issue106-authorization.py
 "$PYTHON" scripts/verify-issue106-sse.py

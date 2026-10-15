@@ -41,7 +41,8 @@ class LiveComposeReadbackTest {
             waitFor(hasTestTag("workspace-list"))
             compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Pronto"))
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pronto").fetchSemanticsNodes().size == 2 }
-            compose.onNodeWithText("Saldo em aberto").assertExists()
+            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Saldo em aberto"))
+            compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
             compose.onNodeWithText("← Mesas e comandas").performClick()
         }
         // No confirm/payment/fulfillment action, direct HTTP client or seeded Compose state.

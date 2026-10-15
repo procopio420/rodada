@@ -171,6 +171,15 @@ jobs:
           python scripts/verify-issue106-sse.py
           python scripts/verify-issue106-pending.py
           python scripts/verify-issue106-unavailable.py
+      - name: Native Compose reads both contextual Tabs after explicit Web READY
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
+          script: RODADA_COMPOSE_READBACK=true bash scripts/android-compose-order.sh
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -205,6 +214,7 @@ jobs:
             artifacts/android-catalog-*.json
             artifacts/android-catalog-*.txt
             artifacts/android-catalog-*.png
+            artifacts/android-context-readback*
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
