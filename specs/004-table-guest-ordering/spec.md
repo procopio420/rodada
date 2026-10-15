@@ -436,3 +436,15 @@ entram no rascunho e podem ser alterados em Editar antes de Enviar.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+## GUEST-006 — Customer opcional e prova de identidade (#147)
+
+Identidade continua opcional; Guest que não se cadastra conserva QR/GuestSession, criação de Tab e pedidos anônimos. Cliente não precisa instalar aplicativo, informar CPF ou telefone, nem instalar login para consumir.
+
+- O primeiro registro do próprio perfil só é permitido com GuestSession ativa já vinculada a uma Tab **sem Customer**, da visita atual. Cria **novo** Customer, username e hash de senha Django e Relationship `VISITOR` no Venue; não permite assumir Customer legado pelo nome/telefone. Usuário de 3–64 caracteres ASCII permitidos, senha de no mínimo 12 caracteres, sem alegar verificação de telefone/email.
+- Login de Customer exige senha da credencial autoinscrita e Relationship no Venue atual. Bloqueio de tentativas erradas após cinco falhas por credential no banco. Cadastro antigo sem prova exige recuperação assistida, não reivindicação automática.
+- Login emite segredo opaco com digest persistido (`CustomerAuthSession`), com duração de 2h e vínculo imutável ao `GuestSession` e Venue. No Web BFF o segredo fica em cookie host-only HttpOnly/SameSite/Secure em produção, diferente da sessão Guest; scripts do browser não o recebem.
+- `POST /guest/customer/claim/` exige **ambas** as provas válidas e `target_tab_id` canônico, nunca resolve por Table label, Guest display_label, apelido ou nome. Se a sessão já controla esta Tab, Customer só pode ser associado quando vazio ou igual ao autenticado, e vínculo físico atual é revalidado. Para reassumir Tab do perfil, a GuestSession deve estar **sem outra Tab**, e a Tab deve pertencer ao mesmo Customer, Venue, TableOccupancy ativa e geração da visita. O comando é idempotente por estado, auditado apenas em mudança real.
+- Logout revoga credencial adicional, **não a Tab nem pedidos anônimos**; troca de senha exige a senha antiga, incrementa a versão de credencial e revoga todas as CustomerAuthSessions antigas, sem reescrever ledger. Revogação/expiração/rotação de GuestSession ou geração da mesa também invalida a autorização de claim.
+- Tab.customer é referência opcional; ao autenticar/associar, preservar `relationship_snapshot`, limites da Tab, Order, Charges, Payments e ledger intactos. O perfil jamais concede automaticamente crédito ou exposição.
+- A API separa `register`, `login`, `context`, `claim`, `logout` e `password`; Web oferece UI de descoberta opcional, entrada, continuidade de comanda e revogação. Segurança R3 e homologação exigem testes de concorrência PostgreSQL, replay, cross-Venue, revogação e cookie BFF.
