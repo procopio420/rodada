@@ -25,8 +25,11 @@ class OperationsRepository(private val authRepository: AuthRepository) {
             client.request("POST", "/tabs/$tabId/operations/" + if (preview) "preview/" else "", command, it)
         }
 
-    // Keep routine refreshes limited to active Tabs; history is explicitly fetched on demand.
-    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session) { client.tabs(it) }
+    // Preserve the existing closed-Tab view for managers with re-open permission.
+    // Staff history uses the separate on-demand read below, not recurring refresh.
+    suspend fun tabs(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
+        client.tabs(it, "tab.reopen" in session.capabilities)
+    }
 
     // GET /tabs/ is readable by authenticated venue staff; tab.reopen authorizes mutation, not history reads.
     suspend fun tabHistory(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
