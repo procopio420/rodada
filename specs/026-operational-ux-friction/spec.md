@@ -467,11 +467,20 @@ Cancelados não são selecionáveis. Problemas de identidade/configuração,
 catálogo ausente/indisponível, valor ou contexto bloqueiam a rodada conforme
 T08a–T08d; não trocar variantes por defaults.
 
-**Adicionar ao carrinho** inclui somente as linhas/quantidades escolhidas na
-mesma Tab (ou GuestScope) e mantém o rascunho anterior, sem POST, cobrança,
-produção nem reaproveitamento de idempotency key. Antes da inclusão, revalidar
-snapshot/catalog/Tab no staff e contexto de visita/policy no guest. Repetir
-toque, resposta perdida e reconciliação do envio continuam sob os contratos
-de intenção existentes. Na UX guest, a combinação preserva o limite agrupado
-de 99 unidades por configuração. Fora de escopo: repetir entre comandas,
-mutar pedidos confirmados ou autorizar entrega/pagamento automáticos.
+**Confirmar e enviar rodada** é o único aceite do diálogo. Envia somente as
+linhas marcadas e quantidades escolhidas como uma **nova Order** da Tab/GuestScope
+original, via endpoint canônico de confirmação, sem colocá-las no rascunho.
+O envio cria uma chave de idempotência nova, preservada antes do POST e usada
+também na recuperação de resposta perdida; o estado de sucesso só vem de
+readback canônico. O roteamento normal da Order confirmada a BAR/KITCHEN segue
+a configuração de cada Product. O carrinho manual pré-existente (inclusive
+de outra Tab) permanece **intacto** após sucesso, rejeição e replay, e jamais
+é misturado às linhas repetidas. Cancelar o diálogo não gera efeito algum.
+
+Antes do POST revalidar snapshot/catalog/Tab no staff, e visita/policy no
+guest; indisponibilidade, teto de consumo, sessão/ocupação alterada e conflitos
+continuam bloqueados pela API. Não iniciar preparo nem entrega automaticamente.
+O envelope durável distingue o envio direto da confirmação do rascunho e
+recupera a intenção original, não um segundo pedido. Fora de escopo: repetir
+entre comandas, mutar pedidos históricos ou autorizar entrega/pagamento
+automáticos.

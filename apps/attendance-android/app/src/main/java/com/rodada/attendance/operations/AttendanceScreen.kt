@@ -231,7 +231,7 @@ fun AttendanceScreen(
                     onCorrectItem = { correctionItemId = it.id },
                     onRefundPayment = { refundTarget = RefundTarget.Payment(it) },
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
-                    onRepeatOrder = { review, quantities -> viewModel.repeatOrder(selected.summary.id, review, quantities) },
+                    onRepeatOrder = { review, quantities -> viewModel.repeatOrder(session, selected.summary.id, review, quantities) },
                 )
                 }
             }
@@ -519,7 +519,6 @@ internal fun TabWorkspace(
         RepeatOrderDialog(review, repeatEnabled && unchanged, { repeatReview = null }) { quantities ->
             repeatReview = null
             onRepeatOrder(review, quantities)
-            reviewingCart = true
         }
     }
     val catalogScroll = rememberLazyListState()

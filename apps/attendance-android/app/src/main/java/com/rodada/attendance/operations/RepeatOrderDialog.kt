@@ -53,7 +53,7 @@ internal fun RepeatOrderDialog(
 
     AlertDialog(onDismissRequest = onDismiss, title = { Text("Mais uma rodada") }, text = {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Escolha os itens e ajuste as quantidades. Nada será enviado antes de confirmar o pedido.", style = MaterialTheme.typography.bodySmall)
+            Text("Escolha os itens e ajuste as quantidades. Confirmar envia a rodada diretamente ao bar e à cozinha.", style = MaterialTheme.typography.bodySmall)
             if (!enabled) Text("O contexto mudou ou está ocupado. Feche e revise novamente.", color = MaterialTheme.colorScheme.error)
             if (review.excluded > 0) Text("${review.excluded} linha(s) canceladas ou sem unidades restantes não serão repetidas.")
             review.problems.forEach { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -109,7 +109,7 @@ internal fun RepeatOrderDialog(
     }, confirmButton = {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             RodadaButton(onClick = { if (chosen != null) onAdd(quantities) },
-                enabled = enabled && chosen != null, modifier = Modifier.fillMaxWidth()) { Text("Adicionar ao carrinho") }
+                enabled = enabled && chosen != null, modifier = Modifier.fillMaxWidth()) { Text("Confirmar e enviar rodada") }
             RodadaOutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Cancelar") }
         }
     })

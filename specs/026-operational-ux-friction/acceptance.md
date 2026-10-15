@@ -467,8 +467,9 @@ UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continua
 - [ ] Revisão abre com elegíveis marcados; quantidades originais, preços atuais e configurações visíveis.
 - [ ] Desmarcar um de vários itens exclui só aquele; alterar 2→1 ou 2→3 copia exatamente a quantidade.
 - [ ] Tudo desmarcado, quantidade vazia/0/>99 ou ID estranho bloqueia sem mutation do draft.
-- [ ] Cancelar fecha sem alterar rascunho; confirmar inclui apenas itens escolhidos e mostra carrinho.
-- [ ] Alteração de catálogo, bloqueio de contexto, indisponibilidade ou pendência impede inclusão.
-- [ ] Pedido histórico, saldo, pagamentos e ledger permanecem intactos até confirmação explícita.
-- [ ] Repetição confirmada cria uma nova intenção; timeout/replay mantém UUID/payload congelados.
+- [ ] Cancelar preserva o carrinho; Confirmar e enviar cria nova Order imediatamente, roteada à estação correta, sem segundo toque no carrinho.
+- [ ] Rascunho manual pré-existente na mesma Tab e em outras Tabs permanece intacto após sucesso, rejeição e recuperação.
+- [ ] Catálogo/contexto/visita alterados, indisponibilidade ou pendência bloqueiam envio; API segue como última autoridade.
+- [ ] Pedido histórico, saldo, pagamentos e ledger permanecem intactos até confirmação canônica; depois apenas novas Charges/Order da rodada.
+- [ ] Repetição usa nova intenção durável; timeout/replay mantém UUID/payload e não duplicam Order/Charge; após readback a UI mostra confirmação.
 - [ ] Mobile 360/390/430, teclado/IME, foco, leitores de tela e alvo >=44 px examinados.
