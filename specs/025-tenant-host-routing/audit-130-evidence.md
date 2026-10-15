@@ -234,3 +234,15 @@ para A/B/piloto, HMAC interno válido200 e inválido/expirado/adulterado403,
 assinatura ausente em rota privada tenant403 e stripping de assertiva válida
 apresentada externamente. Resultados/limites no checkpoint; nenhum token/sessão
 de cliente usado. Isso não converte o gate de homologação A/B em PASS.
+
+### Backup lógico autorizado e recuperado
+
+Em2026-10-15 o usuário escolheu backup lógico por SSH, sem Pro. A decisão formal
+substitui apenas o método de backup desta execução; preview separado e ativação
+continuam decisões distintas. [Prova completa/hash](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15):
+snapshot PostgreSQL18.6 read-only, dump criptografado em streaming, autenticação
+AES-GCM/SHA e restore local18 descartável/tmpfs; **90/90 contagens do mesmo
+snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
+Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
+regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
+reclassifica as provas A/B, flag ou rollback como executadas.

@@ -79,6 +79,18 @@ missing Railway access. No deployment or acceptance is implied.
 
 ### PR #159 — safe QA provisioning contract (not edge acceptance)
 
+Backup exception authorized by the user on 2026-10-15: use a privately streamed,
+encrypted logical PostgreSQL backup over SSH without upgrading to Pro. Provision
+and activation may accept `logical-sha256:<64 lowercase hex>` only with explicit
+`--logical-backup-verified`, attesting a completed independent disposable restore
+and integrity verification of that exact archive. This is not a Railway volume
+backup ID, nor approval of a shared-preview exception or tenant UI activation.
+The command cannot itself inspect operator-held backup artifacts; the operator
+must attach real hash/source/destination/restore results before any write.
+
+- [ ] Logical references reject malformed hashes and missing restore attestation
+  before any write; existing official Railway backup references remain compatible.
+
 Local proof at code SHA `ca2e0903a27b49320c20d3e18c8772f97327eb30`:
 PostgreSQL17.11 disposable, 67 tests passed and independent R3 review;
 [matrix and limits](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
