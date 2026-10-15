@@ -207,7 +207,7 @@ jobs:
             artifacts/revocation-*.json
             artifacts/sse-*.json
             artifacts/pending-payment-*.json
-            artifacts/unavailable-cart-*.json
+            artifacts/unavailable-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
