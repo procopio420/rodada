@@ -1,0 +1,144 @@
+{
+  "captured_at": "2026-10-15T15:23:34.844498+00:00",
+  "timezone": "America/Sao_Paulo",
+  "base_sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+  "source_sha": "348db2a1d414ad1555999ce02ab1517d59320b7f",
+  "final_test_sha": "ed229fdb5799d3369b35a08fc2083a312475bc4a",
+  "deployment_observed": "476c096a-47df-463e-9029-6f52f173211d",
+  "project": "rodada-aderlan-demo-20261009",
+  "environment": "demo",
+  "service": "rodada-web",
+  "candidate_local_result": "PASS focused controls; full final gate is CI Web on PR head",
+  "post_deploy_validation": "NOT_RUN: explicit merge/deploy authorization required",
+  "local_gates": {
+    "api_postgresql": {
+      "passed": 971,
+      "duration_seconds": 1141.02,
+      "result": "PASS",
+      "database": "disposable Docker PostgreSQL17, loopback55479"
+    },
+    "web_integration": {
+      "passed": 109,
+      "skipped": 3,
+      "duration": "16.2m",
+      "result": "FAIL before final test matcher adjustment",
+      "failed": 1,
+      "final_focused_retest": {
+        "result": "PASS",
+        "passed": 1,
+        "duration": "29.7s",
+        "reason": "The table-group observer now accepts direct /dissolve/ responses, preservingPOST/200/readbacks; full original109PASS+1FAIL retained"
+      },
+      "database": "disposable rodada_web_e2e, real Next/Django",
+      "skip_reason": "Three canonical CSV import cases opt-in RODADA_E2E_MENU=1; unrelated menu acceptance not reexecuted"
+    },
+    "typecheck": "PASS",
+    "build": "PASS",
+    "auth_tests": {
+      "passed": 4
+    },
+    "tenant_and_transport_tests": {
+      "passed": 10
+    },
+    "realtime_tests": {
+      "passed": 8
+    },
+    "gateway_and_authority_faults": {
+      "passed": 2
+    },
+    "web_added_lines": {
+      "checked": 380,
+      "findings": 0
+    },
+    "eslint": {
+      "existing_findings": 24,
+      "new_fatal_findings": 0
+    },
+    "django_check": "PASS",
+    "migration_drift": "No changes detected",
+    "full_visual": "NOT_RUN: no visual component/style changes; real responsive integration ran"
+  },
+  "ci_api": {
+    "result": "PASS",
+    "url": "https://github.com/procopio420/rodada/actions/runs/38756584211",
+    "sha": "7aefee2eb688dcf4a87367d1f2e8d6c298adc865",
+    "passed": 971,
+    "duration_seconds": 801.37,
+    "reuse_reason": "No apps/api changes between checked SHA and final candidate; exact tree a9aa03fbb8763e81214a67ac864a1bfe56226ab2"
+  },
+  "ci_web": {
+    "authoritative_live_result": "https://github.com/procopio420/rodada/pull/189/checks",
+    "note": "Final-head CI result is recorded in PR189 after this immutable local/runtime snapshot; not claimed green by this receipt."
+  },
+  "review": {
+    "risk": "R3",
+    "type": "INDEPENDENT",
+    "reviewer": "/root/r3_review",
+    "source_sha": "348db2a1d414ad1555999ce02ab1517d59320b7f",
+    "final_test_sha": "ed229fdb5799d3369b35a08fc2083a312475bc4a",
+    "status": "NO_FINDINGS_WITH_GAPS",
+    "unresolved_findings": 0,
+    "github_approval": false
+  },
+  "runtime_controls": {
+    "flag_exact_true": true,
+    "seed_exact_false": true,
+    "hmac": "PASS",
+    "qa_containment": "PASS",
+    "business_groups_equal": 43,
+    "pilot_fresh_login": "PASS",
+    "pilot_browser_checks": 22,
+    "guest_qr_browser_checks": 4,
+    "guest_qr": "PASS existing occupied table",
+    "logout_and_revoked_replay": "PASS only new Staff session",
+    "guest_session_cleanup": "Browser context destroyed. New anonymous Guest credential expires at normalTTL; no anonymous logout endpoint. No operational table/Tab/order changed."
+  },
+  "http_negative_candidate": {
+    "result": "PASS",
+    "hosts": [
+      "e2ea.rodada.bar",
+      "e2eb.rodada.bar",
+      "unregistered-preview.rodada.bar"
+    ],
+    "variants_per_host": 19,
+    "all_exact_421": true,
+    "method": "Real disposable PostgreSQL/Django/Next; no redirect following; A/B fixture domains inactive; forged headers, missing/invalid Guest and refresh proofs"
+  },
+  "runtime_remaining_defect": "Observed runtime still7189c972 with original negativeHost503/404/401 behavior. Fix not deployed; local PASS is not Railway421 acceptance.",
+  "safety": {
+    "infra_changes": false,
+    "dns_cloudflare_changes": false,
+    "seed_restore_provisioning_operational_migrations": false,
+    "financial_test_on_operational_db": false,
+    "operational_business_mutations": false,
+    "qa_activation": false,
+    "user_sessions_revoked": false,
+    "only_auth_test_sessions_and_audit_created": true,
+    "raw_rows_digests_tokens_cookies_pins_in_evidence": false
+  },
+  "reproduction": {
+    "regression_commands": [
+      "cd apps/web && npm run test:tenant",
+      "cd apps/web && npm run test:table-service (after build)",
+      "cd apps/web && npm run test:integration with dedicated loopback rodada_web_e2e and RODADA_E2E_POSTGRES=1",
+      "cd apps/api && pytest --ds=rodada_api.settings with disposable PostgreSQL"
+    ],
+    "pilot_method": "Programmatic Chromium, getpass hidden input, JSON stdin in memory, no trace/screenshot/storage state; GET reads and auth-only POSTs; same-origin module navigation",
+    "qr_method": "Private read-only existing eligible table token passed only in memory to isolated Chromium; no QR generation or occupancy creation"
+  },
+  "evidence_files": [
+    "pilot-browser.json",
+    "qr-browser.json",
+    "qr-readonly-inventory.json",
+    "r3-review.md",
+    "railway-final-state.json",
+    "regressions.json",
+    "runtime-after.json",
+    "runtime-before.json",
+    "runtime-health.json",
+    "runtime-integrity.json",
+    "runtime-routing.json",
+    "runtime-smoke-observability.json",
+    "runtime-transport-reproduction.json"
+  ]
+}

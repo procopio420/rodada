@@ -1,0 +1,144 @@
+{
+  "runtime_node": "v24.22.0",
+  "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+  "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+  "method": "private runtime Node fetch direct signed loopback Django, invalid proof only",
+  "results": [
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "status": 421
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/auth/refresh/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "status": 421
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "status": 421
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "status": 421
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/auth/refresh/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/auth/refresh/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/auth/refresh/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/guest/qr/resolve/",
+      "status": 421
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/auth/refresh/",
+      "status": 421
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/auth/refresh/",
+      "error_class": "TypeError",
+      "cause_code": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH"
+    }
+  ],
+  "summary": {
+    "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH": 12,
+    "421": 12
+  }
+}

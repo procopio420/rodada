@@ -48,3 +48,13 @@ portáveis read-only com TTL/revogação; gestão continua escopada ao Venue.
 O hardening de código valida authorities assinadas e segredos production/pilot,
 e converte erro de mismatch no OAuth em403 antes de qualquer troca.
 Preview421 mantém #151/#130 bloqueados; CI/review de código não autorizam wildcard.
+
+## Correção pós-ativação permanente — 15/10/2026
+
+A fronteira Web passa a rejeitar candidatos a Host inativos/desconhecidos com421
+antes de auth/Guest, incluindo paths com barra final, em vez do404 permitido no
+contrato original. Isso não transforma404/401 históricos em prova de acesso cruzado.
+Falhas de HMAC/upstream permanecem distintas. Bodies de comandos BFF não são
+reenviados automaticamente após421. [Causa, testes e rollout autorizado](../ops/spec025-permanent-activation-fix.md).
+A API nativa/hosts de compatibilidade e assets sem identidade mantêm contratos
+próprios; código corrigido não implica homologação do novo deployment.

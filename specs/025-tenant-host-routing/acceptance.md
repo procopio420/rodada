@@ -294,16 +294,16 @@ These checks certify the command locally, not its execution on Railway.
 
 ## Regressão pós-ativação permanente — PR187 (novo gate, sem reabrir Gates1–3)
 
-- [ ] PostgreSQL descartável + Next/Django reais: A/B inativos e host desconhecido
+- [x] PostgreSQL descartável + Next/Django reais: A/B inativos e host desconhecido
   retornam421 em UI/BFF/manifest e variações GET/HEAD/POST/OPTIONS, query/trailing
   slash, Guest ausente/inválido e refresh inválido, sem redirect/fallback.
-- [ ] Transporte real Uvicorn: POST421 mantém resposta e body sem replay;
+- [x] Transporte real Uvicorn: POST421 mantém resposta e body sem replay;
   controles200/403 e erro real de transporte continuam distintos. Negação no
   Django permanece necessária após mudança concorrente do domínio.
-- [ ] Context lookup preserva falhas de transporte/HMAC/5xx; não fabrica421.
-- [ ] Fluxos positivos A/A,B/B e negativos A/B,B/A continuam funcionando,
+- [x] Context lookup preserva falhas de transporte/HMAC/5xx; não fabrica421.
+- [x] Fluxos positivos A/A,B/B e negativos A/B,B/A continuam funcionando,
   incluindo cookies, refresh, Guest e SSE.
-- [ ] Smoke autenticado Aderlan no deployment observado, somente leitura e
+- [x] Smoke autenticado Aderlan no deployment observado, somente leitura e
   logout da sessão criada; QR somente com capacidade operacional autorizada.
 - [ ] Reteste do fix no Railway somente após autorização explícita de deploy;
   CI/revisão local não equivalem a validação pós-deploy.
