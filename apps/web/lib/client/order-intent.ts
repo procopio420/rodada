@@ -12,7 +12,7 @@ function readIntent(): Intent | null {
   const raw = sessionStorage.getItem(storageKey);
   if (raw === null) return null;
   const i = JSON.parse(raw) as Intent;
-  if (![1, 2].includes(i?.schema) || (i.schema === 2 && i.origin !== "repeat") || ![i.venue, i.staff, i.session, i.tab, i.captured_at, i.payload?.idempotency_key].every(v => typeof v === "string" && !!v)
+  if ((i?.schema !== 1 && i?.schema !== 2) || (i.schema === 2 && i.origin !== "repeat") || ![i.venue, i.staff, i.session, i.tab, i.captured_at, i.payload?.idempotency_key].every(v => typeof v === "string" && !!v)
     || !Number.isFinite(Date.parse(i.captured_at)) || !["/api/attendance", "/api/pos"].includes(i.api_root) || Object.keys(i).sort().join() !== (i.schema === 2 ? "api_root,captured_at,origin,payload,schema,session,staff,tab,venue" : "api_root,captured_at,payload,schema,session,staff,tab,venue")
     || Object.keys(i.payload).sort().join() !== "idempotency_key,lines" || !Array.isArray(i.payload.lines) || !i.payload.lines.length
     || !i.payload.lines.every(l => l && typeof l.product_id === "string" && !!l.product_id && Number.isSafeInteger(l.quantity) && l.quantity > 0
