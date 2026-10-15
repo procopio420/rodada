@@ -1,3 +1,9 @@
-# Issue #106 — E2E-05 current gap
+# Issue #106 — E2E-05 cross-client status
 
-The shared Android/Web runner has no browser scenario that turns a product unavailable after a Guest or Staff draft and before the POST reaches Django. Do not label E2E-05 PASS based solely on unit tests. Required proof: real UI submit, server-side 409 PRODUCTS_NOT_CONFIRMABLE, unchanged existing orders and 0 new Charges/Payments, with an independent PostgreSQL receipt on the same SHA.
+## Implemented in draft PR #194
+
+- Playwright uses the real Guest QR UI, a logged-in Bar UI and the existing shared disposable Django/PostgreSQL fixture. The product is marked UNAVAILABLE **after the Guest clicks Send but before the original HTTP command reaches Django**. No order response is mocked.
+- The server must reject the Guest command with `409 / PRODUCTS_NOT_CONFIRMABLE`, leave the draft visible, and create no Order or exposure.
+- `scripts/verify-issue106-unavailable.py` independently verifies the same SHA, Venue, PostgreSQL instance, product availability and zero Order/Item/Charge/Payment on that Tab. Both the local runner and the Android workflow invoke the verifier and preserve its receipts.
+
+**Status: CODED / NOT YET CI-VERIFIED.** The new test must run successfully at the exact PR SHA, and its browser/SQL receipts must be inspected before any PASS is recorded. Staff and Android stale-cart paths, an already-confirmed order remaining unchanged, and the full E2E-01..14 release matrix remain open. Do not close issue #106 or declare physical-payment/fiscal homologation from this slice.
