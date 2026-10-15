@@ -107,7 +107,8 @@ class GroupApiTests(TestCase):
         a, b, _ = self.set_tables()
         grouped = self.create_group([a.id, b.id])
         assert grouped.status_code == 201
-        retire = self.manager_client().post(
+        manager = self.manager_client()
+        retire = manager.post(
             f"/hospitality/tables/{a.id}/inventory/",
             {"enabled": False, "expected_status": "AVAILABLE"}, format="json",
         )
@@ -118,7 +119,7 @@ class GroupApiTests(TestCase):
         self.client.post(
             f"/hospitality/table-groups/{grouped.json()['id']}/dissolve/", format="json",
         )
-        assert self.manager_client().post(
+        assert manager.post(
             f"/hospitality/tables/{a.id}/inventory/",
             {"enabled": False, "expected_status": "AVAILABLE"}, format="json",
         ).status_code == 200
