@@ -39,6 +39,18 @@ class RepeatOrderDialogTest {
         assertEquals(1, dismissed)
     }
 
+    @Test fun checkboxAndQuantityEditorControlExactlyWhatIsAdded() {
+        var selected: Map<String, Int>? = null
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { selected = it }) } } }
+        compose.onNode(isToggleable()).performClick()
+        compose.onNodeWithText("Adicionar ao carrinho").assertIsNotEnabled()
+        compose.onNode(isToggleable()).performClick()
+        compose.onNode(hasSetTextAction()).performTextReplacement("1")
+        compose.onNodeWithText("1 unidade(s) · ${formatCents(1000)}").assertExists()
+        compose.onNodeWithText("Adicionar ao carrinho").assertIsEnabled().performClick()
+        assertEquals(mapOf(item.id to 1), selected)
+    }
+
     @Test fun historyActionAddsDraftAndOpensCartWithoutSending() {
         val tab = TabSummary("tab", "Comanda", "OPEN", 1, 1600, 0, 1600)
         val order = TabOrder("order", "", listOf(item))
