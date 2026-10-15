@@ -29,7 +29,7 @@ for scenario in ("isolation", "revocation"):
         assert Tab.objects.get(pk=ids[0], venue_id=f["venue_id"])
         session = StaffSession.objects.get(pk=r["session_id"], venue_id=f["venue_id"])
         assert session.revoked_at and session.revocation_reason == "LOGOUT"
-        assert AuditEvent.objects.filter(venue_id=f["venue_id"], event_type="auth.session_revoked", entity_id=str(session.pk)).count() == 1
+        assert AuditEvent.objects.filter(venue_id=f["venue_id"], event_type="auth.session_revoked", actor_session_id=session.pk).count() == 1
     assert not Order.objects.filter(tab_id__in=ids).exists()
     assert not Charge.objects.filter(tab_id__in=ids).exists()
     assert not Payment.objects.filter(tab_id__in=ids).exists()

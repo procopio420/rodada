@@ -46,9 +46,24 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.getByRole("button", { name: "Fechar comanda", exact: true }).click();
   expect((await deniedClose).status()).toBe(409);
   expect((await read(`tabs/${native.original_tab_id}/`)).state).not.toBe("CLOSED");
+  const paymentBodies: string[] = []; let firstPaymentId = "";
+  const paymentRoute = new RegExp(`/api/pos/tabs/${native.original_tab_id}/payments/?$`);
+  await page.route(paymentRoute, async route => {
+    paymentBodies.push(route.request().postData()!);
+    const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
+    expect(response.status()).toBe(paymentBodies.length === 1 ? 201 : 200);
+    const body = await response.json();
+    if (!firstPaymentId) firstPaymentId = body.id; else expect(body.id).toBe(firstPaymentId);
+    if (paymentBodies.length === 1) await route.abort(); else await route.fulfill({ response });
+  });
   await page.getByLabel("Valor do pagamento", { exact: true }).fill("3,00");
   await page.getByRole("button", { name: "Receber em dinheiro", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Verificar mesmo recebimento", exact: true })).toBeEnabled();
+  await page.reload();
+  await page.getByRole("button", { name: "Verificar mesmo recebimento", exact: true }).dblclick();
   await expect(page.getByText("Recebimento confirmado. Saldo atualizado.", { exact: true })).toBeVisible();
+  expect(paymentBodies).toHaveLength(2); expect(paymentBodies[1]).toBe(paymentBodies[0]);
+  await page.unroute(paymentRoute);
   const partial = await read(`tabs/${native.original_tab_id}/`);
   expect(partial.exposure_cents).toBe(before.exposure_cents - 300);
   expect(partial.payments).toHaveLength(1);
@@ -99,6 +114,7 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   expect(report.totals.refunds_cents).toBe(0);
   await writeFile("../../artifacts/financial-browser.json", JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), status: "PASS", test_only: true,
+    cash_response_loss_replays: paymentBodies.length, first_payment_id: firstPaymentId,
     tab_id: native.original_tab_id, payment_ids: paid.payments.map((p: { id: string }) => p.id), shift_id: shiftId,
     business_date: closed.business_date, report_totals: report.totals, paid_cents: before.exposure_cents, expected_cents: expected, discrepancy_cents: -1000,
   }, null, 2));
