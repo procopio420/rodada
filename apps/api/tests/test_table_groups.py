@@ -107,7 +107,7 @@ class GroupApiTests(TestCase):
         a, b, _ = self.set_tables()
         grouped = self.create_group([a.id, b.id])
         assert grouped.status_code == 201
-        manager = self.manager_client()
+        manager = HospitalityTableApiTests.manager_client(self)
         retire = manager.post(
             f"/hospitality/tables/{a.id}/inventory/",
             {"enabled": False, "expected_status": "AVAILABLE"}, format="json",
