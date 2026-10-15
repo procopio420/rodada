@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "./fixtures";
 import { openNamedAttendanceTab } from "./attendance-helpers";
 test("Attendance cancels a confirmed unpaid item through canonical financial reversal", async ({ page }) => {
@@ -8,9 +9,9 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
   await openNamedAttendanceTab(page, "Correction E2E");
- await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
- await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
- await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+ await addCatalogItem(page, "Kitchen E2E item");
+ await addCatalogItem(page, "Kitchen E2E item");
+ await addCatalogItem(page, "Kitchen E2E item");
  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
  await page.getByRole("button", { name: /Confirmar pedido/ }).click();
  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();

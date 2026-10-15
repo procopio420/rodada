@@ -22,17 +22,13 @@ import com.rodada.attendance.ui.RodadaVisual
 internal fun AttendanceCatalogCard(
     product: Product,
     quantity: Int,
-    configurations: Int,
-    canAdd: Boolean,
-    canReduce: Boolean,
-    onAdd: () -> Unit,
-    onReduce: () -> Unit,
-    onCustomize: () -> Unit,
+    canSelect: Boolean,
+    onSelect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier.testTag("product-${product.id}"), colors = CardDefaults.cardColors(containerColor = if (quantity > 0) RodadaVisual.Control else RodadaVisual.Surface)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            RodadaOutlinedButton(onClick = onAdd, enabled = canAdd, modifier = Modifier.fillMaxWidth()) {
+            RodadaOutlinedButton(onClick = onSelect, enabled = canSelect, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Same generic fallback as Web; never synthesize a new ProductIcon identity.
                     val ink = RodadaVisual.Muted
@@ -45,15 +41,7 @@ internal fun AttendanceCatalogCard(
                 }
             }
             if (!product.active || product.availability != "AVAILABLE") Text("Indisponível", color = MaterialTheme.colorScheme.error)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = onReduce, enabled = canReduce && quantity > 0,
-                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = if (configurations > 1) "Revisar quantidades de ${product.name}" else "Diminuir quantidade de ${product.name}" }) { Text("−") }
-                Text("$quantity", modifier = Modifier.padding(top = 12.dp), fontWeight = FontWeight.Bold)
-                TextButton(onClick = onAdd, enabled = canAdd,
-                    modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp).semantics { contentDescription = "Adicionar ${product.name}" }) { Text("+") }
-            }
-            TextButton(onClick = onCustomize, enabled = canAdd, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Personalizar") }
-            if (configurations > 1) Text("$configurations configurações", style = MaterialTheme.typography.bodySmall)
+            if (quantity > 0) Text("$quantity no pedido", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

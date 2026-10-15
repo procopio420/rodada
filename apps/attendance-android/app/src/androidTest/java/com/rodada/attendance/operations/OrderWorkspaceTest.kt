@@ -26,8 +26,11 @@ class OrderWorkspaceTest {
                 {}, {}, {}, {}, {}, {}, {}, {},
             )
         } } }
-        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Produto 146"))
+        compose.onNodeWithText("Produto 146").assertDoesNotExist()
+        compose.onNodeWithTag("catalog-category-Outros").performClick()
+        compose.onNodeWithTag("category-products").performScrollToNode(hasText("Produto 146"))
         compose.onNodeWithText("Produto 146").assertIsDisplayed()
+        compose.onNodeWithText("Voltar às categorias").performClick()
         compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}")
             .assertIsDisplayed().assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar pedido").assertIsDisplayed().assertIsEnabled()
@@ -35,7 +38,7 @@ class OrderWorkspaceTest {
         assertEquals("line" to 1, quantityChange)
         captureCriticalEvidence(compose, "order-cart", compose.onRoot())
         compose.onNodeWithText("Voltar ao catálogo").assertIsDisplayed().performClick()
-        compose.onNodeWithText("Produto 146").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-category-Outros").assertIsDisplayed()
         compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}").assertIsDisplayed()
         assertEquals(0, confirmed)
         compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}").performClick()

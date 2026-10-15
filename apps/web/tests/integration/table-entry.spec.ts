@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -37,7 +38,7 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
   await page.setViewportSize({width,height:900});
   await page.locator(`button[data-tab-id="${a.id}"]`).click();
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
-  await page.locator(".attendanceOrderDialog").getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await page.locator(".attendanceOrderDialog").getByRole("button", {name:/^Kitchen E2E item/}).click();
+  await page.locator(".attendanceOrderDialog").getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await addCatalogItem(page, "Kitchen E2E item");
   await page.locator(".attendanceOrderDialog").getByRole("button", {name:"Voltar",exact:true}).click();
   await expect(page.locator(`#attendance-table-${table.id}`)).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
   await page.locator(`button[data-tab-id="${b.id}"]`).click();
