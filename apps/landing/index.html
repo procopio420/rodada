@@ -242,6 +242,7 @@
       html{scroll-behavior:auto}
       .button{transition:none}
       .button:hover,.nav-cta:hover{transform:none;box-shadow:none}
+      *,*::before,*::after{animation-duration:0.01ms!important;animation-delay:0ms!important;transition-duration:0.01ms!important;transition-delay:0ms!important}
     }
     @media(prefers-reduced-motion:no-preference){
       @media(max-width:600px){
@@ -249,8 +250,19 @@
       }
     }
     @media(prefers-reduced-motion:no-preference){
-      .hero-image-frame{animation:frame-in .65s ease both}
-      @keyframes frame-in{from{opacity:.5;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+      .hero-image-frame{animation:frame-in 650ms var(--ease) both}
+      .hero-copy > .eyebrow{animation:hero-copy-in 440ms var(--ease) both}
+      .hero-copy > h1{animation:hero-copy-in 490ms var(--ease) 50ms both}
+      .hero-copy > .hero-sub{animation:hero-copy-in 490ms var(--ease) 110ms both}
+      .hero-copy > .hero-description{animation:hero-copy-in 490ms var(--ease) 150ms both}
+      .hero-copy > .hero-actions{animation:hero-copy-in 490ms var(--ease) 190ms both}
+      .tour-panel:not([hidden]) .tour-story{animation:tour-enter 240ms var(--ease) both}
+      .tour-panel:not([hidden]) .tour-visual{animation:tour-enter 290ms var(--ease) 35ms both}
+      .motion-reveal.is-visible{animation:reveal-in 480ms var(--ease) var(--reveal-delay,0ms) both}
+      @keyframes hero-copy-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+      @keyframes tour-enter{from{opacity:.65;transform:translateY(7px)}to{opacity:1;transform:none}}
+      @keyframes reveal-in{from{opacity:.7;transform:translateY(12px)}to{opacity:1;transform:none}}
+      @keyframes frame-in{from{opacity:.65;transform:translateY(12px)}to{opacity:1;transform:none}}
     }
   </style>
 </head>
@@ -442,6 +454,26 @@
           });
         });
         showTab(0, false);
+      }
+      // Reveal only once, after entering the viewport. Before animation fires,
+      // content stays fully visible; no-JS and reduced-motion users see it normally.
+      if ('IntersectionObserver' in window &&
+          window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+        const revealTargets = Array.from(document.querySelectorAll(
+          '.section-head, .editorial-layout > div, .moment, .pilot-layout > div, .pilot-card, .faq-layout > div'
+        ));
+        const revealObserver = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          });
+        }, {threshold: 0.10, rootMargin: '0px 0px -3% 0px'});
+        revealTargets.forEach((el, index) => {
+          el.classList.add('motion-reveal');
+          el.style.setProperty('--reveal-delay', String((index % 4) * 45) + 'ms');
+          revealObserver.observe(el);
+        });
       }
       const bar = document.querySelector('.mobile-cta');
       const hero = document.querySelector('.hero');
