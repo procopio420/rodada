@@ -1,5 +1,5 @@
 {
-  "status": "EXECUTION_COMPLETED_SIGNOFF_PENDING",
+  "status": "ACCEPTED_BY_RESPONSIBLE",
   "runtime_sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
   "responsible": "Lucas Procópio",
   "authorization_comment": "https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495",
@@ -920,7 +920,14 @@
     "health_ready_status": 200
   },
   "rollback": "PASS",
-  "postwindow_signoff": "PENDING explicit Lucas Procópio acceptance; intervention authorization is separate",
+  "postwindow_signoff": {
+    "status": "PASS",
+    "responsible": "Lucas Procópio",
+    "received_at": "2026-10-15T13:50:51Z",
+    "statement": "confirmo e autorizo",
+    "evidence": "https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006",
+    "scope": "Accept executed results, integrate PR183, close130 after final gates/deployment verification; flag stays false; no expanded operational scope"
+  },
   "physical_android": "NOT_RUN; HTTP protocol only; issue106 owns full physical shift",
   "pilot_browser_active_end": {
     "phase": "pilot",
@@ -2618,8 +2625,8 @@
     "pilot": "PASS",
     "financial_readonly_invariants": "PASS"
   },
-  "gate3_overall": "BLOCKED_SIGNOFF",
-  "decision": "NO-GO for issue closure pending final independent review and explicit operational signoff; controlled window execution completed",
+  "gate3_overall": "PASS",
+  "decision": "GO for authorized PR183 integration and closure after final CI/deployment verification",
   "final_https_health": {
     "at": "2026-10-15T13:34:17.899469+00:00",
     "all_pass": true,
@@ -2722,6 +2729,11 @@
     "User attested Cloudflare Full(strict); Cloudflare panel/API not read. No DNS/proxy changed.",
     "Physical Android not executed; HTTP native protocol tested; full physical shift remains issue106.",
     "Short controlled sample does not certify continuous uptime, PSP or financial reconciliation.",
-    "Flag false; no permanent rollout; postwindow operational signoff is pending."
-  ]
+    "Flag false; no permanent rollout; postwindow operational signoff recorded."
+  ],
+  "independent_review": {
+    "reviewed_sha": "d6f9f816a16be6539b3a5d252d92549f92029ba7",
+    "result": "NO_FINDINGS_WITH_GAPS",
+    "evidence": "https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847"
+  }
 }

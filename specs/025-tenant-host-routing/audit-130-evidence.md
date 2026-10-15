@@ -1,5 +1,17 @@
 # Issue #130 — auditoria multitenant P0, 2026-10-14
 
+## Aceite operacional final — Lucas Procópio, 15/10/2026 13:50 UTC
+
+**Gates1/2/3 PASS; sign-off explícito recebido após os resultados.**
+[Registro do aceite e autorização de integração/fechamento](https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006).
+[Revisão R3 independente](https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847)
+sem findings P0/P1/P2; [CI das evidências](https://github.com/procopio420/rodada/actions/runs/38744120507)
+SUCCESS. Integração PR183 e verificação do deployment resultante autorizadas,
+com flagfalse/seedfalse e QA contido. O fechamento130 ocorre somente após esses
+gates finais. Os trechos de pendência abaixo são fotografias anteriores ao aceite.
+Sem rollout permanente, mudança DNS/proxy, PSP ou homologação Android física.
+
+
 ## Gate3 — janela executada, aceite operacional pendente (15/10/2026 UTC)
 
 [Recibo auditável](evidence/gate3-window-20261015.json), [canary/runbook](../../docs/ops/spec025-gate3-canary.md)

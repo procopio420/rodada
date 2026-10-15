@@ -1,6 +1,18 @@
 # Spec 025 — Gate 3: canary operacional e backout
 
-**Estado atual: execução técnica concluída; BLOCKED_SIGNOFF pós-janela.** Este arquivo contém o procedimento, fotografias históricas e o resultado técnico executado na seção final. [Issue consolidada #130](https://github.com/procopio420/rodada/issues/130) exige que Gates 1 e 2 sejam PASS e que o Gate 3 receba autorização específica antes de qualquer ativação. NÃO fechar #130 apenas com este PR.
+## Aceite operacional final — Lucas Procópio, 15/10/2026 13:50 UTC
+
+**Gates1/2/3 PASS; sign-off explícito recebido após os resultados.**
+[Registro do aceite e autorização de integração/fechamento](https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006).
+[Revisão R3 independente](https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847)
+sem findings P0/P1/P2; [CI das evidências](https://github.com/procopio420/rodada/actions/runs/38744120507)
+SUCCESS. Integração PR183 e verificação do deployment resultante autorizadas,
+com flagfalse/seedfalse e QA contido. O fechamento130 ocorre somente após esses
+gates finais. Os trechos de pendência abaixo são fotografias anteriores ao aceite.
+Sem rollout permanente, mudança DNS/proxy, PSP ou homologação Android física.
+
+
+**Estado atual: Gates1/2/3 PASS, aceite operacional recebido; integração autorizada.** Este arquivo contém o procedimento, fotografias históricas e o resultado técnico executado na seção final. [Issue consolidada #130](https://github.com/procopio420/rodada/issues/130) exige que Gates 1 e 2 sejam PASS e que o Gate 3 receba autorização específica antes de qualquer ativação. NÃO fechar #130 apenas com este PR.
 
 ## Inventário somente leitura — 15/10/2026
 
