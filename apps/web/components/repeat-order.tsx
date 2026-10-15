@@ -74,7 +74,7 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
       setInputs(values => ({ ...values, [id]: String(current + delta) }));
   }
 
-  return <ActionDialog title="Mais uma rodada" onClose={onClose} locked={busy}>
+  return <ActionDialog title="Conferir rodada" onClose={onClose} locked={busy}>
     <p className="muted">Marque os itens que vão repetir e ajuste as quantidades. Nada será enviado antes de confirmar o pedido.</p>
     {(message || !enabled) && <p role="alert" className="notice" data-state="warning">{message || "O contexto mudou ou está ocupado. Feche e revise novamente."}</p>}
     {!!review.excluded && <p>{review.excluded} linha(s) canceladas ou sem unidades restantes não serão repetidas.</p>}
