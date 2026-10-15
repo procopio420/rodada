@@ -67,7 +67,11 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
       await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
       await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
       await repeat.click();
-      await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).dblclick();
+      const add = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+      await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
+      await dialog.getByRole("checkbox").check();
+      await dialog.getByRole("spinbutton", { name: "Quantidade de Kitchen E2E item" }).fill("1");
+      await add.dblclick();
       await expect(dialog).toHaveCount(0);
       expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);
       await guest.screenshot({ path: `test-results/guest-repeat-real-${scenario}.png`, fullPage: true });
