@@ -436,3 +436,19 @@ entram no rascunho e podem ser alterados em Editar antes de Enviar.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+## Limpeza direta por confirmacao do operador — 2026-10-15
+
+Fluxo staff mobile/Web: liberar mesa (confirmacao existente) -> lista com DIRTY;
+tocar DIRTY abre somente Concluir limpeza e Voltar; confirmar -> AVAILABLE e
+retorno a lista apos leitura canonica. Nao exigir Iniciar limpeza. CLEANING legado
+continua podendo concluir. complete_cleaning aceita DIRTY ou CLEANING liberadas,
+transacional com lock, ator, ready_at/ready_by e incremento unico da geracao.
+Nao preencher cleaning_started_at/by ao concluir DIRTY, nem emitir evento de inicio:
+duracao de limpeza permanece desconhecida quando nao observada. Auditoria registra
+estado anterior/novo e se inicio foi registrado. AVAILABLE/OCCUPIED/OUT_OF_SERVICE,
+ou ocupacao sem release/ja pronta, rejeitam sem efeito. Repeticao apos sucesso
+retorna conflito de estado, nao gera novo incremento/evento. Comandas/saldos nao
+mudam. Falha/timeout mantem tela e orientam releitura, nunca sucesso presumido.
+A mudanca substitui a obrigatoriedade de DIRTY->CLEANING->AVAILABLE no happy path;
+endpoint start permanece para clientes/operacoes legadas. Sem migrations.

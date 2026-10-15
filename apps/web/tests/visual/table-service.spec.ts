@@ -16,7 +16,7 @@ test("attendance requires a tab name and selects an available table before openi
   await page.getByRole("button", { name: "Contas", exact: true }).click();
   const open = page.getByRole("button", { name: "Abrir comanda", exact: true });
   await expect(open).toBeDisabled();
-  await page.getByLabel("Nome da Comanda").fill("João");
+  await page.getByLabel("Nome ou apelido").fill("João");
   await expect(open).toBeEnabled();
   await open.click();
   await expect(page.getByRole("dialog", { name: "Qual mesa o cliente está?" })).toBeVisible();
@@ -41,7 +41,7 @@ test("global opening adds a tab to an occupied table and excludes unavailable ta
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByLabel("Nome da Comanda").fill("João");
+  await page.getByLabel("Nome ou apelido").fill("João");
   await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Qual mesa o cliente está?" });
   await expect(dialog.getByRole("button", { name: /Mesa 13/ })).toHaveCount(0);
@@ -61,7 +61,7 @@ test("attendance preserves named opening without table when contextual service i
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByLabel("Nome da Comanda").fill("João");
+  await page.getByLabel("Nome ou apelido").fill("João");
   await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   await expect.poll(() => opens).toBe(1);
   await expect(page.getByRole("dialog", { name: "Qual mesa o cliente está?" })).toHaveCount(0);

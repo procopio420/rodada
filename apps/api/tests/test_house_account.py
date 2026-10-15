@@ -64,7 +64,7 @@ class HouseFixture:
         return response.json()
 
     def tab(self, customer=None):
-        body = {"customer_id": str(customer.id)} if customer else {}
+        body = {"display_label": "Comanda de teste", **({"customer_id": str(customer.id)} if customer else {})}
         return self.post(self.staff, "/tabs/", body, status=201)["id"]
 
     def order(self, tab_id, quantity=1, key="order", client=None, status=201, extra=None):

@@ -940,7 +940,7 @@ class OperationsViewModel(
         "Comanda associada à ocupação."
     }
 
-    fun releaseTable(session: StoredSession, tableId: String) = tableAction(session) {
+    fun releaseTable(session: StoredSession, tableId: String) = tableAction(session, showNotice = false) {
         repository.releaseTable(session, tableId)
         "Mesa liberada para limpeza."
     }
@@ -950,7 +950,7 @@ class OperationsViewModel(
         "Limpeza iniciada."
     }
 
-    fun completeTableCleaning(session: StoredSession, tableId: String) = tableAction(session) {
+    fun completeTableCleaning(session: StoredSession, tableId: String) = tableAction(session, showNotice = false) {
         repository.completeTableCleaning(session, tableId)
         "Mesa disponível."
     }
@@ -996,10 +996,10 @@ class OperationsViewModel(
         }
     }
 
-    private fun tableAction(session: StoredSession, block: suspend () -> String) = action {
+    private fun tableAction(session: StoredSession, showNotice: Boolean = true, block: suspend () -> String) = action {
         check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de alterar a mesa." }
         val notice = block()
-        state = state.copy(tables = repository.tables(session), noticeMessage = notice)
+        state = state.copy(tables = repository.tables(session), noticeMessage = if (showNotice) notice else null)
     }
 
     private fun showFailure(error: Throwable, suffix: String = "") {

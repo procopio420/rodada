@@ -5,8 +5,8 @@ class TabCreateSerializer(serializers.Serializer):
     customer_id = serializers.UUIDField(required=False, allow_null=True)
     display_label = serializers.CharField(
         max_length=120,
-        required=False,
-        allow_blank=True,
+        required=True,
+        allow_blank=False,
     )
 
 

@@ -31,6 +31,7 @@ for (const width of [360, 390, 430, 1280]) test(`unified tables and popup journe
   await expect(page.getByRole("button", { name: "Contas", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toHaveAttribute("aria-current", "page");
   await stable(page);
+  await expect(page.getByRole("navigation", { name: "Filtrar mesas por estado" })).toHaveCount(0);
   await page.screenshot({ path: `visual-artifacts/029/unified/tables-${width}.png`, fullPage: true });
   const popup = await openTable(page);
   await expect(popup).toContainText("Mesa 02");
@@ -69,13 +70,35 @@ test("A to B to A preserves drafts and returns focus to the selected table", asy
   await expect(popup.getByRole("status", { name: "Quantidade selecionada de Omelete", exact: true })).toHaveText("0");
 });
 
-test("table state and combined command search keep unknown reads distinct from empty", async ({ page }) => {
+test("table options open in a modal and Escape restores focus without expanding the grid", async ({ page }) => {
+  await setup(page); await page.goto("/attendance");
+  const trigger = page.getByRole("button", { name: /Mesa 02 Ocupada/ });
+  const before = await trigger.boundingBox();
+  await trigger.click();
+  const dialog = page.getByRole("dialog", { name: "Mesa 02", exact: true });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('button[data-tab-id="tab-test"]')).toBeVisible();
+  expect(await trigger.boundingBox()).toEqual(before);
+  await dialog.getByRole("heading", { name: "Mesa 02", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await page.mouse.click(2, 2);
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await layoutAndA11y(page);
+  await page.keyboard.press("Escape");
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
+test("command search keeps unknown reads distinct from empty", async ({ page }) => {
   await setup(page); await page.goto("/attendance");
   await page.getByLabel("Buscar mesa ou comanda").fill("Comanda B");
   await expect(page.locator(".attendanceTable")).toHaveCount(1);
-  await page.getByRole("button", { name: "Disponível (1)", exact: true }).click();
-  await expect(page.getByText("Nenhuma mesa encontrada. Ajuste a busca ou o estado.")).toBeVisible();
-  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ status: 503, json: { message: "Leitura indisponível." } }));
+  await page.getByLabel("Buscar mesa ou comanda").fill("mesa inexistente");
+  await expect(page.getByText("Nenhuma mesa encontrada. Ajuste a busca.")).toBeVisible();
+  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ status: 503, json: { code: "READ_UNAVAILABLE", message: "Leitura indisponível." } }));
   await page.reload();
   await expect(page.getByText("Mesas indisponíveis. Atualize para tentar novamente.")).toBeVisible();
   await expect(page.getByText("Nenhuma mesa cadastrada.")).toHaveCount(0);
@@ -100,11 +123,14 @@ for (const target of ["available", "occupied", "lost"]) test(`open a tab from it
   });
   await page.route("**/api/attendance/tabs/tab-new/", route => route.fulfill({ json: { id: "tab-new", display_label: "Comanda de teste", table_label: target === "occupied" ? "02" : "01", state: "OPEN", exposure_cents: 0, payable_cents: 0, orders: [] } }));
   await page.goto("/attendance");
-  if (target === "available") { const previous = await openTable(page); await previous.getByRole("button", { name: "Adicionar Fritas", exact: true }).click(); await page.keyboard.press("Escape"); }
+  if (target === "available") { const previous = await openTable(page); await previous.getByRole("button", { name: "Adicionar Fritas", exact: true }).click(); await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); }
   await page.getByRole("button", { name: new RegExp(`Mesa ${tables.find(table => table.id === tableId)!.label} `) }).click();
   await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
   const form = page.getByRole("dialog", { name: /Nova comanda/ });
-  await form.getByLabel("Nome da comanda (opcional)").fill("Comanda de teste");
+  await expect(form.getByRole("button", { name: "Abrir e pedir", exact: true })).toBeDisabled();
+  await form.getByLabel("Nome ou apelido").fill("   ");
+  await expect(form.getByRole("button", { name: "Abrir e pedir", exact: true })).toBeDisabled();
+  await form.getByLabel("Nome ou apelido").fill("Comanda de teste");
   await form.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
   if (target === "lost") {
     await expect(form.getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
@@ -115,7 +141,7 @@ for (const target of ["available", "occupied", "lost"]) test(`open a tab from it
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
   await expect(page.locator(".attendanceOrderDialog").getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeVisible();
   await layoutAndA11y(page);
-  if (target === "available") { await page.keyboard.press("Escape"); await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click(); await page.locator('button[data-tab-id="tab-test"]').click(); await expect(page.locator(".attendanceOrderDialog").getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("1"); }
+  if (target === "available") { await page.keyboard.press("Escape"); await page.keyboard.press("Escape"); await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click(); await page.locator('button[data-tab-id="tab-test"]').click(); await expect(page.locator(".attendanceOrderDialog").getByRole("status", { name: "Quantidade selecionada de Fritas", exact: true })).toHaveText("1"); }
 });
 
 test("uncertain order locks popup and reload retries the identical original intent", async ({ page }) => {
@@ -185,8 +211,44 @@ test("legacy venue can still create a standalone tab in the unified area", async
   await page.getByRole("region", { name: "Outras comandas" }).locator("summary").click();
   await page.getByRole("button", { name: "Abrir comanda sem mesa", exact: true }).click();
   const popup = page.locator(".attendanceOrderDialog");
-  await popup.getByLabel("Nome da Comanda", { exact: true }).fill("Comanda de teste");
+  await expect(popup.getByRole("button", { name: "Abrir comanda", exact: true })).toBeDisabled();
+  await popup.getByLabel("Nome ou apelido", { exact: true }).fill("   ");
+  await expect(popup.getByRole("button", { name: "Abrir comanda", exact: true })).toBeDisabled();
+  await popup.getByLabel("Nome ou apelido", { exact: true }).fill("Comanda de teste");
   await popup.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   await expect(popup.getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeVisible();
   expect(writes).toBe(1);
+});
+
+for (const readbackFails of [false, true]) test(`release and direct cleaning return only after canonical read: failure=${readbackFails}`, async ({ page }) => {
+  const { tables } = await setup(page);
+  const paths: string[] = [];
+  let released = false;
+  await page.route("**/api/attendance/hospitality/tables/occupied/release/", route => {
+    paths.push("release"); released = true; tables[1].status = "DIRTY"; tables[1].active_occupancy = undefined;
+    return route.fulfill({ json: {} });
+  });
+  await page.route("**/api/attendance/hospitality/tables/occupied/cleaning/complete/", route => {
+    paths.push("complete"); tables[1].status = "AVAILABLE";
+    return route.fulfill({ json: {} });
+  });
+  await page.route("**/api/attendance/hospitality/tables/", route => readbackFails && released ? route.fulfill({ status: 503, json: { code: "READ_UNAVAILABLE", message: "Leitura indisponível." } }) : route.fulfill({ json: { table_service_enabled: true, results: tables } }));
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click();
+  await page.getByRole("button", { name: "Liberar mesa 02", exact: true }).click();
+  await page.getByRole("button", { name: "Confirmar liberação", exact: true }).click();
+  if (readbackFails) {
+    await expect(page.getByRole("dialog", { name: "Liberar mesa 02?", exact: true })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Liberar mesa 02?", exact: true }).getByRole("alert")).toContainText("Leitura indisponível");
+    expect(paths).toEqual(["release"]); return;
+  }
+  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
+  await page.getByRole("button", { name: /Mesa 02 Aguardando limpeza/ }).click();
+  const dirty = page.getByRole("dialog", { name: "Mesa 02", exact: true });
+  await expect(dirty.getByRole("button", { name: "Iniciar limpeza", exact: true })).toHaveCount(0);
+  await expect(dirty.getByRole("button", { name: /Organizar/ })).toHaveCount(0);
+  await dirty.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
+  await expect(dirty).not.toBeVisible();
+  await expect(page.getByRole("button", { name: /Mesa 02 Disponível/ })).toBeVisible();
+  expect(paths).toEqual(["release", "complete"]);
 });

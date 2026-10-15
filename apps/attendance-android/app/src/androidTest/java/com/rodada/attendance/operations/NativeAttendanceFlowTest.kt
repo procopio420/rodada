@@ -67,9 +67,10 @@ class NativeAttendanceFlowTest {
         compose.onNodeWithText("Comanda A · REF-A").performScrollTo().performClick()
         assertEquals("tab-a", selected)
         assertEquals(0, created)
+        compose.onNodeWithText("Voltar", useUnmergedTree = true).performClick()
         captureCriticalEvidence(compose, "native-tables", compose.onRoot())
         compose.onNodeWithText("Buscar mesa ou comanda").performTextClearance()
-        compose.onNodeWithText("Histórico de comandas").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Histórico de comandas").performClick()
         compose.onNodeWithTag("other-tab-closed-tab").performScrollTo().performClick()
         assertEquals("closed-tab", selected)
     }

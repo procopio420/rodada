@@ -26,23 +26,18 @@
 .attendanceOrderDialog .attendanceOrderShortcuts [aria-pressed="true"] { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)); }
 .attendanceOrderDialog > .buttonQuiet { margin-top: var(--space-4); width: 100%; border: 1px solid var(--color-border-strong); }
 .attendanceShell details > summary { min-height: var(--touch-min); display: flex; align-items: center; cursor: pointer; }
-.attendanceShell .attendanceTableFilters { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-3); }
-.attendanceShell .attendanceTableFilters button { flex: 0 0 auto; width: auto; min-height: var(--touch-min); font-size: var(--text-sm); }
-.attendanceShell .attendanceTableFilters [aria-pressed="true"] { border-color: var(--color-accent); background: var(--color-surface-3); }
 .attendanceShell .attendanceTableGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-items: start; }
 .attendanceShell .attendanceTable { --table-status: var(--color-text-muted); min-width: 0; margin: 0; padding: var(--space-2); border-top: var(--space-1) solid var(--table-status); }
 .attendanceShell .attendanceTable[data-state="AVAILABLE"] { --table-status: var(--color-success); }
 .attendanceShell .attendanceTable[data-state="OCCUPIED"] { --table-status: var(--color-info); }
 .attendanceShell .attendanceTable[data-state="DIRTY"], .attendanceShell .attendanceTable[data-state="CLEANING"] { --table-status: var(--color-warning); }
 .attendanceShell .attendanceTable[data-state="OUT_OF_SERVICE"] { --table-status: var(--color-danger); }
-.attendanceShell .attendanceTable[data-expanded="true"] { grid-column: 1 / -1; }
 .attendanceShell .attendanceTable h3 { margin: 0; }
 .attendanceShell .attendanceTableSummary { height: 100%; padding: var(--space-3); grid-template-columns: minmax(0, 1fr); background: var(--color-surface-2); border-color: transparent; }
 .attendanceShell .attendanceTableSummary > .operationalIcon { display: none; }
 .attendanceShell .attendanceTableSummary small { font-size: var(--text-sm); color: var(--color-text-muted); overflow-wrap: anywhere; }
 .attendanceShell .attendanceTableNumber { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); font-size: var(--text-xl); line-height: 1.2; overflow-wrap: anywhere; }
 .attendanceShell .attendanceTableNumber > svg { color: var(--table-status); }
-.attendanceShell .attendanceTable[data-expanded="true"] .attendanceTableNumber { flex-direction: row; align-items: center; }
 .attendanceShell .attendanceTableGrid > p { grid-column: 1 / -1; }
 .attendanceShell .attendanceOrderShortcuts { position: sticky; top: 0; z-index: 4; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-1); padding: var(--space-2) 0; background: var(--color-surface-1); border-bottom: 1px solid var(--color-border); }
 .attendanceShell .attendanceOrderShortcuts button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); min-width: var(--touch-min); padding: var(--space-2); font-size: var(--text-sm); }
@@ -67,3 +62,5 @@
   .attendanceShell .attendanceTableGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .attendanceShell .posProducts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+.attendanceShell .attendanceTableDialog > button, .attendanceTableDialog > div > button { width: 100%; margin-top: var(--space-2); }

@@ -359,3 +359,9 @@ disponibilidade/item/lote persistido. Mesmo produto, revisão, legado, novo lote
 modificadores e QuickCatalog mantêm proteção. Storage inválido/adulterado/falho e
 sessão divergente impedem adoção/envio. Sem versão, conservar caminho legado.
 Não alterar pedidos confirmados, snapshots, ledger, Payments ou autorização.
+
+## Nome operacional staff — 2026-10-15
+
+Abertura pela API staff exige nome/apelido nao vazio de ate120 caracteres. Isso
+nao exige Customer nem identificacao civil e nao muda abertura interna/guest.
+Comandas existentes sem nome e recibos antigos permanecem preservados.

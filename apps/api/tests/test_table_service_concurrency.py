@@ -113,6 +113,7 @@ def test_release_open(setup_service):
     results = race(
         lambda: release_table(table_id=setup.table.id, actor=actors[0]),
         lambda: open_tab_in_occupancy(
+            display_label="Comanda de teste",
             occupancy_id=occupancy.id,
             expected_generation=1,
             idempotency_key="open",
@@ -129,3 +130,19 @@ def test_release_open(setup_service):
         assert results[1] == "OCCUPANCY_RELEASED"
         assert not Tab.objects.exists()
     assert not TabOccupancyAssignment.objects.filter(released_at__isnull=True).exists()
+
+
+def test_direct_cleaning_concurrent_completion_changes_generation_once(setup_service):
+    from modules.hospitality.services import complete_cleaning
+    setup, actors = setup_service
+    start_table_service(table_id=setup.table.id, idempotency_key="cleaning-race", actor=actors[0])
+    release_table(table_id=setup.table.id, actor=actors[0])
+    results = race(*(lambda actor=actor: complete_cleaning(table_id=setup.table.id, actor=actor) for actor in actors))
+    assert sum(isinstance(result, TableOccupancy) for result in results) == 1
+    assert "INVALID_TABLE_TRANSITION" in results
+    setup.table.refresh_from_db()
+    assert setup.table.status == "AVAILABLE" and setup.table.access_generation == 2
+    occupancy = TableOccupancy.objects.get(table=setup.table)
+    assert occupancy.cleaning_started_at is None and occupancy.ready_at is not None
+    assert AuditEvent.objects.filter(event_type="table.cleaning_completed").count() == 1
+    assert not AuditEvent.objects.filter(event_type="table.cleaning_started").exists()

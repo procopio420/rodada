@@ -585,3 +585,13 @@ Cardápio, Pedidos e Conta usam navegação sticky de três botões semânticos,
 com os mesmos tokens, espaçamento e alvo de toque dos atalhos de produção.
 Disponível também no desktop. Atalho rola e transfere foco; região montada
 preserva rascunho/intenção. Margem de rolagem evita ocultar o título sob a barra.
+
+### Mesas Android — alinhamento com Atendimento Web
+
+Usar Ground no fundo, Surface no painel, Control nos cartoes e Paper nos titulos.
+A faixa superior de estado e o icone reutilizam Success (AVAILABLE), Info
+(OCCUPIED), Amber (DIRTY/CLEANING), Danger (OUT_OF_SERVICE) e Muted (desconhecido).
+Estado sempre tambem textual. Grade em duas colunas, uma com fonte ampliada;
+nao reintroduzir filtros horizontais. Acoes detalhadas usam Dialog nativo rolavel,
+com dismiss bloqueado durante operacao pendente. Navegacao no topo com destino
+ativo Paper/Ink, preservando Caixa e demais capacidades existentes.
