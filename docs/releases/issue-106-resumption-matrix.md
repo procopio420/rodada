@@ -102,8 +102,16 @@ fechado; somente o contrato legítimo de186 foi reaproveitado. main observado:
 
 Corte real de uplink comprovado em [workflow38797806054](https://github.com/procopio420/rodada/actions/runs/38797806054),
 SHA 7cb08ad7; nova prova a9cf em [workflow38815589150](https://github.com/procopio420/rodada/actions/runs/38815589150).
-São provas separadas do turno local e de Wi-Fi físico. CI 899255b1:
-[workflow38816278767](https://github.com/procopio420/rodada/actions/runs/38816278767).
+São provas separadas do turno local e de Wi-Fi físico. O [workflow 38816278767](https://github.com/procopio420/rodada/actions/runs/38816278767)
+terminou com sucesso, mas o checkout de PR executou o merge sintético
+`43cf60ca3b0cd8d444ea299e1430289799c8b8ff`, não 899255b1. Seu artefato
+[12010989591](https://github.com/procopio420/rodada/actions/runs/38816278767/artifacts/12010989591)
+contém 14 PASS e hashes válidos, porém NO-GO por branch ausente e revisão ausente.
+Não se atribui essa execução ao head local. O [PR204](https://github.com/procopio420/rodada/pull/204)
+corrige checkout/head/SHA efetivo/branch detached; execuções do novo SHA 78e04816
+[PR38818247857](https://github.com/procopio420/rodada/actions/runs/38818247857) e
+[manual38818268628](https://github.com/procopio420/rodada/actions/runs/38818268628)
+estão pendentes. F3/F4 continuam CI_PENDING até inspecionar esse pacote.
 
 Pendências externas: dispositivo físico, rede do bar, PSP/Tap/NFC/Pix reais,
 impressoras, fiscal, aceite presencial e rollback VR System. Host probes locais
