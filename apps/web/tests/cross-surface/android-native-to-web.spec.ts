@@ -60,7 +60,7 @@ test("native Android committed POST, offline replay, then real Web Bar productio
   await page.getByLabel("Operador", { exact: true }).fill("android-post-drop-operator");
   await page.getByLabel("PIN", { exact: true }).fill("2468"); // Ephemeral CI-only fixture.
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
 
   const before = await readCanonicalTab(page, receipt.original_tab_id);
   expect(before.orders).toHaveLength(1);
