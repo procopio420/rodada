@@ -92,6 +92,12 @@ class LiveComposeOrderTest {
         compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
         // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
+    private fun evidence(message: String) {
+        InstrumentationRegistry.getInstrumentation().sendStatus(0, android.os.Bundle().apply {
+            putString("stream", "\n$message\n")
+        })
+    }
+
     private fun verifyRevokedTransportAndNewLogin(session: StoredSession, original: RecoveryIntent.ConfirmOrder, queue: PendingMutationIntentStore) {
         val auth = AuthHttpClient(BuildConfig.RODADA_API_BASE_URL)
         fun denied(action: () -> Unit) {
@@ -150,7 +156,7 @@ class LiveComposeOrderTest {
             val body = org.json.JSONObject(tenant.errorStream.bufferedReader().use { it.readText() })
             check(body.getString("code") == "HOST_ASSERTION_REQUIRED")
         } finally { tenant.disconnect() }
-        println("NATIVE_VENUE_A_B_READ_POST_ISOLATED")
+        evidence("NATIVE_VENUE_A_B_READ_POST_ISOLATED")
         val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
         java.io.File(files, "expiry-session-id").writeText(foreign.sessionId)
         compose.waitUntil(60_000) { java.io.File(files, "expiry-applied").exists() }
@@ -159,13 +165,13 @@ class LiveComposeOrderTest {
         val refreshed = auth.refresh(foreign.tokens.refreshToken)
         check(refreshed.accessToken != foreign.tokens.accessToken)
         check(auth.me(refreshed.accessToken).venueId == foreign.venueId)
-        println("NATIVE_EXPIRED_ACCESS_401_REFRESH_200")
+        evidence("NATIVE_EXPIRED_ACCESS_401_REFRESH_200")
         compose.onNodeWithTag("attendance-now").performClick()
         val pending = hasText("Pendências", substring = true) and hasClickAction()
         compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(pending).performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasText("outra sessão", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty() }
-        println("NATIVE_REVOKED_GET_POST_REFRESH_SSE_DENIED; NEW_LOGIN_REVIEW_ONLY")
+        evidence("NATIVE_REVOKED_GET_POST_REFRESH_SSE_DENIED; NEW_LOGIN_REVIEW_ONLY")
     }
 
 }
