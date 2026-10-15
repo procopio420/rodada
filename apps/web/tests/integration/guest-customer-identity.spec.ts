@@ -33,7 +33,7 @@ test("Guest optional Customer login, HttpOnly BFF continuity and revocation, rea
     await guest.getByLabel("Nome para o perfil").fill("Ana E2E");
     await guest.getByLabel(/Usuário \(3 a 64/).fill("anaperfil-e2e");
     await guest.getByLabel(/Senha \(mínimo 12 caracteres\)/).fill("strong-password-for-e2e-2026");
-    const register = guest.waitForResponse(r => r.url().includes("/api/guest/customer/register/") && r.request().method() === "POST");
+    const register = guest.waitForResponse(r => r.url().includes("/api/guest/customer/register/") && r.request().method() === "POST" && r.status() !== 308);
     await guest.getByRole("button", { name: "Criar perfil opcional" }).click();
     const registered = await register;
     expect(registered.status()).toBe(201);
