@@ -24,6 +24,7 @@ if [[ "$mode" == true ]]; then
 instrument_pid=$!
 trap '"$PYTHON" scripts/issue106-catalog-fault.py restore; kill "$instrument_pid" 2>/dev/null || true' EXIT
 for i in $(seq 1 90); do
+  kill -0 "$instrument_pid" 2>/dev/null || { echo "Instrumentation exited before cart readiness; inspect its log"; exit 1; }
   if "${ADB[@]}" shell run-as com.rodada.attendance test -f files/catalog-cart-ready; then break; fi
   if [[ "$i" == 90 ]]; then echo "Compose cart did not become ready"; exit 1; fi
   sleep 1
