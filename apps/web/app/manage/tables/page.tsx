@@ -44,6 +44,7 @@ function Tables({ session }: { session: StaffSessionView }) {
  useEffect(() => { queueMicrotask(() => void load()); const requestRef = reading; const timer = setInterval(() => { if (!sending.current) void load(); }, 15000); return () => { clearInterval(timer); ++requestRef.current; }; }, [load]);
  const working = tables.filter(table => table.status !== "OUT_OF_SERVICE");
  const available = working.filter(table => table.status === "AVAILABLE" && !table.active_occupancy);
+ const retireable = available.filter(table => !table.group);
  const occupied = tables.filter(table => !!table.active_occupancy);
  const count = Number(target), validCount = /^\d+$/.test(target) && count <= 500;
  const reduction = validCount ? Math.max(0, working.length-count) : 0;
@@ -93,7 +94,7 @@ function Tables({ session }: { session: StaffSessionView }) {
    <section className="panel"><OperationalHeading as="h2" icon="table">Quantas mesas vamos usar?</OperationalHeading>
     <p className="muted">Mesas retiradas ficam fora de uso. Ocupações, comandas e histórico são preservados.</p>
     <div className="field"><label htmlFor="table-count">Quantidade de mesas para trabalhar</label><input id="table-count" type="number" inputMode="numeric" min="0" max="500" value={target} disabled={disabled} onChange={event=>{setTarget(event.target.value);setRetireIds([]);}} /></div>
-    {!!reduction && <fieldset disabled={disabled}><legend>Selecione {reduction} mesas disponíveis para retirar</legend>{available.map(table=><label className="tableInventoryChoice" key={table.id}><input type="checkbox" checked={retireIds.includes(table.id)} onChange={event=>setRetireIds(ids=>event.target.checked?[...ids,table.id]:ids.filter(id=>id!==table.id))} />{table.label}</label>)}{reduction>available.length && <p className="notice" data-state="warning">Há mesas ocupadas ou em limpeza. Não é possível atingir essa quantidade agora.</p>}</fieldset>}
+    {!!reduction && <fieldset disabled={disabled}><legend>Selecione {reduction} mesas disponíveis para retirar</legend>{retireable.map(table=><label className="tableInventoryChoice" key={table.id}><input type="checkbox" checked={retireIds.includes(table.id)} onChange={event=>setRetireIds(ids=>event.target.checked?[...ids,table.id]:ids.filter(id=>id!==table.id))} />{table.label}</label>)}{reduction>retireable.length && <p className="notice" data-state="warning">Não há mesas livres suficientes sem agrupamento. Desfaça um grupo antes de retirar suas mesas de uso.</p>}</fieldset>}
     <button className="buttonPrimary" disabled={disabled || !validCount || count===working.length || (reduction>0 && retireIds.length!==reduction)} onClick={reviewCount}>Revisar quantidade</button>
    </section>
    <section className="panel"><OperationalHeading as="h2" icon="table">Adicionar uma mesa</OperationalHeading><div className="field"><label htmlFor="table-label">Nome ou número da mesa</label><input id="table-label" maxLength={80} value={label} disabled={disabled} onChange={event=>setLabel(event.target.value)} /></div><button className="buttonSecondary" disabled={disabled || !label.trim()} onClick={()=>setIntent({path:"/api/pos/hospitality/tables/",body:{label:label.trim(),guest_ordering_mode:"DISABLED"},title:"Adicionar mesa",description:`Cadastrar ${label.trim()} como disponível. Pedidos por QR começam desabilitados.`})}>Adicionar mesa</button></section>
@@ -112,7 +113,7 @@ function Tables({ session }: { session: StaffSessionView }) {
     })}>Desfazer agrupamento</button>
    </div>)}
    <div className="field"><label htmlFor="group-label">Nome opcional do grupo</label><input id="group-label" value={groupLabel} maxLength={80} disabled={disabled} onChange={event=>setGroupLabel(event.target.value)} placeholder="Ex.: Aniversário" /></div>
-   <fieldset disabled={disabled}><legend>Selecionar de 2 a 20 mesas disponíveis para agrupamento</legend>
+   <fieldset disabled={disabled}><legend>Selecionar de 2 a 20 mesas em uso no salão (podem estar ocupadas)</legend>
     {eligibleGroups.map(table=><label className="tableInventoryChoice" key={table.id}>
      <input type="checkbox" checked={groupTableIds.includes(table.id)} disabled={!groupTableIds.includes(table.id) && groupTableIds.length>=20} onChange={event=>setGroupTableIds(ids=>event.target.checked?[...ids,table.id]:ids.filter(id=>id!==table.id))} />{table.label}
     </label>)}
