@@ -21,6 +21,7 @@ on:
       - "scripts/verify-issue106-authorization.py"
       - "scripts/verify-issue106-sse.py"
       - "scripts/verify-issue106-pending.py"
+      - "scripts/verify-issue106-unavailable.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
@@ -167,6 +168,7 @@ jobs:
           python scripts/verify-issue106-authorization.py
           python scripts/verify-issue106-sse.py
           python scripts/verify-issue106-pending.py
+          python scripts/verify-issue106-unavailable.py
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -205,6 +207,7 @@ jobs:
             artifacts/revocation-*.json
             artifacts/sse-*.json
             artifacts/pending-payment-*.json
+            artifacts/unavailable-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
