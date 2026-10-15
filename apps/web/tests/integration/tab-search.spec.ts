@@ -23,6 +23,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
   const matches = await page.evaluate(async () =>
     (await (await fetch("/api/attendance/tabs/?q=joao%20da%20praca")).json()).results);
   expect(matches).toHaveLength(2);
