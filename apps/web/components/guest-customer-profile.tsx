@@ -26,6 +26,8 @@ export function GuestCustomerProfile({
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -101,6 +103,26 @@ export function GuestCustomerProfile({
     }
   }
 
+  async function rotatePassword() {
+    if (busy || locked || !oldPassword || newPassword.length < 12) return;
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const response = await guestApi("customer/password/", selector, {
+        method: "POST",
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+      });
+      if (!response.ok) {
+        setError((response.body as ErrorBody).message ?? "Não foi possível trocar a senha.");
+        return;
+      }
+      await load();
+      setNotice("Senha trocada. Outros acessos ao perfil foram revogados.");
+    } finally {
+      setOldPassword(""); setNewPassword("");
+      setBusy(false);
+    }
+  }
+
   return <details className="panel">
     <summary>Meu perfil (opcional)</summary>
     <OperationalHeading as="h2" icon="wallet">Continuar com meu perfil</OperationalHeading>
@@ -118,6 +140,12 @@ export function GuestCustomerProfile({
           <button className="buttonSecondary" disabled={busy || locked} onClick={() => void claim(tab.id)}>Assumir comanda</button>
         </div>)}
       </>}
+      <details>
+        <summary>Trocar senha e encerrar outras sessões</summary>
+        <div className="field"><label htmlFor="guest-profile-old-password">Senha atual</label><input id="guest-profile-old-password" type="password" autoComplete="current-password" value={oldPassword} onChange={event => setOldPassword(event.target.value)} /></div>
+        <div className="field"><label htmlFor="guest-profile-new-password">Nova senha (mínimo 12 caracteres)</label><input id="guest-profile-new-password" type="password" autoComplete="new-password" minLength={12} maxLength={128} value={newPassword} onChange={event => setNewPassword(event.target.value)} /></div>
+        <button className="buttonSecondary" disabled={busy || locked || !oldPassword || newPassword.length < 12} onClick={() => void rotatePassword()}>Trocar senha e revogar acessos anteriores</button>
+      </details>
       <button className="buttonQuiet" disabled={busy || locked} onClick={() => void logout()}>Sair do perfil</button>
     </> : <>
       <div className="actions">
