@@ -37,3 +37,12 @@ private SSH. Verify memberships/sessions/guest issuance/SSE containment, QA421,
 pilot authenticated smoke and foreign-history preservation. Do not restore the
 operational database to demonstrate rollback. Detailed commands and archive
 recovery format are in `docs/ops/spec025-preview-rollout.md`.
+
+The fixture reads the per-QA contextual-service rollout policy, enables it through
+the existing versioned/idempotent management API when disabled, and restores its
+original false value in a separate cleanup block before logout. The shared pilot
+policy is never used. Restore failures invalidate the run and require readback
+(the core QA deactivate command does not reset this feature policy). QR browser
+response observation follows redirects and records the final POST status; a308
+is neither a QR success nor an authentication failure. Post-negative reads verify
+product names, table flags, active groups and the own profile Tab association.

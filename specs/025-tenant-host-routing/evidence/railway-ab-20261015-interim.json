@@ -1,0 +1,897 @@
+{
+  "status": "INTERIM_NOT_CLOSURE_EVIDENCE",
+  "audited_app_sha": "7bbe33788958b1a4355d2946307a2880daf694e3",
+  "environment": "Railway demo shared; explicit exception issue151#issuecomment-6183795233",
+  "browser": {
+    "run": "050630",
+    "all_pass": true,
+    "case_count": 173,
+    "runtime_stable": true,
+    "runtime_before": {
+      "RAILWAY_GIT_COMMIT_SHA": "7bbe33788958b1a4355d2946307a2880daf694e3",
+      "RAILWAY_DEPLOYMENT_ID": "138ec6e9-b54d-4b36-b4ac-72e497f0e44e",
+      "RODADA_ENABLE_TENANT_HOST_UI": "true"
+    },
+    "runtime_after": {
+      "RAILWAY_GIT_COMMIT_SHA": "7bbe33788958b1a4355d2946307a2880daf694e3",
+      "RAILWAY_DEPLOYMENT_ID": "138ec6e9-b54d-4b36-b4ac-72e497f0e44e",
+      "RODADA_ENABLE_TENANT_HOST_UI": "true"
+    },
+    "results": [
+      {
+        "scenario": "a_browser_staff_https",
+        "pass": true
+      },
+      {
+        "scenario": "a_browser_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_browser_identity",
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_cookie_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "a_manifest",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/cozinha",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/gerencia",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/caixa",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/bar",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/atendimento",
+        "pass": true
+      },
+      {
+        "scenario": "a_same_host_module_/relatorios",
+        "pass": true
+      },
+      {
+        "scenario": "a_QA_service_policy_read",
+        "pass": true
+      },
+      {
+        "scenario": "a_enable_contextual_service_QA_only",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_policy_read",
+        "pass": true
+      },
+      {
+        "scenario": "a_enable_QA_guest_only",
+        "pass": true
+      },
+      {
+        "scenario": "a_create_QA_table",
+        "pass": true
+      },
+      {
+        "scenario": "a_create_QA_group_peer",
+        "pass": true
+      },
+      {
+        "scenario": "a_QA_physical_group_create",
+        "pass": true
+      },
+      {
+        "scenario": "a_group_idempotent_replay",
+        "pass": true
+      },
+      {
+        "scenario": "a_create_catalog_definition_no_sale",
+        "pass": true
+      },
+      {
+        "scenario": "a_catalog_resolve_retry_same_product",
+        "pass": true
+      },
+      {
+        "scenario": "a_start_QA_service_no_order",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "a_service_idempotency_retry",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_table_visible",
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_SSE_ready",
+        "pass": true
+      },
+      {
+        "scenario": "a_refresh_only_cookie",
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_SSE_reconnect",
+        "pass": true
+      },
+      {
+        "scenario": "a_browser_guest_QR_page",
+        "pass": true
+      },
+      {
+        "scenario": "a_browser_guest_actual_QR_request",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "a_guest_QR_resolve",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_scope",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_context",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_group_only_own_physical_labels",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_SSE_ready",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_empty_Tab_create",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_Tab_retry_same_ID",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_enroll_no_token_in_body",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_cookie_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_customer_context",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_customer_Tab_claim",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_password_rotate",
+        "pass": true
+      },
+      {
+        "scenario": "a_old_customer_cookie_after_rotate_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_old_profile_password_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_rotated_profile_password_login",
+        "pass": true
+      },
+      {
+        "scenario": "a_browser_no_uncaught_errors",
+        "pass": true
+      },
+      {
+        "scenario": "b_browser_staff_https",
+        "pass": true
+      },
+      {
+        "scenario": "b_browser_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_browser_identity",
+        "pass": true
+      },
+      {
+        "scenario": "b_staff_cookie_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "b_manifest",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/cozinha",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/gerencia",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/caixa",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/bar",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/atendimento",
+        "pass": true
+      },
+      {
+        "scenario": "b_same_host_module_/relatorios",
+        "pass": true
+      },
+      {
+        "scenario": "b_QA_service_policy_read",
+        "pass": true
+      },
+      {
+        "scenario": "b_enable_contextual_service_QA_only",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_policy_read",
+        "pass": true
+      },
+      {
+        "scenario": "b_enable_QA_guest_only",
+        "pass": true
+      },
+      {
+        "scenario": "b_create_QA_table",
+        "pass": true
+      },
+      {
+        "scenario": "b_create_QA_group_peer",
+        "pass": true
+      },
+      {
+        "scenario": "b_QA_physical_group_create",
+        "pass": true
+      },
+      {
+        "scenario": "b_group_idempotent_replay",
+        "pass": true
+      },
+      {
+        "scenario": "b_create_catalog_definition_no_sale",
+        "pass": true
+      },
+      {
+        "scenario": "b_catalog_resolve_retry_same_product",
+        "pass": true
+      },
+      {
+        "scenario": "b_start_QA_service_no_order",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "b_service_idempotency_retry",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_table_visible",
+        "pass": true
+      },
+      {
+        "scenario": "b_staff_snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "b_staff_SSE_ready",
+        "pass": true
+      },
+      {
+        "scenario": "b_refresh_only_cookie",
+        "pass": true
+      },
+      {
+        "scenario": "b_staff_SSE_reconnect",
+        "pass": true
+      },
+      {
+        "scenario": "b_browser_guest_QR_page",
+        "pass": true
+      },
+      {
+        "scenario": "b_browser_guest_actual_QR_request",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "b_guest_QR_resolve",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_scope",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_context",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_group_only_own_physical_labels",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_SSE_ready",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_empty_Tab_create",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_Tab_retry_same_ID",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_enroll_no_token_in_body",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_cookie_host_only_secure_httpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_customer_context",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_customer_Tab_claim",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_password_rotate",
+        "pass": true
+      },
+      {
+        "scenario": "b_old_customer_cookie_after_rotate_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_old_profile_password_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_rotated_profile_password_login",
+        "pass": true
+      },
+      {
+        "scenario": "b_browser_no_uncaught_errors",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_foreign_Tab_claim_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_customer_credentials_no_relationship_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_customer_cookie_with_own_guest_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_and_guest_cross_host_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_external_customer_header_ignored",
+        "pass": true
+      },
+      {
+        "scenario": "a_catalog_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "a_tables_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "a_session_on_b/api/auth/me",
+        "pass": true
+      },
+      {
+        "scenario": "a_session_on_b/api/realtime/snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "a_session_on_b/api/realtime/stream?once=1",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_mutation_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_refresh_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_credentials_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_cross_origin_login_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_groups_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_group_ID_dissolve_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_mixed_tenant_group_create_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_Tab_ID_read_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_idempotency_replay_cannot_bypass_host",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_table_ID_write_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_product_ID_write_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_staff_cursor_reset",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_QR_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_guest_cookie_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_foreign_guest_cursor_reset",
+        "pass": true
+      },
+      {
+        "scenario": "a_no_foreign_creation",
+        "pass": true
+      },
+      {
+        "scenario": "a_forged_headers_no_tenant_switch",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_foreign_Tab_claim_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_customer_credentials_no_relationship_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_customer_cookie_with_own_guest_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_and_guest_cross_host_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_external_customer_header_ignored",
+        "pass": true
+      },
+      {
+        "scenario": "b_catalog_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "b_tables_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "b_session_on_a/api/auth/me",
+        "pass": true
+      },
+      {
+        "scenario": "b_session_on_a/api/realtime/snapshot",
+        "pass": true
+      },
+      {
+        "scenario": "b_session_on_a/api/realtime/stream?once=1",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_mutation_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_refresh_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_credentials_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_cross_origin_login_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_groups_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_group_ID_dissolve_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_mixed_tenant_group_create_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_Tab_ID_read_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_idempotency_replay_cannot_bypass_host",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_table_ID_write_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_product_ID_write_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_staff_cursor_reset",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_QR_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_guest_cookie_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_foreign_guest_cursor_reset",
+        "pass": true
+      },
+      {
+        "scenario": "b_no_foreign_creation",
+        "pass": true
+      },
+      {
+        "scenario": "b_forged_headers_no_tenant_switch",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_product_unchanged_by_foreign_mutation",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_table_unblocked_after_foreign_mutation",
+        "pass": true
+      },
+      {
+        "scenario": "a_own_group_survives_foreign_dissolve_attempt",
+        "pass": true
+      },
+      {
+        "scenario": "a_profile_Tab_link_unchanged_after_foreign_claim",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_product_unchanged_by_foreign_mutation",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_table_unblocked_after_foreign_mutation",
+        "pass": true
+      },
+      {
+        "scenario": "b_own_group_survives_foreign_dissolve_attempt",
+        "pass": true
+      },
+      {
+        "scenario": "b_profile_Tab_link_unchanged_after_foreign_claim",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_logout",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_logout_cookie_replay_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_logout_preserves_anonymous_visit",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_logout",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_logout_cookie_replay_denied",
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_logout_preserves_anonymous_visit",
+        "pass": true
+      },
+      {
+        "scenario": "enabled_unknown_host_denied",
+        "pass": true
+      },
+      {
+        "scenario": "a_QA_contextual_service_setting_restored",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_QA_contextual_service_setting_restored",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_logout_own_browser_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "a_logged_out_session_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "a_revoked_cookie_replay_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "b_logout_own_browser_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "b_logged_out_session_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "b_revoked_cookie_replay_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ]
+  },
+  "after_containment_pilot": {
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_BFF_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_host_only_secure_httponly_cookies",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_active_membership_and_capabilities",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/realtime/snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_once_current_cursor",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_refresh_from_only_refresh_cookie",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_reconnect_snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_reconnect",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_BFF_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_native_session",
+        "status": 204,
+        "pass": true
+      }
+    ]
+  },
+  "final_four_stream_witness": {
+    "all_pass": false,
+    "status": "SETUP_FAILED_NATIVE_CUSTOMER_INGRESS",
+    "streams_started": 0,
+    "results": [
+      {
+        "scenario": "four_streams_ready_before_containment",
+        "pass": false,
+        "reason": "setup failed; containment still attempted"
+      },
+      {
+        "scenario": "QA_containment_committed",
+        "pass": true
+      },
+      {
+        "scenario": "a_after_containment/auth/me/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_after_containment/auth/refresh/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_new_native_login_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "a_new_native_QR_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "a_old_native_guest_session_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_guest_SSE_reconnect_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      }
+    ]
+  },
+  "foreign_model_groups_unchanged": 19,
+  "foreign_comparison_excludes": "QA fixtures and authentication/audit writes; comparison of state does not claim absence of reverted writes",
+  "qa_readback": {
+    "sha": "7bbe33788958b1a4355d2946307a2880daf694e3",
+    "seed_off": true,
+    "flag_off": true,
+    "QA_contextual_service_flags": [
+      {
+        "slug": "spec025-qa-a",
+        "table_service_enabled": false
+      },
+      {
+        "slug": "spec025-qa-b",
+        "table_service_enabled": false
+      }
+    ],
+    "QA_only_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0,
+      "tabs": 5,
+      "active_memberships": 0,
+      "unrevoked_staff_sessions": 0,
+      "guest_sessions": 4,
+      "unrevoked_guest_sessions": 0
+    }
+  },
+  "next_gate": "PR182 green CI/review and repeat browser + four-stream containment on corrected deployed source; issues remain open"
+}

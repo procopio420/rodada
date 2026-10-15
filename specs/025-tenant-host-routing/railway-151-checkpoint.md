@@ -487,3 +487,59 @@ all SUCCESS, independent R3 review recorded on the PR. PR172 is not integrated
 at this checkpoint. Prior isolated release at main9082351 passed 874 API tests
 and HTTP shift/restart, [38678983333](https://github.com/procopio420/rodada/actions/runs/38678983333);
 this does not replace the gates for newer main04d82e7.
+
+
+### Corrected source and interrupted live attempts
+
+PR174 merged `7bbe33788958b1a4355d2946307a2880daf694e3`, correcting the
+independently reproduced cross-Venue profile-rotation deadlock. Candidate
+`a2ff10778bd0170c53e63c375ece3d2ac184ea85` API931/Web105/KB SUCCESS; its entire
+Git tree equals the merge tree. Railway6714d542 SUCCESS, then actual flag-on
+deployment `e26c5dd9-1db9-454e-9c03-13bfef7d78d1` SUCCESS. Official HTTPS
+script A/B passed, as did a new authenticated pilot smoke with flag true.
+
+Browser run045556 stopped at QA contextual service409: the fixture had not
+enabled `table_service_enabled`; the product correctly failed closed. No Tab or
+financial row was created. Flag-off deployment60acbbc2 SUCCESS, explicit QA
+containment verified. The fixture was corrected to use the existing per-Venue
+management API with optimistic version/idempotency and independent finally
+restoration, reviewed before retry.
+
+Run050143 on flag-on `d5347e1b-9723-4ea0-bd75-7230140948a1` passed staff login,
+module routes, cookies, service creation201/replay200 and SSE/reconnect; stopped
+because the browser observer treated the QR308 redirect as its final response.
+Sanitized ingress confirmed QR POST308 then201. Observer corrected to require a
+nonredirect final POST response, with no application/security change. QA service
+policy was restored false, flag-off `c903394d-d956-433b-86ed-77d40637f3a8`
+SUCCESS and containment committed. Aderlan authenticated smoke passed again.
+
+Both interrupted runs remain FAIL, not completed A/B evidence. Nineteen foreign
+model-group fingerprints remained unchanged against the pre-window snapshot;
+financial QA Order/Charge/Payment/Refund counts stayed zero. The edge probe
+metadata now reads deployment ID from the actual runtime rather than a declared
+constant; the fresh19/19 proof after containment reports c903394d and source7b.
+Third full browser matrix and final four-stream containment remain pending.
+
+
+### Third browser run and native ingress blocker
+
+Run050630 on source `7bbe33788958b1a4355d2946307a2880daf694e3`, flag-on
+deployment `138ec6e9-b54d-4b36-b4ac-72e497f0e44e` SUCCESS, completed all
+173 browser scenarios PASS with runtime SHA/deployment stable before and after.
+Official HTTPS scripts for A/B also passed. This is browser evidence only.
+Flag-off deployment `16ca683e-e57d-43b2-9df5-cc8e17b057bb` SUCCESS.
+
+The subsequent four-stream containment witness stopped during setup: native
+`/guest/customer/login/` reached Next (redirect) instead of Django. No four-stream
+proof is claimed. Its finally block committed guarded QA deactivation; old staff
+credentials/refresh, native login/QR and reconnect were denied. PR182 fixes only
+the six native Customer endpoint ingress routes and preserves opaque guest pages
+and BFF header stripping. Independent review additionally caught a missing test
+template in the disposable API image; the corrected image was built locally and
+its 21 ingress contract cases passed inside the actual container. Full CI and
+integrated disposable release remain required before merge.
+
+After this containment, a fresh authenticated pilot smoke passed; comparison
+against the original pre-window snapshot again found all nineteen foreign
+model-group fingerprints unchanged. Neither result substitutes for the pending
+four-stream witness on corrected ingress. Issues151/130 remain open.
