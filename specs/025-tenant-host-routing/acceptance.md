@@ -2,6 +2,28 @@
 
 **Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
+## Janela final autorizada — 2026-10-15
+
+[Aceite formal e autorização específica do responsável](https://github.com/procopio420/rodada/issues/151#issuecomment-6183795233):
+para este ensaio, o Railway compartilhado substitui o preview fisicamente
+separado. Risco residual: recursos, ingress e deployment compartilhados podem
+afetar o piloto. Controles compensatórios: backup lógico restaurado/autenticado,
+Venues QA exclusivos, negativos simétricos, HMAC/Host/TLS, monitoração do piloto,
+janela limitada e rollback com revogação. A decisão não dispensa testes nem
+permite PSP/dinheiro simulado no banco operacional ou canary (#152).
+
+- [x] Smoke autenticado novo do Aderlan em637b8e6, operador Ana autorizado: login
+  HTTPS/BFF200, Venue correto, mesas/comandas/catálogo200, cookies host-only
+  Secure/HttpOnly, refresh somente cookie200, SSEready/reconnect200; protocolo
+  Android compartilhado200. Somente novas sessões, ambas logout204; nenhuma
+  comanda/pedido/pagamento/caixa real alterado. PIN não consta das evidências.
+- [x] Backup lógico reautenticado, A/B inspecionados contidos, TLS/HMAC/stripping
+  revalidados no deploymentc9053025/637b8e6 antes da janela.
+- [x] Autorização formal da flag temporária e de seu backout, sem nova solicitação.
+- [ ] Executar janela browser/QR/guest/negativos e conferir recibos sanitizados.
+- [ ] Desligar flag/redeploy, conter QA, provar revogações e repetir smoke do piloto.
+- [ ] Finalizar evidências/CI/review e fechar issues somente após provas completas.
+
 ## Checkpoint operacional — 2026-10-15 UTC, antes da flag
 
 [Execução e limites por SHA](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).

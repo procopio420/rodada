@@ -449,3 +449,41 @@ guestblocked, with no transaction changes and postcommit readback matching.
 No new activation or shared-flag change. Manual API/Web checks dispatched on992
 for fresh current-main evidence; results pending. Authenticated pilot, specific
 flag approval and formal separate-preview exception still await user response.
+
+
+## Final controlled window — preflight 2026-10-15 04:15 UTC
+
+The explicit [user authorization](https://github.com/procopio420/rodada/issues/151#issuecomment-6183795233)
+accepts this shared environment as the formal exception to physically separate
+preview, temporary flag activation and final deactivation. This changes the
+execution environment, not the security assertions or the requirement for actual
+browser A/B and rollback evidence. No further approval is pending for that scope.
+
+Observed source `04d82e764e36b79da9f1870c46c7c67a1e8b892b`, Railway deployment
+`1e821e0c-fb31-4ea5-920b-f75ffdb6bd01` SUCCESS. Before the window, logical archive
+and recovery receipt were authenticated again; the recorded 90/90 restore
+verification belongs to its original snapshot, not a current PITR guarantee.
+
+A fresh authorized pilot login passed 16 HTTPS BFF/native protocol assertions:
+Venue identity, active membership/capabilities, host-only Secure/HttpOnly cookies,
+tables/catalog/Tabs reads, snapshot, SSE and reconnect, refresh-only cookie,
+independent native login/me and logout of only the two newly created audit
+sessions. No pilot order, Tab, cash or financial mutation was performed. This
+is native API protocol compatibility, not a physical Android device test.
+
+Nineteen current edge probes passed: public/origin hostname-valid TLS; internal
+valid HMAC and rejection of missing/invalid/expired/altered signatures; external
+assertion stripping; pilot Host unchanged under forged forwarded/BFF headers;
+unknown host rejection; inactive QA rejection. DNS/TLS were independently checked
+for A/B/pilot/API/landing. API and Web full gates were still running at this
+checkpoint. Flag remains false, QA domains inactive, memberships suspended and
+guest mutations blocked. Browser A/B and final rollback are **not yet accepted**.
+
+New pairing boundary matrix PR172 head `ec1ce5fb479030285e05967e9c3ca142e292eb5c`:
+API [38678969723](https://github.com/procopio420/rodada/actions/runs/38678969723),
+Web [38678969787](https://github.com/procopio420/rodada/actions/runs/38678969787),
+KB [38678969768](https://github.com/procopio420/rodada/actions/runs/38678969768)
+all SUCCESS, independent R3 review recorded on the PR. PR172 is not integrated
+at this checkpoint. Prior isolated release at main9082351 passed 874 API tests
+and HTTP shift/restart, [38678983333](https://github.com/procopio420/rodada/actions/runs/38678983333);
+this does not replace the gates for newer main04d82e7.

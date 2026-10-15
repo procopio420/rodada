@@ -260,3 +260,30 @@ snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
 Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
 regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
 reclassifica as provas A/B, flag ou rollback como executadas.
+
+
+### Revalidation after concurrent pairing and physical TableGroup integration
+
+Before the final window, main `04d82e764e36b79da9f1870c46c7c67a1e8b892b`
+passed API [38679248087](https://github.com/procopio420/rodada/actions/runs/38679248087)
+(**902 passed / 770.38s**, PostgreSQL, concurrency, checks and migration drift)
+and Web [38679248088](https://github.com/procopio420/rodada/actions/runs/38679248088)
+(**104 integration cases**, tenant/auth, typecheck/build and applicable lint).
+The subsequently integrated PR172 (`692382866d0301d4b0977325c8191eb4efa3f808`)
+adds three pairing boundary regressions and their evidence document, with no
+runtime change. Its head API/Web/KB were green and independent review is linked
+on [PR172](https://github.com/procopio420/rodada/pull/172); exact merge gates are
+recorded separately when completed.
+
+| Added boundary | Control / implementation | Executed test | Potential failure / result | Evidence |
+| --- | --- | --- | --- | --- |
+| Manager → print pairing/credential | Manager Venue-scoped lookup and host/session binding | A/A, B/B manager/machine; cross-host 403, foreign revoke 404, wrong proof 401, failed approval consumes nothing, replay creates no duplicate | PASS on disposable PostgreSQL; no native Windows device certification | `test_spec025_print_pairing_isolation.py`, PR172 head CI |
+| TableGroup → physical tables → guest context | Venue-scoped service lookup, capability gate and deterministic locking; guest projection contains physical labels only | Existing group API/concurrency suite in main04 API; real A/B browser checks still pending | PASS for disposable suite; live guest label/foreign-ID proof pending. No database constraint independently enforces member/group Venue equality; reviewed services enforce it, no exploit demonstrated | main04 API above; final browser executor checks exact own labels and denies mixed-Venue create/foreign dissolve |
+
+Independent R3 review in a distinct context inspected the pairing and TableGroup
+changes and final operational executors. Guest label assertion and operational
+SHA/readback checks were strengthened before use. `NO_FINDINGS_WITH_GAPS` is a
+source review result, not a fabricated GitHub approval or live execution result.
+These new surfaces do not change the explicit public-image or bearer receipt
+policies. Financial mutation/replay/concurrency remains confined to disposable
+PostgreSQL; no payment/refund test is authorized against the operational DB.
