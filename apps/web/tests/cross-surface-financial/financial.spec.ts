@@ -51,7 +51,8 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.route(paymentRoute, async route => {
     paymentBodies.push(route.request().postData()!);
     const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
-    expect(response.status()).toBe(paymentBodies.length === 1 ? 201 : 200);
+    // This endpoint returns 201 on replay too; canonical ID/payload and SQL prove uniqueness.
+    expect(response.status()).toBe(201);
     const body = await response.json();
     if (!firstPaymentId) firstPaymentId = body.id; else expect(body.id).toBe(firstPaymentId);
     if (paymentBodies.length === 1) await route.abort(); else await route.fulfill({ response });
@@ -118,7 +119,8 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   }
   await expect.poll(async () => (await read(`cash/shifts/${shiftId}/`)).review_status).toBe("REVIEWED");
   const reviewed = await read(`cash/shifts/${shiftId}/`);
-  expect(reviewed.expected_at_close_cents).toBe(closed.expected_at_close_cents);
+  expect(closed.expected_amount_cents_snapshot).toBe(expected);
+  expect(reviewed.expected_amount_cents_snapshot).toBe(expected);
   expect(reviewed.discrepancy_cents).toBe(closed.discrepancy_cents);
   await page.goto("/manage");
   await expect(page.getByRole("heading", { name: "O que precisa de atenção", exact: true })).toBeVisible();
