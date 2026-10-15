@@ -8,6 +8,9 @@ importada de outro SHA/cluster. **14 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED** em cen
 a decisão global exige também invariantes e revisão independente do pacote.
 O validador retornou **GO automatizado, errors=[]**, após a [R3 independente](https://github.com/procopio420/rodada/issues/106#issuecomment-6203562103).
 Essa revisão local em contexto separado não é aprovação GitHub.
+[Resumo machine-readable](evidence/issue-106-899255b1/local-reviewed-summary.json)
+contém execução, versões, gate, revisão e SQL final; não substitui os ZIPs do
+pacote completo local/CI nem atribui execução ao commit documental.
 
 O pacote anterior a9cf6007 chegou aos 14 PASS mas falhou no SQL agregado por exigir
 `revoked_at`, enquanto o contrato Guest invalida por geração/ocupação. A falha

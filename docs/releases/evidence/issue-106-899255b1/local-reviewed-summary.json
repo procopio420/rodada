@@ -1,0 +1,132 @@
+{
+  "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+  "gate": {
+    "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+    "generated_at": "2026-10-15T22:27:21.671884+00:00",
+    "counts": {
+      "PASS": 14,
+      "FAIL": 0,
+      "SKIP": 0,
+      "BLOCKED": 0
+    },
+    "automated_gate": "GO",
+    "errors": [],
+    "physical_gates": "NOT_VERIFIED; separate onsite acceptance"
+  },
+  "execution": {
+    "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+    "result": "PASS",
+    "last_step": "complete",
+    "started_at": "2026-10-15T22:19:22Z",
+    "finished_at": "2026-10-15T22:25:45.275317+00:00",
+    "exit_code": 0,
+    "automated_gate": "NO-GO",
+    "reason": "This executable slice does not yet cover every E2E-01..14 or all A1\u2013F8 requirements."
+  },
+  "versions": {
+    "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+    "postgresql": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "django": "5.2.18",
+    "android": "emulator API 36",
+    "browser": "145.0.7632.6",
+    "nextjs": "16.3.8",
+    "playwright": "1.58.2",
+    "python": "3.13.15",
+    "node": "v24.19.0"
+  },
+  "review": {
+    "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+    "independent": true,
+    "open_p0_p1": 0,
+    "reference": "https://github.com/procopio420/rodada/issues/106#issuecomment-6203562103",
+    "reviewer": "separate context /root/review_foundations",
+    "status": "NO_FINDINGS_WITH_GAPS",
+    "not_github_approval": true
+  },
+  "sql": {
+    "sha": "899255b1406fc3fe51ace2977c7789fc65cf68d0",
+    "database_instance_id": "9a93eff786677c58b2427f03a00e6b888fa7421239d27735cb51b913eb32fb87",
+    "status": "PASS",
+    "sql_independent": true,
+    "venue_id": "c3e1ade5-a0ae-45da-bfeb-d8d2deeb791a",
+    "order_ids": [
+      "06f7179c-ad11-4721-81f5-de83a0cc7571",
+      "897955b1-9301-4df6-9a1a-779bcd82c29c",
+      "8b5cf4ba-7463-4128-aaf4-ccebe6dfe348",
+      "9ec29707-1cdc-43a2-8856-48f411dffff6",
+      "d4c785ac-f087-4fb6-902b-cf3e1fdc60eb"
+    ],
+    "tab_ids": [
+      "2152a40d-0557-4709-86c8-e5f7ade36753",
+      "acf01cc9-2c19-4488-8ac6-d67ea6cb9e8d",
+      "c074298c-91bb-49a1-bf75-88c20fef693e",
+      "efa37f87-4e9f-4ea3-8644-3af69c19f17e",
+      "fdb2fdd8-ae1d-4bdc-b38a-a9f7bdd5307b"
+    ],
+    "item_ids": [
+      "171262a9-aeef-40ca-bf74-374ee4bb5219",
+      "1cd795c2-b1ad-4e72-b7ff-368be342add5",
+      "4faa6975-9af5-4c61-ae26-f61a8e92e0a3",
+      "627a4df6-ac0d-4416-966e-176c0d8ed4b5",
+      "86ee18e0-ac1e-497e-b614-511d9007d387",
+      "94164e5d-44eb-4b69-aaa5-3f5c6a1d7108",
+      "9ea3eba4-33bf-450b-93d8-3be6a2d4d1e2",
+      "d4d33849-6bb5-4896-a3de-2020453f4a66"
+    ],
+    "charge_ids": [
+      "33028eda-da1b-426e-ba5b-6aa829212878",
+      "5cfd0a06-343c-4013-b049-6f1ab022d5b4",
+      "5ec817fd-7737-4adc-b198-5dd09ee00325",
+      "60a6038f-b079-4b39-9b44-c6651dcc8b2c",
+      "60a63761-0df5-48d2-81c6-6cbbd1286ebf",
+      "922abfb0-e6cd-47fa-ba6c-55a92a521d6a",
+      "d2d686de-2577-4928-be5f-fa3ceb7daaa0",
+      "ea800504-b4aa-4da1-b5bb-05f81b727823"
+    ],
+    "payment_ids": [
+      "3293118d-0295-4f4c-88ab-df415a68b5b1",
+      "4fd9f5ff-677e-4839-8aa2-3daebd599ed2",
+      "94bd6eb8-52ce-4c3f-8c19-bd79aa9f3ad3"
+    ],
+    "charge_cents": 6800,
+    "confirmed_gross_cents": 1800,
+    "refund_cents": 100,
+    "open_exposure_cents": 5100,
+    "source_sha256": {
+      "android-web-cross-surface.json": "01534d14e9acb357f369dc880c4f66900fe2785e063ad0b3ea39510406e41398",
+      "android-compose-order.json": "7624f37a0105588901773d8898754d4d6dba395682abe52aae56c55d241a9da1",
+      "android-compose-web-sql.json": "e549aadcd4156300e6c2684c1e12d0e949b7df38ad8c082b3790a8035700faae",
+      "android-context-readback-sql.json": "4252a45a1f13a8aee25a73185d9cebbc6d5b0632d62003addaf13d6390da9b4f",
+      "projection-sql.json": "07bf266a9539bd9d504024967814478dbdd16469f2e0167fd22fcc9c4d8310dd",
+      "browser-origins-sql.json": "4252a45a1f13a8aee25a73185d9cebbc6d5b0632d62003addaf13d6390da9b4f",
+      "sse-sql.json": "e8f744332a3bc08d9af3b48497cba1902597e0649e871652fbd3532e94f7b11c",
+      "financial-sql.json": "20403546c2d3800fce838860df9b5fd067f4c7afabe012a1eec2597ffc2df05d",
+      "financial-roles-sql.json": "9afefa0083589449134a865bc069dec2932176848639956b95d7ca8cfe5be555",
+      "cash-cutoff-sql.json": "6d038d43082cff9f4e3b514578df77f17d7028ce4de0bd94a15537ea8874f5d7",
+      "pending-payment-sql.json": "49f17eba634e4c9df894584c621c27653cdd81ede73d415530bc92e346d73933",
+      "qr-lifecycle-sql.json": "7ae91f82fed1977ddb406bfde6bfedcbe1f06392d70f1c574b14bd282578e364",
+      "concurrency-sql.json": "789e4c95b7242abb353e38b1d9bd3d2f06d4d0ef3984de7e7e67c793afd3501a",
+      "android-catalog-sql.json": "ae238d3985074a0eeef4fa430a98ec3ceea5913cd4bc9e8fe5efe58f59317b38",
+      "android-offline-conflict-sql.json": "f679401f60d292ee6877047fa9dbe4aa81970dfd8c4720ffa33dc5b04ddb490a",
+      "android-offline-revocation-sql.json": "b77d087b0501deffa09b40df02d7ec26c23f18f15aef589ab67e66eef6b84c83",
+      "unavailable-cart-sql.json": "89f3e4c20d62a9623913432c21e78aff3a57e3c6cb078c56c5035b2df989e7f6",
+      "unavailable-staff-sql.json": "07ec808363d03f45f3dc75a8cf734ed5eb84faad196ea8a55beb9cb55008bcae",
+      "revocation-sql.json": "51461c20ada4326ec3a724c2eeea1521fd5d23efdf52a6ae539151156494cdc1",
+      "isolation-sql.json": "bcdb02c8d6379fe12bd76fa748a7e9a7bda45a453806b9c311bb63eb8508bc64",
+      "guest-isolation-sql.json": "117cdc29297f3272d23d5513d9aa9d931eb1c9c4bc643373ae4b8422c7956f95"
+    },
+    "invariants": {
+      "guest_revoked": "PASS",
+      "ledger_reconciled": "PASS",
+      "new_not_preparing": "PASS",
+      "no_duplicates": "PASS",
+      "no_false_paid": "PASS",
+      "no_lost_orders": "PASS",
+      "offline_no_false_confirmation": "PASS",
+      "order_on_tab": "PASS",
+      "separate_tab_ledgers": "PASS",
+      "venue_isolated": "PASS"
+    },
+    "scope": "disposable integrated automation only; external device/network/PSP/fiscal gates separate"
+  }
+}
