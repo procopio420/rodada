@@ -1,14 +1,14 @@
 # Tasks — Spec 028
 
-**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
+**Progresso:** S1 integrada no PR #149 e S2 integrada no PR #155 (974e0bc), ambas com autorização. S3 em implementação e validação; ver [contrato e evidências](s3-printing-mvp.md). S4–S7 pendentes. Sem instalador ou homologação física.
 **Legend:** [ ] = pending. Writing a spec does not count as implementing an item.
 
 ## Tracking por slice (um PR de implementação por slice)
 
-Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está integrada pelo PR #149; S2 está implementada no PR #155, aguardando gates/aprovação; S3–S7 continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
+Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está integrada pelo PR #149; S2 está integrada no PR #155; S3 em validação e S4–S7 pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
 
 - [x] **S1 — Foundation:** schema/API/Access/credencial de máquina/isolamento/compatibilidade da Spec 015. Gate: acceptance **3 (parcial), 12, 15**; testes de migrations, permissão e regressão bridge; sem instalador.
-- [ ] **S2 — Pairing:** serviço Windows inicial, proof-of-possession, pareamento Manager/Owner no Manage, heartbeat e revogação. Gate: acceptance **2, 3, 13 (start no Windows)**; teste de código vencido/replay e host sem usuário logado.
+- [x] **S2 — Pairing:** serviço Windows inicial, proof-of-possession, pareamento Manager/Owner no Manage, heartbeat e revogação. Gate: acceptance **2, 3, 13 (start no Windows)**; teste de código vencido/replay e host sem usuário logado.
 - [ ] **S3 — Printing MVP:** um PC -> uma rota -> printer endpoint, WinSpool/ESC-POS ou WindowsDriver, job da Spec 015 até SPOOL_ACCEPTED. Gate: acceptance **4, 5 (parcial), 8 (básico), 9, 10, 11, 15**; mocks Windows e teste E2E sem hardware obrigatório.
 - [ ] **S4 — Multiagent:** múltiplos computadores/rotas e claim com lease/fencing; failover pré-envio e sem reenvio incerto. Gate: acceptance **5, 6, 7, 10, 12**; corrida real PostgreSQL + dois agentes simulados.
 - [ ] **S5 — Compatibility:** perfis ESC/POS/Bematech candidata/WindowsDriver, 58/80, acentos, corte/diagnóstico e teste. Gate: acceptance **4, 8, 11, 14 (pré-requisitos)**; golden tests e spool virtual; aprovação física só na S7.

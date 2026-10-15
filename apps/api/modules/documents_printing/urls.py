@@ -12,6 +12,7 @@ from .agent_views import (
     PairingStartView,
     PairingStatusView,
 )
+from .delivery_views import ClaimView, DiscoveryView, InventoryView, ResultView
 from .kds_views import KdsDetectorView, KdsHealthView, KdsHeartbeatView
 from .views import (
     BridgeClaimView,
@@ -24,6 +25,10 @@ from .views import (
 )
 
 urlpatterns = [
+    path("agents/v1/me/discovery/", DiscoveryView.as_view()),
+    path("agents/v1/me/claim/", ClaimView.as_view()),
+    path("agents/v1/me/jobs/<uuid:job_id>/result/", ResultView.as_view()),
+    path("agents/v1/routes/", InventoryView.as_view()),
     path("agents/v1/", AgentsView.as_view()),
     path("agents/v1/enabled/", AgentsEnabledView.as_view()),
     path("agents/v1/pairing/start/", PairingStartView.as_view()),

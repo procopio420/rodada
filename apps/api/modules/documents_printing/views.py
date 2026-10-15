@@ -337,7 +337,7 @@ class BridgeClaimView(APIView):
         data.is_valid(raise_exception=True)
         endpoints = PrinterEndpoint.objects.filter(
             id__in=data.validated_data["endpoint_ids"], venue=request.auth.venue
-        ).exclude(adapter="BROWSER")
+        ).exclude(adapter__in=["BROWSER", "AGENT"])
         endpoints.update(bridge_seen_at=timezone.now())
         recover_expired()
         job = claim_job(list(endpoints.values_list("id", flat=True)))
@@ -384,7 +384,7 @@ class BridgeResultView(APIView):
 
         data = Input(data=request.data)
         data.is_valid(raise_exception=True)
-        get_object_or_404(PrintJob, pk=job_id, document__venue=request.auth.venue)
+        get_object_or_404(PrintJob.objects.exclude(endpoint__adapter="AGENT"), pk=job_id, document__venue=request.auth.venue)
         accepted = finish_attempt(
             job_id,
             data.validated_data["attempt_token"],

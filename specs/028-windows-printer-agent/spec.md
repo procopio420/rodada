@@ -1,7 +1,7 @@
 # Spec 028 — Rodada Impressoras: agente Windows, multiagente e compatibilidade
 
-**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
-**Status:** S1 merged; S2 Windows runtime/pairing implemented and under final gates in PR #155. S3–S7 pending; no installer or hardware certification.
+**Progresso:** S1 integrada no PR #149 e S2 integrada no PR #155 (974e0bc), ambas com autorização. S3 em implementação e validação; ver [contrato e evidências](s3-printing-mvp.md). S4–S7 pendentes. Sem instalador ou homologação física.
+**Status:** S1/S2 merged; S3 implementation/testing in progress. S4–S7 pending; no public installer or physical certification.
 **Owner:** Access (identidade de dispositivo), Documents/Printing (jobs e endpoints), Web Manage (configuração), Landing (downloads), local Windows agent.
 **Extends:** Spec 015 Receipts/Printing; Specs 008 Access, 013 Venue Configuration, 014 Connectivity, 018 Notifications e 019 Station Routing; ADR 0013 Non-fiscal print delivery.
 **Pilot:** Bar do Aderlan; hardware conhecido por foto: Bematech MP-4200 TH. Conexão real, driver, firmware e comandos suportados ainda não verificados.

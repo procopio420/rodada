@@ -141,7 +141,15 @@ class WindowsStore:
                 service_file=True,
             )
         atomic_write(
-            self.private / "api.json", json.dumps({"origin": validate_origin(api_origin)}).encode()
+            self.private / "api.json",
+            json.dumps(
+                {
+                    "origin": validate_origin(api_origin),
+                    "tcp_targets": self.tcp_targets()
+                    if (self.private / "api.json").exists()
+                    else [],
+                }
+            ).encode(),
         )
         if not (self.private / "state.dpapi").exists():
             self.save(InstallationState())
@@ -149,6 +157,19 @@ class WindowsStore:
     def api_origin(self) -> str:
         data = json.loads((self.private / "api.json").read_text())
         return str(data["origin"])
+
+    def tcp_targets(self) -> tuple[str, ...]:
+        data = json.loads((self.private / "api.json").read_text())
+        return tuple(str(value) for value in data.get("tcp_targets", []))
+
+    def configure_tcp(self, targets: list[str]) -> None:
+        from .transports import private_address
+
+        if len(targets) > 20:
+            raise ValueError("At most20manual LAN targets.")
+        data = json.loads((self.private / "api.json").read_text())
+        data["tcp_targets"] = [private_address(value, 9100) for value in targets]
+        atomic_write(self.private / "api.json", json.dumps(data).encode())
 
     def load(self) -> InstallationState:
         crypto, _ = windows_modules()

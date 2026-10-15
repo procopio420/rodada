@@ -1,7 +1,7 @@
 # Acceptance — Spec 028
 
-**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
-**Status:** S1 evidence below is historical; CI passed and merge confirmed (2a04379). S2 evidence: s2-pairing.md and PR #155. Remaining printing/distribution/hardware scenarios pending.
+**Progresso:** S1 integrada no PR #149 e S2 integrada no PR #155 (974e0bc), ambas com autorização. S3 em implementação e validação; ver [contrato e evidências](s3-printing-mvp.md). S4–S7 pendentes. Sem instalador ou homologação física.
+**Status:** S1/S2 merged; S3 implementation/testing in progress. S4–S7 pending; no public installer or physical certification.
 
 ## Matriz de cobertura por slice
 
