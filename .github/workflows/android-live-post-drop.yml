@@ -27,7 +27,7 @@ on:
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
       - "scripts/tests/test_trace_redaction.py"
-      - "apps/attendance-android/app/src/androidTest/**/LiveComposeOrderTest.kt"
+      - "apps/attendance-android/app/src/androidTest/**/LiveCompose*.kt"
       - "scripts/tests/test_cross_surface_fixture.py"
 
 permissions:
