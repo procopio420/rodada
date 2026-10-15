@@ -9,7 +9,7 @@ import django; django.setup()
 from django.conf import settings
 assert settings.DATABASES['default']['NAME']=='rodada_web_e2e'
 from modules.catalog.models import Product
-from modules.ordering.models import OrderItem
+from modules.ordering.models import OrderItem, Tab
 from modules.ledger.models import Charge,Payment
 from modules.venue.models import Venue
 v=Venue.objects.get(slug='web-e2e')
@@ -32,6 +32,9 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const product = catalog.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: `Repeat ${width}` });
   const other = await api(page, "tabs/", { display_label: `Other ${width}` });
+  // The selected two-unit repeat makes total exposure R$39. The default visitor
+  // limit is R$30: lift only this disposable test Tab to R$50, not the venue policy.
+  database(`assert Tab.objects.filter(pk='${tab.id}', venue=v).update(operating_limit_cents=5000) == 1`);
   const original = await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: `historical-${width}`, lines: [{ product_id: product.id, quantity: 1, special_instructions: "Sem sal" }] });
   database("Product.objects.filter(venue=v,name='Kitchen E2E item').update(price_cents=1200)");
   await page.reload(); await page.getByRole("button", { name: "Contas", exact: true }).click();
