@@ -179,6 +179,10 @@ python -m pytest tests/test_spec025_qa_provisioning.py \
 ```
 
 **67 passed / 56.91s** (inclui 16 regressões de provisão/contenção).
+Complemento posterior apenas de testes: colisões de hostname e slug
+commitadas por outra conexão após preflight também preservam o proprietário
+estrangeiro e revertem A/B. Suíte final do comando: **18 passed / 24.80s**,
+mesmo código de implementação, sem alterar serviços ou infraestrutura.
 Django check:0 issues; migration drift:no changes; Ruff:0 findings;
 `git diff --check` e KB check PASS. Antes das correções, quatro regressões
 falharam no candidato antigo; o teste adicional de corrida reproduziu deadlock

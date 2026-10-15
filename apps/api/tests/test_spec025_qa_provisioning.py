@@ -120,6 +120,44 @@ def test_committed_foreign_login_claim_after_preflight_aborts_entire_provision(p
     assert list(staff.venue_memberships.values_list("venue_id", flat=True)) == [foreign.pk]
 
 
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("claimed", ["hostname", "slug"])
+def test_committed_foreign_domain_or_slug_claim_after_preflight_is_not_adopted(pins, monkeypatch, claimed):
+    foreign = Venue.objects.create(name="Foreign sentinel", slug="foreign-sentinel")
+    original = Command._check_protected_identity
+    preflights = []
+
+    def claim_reserved_identity():
+        close_old_connections()
+        try:
+            if claimed == "hostname":
+                VenueDomain.objects.create(venue=foreign, hostname="e2eb.rodada.bar")
+            else:
+                Venue.objects.create(name="Foreign claimed slug", slug="spec025-qa-b")
+        finally:
+            close_old_connections()
+
+    def interleaved(spec, **kwargs):
+        result = original(spec, **kwargs)
+        preflights.append(spec["slug"])
+        if len(preflights) == 2:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                executor.submit(claim_reserved_identity).result(timeout=10)
+        return result
+
+    monkeypatch.setattr(Command, "_check_protected_identity", staticmethod(interleaved))
+    with pytest.raises(CommandError, match="hostname reassigned|unexpected identity"):
+        run_qa(operation="provision", apply=True, backup_reference=BACKUP)
+    assert not Venue.objects.filter(slug="spec025-qa-a").exists()
+    assert not StaffMember.objects.exists()
+    if claimed == "hostname":
+        assert VenueDomain.objects.get(hostname="e2eb.rodada.bar").venue_id == foreign.pk
+        assert not Venue.objects.filter(slug="spec025-qa-b").exists()
+    else:
+        assert Venue.objects.get(slug="spec025-qa-b").name == "Foreign claimed slug"
+        assert not VenueDomain.objects.exists()
+
+
 @pytest.mark.django_db
 def test_reprovision_after_activation_reports_preserved_state(pins):
     run_qa(operation="provision", apply=True, backup_reference=BACKUP)
