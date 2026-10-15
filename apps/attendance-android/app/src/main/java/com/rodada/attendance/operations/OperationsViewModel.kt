@@ -420,25 +420,13 @@ class OperationsViewModel(
     }
 
     fun repeatOrder(session: StoredSession, tabId: String, review: RepeatOrderReview, quantities: Map<String, Int>) {
-        val tab = state.selectedTab ?: return
-        if (tab.summary.id != tabId || tab.summary.state == "CLOSED" || state.loading || state.submitting ||
-            state.connectivity != ConnectivityState.ONLINE || state.orderIntentId != null ||
-            state.queuedOrders.any { it.tabId == tabId }) return
-        val original = tab.orders.firstOrNull { it.id == review.orderId } ?: return
-        val current = reviewRepeatedOrder(original, state.products)
-        if (current != review || !current.canAdd) {
-            state = state.copy(errorMessage = "A rodada mudou. Abra novamente a revisão.")
-            return
-        }
-        val selected = selectedRepeatedLines(current, quantities)
-        if (selected == null) {
-            state = state.copy(errorMessage = "Selecione itens e quantidades válidas para repetir.")
+        val lines = state.repeatedOrderLines(tabId, review, quantities)
+        if (lines == null) {
+            state = state.copy(errorMessage = "A rodada ou o contexto mudou. Revise os itens e tente novamente.")
             return
         }
         // A round is an independent Order; never borrow the manual cart.
-        queueOrder(session, tabId, selected.map {
-            PendingOrderLine(it.line.product.id, it.quantity, it.line.customization)
-        }, clearCartOnConfirmation = false)
+        queueOrder(session, tabId, lines, clearCartOnConfirmation = false)
     }
 
     fun editCartLine(lineId: String, customization: Customization) {
