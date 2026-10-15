@@ -243,3 +243,20 @@ No signature, cookie, token or secret value was printed or persisted in evidence
 HMAC was computed inside the container with the existing secret. These probes
 resolve a subset of the previous boundary gaps; enabled A/B sessions, cookies,
 QR, mutations, SSE, native authenticated flows and rollback remain NOT TESTED.
+
+### PR159 deployment verified
+
+Railway deployment `40f0c485-5499-48f6-b1c4-7b8fe91f9d64` subsequently reached
+**SUCCESS**. A fresh SSH call confirmed runtime commit
+`18da0109436bc76b199ec82ca7f7c75e5c54b57d` and that exact deployment ID, with
+seed disabled and tenant UI disabled. In `/app/apps/api` the deployed command ran:
+
+```bash
+python manage.py provision_spec025_ab
+python manage.py provision_spec025_ab --operation provision
+```
+
+Both reported venue/domain/operator absent for A and B; the second ended
+`DRY RUN: operation provision not executed`. No `--apply` was used. This proves
+the guarded command is deployed and inspection works, not provisioning or edge
+acceptance. Backup entitlement and recovery verification remain the write gate.
