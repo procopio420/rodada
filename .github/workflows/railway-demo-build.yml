@@ -6,6 +6,7 @@ on:
     paths:
       - 'deploy/railway/**'
       - 'scripts/verify-aderlan-staging.py'
+      - 'scripts/verify-native-customer-ingress.py'
       - '.github/workflows/railway-demo-build.yml'
   workflow_dispatch:
 
@@ -141,6 +142,8 @@ jobs:
             fi
           }
           assert_host_status api.rodada.bar /ready/ 200
+          python3 scripts/verify-native-customer-ingress.py --base http://127.0.0.1:18080
+          assert_host_status bardoaderlan.rodada.bar /guest/customer 200
           assert_host_status bardoaderlan.rodada.bar /api/venue/context 200
           assert_host_status bardoaderlan.rodada.bar /cozinha 200
           assert_host_status bardoaderlan.rodada.bar /auth/me/ 403

@@ -314,3 +314,23 @@ from a test fixture using `error.status` instead of `status_code`; corrected
 without changing authorization expectations. Django checks0 issues; migration
 drift no changes; Ruff and diff check PASS. Independent distinct-context R3
 source review: NO_FINDINGS_WITH_GAPS; final exact commit/CI remain PR gates.
+
+### Real ingress gap discovered after successful browser matrix
+
+On main7bbe3378, the full173-case real HTTPS browser matrix passed. The separate
+flag-off containment witness then stopped before opening its four streams:
+`api.rodada.bar/guest/customer/login/` returned308, because the newly added
+Customer identity routes were absent from Nginx's explicit raw API families and
+fell through to Next. Browser BFF success did not prove native ingress. Explicit
+QA containment still committed, and native login/QR/session denials passed;
+four-stream closure was NOT accepted from that interrupted witness.
+
+The focused correction routes only the six exact existing Customer endpoints
+(register/login/context/claim/logout/password) to Django, inheriting the same
+Host forwarding and untrusted assertion stripping. Opaque `/guest/customer`
+pages, BFF routes and lookalikes remain on Next; no broad `/guest/*` routing,
+security bypass, database/schema, DNS or financial change. Regression-first:
+12 route cases FAIL and9 page-preservation cases PASS before patch;21PASS/0.10s
+after. The existing Railway disposable-image smoke is extended with12 actual
+native JSON401 probes, with/without forged BFF assertions; its result and full
+API/Web gates remain required before integration/deployment.

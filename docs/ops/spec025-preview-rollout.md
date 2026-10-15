@@ -319,3 +319,15 @@ Always finish with this order, including on a failed scenario:
 Do not restore the operational database or select an old image to demonstrate
 flag backout. Logical archive recovery is a separate incident operation. A
 successful exercise does not authorize #152 canary or permanent flag activation.
+
+### New Guest identity endpoints and native ingress
+
+A new Django Guest endpoint must also be routed by the explicit raw Nginx API
+allowlist. BFF success alone is insufficient: missing native routing can fall
+through to a Next page redirect. The six fixed `/guest/customer/<action>/`
+endpoints inherit the same Host forwarding and assertion stripping; the opaque
+page `/guest/customer` and lookalikes remain on Next. Reproduce native contract
+through the existing disposable Railway image smoke using
+`scripts/verify-native-customer-ingress.py` (loopback-only, no guest credentials,
+expected JSON401 including forged assertion probes). Do not treat a redirect as
+native API acceptance. Test actual authorized QA identity again after deployment.
