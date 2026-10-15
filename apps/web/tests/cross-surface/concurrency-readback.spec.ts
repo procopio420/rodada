@@ -14,10 +14,12 @@ test("concurrent commands are visible canonically in the shared Attendance UI", 
   await page.goto("/attendance");
   for (const kind of ["start", "claim"]) {
     await page.getByRole("button", { name: new RegExp(`^Mesa Race ${kind}`) }).click();
-    await expect(page.locator(`#table-details-${f.race_tables[kind]}`)).toContainText(/Atendimento:/);
+    const dialog = page.getByRole("dialog", { name: `Mesa Race ${kind}`, exact: true });
+    await expect(dialog).toContainText(/Atendimento:/);
+    await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
   }
   await page.getByRole("button", { name: /^Mesa Race release/ }).click();
-  await expect(page.getByRole("button", { name: "Iniciar limpeza", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Concluir limpeza", exact: true })).toBeVisible();
   expect(r.start.map((x: { status: number }) => x.status).sort()).toEqual([201, 409]);
   expect(r.claim.map((x: { status: number }) => x.status).sort()).toEqual([201, 409]);
   await writeFile("../../artifacts/concurrency-browser.json", JSON.stringify({

@@ -17,7 +17,8 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
     if (!r.ok) throw new Error(`${path}: ${r.status}`);
     return r.json();
   }, { path, body });
-  // Setup only; every occupancy/claim/Tab/lifecycle action below is real browser UI.
+  // Setup via real BFF. Guest/claim/Tabs/release/complete use UI; the optional
+  // intermediate CLEANING command below uses real BFF because current UI offers direct completion.
   const table = await read("hospitality/tables/", { label: `QR-first ${Date.now()}`, guest_ordering_mode: "DIRECT" });
   const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
   const guest = await guestContext.newPage();
@@ -72,7 +73,11 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
-  await page.getByRole("button", { name: "Iniciar limpeza", exact: true }).click();
+  // Current production UI has one-click completion from DIRTY. Exercise the
+  // still-supported intermediate transition explicitly through the real BFF.
+  await read(`hospitality/tables/${table.id}/cleaning/start/`, {});
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("CLEANING");
   await page.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("AVAILABLE");
