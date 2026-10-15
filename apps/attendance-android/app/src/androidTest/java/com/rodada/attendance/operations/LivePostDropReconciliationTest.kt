@@ -133,6 +133,20 @@ class LivePostDropReconciliationTest {
         assertEquals(1, canonicalAfter.orders.single().items.size)
         assertEquals(0L, canonicalAfter.summary.paymentsCents)
 
+        // Negative replay uses the same real native transport and key, with a divergent body.
+        try {
+            orders.confirmOrder(session.tokens.accessToken, exact.tabId,
+                cart(exact).map { it.copy(quantity = it.quantity + 1) }, exact.idempotencyKey)
+            fail("Divergent native replay must not create or replace the original order")
+        } catch (conflict: OperationsApiException) {
+            assertEquals(409, conflict.status)
+            assertEquals("IDEMPOTENCY_CONFLICT", conflict.code)
+        }
+        val afterConflict = orders.tabDetail(session.tokens.accessToken, exact.tabId)
+        assertEquals(originalOrderId, afterConflict.orders.single().id)
+        assertEquals(originalBalance, afterConflict.summary.chargesCents)
+        assertEquals(0L, afterConflict.summary.paymentsCents)
+
         // Remove only after the canonical response AND canonical reread succeeded.
         queue.remove(exact.id)
         assertTrue(queue.orderQueue(session).isEmpty())

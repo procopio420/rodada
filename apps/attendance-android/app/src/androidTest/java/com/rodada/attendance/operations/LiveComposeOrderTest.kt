@@ -49,7 +49,8 @@ class LiveComposeOrderTest {
             java.io.File(files, "catalog-cart-ready").writeText("ready")
             compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
         }
-        compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo().performClick()
+        val confirmation = compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo()
+        if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
         if (fault) {
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty() &&
                 compose.onAllNodes(hasText("Um ou mais itens não podem mais ser confirmados.", substring = true)).fetchSemanticsNodes().isNotEmpty() }
