@@ -254,6 +254,7 @@ jobs:
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
             artifacts/isolation-*.json
+            artifacts/guest-isolation-*.json
             artifacts/revocation-*.json
             artifacts/sse-*.json
             artifacts/pending-payment-*.json

@@ -9,6 +9,7 @@ import com.rodada.attendance.auth.SecureSessionStore
 import com.rodada.attendance.auth.AuthHttpClient
 import com.rodada.attendance.auth.AuthApiException
 import com.rodada.attendance.auth.StoredSession
+import com.rodada.attendance.auth.LoginRequest
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -119,6 +120,20 @@ class LiveComposeOrderTest {
         check(next.sessionId != session.sessionId)
         check(queue.orderQueue(next).isEmpty())
         check(queue.blockedFor(next).any { it.id == original.id })
+        val operations = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
+        val foreign = auth.login(LoginRequest(venueSlug = "android-post-drop-foreign-ci", loginIdentifier = "android-post-drop-foreign-operator", pin = "2468", installationId = "issue106-native-foreign-" + java.util.UUID.randomUUID()))
+        val foreignTab = InstrumentationRegistry.getArguments().getString("foreignTabId") ?: error("Missing foreign control Tab")
+        check(operations.tabDetail(next.tokens.accessToken, original.tabId).summary.chargesCents == 0L)
+        check(operations.tabDetail(foreign.tokens.accessToken, foreignTab).summary.chargesCents == 0L)
+        fun foreignDenied(action: () -> Unit) {
+            try { action(); error("Foreign Venue unexpectedly accepted") }
+            catch (rejected: OperationsApiException) { check(rejected.status == 404) }
+        }
+        for ((token, tabId) in listOf(next.tokens.accessToken to foreignTab, foreign.tokens.accessToken to original.tabId)) {
+            foreignDenied { operations.tabDetail(token, tabId) }
+            foreignDenied { operations.confirmOrder(token, tabId, original.lines.map { CartLine(Product(it.productId, "Foreign denied", 0, true, "BAR", "AVAILABLE"), it.quantity, it.customization) }, java.util.UUID.randomUUID().toString()) }
+        }
+        println("NATIVE_VENUE_A_B_READ_POST_ISOLATED")
         compose.onNodeWithTag("attendance-now").performClick()
         val pending = hasText("Pendências", substring = true) and hasClickAction()
         compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }

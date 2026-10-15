@@ -85,3 +85,37 @@ test("revoked Web session cannot replay captured UI intent and new login require
     await writeFile("../../artifacts/revocation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_id: f.venue_id, tab_id: intent.tab, session_id: intent.session, request_key_hash: createHash("sha256").update(intent.payload.idempotency_key).digest("hex"), status: "PASS", denied, intent_preserved: true, scope: "Web logout revokes original session; captured before-commit intent; native expiry/refresh/SSE unproven" }, null, 2));
   } finally { await oldContext.close(); }
 });
+
+test("Guest A/B sessions reject foreign selectors and product IDs without ledger effects", async ({ page, browser }) => {
+  const f = JSON.parse(await readFile(process.env.RODADA_POST_DROP_FIXTURE!, "utf8"));
+  await login(page);
+  const foreignContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContexts = await Promise.all([0, 1].map(() => browser.newContext({ baseURL: "http://127.0.0.1:3110" })));
+  try {
+    const foreign = await foreignContext.newPage(); await login(foreign, true);
+    const tables = [];
+    for (const [index, staff] of [page, foreign].entries()) {
+      const result = await api(staff, "hospitality/tables/", { label: `Guest isolation ${index} ${Date.now()}`, guest_ordering_mode: "DIRECT" });
+      expect(result.status).toBe(201); tables.push(result.body);
+    }
+    const tabs: string[] = [], denials = [];
+    for (const index of [0, 1]) {
+      const guest = await guestContexts[index].newPage();
+      await guest.goto(`/guest/${tables[index].public_token}`);
+      await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
+      const proof = await guest.evaluate(async ({ selector, foreignSelector, foreignProduct }) => {
+        const get = async (s: string) => {
+          const r = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": s } });
+          return { status: r.status, body: await r.json() };
+        };
+        const own = await get(selector), deniedRead = await get(foreignSelector);
+        const r = await fetch("/api/guest/orders/confirm/", { method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": selector }, body: JSON.stringify({ idempotency_key: crypto.randomUUID(), lines: [{ product_id: foreignProduct, quantity: 1 }] }) });
+        return { own, deniedRead, deniedPost: { status: r.status, body: await r.json() } };
+      }, { selector: tables[index].public_token, foreignSelector: tables[1-index].public_token, foreignProduct: index === 0 ? f.foreign_product_id : f.product_id });
+      expect(proof.own.status).toBe(200); expect([401,403]).toContain(proof.deniedRead.status);
+      expect(proof.deniedPost.status).toBe(409); expect(proof.deniedPost.body.code).toBe("PRODUCTS_NOT_CONFIRMABLE");
+      tabs.push(proof.own.body.tab.id); denials.push({ get: proof.deniedRead.status, post: proof.deniedPost.status });
+    }
+    await writeFile("../../artifacts/guest-isolation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_ids: [f.venue_id, f.foreign_venue_id], tab_ids: tabs, status: "PASS", denials, scope: "local Guest/BFF selectors and product identities; external Host/HMAC routing remains separate #130 gate" }, null, 2));
+  } finally { await Promise.all([...guestContexts, foreignContext].map(context => context.close())); }
+});

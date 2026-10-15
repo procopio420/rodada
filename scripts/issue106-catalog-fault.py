@@ -42,6 +42,9 @@ else:
         session=StaffSession.objects.get(pk=os.environ["RODADA_REVOKED_SESSION_ID"],venue_id=f["venue_id"])
         assert session.revoked_at and session.revocation_reason=="ISSUE106_DISPOSABLE_TEST"
         assert AuditEvent.objects.filter(actor_session_id=session.pk,event_type="auth.session_revoked").count()==1
+        foreign=Tab.objects.get(pk=f["foreign_tab_id"],venue_id=f["foreign_venue_id"])
+        assert not Order.objects.filter(tab=foreign).exists() and not Charge.objects.filter(tab=foreign).exists() and not Payment.objects.filter(tab=foreign).exists()
+        assert "NATIVE_VENUE_A_B_READ_POST_ISOLATED" in Path(f"artifacts/{prefix}-instrumentation.txt").read_text()
         assert "NATIVE_REVOKED_GET_POST_REFRESH_SSE_DENIED; NEW_LOGIN_REVIEW_ONLY" in Path(f"artifacts/{prefix}-instrumentation.txt").read_text()
     Path(f"artifacts/{prefix}-sql.json").write_text(json.dumps({"sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"database_instance_id":f["database_instance_id"],"venue_id":f["venue_id"],"tab_id":str(tab.pk),"status":"PASS","orders":0,"charges":0,"payments":0,"native_ui":"production MainActivity Compose","revoked_session_id":os.environ.get("RODADA_REVOKED_SESSION_ID"),"fault":"session revoked before pending replay; native GET/POST/refresh/SSE denied; new login review-only" if prefix=="android-offline-revocation" else "offline pending intent then product change and ACTION_REQUIRED" if os.environ.get("RODADA_COMPOSE_OFFLINE_CATALOG")=="true" else "product made unavailable after cart before confirm"},indent=2)+"\n")
 print("PASS: guarded catalog fault stage",sys.argv[1])

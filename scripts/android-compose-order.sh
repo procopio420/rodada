@@ -65,7 +65,8 @@ if [[ "$mode" == true ]]; then
   "${ADB[@]}" shell am force-stop com.rodada.attendance
 "${ADB[@]}" shell pm clear com.rodada.attendance
 "${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true -e offlineFault "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" -e revocationFault "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" \
-  -e tabLabel "$RODADA_COMPOSE_TAB_LABEL" -e class com.rodada.attendance.operations.LiveComposeOrderTest \
+  -e tabLabel "$RODADA_COMPOSE_TAB_LABEL" -e foreignTabId "$("$PYTHON" -c 'import json,os; print(json.load(open(os.environ["RODADA_POST_DROP_FIXTURE"]))["foreign_tab_id"])')" \
+  -e class com.rodada.attendance.operations.LiveComposeOrderTest \
   com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner > "artifacts/$RODADA_CATALOG_PROOF_PREFIX-instrumentation.txt" &
 instrument_pid=$!
 trap restore_catalog_fault EXIT

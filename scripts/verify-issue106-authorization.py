@@ -17,10 +17,10 @@ from modules.audit.models import AuditEvent
 require_connected_database(connection)
 f = json.loads(Path(os.environ["RODADA_POST_DROP_FIXTURE"]).read_text())
 sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-for scenario in ("isolation", "revocation"):
+for scenario in ("isolation", "guest-isolation", "revocation"):
     r = json.loads(Path(f"artifacts/{scenario}-browser.json").read_text())
     assert r["sha"] == sha and r["database_instance_id"] == f["database_instance_id"] == database_instance_identity(connection)
-    if scenario == "isolation":
+    if scenario in ("isolation", "guest-isolation"):
         ids = r["tab_ids"]
         assert Tab.objects.get(pk=ids[0]).venue_id == Tab.objects.get(pk=ids[0], venue_id=f["venue_id"]).venue_id
         assert str(Tab.objects.get(pk=ids[1]).venue_id) == f["foreign_venue_id"]
