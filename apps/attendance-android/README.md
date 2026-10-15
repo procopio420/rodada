@@ -123,8 +123,23 @@ cd apps/api
 # Configure PostgreSQL conforme apps/api/README.md, depois:
 python manage.py migrate
 python manage.py seed_demo
-python manage.py runserver 0.0.0.0:8000
+python -m uvicorn rodada_api.asgi:application --host 0.0.0.0 --port 8000
 ```
+
+Execute também `python manage.py dispatch_realtime` em outro terminal com a mesma
+configuração de ambiente. O canal SSE exige ASGI: `manage.py runserver` usa WSGI e
+bufferiza o stream assíncrono até o fim, excedendo o timeout do Android e mantendo
+o indicador `DESATUALIZADO` mesmo quando as consultas HTTP funcionam. Inclua
+`10.0.2.2` em `DJANGO_ALLOWED_HOSTS` para o endereço padrão do emulador.
+
+Para manter a API restrita a `127.0.0.1`, compile o debug com
+`-ProdadaApiBaseUrl=http://127.0.0.1:8000/` e execute
+`adb -s <serial> reverse tcp:8000 tcp:8000`. Se a instância ASGI estiver em outra
+porta, use-a no segundo argumento (por exemplo, `tcp:8001`). Restaure esse
+encaminhamento após reiniciar o emulador. Ao mudar o destino, reabra o aplicativo
+para descartar conexões persistentes com o servidor anterior. Não é necessário
+limpar os dados do app nem recriar o banco. Procedimento SSE completo em
+[modules/realtime/README.md](../api/modules/realtime/README.md).
 
 Em outro terminal, a partir da raiz do repositório, provisione uma única vez e
 execute o smoke:
@@ -255,3 +270,21 @@ Pendências de movimento/fechamento abrem consulta do turno original, inclusive 
 
 ### Conferir correção/estorno — Spec026 T11d
 Pendência abre o alvo original pela API, incluindo comanda encerrada e correção aplicada. Item/payment/correction/Tab são validados; tela de consulta mantém registro e fila, sem replay financeiro. ID inconsistente, alvo ausente, falha ou outra sessão não publica contexto. Evidências e gates em specs/026-operational-ux-friction/revalidation.md.
+
+## Mesas e comandas — port nativo da Spec 029
+
+A entrada unificada permite buscar mesa/comanda, filtrar estado, expandir operações,
+abrir explicitamente uma Tab e consultar Outras comandas ou Histórico. A janela
+nativa separa Cardápio, Pedido atual e Conta; a revisão não depende da busca do
+catálogo e o saldo canônico não inclui o draft. Comandas encerradas abrem Conta.
+
+Voltar conserva drafts não submetidos em memória por Tab/sessão, incluindo
+configurações e IDs das linhas. Trocar sessão limpa esses drafts; morte do processo
+não promete recuperá-los. Intenções já submetidas continuam cifradas e preservam
+suas regras de reconciliação. Correção/estorno incertos oferecem Conferir pendências
+para consultar o registro original sem reenviar nem remover a intenção.
+
+Sem WebView ou dependências novas. O catálogo nativo usa o fallback genérico de
+ProductIcon; assets publicados ainda não são carregados neste port.
+Contrato e evidência: [Spec 029](../../specs/029-attendance-mobile-design/spec.md) e
+[validação Android](../../specs/029-attendance-mobile-design/android-evidence.md).

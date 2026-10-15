@@ -26,9 +26,9 @@ class OrderWorkspaceTest {
                 {}, {}, {}, {}, {}, {}, {}, {},
             )
         } } }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Produto 146"))
+        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Produto 146"))
         compose.onNodeWithText("Produto 146").assertIsDisplayed()
-        compose.onNodeWithText("Ver carrinho · 2 itens · ${formatCents(1600)}")
+        compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}")
             .assertIsDisplayed().assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar pedido").assertIsDisplayed().assertIsEnabled()
         compose.onNodeWithText("+").performClick()
@@ -36,9 +36,9 @@ class OrderWorkspaceTest {
         captureCriticalEvidence(compose, "order-cart", compose.onRoot())
         compose.onNodeWithText("Voltar ao catálogo").assertIsDisplayed().performClick()
         compose.onNodeWithText("Produto 146").assertIsDisplayed()
-        compose.onNodeWithText("Ver carrinho · 2 itens · ${formatCents(1600)}").assertIsDisplayed()
+        compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}").assertIsDisplayed()
         assertEquals(0, confirmed)
-        compose.onNodeWithText("Ver carrinho · 2 itens · ${formatCents(1600)}").performClick()
+        compose.onNodeWithText("Ver pedido atual · 2 itens · ${formatCents(1600)}").performClick()
         compose.onNodeWithText("Confirmar pedido").performClick()
         assertEquals(1, confirmed)
     }
@@ -70,7 +70,7 @@ class OrderWorkspaceTest {
                 { confirmed++ }, {}, {}, {}, {}, {}, {}, {}, {},
             )
         } } }
-        compose.onNodeWithText("Ver carrinho · 1 item · ${formatCents(800)}").performClick()
+        compose.onNodeWithText("Ver pedido atual · 1 item · ${formatCents(800)}").performClick()
         compose.onNodeWithText("Editar").assertIsNotEnabled()
         compose.onNodeWithText("+").assertIsNotEnabled()
         compose.onNodeWithText("−").assertIsNotEnabled()

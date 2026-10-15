@@ -66,7 +66,8 @@ class RepeatOrderDialogTest {
                     sent++
                 })
         } } }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Mais uma rodada"))
+        compose.onNodeWithTag("workspace-Conta").performClick()
+        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Mais uma rodada"))
         compose.onNodeWithText("Mais uma rodada").performClick()
         compose.onNodeWithText("Cancelar").performClick()
         assertEquals(listOf(draft), ui.value.cart)

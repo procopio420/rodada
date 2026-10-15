@@ -169,7 +169,7 @@ const menuGroups: Record<string, { source: string; label: string }> = {
     "label": "Refrigerantes"
   }
 };
-export const normalizeCatalogSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").trim();
+export const normalizeCatalogSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").trim().replace(/\s+/g, " ");
 export function attendanceCategory(product: { name: string; category?: string }) {
   if (/^brahma 600\s?ml$/.test(normalizeCatalogSearch(product.name))) return "Cervejas";
   const mapped = menuGroups[product.name];

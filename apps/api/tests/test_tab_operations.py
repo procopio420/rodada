@@ -36,6 +36,41 @@ class OperationFixture(HouseFixture):
 
 
 class TabOperationTests(OperationFixture, TestCase):
+    def test_move_to_available_table_is_atomic_and_replays(self):
+        from modules.hospitality.models import Table, TableOccupancy, TabOccupancyAssignment
+
+        source = self.tab()
+        table = Table.objects.create(venue=Tab.objects.get(pk=source).venue, label="Destino")
+        command = self.command(source, kind="MOVE_LOCATION", table_id=str(table.id), idempotency_key="available-table")
+        result = self.commit(source, command, client=self.staff)
+        assert self.commit(source, command, client=self.staff) == result
+        assert TableOccupancy.objects.filter(table=table).count() == 1
+        assert TabOccupancyAssignment.objects.filter(tab_id=source, released_at__isnull=True).count() == 1
+        table.refresh_from_db()
+        assert table.status == "OCCUPIED"
+
+    def test_move_to_unavailable_table_has_no_side_effects(self):
+        from modules.hospitality.models import Table, TableOccupancy
+
+        source = self.tab()
+        table = Table.objects.create(venue=Tab.objects.get(pk=source).venue, label="Indisponível", status="DIRTY")
+        command = self.command(source, kind="MOVE_LOCATION", table_id=str(table.id))
+        assert self.commit(source, command, 409, self.staff)["code"] == "TABLE_NOT_AVAILABLE"
+        assert not TableOccupancy.objects.filter(table=table).exists()
+
+    def test_move_to_available_table_rejects_foreign_venue_and_stale_version(self):
+        from modules.hospitality.models import Table, TableOccupancy
+        from modules.venue.models import Venue
+
+        source = self.tab()
+        foreign = Table.objects.create(venue=Venue.objects.create(name="Outro", slug="move-other"), label="Outro")
+        command = self.command(source, kind="MOVE_LOCATION", table_id=str(foreign.id))
+        assert self.commit(source, command, 404, self.staff)["code"] == "TABLE_NOT_FOUND"
+        local = Table.objects.create(venue=Tab.objects.get(pk=source).venue, label="Local")
+        command.update(table_id=str(local.id), expected_version=999)
+        assert self.commit(source, command, 409, self.staff)["code"] == "VERSION_CONFLICT"
+        assert not TableOccupancy.objects.filter(table=local).exists()
+
     def test_split_balanced_history_retry_and_retransfer(self):
         source, dest = self.tab(), self.tab()
         self.order(source, 3)

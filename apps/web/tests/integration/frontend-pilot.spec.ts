@@ -45,6 +45,7 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
     return { task: await task.json(), tableId: table.id, occupancyId: (await occupied.json()).id };
   });
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Agora", exact: true }).click();
   const panel = page.getByRole("region", { name: "Chamadas de atendimento" });
   await expect(panel.getByRole("heading", { name: "Pedido de conta · Mesa Pilot frontend table" })).toBeVisible();
   await panel.getByRole("button", { name: "Assumir chamada" }).click();
@@ -54,7 +55,7 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   await expect(panel.getByText("Nenhuma chamada aberta.")).toBeVisible();
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
-  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   const table = page.locator("article").filter({ has: page.getByRole("button", { name: /^Mesa Pilot frontend table/ }) });
   await table.getByRole("button", { name: /^Mesa Pilot frontend table/ }).click();
   // The current Attendance UI hides covers; retain the authenticated canonical

@@ -1,6 +1,7 @@
 package com.rodada.attendance.operations
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -28,7 +29,8 @@ class TableServiceNavigationTest {
                 state.value = state.value.copy(tables = listOf(table.copy(status = "OCCUPIED",
                     activeOccupancy = TableOccupancy("visit", 3, emptyList(), "staff", "Ana", 1))))
             }, onOpenTableTab = { occupancy, name -> opened = occupancy.id to name }) } }
-        compose.onNodeWithText("Iniciar atendimento").performClick()
+        compose.onNodeWithTag("table-table").performClick()
+        compose.onNodeWithText("Iniciar atendimento sem comanda").performScrollTo().performClick()
         assertEquals(listOf("table"), starts)
         compose.onNodeWithText("Atendimento: você").assertExists()
         compose.onNodeWithText("Nova comanda nesta mesa").performScrollTo().performClick()
@@ -46,6 +48,7 @@ class TableServiceNavigationTest {
         var selected = ""
         compose.setContent { RodadaTheme { TablesScreen(state.value, true, { _, _ -> }, {}, {}, {},
             staffId = "staff", onSelectTab = { selected = it }) } }
+        compose.onNodeWithTag("table-table").performClick()
         compose.onNodeWithText("João · Comanda B").performScrollTo().performClick()
         assertEquals("b", selected)
         compose.runOnIdle { state.value = state.value.copy(pendingTableService = RecoveryIntent.TableService(
@@ -63,6 +66,7 @@ class TableServiceNavigationTest {
         var moved: Pair<String, String>? = null
         compose.setContent { RodadaTheme { TablesScreen(state, true, { _, _ -> error("Linked Tab must not use assign") }, {}, {}, {},
             canMoveTabs = true, onMoveTab = { visit, chosen -> moved = visit to chosen.id }) } }
+        compose.onNodeWithTag("table-destination").performClick()
         compose.onAllNodesWithText("Vincular comanda existente")[0].performScrollTo().performClick()
         compose.onNodeWithText("João · linked · Mesa 12 · Mover").performClick()
         assertEquals(null, moved)
