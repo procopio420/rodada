@@ -92,14 +92,16 @@ def login_customer(*, guest_token, username, password):
         check_password(password, make_password("not-a-real-customer-password"))
         raise GuestAccessError("INVALID_CREDENTIALS", INVALID_CREDENTIALS, 401)
     if credential.revoked_at or (credential.locked_until and credential.locked_until > now):
-        raise GuestAccessError("INVALID_CREDENTIALS", INVALID_CREDENTIALS, 401)
+        return None, ""
     if not check_password(password, credential.password_hash):
         credential.failed_logins += 1
         if credential.failed_logins >= 5:
             credential.locked_until = now + timedelta(minutes=15)
             credential.failed_logins = 0
         credential.save(update_fields=["failed_logins", "locked_until"])
-        raise GuestAccessError("INVALID_CREDENTIALS", INVALID_CREDENTIALS, 401)
+        # Return an auth failure so the failed-attempt lockout commits.
+        # The HTTP boundary converts it to a generic 401 after this transaction.
+        return None, ""
     if not Relationship.objects.filter(
         venue_id=session.table.venue_id, customer_id=credential.customer_id,
     ).exists():
@@ -184,6 +186,16 @@ def claim_customer_tab(*, guest_token, auth_token, target_tab_id):
         if tab.id != session.tab_id:
             raise GuestAccessError(
                 "GUEST_TAB_ALREADY_LINKED", "Este dispositivo já possui outra comanda.", 409
+            )
+        if session.occupancy_id is None or not TabOccupancyAssignment.objects.filter(
+            occupancy_id=session.occupancy_id,
+            occupancy__table_id=session.table_id,
+            occupancy__released_at__isnull=True,
+            occupancy__generation=session.generation,
+            tab=tab, released_at__isnull=True,
+        ).exists():
+            raise GuestAccessError(
+                "TAB_NOT_IN_VISIT", "A comanda não está mais nesta visita.", 403
             )
         if tab.customer_id not in (None, customer_id):
             raise GuestAccessError(
