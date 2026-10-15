@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 test("real UI cash openings on both sides of controlled fixture cutoff preserve business dates", async ({ page }) => {
   test.setTimeout(90_000);
   const f = JSON.parse(await readFile(process.env.RODADA_POST_DROP_FIXTURE!, "utf8"));
-  const control = (phase: string) => JSON.parse(execFileSync(process.env.RODADA_TEST_PYTHON!, ["scripts/issue106-cash-cutoff.py", phase], { cwd: resolve("../.."), env: process.env, encoding: "utf8" }));
+  const control = (phase: string) => JSON.parse(execFileSync(process.env.RODADA_TEST_PYTHON ?? "python3", ["scripts/issue106-cash-cutoff.py", phase], { cwd: resolve("../.."), env: process.env, encoding: "utf8" }));
   const policy = control("prepare");
   try {
     await page.goto("/staff");

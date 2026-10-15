@@ -17,6 +17,16 @@ async function api(page: Page, path: string, body?: unknown) {
     return { status: r.status, body: await r.json() };
   }, { path, body });
 }
+// Deliberate localhost HTTP boundary probe: browser UI established the session.
+// APIRequestContext chooses cookies using overridden Host; explicitly reuse only
+// that localhost jar so Django can test credential/Host mismatch. Never publish
+// these headers; this does not certify subdomain cookies or external ingress.
+async function hostProbe(page: Page, path: string, host: string, extra: Record<string, string> = {}) {
+  const cookies = await page.context().cookies("http://127.0.0.1:3110");
+  return page.request.get(`http://127.0.0.1:3110${path}`, {
+    headers: { Host: host, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "), ...extra },
+  });
+}
 const sha = () => execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 
 test("Venue A/B canonical Tab reads and mutations stay isolated through real BFF", async ({ page, browser }) => {
@@ -32,8 +42,8 @@ test("Venue A/B canonical Tab reads and mutations stay isolated through real BFF
     expect(ownA.status).toBe(200); expect(ownB.status).toBe(200);
     // Real localhost BFF signs these fixture-only Host headers using the #130 contract.
     for (const [client, target, ownHost, wrongHost] of [[page, tab.body.id, f.local_tenant_hosts.a, f.local_tenant_hosts.b], [foreign, f.foreign_tab_id, f.local_tenant_hosts.b, f.local_tenant_hosts.a]] as const) {
-      const own = await client.request.get(`http://127.0.0.1:3110/api/pos/tabs/${target}/`, { headers: { Host: ownHost } });
-      const denied = await client.request.get(`http://127.0.0.1:3110/api/pos/tabs/${target}/`, { headers: { Host: wrongHost } });
+      const own = await hostProbe(client, `/api/pos/tabs/${target}/`, ownHost);
+      const denied = await hostProbe(client, `/api/pos/tabs/${target}/`, wrongHost);
       expect(own.status()).toBe(200); expect(denied.status()).toBe(403);
       expect((await denied.json()).code).toBe("VENUE_HOST_MISMATCH");
     }
@@ -123,8 +133,8 @@ test("Guest A/B sessions reject foreign selectors and product IDs without ledger
       expect(proof.deniedPost.status).toBe(409); expect(proof.deniedPost.body.code).toBe("PRODUCTS_NOT_CONFIRMABLE");
       const ownHost = index === 0 ? f.local_tenant_hosts.a : f.local_tenant_hosts.b;
       const wrongHost = index === 0 ? f.local_tenant_hosts.b : f.local_tenant_hosts.a;
-      const ownHostRead = await guest.request.get("http://127.0.0.1:3110/api/guest/context/", { headers: { Host: ownHost, "X-Guest-Session": tables[index].public_token } });
-      const wrongHostRead = await guest.request.get("http://127.0.0.1:3110/api/guest/context/", { headers: { Host: wrongHost, "X-Guest-Session": tables[index].public_token } });
+      const ownHostRead = await hostProbe(guest, "/api/guest/context/", ownHost, { "X-Guest-Session": tables[index].public_token });
+      const wrongHostRead = await hostProbe(guest, "/api/guest/context/", wrongHost, { "X-Guest-Session": tables[index].public_token });
       expect(ownHostRead.status()).toBe(200); expect(wrongHostRead.status()).toBe(404);
       expect((await wrongHostRead.json()).code).toBe("QR_NOT_FOUND");
       tabs.push(proof.own.body.tab.id); denials.push({ get: proof.deniedRead.status, post: proof.deniedPost.status, own_host: ownHostRead.status(), wrong_host: wrongHostRead.status() });
