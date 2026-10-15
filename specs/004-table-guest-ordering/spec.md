@@ -437,6 +437,23 @@ entram no rascunho e podem ser alterados em Editar antes de Enviar.
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
 
+
+## TABLE-005 — Contrato de leitura de métricas (#148)
+
+Endpoint gerencial autenticado `GET /management/table-turnover/?start=YYYY-MM-DD&end=YYYY-MM-DD`, protegido por `MANAGEMENT_REPORTS_READ`. Período inclusivo de até 366 dias operacionais; usa calendário IANA e hora de corte configurados em Venue. O endpoint consulta diretamente TableOccupancy e Order por Venue, sem gravar projeção ou tocar ledger.
+
+- `started`: ocupações com `started_at` no período.
+- `released`: ocupações com `released_at` no período, **contagem de giros**. Não calcular rotações por hora sem histórico de disponibilidade/exposição da mesa.
+- `ready`: ocupações com `ready_at` no período (coorte diferente de released).
+- Quatro durações: started→released, released→cleaning_started, cleaning_started→ready, released→ready. Cada uma é atribuída ao dia de `released_at` para evitar dupla contagem; pode incluir limpeza realizada depois do fim do filtro.
+- Médias em segundos arredondados são calculadas só sobre pares de timestamps presentes e cronologicamente válidos; `eligible` = liberações no período, `observed`, `missing` e `invalid` são exibidos separadamente. Média sem observações é `null`, nunca zero inventado.
+- Os giros por mesa são apresentados usando o rótulo **atual** da Table; não representam histórico de nomes/placements nem ocupação máxima possível.
+- Pedidos usam `Order.confirmed_at` (não `Tab.opened_at`), e somente registros com estado atual `CONFIRMED` entram no comparativo: `GUEST` e `STAFF + CASHIER`. O denominador da participação Guest é a soma dos dois grupos. `CANCELLED` e origem desconhecida têm contagens explícitas, fora desse denominador.
+- Uma Tab pode mudar de mesa ao longo da vida; nenhum pedido é atribuído artificialmente a uma Table. Origem de Order é por Venue e business date; mesa não é identidade financeira.
+
+A Gerência expõe contagens, intervalos observados, cobertura e ausência de dados, com calendário e detalhamento por dia e mesa. Sem rankings individuais e sem dados sintéticos.
+
+
 ## GUEST-006 — Customer opcional e prova de identidade (#147)
 
 Identidade continua opcional; Guest que não se cadastra conserva QR/GuestSession, criação de Tab e pedidos anônimos. Cliente não precisa instalar aplicativo, informar CPF ou telefone, nem instalar login para consumir.

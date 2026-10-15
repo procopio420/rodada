@@ -2,6 +2,32 @@
 
 **Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
 
+## Checkpoint operacional — 2026-10-15 UTC, antes da flag
+
+[Execução e limites por SHA](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).
+PR166 integrado4056adbd com API/Web/KB verdes; runtime avançou por PR164 para
+b63b611, preservado e revalidado. Backup lógico privado autenticado/restaurado
+substitui somente o backup oficial autorizado, sem Pro.
+
+- [x] Provisionamento real A/B inativo/suspenso, IDs distintos, rerun sem mudança;
+  preservação transacional dos registros preexistentes.
+- [x] TLS público/origem, Host/HMAC/stripping reais nos dois SHAs; unknown BFF421,
+  raw API400 fail-closed. Cloudflare Full Strict administrativo não verificado.
+- [x] Login/refresh/logout e leituras próprias A/B na API compartilhada; credenciais
+  cruzadas403; token cruzado em ASGI canônico403, sem payload estrangeiro.
+- [x] Ensaio real de contenção de A/B em b63: dois SSE staff revogados, sessões
+  encerradas, refresh/acesso401, reconnect421, novo login403; histórico preservado.
+- [ ] Smoke autenticado Aderlan: credencial protegida indisponível no processo SSH;
+  verificação manual solicitada, sem reset de acesso.
+- [ ] Aprovação específica da flag compartilhada e exercício real de seu backout.
+- [ ] HTTPS script/manifest e matriz completa browser/QR/guest/read/write habilitada.
+- [ ] Exceção formal para substituir preview fisicamente separado pelo compartilhado.
+- [ ] Fechar #151/#130 somente após os critérios originais; #152 continua rollout.
+
+Os estados anteriores abaixo são fotografias históricas, não bloqueios atuais de
+acesso Railway/backup nem prova de homologação. A/B terminaram este ensaio com
+domínios inativos, memberships SUSPENDED, guest bloqueado e flag Web desligada.
+
 ## Auditoria #130 — evidência de 14/10/2026
 
 Base `d5acc98f0267483ec3ca3a5154babccbcad88eb0`; correções e testes no código
@@ -44,9 +70,9 @@ com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentid
 Authenticated update 2026-10-15: [fresh runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
 Railway access is resolved, PR159 integrated as18da010 after headAPI849/Web98/KB
 PASS and independent R3 review. Runtime seed-off, flag-off, private DB and HMAC
-preflight verified over SSH. **Backup BLOCKED**: none listed, PITR off, official
-on-demand creation rejected because Pro is required. No QA provision/apply,
-activation or operational rollback; A/B edge acceptance remains pending.
+preflight verified over SSH. Official volume backup was denied because Pro is required; the user-authorized
+logical recovery substitute, actual provision and containment are now recorded
+in the newer checkpoint above. A/B browser edge acceptance remains pending.
 Do not interpret historical missing-access statements below as current status.
 
 Current read-only Railway revalidation (2026-10-14, base `bbaa147`):
@@ -78,6 +104,18 @@ missing Railway access. No deployment or acceptance is implied.
 ## Operational
 
 ### PR #159 — safe QA provisioning contract (not edge acceptance)
+
+Backup exception authorized by the user on 2026-10-15: use a privately streamed,
+encrypted logical PostgreSQL backup over SSH without upgrading to Pro. Provision
+and activation may accept `logical-sha256:<64 lowercase hex>` only with explicit
+`--logical-backup-verified`, attesting a completed independent disposable restore
+and integrity verification of that exact archive. This is not a Railway volume
+backup ID, nor approval of a shared-preview exception or tenant UI activation.
+The command cannot itself inspect operator-held backup artifacts; the operator
+must attach real hash/source/destination/restore results before any write.
+
+- [x] Logical references reject malformed hashes and missing restore attestation
+  before any write; existing official Railway backup references remain compatible.
 
 Local proof at code SHA `ca2e0903a27b49320c20d3e18c8772f97327eb30`:
 PostgreSQL17.11 disposable, 67 tests passed and independent R3 review;

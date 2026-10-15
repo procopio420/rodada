@@ -2,6 +2,20 @@
 
 Estado: auditoria de código/provas locais executadas; gates de CI e integração são rastreados no PR #153 e no comentário final da #130, com SHA exato. **Fechamento #130 BLOCKED pela prova real de borda, #151. Spec025 e wildcard de produção NÃO HOMOLOGADOS.**
 
+## Complemento operacional — 2026-10-15 UTC
+
+[Checkpoint verificável por SHA/deployment](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc):
+PR166 integrado4056adbd, API/Web/KB SUCCESS, backup lógico restaurado e autenticado,
+A/B provisionados e rerun idempotente; TLS/HMAC/Host/stripping reais, autenticação
+API nativa positiva/cruzada e contenção de dois streams ASGI executados. Runtime
+b63b611/ef830243 após merge concorrente164 preservado. Ao final A/B suspensos,
+flag Web desligada, sem dados financeiros simulados no banco operacional.
+
+Não extrapolar para PASS de browser/guest/QR, cookies reais ou flag backout.
+Piloto autenticado permanece NOT TESTED (PIN de teste indisponível ao SSH),
+preview compartilhado depende de exceção formal; #151/#130 continuam OPEN.
+Registros históricos e matrizes locais abaixo mantêm seus próprios SHAs/ambientes.
+
 ## Identidade e ambiente
 
 - Base atualizada por `git fetch origin`: `d5acc98f0267483ec3ca3a5154babccbcad88eb0`.
@@ -234,3 +248,15 @@ para A/B/piloto, HMAC interno válido200 e inválido/expirado/adulterado403,
 assinatura ausente em rota privada tenant403 e stripping de assertiva válida
 apresentada externamente. Resultados/limites no checkpoint; nenhum token/sessão
 de cliente usado. Isso não converte o gate de homologação A/B em PASS.
+
+### Backup lógico autorizado e recuperado
+
+Em2026-10-15 o usuário escolheu backup lógico por SSH, sem Pro. A decisão formal
+substitui apenas o método de backup desta execução; preview separado e ativação
+continuam decisões distintas. [Prova completa/hash](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15):
+snapshot PostgreSQL18.6 read-only, dump criptografado em streaming, autenticação
+AES-GCM/SHA e restore local18 descartável/tmpfs; **90/90 contagens do mesmo
+snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
+Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
+regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
+reclassifica as provas A/B, flag ou rollback como executadas.

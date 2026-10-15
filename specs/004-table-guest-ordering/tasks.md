@@ -100,6 +100,18 @@ registrados em closeout.md. Não confundir inspeção com homologação de campo
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
 
+
+### #148 — métricas de giro (branch `codex/issue-148-table-turnover-metrics`)
+
+- [x] Consulta canônica para períodos operacionais e isolamento Venue implementada.
+- [x] Endpoint protegido, indicadores e cobertura na Gerência implementados.
+- [x] Testes determinísticos para incompletos, cronologia, Guest/Staff, foreign Venue, corte e DST adicionados.
+- [ ] Validar PostgreSQL, `manage.py check`, migrações, Web typecheck/build/integration/visual no HEAD final.
+- [ ] Revisão independente R3 e merge condicionado a CI verde; então fechar #148.
+
+A inclusão de testes **não comprova execução**; não marcar validações com base em código ou PR.
+
+
 ### #147 — Customer opcional (branch `codex/issue-147-optional-guest-customer`)
 
 - [x] Modelos/migration de credencial e sessão de perfil separados do GuestSession/Tab.

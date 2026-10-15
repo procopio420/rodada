@@ -260,3 +260,192 @@ Both reported venue/domain/operator absent for A and B; the second ended
 `DRY RUN: operation provision not executed`. No `--apply` was used. This proves
 the guarded command is deployed and inspection works, not provisioning or edge
 acceptance. Backup entitlement and recovery verification remain the write gate.
+
+## Logical backup exception and recovery proof — 2026-10-15
+
+User decision: **"usa backlup logico com ssh, sem PRO ainda"**. This explicitly
+resolves the backup-method decision above; no Pro upgrade or PITR enable occurred.
+It does not accept a shared-preview exception or authorize the tenant UI flag.
+
+Executed privately against the confirmed PostgreSQL service/instance:
+
+- PostgreSQL source18.6; pg_dump18.6. Exported read-only repeatable-read snapshot
+  kept open while all90 public table counts and `pg_dump --snapshot` were taken.
+- SSH binary transport verified beforehand; dump streamed directly into
+  AES-256-GCM encryption, archive and encrypted manifest owner-only outside repo,
+  key in separate owner-only directory. No secret or plaintext dump logged/saved.
+- Exact logical archive SHA-256:
+  `8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb`.
+  Logical dump522186 bytes. This is **not** an official Railway backup ID.
+- Ciphertext authenticated and plaintext SHA recomputed before restore. Decrypted
+  stream fed into pg_restore18 with `--exit-on-error --no-owner --no-acl`, fresh
+  local disposable database `rodada025_restore_verified`, tmpfs PostgreSQL storage.
+- **PASS:** all90 table counts equal the same source snapshot; every restored
+  public constraint validated. Restore0.85s; capture+verification56.89s;
+  verified2026-10-15T01:42:59Z. These checks prove archive recovery/relational
+  integrity, not correctness of pre-existing financial business history.
+- Encrypted archive/manifest retained in protected operator custody, key separate;
+  retention review2026-10-22T01:42:59Z. No automatic deletion of the sole verified
+  backup during ongoing work; no source reset/restore/schema or ledger mutation.
+
+The command's new truthful reference is `logical-sha256:<exact digest>` together
+with `--logical-backup-verified`; tests/review/CI/deployment must pass before using
+that contract operationally. No `--apply`, QA activation or flag has yet run at
+this checkpoint. Previous official-backup rejection remains historical evidence.
+
+## Real A/B staging and containment — 2026-10-15 UTC
+
+This checkpoint supersedes the historical missing-access/backup/apply statements
+above. It does **not** supersede the original separate-preview/browser acceptance
+contract. #151 and #130 remain OPEN; #152 remains later canary/rollout.
+
+### Integrated code, deployments and concurrent main change
+
+- [PR166](https://github.com/procopio420/rodada/pull/166) merged as
+  `4056adbd0ba564a3c169db76b42f26141257977c`, following exact-head
+  `8568384c8211093cfbc76383d08055730ce755f2` API/Web/KB SUCCESS and
+  [independent R3 review](https://github.com/procopio420/rodada/pull/166#issuecomment-6182501873).
+- On merged4056: [API38669986695](https://github.com/procopio420/rodada/actions/runs/38669986695),
+  [Web38669986592](https://github.com/procopio420/rodada/actions/runs/38669986592),
+  [KB38669986576](https://github.com/procopio420/rodada/actions/runs/38669986576)
+  all SUCCESS (API854PASS/571.54s; Web98PASS/7.3min). Railway deployment `179ceae2-712d-49e5-a299-63370dc50285`
+  observed SUCCESS and exact runtime SHA confirmed over SSH.
+- Concurrent [PR164](https://github.com/procopio420/rodada/pull/164) then advanced
+  main/runtime to `b63b6111d66c640e8d4fde8ab2042743c9083eee`, deployment
+  `ef830243-aa54-4d45-a4df-4f0b08efe632` observed SUCCESS. The stale-SHA guard
+  refused the first rollback witness before any new login or containment write.
+  Readback confirmed A/B still active and zero unrevoked QA sessions; probes and
+  witness were then explicitly rebound to the new SHA. No concurrent work reverted.
+- API tree is identical at both SHAs: `ee557bc3b3f391d9b5a897bb09cc614c1ad60d25`;
+  deploy tree `0da2422754eb3bb4abe1e21e35096ef8c1b7bd8f` also identical.
+  Web/Android changed in164: their main-SHA checks must be recorded separately,
+  not inferred from4056. [Android38671039437](https://github.com/procopio420/rodada/actions/runs/38671039437)
+  SUCCESS; [Web38671039040](https://github.com/procopio420/rodada/actions/runs/38671039040)
+  SUCCESS (98 browser integration tests/9.2min).
+
+### Backup and actual commands
+
+The authorized logical archive was re-authenticated with GCM and both encrypted
+and plaintext SHA before apply; its authenticated manifest timestamp binds the
+recovery receipt and the less-than24h validity check. Reference:
+`logical-sha256:8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb`.
+Original recovery evidence remains90/90 same-snapshot counts, validated
+constraints, disposable PostgreSQL18 restore0.85s; not a financial-invariant audit
+of pre-existing production history. Ciphertext/key remain separate owner-only
+custody, retention review22Oct. No production restore or public database proxy.
+
+Executed over private SSH in `/app/apps/api`, with distinct random12digit PINs
+injected into only the command process through protected stdin, never arguments,
+logs, Railway global variables or startup:
+
+```bash
+python manage.py provision_spec025_ab
+python manage.py provision_spec025_ab --operation provision --apply \
+  --backup-reference 'logical-sha256:8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb' \
+  --logical-backup-verified
+# Same provision executed again after commit: idempotence PASS.
+python manage.py provision_spec025_ab --operation activate --apply \
+  --backup-reference 'logical-sha256:8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb' \
+  --logical-backup-verified --edge-confirmed
+python manage.py provision_spec025_ab --operation deactivate --apply
+```
+
+The executor called these same management-command operations via `call_command`,
+inside an additional repeatable-read transaction with lock/statement timeouts.
+Hashes of every table's rows before/after verify that provision changed no
+pre-existing row and added only reserved QA-owned rows. Activation/containment
+compare every foreign-row multiset after subtracting permitted QA-owned models;
+critical QA postconditions precede commit. This proves changes by **that
+transaction**, not absence of unrelated concurrent transactions. No row content
+or hashes of private individual rows are published. Postcommit readback matched.
+Independent review corrected executor postcommit validation and backup timestamp
+binding before apply; a further containment check was corrected to preserve
+REVOKED memberships. Real disposable PostgreSQL17 regressions proved rollback on
+bad QA state, committed idempotence, activation/deactivation and containment of
+an extra ACTIVE operator/session while the reserved manager remained REVOKED.
+
+| QA identity | Venue UUID | Operator UUID | Final state after witness |
+| --- | --- | --- | --- |
+| e2ea.rodada.bar | 00c7e9b0-fad7-43fd-aa42-405e46ac2133 | ea4e106b-04ed-4493-ac80-294adc10992d | domain inactive/verified, membership SUSPENDED, guest blocked |
+| e2eb.rodada.bar | ff6b3b99-062d-4b83-ae8a-ef6cc41d937e | 6213f996-4734-4612-8ce9-0092d6ae623b | domain inactive/verified, membership SUSPENDED, guest blocked |
+
+### Live boundary and authentication results
+
+| Control/scenario | SHA/environment | Result and limit |
+| --- | --- | --- |
+| Public TLS A/B/pilot/unknown and Railway-origin TLS A/B/pilot |4056 and b63, existing Railway/Cloudflare|PASS hostname validation; origin target pgyvbzi2.up.railway.app with tenant SNI. Cloudflare Full Strict setting itself NOT TESTED |
+| Valid loopback HMAC / missing, invalid, expired, altered |4056 and b63, real ASGI|200 pilot context; missing private assertion403 HOST_ASSERTION_REQUIRED; bad signatures403 HOST_ASSERTION_INVALID |
+| Externally supplied valid pilot HMAC through public ingress |4056 and b63|Shared API stays compatibility; QA initially421, after registry activation200 with own QA UUID, never pilot UUID; demonstrates stripping |
+| Forged forwarded/BFF headers to pilot BFF |4056 and b63|200 with pilot UUID preserved; no client-selected tenant |
+| Unknown host |4056 and b63|BFF421; raw API400 from Django allowlist, fail closed. This is not a raw API421 claim |
+| QA A/A and B/B Android protocol login/me/catalog/tabs |4056, public api.rodada.bar|PASS200, correct distinct Venue/platform, empty own catalog/Tabs; protocol smoke, not physical Android device |
+| A/B and B/A credentials on shared API |4056|403 MEMBERSHIP_REQUIRED, no token issued |
+| A token on B and B token on A, signed canonical ASGI |4056|403 VENUE_HOST_MISMATCH, no foreign payload; positive same-host200. Browser BFF still gated |
+| QA refresh/logout |4056|Refresh200; own new sessions logout204, old access401 afterward |
+| Two concurrent QA signed ASGI SSE streams; domain/session containment |b63|Both ready, then revoked; zero change events during this witness. No guest-session fixture or financially busy event stream tested here |
+| After containment: me/refresh, reconnect, new native login |b63|401/401, canonical reconnect421, login403 MEMBERSHIP_SUSPENDED, both directions |
+| Foreign-row preservation during operational changes |4056 provision/activation; b63 containment|PASS transaction-scoped fingerprint and readback; no financial fixtures created |
+| Aderlan/landing/shared API anonymous availability |4056, postdeploy|pilot root/context/health200; landing200; APIhealth200. Full authenticated pilot smoke NOT TESTED |
+
+Public requests with Python's default User-Agent initially received Cloudflare
+1010/403. An explicit `Mozilla/5.0 Rodada-Spec025-Audit` User-Agent passed the same
+probes without changing Cloudflare, TLS or application validations. Failed
+observations are retained in protected sanitized receipts, not relabeled PASS.
+
+### Remaining gates and next change
+
+`RODADA_ENABLE_TENANT_HOST_UI` remains absent/off. Seed-off and explicit HMAC
+remain configured; no staged Railway changes were present in the inspected
+inventory. No DNS/proxy/configuration/PSP changes, paid resources or shared UI
+flag activation occurred. A/B currently suspended; their historical auth/audit
+records remain intact.
+
+The existing pilot test operator/membership is ACTIVE, but its protected PIN is
+not available to the SSH smoke process. No credential reset, guessed PIN or
+pilot operator mutation was attempted. Manual authenticated pilot verification
+has been requested without asking for a credential in chat.
+
+Pending: authenticated pilot smoke; specific approval of the shared-flag diff
+(absent/off -> true on rodada-web only) and controlled same-build backout to
+false plus QA deactivate; enabled HTTPS script/manifest/browser cookies and
+login/QR/read/write/reconnect/guest revocation A/B and B/A; formal decision on
+shared environment vs original separate preview. No operational database is
+used to simulate money. Finance/restart/turno gates run in disposable CI:
+[Aderlan38671562736](https://github.com/procopio420/rodada/actions/runs/38671562736)
+and [release38671565495](https://github.com/procopio420/rodada/actions/runs/38671565495),
+both dispatched on b63. The isolated pilot shift completed SUCCESS; integrated
+release completed FAIL:853PASS/1FAIL438.17s, missing standalone print contract
+in disposable image. [PR168](https://github.com/procopio420/rodada/pull/168) copies
+only that existing contract; test remains unchanged. Candidate
+[release38672594038](https://github.com/procopio420/rodada/actions/runs/38672594038)
+completed SUCCESS on exact f02d11da39ca28143e1f695f18977b45d49ee8e1:
+**854PASS/428.63s**, HTTP shift+restart PASS, independent R3 review no findings.
+PR168 merged75f637f8e5297b960375df8c1dd83b6478a5d1ec. The original baseline
+failure remains recorded; no test was skipped.
+
+
+Machine-readable [sanitized execution receipts](evidence/railway-ab-20261015.json)
+retain actual scenario statuses, QA IDs, backup recovery metadata, both deployment
+proofs and containment results. These are executor observations, not independently
+signed Railway attestations; they contain no source rows, secrets, cookies or
+tokens. Post-containment pilot root/context/health/ready, landing and shared API
+health/ready remained200; API anonymous private401, QA manifest421. QA-only final
+counts confirm zero Tabs/Orders/Charges/Payments/Refunds, zero ACTIVE memberships,
+zero unrevoked staff sessions and no guest sessions. A bounded HTTP-log query on
+ef830243 returned zero5xx records for the preceding15min (limit100), not a claim
+about every request or all history.
+
+
+### Read-only continuation — 2026-10-15 03:25 UTC
+
+Concurrent PR170 advanced main/runtime to
+`992acffbc49fbfa9789263db1036194626b75772`, Railway deployment
+`29550e4c-ff76-46db-bc00-2b99ac8b5e90` observed SUCCESS. No changes to API/deploy
+trees relative4056; Web and Android differ and have their own exact-SHA SUCCESS:
+[Web38675107062](https://github.com/procopio420/rodada/actions/runs/38675107062),
+[Android38675107066](https://github.com/procopio420/rodada/actions/runs/38675107066).
+Private SSH inspect on992 confirmed QA still inactive/verified, managersSUSPENDED,
+guestblocked, with no transaction changes and postcommit readback matching.
+No new activation or shared-flag change. Manual API/Web checks dispatched on992
+for fresh current-main evidence; results pending. Authenticated pilot, specific
+flag approval and formal separate-preview exception still await user response.

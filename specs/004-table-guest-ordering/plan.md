@@ -129,6 +129,14 @@ continua responsável pelo turno integrado Web+Android.
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
 
+
+## Execução isolada de #148 (métricas derivadas)
+
+Consulta read-only em `modules.hospitality.metrics`, camada DRF com capability gerencial, rota própria `management/table-turnover/` e página dedicada dentro de `/manage`. Reutilizar calendário Venue e tokens CSS existentes. Não alterar ORM schema, sinais, pagamentos, ledger nem impedir o fluxo de pedido.
+
+Aceite por PostgreSQL: dados completos, incompletos/inconsistentes, filtro de Venue, acesso sem sessão, corte operacional às 04h, virada de dia e DST. Web: typecheck/build, visual 360/390/430/desktop, erro e período vazio. A revisão R3 independente e CI do HEAD final continuam obrigatórios antes de marcar #148 concluída.
+
+
 ## Execução isolada #147 — Guest Customer opcional
 
 Estender guest_access com CustomerCredential/CustomerAuthSession, mantendo `Customer` e Tab existentes e nenhum migration financeiro. Autenticação com hash Django e lockout persistente, escopo no par GuestSession+Venue, tokens opacos com SHA-256 no banco, cookie HttpOnly pelo BFF. Nova UI sob disclosure `Meu perfil (opcional)`; login e registro opcionais. Claims transacionais com revalidação de TableOccupancyAssignment/geração e revisão de Tab.customer. Logout e troca de senha revogam prova de perfil sem alterar GuestSession ou ledger.
