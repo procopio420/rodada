@@ -1,14 +1,15 @@
 import { headers } from "next/headers";
 import { surfaceForHost } from "@/lib/surfaces";
 import { tenantHostname } from "@/lib/tenant-host";
-import { readVenueContext } from "@/lib/server/venue-context";
+import { lookupVenueContext } from "@/lib/server/venue-context";
 
 export async function GET() {
   const requestHeaders = await headers();
   const surface = surfaceForHost(requestHeaders.get("host"));
   const tenant = tenantHostname(requestHeaders.get("host"));
-  const context = tenant ? await readVenueContext(requestHeaders) : null;
-  if (tenant && !context) return Response.json({ code: "VENUE_HOST_NOT_FOUND" }, { status: 421, headers: { "Cache-Control": "no-store" } });
+  const result = tenant ? await lookupVenueContext(requestHeaders) : null;
+  if (result && !result.ok) return Response.json({ code: result.code }, { status: result.status, headers: { "Cache-Control": "no-store" } });
+  const context = result?.ok ? result.context : null;
   return Response.json(
     {
       name: context ? `Rodada — ${context.venue.name}` : surface.title,

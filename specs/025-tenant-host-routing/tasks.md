@@ -169,3 +169,13 @@ Fresh PR159 checkpoint (2026-10-15 UTC), codeca2e0903:
 - [x] [Web branch] Build approved-brand header and icon-based launcher with 2 mobile / 3 tablet / 4 desktop columns.
 - [x] [Web branch] Add two-Venue browser integration assertions for branding, links, breakpoints and overflow.
 - [ ] [QA] Run Web CI and inspect rendered browser screenshots at 360/390/430, 768 and 1280+ before merge/deploy.
+
+## Pós-ativação permanente — regressão PR187
+
+- [x] Reproduzir421→replay de POST→exceção de tamanho→503 no transporte local e runtime.
+- [x] Corrigir transporte sem replay, com tamanho UTF-8 e erros reais preservados.
+- [x] Uniformizar421 no guard Web, inclusive antes de308; preservar autoridade Django.
+- [x] Acrescentar regressões negativas, falhas sequenciais e paths ativos com barra.
+- [x] Executar gates API/Web, smoke real protegido e registrar evidência/revisão por SHA;
+  CI final e resultado vinculados ao PR189, sem presumir PASS de execução anterior.
+- [ ] Após autorização explícita, integrar/deployar e executar novo aceite no Railway.

@@ -11,6 +11,8 @@ test("P1 aliases preserve suffix, do not rewrite other modules and reject malfor
   assert.equal(tenantModulePath("/caixa"), "/cash");
   assert.equal(tenantModulePath("/relatorios/mes"), "/reports/mes");
   assert.equal(tenantModulePath("/m/opaque_QR-123"), "/guest/opaque_QR-123");
+  assert.equal(tenantModulePath("/m/opaque_QR-123/"), "/guest/opaque_QR-123");
+  assert.equal(tenantModulePath("/m/opaque_QR-123//"), null);
   assert.equal(tenantModulePath("/m"), null);
   assert.equal(tenantModulePath("/m/../admin"), null);
   assert.equal(tenantModulePath("/bar"), null);

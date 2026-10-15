@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-15T15:14:15.151019+00:00",
+  "window_since": "2026-10-15T15:10:00Z",
+  "method": "Railway HTTP logs bounded200, aggregated in memory; no raw logs retained",
+  "sample_size": 112,
+  "status_counts": {
+    "307": 1,
+    "200": 74,
+    "304": 3,
+    "401": 2,
+    "308": 29,
+    "499": 2,
+    "204": 1
+  },
+  "http_5xx": [],
+  "exit": 0
+}

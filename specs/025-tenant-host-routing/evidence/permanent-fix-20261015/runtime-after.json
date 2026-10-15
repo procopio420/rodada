@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-10-15T15:13:08.302132+00:00",
+  "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+  "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+  "seed_off": true,
+  "tenant_ui_flag_off": false,
+  "hmac_present": true,
+  "hmac_minimum_policy_valid": true,
+  "hmac_distinct_from_django_secret": true,
+  "cash_scope": "Read-only historical counts; no amounts, payment IDs or customer data. Confirmed-money statuses include refunded/partially-refunded payments. No repair.",
+  "transaction_read_only": true,
+  "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+  "current_table_count": 95,
+  "qa": [
+    {
+      "host": "e2ea.rodada.bar",
+      "owner_matches": true,
+      "domain_active": false,
+      "domain_verified": true,
+      "guest_blocked": true,
+      "active_memberships": 0,
+      "unrevoked_staff_sessions": 0,
+      "unrevoked_guest_sessions": 0
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "owner_matches": true,
+      "domain_active": false,
+      "domain_verified": true,
+      "guest_blocked": true,
+      "active_memberships": 0,
+      "unrevoked_staff_sessions": 0,
+      "unrevoked_guest_sessions": 0
+    }
+  ],
+  "qa_financial_counts": {
+    "orders": 0,
+    "charges": 0,
+    "payments": 0,
+    "refunds": 0
+  },
+  "historical_cash_by_venue": [
+    {
+      "venue": "pilot_aderlan",
+      "confirmed_money_count": 1,
+      "confirmed_only_count": 1,
+      "missing_movement_count": 0,
+      "foreign_movement_venue_count": 0,
+      "unexpected_movement_kind_count": 0
+    }
+  ],
+  "historical_cash_gap_count": 0,
+  "financial_inspection_completed": true,
+  "historical_reconciliation_not_performed": true
+}

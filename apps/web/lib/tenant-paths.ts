@@ -12,7 +12,10 @@ export function tenantModulePath(pathname: string): string | null {
   const first = "/" + pathname.split("/")[1];
   const target = aliases[first];
   if (!target) return null;
-  if (first === "/m" && !/^\/m\/[A-Za-z0-9_-]{1,160}$/.test(pathname)) return null;
+  if (first === "/m") {
+    const token = /^\/m\/([A-Za-z0-9_-]{1,160})\/?$/.exec(pathname)?.[1];
+    return token ? `${target}/${token}` : null;
+  }
   return target + pathname.slice(first.length);
 }
 

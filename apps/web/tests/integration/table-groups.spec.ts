@@ -59,7 +59,7 @@ test("TableGroups physical UI keeps Tabs separate and allows reversible grouping
   await page.getByRole("button", { name: "Desfazer agrupamento" }).click();
   await expect(page.getByRole("dialog", { name: "Desfazer agrupamento" })).toBeVisible();
   const dissolveResponse = page.waitForResponse(response =>
-    new URL(response.url()).pathname.endsWith("/dissolve") &&
+    /\/dissolve\/?$/.test(new URL(response.url()).pathname) &&
     response.request().method() === "POST" &&
     response.status() !== 308,
   );

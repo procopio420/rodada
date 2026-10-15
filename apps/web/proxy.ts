@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { surfaceForHost } from "@/lib/surfaces";
 import { tenantHostname } from "@/lib/tenant-host";
 import { internalRewriteUrl, tenantModulePath } from "@/lib/tenant-paths";
-import { readVenueContext } from "@/lib/server/venue-context";
+import { lookupVenueContext } from "@/lib/server/venue-context";
 
 const isInternalPath = (pathname: string) =>
   pathname.startsWith("/_next") ||
@@ -26,14 +26,17 @@ export async function proxy(request: NextRequest) {
   if (tenant && tenant !== "bardoaderlan.rodada.bar" && process.env.RODADA_ENABLE_TENANT_HOST_UI !== "true") {
     return new NextResponse("Estabelecimento indisponível.", { status: 421 });
   }
+  // Validate identity before every Web route, even when auth/Guest proof is absent.
+  // Django still revalidates Host on the eventual command (revocation can race us).
+  if (tenant) {
+    const result = await lookupVenueContext(requestHeaders);
+    if (!result.ok) return NextResponse.json({ code: result.code }, {
+      status: result.status, headers: { "Cache-Control": "no-store" },
+    });
+  }
   if (isInternalPath(pathname)) return next();
 
   if (tenant) {
-    // A syntactically valid wildcard Host is not necessarily provisioned.
-    // Resolve it through Django before serving *any* establishment UI.
-    if (!(await readVenueContext(requestHeaders))) {
-      return new NextResponse("Estabelecimento não encontrado.", { status: 404 });
-    }
     const target = tenantModulePath(pathname);
     return target ? rewrite(target) : next();
   }
