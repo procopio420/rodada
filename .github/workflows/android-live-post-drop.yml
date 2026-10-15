@@ -55,6 +55,7 @@ jobs:
       POSTGRES_PORT: "5432"
       DJANGO_SECRET_KEY: disposable-only-not-used-in-production
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2,issue106a-ci.rodada.bar,issue106b-ci.rodada.bar
+      RODADA_ENABLE_TENANT_HOST_UI: "true"
       RODADA_BFF_HOST_SECRET: rodada-integration-local-only
       RODADA_POST_DROP_FIXTURE: /tmp/rodada-android-live-fixture.json
       RODADA_POST_DROP_MARKER: /tmp/rodada-android-live-drop.json
