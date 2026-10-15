@@ -79,3 +79,22 @@ Por pedido comercial, saiu o cartaz rasterizado que ocupava o hero. A imagem de 
 
 ### Próximos gates
 Revisão comercial das imagens, atualização de fixtures quando houver build mais recente, aprovação de provas sociais reais, revisão independente do PR; só então autorizações separadas para merge e publicação.
+
+
+## Motion P1 e P2 — 15/10/2026
+
+**Código testado:** `6a0284c42fa8d2f74f56820f6599f8480d048a46`. [Chromium Visual QA](https://github.com/procopio420/rodada/actions/runs/38783834537) · [Static](https://github.com/procopio420/rodada/actions/runs/38783834577).
+
+### Decisões
+- P1: transições 160–250ms em botões, menu, abas e FAQ; fade/slide do CTA móvel.
+- P2: hero em sequência, entrada das telas no tour e revelação única das seções com `IntersectionObserver`; nada automático em loop ou parallax que atrapalhe o desempenho.
+- O HTML permanece legível **antes** de qualquer reveal: sem JS não fica conteúdo transparente. Reduced motion suprime transições/animações.
+- O CTA móvel muda `inert`, `aria-hidden` e classe visível em conjunto; links invisíveis não devem receber Tab.
+
+### Testes executados (Chromium headless)
+- 10/10 viewports: 320, 360, 375, 390, 430, 768, 820, 1024, 1440, 1920; sem overflow, imagens quebradas ou JS errors.
+- 390 e 1440 também em **movimento normal**, verificando `animationName` do hero/tour e que o reveal foi acionado pelo scroll.
+- `prefers-reduced-motion: reduce` validado em todos os tamanhos.
+- FAQ abre com clique e fecha com Enter, tour muda com ArrowRight, sticky mobile só aparece após hero e não recebe foco escondido.
+- Modo sem JavaScript validado em 390; três painéis continuam legíveis, CTA comum funciona e barra fixa continua oculta.
+- Capturas e geometria exportadas no artifact de CI. A suíte mede a renderização e interação no Chromium; não equivale a teste Safari/Firefox físico, auditoria assistiva, métricas de performance real ou conversão.

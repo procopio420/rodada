@@ -32,3 +32,10 @@ O GitHub Actions Landing Visual QA roda Chromium 320/360/375/390/430/768/820/102
 Destino: `rodada.bar`. Merge e publicação são ações **separadas** sujeitas a autorização. Continuam pendentes Safari/Firefox físicos, leitor de tela, avaliação comercial das imagens/screenshot e autorização de uso de material real do piloto. Não afirmar métricas, clientes, pagamentos, homologação ou disponibilidade de features sem evidência.
 
 Links de privacidade, termos e exclusão de conta devem permanecer públicos. Não adicionar analytics silenciosos nem formulários de captura sem escopo/consentimento.
+
+
+## Transições e animações
+
+A página usa duas camadas de aprimoramento, sem dependências externas: transições de navegação/CTA/FAQ/abas (160–250 ms) e animações curtas de entrada (hero e tour), além de reveal único das seções quando entram na viewport. Elementos **nunca dependem da animação** para existir ou serem lidos. A barra mobile usa `inert` + `aria-hidden` para impedir foco invisível enquanto está recolhida. Sem JavaScript o tour fica inteiramente visível e a barra mobile permanece oculta.
+
+`prefers-reduced-motion: reduce` desliga os efeitos. O FAQ conserva `details` nativo e só anima altura onde `::details-content` é compatível. Evidência técnica em [Landing Visual QA](https://github.com/procopio420/rodada/actions/runs/38783834537); ainda exige inspeção em dispositivos reais e navegadores adicionais.

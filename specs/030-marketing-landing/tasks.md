@@ -17,3 +17,12 @@
 - [ ] Confirmar publicabilidade de screenshots de fixture e fotografias conceituais.
 - [ ] Obter revisão independente e decidir merge.
 - [ ] Autorizar e executar deploy separado no `rodada.bar`.
+
+
+## Slice 4 — motion
+- [x] Implementar primeiro transições de elementos interativos (P1).
+- [x] Implementar depois hero, tour e reveals com movimento controlado (P2).
+- [x] Proteger conteúdo sem JavaScript e acesso com `prefers-reduced-motion`.
+- [x] Testar interações do tour, FAQ, barra mobile e modo de movimento normal e reduzido.
+- [x] Chromium 10/10 (320–1920) sem overflow e sem erros de página.
+- [ ] Conferir visualmente animações em dispositivo físico, Safari e Firefox antes do deploy.

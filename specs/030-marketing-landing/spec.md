@@ -39,3 +39,12 @@ Reutilizar `assets/brand/v1` distribuídos em `apps/landing/brand/`, Archivo loc
 - Motion é aprimoramento discreto, respeita `prefers-reduced-motion` e nunca impede a compreensão do conteúdo.
 - CTA mobile fixo segue surgindo após o hero; no fim da página deve desaparecer para não cobrir o último convite.
 - Manter `rodada.bar` canônico, WhatsApp aprovado, rotas legais e disclaimer de imagens conceituais.
+
+
+## Slice 4 — microinterações e movimento (2026-10-15)
+
+- **Camada P1:** transições discretas de 160–250 ms em CTA, nav, abas e FAQ. O FAQ usa `details` nativo com abertura interpolada apenas em browsers compatíveis.
+- **Camada P2:** hero em sequência sutil, troca visual do tour (~240–290 ms) e revelação de seções apenas uma vez após entrar na viewport (até 480 ms). Não usar carrossel automático, parallax constante ou animações decorativas sem propósito.
+- CTA mobile ganha fade + slide controlado por `IntersectionObserver`, `visibility`, `inert` e `aria-hidden`. A ausência de JS mantém a barra `hidden` e os links normais continuam operáveis.
+- Animar somente `opacity`/`transform` nos reveals, respeitar `prefers-reduced-motion` em animações e transições, preservar conteúdo visível mesmo sem JS e garantir que abas/FAQ continuem operáveis por teclado.
+- Sem rastreamento, CDNs, dependências ou mudanças na lógica operacional do Rodada.

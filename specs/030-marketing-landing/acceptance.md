@@ -24,3 +24,20 @@ Os primeiros slices testaram o hero publicitário com arte gerada, a versão com
 - Capturas completas e geometria no artefato de CI. Ver [auditoria visual](../../docs/design/landing-campaign-qa-2026-10-15.md).
 
 **Estes resultados são de um preview do código estático, não evidência de deploy, homologação operacional ou resultado comercial.**
+
+
+## Slice 4 — transições e animações
+
+- [x] Estados de hover/focus e transições de 160–250 ms nos elementos de navegação, CTA, abas e FAQ.
+- [x] Hero com entrada curta e escalonada; uma única animação por seção no scroll (não esconde conteúdo antes de revelar).
+- [x] Troca de telas do tour com entrada suave e teclado preservado.
+- [x] CTA mobile com entrada/saída suave, `inert` e `aria-hidden` atualizados, sem link oculto no foco.
+- [x] Redução de movimento respeitada: nada animado quando `prefers-reduced-motion: reduce`.
+- [x] Página, links e tour acessíveis com JS desligado; FAQ nativo abre/fecha.
+- [x] QA Chromium nos 10 viewports e testes de movimento normal/reduzido, teclado, disclosure FAQ e sticky CTA; sem erro ou overflow.
+- [ ] Validação manual com Safari/Firefox, TalkBack/VoiceOver e medições Web Vitals em rede móvel real.
+
+### Evidência do movimento
+- Código: `6a0284c42fa8d2f74f56820f6599f8480d048a46`
+- [Landing Visual QA — 10/10](https://github.com/procopio420/rodada/actions/runs/38783834537)
+- [Landing — teste estático](https://github.com/procopio420/rodada/actions/runs/38783834577)
