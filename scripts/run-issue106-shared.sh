@@ -27,6 +27,22 @@ run_id="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 run_dir="$ROOT/artifacts/runs/$run_id"
 history_dir="$ROOT/artifacts/history/preexisting-$run_id"
 mkdir -p "$run_dir" "$history_dir"
+export RODADA_EVIDENCE_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+"$PYTHON" - "$run_dir/versions.json" <<'PYVERSIONS'
+import json,subprocess,sys
+from pathlib import Path
+import django;django.setup()
+from django.db import connection
+with connection.cursor() as cursor:
+    cursor.execute("SHOW server_version");postgresql=cursor.fetchone()[0]
+node=lambda expression:subprocess.check_output(["node","-p",expression],text=True).strip()
+versions={"postgresql":postgresql,"django":django.get_version(),
+    "android":"emulator API "+subprocess.check_output(["adb","shell","getprop","ro.build.version.sdk"],text=True).strip(),
+    "browser":node("require('./apps/web/node_modules/playwright/package.json').version") if Path('apps/web/node_modules/playwright/package.json').exists() else "NOT_YET_INSTALLED",
+    "nextjs":node("require('./apps/web/package.json').dependencies.next"),
+    "python":sys.version.split()[0],"node":subprocess.check_output(["node","--version"],text=True).strip()}
+Path(sys.argv[1]).write_text(json.dumps(versions,indent=2)+"\n")
+PYVERSIONS
 # Preserve earlier evidence before producers use their compatible fixed paths.
 # Moving it aside creates a fresh capture boundary without deleting any history.
 "$PYTHON" - "$history_dir" <<'PYARCHIVE'
@@ -63,8 +79,13 @@ for path in Path('artifacts').glob('*.json'):
 for pattern in ('*-instrumentation.txt','android-compose-confirmed.png'):
     for path in Path('artifacts').glob(pattern): shutil.copy2(path,out/path.name)
 if Path('artifacts/sanitized-traces').exists(): shutil.copytree('artifacts/sanitized-traces',out/'sanitized-traces',dirs_exist_ok=True)
-(out/'execution.json').write_text(json.dumps({'sha':sha,'result':'PASS' if code==0 else 'FAIL','last_step':sys.argv[3], 'exit_code':code,'automated_gate':'NO-GO','reason':'This executable slice does not yet cover every E2E-01..14 or all A1–F8 requirements.'},indent=2)+'\n')
+(out/'execution.json').write_text(json.dumps({'sha':sha,'result':'PASS' if code==0 else 'FAIL','last_step':sys.argv[3], 'started_at':os.environ['RODADA_EVIDENCE_STARTED_AT'],'finished_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),'exit_code':code,'automated_gate':'NO-GO','reason':'This executable slice does not yet cover every E2E-01..14 or all A1–F8 requirements.'},indent=2)+'\n')
 PY
+  if [[ -e "$RODADA_POST_DROP_FIXTURE" ]]; then
+    "$PYTHON" scripts/build-issue106-report.py "$run_dir" --fixture "$RODADA_POST_DROP_FIXTURE" --versions "$run_dir/versions.json" \
+      --sha "$(git rev-parse HEAD)" --run-url "${GITHUB_SERVER_URL:-local://}/${GITHUB_REPOSITORY:-$run_id}${GITHUB_RUN_ID:+/actions/runs/$GITHUB_RUN_ID}" \
+      --pr "${RODADA_EVIDENCE_PR:-NOT_LINKED}" > "$run_dir/report-export.txt" 2>&1 || true
+  fi
   echo "Evidence preserved: $run_dir; slice exit=$code; full #106 remains NO-GO"
   exit "$code"
 }
