@@ -16,7 +16,10 @@ from modules.ordering.models import Tab, TabState
 
 from .models import CustomerAuthSession, CustomerCredential
 from .services import (
-    GuestAccessError, _locked_authorized_session, _record_guest_audit, _token_digest,
+    GuestAccessError,
+    _locked_authorized_session,
+    _record_guest_audit,
+    _token_digest,
 )
 
 AUTH_TTL = timedelta(hours=2)
@@ -118,11 +121,24 @@ def login_customer(*, guest_token, username, password):
 def _authorized_customer(session, auth_token):
     if not auth_token:
         raise GuestAccessError("CUSTOMER_AUTH_REQUIRED", "Entre no seu perfil.", 401)
+    # A credential may have visits in different Venues. Rotation revokes every
+    # authorization, so always lock the shared credential BEFORE any visit auth.
+    # A joined FOR UPDATE can otherwise lock AuthB while waiting for a credential
+    # held by AuthA's rotation, which then waits for AuthB during revocation.
+    identity = CustomerAuthSession.objects.filter(
+        token_digest=_token_digest(auth_token),
+    ).values("id", "credential_id").first()
+    credential = (
+        CustomerCredential.objects.select_for_update()
+        .filter(pk=identity["credential_id"]).first()
+        if identity else None
+    )
     authorization = (
-        CustomerAuthSession.objects.select_for_update()
+        CustomerAuthSession.objects.select_for_update(of=("self",))
         .select_related("credential__customer")
-        .filter(token_digest=_token_digest(auth_token))
+        .filter(pk=identity["id"], credential_id=credential.pk)
         .first()
+        if credential else None
     )
     now = timezone.now()
     if (
