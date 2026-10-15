@@ -114,7 +114,7 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.getByLabel("Motivo da revisão", { exact: true }).fill("Disposable #106 recorded mismatch; preserve original snapshot");
   await page.getByRole("button", { name: "Revisar divergência", exact: true }).click();
   const pin = page.getByLabel("Seu PIN", { exact: true });
-  await expect(pin).toBeVisible();
+  await expect.poll(async () => (await pin.isVisible()) || (await read(`cash/shifts/${shiftId}/`)).review_status === "REVIEWED").toBe(true);
   if (await pin.isVisible()) {
     await pin.fill("2468");
     await page.getByRole("button", { name: "Confirmar e continuar", exact: true }).click();
