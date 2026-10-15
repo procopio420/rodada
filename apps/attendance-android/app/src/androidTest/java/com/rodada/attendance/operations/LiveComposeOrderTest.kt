@@ -30,8 +30,8 @@ class LiveComposeOrderTest {
         val newTab = hasText("Nova comanda sem mesa") and hasAnyAncestor(isDialog())
         compose.waitUntil(30_000) { compose.onAllNodes(newTab and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(newTab).assertIsEnabled().performClick()
-        waitText("Nome ou apelido (opcional)")
-        compose.onNodeWithText("Nome ou apelido (opcional)").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
+        waitText("Nome ou apelido")
+        compose.onNodeWithText("Nome ou apelido").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
