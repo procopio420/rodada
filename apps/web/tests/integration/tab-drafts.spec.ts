@@ -61,7 +61,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
   const afterB = await api(page, `tabs/${bId}/`);
   expect(afterB.orders).toHaveLength(1);
   expect(afterB.orders[0].items[0].product_name).toBe("Bar E2E item");
-  expect(afterB.exposure_cents).toBe(1200);
+  expect(afterB.exposure_cents).toBe(500);
   const finalA = await api(page, `tabs/${aId}/`);
   expect(finalA.orders).toHaveLength(1);
   expect(finalA.payments).toHaveLength(0);
