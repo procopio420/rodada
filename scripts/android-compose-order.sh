@@ -50,6 +50,7 @@ mode="${RODADA_COMPOSE_CATALOG_FAULT:-false}"
 if [[ "$mode" == true ]]; then
   export RODADA_CATALOG_PROOF_PREFIX=android-catalog
   if [[ "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" == true ]]; then export RODADA_CATALOG_PROOF_PREFIX=android-offline-conflict; fi
+  if [[ "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" == true ]]; then export RODADA_CATALOG_PROOF_PREFIX=android-offline-revocation; fi
   fault_applied=false
   restore_catalog_fault() {
     local result=$?
@@ -62,7 +63,7 @@ if [[ "$mode" == true ]]; then
   }
   "${ADB[@]}" shell am force-stop com.rodada.attendance
 "${ADB[@]}" shell pm clear com.rodada.attendance
-"${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true -e offlineFault "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" \
+"${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true -e offlineFault "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" -e revocationFault "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" \
   -e tabLabel "$RODADA_COMPOSE_TAB_LABEL" -e class com.rodada.attendance.operations.LiveComposeOrderTest \
   com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner > "artifacts/$RODADA_CATALOG_PROOF_PREFIX-instrumentation.txt" &
 instrument_pid=$!
@@ -81,10 +82,16 @@ if [[ "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" == true ]]; then
   "${ADB[@]}" shell svc data disable
   "${ADB[@]}" shell run-as com.rodada.attendance touch files/catalog-fault-applied
   wait_app_marker offline-intent-ready
-  "$PYTHON" scripts/issue106-catalog-fault.py unavailable
-  fault_applied=true
+  if [[ "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" == true ]]; then
+    export RODADA_REVOKED_SESSION_ID="$("${ADB[@]}" shell run-as com.rodada.attendance cat files/offline-session-id | tr -d '\r')"
+    "$PYTHON" scripts/issue106-catalog-fault.py revoke
+  else
+    "$PYTHON" scripts/issue106-catalog-fault.py unavailable
+    fault_applied=true
+  fi
   "${ADB[@]}" shell svc wifi enable
   "${ADB[@]}" shell svc data enable
+  if [[ "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" == true ]]; then "${ADB[@]}" shell run-as com.rodada.attendance touch files/revocation-applied; fi
 else
   "$PYTHON" scripts/issue106-catalog-fault.py unavailable
   fault_applied=true

@@ -6,6 +6,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.rodada.attendance.MainActivity
 import com.rodada.attendance.BuildConfig
 import com.rodada.attendance.auth.SecureSessionStore
+import com.rodada.attendance.auth.AuthHttpClient
+import com.rodada.attendance.auth.AuthApiException
+import com.rodada.attendance.auth.StoredSession
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +47,7 @@ class LiveComposeOrderTest {
         compose.onNodeWithTag("workspace-Pedido atual").performClick()
         waitText("Confirmar pedido")
         val fault = InstrumentationRegistry.getArguments().getString("catalogFault") == "true"
+        val revokedFault = InstrumentationRegistry.getArguments().getString("revocationFault") == "true"
         val offlineFault = InstrumentationRegistry.getArguments().getString("offlineFault") == "true"
         var originalPending: RecoveryIntent.ConfirmOrder? = null
         if (fault) {
@@ -62,7 +66,13 @@ class LiveComposeOrderTest {
             compose.waitUntil(30_000) { queue.orderQueue(session).size == 1 }
             originalPending = queue.orderQueue(session).single()
             check(originalPending!!.state == RecoveryState.PENDING)
+            java.io.File(context.filesDir, "offline-session-id").writeText(session.sessionId)
             java.io.File(context.filesDir, "offline-intent-ready").writeText("pending")
+            if (revokedFault) {
+                compose.waitUntil(60_000) { java.io.File(context.filesDir, "revocation-applied").exists() }
+                verifyRevokedTransportAndNewLogin(session, originalPending!!, queue)
+                return
+            }
             compose.waitUntil(60_000) { queue.orderQueue(session).singleOrNull()?.state == RecoveryState.ACTION_REQUIRED }
             val rejected = queue.orderQueue(session).single()
             check(rejected == originalPending!!.copy(state = RecoveryState.ACTION_REQUIRED))
@@ -79,6 +89,42 @@ class LiveComposeOrderTest {
         waitText("Pedido confirmado pelo servidor.")
         compose.onNodeWithTag("workspace-Conta").performClick()
         compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
-        // No seeded state, callback mock, HTTP invocation or optimistic confirmation in this test.
+        // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
+    private fun verifyRevokedTransportAndNewLogin(session: StoredSession, original: RecoveryIntent.ConfirmOrder, queue: PendingMutationIntentStore) {
+        val auth = AuthHttpClient(BuildConfig.RODADA_API_BASE_URL)
+        fun denied(action: () -> Unit) {
+            try { action(); error("Revoked credentials unexpectedly accepted") }
+            catch (rejected: AuthApiException) { check(rejected.status in listOf(401, 403)) }
+        }
+        denied { auth.me(session.tokens.accessToken) }
+        denied { auth.refresh(session.tokens.refreshToken) }
+        denied { OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL).confirmOrder(session.tokens.accessToken, original.tabId,
+            original.lines.map { CartLine(Product(it.productId, "Captured UI item", 0, true, "BAR", "AVAILABLE"), it.quantity, it.customization) }, original.idempotencyKey) }
+        val stream = java.net.URL(BuildConfig.RODADA_API_BASE_URL + "realtime/stream/").openConnection() as java.net.HttpURLConnection
+        try {
+            stream.connectTimeout = 5000; stream.readTimeout = 5000
+            stream.setRequestProperty("Authorization", "Bearer " + session.tokens.accessToken)
+            check(stream.responseCode in listOf(401, 403))
+        } finally { stream.disconnect() }
+        check(queue.orderQueue(session).single().copy(state = original.state) == original)
+        waitText("Estabelecimento")
+        for ((label, value) in listOf("Estabelecimento" to "android-post-drop-ci", "Operador" to "android-post-drop-operator", "PIN" to "2468")) {
+            compose.onNodeWithText(label).performTextClearance()
+            compose.onNodeWithText(label).performTextInput(value)
+        }
+        compose.onNodeWithText("Entrar").performClick()
+        compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-now") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        val next = SecureSessionStore(InstrumentationRegistry.getInstrumentation().targetContext).load() ?: error("New login missing")
+        check(next.sessionId != session.sessionId)
+        check(queue.orderQueue(next).isEmpty())
+        check(queue.blockedFor(next).any { it.id == original.id })
+        compose.onNodeWithTag("attendance-now").performClick()
+        val pending = hasText("Pendências", substring = true) and hasClickAction()
+        compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(pending).performClick()
+        compose.waitUntil(30_000) { compose.onAllNodes(hasText("outra sessão", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty() }
+        println("NATIVE_REVOKED_GET_POST_REFRESH_SSE_DENIED; NEW_LOGIN_REVIEW_ONLY")
+    }
+
 }
