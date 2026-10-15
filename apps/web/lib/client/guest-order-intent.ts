@@ -22,7 +22,7 @@ function read(key: string): Intent | null {
   const raw = sessionStorage.getItem(key);
   if (raw === null) return null;
   const i = JSON.parse(raw) as Intent;
-  if (![1, 2].includes(i?.schema) || (i.schema === 2 && i.origin !== "repeat") || !validScope(i.scope) || typeof i.tab !== "string" || !i.tab
+  if ((i?.schema !== 1 && i?.schema !== 2) || (i.schema === 2 && i.origin !== "repeat") || !validScope(i.scope) || typeof i.tab !== "string" || !i.tab
     || !Number.isFinite(Date.parse(i.captured_at)) || Object.keys(i).sort().join() !== (i.schema === 2 ? "captured_at,origin,payload,schema,scope,tab" : "captured_at,payload,schema,scope,tab")
     || !i.payload || Object.keys(i.payload).sort().join() !== "idempotency_key,lines" || typeof i.payload.idempotency_key !== "string" || !i.payload.idempotency_key
     || !Array.isArray(i.payload.lines) || !i.payload.lines.length || !i.payload.lines.every(l => l && typeof l.product_id === "string" && !!l.product_id
