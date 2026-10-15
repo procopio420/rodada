@@ -123,6 +123,22 @@ for i in $(seq 1 60); do
   sleep 1
 done
 export RODADA_ANDROID_PROOF="$ROOT/artifacts/android-real-post-drop.json" RODADA_ANDROID_COMPOSE_PROOF="$ROOT/artifacts/android-compose-order.json"
+# Record the running browser binary, not merely the Playwright package version.
+(cd apps/web && node - "$run_dir/versions.json" <<'NODEVERSIONS'
+const fs = require('node:fs');
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  try {
+    const versions = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+    versions.browser = browser.version();
+    versions.playwright = require('playwright/package.json').version;
+    versions.nextjs = require('next/package.json').version;
+    fs.writeFileSync(process.argv[2], JSON.stringify(versions, null, 2) + '\n');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error.message); process.exit(1); });
+NODEVERSIONS
+)
 step=shared-browser
 (cd apps/web && npx playwright test --config playwright.android-cross-surface.config.ts)
 step=independent-sql
