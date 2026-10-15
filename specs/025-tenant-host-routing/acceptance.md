@@ -1,6 +1,68 @@
 # Spec 025 — Acceptance criteria
 
+## Resultado executado — 2026-10-15 UTC (estado atual)
+
+Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)
+substituem os bloqueios operacionais dos checkpoints históricos abaixo, sem
+transformar tentativas interrompidas em PASS. Fonte auditada/deployada:
+`14d3240f607523265f9fd0b972b515c1b549b4b0` (PR182); árvore inteira igual ao
+candidato `1e96050f5d5fe216c74a6f7313b890f22d8cf003` revisado e testado.
+
+| Critério | Ambiente/execução | Resultado/evidência |
+| --- | --- | --- |
+| Recuperação antes de escrita | Backup lógico privado cifrado PostgreSQL18.6; restore descartável18/tmpfs | PASS:90/90 contagens do mesmo snapshot, constraints, GCM/hash/recibo reautenticados; não é PITR nem restauração operacional |
+| A/A, B/B, A/B, B/A | Chromium real HTTPS, run053703, deployment `fddbcc96-3f8d-4ed4-8d2e-61be7473f2e0` | PASS:173 casos, fonte/deployment estáveis, login/refresh/logout, cookies host-only Secure/HttpOnly, QR/Guest, perfil/claim/rotação, catálogo/mesas/grupos/serviço idempotente, SSE/cursors, IDs e sessões estrangeiros negados |
+| Borda | Script oficial A/B; probes públicos, origem Railway e loopback Django | PASS:19 TLS/Host/HMAC/stripping/unknown; manifests distintos; HMAC inválido/ausente/expirado/adulterado403, unknownBFF421/raw400 |
+| Concorrência e revogação real | Quatro streams ASGI staff/guest A/B no SHA auditado, flag já false | PASS:um marcador próprio por stream, zero estrangeiro observado; quatro `revoked`, refresh/access/reconnect/novo login/QR/perfil negados após contenção |
+| Backout | Flag=false, deployment `c006312d-9a87-47b5-8b22-d3c21719fd31` SUCCESS, comando deactivate e repetição externa | PASS:aliases inativos, memberships suspensas, guest bloqueado, zero sessões QA staff/guest não revogadas; repetição idempotente |
+| Piloto e API nativa | Login novo autorizado, HTTPS, somente leitura, antes/durante/depois | PASS:16 checks por smoke, Venue/capabilities, mesas/comandas/catálogo, refresh e SSE/reconnect, protocolo Android; novas sessões de auditoria logout; nenhum fluxo financeiro/pedido real escrito |
+| Integridade | Comparação de estado em19 grupos fora do QA | PASS:iguais ao snapshot pré-janela; exclui autenticação/auditoria e QA, não prova ausência de writes revertidos |
+| Dinheiro operacional | Readback final QA | PASS:Orders/Charges/Payments/Refunds=0;9 Tabs QA históricas preservadas, sem reset/exclusão |
+| CI e revisão do código | API952, Web105 integrações, Docker e KB; release integrado952+turno HTTP/restart | PASS no candidato; API/Web/KB também SUCCESS no merge auditado; revisão independente R3 sem finding P0/P1 aberto |
+
+Correções reais: PR174 elimina deadlock reproduzido entre rotações Customer A/B;
+PR182 encaminha somente seis endpoints nativos Customer para Django e mantém
+páginas guest opacas/stripping. A primeira prova posterior recebeu eventos próprios,
+mas a contenção interna falhou: esse ensaio permanece FAIL. Contenção externa
+sucedeu; na repetição final o commit interno passou na primeira tentativa. Não se
+atribui causa definitiva ao erro anterior nem se afirma exploração. O executor
+agora guarda diagnósticos sanitizados e só repete, no máximo três vezes, erros
+transitórios reconhecidos; guardas de escopo permanecem obrigatórias.
+
+**Contrato GitHub atual:** #151 e #152 foram encerradas por consolidação externa;
+#130 foi ampliada para Gates1/2/3 e exige canary para fechamento. Estes resultados
+comprovam a janela A/B/Gate2, não Gate3. #130 permanece aberta; canary, expansão
+wildcard e E2E físico amplo Android/Web (#106) não foram executados. Cloudflare
+Full/Strict administrativo e PSP real não foram homologados por estes probes.
+A autorização de ambiente compartilhado está registrada explicitamente; não
+constitui dispensa de provas ou autorização de rollout.
+
+
+## Checkpoints históricos (preservados por SHA)
+
 **Código da PR #116 foi mergeado na main em 13/10.** Os itens abaixo permanecem **PENDING ACCEPTANCE** até vincular testes, SHA exato, ambiente e sign-off. Item desmarcado não significa ausência do código, e CI verde não prova DNS/TLS nem operação física.
+
+## Janela final autorizada — 2026-10-15
+
+[Aceite formal e autorização específica do responsável](https://github.com/procopio420/rodada/issues/151#issuecomment-6183795233):
+para este ensaio, o Railway compartilhado substitui o preview fisicamente
+separado. Risco residual: recursos, ingress e deployment compartilhados podem
+afetar o piloto. Controles compensatórios: backup lógico restaurado/autenticado,
+Venues QA exclusivos, negativos simétricos, HMAC/Host/TLS, monitoração do piloto,
+janela limitada e rollback com revogação. A decisão não dispensa testes nem
+permite PSP/dinheiro simulado no banco operacional ou canary (#152).
+
+- [x] Smoke autenticado novo do Aderlan em637b8e6, operador Ana autorizado: login
+  HTTPS/BFF200, Venue correto, mesas/comandas/catálogo200, cookies host-only
+  Secure/HttpOnly, refresh somente cookie200, SSEready/reconnect200; protocolo
+  Android compartilhado200. Somente novas sessões, ambas logout204; nenhuma
+  comanda/pedido/pagamento/caixa real alterado. PIN não consta das evidências.
+- [x] Backup lógico reautenticado, A/B inspecionados contidos, TLS/HMAC/stripping
+  revalidados no deploymentc9053025/637b8e6 antes da janela.
+- [x] Autorização formal da flag temporária e de seu backout, sem nova solicitação.
+- [ ] Executar janela browser/QR/guest/negativos e conferir recibos sanitizados.
+- [ ] Desligar flag/redeploy, conter QA, provar revogações e repetir smoke do piloto.
+- [ ] Finalizar evidências/CI/review e fechar issues somente após provas completas.
 
 ## Checkpoint operacional — 2026-10-15 UTC, antes da flag
 

@@ -1,5 +1,45 @@
 # Issue #130 — auditoria multitenant P0, 2026-10-14
 
+## Resultado executado — 2026-10-15 UTC (estado atual)
+
+Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)
+substituem os bloqueios operacionais dos checkpoints históricos abaixo, sem
+transformar tentativas interrompidas em PASS. Fonte auditada/deployada:
+`14d3240f607523265f9fd0b972b515c1b549b4b0` (PR182); árvore inteira igual ao
+candidato `1e96050f5d5fe216c74a6f7313b890f22d8cf003` revisado e testado.
+
+| Critério | Ambiente/execução | Resultado/evidência |
+| --- | --- | --- |
+| Recuperação antes de escrita | Backup lógico privado cifrado PostgreSQL18.6; restore descartável18/tmpfs | PASS:90/90 contagens do mesmo snapshot, constraints, GCM/hash/recibo reautenticados; não é PITR nem restauração operacional |
+| A/A, B/B, A/B, B/A | Chromium real HTTPS, run053703, deployment `fddbcc96-3f8d-4ed4-8d2e-61be7473f2e0` | PASS:173 casos, fonte/deployment estáveis, login/refresh/logout, cookies host-only Secure/HttpOnly, QR/Guest, perfil/claim/rotação, catálogo/mesas/grupos/serviço idempotente, SSE/cursors, IDs e sessões estrangeiros negados |
+| Borda | Script oficial A/B; probes públicos, origem Railway e loopback Django | PASS:19 TLS/Host/HMAC/stripping/unknown; manifests distintos; HMAC inválido/ausente/expirado/adulterado403, unknownBFF421/raw400 |
+| Concorrência e revogação real | Quatro streams ASGI staff/guest A/B no SHA auditado, flag já false | PASS:um marcador próprio por stream, zero estrangeiro observado; quatro `revoked`, refresh/access/reconnect/novo login/QR/perfil negados após contenção |
+| Backout | Flag=false, deployment `c006312d-9a87-47b5-8b22-d3c21719fd31` SUCCESS, comando deactivate e repetição externa | PASS:aliases inativos, memberships suspensas, guest bloqueado, zero sessões QA staff/guest não revogadas; repetição idempotente |
+| Piloto e API nativa | Login novo autorizado, HTTPS, somente leitura, antes/durante/depois | PASS:16 checks por smoke, Venue/capabilities, mesas/comandas/catálogo, refresh e SSE/reconnect, protocolo Android; novas sessões de auditoria logout; nenhum fluxo financeiro/pedido real escrito |
+| Integridade | Comparação de estado em19 grupos fora do QA | PASS:iguais ao snapshot pré-janela; exclui autenticação/auditoria e QA, não prova ausência de writes revertidos |
+| Dinheiro operacional | Readback final QA | PASS:Orders/Charges/Payments/Refunds=0;9 Tabs QA históricas preservadas, sem reset/exclusão |
+| CI e revisão do código | API952, Web105 integrações, Docker e KB; release integrado952+turno HTTP/restart | PASS no candidato; API/Web/KB também SUCCESS no merge auditado; revisão independente R3 sem finding P0/P1 aberto |
+
+Correções reais: PR174 elimina deadlock reproduzido entre rotações Customer A/B;
+PR182 encaminha somente seis endpoints nativos Customer para Django e mantém
+páginas guest opacas/stripping. A primeira prova posterior recebeu eventos próprios,
+mas a contenção interna falhou: esse ensaio permanece FAIL. Contenção externa
+sucedeu; na repetição final o commit interno passou na primeira tentativa. Não se
+atribui causa definitiva ao erro anterior nem se afirma exploração. O executor
+agora guarda diagnósticos sanitizados e só repete, no máximo três vezes, erros
+transitórios reconhecidos; guardas de escopo permanecem obrigatórias.
+
+**Contrato GitHub atual:** #151 e #152 foram encerradas por consolidação externa;
+#130 foi ampliada para Gates1/2/3 e exige canary para fechamento. Estes resultados
+comprovam a janela A/B/Gate2, não Gate3. #130 permanece aberta; canary, expansão
+wildcard e E2E físico amplo Android/Web (#106) não foram executados. Cloudflare
+Full/Strict administrativo e PSP real não foram homologados por estes probes.
+A autorização de ambiente compartilhado está registrada explicitamente; não
+constitui dispensa de provas ou autorização de rollout.
+
+
+## Checkpoints históricos (preservados por SHA)
+
 Estado: auditoria de código/provas locais executadas; gates de CI e integração são rastreados no PR #153 e no comentário final da #130, com SHA exato. **Fechamento #130 BLOCKED pela prova real de borda, #151. Spec025 e wildcard de produção NÃO HOMOLOGADOS.**
 
 ## Complemento operacional — 2026-10-15 UTC
@@ -260,6 +300,33 @@ snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
 Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
 regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
 reclassifica as provas A/B, flag ou rollback como executadas.
+
+
+### Revalidation after concurrent pairing and physical TableGroup integration
+
+Before the final window, main `04d82e764e36b79da9f1870c46c7c67a1e8b892b`
+passed API [38679248087](https://github.com/procopio420/rodada/actions/runs/38679248087)
+(**902 passed / 770.38s**, PostgreSQL, concurrency, checks and migration drift)
+and Web [38679248088](https://github.com/procopio420/rodada/actions/runs/38679248088)
+(**104 integration cases**, tenant/auth, typecheck/build and applicable lint).
+The subsequently integrated PR172 (`692382866d0301d4b0977325c8191eb4efa3f808`)
+adds three pairing boundary regressions and their evidence document, with no
+runtime change. Its head API/Web/KB were green and independent review is linked
+on [PR172](https://github.com/procopio420/rodada/pull/172); exact merge gates are
+recorded separately when completed.
+
+| Added boundary | Control / implementation | Executed test | Potential failure / result | Evidence |
+| --- | --- | --- | --- | --- |
+| Manager → print pairing/credential | Manager Venue-scoped lookup and host/session binding | A/A, B/B manager/machine; cross-host 403, foreign revoke 404, wrong proof 401, failed approval consumes nothing, replay creates no duplicate | PASS on disposable PostgreSQL; no native Windows device certification | `test_spec025_print_pairing_isolation.py`, PR172 head CI |
+| TableGroup → physical tables → guest context | Venue-scoped service lookup, capability gate and deterministic locking; guest projection contains physical labels only | Existing group API/concurrency suite in main04 API; real A/B browser checks still pending | PASS for disposable suite; live guest label/foreign-ID proof pending. No database constraint independently enforces member/group Venue equality; reviewed services enforce it, no exploit demonstrated | main04 API above; final browser executor checks exact own labels and denies mixed-Venue create/foreign dissolve |
+
+Independent R3 review in a distinct context inspected the pairing and TableGroup
+changes and final operational executors. Guest label assertion and operational
+SHA/readback checks were strengthened before use. `NO_FINDINGS_WITH_GAPS` is a
+source review result, not a fabricated GitHub approval or live execution result.
+These new surfaces do not change the explicit public-image or bearer receipt
+policies. Financial mutation/replay/concurrency remains confined to disposable
+PostgreSQL; no payment/refund test is authorized against the operational DB.
 
 ### P1 discovered during live-window preflight after PR165
 
