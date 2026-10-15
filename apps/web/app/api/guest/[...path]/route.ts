@@ -1,3 +1,4 @@
+import { fetchBackend } from "@/lib/backend-fetch";
 import { createHash } from "node:crypto";
 import { venueHostHeaders } from "@/lib/server/venue-host";
 import { NextRequest, NextResponse } from "next/server";
@@ -44,7 +45,7 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   const loggingOut = path.join("/") === "customer/logout";
 
   try {
-    const upstream = await fetch(`${apiBaseUrl}/guest/${path.join("/")}/${request.nextUrl.search}`, {
+    const upstream = await fetchBackend(`${apiBaseUrl}/guest/${path.join("/")}/${request.nextUrl.search}`, {
       method: request.method,
       headers,
       body,

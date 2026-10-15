@@ -127,3 +127,28 @@ The five module launch cards should make their pictograms prominent enough to sc
 ### 2026-10-13 — Consistent top-aligned launcher copy
 
 Module cards use a fixed icon row followed immediately by a top-aligned title/description block. Remove `margin-top: auto` from the copy; the title baseline must match across cards in the same grid row even when descriptions have different lengths. Keep descriptions concise enough to remain fully readable within two lines at 360px and larger viewports (two-line clamp is a safety net, not a substitute for readable copy). The final fifth card spans both columns **only on mobile**, while tablet/desktop retain the 3/4-column grid. Integration tests cover baseline alignment, copy visibility, span and overflow at the existing viewport matrix.
+
+## Pós-ativação permanente — rejeição Web e transporte (2026-10-15)
+
+O contrato original permitia404/421 para host inexistente/inativo; portanto a
+raiz404 anterior era fail-closed permitido, não prova de quebra de isolamento.
+Para eliminar a dependência do path/credencial na operação permanente, a fronteira
+Next passa a retornar **421 `VENUE_HOST_NOT_FOUND`**, com `Cache-Control: no-store`,
+para todo candidato a host de estabelecimento inexistente/inativo/não verificado,
+antes de renderização, rewrite, CSRF, auth ou capacidade Guest. Isso inclui APIs,
+manifest, paths desconhecidos e métodos sem credenciais. Assets de build
+`/_next/static` e `/_next/image` permanecem fora do matcher; não carregam identidade
+nem dados do Venue. Hosts de compatibilidade/reservados mantêm seu contrato.
+A API nativa continua sob ALLOWED_HOSTS/HMAC: um Host desconhecido não permitido
+pode retornar400 antes da resolução; essa resposta não é aceita como421 do BFF.
+
+A consulta de contexto não pode converter indisponibilidade, falha HMAC ou payload
+inválido em host inexistente: preservar403/5xx e distinguir transporte503 de
+identidade421. Revalidar domínio no Django continua obrigatório após o guard,
+inclusive se o domínio for desativado entre consulta e comando.
+
+POSTs internos BFF não podem ser reenviados implicitamente pelo transporte ao
+receber421. O resultado421 original deve alcançar o cliente sem exceção de
+replay de body e sem duplicar comandos. Falha real de rede continua503;
+não substituir indisponibilidade por401/404/421. Paths internos permanecem
+canônicos com barra final; não usar redirects como parte da autenticação.
