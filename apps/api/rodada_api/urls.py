@@ -1,6 +1,6 @@
 from modules.guest_access.customer_views import (
     CustomerRegisterView, CustomerLoginView, CustomerContextView,
-    CustomerClaimView, CustomerLogoutView,
+    CustomerClaimView, CustomerLogoutView, CustomerPasswordRotateView,
 )
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
@@ -228,6 +228,7 @@ urlpatterns = [
     path("guest/customer/context/", CustomerContextView.as_view()),
     path("guest/customer/claim/", CustomerClaimView.as_view()),
     path("guest/customer/logout/", CustomerLogoutView.as_view()),
+    path("guest/customer/password/", CustomerPasswordRotateView.as_view()),
     path("guest/tabs/", GuestTabCreateView.as_view(), name="guest-tab-create"),
     path("guest/catalog/", GuestCatalogView.as_view(), name="guest-catalog"),
     path("guest/orders/confirm/", GuestOrderConfirmView.as_view(), name="guest-order-confirm"),
