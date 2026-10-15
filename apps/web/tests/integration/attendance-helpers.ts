@@ -6,10 +6,13 @@ import { resolve } from "node:path";
 export async function openNamedAttendanceTab(page: Page, label: string) {
   const previous = page.locator(".attendanceOrderDialog");
   if (await previous.isVisible()) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
-  const contextual = await page.evaluate(async () => {
+  const { contextual, canManageTables } = await page.evaluate(async () => {
     const session = await (await fetch("/api/auth/me")).json();
     const tables = await (await fetch("/api/attendance/hospitality/tables/")).json();
-    return tables.table_service_enabled && session.capabilities.includes("table.manage") && session.capabilities.includes("tab.open");
+    return {
+      contextual: tables.table_service_enabled && session.capabilities.includes("tab.open"),
+      canManageTables: session.capabilities.includes("table.manage"),
+    };
   });
   await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   if (contextual) {
@@ -20,9 +23,10 @@ import django; django.setup()
 from django.conf import settings
 assert settings.DATABASES['default']['NAME']=='rodada_web_e2e'
 from modules.venue.models import Venue
-from modules.hospitality.models import Table
-Table.objects.create(venue=Venue.objects.get(slug='web-e2e'),label=sys.argv[1])
-`, tableLabel], { cwd: resolve("../api"), env: process.env });
+from modules.hospitality.models import Table,TableOccupancy
+table=Table.objects.create(venue=Venue.objects.get(slug='web-e2e'),label=sys.argv[1],status='AVAILABLE' if sys.argv[2]=='1' else 'OCCUPIED')
+if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.access_generation)
+`, tableLabel, canManageTables ? "1" : "0"], { cwd: resolve("../api"), env: process.env });
     await page.getByRole("button", { name: "Atualizar", exact: true }).click();
     await page.getByRole("button", { name: new RegExp(`^Mesa ${tableLabel}`) }).click();
     await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
