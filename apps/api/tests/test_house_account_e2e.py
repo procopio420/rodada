@@ -37,7 +37,7 @@ class HouseAccountHttpE2E(HouseFixture, LiveServerTestCase):
             return payload
 
     def scenario(self, *, use_override):
-        tab = self.http(self.staff, "/tabs/", {}, expected=201)
+        tab = self.http(self.staff, "/tabs/", {"display_label": "Comanda de teste"}, expected=201)
         tab_id = tab["id"]
         order_path = f"/tabs/{tab_id}/orders/confirm/"
 

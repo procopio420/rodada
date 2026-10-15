@@ -15,6 +15,8 @@ export async function openNamedAttendanceTab(page: Page, label: string) {
       canManageTables: session.capabilities.includes("table.manage"),
     };
   });
+  const tableDialog = page.locator(".attendanceTableDialog");
+  if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   // The unified search persists between tab visits. Show the newly seeded table.
   await page.getByLabel("Buscar mesa ou comanda").fill("");
@@ -34,14 +36,14 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
     await page.getByRole("button", { name: new RegExp(`^Mesa ${tableLabel}`) }).click();
     await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: new RegExp(`Nova comanda · Mesa ${tableLabel}`) });
-    await dialog.getByLabel("Nome da comanda (opcional)").fill(label);
+    await dialog.getByLabel("Nome ou apelido").fill(label);
     await dialog.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
   } else {
     const other = page.getByRole("region", { name: "Outras comandas" });
     await other.locator("summary").click();
     await other.getByRole("button", { name: "Abrir comanda sem mesa", exact: true }).click();
     const popup = page.locator(".attendanceOrderDialog");
-    await popup.getByLabel("Nome da Comanda", { exact: true }).fill(label);
+    await popup.getByLabel("Nome ou apelido", { exact: true }).fill(label);
     await popup.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   }
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
@@ -52,6 +54,8 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
 export async function selectExistingAttendanceTab(page: Page, label: string) {
   const popup = page.locator(".attendanceOrderDialog");
   if (await popup.isVisible()) await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+  const tableDialog = page.locator(".attendanceTableDialog");
+  if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   const located = await page.evaluate(async name => {
     const result = await (await fetch(`/api/attendance/tabs/?q=${encodeURIComponent(name)}`)).json();

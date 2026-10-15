@@ -72,3 +72,23 @@ seguido de validação humana dos fluxos no ambiente local. A receita histórica
 está em `docs/development/attendance-local-test-2026-10-15.md`; verificar estado
 real dos serviços e banco antes de retomá-los. Não aplicar migrations novas no
 banco compartilhado apenas para reproduzir testes; usar banco descartável.
+
+## Integração autorizada na main — 2026-10-15
+
+Operador solicitou merge do PR #184 na main. PR retargetado e retirado de draft;
+main `c589ff08` incorporada sem conflitos em `6b382583`. Esse pacote inclui o
+trabalho do #169; não houve escrita na branch anterior. Revisão independente R3
+do diff integrado contra main: `NO_FINDINGS_WITH_GAPS`, sem achados reproduzíveis,
+sem execução de gates pelo revisor. Estado anterior de PR encadeado é histórico.
+
+CI Android252 passou. API419: 962 testes passaram e seis falharam porque fixtures
+positivas antigas abriam Tab sem nome; corrigidos somente os corpos de criação em
+test_web_completion, test_house_account_e2e e test_tab_operations_e2e, preservando
+asserts financeiros/audit/ocupação e negativos. Helpers Web usam Nome ou apelido
+sempre visível e fecham o popup da mesa antes de navegar para outra mesa; jornada
+de cardápio canônico também usa o campo obrigatório visível.
+
+Tentativa local da integração Web bloqueada por `fcntl` no utilitário Linux de
+coordenação de resets, ausente no Windows. Não alterar esse utilitário neste
+recorte nem declarar PASS. Cluster PostgreSQL descartável específico da tentativa
+foi encerrado, preservando o banco de demonstração. Fechamento depende do novo CI.
