@@ -63,7 +63,17 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         if execution.get("result") == "FAIL" and missing:
             status = "FAIL"; reason = "Runner failed at " + execution.get("last_step", "unknown") + "; " + reason
         refs = [name for name in required if name in receipts]
-        refs += [name for name, a in artifacts.items() if a["kind"] in {"android-instrumentation", "playwright-trace"}]
+        trace_tests = {
+            "E2E-01": ["qr-lifecycle"], "E2E-02": ["browser-origins", "android-native-to-web"],
+            "E2E-03": ["browser-origins", "android-native-to-web"], "E2E-04": ["browser-origins", "android-native-to-web"],
+            "E2E-05": ["unavailable"], "E2E-06": ["financial"], "E2E-07": ["financial"],
+            "E2E-08": ["concurrency"], "E2E-09": ["browser-origins", "android-native-to-web"],
+            "E2E-10": ["authorization"], "E2E-11": ["android-native-to-web"],
+            "E2E-12": ["sse-recovery", "browser-origins"], "E2E-13": ["qr-lifecycle"], "E2E-14": ["pending-payment", "financial"],
+        }
+        refs += [name for name, a in artifacts.items() if a["kind"] == "playwright-trace" and any(test in name for test in trace_tests[sid])]
+        if "android-instrumented" in surfaces:
+            refs += [name for name, a in artifacts.items() if a["kind"] == "android-instrumentation" and ("compose" in name if sid in {"E2E-02", "E2E-03", "E2E-04"} else "recovery" in name)]
         ids = {"venue":[fixture["venue_id"]]}
         mapping = {"tab_ids":"tab", "tab_id":"tab", "original_tab_id":"tab", "order_ids":"order", "original_order_id":"order", "original_order_item_ids":"order_item", "charge_ids":"charge", "payment_ids":"payment", "occupancy_ids":"occupancy", "occupancy_id":"occupancy"}
         for name in required:
