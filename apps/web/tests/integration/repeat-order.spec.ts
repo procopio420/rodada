@@ -29,6 +29,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468"); await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
+  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
   const catalog = (await api(page, "catalog/products/")).results;
   const product = catalog.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: `Repeat ${width}` });
