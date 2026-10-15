@@ -36,10 +36,10 @@ separados, sem transformar automação em aceite presencial.
 | B1 | RECONCILIADO | Harness #127 reaproveitado; HTTP/storage distinguido da confirmação Compose. |
 | B2 | TESTED | Fixture única, cluster hash, Venue/produtos BAR 700 / KITCHEN 1000 e múltiplos atores. |
 | B3 | TESTED | Pedidos confirmados pela UI Compose, Atendimento Web e Guest; IDs correlacionados. |
-| B4 | TESTED | NEW→PREPARING→READY por UI explícita nas estações; Guest mostra Pronto/chegando. |
+| B4 | REGRESSION_PENDING | NEW→PREPARING→READY por UI explícita nas estações; Guest mostra Pronto/chegando. |
 | B5 | TESTED | Android lê ambas Tabs prontas; Atendimento/Gerência mostram 7 DispatchTasks; OPEN sem conclusão ou provenance inventada. |
 | B6 | TESTED | Carrinhos stale Guest/Web/Compose negados com 409; offline ACTION_REQUIRED e pedidos anteriores preservados. |
-| B7 | TESTED | SQL final: 5 Orders / 8 Items / 8 Charges, 6800 centavos; estações/centavos/quantidades e zero pagamento por preparo. |
+| B7 | REGRESSION_PENDING | SQL final: 5 Orders / 8 Items / 8 Charges, 6800 centavos; estações/centavos/quantidades e zero pagamento por preparo. |
 | C1 | RECONCILIADO | Inventário cash/ledger/concurrency existente reutilizado. |
 | C2 | TESTED | Somente CASH de teste e PENDING controlado sem PSP, PostgreSQL descartável. |
 | C3 | TESTED | Parcial de 300, refund de 100 e residual de 1500 centavos; resposta perdida e replay com mesmo Payment ID; demais Tabs sem pagamento. |
@@ -69,6 +69,13 @@ separados, sem transformar automação em aceite presencial.
 | F6 | TESTED | Esta matriz e manifest por cenário; históricos FAIL preservados sem promover novo HEAD. |
 | F7 | TESTED | Gate automatizado exige 14 PASS / 10 invariantes / review; físico / PSP/fiscal separado. |
 | F8 | TESTED | R3 independente por slices/contexto; inspeção sanitização/IDs/pacote final e KB. |
+
+A auditoria posterior encontrou 53observações corretas das filas no pacote 899,
+mas faltavam asserts permanentes de exclusão de estação e SQL completo de
+source/route/snapshot. [PR205](https://github.com/procopio420/rodada/pull/205)
+acrescenta essas proteções no SHA 7f04f803; execução em andamento. B4/B7 foram
+reabertas na issue. O GO do contrato 899 permanece histórico, sem certificar
+antecipadamente essa ampliação ou o fechamento integral.
 
 ## E2E-01..14
 
