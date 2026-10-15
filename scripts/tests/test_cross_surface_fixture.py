@@ -74,6 +74,23 @@ class CrossSurfaceFixtureTests(unittest.TestCase):
             cursor.fetchone.return_value = ("rodada_android_post_drop", "127.0.0.1")
             self.assertEqual(require_connected_database(connection), "rodada_android_post_drop")
 
+    def test_exact_ci_container_address_allowed_but_another_private_server_denied(self):
+        connection = MagicMock(settings_dict={
+            "NAME": "rodada_android_post_drop", "HOST": "127.0.0.1",
+            "ENGINE": "django.db.backends.postgresql",
+        })
+        cursor = connection.cursor.return_value.__enter__.return_value
+        env = {"CI": "true", "RODADA_TEST_DB_CONTAINER_ADDRESS": "172.18.0.2"}
+        with patch.dict(os.environ, env, clear=True):
+            cursor.fetchone.return_value = ("rodada_android_post_drop", "172.18.0.2")
+            self.assertEqual(require_connected_database(connection), "rodada_android_post_drop")
+            cursor.fetchone.return_value = ("rodada_android_post_drop", "172.18.0.3")
+            with self.assertRaises(RuntimeError):
+                require_connected_database(connection)
+        with patch.dict(os.environ, {"RODADA_TEST_DB_CONTAINER_ADDRESS": "172.18.0.2"}, clear=True):
+            with self.assertRaises(RuntimeError):
+                require_connected_database(connection)
+
 
 if __name__ == "__main__":
     unittest.main()

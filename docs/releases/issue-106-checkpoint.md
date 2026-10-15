@@ -1,6 +1,6 @@
 # Issue #106 execution checkpoint
 
-Base inspected: `fdc45944` (2026-10-15). Branch: `test/106-integrated-foundation`.
+Base initially inspected: `fdc45944` (2026-10-15); main `2b981bba` integrated without conflicts. Branch: `test/106-integrated-foundation`.
 This is a continuation record, not evidence that E2E-01..14 passed.
 
 ## Inventory A1/B1/C1/D1/E1/F1
@@ -34,7 +34,7 @@ on the strength of code alone.
 
 Executed locally:
 
-- `python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v`: 5 PASS (subprocess destination rejections and mocked connection identity tests; not a PostgreSQL E2E).
+- `python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v`: 6 PASS (subprocess destination rejections and mocked connection identity tests; not a PostgreSQL E2E).
 - `python apps/api/manage.py check`: PASS, Django 5.2.18 / Python 3.12.
 - Python compilation and `git diff --check`: PASS.
 - Ruff on the new helper/tests: PASS.
@@ -59,3 +59,7 @@ Physical device/Wi-Fi, PSP/NFC/Tap/Pix, printers, fiscal and onsite sign-off rem
 separate external gates with VR System rollback. No deploy/Play/payment/remote DB
 operation performed. Main merge autodeploy configuration outside Actions is not
 verified; inspect before any integration.
+
+## First CI feedback
+
+Run [38748983538](https://github.com/procopio420/rodada/actions/runs/38748983538), head `20c8cfac`: PostgreSQL 17.11 migrations PASS; guard tests PASS; fixture preparation FAIL because the service reports its Docker bridge IP, not host loopback. Android/browser steps SKIPPED after this failure. Correction records the exact inspected disposable service container IP in GITHUB_ENV and accepts only that address in CI, while the configured client destination remains loopback. A different private server still fails the regression. No integrated PASS claimed.

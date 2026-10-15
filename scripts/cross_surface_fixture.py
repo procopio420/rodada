@@ -3,6 +3,7 @@
 Importable without Django, so unsafe destinations fail before Django startup.
 The allowlist is deliberately exact; a test-looking prefix is not isolation.
 """
+import ipaddress
 import os
 
 DATABASES = frozenset({"rodada_android_post_drop", "rodada_android_post_drop_link_cut"})
@@ -35,7 +36,17 @@ def require_connected_database(connection):
     with connection.cursor() as cursor:
         cursor.execute("SELECT current_database(), inet_server_addr()::text")
         database, address = cursor.fetchone()
-    if database != expected or address not in LOCAL_HOSTS:
+    # A host-run job reaches its disposable Docker service through loopback,
+    # while PostgreSQL observes the service's bridge IP. Accept only that exact
+    # independently inspected container address, never an arbitrary private IP.
+    container_address = os.environ.get("RODADA_TEST_DB_CONTAINER_ADDRESS")
+    allowed_addresses = set(LOCAL_HOSTS)
+    if container_address:
+        parsed = ipaddress.ip_address(container_address)
+        if os.environ.get("CI") != "true" or not parsed.is_private or parsed.is_unspecified:
+            raise RuntimeError("Container database address requires an explicit private CI service identity")
+        allowed_addresses.add(str(parsed))
+    if database != expected or address not in allowed_addresses:
         raise RuntimeError("Connected database does not match the disposable local fixture")
     return database
 

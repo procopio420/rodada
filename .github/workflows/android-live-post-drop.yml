@@ -65,7 +65,10 @@ jobs:
         run: python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v
       - name: Migrate isolated PostgreSQL and create only test Venue, user and product
         run: |
+          echo "RODADA_TEST_DB_CONTAINER_ADDRESS=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' '${{ job.services.postgres.id }}')" >> "$GITHUB_ENV"
           python apps/api/manage.py migrate --noinput
+      - name: Prepare fixture against the inspected disposable PostgreSQL service
+        run: |
           python scripts/verify-android-live-post-drop.py prepare
       - name: Start real Django and TCP response-drop proxy
         shell: bash
@@ -195,7 +198,10 @@ jobs:
         run: python -m pip install -e "apps/api[dev]"
       - name: Migrate PostgreSQL and seed unique isolated venue
         run: |
+          echo "RODADA_TEST_DB_CONTAINER_ADDRESS=$(docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' '${{ job.services.postgres.id }}')" >> "$GITHUB_ENV"
           python apps/api/manage.py migrate --noinput
+      - name: Prepare link-cut fixture against the inspected disposable PostgreSQL service
+        run: |
           python scripts/verify-android-live-post-drop.py prepare
       - name: Start Django and HOLD real committed HTTP response (no TCP RST)
         shell: bash
