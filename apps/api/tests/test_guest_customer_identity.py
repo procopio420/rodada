@@ -15,7 +15,7 @@ from modules.guest_access.services import (
 )
 from modules.hospitality.models import GuestOrderingMode, Table, TableOccupancy, TabOccupancyAssignment
 from modules.house_account.models import Customer, Relationship
-from modules.ordering.models import Order, Tab
+from modules.ordering.models import Order
 from modules.venue.models import Venue
 from tests.test_guest_access import GuestAccessServiceTests
 
