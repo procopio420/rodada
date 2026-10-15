@@ -135,6 +135,12 @@ def _authorized_customer(session, auth_token):
         raise GuestAccessError(
             "CUSTOMER_AUTH_REVOKED", "Seu acesso ao perfil expirou. Entre novamente.", 401
         )
+    if not Relationship.objects.filter(
+        venue_id=session.table.venue_id, customer_id=authorization.credential.customer_id,
+    ).exists():
+        raise GuestAccessError(
+            "CUSTOMER_NOT_IN_VENUE", "Perfil não está disponível neste estabelecimento.", 403
+        )
     return authorization
 
 
