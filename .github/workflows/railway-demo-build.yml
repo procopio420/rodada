@@ -141,6 +141,14 @@ jobs:
             fi
           }
           assert_host_status api.rodada.bar /ready/ 200
+          # Previously api.rodada.bar/ and /staff incorrectly served Next.js
+          # (307 -> /staff, then 200). The API virtual host must be API-only.
+          assert_host_status api.rodada.bar /health/ 200
+          assert_host_status api.rodada.bar /venue/context/ 200
+          assert_host_status api.rodada.bar / 404
+          assert_host_status api.rodada.bar /staff 404
+          assert_host_status api.rodada.bar /api/auth/me 404
+          assert_host_status rodada-web-demo.up.railway.app /staff 200
           assert_host_status bardoaderlan.rodada.bar /api/venue/context 200
           assert_host_status bardoaderlan.rodada.bar /cozinha 200
           assert_host_status bardoaderlan.rodada.bar /auth/me/ 403
