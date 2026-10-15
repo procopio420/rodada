@@ -7,7 +7,7 @@ Do not use this to load transactional or payment fixtures.
 import os
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.db import OperationalError, connection, transaction
 from django.utils import timezone
 
 from modules.access.invalidation import AccessInvalidationType, publish_access_invalidation
@@ -78,18 +78,18 @@ class Command(BaseCommand):
     @staticmethod
     def _check_protected_identity(spec, *, require_staff=True):
         # These reserved identifiers can never be claimed from another Venue.
-        venue = Venue.objects.select_for_update().filter(slug=spec["slug"]).first()
+        venue = Venue.objects.select_for_update(nowait=True, no_key=True).filter(slug=spec["slug"]).first()
         if venue and venue.name != spec["name"]:
             raise CommandError(f'REFUSE: existing QA slug has unexpected identity: {spec["slug"]}')
-        alias = VenueDomain.objects.select_for_update().filter(hostname=spec["host"]).first()
+        alias = VenueDomain.objects.select_for_update(nowait=True, no_key=True).filter(hostname=spec["host"]).first()
         if alias and (not venue or alias.venue_id != venue.id):
             raise CommandError(f'REFUSE: hostname is already owned: {spec["host"]}')
-        staff = StaffMember.objects.select_for_update().filter(
+        staff = StaffMember.objects.select_for_update(nowait=True, no_key=True).filter(
             login_identifier=spec["login"]
         ).first()
         if staff and require_staff:
             memberships = list(
-                VenueStaffMembership.objects.select_for_update().filter(staff_member=staff)
+                VenueStaffMembership.objects.select_for_update(nowait=True, no_key=True).filter(staff_member=staff)
             )
             if not venue or len(memberships) != 1 or memberships[0].venue_id != venue.id:
                 raise CommandError(f'REFUSE: operator identifier already owned: {spec["login"]}')
@@ -104,8 +104,19 @@ class Command(BaseCommand):
                 "--backup-reference railway-backup:<ID>; this command cannot verify backups."
             )
 
+    @staticmethod
+    def _lock_namespace():
+        # Missing rows cannot be locked. Serialize this command's lifecycle,
+        # then also validate every actual get_or_create result against outsiders.
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                ["rodada:spec025:qa-bootstrap"],
+            )
+
     @transaction.atomic
     def _provision(self):
+        self._lock_namespace()
         pins = {}
         for spec in QA_VENUES:
             value = os.environ.get(spec["env_pin"], "")
@@ -114,16 +125,20 @@ class Command(BaseCommand):
                     f'{spec["env_pin"]} must be a private 6-12 digit PIN (not printed).'
                 )
             pins[spec["slug"]] = value
+        if len(set(pins.values())) != len(QA_VENUES):
+            raise CommandError("QA PINs must be distinct (values are not printed).")
 
         # Preflight both identities before creating any row.
         for spec in QA_VENUES:
             self._check_protected_identity(spec)
 
         for spec in QA_VENUES:
-            venue, created = Venue.objects.get_or_create(
+            venue, created = Venue.objects.select_for_update(nowait=True, no_key=True).get_or_create(
                 slug=spec["slug"],
                 defaults={"name": spec["name"], "guest_mutations_blocked": True},
             )
+            if venue.name != spec["name"]:
+                raise CommandError(f'REFUSE: existing QA slug has unexpected identity: {spec["slug"]}')
             alias, _ = VenueDomain.objects.get_or_create(
                 hostname=spec["host"],
                 defaults={
@@ -132,16 +147,20 @@ class Command(BaseCommand):
             )
             if alias.venue_id != venue.id:
                 raise CommandError(f'REFUSE: hostname reassigned: {spec["host"]}')
-            staff, new_staff = StaffMember.objects.get_or_create(
+            staff, new_staff = StaffMember.objects.select_for_update(nowait=True, no_key=True).get_or_create(
                 login_identifier=spec["login"],
                 defaults={"display_name": "Spec025 QA Operator"},
             )
             if new_staff:
                 staff.set_pin(pins[spec["slug"]])
                 staff.save(update_fields=["pin_hash"])
+            else:
+                # A competing non-bootstrap transaction may have claimed this
+                # login after preflight. Never adopt it or grant a new membership.
+                self._check_protected_identity(spec)
             VenueStaffMembership.objects.get_or_create(
                 venue=venue, staff_member=staff,
-                defaults={"role": StaffRole.MANAGER},
+                defaults={"role": StaffRole.MANAGER, "status": MembershipStatus.SUSPENDED},
             )
             Table.objects.get_or_create(
                 venue=venue, label="QA 01",
@@ -156,12 +175,15 @@ class Command(BaseCommand):
                     metadata={"hostname": spec["host"], "purpose": "isolation-qa"},
                 )
         self.stdout.write(self.style.SUCCESS(
-            "QA venues provisioned; domains remain unverified/inactive, "
-            "guest mutations are blocked and no payment facts were generated."
+            "QA venues provisioned; existing state preserved. New domains are "
+            "inactive/unverified, new managers suspended and new guest access blocked. "
+            "No payment facts were generated."
         ))
+        self._inspect()
 
     @transaction.atomic
     def _set_active(self, active):
+        self._lock_namespace()
         # Nothing is created or reassigned in activate/deactivate.
         for spec in QA_VENUES:
             venue, alias, staff = self._check_protected_identity(
@@ -197,11 +219,13 @@ class Command(BaseCommand):
                     entity_id=str(alias.id),
                     metadata={"hostname": spec["host"]},
                 )
-            member = VenueStaffMembership.objects.select_for_update().filter(
-                venue=venue, staff_member__login_identifier=spec["login"],
-            ).first()
+            members = VenueStaffMembership.objects.select_for_update(nowait=True, no_key=True).filter(venue=venue)
+            if active:
+                # Reactivation is deliberately narrow: other suspended operators
+                # require a separate, explicit access-management decision.
+                members = members.filter(staff_member__login_identifier=spec["login"])
             # Aliases are stopped first even if membership was already suspended.
-            if member and member.status != MembershipStatus.REVOKED:
+            for member in members.exclude(status=MembershipStatus.REVOKED):
                 desired = MembershipStatus.ACTIVE if active else MembershipStatus.SUSPENDED
                 if member.status != desired:
                     member.status = desired
@@ -222,7 +246,7 @@ class Command(BaseCommand):
                 ).update(
                     revoked_at=timezone.now(), revoked_reason="Spec025 QA containment",
                 )
-                for session in StaffSession.objects.select_for_update().filter(
+                for session in StaffSession.objects.select_for_update(nowait=True, no_key=True).filter(
                     venue=venue, revoked_at__isnull=True
                 ):
                     session.revoked_at = timezone.now()
@@ -250,9 +274,20 @@ class Command(BaseCommand):
         if operation == "activate" and not options["edge_confirmed"]:
             raise CommandError("Activation requires --edge-confirmed after real TLS/ingress proof.")
 
-        if operation == "provision":
-            self._provision()
-        elif operation == "activate":
-            self._set_active(True)
-        elif operation == "deactivate":
-            self._set_active(False)
+        try:
+            if operation == "provision":
+                self._provision()
+            elif operation == "activate":
+                self._set_active(True)
+            elif operation == "deactivate":
+                self._set_active(False)
+        except OperationalError as error:
+            # Auth may lock session/membership before identity rows. Never wait
+            # in the opposite order or SKIP LOCKED and report partial containment.
+            # The inner atomic operation has fully rolled back before this error.
+            if getattr(error.__cause__, "sqlstate", None) == "55P03":
+                raise CommandError(
+                    "REFUSE: QA access operation in progress; no changes committed. "
+                    "Retry after it completes; containment has NOT succeeded."
+                ) from None
+            raise

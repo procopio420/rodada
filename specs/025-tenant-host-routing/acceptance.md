@@ -69,6 +69,23 @@ missing Railway access. No deployment or acceptance is implied.
 
 ## Operational
 
+### PR #159 — safe QA provisioning contract (not edge acceptance)
+
+- [ ] Initial QA memberships are SUSPENDED; only explicit activation enables
+  the reserved manager. Domains and guest mutations remain inactive/blocked.
+- [ ] Concurrent claims of reserved slug/host/login abort the whole provision
+  without attaching an identity owned by another Venue. Repeated provision
+  preserves state and reports it accurately, including after activation.
+- [ ] Containment suspends every ACTIVE QA membership, revokes staff/guest
+  sessions and denies new shared-API login/QR issuance. Foreign memberships
+  and sessions remain intact; activation restores only the reserved manager,
+  never revoked credentials or other suspended operators automatically.
+- [ ] Concurrent auth locks cause an explicit, atomic refusal, never deadlock
+  or partial success. A subsequent containment attempt revokes sessions created
+  by the completed login/operator switch, with foreign access preserved.
+- [ ] Verify the above against disposable PostgreSQL, including a committed
+  concurrent foreign identity claim and live ASGI staff/guest streams.
+
 - [ ] Wildcard HTTPS, Host routing, explicit app/DB trust boundaries and logging are configured in preview and verified (not inferred).
 - [ ] Switch-on is behind a documented rollback gate; no unsupported production readiness claim.
 

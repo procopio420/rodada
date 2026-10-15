@@ -108,10 +108,20 @@ python manage.py provision_spec025_ab --operation provision --apply \
   --backup-reference 'railway-backup:<actual-backup-id>'
 ```
 
-Provisioned QA domains remain **inactive and unverified**, and guest mutations
-start blocked. No ledger, payment, PSP or Aderlan data is created/changed.
-The two managers are strictly local QA identities; reruns preserve IDs and
-existing PIN hashes. This command intentionally does not create an active QR,
+New QA domains are **inactive and unverified**, guest mutations start blocked,
+and new manager memberships are **SUSPENDED**, denying shared-API login before
+explicit activation. No ledger, payment, PSP or Aderlan data is created/changed.
+The two managers are strictly local QA identities; reruns preserve IDs,
+existing PIN hashes and lifecycle state, and print the actual alias state.
+PINs must be distinct. PostgreSQL transaction-scoped advisory locking serializes
+bootstrap lifecycle commands; identities obtained after preflight are revalidated
+to reject concurrent foreign claims rather than grant them QA membership.
+Row locks use NOWAIT: if a concurrent login, refresh or operator switch owns a
+required row, the entire command rolls back and reports `REFUSE ... no changes
+committed`. This is **not successful containment**. Wait for that operation to
+finish, rerun `deactivate`, then verify aliases, every QA membership/session and
+live/reconnected streams. Never skip locked credentials to obtain a success.
+This command intentionally does not create an active QR,
 a guest occupancy or payment fixtures.
 
 After trusted ingress/TLS have been independently verified, and after explicit
@@ -125,10 +135,11 @@ python manage.py provision_spec025_ab --operation activate --apply \
 
 This does not toggle `RODADA_ENABLE_TENANT_HOST_UI` or validate cookies, SSE,
 HMAC, QR or Android. Those must still be tested separately before acceptance.
-For containment, disable QA aliases, suspend the QA manager memberships (so
-login through the shared `api.rodada.bar` is also denied), revoke staff/guest
+For containment, disable QA aliases, suspend **all ACTIVE memberships of each
+QA Venue** (so every QA operator's shared `api.rodada.bar` login is denied), revoke staff/guest
 sessions and block QA guest mutations without deleting or reassigning immutable
-identity/history. Re-activation restores only QA memberships; it does **not**
+identity/history. Foreign-Venue memberships of the same staff remain untouched.
+Re-activation restores only the reserved QA manager memberships; it does **not**
 resurrect revoked sessions or automatically enable guest transactions:
 
 ```bash
