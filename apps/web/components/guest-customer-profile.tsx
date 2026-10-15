@@ -40,7 +40,7 @@ export function GuestCustomerProfile({
     else setError((response.body as ErrorBody).message ?? "Não foi possível consultar o perfil.");
   }, [selector]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { queueMicrotask(() => void load()); }, [load]);
 
   async function authenticate() {
     if (busy || locked) return;
