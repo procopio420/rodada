@@ -21,6 +21,7 @@ from .services import (
 
 AUTH_TTL = timedelta(hours=2)
 INVALID_CREDENTIALS = "Não foi possível autenticar. Confira as credenciais."
+_DUMMY_PASSWORD_HASH = make_password("not-an-enrolled-customer-password")
 
 
 def _name(value):
@@ -88,7 +89,7 @@ def login_customer(*, guest_token, username, password):
     now = timezone.now()
     if credential is None:
         # Same generic error, no profile lookup by displayed name or phone.
-        check_password(password, make_password("not-a-real-customer-password"))
+        check_password(password, _DUMMY_PASSWORD_HASH)
         raise GuestAccessError("INVALID_CREDENTIALS", INVALID_CREDENTIALS, 401)
     if credential.revoked_at or (credential.locked_until and credential.locked_until > now):
         return None, ""
