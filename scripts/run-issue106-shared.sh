@@ -6,7 +6,7 @@ cd "$ROOT"
 PYTHON="${RODADA_TEST_PYTHON:-$ROOT/.venv/bin/python}"
 export PATH="$(dirname "$PYTHON"):$PATH"
 export PYTHONPATH="$ROOT/apps/api" DJANGO_SETTINGS_MODULE=rodada_api.settings
-export DJANGO_SECRET_KEY=issue106-disposable-only DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2
+export DJANGO_SECRET_KEY=issue106-disposable-only DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,issue106a-ci.rodada.bar,issue106b-ci.rodada.bar
 export RODADA_BFF_HOST_SECRET=rodada-integration-local-only RODADA_API_BASE_URL=http://127.0.0.1:8101
 "$PYTHON" -c 'import sys;sys.path.insert(0,"scripts");from cross_surface_fixture import require_disposable_database;require_disposable_database();import django;django.setup();from django.db import connection;from cross_surface_fixture import require_connected_database;require_connected_database(connection)'
 if [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then echo 'Commit source changes before an exact-SHA run'; exit 2; fi

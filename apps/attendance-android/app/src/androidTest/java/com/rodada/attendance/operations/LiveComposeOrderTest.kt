@@ -133,6 +133,16 @@ class LiveComposeOrderTest {
             foreignDenied { operations.tabDetail(token, tabId) }
             foreignDenied { operations.confirmOrder(token, tabId, original.lines.map { CartLine(Product(it.productId, "Foreign denied", 0, true, "BAR", "AVAILABLE"), it.quantity, it.customization) }, java.util.UUID.randomUUID().toString()) }
         }
+        // Native API ingress may not impersonate a tenant Host without the BFF assertion.
+        val tenant = java.net.URL(BuildConfig.RODADA_API_BASE_URL + "auth/me/").openConnection() as java.net.HttpURLConnection
+        try {
+            tenant.connectTimeout = 5000; tenant.readTimeout = 5000
+            tenant.setRequestProperty("Host", "issue106b-ci.rodada.bar")
+            tenant.setRequestProperty("Authorization", "Bearer " + next.tokens.accessToken)
+            check(tenant.responseCode == 403)
+            val body = org.json.JSONObject(tenant.errorStream.bufferedReader().use { it.readText() })
+            check(body.getString("code") == "HOST_ASSERTION_REQUIRED")
+        } finally { tenant.disconnect() }
         println("NATIVE_VENUE_A_B_READ_POST_ISOLATED")
         val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
         java.io.File(files, "expiry-session-id").writeText(foreign.sessionId)

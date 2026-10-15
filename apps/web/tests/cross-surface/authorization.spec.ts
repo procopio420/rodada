@@ -30,6 +30,13 @@ test("Venue A/B canonical Tab reads and mutations stay isolated through real BFF
     const ownA = await api(page, `tabs/${tab.body.id}/`);
     const ownB = await api(foreign, `tabs/${f.foreign_tab_id}/`);
     expect(ownA.status).toBe(200); expect(ownB.status).toBe(200);
+    // Real localhost BFF signs these fixture-only Host headers using the #130 contract.
+    for (const [client, target, ownHost, wrongHost] of [[page, tab.body.id, f.local_tenant_hosts.a, f.local_tenant_hosts.b], [foreign, f.foreign_tab_id, f.local_tenant_hosts.b, f.local_tenant_hosts.a]] as const) {
+      const own = await client.request.get(`http://127.0.0.1:3110/api/pos/tabs/${target}/`, { headers: { Host: ownHost } });
+      const denied = await client.request.get(`http://127.0.0.1:3110/api/pos/tabs/${target}/`, { headers: { Host: wrongHost } });
+      expect(own.status()).toBe(200); expect(denied.status()).toBe(403);
+      expect((await denied.json()).code).toBe("VENUE_HOST_MISMATCH");
+    }
     const denied = [];
     for (const [client, target, product] of [[page, f.foreign_tab_id, f.foreign_product_id], [foreign, tab.body.id, f.product_id]] as const) {
       const read = await api(client, `tabs/${target}/`);
@@ -114,8 +121,14 @@ test("Guest A/B sessions reject foreign selectors and product IDs without ledger
       }, { selector: tables[index].public_token, foreignSelector: tables[1-index].public_token, foreignProduct: index === 0 ? f.foreign_product_id : f.product_id });
       expect(proof.own.status).toBe(200); expect([401,403]).toContain(proof.deniedRead.status);
       expect(proof.deniedPost.status).toBe(409); expect(proof.deniedPost.body.code).toBe("PRODUCTS_NOT_CONFIRMABLE");
-      tabs.push(proof.own.body.tab.id); denials.push({ get: proof.deniedRead.status, post: proof.deniedPost.status });
+      const ownHost = index === 0 ? f.local_tenant_hosts.a : f.local_tenant_hosts.b;
+      const wrongHost = index === 0 ? f.local_tenant_hosts.b : f.local_tenant_hosts.a;
+      const ownHostRead = await guest.request.get("http://127.0.0.1:3110/api/guest/context/", { headers: { Host: ownHost, "X-Guest-Session": tables[index].public_token } });
+      const wrongHostRead = await guest.request.get("http://127.0.0.1:3110/api/guest/context/", { headers: { Host: wrongHost, "X-Guest-Session": tables[index].public_token } });
+      expect(ownHostRead.status()).toBe(200); expect(wrongHostRead.status()).toBe(404);
+      expect((await wrongHostRead.json()).code).toBe("QR_NOT_FOUND");
+      tabs.push(proof.own.body.tab.id); denials.push({ get: proof.deniedRead.status, post: proof.deniedPost.status, own_host: ownHostRead.status(), wrong_host: wrongHostRead.status() });
     }
-    await writeFile("../../artifacts/guest-isolation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_ids: [f.venue_id, f.foreign_venue_id], tab_ids: tabs, status: "PASS", denials, scope: "local Guest/BFF selectors and product identities; external Host/HMAC routing remains separate #130 gate" }, null, 2));
+    await writeFile("../../artifacts/guest-isolation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_ids: [f.venue_id, f.foreign_venue_id], tab_ids: tabs, status: "PASS", denials, scope: "local Guest/BFF selectors, product IDs and signed Host mismatch; no DNS/production ingress certification" }, null, 2));
   } finally { await Promise.all([...guestContexts, foreignContext].map(context => context.close())); }
 });

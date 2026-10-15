@@ -85,7 +85,12 @@ def extend_resilience(path):
     VenueStaffMembership.objects.create(venue=foreign, staff_member=foreign_staff, role="MANAGER")
     foreign_product = Product.objects.create(venue=foreign, name="Foreign control item", price_cents=300, fulfillment_station="BAR")
     foreign_tab = Tab.objects.create(venue=foreign, display_label="Foreign control Tab", **snapshot(foreign.pk))
-    data.update(other_staff_id=str(other.pk), race_tables={k:str(t.pk) for k,t in tables.items()},
+    # Only local Host headers use these records; no DNS/hosting/provider operation occurs.
+    from modules.venue.models import VenueDomain
+    hosts = {"a":"issue106a-ci.rodada.bar", "b":"issue106b-ci.rodada.bar"}
+    for host, owner in ((hosts["a"],venue),(hosts["b"],foreign)):
+        VenueDomain.objects.create(hostname=host,venue=owner,is_active=True,is_verified=True)
+    data.update(local_tenant_hosts=hosts, other_staff_id=str(other.pk), race_tables={k:str(t.pk) for k,t in tables.items()},
                 claim_occupancy_id=str(claim_visit.pk), foreign_venue_id=str(foreign.pk),
                 foreign_tab_id=str(foreign_tab.pk), foreign_product_id=str(foreign_product.pk))
     path.write_text(json.dumps(data, indent=2) + "\n")
