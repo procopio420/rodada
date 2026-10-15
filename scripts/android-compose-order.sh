@@ -12,7 +12,31 @@ if [[ -n "${ANDROID_SERIAL:-}" ]]; then ADB+=(-s "$ANDROID_SERIAL"); fi
 "${ADB[@]}" install -r apps/attendance-android/app/build/outputs/apk/debug/app-debug.apk
 "${ADB[@]}" install -r apps/attendance-android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 export RODADA_COMPOSE_TAB_LABEL="Android-Compose-acceptance-$("$PYTHON" -c 'import uuid; print(uuid.uuid4().hex[:12])')"
+export PYTHONPATH="$ROOT/apps/api"
 mkdir -p artifacts
+mode="${RODADA_COMPOSE_CATALOG_FAULT:-false}"
+if [[ "$mode" == true ]]; then
+  "${ADB[@]}" shell am force-stop com.rodada.attendance
+"${ADB[@]}" shell pm clear com.rodada.attendance
+"${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true \
+  -e tabLabel "$RODADA_COMPOSE_TAB_LABEL" -e class com.rodada.attendance.operations.LiveComposeOrderTest \
+  com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner > artifacts/android-catalog-instrumentation.txt &
+instrument_pid=$!
+trap '"$PYTHON" scripts/issue106-catalog-fault.py restore; kill "$instrument_pid" 2>/dev/null || true' EXIT
+for i in $(seq 1 90); do
+  if "${ADB[@]}" shell run-as com.rodada.attendance test -f files/catalog-cart-ready; then break; fi
+  if [[ "$i" == 90 ]]; then echo "Compose cart did not become ready"; exit 1; fi
+  sleep 1
+done
+"$PYTHON" scripts/issue106-catalog-fault.py unavailable
+"${ADB[@]}" shell run-as com.rodada.attendance touch files/catalog-fault-applied
+wait "$instrument_pid"
+  grep -q 'OK (1 test)' artifacts/android-catalog-instrumentation.txt
+  "$PYTHON" scripts/issue106-catalog-fault.py verify
+  "${ADB[@]}" exec-out screencap -p > artifacts/android-catalog-rejected.png
+  "${ADB[@]}" shell am force-stop com.rodada.attendance
+  exit 0
+fi
 "${ADB[@]}" shell am force-stop com.rodada.attendance
 "${ADB[@]}" shell pm clear com.rodada.attendance
 "${ADB[@]}" shell am instrument -w -e liveCompose true \

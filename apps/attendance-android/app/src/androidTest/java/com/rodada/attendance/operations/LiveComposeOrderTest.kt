@@ -42,7 +42,20 @@ class LiveComposeOrderTest {
         waitText("Ver pedido atual · 2 itens · R$ 17,00")
         compose.onNodeWithTag("workspace-Pedido atual").performClick()
         waitText("Confirmar pedido")
+        val fault = InstrumentationRegistry.getArguments().getString("catalogFault") == "true"
+        if (fault) {
+            // Host controls only the real backend fault; all order actions remain Compose taps.
+            val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
+            java.io.File(files, "catalog-cart-ready").writeText("ready")
+            compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
+        }
         compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo().performClick()
+        if (fault) {
+            compose.waitUntil(30_000) { compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty() &&
+                compose.onAllNodes(hasText("Um ou mais itens não podem mais ser confirmados.", substring = true)).fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithTag("workspace-Pedido atual").assertExists()
+            return
+        }
         waitText("Pedido confirmado pelo servidor.")
         compose.onNodeWithTag("workspace-Conta").performClick()
         compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
