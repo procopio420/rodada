@@ -118,7 +118,7 @@ export function OrderWorkspace({ tableMode = false, requestedTabSequence = 0, cr
       setSuccess("Pedido confirmado."); setMessage("");
     };
   });
-  const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); } onRecoveryNeeded?.(); });
+  const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); setDialogView("draft"); } onRecoveryNeeded?.(); });
   useEffect(() => { onPendingChange?.(!orderIntent.ready || orderIntent.busy || !!orderIntent.pending || correctionPending || cashPending || selecting || opening || repeatLoading || !!repeatReview); }, [confirming, orderIntent.pending, orderIntent.busy, orderIntent.ready, correctionPending, cashPending, selecting, opening, repeatLoading, repeatReview, onPendingChange]);
   useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) queueMicrotask(() => revealRecoveredDraft()); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
   useEffect(() => {

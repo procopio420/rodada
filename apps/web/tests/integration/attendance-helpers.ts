@@ -16,6 +16,8 @@ export async function openNamedAttendanceTab(page: Page, label: string) {
     };
   });
   await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  // The unified search persists between tab visits. Show the newly seeded table.
+  await page.getByLabel("Buscar mesa ou comanda").fill("");
   if (contextual) {
     const tableLabel = `Fixture ${label}`;
     execFileSync(process.env.RODADA_TEST_PYTHON!, ["-c", `import os,sys
@@ -65,7 +67,8 @@ export async function selectExistingAttendanceTab(page: Page, label: string) {
     await page.locator(`#attendance-table-${located.tableId} .attendanceTableSummary`).click();
     await page.locator(`button[data-tab-id="${located.tabId}"]`).click();
   } else {
-    await page.getByRole("region", { name: "Outras comandas" }).locator(`button.attendanceTabOption`).filter({ hasText: label }).click();
+    // Homonymous labels are legitimate; select the exact canonical Tab reference.
+    await page.getByRole("region", { name: "Outras comandas" }).locator("button.attendanceTabOption").filter({ hasText: located.tabId.slice(0, 8).toUpperCase() }).click();
   }
   await expect(popup).toBeVisible();
   return located.tabId;

@@ -11,10 +11,12 @@ import django; django.setup()
 from django.conf import settings
 assert settings.DATABASES['default']['NAME']=='rodada_web_e2e'
 from modules.ordering.models import Tab
+from modules.ordering.search import normalize_tab_label
 from modules.venue.models import Venue
 v=Venue.objects.get(slug='web-e2e')
 assert not Tab.objects.filter(venue=v).exists()
-Tab.objects.bulk_create([Tab(venue=v,display_label=f'Pagination test {i}') for i in range(201)])
+# bulk_create bypasses model.save(); populate the canonical search index explicitly.
+Tab.objects.bulk_create([Tab(venue=v,display_label=f'Pagination test {i}',search_label=normalize_tab_label(f'Pagination test {i}')) for i in range(201)])
 `], { cwd: resolve("../api"), env: process.env });
 
   await page.goto("/attendance");

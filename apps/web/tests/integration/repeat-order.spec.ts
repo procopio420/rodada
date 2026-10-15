@@ -49,7 +49,10 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/^Anterior:/)).toContainText("10,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("12,00");
-  await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.locator("article")).toHaveCount(1);
+  await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
+  await expect(draft.locator("article")).toHaveCount(1);
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   await repeat.click();
   const add = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
   await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
@@ -68,8 +71,8 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   });
   await add.dblclick();
   await expect(dialog).toHaveCount(0);
-  await expect(draft.locator("article")).toHaveCount(1);
   await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
+  await expect(draft.locator("article")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(`historical-${width}`);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
