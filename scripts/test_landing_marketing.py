@@ -45,7 +45,10 @@ class LandingMarketingTest(unittest.TestCase):
         pics = [attrs for tag, attrs in self.elements if tag == "img"]
         self.assertGreaterEqual(len(pics), 4)
         for pic in pics:
-            self.assertTrue(pic.get("alt", "").strip(), pic)
+            if pic.get("aria-hidden") == "true":
+                self.assertEqual(pic.get("alt"), "", pic)
+            else:
+                self.assertTrue(pic.get("alt", "").strip(), pic)
             src = pic["src"]
             self.assertTrue(src.startswith("/"), src)
             self.assertTrue((LANDING / src.removeprefix("/")).is_file(), src)
