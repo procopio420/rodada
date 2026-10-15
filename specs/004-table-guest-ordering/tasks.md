@@ -110,3 +110,12 @@ Contrato: [management-tables.md](management-tables.md). Implementar serviço tra
 - [ ] Revisão independente R3 e merge condicionado a CI verde; então fechar #148.
 
 A inclusão de testes **não comprova execução**; não marcar validações com base em código ou PR.
+
+
+### #145 — TableGroup (branch `codex/issue-145-table-groups`)
+
+- [x] Domínio/modelagem, migration, grupos/membros exclusivos e auditoria implementados.
+- [x] API protegida, projeções staff/Guest e tela para criar/desfazer grupos implementadas.
+- [x] Testes de isolamento, autorização, replay, integridade financeira e concorrência PostgreSQL escritos.
+- [ ] Executar testes de API/PostgreSQL, migrações/qualidade, Web integration/visual e CI do HEAD final.
+- [ ] Corrigir findings em revisão independente R3 e aceitar/mergear; só então fechar #145.
