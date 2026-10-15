@@ -145,3 +145,73 @@ CI de seus SHAs e main; não transfere nem reduz o critério de borda.
 [Checkpoint #151](railway-151-checkpoint.md) records the fresh public HTTPS
 observations at base `bbaa147` and remaining operational gates. It does not
 supersede the original separate-preview criterion or the audit evidence below.
+
+## PR #159 — provisionamento e contenção seguros, 2026-10-15 UTC
+
+Código congelado/revisado: `ca2e0903a27b49320c20d3e18c8772f97327eb30`,
+base main `47043184408c090ddae33df17d4d72010603f764` após integração concorrente
+do PR #118. Branch `ops/spec025-qa-bootstrap-safe`, [PR159](https://github.com/procopio420/rodada/pull/159).
+O head final e seus gates são registrados no PR; commits documentais posteriores
+não alteram as árvores API testadas. Não extrapolar CI do head antigo `a04e5b9`.
+
+| Controle | Implementação/teste | Falha comprovada antes | Resultado e ambiente |
+| --- | --- | --- | --- |
+| Provisão inerte | `provision_spec025_ab`, `test_provision_does_not_enable_shared_api_login_before_activation` | Login nativo QA era permitido antes da ativação | PASS local: novos memberships SUSPENDED; ativação explícita restaura somente gestor reservado |
+| Contenção de todos operadores QA | `test_containment_suspends_other_local_operators_without_affecting_foreign_access` | Segundo operador local permanecia ACTIVE e podia renovar acesso | PASS local: todos vínculos ACTIVE locais suspensos, versão/invalidation, sessões revogadas; acesso estrangeiro preservado |
+| Colisão concorrente | `test_committed_foreign_login_claim_after_preflight_aborts_entire_provision` | Identidade estrangeira criada/commitada após preflight recebia MANAGER QA | PASS local: resultados reais revalidados sob locks; rollback integral A/B, vínculo estrangeiro intacto |
+| Idempotência/serialização | `test_parallel_provision_is_idempotent_on_postgresql` e teste de repetição/piloto | Ausência de lock para namespace ainda inexistente | PASS local: advisory transaction lock; dois comandos produzem dois Venues, gestores, aliases, mesas e eventos de provisão, sem duplicação |
+| Corrida com autenticação | Testes `test_containment_refuses_inflight_login_atomically_then_retry_revokes_it` e `test_containment_refuses_inflight_operator_switch_then_revokes_both_sessions` | DeadlockDetected reproduzido entre login e containment antes do patch | PASS local: NOWAIT/no_key, SQLSTATE55P03 vira REFUSE após rollback inteiro; retry contém sessões criadas pela operação concluída |
+| Sessões/ASGI/SSE | `test_containment_ends_live_asgi_staff_guest_streams_and_denies_reconnect`, dois Venues e dois modos Host/native | Cobertura operacional do comando não existia | PASS local: quatro streams staff/guest ativos por caso encerram revoked, reconnect negado; QR novo e tokens antigos negados após containment |
+| Estado reportado | `test_reprovision_after_activation_reports_preserved_state` | Rerun em aliases ativos anunciava inatividade | PASS local: estado preservado reportado corretamente; IDs/PIN hashes não rotacionados |
+| Credenciais QA | `test_provision_rejects_shared_pin_before_writing` | PINs iguais não eram rejeitados | PASS local: PINs distintos exigidos antes das escritas; entropia aleatória continua obrigação operacional |
+
+Executado em PostgreSQL **17.11**, container local exclusivo `rodada159-audit-pg`,
+porta **127.0.0.1:55539**, banco de teste descartável, sem dados do piloto:
+
+```bash
+cd apps/api
+# POSTGRES_* apontam exclusivamente para o container descartável acima.
+python -m pytest tests/test_spec025_qa_provisioning.py \
+  tests/test_spec025_host_security.py tests/test_spec025_domain_lifecycle.py \
+  tests/test_spec025_sse_stream_isolation.py tests/test_spec025_audit_matrix.py \
+  tests/test_railway_runtime_profile.py --ds=rodada_api.settings \
+  --tb=short --reuse-db -o addopts='' -q
+```
+
+**67 passed / 56.91s** (inclui 16 regressões de provisão/contenção).
+Complemento posterior apenas de testes: colisões de hostname e slug
+commitadas por outra conexão após preflight também preservam o proprietário
+estrangeiro e revertem A/B. Suíte final do comando: **18 passed / 24.80s**,
+mesmo código de implementação, sem alterar serviços ou infraestrutura.
+Django check:0 issues; migration drift:no changes; Ruff:0 findings;
+`git diff --check` e KB check PASS. Antes das correções, quatro regressões
+falharam no candidato antigo; o teste adicional de corrida reproduziu deadlock
+antes de NOWAIT. Falhas de fixture SSE sem cursor foram corrigidas enviando o
+cursor canônico, sem alterar o serviço nem remover assertions de segurança.
+Revisor independente `/root/review_159`, contexto próprio sem autoria:
+**INDEPENDENT/R3/NO_FINDINGS_WITH_GAPS** em ca2e0903, sem P0/P1/P2 reproduzível;
+somente leitura e diff check executados pelo revisor, sem autoaprovação GitHub.
+
+Revalidação pública nesta execução: DNS A/B/unknown/piloto/API via Cloudflare;
+TLS validado por hostname, SAN `*.rodada.bar`/`rodada.bar`, expiração
+2027-01-11T17:35:11Z. A/B e unknown retornam **421** em root/manifest/context,
+inclusive com forwarded/BFF headers falsificados. Script obrigatório em **A e B**:
+**exit22/HTTP421** no manifest. Aderlan health/ready/staff/context200; contexto
+público permanece `Bar do Aderlan` sob headers forjados. API compartilhada
+health/ready200, auth/me anônimo401; landing200/TLS válido. Esses são smokes
+anônimos, não prova autenticada de pedido, dinheiro, SSE, Android ou stripping
+de headers privados. Prova da origem Railway/SSL mode segue NOT TESTED.
+
+GitHub deployment `7080524766` reporta main4704318 SUCCESS em
+`rodada-aderlan-demo-20261009 / demo` (2026-10-15T00:23:30Z), confirmando o vínculo
+GitHub→Railway. Não revela ID Railway/runtime/variáveis/backups. Railway CLI
+**5.68.0** instalado; `whoami` inicialmente Unauthorized; autenticação oficial
+browserless solicitada, não concluída nesta fotografia. Discovery do conector
+informa Railway não instalado nesta sessão; nenhum MCP Railway disponível.
+Comando de backup confirmado via help oficial:
+`railway postgres pitr backup create --project <project> --environment demo --service <postgres-confirmed> --name pre-spec025-ab`.
+**NOT RUN**: inventário privado/SSH, backup on-demand, recuperação verificada,
+provision/activate/deactivate remoto, flag, homologação habilitada e rollback
+operacional. Não houve escrita operacional, mudança DNS/proxy, criação de
+infraestrutura, pagamentos reais nem exposição PostgreSQL. #151/#130 permanecem
+OPEN; exceção ao preview fisicamente separado exige decisão formal, não inferida.

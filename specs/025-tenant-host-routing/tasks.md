@@ -27,6 +27,22 @@
 
 ## Existing Railway homologation #151 — controlled preparation
 
+Fresh PR159 checkpoint (2026-10-15 UTC), codeca2e0903:
+[executed evidence](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
+
+- [x] Correct independently reviewed provisioning/containment findings test-first:
+  foreign concurrent identity claim, all QA memberships, initial suspension,
+  accurate repeat output and auth lock inversion.
+- [x] Execute 67 focused PostgreSQL17.11 tests after merging main4704318 into
+  the candidate; staff/guest ASGI streams and native API containment included.
+- [x] Independent R3 review of aggregate ca2e0903: no reproducible P0/P1/P2.
+- [x] Install Railway CLI5.68.0 and prepare official login/SSH/backup commands.
+- [ ] Complete Railway login and fresh private inventory; CLI Unauthorized
+  at start, connector not installed in this executor. No operational writes.
+- [ ] Final PR159 API/Web/KB CI, merge, deployment verification and backup/restore.
+- [ ] Operational A/B provisioning, real enabled edge proof, controlled flag
+  approval, rollback and formal preview exception (if required). #151/#130 OPEN.
+
 - [x] Fresh main/source and public DNS/TLS/HTTP revalidation; [checkpoint](railway-151-checkpoint.md).
 - [x] Prepare seed opt-out and fail-closed preflight to preserve Aderlan on shared
   runtime restart; test-first 19 profile cases and independent R3 review.
