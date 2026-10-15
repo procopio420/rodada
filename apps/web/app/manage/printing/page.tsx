@@ -1,5 +1,6 @@
 "use client";
 
+import { PrintAgents } from "@/components/print-agents";
 import { OperationalHeading } from "@/components/operational-heading";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -29,6 +30,7 @@ export default function PrintingManagement() {
   }
   return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="printer">Impressoras e trabalhos</OperationalHeading><Link className="backLink" href="/manage">Voltar à Gerência</Link></header>
     {message && <p className="notice" data-state="danger" role="alert">{message}</p>}
+    <PrintAgents />
     <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>{endpoints.map(endpoint => <div className="dataRow" key={endpoint.id}><div><strong>{endpoint.label}</strong><p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"} · {endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p><p>Bridge: {endpoint.bridge_status}</p><p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p></div><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button></div>)}<button className="buttonSecondary" onClick={() => edit()}>Novo destino</button></section>
     <form className="panel" onSubmit={event => { event.preventDefault(); void mutate("endpoints/", { ...(editing ? { id: editing } : {}), label, adapter, width_mm: width, connection_ref: reference, stations, enabled, cut_supported: cut }); }}>
       <OperationalHeading as="h2" icon="printer">{editing ? "Configurar destino" : "Novo destino"}</OperationalHeading><div className="field"><label>Nome<input required value={label} maxLength={120} onChange={e => setLabel(e.target.value)} /></label></div>

@@ -75,12 +75,8 @@ class SubmissionResult:
 
 
 class PrinterDriver(Protocol):
-    def render(
-        self, text: str, capabilities: PrinterCapabilities
-    ) -> RenderedOutput: ...
+    def render(self, text: str, capabilities: PrinterCapabilities) -> RenderedOutput: ...
 
 
 class PrinterTransport(Protocol):
-    def submit(
-        self, output: RenderedOutput, *, attempt_token: str
-    ) -> SubmissionResult: ...
+    def submit(self, output: RenderedOutput, *, attempt_token: str) -> SubmissionResult: ...

@@ -1,13 +1,13 @@
 # Tasks — Spec 028
 
-**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
+**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
 **Legend:** [ ] = pending. Writing a spec does not count as implementing an item.
 
 ## Tracking por slice (um PR de implementação por slice)
 
-Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está implementada no PR #149, ainda aguardando CI/aprovação; S2–S7 continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
+Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está integrada pelo PR #149; S2 está implementada no PR #155, aguardando gates/aprovação; S3–S7 continuam pendentes**. Não fechar slice apenas por abrir PR ou por CI verde: anexar evidências dos contratos em acceptance.md, SHA e ambiente.
 
-- [ ] **S1 — Foundation:** schema/API/Access/credencial de máquina/isolamento/compatibilidade da Spec 015. Gate: acceptance **3 (parcial), 12, 15**; testes de migrations, permissão e regressão bridge; sem instalador.
+- [x] **S1 — Foundation:** schema/API/Access/credencial de máquina/isolamento/compatibilidade da Spec 015. Gate: acceptance **3 (parcial), 12, 15**; testes de migrations, permissão e regressão bridge; sem instalador.
 - [ ] **S2 — Pairing:** serviço Windows inicial, proof-of-possession, pareamento Manager/Owner no Manage, heartbeat e revogação. Gate: acceptance **2, 3, 13 (start no Windows)**; teste de código vencido/replay e host sem usuário logado.
 - [ ] **S3 — Printing MVP:** um PC -> uma rota -> printer endpoint, WinSpool/ESC-POS ou WindowsDriver, job da Spec 015 até SPOOL_ACCEPTED. Gate: acceptance **4, 5 (parcial), 8 (básico), 9, 10, 11, 15**; mocks Windows e teste E2E sem hardware obrigatório.
 - [ ] **S4 — Multiagent:** múltiplos computadores/rotas e claim com lease/fencing; failover pré-envio e sem reenvio incerto. Gate: acceptance **5, 6, 7, 10, 12**; corrida real PostgreSQL + dois agentes simulados.
@@ -20,10 +20,10 @@ Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está impleme
 ## Contracts / backend
 - [x] Trace Spec 015 state/route APIs and freeze backwards compatibility for legacy bridge (S1 evidence in s1-foundation.md).
 - [x] Add scoped PrintAgent identity (Access), lifecycle and audit migrations (S1).
-- [ ] Implement pairing start/status/approval: high-entropy single-use expiring codes, proof of possession, throttling and Venue membership.
+- [x] Implement pairing start/status/approval: high-entropy single-use expiring codes, proof of possession, throttling and Venue membership.
 - [x] Implement device-scoped credential issue/rotation/revocation and dedicated API authentication; never reuse staff refresh token (S1; provisioning via pairing is S2).
 - [ ] Add discovered devices and AgentPrinterRoute, route profile/capability/version CAS, schema+indexes+retention.
-- [ ] Implement agent heartbeat/version and manager status APIs without conflating physical printer health.
+- [x] Implement agent heartbeat/version and manager status APIs without conflating physical printer health.
 - [ ] Implement agent-limited claim/results using existing PrintJob lease/attempt token and mapping checks.
 - [ ] Preserve PrintJob initial production uniqueness across endpoints; no double print when multiple agents can reach one endpoint.
 - [ ] Fault handling for pre-send error, ambiguous submit, interrupted result, revoked device and route move during send.
@@ -32,7 +32,7 @@ Estes itens de tracking agregam as tarefas detalhadas abaixo; **S1 está impleme
 
 ## Windows agent
 - [x] Standalone typed contracts and interfaces at apps/printer-agent, with contract parity test; no Django model dependencies (S1; no runtime service yet).
-- [ ] Windows Service + optional local wizard/status window, no logged-in desktop session requirement.
+- [x] Windows Service + optional local wizard/status window, no logged-in desktop session requirement (S2; Windows CI session 0).
 - [ ] Installer setup/remove/repair + machine-scope DPAPI secrets/ACL and safe unpair.
 - [ ] Windows Print Spooler printer/queue enumeration in service context.
 - [ ] WinSpool GDI/raster WindowsDriver (non-RAW), print preview/test page and status normalization.

@@ -1,0 +1,37 @@
+name: Printer Agent
+on:
+  pull_request:
+    paths:
+      - "apps/printer-agent/**"
+      - ".github/workflows/printer-agent.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/printer-agent/**"
+      - ".github/workflows/printer-agent.yml"
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  windows-service:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install development service dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -e "apps/printer-agent[dev]"
+          python "$env:pythonLocation/Scripts/pywin32_postinstall.py" -install
+      - name: Lint and strict types
+        run: |
+          python -m ruff check apps/printer-agent
+          python -m mypy --strict apps/printer-agent/rodada_printer_agent
+      - name: Worker and network fault tests
+        run: python -m pytest apps/printer-agent/tests/test_worker.py -q
+      - name: Noninteractive Windows service, DPAPI and ACL
+        run: python apps/printer-agent/tests/windows_smoke.py

@@ -19,7 +19,11 @@ valid print.manage session in the same Venue. Issuance requires a paired/trusted
 agent and enabled Venue flag. The raw secret is returned once, never persisted;
 rotation invalidates the previous token, credentials expire after 30 days, and
 revocation preserves audit/routes/history. No public issuance or staff conversion
-endpoint exists. PoP pairing and protected Windows delivery/storage are S2.
+endpoint exists. S2 adds proof-of-possession bootstrap and manager approval;
+only the requesting installation can recover its credential before activation.
+The Windows service stores machine credentials with DPAPI and a service-SID ACL.
+Heartbeat reports agent connectivity only; no printer outcome is inferred.
+See specs/028-windows-printer-agent/s2-pairing.md for protocol and operations.
 
 `configure_route` is management-only CAS metadata with audit. Route execution is
 not enabled in S1; enabling a flag does not start any printing or KDS fallback.

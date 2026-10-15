@@ -1,7 +1,7 @@
 # Acceptance — Spec 028
 
-**S1 em implementação:** ver [contrato, auditoria e evidências](s1-foundation.md). Os slices S2–S7 continuam pendentes; nenhum agente Windows ou instalador foi entregue.
-**Status:** S1 technical evidence below; CI/merge pending. Remaining Windows/hardware scenarios pending.
+**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
+**Status:** S1 evidence below is historical; CI passed and merge confirmed (2a04379). S2 evidence: s2-pairing.md and PR #155. Remaining printing/distribution/hardware scenarios pending.
 
 ## Matriz de cobertura por slice
 
