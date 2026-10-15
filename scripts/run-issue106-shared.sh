@@ -9,7 +9,7 @@ export PYTHONPATH="$ROOT/apps/api" DJANGO_SETTINGS_MODULE=rodada_api.settings
 export DJANGO_SECRET_KEY=issue106-disposable-only DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2
 export RODADA_BFF_HOST_SECRET=rodada-integration-local-only RODADA_API_BASE_URL=http://127.0.0.1:8101
 "$PYTHON" -c 'import sys;sys.path.insert(0,"scripts");from cross_surface_fixture import require_disposable_database;require_disposable_database();import django;django.setup();from django.db import connection;from cross_surface_fixture import require_connected_database;require_connected_database(connection)'
-if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then echo 'Commit source changes before an exact-SHA run'; exit 2; fi
+if [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then echo 'Commit source changes before an exact-SHA run'; exit 2; fi
 : "${RODADA_POST_DROP_FIXTURE:?Set a unique absolute fixture path}"
 : "${RODADA_POST_DROP_MARKER:?Set a unique absolute fault marker path}"
 [[ ! -e "$RODADA_POST_DROP_FIXTURE" && ! -e "$RODADA_POST_DROP_MARKER" ]] || { echo 'Existing evidence paths: use fresh paths, never overwrite a prior run'; exit 2; }
@@ -25,7 +25,18 @@ command -v adb >/dev/null
 mkdir -p artifacts
 run_id="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 run_dir="$ROOT/artifacts/runs/$run_id"
-mkdir -p "$run_dir"
+mkdir -p "$run_dir/preexisting"
+# Preserve earlier evidence before producers use their compatible fixed paths.
+# Moving it aside creates a fresh capture boundary without deleting any history.
+"$PYTHON" - "$run_dir/preexisting" <<'PYARCHIVE'
+from pathlib import Path
+import shutil,sys
+out=Path(sys.argv[1])
+for pattern in ('*.json','*-instrumentation.txt','android-compose-*.png'):
+    for path in Path('artifacts').glob(pattern): shutil.move(str(path),out/path.name)
+for path in (Path('artifacts/sanitized-traces'),Path('apps/web/test-results/android-cross-surface'),Path('apps/web/test-results/android-cross-financial')):
+    if path.exists(): shutil.move(str(path),out/path.name)
+PYARCHIVE
 api_pid= proxy_pid= web_pid=
 step=preflight
 cleanup() {
@@ -40,10 +51,14 @@ import json,subprocess,sys,shutil
 from pathlib import Path
 out=Path(sys.argv[1]);code=int(sys.argv[2])
 sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+import os
+fixture_path=Path(os.environ['RODADA_POST_DROP_FIXTURE'])
+fixture=json.loads(fixture_path.read_text()) if fixture_path.exists() else {}
+instance=fixture.get('database_instance_id')
 for path in Path('artifacts').glob('*.json'):
     try: receipt=json.loads(path.read_text())
     except ValueError: continue
-    if receipt.get('sha') == sha: shutil.copy2(path,out/path.name)
+    if instance and receipt.get('sha') == sha and receipt.get('database_instance_id') == instance: shutil.copy2(path,out/path.name)
 for pattern in ('*-instrumentation.txt','android-compose-confirmed.png'):
     for path in Path('artifacts').glob(pattern): shutil.copy2(path,out/path.name)
 if Path('artifacts/sanitized-traces').exists(): shutil.copytree('artifacts/sanitized-traces',out/'sanitized-traces',dirs_exist_ok=True)

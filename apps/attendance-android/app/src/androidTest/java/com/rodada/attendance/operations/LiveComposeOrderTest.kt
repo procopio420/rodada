@@ -27,17 +27,9 @@ class LiveComposeOrderTest {
         compose.onNodeWithText("Entrar").performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-order").assertIsEnabled().performClick()
-        waitText("Nova comanda sem mesa")
-        try {
-            compose.waitUntil(30_000) { compose.onAllNodes(hasText("Nova comanda sem mesa") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
-        } catch (failure: Throwable) {
-            val instrumentation = InstrumentationRegistry.getInstrumentation()
-            val file = java.io.File(instrumentation.targetContext.getExternalFilesDir(null), "issue106-ui-failure.png")
-            java.io.FileOutputStream(file).use { output -> instrumentation.uiAutomation.takeScreenshot().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output) }
-            println(compose.onAllNodes(isRoot()).printToString(maxDepth = 100))
-            throw failure
-        }
-        compose.onNodeWithText("Nova comanda sem mesa").assertIsEnabled().performClick()
+        val newTab = hasText("Nova comanda sem mesa") and hasAnyAncestor(isDialog())
+        compose.waitUntil(30_000) { compose.onAllNodes(newTab and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(newTab).assertIsEnabled().performClick()
         waitText("Nome ou apelido (opcional)")
         compose.onNodeWithText("Nome ou apelido (opcional)").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
