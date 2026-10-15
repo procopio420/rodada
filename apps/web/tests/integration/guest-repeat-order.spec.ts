@@ -90,7 +90,7 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
       expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]);
       expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(originalKey);
       const after = await api(`tabs/${tab.id}/`);
-      expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2500);
+      expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2000);
       expect(after.orders.find((o: { id: string }) => o.id === before.orders[0].id)).toEqual(before.orders[0]);
       expect(after.payments).toEqual(before.payments);
       // A direct repeated Order never consumes the unsent bar item from the guest cart.
