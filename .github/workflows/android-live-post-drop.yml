@@ -16,6 +16,10 @@ on:
       - "scripts/verify-android-compose-order.py"
       - "scripts/verify-qr-lifecycle.py"
       - "scripts/verify-browser-origins.py"
+      - "scripts/run-issue106-concurrency.py"
+      - "scripts/verify-issue106-concurrency.py"
+      - "scripts/verify-issue106-authorization.py"
+      - "scripts/verify-issue106-sse.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
@@ -81,6 +85,7 @@ jobs:
       - name: Prepare fixture against the inspected disposable PostgreSQL service
         run: |
           python scripts/verify-android-live-post-drop.py prepare
+          python scripts/verify-android-live-post-drop.py prepare-resilience
       - name: Start real Django and TCP response-drop proxy
         shell: bash
         run: |
@@ -98,6 +103,8 @@ jobs:
           done
           cat /tmp/rodada-android-django.log /tmp/rodada-android-fault-proxy.log
           exit 1
+      - name: Shared PostgreSQL concurrent HTTP commands through the existing barrier harness
+        run: python scripts/run-issue106-concurrency.py
       - name: Install compile SDK 37 and Android emulator prerequisites
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
@@ -154,6 +161,9 @@ jobs:
           python scripts/verify-android-web-cross-surface.py
           python scripts/verify-qr-lifecycle.py
           python scripts/verify-browser-origins.py
+          python scripts/verify-issue106-concurrency.py
+          python scripts/verify-issue106-authorization.py
+          python scripts/verify-issue106-sse.py
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -187,6 +197,10 @@ jobs:
             artifacts/android-compose-*.png
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
+            artifacts/concurrency-*.json
+            artifacts/isolation-*.json
+            artifacts/revocation-*.json
+            artifacts/sse-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
