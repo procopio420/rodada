@@ -436,3 +436,13 @@ entram no rascunho e podem ser alterados em Editar antes de Enviar.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+## TABLE-011 — Agrupamento físico temporário (#145)
+
+Um gerente/staff com `TABLE_MANAGE` pode criar um `TableGroup` entre 2 e 20 Tables do mesmo Venue, com rótulo opcional. Apenas mesas ativas no inventário (não `OUT_OF_SERVICE`) podem entrar. Uma Table não participa de dois grupos simultâneos; o banco garante exclusividade apenas nas memberships ativas.
+
+- Agrupamentos são **físicos**, não consolidam QR, TableOccupancy, GuestSession, Tab, Order, Ledger ou pagamentos. Agrupar mesas ocupadas não funde visitas; desfazer também preserva seus estados.
+- `POST /hospitality/table-groups/` recebe `table_ids`, `label` e `request_key` UUID. O par Venue + Staff + request_key é durável e replay-safe; reuse com corpo diferente produz 409. Mesas são bloqueadas em ordem de ID, conflitos produzem 409.
+- `GET /hospitality/table-groups/` lê apenas grupos ativos do Venue. `POST /hospitality/table-groups/<id>/dissolve/` desfaz com segurança e repetição é idempotente. Alterações têm `created_by/dissolved_by`, timestamps e AuditEvents por mudança real, sem apagar o histórico.
+- O inventário staff projeta um `group` com as mesas associadas. Guest vê **somente** nomes físicos do grupo da própria Table, sem IDs internos, ocupações ou estado das outras mesas.
+- O rótulo de grupo não é identificador financeiro nem autorização. A integração futura do FloorPlan #144 pode ler memberships, mas não deve recriá-las nem mover Tabs.
