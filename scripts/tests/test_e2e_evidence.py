@@ -35,6 +35,11 @@ class EvidenceContractTests(unittest.TestCase):
             "scenarios": [{"id": sid, "sha": SHA, "database_instance_id": "isolated-unit-fixture", "status": "PASS", "reason": "synthetic contract example", "dependencies": [], "task_ids": ["F5", "F7"], "command": "not executed", "run_url": "https://example.invalid/synthetic", "branch": "synthetic", "pr": "synthetic", "started_at": "synthetic", "finished_at": "synthetic", "surfaces": sorted(gate.SURFACES), "canonical_ids": {"venue": ["synthetic-venue"], "tab": ["synthetic-tab", "synthetic-tab-2"], "order": ["synthetic-order"], "order_item": ["synthetic-item"], "charge": ["synthetic-charge"]}, "artifact_refs": list(artifacts), "sql": {"independent": True, "status": "PASS", "command": "not executed", "artifact_ref": "independent-sql"}} for sid in sorted(gate.SCENARIOS)],
         }
 
+    def test_missing_runtime_metadata_cannot_authorize_go(self):
+        for value in ("NOT_AVAILABLE", "emulator API NOT_AVAILABLE"):
+            self.proof["versions"]["android"] = value
+            self.assertIn("all runtime versions required", gate.validate(self.proof, self.root, SHA))
+
     def test_complete_synthetic_contract_shape(self):
         self.assertEqual([], gate.validate(self.proof, self.root, SHA))
 

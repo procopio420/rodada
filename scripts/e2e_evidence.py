@@ -34,7 +34,7 @@ def validate(document, root, expected_sha):
     if database.get("engine") != "postgresql" or database.get("disposable") is not True or not nonempty(database.get("instance_id")):
         errors.append("shared disposable PostgreSQL instance required")
     versions = document.get("versions", {})
-    if not isinstance(versions, dict) or any(not nonempty(versions.get(key)) for key in ("android", "browser", "django", "postgresql", "nextjs")):
+    if not isinstance(versions, dict) or any(not nonempty(versions.get(key)) or "NOT_AVAILABLE" in str(versions.get(key)).upper() for key in ("android", "browser", "django", "postgresql", "nextjs")):
         errors.append("all runtime versions required")
     artifacts = document.get("artifacts", {})
     if not isinstance(artifacts, dict):

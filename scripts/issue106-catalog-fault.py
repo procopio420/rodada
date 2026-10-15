@@ -30,8 +30,8 @@ else:
     assert not Order.objects.filter(tab=tab).exists()
     assert not Charge.objects.filter(tab=tab).exists() and not Payment.objects.filter(tab=tab).exists()
     original=json.loads(Path("artifacts/android-compose-order.json").read_text())
-    assert original["database_instance_id"]==f["database_instance_id"]
-    assert Order.objects.filter(pk=original["original_order_id"],tab_id=original["original_tab_id"]).count()==1
+    assert original["database_instance_id"]==f["database_instance_id"] and original["venue_id"]==f["venue_id"]
+    assert Order.objects.filter(pk=original["original_order_id"],tab_id=original["original_tab_id"],tab__venue_id=f["venue_id"]).count()==1
     assert {str(c.pk) for c in Charge.objects.filter(tab_id=original["original_tab_id"])}==set(original["charge_ids"])
     assert sum(Charge.objects.filter(tab_id=original["original_tab_id"]).values_list("amount_cents",flat=True))==1700
     prefix=os.environ.get("RODADA_CATALOG_PROOF_PREFIX","android-catalog")
