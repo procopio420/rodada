@@ -378,7 +378,13 @@ class OperationsViewModel(
         val retainedPayment = records.filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId && (original !is RecoveryIntent.StartPayment || it.id == original.id) }
         val retainedCorrection = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId in detail.orders.flatMap { order -> order.items }.map { item -> item.id } }
         val retainedRefund = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Refund>().firstOrNull { refund -> detail.payments.any { it.id == refund.paymentId } }
-        val retainedCart = retained?.toCart(state.products).orEmpty()
+        // A repeat intent is separate from the manual cart. Never restore its lines
+        // as editable draft content when revisiting the Tab during reconciliation.
+        val retainedCart = when {
+            retained == null -> emptyList()
+            !retained.clearCartOnConfirmation -> if (state.selectedTab?.summary?.id == tabId) state.cart else emptyList()
+            else -> retained.toCart(state.products)
+        }
         state = state.copy(
             selectedTab = detail,
             integratedPayment = null,
