@@ -15,14 +15,15 @@ class CategoryCatalogTest {
     @Test fun categoryThenProductThenQuantityAndCustomizationOnlyChangesDraftOnAdd() {
         val state = mutableStateOf(OperationsUiState(products = listOf(product), connectivity = ConnectivityState.ONLINE))
         var reviewed = 0
-        compose.setContent { RodadaTheme { Surface {
+        compose.setContent { androidx.compose.ui.window.Dialog(onDismissRequest = {}) { RodadaTheme { Surface {
             CategoryCatalog(state.value, "tab-fixture", false, { p, s, q -> state.value = state.value.copy(cart = addDraftQuantity(state.value.cart, p, s, q)!!) }, { reviewed++ })
-        } } }
+        } } } }
         compose.onNodeWithText(product.name).assertDoesNotExist()
-        captureCriticalEvidence(compose, "category-home", compose.onRoot())
+        compose.onNodeWithText("Buscar no catálogo").performTextInput(product.name)
+        captureCriticalEvidence(compose, "category-home", compose.onNode(isDialog()))
         compose.onNodeWithTag("catalog-category-Bebidas").performClick()
-        captureCriticalEvidence(compose, "category-products", compose.onNode(isDialog()))
-        compose.onNodeWithText(product.name).performClick()
+        captureCriticalEvidence(compose, "category-products", compose.onAllNodes(isDialog()).onLast())
+        compose.onNode(hasText(product.name) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).performClick()
         assertTrue(state.value.cart.isEmpty())
         compose.onNodeWithContentDescription("Aumentar quantidade escolhida").performClick().performClick()
         compose.onNodeWithTag("chosen-quantity").assertTextEquals("3")
@@ -42,10 +43,10 @@ class CategoryCatalogTest {
             CategoryCatalog(state.value, "tab-fixture", false, { _, _, _ -> added++ }, {})
         } } }
         compose.onNodeWithTag("catalog-category-Bebidas").performClick()
-        compose.onNodeWithText(product.name).performClick()
+        compose.onNode(hasText(product.name) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).performClick()
         compose.onNodeWithText("Voltar", substring = false).performScrollTo().performClick()
         assertEquals(0, added)
-        compose.onNodeWithText(product.name).performClick()
+        compose.onNode(hasText(product.name) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).performClick()
         compose.runOnIdle { state.value = state.value.copy(products = listOf(product.copy(availability = "UNAVAILABLE"))) }
         compose.onNodeWithText("Adicionar · ${formatCents(800)}").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Produto indisponível ou catálogo desatualizado.").assertExists()

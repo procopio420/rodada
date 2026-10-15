@@ -38,7 +38,7 @@ class LiveComposeOrderTest {
             compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
             compose.onNodeWithText("Buscar no catálogo").performTextReplacement(product)
             compose.onNodeWithTag("catalog-category-Outros").assertIsEnabled().performClick()
-            compose.onNode(hasText(product) and hasClickAction()).assertIsEnabled().performClick()
+            compose.onNode(hasText(product) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).assertIsEnabled().performClick()
             compose.onNode(hasText("Adicionar ·", substring = true) and hasClickAction()).assertIsEnabled().performScrollTo().performClick()
             compose.onNodeWithText("Voltar às categorias").performClick()
         }

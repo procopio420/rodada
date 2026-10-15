@@ -86,3 +86,11 @@ Web de leitura canônica congela o relógio antes do mount para que somente o po
 explícito avance; mantém duas leituras obrigatórias e confirmação após leitura nova.
 CI Web/Android do HEAD do PR precisa ser consultada antes do merge. Esses resultados
 não autorizam Play/deploy nem comprovam homologação integral.
+
+
+### Regressão do seletor Android em CI
+A primeira prova de POST real falhou no seletor que também correspondia ao campo
+de busca preenchido. O seletor foi restrito à grade `category-products`, sem alterar
+mutação ou assert de confirmação. A regressão Compose monta diálogo externo e busca
+preenchida, reproduzindo a estrutura relevante. Revisão independente do delta:
+NO_FINDINGS_WITH_GAPS. Build AndroidTest PASS; repetir a prova real no HEAD corrigido.
