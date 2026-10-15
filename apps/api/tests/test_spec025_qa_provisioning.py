@@ -144,5 +144,17 @@ def test_containment_disables_aliases_and_revokes_all_qa_sessions(pins):
         hostname__in=["e2ea.rodada.bar", "e2eb.rodada.bar"],
         is_active=True,
     ).count() == 0
-    # A second backout is safe.
+    membership.refresh_from_db()
+    assert membership.status == "SUSPENDED"
+    assert AccessInvalidationEvent.objects.filter(
+        venue_id=venue.id, staff_member_id=staff.id,
+        event_type="MEMBERSHIP_CHANGED",
+    ).exists()
+    # A second backout is safe; reactivation must explicitly restore QA membership.
     run_qa(operation="deactivate", apply=True)
+    membership.refresh_from_db()
+    assert membership.status == "SUSPENDED"
+    run_qa(operation="activate", apply=True, backup_reference=BACKUP, edge_confirmed=True)
+    membership.refresh_from_db()
+    assert membership.status == "ACTIVE"
+    assert session.revoked_at is not None  # Reactivation cannot resurrect old sessions.
