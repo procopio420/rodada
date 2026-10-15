@@ -5,15 +5,15 @@ import { apiCall, asApiError, type StaffSessionView } from "./staff-auth";
 
 const storageKey = "rodada.intent.staff-order.v1";
 type Line = { product_id: string; quantity: number; variant_id: string | null; modifier_option_ids: string[]; special_instructions: string };
-type Intent = { schema: 1; api_root: "/api/attendance" | "/api/pos"; venue: string; staff: string; session: string; tab: string; captured_at: string;
+type Intent = { schema: 1 | 2; origin?: "repeat"; api_root: "/api/attendance" | "/api/pos"; venue: string; staff: string; session: string; tab: string; captured_at: string;
   payload: { idempotency_key: string; lines: Line[] } };
 const initialRejections = new Set(["EMPTY_ORDER", "INVALID_ORDER_LINE", "TAB_NOT_OPEN", "PRODUCTS_NOT_CONFIRMABLE", "STATION_DISABLED", "SPENDING_LIMIT_EXCEEDED"]);
 function readIntent(): Intent | null {
   const raw = sessionStorage.getItem(storageKey);
   if (raw === null) return null;
   const i = JSON.parse(raw) as Intent;
-  if (i?.schema !== 1 || ![i.venue, i.staff, i.session, i.tab, i.captured_at, i.payload?.idempotency_key].every(v => typeof v === "string" && !!v)
-    || !Number.isFinite(Date.parse(i.captured_at)) || !["/api/attendance", "/api/pos"].includes(i.api_root) || Object.keys(i).sort().join() !== "api_root,captured_at,payload,schema,session,staff,tab,venue"
+  if (![1, 2].includes(i?.schema) || (i.schema === 2 && i.origin !== "repeat") || ![i.venue, i.staff, i.session, i.tab, i.captured_at, i.payload?.idempotency_key].every(v => typeof v === "string" && !!v)
+    || !Number.isFinite(Date.parse(i.captured_at)) || !["/api/attendance", "/api/pos"].includes(i.api_root) || Object.keys(i).sort().join() !== (i.schema === 2 ? "api_root,captured_at,origin,payload,schema,session,staff,tab,venue" : "api_root,captured_at,payload,schema,session,staff,tab,venue")
     || Object.keys(i.payload).sort().join() !== "idempotency_key,lines" || !Array.isArray(i.payload.lines) || !i.payload.lines.length
     || !i.payload.lines.every(l => l && typeof l.product_id === "string" && !!l.product_id && Number.isSafeInteger(l.quantity) && l.quantity > 0
       && (l.variant_id === null || typeof l.variant_id === "string") && Array.isArray(l.modifier_option_ids)
@@ -26,7 +26,7 @@ function assertSaved(i: Intent) {
   if (sessionStorage.getItem(storageKey) !== JSON.stringify(i)) throw new Error("Order envelope changed");
 }
 
-export function useOrderIntent(onConfirmed: (tab: string, order: string) => Promise<() => void>) {
+export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>) {
   const [ready, setReady] = useState(false), [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intentRef = useRef<Intent | null>(null), sending = useRef(false);
@@ -44,7 +44,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string) => Prom
     });
     return () => { active = false; };
   }, []);
-  async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos") {
+  async function submit(draft?: { tab: string; lines: Line[] }, apiRoot: "/api/attendance" | "/api/pos" = "/api/pos", origin: "draft" | "repeat" = "draft") {
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
     const recovering = !!intentRef.current;
@@ -60,7 +60,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string) => Prom
       }
       if (!i) {
         if (sessionStorage.getItem(storageKey) !== null) throw new Error("Another order envelope exists");
-        i = { schema: 1, api_root: apiRoot, venue: s.venue.id, staff: s.staff.id, session: s.session.id, tab: draft!.tab,
+        i = { schema: origin === "repeat" ? 2 : 1, ...(origin === "repeat" ? { origin: "repeat" as const } : {}), api_root: apiRoot, venue: s.venue.id, staff: s.staff.id, session: s.session.id, tab: draft!.tab,
           captured_at: new Date().toISOString(), payload: { idempotency_key: crypto.randomUUID(), lines: draft!.lines } };
         sessionStorage.setItem(storageKey, JSON.stringify(i));
         intentRef.current = i; setPending(i);
@@ -75,7 +75,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string) => Prom
         setMessage(error.message); return;
       }
       if (!result.body || !("id" in result.body) || !result.body.id || result.body.tab_id !== i.tab) throw new Error("Missing canonical order");
-      const applyConfirmed = await onConfirmed(i.tab, result.body.id);
+      const applyConfirmed = await onConfirmed(i.tab, result.body.id, i.schema === 2 ? "repeat" : "draft");
       assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
       applyConfirmed(); setMessage("");
     } catch {
