@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 spec = importlib.util.spec_from_file_location("report", Path(__file__).resolve().parents[1] / "build-issue106-report.py")
 module = importlib.util.module_from_spec(spec)
@@ -12,6 +13,12 @@ spec.loader.exec_module(module)
 
 
 class ReportBoundaryTests(unittest.TestCase):
+    def test_detached_ci_retains_branch_and_actual_sha_context(self):
+        with patch.dict(module.os.environ, {"GITHUB_HEAD_REF":"test/106-head", "GITHUB_REF_NAME":"204/merge"}, clear=True):
+            self.assertEqual("test/106-head", module.branch_context("a" * 40))
+        with patch.dict(module.os.environ, {}, clear=True), patch.object(module.subprocess, "check_output", return_value="\n"):
+            self.assertEqual("detached@" + "a" * 40, module.branch_context("a" * 40))
+
     def test_stale_cluster_receipts_cannot_authorize_pass_or_supply_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
