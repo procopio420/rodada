@@ -46,7 +46,7 @@ class RepeatOrderDialogTest {
         compose.onNodeWithText("Adicionar ao carrinho").assertIsNotEnabled()
         compose.onNode(isToggleable()).performClick()
         compose.onNode(hasSetTextAction()).performTextReplacement("1")
-        compose.onNodeWithText("1 unidade(s) · ${formatCents(1000)}").assertExists()
+        compose.onNodeWithText("Selecionados: 1 unidade(s) · ${formatCents(1000)}").assertExists()
         compose.onNodeWithText("Adicionar ao carrinho").assertIsEnabled().performClick()
         assertEquals(mapOf(item.id to 1), selected)
     }
