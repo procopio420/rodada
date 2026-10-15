@@ -1,5 +1,4 @@
 """Spec 004 GUEST-006: opt-in customer identity, scope and takeover barriers."""
-from datetime import timedelta
 
 from django.test import TestCase
 from django.utils import timezone
@@ -10,7 +9,7 @@ from modules.guest_access.customer_identity import (
     claim_customer_tab, customer_context, login_customer, logout_customer,
     register_customer,
 )
-from modules.guest_access.models import CustomerAuthSession, CustomerCredential, GuestSession
+from modules.guest_access.models import CustomerAuthSession, CustomerCredential
 from modules.guest_access.services import (
     GuestAccessError, create_or_get_guest_tab, resolve_table_qr,
 )
