@@ -11,3 +11,9 @@
 - [ ] Aprovar comercialmente as capturas ainda provenientes de teste. Incluir fotos/depoimentos apenas após liberação expressa de uso.
 - [ ] Revisão independente e decisão de merge.
 - [ ] Deploy em rodada.bar após autorização explícita.
+
+## Slice 2 — imagem de marca
+- [x] Otimizar e versionar peça publicitária.
+- [x] Novo hero responsivo com CTA e descrição acessíveis.
+- [x] SEO/OpenGraph e correção de empacotamento Docker.
+- [ ] Executar revisão visual e CI na branch atualizada.

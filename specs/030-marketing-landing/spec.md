@@ -21,3 +21,10 @@ Cadastro, pagamento, geração de leads com dados pessoais, analytics, automaç�
 
 ## Design e segurança
 Reutilizar `assets/brand/v1` distribuídos em `apps/landing/brand/`, Archivo local, paleta do `docs/design/system.md`, sem JS remoto. Imagens de teste sem dados de clientes reais. Considerar 360/390/430 e desktop, teclado, foco visível e movimento reduzido.
+
+## Hero publicitário — Slice 2
+- Arte ilustrativa aprovada pelo usuário, integrada em apps/landing/marketing/rodada-campanha.jpg.
+- No desktop a imagem completa acompanha CTA real; no mobile há título acessível e recorte responsivo da cena.
+- Frase secundária revisada: “Seu bar merece movimento. Menos correria.”
+- O QR na arte não é escaneável; tratá-lo como ilustração, sem sugerir cliente/piloto real.
+- Metadados og:image para compartilhamento e Docker incluindo pasta marketing/ e screenshots da galeria.

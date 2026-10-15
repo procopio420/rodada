@@ -14,3 +14,10 @@
 - [x] Verificações estática e visual executadas após revisão de conteúdo, respectivamente [Landing](https://github.com/procopio420/rodada/actions/runs/38764191585) e [Visual QA](https://github.com/procopio420/rodada/actions/runs/38764191415). Checar CI novamente após qualquer alteração posterior.
 
 Os critérios testados provam a renderização/contrato do **PR**, não homologação em bar, inspeção em Safari/Firefox ou publicação em `rodada.bar`.
+
+## Slice 2 — arte ilustrativa
+- [x] Banner da campanha incorporado com crop responsivo.
+- [x] Subheadline e metadados para compartilhamento atualizados.
+- [x] Disclaimer identifica cena gerada por IA e QR ilustrativo.
+- [x] Docker agora inclui marketing/ e screens/.
+- [ ] Validar Chromium, CI estática e primeira dobra pós-integração.

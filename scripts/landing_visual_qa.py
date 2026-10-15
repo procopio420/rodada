@@ -67,7 +67,10 @@ async def audit(browser, name, width, height):
         title:document.title, vw:window.innerWidth, vh:window.innerHeight,scrollWidth:doc.scrollWidth,
         pageHeight:doc.scrollHeight,
         h1:rect(title),hero:rect(hero),nav:rect(nav),headlines:headingSpans,
-        heroCTA:rect(document.querySelector('.hero-actions .button')),
+        heroCTA:rect(document.querySelector(window.innerWidth <= 900 ? '.hero-actions .button' : '.hero-poster-cta')),
+        posterDisplayed:getComputedStyle(document.querySelector('.hero-poster')).display,
+        mobileHeroDisplayed:getComputedStyle(document.querySelector('.hero-mobile')).display,
+        ogImage:document.querySelector('meta[property="og:image"]')?.content || null,
         mobileCTA:rect(fixed),mobileCTADisplay:getComputedStyle(fixed).display,
         stickyInitiallyHidden:fixed.hidden,
         headerCTA:rect(document.querySelector('.nav-cta')),
@@ -108,6 +111,9 @@ async def audit(browser, name, width, height):
         and values["headerCTA"]["bottom"] < height
         and values["headerCTA"]["x"] >= 0
         and values["headerCTA"]["x"] + values["headerCTA"]["w"] <= width + 2
+        and values["ogImage"] == "https://rodada.bar/marketing/rodada-campanha.jpg"
+        and (values["mobileHeroDisplayed"] != "none" if width <= 900 else values["mobileHeroDisplayed"] == "none")
+        and (values["posterDisplayed"] != "none" if width > 900 else values["posterDisplayed"] == "none")
         and values["stickyInitiallyHidden"]
         and (not values["stickyAfterHero"]["hidden"] if width <= 760 else values["stickyAfterHero"]["hidden"])
         and values["stickyAtEnd"]

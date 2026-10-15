@@ -35,3 +35,7 @@ Antes de integrar, revisar em browser real nos tamanhos 360/390/430 e desktop, i
 - Atualizar referências históricas a `rodada.ai` em contrato de domínios separado, após revisão das rotas.
 
 Sem analytics nem formulário de captação nesta versão.
+
+## Arte da campanha
+
+A imagem em marketing/rodada-campanha.jpg é uma cena publicitária gerada por IA com bar, garçom e QR ilustrativos. Não é fotografia de cliente, nem o QR é escaneável. Desktop mostra a peça inteira, mobile usa crop CSS para destacar o atendimento, e og:image utiliza o mesmo arquivo. Dockerfile deve copiar marketing/ e screens/ para que assets sejam servidos corretamente.

@@ -30,7 +30,7 @@ class LandingMarketingTest(unittest.TestCase):
         visible = " ".join(self.document.text)
         self.assertIn("Mais uma rodada.", visible)
         self.assertIn("Menos trabalho.", visible)
-        self.assertIn("Seu bar merece movimento. Não confusão.", visible)
+        self.assertIn("Seu bar merece movimento. Menos correria.", visible)
         self.assertIn('href="https://rodada.bar/"', self.html)
         self.assertIn('lang="pt-BR"', self.html)
 
@@ -49,7 +49,13 @@ class LandingMarketingTest(unittest.TestCase):
             src = pic["src"]
             self.assertTrue(src.startswith("/"), src)
             self.assertTrue((LANDING / src.removeprefix("/")).is_file(), src)
-        self.assertIn("Capturas do ambiente de teste", self.html)
+        self.assertIn("telas de teste", self.html.lower())
+        self.assertIn("QR mostrado é decorativo", self.html)
+        self.assertIn('property="og:image"', self.html)
+        self.assertTrue((LANDING / "marketing" / "rodada-campanha.jpg").is_file())
+        docker = (LANDING / "Dockerfile").read_text(encoding="utf-8")
+        self.assertIn("COPY apps/landing/screens/", docker)
+        self.assertIn("COPY apps/landing/marketing/", docker)
 
     def test_semantics_and_accessibility(self):
         tags = [tag for tag, _ in self.elements]
