@@ -127,6 +127,7 @@ jobs:
             bash scripts/android-live-post-drop.sh
             bash scripts/android-table-service-post-drop.sh
             bash scripts/android-compose-order.sh
+            RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
       # The native emulator just committed and recovered the order in this
       # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
       # Web must read and mutate the native-origin Order/Tab, not a mock order.
@@ -201,6 +202,9 @@ jobs:
             artifacts/android-compose-*.json
             artifacts/android-compose-*.txt
             artifacts/android-compose-*.png
+            artifacts/android-catalog-*.json
+            artifacts/android-catalog-*.txt
+            artifacts/android-catalog-*.png
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
