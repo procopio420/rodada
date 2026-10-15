@@ -9,7 +9,7 @@ a full release/homologation suite on every commit.
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
 | Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL; no installer/release |
 | Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
-| Android real POST disconnect | No | Yes | Two emulator + backend network-failure tests |
+| Android real POST disconnect | PRs changing its workflow, cross-surface config/tests/verifiers or shared fixture guard | Yes | Native emulator transport/recovery → Web Bar on the same PostgreSQL; separate manual uplink cut |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
 | Railway Aderlan demo Docker smoke | PR changing Railway deployment or staging smoke script | Yes | Build full Railway container and smoke runtime |
 | Integrated release demo | No | Yes | Restart/concurrency and full shift gate |
@@ -37,3 +37,20 @@ See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory stat
 
 This change modifies workflow scheduling and removes the duplicated API job,
 but **does not delete the underlying tests**.
+
+## Issue #106 shared-fixture safety
+
+`scripts/cross_surface_fixture.py` is the shared destination/Venue boundary for
+the native fixture preparer and Android→Web reconciler. It requires an exact
+allowlisted local PostgreSQL database, validates Django's effective connection
+and independently reads `current_database()` / `inet_server_addr()` before ORM
+access. libpq destination overrides are rejected. The fixture and native receipt
+carry database/Venue IDs; verification rejects a foreign Venue or generation.
+
+Fast safety regressions: `python -m unittest discover -s scripts/tests -p test_cross_surface_fixture.py -v`.
+These tests do not prove Android, browser or PostgreSQL execution. The existing
+native workflow executes the real connected guard and shared fixture. Its native
+transport instrumentation does not by itself prove ordering via Compose UI.
+The complete #106 release suite remains incomplete; see the
+[checkpoint](releases/issue-106-checkpoint.md). Never start the Web-only fixture
+runner to validate the native order: it seeds a different database.

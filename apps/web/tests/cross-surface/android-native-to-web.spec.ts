@@ -3,6 +3,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 type NativeProof = {
+  database: string;
+  venue_id: string;
+  venue_slug: string;
   result: string;
   original_order_id: string;
   original_tab_id: string;
@@ -48,13 +51,16 @@ test("native Android committed POST, offline replay, then real Web Bar productio
   });
   expect(receipt.original_order_id).toBeTruthy();
   expect(receipt.original_tab_id).toBeTruthy();
+  expect(receipt.database).toBe("rodada_android_post_drop");
+  expect(receipt.venue_slug).toBe("android-post-drop-ci");
+  expect(receipt.venue_id).toBeTruthy();
 
   await page.goto("/staff");
   await page.getByLabel("Estabelecimento").fill("android-post-drop-ci");
   await page.getByLabel("Operador", { exact: true }).fill("android-post-drop-operator");
   await page.getByLabel("PIN", { exact: true }).fill("2468"); // Ephemeral CI-only fixture.
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByText("Sessão operacional ativa")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
 
   const before = await readCanonicalTab(page, receipt.original_tab_id);
   expect(before.orders).toHaveLength(1);
