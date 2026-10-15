@@ -24,6 +24,8 @@ test("Spec 025 P1: two real venue hosts have distinct branding and canonical ali
   expect(slashPage.status()).toBe(200);
   const alias = await request.get("/cozinha?board=1", { headers: headers(A) });
   expect(alias.status()).toBe(200);
+  const slashQR = await request.get("/m/e2e-guest-qr-a/", { headers: headers(A), maxRedirects: 0 });
+  expect(slashQR.status()).toBe(200);
   const qr = await request.get("/m/e2e-guest-qr-a", { headers: headers(A) });
   expect(qr.status()).toBe(200);
   const unknown = await request.get("/cozinha", { headers: headers("naocadastrado.rodada.bar") });
