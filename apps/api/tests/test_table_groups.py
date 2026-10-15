@@ -102,3 +102,23 @@ class GroupApiTests(TestCase):
         assert bad.status_code == 409
         assert bad.json()["code"] == "TABLE_OUT_OF_SERVICE"
         assert not TableGroup.objects.exists()
+
+    def test_grouped_table_cannot_be_retired_until_dissolved(self):
+        a, b, _ = self.set_tables()
+        grouped = self.create_group([a.id, b.id])
+        assert grouped.status_code == 201
+        retire = self.manager_client().post(
+            f"/hospitality/tables/{a.id}/inventory/",
+            {"enabled": False, "expected_status": "AVAILABLE"}, format="json",
+        )
+        assert retire.status_code == 409
+        assert retire.json()["code"] == "TABLE_GROUP_ACTIVE"
+        a.refresh_from_db()
+        assert a.status == "AVAILABLE"
+        self.client.post(
+            f"/hospitality/table-groups/{grouped.json()['id']}/dissolve/", format="json",
+        )
+        assert self.manager_client().post(
+            f"/hospitality/tables/{a.id}/inventory/",
+            {"enabled": False, "expected_status": "AVAILABLE"}, format="json",
+        ).status_code == 200
