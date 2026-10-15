@@ -48,7 +48,7 @@ data class RepeatedSelection(val line: RepeatedLine, val quantity: Int)
 fun selectedRepeatedLines(review: RepeatOrderReview, quantities: Map<String, Int>): List<RepeatedSelection>? {
     if (!review.canAdd) return null
     val byId = review.lines.associateBy { it.original.id }
-    if (quantities.keys.any { it !in byId } || quantities.values.any { it !in 0..999 }) return null
+    if (quantities.keys.any { it !in byId } || quantities.values.any { it !in 0..99 }) return null
     val selected = review.lines.mapNotNull { line ->
         val quantity = quantities[line.original.id] ?: 0
         if (quantity == 0) null else RepeatedSelection(line, quantity)
