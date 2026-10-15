@@ -81,6 +81,20 @@ test("table state and combined command search keep unknown reads distinct from e
   await expect(page.getByText("Nenhuma mesa cadastrada.")).toHaveCount(0);
 });
 
+test("search finds standalone tabs and exposes matches without opening a table", async ({ page }) => {
+  await setup(page);
+  const standalone = { id: "tab-standalone", display_label: "Comanda da varanda", state: "OPEN", version: 1, exposure_cents: 0, payable_cents: 0, orders: [] };
+  await page.route(/\/api\/attendance\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: [standalone], next_offset: null } }));
+  await page.route("**/api/attendance/tabs/tab-standalone/", route => route.fulfill({ json: standalone }));
+  await page.goto("/attendance");
+  await page.getByLabel("Buscar mesa ou comanda").fill("varanda");
+  const others = page.getByRole("region", { name: "Outras comandas" });
+  await expect(page.locator(".attendanceTable")).toHaveCount(0);
+  await expect(others.getByRole("button", { name: /Comanda da varanda/ })).toBeVisible();
+  await others.getByRole("button", { name: /Comanda da varanda/ }).click();
+  await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
+});
+
 test("rejected context read never reveals the previous tab as the new target", async ({ page }) => {
   await setup(page); await page.goto("/attendance"); const popup = await openTable(page); await page.keyboard.press("Escape");
   await page.route("**/api/attendance/tabs/tab-other/?*", route => route.fulfill({ status: 409, json: { code: "CONFLICT", message: "A comanda mudou de mesa." } }));

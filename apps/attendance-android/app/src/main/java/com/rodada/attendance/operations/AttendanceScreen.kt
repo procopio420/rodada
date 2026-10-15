@@ -208,6 +208,7 @@ fun AttendanceScreen(
                             onCompleteCleaning = { viewModel.completeTableCleaning(session, it) },
                             onOpenStandaloneTab = { openingTab = true },
                             onOpenFirstTab = { tableId, label -> viewModel.openFirstTableTab(session, tableId, label) },
+                            onLoadHistory = { viewModel.loadTabHistory(session) },
                             partySizeEditor = { occupancyId -> PartySizeEditor(load = { viewModel.readPartySize(session, occupancyId) }, save = { viewModel.recordPartySize(session, occupancyId, it) }) },
                         )
                         }
@@ -267,6 +268,17 @@ fun AttendanceScreen(
                 FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
             }
         }
+    }
+
+    if (choosingOrderDestination && state.selectedTab == null) {
+        QuickOrderDestinationDialog(
+            tabs = state.tabs,
+            canOpenTabs = "tab.open" in session.capabilities,
+            busy = state.loading || state.submitting || state.pendingTableService != null,
+            onSelect = { tabId -> choosingOrderDestination = false; viewModel.selectTab(session, tabId) },
+            onNewTab = { choosingOrderDestination = false; openingTab = true },
+            onDismiss = { choosingOrderDestination = false },
+        )
     }
 
     if (adjustingPricing) state.selectedTab?.let { selectedTab ->
@@ -357,6 +369,47 @@ fun AttendanceScreen(
     state.errorMessage?.let { MessageDialog("Atenção", it, viewModel::dismissMessage) }
     state.tapPhase?.takeIf { state.submitting }?.let { MessageDialog("Simulação de aproximação", it) {} }
     state.noticeMessage?.let { MessageDialog("Rodada", it, viewModel::dismissMessage) }
+}
+
+/**
+ * The central Pedir action picks an existing operational Tab before any order mutation.
+ * Opening a new Tab remains an explicit, separate action.
+ */
+@Composable
+internal fun QuickOrderDestinationDialog(
+    tabs: List<TabSummary>,
+    canOpenTabs: Boolean,
+    busy: Boolean,
+    onSelect: (String) -> Unit,
+    onNewTab: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var query by rememberSaveable { mutableStateOf("") }
+    val choices = tabs.filter { it.state in setOf("OPEN", "REQUIRES_ACTION") && it.matchesOperationalQuery(query.trim()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Pedir · escolha a comanda") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(query, { query = it }, label = { Text("Buscar comanda ou mesa") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (choices.isEmpty()) Text("Nenhuma comanda aberta corresponde à busca.")
+                    choices.forEach { tab ->
+                        OutlinedButton(onClick = { onSelect(tab.id) }, enabled = !busy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("quick-order-tab-${tab.id}")) {
+                            Text("${tab.operationalLabel()} · ${tab.operationalSubtitle()}")
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (canOpenTabs) Button(onClick = onNewTab, enabled = !busy) { Text("Nova comanda sem mesa") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
+    )
 }
 
 private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Comandas"), TABLES("Mesas"), CASH("Caixa") }

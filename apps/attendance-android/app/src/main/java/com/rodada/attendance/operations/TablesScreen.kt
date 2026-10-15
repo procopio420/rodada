@@ -54,6 +54,7 @@ fun TablesScreen(
     partySizeEditor: @Composable (String) -> Unit = {},
     onOpenStandaloneTab: () -> Unit = {},
     onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
+    onLoadHistory: () -> Unit = {},
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var showHistory by rememberSaveable { mutableStateOf(false) }
@@ -79,8 +80,11 @@ fun TablesScreen(
                 table.activeOccupancy?.tabs.orEmpty().any { it.displayLabel.contains(search, true) || it.displayReference.contains(search, true) })
     }
     val columns = if (LocalDensity.current.fontScale > 1.3f) 1 else 2
-    val otherTabs = state.tabs.filter { (showHistory || it.id !in attachedTabIds) &&
-        (if (showHistory) it.state in setOf("CLOSED", "CANCELLED") else it.state !in setOf("CLOSED", "CANCELLED")) && it.matchesOperationalQuery(search) }
+    val otherTabs = (if (showHistory) state.historyTabs else state.tabs).filter {
+        (showHistory || it.id !in attachedTabIds) &&
+            (if (showHistory) it.state in setOf("CLOSED", "CANCELLED") else it.state !in setOf("CLOSED", "CANCELLED")) &&
+            it.matchesOperationalQuery(search)
+    }
     val locked = state.loading || state.submitting || state.pendingTableService != null
 
     LazyColumn(
@@ -90,7 +94,7 @@ fun TablesScreen(
         item {
             Text("Mesas e comandas", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text("Escolha a mesa e abra a comanda para pedir.")
-            TextButton(onClick = { showHistory = !showHistory }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (showHistory) "Voltar às mesas" else "Histórico de comandas") }
+            TextButton(onClick = { showHistory = !showHistory; if (showHistory) onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (showHistory) "Voltar às mesas" else "Histórico de comandas") }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(search, { search = it }, label = { Text("Buscar mesa ou comanda") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -151,7 +155,10 @@ fun TablesScreen(
         item {
             Text(if (showHistory) "Histórico de comandas" else "Outras comandas", style = MaterialTheme.typography.titleLarge)
             if (canOpenTabs && !showHistory) OutlinedButton(onClick = onOpenStandaloneTab, enabled = !locked, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda sem mesa") }
-            if (otherTabs.isEmpty()) Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
+            if (showHistory && state.historyLoading) Text("Carregando histórico…")
+            if (showHistory && state.historyError != null) Text(state.historyError, color = MaterialTheme.colorScheme.error)
+            if (otherTabs.isEmpty() && (!showHistory || state.historyLoaded && !state.historyLoading))
+                Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
         }
         items(otherTabs, key = { "tab:${it.id}" }) { tab ->
             OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !locked, modifier = Modifier.fillMaxWidth().testTag("other-tab-${tab.id}")) {

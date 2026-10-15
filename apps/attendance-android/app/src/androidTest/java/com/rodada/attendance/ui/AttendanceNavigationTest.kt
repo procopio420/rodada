@@ -21,13 +21,15 @@ class AttendanceNavigationTest {
         assertEquals(AttendanceDestination.CASH, chosen)
         compose.onNodeWithTag("attendance-tables").performClick()
         assertEquals(AttendanceDestination.TABLES, chosen)
-        assertEquals(0, orders)
+        compose.onNodeWithTag("attendance-order").assertHeightIsAtLeast(56.dp).performClick()
+        assertEquals(1, orders)
     }
     @Test fun busyDisablesNavigationAndMissingCapabilityHidesCash() {
         compose.setContent { RodadaTheme { AttendanceNavigation(AttendanceDestination.NOW, false, true, {}, {}) } }
         compose.onNodeWithText("Caixa").assertDoesNotExist()
         compose.onNodeWithTag("attendance-tables").assertIsNotEnabled()
         compose.onNodeWithTag("attendance-now").assertIsSelected().assertIsNotEnabled()
+        compose.onNodeWithTag("attendance-order").assertIsNotEnabled()
     }
 
     @Test fun restoredLegacyTabsDestinationUsesUnifiedEntry() {

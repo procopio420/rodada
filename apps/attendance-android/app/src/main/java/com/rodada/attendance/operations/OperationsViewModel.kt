@@ -42,6 +42,10 @@ data class OperationsUiState(
     val loading: Boolean = false,
     val submitting: Boolean = false,
     val tabs: List<TabSummary> = emptyList(),
+    val historyTabs: List<TabSummary> = emptyList(),
+    val historyLoading: Boolean = false,
+    val historyLoaded: Boolean = false,
+    val historyError: String? = null,
     val customers: List<CustomerSummary> = emptyList(),
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
@@ -290,6 +294,25 @@ class OperationsViewModel(
                 state = state.copy(loading = false)
                 showFailure(it)
             }
+        }
+    }
+
+    /** History is intentionally fetched only on request, not with every SSE/foreground refresh. */
+    fun loadTabHistory(session: StoredSession) {
+        if (state.historyLoading) return
+        val scope = loadedSessionKey
+        state = state.copy(historyLoading = true, historyError = null)
+        viewModelScope.launch {
+            runCatching { repository.tabHistory(session) }
+                .onSuccess { rows ->
+                    if (scope == loadedSessionKey) state = state.copy(
+                        historyTabs = rows, historyLoading = false, historyLoaded = true, historyError = null)
+                }
+                .onFailure {
+                    if (scope == loadedSessionKey) state = state.copy(
+                        historyLoading = false, historyLoaded = false,
+                        historyError = "Não foi possível carregar o histórico. Tente novamente.")
+                }
         }
     }
 

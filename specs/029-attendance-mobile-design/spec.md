@@ -34,6 +34,7 @@ Solicitação subsequente: unir Mesas/Contas e usar pop-up para o cardápio da c
 Esta seção substitui a navegação separada do primeiro experimento nesta branch.
 
 - Entrada principal “Mesas e comandas”, sem aba Contas. Agora preserva chamadas/entregas.
+  A busca conjunta inclui comandas sem mesa e revela automaticamente seus resultados.
 - Busca encontra mesa e nome/referência de suas comandas. Expandir mesa revela
   comandas abertas e a ação contextual Nova comanda; selecionar uma comanda só
   abre seu pop-up após leitura canônica com table_id/occupancy_id.
@@ -64,6 +65,11 @@ Fluxo: Mesas e comandas → expandir mesa → selecionar/criar explicitamente Ta
 janela nativa de contexto → Cardápio / Pedido atual / Conta → Voltar à origem.
 Agora e Caixa continuam disponíveis; remover a navegação duplicada Contas.
 
+- A navegação mantém o botão central **+ Pedir** entre Agora e Mesas; ele abre um
+  seletor rápido de comandas abertas, com busca, e não envia pedido nem cobra
+  nada ao tocar. Criar comanda sem mesa é uma ação explícita no seletor.
+- Histórico de comandas fechadas é lido sob autenticação do Venue, sem exigir
+  permissão de reabertura, somente ao abrir Histórico (fora do refresh recorrente).
 - Entrada padrão Mesas e comandas, com busca por mesa/zona/nome/referência de Tab,
   filtros combináveis por estado e grade adaptável (uma coluna com fonte ampliada).
   Expandir revela operações existentes e comandas, preservando QR/generation,

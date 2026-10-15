@@ -53,13 +53,39 @@ class NativeAttendanceFlowTest {
         assertEquals(0, added)
     }
 
+    @Test fun quickOrderPicksTabWithoutSubmittingOrOpeningAnything() {
+        var selected = ""
+        var opened = 0
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(listOf(tab), canOpenTabs = true, busy = false,
+                onSelect = { selected = it }, onNewTab = { opened++ }, onDismiss = {})
+        } } }
+        compose.onNodeWithText("Buscar comanda ou mesa").performTextInput("Comanda A")
+        compose.onNodeWithTag("quick-order-tab-tab-a").performClick()
+        assertEquals("tab-a", selected)
+        assertEquals(0, opened)
+    }
+
+    @Test fun historyIsRequestedOnDemandForStaffWithoutReopenPermission() {
+        var requested = 0
+        compose.setContent { RodadaTheme { Surface {
+            TablesScreen(OperationsUiState(tabs = listOf(tab)), false, { _, _ -> }, {}, {}, {},
+                onLoadHistory = { requested++ })
+        } } }
+        compose.onNodeWithText("Histórico de comandas").performScrollTo().performClick()
+        assertEquals(1, requested)
+        compose.onNodeWithText("Nenhuma comanda no histórico disponível.").assertDoesNotExist()
+    }
+
     @Test fun unifiedTablesSearchFindsTabAndSelectingDoesNotCreateAnything() {
         var selected = ""
         var created = 0
         val table = TableSummary("table", "12", "OCCUPIED", "DIRECT", false, null,
             TableOccupancy("visit", 1, listOf(TableOccupancyTab("tab-a", "Comanda A", displayReference = "REF-A"))))
         compose.setContent { RodadaTheme { Surface {
-            TablesScreen(OperationsUiState(tables = listOf(table), tabs = listOf(tab, tab.copy(id = "closed-tab", displayLabel = "Comanda encerrada", state = "CLOSED"))), true, { _, _ -> }, {}, {}, {},
+            TablesScreen(OperationsUiState(tables = listOf(table), tabs = listOf(tab),
+                historyTabs = listOf(tab.copy(id = "closed-tab", displayLabel = "Comanda encerrada", state = "CLOSED")),
+                historyLoaded = true), true, { _, _ -> }, {}, {}, {},
                 canOpenTabs = true, onSelectTab = { selected = it }, onOpenStandaloneTab = { created++ })
         } } }
         compose.onNodeWithText("Buscar mesa ou comanda").performTextInput("REF-A")
