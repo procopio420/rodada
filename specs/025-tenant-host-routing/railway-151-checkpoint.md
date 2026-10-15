@@ -260,3 +260,35 @@ Both reported venue/domain/operator absent for A and B; the second ended
 `DRY RUN: operation provision not executed`. No `--apply` was used. This proves
 the guarded command is deployed and inspection works, not provisioning or edge
 acceptance. Backup entitlement and recovery verification remain the write gate.
+
+## Logical backup exception and recovery proof — 2026-10-15
+
+User decision: **"usa backlup logico com ssh, sem PRO ainda"**. This explicitly
+resolves the backup-method decision above; no Pro upgrade or PITR enable occurred.
+It does not accept a shared-preview exception or authorize the tenant UI flag.
+
+Executed privately against the confirmed PostgreSQL service/instance:
+
+- PostgreSQL source18.6; pg_dump18.6. Exported read-only repeatable-read snapshot
+  kept open while all90 public table counts and `pg_dump --snapshot` were taken.
+- SSH binary transport verified beforehand; dump streamed directly into
+  AES-256-GCM encryption, archive and encrypted manifest owner-only outside repo,
+  key in separate owner-only directory. No secret or plaintext dump logged/saved.
+- Exact logical archive SHA-256:
+  `8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb`.
+  Logical dump522186 bytes. This is **not** an official Railway backup ID.
+- Ciphertext authenticated and plaintext SHA recomputed before restore. Decrypted
+  stream fed into pg_restore18 with `--exit-on-error --no-owner --no-acl`, fresh
+  local disposable database `rodada025_restore_verified`, tmpfs PostgreSQL storage.
+- **PASS:** all90 table counts equal the same source snapshot; every restored
+  public constraint validated. Restore0.85s; capture+verification56.89s;
+  verified2026-10-15T01:42:59Z. These checks prove archive recovery/relational
+  integrity, not correctness of pre-existing financial business history.
+- Encrypted archive/manifest retained in protected operator custody, key separate;
+  retention review2026-10-22T01:42:59Z. No automatic deletion of the sole verified
+  backup during ongoing work; no source reset/restore/schema or ledger mutation.
+
+The command's new truthful reference is `logical-sha256:<exact digest>` together
+with `--logical-backup-verified`; tests/review/CI/deployment must pass before using
+that contract operationally. No `--apply`, QA activation or flag has yet run at
+this checkpoint. Previous official-backup rejection remains historical evidence.

@@ -163,3 +163,38 @@ local restore drill, if approved, must use private SSH, encrypted custody and a
 separate disposable PostgreSQL destination; it is not an official volume backup
 and the current command requires a truthful supported reference contract.
 No restoration over the operational database is authorized.
+
+### Authorized logical-backup exception — 2026-10-15
+
+The user explicitly selected logical backup over private SSH, without Pro.
+For this change, an independently verified logical archive may be supplied as:
+
+```bash
+python manage.py provision_spec025_ab --operation provision --apply \
+  --backup-reference 'logical-sha256:<exact-64-lowercase-hex-dump-sha256>' \
+  --logical-backup-verified
+```
+
+The extra flag attests that **that exact archive** was restored and checked in a
+disposable destination. It does not perform recovery verification or verify
+operator-held files itself. The digest identifies the logical dump plaintext,
+not an invented Railway volume-backup ID. Missing attestation or malformed
+digest is refused before any database write. Official `railway-backup:<ID>`
+references retain their existing operator-attestation contract. Activation still
+requires the same backup reference/attestation plus independent `--edge-confirmed`;
+shared UI flag activation remains a separate explicit approval.
+
+Operator procedure used: authenticate SSH, export one PostgreSQL read-only
+repeatable-read snapshot, collect table counts in it, run pg_dump18 with
+`--snapshot`, stream directly into authenticated AES-256-GCM encryption. No
+plaintext archive on disk. Store archive/manifest owner-only outside the repo,
+and a separate owner-only key. Verify GCM authentication and dump SHA before
+decrypting to pg_restore18 in a fresh local container with tmpfs data storage.
+Restore with `--exit-on-error`, retaining constraints; compare **all table counts
+to the same source snapshot**, verify constraints validated, then remove the
+restored copy. Capture hash, timestamp, source IDs, destination and timings only;
+never emit rows, PINs, tokens, credentials or private financial aggregates.
+Retain encrypted custody with a review date seven days after capture; do not
+delete the only recoverable backup automatically while the audit is ongoing.
+The local restore is proof of archive recovery, not operational database restore,
+PITR, official volume backups, or rollout acceptance.

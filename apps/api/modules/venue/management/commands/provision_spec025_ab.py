@@ -5,6 +5,7 @@ Do not use this to load transactional or payment fixtures.
 """
 
 import os
+import re
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import OperationalError, connection, transaction
@@ -59,6 +60,10 @@ class Command(BaseCommand):
             help="Nonsecret ID of a separately verified backup (provision/activate only).",
         )
         parser.add_argument(
+            "--logical-backup-verified", action="store_true",
+            help="Operator attests the exact logical archive was restored and verified separately.",
+        )
+        parser.add_argument(
             "--edge-confirmed", action="store_true",
             help="Operator confirms both public TLS and trusted ingress were independently checked.",
         )
@@ -97,7 +102,14 @@ class Command(BaseCommand):
                 raise CommandError(f'REFUSE: QA membership drift: {spec["login"]}')
         return venue, alias, staff
 
-    def _check_backup(self, reference):
+    def _check_backup(self, reference, *, logical_verified=False):
+        if reference.startswith("logical-sha256:"):
+            if not logical_verified or not re.fullmatch(r"logical-sha256:[0-9a-f]{64}", reference):
+                raise CommandError(
+                    "A verified logical backup requires its exact lowercase SHA-256 "
+                    "and --logical-backup-verified after an independent restore check."
+                )
+            return
         if not reference.startswith("railway-backup:") or len(reference) < 24:
             raise CommandError(
                 "A verified Railway backup ID must be supplied as "
@@ -270,7 +282,9 @@ class Command(BaseCommand):
             return
 
         if operation in ("provision", "activate"):
-            self._check_backup(options["backup_reference"])
+            self._check_backup(
+                options["backup_reference"], logical_verified=options["logical_backup_verified"],
+            )
         if operation == "activate" and not options["edge_confirmed"]:
             raise CommandError("Activation requires --edge-confirmed after real TLS/ingress proof.")
 

@@ -32,6 +32,7 @@ from modules.guest_access.services import GuestAccessError, guest_session_contex
 
 
 BACKUP = "railway-backup:verified-spec025-preflight-0001"
+LOGICAL_BACKUP = "logical-sha256:" + "a1" * 32
 
 
 @pytest.fixture
@@ -42,6 +43,33 @@ def pins(monkeypatch):
 
 def run_qa(**kwargs):
     return call_command("provision_spec025_ab", stdout=StringIO(), **kwargs)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("reference,verified", [
+    (LOGICAL_BACKUP, False),
+    ("logical-sha256:" + "a" * 63, True),
+    ("logical-sha256:" + "g" * 64, True),
+    ("logical-sha256:" + "A" * 64, True),
+])
+def test_logical_backup_requires_exact_digest_and_verified_restore(pins, reference, verified):
+    with pytest.raises(CommandError, match="verified logical backup"):
+        run_qa(operation="provision", apply=True, backup_reference=reference,
+               logical_backup_verified=verified)
+    assert not Venue.objects.exists()
+
+
+@pytest.mark.django_db
+def test_verified_logical_backup_can_stage_and_activate_only_with_edge_confirmation(pins):
+    kwargs = {"apply": True, "backup_reference": LOGICAL_BACKUP,
+              "logical_backup_verified": True}
+    run_qa(operation="provision", **kwargs)
+    assert Venue.objects.count() == 2
+    assert not VenueDomain.objects.filter(is_active=True).exists()
+    with pytest.raises(CommandError, match="edge-confirmed"):
+        run_qa(operation="activate", **kwargs)
+    run_qa(operation="activate", edge_confirmed=True, **kwargs)
+    assert VenueDomain.objects.filter(is_active=True).count() == 2
 
 
 def login(staff, venue, pin="946382"):

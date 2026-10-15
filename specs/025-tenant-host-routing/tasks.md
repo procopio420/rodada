@@ -27,6 +27,12 @@
 
 ## Existing Railway homologation #151 — controlled preparation
 
+- [x] Exceção de backup autorizada pelo usuário: lógico privado SSH sem Pro;
+  snapshot/dump AES-GCM e restore18/tmpfs,90 contagens iguais/constraints válidas;
+  [hash/ambiente/limites](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15).
+- [ ] Integrar contrato `logical-sha256` + attestation após regressões,
+  revisão independente e API/Web CI; só então provisionar A/B com esse backup.
+
 Authenticated follow-up: [runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
 - [x] PR159 head7436deb: API849/Web98/KB PASS, independent final R3 review,
   merge18da010; deployment/main CI tracked separately.
