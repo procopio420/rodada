@@ -434,3 +434,18 @@ counts confirm zero Tabs/Orders/Charges/Payments/Refunds, zero ACTIVE membership
 zero unrevoked staff sessions and no guest sessions. A bounded HTTP-log query on
 ef830243 returned zero5xx records for the preceding15min (limit100), not a claim
 about every request or all history.
+
+
+### Read-only continuation — 2026-10-15 03:25 UTC
+
+Concurrent PR170 advanced main/runtime to
+`992acffbc49fbfa9789263db1036194626b75772`, Railway deployment
+`29550e4c-ff76-46db-bc00-2b99ac8b5e90` observed SUCCESS. No changes to API/deploy
+trees relative4056; Web and Android differ and have their own exact-SHA SUCCESS:
+[Web38675107062](https://github.com/procopio420/rodada/actions/runs/38675107062),
+[Android38675107066](https://github.com/procopio420/rodada/actions/runs/38675107066).
+Private SSH inspect on992 confirmed QA still inactive/verified, managersSUSPENDED,
+guestblocked, with no transaction changes and postcommit readback matching.
+No new activation or shared-flag change. Manual API/Web checks dispatched on992
+for fresh current-main evidence; results pending. Authenticated pilot, specific
+flag approval and formal separate-preview exception still await user response.
