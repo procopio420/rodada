@@ -12,7 +12,7 @@ django.setup()
 from django.db import connection
 from modules.cash.models import CashShift, CashMovement
 from modules.ledger.models import Charge, Payment, Refund
-from modules.ordering.models import Tab
+from modules.ordering.models import Tab, Order
 from modules.audit.models import AuditEvent
 from modules.access.models import StaffMember
 require_connected_database(connection)
@@ -72,7 +72,7 @@ assert r["report_totals"]["net_sales_cents"] == venue_charges
 assert r["report_totals"]["paid_cents"] == venue_payments == r["paid_cents"]
 assert r["report_totals"]["current_open_exposure_cents"] == venue_charges - venue_payments + refund.amount_cents
 assert r["report_totals"]["refunds_cents"] == refund.amount_cents
-r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], audit_event_ids=[str(e.pk) for e in events], cash_movement_ids=[str(m.pk) for m in movements], status="PASS")
+r.update(charge_ids=[str(x) for x in Charge.objects.filter(tab=tab).values_list("pk",flat=True)], order_ids=[str(x) for x in Order.objects.filter(tab=tab).values_list("pk",flat=True)], database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], audit_event_ids=[str(e.pk) for e in events], cash_movement_ids=[str(m.pk) for m in movements], status="PASS")
 cutoff = json.loads(Path("artifacts/cash-cutoff-browser.json").read_text())
 assert cutoff["sha"] == r["sha"] and cutoff["database_instance_id"] == f["database_instance_id"]
 policy = cutoff["policy"]

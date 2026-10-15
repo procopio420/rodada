@@ -35,6 +35,6 @@ for tab_id in r["tab_ids"]:
     assert not Payment.objects.filter(tab_id=tab_id).exists()
 assert r["changed_payload_status"] == 409
 assert r["guest_replays"] == 2 and r["kitchen_reconnected"] is True
-r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], status="PASS", orders=2, items=4, charges=4, payments=0)
+r.update(charge_ids=[str(x) for x in Charge.objects.filter(tab_id__in=r["tab_ids"]).values_list("pk",flat=True)], item_ids=[str(x) for x in OrderItem.objects.filter(order__in=orders).values_list("pk",flat=True)], database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], status="PASS", orders=2, items=4, charges=4, payments=0)
 Path("artifacts/browser-origins-sql.json").write_text(json.dumps(r, indent=2) + "\n")
 print("PASS: Guest/Web share one occupancy, independent 1700-cent ledgers, 2 Orders/4 READY Items/4 Charges/0 Payments")

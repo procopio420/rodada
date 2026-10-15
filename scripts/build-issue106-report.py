@@ -17,13 +17,13 @@ CASES = {
     "E2E-01": ("A2 A5 A6", ["qr-lifecycle-sql.json"], ["guest", "attendance-web"], ""),
     "E2E-02": ("A3 A6", ["browser-origins-sql.json", "android-context-readback-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-03": ("B2 B3 B7", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
-    "E2E-04": ("B4 B5 B7", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["bar", "kitchen"], "Native/management projection after READY remains incomplete."),
-    "E2E-05": ("B6 B7", ["unavailable-cart-sql.json", "unavailable-staff-sql.json", "android-catalog-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
+    "E2E-04": ("B4 B5 B7", ["browser-origins-sql.json", "android-compose-web-sql.json", "android-context-readback-sql.json", "financial-sql.json"], ["bar", "kitchen", "android-instrumented", "manage"], ""),
+    "E2E-05": ("B6 B7", ["unavailable-cart-sql.json", "unavailable-staff-sql.json", "android-catalog-sql.json", "android-offline-conflict-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-06": ("C3 C7", ["financial-sql.json"], ["cash", "attendance-web"], ""),
-    "E2E-07": ("C5 C7", ["financial-sql.json"], ["cash", "manage"], "Negative cashier/manager capability and business cutoff cases remain incomplete."),
+    "E2E-07": ("C5 C7", ["financial-sql.json", "financial-roles-sql.json", "cash-cutoff-sql.json"], ["cash", "manage"], ""),
     "E2E-08": ("D2 D3 D7", ["concurrency-sql.json"], ["django", "attendance-web"], ""),
     "E2E-09": ("D4 D7", ["browser-origins-sql.json", "android-web-cross-surface.json", "android-compose-order.json"], ["guest", "android-instrumented"], ""),
-    "E2E-10": ("D5 D6 D7", ["revocation-sql.json", "isolation-sql.json"], ["attendance-web", "android-instrumented", "guest"], "Native revocation/replay, expiry/refresh and Guest/Host A/B crossings remain incomplete."),
+    "E2E-10": ("D5 D6 D7", ["revocation-sql.json", "isolation-sql.json", "guest-isolation-sql.json", "android-offline-revocation-sql.json"], ["attendance-web", "android-instrumented", "guest"], ""),
     "E2E-11": ("E2 E3 E7", ["android-web-cross-surface.json"], ["android-instrumented", "bar"], ""),
     "E2E-12": ("E4 E5 E7", ["sse-sql.json", "browser-origins-sql.json"], ["attendance-web", "kitchen"], ""),
     "E2E-13": ("A4 A5 A6", ["qr-lifecycle-sql.json"], ["guest", "attendance-web"], ""),
@@ -65,7 +65,7 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         refs = [name for name in required if name in receipts]
         trace_tests = {
             "E2E-01": ["qr-lifecycle"], "E2E-02": ["browser-origins", "android-native-to-web"],
-            "E2E-03": ["browser-origins", "android-native-to-web"], "E2E-04": ["browser-origins", "android-native-to-web"],
+            "E2E-03": ["browser-origins", "android-native-to-web"], "E2E-04": ["browser-origins", "android-native-to-web", "financial"],
             "E2E-05": ["unavailable"], "E2E-06": ["financial"], "E2E-07": ["financial"],
             "E2E-08": ["concurrency"], "E2E-09": ["browser-origins", "android-native-to-web"],
             "E2E-10": ["authorization"], "E2E-11": ["android-native-to-web"],
@@ -73,10 +73,10 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         }
         refs += [name for name, a in artifacts.items() if a["kind"] == "playwright-trace" and any(test in name for test in trace_tests[sid])]
         if "android-instrumented" in surfaces:
-            native_names = {"E2E-02":["context-readback"], "E2E-03":["compose"], "E2E-04":["context-readback"], "E2E-05":["catalog"], "E2E-09":["compose","recovery"]}.get(sid,["recovery"])
+            native_names = {"E2E-02":["context-readback"], "E2E-03":["compose"], "E2E-04":["context-readback"], "E2E-05":["catalog", "offline-conflict"], "E2E-09":["compose","recovery"], "E2E-10":["offline-revocation"]}.get(sid,["recovery"])
             refs += [name for name, a in artifacts.items() if a["kind"] == "android-instrumentation" and any(token in name for token in native_names)]
         ids = {"venue":[fixture["venue_id"]]}
-        mapping = {"tab_ids":"tab", "tab_id":"tab", "original_tab_id":"tab", "order_ids":"order", "original_order_id":"order", "original_order_item_ids":"order_item", "charge_ids":"charge", "payment_ids":"payment", "occupancy_ids":"occupancy", "occupancy_id":"occupancy"}
+        mapping = {"table_id":"table", "table_ids":"table", "venue_ids":"venue", "order_id":"order", "item_id":"order_item", "item_ids":"order_item", "tab_ids":"tab", "tab_id":"tab", "original_tab_id":"tab", "order_ids":"order", "original_order_id":"order", "original_order_item_ids":"order_item", "charge_ids":"charge", "payment_ids":"payment", "occupancy_ids":"occupancy", "occupancy_id":"occupancy"}
         for name in required:
             for source, target in mapping.items():
                 value = receipts.get(name, {}).get(source)
@@ -84,8 +84,20 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
                     ids.setdefault(target, []).extend(value if isinstance(value, list) else [value])
         ids = {k:sorted(set(v)) for k,v in ids.items()}
         sql_ref = next((name for name in required if name in artifacts and artifacts[name]["kind"] == "independent-sql"), None)
+        final = receipts.get("final-state-sql.json")
+        if final:
+            refs.append("final-state-sql.json")
+            sql_ref = "final-state-sql.json"
         records.append({"id":sid,"status":status,"reason":reason,"sha":sha,"database_instance_id":instance,"task_ids":tasks.split(),"dependencies":[],"surfaces":surfaces,"canonical_ids":ids,"artifact_refs":refs,"command":"bash scripts/run-issue106-shared.sh","run_url":run_url,"branch":branch,"pr":pr,"started_at":execution.get("started_at","NOT_RECORDED"),"finished_at":execution.get("finished_at","NOT_RECORDED"),"sql":{"independent":bool(sql_ref),"status":"PASS" if sql_ref else "BLOCKED","command":"runner independent PostgreSQL verifiers","artifact_ref":sql_ref}})
-    return {"schema_version":1,"sha":sha,"evidence_kind":"executed","database":{"engine":"postgresql","disposable":True,"instance_id":instance},"versions":versions,"artifacts":artifacts,"scenarios":records,"invariants":{name:{"status":"BLOCKED","reason":"Requires explicit reviewed scenario mapping; no automatic promotion."} for name in sorted(INVARIANTS)},"review":review or {"sha":sha,"independent":False,"open_p0_p1":None,"reference":"NOT_VERIFIED"}}
+    invariant_cases = {"ledger_reconciled":"E2E-06", "no_duplicates":"E2E-09", "no_false_paid":"E2E-14", "venue_isolated":"E2E-10", "no_lost_orders":"E2E-11", "guest_revoked":"E2E-13", "order_on_tab":"E2E-03", "new_not_preparing":"E2E-12", "offline_no_false_confirmation":"E2E-05", "separate_tab_ledgers":"E2E-02"}
+    final = receipts.get("final-state-sql.json", {})
+    invariants = {}
+    for name in sorted(INVARIANTS):
+        scenario = next(r for r in records if r["id"] == invariant_cases[name])
+        invariants[name] = ({"status":"PASS", "scenario":scenario["id"], "artifact_ref":"final-state-sql.json"}
+            if final.get("invariants", {}).get(name) == "PASS" and scenario["status"] == "PASS"
+            else {"status":"BLOCKED", "reason":"Requires current-SHA final SQL reconciliation and linked passing scenario."})
+    return {"schema_version":1,"sha":sha,"evidence_kind":"executed","database":{"engine":"postgresql","disposable":True,"instance_id":instance},"versions":versions,"artifacts":artifacts,"scenarios":records,"invariants":invariants,"review":review or {"sha":sha,"independent":False,"open_p0_p1":None,"reference":"NOT_VERIFIED"}}
 
 
 def main():

@@ -130,4 +130,6 @@ step=financial-browser
 (cd apps/web && RODADA_CROSS_PHASE=financial npx playwright test --config playwright.android-cross-surface.config.ts)
 step=financial-sql
 "$PYTHON" scripts/verify-financial-ui.py
+step=final-state-sql
+"$PYTHON" scripts/verify-issue106-final-state.py
 step=complete

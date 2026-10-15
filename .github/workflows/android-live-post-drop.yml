@@ -204,7 +204,9 @@ jobs:
           done
           npx playwright test --config playwright.android-cross-surface.config.ts
       - name: Independently reconcile partial payments and drawer SQL
-        run: python scripts/verify-financial-ui.py
+        run: |
+          python scripts/verify-financial-ui.py
+          python scripts/verify-issue106-final-state.py
       - name: Export redacted traces
         if: always()
         run: python scripts/sanitize-cross-surface-traces.py
