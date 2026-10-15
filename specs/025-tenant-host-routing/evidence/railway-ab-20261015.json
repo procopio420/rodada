@@ -755,5 +755,43 @@
     "limit": 100,
     "query_exit": 0,
     "limit_note": "Bounded query, not proof of zero errors for every request/time."
+  },
+  "ci_followup": {
+    "api_4056adbd": {
+      "run_id": 38669986695,
+      "status": "SUCCESS",
+      "passed": 854
+    },
+    "web_4056adbd": {
+      "run_id": 38669986592,
+      "status": "SUCCESS",
+      "passed": 98
+    },
+    "web_b63b611": {
+      "run_id": 38671039040,
+      "status": "SUCCESS",
+      "passed": 98
+    },
+    "android_b63b611": {
+      "run_id": 38671039437,
+      "status": "SUCCESS"
+    },
+    "isolated_shift_b63b611": {
+      "run_id": 38671562736,
+      "status": "SUCCESS"
+    },
+    "release_b63b611": {
+      "run_id": 38671565495,
+      "status": "FAILURE",
+      "passed": 853,
+      "failed": 1,
+      "failed_test": "test_print_agents.py::test_standalone_contract_matches_backend",
+      "cause": "Standalone printer-agent contract source omitted from disposable demo image; FileNotFoundError. HTTP shift and restart passed."
+    },
+    "release_candidate_f02d11d": {
+      "run_id": 38672594038,
+      "status": "IN_PROGRESS",
+      "fix_pr": 168
+    }
   }
 }

@@ -414,7 +414,11 @@ used to simulate money. Finance/restart/turno gates run in disposable CI:
 [Aderlan38671562736](https://github.com/procopio420/rodada/actions/runs/38671562736)
 and [release38671565495](https://github.com/procopio420/rodada/actions/runs/38671565495),
 both dispatched on b63. The isolated pilot shift completed SUCCESS; integrated
-release remains pending at this checkpoint, not PASS.
+release completed FAIL:853PASS/1FAIL438.17s, missing standalone print contract
+in disposable image. [PR168](https://github.com/procopio420/rodada/pull/168) copies
+only that existing contract; test remains unchanged. Candidate
+[release38672594038](https://github.com/procopio420/rodada/actions/runs/38672594038)
+is running on f02d11d after independent R3 review, not yet PASS.
 
 
 Machine-readable [sanitized execution receipts](evidence/railway-ab-20261015.json)
