@@ -73,7 +73,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       const [tableList, queue, zoneList] = await Promise.all([request<{ results: Table[]; table_service_enabled: boolean }>("hospitality/tables/"), request<{ results: Delivery[] }>("dispatch/delivery/"), request<{ results: { id: string; label: string }[] }>("hospitality/zones/")]);
       const allTabs: Tab[] = [];
       let offset: number | null = 0;
-      do { const page: { results: Tab[]; next_offset?: number | null } = await request(`tabs/?active=true&offset=${offset}`); allTabs.push(...page.results); offset = page.next_offset ?? null; } while (offset !== null);
+      do { const page: { results: Tab[]; next_offset?: number | null } = await request(`tabs/?active=true&summary=true&offset=${offset}`); allTabs.push(...page.results); offset = page.next_offset ?? null; } while (offset !== null);
       setServiceEnabled(tableList.table_service_enabled === true); setTables(tableList.results); setDeliveries(queue.results); setZones(zoneList.results); setTabs(allTabs); setOnline(true); setUpdated(new Date().toLocaleTimeString("pt-BR"));
     } catch (failure) { setOnline(false); setError(failure instanceof Error ? failure.message : "Não foi possível atualizar."); }
     finally { setLoading(false); }
