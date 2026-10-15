@@ -32,6 +32,12 @@ async def audit(browser, name, width, height):
     errors = []
     page.on("pageerror", lambda err: errors.append(str(err)))
     response = await page.goto(URL, wait_until="networkidle")
+    # Force below-the-fold lazy media to load for a reliable full-page screenshot.
+    # The production HTML keeps its native lazy loading for visitors.
+    await page.evaluate("""async () => {
+      for (const img of document.images) img.loading = 'eager';
+      await Promise.all([...document.images].map(img => img.decode().catch(() => undefined)));
+    }""")
     await page.screenshot(path=str(OUT / f"{name}.png"), full_page=True, animations="disabled")
     values = await page.evaluate("""() => {
       const rect = el => {
@@ -72,6 +78,7 @@ async def audit(browser, name, width, height):
         values["httpStatus"] == 200
         and values["scrollWidth"] <= width + 2
         and all(im["loaded"] for im in values["images"])
+        and (values["heroCTA"]["bottom"] <= height - 28 if width >= 1024 else values["heroCTA"]["bottom"] <= height)
         and values["loadedFonts"]
         and not values["pageErrors"]
         and (values["mobileCTADisplay"] != "none" if width <= 760 else values["mobileCTADisplay"] == "none")
