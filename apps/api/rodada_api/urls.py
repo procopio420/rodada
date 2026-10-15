@@ -1,3 +1,7 @@
+from modules.guest_access.customer_views import (
+    CustomerRegisterView, CustomerLoginView, CustomerContextView,
+    CustomerClaimView, CustomerLogoutView,
+)
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
@@ -219,6 +223,11 @@ urlpatterns = [
     path("guest/party-size/", GuestPartySizeView.as_view()),
     path("guest/qr/resolve/", GuestQrResolveView.as_view(), name="guest-qr-resolve"),
     path("guest/context/", GuestContextView.as_view(), name="guest-context"),
+    path("guest/customer/register/", CustomerRegisterView.as_view()),
+    path("guest/customer/login/", CustomerLoginView.as_view()),
+    path("guest/customer/context/", CustomerContextView.as_view()),
+    path("guest/customer/claim/", CustomerClaimView.as_view()),
+    path("guest/customer/logout/", CustomerLogoutView.as_view()),
     path("guest/tabs/", GuestTabCreateView.as_view(), name="guest-tab-create"),
     path("guest/catalog/", GuestCatalogView.as_view(), name="guest-catalog"),
     path("guest/orders/confirm/", GuestOrderConfirmView.as_view(), name="guest-order-confirm"),
