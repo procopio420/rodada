@@ -45,9 +45,15 @@ def _record(bucket, occupancy):
         if earlier is None or later is None:
             metric["missing"] += 1
         elif later < earlier or (
-            key in ("wait_to_clean", "cleaning")
+            key in ("wait_to_clean", "cleaning", "release_to_ready")
             and occupancy.cleaning_started_at is not None
-            and occupancy.cleaning_started_at < occupancy.released_at
+            and (
+                occupancy.cleaning_started_at < occupancy.released_at
+                or (
+                    occupancy.ready_at is not None
+                    and occupancy.ready_at < occupancy.cleaning_started_at
+                )
+            )
         ):
             metric["invalid"] += 1
         else:
