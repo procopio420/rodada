@@ -22,5 +22,10 @@ else:
     tab=Tab.objects.get(display_label=os.environ["RODADA_COMPOSE_TAB_LABEL"],venue_id=f["venue_id"])
     assert not Order.objects.filter(tab=tab).exists()
     assert not Charge.objects.filter(tab=tab).exists() and not Payment.objects.filter(tab=tab).exists()
+    original=json.loads(Path("artifacts/android-compose-order.json").read_text())
+    assert original["database_instance_id"]==f["database_instance_id"]
+    assert Order.objects.filter(pk=original["original_order_id"],tab_id=original["original_tab_id"]).count()==1
+    assert {str(c.pk) for c in Charge.objects.filter(tab_id=original["original_tab_id"])}==set(original["charge_ids"])
+    assert sum(Charge.objects.filter(tab_id=original["original_tab_id"]).values_list("amount_cents",flat=True))==1700
     Path("artifacts/android-catalog-sql.json").write_text(json.dumps({"sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"database_instance_id":f["database_instance_id"],"venue_id":f["venue_id"],"tab_id":str(tab.pk),"status":"PASS","orders":0,"charges":0,"payments":0,"native_ui":"production MainActivity Compose","fault":"product made unavailable after cart before confirm"},indent=2)+"\n")
 print("PASS: guarded catalog fault stage",sys.argv[1])

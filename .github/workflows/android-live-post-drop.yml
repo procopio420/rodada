@@ -22,6 +22,7 @@ on:
       - "scripts/verify-issue106-sse.py"
       - "scripts/verify-issue106-pending.py"
       - "scripts/verify-issue106-unavailable.py"
+      - "scripts/issue106-catalog-fault.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
