@@ -15,14 +15,14 @@ from e2e_evidence import validate, INVARIANTS
 # Partial contracts remain BLOCKED even when their implemented subcases passed.
 CASES = {
     "E2E-01": ("A2 A5 A6", ["qr-lifecycle-sql.json"], ["guest", "attendance-web"], ""),
-    "E2E-02": ("A3 A6", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["guest", "attendance-web", "android-instrumented"], "Native readback of the two contextual Tabs remains unproven."),
+    "E2E-02": ("A3 A6", ["browser-origins-sql.json", "android-context-readback-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-03": ("B2 B3 B7", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-04": ("B4 B5 B7", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["bar", "kitchen"], "Native/management projection after READY remains incomplete."),
-    "E2E-05": ("B6 B7", [], ["guest", "attendance-web", "android-instrumented"], "Catalog rupture after cart is not yet executed across all three origins."),
+    "E2E-05": ("B6 B7", ["unavailable-cart-sql.json", "unavailable-staff-sql.json", "android-catalog-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-06": ("C3 C7", ["financial-sql.json"], ["cash", "attendance-web"], ""),
     "E2E-07": ("C5 C7", ["financial-sql.json"], ["cash", "manage"], "Negative cashier/manager capability and business cutoff cases remain incomplete."),
     "E2E-08": ("D2 D3 D7", ["concurrency-sql.json"], ["django", "attendance-web"], ""),
-    "E2E-09": ("D4 D7", ["browser-origins-sql.json", "android-web-cross-surface.json"], ["guest", "android-instrumented"], "Native UI double-tap and divergent-body negative remain unproven."),
+    "E2E-09": ("D4 D7", ["browser-origins-sql.json", "android-web-cross-surface.json", "android-compose-order.json"], ["guest", "android-instrumented"], ""),
     "E2E-10": ("D5 D6 D7", ["revocation-sql.json", "isolation-sql.json"], ["attendance-web", "android-instrumented", "guest"], "Native revocation/replay, expiry/refresh and Guest/Host A/B crossings remain incomplete."),
     "E2E-11": ("E2 E3 E7", ["android-web-cross-surface.json"], ["android-instrumented", "bar"], ""),
     "E2E-12": ("E4 E5 E7", ["sse-sql.json", "browser-origins-sql.json"], ["attendance-web", "kitchen"], ""),
@@ -73,7 +73,8 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         }
         refs += [name for name, a in artifacts.items() if a["kind"] == "playwright-trace" and any(test in name for test in trace_tests[sid])]
         if "android-instrumented" in surfaces:
-            refs += [name for name, a in artifacts.items() if a["kind"] == "android-instrumentation" and ("compose" in name if sid in {"E2E-02", "E2E-03", "E2E-04"} else "recovery" in name)]
+            native_names = {"E2E-02":["context-readback"], "E2E-03":["compose"], "E2E-04":["context-readback"], "E2E-05":["catalog"], "E2E-09":["compose","recovery"]}.get(sid,["recovery"])
+            refs += [name for name, a in artifacts.items() if a["kind"] == "android-instrumentation" and any(token in name for token in native_names)]
         ids = {"venue":[fixture["venue_id"]]}
         mapping = {"tab_ids":"tab", "tab_id":"tab", "original_tab_id":"tab", "order_ids":"order", "original_order_id":"order", "original_order_item_ids":"order_item", "charge_ids":"charge", "payment_ids":"payment", "occupancy_ids":"occupancy", "occupancy_id":"occupancy"}
         for name in required:
