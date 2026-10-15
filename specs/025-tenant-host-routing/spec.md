@@ -152,3 +152,7 @@ receber421. O resultado421 original deve alcançar o cliente sem exceção de
 replay de body e sem duplicar comandos. Falha real de rede continua503;
 não substituir indisponibilidade por401/404/421. Paths internos permanecem
 canônicos com barra final; não usar redirects como parte da autenticação.
+
+A normalização automática de barra final do Next é desabilitada para que não
+responda308 antes do guard de Host. Web aceita ambos os paths com/sem barra sem
+replay por redirect; os paths de saída BFF→Django continuam canônicos com barra.
