@@ -7,6 +7,7 @@ export default defineConfig({
   testDir: financial ? "./tests/cross-surface-financial" : "./tests/cross-surface",
   testMatch: "*.spec.ts",
   workers: 1,
+  timeout: 120_000, // Shared emulator + Django/PostgreSQL + BFF UI is not a trivial unit suite.
   fullyParallel: false,
   forbidOnly: true,
   retries: 0,
