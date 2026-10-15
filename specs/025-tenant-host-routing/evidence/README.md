@@ -22,7 +22,12 @@ Output contains scenario/status results and QA object UUIDs only. A failed
 scenario stops the matrix and still attempts logout; it never authorizes PASS.
 
 Writes are restricted to QA guest policy, table/catalog definitions, physical
-groups and empty nonfinancial Tabs/occupancies. No Order, Charge, Payment,
+groups, empty nonfinancial Tabs/occupancies and fictional opt-in Customer
+profiles owned exclusively by QA Relationships. Profile passwords are derived
+only in memory from the protected QA seed and unique run; they are never stored
+in evidence. The matrix covers profile rotation, logout and cross-visit/Host
+replay; final containment also rejects these profiles through revoked GuestSessions.
+No Order, Charge, Payment,
 Refund or cash operation is issued. Existing pilot credentials are not accepted
 by this executor. Monetary scenarios belong exclusively to disposable PostgreSQL.
 
