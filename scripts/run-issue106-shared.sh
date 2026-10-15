@@ -107,6 +107,7 @@ step=independent-sql
 "$PYTHON" scripts/verify-android-web-cross-surface.py
 "$PYTHON" scripts/verify-qr-lifecycle.py
 "$PYTHON" scripts/verify-browser-origins.py
+"$PYTHON" scripts/verify-issue106-unavailable.py
 "$PYTHON" scripts/verify-issue106-concurrency.py
 "$PYTHON" scripts/verify-issue106-authorization.py
 "$PYTHON" scripts/verify-issue106-sse.py
