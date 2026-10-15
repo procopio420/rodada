@@ -235,3 +235,29 @@ def logout_customer(*, guest_token, auth_token):
     auth.revoked_at = timezone.now()
     auth.save(update_fields=["revoked_at"])
     _audit(session, "logged_out", auth.credential.customer_id)
+
+
+@transaction.atomic
+def change_customer_password(*, guest_token, auth_token, old_password, new_password):
+    """Rotate every profile authorization without revoking the anonymous visit."""
+    session = _locked_authorized_session(
+        token=guest_token, require_ordering_enabled=False, require_mutation=False,
+    )
+    authorization = _authorized_customer(session, auth_token)
+    credential = CustomerCredential.objects.select_for_update().get(
+        pk=authorization.credential_id
+    )
+    if not check_password(old_password, credential.password_hash):
+        raise GuestAccessError("INVALID_CREDENTIALS", INVALID_CREDENTIALS, 401)
+    credential.password_hash = make_password(new_password)
+    credential.version += 1
+    credential.failed_logins = 0
+    credential.locked_until = None
+    credential.save(update_fields=[
+        "password_hash", "version", "failed_logins", "locked_until",
+    ])
+    CustomerAuthSession.objects.filter(
+        credential=credential, revoked_at__isnull=True,
+    ).update(revoked_at=timezone.now())
+    _audit(session, "password_changed", credential.customer_id)
+    return _issue_auth(session=session, credential=credential)
