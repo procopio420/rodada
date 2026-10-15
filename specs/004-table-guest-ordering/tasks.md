@@ -99,3 +99,12 @@ registrados em closeout.md. Não confundir inspeção com homologação de campo
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+### #147 — Customer opcional (branch `codex/issue-147-optional-guest-customer`)
+
+- [x] Modelos/migration de credencial e sessão de perfil separados do GuestSession/Tab.
+- [x] Cadastro, login, contexto autenticado, claim condicionado à ocupação, logout e rotação de senha com revogação implementados.
+- [x] BFF HttpOnly e UI Guest opcional implementados; fluxo anônimo mantido.
+- [x] Testes de autenticação, account takeover, Venue, rotação, replay, ocupação alterada e concorrência PostgreSQL escritos.
+- [ ] Executar Django/PostgreSQL, migrations, auth/BFF/Web/visual/E2E e qualidade no SHA final; corrigir failures.
+- [ ] Revisão independente R3 sem P1/P0 aberto; aceite e merge autorizado; só então fechar #147.
