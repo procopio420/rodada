@@ -44,6 +44,8 @@ Authenticated follow-up: [runtime/backup checkpoint](railway-151-checkpoint.md#a
   e recuperação verificada; referência real usada no provisionamento protegido.
 - [x] Provisionar A/B, provar rerun idempotente e executar autenticação nativa
   positiva/cruzada, HMAC/TLS/Host e contenção real com SSE concorrente.
+- [x] Corrigir gate de imagem descartável sem skip: PR168, standalone contract
+  incluído, Integrated release854PASS/428.63s no head f02d11d, revisão independente.
 - [ ] Validar piloto autenticado, obter aprovação específica da flag, executar
   browser/guest HTTPS e backout da flag; exceção de preview ainda não aceita.
   [Checkpoint atual](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).

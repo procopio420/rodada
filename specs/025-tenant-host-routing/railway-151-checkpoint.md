@@ -418,7 +418,10 @@ release completed FAIL:853PASS/1FAIL438.17s, missing standalone print contract
 in disposable image. [PR168](https://github.com/procopio420/rodada/pull/168) copies
 only that existing contract; test remains unchanged. Candidate
 [release38672594038](https://github.com/procopio420/rodada/actions/runs/38672594038)
-is running on f02d11d after independent R3 review, not yet PASS.
+completed SUCCESS on exact f02d11da39ca28143e1f695f18977b45d49ee8e1:
+**854PASS/428.63s**, HTTP shift+restart PASS, independent R3 review no findings.
+PR168 merged75f637f8e5297b960375df8c1dd83b6478a5d1ec. The original baseline
+failure remains recorded; no test was skipped.
 
 
 Machine-readable [sanitized execution receipts](evidence/railway-ab-20261015.json)

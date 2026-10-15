@@ -790,8 +790,11 @@
     },
     "release_candidate_f02d11d": {
       "run_id": 38672594038,
-      "status": "IN_PROGRESS",
-      "fix_pr": 168
+      "status": "SUCCESS",
+      "fix_pr": 168,
+      "passed": 854,
+      "pytest_seconds": 428.63,
+      "merge_sha": "75f637f8e5297b960375df8c1dd83b6478a5d1ec"
     }
   }
 }

@@ -23,3 +23,13 @@ comparison and complete Integrated release demo, including all PostgreSQL tests
 and restart. Record exact SHA/run and actual results; pending until executed.
 Independent review is required before integration. This does not authorize the
 shared tenant UI flag or satisfy browser/pilot/separate-preview acceptance.
+
+
+Executed candidate validation: exact `f02d11da39ca28143e1f695f18977b45d49ee8e1`,
+[Integrated release38672594038](https://github.com/procopio420/rodada/actions/runs/38672594038)
+**SUCCESS**, all854 PostgreSQL tests passed in428.63s including the unchanged
+standalone comparison; HTTP shift and PostgreSQL/service restart also PASS.
+Independent R3 read of the two-file candidate reported NO_FINDINGS_WITH_GAPS,
+no reproducible finding. [PR168](https://github.com/procopio420/rodada/pull/168)
+merged `75f637f8e5297b960375df8c1dd83b6478a5d1ec` after candidate gates green.
+Final integration/runtime evidence is tracked in the [checkpoint](railway-151-checkpoint.md).
