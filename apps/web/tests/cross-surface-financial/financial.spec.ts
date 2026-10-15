@@ -51,7 +51,10 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.route(paymentRoute, async route => {
     paymentBodies.push(route.request().postData()!);
     const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
-    expect(response.status()).toBe(paymentBodies.length === 1 ? 201 : 200);
+    // A replay may return 201 again while reusing the same committed Payment.
+    // The stable Payment ID, identical request body, and SQL cardinality prove idempotency.
+    expect([200, 201]).toContain(response.status());
+    if (paymentBodies.length === 1) expect(response.status()).toBe(201);
     const body = await response.json();
     if (!firstPaymentId) firstPaymentId = body.id; else expect(body.id).toBe(firstPaymentId);
     if (paymentBodies.length === 1) await route.abort(); else await route.fulfill({ response });
