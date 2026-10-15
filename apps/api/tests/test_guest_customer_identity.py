@@ -154,6 +154,7 @@ class GuestCustomerIdentityTests(TestCase):
         with self.assertRaises(GuestAccessError) as revoked:
             customer_context(guest_token=first.token, auth_token=auth)
         assert revoked.exception.code == "GUEST_SESSION_REVOKED"
+        tab.refresh_from_db()
         assert tab.customer_id is not None
 
     def test_http_contract_does_not_accept_label_or_table_number(self):
