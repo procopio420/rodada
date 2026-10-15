@@ -134,6 +134,15 @@ class LiveComposeOrderTest {
             foreignDenied { operations.confirmOrder(token, tabId, original.lines.map { CartLine(Product(it.productId, "Foreign denied", 0, true, "BAR", "AVAILABLE"), it.quantity, it.customization) }, java.util.UUID.randomUUID().toString()) }
         }
         println("NATIVE_VENUE_A_B_READ_POST_ISOLATED")
+        val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
+        java.io.File(files, "expiry-session-id").writeText(foreign.sessionId)
+        compose.waitUntil(60_000) { java.io.File(files, "expiry-applied").exists() }
+        try { auth.me(foreign.tokens.accessToken); error("Expired access accepted") }
+        catch (expired: AuthApiException) { check(expired.status == 401 && expired.code == "ACCESS_TOKEN_EXPIRED") }
+        val refreshed = auth.refresh(foreign.tokens.refreshToken)
+        check(refreshed.accessToken != foreign.tokens.accessToken)
+        check(auth.me(refreshed.accessToken).venueId == foreign.venueId)
+        println("NATIVE_EXPIRED_ACCESS_401_REFRESH_200")
         compose.onNodeWithTag("attendance-now").performClick()
         val pending = hasText("Pendências", substring = true) and hasClickAction()
         compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }

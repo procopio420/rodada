@@ -93,7 +93,13 @@ if [[ "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" == true ]]; then
   fi
   "${ADB[@]}" shell svc wifi enable
   "${ADB[@]}" shell svc data enable
-  if [[ "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" == true ]]; then "${ADB[@]}" shell run-as com.rodada.attendance touch files/revocation-applied; fi
+  if [[ "${RODADA_COMPOSE_OFFLINE_REVOCATION:-false}" == true ]]; then
+    "${ADB[@]}" shell run-as com.rodada.attendance touch files/revocation-applied
+    wait_app_marker expiry-session-id
+    export RODADA_EXPIRED_SESSION_ID="$("${ADB[@]}" shell run-as com.rodada.attendance cat files/expiry-session-id | tr -d '\r')"
+    "$PYTHON" scripts/issue106-catalog-fault.py expire
+    "${ADB[@]}" shell run-as com.rodada.attendance touch files/expiry-applied
+  fi
 else
   "$PYTHON" scripts/issue106-catalog-fault.py unavailable
   fault_applied=true
