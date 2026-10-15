@@ -90,9 +90,10 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
           <label className="repeatOrderChoice">
             <input type="checkbox" checked={picked} disabled={!canEdit}
               onChange={event => setChecked(current => ({ ...current, [id]: event.target.checked }))} />
-            <div><strong>{line.product.name}</strong><CustomizationText snapshot={currentSnapshot(line.product, line.selection)} />
-              <small className="muted">{money(price)} / un.</small></div>
+            <span><strong>{line.product.name}</strong>
+              <small className="muted">{money(price)} / un.</small></span>
           </label>
+          <CustomizationText snapshot={currentSnapshot(line.product, line.selection)} />
           <div className="repeatOrderQuantity" aria-label={`Quantidade de ${line.product.name}`}>
             <button type="button" className="buttonSecondary" aria-label={`Diminuir quantidade de ${line.product.name}`}
               disabled={!canEdit || !picked || !Number.isInteger(quantity) || quantity <= 1} onClick={() => adjust(id, -1)}>−</button>
