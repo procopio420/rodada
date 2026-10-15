@@ -16,7 +16,8 @@ export PYTHONPATH="$ROOT/apps/api"
 mkdir -p artifacts
 if [[ "${RODADA_COMPOSE_READBACK:-false}" == true ]]; then
   read -r table_id table_label tab_one tab_two < <("$PYTHON" - <<'PYARGS'
-import json,re,os
+import json,re,os,sys
+sys.path.insert(0,"scripts")
 from pathlib import Path
 from cross_surface_fixture import require_disposable_database
 require_disposable_database()
