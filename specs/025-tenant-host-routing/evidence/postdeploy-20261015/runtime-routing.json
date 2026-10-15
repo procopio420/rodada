@@ -1,0 +1,10 @@
+{
+  "sha": "017b110f62eb99f6297652c5c6544d59cddbfb72",
+  "deployment": "4e2d2203-14e7-4d0a-8e44-c29d9301ab42",
+  "nginx_matches_template": true,
+  "raw_api_external_assertions_removed": true,
+  "host_preserved": true,
+  "raw_api_trusted_forwarded_host": true,
+  "next_bff_uses_private_django_loopback": true,
+  "no_runtime_configuration_changed": true
+}

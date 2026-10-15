@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-15T15:55:46.946404+00:00",
+  "results": [
+    {
+      "url": "https://bardoaderlan.rodada.bar/healthz",
+      "status": "404",
+      "tls_verified": true,
+      "pass": false
+    },
+    {
+      "url": "https://bardoaderlan.rodada.bar/readyz",
+      "status": "404",
+      "tls_verified": true,
+      "pass": false
+    },
+    {
+      "url": "https://api.rodada.bar/healthz",
+      "status": "404",
+      "tls_verified": true,
+      "pass": false
+    },
+    {
+      "url": "https://api.rodada.bar/readyz",
+      "status": "404",
+      "tls_verified": true,
+      "pass": false
+    }
+  ],
+  "all_pass": false
+}

@@ -72,4 +72,8 @@ Sem PIN, QR, cookies, dumps, dados pessoais, valores financeiros ou fingerprints
    Manter seedfalse e não ativar QA. Contenção emergencial de isolamento confirmado
    segue o runbook; sem incidente confirmado, não desligar flag para obterPASS.
 
-Validação pós-deploy do candidato: **NOT_RUN** até autorização e deployment real.
+Validação pós-deploy: **PASS / GO**, executada após autorização explícita em
+15/10/2026, no deployment `4e2d2203-14e7-4d0a-8e44-c29d9301ab42`,
+SHA integrado `017b110f62eb99f6297652c5c6544d59cddbfb72`.
+[Relatório e recibos sanitizados](../../specs/025-tenant-host-routing/evidence/postdeploy-20261015/README.md).
+O NO-GO anterior e os recibos pré-deploy permanecem como histórico.

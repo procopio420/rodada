@@ -1,0 +1,30 @@
+{
+  "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+  "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+  "flag_exact_true": true,
+  "seed_exact_false": true,
+  "process_readback": [
+    {
+      "process": "python",
+      "runtime_sha_matches": true,
+      "flag_exact_true": true,
+      "seed_exact_false": true
+    },
+    {
+      "process": "next-server (v1",
+      "runtime_sha_matches": true,
+      "flag_exact_true": true,
+      "seed_exact_false": true
+    },
+    {
+      "process": "python",
+      "runtime_sha_matches": true,
+      "flag_exact_true": true,
+      "seed_exact_false": true
+    }
+  ],
+  "postgres_expected_private_service": true,
+  "database_configured_via_url": false,
+  "pending_migrations": 0,
+  "pilot_domain_correct": true
+}

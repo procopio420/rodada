@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-15T15:54:49.070Z",
+  "method": "real Chromium; HTTPS certificate verification; fresh anonymous context",
+  "results": [
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/",
+      "status": 421,
+      "pass": true
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/staff",
+      "status": 421,
+      "pass": true
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/",
+      "status": 421,
+      "pass": true
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/staff",
+      "status": 421,
+      "pass": true
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/",
+      "status": 421,
+      "pass": true
+    },
+    {
+      "host": "unregistered-preview.rodada.bar",
+      "path": "/staff",
+      "status": 421,
+      "pass": true
+    }
+  ],
+  "all_pass": true
+}
