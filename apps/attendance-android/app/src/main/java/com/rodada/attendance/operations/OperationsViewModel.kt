@@ -419,8 +419,8 @@ class OperationsViewModel(
         state = state.copy(cart = next, noticeMessage = null)
     }
 
-    fun repeatOrder(tabId: String, review: RepeatOrderReview) {
-        state = state.withRepeatedOrder(tabId, review)
+    fun repeatOrder(tabId: String, review: RepeatOrderReview, quantities: Map<String, Int>) {
+        state = state.withRepeatedOrder(tabId, review, quantities)
     }
 
     fun editCartLine(lineId: String, customization: Customization) {
