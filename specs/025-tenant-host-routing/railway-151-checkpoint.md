@@ -224,3 +224,22 @@ PostgreSQL. The latter is an exception to the original official-backup contract,
 not assumed acceptance, and cannot be labeled `railway-backup:<invented-id>`.
 Until resolved, never run provision/activate `--apply` or declare homologation.
 The separate-preview acceptance decision also remains outstanding.
+
+### Additional read-only edge/HMAC probes
+
+Executed from authenticated SSH in the main4704318 runtime, without staff/guest
+credentials or financial writes:
+
+| Probe | Observed result | Limit |
+| --- | --- | --- |
+| Direct Railway origin TLS, using origin address with tenant SNI/Host | Valid certificate SAN `*.rodada.bar` for A, B and pilot; health A/B421, pilot200 | Does not verify Cloudflare Full Strict setting |
+| Valid internal HMAC to loopback Django `/venue/context/` | 200 establishment, public pilot name | Confirms runtime secret and signed Host resolution, no A/B identity exists yet |
+| Invalid, expired and adulterated assertion | 403 HOST_ASSERTION_INVALID | Only read-only metadata probes |
+| Unsigned pilot private `/auth/me/` | 403 HOST_ASSERTION_REQUIRED | No pilot login attempted |
+| Valid signed assertion presented externally to shared API context | 200 compatibility, no tenant name | Public ingress stripped the otherwise valid tenant assertion |
+| Valid signed assertion externally to pilot private `/auth/me/` | 403 HOST_ASSERTION_REQUIRED | External header did not satisfy BFF authority |
+
+No signature, cookie, token or secret value was printed or persisted in evidence.
+HMAC was computed inside the container with the existing secret. These probes
+resolve a subset of the previous boundary gaps; enabled A/B sessions, cookies,
+QR, mutations, SSE, native authenticated flows and rollback remain NOT TESTED.

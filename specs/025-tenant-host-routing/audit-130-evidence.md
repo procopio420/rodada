@@ -229,3 +229,8 @@ create on-demand recusado por exigir Pro. Não existe ID de backup nem prova de
 recuperação. Nenhum provision/apply, ativação, flag ou rollback remoto executado.
 Decisão sobre custo/alternativa de backup e exceção de preview continua humana;
 #151/#130 abertas. Gates do merge e deployment exato são vinculados no checkpoint.
+Sondas posteriores read-only no runtime4704318 confirmaram TLS direto da origem
+para A/B/piloto, HMAC interno válido200 e inválido/expirado/adulterado403,
+assinatura ausente em rota privada tenant403 e stripping de assertiva válida
+apresentada externamente. Resultados/limites no checkpoint; nenhum token/sessão
+de cliente usado. Isso não converte o gate de homologação A/B em PASS.
