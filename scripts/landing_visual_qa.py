@@ -18,11 +18,16 @@ OUT = Path(os.environ.get("LANDING_QA_OUTPUT", "landing-visual-artifacts"))
 OUT.mkdir(parents=True, exist_ok=True)
 
 VIEWPORTS = [
+    ("mobile-320", 320, 700),
     ("mobile-360", 360, 800),
+    ("mobile-375", 375, 667),
     ("mobile-390", 390, 844),
     ("mobile-430", 430, 932),
     ("tablet-768", 768, 1024),
+    ("tablet-820", 820, 1180),
+    ("laptop-1024", 1024, 768),
     ("desktop-1440", 1440, 900),
+    ("wide-1920", 1920, 1080),
 ]
 
 async def audit(browser, name, width, height):
@@ -64,6 +69,10 @@ async def audit(browser, name, width, height):
         h1:rect(title),hero:rect(hero),nav:rect(nav),headlines:headingSpans,
         heroCTA:rect(document.querySelector('.hero-actions .button')),
         mobileCTA:rect(fixed),mobileCTADisplay:getComputedStyle(fixed).display,
+        stickyInitiallyHidden:fixed.hidden,
+        headerCTA:rect(document.querySelector('.nav-cta')),
+        headerCTALineHeight:parseFloat(getComputedStyle(document.querySelector('.nav-cta')).lineHeight),
+        headerCTAHeight:document.querySelector('.nav-cta').getBoundingClientRect().height,
         images, buttons, overflowCandidates:nodes,
         font:getComputedStyle(title).fontFamily,
         loadedFonts:document.fonts.check('900 24px Archivo'),
@@ -72,22 +81,47 @@ async def audit(browser, name, width, height):
     }""")
     await page.keyboard.press("Tab")
     values["firstTab"] = await page.evaluate("() => ({tag:document.activeElement.tagName,text:document.activeElement.innerText,href:document.activeElement.getAttribute('href')})")
+    # Exercise scroll-aware CTA in each viewport and capture its visible state.
+    await page.evaluate("""() => {
+       const hero = document.querySelector('.hero');
+       window.scrollTo({top: hero.getBoundingClientRect().bottom + scrollY + 60, behavior:'instant'});
+    }""")
+    await page.wait_for_timeout(200)
+    values["stickyAfterHero"] = await page.evaluate("""() => {
+       const el = document.querySelector('.mobile-cta');
+       return {hidden:el.hidden,display:getComputedStyle(el).display,box:el.getBoundingClientRect().toJSON()};
+    }""")
+    await page.screenshot(path=str(OUT / f"{name}-after-hero.png"), animations="disabled")
+    await page.evaluate("""() => {
+       const end = document.querySelector('.final-cta');
+       window.scrollTo({top:end.getBoundingClientRect().top + scrollY + 30,behavior:'instant'});
+    }""")
+    await page.wait_for_timeout(200)
+    values["stickyAtEnd"] = await page.evaluate("() => document.querySelector('.mobile-cta').hidden")
     values["httpStatus"] = response.status if response else None
     values["pageErrors"] = errors
     values["pass"] = (
         values["httpStatus"] == 200
         and values["scrollWidth"] <= width + 2
         and all(im["loaded"] for im in values["images"])
-        and (values["heroCTA"]["bottom"] <= height - 28 if width >= 1024 else values["heroCTA"]["bottom"] <= height)
+        and values["headerCTA"]["h"] <= 48
+        and values["headerCTA"]["bottom"] < height
+        and values["headerCTA"]["x"] >= 0
+        and values["headerCTA"]["x"] + values["headerCTA"]["w"] <= width + 2
+        and values["stickyInitiallyHidden"]
+        and (not values["stickyAfterHero"]["hidden"] if width <= 760 else values["stickyAfterHero"]["hidden"])
+        and values["stickyAtEnd"]
+        and (values["heroCTA"]["bottom"] <= height - 28 if width >= 1280 else True)
         and values["loadedFonts"]
         and not values["pageErrors"]
-        and (values["mobileCTADisplay"] != "none" if width <= 760 else values["mobileCTADisplay"] == "none")
+        and values["mobileCTADisplay"] == "none"
     )
     (OUT / f"{name}.json").write_text(json.dumps(values, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f'{name}: PASS={values["pass"]}, overflow={values["scrollWidth"]-width}px, '
           f'fonts={values["loadedFonts"]}, images={sum(i["loaded"] for i in values["images"])}/{len(values["images"])}, '
           f'heroCTA_bottom={values["heroCTA"]["bottom"] if values["heroCTA"] else "missing"}, '
-          f'pageHeight={values["pageHeight"]}')
+          f'pageHeight={values["pageHeight"]}, stickyAfterHero={values["stickyAfterHero"]["hidden"]}, '
+          f'stickyAtEnd={values["stickyAtEnd"]}, navCTAHeight={values["headerCTAHeight"]}')
     if values["overflowCandidates"]:
         print("  overflow candidates: ", json.dumps(values["overflowCandidates"], ensure_ascii=False))
     await page.close()
