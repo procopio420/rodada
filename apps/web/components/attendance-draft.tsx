@@ -1,4 +1,5 @@
 "use client";
+import { sameCatalogSelection } from "@/components/attendance-category-catalog";
 import { OperationalHeading } from "@/components/operational-heading";
 import { CustomizationText, selectionError, unitPrice, type OrderingProduct, type Selection } from "@/components/product-customization";
 
@@ -19,7 +20,7 @@ export function AttendanceDraft({ rows, locked, fresh, onQuantity, onEdit, child
    <div className="attendanceDraftControls"><div className="attendanceQuantity" role="group" aria-label={`Quantidade de ${row.product.name}`}>
     <button className="buttonSecondary" aria-label={`Diminuir quantidade de ${row.product.name}`} disabled={locked} onClick={() => onQuantity(index, -1)}>−</button>
     <output aria-label={`Quantidade selecionada de ${row.product.name}`}>{row.quantity}</output>
-    <button className="buttonSecondary" aria-label={`Aumentar quantidade de ${row.product.name}`} disabled={locked || !fresh || !row.product.active || row.product.availability !== "AVAILABLE" || row.quantity >= 99} onClick={() => onQuantity(index, 1)}>+</button>
+    <button className="buttonSecondary" aria-label={`Aumentar quantidade de ${row.product.name}`} disabled={locked || !fresh || !row.product.active || row.product.availability !== "AVAILABLE" || rows.filter(line => line.product.id === row.product.id && sameCatalogSelection(line.selection, row.selection)).reduce((sum, line) => sum + line.quantity, 0) >= 99} onClick={() => onQuantity(index, 1)}>+</button>
    </div><button className="buttonQuiet" disabled={locked} onClick={() => onEdit(index)}>Editar</button></div>
   </article>)}
   {children}

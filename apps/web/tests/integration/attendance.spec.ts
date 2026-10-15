@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "./fixtures";
 import { openNamedAttendanceTab } from "./attendance-helpers";
 
@@ -12,7 +13,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
   await openNamedAttendanceTab(page, "Atendimento browser test");
   await expect(page.locator(".attendanceOrderDialog")).toContainText("Mesa Fixture Atendimento browser test");
-  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /^Kitchen E2E item/ }).click();
+  await addCatalogItem(page, "Kitchen E2E item");
   await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();

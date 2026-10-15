@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test, type Page } from "./fixtures";
 import { selectExistingAttendanceTab } from "./attendance-helpers";
 import { execFileSync } from "node:child_process";
@@ -41,9 +42,9 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   database("Product.objects.filter(venue=v,name='Kitchen E2E item').update(price_cents=1200)");
   await page.reload(); 
   await selectExistingAttendanceTab(page, `Other ${width}`);
-  await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await page.getByRole("button", { name: /^Bar E2E item/ }).click();
+  await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await addCatalogItem(page, "Bar E2E item");
   await selectExistingAttendanceTab(page, `Repeat ${width}`);
-  await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await page.getByRole("button", { name: /^Bar E2E item/ }).click();
+  await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await addCatalogItem(page, "Bar E2E item");
   await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   const draft = page.getByRole("region", { name: "Pedido atual" });
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();

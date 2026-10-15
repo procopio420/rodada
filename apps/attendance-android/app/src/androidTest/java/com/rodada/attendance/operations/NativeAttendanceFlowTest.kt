@@ -22,7 +22,7 @@ class NativeAttendanceFlowTest {
                 TabDetail(tab, emptyList()), { backs++ }, { _, _ -> }, { _, _ -> }, { _, _ -> }, { sent++ },
                 {}, {}, {}, {}, {}, {}, {}, {})
         } } }
-        compose.onNodeWithText(product.name).assertIsDisplayed()
+        compose.onNodeWithTag("catalog-category-Outros").assertIsDisplayed()
         compose.onNodeWithText("Saldo em aberto").assertDoesNotExist()
         compose.onNodeWithTag("workspace-Pedido atual").performClick()
         compose.onNodeWithText("Confirmar pedido").performScrollTo().assertIsDisplayed()
@@ -31,7 +31,7 @@ class NativeAttendanceFlowTest {
         compose.onNodeWithText(formatCents(1200)).assertIsDisplayed()
         compose.onNodeWithText("Confirmar pedido").assertDoesNotExist()
         compose.onNodeWithTag("workspace-Cardápio").performClick()
-        compose.onNodeWithText(product.name).assertIsDisplayed()
+        compose.onNodeWithTag("catalog-category-Outros").assertIsDisplayed()
         compose.onNodeWithText("← Mesas e comandas").assertHeightIsAtLeast(48.dp).performClick()
         assertEquals(1, backs)
         assertEquals(0, sent)
@@ -47,8 +47,8 @@ class NativeAttendanceFlowTest {
                 {}, {}, {}, {}, {}, {}, {}, {})
         } } }
         compose.onNodeWithText("← Mesas e comandas").assertIsNotEnabled()
-        compose.onNodeWithText("Indisponível").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Adicionar ${product.name}").assertIsNotEnabled()
+        compose.onNodeWithTag("catalog-category-Outros").assertIsNotEnabled()
+        compose.onNodeWithText(product.name).assertDoesNotExist()
         assertEquals(0, backs)
         assertEquals(0, added)
     }

@@ -270,3 +270,33 @@ Worktrees preexistentes preservados. Main avançou a5a53326d durante a pausa;
 incorporar com cuidado antes de publicar e exigir CI/revisão no SHA final.
 Próximo passo: revisão independente do patch e CI; se aprovado, concluir merge
 PR184 com expected_head_sha e verificar SHA da main. Sem deploy autorizado.
+
+
+## Cardápio por categorias — 2026-10-15
+
+Branch `codex/attendance-category-catalog`, HEAD/base
+`1705fa98279cff350776e55a0851698a3c61352c`, implementação local não commitada.
+Objetivo atual: categoria → popup de produtos → popup de quantidade/Personalizar,
+Android nativo e Web. Spec029/plan/tasks/acceptance e design system atualizados
+antes do código. Inventário/evidência em
+`specs/029-attendance-mobile-design/category-evidence.md`.
+
+Implementados componentes CategoryCatalog/AttendanceCategoryCatalog, grade compacta,
+quantidade sem inserção antecipada, configuração opcional, validação de máximo99
+compartilhado e retorno de foco. Componentes de personalização e workspace existentes
+reutilizados. Testes Compose/JVM/visuais novos e helpers de integração atualizados;
+API/banco/recovery cifrado/ledger intactos. `.worktrees/` preexistente preservado.
+
+Android build/lint/97JVM PASS;11Compose e mais2 em360dp/fonte2 e2 em430dp PASS.
+Web build/tipos/30 jornadas atuais PASS; teste de ampliação de texto PASS. Lint
+mantém erro preexistente no effect de recuperação em attendance-web.tsx:50, sem erro
+novo nos componentes. Fullvisual interrompida ao encontrar roteiro antigo que procura
+Contas; integração PostgreSQL Windows não reexecutada (fcntl). Não é aceite integral.
+Revisão independente R3 NO_FINDINGS_WITH_GAPS, sem gate executado pelo revisor.
+
+APK atualizado instalado com -r, reverse8000 e app aberto; Web3000 disponível.
+Configurações temporárias de emulador restauradas. Sem reset/migration, nova
+comanda/pedido/pagamento na demonstração, publicação Git ou deploy neste recorte.
+Última ação: compilação e validação local do novo fluxo. Próximo passo: teste manual
+local; antes de eventual publicação solicitada, conferir status/diff, gates Linux
+e roteiro visual legado. GO para teste local; NO-GO de produção/homologação geral.

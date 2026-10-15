@@ -235,3 +235,17 @@ confirmação somente após segunda leitura. Roteiros integrados de mesa e movim
 alinhados aos popups/limpeza direta, mantendo asserts financeiros e replay.
 Integração PostgreSQL no Linux/CI final permanece necessária. Sem mudança de
 baselines ou timeout, sem reset da demonstração.
+
+
+## Aceite local — categorias e quantidade
+- Entrada só com categorias; produtos surgem apenas no popup escolhido.
+- Escolher produto não insere; cancelar conserva draft; Adicionar3 insere3.
+- Personalizar preserva variantes/observações e separa configurações.
+- Quantidade1–99; excesso de linha bloqueado, sem perda silenciosa.
+- Produto/opção indisponível depois de abrir não pode ser adicionado.
+- Back/foco/camadas e revisão integral funcionam; pendência impede mutação.
+- A/B/A conserva rascunhos isolados; navegação não confirma pedido/pagamento.
+- Android/Web360/390/430 e fonte ampliada, build/lint/testes e captura real.
+Evidência e limites em [category-evidence.md](category-evidence.md). Aceite local
+do fluxo; sem homologação PostgreSQL integrada/produção e sem PASS da suíte
+visual legada completa.
