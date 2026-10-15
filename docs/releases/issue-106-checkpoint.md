@@ -1,5 +1,9 @@
 # Issue #106 execution checkpoint
 
+Historical slice record. For current exact-SHA execution and remaining gates, see
+[the resumption matrix](issue-106-resumption-matrix.md). Historical failures and
+NOT_RUN statements below describe their original snapshot.
+
 Base initially inspected: `fdc45944` (2026-10-15); main `2b981bba` integrated without conflicts. Branch: `test/106-integrated-foundation`.
 This is a continuation record, not evidence that E2E-01..14 passed.
 

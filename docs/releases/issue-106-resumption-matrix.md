@@ -1,73 +1,109 @@
-# #106 — matriz de retomada local
+# #106 — matriz verificável de execução
 
-Estado em 2026-10-15: **NO-GO**. `PASS` abaixo identifica uma prova parcial específica, nunca a aprovação automática da tarefa inteira. O pacote e3d59 passou o slice inicial; e2b0 passou recovery nativo, Compose, nove browsers e SQL, mas falhou no teste financeiro que esperava HTTP200 em replay cujo endpoint retorna201. Correções adicionais já constam de main em be5743d8. PRs191–193 foram integrados externamente durante a pausa; esta execução não efetuou merge/deploy.
+Execução local integrada **TESTED** no SHA `899255b1406fc3fe51ace2977c7789fc65cf68d0`,
+15/10/2026, pacote `artifacts/runs/899255b1406f-20261015T221922Z` na worktree
+`issue106-ci-package`. Android Compose real em emulador API36/KVM, Chromium,
+Next/BFF, Django e um PostgreSQL17 descartável compartilhado. Nenhuma prova foi
+importada de outro SHA/cluster. **14 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED** em cenários;
+a decisão global exige também invariantes e revisão independente do pacote.
+O validador retornou **GO automatizado, errors=[]**, após a [R3 independente](https://github.com/procopio420/rodada/issues/106#issuecomment-6203562103).
+Essa revisão local em contexto separado não é aprovação GitHub.
+
+O pacote anterior a9cf6007 chegou aos14PASS mas falhou no SQL agregado por exigir
+`revoked_at`, enquanto o contrato Guest invalida por geração/ocupação. A falha
+foi preservada. 899255b1 verifica geração antiga, ocupação liberada,403 real e
+nova sessão válida. bff3fc31 falhou antes por expectativa incorreta de movimento
+zero; o serviço não cria OPENING_FLOAT quando o fundo é zero. Não houve mudança
+de produto para acomodar esses asserts.
 
 ## Tarefas A–F
 
-| Tarefa | Estado | Prova existente / falta para aceite completo |
+`TESTED` significa execução local real no SHA acima, com receipts correlacionados;
+`CI_PENDING` exige confirmação do workflow correspondente. Gates físicos continuam
+separados, sem transformar automação em aceite presencial.
+
+| Tarefa | Estado | Prova/escopo |
 |---|---|---|
-| A1 | Concluído | Inventário reconciliado no checkpoint191; integração não inferida do inventário. |
-| A2 | Parcial | QR-first/claim Web/SQL executados; manter prova no SHA final. |
-| A3 | Parcial | Guest/Web consomem duas Tabs; Android standalone; falta readback nativo das duas Tabs contextuais. |
-| A4 | Parcial | Última Tab não libera, release/limpeza/nova visita executados; repetir no SHA final. |
-| A5 | Parcial | Sessão Guest antiga negada após release e nova visita; repetir no SHA final. |
-| A6 | Parcial | Receipts e SQL existem; índice final pendente. |
-| B1 | Concluído | Testes127 reaproveitados e separação HTTP/storage versus Compose documentada. |
-| B2 | Parcial | Fixture compartilhada real, cluster hash, dois atores/produtos/estações. |
-| B3 | Parcial | Android Compose, Atendimento e Guest reais executados; head final pendente. |
-| B4 | Parcial | NEW→PREPARING→READY por UI Bar/Cozinha executado; head final pendente. |
-| B5 | Parcial | Web canônico comprovado; falta projeção nativa/gerencial pós-READY. |
-| B6 | Parcial | PR194 Guest/Web; nativo em implementação/execução, sem PASS antecipado. |
-| B7 | Parcial | SQL correlacionado; completar negativos e pacote final. |
-| C1 | Concluído | Inventário financeiro existente reaproveitado. |
-| C2 | Parcial | Somente dinheiro de teste e PostgreSQL exclusivo; pendência controlada sem PSP. |
-| C3 | Parcial | Parcial/residual passou no baseline; replay CASH ampliado precisa ciclo final. |
-| C4 | Parcial | Bug de fechamento PENDING reproduzido e corrigido; UI/SQL negativo passou em e2b0; financeiro completo pendente. |
-| C5 | Parcial | Caixa/divergência/revisão executados; ampliar negativo de papéis/cutoff. |
-| C6 | Parcial | Estorno compensatório implementado; validar ciclo final/SQL. |
-| C7 | Parcial | Reconciliação independente existe; pacote final pendente. |
-| D1 | Concluído | Inventário de concorrência/auth/tenant e harness de barreira reutilizado. |
-| D2 | Parcial | HTTP simultâneo start/start, UI e SQL passaram; repetir head final. |
-| D3 | Parcial | CAS claim/claim e release/open reais, UI e SQL passaram. |
-| D4 | Parcial | Guest double click/body divergente, nativo recovery; falta negativo/divergência e double tap Compose. |
-| D5 | Parcial | Web revogação/relogin preserva intenção; falta Android, expiry/refresh/SSE negativo. |
-| D6 | Parcial | BFF A/A,B/B permitidos e A/B,B/A negados; Guest/native/Host não certificados. |
-| D7 | Parcial | Receipts sanitizados e negativos SQL; manifest final pendente. |
-| E1 | Concluído | Proxy RST, corte uplink emulador e Wi-Fi físico distinguidos. |
-| E2 | Parcial | POST commitado/perda resposta/force-stop/offline/replay executados; head final pendente. |
-| E3 | Parcial | Mesmo Order nativo→Bar e SQL; readback nativo pós-READY pendente. |
-| E4 | Parcial | SSE-only Web, HTTP/polling/cursor/SQL passou; Android não comprovado nesse fault. |
-| E5 | Parcial | Kitchen offline durante commits e recovery NEW executados. |
-| E6 | Parcial | Ruptura nativa após cart em andamento; conflito de intenção offline/revogação requer revisão persistida ainda não comprovado. |
-| E7 | Parcial | Transporte/PID/instrumentation/SQL existem; índice final pendente. |
-| F1 | Concluído | InventárioCI/checks e gatilhos por paths documentados. |
-| F2 | Parcial | Runner comum e identidade de cluster em produção de testes; suíte completa pendente. |
-| F3 | Parcial | Checks seletivos existentes; smoke completo por risco pendente. |
-| F4 | Parcial | Workflow integrado reutilizável; ainda não cobre todo A–E. |
-| F5 | Parcial | Contrato/validador e compilador fail-closed; versões/review/vínculos finais pendentes. |
-| F6 | Parcial | Esta matriz distingue prova de lacuna; relatório final ainda não existe. |
-| F7 | Parcial | Validador nega GO sem14PASS/invariantes/review; nenhum GO integral. |
-| F8 | Parcial | R3 independente por slice; review e documentação do SHA final pendentes. |
+| A1 | RECONCILIADO | Inventário reconciliado; fundações185 e contrato186 preservados sem diff incidental. |
+| A2 | TESTED | QR-first, claim Web, mesma ocupação/geração e auditoria; claim sem ledger. |
+| A3 | TESTED | Duas Tabs Guest/Web na mesma ocupação, pedidos/saldos separados; ambas lidas no Compose; Tab standalone nativa. |
+| A4 | TESTED | Última Tab fechada não libera; release explícito, DIRTY/CLEANING/AVAILABLE e novo ciclo com mesmo QR. |
+| A5 | TESTED | 403 da GuestSession antiga; nova visita/geração válida, sem Order/Charge indevido. |
+| A6 | TESTED | qr-lifecycle-sql, browser-origins-sql e android-context-readback-sql. |
+| B1 | RECONCILIADO | Harness127 reaproveitado; HTTP/storage distinguido da confirmação Compose. |
+| B2 | TESTED | Fixture única, cluster hash, Venue/produtos BAR700/KITCHEN1000 e múltiplos atores. |
+| B3 | TESTED | Pedidos confirmados pela UI Compose, Atendimento Web e Guest; IDs correlacionados. |
+| B4 | TESTED | NEW→PREPARING→READY por UI explícita nas estações; Guest mostra Pronto/chegando. |
+| B5 | TESTED | Android lê ambas Tabs prontas; Atendimento/Gerência mostram7DispatchTasks; OPEN sem conclusão ou provenance inventada. |
+| B6 | TESTED | Carrinhos stale Guest/Web/Compose negados409; offlineACTION_REQUIRED e pedidos anteriores preservados. |
+| B7 | TESTED | SQL final5Orders/8Items/8Charges6800; estações/centavos/quantidades e zero pagamento por preparo. |
+| C1 | RECONCILIADO | Inventário cash/ledger/concurrency existente reutilizado. |
+| C2 | TESTED | Somente CASH de teste e PENDING controlado sem PSP, PostgreSQL descartável. |
+| C3 | TESTED | Parcial300, refund100 e residual1500; resposta perdida e replay com mesmoPaymentID; demaisTabs sem pagamento. |
+| C4 | TESTED | Fechamento com saldo409; PENDING sem confirmação bloqueia, sem CashMovement/PaymentAttempt. |
+| C5 | TESTED | Abertura10000/supply2000/withdrawal1000; esperado12700/contado11700/divergência-1000 revisada; STAFF/CASHIER403; cutoff nos dois lados. |
+| C6 | TESTED | Refund compensatório100 preserva Payment/Charge, confirmação e auditoria. |
+| C7 | TESTED | financial-sql/cash-cutoff-sql/financial-roles-sql/final-state-sql; gross1800-refund100, exposição5100. |
+| D1 | RECONCILIADO | Auditoria#130 reutilizada; controles limitados à jornada local106. |
+| D2 | TESTED | start/start simultâneo com barreira/conexõesPG; uma ocupação/owner. |
+| D3 | TESTED | claimCAS e release/open atômicos; auditoria única, sem Tab órfã/ledger. |
+| D4 | TESTED | Double tap Compose; perdaresposta/replay nativo eGuest; key/body idênticos e divergência409. |
+| D5 | TESTED | Revogação Web/nativa GET/POST/refresh/SSE; expiração401→refresh200; intenção antiga exige revisão após novo login. |
+| D6 | TESTED | A/B own200/cross404; Guest selectors/produtos negados; Host local assinado noBFF e diretoAndroid negado. Não certifica ingress externo#130. |
+| D7 | TESTED | Receipts, instrumentation e SQL negativo: ausência de efeitos após403/409/timeouts. |
+| E1 | RECONCILIADO | RST, uplinkemulador e Wi-Fi físico separados; históricoCI documentado. |
+| E2 | TESTED | POSTcommitado/respostaperdida/force-stop/offline/replay; Order1/Item1/Charge1/Payment0. |
+| E3 | TESTED | MesmoOrder recuperado→BarREADY; Compose contextual pósREADY sem novo comando. |
+| E4 | TESTED | SomenteSSEaborted, HTTPhealthy/polling/cursor retomado, itemNEW único sem preparar sozinho. |
+| E5 | TESTED | Cozinha offline durante commits Guest/Web, recuperaçãoNEW por snapshot e ações explícitas. |
+| E6 | TESTED | OfflinePENDING→catálogoalterado→ACTION_REQUIRED; revogação e comando dependente bloqueado, histórico preservado. |
+| E7 | TESTED | Logs nativos/PIDs/interface, receiptsSQL e15traces sanitizados; nenhum aceiteWi-Fi físico inferido. |
+| F1 | RECONCILIADO | Gatilhos CI/pathfilters e manualdispatch inventariados; proteção/autodeploy externo não inferidos. |
+| F2 | TESTED | Runner/fixture únicos, guardsDB e clusterhash; execução completa local899255b1. |
+| F3 | CI_PENDING | Smokes seletivos e gatepesado por paths; KB/Web eCIAndroid por SHA, sem ruleset alterado. |
+| F4 | CI_PENDING | Workflow manual A–E com uploadalways, exitreal e corteuplink separado; CI final pendente. |
+| F5 | TESTED | Schema/validador/manifest14casos, versõesreais, IDs/artefatoshash, SQLfinal esource_sha256. |
+| F6 | TESTED | Esta matriz emanifest porcenário; históricosFAIL preservados sem promover novoHEAD. |
+| F7 | TESTED | Gateautomatizado exige14PASS/10invariantes/review; físicoPSP/fiscal separado. |
+| F8 | TESTED | R3 independente por slices/contexto; inspeção sanitização/IDs/pacotefinal eKB. |
 
 ## E2E-01..14
 
-Não existe ainda uma execução completa comprovada no SHA final. Contagem conservadora desse gate: **PASS0 / FAIL0 / SKIP0 / BLOCKED14**. Isso não apaga os testes parciais bem-sucedidos descritos acima.
+Todos os cenários abaixo usam o SHA/cluster da execução citada, com traces de UI,
+instrumentação nativa quando aplicável e SQL independente. O manifesto contém
+IDs completos, tempos, versões, hashes e referências por cenário.
 
-| Cenário | Estado integral | Lacuna principal |
-|---|---|---|
-| E2E-01 | BLOCKED | Execução/review/artifact do head final |
-| E2E-02 | BLOCKED | Duas Tabs contextuais lidas pelo Android |
-| E2E-03 | BLOCKED | Execução/review/artifact do head final |
-| E2E-04 | BLOCKED | Projeções após READY e head final |
-| E2E-05 | BLOCKED | Android stale cart e preservação anterior; head final |
-| E2E-06 | BLOCKED | Replay financeiro completo e reconciliação final |
-| E2E-07 | BLOCKED | Negativos de papéis/cutoff; head final |
-| E2E-08 | BLOCKED | Execução/review/artifact do head final |
-| E2E-09 | BLOCKED | Double tap/payload divergente nativo |
-| E2E-10 | BLOCKED | Auth nativa/expiry/refresh e cruzamentos Guest/Host |
-| E2E-11 | BLOCKED | Execução/review/artifact do head final |
-| E2E-12 | BLOCKED | Cobertura do fault exigido e head final |
-| E2E-13 | BLOCKED | Execução/review/artifact do head final |
-| E2E-14 | BLOCKED | Financeiro/compensação completo no head final |
+| Cenário | Execução | Tarefas | SQL correlacionado |
+|---|---|---|---|
+| E2E-01 | PASS | A2, A5, A6 | `qr-lifecycle-sql.json`, `final-state-sql.json` |
+| E2E-02 | PASS | A3, A6 | `browser-origins-sql.json`, `android-context-readback-sql.json`, `final-state-sql.json` |
+| E2E-03 | PASS | B2, B3, B7 | `browser-origins-sql.json`, `android-compose-web-sql.json`, `final-state-sql.json` |
+| E2E-04 | PASS | B4, B5, B7 | `browser-origins-sql.json`, `android-compose-web-sql.json`, `android-context-readback-sql.json`, `projection-sql.json`, `final-state-sql.json` |
+| E2E-05 | PASS | B6, B7 | `unavailable-cart-sql.json`, `unavailable-staff-sql.json`, `android-catalog-sql.json`, `android-offline-conflict-sql.json`, `final-state-sql.json` |
+| E2E-06 | PASS | C3, C7 | `financial-sql.json`, `final-state-sql.json` |
+| E2E-07 | PASS | C5, C7 | `financial-sql.json`, `financial-roles-sql.json`, `cash-cutoff-sql.json`, `final-state-sql.json` |
+| E2E-08 | PASS | D2, D3, D7 | `concurrency-sql.json`, `final-state-sql.json` |
+| E2E-09 | PASS | D4, D7 | `browser-origins-sql.json`, `android-web-cross-surface.json`, `final-state-sql.json` |
+| E2E-10 | PASS | D5, D6, D7 | `revocation-sql.json`, `isolation-sql.json`, `guest-isolation-sql.json`, `android-offline-revocation-sql.json`, `final-state-sql.json` |
+| E2E-11 | PASS | E2, E3, E7 | `android-web-cross-surface.json`, `final-state-sql.json` |
+| E2E-12 | PASS | E4, E5, E7 | `sse-sql.json`, `browser-origins-sql.json`, `final-state-sql.json` |
+| E2E-13 | PASS | A4, A5, A6 | `qr-lifecycle-sql.json`, `final-state-sql.json` |
+| E2E-14 | PASS | C4, C6, C7 | `pending-payment-sql.json`, `financial-sql.json`, `final-state-sql.json` |
 
-Gates externos continuam separados: aparelho físico, Wi-Fi do bar, PSP/NFC/Tap/Pix, impressoras, fiscal, aceite presencial e ensaio de rollback VR System. Não são substituídos por emulador, testes de domínio ou CI genérica. Autodeploy externo ainda não verificado; não autorizar merge/deploy por este documento.
+## Estado de integração e gates
+
+PRs196→197→198→199→200→201→202 são slices empilhados; não foram mergeados por
+esta execução. PRs191–193 foram integrados externamente. PR185 integrado e186
+fechado; somente o contrato legítimo de186 foi reaproveitado. main observado:
+2fc02bf7. Revalidar base/conflitos antes da integração, sem descartar worktrees.
+
+Corte real de uplink comprovado em [workflow38797806054](https://github.com/procopio420/rodada/actions/runs/38797806054),
+SHA7cb08ad7; nova prova a9cf em [workflow38815589150](https://github.com/procopio420/rodada/actions/runs/38815589150).
+São provas separadas do turno local e de Wi-Fi físico. CI899255b1:
+[workflow38816278767](https://github.com/procopio420/rodada/actions/runs/38816278767).
+
+Pendências externas: dispositivo físico, rede do bar, PSP/Tap/NFC/Pix reais,
+impressoras, fiscal, aceite presencial e rollback VR System. Host probes locais
+não certificam DNS/TLS/ingress/cookies entre subdomínios. Autodeploy não foi
+certificado; integração deve permanecer atrás desse gate. Sem merge/deploy,
+Play Store, Railway, pagamento real ou fechamento artificial da issue.
