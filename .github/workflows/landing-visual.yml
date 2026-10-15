@@ -1,0 +1,41 @@
+name: Landing Visual QA
+
+on:
+  pull_request:
+    paths:
+      - "apps/landing/**"
+      - "scripts/landing_visual_qa.py"
+      - ".github/workflows/landing-visual.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Playwright Chromium
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Start static preview with bundled font
+        run: |
+          mkdir -p apps/landing/fonts
+          cp apps/web/public/fonts/archivo.woff2 apps/landing/fonts/archivo.woff2
+          python -m http.server 8765 --bind 127.0.0.1 --directory apps/landing >/tmp/landing-http.log 2>&1 &
+      - name: Render at mobile, tablet and desktop sizes
+        run: python scripts/landing_visual_qa.py
+      - name: Upload screenshots and geometry reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-visual-${{ github.sha }}
+          path: landing-visual-artifacts/
+          retention-days: 7
