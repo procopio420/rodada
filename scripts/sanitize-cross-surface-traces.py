@@ -6,6 +6,7 @@ import re
 import zipfile
 
 SENSITIVE = re.compile(r"^(?:pin|password|authorization|cookie|cookies|set-cookie|access_?token|refresh_?token|session_?token|csrf_?token|x-guest-session)$", re.I)
+TEXT_HEADER = re.compile(r"(?im)(\b(?:cookie|set-cookie|authorization|x-guest-session)\s*:\s*)[^\r\n]+")
 JWT = re.compile(r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b")
 
 
@@ -23,7 +24,7 @@ def redact(value):
         try:
             nested = json.loads(value)
         except (ValueError, TypeError):
-            return value
+            return TEXT_HEADER.sub(r"\1[REDACTED]", value)
         if isinstance(nested, (dict, list)):
             return json.dumps(redact(nested), ensure_ascii=False)
         return value
