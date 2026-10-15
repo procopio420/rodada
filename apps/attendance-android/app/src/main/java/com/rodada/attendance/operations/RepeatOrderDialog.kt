@@ -82,16 +82,16 @@ internal fun RepeatOrderDialog(
                     }
                     OutlinedTextField(
                         value = inputs[id].orEmpty(),
-                        onValueChange = { value -> if (value.length <= 3 && value.all(Char::isDigit)) inputs[id] = value },
+                        onValueChange = { value -> if (value.length <= 2 && value.all(Char::isDigit)) inputs[id] = value },
                         modifier = Modifier.width(76.dp),
                         label = { Text("Qtd.") },
                         singleLine = true,
                         enabled = enabled && selected,
-                        isError = selected && quantity !in 1..999,
+                        isError = selected && quantity !in 1..99,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     )
                     TextButton(onClick = { inputs[id] = (quantity + 1).toString() },
-                        enabled = enabled && selected && quantity in 1..998, modifier = Modifier.heightIn(min = 48.dp)) {
+                        enabled = enabled && selected && quantity in 1..98, modifier = Modifier.heightIn(min = 48.dp)) {
                         Text("+")
                     }
                 }
@@ -103,7 +103,7 @@ internal fun RepeatOrderDialog(
                 }
             }
             Text("Selecionados: $units unidade(s) · ${formatCents(total)}", style = MaterialTheme.typography.titleSmall)
-            if (chosen == null && review.canAdd) Text("Marque ao menos um item e informe quantidades de 1 a 999.",
+            if (chosen == null && review.canAdd) Text("Marque ao menos um item e informe quantidades de 1 a 99.",
                 color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
     }, confirmButton = {
