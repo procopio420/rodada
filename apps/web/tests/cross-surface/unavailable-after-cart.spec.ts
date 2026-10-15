@@ -24,14 +24,21 @@ test("E2E-05: Guest cart rejected after operational availability changes", async
   })).product;
   const table = await api("hospitality/tables/", { label: "E2E05 " + Date.now(), guest_ordering_mode: "DIRECT" });
   const context = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const stationContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110", storageState: await page.context().storageState() });
   try {
+    const station = await stationContext.newPage();
+    await station.goto("/bar");
     const guest = await context.newPage();
     await guest.goto("/guest/" + table.public_token);
     await guest.getByRole("button", { name: "Abrir minha comanda" }).click();
     await guest.getByRole("button", { name: new RegExp("^" + product.name) }).click();
     await expect(guest.getByRole("region", { name: "Pedido atual" })).toContainText(product.name);
     await guest.route("**/api/guest/orders/confirm/", async route => {
-      await api("catalog/products/" + product.id + "/availability/", { state: "UNAVAILABLE" });
+      await station.getByRole("button", { name: "Indisponibilizar " + product.name, exact: true }).click();
+      await expect.poll(async () => {
+        const catalog = await api("catalog/products/");
+        return catalog.results.find((entry: { id: string }) => entry.id === product.id)?.availability;
+      }).toBe("UNAVAILABLE");
       await route.continue();
     });
     const responsePromise = guest.waitForResponse(response =>
@@ -51,7 +58,7 @@ test("E2E-05: Guest cart rejected after operational availability changes", async
       database_instance_id: fixture.database_instance_id, venue_id: fixture.venue_id,
       product_id: product.id, tab_id: tabId,
       denial: { status: response.status(), code: "PRODUCTS_NOT_CONFIRMABLE" },
-      status: "PASS", scope: "Guest real UI; Android/staff stale carts still pending",
+      status: "PASS", scope: "Guest real UI and Bar real availability UI; Android/staff stale carts still pending",
     }, null, 2));
-  } finally { await context.close(); }
+  } finally { await context.close(); await stationContext.close(); }
 });
