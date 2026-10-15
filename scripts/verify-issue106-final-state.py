@@ -20,6 +20,7 @@ import django
 django.setup()
 from django.db import connection, transaction
 from modules.ordering.models import Order, OrderItem, Tab
+from modules.audit.models import AuditEvent
 from modules.ledger.models import Charge, Payment, Refund, LedgerAdjustment
 from modules.cash.models import CashShift, CashMovement
 from modules.guest_access.models import GuestSession
@@ -86,6 +87,26 @@ with transaction.atomic():
             else:
                 assert r[4] == "READY" and r[5] and r[6] and r[5] <= r[6]
         assert {str(r[7]) for r in rows if str(r[1]) == native["original_order_id"]} == set(native["charge_ids"])
+        expected_products = {f["product_id"]:(700,"BAR","Android Post Drop Test Soda"), f["kitchen_product_id"]:(1000,"KITCHEN","Android Compose Test Meal")}
+        snapshot_rows = []
+        for item in OrderItem.objects.filter(order_id__in=expected_orders).select_related("order"):
+            price, station, name = expected_products[str(item.product_id)]
+            assert item.unit_price_cents == price and item.product_name_snapshot == name
+            assert item.fulfillment_station_snapshot == station and item.quantity == 1
+            assert item.customization_snapshot == {
+                "variant":None, "quantity":1, "modifiers":[], "product_id":str(item.product_id),
+                "product_name":name, "base_price_cents":price, "line_total_cents":price,
+                "unit_price_cents":price, "fulfillment_station":station, "special_instructions":"",
+            }
+            expected_source = "GUEST" if str(item.order_id) == origins["order_ids"][0] else "STAFF"
+            assert item.order.source == expected_source
+            events = AuditEvent.objects.filter(venue_id=f["venue_id"], entity_id=str(item.pk), event_type="order_item.transitioned")
+            if item.state == "READY":
+                assert events.count() == 2 and all(e.actor_staff_id and e.actor_session_id for e in events)
+                assert sorted(e.metadata["state"] for e in events) == ["PREPARING", "READY"]
+            else:
+                assert not events.exists()
+            snapshot_rows.append({"item_id":str(item.pk), "order_id":str(item.order_id), "product_id":str(item.product_id), "unit_price_cents":price, "quantity":1, "station":station, "product_name":name, "source":expected_source, "customization_snapshot":item.customization_snapshot, "transition_audit_ids":[str(e.pk) for e in events]})
         cursor.execute("""SELECT p.id, p.amount_cents, p.status, p.confirmed_at, p.provider, p.provider_payment_id
           FROM ledger_payment p JOIN ordering_tab t ON t.id=p.tab_id WHERE t.venue_id=%s""", [f["venue_id"]])
         payments = cursor.fetchall()
@@ -128,7 +149,7 @@ output = {"sha":sha, "database_instance_id":instance, "status":"PASS", "sql_inde
           "venue_id":f["venue_id"], "order_ids":sorted(expected_orders), "tab_ids":sorted(str(r[1]) for r in orders),
           "item_ids":sorted(str(r[0]) for r in rows), "charge_ids":sorted(str(r[7]) for r in rows),
           "payment_ids":sorted(str(p[0]) for p in payments), "charge_cents":6800, "confirmed_gross_cents":1800,
-          "refund_cents":100, "open_exposure_cents":5100, "source_sha256":sources,
+          "refund_cents":100, "open_exposure_cents":5100, "source_sha256":sources, "snapshot_rows":snapshot_rows,
           "invariants":{name:"PASS" for name in sorted(INVARIANTS)},
           "scope":"disposable integrated automation only; external device/network/PSP/fiscal gates separate"}
 Path("artifacts/final-state-sql.json").write_text(json.dumps(output,indent=2)+"\n")

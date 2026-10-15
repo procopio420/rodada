@@ -93,6 +93,8 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
       await stationPage.goto(station === "BAR" ? "/bar" : "/kitchen");
       for (const detail of details) {
         const item = detail.orders[0].items.find((i: { product_name: string }) => i.product_name === (station === "BAR" ? products[0] : products[1]));
+        const foreignProduct = station === "BAR" ? products[1] : products[0];
+        await expect(stationPage.locator(".stationDish").filter({ has: stationPage.getByText(foreignProduct, { exact: true }) })).toHaveCount(0);
         const start = stationPage.getByRole("button", { name: new RegExp(`^Iniciar preparo:.*${detail.display_label}$`) });
         await expect(start).toBeVisible();
         await start.click();
