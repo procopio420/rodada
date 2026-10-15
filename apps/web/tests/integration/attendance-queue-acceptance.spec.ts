@@ -9,6 +9,7 @@ async function login(page: Page, operator: string) {
   await page.getByLabel("Operador", { exact: true }).fill(operator);
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await page.getByRole("button", { name: "Agora", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
 }
 async function api(page: Page, url: string, body?: unknown) {

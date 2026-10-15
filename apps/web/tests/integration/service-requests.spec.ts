@@ -34,6 +34,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   const requests = queue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E");
   expect(requests.map((task: { task_type: string }) => task.task_type).sort()).toEqual(["BILL_REQUEST", "SERVICE_REQUEST"]);
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Agora", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Chamadas de atendimento" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Atendimento · Mesa Service request E2E", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pedido de conta · Mesa Service request E2E", exact: true })).toBeVisible();
