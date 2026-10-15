@@ -1,3 +1,4 @@
+from modules.hospitality.group_views import TableGroupListCreateView, TableGroupDissolveView
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
@@ -205,6 +206,8 @@ urlpatterns = [
     path("hospitality/occupancies/<uuid:occupancy_id>/tabs/open/", OccupancyTabOpenView.as_view()),
     path("hospitality/occupancies/<uuid:occupancy_id>/responsibility/claim/", OccupancyResponsibilityClaimView.as_view()),
     path("hospitality/tables/count/", TableCountView.as_view()),
+    path("hospitality/table-groups/", TableGroupListCreateView.as_view(), name="table-group-list"),
+    path("hospitality/table-groups/<uuid:group_id>/dissolve/", TableGroupDissolveView.as_view(), name="table-group-dissolve"),
     path("hospitality/tables/<uuid:table_id>/inventory/", TableInventoryView.as_view()),
     path("hospitality/tables/", TableListCreateView.as_view(), name="table-list-create"),
     path("hospitality/zones/", ZoneListCreateView.as_view(), name="zone-list-create"),

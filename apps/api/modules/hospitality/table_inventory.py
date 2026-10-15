@@ -3,7 +3,7 @@
 from django.db import transaction
 
 from modules.audit.services import record_audit_event
-from modules.hospitality.models import GuestOrderingMode, Table, TableStatus
+from modules.hospitality.models import GuestOrderingMode, Table, TableGroupMembership, TableStatus
 from modules.hospitality.services import HospitalityServiceError, create_table
 from modules.venue.models import Venue
 
@@ -16,6 +16,12 @@ def _set_enabled(table, enabled, actor):
     if table.status != required or table.occupancies.filter(released_at__isnull=True).exists():
         raise HospitalityServiceError(
             "TABLE_IN_USE", "A mesa precisa estar disponível e sem ocupação para sair de uso.", 409
+        )
+    if not enabled and TableGroupMembership.objects.filter(
+        table=table, removed_at__isnull=True
+    ).exists():
+        raise HospitalityServiceError(
+            "TABLE_GROUP_ACTIVE", "Desfaça o agrupamento antes de retirar a mesa de uso.", 409
         )
     previous = table.status
     table.status = desired
