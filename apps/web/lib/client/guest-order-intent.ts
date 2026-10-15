@@ -5,7 +5,7 @@ import { guestApi, type GuestApiError } from "./guest-api";
 
 export type GuestScope = { venue_id: string; session_id: string; table_id: string; occupancy_id: string | null; generation: number };
 type Line = { product_id: string; quantity: number; variant_id: string | null; modifier_option_ids: string[]; special_instructions: string };
-type Intent = { schema: 1; scope: GuestScope; tab: string; captured_at: string; payload: { idempotency_key: string; lines: Line[] } };
+type Intent = { schema: 1 | 2; origin?: "repeat"; scope: GuestScope; tab: string; captured_at: string; payload: { idempotency_key: string; lines: Line[] } };
 type Context = { session_scope?: GuestScope; guest_policy?: { emergency_blocked: boolean }; tab: { id: string; orders?: { id: string }[] } | null };
 export const guestOrderStorageKey = (qr: string) => `rodada.intent.guest-order.v1.${qr}`;
 const safeRejections = new Set(["TAB_NOT_OPEN", "PRODUCTS_NOT_CONFIRMABLE", "STATION_DISABLED", "SPENDING_LIMIT_EXCEEDED", "MODIFIER_UNAVAILABLE", "VARIANT_UNAVAILABLE", "MODIFIER_REQUIRED", "TOO_MANY_MODIFIERS"]);
@@ -22,8 +22,8 @@ function read(key: string): Intent | null {
   const raw = sessionStorage.getItem(key);
   if (raw === null) return null;
   const i = JSON.parse(raw) as Intent;
-  if (i?.schema !== 1 || !validScope(i.scope) || typeof i.tab !== "string" || !i.tab
-    || !Number.isFinite(Date.parse(i.captured_at)) || Object.keys(i).sort().join() !== "captured_at,payload,schema,scope,tab"
+  if (![1, 2].includes(i?.schema) || (i.schema === 2 && i.origin !== "repeat") || !validScope(i.scope) || typeof i.tab !== "string" || !i.tab
+    || !Number.isFinite(Date.parse(i.captured_at)) || Object.keys(i).sort().join() !== (i.schema === 2 ? "captured_at,origin,payload,schema,scope,tab" : "captured_at,payload,schema,scope,tab")
     || !i.payload || Object.keys(i.payload).sort().join() !== "idempotency_key,lines" || typeof i.payload.idempotency_key !== "string" || !i.payload.idempotency_key
     || !Array.isArray(i.payload.lines) || !i.payload.lines.length || !i.payload.lines.every(l => l && typeof l.product_id === "string" && !!l.product_id
       && Number.isSafeInteger(l.quantity) && l.quantity > 0 && (l.variant_id === null || typeof l.variant_id === "string")
@@ -32,7 +32,7 @@ function read(key: string): Intent | null {
   return i;
 }
 
-export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (context: unknown) => void) {
+export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (context: unknown, origin: "draft" | "repeat") => void) {
   const key = guestOrderStorageKey(qr);
   const [ready, setReady] = useState(false), [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
@@ -50,7 +50,7 @@ export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (con
     return () => { active = false; };
   }, [key]);
   function assertSaved(i: Intent) { if (sessionStorage.getItem(key) !== JSON.stringify(i)) throw new Error("Guest envelope changed"); }
-  async function submit(draft?: { tab: string; lines: Line[] }) {
+  async function submit(draft?: { tab: string; lines: Line[] }, origin: "draft" | "repeat" = "draft") {
     if (sending.current || !ready || (!intent.current && !draft)) return;
     sending.current = true; setBusy(true); setMessage("");
     const recovering = !!intent.current;
@@ -67,7 +67,7 @@ export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (con
       if (context.guest_policy?.emergency_blocked) { setMessage("Os pedidos por QR estão pausados. Peça ajuda à equipe."); return; }
       if (!i) {
         if (context.tab?.id !== draft!.tab || sessionStorage.getItem(key) !== null) throw new Error("Guest destination changed");
-        i = { schema: 1, scope: context.session_scope!, tab: draft!.tab, captured_at: new Date().toISOString(),
+        i = { schema: origin === "repeat" ? 2 : 1, ...(origin === "repeat" ? { origin: "repeat" as const } : {}), scope: context.session_scope!, tab: draft!.tab, captured_at: new Date().toISOString(),
           payload: { idempotency_key: crypto.randomUUID(), lines: draft!.lines } };
         sessionStorage.setItem(key, JSON.stringify(i)); intent.current = i; setPending(i);
       }
@@ -85,7 +85,7 @@ export function useGuestOrderIntent(qr: string, token: string, onConfirmed: (con
       if (!detail.ok || !("tab" in detail.body) || !validScope(detail.body.session_scope) || !sameScope(i.scope, detail.body.session_scope)
         || detail.body.tab?.id !== i.tab || !detail.body.tab.orders?.some(o => o.id === (result.body as { id: string }).id)) throw new Error("Guest readback unavailable");
       assertSaved(i); sessionStorage.removeItem(key); intent.current = null; setPending(null);
-      onConfirmed(detail.body); setMessage("Pedido confirmado.");
+      onConfirmed(detail.body, i.schema === 2 ? "repeat" : "draft"); setMessage("Pedido confirmado.");
     } catch {
       setMessage(intent.current ? "Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro."
         : "Não foi possível preservar seu pedido. Peça ajuda à equipe antes de enviar.");
