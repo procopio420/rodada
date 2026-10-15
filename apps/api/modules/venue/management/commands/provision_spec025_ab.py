@@ -5,12 +5,12 @@ Do not use this to load transactional or payment fixtures.
 """
 
 import os
-from datetime import timedelta
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
+from modules.access.invalidation import AccessInvalidationType, publish_access_invalidation
 from modules.access.models import (
     MembershipStatus,
     StaffMember,
@@ -75,7 +75,7 @@ class Command(BaseCommand):
             )
 
     @staticmethod
-    def _check_protected_identity(spec):
+    def _check_protected_identity(spec, *, require_staff=True):
         # These reserved identifiers can never be claimed from another Venue.
         venue = Venue.objects.select_for_update().filter(slug=spec["slug"]).first()
         if venue and venue.name != spec["name"]:
@@ -86,7 +86,7 @@ class Command(BaseCommand):
         staff = StaffMember.objects.select_for_update().filter(
             login_identifier=spec["login"]
         ).first()
-        if staff:
+        if staff and require_staff:
             memberships = list(
                 VenueStaffMembership.objects.select_for_update().filter(staff_member=staff)
             )
@@ -163,13 +163,17 @@ class Command(BaseCommand):
     def _set_active(self, active):
         # Nothing is created or reassigned in activate/deactivate.
         for spec in QA_VENUES:
-            venue, alias, staff = self._check_protected_identity(spec)
-            if not venue or not alias or not staff:
+            venue, alias, staff = self._check_protected_identity(
+                spec, require_staff=active,
+            )
+            if not venue or not alias:
                 raise CommandError(f'REFUSE: QA venue is not provisioned: {spec["slug"]}')
-            if not VenueStaffMembership.objects.filter(
-                venue=venue, staff_member=staff, role=StaffRole.MANAGER,
-                status=MembershipStatus.ACTIVE,
-            ).exists():
+            if active and (
+                not staff or not VenueStaffMembership.objects.filter(
+                    venue=venue, staff_member=staff, role=StaffRole.MANAGER,
+                    status=MembershipStatus.ACTIVE,
+                ).exists()
+            ):
                 raise CommandError(f'REFUSE: QA manager not active: {spec["slug"]}')
 
         for spec in QA_VENUES:
@@ -193,12 +197,16 @@ class Command(BaseCommand):
                     metadata={"hostname": spec["host"]},
                 )
             if not active:
-                StaffSession.objects.filter(
+                for session in StaffSession.objects.select_for_update().filter(
                     venue=venue, revoked_at__isnull=True
-                ).update(
-                    revoked_at=timezone.now(),
-                    revocation_reason="Spec025 QA containment",
-                )
+                ):
+                    session.revoked_at = timezone.now()
+                    session.revocation_reason = "Spec025 QA containment"
+                    session.save(update_fields=["revoked_at", "revocation_reason"])
+                    publish_access_invalidation(
+                        session=session, event_type=AccessInvalidationType.SESSION_REVOKED,
+                        reason="Spec025 QA containment",
+                    )
         self.stdout.write(self.style.SUCCESS(
             "QA aliases ACTIVE" if active else "QA aliases disabled; staff sessions revoked"
         ))
