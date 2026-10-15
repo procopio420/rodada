@@ -92,6 +92,26 @@ def extend_resilience(path):
     print("PASS: extended only the same guarded cluster/Venue with concurrency and foreign control fixtures")
 
 
+def prepare_pending(path):
+    """Controlled unconfirmed model state; no PSP adapter or external payment call."""
+    from modules.house_account.services import snapshot
+    from modules.ordering.models import Tab
+    from modules.ledger.models import PaymentMethod, PaymentStatus
+    data = json.loads(path.read_text())
+    assert data["database_instance_id"] == database_instance_identity(connection)
+    venue = Venue.objects.get(pk=data["venue_id"], slug="android-post-drop-ci")
+    if "pending_tab_id" in data:
+        raise SystemExit("Refusing to overwrite pending-control evidence")
+    tab = Tab.objects.create(venue=venue, display_label="Issue106 controlled PENDING no PSP", **snapshot(venue.pk))
+    payment = Payment.objects.create(tab=tab, amount_cents=700, method=PaymentMethod.OTHER,
+        idempotency_key="issue106-controlled-pending", status=PaymentStatus.PENDING,
+        received_by=StaffMember.objects.get(login_identifier="android-post-drop-operator"),
+        metadata={"test_only":True,"fixture":"controlled-unconfirmed-state-no-PSP"})
+    data.update(pending_tab_id=str(tab.pk), pending_payment_id=str(payment.pk))
+    path.write_text(json.dumps(data, indent=2)+"\n")
+    print("Prepared explicit unconfirmed fixture state only; no provider or settlement")
+
+
 def verify(stage, marker, fixture, receipt):
     evidence = json.loads(marker.read_text())
     events = evidence["events"]
@@ -163,7 +183,7 @@ def verify(stage, marker, fixture, receipt):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("prepare", "prepare-resilience", "before", "after"))
+    parser.add_argument("action", choices=("prepare", "prepare-resilience", "prepare-pending", "before", "after"))
     parser.add_argument("--fixture", type=Path, default=Path("/tmp/rodada-android-live-fixture.json"))
     parser.add_argument("--marker", type=Path, default=Path("/tmp/rodada-android-live-drop.json"))
     parser.add_argument("--receipt", type=Path, default=Path("artifacts/android-real-post-drop.json"))
@@ -172,6 +192,8 @@ def main():
         prepare(args.fixture)
     elif args.action == "prepare-resilience":
         extend_resilience(args.fixture)
+    elif args.action == "prepare-pending":
+        prepare_pending(args.fixture)
     else:
         verify(args.action, args.marker, args.fixture, args.receipt)
 
