@@ -98,3 +98,7 @@ não executar merge de main nem deploy sem autorização aplicável. Depois exec
 gates proporcionais API/PostgreSQL/Web/Android e revisão independente do conjunto.
 Não alegar paridade global, provider/dispositivo, operação real ou produção.
 Atualize este registro por etapa com resultados e próximos passos concretos.
+
+## Integração com main — 2026-10-15
+
+Branch reconciliada com TableGroups (#145), giro (#148), impressão S2 e confirmação direta de **Mais uma rodada** (#170). Android mantém o fluxo de repetição como Order independente, sem misturar com o carrinho manual; Web invoca `confirmRepeatedOrder` no diálogo. O merge de código não substitui CI Android/Web/API no HEAD final nem review R3 da experiência.
