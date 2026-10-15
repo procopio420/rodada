@@ -1,5 +1,4 @@
 """Disposable, database-free ASGI transport fixture; never connects to Rodada."""
-import asyncio
 import json
 import socket
 

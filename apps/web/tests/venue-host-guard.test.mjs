@@ -10,7 +10,7 @@ test('tenant guard preserves authority and upstream failures before auth dispatc
   let mutations = 0;
   let contextSequence = [];
   const api = createServer(async (req, res) => {
-    for await (const _chunk of req) { /* consume the complete body */ }
+    for await (const chunk of req) { assert.ok(Buffer.isBuffer(chunk)); }
     if (req.method === 'POST') {
       mutations++;
       res.writeHead(421, { 'content-type': 'application/json' });
