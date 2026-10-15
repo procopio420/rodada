@@ -20,8 +20,8 @@ test("TableGroups physical UI keeps Tabs separate and allows reversible grouping
   const a = await api("hospitality/tables/", "POST", { label: "Group E2E A", guest_ordering_mode: "DIRECT" });
   const b = await api("hospitality/tables/", "POST", { label: "Group E2E B", guest_ordering_mode: "DIRECT" });
   const occupied = await api(`hospitality/tables/${a.id}/occupy/`, "POST", {});
-  const linked = await api(`hospitality/occupancies/${occupied.id}/tabs/open/`, "POST", { expected_generation: 1, idempotency_key: "e2e-group-tab-open" }).catch(() => null);
-  // The table may be occupied without a Tab; grouping must never open one.
+  const tab = await api("tabs/", "POST", { display_label: "Separada E2E" });
+  await api(`hospitality/occupancies/${occupied.id}/tabs/`, "POST", { tab_id: tab.id });
   const before = (await api("hospitality/tables/")).results;
   const beforeA = before.find((table: { id: string }) => table.id === a.id);
   const beforeB = before.find((table: { id: string }) => table.id === b.id);
@@ -46,7 +46,10 @@ test("TableGroups physical UI keeps Tabs separate and allows reversible grouping
   expect(groupB.active_occupancy).toEqual(beforeB.active_occupancy);
   expect(groupA.public_token).toBe(beforeA.public_token);
   expect(groupB.public_token).toBe(beforeB.public_token);
-  if (linked) expect(groupA.active_occupancy.tabs).toEqual(beforeA.active_occupancy.tabs);
+  expect(groupA.active_occupancy.tabs).toEqual(beforeA.active_occupancy.tabs);
+  const financial = await api(`tabs/${tab.id}/`);
+  expect(financial.orders).toHaveLength(0);
+  expect(financial.payments).toHaveLength(0);
   for (const width of [360, 390, 430, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     await expect(page.getByText("Amigos", { exact: true }).first()).toBeVisible();
