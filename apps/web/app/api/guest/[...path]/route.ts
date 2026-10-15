@@ -40,7 +40,7 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   const customerCookieName = `rodada_customer_${createHash("sha256").update(selector).digest("hex").slice(0, 32)}`;
   const customerAuth = request.cookies.get(customerCookieName)?.value;
   if (customerAuth) headers.set("X-Customer-Session", customerAuth);
-  const enrolling = path.join("/") === "customer/register" || path.join("/") === "customer/login";
+  const enrolling = ["customer/register", "customer/login", "customer/password"].includes(path.join("/"));
   const loggingOut = path.join("/") === "customer/logout";
 
   try {
