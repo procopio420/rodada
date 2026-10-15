@@ -94,10 +94,10 @@ export function OrderWorkspace({ tableMode = false, requestedTabSequence = 0, cr
     // Unified table attendance selects Tabs from the table surface and reads each
     // selected Tab canonically by ID. The expensive 200-Tab financial list is only
     // needed when the operator explicitly opens history.
-    const listRequest = tableMode && !showHistory
+    const tabsRequest = tableMode && !showHistory
       ? Promise.resolve({ response: { ok: true }, body: { results: [] as Tab[], next_offset: null } })
       : apiCall<{ results: Tab[]; next_offset: number | null }>(listUrl);
-    const [tabResult, productResult, cashResult] = await Promise.all([listRequest, apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`)]);
+    const [tabResult, productResult, cashResult] = await Promise.all([tabsRequest, apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`)]);
     if (request !== listRequest.current) return;
     if (tabResult.response.ok) {
       const page = tabResult.body as { results: Tab[]; next_offset: number | null };
