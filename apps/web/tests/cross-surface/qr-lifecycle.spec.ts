@@ -72,9 +72,13 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
-  await page.getByRole("button", { name: "Iniciar limpeza", exact: true }).click();
-  await expect.poll(async () => (await snapshot()).status).toBe("CLEANING");
-  await page.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
+  // Release intentionally closes the table dialog; reopen the released table.
+  // The current Attendance UI offers direct DIRTY → AVAILABLE cleaning completion.
+  // API coverage separately protects the optional DIRTY → CLEANING → AVAILABLE path.
+  await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
+  const cleaningDialog = page.getByRole("dialog", { name: `Mesa ${table.label}` });
+  await expect(cleaningDialog.getByRole("button", { name: "Concluir limpeza", exact: true })).toBeVisible();
+  await cleaningDialog.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("AVAILABLE");
   const final = await snapshot();
   expect(final.public_token).toBe(table.public_token);
