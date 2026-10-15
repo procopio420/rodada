@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-15T15:55:23.417Z",
+  "all_pass": true,
+  "results": [
+    {
+      "scenario": "QR_page",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "QR_resolves_existing_table",
+      "pass": true,
+      "http_status": 201
+    },
+    {
+      "scenario": "Guest_correct_venue",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "Guest_cookie_properties",
+      "pass": true
+    }
+  ],
+  "scope": "existing QR on already occupied table; read context only; no order/Tab/occupancy creation; new Guest credential expires under normal TTL; no endpoint to logout anonymous Guest"
+}

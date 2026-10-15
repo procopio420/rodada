@@ -1,0 +1,41 @@
+{
+  "window_start": "2026-10-15T15:54:10Z",
+  "window_end": "2026-10-15T15:56:30Z",
+  "deployment": "4e2d2203-14e7-4d0a-8e44-c29d9301ab42",
+  "method": "Railway deployment-scoped HTTP logs; aggregate only; IPs, identifiers and paths containing capabilities omitted",
+  "http_requests": 192,
+  "limit": 500,
+  "truncated": false,
+  "http_5xx": 0,
+  "status_counts": {
+    "200": 82,
+    "201": 1,
+    "204": 1,
+    "304": 3,
+    "401": 3,
+    "404": 4,
+    "421": 69,
+    "499": 29
+  },
+  "client_closed_499": 29,
+  "client_closed_note": "499 are client-closed requests during navigation/context shutdown; preserved separately from successful endpoint assertions. No 5xx.",
+  "startup": [
+    {
+      "at": "2026-10-15T15:54:08.404448654Z",
+      "message": "  No migrations to apply."
+    },
+    {
+      "at": "2026-10-15T15:54:09.475396539Z",
+      "message": "✓ Ready in 404ms"
+    },
+    {
+      "at": "2026-10-15T15:54:12.367806731Z",
+      "message": "INFO:     Application startup complete."
+    },
+    {
+      "at": "2026-10-15T15:54:12.367812451Z",
+      "message": "INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)"
+    }
+  ],
+  "startup_fatal_patterns": 0
+}

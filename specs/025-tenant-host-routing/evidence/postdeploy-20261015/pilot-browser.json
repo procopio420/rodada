@@ -1,0 +1,125 @@
+{
+  "at": "2026-10-15T15:55:08.231Z",
+  "runtime_before": {
+    "sha": "017b110f62eb99f6297652c5c6544d59cddbfb72",
+    "deployment": "4e2d2203-14e7-4d0a-8e44-c29d9301ab42",
+    "flag_true": true,
+    "seed_false": true
+  },
+  "runtime_after": {
+    "sha": "017b110f62eb99f6297652c5c6544d59cddbfb72",
+    "deployment": "4e2d2203-14e7-4d0a-8e44-c29d9301ab42",
+    "flag_true": true,
+    "seed_false": true
+  },
+  "method": "Chromium real HTTPS; fresh login PIN via getpass and in-memory stdin; no screenshots/traces/token retention",
+  "all_pass": true,
+  "results": [
+    {
+      "scenario": "runtime_before",
+      "pass": true
+    },
+    {
+      "scenario": "HTTPS_staff",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "fresh_UI_login",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "correct_venue",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "host_only_Secure_HttpOnly_SameSite_Lax",
+      "pass": true
+    },
+    {
+      "scenario": "authenticated_read_/api/pos/hospitality/tables/",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "authenticated_read_/api/pos/tabs/",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "authenticated_read_/api/pos/catalog/products/",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "snapshot",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "SSE_ready",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "refresh_rotates",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "SSE_reconnect",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "module_/atendimento",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "module_/bar",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "module_/cozinha",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "module_/caixa",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "module_/gerencia",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "forged_headers_no_venue_switch",
+      "pass": true,
+      "http_status": 200
+    },
+    {
+      "scenario": "no_uncaught_browser_errors",
+      "pass": true
+    },
+    {
+      "scenario": "logout_only_test_session",
+      "pass": true,
+      "http_status": 204
+    },
+    {
+      "scenario": "revoked_session_replay_denied",
+      "pass": true,
+      "http_status": 401
+    },
+    {
+      "scenario": "runtime_stable_after",
+      "pass": true
+    }
+  ]
+}
