@@ -198,3 +198,75 @@ Retain encrypted custody with a review date seven days after capture; do not
 delete the only recoverable backup automatically while the audit is ongoing.
 The local restore is proof of archive recovery, not operational database restore,
 PITR, official volume backups, or rollout acceptance.
+
+### Executed checkpoint and next controlled change — 2026-10-15
+
+[Actual SHA/deployment/scenarios and remaining gates](../../specs/025-tenant-host-routing/railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).
+PR166 is integrated; QA provision/repeated provision, registry activation and
+containment have actually run. A/B are now inactive, managers suspended and
+sessions revoked; guest mutations remain blocked. Shared Web flag was never
+activated. No payment/order facts were created in the operational database.
+
+The next proposed configuration diff is **only** on existing `rodada-web/demo`:
+`RODADA_ENABLE_TENANT_HOST_UI` absent/off -> `true`. Keep
+`RODADA_DEMO_SEED_ON_START=false`, explicit HMAC, allowed hosts, database and all
+other variables unchanged. Before asking for activation approval: record current
+main/runtime/deployment and CI, fresh backup verification, authenticated pilot
+smoke, TLS/HMAC/stripping/unknown-host results and this rollback. Explicit flag
+approval is still required; preview-contract exception is a different decision.
+
+Backout: set the flag to `false` on the same reviewed code/build, wait for the
+specific deployment SUCCESS and SHA readback, then execute QA `deactivate`.
+Never roll back to a startup image that ignores seed-off. Confirm both QA aliases
+off, no ACTIVE QA memberships, all staff/guest sessions revoked, old tokens and
+refresh/reconnect denied on shared API/canonical hosts, and pilot/landing/API
+smokes intact. Preserve QA history/financial/audit records. Do not restore the
+operational database to simulate application rollback. Existing REVOKED
+memberships remain REVOKED, never converted to SUSPENDED/ACTIVE as a side effect.
+Emergency inspect/deactivate must not depend on backup freshness, custody-key
+availability, PINs, seed configuration or the shared flag.
+
+Executor safeguards: expected runtime SHA, Python optimization disabled,
+repeatable-read transaction and short lock/statement timeouts, foreign-row
+fingerprint before/after, critical postconditions before commit and explicit
+postcommit readback. If deployment changes or a write result is ambiguous,
+inspect/reconcile before retry. A stale-SHA refusal happened during the concurrent
+PR164 deployment and prevented the witness from starting on an unexamined SHA.
+
+Use an explicit audit User-Agent for HTTP probes; Cloudflare returned1010 to
+Python's default UA. Do not change/disable Cloudflare controls to pass a probe.
+Unknown BFF must return421 per script; an unknown raw Django Host can instead be
+rejected400 by ALLOWED_HOSTS. Record the exact layer/status, no default tenant.
+Origin TLS proof does not itself prove the administrative Full Strict setting.
+
+The pilot reviewer account/membership exists but its protected PIN was unavailable
+to the SSH smoke process. Do not reset a pilot credential or infer a PIN to clear
+that gate. Obtain authenticated operator verification through the existing secure
+login, without requesting credentials in chat.
+
+### Logical archive recovery format
+
+The retained format is explicit so loss of a temporary executor does not strand
+the backup. Use the separate32byte raw key from protected custody; do not print it.
+AAD is the UTF-8 encoding of the fixed source identities:
+
+```text
+1ca79d6a-a555-4346-b4b6-72b0a7706359|ab6da311-0926-4b5a-ab86-1d21fe893e12|8a53ce2e-3923-43d2-98c5-590cffa0315b
+```
+
+- Archive: seven-byte ASCII magic `R025B01`, nonce12bytes, AES256GCM ciphertext,
+  final authentication tag16bytes. Authenticate **all** data before restore.
+- Encrypted manifest: nonce12bytes followed by AESGCM ciphertext+tag, same key/AAD.
+- Manifest `encrypted_sha256` binds the complete encrypted archive;
+  `archive_sha256` binds the plaintext PostgreSQL custom dump. Verify both hashes
+  against the GCM-authenticated manifest; require its dump reference and
+  authenticated `verified_at` to match the recovery receipt. Do not refresh an
+  old backup's age by editing an unencrypted receipt.
+- Recovery destination is a new local PostgreSQL18 disposable database/tmpfs,
+  never the source. Feed authenticated plaintext through a private pipe to
+  `pg_restore --exit-on-error --no-owner --no-acl`; compare90 table counts to the
+  authenticated same-snapshot manifest and validate constraints. No plaintext
+  archive/log or row output. Remove the disposable restored copy afterward.
+- Operational recovery/restore, privileged ownership/ACL restoration and financial
+  reconciliation require a separate incident procedure/authorization. The
+  completed local restore is not PITR or permission/financial business sign-off.

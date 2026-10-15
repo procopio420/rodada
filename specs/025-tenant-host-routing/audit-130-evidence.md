@@ -2,6 +2,20 @@
 
 Estado: auditoria de código/provas locais executadas; gates de CI e integração são rastreados no PR #153 e no comentário final da #130, com SHA exato. **Fechamento #130 BLOCKED pela prova real de borda, #151. Spec025 e wildcard de produção NÃO HOMOLOGADOS.**
 
+## Complemento operacional — 2026-10-15 UTC
+
+[Checkpoint verificável por SHA/deployment](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc):
+PR166 integrado4056adbd, API/Web/KB SUCCESS, backup lógico restaurado e autenticado,
+A/B provisionados e rerun idempotente; TLS/HMAC/Host/stripping reais, autenticação
+API nativa positiva/cruzada e contenção de dois streams ASGI executados. Runtime
+b63b611/ef830243 após merge concorrente164 preservado. Ao final A/B suspensos,
+flag Web desligada, sem dados financeiros simulados no banco operacional.
+
+Não extrapolar para PASS de browser/guest/QR, cookies reais ou flag backout.
+Piloto autenticado permanece NOT TESTED (PIN de teste indisponível ao SSH),
+preview compartilhado depende de exceção formal; #151/#130 continuam OPEN.
+Registros históricos e matrizes locais abaixo mantêm seus próprios SHAs/ambientes.
+
 ## Identidade e ambiente
 
 - Base atualizada por `git fetch origin`: `d5acc98f0267483ec3ca3a5154babccbcad88eb0`.
