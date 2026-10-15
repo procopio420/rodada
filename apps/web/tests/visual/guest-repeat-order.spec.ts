@@ -42,21 +42,22 @@ for (const width of [360, 390, 430]) test(`Guest repeat explicit review draft pr
   await expect(dialog.getByText(/^Anterior:/)).toContainText("72,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("80,00");
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.getByText("1× Fritas", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
-  await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).dblclick();
-  await expect(dialog).toHaveCount(0); await expect(draft.getByText("2× Fritas", { exact: true })).toBeVisible();
-  await expect(draft.getByText("1× Fritas", { exact: true })).toBeVisible(); await expect(draft.getByText("Observação: Sem sal")).toBeVisible();
-  expect(state.attempts).toHaveLength(0); expect(state.resolves()).toBe(1);
-  await layoutAndA11y(page); await page.screenshot({ path: `test-results/guest-repeat-draft-${width}.png`, fullPage: true });
-  await page.getByRole("button", { name: /^Enviar ·/ }).click();
+  await layoutAndA11y(page);
+  await dialog.getByRole("button", { name: "Confirmar e enviar rodada" }).dblclick();
+  await expect(dialog).toHaveCount(0); await expect(draft.getByText("1× Fritas", { exact: true })).toBeVisible();
+  await expect(draft.getByText("2× Fritas", { exact: true })).toHaveCount(0);
   await expect.poll(() => state.attempts.length).toBe(1);
+  expect(state.resolves()).toBe(1);
+  await page.screenshot({ path: `test-results/guest-repeat-direct-${width}.png`, fullPage: true });
   const payload = JSON.parse(state.attempts[0]); expect(payload.idempotency_key).not.toBe("historical-order");
-  expect(payload.lines).toEqual([{ product_id: "fries", quantity: 1, variant_id: null, modifier_option_ids: [], special_instructions: "" },
-    { product_id: "fries", quantity: 2, variant_id: null, modifier_option_ids: [], special_instructions: "Sem sal" }]);
+  expect(payload.lines).toEqual([
+    { product_id: "fries", quantity: 2, variant_id: null, modifier_option_ids: [], special_instructions: "Sem sal" },
+  ]);
   await expect(page.getByRole("button", { name: "Repetir rodada 1", exact: true })).toBeDisabled();
 });
 for (const mode of ["absent", "unavailable", "legacy", "variant", "quantity"]) test(`Guest repeat blocks ${mode} without automatic substitution`, async ({ page }) => {
   const state = await setup(page, mode); await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: "Conferir rodada" }); await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+  const dialog = page.getByRole("dialog", { name: "Conferir rodada" }); await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); expect(state.attempts).toHaveLength(0); expect(state.resolves()).toBe(1);
 });
 for (const change of ["price", "block", "emergency", "revoke", "fail", "scope", "tab", "session"]) test(`Guest repeat inclusion revalidates ${change} and preserves draft`, async ({ page }) => {
@@ -70,8 +71,8 @@ for (const change of ["price", "block", "emergency", "revoke", "fail", "scope", 
   if (change === "scope") state.context.session_scope.generation++;
   if (change === "tab") state.context.tab.id = "other-tab";
   if (change === "session") state.context.session_scope.session_id = "other-guest-session";
-  await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).click();
-  await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+  await dialog.getByRole("button", { name: "Confirmar e enviar rodada" }).click();
+  await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
   await expect(page.getByText("2× Fritas", { exact: true })).toHaveCount(0); expect(state.attempts).toHaveLength(0); expect(state.resolves()).toBe(1);
@@ -81,9 +82,11 @@ test("Guest repeat keeps variant modifier note separate from the default draft",
   await page.getByRole("button", { name: /^Adicionar ·/ }).click();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
-  await expect(dialog.getByText(/^Atual:/)).toContainText("105,00"); await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).click();
+  await expect(dialog.getByText(/^Atual:/)).toContainText("105,00"); await dialog.getByRole("button", { name: "Confirmar e enviar rodada" }).click();
   await expect(dialog).toHaveCount(0);
-  await page.getByRole("button", { name: /^Enviar ·/ }).click(); await expect.poll(() => state.attempts.length).toBe(1);
-  expect(JSON.parse(state.attempts[0]).lines).toEqual([{ product_id: "fries", quantity: 1, variant_id: "small", modifier_option_ids: [], special_instructions: "" },
-    { product_id: "fries", quantity: 2, variant_id: "large", modifier_option_ids: ["extra"], special_instructions: "Sem sal" }]);
+  await expect.poll(() => state.attempts.length).toBe(1);
+  expect(JSON.parse(state.attempts[0]).lines).toEqual([
+    { product_id: "fries", quantity: 2, variant_id: "large", modifier_option_ids: ["extra"], special_instructions: "Sem sal" },
+  ]);
+  await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible();
 });

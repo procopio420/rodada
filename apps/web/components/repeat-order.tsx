@@ -75,7 +75,7 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
   }
 
   return <ActionDialog title="Conferir rodada" onClose={onClose} locked={busy}>
-    <p className="muted">Marque os itens que vão repetir e ajuste as quantidades. Nada será enviado antes de confirmar o pedido.</p>
+    <p className="muted">Marque os itens e ajuste as quantidades. Ao confirmar, a rodada será enviada diretamente ao bar e à cozinha.</p>
     {(message || !enabled) && <p role="alert" className="notice" data-state="warning">{message || "O contexto mudou ou está ocupado. Feche e revise novamente."}</p>}
     {!!review.excluded && <p>{review.excluded} linha(s) canceladas ou sem unidades restantes não serão repetidas.</p>}
     {review.problems.map((problem, index) => <p key={index} className="notice" data-state="danger">{problem}</p>)}
@@ -118,7 +118,7 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
       })}
     </div>
     {review.canAdd && !selected && <p role="alert" className="notice" data-state="warning">Selecione pelo menos um item com quantidade entre 1 e 99.</p>}
-    <p className="repeatOrderTotal" role="status">{units} unidade(s) · Total a adicionar: {money(total)}</p>
-    <button className="buttonPrimary" disabled={!canEdit || !selected} onClick={() => { if (selected) onAdd(quantities); }}>Adicionar ao carrinho</button>
+    <p className="repeatOrderTotal" role="status">{units} unidade(s) · Total da rodada: {money(total)}</p>
+    <button className="buttonPrimary" disabled={!canEdit || !selected} onClick={() => { if (selected) onAdd(quantities); }}>{busy ? "Enviando rodada…" : "Confirmar e enviar rodada"}</button>
   </ActionDialog>;
 }

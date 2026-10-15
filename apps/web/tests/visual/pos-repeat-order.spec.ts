@@ -47,18 +47,15 @@ for (const width of [360, 390, 430]) test(`POS repeat explicit review preserves 
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(draft.locator(".dataRow")).toHaveCount(1); expect(state.posts).toHaveLength(0);
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
-  await dialog.getByRole("button", { name: "Adicionar ao carrinho", exact: true }).dblclick();
-  await expect(dialog).toHaveCount(0); await expect(draft.locator(".dataRow")).toHaveCount(2);
-  await expect(draft.getByText("2× Fritas", { exact: true })).toBeVisible();
-  await expect(draft.getByText("Observação: Sem sal")).toBeVisible(); expect(state.posts).toHaveLength(0);
   await layoutAndA11y(page);
-  await page.screenshot({ path: `test-results/pos-repeat-order-draft-${width}.png`, fullPage: true });
-  await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await dialog.getByRole("button", { name: "Confirmar e enviar rodada", exact: true }).dblclick();
+  await expect(dialog).toHaveCount(0); await expect(draft.locator(".dataRow")).toHaveCount(1);
+  await expect(draft.getByText("2× Fritas", { exact: true })).toHaveCount(0);
   await expect.poll(() => state.posts.length).toBe(1);
+  await page.screenshot({ path: `test-results/pos-repeat-order-direct-${width}.png`, fullPage: true });
   const payload = state.posts[0] as { idempotency_key: string; lines: unknown[] };
   expect(payload.idempotency_key).not.toBe("historical-order");
   expect(payload.lines).toEqual([
-    { product_id: "fries", quantity: 1, variant_id: null, modifier_option_ids: [], special_instructions: "" },
     { product_id: "fries", quantity: 2, variant_id: null, modifier_option_ids: [], special_instructions: "Sem sal" },
   ]);
   await expect(page.getByRole("button", { name: "Repetir rodada 1", exact: true })).toBeDisabled();
@@ -66,7 +63,7 @@ for (const width of [360, 390, 430]) test(`POS repeat explicit review preserves 
 for (const mode of ["inactive", "unavailable", "absent", "legacy", "removed", "quantity"]) test(`POS repeat blocks ${mode} without defaults or partial inclusion`, async ({ page }) => {
   const state = await setup(page, mode); await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
-  await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar" }).click();
   await expect(page.getByRole("region", { name: "Pedido atual" }).locator(".dataRow")).toHaveCount(0);
   expect(state.posts).toHaveLength(0);
@@ -76,7 +73,7 @@ test("POS repeat rejects catalog change during review and read failure preserves
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   state.changePrice(); await page.clock.runFor(15001);
-  await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await expect(dialog.getByText(/O contexto mudou/)).toBeVisible();
   await dialog.getByRole("button", { name: "Voltar" }).click(); state.fail();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
@@ -101,7 +98,7 @@ test("POS repeat disables receipt during review and closes when the Tab closes",
   await expect(page.getByLabel("Valor do pagamento")).toBeDisabled();
   state.detail.state = "CLOSED"; await page.clock.runFor(15001);
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
-  await expect(dialog.getByRole("button", { name: "Adicionar ao carrinho" })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar" }).click();
   expect(state.posts).toHaveLength(0);
 });
