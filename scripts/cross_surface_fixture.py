@@ -34,7 +34,7 @@ def require_disposable_database(config=None):
 def require_connected_database(connection):
     expected = require_disposable_database(connection.settings_dict)
     with connection.cursor() as cursor:
-        cursor.execute("SELECT current_database(), inet_server_addr()::text")
+        cursor.execute("SELECT current_database(), host(inet_server_addr())")
         database, address = cursor.fetchone()
     # A host-run job reaches its disposable Docker service through loopback,
     # while PostgreSQL observes the service's bridge IP. Accept only that exact
@@ -47,7 +47,10 @@ def require_connected_database(connection):
             raise RuntimeError("Container database address requires an explicit private CI service identity")
         allowed_addresses.add(str(parsed))
     if database != expected or address not in allowed_addresses:
-        raise RuntimeError("Connected database does not match the disposable local fixture")
+        raise RuntimeError(
+            f"Connected database does not match the disposable local fixture: database={database!r}, "
+            f"server={address!r}, expected_database={expected!r}, expected_servers={sorted(allowed_addresses)!r}"
+        )
     return database
 
 
