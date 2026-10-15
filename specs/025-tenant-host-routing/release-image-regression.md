@@ -33,3 +33,14 @@ Independent R3 read of the two-file candidate reported NO_FINDINGS_WITH_GAPS,
 no reproducible finding. [PR168](https://github.com/procopio420/rodada/pull/168)
 merged `75f637f8e5297b960375df8c1dd83b6478a5d1ec` after candidate gates green.
 Final integration/runtime evidence is tracked in the [checkpoint](railway-151-checkpoint.md).
+
+## Registry transport failure — 2026-10-15
+
+Main637b8e6 release38678091658 attempts1/2 failed before tests: public ECR refused
+PostgreSQL17 download with `toomanyrequests: Rate exceeded`. No application test
+failed or was executed in those attempts. The isolated pilot shift already uses
+`mirror.gcr.io/library/postgres:17`; use that same public PostgreSQL17 distribution
+for release validation. Keep the same version, disposable DB, full pytest and
+restart checks. No production service/image/source configuration is changed.
+Acceptance requires the complete existing release gate on the candidate, without
+skipping tests or interpreting a download error as PASS. Review independently.
