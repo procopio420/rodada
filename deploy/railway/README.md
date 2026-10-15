@@ -2,6 +2,17 @@
 
 This is a **temporary** demonstration containing Django API, SSE dispatcher and Next.js in one container, plus an independent Railway-managed PostgreSQL. Committing these files does not launch any cloud service.
 
+## Runtime topology and public ingress (verified 2026-10-14)
+
+**The Django/DRF API is inside the existing Railway service \`rodada-web\`, NOT a separate \`rodada-api\` service.** One Docker container runs Nginx on port 8080, Uvicorn/Django on loopback port 8000, Next.js on loopback port 3000 and the SSE dispatcher. PostgreSQL is a separate Railway service.
+
+- \`api.rodada.bar\` is the reserved, shared technical API hostname: the Nginx \`server_name api.rodada.bar\` virtual host forwards **every path directly to Django** (e.g. \`/ready/\`, \`/auth/login/\`, \`/payments/webhooks/...\`). It must NEVER serve Next.js \`/staff\` or resolve to a Venue.
+- \`bardoaderlan.rodada.bar\` and other explicitly provisioned Venue hosts enter the *same* \`rodada-web\` listener. The default Nginx server routes public module pages and \`/api/*\` BFF to Next.js, and explicitly enumerated raw Django paths to Uvicorn. Django remains the authorization and Venue-scoping authority.
+- \`rodada-web-demo.up.railway.app\` remains a legacy/demo compatibility host on that same default server. The wildcard \`*.rodada.bar\` attaches to \`rodada-web\`; Cloudflare proxy/SSL settings do not create a second backend.
+- Next.js makes *internal* API requests using \`RODADA_API_BASE_URL=http://127.0.0.1:8000\` (set in \`start.sh\`). Android/native clients and PSP callbacks use public \`https://api.rodada.bar/<django-route>/\` without a leading \`/api\` BFF prefix.
+
+Ingress regression gate: \`.github/workflows/railway-demo-build.yml\` checks that \`Host: api.rodada.bar\` serves Django health/auth/webhooks while both \`/\` and \`/staff\` return Django 404 (not the Next.js UI), and that Venue/legacy hosts still work. After approval/rollout, recheck real HTTPS Host routing and **Full (strict)** origin TLS separately; CI localhost Host headers do not validate Cloudflare behavior.
+
 ## Create two Railway services
 
 1. In Railway create a fresh project named `rodada-aderlan-demo`. Add a PostgreSQL database. Keep its service name `Postgres`.
