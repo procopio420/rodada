@@ -5,7 +5,7 @@ server {
 
     # Raw Django API families are explicit; Web /manage, /cash, /refunds and
     # opaque /guest/:token pages must stay on Next.js. /api/* remains the BFF.
-    location ~ ^/((auth|venue|catalog|customers|developer|dispatch|health|ready|hospitality|house-account|management|order-items|payments|pricing|printing|production|receipts|service-points|tabs|realtime)(/|$)|cash/(points|shifts|correction-requests|received-by-method)(/|$)|refunds/[^/]+(/|$)|guest/(qr|context|tabs|catalog|orders|realtime|service-requests|party-size|receipt)(/|$)) {
+    location ~ ^/((auth|venue|catalog|customers|developer|dispatch|health|ready|hospitality|house-account|management|order-items|payments|pricing|printing|production|receipts|service-points|tabs|realtime)(/|$)|cash/(points|shifts|correction-requests|received-by-method)(/|$)|refunds/[^/]+(/|$)|guest/(qr|context|tabs|catalog|orders|realtime|service-requests|party-size|receipt)(/|$)|guest/customer/(register|login|context|claim|logout|password)/?$) {
 
 
         proxy_pass http://127.0.0.1:8000;
