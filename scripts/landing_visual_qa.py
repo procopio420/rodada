@@ -53,7 +53,8 @@ async def audit(browser,name,width,height):
         navCTA:rect(document.querySelector('.nav-cta')),
         heroCTA:rect(document.querySelector('.hero-actions .button')),
         heroHeading:rect(document.querySelector('h1')),heroPhoto:rect(image),
-        stickyInitiallyHidden:fixed.hidden,
+        stickyInitiallyInactive:!fixed.classList.contains('is-visible') && fixed.inert && fixed.getAttribute('aria-hidden') === 'true',
+        reducedMotionSafe:getComputedStyle(document.querySelector('h1')).animationName === 'none',
         ogImage:document.querySelector('meta[property="og:image"]').content,
         loadedFonts:document.fonts.check('900 24px Archivo'),
         images:[...document.images].map(i=>({src:i.getAttribute('src'),loaded:i.complete&&i.naturalWidth>0})),
@@ -78,26 +79,43 @@ async def audit(browser,name,width,height):
       scrollTo({top:h.getBoundingClientRect().bottom + scrollY + 90,behavior:'instant'});
     }""")
     await page.wait_for_timeout(220)
-    sticky_after=await page.locator(".mobile-cta").evaluate("(el) => !el.hidden")
+    sticky_after=await page.locator(".mobile-cta").evaluate("(el) => el.classList.contains('is-visible') && !el.inert && el.getAttribute('aria-hidden') === 'false'")
     await page.screenshot(path=str(OUT/f"{name}-after-hero.png"),animations="disabled")
     await page.evaluate("""() => {
       const end=document.querySelector('.final-cta');
       scrollTo({top:end.getBoundingClientRect().top+scrollY+45,behavior:'instant'});
     }""")
     await page.wait_for_timeout(220)
-    sticky_end=await page.locator(".mobile-cta").evaluate("(el) => el.hidden")
+    sticky_end=await page.locator(".mobile-cta").evaluate("(el) => !el.classList.contains('is-visible') && el.inert && el.getAttribute('aria-hidden') === 'true'")
     # Critical no-JS fallback: all product states remain visible and CTAs remain links.
     if width == 390:
         no_js = await browser.new_page(viewport={"width":width,"height":height}, java_script_enabled=False)
         await no_js.goto(URL,wait_until="load")
         fallback = await no_js.locator(".tour-panel").evaluate_all("(els) => els.every(el => !el.hidden && getComputedStyle(el).display !== 'none')")
         fallback_cta = await no_js.locator(".hero-actions .button").count() == 1
+        fallback_sticky = await no_js.locator(".mobile-cta").evaluate("(el) => el.hidden")
         await no_js.close()
     else:
         fallback = True
         fallback_cta = True
+        fallback_sticky = True
+    # Motion-on path: verify transitions are triggered by real tab switches and scroll,
+    # while the main screenshot path remains stable in reduced-motion mode.
+    if width in (390, 1440):
+        motion_page = await browser.new_page(viewport={"width":width,"height":height}, reduced_motion="no-preference")
+        await motion_page.goto(URL,wait_until="networkidle")
+        hero_animation = await motion_page.locator("h1").evaluate("(el) => getComputedStyle(el).animationName")
+        await motion_page.get_by_role("tab",name="02 Bar & Cozinha").click()
+        tour_animation = await motion_page.locator("#panel-bar .tour-story").evaluate("(el) => getComputedStyle(el).animationName")
+        await motion_page.locator("#moments-title").scroll_into_view_if_needed()
+        await motion_page.wait_for_timeout(180)
+        reveal_happened = await motion_page.locator(".moments .section-head").evaluate("(el) => el.classList.contains('is-visible')")
+        motion_pass = hero_animation == "hero-copy-in" and tour_animation == "tour-enter" and reveal_happened
+        await motion_page.close()
+    else:
+        motion_pass = True
     result={
-      **initial,"noJsPanels":fallback,"noJsCTA":fallback_cta,"httpStatus":response.status if response else None,"errors":errors,
+      **initial,"noJsPanels":fallback,"noJsCTA":fallback_cta,"noJsSticky":fallback_sticky,"animatedVariantsPass":motion_pass,"httpStatus":response.status if response else None,"errors":errors,
       "barSelected":bar_selected,"barPanelVisible":bar_panel,
       "manageSelected":manage_selected,"keyboardFocus":focused,
       "firstRestored":restored,"stickyAfterHero":sticky_after,
@@ -106,7 +124,7 @@ async def audit(browser,name,width,height):
     result["pass"]=bool(
         result["httpStatus"]==200 and not errors
         and initial["scrollWidth"]<=width+2
-        and fallback and fallback_cta
+        and fallback and fallback_cta and fallback_sticky and motion_pass
         and all(i["loaded"] for i in initial["images"])
         and initial["loadedFonts"]
         and initial["heroHeading"]["w"]>0
@@ -114,7 +132,8 @@ async def audit(browser,name,width,height):
         and initial["navCTA"]["h"]<=50
         and initial["navCTA"]["x"]>=0
         and initial["navCTA"]["x"]+initial["navCTA"]["w"]<=width+2
-        and initial["stickyInitiallyHidden"]
+        and initial["stickyInitiallyInactive"]
+        and initial["reducedMotionSafe"]
         and initial["firstFocus"]=="skip"
         and len(initial["tabs"])==3
         and initial["tabs"][0]["selected"]=="true"
@@ -131,7 +150,7 @@ async def audit(browser,name,width,height):
     print(f"{name}: PASS={result['pass']}, overflow={initial['scrollWidth']-width:.1f}px, "+
           f"images={sum(i['loaded'] for i in initial['images'])}/{len(initial['images'])}, "+
           f"heroCTA={initial['heroCTA']['bottom']:.0f}, sticky={sticky_after}/{sticky_end}, "+
-          f"tabs={bar_selected}/{manage_selected}, errors={len(errors)}",flush=True)
+          f"tabs={bar_selected}/{manage_selected}, motion={motion_pass}, errors={len(errors)}",flush=True)
     if initial["leaks"]:print("  leaks:",initial["leaks"],flush=True)
     await page.close()
     return result

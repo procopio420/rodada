@@ -75,6 +75,14 @@ class LandingMarketingTest(unittest.TestCase):
         self.assertIn(":focus-visible",self.html)
         self.assertIn("max-width:380px",self.html)
         self.assertIn('class="mobile-cta" hidden',self.html)
+        self.assertIn("bar.inert = !shown",self.html)
+        self.assertIn("classList.toggle('is-visible', shown)",self.html)
+        self.assertIn("aria-hidden",self.html)
+        self.assertIn("animation:tour-enter",self.html)
+        self.assertIn("animation:reveal-in",self.html)
+        self.assertIn("prefers-reduced-motion:no-preference",self.html)
+        self.assertIn("revealObserver.unobserve",self.html)
+        self.assertIn("No-JavaScript fallback",self.html)
 
     def test_no_tracking_dependencies(self):
         self.assertEqual(self.html.lower().count("<script"),1)
