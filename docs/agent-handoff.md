@@ -243,3 +243,30 @@ Sem merge em main/deploy. Worktrees preexistentes preservados, next-env gerado
 excluído. Próximo responsável: revisão e CI do novo PR, testes humanos locais e
 resolução dos gates documentados antes de integração. Registros anteriores são
 fotografias históricas e não certificam o SHA publicado agora.
+
+## Retomada da integração PR184 — 2026-10-15
+
+Autorização de merge na main mantida. Base publicada e763bb57; PR184 pronto,
+base main. Android256 PASS e API424 PASS (983 testes). Web495 terminou com
+106 PASS, 3 FAIL e 3 skip. Nenhum merge ou deploy executado nesta etapa.
+
+Trace do artefato11981355904 confirmou listas de200 Tabs levando cerca de10s;
+cinco consultas completas sobrepostas saturaram conexões e o GET da comanda ficou
+na fila do navegador. AttendanceWeb passa a compartilhar leituras regulares em
+andamento. Após mutation, aguarda leitura anterior e inicia outra, preservando
+verificação de estado canônico antes de fechar. Abrange comandos de mesa,
+serviço e movimento. Não altera regras financeiras nem autenticação.
+
+Regressão determinística: código anterior executa três leituras em vez de uma
+(FAIL); correção passa no build/tipos e23 jornadas focadas, incluindo leitura
+pré-POST atrasada e leitura fresca pós-POST. Logs locais ignorados pr184-before,
+pr184-refresh e pr184-final-build em visual-artifacts/android-native-port.
+Roteiros attendance e tab-location-move alinhados ao popup e à limpeza direta;
+asserts financeiros, autoria, replay, concorrência e isolamento preservados.
+
+Integração Web local permanece bloqueada por fcntl ausente no Windows; nenhum
+utilitário foi alterado para contornar o gate. Cluster descartável55462 encerrado.
+Worktrees preexistentes preservados. Main avançou a5a53326d durante a pausa;
+incorporar com cuidado antes de publicar e exigir CI/revisão no SHA final.
+Próximo passo: revisão independente do patch e CI; se aprovado, concluir merge
+PR184 com expected_head_sha e verificar SHA da main. Sem deploy autorizado.

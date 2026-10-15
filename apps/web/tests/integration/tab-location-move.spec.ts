@@ -53,7 +53,7 @@ Table.objects.create(venue=v,label='Available move destination')`);
     },{id:tab.id,base}); expect(disabled.every((s:number)=>s===403)).toBe(true);
     await page.getByRole("button",{name:"Mesas e comandas",exact:true}).click();
     await page.getByRole("button",{name:new RegExp(`^Mesa A-${width}`)}).click();
-    await page.locator(`#table-details-${origin.id}`).getByRole("button",{name:"Mover comanda",exact:true}).click();
+    await page.locator(".attendanceTableDialog").getByRole("button",{name:"Mover comanda",exact:true}).click();
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
     await expect(page.getByLabel("Mesa de destino").locator("option", { hasText: "Mesa Available move destination" })).toHaveCount(1);
     await page.getByLabel("Mesa de destino").selectOption(destination.active_occupancy.id); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");
@@ -87,11 +87,13 @@ event=AuditEvent.objects.get(entity_id=str(tab.id),event_type='tab.location_chan
 print(json.dumps({'assignments':assignments,'reason':event.reason,'actor':str(event.actor_staff_id),'events':AuditEvent.objects.filter(entity_id=str(tab.id),event_type='tab.location_changed').count(),'operations':TabOperation.objects.filter(source_tab=tab).count(),'transfers':TabTransferLine.objects.count(),'origin_released':TableOccupancy.objects.get(pk='${origin.active_occupancy.id}').released_at},cls=DjangoJSONEncoder))`));
     expect(facts.operations).toBe(1); expect(facts.events).toBe(1); expect(facts.transfers).toBe(0); expect(facts.reason).toBe("Mudança de lugar"); expect(facts.actor).not.toBe("None"); expect(facts.origin_released).toBeNull();
     expect(facts.assignments).toHaveLength(2); expect(facts.assignments[0].released_at).not.toBeNull(); expect(facts.assignments[1]).toEqual({occupancy_id:destination.active_occupancy.id,released_at:null});
+    if (await page.locator(".attendanceTableDialog").isVisible()) await page.locator(".attendanceTableDialog").getByRole("button", { name: "Voltar", exact: true }).click();
     await page.getByRole("button",{name:"Mesas e comandas",exact:true}).click();
     await expect(page.locator(`#attendance-table-${origin.id}`)).toBeVisible();
     await page.getByRole("button",{name:new RegExp(`^Mesa B-${width}`)}).click();
     await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.locator(".attendanceTableDialog").getByRole("button", { name: "Voltar", exact: true }).click();
     await page.unroute(endpoint);
   }
 });

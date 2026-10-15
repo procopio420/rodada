@@ -24,6 +24,59 @@ async function openTable(page: Page) {
   await expect(popup).toBeVisible();
   return popup;
 }
+
+test("overlapping list refreshes share one read and leave tab selection responsive", async ({ page }) => {
+  await setup(page);
+  await page.goto("/attendance");
+  await expect(page.getByRole("button", { name: /Mesa 02 Ocupada/ })).toBeEnabled();
+  let reads = 0;
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route(/\/api\/attendance\/tabs\/\?active=true&offset=0$/, async route => {
+    reads++;
+    await held;
+    await route.fallback();
+  });
+  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+  await expect.poll(() => reads).toBe(1);
+  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  const popup = await openTable(page);
+  await expect(popup).toContainText("Comanda de teste");
+  expect(reads).toBe(1);
+  release();
+});
+
+test("release waits for a fresh canonical read after an older list refresh", async ({ page }) => {
+  const { tables } = await setup(page);
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click();
+  await page.getByRole("button", { name: "Liberar mesa 02", exact: true }).click();
+  let reads = 0;
+  let committed = false;
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/attendance/hospitality/tables/", async route => {
+    reads++;
+    const snapshot = structuredClone(tables);
+    if (reads === 1) await held;
+    await route.fulfill({ json: { table_service_enabled: true, results: snapshot } });
+  });
+  // A realtime update can start while the confirmation dialog is open.
+  await page.clock.runFor(15000);
+  await expect.poll(() => reads).toBe(1);
+  await page.route("**/api/attendance/hospitality/tables/occupied/release/", route => {
+    committed = true; tables[1].status = "DIRTY"; tables[1].active_occupancy = undefined;
+    return route.fulfill({ json: {} });
+  });
+  await page.getByRole("button", { name: "Confirmar liberação", exact: true }).click();
+  await expect.poll(() => committed).toBe(true);
+  await expect(page.getByRole("dialog", { name: "Liberar mesa 02?", exact: true })).toBeVisible();
+  release();
+  await expect.poll(() => reads).toBe(2);
+  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: /Mesa 02 Aguardando limpeza/ })).toBeVisible();
+});
 for (const width of [360, 390, 430, 1280]) test(`unified tables and popup journey at ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await setup(page);

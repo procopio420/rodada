@@ -177,3 +177,12 @@ API staff /tabs/ exige display_label valido; abertura contextual rejeita novas
 intencoes sem nome, mas replay de recibo antigo com corpo/chave originais continua
 valido. Nao alterar payload de intencao ja submetida nem forcar nome num replay.
 Guest/domino interno nao passa a exigir identidade. Sem migration.
+
+
+## Atualizações concorrentes da lista — regressão PR184
+
+Atualizações sobrepostas de polling, realtime, retorno e navegação compartilham
+a mesma leitura em andamento. Não acumular consultas completas de todas as Tabs
+a ponto de impedir abrir uma comanda. Após uma mutation, a confirmação de estado
+deve aguardar qualquer leitura anterior e executar uma nova leitura canônica;
+resposta iniciada antes do POST não confirma liberação nem conclusão de limpeza.

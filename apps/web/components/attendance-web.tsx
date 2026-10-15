@@ -66,7 +66,13 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
 
   const [screen, setScreen] = useState("tables"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
   const [tables, setTables] = useState<Table[]>([]), [deliveries, setDeliveries] = useState<Delivery[]>([]), [tabs, setTabs] = useState<Tab[]>([]), [zones, setZones] = useState<{ id: string; label: string }[]>([]);
-  const refresh = useCallback(async (expected?: { tableId: string; status: string }) => {
+  const refreshInFlight = useRef<Promise<void> | null>(null);
+  const refresh = useCallback(async (expected?: { tableId: string; status: string }, afterMutation = false) => {
+    while (refreshInFlight.current) {
+      await refreshInFlight.current.catch(() => {});
+      if (!expected && !afterMutation) return;
+    }
+    const pending = (async () => {
     try {
       const [tableList, queue, zoneList] = await Promise.all([request<{ results: Table[]; table_service_enabled: boolean }>("hospitality/tables/"), request<{ results: Delivery[] }>("dispatch/delivery/"), request<{ results: { id: string; label: string }[] }>("hospitality/zones/")]);
       const allTabs: Tab[] = [];
@@ -76,6 +82,9 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       if (expected && !tableList.results.some(table => table.id === expected.tableId && table.status === expected.status)) throw new Error("O estado da mesa mudou. Atualize antes de continuar.");
     } catch (failure) { setOnline(false); setError(failure instanceof Error ? failure.message : "Não foi possível atualizar."); if (expected) throw failure; }
     finally { setLoading(false); }
+    })();
+    refreshInFlight.current = pending;
+    try { await pending; } finally { if (refreshInFlight.current === pending) refreshInFlight.current = null; }
   }, []);
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 15000); return () => clearInterval(timer); }, [refresh]);
   function openTableTab(table: Table, tab: Tab) {
@@ -98,7 +107,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   async function command(path: string, payload: object = {}, expected?: { tableId: string; status: string }) {
     if (busy || moveLocked || !online || intent || recoveryBlocked || pendingOrder) return;
     setBusy(true); setError(""); setMessage("");
-    try { await request(path, payload); await refresh(expected); setMessage("Operação confirmada."); return true; }
+    try { await request(path, payload); await refresh(expected, true); setMessage("Operação confirmada."); return true; }
     catch (failure) { setError(failure instanceof Error ? failure.message : "Não foi possível concluir."); return false; }
     finally { setBusy(false); }
   }
@@ -116,10 +125,10 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       localStorage.removeItem(storageKey); setIntent(null); setMessage("Operação confirmada.");
       if (result.tab_id) { setRequestedTab(current => ({ id: result.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: result.table_label ? `Mesa ${result.table_label}` : "Comanda" })); setScreen("tables"); if (result.table_id) setSelectedTable(result.table_id); setOpeningAt(null); }
       else if (result.table_id) { setSelectedTable(result.table_id); setScreen("tables"); }
-      setTakeoverAt(null); setMoving(null); await refresh();
+      setTakeoverAt(null); setMoving(null); await refresh(undefined, true);
     } catch (failure) {
       const status = (failure as { status?: number }).status;
-      if (status && [400, 404, 409, 422].includes(status)) { localStorage.removeItem(storageKey); setIntent(null); await refresh(); }
+      if (status && [400, 404, 409, 422].includes(status)) { localStorage.removeItem(storageKey); setIntent(null); await refresh(undefined, true); }
       setError(failure instanceof Error ? failure.message : "Resultado desconhecido. Verifique a mesma intenção.");
     } finally { setBusy(false); }
   }
@@ -186,6 +195,6 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       {intent && <button className="buttonPrimary" disabled={busy || !online || recoveryBlocked || pendingOrder} onClick={() => void serviceCommand()}>Verificar mesma intenção</button>}
     </ActionDialog>}
     {takeoverAt?.active_occupancy && <ActionDialog title="Assumir atendimento?" locked={busy || !!intent} onClose={() => setTakeoverAt(null)}><p>{takeoverAt.active_occupancy.responsible_staff?.display_name} está responsável. Você também pode atender sem assumir.</p><button className="buttonPrimary" disabled={busy || !!intent || !online} onClick={() => void serviceCommand(`hospitality/occupancies/${takeoverAt.active_occupancy!.id}/responsibility/claim/`, { expected_responsibility_version: takeoverAt.active_occupancy!.responsibility_version, mode: "TAKE_OVER" })}>Confirmar transferência de atendimento</button>{intent && <button className="buttonPrimary" disabled={busy || !online} onClick={() => void serviceCommand()}>Verificar mesma intenção</button>}<button className="buttonSecondary" disabled={busy || !!intent} onClick={() => setTakeoverAt(null)}>Atender sem assumir</button></ActionDialog>}
-  <TabLocationMove selection={moveSelection} tables={tables} onClose={closeMove} onLockChange={setMoveLocked} onConfirmed={refresh} />
+  <TabLocationMove selection={moveSelection} tables={tables} onClose={closeMove} onLockChange={setMoveLocked} onConfirmed={() => refresh(undefined, true)} />
   </main>;
 }

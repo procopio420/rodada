@@ -220,3 +220,18 @@ inspecionado sem criar Tab. Captura local name-required-final.png e logs
 required-name-*.log em visual-artifacts/android-native-port. Emulador restaurado
 para size/density/fonte1 e animacoes normais; formulario deixado aberto.
 Sem migrations/reset/seed, nova comanda/pedido/pagamento, commit/push/merge/deploy.
+
+
+## Regressão de consultas sobrepostas — PR184
+
+Trace Web495 (106PASS/3FAIL/3skip) mostrou cinco leituras completas de Tabs
+pendentes e o detalhe enfileirado, sem envio ao BFF. Leitura de200 Tabs demorou
+cerca de10s. Consultas regulares agora compartilham a leitura em andamento;
+comandos de mesa, serviço e movimento exigem leitura iniciada depois da mutation.
+
+Teste novo falha antes (três leituras, esperado uma) e passa depois. Build/tipos
+e23 testes focados PASS, incluindo captura antiga anterior aoPOST atrasada e
+confirmação somente após segunda leitura. Roteiros integrados de mesa e movimento
+alinhados aos popups/limpeza direta, mantendo asserts financeiros e replay.
+Integração PostgreSQL no Linux/CI final permanece necessária. Sem mudança de
+baselines ou timeout, sem reset da demonstração.
