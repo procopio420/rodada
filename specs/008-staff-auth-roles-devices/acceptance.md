@@ -117,3 +117,17 @@ Given valid refresh cookies and an expired/missing access cookie, concurrent aut
 Given a session revoked after that rotation, reusing the buffered result must still fail API authorization and clear privileged cookies. A transient upstream refresh failure must not clear valid cookies. The coordinator is memory-bounded, isolates credentials and releases pending/expired entries. This acceptance is for one Web process, not multiple replicas.
 
 Verificação Web10/10/2026: membro sem capability de gerência deve ver aviso explícito tanto no cockpit quanto na região Alertas operacionais, sem projeção Comandas abertas. Teste integrado distingue os dois avisos legítimos, exige ambos e não afrouxa autorização.
+
+## Bloqueador integrado023/024 — expiração nativa
+
+A jornada real reproduziu ACCESS_TOKEN_EXPIRED em operações após15 minutos.
+Operations/Corrections/RefundsHttpClient retornam OperationsApiException, enquanto
+AuthRepository renova somente AuthApiException. Alinhar a classificação401/código
+ACCESS_TOKEN_EXPIRED ao cliente Cash existente;403 e erros de domínio permanecem
+falhas. Renovação concorrente do mesmo token deve reutilizar a rotação já guardada,
+preservando a sessão original; não criar login novo nem mudar TTL/capabilities.
+Repetir só a requisição rejeitada por autenticação, uma vez, com mesmo corpo/chave;
+resposta perdida e mutation confirmada seguem seus contratos próprios.
+Aceite: teste de transporte401/403 nos três clientes, teste de rotação concorrente,
+jornada nativa retomada na mesma comanda, sem repetir pedido/cobrança. Servidor
+local de teste comprova transporte; readback PostgreSQL comprova efeitos reais.

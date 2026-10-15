@@ -361,7 +361,12 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); padding: 0; border-bottom: 0; }
 @media (min-width: 1200px) {
   .stationOrder { grid-template-columns: minmax(0, var(--production-ticket-destination)) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  /* Keep the content in the readable track and destinations in their own column. */
+  .stationOrder > .stationTab { grid-column: 1; grid-row: 1; }
+  .stationOrder > .stationOrderItems { grid-column: 2; grid-row: 1; width: 100%; min-width: 0; }
   .stationOrder .stationTicket { grid-template-columns: minmax(0, 1fr) var(--production-ticket-action); gap: var(--space-4); }
+  .stationPassRow > .stationTab { grid-column: 1; }
+  .stationPassRow > div { grid-column: 2; min-width: 0; }
   .stationOrder .stationTicket > .buttonPrimary { grid-column: auto; }
 }
 

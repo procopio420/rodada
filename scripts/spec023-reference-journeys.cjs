@@ -4,6 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const http = require('node:http');
 const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
 const { chromium } = require('../apps/web/node_modules/playwright');
 const root = path.resolve(__dirname, '..');
 const out = path.join(root, 'docs/design/evidence/spec023-reference-journeys');
@@ -107,7 +108,10 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/cs
     }
     assert.deepEqual(errors, []);
     for (const file of allSources) assert.equal(hash(await fs.readFile(path.join(root, file.path))), file.sha256, file.path);
-    const result = { spec: '023', scope: 'V01 reference states; no product parity approval', base: original.base, environment: original.environment, clock: original.clock, normalization: ['export rail replay is literal mock behavior', 'clock paused; test-only style disables animation/transition/caret', 'source files unchanged; no data/layout/color/font changes'], sources: allSources, contracts, errors, limitations: ['native comparison and baseline pending','static controls have no runtime behavior','offline payment and mocked synchronized state are not authorized domain behavior','responsive adaptations and hardware are separate contracts'] };
+    const git = process.env.RODADA_TEST_GIT ?? 'git';
+    const base = execFileSync(git, ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+    const dirty = Boolean(execFileSync(git, ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim());
+    const result = { spec: '023', scope: 'V01 reference states; no product parity approval', base, dirty, measuredAt: new Date().toISOString(), referenceInventoryBase: original.base, environment: { ...original.environment, os: process.platform, node: process.version, chromium: browser.version() }, clock: original.clock, normalization: ['export rail replay is literal mock behavior', 'clock paused; test-only style disables animation/transition/caret', 'source files unchanged; no data/layout/color/font changes'], sources: allSources, contracts, errors, limitations: ['native comparison and baseline pending','static controls have no runtime behavior','offline payment and mocked synchronized state are not authorized domain behavior','responsive adaptations and hardware are separate contracts'] };
     await fs.writeFile(path.join(out, 'contracts.json'), JSON.stringify(result, null, 2) + '\n');
     console.log(JSON.stringify({ status: 'PASS', states: contracts.length, references: [...new Set(contracts.map(contract => contract.entry))], stablePairs: contracts.length }));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }

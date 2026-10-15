@@ -5,11 +5,12 @@ import com.rodada.attendance.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class AuthRepository(context: Context) {
+class AuthRepository internal constructor(context: Context, private val client: AuthHttpClient) {
+    constructor(context: Context) : this(context, AuthHttpClient(BuildConfig.RODADA_API_BASE_URL))
     private val appContext = context.applicationContext
     private val secureStore = SecureSessionStore(appContext)
     private val installationIdStore = InstallationIdStore(appContext)
-    private val client = AuthHttpClient(BuildConfig.RODADA_API_BASE_URL)
+    private val rotationLock = Any()
 
     suspend fun restoreSession(): StoredSession? =
         withContext(Dispatchers.IO) {
@@ -159,15 +160,18 @@ class AuthRepository(context: Context) {
             finally { OriginatingSessionContext.id.remove() }
         }
 
-    private fun refreshStoredSession(session: StoredSession): StoredSession {
+    private fun refreshStoredSession(session: StoredSession): StoredSession = synchronized(rotationLock) {
+        val latest = secureStore.load() ?: throw AuthApiException(401, "RECOVERY_SESSION_CHANGED", "A sessão original mudou. Confira o histórico antes de criar uma nova operação.")
+        if (latest.sessionId != session.sessionId) throw AuthApiException(401, "RECOVERY_SESSION_CHANGED", "A sessão original mudou. Confira o histórico antes de criar uma nova operação.")
+        if (latest.tokens.accessToken != session.tokens.accessToken) return@synchronized latest
         val nextTokens =
             try {
-                client.refresh(session.tokens.refreshToken)
+                client.refresh(latest.tokens.refreshToken)
             } catch (error: AuthApiException) {
                 if (error.status == 401 || error.status == 403) secureStore.clear()
                 throw error
             }
-        return session.withTokens(nextTokens).also(secureStore::save)
+        latest.withTokens(nextTokens).also(secureStore::save)
     }
 
     private fun <T> withAccessRefresh(

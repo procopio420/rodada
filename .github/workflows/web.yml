@@ -35,7 +35,7 @@ jobs:
     env:
       RODADA_TEST_PYTHON: python
     # Give extra time only to deliberately requested visual checks.
-    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.run_visual && 45 || 20 }}
+    timeout-minutes: ${{ ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) && 45 || 20 }}
     services:
       postgres:
         image: mirror.gcr.io/library/postgres:17
@@ -110,7 +110,7 @@ jobs:
         run: npm run test:table-service
 
       - name: Spec 027 focused responsive and recovery contracts
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_visual }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118) }}
         working-directory: apps/web
         run: npm run test:visual -- table-service.spec.ts
 
@@ -118,6 +118,7 @@ jobs:
         run: python -m unittest discover -s apps/web/tests/integration -p 'test_e2e_db_guard.py' -v
 
       - name: Real Web BFF API workflows
+        id: baseline_e2e
         working-directory: apps/web
         env:
           RODADA_E2E_POSTGRES: "1"
@@ -127,8 +128,23 @@ jobs:
           POSTGRES_HOST: 127.0.0.1
         run: npm run test:integration
 
+      # Spec 024: full import/order regression on the PR, backed by the
+      # disposable Web E2E PostgreSQL database only.
+      - name: Canonical 143-item menu — Web/API/Bar/Kitchen E2E
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 118 }}
+        working-directory: apps/web
+        env:
+          RODADA_E2E_POSTGRES: "1"
+          RODADA_E2E_MENU: "1"
+          POSTGRES_DB: rodada_web_e2e
+          POSTGRES_USER: rodada_test
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_HOST: 127.0.0.1
+        run: npm run test:integration -- venue-menu-acceptance.spec.ts
+
       - name: Visual, responsive and accessibility gates
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_visual }}
+        # Preserve the full visual evidence even when the independent menu run fails.
+        if: ${{ always() && steps.baseline_e2e.outcome == 'success' && ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) }}
         working-directory: apps/web
         run: npm run test:visual
 

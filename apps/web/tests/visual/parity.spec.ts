@@ -411,12 +411,13 @@ test("V03 kitchen: shared deterministic data and explicit reference derivation",
   await kitchenFixture(actual); await actual.goto("/kitchen");
   await expect(actual.locator(".stationTicket")).toHaveCount(waitingItems.length);
   await expect(actual.locator(".notice[role=status]")).toContainText("Reconectando");
-  // Spec026: this historical fixture has no configuration snapshot; keep each line independent.
-  const legacySummary = [...waitingItems].sort((a, b) => b.quantity - a.quantity);
-  await expect(actual.locator(".stationDishHeading strong")).toHaveText(legacySummary.map(item => item.product_name));
-  await expect(actual.locator(".stationQuantity")).toHaveText(legacySummary.map(item => String(item.quantity)));
+  // Spec026: this fixture now supplies a confirmed canonical configuration per line.
+  // Batches are summaries by product/configuration; Orders and their actions remain independent.
+  await expect(actual.locator(".stationBatches .stationDish")).toHaveCount(3);
+  await expect(actual.locator(".stationDishHeading strong")).toHaveText(kitchenBatches.map(batch => batch.name));
+  await expect(actual.locator(".stationBatches .stationQuantity")).toHaveText(kitchenBatches.map(batch => String(batch.quantity)));
   const actualChips = await actual.locator(".stationDish").evaluateAll(els => els.map(el => Array.from(el.querySelectorAll(".stationChips span")).map(chip => chip.textContent)));
-  expect(actualChips).toEqual(legacySummary.map(item => [item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : "")]));
+  expect(actualChips).toEqual(kitchenBatches.map(batch => batch.items.map(item => item.tab_label + (item.quantity > 1 ? ` ×${item.quantity}` : ""))));
   await expect(actual.locator(".stationTicketContent > strong")).toHaveText(waitingItems.map(item => `${item.quantity} ${item.product_name}`));
   await expect(actual.locator(".stationTicketMeta time")).toHaveText(waitingItems.map(item => elapsed(item.created_at)));
   await expect(actual.locator(".stationTicketMeta > span")).toHaveText(waitingItems.map(item => item.state === "NEW" ? "Aguardando preparo" : "Em preparo"));
@@ -487,29 +488,65 @@ for (const station of ["KITCHEN", "BAR"] as const) for (const width of [360, 430
     await expect(sharedOrder.getByRole("button", { name: "Pronto: 1 Calabresa, P08", exact: true })).toBeVisible();
     await stable(page); await layoutAndA11y(page);
     const destination = await sharedOrder.locator(".stationTab").boundingBox();
+    const detail = await sharedOrder.locator(".stationTicketContent").first().boundingBox();
     const action = await sharedOrder.getByRole("button", { name: "Pronto: 1 Fritas, P08", exact: true }).boundingBox();
     expect(action!.height).toBe(56);
-    if (width === 1280) { expect(destination!.width).toBe(84); expect(action!.width).toBe(116); }
-    else { expect(action!.width).toBeGreaterThanOrEqual(44); expect(action!.y).toBeGreaterThan(destination!.y); }
+    if (width === 1280) {
+      expect(destination!.width).toBe(84);
+      expect(action!.width).toBe(116);
+      // Layout must not squeeze dish names into the 84px destination track.
+      expect(detail!.x).toBeGreaterThanOrEqual(destination!.x + destination!.width + 8);
+      expect(detail!.width).toBeGreaterThanOrEqual(140);
+      expect(action!.x).toBeGreaterThan(detail!.x + detail!.width);
+      const passDestination = await page.locator(".stationPassRow > .stationTab").first().boundingBox();
+      const passDetail = await page.locator(".stationPassRow > div").first().boundingBox();
+      expect(passDetail!.x).toBeGreaterThan(passDestination!.x + passDestination!.width);
+      expect(passDetail!.width).toBeGreaterThanOrEqual(150);
+    } else {
+      expect(action!.width).toBeGreaterThanOrEqual(44);
+      expect(action!.y).toBeGreaterThan(destination!.y);
+    }
     await page.screenshot({ path: path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.png`), fullPage: true });
-    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, action }, null, 2));
+    await writeFile(path.join(artifactRoot, `v04-${station.toLowerCase()}-${width}.json`), JSON.stringify({ station, width, groups: 5, items: 6, destination, detail, action }, null, 2));
     await context.close();
   });
 }
 
-test("V04 Order grouping never merges different Orders or legacy items by Tab", async ({ page }) => {
+test("V04 distinct Orders retain individual tickets while confirmed configuration shares a batch", async ({ page }) => {
   await kitchenFixture(page);
-  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: [
+  const items = [
     { ...kitchenScenario.items[1], id: "item-a", order_id: "shared", tab_label: "Mesmo destino" },
     { ...kitchenScenario.items[1], id: "item-b", order_id: "other", tab_label: "Mesmo destino" },
     { ...kitchenScenario.items[1], id: "shared", order_id: undefined, tab_label: "Mesmo destino" },
     { ...kitchenScenario.items[1], id: "legacy-b", order_id: undefined, tab_label: "Mesmo destino" },
-  ] } }));
+  ];
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: items } }));
   await page.goto("/kitchen");
   await expect(page.locator(".stationOrder")).toHaveCount(4);
   await expect(page.locator(".stationTicket")).toHaveCount(4);
   await expect(page.locator(".stationOrder > .stationTab")).toHaveText(Array(4).fill("Mesmo destino"));
-  await expect(page.locator(".stationQuantity")).toHaveText(["1", "1", "1", "1"]);
+  await expect(page.locator(".stationBatches .stationDish")).toHaveCount(1);
+  await expect(page.locator(".stationDishHeading strong")).toHaveText(["Fritas"]);
+  await expect(page.locator(".stationBatches .stationQuantity")).toHaveText(["4"]);
+  await expect(page.locator(".stationChips span")).toHaveText(Array(4).fill("Mesmo destino"));
+  await expect(page.getByRole("button", { name: /^Pronto:/ })).toHaveCount(4);
+});
+
+test("V04 unknown configuration never merges legacy items, even under one destination", async ({ page }) => {
+  await kitchenFixture(page);
+  const items = ["item-a", "item-b", "legacy-a", "legacy-b"].map((id, index) => ({
+    ...kitchenScenario.items[1], id,
+    order_id: index < 2 ? `different-order-${index}` : undefined,
+    tab_label: "Mesmo destino",
+    customization_snapshot: undefined,
+  }));
+  await page.route("**/api/pos/production/KITCHEN/", route => route.fulfill({ json: { results: items } }));
+  await page.goto("/kitchen");
+  await expect(page.locator(".stationBatches .stationDish")).toHaveCount(4);
+  await expect(page.locator(".stationBatches .stationQuantity")).toHaveText(["1", "1", "1", "1"]);
+  await expect(page.locator(".stationOrder")).toHaveCount(4);
+  await expect(page.locator(".stationTicket")).toHaveCount(4);
+  await expect(page.getByRole("button", { name: /^Pronto:/ })).toHaveCount(4);
 });
 
 test("V04 shared Order: marking one item ready never completes its sibling", async ({ page }) => {

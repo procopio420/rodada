@@ -29,6 +29,19 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
 
     import django
     django.setup()
+    if os.environ.get("RODADA_E2E_MENU") == "1" and os.environ.get("RODADA_E2E_POSTGRES") == "1":
+        # The ordinary BFF suite has populated this disposable database already.
+        # Only the explicit canonical-menu run may reset it, and never outside
+        # the isolated loopback PostgreSQL database used by Web E2E.
+        database = settings.DATABASES["default"]
+        if (database["ENGINE"] != "django.db.backends.postgresql"
+                or database["NAME"] != "rodada_web_e2e"
+                or database["HOST"] not in ("127.0.0.1", "localhost")):
+            raise RuntimeError("Refusing to reset any non-disposable menu database")
+        from django.core.management import call_command
+        from e2e_db_guard import e2e_database_guard, retry_transient_reset
+        with e2e_database_guard(exclusive=True):
+            retry_transient_reset(lambda: call_command("flush", interactive=False, verbosity=0))
     from seed_api import seed_api
     seed_api()
     import threading
