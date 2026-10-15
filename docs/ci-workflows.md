@@ -52,8 +52,8 @@ Fast safety regressions: `python -m unittest discover -s scripts/tests -p test_c
 These tests do not prove Android, browser or PostgreSQL execution. The existing
 native workflow executes the real connected guard and shared fixture. Its native
 transport instrumentation does not by itself prove ordering via Compose UI.
-The complete #106 release suite remains incomplete; see the
-[checkpoint](releases/issue-106-checkpoint.md). Never start the Web-only fixture
+The complete automated #106 suite was executed at899255b1; see the
+[current matrix](releases/issue-106-resumption-matrix.md) for evidence and gates. Never start the Web-only fixture
 runner to validate the native order: it seeds a different database.
 
 ### #106 local continuation (2026-10-15)
@@ -67,8 +67,10 @@ The runner clears only the test app on an explicitly verified emulator, then
 runs independent PostgreSQL reconciliation. It never selects a release build.
 The browser consumes both native receipts and drives explicit Bar transitions;
 QR-first/claim/two empty Tabs/release/cleaning are separate browser actions on
-the same fixture Venue and PostgreSQL. These partial slices do not certify
-all E2E-01..14, Kitchen, financial UI or physical gates.
+the same fixture Venue and PostgreSQL. The full runner additionally covers
+Kitchen, Guest/Web origins, native contextual readback, financial UI/cutoff,
+authorization and final SQL. Exact-SHA independent review is required for GO;
+physical gates remain separate.
 
 Successful traces are retained. Only archives exported by
 `scripts/sanitize-cross-surface-traces.py` are uploaded, with credentials/PIN

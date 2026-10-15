@@ -31,3 +31,11 @@
 - [x] Remover filtros e recolher outras comandas.
 - [x] Cartoes com cores semanticas e popup reutilizando TableCard.
 - [x] Concluir matriz de fonte/tamanho e confirmar APK final no emulador.
+
+
+## Categorias e quantidade
+- [x] Definir fluxo, invariantes e aceite antes do código.
+- [x] Implementar Android e Web com componentes existentes.
+- [x] Validar quantidade, cancelamento, limites, atualização e isolamento.
+- [x] Conferir UI real e acessibilidade; instalar Android e atualizar Web local.
+- [x] Revisão independente e documentação de evidência/limites.

@@ -595,3 +595,13 @@ Estado sempre tambem textual. Grade em duas colunas, uma com fonte ampliada;
 nao reintroduzir filtros horizontais. Acoes detalhadas usam Dialog nativo rolavel,
 com dismiss bloqueado durante operacao pendente. Navegacao no topo com destino
 ativo Paper/Ink, preservando Caixa e demais capacidades existentes.
+
+
+### Atendimento — categorias e seleção de item (2026-10-15)
+Cardápio inicia com categorias e busca. Categoria abre janela grande com grade
+de produtos; produto abre quantidade e personalização, sem ações repetidas sob
+cada card. Manter nome/preço/estado/draft e Ver pedido atual acessível. Reutilizar
+ActionDialog/Dialog, superfícies, bordas, radius, tipografia e alvos existentes;
+Back fecha só a camada ativa e restaura foco. Opções obrigatórias não são ocultas.
+Este fluxo substitui os steppers do catálogo no Atendimento, preservando revisão
+integral, disponibilidade, limite99 e isolamento por Tab. POS/Guest inalterados.

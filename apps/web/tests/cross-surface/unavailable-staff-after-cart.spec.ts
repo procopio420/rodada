@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
@@ -22,6 +23,8 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     name: "E2E05 Web " + Date.now(), price_cents: 500, fulfillment_station: "BAR",
   })).product;
   const table = await api("hospitality/tables/", { label: "E2E05 Web " + Date.now(), guest_ordering_mode: "DIRECT" });
+  // Set up an occupied table before testing the staff ordering UI; AVAILABLE tables cannot open a second Tab directly.
+  await api("hospitality/tables/" + table.id + "/occupy/", {});
   const stationContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110", storageState: await page.context().storageState() });
   try {
     const station = await stationContext.newPage();
@@ -32,7 +35,7 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     await page.getByRole("dialog").getByRole("textbox").fill("E2E05 staff");
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.locator(".attendanceOrderDialog");
-    await dialog.getByRole("button", { name: new RegExp("^" + product.name) }).click();
+    await addCatalogItem(page, product.name);
     await dialog.getByRole("button", { name: /Pedido atual/ }).click();
     await expect(dialog.getByRole("button", { name: /^Confirmar pedido/ })).toBeEnabled();
 

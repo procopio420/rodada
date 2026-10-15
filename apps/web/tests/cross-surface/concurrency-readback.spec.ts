@@ -14,9 +14,10 @@ test("concurrent commands are visible canonically in the shared Attendance UI", 
   await page.goto("/attendance");
   for (const kind of ["start", "claim"]) {
     await page.getByRole("button", { name: new RegExp(`^Mesa Race ${kind}`) }).click();
-    const dialog = page.getByRole("dialog", { name: `Mesa Race ${kind}`, exact: true });
-    await expect(dialog).toContainText(/Atendimento:/);
-    await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
+    const popup = page.locator(".attendanceTableDialog");
+    await expect(popup).toContainText(/Atendimento:/);
+    await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+    await expect(popup).not.toBeVisible();
   }
   await page.getByRole("button", { name: /^Mesa Race release/ }).click();
   await expect(page.getByRole("button", { name: "Concluir limpeza", exact: true })).toBeVisible();

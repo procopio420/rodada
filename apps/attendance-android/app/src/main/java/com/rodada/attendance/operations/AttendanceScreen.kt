@@ -237,6 +237,7 @@ fun AttendanceScreen(
                     tab = selected,
                     onBack = { viewModel.clearSelection(session) },
                     onAdd = { product, selection -> viewModel.addProduct(product, selection) },
+                    onAddQuantity = { product, selection, quantity -> viewModel.addProduct(product, selection, quantity) },
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
@@ -575,8 +576,8 @@ internal fun TabWorkspace(
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
     onRepeatOrder: (RepeatOrderReview, Map<String, Int>) -> Unit = { _, _ -> },
+    onAddQuantity: (Product, Customization, Int) -> Unit = { product, selection, quantity -> repeat(quantity) { onAdd(product, selection) } },
 ) {
-    var query by rememberSaveable(tab.summary.id) { mutableStateOf("") }
     var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Cardápio") }
     val reviewingCart = workspaceSection == "Pedido atual"
     val viewingAccount = workspaceSection == "Conta"
@@ -597,23 +598,19 @@ internal fun TabWorkspace(
     LaunchedEffect(tab.summary.id, reviewingCart) {
         if (!reviewingCart) catalogScroll.scrollToItem(catalogIndex, catalogOffset)
     }
-    val availableProducts = remember(state.products, query) {
-        state.products.filter { it.name.contains(query, ignoreCase = true) }
-    }
-    val groupedProducts = remember(availableProducts) {
-        availableProducts.groupBy { it.category.ifBlank { "Outros" } }.toSortedMap()
-    }
-    var configuring by remember { mutableStateOf<Product?>(null) }
-    var editing by remember { mutableStateOf<CartLine?>(null) }
+    var configuring by remember(tab.summary.id) { mutableStateOf<Product?>(null) }
+    var editing by remember(tab.summary.id) { mutableStateOf<CartLine?>(null) }
     var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
     configuring?.let { selected ->
         val current = state.products.firstOrNull { it.id == selected.id } ?: selected
-        ProductCustomizationSheet(current, editing?.customization ?: previous[current.id] ?: current.defaults(), onDismiss = { configuring = null; editing = null }) { selection ->
+        ProductCustomizationSheet(current, editing?.customization ?: previous[current.id] ?: current.defaults(), onDismiss = { configuring = null; editing = null },
+            validationQuantity = editing?.quantity,
+            capacity = { selection -> draftQuantityCapacity(state.cart.filterNot { it.lineId == editing?.lineId }, current.id, selection) },
+            locked = !state.canLeaveTabContext()) { selection ->
             if (editing != null) onEdit(editing!!.lineId, selection) else onAdd(current, selection)
             previous = previous + (current.id to selection); configuring = null; editing = null
         }
     }
-    val catalogColumns = if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) 1 else 2
     val currentCart = state.cart.map { line -> line.copy(product = state.products.firstOrNull { it.id == line.product.id } ?: line.product.copy(active = false)) }
     val cartTotal = currentCart.sumOf { it.unitPriceCents * it.quantity }
 
@@ -658,42 +655,8 @@ internal fun TabWorkspace(
                 }
                 if (!reviewingCart && !viewingAccount) {
                     item {
-                        Text("Adicionar itens", style = MaterialTheme.typography.titleMedium)
-                        OutlinedTextField(
-                            value = query,
-                            onValueChange = { query = it },
-                            label = { Text("Buscar no catálogo") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            enabled = tab.summary.state != "CLOSED" && !state.submitting,
-                        )
-                    }
-                    groupedProducts.forEach { (category, products) ->
-                        item(key = "category:$category") {
-                            Text("$category · ${products.size}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        }
-                        items(products.chunked(catalogColumns), key = { row -> row.joinToString { it.id } }) { row ->
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                row.forEach { product ->
-                                    val lines = currentCart.filter { it.product.id == product.id }
-                                    val unlocked = !state.loading && !state.submitting && state.orderIntentId == null
-                                    val sellable = product.active && product.availability == "AVAILABLE" && tab.summary.state != "CLOSED"
-                                    val canAdd = sellable && unlocked && state.connectivity == ConnectivityState.ONLINE
-                                    AttendanceCatalogCard(product, lines.sumOf { it.quantity }, lines.size, canAdd, unlocked,
-                                        onAdd = {
-                                            if (product.variants.isEmpty() && product.modifierGroups.isEmpty()) onAdd(product, Customization())
-                                            else { configuring = product; editing = null }
-                                        }, onReduce = {
-                                            if (lines.size > 1) workspaceSection = "Pedido atual"
-                                            else lines.singleOrNull()?.let { onQuantity(it.lineId, -1) }
-                                        }, onCustomize = { configuring = product; editing = null }, modifier = Modifier.weight(1f))
-                                }
-                                if (row.size < catalogColumns) Spacer(Modifier.weight(1f))
-                            }
-                        }
-                    }
-                    item {
-                        if (availableProducts.isEmpty()) Text("Nenhum produto encontrado.")
+                        CategoryCatalog(state, tab.summary.id, tab.summary.state in setOf("CLOSED", "CANCELLED"),
+                            onAddQuantity, onReview = { workspaceSection = "Pedido atual" })
                     }
                 }
                 if (viewingAccount && tab.orders.isNotEmpty()) {
@@ -893,7 +856,7 @@ private fun OrderCart(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             TextButton(onClick = { onQuantity(line.lineId, -1) }, enabled = !busy && !locked) { Text("−") }
                             Text("${line.quantity}")
-                            TextButton(onClick = { onQuantity(line.lineId, 1) }, enabled = !busy && !locked) { Text("+") }
+                            TextButton(onClick = { onQuantity(line.lineId, 1) }, enabled = !busy && !locked && line.product.active && line.product.availability == "AVAILABLE" && draftQuantityCapacity(cart, line.product.id, line.customization) > 0) { Text("+") }
                         }
                     }
                 }

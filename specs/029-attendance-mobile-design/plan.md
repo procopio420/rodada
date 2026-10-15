@@ -45,3 +45,11 @@ após reload, flag contextual desligada, ausência de capability e produto esgot
 - Cartoes com faixa superior semantica e icone/texto; TableCard existente em Dialog.
 - Validar cores por teste JVM, estados/dialogo por Compose, tamanhos/fonte e UI real.
 - Catalogo, ProductIcon publicado e pagamentos continuam fora desta slice.
+
+
+## Categorias em popup
+1. Substituir lista longa por categorias, preservando busca e draft.
+2. Reutilizar cards sem ações repetidas e personalização com quantidade explícita.
+3. Adição local de múltiplas unidades com limite e revalidação; API inalterada.
+4. Testar cancelamento, quantidade3, personalização, indisponibilidade, A/B/A,
+   Back/foco e larguras360/390/430 com fonte1/2. Instalar debug para teste local.

@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -32,7 +33,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 900 });
     await selectExistingAttendanceTab(page, "João  da Praça");
-    await popup.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+    await addCatalogItem(page, "Kitchen E2E item");
     await popup.getByRole("button", { name: /Pedido atual/ }).click();
     await expect(popup.getByText(`${[360, 390, 430].indexOf(width) + 1}× Kitchen E2E item`, { exact: true })).toBeVisible();
     await popup.getByRole("button", { name: "Voltar", exact: true }).click();

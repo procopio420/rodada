@@ -17,8 +17,7 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
     if (!r.ok) throw new Error(`${path}: ${r.status}`);
     return r.json();
   }, { path, body });
-  // Setup via real BFF. Guest/claim/Tabs/release/complete use UI; the optional
-  // intermediate CLEANING command below uses real BFF because current UI offers direct completion.
+  // Setup only; every occupancy/claim/Tab/lifecycle action below is real browser UI.
   const table = await read("hospitality/tables/", { label: `QR-first ${Date.now()}`, guest_ordering_mode: "DIRECT" });
   const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
   const guest = await guestContext.newPage();
@@ -73,12 +72,9 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   }, table.public_token);
   expect(revoked.status).toBe(403);
   expect(revoked.body.code).toBe("GUEST_SESSION_REVOKED");
-  // Current production UI has one-click completion from DIRTY. Exercise the
-  // still-supported intermediate transition explicitly through the real BFF.
-  await read(`hospitality/tables/${table.id}/cleaning/start/`, {});
-  await page.goto("/attendance");
+  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
-  await expect.poll(async () => (await snapshot()).status).toBe("CLEANING");
+  await expect(page.getByRole("button", { name: "Iniciar limpeza", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("AVAILABLE");
   const final = await snapshot();
@@ -108,7 +104,7 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
     table_id: table.id, occupancy_id: initial.active_occupancy.id, tab_ids: tabs.map((t: { id: string }) => t.id),
     new_occupancy_id: nextVisit.active_occupancy.id, new_tab_id: nextVisit.active_occupancy.tabs[0].id,
-    initial_generation: initial.access_generation, final_generation: final.access_generation,
+    initial_generation: initial.access_generation, final_generation: final.access_generation, cleaning_mode: "direct",
     status: "PASS", revoked_status: revoked.status,
   }, null, 2));
   await nextVisitContext.close();

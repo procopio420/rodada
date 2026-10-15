@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test, type Page } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
@@ -70,7 +71,7 @@ test("revoked Web session cannot replay captured UI intent and new login require
   await page.getByRole("dialog").getByRole("textbox").fill(table.label);
   await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
   const dialog = page.locator(".attendanceOrderDialog");
-  await dialog.getByRole("button", { name: /^Android Post Drop Test Soda/ }).click();
+  await addCatalogItem(page, "Android Post Drop Test Soda");
   await dialog.getByRole("button", { name: /Pedido atual/ }).click();
   let payload = "", target = "";
   await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {

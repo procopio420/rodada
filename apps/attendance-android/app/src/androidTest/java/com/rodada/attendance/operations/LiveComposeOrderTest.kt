@@ -40,9 +40,13 @@ class LiveComposeOrderTest {
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
-            compose.onNodeWithTag("workspace-list").performScrollToNode(hasContentDescription("Adicionar $product"))
-            compose.waitUntil(30_000) { compose.onAllNodes(hasContentDescription("Adicionar $product") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithContentDescription("Adicionar $product").assertIsEnabled().performClick()
+            // PR #195: select category, product, quantity; the old flat "Adicionar" action no longer exists.
+            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
+            compose.onNodeWithText("Buscar no catálogo").performTextReplacement(product)
+            compose.onNodeWithTag("catalog-category-Outros").assertIsEnabled().performClick()
+            compose.onNode(hasText(product) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).assertIsEnabled().performClick()
+            compose.onNode(hasText("Adicionar ·", substring = true) and hasClickAction()).assertIsEnabled().performScrollTo().performClick()
+            compose.onNodeWithText("Voltar às categorias").performClick()
         }
         waitText("Ver pedido atual · 2 itens · R$ 17,00")
         compose.onNodeWithTag("workspace-Pedido atual").performClick()

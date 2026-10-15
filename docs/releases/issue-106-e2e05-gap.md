@@ -1,5 +1,9 @@
 # Issue #106 — E2E-05 cross-client status
 
+Historical slice record. For current exact-SHA execution and remaining gates, see
+[the resumption matrix](issue-106-resumption-matrix.md). Historical failures and
+NOT_RUN statements below describe their original snapshot.
+
 ## Implemented in draft PR #194
 
 - Playwright exercises **real Guest QR, Atendimento Web and Bar UIs** against the same disposable Django/PostgreSQL. A product changes to UNAVAILABLE through Bar **after the confirmation click and before Django receives the POST**. Original HTTP commands are forwarded; no backend success or Order is mocked.
