@@ -94,3 +94,14 @@ de busca preenchido. O seletor foi restrito à grade `category-products`, sem al
 mutação ou assert de confirmação. A regressão Compose monta diálogo externo e busca
 preenchida, reproduzindo a estrutura relevante. Revisão independente do delta:
 NO_FINDINGS_WITH_GAPS. Build AndroidTest PASS; repetir a prova real no HEAD corrigido.
+
+
+### CI do primeiro HEAD com seletor corrigido
+HEAD `2f996ecd`: Android e Web PASS; integração Web/PostgreSQL110 PASS/3skip.
+Prova Android real de resposta perdida e Compose também passou. A continuação
+cross-surface encontrou roteiros antigos de seleção direta, painel inline e
+limpeza em duas etapas. Adaptados os seletores à navegação por categorias/popup
+e ao contrato de limpeza direta já integrado em main. Verificador SQL exige
+`cleaning_started_at is None` nesse fluxo, sem fabricar horário; liberação,
+disponibilidade, revogação, saldos, autoria e replay continuam exigidos.
+Nova CI do HEAD correspondente deve concluir antes do merge.

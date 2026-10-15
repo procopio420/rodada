@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
@@ -32,7 +33,7 @@ test("SSE-only interruption leaves real HTTP order usable and station polling re
     await page.getByRole("dialog").getByRole("textbox").fill(label);
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.locator(".attendanceOrderDialog");
-    await dialog.getByRole("button", { name: /^Android Compose Test Meal/ }).click();
+    await addCatalogItem(page, "Android Compose Test Meal");
     await dialog.getByRole("button", { name: /Pedido atual/ }).click();
     await dialog.getByRole("button", { name: /^Confirmar pedido/ }).click();
     await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();

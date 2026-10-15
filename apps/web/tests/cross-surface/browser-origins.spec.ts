@@ -1,3 +1,4 @@
+import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
@@ -69,7 +70,7 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
     await page.getByRole("dialog").getByRole("textbox").fill(`${label}-web`);
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.locator(".attendanceOrderDialog");
-    for (const product of products) await dialog.getByRole("button", { name: new RegExp(`^${product}`) }).click();
+    for (const product of products) await addCatalogItem(page, product);
     await dialog.getByRole("button", { name: /Pedido atual/ }).click();
     await dialog.getByRole("button", { name: /^Confirmar pedido/ }).click();
     await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();

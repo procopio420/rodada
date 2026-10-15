@@ -311,3 +311,60 @@ pós-integração PASS e19 testes Web de segurança PASS. Ajustes posteriores so
 nos roteiros de teste (LiveComposeOrderTest e relógio do teste de leitura canônica),
 com revisão adicional. Próximo passo: verificar o HEAD final remoto e a CI Web/Android,
 resolver falhas reais e só então mergear. Sem deploy/Play autorizado.
+
+
+## HANDOFF ATUAL — PR195 — 2026-10-15 19:31:50 UTC
+
+Pedido autorizado: criar PR e mergear cardápio por categorias Android/Web na main.
+PR: https://github.com/procopio420/rodada/pull/195. Branch:
+`codex/attendance-category-catalog`; HEAD antes destas correções:
+`2f996ecdc0cc0fec5b72196672a252c84a4e8634`, upstream igual. Main consultada
+`2fc02bf7476bcf34cfcaca09f796e909fffc3813`, integrada sem conflitos em c1f6dab.
+Sem merge/rebase em andamento. `.worktrees/` preexistente não rastreado preservado.
+Handoff ativado por90% consumidos/10% restantes na janela oficial de300min.
+
+Concluído: feature, Spec029/design/documentação, revisão independente R3 e PR.
+Android build/lint/97JVM PASS;11Compose pós-integração e2regressões de busca/diálogo
+externo PASS. Web build/tipos/30jornadas/19segurança PASS. CI do HEAD2f996ecd:
+Android273 PASS,Web538 PASS (110integração PostgreSQL PASS/3skip). Android real123
+passou POST perdido/restart/offline/replay e Compose real; continuação cross-surface
+falhou5roteiros antigos,4passaram. Sem merge na main nem deploy.
+
+Últimas correções:5specs em apps/web/tests/cross-surface (authorization,
+browser-origins,concurrency-readback,qr-lifecycle,sse-recovery),
+scripts/verify-qr-lifecycle.py e category-evidence.md. Usam helper addCatalogItem,
+popup de mesa, fechamento antes de trocar mesa e limpeza direta DIRTY→AVAILABLE.
+SQL exige cleaning_started_atNone,liberação/disponibilidade/ator conforme Spec004.
+Auth/replay/saldos/concorrência preservados. Typecheck e ESLint desses arquivos PASS.
+Revisão independente do delta por outro contexto: NO_FINDINGS_WITH_GAPS.
+CI real das correções ainda pendente; não declarar PASS nem homologação geral.
+
+Última ação: correções salvas e revisão concluída. Primeiro passo: verificar se
+commit/push destas correções já terminou após este registro. Se sim, acompanhar
+CI do novo HEAD, não do2f996ecd; não duplicar commit. MergePR195 explicitamente
+autorizado apenas depois dos gates e conferência de conflitos/review. Sem reset,
+force-push, cancelamento alheio ou teste mutável na demonstração. Web3000/API8000
+ativos, Android aberto; logs locais ignorados category-pr-* e evidência Spec029.
+
+### PROMPT PARA O PRÓXIMO AGENTE
+Continue o PR195 e o merge autorizado na main no repositório atual Rodada.
+https://github.com/procopio420/rodada/pull/195; branch codex/attendance-category-catalog.
+Verifique CODEX_HOME e leia AGENTS global/override e local, PROCEDURES, Spec029,
+adendo de limpeza direta Spec004, design system e este checkpoint. Confira Git,
+HEAD/upstream/arquivos reais; preserve tudo e .worktrees/ não rastreado. Feature
+categorias→popup de itens→popup de quantidade/Personalizar já pronta; não refazer.
+
+Até2f996ecd: WebCI538110PASS/3skip,AndroidCI273PASS. POST Android/Compose passou
+na123;5roteiros Webcrosssurface antigos falharam. Corrigidos os5specs listados e
+verificador SQL para helper de catálogo,popup e limpeza direta sem inventar início.
+Tipos/lintPASS, revisão independente sem achados. A primeira tentativa de publicar
+o checkpoint foi rejeitada por caminho pessoal no texto; removido, não publicar
+contexto pessoal ou contornar a revisão. Nenhuma mudança de produto nesta etapa.
+
+Primeiro verifique se commit/push das correções já ocorreu após este checkpoint.
+Acompanhe Web,Android e Android real POST disconnect pelo novo SHA; resolva falhas
+causais com regressão e nova revisão, sem afrouxar asserts. Quando verdes no HEAD
+final, confira main atual/reviews/conflitos, atualize descrição PR com resultados,
+mergeie com expected_head_sha, confirme merged/mergeSHA e sincronize main local
+por fast-forward. Sem autorização para deploy/Play/migration/seed/reset/dinheiro
+real. Atualize este checkpoint e reporte resultado e limites sem alegar produção.
