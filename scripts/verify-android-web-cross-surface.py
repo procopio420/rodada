@@ -6,6 +6,7 @@ simulate a payment, or accept a browser-generated order as native evidence.
 """
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from cross_surface_fixture import (
@@ -29,6 +30,7 @@ from modules.ordering.models import Order, OrderItem
 for mode in ("recovery", "compose"):
     native_path = "artifacts/android-real-post-drop.json" if mode == "recovery" else "artifacts/android-compose-order.json"
     native = json.loads(Path(native_path).read_text())
+    assert native["sha"] == subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(), "stale native receipt"
     assert native["result"] == "PASS"
     if mode == "recovery":
         assert native["original_key_preserved"]

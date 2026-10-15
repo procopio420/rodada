@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from cross_surface_fixture import (
@@ -89,6 +90,7 @@ def verify(stage, marker, fixture, receipt):
         for field in ("order_id", "tab_id", "idempotency_key", "body_sha256"):
             assert replay[field] == first[field], f"Recovered POST changed {field}"
     summary = {
+        "sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "database": connection.settings_dict["NAME"],
         "venue_id": str(order.tab.venue_id),
         "venue_slug": order.tab.venue.slug,

@@ -2,6 +2,7 @@
 """Independently reconcile real QR/browser lifecycle actions in disposable PostgreSQL."""
 import json
 import os
+import subprocess
 from pathlib import Path
 from cross_surface_fixture import require_disposable_database, require_connected_database
 require_disposable_database()
@@ -16,6 +17,7 @@ from modules.ledger.models import Charge, Payment
 require_connected_database(connection)
 f = json.loads(Path(os.environ["RODADA_POST_DROP_FIXTURE"]).read_text())
 r = json.loads(Path("artifacts/qr-lifecycle-browser.json").read_text())
+assert r["sha"] == subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(), "stale browser receipt"
 assert f["database"] == connection.settings_dict["NAME"]
 t = Table.objects.get(pk=r["table_id"], venue_id=f["venue_id"])
 o = TableOccupancy.objects.get(pk=r["occupancy_id"], table=t)

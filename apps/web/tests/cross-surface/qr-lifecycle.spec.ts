@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { execFileSync } from "node:child_process";
 import { writeFile, mkdir } from "node:fs/promises";
 
 test("QR-first, explicit claim, independent Tabs and explicit release revoke only the old visit", async ({ page, browser }) => {
@@ -19,7 +20,6 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   // Setup only; every occupancy/claim/Tab/lifecycle action below is real browser UI.
   const table = await read("hospitality/tables/", { label: `QR-first ${Date.now()}`, guest_ordering_mode: "DIRECT" });
   const guestContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
-  await guestContext.tracing.start({ screenshots: true, snapshots: true });
   const guest = await guestContext.newPage();
   await guest.goto(`/guest/${table.public_token}`);
   await guest.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
@@ -84,10 +84,10 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   await expect(guest.getByRole("button", { name: /^Enviar ·/ })).toHaveCount(0);
   await mkdir("../../artifacts", { recursive: true });
   await writeFile("../../artifacts/qr-lifecycle-browser.json", JSON.stringify({
+    sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
     table_id: table.id, occupancy_id: initial.active_occupancy.id, tab_ids: tabs.map((t: { id: string }) => t.id),
     initial_generation: initial.access_generation, final_generation: final.access_generation,
     status: "PASS", revoked_status: revoked.status,
   }, null, 2));
-  await guestContext.tracing.stop({ path: "../../artifacts/qr-lifecycle-guest-trace.zip" });
   await guestContext.close();
 });
