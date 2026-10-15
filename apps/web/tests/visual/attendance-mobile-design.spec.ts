@@ -32,7 +32,9 @@ test("overlapping list refreshes share one read and leave tab selection responsi
   let reads = 0;
   let release!: () => void;
   const held = new Promise<void>(resolve => { release = resolve; });
-  await page.route(/\/api\/attendance\/tabs\/\?active=true&offset=0$/, async route => {
+  await page.route(/\/api\/attendance\/tabs\/\?.*$/, async route => {
+    const params = new URL(route.request().url()).searchParams;
+    if (params.get("active") !== "true" || params.get("offset") !== "0") return route.fallback();
     reads++;
     await held;
     await route.fallback();
