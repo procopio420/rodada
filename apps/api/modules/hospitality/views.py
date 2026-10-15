@@ -419,8 +419,6 @@ class TableTurnoverReportView(APIView):
     required_capability = Capability.MANAGEMENT_REPORTS_READ
 
     def get(self, request):
-        from datetime import timedelta
-
         from rest_framework import serializers
 
         from modules.hospitality.metrics import table_turnover_report
