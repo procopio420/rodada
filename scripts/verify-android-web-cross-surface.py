@@ -55,7 +55,7 @@ for mode in ("recovery", "compose"):
         "database": connection.settings_dict["NAME"],
         "venue_id": str(order.tab.venue_id),
         "status": "PASS",
-        "scenario": "Android native instrumented committed POST / force-stop / same-key replay -> Web Bar UI PREPARING then READY",
+        "scenario": ("Android committed POST / force-stop / same-key replay" if mode == "recovery" else "Android production MainActivity Compose confirmation") + " -> Web Bar UI PREPARING then READY",
         "native_receipt": native_path,
         "original_order_id": str(order.pk),
         "original_tab_id": str(order.tab_id),

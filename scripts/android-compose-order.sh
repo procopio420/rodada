@@ -11,7 +11,7 @@ if [[ -n "${ANDROID_SERIAL:-}" ]]; then ADB+=(-s "$ANDROID_SERIAL"); fi
 (cd apps/attendance-android && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest -ProdadaApiBaseUrl=http://10.0.2.2:8101/)
 "${ADB[@]}" install -r apps/attendance-android/app/build/outputs/apk/debug/app-debug.apk
 "${ADB[@]}" install -r apps/attendance-android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-export RODADA_COMPOSE_TAB_LABEL="Android Compose acceptance $("$PYTHON" -c 'import uuid; print(uuid.uuid4().hex[:12])')"
+export RODADA_COMPOSE_TAB_LABEL="Android-Compose-acceptance-$("$PYTHON" -c 'import uuid; print(uuid.uuid4().hex[:12])')"
 mkdir -p artifacts
 "${ADB[@]}" shell am force-stop com.rodada.attendance
 "${ADB[@]}" shell pm clear com.rodada.attendance
