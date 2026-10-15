@@ -128,3 +128,9 @@ continua responsável pelo turno integrado Web+Android.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+## Execução isolada #145 — agrupamentos sem FloorPlan
+
+Adicionar `TableGroup` e `TableGroupMembership` no bounded context hospitality com migration `0006_table_groups`. Constraints PostgreSQL para chave de replay e exclusividade de membro ativo, lock ordenado das Tables. API `TABLE_MANAGE` para listar/criar/desfazer; alterações auditadas e reconsultadas. Projetar grupos na lista de mesas/Guest sanitizado, incorporar as ações na Gestão de Mesas reutilizando componentes existentes. Não alterar entidades financeiras nem depender da #144.
+
+Aceite exige PostgreSQL real para concorrência, permissões, lifecycle/ledger imutáveis, Web visual mobile/desktop, BFF integrado, migration dry-run, CI final e code review R3 independente.
