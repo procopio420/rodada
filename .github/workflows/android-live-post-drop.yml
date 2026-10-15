@@ -160,6 +160,7 @@ jobs:
           python scripts/verify-qr-lifecycle.py
           python scripts/verify-browser-origins.py
           python scripts/verify-issue106-concurrency.py
+          python scripts/verify-issue106-authorization.py
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -194,6 +195,8 @@ jobs:
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
+            artifacts/isolation-*.json
+            artifacts/revocation-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
