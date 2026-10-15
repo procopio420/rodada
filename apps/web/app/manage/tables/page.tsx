@@ -90,15 +90,6 @@ function Tables({ session }: { session: StaffSessionView }) {
   </section>}
   {!fresh && loaded && <p className="notice" data-state="warning">Dados desatualizados. Atualize antes de alterar.</p>}
   {uncertain && <section className="notice" data-state="warning"><p>Confira a lista atual antes de fazer outra alteração.</p><button className="buttonSecondary" disabled={busy || !fresh} onClick={()=>{setUncertain(false);setError("");setNotice("");}}>Conferi as mesas</button></section>}
-  {canConfigure ? <>
-   <section className="panel"><OperationalHeading as="h2" icon="table">Quantas mesas vamos usar?</OperationalHeading>
-    <p className="muted">Mesas retiradas ficam fora de uso. Ocupações, comandas e histórico são preservados.</p>
-    <div className="field"><label htmlFor="table-count">Quantidade de mesas para trabalhar</label><input id="table-count" type="number" inputMode="numeric" min="0" max="500" value={target} disabled={disabled} onChange={event=>{setTarget(event.target.value);setRetireIds([]);}} /></div>
-    {!!reduction && <fieldset disabled={disabled}><legend>Selecione {reduction} mesas disponíveis para retirar</legend>{retireable.map(table=><label className="tableInventoryChoice" key={table.id}><input type="checkbox" checked={retireIds.includes(table.id)} onChange={event=>setRetireIds(ids=>event.target.checked?[...ids,table.id]:ids.filter(id=>id!==table.id))} />{table.label}</label>)}{reduction>retireable.length && <p className="notice" data-state="warning">Não há mesas livres suficientes sem agrupamento. Desfaça um grupo antes de retirar suas mesas de uso.</p>}</fieldset>}
-    <button className="buttonPrimary" disabled={disabled || !validCount || count===working.length || (reduction>0 && retireIds.length!==reduction)} onClick={reviewCount}>Revisar quantidade</button>
-   </section>
-   <section className="panel"><OperationalHeading as="h2" icon="table">Adicionar uma mesa</OperationalHeading><div className="field"><label htmlFor="table-label">Nome ou número da mesa</label><input id="table-label" maxLength={80} value={label} disabled={disabled} onChange={event=>setLabel(event.target.value)} /></div><button className="buttonSecondary" disabled={disabled || !label.trim()} onClick={()=>setIntent({path:"/api/pos/hospitality/tables/",body:{label:label.trim(),guest_ordering_mode:"DISABLED"},title:"Adicionar mesa",description:`Cadastrar ${label.trim()} como disponível. Pedidos por QR começam desabilitados.`})}>Adicionar mesa</button></section>
-  </> : <p className="notice">Seu acesso permite consultar, mas não configurar mesas.</p>}
   {canGroup && <section className="panel" aria-label="Agrupamentos físicos">
    <OperationalHeading as="h2" icon="table">Mesas juntas</OperationalHeading>
    <p className="muted">Grupo temporário para localizar mesas. Não une contas, comandas, pedidos, ocupações nem QR.</p>
@@ -120,6 +111,15 @@ function Tables({ session }: { session: StaffSessionView }) {
    </fieldset>
    <button className="buttonPrimary" disabled={disabled || groupTableIds.length<2 || groupTableIds.length>20} onClick={reviewGroup}>Revisar agrupamento</button>
   </section>}
+  {canConfigure ? <>
+   <section className="panel"><OperationalHeading as="h2" icon="table">Quantas mesas vamos usar?</OperationalHeading>
+    <p className="muted">Mesas retiradas ficam fora de uso. Ocupações, comandas e histórico são preservados.</p>
+    <div className="field"><label htmlFor="table-count">Quantidade de mesas para trabalhar</label><input id="table-count" type="number" inputMode="numeric" min="0" max="500" value={target} disabled={disabled} onChange={event=>{setTarget(event.target.value);setRetireIds([]);}} /></div>
+    {!!reduction && <fieldset disabled={disabled}><legend>Selecione {reduction} mesas disponíveis para retirar</legend>{retireable.map(table=><label className="tableInventoryChoice" key={table.id}><input type="checkbox" checked={retireIds.includes(table.id)} onChange={event=>setRetireIds(ids=>event.target.checked?[...ids,table.id]:ids.filter(id=>id!==table.id))} />{table.label}</label>)}{reduction>retireable.length && <p className="notice" data-state="warning">Não há mesas livres suficientes sem agrupamento. Desfaça um grupo antes de retirar suas mesas de uso.</p>}</fieldset>}
+    <button className="buttonPrimary" disabled={disabled || !validCount || count===working.length || (reduction>0 && retireIds.length!==reduction)} onClick={reviewCount}>Revisar quantidade</button>
+   </section>
+   <section className="panel"><OperationalHeading as="h2" icon="table">Adicionar uma mesa</OperationalHeading><div className="field"><label htmlFor="table-label">Nome ou número da mesa</label><input id="table-label" maxLength={80} value={label} disabled={disabled} onChange={event=>setLabel(event.target.value)} /></div><button className="buttonSecondary" disabled={disabled || !label.trim()} onClick={()=>setIntent({path:"/api/pos/hospitality/tables/",body:{label:label.trim(),guest_ordering_mode:"DISABLED"},title:"Adicionar mesa",description:`Cadastrar ${label.trim()} como disponível. Pedidos por QR começam desabilitados.`})}>Adicionar mesa</button></section>
+  </> : <p className="notice">Seu acesso permite consultar, mas não configurar mesas.</p>}
   <section className="panel"><OperationalHeading as="h2" icon="table">Mesas do bar</OperationalHeading>
    <div className="field"><label htmlFor="table-filter">Buscar mesa</label><input id="table-filter" type="search" value={query} onChange={event=>setQuery(event.target.value)} /></div>
    {loaded && !tables.length && <p className="muted">Nenhuma mesa cadastrada.</p>}
