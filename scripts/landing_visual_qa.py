@@ -86,8 +86,18 @@ async def audit(browser,name,width,height):
     }""")
     await page.wait_for_timeout(220)
     sticky_end=await page.locator(".mobile-cta").evaluate("(el) => el.hidden")
+    # Critical no-JS fallback: all product states remain visible and CTAs remain links.
+    if width == 390:
+        no_js = await browser.new_page(viewport={"width":width,"height":height}, java_script_enabled=False)
+        await no_js.goto(URL,wait_until="load")
+        fallback = await no_js.locator(".tour-panel").evaluate_all("(els) => els.every(el => !el.hidden && getComputedStyle(el).display !== 'none')")
+        fallback_cta = await no_js.locator(".hero-actions .button").count() == 1
+        await no_js.close()
+    else:
+        fallback = True
+        fallback_cta = True
     result={
-      **initial,"httpStatus":response.status if response else None,"errors":errors,
+      **initial,"noJsPanels":fallback,"noJsCTA":fallback_cta,"httpStatus":response.status if response else None,"errors":errors,
       "barSelected":bar_selected,"barPanelVisible":bar_panel,
       "manageSelected":manage_selected,"keyboardFocus":focused,
       "firstRestored":restored,"stickyAfterHero":sticky_after,
@@ -96,6 +106,7 @@ async def audit(browser,name,width,height):
     result["pass"]=bool(
         result["httpStatus"]==200 and not errors
         and initial["scrollWidth"]<=width+2
+        and fallback and fallback_cta
         and all(i["loaded"] for i in initial["images"])
         and initial["loadedFonts"]
         and initial["heroHeading"]["w"]>0
