@@ -8,7 +8,7 @@
 - [x] Preço, migração, equipamentos e conectividade não recebem promessas não verificadas.
 - [x] Links legais e canonical de `rodada.bar` preservados.
 - [x] Documento usa HTML semântico, CSS responsivo, foco visível e opção de movimento reduzido.
-- [ ] Inspeção visual executada em 360, 390, 430 e desktop.
+- [ ] Renderização com Chromium em 360/390/430/768/1440 sem overflow, imagens quebradas e CTA abaixo da dobra (segundo passe pendente).
 - [ ] Revisão humana de copy, screenshots e acessibilidade.
 - [ ] CI do PR verde.
 
