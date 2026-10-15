@@ -16,6 +16,14 @@ class TraceRedactionTests(unittest.TestCase):
         self.assertNotIn("opaque-secret", str(result))
         self.assertNotIn("2468", str(result))
 
+    def test_api_request_context_textual_headers(self):
+        message = "→ POST /orders\n  Cookie: opaque-session=value; another=secret\n  authorization: Bearer opaque-token\n  X-Guest-Session: opaque-guest\n← 201 Created"
+        result = module.redact({"type": "log", "message": message})["message"]
+        for secret in ("opaque-session", "another=secret", "opaque-token", "opaque-guest"):
+            self.assertNotIn(secret, result)
+        self.assertIn("201 Created", result)
+        self.assertEqual(result.count("[REDACTED]"), 3)
+
     def test_ids_and_binary_artifacts_preserved(self):
         with tempfile.TemporaryDirectory() as directory:
             source, target = Path(directory) / "raw.zip", Path(directory) / "redacted.zip"
