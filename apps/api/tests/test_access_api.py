@@ -78,7 +78,7 @@ class StaffAuthAPITests(TestCase):
             self.bearer(tokens["access_token"])
             me = self.client.get("/auth/me/").json()
             assert me["device"]["trust_state"] == DeviceTrustState.UNTRUSTED
-            tab = self.client.post("/tabs/", {}, format="json").json()
+            tab = self.client.post("/tabs/", {"display_label": "Comanda de teste"}, format="json").json()
             order = self.client.post(
                 f"/tabs/{tab['id']}/orders/confirm/",
                 {"idempotency_key": installation,
@@ -104,7 +104,7 @@ class StaffAuthAPITests(TestCase):
         self.client.credentials()
         replacement = self.login(installation_id="new-personal-phone")
         self.bearer(replacement["access_token"])
-        assert self.client.post("/tabs/", {}, format="json").status_code == 201
+        assert self.client.post("/tabs/", {"display_label": "Comanda de teste"}, format="json").status_code == 201
         self.membership.status = MembershipStatus.REVOKED
         self.membership.save(update_fields=["status"])
         rejected = self.client.post("/tabs/", {}, format="json")

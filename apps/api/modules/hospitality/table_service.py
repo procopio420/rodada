@@ -200,6 +200,8 @@ def open_tab_in_occupancy(
     )
     if row.result:
         return {**row.result, "replayed": True}
+    if not display_label.strip():
+        raise HospitalityServiceError("DISPLAY_LABEL_REQUIRED", "Nome ou apelido é obrigatório.", 400)
     occupancy = _locked_occupancy(occupancy_id, actor)
     _require_rollout(actor)
     if (

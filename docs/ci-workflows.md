@@ -5,6 +5,7 @@ a full release/homologation suite on every commit.
 
 | Workflow | Automatic | Manual | Purpose |
 | --- | --- | --- | --- |
+| Landing | PR/push changing `apps/landing/**`, `specs/030-marketing-landing/**` or its static tests | No | Python stdlib checks for brand copies, HTML/SEO links, local screenshots and pilot disclaimers |
 | API | PR/push changing `apps/api/**` or `scripts/quality/**` | Yes | Ruff new-line gate + full diagnostic count; Django checks, migration drift and one full PostgreSQL pytest run |
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
 | Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL; no installer/release |

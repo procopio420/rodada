@@ -36,3 +36,12 @@ após reload, flag contextual desligada, ausência de capability e produto esgot
 4. Validar isolamento A/B/A, navegação sem POST, bloqueios de ambiguidade, grade,
    fonte ampliada e seleção indisponível por JVM/Compose e emulador.
 5. Executar build/JVM/lint, revisão independente e registrar evidências e limites.
+
+## Android: alinhamento da tela de mesas com Web atual
+
+- Preservar callbacks, sessoes, drafts, recovery e permissoes; slice de apresentacao.
+- Navegacao no topo e selecao com Paper/Ink; cabecalho recebe nome canonico do Venue.
+- TablesScreen: painel, busca sem filtros, historico compacto, outras comandas recolhidas.
+- Cartoes com faixa superior semantica e icone/texto; TableCard existente em Dialog.
+- Validar cores por teste JVM, estados/dialogo por Compose, tamanhos/fonte e UI real.
+- Catalogo, ProductIcon publicado e pagamentos continuam fora desta slice.

@@ -56,7 +56,7 @@ class OrderingFoundationTests(TestCase):
             fulfillment_station=station,
         )
 
-    def open_tab(self, label=""):
+    def open_tab(self, label="Comanda de teste"):
         response = self.client.post(
             "/tabs/",
             {"display_label": label},
@@ -65,11 +65,11 @@ class OrderingFoundationTests(TestCase):
         assert response.status_code == 201, response.json()
         return response.json()
 
-    def test_staff_opens_tab_without_table_customer_or_label(self):
+    def test_staff_opens_named_tab_without_table_or_customer(self):
         payload = self.open_tab()
 
         tab = Tab.objects.get(pk=payload["id"])
-        assert tab.display_label == ""
+        assert tab.display_label == "Comanda de teste"
         assert tab.state == TabState.OPEN
         assert tab.version == 1
         assert tab.venue_id == self.venue.id

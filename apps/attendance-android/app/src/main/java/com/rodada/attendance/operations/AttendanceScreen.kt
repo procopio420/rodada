@@ -154,7 +154,7 @@ fun AttendanceScreen(
         }
     }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(modifier = Modifier.fillMaxSize(), color = com.rodada.attendance.ui.RodadaVisual.Ground) {
         Column(modifier = Modifier.fillMaxSize()) {
             Header(
                 session = session,
@@ -167,6 +167,9 @@ fun AttendanceScreen(
             state.pendingTableService?.let {
                 Text("Verificando atendimento. Intenção original preservada.")
                 OutlinedButton(enabled = !state.submitting && !state.loading, onClick = { viewModel.retryTableService(session) }) { Text("Verificar mesma intenção") }
+            }
+            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
             }
             Box(modifier = Modifier.weight(1f)) {
             when (val selected = state.selectedTab) {
@@ -264,9 +267,7 @@ fun AttendanceScreen(
                 }
             }
             }
-            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
-                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
-            }
+
         }
     }
 
@@ -436,7 +437,7 @@ private fun Header(
     onRefresh: () -> Unit,
 ) {
     com.rodada.attendance.ui.AttendanceHeader(
-        staffName = session.staffDisplayName, connectivity = connectivity, busy = busy, peak = peak,
+        venueName = session.venueName, staffName = session.staffDisplayName, connectivity = connectivity, busy = busy, peak = peak,
         onTogglePeak = onTogglePeak, onOpenAccount = onOpenAccount, onRefresh = onRefresh,
     )
 }
@@ -906,7 +907,7 @@ private fun OrderCart(
 }
 
 @Composable
-private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, message: String?, onSearch: (String) -> Unit,
+internal fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, message: String?, onSearch: (String) -> Unit,
                           onDismiss: () -> Unit, onOpen: (String, String?) -> Unit) {
     var label by rememberSaveable { mutableStateOf("") }
     var customerId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -916,12 +917,12 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
         title = { Text("Nova comanda · Sem mesa") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = label, onValueChange = { label = it; customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido (opcional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = label, onValueChange = { label = it.take(120); customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido") }, modifier = Modifier.fillMaxWidth())
                 TextButton(enabled = !busy && label.isNotBlank(), onClick = { searched = true; onSearch(label) }) { Text(if (busy) "Buscando…" else "Buscar cliente existente") }
                 if (searched && !busy) {
                     if (customers.isEmpty()) Text("Nenhum cliente encontrado. Você pode abrir sem cadastro.")
                     customers.take(5).forEach { customer ->
-                        OutlinedButton(enabled = !busy, onClick = { customerId = customer.id; label = customer.displayName }) {
+                        OutlinedButton(enabled = !busy, onClick = { customerId = customer.id; label = customer.displayName.take(120) }) {
                             Text("${customer.displayName} · ${customer.kind}${if (customerId == customer.id) " ✓" else ""}")
                         }
                     }
@@ -929,7 +930,7 @@ private fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, messa
                 message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         },
-        confirmButton = { Button(onClick = { onOpen(label.trim(), customerId) }, enabled = !busy) { Text("Abrir") } },
+        confirmButton = { Button(onClick = { onOpen(label.trim(), customerId) }, enabled = !busy && label.isNotBlank()) { Text("Abrir") } },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }

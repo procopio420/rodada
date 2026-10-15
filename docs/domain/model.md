@@ -573,3 +573,9 @@ Tentativa idempotente de entregar um OperationalAlert por `IN_APP` ou `PUSH`. Fa
 ## AuditEvent
 
 Evento imutável para mutations relevantes.
+
+### Conclusao direta de limpeza de mesa
+A transicao operacional pode ser DIRTY -> AVAILABLE por confirmacao de limpeza
+concluida, conforme adendo da Spec004 em15/10/2026. Inicio observado e opcional;
+sem ele, cleaning_started_at/by permanecem null e duracao da limpeza e desconhecida.
+Release/ready continuam com horario/ator canonicos. CLEANING legado permanece.

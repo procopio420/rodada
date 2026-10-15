@@ -5,6 +5,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -18,7 +20,7 @@ class TableServiceNavigationTest {
     @get:Rule val compose = createComposeRule()
     private val table = TableSummary("table", "12", "AVAILABLE", "DIRECT", false, null, null)
 
-    @Test fun oneTapStartThenOptionalNameAndContextualOpen() {
+    @Test fun oneTapStartThenRequiredVisibleNameAndContextualOpen() {
         val state = mutableStateOf(OperationsUiState(tables = listOf(table)))
         val starts = mutableListOf<String>()
         var opened: Pair<String, String>? = null
@@ -34,10 +36,15 @@ class TableServiceNavigationTest {
         assertEquals(listOf("table"), starts)
         compose.onNodeWithText("Atendimento: você").assertExists()
         compose.onNodeWithText("Nova comanda nesta mesa").performScrollTo().performClick()
-        compose.onNodeWithText("Adicionar nome ou apelido (opcional)").performClick()
-        compose.onNodeWithText("Nome ou apelido (opcional)").assertExists()
+        compose.onNodeWithText("Ocultar nome").assertDoesNotExist()
+        compose.onNodeWithText("Nome ou apelido").assertExists()
+        compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("   ")
+        compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
+        compose.onNodeWithText("Nome ou apelido").performTextClearance()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("Grupo 7")
         compose.onNodeWithText("Abrir e pedir").performClick()
-        assertEquals("visit" to "", opened)
+        assertEquals("visit" to "Grupo 7", opened)
     }
 
     @Test fun homonymsResolveByIdAndPendingIntentDisablesMutations() {
@@ -73,6 +80,24 @@ class TableServiceNavigationTest {
         compose.onNodeWithText("João · linked: Mesa 12 → Mesa 13. O saldo permanece nesta comanda.").assertExists()
         compose.onNodeWithText("Confirmar mudança de mesa").performClick()
         assertEquals("destination-visit" to "linked", moved)
+    }
+
+    @Test fun standaloneNameIsAlwaysVisibleRequiredAndLimited() {
+        var opened: String? = null
+        compose.setContent { RodadaTheme {
+            OpenTabDialog(false, emptyList(), null, {}, {}, { label, _ -> opened = label })
+        } }
+        compose.onNodeWithText("Nome ou apelido").assertExists()
+        compose.onNodeWithText("Abrir").assertIsNotEnabled()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("   ")
+        compose.onNodeWithText("Abrir").assertIsNotEnabled()
+        compose.onNodeWithText("Nome ou apelido").performTextClearance()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("x".repeat(121))
+        assertEquals(120, compose.onNodeWithText("Nome ou apelido").fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.EditableText].text.length)
+        compose.onNodeWithText("Nome ou apelido").performTextClearance()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("  Grupo 7  ")
+        compose.onNodeWithText("Abrir").performClick()
+        assertEquals("Grupo 7", opened)
     }
 
 }

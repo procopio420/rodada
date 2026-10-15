@@ -284,15 +284,17 @@ def start_cleaning(*, table_id, actor: ActorContext) -> TableOccupancy:
 @transaction.atomic
 def complete_cleaning(*, table_id, actor: ActorContext) -> TableOccupancy:
     table = _table_for_actor(table_id, actor)
-    if table.status != TableStatus.CLEANING:
+    previous_status = table.status
+    if previous_status not in (TableStatus.DIRTY, TableStatus.CLEANING):
         raise HospitalityServiceError(
             "INVALID_TABLE_TRANSITION",
-            "Apenas mesa em limpeza pode ficar disponível.",
+            "Conclua a limpeza de uma mesa liberada para disponibilizá-la.",
             409,
             {"status": table.status},
         )
     occupancy = TableOccupancy.objects.select_for_update().filter(table=table).first()
-    if occupancy is None or occupancy.cleaning_started_at is None or occupancy.ready_at is not None:
+    if (occupancy is None or occupancy.released_at is None or occupancy.ready_at is not None
+            or (previous_status == TableStatus.CLEANING and occupancy.cleaning_started_at is None)):
         raise HospitalityServiceError(
             "CLEANING_OCCUPANCY_NOT_FOUND", "Limpeza ativa não encontrada.", 409
         )
@@ -307,6 +309,8 @@ def complete_cleaning(*, table_id, actor: ActorContext) -> TableOccupancy:
         event_type="table.cleaning_completed",
         entity_type="TableOccupancy",
         entity_id=str(occupancy.id),
-        metadata={"table_id": str(table.id), "access_generation": table.access_generation},
+        metadata={"table_id": str(table.id), "access_generation": table.access_generation,
+                  "previous_status": previous_status, "new_status": TableStatus.AVAILABLE,
+                  "cleaning_start_recorded": occupancy.cleaning_started_at is not None},
     )
     return occupancy

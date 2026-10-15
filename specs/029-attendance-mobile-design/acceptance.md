@@ -100,3 +100,138 @@ fluxo unificado; não são resultado desta revisão. Suíte visual integral lega
 não reexecutada nesta rodada e precisa migrar os roteiros de navegação Contas.
 Integração real PostgreSQL, fonte/zoom 200%, IME, leitor de tela e validação com
 garçom não executados. Não declarar homologação nem redução medida de tempo/toques.
+
+## Filtros sem rolagem lateral — 2026-10-15
+
+Base: codex/ux-teste-mobile, HEAD 54c57808cec0098be2934faa964dd6dd9cd5b41d + diff local.
+- Grade de duas colunas no celular e tres a partir de 768px; rotulos completos,
+  contagens, foco e selecao preservados; sem faixa de rolagem horizontal.
+- Next build (inclui TypeScript): PASS.
+- Gate test:visual focado em attendance-mobile-design.spec.ts: 15 PASS, 20,6s.
+  Executado pelo CLI Playwright equivalente ao script, com portas isoladas.
+  Inclui 360/390/430/1280, ausencia de overflow nos filtros, seis botoes com
+  alvo >=44px e sem texto cortado, alem das jornadas/auditoria axe existentes.
+- Navegador real: grade confirmada; Disponivel mostrou vazio correto e Todas
+  restaurou as mesas. Captura local ignorada em
+  visual-artifacts/android-native-port/web-filters-final.png.
+- Sem mudanca de regras, API ou Android. Suite visual integral nao reexecutada;
+  resultados acima sao do recorte pertinente, nao aprovacao global/release.
+
+## Filtros removidos por solicitacao — 2026-10-15
+
+Substitui a decisao da grade acima. Atendimento Web conserva apenas busca por
+mesa/comanda; estado continua visivel em cada mesa. Estado React/CSS dos filtros
+removidos; vazio agora orienta ajustar a busca. Android nao alterado.
+Next build/TypeScript PASS; test:visual focado attendance-mobile-design.spec.ts:
+15 PASS (19,7s), incluindo busca/vazio, ausencia dos filtros e quatro larguras.
+Navegador real atualizado e sem filtros. git diff --check PASS. Suite integral
+nao reexecutada. Sem commit/push/merge/deploy.
+
+## Mesa em popup — 2026-10-15
+
+Base: codex/ux-teste-mobile @ 54c57808cec0098be2934faa964dd6dd9cd5b41d + diff local.
+Selecionar mesa abre ActionDialog com estado, comandas e acoes; a grade nao expande.
+Voltar/Escape restaura foco. Workspace da comanda abre sobre a janela contextual;
+fechar retorna a ela. Mensagens da mesa ficam na camada visivel. Bloqueios e
+confirmacoes existentes preservados. Android/API/dominio nao alterados.
+Next build/TypeScript PASS; test:visual focado attendance-mobile-design.spec.ts:
+16 PASS (20,7s), incluindo quatro larguras, axe nas jornadas existentes, foco,
+geometria da grade, leitura negada, filhos e ACK perdido. Primeira rodada: 14 PASS,
+2 FAIL (alerta duplicado e roteiro que tentava trocar mesa sem fechar modal);
+alerta corrigido e roteiro adaptado a nova sequencia, sem reduzir asserts.
+git diff --check PASS. Suite visual integral nao reexecutada; sem GO de release.
+
+## Clique no fundo do popup de mesa — 2026-10-15
+
+ActionDialog recebe dismissOnBackdrop opt-in, habilitado apenas na janela de mesa.
+Fechamento exige inicio e fim do clique fora dos limites; padding interno nao fecha.
+locked continua bloqueando a saida; outros dialogos nao mudam por padrao.
+Build/TypeScript PASS; test:visual focado attendance-mobile-design.spec.ts:
+16 PASS (20,6s), incluindo clique interno/externo, retorno de foco e Escape.
+Suite integral nao reexecutada. Web local reiniciada para carregar a alteracao;
+sem alterar API/banco/Android, sem commit/push/merge/deploy.
+
+## Retorno direto da limpeza — 2026-10-15
+
+Base codex/ux-teste-mobile @54c57808cec0098be2934faa964dd6dd9cd5b41d + diff local.
+Contrato de dominio atualizado em specs/004-table-guest-ordering/spec.md e adendo
+027; UX em Spec029. API complete_cleaning agora aceita DIRTY liberada e CLEANING
+legado. Mantem transacao/lock/autorizacao/geracao, ready_at/ator e audit; inicio de
+limpeza nao observado permanece null, sem evento de inicio ficticio.
+
+Android: liberar -> releitura DIRTY -> fecha popup; DIRTY/CLEANING mostram somente
+Concluir limpeza e Voltar; concluir -> releitura AVAILABLE -> fecha popup.
+Notificacao modal de sucesso removida somente nessas duas acoes. Erro preserva
+contexto e feedback. Web aplica mesmo fluxo; fechamento exige leitura canonica do
+id/status esperado. Releitura falha nao fecha por sucesso. Foco agora e restaurado
+pelo ActionDialog, removendo efeito legado que concorria com o foco do popup pai.
+
+Gates executados: API18 testes PostgreSQL em banco test_rodada_cleaning_tests,
+incluindo tenant, repeticao409 sem incremento/evento extra e corrida com duas
+conclusoes (uma aceita); manage.py check e makemigrations --check --dry-run PASS.
+Web build/TypeScript e18 testes visuais focados PASS (22,8s), incluindo POST200+
+GET503 conserva popup. Android assembleDebug/assembleDebugAndroidTest/90JVM/lint
+PASS; Compose11 em390/fonte1, mais2 em360/fonte2 e2 em430/fonte1:15 execucoes PASS.
+Primeira rodada Web16/18: foco legado concorrente corrigido e fixture503 corrigida
+para o contrato code/message; asserts originais mantidos. Sem reduzir testes.
+
+Revisao independente R3 /root/review_direct_cleaning, contexto separado e somente
+leitura: P2 de fechamento sem readback corrigido, NO_FINDINGS_WITH_GAPS confirmado
+apos ajustes de foco e teste concorrente. Revisor nao executou os gates; nao e
+aprovacao GitHub. Resposta perdida real e homologacao de operador/dispositivo
+continuam externas. Suite Web integral nao reexecutada. GO apenas para teste local.
+
+APK instalado com -r preservando dados, size/density/fonte/animacoes restaurados.
+API ASGI8000 e Web3000 atualizadas; API readiness200 e Android ONLINE. Nenhuma
+mesa existente foi liberada/limpa nesta validacao: jornadas mutaveis somente em
+fixtures/test DB. Sem seed/reset/migration, pagamentos, commit/push/merge/deploy.
+Logs locais em visual-artifacts/android-native-port/direct-cleaning-*.log.
+
+## Nome/apelido sempre visivel e obrigatorio — 2026-10-15
+
+Base codex/ux-teste-mobile @54c57808cec0098be2934faa964dd6dd9cd5b41d + diff local.
+Android remove toggle e opcionalidade em mesa livre/ocupada; abertura sem mesa
+igual. Campo max120, bloqueia vazio/espacos e trim no envio. Selecionar Customer
+nao muda requisito nem exige cadastro. Web contextual e OrderWorkspace usam campo
+sempre visivel e required/trim no botao. API staff TabCreateSerializer obrigatorio;
+open_tab_in_occupancy rejeita novo label vazio APOS replay de recibo existente.
+Guest e open_tab interno inalterados; comandas sem nome existentes preservadas.
+
+Gates finais: API96 testes PostgreSQL separados, zero falhas/erros/skips (JUnit
+required-name-api-verified.xml), incluindo acesso, pagamento fixture, house account,
+ordering, guest, concorrencia e recibo legado vazio. Web build/TypeScript PASS e18
+jornadas focadas PASS (29s). Android build/lint/90JVM PASS, Compose9 em390/fonte1 e4
+em360/fonte2 PASS, incluindo vazio/espacos/trim/max120 e ausencia do toggle.
+
+Revisao independente R3 /root/review_required_name: P2 fixtures antigas e limite
+standalone corrigidos, resultado NO_FINDINGS_WITH_GAPS; revisor nao executou gates.
+Fixtures positivas sem nome agora recebem nome operacional; teste ordering que
+exigia explicitamente staff sem label foi atualizado ao novo contrato, preservando
+asserts de ausencia de mesa/Customer, estado, ator e audit. Negativos auth intactos.
+
+Ampliacao Web para table-service.spec.ts/tab-drafts.spec.ts encontrou roteiros
+legados do Atendimento anterior ao popup (falhas de navegacao); execucao interrompida
+apos essas falhas. Nao e PASS global; nao suprimidos nem relaxados os criterios.
+Suite integral e migracao desses roteiros continuam pendentes. Logs/resultado
+focado separado em apps/web/test-results/required-name-focused.
+
+API8000/Web3000 atualizadas; APK instalado -r, formulario real de mesa ocupada
+inspecionado sem criar Tab. Captura local name-required-final.png e logs
+required-name-*.log em visual-artifacts/android-native-port. Emulador restaurado
+para size/density/fonte1 e animacoes normais; formulario deixado aberto.
+Sem migrations/reset/seed, nova comanda/pedido/pagamento, commit/push/merge/deploy.
+
+
+## Regressão de consultas sobrepostas — PR184
+
+Trace Web495 (106PASS/3FAIL/3skip) mostrou cinco leituras completas de Tabs
+pendentes e o detalhe enfileirado, sem envio ao BFF. Leitura de200 Tabs demorou
+cerca de10s. Consultas regulares agora compartilham a leitura em andamento;
+comandos de mesa, serviço e movimento exigem leitura iniciada depois da mutation.
+
+Teste novo falha antes (três leituras, esperado uma) e passa depois. Build/tipos
+e23 testes focados PASS, incluindo captura antiga anterior aoPOST atrasada e
+confirmação somente após segunda leitura. Roteiros integrados de mesa e movimento
+alinhados aos popups/limpeza direta, mantendo asserts financeiros e replay.
+Integração PostgreSQL no Linux/CI final permanece necessária. Sem mudança de
+baselines ou timeout, sem reset da demonstração.

@@ -18,10 +18,8 @@ for (const width of [360, 390, 430]) test(`canonical photographed menu orders re
   expect(imported.filter((p: { fulfillment_station: string }) => p.fulfillment_station === "KITCHEN")).toHaveLength(31);
   const label = `CSV acceptance ${width}`;
   await page.getByRole("button", { name: "Contas", exact: true }).click();
-  // Naming is deliberately collapsed in the current table-first UX.
-  await page.locator("summary").filter({ hasText: "Identificar por nome (opcional)" }).click();
-  await expect(page.getByLabel("Apelido da comanda (opcional)")).toBeVisible();
-  await page.getByLabel("Apelido da comanda (opcional)").fill(label);
+  await expect(page.getByLabel("Nome ou apelido")).toBeVisible();
+  await page.getByLabel("Nome ou apelido").fill(label);
   await page.getByRole("button", { name: "Abrir", exact: true }).click();
   await expect(page.getByRole("heading", { name: label, exact: true })).toBeVisible();
   for (const name of ["Brahma 600 ml", "Coxinha de Queijo com Alho"]) {
