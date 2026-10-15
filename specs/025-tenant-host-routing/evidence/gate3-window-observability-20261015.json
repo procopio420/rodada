@@ -1,0 +1,121 @@
+{
+  "before": {
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "metrics": [
+      {
+        "average": 0.016534876502732235,
+        "current": 0,
+        "max": 0.07137211666666667,
+        "measurement": "CPU_USAGE",
+        "min": 0,
+        "sampleCount": 61
+      },
+      {
+        "average": 0.3084022431475411,
+        "current": 0.339533824,
+        "max": 0.3396608,
+        "measurement": "MEMORY_USAGE_GB",
+        "min": 0.279556096,
+        "sampleCount": 61
+      }
+    ],
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web"
+    }
+  },
+  "mid": {
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "metrics": [
+      {
+        "average": 0.0226440956284153,
+        "current": 0.010561933333333332,
+        "max": 0.1933669166666667,
+        "measurement": "CPU_USAGE",
+        "min": 0.006717466666666666,
+        "sampleCount": 61
+      },
+      {
+        "average": 0.30176974478688523,
+        "current": 0.26107904,
+        "max": 0.340189184,
+        "measurement": "MEMORY_USAGE_GB",
+        "min": 0.222380032,
+        "sampleCount": 61
+      }
+    ],
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web"
+    }
+  },
+  "near_end": {
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "metrics": [
+      {
+        "average": 0.02352623825136612,
+        "current": 0,
+        "max": 0.1933669166666667,
+        "measurement": "CPU_USAGE",
+        "min": 0,
+        "sampleCount": 61
+      },
+      {
+        "average": 0.29595624498360656,
+        "current": 0.261920768,
+        "max": 0.340189184,
+        "measurement": "MEMORY_USAGE_GB",
+        "min": 0.222380032,
+        "sampleCount": 61
+      }
+    ],
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web"
+    }
+  },
+  "active_logs": {
+    "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+    "from": "2026-10-15T13:16:08Z",
+    "until": "2026-10-15T13:31:45Z",
+    "sample_limit": 500,
+    "http_count": 411,
+    "possibly_truncated": false,
+    "status_counts": {
+      "200": 294,
+      "201": 2,
+      "204": 8,
+      "304": 28,
+      "308": 48,
+      "401": 13,
+      "403": 8,
+      "404": 7,
+      "421": 3
+    },
+    "http5xx": 0,
+    "upstream_errors": 0,
+    "provider_totalDuration_units_not_inferred": {
+      "min": 2,
+      "p50": 57,
+      "p95": 176,
+      "max": 31665
+    },
+    "error_severity_class_counts": {
+      "expected_auth401": 8,
+      "expected_host421": 8,
+      "expected_auth403": 6,
+      "expected_not_found404": 6
+    },
+    "tracebacks": 0
+  },
+  "limits": "Metrics are rolling last-hour summaries, not exclusively the canary. HTTP rows are a bounded sample; provider duration units not inferred. Client health probes separately measure milliseconds. No raw log messages/paths/IPs/UA are retained."
+}

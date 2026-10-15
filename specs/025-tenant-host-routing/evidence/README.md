@@ -59,3 +59,30 @@ nenhum segredo ou row payload é artefato. Final review/CI e Gate3 estão separa
 Gate3: `gate3-preflight-20261015.json` e `gate3-preflight-mcp-20261015.json` são
 evidência de preflight somente. Backup/restore95, leituraCASH, smoke/edge executados;
 canary/backout Gate3 NOT_RUN. Não converter NO-GO em homologação pela CI.
+
+
+Gate3 utiliza `gate3-browser-executor.cjs` e `gate3-containment-executor.py`,
+com fixtures QA existentes; não recria Tabs, mesas, perfis, vendas ou grupos.
+O browser recebe somente via stdin em memória: `phase` (`qa`/`pilot`), `pins`,
+`ids`, `tables`, `tabs`, `products`, `qr`; no smoke piloto, `pilotPin` autorizado
+substitui credenciais QA. Nunca salvar esse payload. O wrapper privado confere
+SHA/deployment/flag antes e depois e invalida resultados se mudarem. A cópia
+versionada do browser difere da executada somente nos caminhos locais de
+Playwright/Chromium, agora relativos/configuráveis, sem mudança de cenários.
+
+As escritas novas são disponibilidade QA reversível/versionada/idempotente e
+liberação Guest apenas QA; a contenção bloqueia Guest novamente. A prova de quatro
+streams usa disponibilidade Product, restaura o estado em finally e então chama
+`live-stage-executor.py` injetado no campo `containment_script`, sempre em memória.
+Recebe também `sha`, `run` do perfil existente, `products`, `tables`, `ids`, `pins`.
+Exige runtime com flagfalse e source esperado. O chamador deve sempre repetir
+contenção externamente, inclusive se o executor ou SSH falhar; restore operacional
+é proibido. Nenhuma credencial/QR aparece em output. Recibos JSON são comparados
+por conteúdo, sem depender da ordem das chaves jsonb.
+
+
+`gate3-window-20261015.json` substitui o estado NOT_RUN do preflight para a
+execução técnica real: canary87PASS, observação15min, rollback/SSE/contenção e
+piloto final. Gate3 global segue BLOCKED_SIGNOFF até aceite operacional explícito.
+O backup atual95tabelas substitui o arquivo90 para essa intervenção. Os arquivos
+preflight preservam o estado histórico de sua captura, sem reclassificar passado.

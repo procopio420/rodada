@@ -361,3 +361,15 @@ final confirmou commit na primeira tentativa. Isso não comprova a causa anterio
 
 A consolidação atual de151/152 em130 mantém Gate3/canary aberto. Este exercício
 não é sign-off de canary, FullStrict administrativo, PSP real ou E2E físico106.
+
+## Gate3 — janela controlada de 15/10/2026
+
+Canary e rollback técnicos executados no SHA c589ff0862b1a7702e12c20a00cffda6cb2f289e.
+Flag-on a9f59467-ccf7-4206-8fac-a3b1290ed722; flag-off 09536564-28fc-4f0e-a54b-97856de54fbc, ambos SUCCESS.
+87 checks browserQA, pilot browser/protocolo antes/durante/depois, observação15min,
+quatro streams próprios/revogados,23 grupos estrangeiros iguais,QA financeiro0,
+backup atualizado restaurado95/95. QA novamente contido/421 e seedfalse preservado.
+Nenhum restore operacional, pagamento/refund/order, seed, schema ou DNS alterado.
+Aceite pós-janela Lucas Procópio permanece pendente; não confundir intervenção
+autorizada com sign-off. Ver recibo gate3-window-20261015.json em evidence da Spec025
+e relatório final no PR183/issue130; tentativas invalidadas e limitações preservadas.

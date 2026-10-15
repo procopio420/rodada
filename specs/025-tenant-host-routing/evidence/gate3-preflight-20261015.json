@@ -491,7 +491,7 @@
     "authorized": false,
     "responsible_person": null,
     "start_and_end": null,
-    "scope": "Temporary flag false\u2192true\u2192false; explicit QA alias/membership activation and QA-only reversible nonfinancial operations; pilot read-only monitoring. No DNS/Cloudflare/PSP/migration/seed/financial changes. Exact timing and responsible person require confirmation.",
+    "scope": "Temporary flag false→true→false; explicit QA alias/membership activation and QA-only reversible nonfinancial operations; pilot read-only monitoring. No DNS/Cloudflare/PSP/migration/seed/financial changes. Exact timing and responsible person require confirmation.",
     "rollback": "Flag false, observe specific deployment SUCCESS/readback seedfalse; guarded QA deactivate; revoke staff/guest streams and deny reconnect/new login/QR; pilot authenticated smoke and business comparison; preserve history; no operational restore."
   },
   "limits": [
@@ -507,5 +507,13 @@
     "recorded_at": "2026-10-15T12:59:33Z",
     "verification": "Operator attestation; Cloudflare API/panel not automatically queried",
     "previous_state": "Unverified in initial read-only preflight"
+  },
+  "authorization_update": {
+    "responsible": "Lucas Procópio",
+    "received_at": "2026-10-15T13:06:18Z",
+    "expires_at": "2026-10-16T03:00:00Z",
+    "scope": "rodada-web/demo; temporary flag false/true/false, reserved QA only, mandatory rollback, pilot read-only; no financial writes, DNS, schema or deployed source changes",
+    "issue_comment": "https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495",
+    "post_window_signoff": "PENDING"
   }
 }

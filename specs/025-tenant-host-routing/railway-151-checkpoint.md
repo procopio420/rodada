@@ -1,5 +1,13 @@
 # #151 — existing Railway homologation checkpoint
 
+## Último estado — Gate3 executado, sign-off pendente
+
+[Recibo da janela](evidence/gate3-window-20261015.json): canary87PASS e rollback
+confirmado no deployment09536564/c589ff0. QA421/contido, piloto autenticado PASS,
+23 grupos estrangeiros iguais, sem dinheiro operacional escrito. O aceite final
+de Lucas permanece pendente; os checkpoints abaixo preservam seus estados históricos.
+
+
 ## Resultado executado — 2026-10-15 UTC (estado atual)
 
 Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)
@@ -583,3 +591,15 @@ After this containment, a fresh authenticated pilot smoke passed; comparison
 against the original pre-window snapshot again found all nineteen foreign
 model-group fingerprints unchanged. Neither result substitutes for the pending
 four-stream witness on corrected ingress. Issues151/130 remain open.
+
+## Gate3 — janela controlada de 15/10/2026
+
+Canary e rollback técnicos executados no SHA c589ff0862b1a7702e12c20a00cffda6cb2f289e.
+Flag-on a9f59467-ccf7-4206-8fac-a3b1290ed722; flag-off 09536564-28fc-4f0e-a54b-97856de54fbc, ambos SUCCESS.
+87 checks browserQA, pilot browser/protocolo antes/durante/depois, observação15min,
+quatro streams próprios/revogados,23 grupos estrangeiros iguais,QA financeiro0,
+backup atualizado restaurado95/95. QA novamente contido/421 e seedfalse preservado.
+Nenhum restore operacional, pagamento/refund/order, seed, schema ou DNS alterado.
+Aceite pós-janela Lucas Procópio permanece pendente; não confundir intervenção
+autorizada com sign-off. Ver recibo gate3-window-20261015.json em evidence da Spec025
+e relatório final no PR183/issue130; tentativas invalidadas e limitações preservadas.

@@ -1,6 +1,6 @@
 # Spec 025 — Gate 3: canary operacional e backout
 
-**Estado: PREPARADO / NO-GO operacional.** Este arquivo é o procedimento de execução, não uma homologação executada. [Issue consolidada #130](https://github.com/procopio420/rodada/issues/130) exige que Gates 1 e 2 sejam PASS e que o Gate 3 receba autorização específica antes de qualquer ativação. NÃO fechar #130 apenas com este PR.
+**Estado atual: execução técnica concluída; BLOCKED_SIGNOFF pós-janela.** Este arquivo contém o procedimento, fotografias históricas e o resultado técnico executado na seção final. [Issue consolidada #130](https://github.com/procopio420/rodada/issues/130) exige que Gates 1 e 2 sejam PASS e que o Gate 3 receba autorização específica antes de qualquer ativação. NÃO fechar #130 apenas com este PR.
 
 ## Inventário somente leitura — 15/10/2026
 
@@ -132,3 +132,57 @@ sem acesso. Não autoriza alteração de proxy/DNS nem ativação operacional.
 O NO-GO restante é **responsável/janela e autorização específica do Gate3**.
 Preflight técnico aprovado no escopo observado; Canary/rollback Gate3 NOT_RUN e
 sign-off pós-janela ausente. Não usar o atestado SSL como consentimento da flag.
+
+### Autorização operacional — 13:06 UTC
+
+Lucas Procópio autorizou diretamente a execução de agora até **00h de 16/10
+BRT (03:00 UTC)**, no `rodada-web/demo`, com rollback obrigatório. Registro:
+https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495.
+Escopo preservado: fonte c589ff0 congelada, QA reservado, nenhuma operação
+financeira, DNS/proxy, schema ou seed; piloto somente leitura. Novo login HTTP
+16PASS e navegador Chromium14PASS no piloto, edge19PASS e backup95 autenticado
+revalidados antes da primeira escrita. Autorização de intervenção não é sign-off
+pós-janela nem resultado do canary.
+
+## Resultado da janela autorizada
+
+## Gate3 — janela executada, aceite operacional pendente (15/10/2026 UTC)
+
+[Recibo auditável](../../specs/025-tenant-host-routing/evidence/gate3-window-20261015.json), [canary/runbook](spec025-gate3-canary.md)
+e [autorização Lucas Procópio](https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495).
+Runtime congelado `c589ff0862b1a7702e12c20a00cffda6cb2f289e`; flag-on
+`a9f59467-ccf7-4206-8fac-a3b1290ed722` SUCCESS; flag-off `09536564-28fc-4f0e-a54b-97856de54fbc` SUCCESS.
+Seed-off preservado, sem alteração de fonte, DNS/proxy, schema, PSP ou dinheiro.
+
+| Critério | Resultado executado |
+| --- | --- |
+| Gates1/2 | PASS reaproveitado do runtime/CI já aprovado; não é repetição global |
+| Preflight Gate3 | PASS: backup lógico95/95 restaurado/constraints/GCM/hash/custódia; novo login piloto, edge19, responsável/janela autorizados |
+| Canary HTTPS/browser | PASS: script oficial A/B;87 checks Chromium A/A,B/B,A/B,B/A, cookies, QR, Customer/logout, refresh, SSE/cursors, IDs/headers estrangeiros; disponibilidade QA reversível/idempotente restaurada |
+| Observação | PASS na amostra:112 probes de saúde200 entre 2026-10-15T13:16:22.257861+00:00 e 2026-10-15T13:30:52.790514+00:00;15min de observação, runtime periódico e logs/métricas sanitizados no recibo; não é SLA contínuo |
+| Piloto | PASS: navegador real14 checks antes/durante/depois, protocolo HTTP Android/HTTPS16 durante/depois, somente leituras e logout das novas sessões de auditoria |
+| Rollback | PASS: flagfalse, deploymentSUCCESS/seedfalse, quatro streams staff/guest A/B recebem evento próprio e revogação, nenhum estrangeiro observado, reconnect/refresh/login/QR/perfil negados; contenção externa repetida |
+| Integridade | PASS no escopo:23 grupos estrangeiros iguais antes/depois (UUID/slug/QR/Tabs/pedidos/ledger/caixa); QA Orders/Charges/Payments/Refunds0; histórico preservado |
+| CASH histórico | PASS leitura:1 confirmado piloto,0 sem CashMovement,0 Venue/tipo incorreto; nenhuma correção ou reconciliação completa realizada |
+| Estado final | QA421; domínios inativos, memberships suspensas, Guest bloqueado,0 sessões QA staff/guest não revogadas; piloto/API/Landing saudáveis |
+| Android físico | NOT_RUN; protocolo HTTP PASS não equivale a aparelho físico/turno106 |
+| Aceite operacional | **BLOCKED_SIGNOFF**: requer sign-off explícito pós-janela de Lucas; autorização anterior era da intervenção |
+
+A contenção confirmou na terceira tentativa: primeira falhou por serialização,
+segunda recusou operação QA concorrente (NOWAIT), terceira confirmou. Somente
+falhas transitórias reconhecidas foram repetidas, em no máximo três tentativas;
+guardas de escopo preservadas. Repetição externa deixou o banco inalterado.
+Não se atribui causa raiz adicional sem evidência.
+
+A primeira tentativa do browser encontrou comparação de JSON dependente da ordem
+das chaves, com HTTP200 e restauração QA bem-sucedida; corrigida no executor com
+igualdade semântica e fixture local, repetição87PASS. Um smoke durante a troca de
+deployment teve14 cenários funcionais aprovados, mas foi corretamente invalidado
+pela guarda de runtime; somente execuções estáveis contam. Falhas históricas
+permanecem no recibo. Revisão R3 dos executores corrigidos não encontrou P0/P1;
+a revisão dos resultados/CI final é registrada no PR183 e na issue130.
+
+**Gate3 técnico executado; Spec025/issue130 ainda não encerradas.** Nenhum rollout
+permanente ou expansão wildcard autorizados. PR183 contém a documentação/evidência,
+sem merge/deploy adicional nesta janela.151/152 continuam encerradas pela
+consolidação prévia em130; não reabrir nem tratar isso como homologação física.

@@ -1,6 +1,48 @@
 # Spec 025 — Acceptance criteria
 
-## Gate3 — preflight real de 15/10/2026, ainda NO-GO
+## Gate3 — janela executada, aceite operacional pendente (15/10/2026 UTC)
+
+[Recibo auditável](evidence/gate3-window-20261015.json), [canary/runbook](../../docs/ops/spec025-gate3-canary.md)
+e [autorização Lucas Procópio](https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495).
+Runtime congelado `c589ff0862b1a7702e12c20a00cffda6cb2f289e`; flag-on
+`a9f59467-ccf7-4206-8fac-a3b1290ed722` SUCCESS; flag-off `09536564-28fc-4f0e-a54b-97856de54fbc` SUCCESS.
+Seed-off preservado, sem alteração de fonte, DNS/proxy, schema, PSP ou dinheiro.
+
+| Critério | Resultado executado |
+| --- | --- |
+| Gates1/2 | PASS reaproveitado do runtime/CI já aprovado; não é repetição global |
+| Preflight Gate3 | PASS: backup lógico95/95 restaurado/constraints/GCM/hash/custódia; novo login piloto, edge19, responsável/janela autorizados |
+| Canary HTTPS/browser | PASS: script oficial A/B;87 checks Chromium A/A,B/B,A/B,B/A, cookies, QR, Customer/logout, refresh, SSE/cursors, IDs/headers estrangeiros; disponibilidade QA reversível/idempotente restaurada |
+| Observação | PASS na amostra:112 probes de saúde200 entre 2026-10-15T13:16:22.257861+00:00 e 2026-10-15T13:30:52.790514+00:00;15min de observação, runtime periódico e logs/métricas sanitizados no recibo; não é SLA contínuo |
+| Piloto | PASS: navegador real14 checks antes/durante/depois, protocolo HTTP Android/HTTPS16 durante/depois, somente leituras e logout das novas sessões de auditoria |
+| Rollback | PASS: flagfalse, deploymentSUCCESS/seedfalse, quatro streams staff/guest A/B recebem evento próprio e revogação, nenhum estrangeiro observado, reconnect/refresh/login/QR/perfil negados; contenção externa repetida |
+| Integridade | PASS no escopo:23 grupos estrangeiros iguais antes/depois (UUID/slug/QR/Tabs/pedidos/ledger/caixa); QA Orders/Charges/Payments/Refunds0; histórico preservado |
+| CASH histórico | PASS leitura:1 confirmado piloto,0 sem CashMovement,0 Venue/tipo incorreto; nenhuma correção ou reconciliação completa realizada |
+| Estado final | QA421; domínios inativos, memberships suspensas, Guest bloqueado,0 sessões QA staff/guest não revogadas; piloto/API/Landing saudáveis |
+| Android físico | NOT_RUN; protocolo HTTP PASS não equivale a aparelho físico/turno106 |
+| Aceite operacional | **BLOCKED_SIGNOFF**: requer sign-off explícito pós-janela de Lucas; autorização anterior era da intervenção |
+
+A contenção confirmou na terceira tentativa: primeira falhou por serialização,
+segunda recusou operação QA concorrente (NOWAIT), terceira confirmou. Somente
+falhas transitórias reconhecidas foram repetidas, em no máximo três tentativas;
+guardas de escopo preservadas. Repetição externa deixou o banco inalterado.
+Não se atribui causa raiz adicional sem evidência.
+
+A primeira tentativa do browser encontrou comparação de JSON dependente da ordem
+das chaves, com HTTP200 e restauração QA bem-sucedida; corrigida no executor com
+igualdade semântica e fixture local, repetição87PASS. Um smoke durante a troca de
+deployment teve14 cenários funcionais aprovados, mas foi corretamente invalidado
+pela guarda de runtime; somente execuções estáveis contam. Falhas históricas
+permanecem no recibo. Revisão R3 dos executores corrigidos não encontrou P0/P1;
+a revisão dos resultados/CI final é registrada no PR183 e na issue130.
+
+**Gate3 técnico executado; Spec025/issue130 ainda não encerradas.** Nenhum rollout
+permanente ou expansão wildcard autorizados. PR183 contém a documentação/evidência,
+sem merge/deploy adicional nesta janela.151/152 continuam encerradas pela
+consolidação prévia em130; não reabrir nem tratar isso como homologação física.
+
+
+## Histórico — preflight inicial de 15/10/2026 (superado pela janela acima)
 
 Inventário/runtime/backup/smoke/finanças foram executados sem ligar a flag.
 [Recibo](evidence/gate3-preflight-20261015.json) e
@@ -18,7 +60,7 @@ Gate3 **NOT_RUN**, sign-off operacional ausente; manter130OPEN. Gates1/2PASS sã
 reaproveitados do mesmo runtime/CI, não nova homologação. E2E físico106 não executado.
 
 
-## Resultado executado — 2026-10-15 UTC (estado atual)
+## Histórico — resultados Gates1/2 de 15/10/2026
 
 Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)
 substituem os bloqueios operacionais dos checkpoints históricos abaixo, sem

@@ -1,6 +1,19 @@
 # Spec 025 — Tasks
 
-## Gate3 — preflight executado, operação bloqueada
+## Gate3 — execução concluída, aceite final pendente
+
+- [x] Autorização Lucas Procópio até00h16/10BRT registrada.
+- [x] Canary flagtrue no deployment exato SUCCESS/source congelada/seedfalse.
+- [x] Script HTTPS A/B e87 checks Chromium; mutação QA reversível/replay.
+- [x] Observação15min, piloto autenticado e protocolo Android preservados.
+- [x] Flagfalse/SUCCESS, quatro streams próprios/revogados, contenção/negativas.
+- [x] Smoke pós-rollback,23 grupos estrangeiros iguais,QA financeiro0 eCASH0gaps.
+- [ ] Registrar revisão R3 final/CI no PR183 e obter sign-off pós-janela Lucas.
+- [ ] Fechar130/aceitar Spec025 somente após sign-off; não há rollout permanente.
+
+[Recibo Gate3](evidence/gate3-window-20261015.json). As listas abaixo são históricas.
+
+## Histórico — preflight inicial bloqueado
 
 - [x] main/runtimec589ff0/CI/staged/SSH, seed-off/flag-off e contenção QA revalidados.
 - [x] Novo smoke autenticado Aderlan16PASS; edge19PASS; health/landing/API200.
