@@ -449,3 +449,38 @@ revisor independente no SHA final, sem relaxar auditoria, pagamentos ou autoriza
 Contas usa setas anterior/próxima com nomes acessíveis e indicação da página atual, em uma linha centralizada. Alvos mínimos de 44 px, foco visível e estados desabilitados preservados. A mudança é de apresentação: não altera paginação da API, seleção, rascunhos ou bloqueios operacionais.
 
 Contas do Atendimento Web exibe até 10 comandas abertas por página; a busca continua global e reinicia na página 1. A API mantém seu contrato de até 200 resultados por leitura, e o PDV mantém 200 por página. Seleção e rascunhos são preservados.
+
+## T08e — Mais uma rodada: seleção e quantidades (14/10/2026)
+
+Evolui T08a–T08d sem criar nova mutation nem alterar o ledger. Na comanda aberta,
+a ação **Mais uma rodada** de um pedido confirmado abre uma revisão com todas
+as linhas elegíveis inicialmente marcadas e respectivas quantidades anteriores.
+Cada linha usa a identidade canônica de OrderItem; variação, modificadores e
+instruções permanecem exatamente associados ao Product ID original, nunca ao nome.
+
+O operador pode desmarcar linhas inteiras ou editar a quantidade de cada uma por
+campo numérico e botões −/+, limitado a 1–99 unidades por linha selecionada.
+Desmarcar é equivalente a zero unidades para o rascunho, não altera o pedido
+histórico. Seleção vazia ou quantidade inválida desabilita a inclusão; o total
+estimado exibe somente itens selecionados aos preços *atuais* em centavos.
+Cancelados não são selecionáveis. Problemas de identidade/configuração,
+catálogo ausente/indisponível, valor ou contexto bloqueiam a rodada conforme
+T08a–T08d; não trocar variantes por defaults.
+
+**Confirmar e enviar rodada** é o único aceite do diálogo. Envia somente as
+linhas marcadas e quantidades escolhidas como uma **nova Order** da Tab/GuestScope
+original, via endpoint canônico de confirmação, sem colocá-las no rascunho.
+O envio cria uma chave de idempotência nova, preservada antes do POST e usada
+também na recuperação de resposta perdida; o estado de sucesso só vem de
+readback canônico. O roteamento normal da Order confirmada a BAR/KITCHEN segue
+a configuração de cada Product. O carrinho manual pré-existente (inclusive
+de outra Tab) permanece **intacto** após sucesso, rejeição e replay, e jamais
+é misturado às linhas repetidas. Cancelar o diálogo não gera efeito algum.
+
+Antes do POST revalidar snapshot/catalog/Tab no staff, e visita/policy no
+guest; indisponibilidade, teto de consumo, sessão/ocupação alterada e conflitos
+continuam bloqueados pela API. Não iniciar preparo nem entrega automaticamente.
+O envelope durável distingue o envio direto da confirmação do rascunho e
+recupera a intenção original, não um segundo pedido. Fora de escopo: repetir
+entre comandas, mutar pedidos históricos ou autorizar entrega/pagamento
+automáticos.

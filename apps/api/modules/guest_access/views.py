@@ -63,6 +63,22 @@ def _context_payload(session, *, token: str | None = None) -> dict:
     from modules.hospitality.party_size import current_party_size
 
     party = current_party_size(occupancy_id=session.occupancy_id) if session.occupancy_id else None
+    # Guest sees only the physical labels, never staff state or other occupants.
+    from modules.hospitality.models import TableGroupMembership
+
+    member = (
+        TableGroupMembership.objects.filter(
+            table=table, removed_at__isnull=True, group__dissolved_at__isnull=True
+        ).select_related("group").first()
+    )
+    guest_group = None
+    if member:
+        labels = list(
+            TableGroupMembership.objects.filter(
+                group=member.group, removed_at__isnull=True
+            ).select_related("table").order_by("table__label").values_list("table__label", flat=True)
+        )
+        guest_group = {"label": member.group.label, "tables": labels}
     payload = {
         "session_scope": {
             "venue_id": str(table.venue_id),
@@ -81,7 +97,7 @@ def _context_payload(session, *, token: str | None = None) -> dict:
             "version": party.version if party else 0,
             "source": party.source if party else None,
         },
-        "table": {"label": table.label},
+        "table": {"label": table.label, "group": guest_group},
         "occupancy_active": session.occupancy_id is not None,
         "can_start_occupancy": session.occupancy_id is None,
         "expires_at": session.expires_at,

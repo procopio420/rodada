@@ -7,7 +7,13 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from .agent_models import AgentPrinterRoute, DiscoveredPrinter, PrintAgent, PrintPairingRequest
+from .agent_models import (
+    AgentPrinterRoute,
+    DiscoveredPrinter,
+    PrintAgent,
+    PrintAgentThrottle,
+    PrintPairingRequest,
+)
 
 __all__ = (
     "AgentPrinterRoute",
@@ -16,6 +22,7 @@ __all__ = (
     "KdsDeviceHeartbeat",
     "KdsStationHealth",
     "PrintAgent",
+    "PrintAgentThrottle",
     "PrintAttempt",
     "PrintJob",
     "PrintPairingRequest",

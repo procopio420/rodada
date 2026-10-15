@@ -31,4 +31,18 @@ Data, ambiente, script/SHA, retorno, hash do backup sem expor arquivo, destino d
 
 ## Rollback / contenção
 
+### Exceção lógica autorizada — Spec025, 2026-10-15
+
+Após o Railway recusar backup oficial por exigir Pro, o usuário autorizou
+explicitamente backup lógico por SSH, sem upgrade. O escopo é o PostgreSQL privado
+existente do projeto `rodada-aderlan-demo-20261009/demo`, com restauração apenas
+em PostgreSQL18 local descartável. A captura usa snapshot read-only consistente,
+AES-256-GCM em streaming e custódia local fora do repositório com permissões0700
+nos diretórios/0600 nos arquivos, chave separada e revisão de retenção em sete dias.
+O restore usa tmpfs; não roda migrations/seed/rehearse_restore contra a origem.
+Ver [contrato e comandos](spec025-preview-rollout.md#authorized-logical-backup-exception--2026-10-15)
+e [resultado/hash](../../specs/025-tenant-host-routing/railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15).
+Essa decisão substitui somente o gate de backup oficial desta execução, sem
+autorizar flag compartilhada nem resolver o critério de preview separado.
+
 Se backup ou restore falhar, **não** repetir contra banco ativo, não forçar drop de DB, não avançar migração de schema nem substituir backup anterior. Isolar o ensaio, investigar logs sanitizados e solicitar nova aprovação se o plano mudar. Restore real é um procedimento separado de alto risco e demanda aprovação humana e plano de consistência financeira.

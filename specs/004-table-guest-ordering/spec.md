@@ -436,3 +436,30 @@ entram no rascunho e podem ser alterados em Editar antes de Enviar.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+
+## TABLE-005 — Contrato de leitura de métricas (#148)
+
+Endpoint gerencial autenticado `GET /management/table-turnover/?start=YYYY-MM-DD&end=YYYY-MM-DD`, protegido por `MANAGEMENT_REPORTS_READ`. Período inclusivo de até 366 dias operacionais; usa calendário IANA e hora de corte configurados em Venue. O endpoint consulta diretamente TableOccupancy e Order por Venue, sem gravar projeção ou tocar ledger.
+
+- `started`: ocupações com `started_at` no período.
+- `released`: ocupações com `released_at` no período, **contagem de giros**. Não calcular rotações por hora sem histórico de disponibilidade/exposição da mesa.
+- `ready`: ocupações com `ready_at` no período (coorte diferente de released).
+- Quatro durações: started→released, released→cleaning_started, cleaning_started→ready, released→ready. Cada uma é atribuída ao dia de `released_at` para evitar dupla contagem; pode incluir limpeza realizada depois do fim do filtro.
+- Médias em segundos arredondados são calculadas só sobre pares de timestamps presentes e cronologicamente válidos; `eligible` = liberações no período, `observed`, `missing` e `invalid` são exibidos separadamente. Média sem observações é `null`, nunca zero inventado.
+- Os giros por mesa são apresentados usando o rótulo **atual** da Table; não representam histórico de nomes/placements nem ocupação máxima possível.
+- Pedidos usam `Order.confirmed_at` (não `Tab.opened_at`), e somente registros com estado atual `CONFIRMED` entram no comparativo: `GUEST` e `STAFF + CASHIER`. O denominador da participação Guest é a soma dos dois grupos. `CANCELLED` e origem desconhecida têm contagens explícitas, fora desse denominador.
+- Uma Tab pode mudar de mesa ao longo da vida; nenhum pedido é atribuído artificialmente a uma Table. Origem de Order é por Venue e business date; mesa não é identidade financeira.
+
+A Gerência expõe contagens, intervalos observados, cobertura e ausência de dados, com calendário e detalhamento por dia e mesa. Sem rankings individuais e sem dados sintéticos.
+
+
+## TABLE-011 — Agrupamento físico temporário (#145)
+
+Um gerente/staff com `TABLE_MANAGE` pode criar um `TableGroup` entre 2 e 20 Tables do mesmo Venue, com rótulo opcional. Apenas mesas ativas no inventário (não `OUT_OF_SERVICE`) podem entrar. Uma Table não participa de dois grupos simultâneos; o banco garante exclusividade apenas nas memberships ativas.
+
+- Agrupamentos são **físicos**, não consolidam QR, TableOccupancy, GuestSession, Tab, Order, Ledger ou pagamentos. Agrupar mesas ocupadas não funde visitas; desfazer também preserva seus estados.
+- `POST /hospitality/table-groups/` recebe `table_ids`, `label` e `request_key` UUID. O par Venue + Staff + request_key é durável e replay-safe; reuse com corpo diferente produz 409. Mesas são bloqueadas em ordem de ID, conflitos produzem 409.
+- `GET /hospitality/table-groups/` lê apenas grupos ativos do Venue. `POST /hospitality/table-groups/<id>/dissolve/` desfaz com segurança e repetição é idempotente. Alterações têm `created_by/dissolved_by`, timestamps e AuditEvents por mudança real, sem apagar o histórico.
+- O inventário staff projeta um `group` com as mesas associadas. Guest vê **somente** nomes físicos do grupo da própria Table, sem IDs internos, ocupações ou estado das outras mesas.
+- O rótulo de grupo não é identificador financeiro nem autorização. A integração futura do FloorPlan #144 pode ler memberships, mas não deve recriá-las nem mover Tabs.

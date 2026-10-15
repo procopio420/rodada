@@ -244,3 +244,13 @@ Dependência: slices entregues; manter gates externos abertos.
 
 - [x] Limitar Contas do Atendimento a 10 comandas por página.
 - [x] Validar limite, próxima/anterior, busca e rascunhos em mobile.
+
+## T08e — Mais uma rodada seletiva
+
+- [x] Contrato de produto: seleção por OrderItem ID, quantidade 1–99, tudo marcado por padrão.
+- [x] Android: revisão editável sem mudar intenção enviada.
+- [x] Web: componente compartilhado e payload de seleção validado antes de entrar no draft.
+- [x] Guest: preservar reconsulta autorizada de GuestScope e limite de agrupamento.
+- [ ] Executar unitários Android e instrumentação em emulador/aparelho, registrar evidência.
+- [ ] Executar integração PostgreSQL/Web 360/390/430 e suíte visual sem aceitar baseline novo.
+- [ ] Revisar PR e integrar apenas após checks exigidos.

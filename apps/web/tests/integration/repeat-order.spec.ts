@@ -9,7 +9,7 @@ import django; django.setup()
 from django.conf import settings
 assert settings.DATABASES['default']['NAME']=='rodada_web_e2e'
 from modules.catalog.models import Product
-from modules.ordering.models import OrderItem
+from modules.ordering.models import OrderItem, Tab
 from modules.ledger.models import Charge,Payment
 from modules.venue.models import Venue
 v=Venue.objects.get(slug='web-e2e')
@@ -32,6 +32,9 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const product = catalog.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: `Repeat ${width}` });
   const other = await api(page, "tabs/", { display_label: `Other ${width}` });
+  // The selected two-unit repeat makes total exposure R$39. The default visitor
+  // limit is R$30: lift only this disposable test Tab to R$50, not the venue policy.
+  database(`assert Tab.objects.filter(pk='${tab.id}', venue=v).update(operating_limit_cents=5000) == 1`);
   const original = await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: `historical-${width}`, lines: [{ product_id: product.id, quantity: 1, special_instructions: "Sem sal" }] });
   database("Product.objects.filter(venue=v,name='Kitchen E2E item').update(price_cents=1200)");
   await page.reload(); await page.getByRole("button", { name: "Contas", exact: true }).click();
@@ -44,8 +47,12 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/^Anterior:/)).toContainText("10,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("12,00");
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.locator("article")).toHaveCount(1);
-  await repeat.click(); await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).dblclick();
-  await expect(draft.locator("article")).toHaveCount(2);
+  await repeat.click();
+  const add = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
+  await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
+  await dialog.getByRole("checkbox").check();
+  await dialog.getByRole("spinbutton", { name: "Quantidade de Kitchen E2E item" }).fill("2");
+  await expect(dialog.getByText(/Total da rodada:/)).toContainText("24,00");
   const beforeSend = await api(page, `tabs/${tab.id}/`); expect(beforeSend.orders).toHaveLength(1); expect(beforeSend.exposure_cents).toBe(1000);
   const attempts: string[] = []; let newOrderId = "";
   const endpoint = `**/api/attendance/tabs/${tab.id}/orders/confirm/`;
@@ -56,16 +63,18 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
     const body = await response.json(); if (!newOrderId) newOrderId = body.id; else expect(body.id).toBe(newOrderId);
     if (attempts.length === 1) await route.abort(); else await route.fulfill({ response });
   });
-  await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await add.dblclick();
+  await expect(dialog).toHaveCount(0);
+  await expect(draft.locator("article")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled(); await expect(repeat).toBeDisabled();
   expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(`historical-${width}`);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]); expect(newOrderId).not.toBe(original.id);
-  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2700);
+  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(3400);
   expect(after.payments).toEqual(beforeSend.payments);
   expect(after.orders.find((o: { id: string }) => o.id === original.id)).toEqual(beforeSend.orders[0]);
-  expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("3");
+  expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("2");
   const snapshot = JSON.parse(database(`item=OrderItem.objects.get(pk='${original.items[0].id}'); print(json.dumps({'cents':item.unit_price_cents,'snapshot':item.customization_snapshot}))`));
   expect(snapshot.cents).toBe(1000); expect(snapshot.snapshot).toEqual(original.items[0].customization_snapshot);
   await page.getByRole("button", { name: new RegExp(`^Other ${width} ·`) }).click();

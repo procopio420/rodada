@@ -234,3 +234,14 @@ sessão; build/tipos/visual completo sem mudar baseline.
 Paginação compacta (14/10/2026): reutilizar OperationalIcon e Button secundário, com setas de 44 px e status central. Manter handlers e bloqueios; conferir mobile, busca, rascunhos e histórico nos testes existentes.
 
 Contas: limitar apresentação a 10 resultados e avançar offset em 10 quando a leitura tiver mais itens; usar next_offset canônico no fim. Preservar PDV com 200 e busca global.
+
+## T08e — Plano de execução
+
+1. Expandir a revisão pura para aceitar quantidades por ID da linha histórica,
+   rejeitar IDs arbitrários, todos desmarcados, valores fora de 1–99 e overflow.
+2. Implementar checkbox e editor ± / input numérico nas revisões Android Compose
+   e Web compartilhada (Atendimento, PDV, guest), com subtotal/contagem dinâmicos.
+3. Preservar as leituras e guards existentes; confirmar seleção somente no draft
+   da Tab/GuestScope original. Guest reconsulta contexto antes de agrupar.
+4. Validar com testes unitários de seleção, instrumentação Android, integração
+   Web/API em 360/390/430, visual e replay. Não alegar validação não executada.
