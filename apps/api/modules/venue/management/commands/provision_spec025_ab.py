@@ -19,6 +19,7 @@ from modules.access.models import (
     VenueStaffMembership,
 )
 from modules.audit.models import AuditEvent
+from modules.guest_access.models import GuestSession
 from modules.hospitality.models import GuestOrderingMode, Table
 from modules.venue.models import Venue, VenueDomain
 
@@ -92,7 +93,7 @@ class Command(BaseCommand):
             )
             if not venue or len(memberships) != 1 or memberships[0].venue_id != venue.id:
                 raise CommandError(f'REFUSE: operator identifier already owned: {spec["login"]}')
-            if memberships[0].role != StaffRole.MANAGER or memberships[0].status != MembershipStatus.ACTIVE:
+            if memberships[0].role != StaffRole.MANAGER or memberships[0].status == MembershipStatus.REVOKED:
                 raise CommandError(f'REFUSE: QA membership drift: {spec["login"]}')
         return venue, alias, staff
 
@@ -171,7 +172,7 @@ class Command(BaseCommand):
             if active and (
                 not staff or not VenueStaffMembership.objects.filter(
                     venue=venue, staff_member=staff, role=StaffRole.MANAGER,
-                    status=MembershipStatus.ACTIVE,
+                    status__in=(MembershipStatus.ACTIVE, MembershipStatus.SUSPENDED),
                 ).exists()
             ):
                 raise CommandError(f'REFUSE: QA manager not active: {spec["slug"]}')
@@ -196,7 +197,31 @@ class Command(BaseCommand):
                     entity_id=str(alias.id),
                     metadata={"hostname": spec["host"]},
                 )
+            member = VenueStaffMembership.objects.select_for_update().filter(
+                venue=venue, staff_member__login_identifier=spec["login"],
+            ).first()
+            # Aliases are stopped first even if membership was already suspended.
+            if member and member.status != MembershipStatus.REVOKED:
+                desired = MembershipStatus.ACTIVE if active else MembershipStatus.SUSPENDED
+                if member.status != desired:
+                    member.status = desired
+                    member.version += 1
+                    member.save(update_fields=["status", "version"])
+                    publish_access_invalidation(
+                        staff_member_id=member.staff_member_id, venue_id=venue.id,
+                        event_type=AccessInvalidationType.MEMBERSHIP_CHANGED,
+                        reason="Spec025 QA activation" if active else "Spec025 QA containment",
+                    )
             if not active:
+                if not venue.guest_mutations_blocked:
+                    venue.guest_mutations_blocked = True
+                    venue.guest_policy_version += 1
+                    venue.save(update_fields=["guest_mutations_blocked", "guest_policy_version"])
+                GuestSession.objects.filter(
+                    table__venue=venue, revoked_at__isnull=True
+                ).update(
+                    revoked_at=timezone.now(), revoked_reason="Spec025 QA containment",
+                )
                 for session in StaffSession.objects.select_for_update().filter(
                     venue=venue, revoked_at__isnull=True
                 ):
@@ -208,7 +233,8 @@ class Command(BaseCommand):
                         reason="Spec025 QA containment",
                     )
         self.stdout.write(self.style.SUCCESS(
-            "QA aliases ACTIVE" if active else "QA aliases disabled; staff sessions revoked"
+            "QA aliases ACTIVE (guest operations remain blocked until separately approved)" if active
+            else "QA aliases disabled; QA memberships suspended; sessions revoked"
         ))
 
     def handle(self, *args, **options):
