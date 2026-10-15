@@ -48,13 +48,11 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await expect(dialog.getByText(/^Anterior:/)).toContainText("10,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("12,00");
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.locator("article")).toHaveCount(1);
   await repeat.click();
-  const add = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+  const add = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
   await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
   await dialog.getByRole("checkbox").check();
   await dialog.getByRole("spinbutton", { name: "Quantidade de Kitchen E2E item" }).fill("2");
-  await expect(dialog.getByText(/Total a adicionar:/)).toContainText("24,00");
-  await add.dblclick();
-  await expect(draft.locator("article")).toHaveCount(2);
+  await expect(dialog.getByText(/Total da rodada:/)).toContainText("24,00");
   const beforeSend = await api(page, `tabs/${tab.id}/`); expect(beforeSend.orders).toHaveLength(1); expect(beforeSend.exposure_cents).toBe(1000);
   const attempts: string[] = []; let newOrderId = "";
   const endpoint = `**/api/attendance/tabs/${tab.id}/orders/confirm/`;
@@ -65,7 +63,9 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
     const body = await response.json(); if (!newOrderId) newOrderId = body.id; else expect(body.id).toBe(newOrderId);
     if (attempts.length === 1) await route.abort(); else await route.fulfill({ response });
   });
-  await draft.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await add.dblclick();
+  await expect(dialog).toHaveCount(0);
+  await expect(draft.locator("article")).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled(); await expect(repeat).toBeDisabled();
   expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(`historical-${width}`);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
