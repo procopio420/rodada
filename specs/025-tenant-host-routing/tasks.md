@@ -27,6 +27,29 @@
 
 ## Existing Railway homologation #151 — controlled preparation
 
+- [x] Exceção de backup autorizada pelo usuário: lógico privado SSH sem Pro;
+  snapshot/dump AES-GCM e restore18/tmpfs,90 contagens iguais/constraints válidas;
+  [hash/ambiente/limites](railway-151-checkpoint.md#logical-backup-exception-and-recovery-proof--2026-10-15).
+- [x] Integrar contrato `logical-sha256` + attestation após regressões,
+  revisão independente e API/Web CI; só então provisionar A/B com esse backup.
+
+Authenticated follow-up: [runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+- [x] PR159 head7436deb: API849/Web98/KB PASS, independent final R3 review,
+  merge18da010; deployment/main CI tracked separately.
+- [x] Fresh MCP+private SSH: existing service/main/source, no staged changes,
+  seed-off/flag-off/HMAC preflight, private PostgreSQL18.6, QA absent, pilot alias valid.
+- [x] PR159 deployment40f0c485 SUCCESS, exact runtime18da010 confirmed by SSH;
+  deployed inspection and provision dry-run executed, no writes.
+- [x] Resolver entitlement sem Pro por exceção lógica autorizada, arquivo cifrado
+  e recuperação verificada; referência real usada no provisionamento protegido.
+- [x] Provisionar A/B, provar rerun idempotente e executar autenticação nativa
+  positiva/cruzada, HMAC/TLS/Host e contenção real com SSE concorrente.
+- [x] Corrigir gate de imagem descartável sem skip: PR168, standalone contract
+  incluído, Integrated release854PASS/428.63s no head f02d11d, revisão independente.
+- [ ] Validar piloto autenticado, obter aprovação específica da flag, executar
+  browser/guest HTTPS e backout da flag; exceção de preview ainda não aceita.
+  [Checkpoint atual](railway-151-checkpoint.md#real-ab-staging-and-containment--2026-10-15-utc).
+
 Fresh PR159 checkpoint (2026-10-15 UTC), codeca2e0903:
 [executed evidence](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
 
