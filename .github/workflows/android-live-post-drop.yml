@@ -19,6 +19,7 @@ on:
       - "scripts/run-issue106-concurrency.py"
       - "scripts/verify-issue106-concurrency.py"
       - "scripts/verify-issue106-authorization.py"
+      - "scripts/verify-issue106-sse.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
@@ -162,6 +163,7 @@ jobs:
           python scripts/verify-browser-origins.py
           python scripts/verify-issue106-concurrency.py
           python scripts/verify-issue106-authorization.py
+          python scripts/verify-issue106-sse.py
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -198,6 +200,7 @@ jobs:
             artifacts/concurrency-*.json
             artifacts/isolation-*.json
             artifacts/revocation-*.json
+            artifacts/sse-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
