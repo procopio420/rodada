@@ -78,7 +78,7 @@ export default function ReportsPage() {
     finally { setLoading(false); }
   }
   return <main className="appShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="sales">Relatórios operacionais</OperationalHeading><Link className="backLink" href="/manage">← Voltar à gerência</Link></header>
+    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="sales">Relatórios operacionais</OperationalHeading><Link className="backLink" href="/manage">← Voltar à gerência</Link><Link className="backLink" href="/manage/table-turnover">Giro e limpeza das mesas →</Link></header>
     {error && <div className="notice" data-state="danger" role="alert">{error}{report && " Último resultado confirmado; atualize antes de usar."}</div>}
     {notice && <p role="status">{notice}</p>}
     {loading && <p className="loadingState" role="status">Carregando relatórios…</p>}
