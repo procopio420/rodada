@@ -59,3 +59,23 @@ Todos **10/10 PASS**: 320×700, 360×800, 375×667, 390×844, 430×932, 768×102
 - Fotos humanas (bar real e equipe) exigem mídia própria com direito de uso; **não** usar banco de imagens representando falsamente o piloto.
 - Nova arte social `og:image` em PNG/JPEG e prova social com depoimento autorizado são próximas prioridades comerciais; **não** declarar concluídas.
 - Revisão independente da branch e autorização explícita para merge e para deploy.
+
+## Rodada 2026 — redesign editorial e product tour
+
+**SHA visualmente auditado:** `057d822f58aaa2fd992b2812565b672ac89ce133` · [Chromium QA](https://github.com/procopio420/rodada/actions/runs/38781092807) · [static](https://github.com/procopio420/rodada/actions/runs/38781092815).
+
+### Mudança de direção
+Por pedido comercial, saiu o cartaz rasterizado que ocupava o hero. A imagem de IA agora é somente fotografia contextual com crop; o slogan e o CTA são HTML reais. A peça íntegra fica em OpenGraph. A página ganha ritmo editorial, espaço, contraste, narrativa de operação e tour com capturas de teste; nada representa dados ao vivo.
+
+### Validação executada
+10/10 viewports 320×700, 360×800, 375×667, 390×844, 430×932, 768×1024, 820×1180, 1024×768, 1440×900 e 1920×1080: sem overflow, imagens e Archivo presentes, botão do header contido, CTA do hero visível em desktops grandes, `Tab` inicial no skip link, tour com clique/ArrowRight, fallback sem JS no 390, botão fixo só após hero no mobile e oculto na chamada final. Capturas dos estados estão no artifact do run; as versões anteriores da página estão documentadas acima.
+
+### Avaliação manual dos PNGs do Chromium
+- O pôster rasterizado estava repetindo o texto da campanha e comprometia a autonomia/responsividade do design. Resolvido com headline HTML e fotografia secundária.
+- A foto recortada ainda mostrava um fragmento de lettering impresso na borda esquerda; ajustado enquadramento da imagem sem perder o contexto do bar cheio. Não é foto documental do cliente.
+- O print de fixture deixava o painel de tour alto demais e o texto ficava desalinhado no desktop; reduzido a um quadro controlado para dar contexto real ao produto.
+- O contato comercial preserva WhatsApp e não finge agenda automática.
+- Testes provaram geometria e fluxo de interface em Chromium, **não** execução em Safari, Firefox, leitores de tela, desempenho de rede real ou taxa de conversão.
+
+### Próximos gates
+Revisão comercial das imagens, atualização de fixtures quando houver build mais recente, aprovação de provas sociais reais, revisão independente do PR; só então autorizações separadas para merge e publicação.

@@ -1,19 +1,19 @@
 # Tarefas — Spec 030
 
-- [x] Ler contrato visual, branding e landing atual.
-- [x] Estruturar copy da campanha e CTA WhatsApp.
-- [x] Recriar hero, dor operacional, manifesto, fluxo, telas, benefícios, piloto, FAQ e CTA final.
-- [x] Publicar cópias locais de screenshots de ambiente de teste com rótulos.
-- [x] Criar testes estáticos para links, landmarks, imagens e disclaimer.
-- [x] Validar no Chromium em 360/390/430/768/1440: sem overflow horizontal, imagens carregadas, fonte carregada e CTA na primeira dobra. Ver [review](../../docs/design/landing-campaign-qa-2026-10-15.md).
-- [x] Revisar conversão por dispositivo e atualizar textos, CTA do header, provas de produto e sticky CTA que só aparece após o hero.
-- [x] Renderizar 10 formatos 320/360/375/390/430/768/820/1024/1440/1920; verificar mudança de CTA ao rolar, carregamento de imagens, ausência de overflow e links de contato.
-- [ ] Aprovar comercialmente as capturas ainda provenientes de teste. Incluir fotos/depoimentos apenas após liberação expressa de uso.
-- [ ] Revisão independente e decisão de merge.
-- [ ] Deploy em rodada.bar após autorização explícita.
+## Slices históricos
+- [x] Criar campanha de marca e CTAs.
+- [x] Montar hero de pôster + peças sociais e imagens responsivas.
+- [x] Fazer revisão comercial inicial em 10 viewports.
 
-## Slice 2 — imagem de marca
-- [x] Otimizar e versionar peça publicitária.
-- [x] Novo hero responsivo com CTA e descrição acessíveis.
-- [x] SEO/OpenGraph e correção de empacotamento Docker.
-- [ ] Executar revisão visual e CI na branch atualizada.
+## Slice 3 — modernização do site
+- [x] Substituir o pôster no hero por headline real em HTML, CTA claro e fotografia de apoio.
+- [x] Criar hierarquia editorial com menos cards genéricos e mais estrutura por seções.
+- [x] Implementar tour com 3 imagens reais de fixtures, controle por teclado e fallback sem JS.
+- [x] Manter peça publicitária apenas em OpenGraph e conteúdo ilustrativo identificado.
+- [x] Revisar mobile 320–430, tablet 768/820, laptop 1024 e desktop 1440/1920.
+- [x] Corrigir fragmentos do texto antigo na fotografia e a altura excessiva do tour.
+- [x] Rodar testes estáticos + Chromium (10/10) com fluxo de CTA e abas.
+- [ ] Revisar acessibilidade com leitor de tela e Safari/Firefox reais.
+- [ ] Confirmar publicabilidade de screenshots de fixture e fotografias conceituais.
+- [ ] Obter revisão independente e decidir merge.
+- [ ] Autorizar e executar deploy separado no `rodada.bar`.
