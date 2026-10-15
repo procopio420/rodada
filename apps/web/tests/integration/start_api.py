@@ -22,6 +22,7 @@ with tempfile.TemporaryDirectory(prefix="rodada-web-e2e-") as temporary:
         # Explicit opt-in requires the dedicated CI database, never ordinary rodada.
         if settings.DATABASES["default"]["NAME"] != "rodada_web_e2e":
             raise RuntimeError("Real Web tests require dedicated database rodada_web_e2e")
+    settings.RODADA_AGENT_PAIRING_SECRET = "synthetic-web-e2e-pairing-key-only-028"
     settings.DEBUG = False
     settings.ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
     if os.environ.get("RODADA_E2E_ANDROID") == "1":

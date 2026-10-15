@@ -1,8 +1,18 @@
 from django.urls import path
 
-from .agent_views import AgentContractView
+from .agent_views import (
+    AgentActivateView,
+    AgentContractView,
+    AgentHeartbeatView,
+    AgentRevokeView,
+    AgentsEnabledView,
+    AgentsView,
+    PairingApproveView,
+    PairingInspectView,
+    PairingStartView,
+    PairingStatusView,
+)
 from .kds_views import KdsDetectorView, KdsHealthView, KdsHeartbeatView
-
 from .views import (
     BridgeClaimView,
     BridgeResultView,
@@ -14,6 +24,15 @@ from .views import (
 )
 
 urlpatterns = [
+    path("agents/v1/", AgentsView.as_view()),
+    path("agents/v1/enabled/", AgentsEnabledView.as_view()),
+    path("agents/v1/pairing/start/", PairingStartView.as_view()),
+    path("agents/v1/pairing/status/", PairingStatusView.as_view()),
+    path("agents/v1/pairing/inspect/", PairingInspectView.as_view()),
+    path("agents/v1/pairing/approve/", PairingApproveView.as_view()),
+    path("agents/v1/<uuid:agent_id>/revoke/", AgentRevokeView.as_view()),
+    path("agents/v1/me/activate/", AgentActivateView.as_view()),
+    path("agents/v1/me/heartbeat/", AgentHeartbeatView.as_view()),
     path("agents/v1/me/contract/", AgentContractView.as_view()),
     path("kds/", KdsHealthView.as_view()),
     path("kds/<str:station>/heartbeat/", KdsHeartbeatView.as_view()),

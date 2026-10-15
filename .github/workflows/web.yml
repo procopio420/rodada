@@ -155,6 +155,7 @@ jobs:
           name: web-visual-and-integration
           path: |
             visual-artifacts/
+            apps/web/visual-artifacts/
             apps/web/playwright-report/
             apps/web/test-results/
           retention-days: 7

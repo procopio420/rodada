@@ -112,6 +112,16 @@ Contrato: [management-tables.md](management-tables.md). Implementar serviço tra
 
 Checklist mantém estado pendente até execução e prova verificável, não apenas testes escritos.
 
+## Issue #145 — TableGroup físico
+
+- [ ] Criar e dissolver dois ou mais membros do mesmo Venue, tanto ocupados como vazios; inventário staff e Guest sanitizado refletem agrupamento.
+- [ ] Nunca mesclar ocupação, Tab, QR, sessão, Order, pagamentos ou ledger; histórico de grupo/auditoria permanece.
+- [ ] Não permitir Table já agrupada, fora de serviço, de outro Venue, repetida ou comando sem capability.
+- [ ] Replay com UUID original é sem efeito, reuso com payload diferente falha; corrida PostgreSQL preserva exclusividade.
+- [ ] Migration auditada, CI SHA final, revisão R3 independente, acessibilidade/visual 360/390/430/desktop e integração BFF/PostgreSQL passam.
+- [ ] PR mergeado após evidência; só então encerrar issue.
+
+Checklists permanecem abertos até execução verificável; código adicionado não é teste executado.
 
 ## Issue #147 — Customer opcional no Guest
 

@@ -41,13 +41,16 @@ def validate_agent(agent: PrintAgent) -> None:
         or agent.revoked_at
         or agent.device.revoked_at
         or agent.device.trust_state != DeviceTrustState.TRUSTED
-        or not agent.venue.print_agents_enabled
     ):
         raise AuthenticationFailed("Agent authorization unavailable.")
+    if not agent.venue.print_agents_enabled:
+        raise PermissionDenied("Print agents disabled for this Venue.")
 
 
 @transaction.atomic
-def issue_credential(*, agent_id, session: StaffSession, rotate: bool = False) -> str:
+def issue_credential(
+    *, agent_id, session: StaffSession, rotate: bool = False, _raw_token: str | None = None
+) -> str:
     agent = (
         PrintAgent.objects.select_for_update(of=("self",))
         .select_related("device", "venue")
@@ -59,7 +62,9 @@ def issue_credential(*, agent_id, session: StaffSession, rotate: bool = False) -
     if active.exists() and not rotate:
         raise ValidationError("Rotate explicitly; an active credential already exists.")
     active.update(revoked_at=timezone.now())
-    raw = "rpa_" + secrets.token_urlsafe(32)
+    raw = _raw_token or ("rpa_" + secrets.token_urlsafe(32))
+    if not raw.startswith("rpa_") or len(raw) != 47:
+        raise ValidationError("Invalid machine credential format.")
     credential = AgentCredential.objects.create(
         agent=agent,
         token_hash=token_digest(raw),
