@@ -16,6 +16,18 @@ Abra http://localhost:8080. Para fonte exata, execute o container de produção:
 
 Use contexto de build da **raiz do monorepo** e o Dockerfile `apps/landing/Dockerfile`. Não alterar a demo Railway na publicação da landing. Domínio público `rodada.bar` (com `www` redirecionado via Cloudflare).
 
+## Campanha comercial — Spec 030
+
+A primeira versão do redesign usa screenshots existentes de fixture (`screens/pos-390.png`, `bar-390.png`, `manage-390.png`) copiados dos arquivos históricos em `docs/design/evidence/spec023-demo-web/`. São capturas **de teste**, não homologação nem promessa de versão final. A landing não usa analytics nem JavaScript externo; CTAs abrem o WhatsApp do contato público anterior.
+
+Verifique o contrato estático com:
+
+```sh
+python3 -m unittest discover -s scripts -p 'test_landing_marketing.py'
+```
+
+Antes de integrar, revisar em browser real nos tamanhos 360/390/430 e desktop, inclusive foco por teclado, carregamento de fontes/assets e legibilidade das capturas. A publicação em `rodada.bar` é uma etapa separada.
+
 ## Pendências
 
 - Validar SEO, acessibilidade, favicon e responsividade em browser real.
