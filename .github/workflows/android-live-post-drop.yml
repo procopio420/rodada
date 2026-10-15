@@ -134,10 +134,9 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
           script: |
-            set -o pipefail
             mkdir -p artifacts
-            bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrumentation.txt
-            bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-instrumentation.txt
+            bash -o pipefail -c 'bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrumentation.txt'
+            bash -o pipefail -c 'bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-instrumentation.txt'
             bash scripts/android-compose-order.sh
             RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
             RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
