@@ -223,3 +223,23 @@ Proximo: operador preencher Nome ou apelido e testar a abertura autorizada.
 ## Integração com main — 2026-10-15
 
 Branch reconciliada com TableGroups (#145), giro (#148), impressão S2 e confirmação direta de **Mais uma rodada** (#170). Android mantém o fluxo de repetição como Order independente, sem misturar com o carrinho manual; Web invoca `confirmRepeatedOrder` no diálogo. O merge de código não substitui CI Android/Web/API no HEAD final nem review R3 da experiência.
+
+## Publicação dos refinamentos — 2026-10-15
+
+Nova branch `codex/attendance-table-refinements`; implementação `33af9ff4`,
+integração das correções remotas `54397cb0` em `a4828fe3`. Novo PR em rascunho
+[#184](https://github.com/procopio420/rodada/pull/184), base `codex/ux-teste-mobile`,
+dependente do #169 aberto. A branch anterior foi preservada.
+Documentação consolidada: `docs/development/attendance-refinements-2026-10-15.md`.
+
+Após integração: API109 PostgreSQL PASS, Web build/tipos+21 jornadas focadas PASS,
+Android build/lint+93 JVM PASS e11 Compose PASS. A primeira captura Compose variou
+entre frames; repetição determinística com animações suspensas passou e os valores
+foram restaurados. Dois seletores Web ambíguos foram delimitados; histórico Android
+usa descrição acessível. Revisor independente da integração sem achados reproduzíveis;
+não executou testes, sem aprovação GitHub. CI e suíte Web integral permanecem gates.
+
+Sem merge em main/deploy. Worktrees preexistentes preservados, next-env gerado
+excluído. Próximo responsável: revisão e CI do novo PR, testes humanos locais e
+resolução dos gates documentados antes de integração. Registros anteriores são
+fotografias históricas e não certificam o SHA publicado agora.

@@ -72,7 +72,7 @@ class NativeAttendanceFlowTest {
             TablesScreen(OperationsUiState(tabs = listOf(tab)), false, { _, _ -> }, {}, {}, {},
                 onLoadHistory = { requested++ })
         } } }
-        compose.onNodeWithText("Histórico de comandas").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Histórico de comandas").performClick()
         assertEquals(1, requested)
         compose.onNodeWithText("Nenhuma comanda no histórico disponível.").assertDoesNotExist()
     }

@@ -236,7 +236,7 @@ for (const failure of ["unavailable", "stale"] as const) {
     await page.clock.runFor(15000);
     await expect(add).toBeDisabled();
     await expect(customize.getByText("Produto indisponível ou catálogo desatualizado.")).toBeVisible();
-    await customize.getByRole("button", { name: "Voltar" }).click();
+    await customize.getByRole("region", { name: "Configurar Fritas" }).getByRole("button", { name: "Voltar", exact: true }).click();
     await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
     await popup.getByRole("button", { name: /Pedido atual/ }).click();
     await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
