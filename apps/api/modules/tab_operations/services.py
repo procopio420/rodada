@@ -230,6 +230,15 @@ def execute(*, tab_id, data, actor):
     kind = data["kind"]
     authorize(actor, capability(kind))
     # Hospitality commands lock Table/Occupancy before Tab. Match that order.
+    available_table = None
+    if kind == "MOVE_LOCATION" and data.get("table_id"):
+        from modules.hospitality.models import Table
+        authorize(actor, Capability.TABLE_MANAGE)
+        if data.get("occupancy_id") or data.get("service_point_id"):
+            raise OperationError("INVALID_LOCATION", "Escolha uma única mesa de destino.", 400)
+        available_table = Table.objects.select_for_update().filter(pk=data["table_id"], venue_id=actor.venue_id).first()
+        if available_table is None:
+            raise OperationError("TABLE_NOT_FOUND", "Mesa não encontrada.", 404)
     if kind == "MOVE_LOCATION" and data.get("occupancy_id"):
         from modules.hospitality.models import Table, TableOccupancy
         reference = TableOccupancy.objects.filter(pk=data["occupancy_id"], table__venue_id=actor.venue_id).values_list("table_id", flat=True).first()
@@ -253,6 +262,22 @@ def execute(*, tab_id, data, actor):
     check_version(source, data["expected_version"])
     if destination:
         check_version(destination, data.get("destination_version"))
+    new_occupancy = None
+    if available_table is not None:
+        from modules.hospitality.services import HospitalityServiceError, occupy_table
+        from modules.hospitality.table_service import _audit
+        if available_table.status != "AVAILABLE":
+            raise OperationError("TABLE_NOT_AVAILABLE", "A mesa mudou. Atualize antes de mover.")
+        check_open(source)
+        try:
+            new_occupancy = occupy_table(table_id=available_table.id, actor=actor)
+        except HospitalityServiceError as error:
+            raise OperationError(error.code, error.message, error.status_code, error.details) from error
+        new_occupancy.responsible_staff_id = actor.staff_id
+        new_occupancy.responsible_since = timezone.now()
+        new_occupancy.responsibility_version = 1
+        new_occupancy.save(update_fields=["responsible_staff", "responsible_since", "responsibility_version"])
+        _audit(new_occupancy, actor, "assigned", None, key)
     operation = TabOperation.objects.create(source_tab=source, idempotency_key=key,
                     request_fingerprint=fingerprint, kind=kind, created_by_id=actor.staff_id)
     reason = data.get("reason", "").strip()
@@ -283,7 +308,7 @@ def execute(*, tab_id, data, actor):
     elif kind == "MOVE_LOCATION":
         check_open(source)
         from modules.hospitality.models import Table, TableOccupancy, TabOccupancyAssignment
-        occupancy_id, point_id = data.get("occupancy_id"), data.get("service_point_id")
+        occupancy_id, point_id = (new_occupancy.id if new_occupancy else data.get("occupancy_id")), data.get("service_point_id")
         if occupancy_id and point_id:
             raise OperationError("INVALID_LOCATION", "Escolha mesa ou ponto de atendimento.", 400)
         occupancy, point = None, None

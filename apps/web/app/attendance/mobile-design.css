@@ -1,0 +1,69 @@
+/* Spec 029: scoped presentation; canonical tokens and commands are unchanged. */
+.attendanceShell .attendanceNav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.attendanceUnifiedHeading { display: flex; align-items: center; gap: var(--space-2); }
+.attendanceUnifiedHeading h2 { flex: 1; }
+.attendanceUnifiedHeading > button { width: var(--touch-min); min-height: var(--touch-min); display: grid; place-items: center; padding: var(--space-2); }
+.attendanceShell .attendanceOrderDialog { width: calc(100% - var(--space-2)); max-width: 880px; height: calc(100dvh - var(--space-2)); max-height: calc(100dvh - var(--space-2)); padding: var(--space-4); overflow: hidden; }
+.attendanceShell .attendanceOrderDialog[open] { display: flex; flex-direction: column; }
+.attendanceOrderDialog > .attendanceOrders { position: relative; min-height: 0; overflow-y: auto; flex: 1; overscroll-behavior: contain; }
+.attendanceOrderDialog > h2, .attendanceOrderDialog > button { flex-shrink: 0; }
+.attendanceOrderDialog .attendanceOrders > .buttonQuiet { position: absolute; right: 0; top: 0; width: var(--touch-min); min-height: var(--touch-min); display: grid; place-items: center; padding: var(--space-2); }
+.attendanceOrderDialog .attendanceDialogBalance { min-height: var(--touch-min); align-items: center; padding-right: calc(var(--touch-min) + var(--space-2)); }
+.attendanceOrderDialog > h2 { font-size: var(--text-lg); overflow-wrap: anywhere; padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); }
+.attendanceOrderDialog .attendanceSelectedTab { margin: 0; padding: 0; border: 0; background: transparent; }
+.attendanceDialogBalance { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); font-size: var(--text-md); color: var(--color-text-muted); }
+.attendanceDialogBalance strong { color: var(--color-money); font: 800 var(--text-lg) var(--font-mono); }
+.attendanceOrderDialog .attendanceOrderShortcuts { position: sticky; margin-bottom: var(--space-4); }
+.attendanceOrderDestination { grid-column: 1 / -1; font-size: var(--text-sm); overflow-wrap: anywhere; }
+.attendanceShell .attendanceProductPick { width: 100%; display: grid; gap: var(--space-2); text-align: left; padding: 0; border: 0; background: transparent; color: var(--color-text); min-height: var(--touch-primary); cursor: pointer; }
+.attendanceProductPick .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
+.attendanceProductPick:disabled { opacity: .55; cursor: not-allowed; }
+.attendanceShell .attendanceCatalogQuantity { display: grid; grid-template-columns: var(--touch-min) minmax(0, 1fr) var(--touch-min); align-items: center; gap: var(--space-1); width: 100%; }
+.attendanceShell .attendanceCatalogQuantity button { width: var(--touch-min); min-height: var(--touch-min); padding: var(--space-1); font-size: var(--text-lg); }
+.attendanceCatalogQuantity output { font-family: var(--font-mono); font-weight: 800; text-align: center; }
+.attendanceOrderDialog .posProduct > .buttonQuiet { width: 100%; font-size: var(--text-sm); padding: var(--space-2); }
+.attendanceOrderDialog article.posProduct { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2); }
+.attendanceOrderDialog .attendanceOrderShortcuts [aria-pressed="true"] { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)); }
+.attendanceOrderDialog > .buttonQuiet { margin-top: var(--space-4); width: 100%; border: 1px solid var(--color-border-strong); }
+.attendanceShell details > summary { min-height: var(--touch-min); display: flex; align-items: center; cursor: pointer; }
+.attendanceShell .attendanceTableFilters { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-3); }
+.attendanceShell .attendanceTableFilters button { flex: 0 0 auto; width: auto; min-height: var(--touch-min); font-size: var(--text-sm); }
+.attendanceShell .attendanceTableFilters [aria-pressed="true"] { border-color: var(--color-accent); background: var(--color-surface-3); }
+.attendanceShell .attendanceTableGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-items: start; }
+.attendanceShell .attendanceTable { --table-status: var(--color-text-muted); min-width: 0; margin: 0; padding: var(--space-2); border-top: var(--space-1) solid var(--table-status); }
+.attendanceShell .attendanceTable[data-state="AVAILABLE"] { --table-status: var(--color-success); }
+.attendanceShell .attendanceTable[data-state="OCCUPIED"] { --table-status: var(--color-info); }
+.attendanceShell .attendanceTable[data-state="DIRTY"], .attendanceShell .attendanceTable[data-state="CLEANING"] { --table-status: var(--color-warning); }
+.attendanceShell .attendanceTable[data-state="OUT_OF_SERVICE"] { --table-status: var(--color-danger); }
+.attendanceShell .attendanceTable[data-expanded="true"] { grid-column: 1 / -1; }
+.attendanceShell .attendanceTable h3 { margin: 0; }
+.attendanceShell .attendanceTableSummary { height: 100%; padding: var(--space-3); grid-template-columns: minmax(0, 1fr); background: var(--color-surface-2); border-color: transparent; }
+.attendanceShell .attendanceTableSummary > .operationalIcon { display: none; }
+.attendanceShell .attendanceTableSummary small { font-size: var(--text-sm); color: var(--color-text-muted); overflow-wrap: anywhere; }
+.attendanceShell .attendanceTableNumber { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); font-size: var(--text-xl); line-height: 1.2; overflow-wrap: anywhere; }
+.attendanceShell .attendanceTableNumber > svg { color: var(--table-status); }
+.attendanceShell .attendanceTable[data-expanded="true"] .attendanceTableNumber { flex-direction: row; align-items: center; }
+.attendanceShell .attendanceTableGrid > p { grid-column: 1 / -1; }
+.attendanceShell .attendanceOrderShortcuts { position: sticky; top: 0; z-index: 4; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-1); padding: var(--space-2) 0; background: var(--color-surface-1); border-bottom: 1px solid var(--color-border); }
+.attendanceShell .attendanceOrderShortcuts button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); min-width: var(--touch-min); padding: var(--space-2); font-size: var(--text-sm); }
+.attendanceShell .attendanceOrderShortcuts small { display: block; color: var(--color-text-muted); font-size: var(--text-sm); }
+.attendanceShell [data-attendance-region] { scroll-margin-top: calc(var(--touch-primary) * 2 + var(--space-4)); }
+.attendanceShell .posProducts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.attendanceShell .posProducts[hidden] { display: none; }
+.attendanceShell .posProduct { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); min-width: 0; text-align: left; }
+.attendanceShell .posProduct > .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
+.attendanceShell .posProduct > span { min-width: 0; overflow-wrap: anywhere; }
+.attendanceShell .posProduct strong { font-size: var(--text-md); }
+.attendanceShell .posProduct small { display: block; font-family: var(--font-mono); font-size: var(--text-sm); margin-top: var(--space-2); }
+.attendanceShell .posProduct[data-selected="true"] { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface-2)); }
+.attendanceShell .attendanceProductAction { width: 100%; padding-top: var(--space-2); border-top: 1px solid var(--color-border); font-size: var(--text-sm); }
+.attendanceShell .attendanceDraftFeedback { color: var(--color-text-muted); font-size: var(--text-sm); }
+.attendanceShell .attendanceDraftFeedback:empty { display: none; }
+.attendanceShell .attendanceConfirmedPrice { display: block; font-family: var(--font-mono); color: var(--color-text-muted); font-size: var(--text-sm); }
+.attendanceShell .attendanceSelectedBalance { font-family: var(--font-mono); font-size: var(--text-lg); color: var(--color-money); }
+.attendanceShell [data-attendance-region="bill"] .billSummary > .dataRow { border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); padding: var(--space-4); background: var(--color-surface-2); }
+.attendanceShell [data-attendance-region="bill"] .billSummary > .dataRow strong { color: var(--color-money); font: 800 var(--text-xl) var(--font-mono); }
+@media (min-width: 768px) {
+  .attendanceShell .attendanceTableGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .attendanceShell .posProducts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

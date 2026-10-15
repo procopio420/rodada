@@ -8,6 +8,7 @@ for (const width of [360, 390, 430]) test(`Attendance table dialogs at ${width}`
  await page.goto("/attendance");
  await page.getByRole("button", { name: "Mesas", exact: true }).click();
  await expect(page.getByLabel("Localização da mesa 24")).toHaveCount(0);
+ await page.getByRole("button", { name: /Mesa 24 Ocupada/ }).click();
  await page.getByRole("button", { name: "Organizar mesa 24" }).click();
  await expect(page.getByRole("dialog", { name: "Organizar mesa 24" })).toBeVisible();
  await layoutAndA11y(page);

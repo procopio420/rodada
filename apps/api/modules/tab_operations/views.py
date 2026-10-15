@@ -27,6 +27,7 @@ class Command(serializers.Serializer):
     lines = Line(many=True, required=False)
     reason = serializers.CharField(max_length=240, required=False, allow_blank=True)
     occupancy_id = serializers.UUIDField(required=False, allow_null=True)
+    table_id = serializers.UUIDField(required=False)
     service_point_id = serializers.UUIDField(required=False, allow_null=True)
     idempotency_key = serializers.CharField(max_length=120, required=False)
 

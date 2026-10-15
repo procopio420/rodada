@@ -69,6 +69,7 @@ data class OperationsUiState(
     val completedCorrectionItemId: String? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
     val lastSyncedAtMillis: Long? = null,
+    val contextRecoveryPending: Boolean = false,
 )
 
 class OperationsViewModel(
@@ -83,6 +84,7 @@ class OperationsViewModel(
         private set
 
     private var loadedSessionKey: String? = null
+    private val tabDrafts = TabDraftContexts()
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
     private var orderReplayJob: Job? = null
@@ -235,6 +237,7 @@ class OperationsViewModel(
             state = OperationsUiState()
         }
         loadedSessionKey = key
+        tabDrafts.enterSession(key)
         loadOrderQueue(session)
         refresh(session)
     }
@@ -278,6 +281,7 @@ class OperationsViewModel(
                     selectedTab = snapshot.detail ?: state.selectedTab,
                     connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
+                    contextRecoveryPending = snapshot.detail?.let { detail -> pendingMutationIntentStore.loadFor(session).any { it.targetsContext(detail) } } ?: false,
                 )
                 // Canonical HTTP read, not SSE alone, authorizes order reconciliation.
                 loadOrderQueue(session)
@@ -337,11 +341,19 @@ class OperationsViewModel(
         state = state.copy(customers = repository.customers(session, query))
     }
 
-    fun selectTab(session: StoredSession, tabId: String) = action { loadTabContext(session, tabId) }
+    fun selectTab(session: StoredSession, tabId: String) {
+        if (!state.canLeaveTabContext()) return
+        action {
+            val records = pendingMutationIntentStore.loadFor(session)
+            check(state.selectedTab == null || records.none { it.targetsContext(state.selectedTab!!) }) { "Verifique a pendência original antes de trocar de comanda." }
+            loadTabContext(session, tabId)
+        }
+    }
 
     fun openRecovery(session: StoredSession, intentId: String) = action {
+        val refreshingOriginal = state.exceptionalRecoveryContext?.original?.id == intentId
+        check(refreshingOriginal || state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }
         state = state.copy(exceptionalRecoveryContext = null)
-        check(state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }
         val original = pendingMutationIntentStore.loadFor(session).firstOrNull { it.id == intentId }
             ?: error("Registro indisponível na sessão original. Atualize as pendências; não recrie a operação.")
         val destination = original.evidence()
@@ -368,17 +380,35 @@ class OperationsViewModel(
         state = state.copy(exceptionalRecoveryContext = null)
     }
 
+    /** Explicit path to the existing read-only queue; never resolves a financial intent. */
+    fun leaveForExceptionalRecovery(session: StoredSession) {
+        if (state.loading || state.submitting || state.orderIntentId != null || state.paymentIntentId != null || state.pendingPayment != null) return
+        val detail = state.selectedTab ?: return
+        val retained = pendingMutationIntentStore.loadFor(session).any {
+            (it is RecoveryIntent.Correction || it is RecoveryIntent.Refund) && it.targetsContext(detail)
+        }
+        if (!retained) return
+        tabDrafts.save(detail.summary.id, state.cart)
+        state = state.copy(selectedTab = null, cart = emptyList(), contextRecoveryPending = false,
+            exceptionalRecoveryContext = null, integratedPayment = null)
+    }
+
     private suspend fun loadTabContext(session: StoredSession, tabId: String, original: RecoveryIntent? = null) {
+        val scopeBeforeRead = loadedSessionKey
         check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de selecionar outra comanda." }
         val detail = repository.tabDetail(session, tabId)
-        if (original != null) authRepository.withAuthorizedAccess(session) { Unit }
+        check(detail.summary.id == tabId) { "A comanda retornada não corresponde à selecionada." }
+        authRepository.withAuthorizedAccess(session) { Unit }
+        check(loadedSessionKey == scopeBeforeRead) { "A sessão mudou durante a leitura. Selecione a comanda novamente." }
         val records = pendingMutationIntentStore.loadFor(session)
         if (original != null) check(records.any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
         val retained = records.filterIsInstance<RecoveryIntent.ConfirmOrder>().firstOrNull { it.tabId == tabId && (original !is RecoveryIntent.ConfirmOrder || it.id == original.id) }
         val retainedPayment = records.filterIsInstance<RecoveryIntent.StartPayment>().firstOrNull { it.tabId == tabId && (original !is RecoveryIntent.StartPayment || it.id == original.id) }
         val retainedCorrection = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId in detail.orders.flatMap { order -> order.items }.map { item -> item.id } }
         val retainedRefund = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Refund>().firstOrNull { refund -> detail.payments.any { it.id == refund.paymentId } }
-        val retainedCart = retained?.toCart(state.products).orEmpty()
+        tabDrafts.enterSession("${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}")
+        state.selectedTab?.summary?.id?.let { tabDrafts.save(it, state.cart) }
+        val retainedCart = retained?.toCart(state.products) ?: tabDrafts.read(tabId)
         state = state.copy(
             selectedTab = detail,
             integratedPayment = null,
@@ -386,6 +416,7 @@ class OperationsViewModel(
             orderIntentId = retained?.idempotencyKey,
             paymentIntentId = retainedPayment?.idempotencyKey,
             pendingPayment = retainedPayment,
+            contextRecoveryPending = records.any { it.targetsContext(detail) },
             noticeMessage = pendingMutationIntentStore.reviewMessage(session) ?: when {
                 retained != null -> "Pedido pendente encontrado. Verifique o resultado antes de adicionar novos itens."
                 retainedPayment != null -> "Pagamento pendente encontrado. Não tente cobrar novamente; reconcilie a mesma cobrança."
@@ -396,12 +427,18 @@ class OperationsViewModel(
         )
     }
 
-    fun clearSelection() {
-        if (state.cart.isNotEmpty() || state.orderIntentId != null) {
-            state = state.copy(noticeMessage = "Rascunho preservado. Confirme ou remova os itens antes de sair.")
+    fun clearSelection(session: StoredSession? = null) {
+        val records = try { session?.let { pendingMutationIntentStore.loadFor(it) } }
+            catch (error: Exception) { showFailure(error); return }
+        val pending = records?.let { current -> state.selectedTab?.let { detail -> current.any { it.targetsContext(detail) } } } == true
+        if (records != null) state = state.copy(contextRecoveryPending = pending, recoveryEvidence = records.map { it.evidence() })
+        if (!state.canLeaveTabContext() || pending) {
+            if (pending) state = state.copy(contextRecoveryPending = true)
+            state = state.copy(noticeMessage = "Verifique a operação pendente antes de sair. A intenção original está preservada.")
             return
         }
-        state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null)
+        state.selectedTab?.summary?.id?.let { tabDrafts.save(it, state.cart) }
+        state = state.copy(selectedTab = null, integratedPayment = null, cart = emptyList(), orderIntentId = null, paymentIntentId = null, pendingPayment = null, contextRecoveryPending = false)
     }
 
     fun addProduct(product: Product, customization: Customization = product.defaults()) {
@@ -848,6 +885,9 @@ class OperationsViewModel(
 
     fun startTableService(session: StoredSession, tableId: String) = tableServiceCommand(session,
         "/hospitality/tables/$tableId/service/start/", org.json.JSONObject())
+
+    fun openFirstTableTab(session: StoredSession, tableId: String, label: String) = tableServiceCommand(session,
+        "/hospitality/tables/$tableId/service/open-tab/", org.json.JSONObject().put("display_label", label))
 
     fun openTableTab(session: StoredSession, occupancy: TableOccupancy, label: String) = tableServiceCommand(session,
         "/hospitality/occupancies/${occupancy.id}/tabs/open/", org.json.JSONObject()

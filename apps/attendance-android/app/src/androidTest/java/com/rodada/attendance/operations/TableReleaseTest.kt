@@ -24,6 +24,7 @@ class TableReleaseTest {
                 onOccupy = { _, _ -> }, onAttachTab = { _, _ -> },
                 onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
+        compose.onNodeWithTag("table-table-a").performClick()
         compose.onNodeWithText("Liberar mesa").performScrollTo().performClick()
     }
 

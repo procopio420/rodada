@@ -50,7 +50,8 @@ class RepeatOrderDialogTest {
                 { sent++ }, {}, {}, {}, {}, {}, {}, {}, {},
                 onRepeatOrder = { ui.value = ui.value.withRepeatedOrder(tab.id, it) })
         } } }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Repetir rodada"))
+        compose.onNodeWithTag("workspace-Conta").performClick()
+        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Repetir rodada"))
         compose.onNodeWithText("Repetir rodada").performClick()
         compose.onNodeWithText("Cancelar").performClick()
         assertEquals(0, ui.value.cart.size)
