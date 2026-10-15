@@ -79,3 +79,60 @@ identity or reset an operational DB to simulate rollback.
 
 `PREVIEW_TENANT_HOST=e2ea.rodada.bar PREVIEW_UNKNOWN_HOST=unregistered-preview.rodada.bar bash scripts/verify-tenant-host-preview.sh`
 requires publicly resolvable HTTPS and valid certificate, otherwise **fails** (does not claim success). Store output, workflow URL and manifest response in release notes. No DNS/TLS provisioning is implied by this document.
+
+
+## Guarded QA bootstrap on the existing Railway service
+
+`provision_spec025_ab` is an operator-only Django management command (no HTTP
+endpoint or automatic startup hook). Default is read-only `inspect`, and passing
+an operation without `--apply` makes no changes. It reserves only the two
+explicit QA identities/aliases `spec025-qa-a/e2ea.rodada.bar` and
+`spec025-qa-b/e2eb.rodada.bar`. It refuses preexisting foreign ownership
+or operator login collisions rather than reassigning customer identities.
+
+**Before writing**: create a Railway PostgreSQL volume backup, obtain its real
+backup ID, verify that the backup completed and rehearse restoring a separate
+disposable database. The CLI's `--backup-reference` is only an operator
+attestation; the command **cannot verify** Railway backup state itself.
+Use randomly generated per-Venue 6–12 digit PINs in protected environment
+variables `RODADA_SPEC025_A_PIN`/`RODADA_SPEC025_B_PIN`, never command
+arguments, shell history, repository or logs.
+
+```bash
+# Commands below run INSIDE rodada-web via authenticated Railway SSH.
+cd /app/apps/api
+python manage.py provision_spec025_ab
+python manage.py provision_spec025_ab --operation provision
+# Only after a separately VERIFIED backup and tested restore:
+python manage.py provision_spec025_ab --operation provision --apply \
+  --backup-reference 'railway-backup:<actual-backup-id>'
+```
+
+Provisioned QA domains remain **inactive and unverified**, and guest mutations
+start blocked. No ledger, payment, PSP or Aderlan data is created/changed.
+The two managers are strictly local QA identities; reruns preserve IDs and
+existing PIN hashes. This command intentionally does not create an active QR,
+a guest occupancy or payment fixtures.
+
+After trusted ingress/TLS have been independently verified, and after explicit
+approval for this shared-host activation, an authorized operator may activate
+**only the QA domain rows**:
+
+```bash
+python manage.py provision_spec025_ab --operation activate --apply \
+  --backup-reference 'railway-backup:<actual-backup-id>' --edge-confirmed
+```
+
+This does not toggle `RODADA_ENABLE_TENANT_HOST_UI` or validate cookies, SSE,
+HMAC, QR or Android. Those must still be tested separately before acceptance.
+For containment, disable QA aliases and revoke QA staff sessions without deleting
+or reassigning immutable identity/history:
+
+```bash
+python manage.py provision_spec025_ab --operation deactivate --apply
+```
+
+The shared demo's current `RODADA_DEMO_SEED_ON_START=false` must remain in force
+during any redeploy and backout. Never use an older rollback image that reruns
+`seed_demo` against the live Aderlan database. Do not use the public PostgreSQL
+TCP proxy as a shortcut.
