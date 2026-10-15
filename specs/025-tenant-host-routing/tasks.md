@@ -1,5 +1,44 @@
 # Spec 025 — Tasks
 
+## Aceite operacional final — Lucas Procópio, 15/10/2026 13:50 UTC
+
+**Gates1/2/3 PASS; sign-off explícito recebido após os resultados.**
+[Registro do aceite e autorização de integração/fechamento](https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006).
+[Revisão R3 independente](https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847)
+sem findings P0/P1/P2; [CI das evidências](https://github.com/procopio420/rodada/actions/runs/38744120507)
+SUCCESS. Integração PR183 e verificação do deployment resultante autorizadas,
+com flagfalse/seedfalse e QA contido. O fechamento130 ocorre somente após esses
+gates finais. Os trechos de pendência abaixo são fotografias anteriores ao aceite.
+Sem rollout permanente, mudança DNS/proxy, PSP ou homologação Android física.
+
+
+## Gate3 — execução concluída, aceite final pendente
+
+- [x] Autorização Lucas Procópio até00h16/10BRT registrada.
+- [x] Canary flagtrue no deployment exato SUCCESS/source congelada/seedfalse.
+- [x] Script HTTPS A/B e87 checks Chromium; mutação QA reversível/replay.
+- [x] Observação15min, piloto autenticado e protocolo Android preservados.
+- [x] Flagfalse/SUCCESS, quatro streams próprios/revogados, contenção/negativas.
+- [x] Smoke pós-rollback,23 grupos estrangeiros iguais,QA financeiro0 eCASH0gaps.
+- [x] Registrar revisão R3 final/CI no PR183 e obter sign-off pós-janela Lucas.
+- [ ] Fechar130/aceitar Spec025 somente após sign-off; não há rollout permanente.
+
+[Recibo Gate3](evidence/gate3-window-20261015.json). As listas abaixo são históricas.
+
+## Histórico — preflight inicial bloqueado
+
+- [x] main/runtimec589ff0/CI/staged/SSH, seed-off/flag-off e contenção QA revalidados.
+- [x] Novo smoke autenticado Aderlan16PASS; edge19PASS; health/landing/API200.
+- [x] Backup anterior90tabelas reautenticado; novo snapshot atual restaurado95/95,
+  constraints/custódia/GCM/hash e remoção de destino verificados.
+- [x] CASH histórico somente leitura:1confirmado comMovement;0gaps/foreign/kind.
+- [x] Baseline privado23grupos e observabilidade real limitados, sem publicar digests.
+- [x] Responsável atestou Full (strict) no chat12:59:33UTC; consulta API NOT_RUN.
+- [ ] Obter responsável, janela/fuso e autorização específica da intervenção.
+- [ ] Executar canary e backout reais, revisão R3 pós-janela e sign-off operacional.
+
+[Recibo preflight](evidence/gate3-preflight-20261015.json);130permaneceOPEN.
+
 ## Estado final da janela A/B — 2026-10-15 UTC
 
 - [x] Exceção formal compartilhada e backup lógico reautenticado/restore90/90.
