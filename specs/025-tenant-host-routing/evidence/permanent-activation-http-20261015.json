@@ -1,0 +1,222 @@
+{
+  "at": "2026-10-15T14:32:03.582457+00:00",
+  "method": "curl, TLS verification enabled, no redirects followed, empty unauthenticated POSTs",
+  "results": [
+    {
+      "url": "https://e2ea.rodada.bar/",
+      "method": "GET",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/manifest.webmanifest",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/venue/context",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/auth/login",
+      "method": "POST",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/auth/refresh",
+      "method": "POST",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/guest/context",
+      "method": "GET",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/guest/qr/resolve",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2ea.rodada.bar/api/guest/orders",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/",
+      "method": "GET",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/manifest.webmanifest",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/venue/context",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/auth/login",
+      "method": "POST",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/auth/refresh",
+      "method": "POST",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/guest/context",
+      "method": "GET",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/guest/qr/resolve",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://e2eb.rodada.bar/api/guest/orders",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/",
+      "method": "GET",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/manifest.webmanifest",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/venue/context",
+      "method": "GET",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/auth/login",
+      "method": "POST",
+      "http_status": 421,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": true,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/auth/refresh",
+      "method": "POST",
+      "http_status": 404,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/guest/context",
+      "method": "GET",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/guest/qr/resolve",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/api/guest/orders",
+      "method": "POST",
+      "http_status": 401,
+      "tls_verified": true,
+      "curl_exit": 0,
+      "pass_421": false,
+      "error": null
+    }
+  ]
+}

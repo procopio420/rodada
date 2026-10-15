@@ -1,0 +1,47 @@
+{
+  "deployments": [
+    {
+      "created_at": "2026-10-15T14:12:33.878+00:00",
+      "id": "476c096a-47df-463e-9029-6f52f173211d",
+      "status": "SUCCESS"
+    },
+    {
+      "created_at": "2026-10-15T14:06:44.321+00:00",
+      "id": "ffd1024a-a07a-4cf4-83e5-409faf9baa9b",
+      "status": "REMOVED"
+    },
+    {
+      "created_at": "2026-10-15T14:02:34.027+00:00",
+      "id": "82c841e3-d8a1-44b3-a8e8-823a138922b2",
+      "status": "REMOVED"
+    },
+    {
+      "created_at": "2026-10-15T13:53:19.882+00:00",
+      "id": "6a5facab-605d-46c7-90bb-f1e549374ad7",
+      "status": "REMOVED"
+    },
+    {
+      "created_at": "2026-10-15T13:31:49.205+00:00",
+      "id": "09536564-28fc-4f0e-a54b-97856de54fbc",
+      "status": "REMOVED"
+    }
+  ],
+  "environment": "demo",
+  "http": {
+    "2xx": 14,
+    "3xx": 2,
+    "4xx": 49,
+    "5xx": 4,
+    "error_rate": 5.797101449275362,
+    "p50_ms": 64,
+    "p90_ms": 98,
+    "p95_ms": 98,
+    "p99_ms": 98,
+    "total": 69
+  },
+  "service": "rodada-web",
+  "window": {
+    "since": "2026-10-15T14:29:00+00:00",
+    "until": "2026-10-15T14:35:24.487179410+00:00"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "http_errors": [
+    {
+      "timestamp": "2026-10-15T14:33:54.792694740Z",
+      "host": "e2ea.rodada.bar",
+      "method": "POST",
+      "path": "/api/guest/qr/resolve",
+      "httpStatus": 503,
+      "upstreamErrors": "",
+      "responseDetails": "",
+      "totalDuration": 73,
+      "deploymentId": "476c096a-47df-463e-9029-6f52f173211d"
+    },
+    {
+      "timestamp": "2026-10-15T14:33:56.626602626Z",
+      "host": "e2eb.rodada.bar",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "httpStatus": 503,
+      "upstreamErrors": "",
+      "responseDetails": "",
+      "totalDuration": 72,
+      "deploymentId": "476c096a-47df-463e-9029-6f52f173211d"
+    },
+    {
+      "timestamp": "2026-10-15T14:33:57.572715245Z",
+      "host": "e2eb.rodada.bar",
+      "method": "POST",
+      "path": "/api/guest/qr/resolve",
+      "httpStatus": 503,
+      "upstreamErrors": "",
+      "responseDetails": "",
+      "totalDuration": 113,
+      "deploymentId": "476c096a-47df-463e-9029-6f52f173211d"
+    },
+    {
+      "timestamp": "2026-10-15T14:33:59.856703249Z",
+      "host": "unregistered-preview.rodada.bar",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "httpStatus": 503,
+      "upstreamErrors": "",
+      "responseDetails": "",
+      "totalDuration": 51,
+      "deploymentId": "476c096a-47df-463e-9029-6f52f173211d"
+    }
+  ],
+  "app_errors": {
+    "sample_lines": 187,
+    "pattern_counts": {
+      "fetch failed": 0,
+      "ECONNREFUSED": 0,
+      "ECONNRESET": 0,
+      "ETIMEDOUT": 0,
+      "UND_ERR": 0,
+      "Traceback": 1,
+      "DisallowedHost": 2,
+      "too many clients": 0,
+      "remaining connection slots": 0,
+      "EAI_AGAIN": 0,
+      "ENOTFOUND": 0,
+      "redirect count exceeded": 0
+    },
+    "raw_logs_not_retained": true
+  }
+}

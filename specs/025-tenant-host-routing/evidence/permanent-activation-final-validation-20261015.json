@@ -1,0 +1,351 @@
+{
+  "mission": "Spec025 permanent activation final validation; no repeat of Gates1/2/3",
+  "decision": "NO-GO",
+  "decision_reason": "Mandatory exact421 edge contract failed and actual BFF503 observed. Fresh authenticated pilot controls additionally BLOCKED. No cross-tenant disclosure demonstrated by these probes.",
+  "window": {
+    "started_at": "2026-10-15T14:29:00Z",
+    "finished_at": "2026-10-15T14:36:07.269775+00:00",
+    "timezone": "America/Sao_Paulo",
+    "utc_offset": "-03:00"
+  },
+  "target": {
+    "project": "rodada-aderlan-demo-20261009",
+    "project_id": "1ca79d6a-a555-4346-b4b6-72b0a7706359",
+    "environment": "demo",
+    "environment_id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+    "service": "rodada-web",
+    "service_id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+    "deployment_id": "476c096a-47df-463e-9029-6f52f173211d",
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189"
+  },
+  "methods": [
+    "git fetch origin; isolated new worktree from origin/main; existing worktrees preserved",
+    "Railway CLI5.68.0 help/ssh help and authenticated explicit project/environment/service",
+    "Private railway ssh; reviewed preflight source injected as Python in memory because /app/scripts is absent in image; expected-sha guard",
+    "Django REPEATABLE READ READ ONLY transaction; migrations plan inspected only, never applied",
+    "Read /proc application environments; publish equality booleans only",
+    "curl TLS verification, no redirect following; empty/invalid credential probes only",
+    "Real Chromium via existing local Playwright installation, TLS validation enabled, no trace/screenshot/storage state",
+    "Bounded Railway metrics/log samples sanitized in memory; no raw log payloads retained"
+  ],
+  "initial_runtime": {
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+    "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+    "flag_exact_true": true,
+    "seed_exact_false": true,
+    "process_readback": [
+      {
+        "process": "python",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      },
+      {
+        "process": "next-server (v1",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      },
+      {
+        "process": "python",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      }
+    ],
+    "postgres_expected_private_service": true,
+    "database_configured_via_url": false,
+    "pending_migrations": 0,
+    "pilot_domain_correct": true
+  },
+  "final_runtime": {
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+    "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+    "flag_exact_true": true,
+    "seed_exact_false": true,
+    "process_readback": [
+      {
+        "process": "python",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      },
+      {
+        "process": "next-server (v1",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      },
+      {
+        "process": "python",
+        "runtime_sha_matches": true,
+        "flag_exact_true": true,
+        "seed_exact_false": true
+      }
+    ],
+    "postgres_expected_private_service": true,
+    "database_configured_via_url": false,
+    "pending_migrations": 0,
+    "pilot_domain_correct": true
+  },
+  "business_integrity": {
+    "table_groups_compared": 43,
+    "all_equal": true,
+    "changed_groups": [],
+    "raw_rows_and_fingerprints_not_published": true
+  },
+  "preflight_initial": {
+    "observed_at": "2026-10-15T14:31:32.832702+00:00",
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+    "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+    "seed_off": true,
+    "tenant_ui_flag_off": false,
+    "hmac_present": true,
+    "hmac_minimum_policy_valid": true,
+    "hmac_distinct_from_django_secret": true,
+    "cash_scope": "Read-only historical counts; no amounts, payment IDs or customer data. Confirmed-money statuses include refunded/partially-refunded payments. No repair.",
+    "transaction_read_only": true,
+    "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "current_table_count": 95,
+    "qa": [
+      {
+        "host": "e2ea.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      }
+    ],
+    "qa_financial_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0
+    },
+    "historical_cash_by_venue": [
+      {
+        "venue": "pilot_aderlan",
+        "confirmed_money_count": 1,
+        "confirmed_only_count": 1,
+        "missing_movement_count": 0,
+        "foreign_movement_venue_count": 0,
+        "unexpected_movement_kind_count": 0
+      }
+    ],
+    "historical_cash_gap_count": 0,
+    "financial_inspection_completed": true,
+    "historical_reconciliation_not_performed": true
+  },
+  "preflight_final": {
+    "observed_at": "2026-10-15T14:34:33.793610+00:00",
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+    "deployment": "476c096a-47df-463e-9029-6f52f173211d",
+    "seed_off": true,
+    "tenant_ui_flag_off": false,
+    "hmac_present": true,
+    "hmac_minimum_policy_valid": true,
+    "hmac_distinct_from_django_secret": true,
+    "cash_scope": "Read-only historical counts; no amounts, payment IDs or customer data. Confirmed-money statuses include refunded/partially-refunded payments. No repair.",
+    "transaction_read_only": true,
+    "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "current_table_count": 95,
+    "qa": [
+      {
+        "host": "e2ea.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      }
+    ],
+    "qa_financial_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0
+    },
+    "historical_cash_by_venue": [
+      {
+        "venue": "pilot_aderlan",
+        "confirmed_money_count": 1,
+        "confirmed_only_count": 1,
+        "missing_movement_count": 0,
+        "foreign_movement_venue_count": 0,
+        "unexpected_movement_kind_count": 0
+      }
+    ],
+    "historical_cash_gap_count": 0,
+    "financial_inspection_completed": true,
+    "historical_reconciliation_not_performed": true
+  },
+  "scenarios": [
+    {
+      "scenario": "Deployment SHA correto",
+      "result": "PASS",
+      "evidence": "SSH runtime and Python/Next process environment match active deployment and fetched origin/main."
+    },
+    {
+      "scenario": "Flag permanentemente true",
+      "result": "PASS",
+      "evidence": "Exact equality true in SSH runtime and application processes before/after."
+    },
+    {
+      "scenario": "Seed desligado",
+      "result": "PASS",
+      "evidence": "Exact equality false before/after."
+    },
+    {
+      "scenario": "HMAC",
+      "result": "PASS",
+      "evidence": "Provisioned, minimum policy valid and distinct from Django secret."
+    },
+    {
+      "scenario": "PostgreSQL operacional e migrations",
+      "result": "PASS",
+      "evidence": "PostgreSQL private service, 95 tables, 0 pending migrations; no startup failure indicators in bounded sample."
+    },
+    {
+      "scenario": "QA contido no PostgreSQL",
+      "result": "PASS",
+      "evidence": "Both domain inactive, guest blocked; 0 active memberships/unrevoked Staff/Guest sessions; financial counts zero before/after."
+    },
+    {
+      "scenario": "Aderlan HTTPS e staff",
+      "result": "PASS",
+      "evidence": "Real Chromium TLS, HTTP200 and hydrated operator form, venue title correct."
+    },
+    {
+      "scenario": "Login fresco do Aderlan",
+      "result": "BLOCKED",
+      "evidence": "No authorized reusable credential source found. Existing protected helper requires getpass on an interactive terminal. Secure source requested; no PIN guessed/reset or extracted from prior logs."
+    },
+    {
+      "scenario": "Refresh e cookies",
+      "result": "BLOCKED",
+      "evidence": "Requires fresh authenticated pilot session."
+    },
+    {
+      "scenario": "Mesas/comandas/catálogo",
+      "result": "BLOCKED",
+      "evidence": "Authenticated reads require fresh session."
+    },
+    {
+      "scenario": "SSE e reconnect",
+      "result": "BLOCKED",
+      "evidence": "Requires fresh authenticated session."
+    },
+    {
+      "scenario": "Módulos Atendimento/Bar/Cozinha/Caixa/Gerência",
+      "result": "BLOCKED",
+      "evidence": "Authenticated navigation not executed without operator credential; HTTP200 anonymous pages are not accepted as authentication proof."
+    },
+    {
+      "scenario": "QR Guest",
+      "result": "BLOCKED",
+      "evidence": "No valid active QR supplied through authorized secure flow. No token generated/extracted and no occupancy created."
+    },
+    {
+      "scenario": "Logout e replay revogado",
+      "result": "BLOCKED",
+      "evidence": "No authenticated session created; existing user sessions not touched."
+    },
+    {
+      "scenario": "QA A — HTTP421",
+      "result": "FAIL",
+      "evidence": "Root/staff404, missing-proof Guest401; QR with invalid selector503. Manifest/context/login421."
+    },
+    {
+      "scenario": "QA B — HTTP421",
+      "result": "FAIL",
+      "evidence": "Root/staff404, missing-proof Guest401; invalid refresh cookie and QR503. Manifest/context/login421."
+    },
+    {
+      "scenario": "Host desconhecido — HTTP421",
+      "result": "FAIL",
+      "evidence": "Root/staff404, missing-proof Guest401; invalid refresh cookie503. Manifest/context/login421; raw Django refresh400."
+    },
+    {
+      "scenario": "Integridade de dados",
+      "result": "PASS",
+      "evidence": "43 business table fingerprints identical across before/after; QA financial counts0; no operational write commands."
+    },
+    {
+      "scenario": "Integridade operacional",
+      "result": "FAIL",
+      "evidence": "Four HTTP503 confirmed in Railway request logs during invalid-proof negative probes. Health/ready200 does not override them."
+    }
+  ],
+  "diagnosis": {
+    "root404_layer": "Application Next proxy: apps/web/proxy.ts returns404 when readVenueContext fails; with flagtrue initial flag-off421 guard no longer applies. Root also uses notFound. Browser confirmed no pilot fallback.",
+    "guest401_layer": "Application BFF apps/web/app/api/guest/[...path]/route.ts rejects missing selector before upstream host resolution.",
+    "refresh_route_correction": "/api/auth/refresh is not a registered BFF route; its404 is recorded but excluded from valid refresh acceptance. Actual BFF refresh is GET/api/auth/me with refresh cookie; native API POST/auth/refresh/.",
+    "503_layer": "Application BFF JSON UPSTREAM_UNAVAILABLE; four matching503 in Railway HTTP logs for active deployment. Generic catch in auth-gateway / guest forwarding maps upstream failure to503. Transport root cause not established by available logs. No claim Cloudflare generated these JSON errors.",
+    "raw_unknown400": "Native Django unknown-host ALLOWED_HOSTS rejection, supported by DisallowedHost log pattern. Distinct from BFF421 requirement.",
+    "containment": "No confirmed isolation incident; no automatic rollback or infrastructure mutation performed.",
+    "public_browser_hydration": "Initial DOMContentLoaded sample checked label too early; follow-up waited networkidle+2s and found title Rodada — Bar do Aderlan, operator label count1, no Cloudflare challenge. Initial false form field is not evidence of missing login form."
+  },
+  "safety": {
+    "infrastructure_mutations": false,
+    "seed_restore_migrations_provisioning_executed": false,
+    "financial_test_writes": false,
+    "orders_payments_refunds_occupancies_created": false,
+    "qa_activated": false,
+    "existing_sessions_revoked": false,
+    "authenticated_test_sessions_created": 0,
+    "secrets_retained_in_artifacts": false
+  },
+  "railway_final_state": {
+    "web_postgres_landing": "Online,1 running replica each",
+    "pending_staged_or_applying_work": false,
+    "recent_deployment_failures": 0,
+    "deployment_unchanged": true,
+    "sha_unchanged": true,
+    "flag_exact_true": true,
+    "seed_exact_false": true,
+    "source": "Railway environment_status/get_staged_changes plus CLI deployment list and SSH"
+  },
+  "limitations": [
+    "Only fresh tests count; prior pilot login evidence is not reused as post-activation acceptance.",
+    "Authenticated positive/cross-host session controls remain unproven without secure credential access.",
+    "QR is not the only blocked scenario, so QR-only acceptance exception cannot apply.",
+    "No continuous SLA claim; metrics windows and bounded log samples are explicitly recorded.",
+    "No code fix/redeploy performed; regression needs separate engineering change."
+  ],
+  "evidence_files": [
+    "permanent-activation-5xx-diagnosis-20261015.json",
+    "permanent-activation-browser-anonymous-20261015.json",
+    "permanent-activation-final-health-20261015.json",
+    "permanent-activation-final-metrics-20261015.json",
+    "permanent-activation-final-runtime-20261015.json",
+    "permanent-activation-http-20261015.json",
+    "permanent-activation-http-diagnosis-20261015.json",
+    "permanent-activation-initial-runtime-20261015.json",
+    "permanent-activation-observability-20261015.json"
+  ]
+}

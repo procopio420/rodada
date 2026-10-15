@@ -1,0 +1,78 @@
+{
+  "method": "real headless Chromium Playwright; TLS verification enabled; anonymous only",
+  "results": [
+    {
+      "url": "https://bardoaderlan.rodada.bar/",
+      "status": 200,
+      "final_host": "bardoaderlan.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://bardoaderlan.rodada.bar/staff",
+      "status": 200,
+      "final_host": "bardoaderlan.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://e2ea.rodada.bar/",
+      "status": 404,
+      "final_host": "e2ea.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://e2ea.rodada.bar/staff",
+      "status": 404,
+      "final_host": "e2ea.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://e2eb.rodada.bar/",
+      "status": 404,
+      "final_host": "e2eb.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://e2eb.rodada.bar/staff",
+      "status": 404,
+      "final_host": "e2eb.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/",
+      "status": 404,
+      "final_host": "unregistered-preview.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    },
+    {
+      "url": "https://unregistered-preview.rodada.bar/staff",
+      "status": 404,
+      "final_host": "unregistered-preview.rodada.bar",
+      "pilot_name_present": false,
+      "operator_form": false,
+      "tls_validated": true
+    }
+  ],
+  "hydrated_staff_followup": {
+    "url": "https://bardoaderlan.rodada.bar/staff",
+    "http_status": 200,
+    "wait": "networkidle plus2000ms",
+    "title": "Rodada \u2014 Bar do Aderlan",
+    "operator_label_count": 1,
+    "cloudflare_challenge": false,
+    "credential_submitted": false
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "initial_http_5xx": {
+    "matching_rows": 0,
+    "exit": 0,
+    "raw_logs_not_retained": true
+  },
+  "startup": {
+    "sample_lines": 198,
+    "traceback_count": 0,
+    "error_5xx_log_matches": 0,
+    "startup_failure_indicators": {
+      "failed to start": false,
+      "migration failed": false,
+      "address already in use": false,
+      "No migrations to apply": true
+    },
+    "raw_logs_not_retained": true
+  },
+  "initial_metrics": {
+    "deployments": [
+      {
+        "created_at": "2026-10-15T14:12:33.878+00:00",
+        "id": "476c096a-47df-463e-9029-6f52f173211d",
+        "status": "SUCCESS"
+      },
+      {
+        "created_at": "2026-10-15T14:06:44.321+00:00",
+        "id": "ffd1024a-a07a-4cf4-83e5-409faf9baa9b",
+        "status": "REMOVED"
+      },
+      {
+        "created_at": "2026-10-15T14:02:34.027+00:00",
+        "id": "82c841e3-d8a1-44b3-a8e8-823a138922b2",
+        "status": "REMOVED"
+      },
+      {
+        "created_at": "2026-10-15T13:53:19.882+00:00",
+        "id": "6a5facab-605d-46c7-90bb-f1e549374ad7",
+        "status": "REMOVED"
+      },
+      {
+        "created_at": "2026-10-15T13:31:49.205+00:00",
+        "id": "09536564-28fc-4f0e-a54b-97856de54fbc",
+        "status": "REMOVED"
+      }
+    ],
+    "environment": "demo",
+    "http": {
+      "2xx": 122,
+      "3xx": 19,
+      "4xx": 63,
+      "5xx": 3,
+      "error_rate": 1.4492753623188406,
+      "p50_ms": 81,
+      "p90_ms": 116,
+      "p95_ms": 132,
+      "p99_ms": 142,
+      "total": 207
+    },
+    "service": "rodada-web",
+    "window": {
+      "since": "2026-10-15T13:33:57.846480632+00:00",
+      "until": "2026-10-15T14:34:00.794702925+00:00"
+    }
+  },
+  "at": "2026-10-15T14:34:01.337056+00:00"
+}
