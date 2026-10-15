@@ -4,7 +4,7 @@ import { defineConfig } from "@playwright/test";
 // fixture runner. The Android workflow owns the *same* PostgreSQL/Django stack.
 export default defineConfig({
   testDir: "./tests/cross-surface",
-  testMatch: "android-native-to-web.spec.ts",
+  testMatch: "*.spec.ts",
   workers: 1,
   fullyParallel: false,
   forbidOnly: true,
@@ -17,6 +17,6 @@ export default defineConfig({
     locale: "pt-BR",
     timezoneId: "America/Sao_Paulo",
     viewport: { width: 390, height: 844 },
-    trace: "retain-on-failure",
+    trace: "on",
   },
 });

@@ -54,3 +54,23 @@ transport instrumentation does not by itself prove ordering via Compose UI.
 The complete #106 release suite remains incomplete; see the
 [checkpoint](releases/issue-106-checkpoint.md). Never start the Web-only fixture
 runner to validate the native order: it seeds a different database.
+
+### #106 local continuation (2026-10-15)
+
+The cross-surface stack now starts Django with Uvicorn/ASGI: WSGI runserver
+cannot sustain the asynchronous realtime stream required by the native UI.
+After the HTTP/storage recovery checks, `android-compose-order.sh` installs a
+Debug APK targeting that same local backend on 8101 and drives production
+MainActivity login/open/catalog/confirmation via Compose instrumentation.
+The runner clears only the test app on an explicitly verified emulator, then
+runs independent PostgreSQL reconciliation. It never selects a release build.
+The browser consumes both native receipts and drives explicit Bar transitions;
+QR-first/claim/two empty Tabs/release/cleaning are separate browser actions on
+the same fixture Venue and PostgreSQL. These partial slices do not certify
+all E2E-01..14, Kitchen, financial UI or physical gates.
+
+Successful traces are retained. Only archives exported by
+`scripts/sanitize-cross-surface-traces.py` are uploaded, with credentials/PIN
+redacted; raw traces remain local. Review the sanitized archive before treating
+it as shareable evidence. Scenario completion still requires actual execution
+at the reported SHA and the fail-closed #106 evidence contract.

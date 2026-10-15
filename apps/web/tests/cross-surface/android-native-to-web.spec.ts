@@ -13,7 +13,9 @@ type NativeProof = {
   order_items: number;
   charges: number;
   payments: number;
-  original_key_preserved: boolean;
+  original_key_preserved?: boolean;
+  native_ui?: string;
+  tab_label?: string;
 };
 
 type TabDetail = {
@@ -35,10 +37,10 @@ async function readCanonicalTab(page: Page, id: string): Promise<TabDetail> {
   return result.body as TabDetail;
 }
 
-test("native Android committed POST, offline replay, then real Web Bar production on the identical Tab", async ({ page }) => {
+for (const source of ["recovery", "compose"] as const) test(`native Android ${source}, then real Web Bar production on the identical Tab`, async ({ page }) => {
   // Produced exclusively by the real Android instrumentation + PostgreSQL SQL verifier.
   // This suite MUST NOT generate a mock receipt or a browser-originated order.
-  const receiptPath = process.env.RODADA_ANDROID_PROOF;
+  const receiptPath = source === "recovery" ? process.env.RODADA_ANDROID_PROOF : process.env.RODADA_ANDROID_COMPOSE_PROOF;
   expect(receiptPath, "Run scripts/android-live-post-drop.sh before this browser gate").toBeTruthy();
   const receipt = JSON.parse(await readFile(path.resolve(receiptPath!), "utf8")) as NativeProof;
   expect(receipt).toMatchObject({
@@ -47,8 +49,10 @@ test("native Android committed POST, offline replay, then real Web Bar productio
     order_items: 1,
     charges: 1,
     payments: 0,
-    original_key_preserved: true,
+
   });
+  if (source === "recovery") expect(receipt.original_key_preserved).toBe(true);
+  else expect(receipt.native_ui).toBe("production MainActivity Compose");
   expect(receipt.original_order_id).toBeTruthy();
   expect(receipt.original_tab_id).toBeTruthy();
   expect(receipt.database).toBe("rodada_android_post_drop");
@@ -75,7 +79,8 @@ test("native Android committed POST, offline replay, then real Web Bar productio
   // Exercise the actual Web station UI against the same persisted Android order.
   await page.goto("/bar");
   await expect(page.getByText("Android Post Drop Test Soda", { exact: true }).first()).toBeVisible();
-  const start = page.getByRole("button", { name: /^Iniciar preparo:.*Android TCP reset acceptance$/ }).first();
+  const label = receipt.tab_label ?? "Android TCP reset acceptance";
+  const start = page.getByRole("button", { name: new RegExp(`^Iniciar preparo:.*${label}$`) }).first();
   await expect(start).toBeVisible();
   await start.click();
 
@@ -84,7 +89,7 @@ test("native Android committed POST, offline replay, then real Web Bar productio
     return detail.orders[0].items[0].state;
   }).toBe("PREPARING");
 
-  const ready = page.getByRole("button", { name: /^Pronto:.*Android TCP reset acceptance$/ }).first();
+  const ready = page.getByRole("button", { name: new RegExp(`^Pronto:.*${label}$`) }).first();
   await expect(ready).toBeVisible();
   await ready.click();
   await expect.poll(async () => {

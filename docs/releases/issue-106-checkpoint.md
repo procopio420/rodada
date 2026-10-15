@@ -63,3 +63,37 @@ verified; inspect before any integration.
 ## First CI feedback
 
 Run [38748983538](https://github.com/procopio420/rodada/actions/runs/38748983538), head `20c8cfac`: PostgreSQL 17.11 migrations PASS; guard tests PASS; fixture preparation FAIL because the service reports its Docker bridge IP, not host loopback. Android/browser steps SKIPPED after this failure. Correction records the exact inspected disposable service container IP in GITHUB_ENV and accepts only that address in CI, while the configured client destination remains loopback. A different private server still fails the regression. No integrated PASS claimed.
+
+## Local recovery — 2026-10-15 (continuation, not closure)
+
+Base `5a53326d`, isolated `test/106-local-resume`, draft PR #191. All existing
+worktrees and uncommitted changes preserved. #186 contains 59 incidental
+API/Android/Web/spec029 files introduced by bc48f2ef; only its four evidence
+files are included here. #185 merged locally without conflicts. The original
+PR branches are preserved, no merge/deploy to main.
+
+Historical run 38751044388 at #185 `37a1c4b0`: native HTTP/storage -> Bar UI ->
+PostgreSQL PASS, actual link-cut SKIPPED. Receipts downloaded and inspected.
+Local tools: Docker 29.8.2, PostgreSQL 17.11 exclusive loopback:55606, Python
+3.13, JDK17, SDK37, API36 AVD/KVM. venv and npm lockfile installation isolated.
+Local baseline replay/force-stop, table start/open response loss, browser Bar
+and independent PostgreSQL reconciliation PASS during development. 91 JVM,
+16 PostgreSQL concurrency, 47 guest/ledger/cash domain tests PASS; these are
+not 14 integrated scenario PASSes. Two trace-redaction regressions PASS.
+
+New QR UI slice passed locally: guest-first occupancy, explicit Web claim,
+two empty Tabs, closing both does not release, explicit release/cleaning,
+old-session 403, unchanged QR token, independent SQL with zero ledger effects.
+Does not yet prove two consuming Tabs or a new visit reusing the same QR.
+New production MainActivity Compose login/open/catalog/confirm/account journey
+and raw PostgreSQL readback PASS locally after replacing WSGI runserver by
+ASGI/Uvicorn. Earlier attempts failed because the native UI remained STALE
+without continuous SSE; failures preserved locally. Android UI uses the same
+Django/DB directly, recovery tests retain the TCP fault proxy. Successful
+traces are now retained and redacted before upload. Exact final-SHA CI and
+artifact inspection remain required; development PASS is not final acceptance.
+
+Independent foundation review `/root/review_foundations`, base `5a53326d` to
+`f495a26b`: NO_FINDINGS_WITH_GAPS, all 12 files, 6+13 tests PASS. Does not cover
+subsequent Compose/QR/ASGI/trace changes; refresh required. F2/F5/F7 partial;
+A2/A4/A5 partial acceptance, remaining phases not certified. Full suite NO-GO.

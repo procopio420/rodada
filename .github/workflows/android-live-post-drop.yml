@@ -12,6 +12,11 @@ on:
       - "scripts/verify-android-web-cross-surface.py"
       - "scripts/verify-android-live-post-drop.py"
       - "scripts/cross_surface_fixture.py"
+      - "scripts/android-compose-order.sh"
+      - "scripts/verify-android-compose-order.py"
+      - "scripts/verify-qr-lifecycle.py"
+      - "scripts/sanitize-cross-surface-traces.py"
+      - "apps/attendance-android/app/src/androidTest/**/LiveComposeOrderTest.kt"
       - "scripts/tests/test_cross_surface_fixture.py"
 
 permissions:
@@ -74,7 +79,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          (cd apps/api && nohup python manage.py runserver 0.0.0.0:8101 --noreload </dev/null >/tmp/rodada-android-django.log 2>&1 &)
+          (cd apps/api && nohup python -m uvicorn rodada_api.asgi:application --host 0.0.0.0 --port 8101 </dev/null >/tmp/rodada-android-django.log 2>&1 &)
           nohup python3 scripts/android-post-drop-proxy.py \
             --evidence "$RODADA_POST_DROP_MARKER" </dev/null >/tmp/rodada-android-fault-proxy.log 2>&1 &
           for i in $(seq 1 80); do
@@ -104,6 +109,7 @@ jobs:
           script: |
             bash scripts/android-live-post-drop.sh
             bash scripts/android-table-service-post-drop.sh
+            bash scripts/android-compose-order.sh
       # The native emulator just committed and recovered the order in this
       # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
       # Web must read and mutate the native-origin Order/Tab, not a mock order.
@@ -125,6 +131,7 @@ jobs:
         env:
           RODADA_API_BASE_URL: http://127.0.0.1:8101
           RODADA_ANDROID_PROOF: ${{ github.workspace }}/artifacts/android-real-post-drop.json
+          RODADA_ANDROID_COMPOSE_PROOF: ${{ github.workspace }}/artifacts/android-compose-order.json
         run: |
           set -euo pipefail
           node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110 >/tmp/rodada-cross-surface-next.log 2>&1 &
@@ -137,7 +144,12 @@ jobs:
           done
           npx playwright test --config playwright.android-cross-surface.config.ts
       - name: Independently reconcile native order and Web READY state in PostgreSQL
-        run: python scripts/verify-android-web-cross-surface.py
+        run: |
+          python scripts/verify-android-web-cross-surface.py
+          python scripts/verify-qr-lifecycle.py
+      - name: Export redacted traces
+        if: always()
+        run: python scripts/sanitize-cross-surface-traces.py
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -146,8 +158,11 @@ jobs:
           path: |
             artifacts/android-real-post-drop.json
             artifacts/android-web-cross-surface.json
-            apps/web/test-results/android-cross-surface/
-            apps/web/playwright-report/android-cross-surface/
+            artifacts/android-compose-*.json
+            artifacts/android-compose-*.txt
+            artifacts/android-compose-*.png
+            artifacts/qr-lifecycle-*.json
+            artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json
             /tmp/rodada-android-fault-proxy.log
@@ -207,7 +222,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          (cd apps/api && nohup python manage.py runserver 0.0.0.0:8101 --noreload </dev/null >/tmp/rodada-android-django.log 2>&1 &)
+          (cd apps/api && nohup python -m uvicorn rodada_api.asgi:application --host 0.0.0.0 --port 8101 </dev/null >/tmp/rodada-android-django.log 2>&1 &)
           nohup python3 scripts/android-post-drop-proxy.py --hold-response \
             --evidence "$RODADA_POST_DROP_MARKER" </dev/null >/tmp/rodada-android-fault-proxy.log 2>&1 &
           for i in $(seq 1 80); do
