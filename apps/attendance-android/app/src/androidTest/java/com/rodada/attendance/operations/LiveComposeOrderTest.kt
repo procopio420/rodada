@@ -95,8 +95,15 @@ class LiveComposeOrderTest {
     private fun verifyRevokedTransportAndNewLogin(session: StoredSession, original: RecoveryIntent.ConfirmOrder, queue: PendingMutationIntentStore) {
         val auth = AuthHttpClient(BuildConfig.RODADA_API_BASE_URL)
         fun denied(action: () -> Unit) {
-            try { action(); error("Revoked credentials unexpectedly accepted") }
-            catch (rejected: AuthApiException) { check(rejected.status in listOf(401, 403)) }
+            val deadline = android.os.SystemClock.elapsedRealtime() + 30_000
+            while (true) {
+                try { action(); error("Revoked credentials unexpectedly accepted") }
+                catch (rejected: AuthApiException) { check(rejected.status in listOf(401, 403)); return }
+                catch (transport: java.io.IOException) {
+                    check(android.os.SystemClock.elapsedRealtime() < deadline) { "Emulator route never recovered" }
+                    Thread.sleep(250)
+                }
+            }
         }
         denied { auth.me(session.tokens.accessToken) }
         denied { auth.refresh(session.tokens.refreshToken) }
