@@ -74,3 +74,11 @@ Successful traces are retained. Only archives exported by
 redacted; raw traces remain local. Review the sanitized archive before treating
 it as shareable evidence. Scenario completion still requires actual execution
 at the reported SHA and the fail-closed #106 evidence contract.
+
+Local execution of those shared-client slices is documented in
+`docs/releases/issue-106-local-runner.md`. Receipts also bind to a hash of the
+actual PostgreSQL cluster system_identifier and database, not just its name.
+Runner captures are isolated per invocation and preserve previous evidence.
+Repository workflows inspected on 2026-10-15 contain a Railway Docker build/smoke
+job, not an application deploy action. This does not verify Railway's external
+GitHub autodeploy setting; no merge/deploy is authorized by those checks.

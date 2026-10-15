@@ -33,6 +33,7 @@ class LiveComposeOrderTest {
         waitText("Nome ou apelido (opcional)")
         compose.onNodeWithText("Nome ou apelido (opcional)").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
+        compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
             compose.onNodeWithTag("workspace-list").performScrollToNode(hasContentDescription("Adicionar $product"))
             compose.waitUntil(30_000) { compose.onAllNodes(hasContentDescription("Adicionar $product") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }

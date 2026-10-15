@@ -38,12 +38,21 @@ assert sum(movements.values_list("amount_cents", flat=True)) == shift.expected_a
 assert set(str(x) for x in movements.exclude(payment_id=None).values_list("payment_id", flat=True)) == set(r["payment_ids"])
 staff = StaffMember.objects.get(login_identifier="android-post-drop-operator")
 assert shift.opened_by_id == shift.closed_by_id == shift.reviewed_by_id == staff.pk
+assert all(p.received_by_id == staff.pk and not p.provider and not p.provider_payment_id for p in payments)
 assert shift.closed_at and shift.reviewed_at and shift.review_reason
 assert all(m.actor_id == staff.pk and m.actor_session_id for m in movements)
 events = AuditEvent.objects.filter(venue_id=f["venue_id"], entity_id=str(shift.pk), actor_staff=staff).exclude(actor_session_id=None)
 assert {"cash.shift_opened", "cash.supplied", "cash.withdrawn", "cash.count_started", "cash.shift_closed", "cash.discrepancy_reviewed"}.issubset(set(events.values_list("event_type", flat=True)))
 origins = json.loads(Path("artifacts/browser-origins.json").read_text())
 assert not Payment.objects.filter(tab_id__in=origins["tab_ids"]).exists()
+with connection.cursor() as cursor:
+    cursor.execute("SELECT coalesce(sum(c.amount_cents),0) FROM ledger_charge c JOIN ordering_tab t ON t.id=c.tab_id WHERE t.venue_id=%s", [f["venue_id"]])
+    venue_charges, = cursor.fetchone()
+    cursor.execute("SELECT coalesce(sum(p.amount_cents),0) FROM ledger_payment p JOIN ordering_tab t ON t.id=p.tab_id WHERE t.venue_id=%s AND p.status='CONFIRMED'", [f["venue_id"]])
+    venue_payments, = cursor.fetchone()
+assert r["report_totals"]["net_sales_cents"] == venue_charges
+assert r["report_totals"]["paid_cents"] == venue_payments == r["paid_cents"]
+assert r["report_totals"]["current_open_exposure_cents"] == venue_charges - venue_payments
 r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], audit_event_ids=[str(e.pk) for e in events], cash_movement_ids=[str(m.pk) for m in movements], status="PASS")
 Path("artifacts/financial-sql.json").write_text(json.dumps(r, indent=2) + "\n")
 print("PASS: partial/residual CASH test payments=2, drawer movements=5, preserved -1000 discrepancy, other Tab ledgers untouched")

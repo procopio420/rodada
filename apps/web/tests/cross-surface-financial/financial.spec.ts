@@ -42,7 +42,9 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.goto("/pos");
   await page.getByRole("button", { name: new RegExp(`^${native.tab_label} ·`) }).click();
   // Positive balance must never be closed; server rejection is visible in UI.
+  const deniedClose = page.waitForResponse(r => new URL(r.url()).pathname.replace(/\/$/, "") === `/api/pos/tabs/${native.original_tab_id}/close` && r.request().method() === "POST" && r.status() >= 400);
   await page.getByRole("button", { name: "Fechar comanda", exact: true }).click();
+  expect((await deniedClose).status()).toBe(409);
   expect((await read(`tabs/${native.original_tab_id}/`)).state).not.toBe("CLOSED");
   await page.getByLabel("Valor do pagamento", { exact: true }).fill("3,00");
   await page.getByRole("button", { name: "Receber em dinheiro", exact: true }).click();
@@ -84,9 +86,20 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   const reviewed = await read(`cash/shifts/${shiftId}/`);
   expect(reviewed.expected_at_close_cents).toBe(closed.expected_at_close_cents);
   expect(reviewed.discrepancy_cents).toBe(closed.discrepancy_cents);
+  await page.goto("/manage");
+  await expect(page.getByRole("heading", { name: "O que precisa de atenção", exact: true })).toBeVisible();
+  await page.goto("/reports");
+  await expect(page.getByRole("heading", { name: "Relatórios operacionais", exact: true })).toBeVisible();
+  await page.getByLabel("De", { exact: true }).fill(closed.business_date);
+  await page.getByLabel("Até", { exact: true }).fill(closed.business_date);
+  await page.getByRole("button", { name: "Aplicar período", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Exportar CSV", exact: true })).toBeEnabled();
+  const report = await read(`management/reports/?start=${closed.business_date}&end=${closed.business_date}`);
+  expect(report.totals.paid_cents).toBe(before.exposure_cents);
+  expect(report.totals.refunds_cents).toBe(0);
   await writeFile("../../artifacts/financial-browser.json", JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), status: "PASS", test_only: true,
     tab_id: native.original_tab_id, payment_ids: paid.payments.map((p: { id: string }) => p.id), shift_id: shiftId,
-    paid_cents: before.exposure_cents, expected_cents: expected, discrepancy_cents: -1000,
+    business_date: closed.business_date, report_totals: report.totals, paid_cents: before.exposure_cents, expected_cents: expected, discrepancy_cents: -1000,
   }, null, 2));
 });
