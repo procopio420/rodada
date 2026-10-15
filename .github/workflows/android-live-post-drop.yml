@@ -135,6 +135,7 @@ jobs:
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
           script: |
             set -o pipefail
+            mkdir -p artifacts
             bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrumentation.txt
             bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-instrumentation.txt
             bash scripts/android-compose-order.sh
