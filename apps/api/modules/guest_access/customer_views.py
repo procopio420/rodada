@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .customer_identity import (
-    INVALID_CREDENTIALS, claim_customer_tab, customer_context, login_customer,
+    INVALID_CREDENTIALS, change_customer_password, claim_customer_tab, customer_context, login_customer,
     logout_customer, register_customer,
 )
 from .services import GuestAccessError
@@ -120,3 +120,28 @@ class CustomerLogoutView(APIView):
         except GuestAccessError as error:
             return _error_response(error)
         return Response({"authenticated": False})
+
+
+class PasswordRotateInput(serializers.Serializer):
+    old_password = serializers.CharField(min_length=1, max_length=128, trim_whitespace=False)
+    new_password = serializers.CharField(min_length=12, max_length=128, trim_whitespace=False)
+
+
+class CustomerPasswordRotateView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        limited = _rate_limit(request, "mutation")
+        if limited:
+            return limited
+        data = PasswordRotateInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        try:
+            token = change_customer_password(
+                guest_token=_session_token(request),
+                auth_token=request.headers.get("X-Customer-Session", ""),
+                **data.validated_data,
+            )
+        except GuestAccessError as error:
+            return _error_response(error)
+        return Response({"authenticated": True, "customer_auth_token": token})
