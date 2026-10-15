@@ -6,14 +6,14 @@ from rest_framework.test import APIClient
 
 from modules.audit.models import AuditEvent
 from modules.guest_access.customer_identity import (
-    claim_customer_tab, customer_context, login_customer, logout_customer,
+    change_customer_password, claim_customer_tab, customer_context, login_customer, logout_customer,
     register_customer,
 )
 from modules.guest_access.models import CustomerAuthSession, CustomerCredential
 from modules.guest_access.services import (
     GuestAccessError, create_or_get_guest_tab, resolve_table_qr,
 )
-from modules.hospitality.models import GuestOrderingMode, Table, TableOccupancy
+from modules.hospitality.models import GuestOrderingMode, Table, TableOccupancy, TabOccupancyAssignment
 from modules.house_account.models import Customer, Relationship
 from modules.ordering.models import Order, Tab
 from modules.venue.models import Venue
@@ -177,3 +177,47 @@ class GuestCustomerIdentityTests(TestCase):
         logout = client.post("/guest/customer/logout/", {}, format="json",
             HTTP_X_GUEST_SESSION=resolution.token, HTTP_X_CUSTOMER_SESSION=proof)
         assert logout.status_code == 200
+
+    def test_password_rotation_revokes_all_profile_sessions(self):
+        first, tab = self.prepared()
+        customer, first_auth = self.enroll(first.token)
+        second = self.resolve()
+        _matched, second_auth = login_customer(
+            guest_token=second.token, username="ana_01",
+            password="passphrase-strong-2026",
+        )
+        replacement = change_customer_password(
+            guest_token=first.token, auth_token=first_auth,
+            old_password="passphrase-strong-2026",
+            new_password="rotated-strong-passphrase-2026",
+        )
+        for token, proof in [(first.token, first_auth), (second.token, second_auth)]:
+            with self.assertRaises(GuestAccessError) as revoked:
+                customer_context(guest_token=token, auth_token=proof)
+            assert revoked.exception.code == "CUSTOMER_AUTH_REVOKED"
+        assert customer_context(guest_token=first.token, auth_token=replacement)["authenticated"]
+        failed, _ = login_customer(
+            guest_token=first.token, username="ana_01",
+            password="passphrase-strong-2026",
+        )
+        assert failed is None
+        matched, fresh = login_customer(
+            guest_token=first.token, username="ana_01",
+            password="rotated-strong-passphrase-2026",
+        )
+        assert matched.id == customer.id
+        assert customer_context(guest_token=first.token, auth_token=fresh)["authenticated"]
+        assert AuditEvent.objects.filter(event_type="guest_customer.password_changed").count() == 1
+        tab.refresh_from_db()
+        assert tab.customer_id == customer.id
+
+    def test_claim_rechecks_occupancy_assignment_after_staff_move(self):
+        first, tab = self.prepared()
+        customer, proof = self.enroll(first.token)
+        TabOccupancyAssignment.objects.filter(tab=tab).update(released_at=timezone.now())
+        with self.assertRaises(GuestAccessError) as stale:
+            claim_customer_tab(
+                guest_token=first.token, auth_token=proof, target_tab_id=tab.id,
+            )
+        assert stale.exception.code == "TAB_NOT_IN_VISIT"
+        assert tab.customer_id is None or Customer.objects.filter(pk=customer.pk).exists()
