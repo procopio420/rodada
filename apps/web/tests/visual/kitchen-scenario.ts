@@ -30,6 +30,9 @@ export const kitchenScenario = {
     product_name: products.find(product => product.id === productId)!.name,
     tab_label: tab, quantity, state, created_at: timestamp(age),
     ready_at: readyAge === null ? null : timestamp(readyAge),
+    customization_snapshot: { product_id: productId, fulfillment_station: "KITCHEN",
+      base_price_cents: 100, unit_price_cents: 100, quantity, line_total_cents: quantity * 100,
+      variant: null, modifiers: [], special_instructions: "" },
   })),
 };
 export const waitingItems = kitchenScenario.items.filter(item => ["NEW", "ACCEPTED", "PREPARING"].includes(item.state));
@@ -45,7 +48,8 @@ export async function kitchenFixture(page: Page, station: "KITCHEN" | "BAR" = "K
   await page.clock.pauseAt(new Date(now));
   await page.route(`**/api/pos/production/${station}/`, route => {
     expect(route.request().method()).toBe("GET");
-    return route.fulfill({ json: { results: kitchenScenario.items } });
+    return route.fulfill({ json: { results: kitchenScenario.items.map(item => ({ ...item,
+      customization_snapshot: { ...item.customization_snapshot, fulfillment_station: station } })) } });
   });
   await page.route("**/api/pos/catalog/products/", route => route.fulfill({ json: { results: products.map(product => ({
     id: product.id, name: product.name, active: true, price_cents: 100, // test DTO only; price is outside compared regions

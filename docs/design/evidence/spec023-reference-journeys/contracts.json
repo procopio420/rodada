@@ -1,7 +1,10 @@
 {
   "spec": "023",
   "scope": "V01 reference states; no product parity approval",
-  "base": "45c4742b3de4e6a21ed607342f75e53e18b07d7d",
+  "base": "7ac9389b4f0fc73021536fdce607f64ab3bbc1a3",
+  "dirty": true,
+  "measuredAt": "2026-10-13T20:51:56.854Z",
+  "referenceInventoryBase": "45c4742b3de4e6a21ed607342f75e53e18b07d7d",
   "environment": {
     "os": "win32",
     "node": "v24.19.0",
@@ -1909,8 +1912,8 @@
         }
       ],
       "screenshot": "night-07.png",
-      "sha256": "6f13b8fe3c9b7ed0aa8132650e7a3e07f0f3f2e6e1eb16ca13717e75ffd2ebaf",
-      "repeatedSha256": "6f13b8fe3c9b7ed0aa8132650e7a3e07f0f3f2e6e1eb16ca13717e75ffd2ebaf",
+      "sha256": "3a8a6d27ce4559caa34fd524ca8970e067215a2836098946caceeb3f201b6c8b",
+      "repeatedSha256": "3a8a6d27ce4559caa34fd524ca8970e067215a2836098946caceeb3f201b6c8b",
       "fixture": "literal export; simulated only"
     },
     {

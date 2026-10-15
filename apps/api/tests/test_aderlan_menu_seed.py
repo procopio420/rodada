@@ -3,6 +3,8 @@ import io
 from django.core.management import call_command
 from django.test import TestCase
 
+from modules.catalog.management.commands.import_catalog_csv import read_products
+from modules.catalog.management.commands.seed_demo_catalog import MENU_CSV
 from modules.catalog.models import FulfillmentStation, Product
 from modules.venue.models import Venue
 
@@ -22,6 +24,12 @@ class AderlanMenuSeedTests(TestCase):
         assert products.count() == 143
         assert products.filter(fulfillment_station=FulfillmentStation.BAR).count() == 112
         assert products.filter(fulfillment_station=FulfillmentStation.KITCHEN).count() == 31
+        for row in read_products(MENU_CSV):
+            product = products.get(normalized_name=row["normalized_name"])
+            assert product.name == row["name"]
+            assert product.price_cents == row["price_cents"]
+            assert product.category == row["category"]
+            assert product.fulfillment_station == row["fulfillment_station"]
         cases = [
             ("Camarão com Catupiry", 2500, FulfillmentStation.KITCHEN),
             ("Arroz Negro com Frutos do Mar", 3500, FulfillmentStation.KITCHEN),

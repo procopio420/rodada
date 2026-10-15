@@ -14,7 +14,7 @@ def run_profile(**overrides):
            "RODADA_BFF_HOST_SECRET": SECRET,
            "RODADA_ENABLE_TENANT_HOST_UI": "false", "RODADA_DEMO_SEED_ON_START": "true",
            "DJANGO_DEBUG": "false", "RODADA_PAYMENT_SIMULATION": "false", **overrides}
-    return subprocess.run(["bash", "-c", 'source "$1"; printf "%s %s %s" "$RODADA_RELEASE_MODE" "$DJANGO_DEBUG" "$RODADA_PAYMENT_SIMULATION"', "test", str(PROFILE)], env=env, capture_output=True, text=True, check=False)
+    return subprocess.run([os.environ.get("RODADA_TEST_BASH", "bash"), "-c", 'source "$1"; printf "%s %s %s" "$RODADA_RELEASE_MODE" "$DJANGO_DEBUG" "$RODADA_PAYMENT_SIMULATION"', "test", str(PROFILE)], env=env, capture_output=True, text=True, check=False)
 
 
 @pytest.mark.parametrize("overrides", [

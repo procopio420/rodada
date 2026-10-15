@@ -28,3 +28,7 @@ O Bar do Aderlan já possui cardápio publicado no Canva, mas a demo usa quatro 
 
 ## Integração
 `Product`, `ProductIcon`, `Venue` e APIs atuais são fonte única de verdade. Seed demo existente continua provisionando o Venue; o arquivo revisado complementa/atualiza seus produtos.
+
+## Integração de 13/10/2026
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.

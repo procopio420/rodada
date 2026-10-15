@@ -1,0 +1,10 @@
+{
+  "sourceRevision": "7ccddbf089ec3655beb022d1818976f48f76c831",
+  "artifact": "rodada-attendance-spec023-024-debug.apk",
+  "sha256": "5d04b133f29e66542be9a71f295c0290f115eacf0c1c76040da50c7f84ac7a83",
+  "bytes": 13429445,
+  "buildType": "DEBUG",
+  "endpoint": "http://10.0.2.2:8144/",
+  "intendedUse": "isolated emulator review",
+  "productionApproved": false
+}

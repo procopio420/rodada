@@ -1,0 +1,17 @@
+{
+  "source": "original runner launch -W and immediate pidof; no launch retry",
+  "current_attempts": [
+    {
+      "attempt": "launch-4.txt",
+      "launch_status_ok": true,
+      "immediate_pid_present": true,
+      "pid": 16950
+    },
+    {
+      "attempt": "launch-5.txt",
+      "launch_status_ok": true,
+      "immediate_pid_present": true,
+      "pid": 17047
+    }
+  ]
+}

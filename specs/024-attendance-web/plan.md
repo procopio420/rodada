@@ -8,3 +8,7 @@ Keep read freshness and command outcome separate; reconcile conflicts via GET.
 Reuse panel/notice/actions/button tokens. Add deterministic ownership, lost-response,
 stale and mobile accessibility coverage. Record missing exact-context contract as a
 backend dependency instead of inventing a label-based link.
+
+## Integração de 13/10/2026
+
+Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.

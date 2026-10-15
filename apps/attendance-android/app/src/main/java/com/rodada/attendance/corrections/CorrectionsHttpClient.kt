@@ -1,6 +1,7 @@
 package com.rodada.attendance.corrections
 
 import com.rodada.attendance.operations.OperationsApiException
+import com.rodada.attendance.auth.AuthApiException
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -66,10 +67,13 @@ class CorrectionsHttpClient(baseUrl: String) {
                 ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             if (status !in 200..299) {
                 val error = raw.takeIf(String::isNotBlank)?.let(::JSONObject)
+                val code = error?.optString("code").orEmpty().ifBlank { "HTTP_$status" }
+                val message = error?.optString("message").orEmpty().ifBlank { "Falha ao corrigir item." }
+                if (status == 401 || code == "ACCESS_TOKEN_EXPIRED") throw AuthApiException(status, code, message)
                 throw OperationsApiException(
                     status,
-                    error?.optString("code").orEmpty().ifBlank { "HTTP_$status" },
-                    error?.optString("message").orEmpty().ifBlank { "Falha ao corrigir item." },
+                    code,
+                    message,
                 )
             }
             return JSONObject(raw)
