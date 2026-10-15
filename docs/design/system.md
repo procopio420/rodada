@@ -145,6 +145,26 @@ Não criar um novo raio, sombra ou espaçamento para cada feature.
 
 ## Componentes canônicos
 
+### Atendimento mobile — experimento Spec 029
+
+Em `/attendance`, Mesas usa grade de duas colunas no mobile e três a partir de
+768px; detalhes expandidos ocupam a linha inteira. Número, ícone e estado textual
+acompanham a cor: disponível/success, ocupada/info, limpeza/warning e fora de
+serviço/danger. Busca e filtros por estado não alteram dados operacionais.
+
+Mesas e comandas formam uma área única. A criação parte da mesa; selecionar Tab
+abre sheet grande com título identificável, saldo e catálogo. ActionDialog pode
+ficar fechado sem desmontar o workspace, preservando drafts. Cardápio, Pedido atual
+e Conta são regiões exclusivas nesse sheet; a barra de navegação/resumo permanece
+alcançável enquanto os produtos rolam e Voltar fica fora da área de rolagem.
+ProductIcon, Field, botões e BillSummary continuam canônicos. Quantidade e
+personalização aparecem junto do produto; configurações múltiplas exigem revisão
+para reduzir uma linha específica. O pedido mostra “não enviado”; valores
+registrados vêm da API, e preço confirmado usa snapshot histórico. Histórico e
+ações especiais ficam sob demanda; Escape e retorno conservam foco/rascunho,
+com saída bloqueada enquanto houver operação pendente. Contrato experimental:
+`specs/029-attendance-mobile-design`; não é declaração de implantação global.
+
 ### AppShell
 
 Container da superfície. Define largura, safe area e padding. No mobile de staff, prioriza 360–520 px; no desktop pode expandir sem alterar hierarquia.

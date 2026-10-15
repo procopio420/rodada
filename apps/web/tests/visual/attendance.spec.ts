@@ -111,6 +111,7 @@ for (const width of [360, 390, 430, 1280]) {
     await expect(page.getByRole("button", { name: "Fechar comanda", exact: true })).toBeDisabled();
     await layoutAndA11y(page);
     await page.getByRole("button", { name: "Mesas", exact: true }).click();
+    await page.getByRole("button", { name: /Mesa 24 Ocupada/ }).click();
     await expect(page.getByRole("button", { name: "Liberar mesa 24" })).toBeVisible();
     await layoutAndA11y(page);
   });
@@ -148,7 +149,7 @@ test("ambiguous order retry preserves payload after catalog changes", async ({ p
   await expect(page.getByRole("button", { name: "Sair", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Comanda de teste ·/ })).toBeDisabled();
   await expect(page.getByRole("button", { name: /Comanda selecionada Comanda de teste/ })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Abrir comanda", exact: true })).toBeDisabled();
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [] } }));
   await page.clock.runFor(15000);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();

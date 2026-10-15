@@ -6,6 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -44,7 +52,15 @@ fun TablesScreen(
     canMoveTabs: Boolean = false,
     onMoveTab: (String, TabSummary) -> Unit = { _, _ -> },
     partySizeEditor: @Composable (String) -> Unit = {},
+    onOpenStandaloneTab: () -> Unit = {},
+    onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
+    onLoadHistory: () -> Unit = {},
 ) {
+    var search by rememberSaveable { mutableStateOf("") }
+    var showHistory by rememberSaveable { mutableStateOf(false) }
+    var statusFilter by rememberSaveable { mutableStateOf("") }
+    var expandedTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var openingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var occupyingTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var openingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
     var takingOccupancy by rememberSaveable { mutableStateOf<String?>(null) }
@@ -58,21 +74,58 @@ fun TablesScreen(
     val attachedTabIds = state.tables.flatMap { it.activeOccupancy?.tabs.orEmpty() }.map { it.id }.toSet()
     var movingTabId by rememberSaveable { mutableStateOf<String?>(null) }
     val assignableTabs = state.tabs.filter { it.state !in setOf("CLOSED", "CANCELLED") && (canMoveTabs || it.id !in attachedTabIds) }
+    val visibleTables = state.tables.filter { table -> !showHistory &&
+        (statusFilter.isBlank() || table.status == statusFilter) &&
+            (search.isBlank() || listOfNotNull(table.label, table.zone?.label).any { it.contains(search, true) } ||
+                table.activeOccupancy?.tabs.orEmpty().any { it.displayLabel.contains(search, true) || it.displayReference.contains(search, true) })
+    }
+    val columns = if (LocalDensity.current.fontScale > 1.3f) 1 else 2
+    val otherTabs = (if (showHistory) state.historyTabs else state.tabs).filter {
+        (showHistory || it.id !in attachedTabIds) &&
+            (if (showHistory) it.state in setOf("CLOSED", "CANCELLED") else it.state !in setOf("CLOSED", "CANCELLED")) &&
+            it.matchesOperationalQuery(search)
+    }
+    val locked = state.loading || state.submitting || state.pendingTableService != null
 
     LazyColumn(
         modifier = Modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
-            Text("Mesas", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text("Mesa é contexto físico. Cada comanda mantém seu próprio saldo.")
+            Text("Mesas e comandas", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Escolha a mesa e abra a comanda para pedir.")
+            TextButton(onClick = { showHistory = !showHistory; if (showHistory) onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (showHistory) "Voltar às mesas" else "Histórico de comandas") }
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(search, { search = it }, label = { Text("Buscar mesa ou comanda") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                (listOf("" to "Todas") + listOf("AVAILABLE", "OCCUPIED", "DIRTY", "CLEANING", "OUT_OF_SERVICE").map { it to it.tableStatusLabel() }).forEach { (value, label) ->
+                    OutlinedButton(onClick = { statusFilter = value }, modifier = Modifier.heightIn(min = 48.dp).semantics { stateDescription = if (statusFilter == value) "Selecionado" else "Não selecionado" }) { Text(label) }
+                }
+            }
         }
         if (!canManageTables) {
             item { Text("Seu acesso atual não permite alterar ocupação ou limpeza.") }
         }
         if (state.loading && state.tables.isEmpty()) item { Text("Carregando mesas…") }
         if (!state.loading && state.tables.isEmpty()) item { Text("Nenhuma mesa cadastrada.") }
-        items(state.tables, key = { it.id }) { table ->
+        if (!showHistory && !state.loading && state.tables.isNotEmpty() && visibleTables.isEmpty()) item { Text("Nenhuma mesa encontrada. Ajuste a busca ou o estado.") }
+        items(visibleTables.chunked(columns), key = { row -> row.joinToString { it.id } }) { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                row.forEach { table ->
+                    OutlinedButton(onClick = { expandedTableId = if (expandedTableId == table.id) null else table.id }, enabled = !locked,
+                        modifier = Modifier.weight(1f).heightIn(min = 112.dp).testTag("table-${table.id}").semantics { stateDescription = if (expandedTableId == table.id) "Expandida" else "Recolhida" }) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Mesa ${table.label}", style = MaterialTheme.typography.titleLarge)
+                            Text(table.status.tableStatusLabel(), style = MaterialTheme.typography.labelSmall)
+                            table.zone?.let { Text(it.label, style = MaterialTheme.typography.bodySmall) }
+                            Text("${table.activeOccupancy?.tabs?.count { it.state !in setOf("CLOSED", "CANCELLED") } ?: 0} comandas abertas", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                if (row.size < columns) Spacer(Modifier.weight(1f))
+            }
+            row.firstOrNull { it.id == expandedTableId }?.let { table ->
+            Spacer(Modifier.height(10.dp))
             TableCard(
                 table = table,
                 busy = state.submitting || state.pendingTableService != null,
@@ -95,8 +148,31 @@ fun TablesScreen(
                 onStartCleaning = { onStartCleaning(table.id) },
                 onCompleteCleaning = { onCompleteCleaning(table.id) },
                 partySizeEditor = partySizeEditor,
+                onNewFirstTab = { newLabel = ""; showOptionalName = false; openingTableId = table.id },
             )
+            }
         }
+        item {
+            Text(if (showHistory) "Histórico de comandas" else "Outras comandas", style = MaterialTheme.typography.titleLarge)
+            if (canOpenTabs && !showHistory) OutlinedButton(onClick = onOpenStandaloneTab, enabled = !locked, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda sem mesa") }
+            if (showHistory && state.historyLoading) Text("Carregando histórico…")
+            if (showHistory && state.historyError != null) Text(state.historyError, color = MaterialTheme.colorScheme.error)
+            if (otherTabs.isEmpty() && (!showHistory || state.historyLoaded && !state.historyLoading))
+                Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
+        }
+        items(otherTabs, key = { "tab:${it.id}" }) { tab ->
+            OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !locked, modifier = Modifier.fillMaxWidth().testTag("other-tab-${tab.id}")) {
+                Column(Modifier.fillMaxWidth()) { Text(tab.operationalLabel(historical = showHistory)); Text(tab.operationalSubtitle(historical = showHistory), style = MaterialTheme.typography.bodySmall) }
+            }
+        }
+        item { Spacer(Modifier.height(24.dp)) }
+    }
+
+    openingTableId?.let { tableId ->
+        AlertDialog(onDismissRequest = { if (!locked) openingTableId = null }, title = { Text("Nova comanda na mesa ${state.tables.firstOrNull { it.id == tableId }?.label.orEmpty()}") },
+            text = { Column { Text("A mesa será ocupada junto com a abertura da comanda."); OutlinedTextField(newLabel, { newLabel = it.take(120) }, label = { Text("Nome ou apelido (opcional)") }, enabled = !locked) } },
+            confirmButton = { Button(onClick = { onOpenFirstTab(tableId, newLabel); openingTableId = null }, enabled = !locked) { Text("Abrir e pedir") } },
+            dismissButton = { TextButton(onClick = { openingTableId = null }, enabled = !locked) { Text("Cancelar") } })
     }
 
     releasingTableId?.let { tableId ->
@@ -207,6 +283,7 @@ private fun TableCard(
     onClaim: (TableOccupancy) -> Unit,
     onSelectTab: (String) -> Unit,
     partySizeEditor: @Composable (String) -> Unit,
+    onNewFirstTab: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -230,7 +307,10 @@ private fun TableCard(
             if (!canManage) return@Column
             table.activeOccupancy?.let { occupancy -> androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) } }
             when (table.status) {
-                "AVAILABLE" -> Button(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (table.tableServiceEnabled) "Iniciar atendimento" else "Ocupar mesa") }
+                "AVAILABLE" -> {
+                    if (table.tableServiceEnabled && canOpenTabs) Button(onClick = onNewFirstTab, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
+                    OutlinedButton(onClick = onOccupy, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (table.tableServiceEnabled) "Iniciar atendimento sem comanda" else "Ocupar mesa") }
+                }
                 "OCCUPIED" -> {
                     table.activeOccupancy?.let { occupancy ->
                         OutlinedButton(onClick = { onAttach(occupancy.id) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {

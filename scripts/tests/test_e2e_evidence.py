@@ -106,6 +106,19 @@ class EvidenceContractTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertEqual("NO-GO", json.loads(result.stdout)["automated_gate"])
         self.assertEqual("", result.stderr)
+        self.assertNotIn(str(self.root), result.stdout)
+
+    def test_error_reports_do_not_expose_local_paths(self):
+        self.proof["artifacts"]["independent-sql"]["path"] = "missing-file"
+        self.assertNotIn(str(self.root), json.dumps(gate.validate(self.proof, self.root, SHA)))
+        self.proof["artifacts"][str(self.root)] = {"path": "missing-file"}
+        self.proof["scenarios"][0]["id"] = str(self.root)
+        self.assertNotIn(str(self.root), json.dumps(gate.validate(self.proof, self.root, SHA)))
+        result = subprocess.run([sys.executable, str(SPEC.origin), str(self.root / "absent.json"), "--sha", SHA], capture_output=True, text=True, check=False)
+        self.assertEqual(1, result.returncode)
+        self.assertEqual("NO-GO", json.loads(result.stdout)["automated_gate"])
+        self.assertNotIn(str(self.root), result.stdout)
+        self.assertEqual("", result.stderr)
 
     def test_digest_and_traversal(self):
         (self.root / "independent-sql").write_text("tampered")

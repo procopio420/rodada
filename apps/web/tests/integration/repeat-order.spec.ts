@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import { selectExistingAttendanceTab } from "./attendance-helpers";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
@@ -27,7 +28,8 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await page.setViewportSize({ width, height: 900 }); await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468"); await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
+
+  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
   const catalog = (await api(page, "catalog/products/")).results;
   const product = catalog.find((p: { name: string }) => p.name === "Kitchen E2E item");
   const tab = await api(page, "tabs/", { display_label: `Repeat ${width}` });
@@ -37,16 +39,20 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   database(`assert Tab.objects.filter(pk='${tab.id}', venue=v).update(operating_limit_cents=5000) == 1`);
   const original = await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: `historical-${width}`, lines: [{ product_id: product.id, quantity: 1, special_instructions: "Sem sal" }] });
   database("Product.objects.filter(venue=v,name='Kitchen E2E item').update(price_cents=1200)");
-  await page.reload(); await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByRole("button", { name: new RegExp(`^Other ${width} ·`) }).click();
+  await page.reload(); 
+  await selectExistingAttendanceTab(page, `Other ${width}`);
   await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await page.getByRole("button", { name: /^Bar E2E item/ }).click();
-  await page.getByRole("button", { name: new RegExp(`^Repeat ${width} ·`) }).click();
+  await selectExistingAttendanceTab(page, `Repeat ${width}`);
   await page.getByLabel("Buscar item no cardápio").fill("Bar E2E item"); await page.getByRole("button", { name: /^Bar E2E item/ }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   const draft = page.getByRole("region", { name: "Pedido atual" });
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/^Anterior:/)).toContainText("10,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("12,00");
-  await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.locator("article")).toHaveCount(1);
+  await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
+  await expect(draft.locator("article")).toHaveCount(1);
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   await repeat.click();
   const add = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
   await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
@@ -65,8 +71,9 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   });
   await add.dblclick();
   await expect(dialog).toHaveCount(0);
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await expect(draft.locator("article")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled(); await expect(repeat).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(`historical-${width}`);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
@@ -77,7 +84,8 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("2");
   const snapshot = JSON.parse(database(`item=OrderItem.objects.get(pk='${original.items[0].id}'); print(json.dumps({'cents':item.unit_price_cents,'snapshot':item.customization_snapshot}))`));
   expect(snapshot.cents).toBe(1000); expect(snapshot.snapshot).toEqual(original.items[0].customization_snapshot);
-  await page.getByRole("button", { name: new RegExp(`^Other ${width} ·`) }).click();
+  await selectExistingAttendanceTab(page, `Other ${width}`);
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await expect(draft.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
   const untouched = await api(page, `tabs/${other.id}/`); expect(untouched.orders).toHaveLength(0); expect(untouched.exposure_cents).toBe(0);
   await page.screenshot({ path: `test-results/repeat-order-real-${width}.png`, fullPage: true });

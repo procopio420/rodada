@@ -24,5 +24,7 @@ for (const width of [360, 390, 430]) test(`compact tables expand on touch at ${w
   await expect(page.getByRole("dialog", { name: "Mover comanda", exact: true })).toBeVisible();
   await page.getByLabel("Mesa de destino").selectOption("other-visit");
   await expect(page.getByText("Confirmar: mesa 01 → mesa 03.", { exact: true })).toBeVisible();
+  await page.getByLabel("Mesa de destino").selectOption("free");
+  await expect(page.getByText("Confirmar: mesa 01 → mesa 02.", { exact: true })).toBeVisible();
   await page.screenshot({ path: `test-results/tables-mobile-${width}.png`, fullPage: true });
 });

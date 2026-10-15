@@ -64,6 +64,8 @@ Com o serviço de mesas habilitado e permissões `table.manage` + `tab.open`, a 
 
 ### B. Mesa ocupada
 
+Mover comanda também aceita mesa AVAILABLE por `MOVE_LOCATION` com `table_id`, exigindo `tab.move` e `table.manage`. Uma transação inicia a ocupação, atribui responsabilidade inicial e move a mesma Tab, preservando ledger e ocupação de origem. Replay retorna o resultado anterior mesmo quando o destino já ficou ocupado. Estados DIRTY/CLEANING/OUT_OF_SERVICE são rejeitados. UUID e motivo não são exigidos do operador.
+
 O botão “Mover comanda” abre diretamente o diálogo de movimento; nele, o operador pode selecionar outra mesa já ocupada. Usar as superfícies quentes e destaque âmbar de Contas, preservando foco e alvos de toque.
 
 No Atendimento Web móvel, Mesas apresenta uma lista compacta: nome, estado e contagem de comandas abertas. Tocar na mesa expande suas comandas e ações; os demais detalhes ficam recolhidos. Abrir comanda é a ação principal; movimentação e organização são secundárias. Não exibir UUID completo nem formulário de pessoas/motivo nessa superfície. Contagem de comandas não representa contagem exata de pessoas. Liberação continua confirmada e não encerra comandas.

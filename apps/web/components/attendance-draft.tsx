@@ -7,7 +7,7 @@ const money = (cents: number) => new Intl.NumberFormat("pt-BR", { style: "curren
 export function AttendanceDraft({ rows, locked, fresh, onQuantity, onEdit, children }: {
  rows: DraftLine[]; locked: boolean; fresh: boolean; onQuantity: (index: number, delta: number) => void; onEdit: (index: number) => void; children: React.ReactNode;
 }) {
- return <section className="attendanceDraft" aria-label="Pedido atual">
+ return <section className="attendanceDraft" aria-label="Pedido atual" tabIndex={-1} data-attendance-region="draft">
   <div className="attendanceDraftHeading"><OperationalHeading as="h2" icon="cart">Pedido atual</OperationalHeading><span className="muted">{rows.reduce((sum, row) => sum + row.quantity, 0)} itens</span></div>
   {!rows.length && <p className="muted">Selecione os itens no catálogo abaixo.</p>}
   {rows.map((row, index) => <article className="attendanceDraftLine" key={index}>

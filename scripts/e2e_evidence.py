@@ -57,7 +57,8 @@ def validate(document, root, expected_sha):
             valid_artifacts.add(key)
             kinds.add(entry["kind"])
         except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            errors.append(f"artifact {key}: {exc}")
+            reference = key if isinstance(key, str) and re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", key) else "INVALID_REFERENCE"
+            errors.append(f"artifact {reference}: invalid or unreadable evidence ({type(exc).__name__})")
     if not {"android-instrumentation", "playwright-trace", "independent-sql"}.issubset(kinds):
         errors.append("native instrumentation, Playwright trace and independent SQL artifacts required")
     records = document.get("scenarios", [])
@@ -72,7 +73,7 @@ def validate(document, root, expected_sha):
             errors.append(f"scenario {index}: must be an object")
             continue
         sid = record.get("id")
-        label = sid if isinstance(sid, str) else str(index)
+        label = sid if isinstance(sid, str) and sid in SCENARIOS else str(index)
         if not isinstance(sid, str) or sid not in SCENARIOS or sid in seen:
             errors.append(f"{label}: unknown or duplicate scenario")
         if isinstance(sid, str):
@@ -163,7 +164,7 @@ def main():
         document = json.loads(args.manifest.read_text())
         errors = validate(document, args.root or args.manifest.parent, args.sha)
     except (OSError, RuntimeError, ValueError, TypeError) as exc:
-        errors = [f"unreadable or malformed evidence: {exc}"]
+        errors = [f"unreadable or malformed evidence ({type(exc).__name__})"]
     print(json.dumps({"sha": args.sha, "automated_gate": "NO-GO" if errors else "GO", "errors": errors, "physical_signoff": {item: "NOT_VERIFIED" for item in PHYSICAL}, "limitation": "Offline contract/digest verification; trusted producer logs, runtime identity, sanitization and review provenance require independent inspection."}, indent=2))
     return 1 if errors else 0
 

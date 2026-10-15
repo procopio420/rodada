@@ -6,7 +6,7 @@ import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-a
 
 export type MoveTable = { id: string; label: string; status: string; active_occupancy?: { id: string; tabs?: { id: string; display_label: string }[] } };
 export type MoveSelection = { tab: { id: string; display_label: string }; table: MoveTable };
-type Payload = { kind: "MOVE_LOCATION"; expected_version: number; occupancy_id: string; reason: string; idempotency_key: string };
+type Payload = { kind: "MOVE_LOCATION"; expected_version: number; occupancy_id?: string; table_id?: string; reason: string; idempotency_key: string };
 type Intent = { schema: 1; venue: string; staff: string; session: string; tab: string; label: string; origin: string; destination: string; payload: Payload };
 const key = "rodada.intent.tab-location.v1";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,9 +17,9 @@ function readIntent(): Intent | null {
   const i = JSON.parse(raw) as Intent;
   if (!i || i.schema !== 1 || Object.keys(i).sort().join() !== "destination,label,origin,payload,schema,session,staff,tab,venue"
     || ![i.venue, i.staff, i.session, i.tab, i.label, i.origin, i.destination].every(v => typeof v === "string" && !!v)
-    || !uuid.test(i.tab) || !i.payload || Object.keys(i.payload).sort().join() !== "expected_version,idempotency_key,kind,occupancy_id,reason"
+    || !uuid.test(i.tab) || !i.payload || !["expected_version,idempotency_key,kind,occupancy_id,reason", "expected_version,idempotency_key,kind,reason,table_id"].includes(Object.keys(i.payload).sort().join())
     || i.payload.kind !== "MOVE_LOCATION" || !Number.isSafeInteger(i.payload.expected_version) || i.payload.expected_version < 1
-    || !uuid.test(i.payload.occupancy_id) || !uuid.test(i.payload.idempotency_key)
+    || !uuid.test(i.payload.occupancy_id || i.payload.table_id || "") || !uuid.test(i.payload.idempotency_key)
     || typeof i.payload.reason !== "string" || i.payload.reason.length > 240) throw new Error("Invalid location intent");
   return i;
 }
@@ -71,12 +71,12 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
       }
       if (!s.capabilities.includes("tab.move")) { setMessage("Seu perfil não pode mover comandas. A intenção foi preservada."); return; }
       if (!i) {
-        const target = tables.find(t => t.active_occupancy?.id === destination && t.status === "OCCUPIED" && t.id !== selection!.table.id);
-        if (!target) { setMessage("Destino mudou. Escolha outra mesa ocupada."); return; }
+        const target = tables.find(t => (t.status === "AVAILABLE" ? t.id : t.active_occupancy?.id) === destination && ["AVAILABLE", "OCCUPIED"].includes(t.status) && t.id !== selection!.table.id);
+        if (!target) { setMessage("Destino mudou. Escolha outra mesa."); return; }
         if (sessionStorage.getItem(key) !== null) throw new Error("Another intent exists");
         i = { schema: 1, venue: s.venue.id, staff: s.staff.id, session: s.session.id, tab: selection!.tab.id,
           label: selection!.tab.display_label || "Sem nome", origin: selection!.table.label, destination: target.label,
-          payload: { kind: "MOVE_LOCATION", expected_version: version!, occupancy_id: destination, reason: reason.trim(), idempotency_key: crypto.randomUUID() } };
+          payload: { kind: "MOVE_LOCATION", expected_version: version!, ...(target.status === "AVAILABLE" ? { table_id: target.id } : { occupancy_id: destination }), reason: reason.trim(), idempotency_key: crypto.randomUUID() } };
         sessionStorage.setItem(key, JSON.stringify(i)); intent.current = i; setPending(i);
       }
       const assertSaved = () => { if (sessionStorage.getItem(key) !== JSON.stringify(i)) throw new Error("Intent changed"); };
@@ -91,7 +91,7 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
       }
       const body = result.body;
       if (!body || !("operation_id" in body) || !uuid.test(body.operation_id) || body.source?.id !== i.tab
-        || body.source.occupancy_id !== i.payload.occupancy_id || body.source.version !== i.payload.expected_version + 1) throw new Error("Invalid operation response");
+        || (i.payload.occupancy_id ? body.source.occupancy_id !== i.payload.occupancy_id : (body.source.occupancy_id !== null && !uuid.test(body.source.occupancy_id))) || body.source.version !== i.payload.expected_version + 1) throw new Error("Invalid operation response");
       const [tab, locations] = await Promise.all([
         apiCall<{ id: string; version: number }>(`/api/attendance/tabs/${i.tab}/`),
         apiCall<{ results: MoveTable[] }>("/api/attendance/hospitality/tables/"),
@@ -100,6 +100,11 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
         || !locations.response.ok || !locations.body || !("results" in locations.body) || !Array.isArray(locations.body.results)) throw new Error("Readback unavailable");
       const current = locations.body.results.find(t => t.active_occupancy?.tabs?.some(t => t.id === i!.tab));
       assertSaved(); sessionStorage.removeItem(key); intent.current = null; setPending(null); onClose();
+      if (i.payload.table_id && body.source.occupancy_id === null) {
+        setMessage("A versão anterior da API deixou a comanda sem mesa. Operação conferida; selecione novamente a comanda em Contas para vinculá-la à mesa desejada.");
+        await onConfirmed();
+        return;
+      }
       setMessage(`Movimento confirmado. Local atual: ${current ? `mesa ${current.label}` : "sem mesa ativa"}.`);
       await onConfirmed();
     } catch {
@@ -109,7 +114,7 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
     } finally { sending.current = false; setBusy(false); }
   }
   const active = pending || selection;
-  const targets = tables.filter(t => t.status === "OCCUPIED" && t.active_occupancy && t.id !== selection?.table.id);
+  const targets = tables.filter(t => (t.status === "AVAILABLE" || (t.status === "OCCUPIED" && t.active_occupancy)) && t.id !== selection?.table.id);
   return <>
     {!active && message && <p ref={status} tabIndex={-1} className="notice" data-state={ready ? "info" : "warning"} role={ready ? "status" : "alert"}>{message}</p>}
     {active && <ActionDialog title="Mover comanda" locked={busy || !!pending} onClose={onClose}>
@@ -118,10 +123,10 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
       <p>Consumo e pagamentos continuam na mesma comanda. A mesa de origem permanece ocupada.</p>
       {message && <p className="notice" data-state="warning" role="alert">{message}</p>}
       {pending ? <><p>Destino confirmado: mesa {pending.destination}.</p><button className="buttonPrimary" disabled={busy} onClick={() => void submit()}>{busy ? "Verificando…" : "Verificar mesmo movimento"}</button></>
-        : <><div className="field"><label htmlFor="move-destination">Mesa de destino</label><select id="move-destination" value={destination} disabled={busy || !version} onChange={e => setDestination(e.target.value)}><option value="">Escolha outra mesa ocupada</option>{targets.map(t => <option key={t.id} value={t.active_occupancy!.id}>Mesa {t.label}</option>)}</select></div>
-          {!targets.length && <p>Nenhuma outra mesa ocupada disponível.</p>}
-          <div className="field"><label htmlFor="move-reason">Motivo (opcional)</label><input id="move-reason" maxLength={240} value={reason} disabled={busy} onChange={e => setReason(e.target.value)} /></div>
-          {destination && <p>Confirmar: mesa {selection!.table.label} → mesa {targets.find(t => t.active_occupancy?.id === destination)?.label || "indisponível"}.</p>}
+        : <><div className="field"><label htmlFor="move-destination">Mesa de destino</label><select id="move-destination" value={destination} disabled={busy || !version} onChange={e => setDestination(e.target.value)}><option value="">Escolha outra mesa</option>{targets.map(t => <option key={t.id} value={t.status === "AVAILABLE" ? t.id : t.active_occupancy!.id}>Mesa {t.label} · {t.status === "AVAILABLE" ? "Disponível" : "Em uso"}</option>)}</select></div>
+          <div className="field"><label htmlFor="move-reason">Motivo (opcional)</label><input id="move-reason" maxLength={240} value={reason} disabled={busy} onChange={event => setReason(event.target.value)} /></div>
+          {!targets.length && <p>Nenhuma outra mesa disponível para receber a comanda.</p>}
+          {destination && <p>Confirmar: mesa {selection!.table.label} → mesa {targets.find(t => (t.status === "AVAILABLE" ? t.id : t.active_occupancy?.id) === destination)?.label || "indisponível"}.</p>}
           <button className="buttonPrimary" disabled={!ready || busy || !version || !destination} onClick={() => void submit()}>Confirmar movimento</button></>}
     </ActionDialog>}
   </>;
