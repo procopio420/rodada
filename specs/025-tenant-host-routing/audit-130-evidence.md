@@ -1,5 +1,23 @@
 # Issue #130 — auditoria multitenant P0, 2026-10-14
 
+## Gate3 — preflight real de 15/10/2026, ainda NO-GO
+
+Inventário/runtime/backup/smoke/finanças foram executados sem ligar a flag.
+[Recibo](evidence/gate3-preflight-20261015.json) e
+[observabilidade](evidence/gate3-preflight-mcp-20261015.json);
+[runbook Gate3](../../docs/ops/spec025-gate3-canary.md).
+Fonte runtimec589ff0/deploymentad2f5da5 SUCCESS, seedfalse/flagfalse, QA contido;
+smoke autenticado16PASS, edge19PASS, CASH1comMovement/0gaps. Novo backup lógico
+restaurado95/95/constraints PASS substitui o backup90tabelas para a futura janela.
+Nenhuma escrita financeira nem ativação operacional Gate3 ocorreu.
+
+Modo Cloudflare Full (strict) confirmado pelo responsável no chat12:59:33UTC,
+registrado como atestado (consulta automática NOT_RUN). Gate3 preflight **BLOCKED**
+apenas por responsável/janela/autorização específica ainda pendentes. Canary e rollback
+Gate3 **NOT_RUN**, sign-off operacional ausente; manter130OPEN. Gates1/2PASS são
+reaproveitados do mesmo runtime/CI, não nova homologação. E2E físico106 não executado.
+
+
 ## Resultado executado — 2026-10-15 UTC (estado atual)
 
 Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)

@@ -54,3 +54,8 @@ histórico e não prova de fechamento. `live-containment-executor.py` e
 `live-stage-executor.py` recebem payload somente em memória; não executar no banco
 operacional sem pré-condições/runbook. O stage preserva guardas de escopo e snapshot;
 nenhum segredo ou row payload é artefato. Final review/CI e Gate3 estão separados.
+
+
+Gate3: `gate3-preflight-20261015.json` e `gate3-preflight-mcp-20261015.json` são
+evidência de preflight somente. Backup/restore95, leituraCASH, smoke/edge executados;
+canary/backout Gate3 NOT_RUN. Não converter NO-GO em homologação pela CI.

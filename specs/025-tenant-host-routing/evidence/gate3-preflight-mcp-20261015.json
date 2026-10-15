@@ -1,0 +1,115 @@
+{
+  "observability": {
+    "observed_at": "2026-10-15T12:49:59Z",
+    "start": "2026-10-15T11:49:59.000Z",
+    "end": "2026-10-15T12:49:59Z",
+    "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "request_count": 40,
+    "status_counts": {
+      "200": 27,
+      "204": 2,
+      "307": 2,
+      "308": 3,
+      "400": 1,
+      "401": 1,
+      "404": 1,
+      "421": 3
+    },
+    "server_errors": 0,
+    "latency_totalDuration_as_reported": {
+      "min": 8,
+      "max": 424,
+      "p50": 51,
+      "p95": 408
+    },
+    "upstream_error_entries": 0,
+    "runtime_error_severity_entries": 17,
+    "runtime_log_entries": 44,
+    "limitation": "Bounded <=500 entries per stream; not continuous availability. HTTP latency uses provider totalDuration field, units not inferred."
+  },
+  "runtime_log_classification": {
+    "runtime_error_lines": 17,
+    "exception_classes": [
+      "Forbidden",
+      "Forbidden",
+      "Forbidden",
+      "Forbidden",
+      "django.core.exceptions.DisallowedHost"
+    ],
+    "expected_unknown_host_present": true,
+    "disallowed_host_present": true,
+    "timestamp_cluster_seconds": 0,
+    "classification": "Four Forbidden probe messages and one DisallowedHost traceback match expected HMAC/unknown-host negative probes; no HTTP5xx in bounded sample. Severity error lines do not alone prove a service failure."
+  },
+  "domain": {
+    "certificate": {
+      "errorMessage": null,
+      "retryable": null,
+      "status": "CERTIFICATE_STATUS_TYPE_VALID"
+    },
+    "dnsRecords": [
+      {
+        "currentValue": "",
+        "fqdn": "*.rodada.bar",
+        "hostLabel": "*",
+        "purpose": "DNS_RECORD_PURPOSE_TRAFFIC_ROUTE",
+        "recordType": "DNS_RECORD_TYPE_CNAME",
+        "requiredValue": "pgyvbzi2.up.railway.app",
+        "status": "DNS_RECORD_STATUS_REQUIRES_UPDATE"
+      },
+      {
+        "currentValue": "pgyvbzi2.authorize.railwaydns.net",
+        "fqdn": "_acme-challenge.rodada.bar",
+        "hostLabel": "_acme-challenge",
+        "purpose": "DNS_RECORD_PURPOSE_ACME_DNS01_CHALLENGE",
+        "recordType": "DNS_RECORD_TYPE_CNAME",
+        "requiredValue": "pgyvbzi2.authorize.railwaydns.net",
+        "status": "DNS_RECORD_STATUS_PROPAGATED"
+      }
+    ],
+    "domain": {
+      "domain": "*.rodada.bar",
+      "id": "0b2b6f25-4735-44d8-8263-d9694ad6e7aa",
+      "kind": "custom",
+      "targetPort": 8080
+    },
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "railwayManaged": false,
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web"
+    },
+    "verified": true
+  },
+  "resources": {
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "metrics": [
+      {
+        "average": 0.014183351092896175,
+        "current": 0.01880916666666667,
+        "max": 0.06844708333333333,
+        "measurement": "CPU_USAGE",
+        "min": 0,
+        "sampleCount": 61
+      },
+      {
+        "average": 0.3047440786885247,
+        "current": 0.314761216,
+        "max": 0.324333568,
+        "measurement": "MEMORY_USAGE_GB",
+        "min": 0,
+        "sampleCount": 61
+      }
+    ],
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web"
+    }
+  }
+}

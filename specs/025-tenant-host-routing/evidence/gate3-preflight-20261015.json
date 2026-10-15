@@ -1,0 +1,511 @@
+{
+  "phase": "Gate3 preflight only; operational canary NOT_RUN",
+  "runtime_sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+  "runtime_deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+  "preparation_base_pr183_sha": "1f441ed0596261dfda2a5535d5a3c9211d8c6895",
+  "gate1": "PASS carried forward; same runtime source verified",
+  "gate2": "PASS carried forward; not rerun as Gate3",
+  "gate3_preflight": "BLOCKED",
+  "gate3_canary": "NOT_RUN",
+  "gate3_rollback": "NOT_RUN",
+  "decision": "NO-GO",
+  "checks": [
+    {
+      "criterion": "runtime_sha_deployment_known",
+      "result": "PASS"
+    },
+    {
+      "criterion": "applicable_ci_same_runtime_sha",
+      "result": "PASS"
+    },
+    {
+      "criterion": "seed_off_flag_off",
+      "result": "PASS"
+    },
+    {
+      "criterion": "hmac_and_trusted_ingress_tls",
+      "result": "PASS"
+    },
+    {
+      "criterion": "fresh_encrypted_backup_restore_and_custody",
+      "result": "PASS"
+    },
+    {
+      "criterion": "private_ssh_and_guarded_containment_available",
+      "result": "PASS"
+    },
+    {
+      "criterion": "fresh_authenticated_pilot_smoke",
+      "result": "PASS"
+    },
+    {
+      "criterion": "qa_contained_before_window",
+      "result": "PASS"
+    },
+    {
+      "criterion": "private_business_baseline_including_cash",
+      "result": "PASS"
+    },
+    {
+      "criterion": "cloudflare_ssl_mode_operator_attestation",
+      "result": "PASS",
+      "reason": "Responsible user confirmed Full (strict); machine verification NOT_RUN."
+    },
+    {
+      "criterion": "responsible_person_and_operational_window",
+      "result": "BLOCKED",
+      "reason": "User requires new specific approval; Gate2 authorization does not cover Gate3."
+    },
+    {
+      "criterion": "postwindow_operational_signoff",
+      "result": "NOT_RUN"
+    }
+  ],
+  "runtime": {
+    "observed_at": "2026-10-15T12:40:19.475605+00:00",
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "seed_off": true,
+    "tenant_ui_flag_off": true,
+    "hmac_present": true,
+    "hmac_minimum_policy_valid": true,
+    "hmac_distinct_from_django_secret": true,
+    "cash_scope": "Read-only historical counts; no amounts, payment IDs or customer data. Confirmed-money statuses include refunded/partially-refunded payments. No repair.",
+    "transaction_read_only": true,
+    "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "current_table_count": 95,
+    "qa": [
+      {
+        "host": "e2ea.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      }
+    ],
+    "qa_financial_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0
+    },
+    "historical_cash_by_venue": [
+      {
+        "venue": "pilot_aderlan",
+        "confirmed_money_count": 1,
+        "confirmed_only_count": 1,
+        "missing_movement_count": 0,
+        "foreign_movement_venue_count": 0,
+        "unexpected_movement_kind_count": 0
+      }
+    ],
+    "historical_cash_gap_count": 0,
+    "financial_inspection_completed": true,
+    "historical_reconciliation_not_performed": true
+  },
+  "fresh_backup_recovery": {
+    "logical_backup_reference": "logical-sha256:7dfdb4d8bbea43ec2c8ee005d66240186f803e3f4bcdf46371fa5e83e398432f",
+    "source_sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "source_deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "source_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "tables_verified": 95,
+    "all_same_snapshot_counts_match": true,
+    "all_restored_constraints_validated": true,
+    "dump_bytes": 601190,
+    "restore_seconds": 1.209,
+    "elapsed_seconds": 12.667,
+    "verified_at": "2026-10-15T12:49:43.614373+00:00",
+    "retention_review_at": "2026-10-22",
+    "archive_authenticated": true,
+    "custody_owner_only": true,
+    "key_separate": true,
+    "restored_copy_removed": true,
+    "restore_container_removed": true,
+    "limits": "Logical snapshot, not PITR/cluster roles/ACL/financial reconciliation sign-off; no operational restore."
+  },
+  "backup_reauthenticated_after_capture": true,
+  "pilot_smoke": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "scope": "authorized Ana/Bia operator, new audit sessions only; reads, no orders/payment mutation; protocol smoke not real Android device",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_BFF_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_host_only_secure_httponly_cookies",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_active_membership_and_capabilities",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/realtime/snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_once_current_cursor",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_refresh_from_only_refresh_cookie",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_reconnect_snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_reconnect",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_BFF_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_native_session",
+        "status": 204,
+        "pass": true
+      }
+    ]
+  },
+  "edge_preflight": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "scope": "TLS and trusted ingress HMAC; QA inactive assertions; Web flag off, not browser acceptance",
+    "all_required_edge_probes_pass": true,
+    "results": [
+      {
+        "scenario": "loopback_valid_hmac_context",
+        "pass": true,
+        "actual": 200,
+        "expected": 200
+      },
+      {
+        "scenario": "loopback_invalid",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_expired",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_adulterated",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_missing_hmac",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ]
+      },
+      {
+        "scenario": "public_api_strips_valid_external_hmac",
+        "pass": true,
+        "actual": [
+          200,
+          "compatibility"
+        ],
+        "expected": [
+          200,
+          "compatibility"
+        ]
+      },
+      {
+        "scenario": "public_pilot_received_host",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2ea.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2eb.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "public_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_unregistered-preview.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "bff_ignores_forged_external_headers",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "unknown_bff_rejected",
+        "pass": true,
+        "actual": 421,
+        "expected": 421
+      },
+      {
+        "scenario": "unknown_raw_api_rejected_by_allowed_hosts",
+        "pass": true,
+        "actual": 400,
+        "expected": 400
+      }
+    ]
+  },
+  "public_health": {
+    "observed_at": "2026-10-15T12:54:32.110095+00:00",
+    "results": [
+      {
+        "host": "rodada.bar",
+        "path": "/",
+        "status": 200,
+        "latency_ms": 544
+      },
+      {
+        "host": "bardoaderlan.rodada.bar",
+        "path": "/health/",
+        "status": 200,
+        "latency_ms": 614
+      },
+      {
+        "host": "bardoaderlan.rodada.bar",
+        "path": "/ready/",
+        "status": 200,
+        "latency_ms": 388
+      },
+      {
+        "host": "api.rodada.bar",
+        "path": "/health/",
+        "status": 200,
+        "latency_ms": 603
+      },
+      {
+        "host": "api.rodada.bar",
+        "path": "/ready/",
+        "status": 200,
+        "latency_ms": 524
+      },
+      {
+        "host": "e2ea.rodada.bar",
+        "path": "/",
+        "status": 421,
+        "latency_ms": 571
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "path": "/",
+        "status": 421,
+        "latency_ms": 584
+      }
+    ]
+  },
+  "business_baseline": {
+    "captured_at": "2026-10-15T12:55:13.496642+00:00",
+    "model_group_count": 23,
+    "model_names": [
+      "venue_venue",
+      "venue_venuedomain",
+      "ordering_tab",
+      "ordering_order",
+      "ordering_orderitem",
+      "ledger_charge",
+      "ledger_payment",
+      "ledger_refund",
+      "ledger_ledgeradjustment",
+      "catalog_product",
+      "hospitality_table",
+      "hospitality_tableoccupancy",
+      "hospitality_taboccupancyassignment",
+      "hospitality_tablegroup",
+      "hospitality_tablegroupmembership",
+      "house_account_customer",
+      "house_account_relationship",
+      "guest_access_customercredential",
+      "guest_access_customerauthsession",
+      "cash_cashpoint",
+      "cash_cashshift",
+      "cash_cashmovement",
+      "cash_cashtenderdetail"
+    ],
+    "private_digests_not_published": true,
+    "limits": "Staff auth/audit writes excluded; optional Customer auth sessions included. Legitimate pilot changes require investigation. Recapture immediately before authorized first write."
+  },
+  "ci": {
+    "runtime_api": 38724784229,
+    "runtime_web": 38724788096,
+    "runtime_kb": 38724779362,
+    "runtime_all_success_revalidated": true,
+    "preparation_ci": "PR183 head-specific check; see current PR status"
+  },
+  "proposed_window": {
+    "duration_minutes": 30,
+    "service": "rodada-web",
+    "environment": "demo",
+    "project": "rodada-aderlan-demo-20261009",
+    "authorized": false,
+    "responsible_person": null,
+    "start_and_end": null,
+    "scope": "Temporary flag false\u2192true\u2192false; explicit QA alias/membership activation and QA-only reversible nonfinancial operations; pilot read-only monitoring. No DNS/Cloudflare/PSP/migration/seed/financial changes. Exact timing and responsible person require confirmation.",
+    "rollback": "Flag false, observe specific deployment SUCCESS/readback seedfalse; guarded QA deactivate; revoke staff/guest streams and deny reconnect/new login/QR; pilot authenticated smoke and business comparison; preserve history; no operational restore."
+  },
+  "limits": [
+    "No operational flag/domain/membership change executed in Gate3 preflight.",
+    "Financial result is limited read-only CASH/movement inspection, not comprehensive reconciliation.",
+    "Physical Android/device/network certification NOT_RUN; shared HTTP protocol smoke PASS.",
+    "Fresh backup is logical snapshot, not PITR/roles/ACL/financial acceptance.",
+    "Canary and rollback require specific authorization and independent postwindow review/signoff."
+  ],
+  "cloudflare_ssl_mode": {
+    "mode": "Full (strict)",
+    "source": "Responsible user chat: ta full strict",
+    "recorded_at": "2026-10-15T12:59:33Z",
+    "verification": "Operator attestation; Cloudflare API/panel not automatically queried",
+    "previous_state": "Unverified in initial read-only preflight"
+  }
+}

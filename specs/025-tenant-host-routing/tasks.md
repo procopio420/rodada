@@ -1,5 +1,19 @@
 # Spec 025 — Tasks
 
+## Gate3 — preflight executado, operação bloqueada
+
+- [x] main/runtimec589ff0/CI/staged/SSH, seed-off/flag-off e contenção QA revalidados.
+- [x] Novo smoke autenticado Aderlan16PASS; edge19PASS; health/landing/API200.
+- [x] Backup anterior90tabelas reautenticado; novo snapshot atual restaurado95/95,
+  constraints/custódia/GCM/hash e remoção de destino verificados.
+- [x] CASH histórico somente leitura:1confirmado comMovement;0gaps/foreign/kind.
+- [x] Baseline privado23grupos e observabilidade real limitados, sem publicar digests.
+- [x] Responsável atestou Full (strict) no chat12:59:33UTC; consulta API NOT_RUN.
+- [ ] Obter responsável, janela/fuso e autorização específica da intervenção.
+- [ ] Executar canary e backout reais, revisão R3 pós-janela e sign-off operacional.
+
+[Recibo preflight](evidence/gate3-preflight-20261015.json);130permaneceOPEN.
+
 ## Estado final da janela A/B — 2026-10-15 UTC
 
 - [x] Exceção formal compartilhada e backup lógico reautenticado/restore90/90.
