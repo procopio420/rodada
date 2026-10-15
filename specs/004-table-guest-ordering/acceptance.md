@@ -99,3 +99,13 @@ e revisão independente são necessários antes do fechamento da #3.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+## Issue #147 — Customer opcional no Guest
+
+- [ ] Cliente anônimo permanece funcional, sem login, CPF ou alterações em ledger.
+- [ ] Cadastro cria credencial **nova**, impossível assumir Customer legado por rótulo; senha é hash Django e rate limit/lockout efetivo.
+- [ ] Claim requer GuestSession + CustomerAuthSession compatíveis, mesmo Venue, ocupação, Table, generation e Tab; replay idempotente.
+- [ ] IDs estrangeiros, perfis de outro Venue, sessão/ocupação expiradas e outra Tab ativa rejeitados sem vazamento.
+- [ ] Logout, rotação de senha e revogação de QR invalidam token anterior e preservam Tab/Order.
+- [ ] Cookie HttpOnly não entrega auth token à JS; CSRF/Host/cabeçalhos forjados testados com BFF real.
+- [ ] UI Guest responsive 360/390/430/desktop, acessibilidade, testes PostgreSQL/CI e revisor independente R3 aprovados; merge depois de aceite.
