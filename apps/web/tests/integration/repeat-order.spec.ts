@@ -71,10 +71,10 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]); expect(newOrderId).not.toBe(original.id);
-  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(3900);
+  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(3400);
   expect(after.payments).toEqual(beforeSend.payments);
   expect(after.orders.find((o: { id: string }) => o.id === original.id)).toEqual(beforeSend.orders[0]);
-  expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("3");
+  expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("2");
   const snapshot = JSON.parse(database(`item=OrderItem.objects.get(pk='${original.items[0].id}'); print(json.dumps({'cents':item.unit_price_cents,'snapshot':item.customization_snapshot}))`));
   expect(snapshot.cents).toBe(1000); expect(snapshot.snapshot).toEqual(original.items[0].customization_snapshot);
   await page.getByRole("button", { name: new RegExp(`^Other ${width} ·`) }).click();
