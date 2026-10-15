@@ -43,11 +43,15 @@ def prepare(path):
         venue=venue, name="Android Post Drop Test Soda",
         price_cents=700, fulfillment_station="BAR", active=True
     )
+    from modules.cash.models import CashPoint
+    cash_point = CashPoint.objects.create(venue=venue, label="Issue106 disposable drawer")
+    kitchen_product = Product.objects.create(venue=venue, name="Android Compose Test Meal", price_cents=1000, fulfillment_station="KITCHEN", active=True)
     from modules.hospitality.models import Table
     table = Table.objects.create(venue=venue, label="Fault 027", guest_ordering_mode="DIRECT")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"venue_id": str(venue.pk), "database": connection.settings_dict["NAME"],
                                 "table_id": str(table.pk), "product_id": str(product.pk),
+                                "kitchen_product_id": str(kitchen_product.pk), "cash_point_id": str(cash_point.pk),
                                 "venue_slug": venue.slug, "price_cents": 700}))
     print("PASS: disposable PostgreSQL venue, staff and product created", flush=True)
 

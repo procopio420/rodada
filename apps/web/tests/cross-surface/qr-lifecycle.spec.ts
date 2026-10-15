@@ -79,15 +79,33 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   const final = await snapshot();
   expect(final.public_token).toBe(table.public_token);
   expect(final.access_generation).toBeGreaterThan(initial.access_generation);
+  const nextVisitContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const nextGuest = await nextVisitContext.newPage();
+  await nextGuest.goto(`/guest/${table.public_token}`);
+  await nextGuest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
+  await expect.poll(async () => (await snapshot()).status).toBe("OCCUPIED");
+  const nextVisit = await snapshot();
+  expect(nextVisit.active_occupancy.id).not.toBe(initial.active_occupancy.id);
+  expect(nextVisit.active_occupancy.generation).toBe(final.access_generation);
+  expect(nextVisit.public_token).toBe(table.public_token);
+  const staleAgain = await guest.evaluate(async selector => {
+    const r = await fetch("/api/guest/service-requests/", { method: "POST",
+      headers: { "Content-Type": "application/json", "X-Guest-Session": selector },
+      body: JSON.stringify({ task_type: "SERVICE_REQUEST", request_id: crypto.randomUUID() }) });
+    return r.status;
+  }, table.public_token);
+  expect(staleAgain).toBe(403);
+  // Explicitly opening the physical QR again may obtain a NEW session, never the old Tab.
   await guest.reload();
-  // The old browser session must never gain a replacement visit implicitly.
   await expect(guest.getByRole("button", { name: /^Enviar ·/ })).toHaveCount(0);
   await mkdir("../../artifacts", { recursive: true });
   await writeFile("../../artifacts/qr-lifecycle-browser.json", JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
     table_id: table.id, occupancy_id: initial.active_occupancy.id, tab_ids: tabs.map((t: { id: string }) => t.id),
+    new_occupancy_id: nextVisit.active_occupancy.id, new_tab_id: nextVisit.active_occupancy.tabs[0].id,
     initial_generation: initial.access_generation, final_generation: final.access_generation,
     status: "PASS", revoked_status: revoked.status,
   }, null, 2));
+  await nextVisitContext.close();
   await guestContext.close();
 });

@@ -97,3 +97,35 @@ Independent foundation review `/root/review_foundations`, base `5a53326d` to
 `f495a26b`: NO_FINDINGS_WITH_GAPS, all 12 files, 6+13 tests PASS. Does not cover
 subsequent Compose/QR/ASGI/trace changes; refresh required. F2/F5/F7 partial;
 A2/A4/A5 partial acceptance, remaining phases not certified. Full suite NO-GO.
+
+### Additional development slices
+
+Guest QR-first produced a concrete UI failure: the first Tab created the visit
+in PostgreSQL but the page retained `occupancy_active=false` from its scan.
+The existing guest component now revalidates canonical context after creating
+that Tab. The new shared-fixture browser test then passed: Guest response lost
+AFTER actual commit, same-intent reload/double-click replay, Attendance Web
+second consuming Tab, explicit Bar/Kitchen production, Kitchen disconnected
+while committing and reconstructed on reconnect. Independent PostgreSQL
+confirmed 2 Orders, 4 READY items, 4 Charges, 0 Payments and separate 1700-cent
+ledgers in one occupancy. This is development evidence pending final SHA/CI.
+
+Compose now confirms a mixed BAR+KITCHEN order through production UI. A test
+synchronization defect was isolated: it clicked `+ Pedir` while disabled during
+initial refresh and accidentally observed a same-named CTA in the background
+Tables list. Waiting for the actual enabled navigation control fixes that
+race; mixed Compose -> both station UIs passed locally. No product permission
+or loading guard was weakened.
+
+Manual run 38771546078 at 4f926e05: actual-network-uplink-cut PASS, response
+held until the emulator uplink was cut, force-stop/replay HTTP200, Order/Item/
+Charge=1 and Payment=0; artifact 11991427700 downloaded. Its other job FAILed
+on an adb label containing spaces. 5a87c4dc run 38771724060 reached both native
+proofs but failed duplicate Playwright tracing.start; correction committed in
+2c100af1. These failures remain evidence, not PASS or environmental SKIP.
+
+Financial UI slice is under development: partial/residual CASH on the native
+Tab, blocked positive-balance close, supply/withdrawal, close/discrepancy and
+manager reauthentication. Earlier attempts reached payments/close but did not
+complete review because the test checked the reauth form before it rendered;
+no financial PASS claimed until full rerun and SQL reconciliation.

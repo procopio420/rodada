@@ -25,10 +25,11 @@ with connection.cursor() as cursor:
     assert cursor.fetchone() == (1,)
     cursor.execute("SELECT id, product_id, quantity, state FROM ordering_orderitem WHERE order_id = %s", [order.pk])
     rows = cursor.fetchall()
-    assert len(rows) == 1 and str(rows[0][1]) == fixture["product_id"] and rows[0][2:] == (1, "NEW"), rows
+    assert len(rows) == 2 and {str(r[1]) for r in rows} == {fixture["product_id"], fixture["kitchen_product_id"]}
+    assert all(r[2:] == (1, "NEW") for r in rows), rows
     cursor.execute("SELECT id, amount_cents FROM ledger_charge WHERE tab_id = %s", [order.tab_id])
     charges = cursor.fetchall()
-    assert len(charges) == 1 and charges[0][1] == 700
+    assert len(charges) == 2 and sorted(c[1] for c in charges) == [700, 1000]
     cursor.execute("SELECT count(*) FROM ledger_payment WHERE tab_id = %s", [order.tab_id])
     assert cursor.fetchone() == (0,)
 summary = {
@@ -36,9 +37,10 @@ summary = {
     "database": connection.settings_dict["NAME"], "venue_id": fixture["venue_id"],
     "venue_slug": fixture["venue_slug"], "result": "PASS", "native_ui": "production MainActivity Compose",
     "original_order_id": str(order.pk), "original_tab_id": str(order.tab_id),
-    "original_order_item_id": str(rows[0][0]), "charge_id": str(charges[0][0]),
-    "orders": 1, "order_items": 1, "charges": 1, "payments": 0,
+    "original_order_item_ids": [str(r[0]) for r in rows], "charge_ids": [str(c[0]) for c in charges],
+    "product_ids": {"BAR": fixture["product_id"], "KITCHEN": fixture["kitchen_product_id"]},
+    "orders": 1, "order_items": 2, "charges": 2, "payments": 0,
     "tab_label": order.tab.display_label, "initial_state": "NEW",
 }
 Path("artifacts/android-compose-order.json").write_text(json.dumps(summary, indent=2) + "\n")
-print("PASS: independent PostgreSQL readback of Compose-origin Order=1 Item=NEW Charge=700 Payment=0")
+print("PASS: independent PostgreSQL readback of Compose-origin Order=1 Items=2 NEW Charges=1700 Payment=0")

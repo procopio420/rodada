@@ -25,19 +25,28 @@ class LiveComposeOrderTest {
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
         compose.onNodeWithText("Entrar").performClick()
-        compose.waitUntil(30_000) { compose.onAllNodesWithTag("attendance-order").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithTag("attendance-order").performClick()
+        compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("attendance-order").assertIsEnabled().performClick()
         waitText("Nova comanda sem mesa")
-        compose.waitUntil(30_000) { compose.onAllNodes(hasText("Nova comanda sem mesa") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        try {
+            compose.waitUntil(30_000) { compose.onAllNodes(hasText("Nova comanda sem mesa") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        } catch (failure: Throwable) {
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            val file = java.io.File(instrumentation.targetContext.getExternalFilesDir(null), "issue106-ui-failure.png")
+            java.io.FileOutputStream(file).use { output -> instrumentation.uiAutomation.takeScreenshot().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, output) }
+            println(compose.onAllNodes(isRoot()).printToString(maxDepth = 100))
+            throw failure
+        }
         compose.onNodeWithText("Nova comanda sem mesa").assertIsEnabled().performClick()
         waitText("Nome ou apelido (opcional)")
         compose.onNodeWithText("Nome ou apelido (opcional)").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
-        val product = "Android Post Drop Test Soda"
-        compose.waitUntil(30_000) { compose.onAllNodesWithContentDescription("Adicionar $product").fetchSemanticsNodes().isNotEmpty() }
-        compose.waitUntil(30_000) { compose.onAllNodes(hasContentDescription("Adicionar $product") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithContentDescription("Adicionar $product").assertIsEnabled().performScrollTo().performClick()
-        waitText("Ver pedido atual · 1 item · R$ 7,00")
+        for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
+            compose.onNodeWithTag("workspace-list").performScrollToNode(hasContentDescription("Adicionar $product"))
+            compose.waitUntil(30_000) { compose.onAllNodes(hasContentDescription("Adicionar $product") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithContentDescription("Adicionar $product").assertIsEnabled().performClick()
+        }
+        waitText("Ver pedido atual · 2 itens · R$ 17,00")
         compose.onNodeWithTag("workspace-Pedido atual").performClick()
         waitText("Confirmar pedido")
         compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo().performClick()
