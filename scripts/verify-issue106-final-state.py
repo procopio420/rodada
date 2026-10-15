@@ -23,6 +23,7 @@ from modules.ordering.models import Order, OrderItem, Tab
 from modules.ledger.models import Charge, Payment, Refund, LedgerAdjustment
 from modules.cash.models import CashShift, CashMovement
 from modules.guest_access.models import GuestSession
+from modules.hospitality.models import Table, TableOccupancy
 from modules.payment_provider.models import PaymentAttempt
 
 require_connected_database(connection)
@@ -116,7 +117,10 @@ with transaction.atomic():
     assert CashMovement.objects.filter(shift__in=shifts).count() == 6
     assert not CashMovement.objects.filter(shift__in=shifts.exclude(pk=main.pk)).exists()
     old = GuestSession.objects.filter(occupancy_id=qr["occupancy_id"])
-    assert old.exists() and not old.filter(revoked_at=None).exists()
+    table = Table.objects.get(pk=qr["table_id"], venue_id=f["venue_id"])
+    assert old.exists() and TableOccupancy.objects.get(pk=qr["occupancy_id"]).released_at
+    assert all(s.generation < table.access_generation for s in old)
+    assert qr["revoked_status"] == 403 and table.access_generation == qr["final_generation"]
     assert GuestSession.objects.filter(occupancy_id=qr["new_occupancy_id"], tab_id=qr["new_tab_id"], revoked_at=None).exists()
     assert finance["report_totals"]["current_open_exposure_cents"] == 6800 - 1800 + 100 == 5100
 
