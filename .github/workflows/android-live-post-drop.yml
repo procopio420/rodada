@@ -20,6 +20,7 @@ on:
       - "scripts/verify-issue106-concurrency.py"
       - "scripts/verify-issue106-authorization.py"
       - "scripts/verify-issue106-sse.py"
+      - "scripts/verify-issue106-pending.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
@@ -86,6 +87,7 @@ jobs:
         run: |
           python scripts/verify-android-live-post-drop.py prepare
           python scripts/verify-android-live-post-drop.py prepare-resilience
+          python scripts/verify-android-live-post-drop.py prepare-pending
       - name: Start real Django and TCP response-drop proxy
         shell: bash
         run: |
@@ -164,6 +166,7 @@ jobs:
           python scripts/verify-issue106-concurrency.py
           python scripts/verify-issue106-authorization.py
           python scripts/verify-issue106-sse.py
+          python scripts/verify-issue106-pending.py
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -201,6 +204,7 @@ jobs:
             artifacts/isolation-*.json
             artifacts/revocation-*.json
             artifacts/sse-*.json
+            artifacts/pending-payment-*.json
             artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log

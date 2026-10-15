@@ -73,6 +73,7 @@ step=migrations
 "$PYTHON" apps/api/manage.py migrate --noinput > "$run_dir/migrations.txt" 2>&1
 "$PYTHON" scripts/verify-android-live-post-drop.py prepare --fixture "$RODADA_POST_DROP_FIXTURE"
 "$PYTHON" scripts/verify-android-live-post-drop.py prepare-resilience --fixture "$RODADA_POST_DROP_FIXTURE"
+"$PYTHON" scripts/verify-android-live-post-drop.py prepare-pending --fixture "$RODADA_POST_DROP_FIXTURE"
 "$PYTHON" -m uvicorn rodada_api.asgi:application --host 127.0.0.1 --port 8101 > "$run_dir/django.txt" 2>&1 &
 api_pid=$!
 "$PYTHON" scripts/android-post-drop-proxy.py --evidence "$RODADA_POST_DROP_MARKER" > "$run_dir/proxy.txt" 2>&1 &
@@ -109,6 +110,7 @@ step=independent-sql
 "$PYTHON" scripts/verify-issue106-concurrency.py
 "$PYTHON" scripts/verify-issue106-authorization.py
 "$PYTHON" scripts/verify-issue106-sse.py
+"$PYTHON" scripts/verify-issue106-pending.py
 step=financial-browser
 (cd apps/web && RODADA_CROSS_PHASE=financial npx playwright test --config playwright.android-cross-surface.config.ts)
 step=financial-sql
