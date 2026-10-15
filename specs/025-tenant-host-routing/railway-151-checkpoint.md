@@ -164,3 +164,99 @@ build with seed disabled before proposing tenant flag activation.
 HMAC A/B proof; authenticated pilot/native smoke; safe backup/rollback; formal
 resolution of the separate-preview criterion if needed. #151 and #130 stay open.
 Canary/rollout remains #152. Public edge TLS PASS does not make these gates PASS.
+
+## Authenticated checkpoint — 2026-10-15 UTC
+
+This section supersedes the old access blocker above, retaining that history.
+CLI5.68.0 and Railway MCP are now authenticated. The existing target was freshly
+confirmed: project `1ca79d6a-a555-4346-b4b6-72b0a7706359`, demo environment
+`ab6da311-0926-4b5a-ab86-1d21fe893e12`, web service
+`8129ec63-1222-4564-a552-d05a04ee07a2`. Three services online, no staged changes.
+
+Runtime SSH before merge verified main4704318, deployment
+`6ba51bb4-7b7a-4cd8-b464-cf017e15b95b`, seed disabled, tenant flag disabled,
+explicit HMAC passing the length/diversity preflight, additive QA allowed hosts
+and private PostgreSQL connection. Django checks passed; migrations shown applied.
+Only boolean/configuration results were printed, never secret values.
+A dedicated personal SSH key was registered for this audit; its private key
+remains on the operator machine and was not published.
+
+PostgreSQL service `8a53ce2e-3923-43d2-98c5-590cffa0315b`, volume
+`49b4b7c9-9e4f-408b-8d81-feb6ac760270`, server18.6. No public domain/TCP proxy.
+Read-only Django inspection confirmed the pilot and its active/verified canonical
+alias; QA reserved Venues/domains were absent (counts0/0). No QA writes performed.
+Wildcard Railway origin certificate VALID, verified, ACME propagated. Traffic
+CNAME remains REQUIRES_UPDATE/currentValue empty under proxied DNS; do not infer
+Cloudflare SSL mode or an origin failure from this alone.
+
+PR159 merged as `18da0109436bc76b199ec82ca7f7c75e5c54b57d` after exact-head
+`7436debeea1e823e0b866813900e9bb1b014dc53` gates:
+[API849 PASS](https://github.com/procopio420/rodada/actions/runs/38660364284),
+[Web98 PASS](https://github.com/procopio420/rodada/actions/runs/38660364382),
+[KB PASS](https://github.com/procopio420/rodada/actions/runs/38660364356).
+Independent R3 review covered all six files at that exact head, no reproducible
+P0/P1/P2; technical review is not GitHub approval or operational acceptance.
+The deployment triggered by merge is
+`40f0c485-5499-48f6-b1c4-7b8fe91f9d64`; its final status and merged-main
+[API](https://github.com/procopio420/rodada/actions/runs/38665238342)/
+[Web](https://github.com/procopio420/rodada/actions/runs/38665238180) results are
+recorded in PR159/#151 comments after completion, not inferred from PR CI.
+
+### Backup entitlement is the current write blocker
+
+Official `postgres pitr status`: disabled, no bucket wired.
+Official `backup list` and `schedule list`: both empty.
+The authorized on-demand backup attempt returned exit1:
+
+```text
+railway postgres pitr backup create --project <confirmed-project> \
+  --environment <confirmed-demo> --service <confirmed-postgres> \
+  --name pre-spec025-ab --json
+GRAPHQL_ERROR: Manual backups and backup schedules are only available for Pro workspaces
+```
+
+**No backup ID was returned. Backup and restore verification remain BLOCKED.**
+No upgrade, PITR enable, database restart, restore, provision/apply, activation
+or flag change was performed. The user was asked to choose whether to enable
+Pro via account controls, retain the block, or formally accept an encrypted
+logical backup transferred privately and restored/verified in disposable local
+PostgreSQL. The latter is an exception to the original official-backup contract,
+not assumed acceptance, and cannot be labeled `railway-backup:<invented-id>`.
+Until resolved, never run provision/activate `--apply` or declare homologation.
+The separate-preview acceptance decision also remains outstanding.
+
+### Additional read-only edge/HMAC probes
+
+Executed from authenticated SSH in the main4704318 runtime, without staff/guest
+credentials or financial writes:
+
+| Probe | Observed result | Limit |
+| --- | --- | --- |
+| Direct Railway origin TLS, using origin address with tenant SNI/Host | Valid certificate SAN `*.rodada.bar` for A, B and pilot; health A/B421, pilot200 | Does not verify Cloudflare Full Strict setting |
+| Valid internal HMAC to loopback Django `/venue/context/` | 200 establishment, public pilot name | Confirms runtime secret and signed Host resolution, no A/B identity exists yet |
+| Invalid, expired and adulterated assertion | 403 HOST_ASSERTION_INVALID | Only read-only metadata probes |
+| Unsigned pilot private `/auth/me/` | 403 HOST_ASSERTION_REQUIRED | No pilot login attempted |
+| Valid signed assertion presented externally to shared API context | 200 compatibility, no tenant name | Public ingress stripped the otherwise valid tenant assertion |
+| Valid signed assertion externally to pilot private `/auth/me/` | 403 HOST_ASSERTION_REQUIRED | External header did not satisfy BFF authority |
+
+No signature, cookie, token or secret value was printed or persisted in evidence.
+HMAC was computed inside the container with the existing secret. These probes
+resolve a subset of the previous boundary gaps; enabled A/B sessions, cookies,
+QR, mutations, SSE, native authenticated flows and rollback remain NOT TESTED.
+
+### PR159 deployment verified
+
+Railway deployment `40f0c485-5499-48f6-b1c4-7b8fe91f9d64` subsequently reached
+**SUCCESS**. A fresh SSH call confirmed runtime commit
+`18da0109436bc76b199ec82ca7f7c75e5c54b57d` and that exact deployment ID, with
+seed disabled and tenant UI disabled. In `/app/apps/api` the deployed command ran:
+
+```bash
+python manage.py provision_spec025_ab
+python manage.py provision_spec025_ab --operation provision
+```
+
+Both reported venue/domain/operator absent for A and B; the second ended
+`DRY RUN: operation provision not executed`. No `--apply` was used. This proves
+the guarded command is deployed and inspection works, not provisioning or edge
+acceptance. Backup entitlement and recovery verification remain the write gate.

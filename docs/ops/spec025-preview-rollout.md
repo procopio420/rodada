@@ -150,3 +150,16 @@ The shared demo's current `RODADA_DEMO_SEED_ON_START=false` must remain in force
 during any redeploy and backout. Never use an older rollback image that reruns
 `seed_demo` against the live Aderlan database. Do not use the public PostgreSQL
 TCP proxy as a shortcut.
+
+### Backup entitlement gate (observed 2026-10-15)
+
+On the existing workspace, `railway postgres pitr backup create` returned
+`Manual backups and backup schedules are only available for Pro workspaces`.
+Backup/schedule lists were empty and PITR disabled. Never fabricate a backup ID,
+enable PITR (which can restart the database/create storage), change plan or use
+an unverified backup reference to unblock `--apply`. Obtain an explicit decision
+on plan cost or a formal backup-contract exception first. A logical dump and
+local restore drill, if approved, must use private SSH, encrypted custody and a
+separate disposable PostgreSQL destination; it is not an official volume backup
+and the current command requires a truthful supported reference contract.
+No restoration over the operational database is authorized.

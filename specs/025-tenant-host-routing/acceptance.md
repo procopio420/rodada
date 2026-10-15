@@ -41,6 +41,14 @@ com replay do cookie original e testa Refund IDs estrangeiros em ambos os sentid
 
 ## Host mapping and DNS
 
+Authenticated update 2026-10-15: [fresh runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+Railway access is resolved, PR159 integrated as18da010 after headAPI849/Web98/KB
+PASS and independent R3 review. Runtime seed-off, flag-off, private DB and HMAC
+preflight verified over SSH. **Backup BLOCKED**: none listed, PITR off, official
+on-demand creation rejected because Pro is required. No QA provision/apply,
+activation or operational rollback; A/B edge acceptance remains pending.
+Do not interpret historical missing-access statements below as current status.
+
 Current read-only Railway revalidation (2026-10-14, base `bbaa147`):
 [checkpoint #151](railway-151-checkpoint.md). Public edge TLS is valid, A/B still
 return 421, and current operational inventory/backup/rollback remain blocked by

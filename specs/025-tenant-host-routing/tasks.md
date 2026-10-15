@@ -27,6 +27,16 @@
 
 ## Existing Railway homologation #151 — controlled preparation
 
+Authenticated follow-up: [runtime/backup checkpoint](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+- [x] PR159 head7436deb: API849/Web98/KB PASS, independent final R3 review,
+  merge18da010; deployment/main CI tracked separately.
+- [x] Fresh MCP+private SSH: existing service/main/source, no staged changes,
+  seed-off/flag-off/HMAC preflight, private PostgreSQL18.6, QA absent, pilot alias valid.
+- [x] PR159 deployment40f0c485 SUCCESS, exact runtime18da010 confirmed by SSH;
+  deployed inspection and provision dry-run executed, no writes.
+- [ ] **BLOCKED backup entitlement:** no backups/schedules; official create
+  rejected because Pro is required. User decision pending; no operational QA writes.
+
 Fresh PR159 checkpoint (2026-10-15 UTC), codeca2e0903:
 [executed evidence](audit-130-evidence.md#pr-159--provisionamento-e-contenção-seguros-2026-10-15-utc).
 
