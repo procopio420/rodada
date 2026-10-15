@@ -76,6 +76,10 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Record actual checked-out evidence identity
+        run: echo "RODADA_EVIDENCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -226,17 +230,17 @@ jobs:
           from pathlib import Path
           from datetime import datetime,timezone
           Path("artifacts/execution.json").write_text(json.dumps({
-              "sha":os.environ["GITHUB_SHA"],"result":"PASS" if os.environ["SLICE_STATUS"]=="success" else "FAIL",
+              "sha":os.environ["RODADA_EVIDENCE_SHA"],"result":"PASS" if os.environ["SLICE_STATUS"]=="success" else "FAIL",
               "last_step":"CI shared stack","started_at":os.environ.get("RODADA_EVIDENCE_STARTED_AT","NOT_RECORDED"),
               "finished_at":datetime.now(timezone.utc).isoformat()},indent=2)+"\n")
           PY
           # NO-GO is expected for incomplete PR slices; the manual release gate below enforces it.
           python scripts/build-issue106-report.py artifacts --fixture "$RODADA_POST_DROP_FIXTURE" --versions artifacts/versions.json \
-            --sha "$GITHUB_SHA" --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --sha "$RODADA_EVIDENCE_SHA" --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             --pr "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}" || test -s artifacts/gate.json
       - name: Enforce complete automated release gate on manual execution
         if: always() && github.event_name == 'workflow_dispatch'
-        run: python scripts/e2e_evidence.py artifacts/manifest.json --sha "$GITHUB_SHA" --root artifacts
+        run: python scripts/e2e_evidence.py artifacts/manifest.json --sha "$RODADA_EVIDENCE_SHA" --root artifacts
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -313,6 +317,10 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Record actual checked-out evidence identity
+        run: echo "RODADA_EVIDENCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

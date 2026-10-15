@@ -7,6 +7,7 @@ never imports older receipts, and never invents an independent review or PSP pro
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 from datetime import datetime, timezone
@@ -116,7 +117,7 @@ def main():
     p.add_argument("root",type=Path);p.add_argument("--fixture",required=True,type=Path);p.add_argument("--versions",required=True,type=Path)
     p.add_argument("--sha",required=True);p.add_argument("--run-url",required=True);p.add_argument("--pr",required=True);p.add_argument("--review",type=Path)
     a=p.parse_args()
-    document=build(a.root,a.sha,json.loads(a.fixture.read_text()),json.loads(a.versions.read_text()),a.run_url,subprocess.check_output(["git","branch","--show-current"],text=True).strip(),a.pr,json.loads(a.review.read_text()) if a.review else None)
+    document=build(a.root,a.sha,json.loads(a.fixture.read_text()),json.loads(a.versions.read_text()),a.run_url,(os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or subprocess.check_output(["git","branch","--show-current"],text=True).strip() or "detached@"+a.sha),a.pr,json.loads(a.review.read_text()) if a.review else None)
     (a.root/"manifest.json").write_text(json.dumps(document,indent=2)+"\n")
     errors=validate(document,a.root,a.sha)
     counts={status:sum(r["status"]==status for r in document["scenarios"]) for status in ("PASS","FAIL","SKIP","BLOCKED")}
