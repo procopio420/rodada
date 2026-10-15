@@ -101,12 +101,16 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
         await expect.poll(async () => (await api(`tabs/${detail.id}/`)).orders[0].items.find((i: { id: string }) => i.id === item.id).state).toBe("READY");
       }
     }
+    // Guest's simplified status must reflect these same real station actions.
+    await guest.reload();
+    await guest.getByRole("button", { name: "Pedidos", exact: true }).click();
+    await expect(guest.getByRole("region", { name: "Pedidos", exact: true }).getByText("Pronto / chegando", { exact: true })).toHaveCount(2);
     await mkdir("../../artifacts", { recursive: true });
     await writeFile("../../artifacts/browser-origins.json", JSON.stringify({
       sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
       table_id: table.id, occupancy_id: snapshot.active_occupancy.id, tab_ids: details.map(d => d.id),
       order_ids: details.map(d => d.orders[0].id), guest_replays: attempts.length,
-      kitchen_reconnected: true, changed_payload_status: conflict.status,
+      kitchen_reconnected: true, guest_ready_ui: true, changed_payload_status: conflict.status,
       original_key_sha256: createHash("sha256").update(JSON.parse(attempts[0]).idempotency_key).digest("hex"), status: "PASS",
     }, null, 2));
   } finally { await guestContext.close(); await kitchenContext.close(); }

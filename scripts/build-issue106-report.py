@@ -17,7 +17,7 @@ CASES = {
     "E2E-01": ("A2 A5 A6", ["qr-lifecycle-sql.json"], ["guest", "attendance-web"], ""),
     "E2E-02": ("A3 A6", ["browser-origins-sql.json", "android-context-readback-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-03": ("B2 B3 B7", ["browser-origins-sql.json", "android-compose-web-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
-    "E2E-04": ("B4 B5 B7", ["browser-origins-sql.json", "android-compose-web-sql.json", "android-context-readback-sql.json", "financial-sql.json"], ["bar", "kitchen", "android-instrumented", "manage"], ""),
+    "E2E-04": ("B4 B5 B7", ["browser-origins-sql.json", "android-compose-web-sql.json", "android-context-readback-sql.json", "projection-sql.json"], ["bar", "kitchen", "android-instrumented", "manage"], ""),
     "E2E-05": ("B6 B7", ["unavailable-cart-sql.json", "unavailable-staff-sql.json", "android-catalog-sql.json", "android-offline-conflict-sql.json"], ["guest", "attendance-web", "android-instrumented"], ""),
     "E2E-06": ("C3 C7", ["financial-sql.json"], ["cash", "attendance-web"], ""),
     "E2E-07": ("C5 C7", ["financial-sql.json", "financial-roles-sql.json", "cash-cutoff-sql.json"], ["cash", "manage"], ""),
@@ -51,6 +51,17 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         kind = "independent-sql" if path.name.endswith("-sql.json") or path.name == "android-web-cross-surface.json" else "receipt"
         artifacts[path.name] = {"path":path.name,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"kind":kind,"sanitized":True}
         receipts[path.name] = data
+    # The final SQL records precisely which intermediate receipts it reconciled.
+    # A later edit to any of those receipts invalidates invariant promotion.
+    final = receipts.get("final-state-sql.json")
+    if final:
+        sources = final.get("source_sha256")
+        if not isinstance(sources, dict) or not sources or any(
+            name not in artifacts or artifacts[name]["sha256"] != digest
+            for name, digest in sources.items()
+        ):
+            receipts.pop("final-state-sql.json")
+            artifacts.pop("final-state-sql.json")
     for path in sorted(root.rglob("*")):
         if path.is_file() and (path.name.endswith("-instrumentation.txt") or (path.suffix == ".zip" and path.parent.name == "sanitized-traces")):
             key = str(path.relative_to(root))

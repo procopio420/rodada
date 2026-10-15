@@ -90,5 +90,17 @@ cutoff.update(sql_independent=True, status="PASS", original_policy_restored=True
 Path("artifacts/cash-cutoff-sql.json").write_text(json.dumps(cutoff,indent=2)+"\n")
 roles.update(sql_independent=True, business_date=str(expected_business_date), cutoff_hour=venue.business_day_cutoff_hour, status="PASS")
 Path("artifacts/financial-roles-sql.json").write_text(json.dumps(roles, indent=2)+"\n")
+from modules.dispatch.models import DispatchTask
+projection = json.loads(Path("artifacts/projection-browser.json").read_text())
+assert projection["sha"] == r["sha"] and projection["database_instance_id"] == f["database_instance_id"]
+assert projection["attendance_ready_ui"] == projection["management_ready_ui"] == 7 and projection["guest_ready_ui"] is True
+tasks = DispatchTask.objects.filter(venue_id=f["venue_id"], task_type="DELIVERY")
+assert tasks.count() == 7 and {str(t.pk) for t in tasks} == set(projection["dispatch_ids"])
+assert {str(t.order_item_id) for t in tasks} == set(projection["item_ids"])
+assert all(t.state == "OPEN" and t.ready_at and not t.completed_at and not t.completed_by_id and not t.completion_source and t.order_item.state == "READY" for t in tasks)
+assert AuditEvent.objects.filter(venue_id=f["venue_id"], event_type="dispatch.delivery_created", entity_id__in=projection["dispatch_ids"], actor_session_id__isnull=False).count() == 7
+assert not AuditEvent.objects.filter(venue_id=f["venue_id"], event_type="dispatch.delivery_completed").exists()
+projection.update(sql_independent=True, status="PASS")
+Path("artifacts/projection-sql.json").write_text(json.dumps(projection,indent=2)+"\n")
 Path("artifacts/financial-sql.json").write_text(json.dumps(r, indent=2) + "\n")
 print("PASS: partial/residual CASH test payments=2, compensatory Refund=1, drawer movements=6, preserved -1000 discrepancy, other Tab ledgers untouched")
