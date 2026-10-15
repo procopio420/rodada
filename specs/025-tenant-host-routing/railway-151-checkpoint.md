@@ -321,7 +321,7 @@ contract. #151 and #130 remain OPEN; #152 remains later canary/rollout.
   Web/Android changed in164: their main-SHA checks must be recorded separately,
   not inferred from4056. [Android38671039437](https://github.com/procopio420/rodada/actions/runs/38671039437)
   SUCCESS; [Web38671039040](https://github.com/procopio420/rodada/actions/runs/38671039040)
-  pending at this checkpoint.
+  SUCCESS (98 browser integration tests/9.2min).
 
 ### Backup and actual commands
 
@@ -413,4 +413,17 @@ shared environment vs original separate preview. No operational database is
 used to simulate money. Finance/restart/turno gates run in disposable CI:
 [Aderlan38671562736](https://github.com/procopio420/rodada/actions/runs/38671562736)
 and [release38671565495](https://github.com/procopio420/rodada/actions/runs/38671565495),
-both dispatched on b63; results pending, not PASS.
+both dispatched on b63. The isolated pilot shift completed SUCCESS; integrated
+release remains pending at this checkpoint, not PASS.
+
+
+Machine-readable [sanitized execution receipts](evidence/railway-ab-20261015.json)
+retain actual scenario statuses, QA IDs, backup recovery metadata, both deployment
+proofs and containment results. These are executor observations, not independently
+signed Railway attestations; they contain no source rows, secrets, cookies or
+tokens. Post-containment pilot root/context/health/ready, landing and shared API
+health/ready remained200; API anonymous private401, QA manifest421. QA-only final
+counts confirm zero Tabs/Orders/Charges/Payments/Refunds, zero ACTIVE memberships,
+zero unrevoked staff sessions and no guest sessions. A bounded HTTP-log query on
+ef830243 returned zero5xx records for the preceding15min (limit100), not a claim
+about every request or all history.

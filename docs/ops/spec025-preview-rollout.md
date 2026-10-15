@@ -258,8 +258,9 @@ AAD is the UTF-8 encoding of the fixed source identities:
   final authentication tag16bytes. Authenticate **all** data before restore.
 - Encrypted manifest: nonce12bytes followed by AESGCM ciphertext+tag, same key/AAD.
 - Manifest `encrypted_sha256` binds the complete encrypted archive;
-  `archive_sha256` binds the plaintext PostgreSQL custom dump. Require both and
-  authenticated `verified_at` to match the recovery receipt; do not refresh an
+  `archive_sha256` binds the plaintext PostgreSQL custom dump. Verify both hashes
+  against the GCM-authenticated manifest; require its dump reference and
+  authenticated `verified_at` to match the recovery receipt. Do not refresh an
   old backup's age by editing an unencrypted receipt.
 - Recovery destination is a new local PostgreSQL18 disposable database/tmpfs,
   never the source. Feed authenticated plaintext through a private pipe to
