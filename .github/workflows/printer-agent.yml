@@ -32,6 +32,6 @@ jobs:
           python -m ruff check apps/printer-agent
           python -m mypy --strict apps/printer-agent/rodada_printer_agent
       - name: Worker and network fault tests
-        run: python -m pytest apps/printer-agent/tests/test_worker.py -q
+        run: python -m pytest apps/printer-agent/tests -q
       - name: Noninteractive Windows service, DPAPI and ACL
         run: python apps/printer-agent/tests/windows_smoke.py

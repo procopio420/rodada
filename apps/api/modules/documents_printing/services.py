@@ -291,12 +291,14 @@ def recover_expired():
 
 
 @transaction.atomic
-def claim_job(endpoint_ids=None):
+def claim_job(endpoint_ids=None, *, agent_delivery=False):
     query = PrintJob.objects.select_for_update(skip_locked=True).filter(
         state__in=["QUEUED", "FAILED_RETRYABLE"],
         available_at__lte=timezone.now(),
         endpoint__enabled=True,
     )
+    if not agent_delivery:
+        query = query.exclude(endpoint__adapter="AGENT")
     if endpoint_ids is not None:
         query = query.filter(endpoint_id__in=endpoint_ids)
     job = query.order_by("available_at", "id").first()

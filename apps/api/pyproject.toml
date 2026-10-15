@@ -30,6 +30,7 @@ include = ["rodada_api*", "modules*"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "rodada_api.settings_test"
 python_files = ["test_*.py"]
+pythonpath = [".", "../printer-agent"]
 testpaths = ["tests"]
 addopts = "-q"
 

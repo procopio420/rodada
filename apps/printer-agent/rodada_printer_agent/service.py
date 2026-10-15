@@ -8,6 +8,8 @@ import win32service
 import win32serviceutil
 
 from .client import AgentApi
+from .delivery import DeliveryCycle
+from .transports import NativeWindows, Transports
 from .windows_store import SERVICE_NAME, WindowsStore
 from .worker import Worker
 
@@ -27,7 +29,11 @@ class PrinterService(win32serviceutil.ServiceFramework):
 
     def SvcDoRun(self) -> None:
         store = WindowsStore()
-        worker = Worker(store, AgentApi(store.api_origin()))
+        worker = Worker(
+            store,
+            AgentApi(store.api_origin()),
+            DeliveryCycle(Transports(NativeWindows(), store.tcp_targets())),
+        )
         while not self.stop_event.is_set():
             worker.tick(socket.gethostname()[:120])
             self.stop_event.wait(10)

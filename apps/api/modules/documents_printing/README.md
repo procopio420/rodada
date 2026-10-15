@@ -33,3 +33,21 @@ queue destination resolution/safety must be implemented before S3 transport call
 Regression/evidence: specs/028-windows-printer-agent/s1-foundation.md and PR #149.
 Use disposable PostgreSQL for test_print_agents.py; migrate/reverse/reapply and
 credential/CAS races are real DB tests. No test may use a shared production Venue.
+
+
+### S3 agent delivery
+
+Adapter AGENT is explicitly separate from legacy bridge adapters. No implicit
+conversion or new order trigger. Manager inventory/routes: agents/v1/routes/
+(GET/POST, print.manage, expected_version and inspected printer_fingerprint).
+Machine POST me/discovery/, me/claim/, me/jobs/{job_id}/result/ use only device auth.
+0.2 workers retain delivery_enabled=false. 0.3 workers discover even before a route
+is enabled; only configured fresh routes can claim. One enabled route per endpoint
+in S3, multiple endpoints/printers per PC; S4 generalizes routes.
+
+Existing PrintJob/PrintAttempt retain leases, fencing, idempotency and uncertain
+recovery. Additive attempt agent/route/version ownership is database protected;
+results are idempotent for the same owner/token/outcome. Route edits never redirect
+an in-flight attempt. RAW requires per-route operator attestation and fingerprint;
+queue/driver changes invalidate that approval. No auto-failover after uncertainty.
+Migrations0012/0013 preserve the S2 immutable proof and credential-delivery guards.

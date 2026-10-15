@@ -7,7 +7,7 @@ from typing import Any, Protocol
 
 from .client import AgentHttpError
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 
 @dataclass
@@ -20,6 +20,7 @@ class InstallationState:
     expires_at: str = ""
     activated: bool = False
     authorization_lost: bool = False
+    pending_result: dict[str, Any] = field(default_factory=dict, repr=False)
 
 
 class StateStore(Protocol):
@@ -32,9 +33,15 @@ class Api(Protocol):
     def post(self, path: str, body: dict[str, Any], token: str = "") -> dict[str, Any]: ...
 
 
+class Delivery(Protocol):
+    def tick(
+        self, api: Api, state: InstallationState, store: StateStore, enabled: bool
+    ) -> None: ...
+
+
 class Worker:
-    def __init__(self, store: StateStore, api: Api):
-        self.store, self.api = store, api
+    def __init__(self, store: StateStore, api: Api, delivery: Delivery | None = None):
+        self.store, self.api, self.delivery = store, api, delivery
         self.state = store.load()
         self.store.save(self.state)  # Persist identity/proof before the first network call.
 
@@ -87,8 +94,12 @@ class Worker:
             data = self.api.post(
                 "me/heartbeat/", {"protocol_version": 1, "version": VERSION}, state.credential
             )
-            if data.get("protocol_version") != 1 or data.get("delivery_enabled") is not False:
+            if data.get("protocol_version") != 1 or not isinstance(
+                data.get("delivery_enabled"), bool
+            ):
                 raise ValueError("Unsupported service contract.")
+            if self.delivery is not None:
+                self.delivery.tick(self.api, state, self.store, data["delivery_enabled"])
             self.publish("ONLINE")
         except AgentHttpError as exc:
             if exc.status == 401 or (exc.status == 409 and not state.credential):

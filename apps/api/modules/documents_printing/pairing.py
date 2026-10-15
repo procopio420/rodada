@@ -278,13 +278,15 @@ def heartbeat(agent: PrintAgent, version: str, credential_id) -> dict:
         pk=credential_id, agent=locked, revoked_at__isnull=True, expires_at__gt=timezone.now()
     ).exists():
         raise AuthenticationFailed("Credential expired or revoked.")
+    from .agent_delivery import delivery_enabled
+
     locked.last_seen_at, locked.version = timezone.now(), version
     locked.save(update_fields=["last_seen_at", "version"])
     return {
         "protocol_version": 1,
         "agent_id": str(locked.id),
         "state": locked.state,
-        "delivery_enabled": False,
+        "delivery_enabled": delivery_enabled(locked),
         "heartbeat_after_seconds": 10,
     }
 
