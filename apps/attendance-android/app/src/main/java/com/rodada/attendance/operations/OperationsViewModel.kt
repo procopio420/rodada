@@ -419,8 +419,26 @@ class OperationsViewModel(
         state = state.copy(cart = next, noticeMessage = null)
     }
 
-    fun repeatOrder(tabId: String, review: RepeatOrderReview, quantities: Map<String, Int>) {
-        state = state.withRepeatedOrder(tabId, review, quantities)
+    fun repeatOrder(session: StoredSession, tabId: String, review: RepeatOrderReview, quantities: Map<String, Int>) {
+        val tab = state.selectedTab ?: return
+        if (tab.summary.id != tabId || tab.summary.state == "CLOSED" || state.loading || state.submitting ||
+            state.connectivity != ConnectivityState.ONLINE || state.orderIntentId != null ||
+            state.queuedOrders.any { it.tabId == tabId }) return
+        val original = tab.orders.firstOrNull { it.id == review.orderId } ?: return
+        val current = reviewRepeatedOrder(original, state.products)
+        if (current != review || !current.canAdd) {
+            state = state.copy(errorMessage = "A rodada mudou. Abra novamente a revisão.")
+            return
+        }
+        val selected = selectedRepeatedLines(current, quantities)
+        if (selected == null) {
+            state = state.copy(errorMessage = "Selecione itens e quantidades válidas para repetir.")
+            return
+        }
+        // A round is an independent Order; never borrow the manual cart.
+        queueOrder(session, tabId, selected.map {
+            PendingOrderLine(it.line.product.id, it.quantity, it.line.customization)
+        }, clearCartOnConfirmation = false)
     }
 
     fun editCartLine(lineId: String, customization: Customization) {
@@ -446,9 +464,16 @@ class OperationsViewModel(
     fun confirmOrder(session: StoredSession) {
         val tab = state.selectedTab?.summary ?: return
         if (state.cart.isEmpty() || tab.state == "CLOSED" || state.submitting) return
+        queueOrder(session, tab.id, state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
+            clearCartOnConfirmation = true)
+    }
+
+    private fun queueOrder(session: StoredSession, tabId: String, lines: List<PendingOrderLine>,
+                           clearCartOnConfirmation: Boolean) {
+        if (lines.isEmpty() || state.submitting) return
         val existing = runCatching { pendingMutationIntentStore.orderQueue(session) }
             .getOrElse { showFailure(it, "Fila local ilegível. Não envie um novo pedido."); return }
-            .firstOrNull { it.tabId == tab.id }
+            .firstOrNull { it.tabId == tabId }
         if (existing != null) {
             state = state.copy(orderIntentId = existing.idempotencyKey,
                 noticeMessage = "Pedido já guardado. Sua intenção original será reconciliada, sem duplicar.")
@@ -462,7 +487,7 @@ class OperationsViewModel(
             id = key, staffId = session.staffId, venueId = session.venueId,
             deviceId = session.deviceId, idempotencyKey = key,
             createdAtMillis = System.currentTimeMillis(), state = RecoveryState.PENDING,
-            tabId = tab.id, lines = state.cart.map { PendingOrderLine(it.product.id, it.quantity, it.customization) },
+            tabId = tabId, lines = lines, clearCartOnConfirmation = clearCartOnConfirmation,
         )
         if (!preserveIntent(intent, session)) return
         loadOrderQueue(session)
@@ -527,7 +552,8 @@ class OperationsViewModel(
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {
                         replaceDetail(canonical)
-                        state = state.copy(cart = emptyList(), orderIntentId = null)
+                        state = state.copy(cart = if (now.clearCartOnConfirmation) emptyList() else state.cart,
+                            orderIntentId = null)
                     }
                     state = state.copy(noticeMessage = "Pedido confirmado pelo servidor.",
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
