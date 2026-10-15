@@ -96,6 +96,7 @@ export function GuestCustomerProfile({
         return;
       }
       setIdentity({ authenticated: false, claimable_tabs: [] });
+      setMode("login");
       setPassword("");
       setNotice("Perfil desconectado. Sua comanda e pedidos permanecem nesta visita.");
     } finally {
