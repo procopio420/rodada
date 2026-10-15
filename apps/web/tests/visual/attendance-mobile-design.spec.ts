@@ -182,11 +182,40 @@ test("unavailable draft item can decrease but cannot increase or be sent", async
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [{ id: "fries", name: "Fritas", active: true, availability: "UNAVAILABLE", price_cents: 7200 }] } }));
   await page.clock.runFor(15000);
   await expect(popup.getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeDisabled();
+  await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  // Editing/removing an existing draft remains possible after inventory changes.
+  await popup.getByRole("button", { name: "Editar", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Personalizar Fritas", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(popup.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
   await popup.getByRole("button", { name: "Diminuir quantidade de Fritas", exact: true }).click();
   await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
 });
+
+for (const failure of ["unavailable", "stale"] as const) {
+  test(`customization opened before refresh cannot add a ${failure} product`, async ({ page }) => {
+    await setup(page);
+    await page.goto("/attendance");
+    const popup = await openTable(page);
+    await popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" }).click();
+    const customize = page.getByRole("dialog", { name: "Personalizar Fritas", exact: true });
+    const add = customize.getByRole("button", { name: /Adicionar ·/ });
+    await expect(add).toBeEnabled();
+    await page.route("**/api/attendance/catalog/products/", route =>
+      failure === "unavailable"
+        ? route.fulfill({ json: { results: [{ id: "fries", name: "Fritas", active: true, availability: "UNAVAILABLE", price_cents: 7200 }] } })
+        : route.fulfill({ status: 503, json: { message: "Catálogo indisponível" } }),
+    );
+    await page.clock.runFor(15000);
+    await expect(add).toBeDisabled();
+    await expect(customize.getByText("Produto indisponível ou catálogo desatualizado.")).toBeVisible();
+    await customize.getByRole("button", { name: "Voltar" }).click();
+    await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
+    await popup.getByRole("button", { name: /Pedido atual/ }).click();
+    await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
+  });
+}
 
 test("legacy venue can still create a standalone tab in the unified area", async ({ page }) => {
   await setup(page, false); let writes = 0;

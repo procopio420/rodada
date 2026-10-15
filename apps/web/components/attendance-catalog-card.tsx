@@ -8,8 +8,9 @@ export function AttendanceCatalogCard({ product, quantity, configurations, locke
   onAdd: () => void; onReduce: () => void; onCustomize: () => void;
 }) {
   const unavailable = !product.active || product.availability !== "AVAILABLE";
+  const canAdd = !locked && fresh && !unavailable;
   return <article className="posProduct" data-selected={quantity > 0}>
-    <button className="attendanceProductPick" disabled={locked || !fresh || unavailable} onClick={onAdd}>
+    <button className="attendanceProductPick" disabled={!canAdd} onClick={onAdd}>
       <ProductIcon name={product.name} icon={product.icon} />
       <strong>{product.name}</strong><small>{money(product.price_cents)}</small>
       {unavailable && <span className="muted">Indisponível</span>}
@@ -17,8 +18,8 @@ export function AttendanceCatalogCard({ product, quantity, configurations, locke
     <div className="attendanceCatalogQuantity" role="group" aria-label={`Quantidade de ${product.name}`}>
       <button className="buttonSecondary" aria-label={configurations > 1 ? `Revisar quantidades de ${product.name}` : `Diminuir quantidade de ${product.name}`} disabled={locked || quantity === 0} onClick={onReduce}>−</button>
       <output aria-label={`Quantidade selecionada de ${product.name}`}>{quantity}</output>
-      <button className="buttonSecondary" aria-label={`Adicionar ${product.name}`} disabled={locked || !fresh || unavailable} onClick={onAdd}>+</button>
+      <button className="buttonSecondary" aria-label={`Adicionar ${product.name}`} disabled={!canAdd} onClick={onAdd}>+</button>
     </div>
-    <button className="buttonQuiet" disabled={locked} onClick={onCustomize}>Personalizar</button>
+    <button className="buttonQuiet" disabled={!canAdd} onClick={onCustomize}>Personalizar</button>
   </article>;
 }
