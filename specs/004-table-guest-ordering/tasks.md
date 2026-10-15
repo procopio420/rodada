@@ -128,3 +128,5 @@ A inclusão de testes **não comprova execução**; não marcar validações com
 - [x] Testes de autenticação, account takeover, Venue, rotação, replay, ocupação alterada e concorrência PostgreSQL escritos.
 - [ ] Executar Django/PostgreSQL, migrations, auth/BFF/Web/visual/E2E e qualidade no SHA final; corrigir failures.
 - [ ] Revisão independente R3 sem P1/P0 aberto; aceite e merge autorizado; só então fechar #147.
+
+Checkpoint de integração (2026-10-15): `main` com TableGroups #145 e pairing Windows S2 reconciliada sem descartar Customer; o aceite #147 permanece condicionado a CI do novo HEAD e revisão R3 independente.
