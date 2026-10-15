@@ -46,3 +46,11 @@ policy is never used. Restore failures invalidate the run and require readback
 response observation follows redirects and records the final POST status; a308
 is neither a QR success nor an authentication failure. Post-negative reads verify
 product names, table flags, active groups and the own profile Tab association.
+
+
+`railway-ab-20261015-final.json` registra a janela corrigida (173 browser e quatro
+streams PASS), backout, pilot smoke e limites por SHA. O arquivo interim permanece
+histórico e não prova de fechamento. `live-containment-executor.py` e
+`live-stage-executor.py` recebem payload somente em memória; não executar no banco
+operacional sem pré-condições/runbook. O stage preserva guardas de escopo e snapshot;
+nenhum segredo ou row payload é artefato. Final review/CI e Gate3 estão separados.

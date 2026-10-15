@@ -331,3 +331,33 @@ through the existing disposable Railway image smoke using
 `scripts/verify-native-customer-ingress.py` (loopback-only, no guest credentials,
 expected JSON401 including forged assertion probes). Do not treat a redirect as
 native API acceptance. Test actual authorized QA identity again after deployment.
+
+
+### Exercício concluído em 2026-10-15 UTC
+
+Fonte14d3240f (PR182), deployment inicial5337fcc1; flag temporária autorizada em
+fddbcc96, browser173PASS e scripts HTTPS A/B PASS. Flagfalse propagada em
+c006312d SUCCESS. Quatro streams staff/guest A/B receberam somente o marcador
+QA próprio e revogaram após contenção. Reconnect, replay, nova autenticação e QR
+negados. Smoke autenticado do piloto antes/durante/depois PASS, com logout somente
+das novas sessões de auditoria. Financeiro QA0,19 grupos estrangeiros inalterados.
+[Recibo e limites](../../specs/025-tenant-host-routing/evidence/railway-ab-20261015-final.json).
+
+Comandos efetivamente executados: inspeção/provisionamento idempotente protegido
+por referência `logical-sha256` autenticada; `provision_spec025_ab --operation
+activate --apply --backup-reference <referência-verificada> --logical-backup-verified
+--edge-confirmed`; flag Railwaytrue; script oficial para A/B; matriz Chromium;
+flagfalse/redeploy; `provision_spec025_ab --operation deactivate --apply`, incluindo
+repetição externa obrigatória e idempotente. Nenhum restore operacional ou seed
+geral foi executado. Não publicar PIN/token/cookie/HMAC; credenciais via memória.
+
+O wrapper de prova usa snapshot REPEATABLE READ para verificar escopo de cada
+transação. NOWAIT/serialização podem recusar contenção: jamais marcar sucesso
+nessa situação. O witness tem até três tentativas somente para erros transitórios
+reconhecidos, diagnósticos sanitizados e uma contenção externa incondicional; após
+qualquer falha verificar estado e revogar QA. Executores revisáveis e recibos estão
+na pasta de evidências. A primeira prova interrompida permanece FAIL, a repetição
+final confirmou commit na primeira tentativa. Isso não comprova a causa anterior.
+
+A consolidação atual de151/152 em130 mantém Gate3/canary aberto. Este exercício
+não é sign-off de canary, FullStrict administrativo, PSP real ou E2E físico106.
