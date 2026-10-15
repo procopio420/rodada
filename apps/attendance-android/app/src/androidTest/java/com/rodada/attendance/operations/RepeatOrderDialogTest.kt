@@ -16,10 +16,10 @@ class RepeatOrderDialogTest {
 
     @Test fun reviewRequiresExplicitAddAndShowsPriceChange() {
         var added = 0
-        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { added++ }) } } }
-        compose.onNodeWithText("Anterior: Água · ${formatCents(800)} por unidade").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Atual: ${formatCents(1000)} por unidade").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Preço ou descrição mudou. Confira os valores atuais.").performScrollTo().assertIsDisplayed()
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { _ -> added++ }) } } }
+        compose.onNodeWithText("Alteração: antes ${formatCents(800)} / un. Confira o valor e a descrição atuais.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("${formatCents(1000)} / un.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Alteração: antes ${formatCents(800)} / un. Confira o valor e a descrição atuais.").performScrollTo().assertIsDisplayed()
         val addBounds = compose.onNodeWithText("Adicionar ao carrinho").fetchSemanticsNode().boundsInRoot
         val cancelBounds = compose.onNodeWithText("Cancelar").fetchSemanticsNode().boundsInRoot
         org.junit.Assert.assertTrue("Ações devem ocupar regiões separadas", addBounds.bottom <= cancelBounds.top)
@@ -32,11 +32,23 @@ class RepeatOrderDialogTest {
         var added = 0
         var dismissed = 0
         val blocked = reviewRepeatedOrder(TabOrder("order", "", listOf(item.copy(customization = Customization(optionIds = listOf("removed"))))), listOf(product))
-        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(blocked, false, { dismissed++ }, { added++ }) } } }
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(blocked, false, { dismissed++ }, { _ -> added++ }) } } }
         compose.onNodeWithText("Adicionar ao carrinho").assertIsNotEnabled()
         compose.onNodeWithText("Cancelar").performClick()
         assertEquals(0, added)
         assertEquals(1, dismissed)
+    }
+
+    @Test fun checkboxAndQuantityEditorControlExactlyWhatIsAdded() {
+        var selected: Map<String, Int>? = null
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { selected = it }) } } }
+        compose.onNode(isToggleable()).performClick()
+        compose.onNodeWithText("Adicionar ao carrinho").assertIsNotEnabled()
+        compose.onNode(isToggleable()).performClick()
+        compose.onNode(hasSetTextAction()).performTextReplacement("1")
+        compose.onNodeWithText("Selecionados: 1 unidade(s) · ${formatCents(1000)}").assertExists()
+        compose.onNodeWithText("Adicionar ao carrinho").assertIsEnabled().performClick()
+        assertEquals(mapOf(item.id to 1), selected)
     }
 
     @Test fun historyActionAddsDraftAndOpensCartWithoutSending() {
@@ -48,13 +60,13 @@ class RepeatOrderDialogTest {
         compose.setContent { RodadaTheme { Surface {
             TabWorkspace(ui.value, ui.value.selectedTab!!, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
                 { sent++ }, {}, {}, {}, {}, {}, {}, {}, {},
-                onRepeatOrder = { ui.value = ui.value.withRepeatedOrder(tab.id, it) })
+                onRepeatOrder = { review, quantities -> ui.value = ui.value.withRepeatedOrder(tab.id, review, quantities) })
         } } }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Repetir rodada"))
-        compose.onNodeWithText("Repetir rodada").performClick()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Mais uma rodada"))
+        compose.onNodeWithText("Mais uma rodada").performClick()
         compose.onNodeWithText("Cancelar").performClick()
         assertEquals(0, ui.value.cart.size)
-        compose.onNodeWithText("Repetir rodada").performClick()
+        compose.onNodeWithText("Mais uma rodada").performClick()
         compose.onNodeWithText("Adicionar ao carrinho").performClick()
         compose.onNodeWithText("Confirmar pedido").assertIsDisplayed()
         assertEquals(2, ui.value.cart.single().quantity)

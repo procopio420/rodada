@@ -58,6 +58,34 @@ class RepeatOrderTest {
         assertTrue(review.canAdd)
         assertFalse(reviewRepeatedOrder(order.copy(items = listOf(item.copy(state = "CANCELLED"))), listOf(product)).canAdd)
     }
+
+    @Test fun `selective repeat excludes unchecked lines and edits quantity without touching history`() {
+        val second = Product("second", "Suco", 900, true, "BAR", "AVAILABLE")
+        val another = item.copy(id = "second-item", productId = second.id, productName = "Suco", quantity = 3)
+        val historical = order.copy(items = listOf(item, another))
+        val current = state.copy(products = listOf(product, second), selectedTab = TabDetail(tab, listOf(historical)))
+        val review = reviewRepeatedOrder(historical, current.products)
+        val next = current.withRepeatedOrder(tab.id, review, mapOf(item.id to 1, another.id to 0))
+        assertEquals(1, next.cart.size)
+        assertEquals(product.id, next.cart.single().product.id)
+        assertEquals(1, next.cart.single().quantity)
+        assertNotEquals(item.id, next.cart.single().lineId)
+        assertEquals(historical, next.selectedTab!!.orders.single())
+        assertNull(next.orderIntentId)
+    }
+
+    @Test fun `empty invalid or unknown selection cannot mutate draft`() {
+        val review = reviewRepeatedOrder(order, state.products)
+        for (invalid in listOf(emptyMap(), mapOf(item.id to 0), mapOf(item.id to -1),
+            mapOf(item.id to 1000), mapOf("other-item" to 1), mapOf(item.id to 1, "other-item" to 1))) {
+            assertNull(selectedRepeatedLines(review, invalid))
+            val next = state.withRepeatedOrder(tab.id, review, invalid)
+            assertTrue(next.cart.isEmpty())
+            assertNotNull(next.errorMessage)
+        }
+        assertEquals(4, state.withRepeatedOrder(tab.id, review, mapOf(item.id to 4)).cart.single().quantity)
+    }
+
     @Test fun `canonical snapshot parsing never guesses configuration from labels`() {
         assertEquals(Customization("v", listOf("o"), "Nota"), historicalCustomization(JSONObject("""{"variant":{"id":"v"},"modifiers":[{"option_id":"o"}],"special_instructions":"Nota"}""")))
         assertEquals(Customization(), historicalCustomization(JSONObject("""{"variant":null,"modifiers":[],"special_instructions":""}""")))

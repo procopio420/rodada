@@ -42,14 +42,38 @@ fun reviewRepeatedOrder(order: TabOrder, products: List<Product>): RepeatOrderRe
     return RepeatOrderReview(order.id, lines, problems, excluded)
 }
 
-/** A reviewed draft is local only; sending still captures a new recovery intent. */
-internal fun OperationsUiState.withRepeatedOrder(tabId: String, review: RepeatOrderReview): OperationsUiState {
+/** A choice is identified by the historical OrderItem ID, never by product name. Zero means unchecked. */
+data class RepeatedSelection(val line: RepeatedLine, val quantity: Int)
+
+fun selectedRepeatedLines(review: RepeatOrderReview, quantities: Map<String, Int>): List<RepeatedSelection>? {
+    if (!review.canAdd) return null
+    val byId = review.lines.associateBy { it.original.id }
+    if (quantities.keys.any { it !in byId } || quantities.values.any { it !in 0..99 }) return null
+    val selected = review.lines.mapNotNull { line ->
+        val quantity = quantities[line.original.id] ?: 0
+        if (quantity == 0) null else RepeatedSelection(line, quantity)
+    }
+    if (selected.isEmpty() || selected.any {
+        val price = it.line.product.unitPrice(it.line.customization)
+        price < 0 || price > Int.MAX_VALUE.toLong() / it.quantity
+    }) return null
+    return selected
+}
+
+/** A reviewed draft is local only; sending still captures a fresh recovery intent. */
+internal fun OperationsUiState.withRepeatedOrder(
+    tabId: String,
+    review: RepeatOrderReview,
+    quantities: Map<String, Int> = review.lines.associate { it.original.id to it.original.quantity },
+): OperationsUiState {
     val tab = selectedTab ?: return this
     if (tab.summary.id != tabId || tab.summary.state == "CLOSED" || loading || submitting ||
         connectivity != ConnectivityState.ONLINE || orderIntentId != null || queuedOrders.any { it.tabId == tabId }) return this
     val order = tab.orders.firstOrNull { it.id == review.orderId } ?: return this
     val current = reviewRepeatedOrder(order, products)
     if (!current.canAdd || current != review) return copy(errorMessage = "A rodada mudou. Abra novamente a revisão.")
-    return copy(cart = cart + current.lines.map { CartLine(it.product, it.original.quantity, it.customization) },
+    val selected = selectedRepeatedLines(current, quantities)
+        ?: return copy(errorMessage = "Selecione itens e quantidades válidas antes de adicionar.")
+    return copy(cart = cart + selected.map { CartLine(it.line.product, it.quantity, it.line.customization) },
         errorMessage = null, noticeMessage = "Rodada adicionada ao carrinho. Confira antes de confirmar o novo pedido.")
 }

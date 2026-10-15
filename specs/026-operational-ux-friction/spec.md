@@ -449,3 +449,29 @@ revisor independente no SHA final, sem relaxar auditoria, pagamentos ou autoriza
 Contas usa setas anterior/próxima com nomes acessíveis e indicação da página atual, em uma linha centralizada. Alvos mínimos de 44 px, foco visível e estados desabilitados preservados. A mudança é de apresentação: não altera paginação da API, seleção, rascunhos ou bloqueios operacionais.
 
 Contas do Atendimento Web exibe até 10 comandas abertas por página; a busca continua global e reinicia na página 1. A API mantém seu contrato de até 200 resultados por leitura, e o PDV mantém 200 por página. Seleção e rascunhos são preservados.
+
+## T08e — Mais uma rodada: seleção e quantidades (14/10/2026)
+
+Evolui T08a–T08d sem criar nova mutation nem alterar o ledger. Na comanda aberta,
+a ação **Mais uma rodada** de um pedido confirmado abre uma revisão com todas
+as linhas elegíveis inicialmente marcadas e respectivas quantidades anteriores.
+Cada linha usa a identidade canônica de OrderItem; variação, modificadores e
+instruções permanecem exatamente associados ao Product ID original, nunca ao nome.
+
+O operador pode desmarcar linhas inteiras ou editar a quantidade de cada uma por
+campo numérico e botões −/+, limitado a 1–99 unidades por linha selecionada.
+Desmarcar é equivalente a zero unidades para o rascunho, não altera o pedido
+histórico. Seleção vazia ou quantidade inválida desabilita a inclusão; o total
+estimado exibe somente itens selecionados aos preços *atuais* em centavos.
+Cancelados não são selecionáveis. Problemas de identidade/configuração,
+catálogo ausente/indisponível, valor ou contexto bloqueiam a rodada conforme
+T08a–T08d; não trocar variantes por defaults.
+
+**Adicionar ao carrinho** inclui somente as linhas/quantidades escolhidas na
+mesma Tab (ou GuestScope) e mantém o rascunho anterior, sem POST, cobrança,
+produção nem reaproveitamento de idempotency key. Antes da inclusão, revalidar
+snapshot/catalog/Tab no staff e contexto de visita/policy no guest. Repetir
+toque, resposta perdida e reconciliação do envio continuam sob os contratos
+de intenção existentes. Na UX guest, a combinação preserva o limite agrupado
+de 99 unidades por configuração. Fora de escopo: repetir entre comandas,
+mutar pedidos confirmados ou autorizar entrega/pagamento automáticos.
