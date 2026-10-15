@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 export async function openNamedAttendanceTab(page: Page, label: string) {
   const previous = page.locator(".attendanceOrderDialog");
   if (await previous.isVisible()) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
   const { contextual, canManageTables } = await page.evaluate(async () => {
     const session = await (await fetch("/api/auth/me")).json();
     const tables = await (await fetch("/api/attendance/hospitality/tables/")).json();
