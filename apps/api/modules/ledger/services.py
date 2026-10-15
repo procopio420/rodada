@@ -432,6 +432,11 @@ def close_tab(*, tab_id, actor):
         assert_settleable(tab)
     except PricingError as error:
         raise LedgerServiceError(error.code, error.message, error.status_code) from error
+    if Payment.objects.filter(tab=tab, status__in=(
+        PaymentStatus.CREATED, PaymentStatus.PENDING, PaymentStatus.PROCESSING,
+        PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING,
+    )).exists():
+        raise LedgerServiceError("PAYMENT_ALREADY_PENDING", "Confirme ou resolva o pagamento pendente antes de fechar a comanda.", 409)
     if exposure_cents(tab) != 0:
         raise LedgerServiceError("TAB_HAS_OPEN_EXPOSURE", "Comanda só fecha com saldo zero.", 409)
     tab.state, tab.closed_at, tab.version = TabState.CLOSED, timezone.now(), tab.version + 1

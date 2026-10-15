@@ -19,6 +19,9 @@ on:
       - "scripts/check_agent_kb.py"
       - "scripts/agent_evals.py"
       - "scripts/spec_evidence.py"
+      - "scripts/e2e_evidence.py"
+      - "scripts/tests/test_e2e_evidence.py"
+      - "docs/releases/issue-106-evidence-contract.md"
       - "scripts/tests/test_agent_evals.py"
       - "scripts/tests/test_spec_evidence.py"
       - "scripts/tests/test_check_agent_kb.py"
@@ -38,6 +41,9 @@ on:
       - "scripts/check_agent_kb.py"
       - "scripts/agent_evals.py"
       - "scripts/spec_evidence.py"
+      - "scripts/e2e_evidence.py"
+      - "scripts/tests/test_e2e_evidence.py"
+      - "docs/releases/issue-106-evidence-contract.md"
       - "scripts/tests/test_agent_evals.py"
       - "scripts/tests/test_spec_evidence.py"
       - "scripts/tests/test_check_agent_kb.py"
@@ -62,6 +68,7 @@ jobs:
         run: |
           python -m unittest discover -s scripts/tests -p test_agent_evals.py -v
           python -m unittest discover -s scripts/tests -p test_spec_evidence.py -v
+          python -m unittest discover -s scripts/tests -p test_e2e_evidence.py -v
           python scripts/agent_evals.py validate
           python scripts/spec_evidence.py validate
           python scripts/spec_evidence.py report >> "$GITHUB_STEP_SUMMARY"

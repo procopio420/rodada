@@ -23,6 +23,26 @@ from modules.venue.models import Venue
 
 
 class PaymentProviderServiceTests(TestCase):
+    def test_unconfirmed_payment_blocks_zero_balance_close_without_provider_calls(self):
+        from modules.ledger.models import Payment
+        from modules.ledger.services import close_tab, LedgerServiceError
+        for status in ("CREATED", "PENDING", "PROCESSING", "AUTHORIZED", "CONFIRMATION_PENDING"):
+            with self.subTest(status=status):
+                tab = Tab.objects.create(venue=self.venue, display_label=status)
+                payment = Payment.objects.create(tab=tab, amount_cents=100,
+                    method="OTHER", status=status, idempotency_key=status, received_by=self.staff)
+                with self.assertRaises(LedgerServiceError) as denied:
+                    close_tab(tab_id=tab.pk, actor=self.actor)
+                self.assertEqual(denied.exception.code, "PAYMENT_ALREADY_PENDING")
+                tab.refresh_from_db()
+                payment.refresh_from_db()
+                self.assertEqual(tab.state, "OPEN")
+                self.assertIsNone(payment.confirmed_at)
+                self.assertEqual(totals(tab)["payments_cents"], 0)
+                payment.status = "CANCELLED"
+                payment.save(update_fields=["status"])
+                self.assertEqual(close_tab(tab_id=tab.pk, actor=self.actor).state, "CLOSED")
+
     def setUp(self):
         self.venue = Venue.objects.create(name="Provider Bar", slug="provider-bar")
         self.staff = StaffMember.objects.create(
