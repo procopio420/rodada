@@ -11,27 +11,24 @@ class RepeatOrderTest {
     private val tab = TabSummary("tab", "Comanda", "OPEN", 1, 1600, 0, 1600)
     private val state = OperationsUiState(selectedTab = TabDetail(tab, listOf(order)), products = listOf(product), connectivity = ConnectivityState.ONLINE)
 
-    @Test fun `repeat preserves draft uses current cents and new line identities without historical intent`() {
+    @Test fun `direct repeat uses current product and leaves manual draft untouched`() {
         val draft = CartLine(product, 1)
+        val original = state.copy(cart = listOf(draft))
         val review = reviewRepeatedOrder(order, state.products)
-        val next = state.copy(cart = listOf(draft)).withRepeatedOrder(tab.id, review)
-        assertEquals(draft, next.cart.first())
-        assertEquals(2, next.cart.last().quantity)
-        assertEquals(1000L, next.cart.last().unitPriceCents)
-        assertNotEquals(item.id, next.cart.last().lineId)
-        assertNotEquals(draft.lineId, next.cart.last().lineId)
-        assertNull(next.orderIntentId)
-        assertEquals(order, next.selectedTab!!.orders.single())
+        val lines = original.repeatedOrderLines(tab.id, review, mapOf(item.id to 2))
+        assertEquals(listOf(PendingOrderLine(product.id, 2, Customization())), lines)
+        assertEquals(listOf(draft), original.cart)
+        assertEquals(order, original.selectedTab!!.orders.single())
+        assertNull(original.orderIntentId)
     }
-    @Test fun `stale review and operational guards leave draft untouched`() {
+    @Test fun `stale review and operational guards reject without editing the cart`() {
         val review = reviewRepeatedOrder(order, state.products)
-        val changed = state.copy(products = listOf(product.copy(priceCents = 1100))).withRepeatedOrder(tab.id, review)
-        assertTrue(changed.cart.isEmpty())
-        assertNotNull(changed.errorMessage)
+        assertNull(state.copy(products = listOf(product.copy(priceCents = 1100)))
+            .repeatedOrderLines(tab.id, review, mapOf(item.id to 2)))
         listOf(state.copy(loading = true), state.copy(submitting = true), state.copy(orderIntentId = "pending"),
             state.copy(connectivity = ConnectivityState.OFFLINE), state.copy(selectedTab = TabDetail(tab.copy(state = "CLOSED"), listOf(order))))
-            .forEach { assertEquals(it, it.withRepeatedOrder(tab.id, review)) }
-        assertEquals(state, state.withRepeatedOrder("other-tab", review))
+            .forEach { assertNull(it.repeatedOrderLines(tab.id, review, mapOf(item.id to 2))) }
+        assertNull(state.repeatedOrderLines("other-tab", review, mapOf(item.id to 2)))
     }
     @Test fun `unavailable inactive absent legacy and removed configuration block entire round`() {
         listOf(product.copy(active = false), product.copy(availability = "UNAVAILABLE"), product.copy(id = "other"))
@@ -65,13 +62,11 @@ class RepeatOrderTest {
         val historical = order.copy(items = listOf(item, another))
         val current = state.copy(products = listOf(product, second), selectedTab = TabDetail(tab, listOf(historical)))
         val review = reviewRepeatedOrder(historical, current.products)
-        val next = current.withRepeatedOrder(tab.id, review, mapOf(item.id to 1, another.id to 0))
-        assertEquals(1, next.cart.size)
-        assertEquals(product.id, next.cart.single().product.id)
-        assertEquals(1, next.cart.single().quantity)
-        assertNotEquals(item.id, next.cart.single().lineId)
-        assertEquals(historical, next.selectedTab!!.orders.single())
-        assertNull(next.orderIntentId)
+        val chosen = current.repeatedOrderLines(tab.id, review, mapOf(item.id to 1, another.id to 0))
+        assertEquals(listOf(PendingOrderLine(product.id, 1, Customization())), chosen)
+        assertTrue(current.cart.isEmpty())
+        assertEquals(historical, current.selectedTab!!.orders.single())
+        assertNull(current.orderIntentId)
     }
 
     @Test fun `empty invalid or unknown selection cannot mutate draft`() {
@@ -79,11 +74,22 @@ class RepeatOrderTest {
         for (invalid in listOf(emptyMap(), mapOf(item.id to 0), mapOf(item.id to -1),
             mapOf(item.id to 1000), mapOf("other-item" to 1), mapOf(item.id to 1, "other-item" to 1))) {
             assertNull(selectedRepeatedLines(review, invalid))
-            val next = state.withRepeatedOrder(tab.id, review, invalid)
-            assertTrue(next.cart.isEmpty())
-            assertNotNull(next.errorMessage)
+            assertNull(state.repeatedOrderLines(tab.id, review, invalid))
+            assertTrue(state.cart.isEmpty())
         }
-        assertEquals(4, state.withRepeatedOrder(tab.id, review, mapOf(item.id to 4)).cart.single().quantity)
+        assertEquals(4, state.repeatedOrderLines(tab.id, review, mapOf(item.id to 4))!!.single().quantity)
+    }
+
+    @Test fun `durable repeat intent preserves direct origin and legacy draft compatibility`() {
+        val repeat = RecoveryIntent.ConfirmOrder(
+            "new-intent", "staff", "venue", "device", "new-intent", 123L, RecoveryState.PENDING,
+            "tab", listOf(PendingOrderLine(product.id, 2, Customization())), clearCartOnConfirmation = false,
+        )
+        assertEquals(repeat, RecoveryIntent.fromJson(repeat.toJson()))
+        assertFalse((RecoveryIntent.fromJson(repeat.toJson()) as RecoveryIntent.ConfirmOrder).clearCartOnConfirmation)
+        val legacy = repeat.toJson().apply { remove("clear_cart_on_confirmation") }
+        assertTrue((RecoveryIntent.fromJson(legacy) as RecoveryIntent.ConfirmOrder).clearCartOnConfirmation)
+        assertTrue(state.cart.isEmpty())
     }
 
     @Test fun `canonical snapshot parsing never guesses configuration from labels`() {
