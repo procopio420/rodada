@@ -106,6 +106,19 @@ class TableTurnoverMetricsTests(TestCase):
         assert data["timings"]["occupancy"]["mean_seconds"] is None
         assert data["orders"]["guest_percent"] is None
 
+    def test_release_ready_with_invalid_intermediate_cleaning_is_not_observed(self):
+        tz = ZoneInfo("America/Sao_Paulo")
+        released = datetime(2026, 10, 14, 21, tzinfo=tz)
+        self.visit(
+            self.venue, "A", started_at=released - timedelta(minutes=15),
+            released_at=released, cleaning_started_at=released + timedelta(minutes=12),
+            ready_at=released + timedelta(minutes=8),
+        )
+        timing = self.report("2026-10-14")["summary"]["timings"]["release_to_ready"]
+        assert timing["invalid"] == 1
+        assert timing["observed"] == 0
+        assert timing["mean_seconds"] is None
+
     def test_dst_cutoff_uses_venue_calendar(self):
         self.venue.timezone = "America/New_York"
         self.venue.save(update_fields=["timezone"])
