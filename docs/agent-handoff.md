@@ -65,3 +65,36 @@ logs, bancos, APKs, credenciais ou contexto pessoal. Mantenha PR draft; depois
 concilie main semanticamente, execute gates proporcionais Web/API/Android e revisão
 independente R3 antes de recomendar integração. Registre fatos, erros, resultados,
 pendências e a próxima ação; não trate intenção/spec ou CI como homologação.
+
+## Publicação concluída
+
+- Implementação/documentação publicadas no commit
+  `26ca193ba0eb688211a96b18ff5fb61d295a901d`; SHA remoto confirmado.
+- PR draft: https://github.com/procopio420/rodada/pull/169, criado e anexado à conversa.
+  GitHub indicou `mergeable=false` contra main; resolver divergências antes de integração.
+- Restou somente `.worktrees/` não rastreada, preservada deliberadamente. Sem merge,
+  rebase, reset, force-push ou deploy. Esta atualização documental é commit posterior;
+  consultar `git rev-parse HEAD` para o topo atual da branch.
+
+### PROMPT PARA O PRÓXIMO AGENTE — após publicação
+
+Continue a revisão do PR draft https://github.com/procopio420/rodada/pull/169,
+branch codex/ux-teste-mobile, repositório Rodada. O usuário pediu publicar Web,
+API, Android e documentação: isso foi concluído; implementação em
+26ca193ba0eb688211a96b18ff5fb61d295a901d, com atualização documental posterior.
+Não repita commit/push/criação do PR. Verifique CODEX_HOME e leia AGENTS global
+ou override, regras locais, docs/agents/PROCEDURES.md, este checkpoint e Spec029.
+Confira o diretório real com git rev-parse --show-toplevel, HEAD/status/upstream,
+arquivos e PR remoto. Preserve .worktrees/ e trabalho concorrente. Android passou
+build/lint/88 JVM, 34 Compose em 360/390/430dp e fontes1/2, A/B/A real somente
+leitura e Back nativo; revisão independente NO_FINDINGS_WITH_GAPS. Evidências em
+specs/029-attendance-mobile-design/android-evidence.md. Web tem evidência histórica
+focada, sem reexecução nesta publicação; a API MOVE_LOCATION para mesa AVAILABLE
+e o pacote completo ainda exigem gates e revisão R3 (REVIEW_BLOCKED para merge).
+Primeiro passo: consultar estado/CI do PR169 e confirmar conflitos com a main,
+que estava em b63b6111d66c640e8d4fde8ab2042743c9083eee. Planejar conciliação
+semântica, especialmente repetição de rodada, preservando todas as alterações;
+não executar merge de main nem deploy sem autorização aplicável. Depois executar
+gates proporcionais API/PostgreSQL/Web/Android e revisão independente do conjunto.
+Não alegar paridade global, provider/dispositivo, operação real ou produção.
+Atualize este registro por etapa com resultados e próximos passos concretos.
