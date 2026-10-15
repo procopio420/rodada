@@ -246,6 +246,8 @@ jobs:
             artifacts/versions.json
             artifacts/manifest.json
             artifacts/gate.json
+            artifacts/final-state-sql.json
+            artifacts/projection*.json
             artifacts/android-emulator-api.txt
             artifacts/android-real-post-drop.json
             artifacts/android-web-cross-surface.json

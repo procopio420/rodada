@@ -19,7 +19,7 @@ test("real UI cash openings on both sides of controlled fixture cutoff preserve 
       const r = await fetch(`/api/pos/${path}`, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!r.ok) throw new Error(`${path}: ${r.status}`); return r.json();
     }, { path, body });
-    const point = await api("cash/points/", { label: `Disposable cutoff control ${Date.now()}` });
+    const point = await api("cash/points/create/", { label: `Disposable cutoff control ${Date.now()}` });
     const shifts = [];
     for (const phase of ["before", "after"]) {
       control(phase); await page.goto("/cash");
