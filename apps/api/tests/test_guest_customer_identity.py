@@ -221,3 +221,15 @@ class GuestCustomerIdentityTests(TestCase):
             )
         assert stale.exception.code == "TAB_NOT_IN_VISIT"
         assert tab.customer_id is None or Customer.objects.filter(pk=customer.pk).exists()
+
+    def test_removed_venue_relationship_revokes_current_identity_rights(self):
+        resolution, tab = self.prepared()
+        customer, proof = self.enroll(resolution.token)
+        Relationship.objects.filter(customer=customer, venue=self.venue).delete()
+        with self.assertRaises(GuestAccessError) as revoked:
+            customer_context(guest_token=resolution.token, auth_token=proof)
+        assert revoked.exception.code == "CUSTOMER_NOT_IN_VENUE"
+        with self.assertRaises(GuestAccessError):
+            claim_customer_tab(
+                guest_token=resolution.token, auth_token=proof, target_tab_id=tab.id,
+            )
