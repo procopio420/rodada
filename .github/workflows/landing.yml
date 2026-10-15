@@ -1,0 +1,34 @@
+name: Landing
+
+on:
+  pull_request:
+    paths:
+      - "apps/landing/**"
+      - "specs/030-marketing-landing/**"
+      - "scripts/test_landing_marketing.py"
+      - ".github/workflows/landing.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/landing/**"
+      - "specs/030-marketing-landing/**"
+      - "scripts/test_landing_marketing.py"
+      - ".github/workflows/landing.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Verify approved brand artwork
+        run: python scripts/verify-brand-v1.py
+      - name: Validate landing HTML, assets and safe public copy
+        run: python -m unittest discover -s scripts -p test_landing_marketing.py -v
