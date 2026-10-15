@@ -67,9 +67,11 @@ export async function selectExistingAttendanceTab(page: Page, label: string) {
     await page.locator(`#attendance-table-${located.tableId} .attendanceTableSummary`).click();
     await page.locator(`button[data-tab-id="${located.tabId}"]`).click();
   } else {
-    // Homonymous labels are legitimate; select the exact canonical Tab reference.
-    await page.getByRole("region", { name: "Outras comandas" }).locator("button.attendanceTabOption").filter({ hasText: located.tabId.slice(0, 8).toUpperCase() }).click();
+    // Labels may be homonymous; use the canonical identity instead of fuzzy text.
+    await page.getByRole("region", { name: "Outras comandas" }).locator(`button.attendanceTabOption[data-tab-id="${located.tabId}"]`).click();
   }
   await expect(popup).toBeVisible();
+  // A visible dialog is not enough if a previous Tab selection is still settling.
+  await expect(popup).toContainText(label);
   return located.tabId;
 }

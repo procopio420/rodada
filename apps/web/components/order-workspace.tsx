@@ -283,10 +283,15 @@ export function OrderWorkspace({ tableMode = false, requestedTabSequence = 0, cr
   const selectRequestedTab = useEffectEvent((id: string) => { void selectTab({ id }).then(failure => { if (failure) onOpenFailure?.(failure); }); });
   useEffect(() => {
     const request = `${requestedTabId}:${requestedTabSequence}`;
-    if (!requestedTabId || handledExternalRequest.current === request || correctionPending || orderIntent.pending) return;
+    // Don't consume an external selection while a previous selection is still completing:
+    // selectTab would reject it and the request ID would otherwise be lost forever.
+    if (!requestedTabId || handledExternalRequest.current === request
+      || switching.current || selecting || opening || closing || cashPending
+      || correctionPending || orderIntent.pending || discardDialog || configuring
+      || repeatReading.current || repeatReview) return;
     handledExternalRequest.current = request;
     selectRequestedTab(requestedTabId);
-  }, [requestedTabId, requestedTabSequence, correctionPending, orderIntent.pending]);
+  }, [requestedTabId, requestedTabSequence, selecting, opening, closing, cashPending, correctionPending, orderIntent.pending, discardDialog, configuring, repeatReview]);
   useEffect(() => { if (createRequest) queueMicrotask(() => { setStandaloneCreate(true); setDialogOpen(true); }); }, [createRequest]);
   useEffect(() => { if (historyRequest) queueMicrotask(() => { setDialogOpen(true); requestAnimationFrame(() => setShowHistory(true)); }); }, [historyRequest]);
   const createTab = async () => {

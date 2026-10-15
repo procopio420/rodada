@@ -40,7 +40,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
     await page.getByLabel("Buscar mesa ou comanda").fill("joao da praca");
     const others = page.getByRole("region", { name: "Outras comandas" });
     for (const match of matches)
-      await expect(others.locator("button.attendanceTabOption").filter({ hasText: match.display_label })).toBeVisible();
+      await expect(others.locator(`button.attendanceTabOption[data-tab-id="${match.id}"]`)).toBeVisible();
 
     await selectExistingAttendanceTab(page, "João  da Praça");
     await popup.getByRole("button", { name: /Pedido atual/ }).click();
