@@ -99,3 +99,15 @@ e revisão independente são necessários antes do fechamento da #3.
 
 ## Gestão de mesas
 Contrato: [management-tables.md](management-tables.md). Implementar serviço transacional de quantidade/estado, API protegida, tela dedicada e testes PostgreSQL/mobile. Recorte implementado e validado localmente; evidência e limites em [management-tables-evidence.md](management-tables-evidence.md).
+
+
+## Issue #148 — métricas/relatórios de giro
+
+- [ ] Gerência lista giro por Venue, mesa e dia operacional com média de ocupação/limpeza observada e cobertura.
+- [ ] Mean sem amostras é `null`; valores ausentes e cronologia impossível não entram como duração zero.
+- [ ] Liberar antes e finalizar limpeza depois do corte mantém coortes e denominadores explícitos.
+- [ ] Pedido Guest vs Staff inclui caixa no grupo equipe; cancelados não contaminam participação.
+- [ ] Dois Venues, permissão gerencial, timestamp de corte e transição DST passam em PostgreSQL descartável.
+- [ ] PR #148: CI no SHA final, visual Web 360/390/430/desktop, revisão R3 independente; após merge fechar issue.
+
+Checklist mantém estado pendente até execução e prova verificável, não apenas testes escritos.

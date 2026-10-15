@@ -45,6 +45,7 @@ from modules.hospitality.views import (
     TableOccupyView,
     TableReleaseView,
     ZoneListCreateView,
+    TableTurnoverReportView,
 )
 from modules.guest_access.views import (
     GuestPartySizeView,
@@ -146,6 +147,7 @@ urlpatterns = [
     path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
+    path("management/table-turnover/", TableTurnoverReportView.as_view(), name="table-turnover-report"),
     path("venue/context/", VenueHostContextView.as_view(), name="venue-host-context"),
     path("health/", health, name="health"),
     path("ready/", readiness, name="readiness"),
