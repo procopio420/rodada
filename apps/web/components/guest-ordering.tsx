@@ -8,6 +8,7 @@ import { BillSummary } from "./bill-summary";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { guestApi } from "@/lib/client/guest-api";
+import { GuestCustomerProfile } from "./guest-customer-profile";
 import { guestOrderStorageKey, useGuestOrderIntent, validScope, sameScope, type GuestScope } from "@/lib/client/guest-order-intent";
 import { RepeatOrderDialog, reviewRepeatedOrder } from "./repeat-order";
 import { ConnectivityNotice } from "./connectivity-notice";
@@ -299,6 +300,7 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     {notice && <div className="notice" data-state={notice === repeatSuccessMessage ? "success" : "danger"} role={notice === repeatSuccessMessage ? "status" : "alert"}>{notice}</div>}
     {stale && <div className="notice" data-state="warning" role="status">Dados desatualizados. Reconecte para confirmar seu pedido.</div>}
     <button className="buttonQuiet" disabled={repeatLoading || sending} onClick={() => void refresh().catch(() => {})}>Atualizar comanda</button>
+    <GuestCustomerProfile selector={guestToken} tabId={context.tab?.id ?? null} locked={stale || sending || orderIntent.locked || repeatLoading || requestSending} onLinked={() => void refresh().catch(() => {})} />
     {context.occupancy_active && <section className="panel" aria-labelledby="guest-service-heading">
       <OperationalHeading as="h2" id="guest-service-heading" icon="warning">Precisa da equipe?</OperationalHeading>
       <div className="actions">
