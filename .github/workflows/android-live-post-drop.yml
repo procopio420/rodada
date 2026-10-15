@@ -18,6 +18,7 @@ on:
       - "scripts/verify-browser-origins.py"
       - "scripts/run-issue106-concurrency.py"
       - "scripts/verify-issue106-concurrency.py"
+      - "scripts/verify-issue106-authorization.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"

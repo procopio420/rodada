@@ -67,7 +67,7 @@ test("revoked Web session cannot replay captured UI intent and new login require
   const intent = JSON.parse(saved!);
   const oldContext = await browser.newContext({ storageState: await page.context().storageState(), baseURL: "http://127.0.0.1:3110" });
   try {
-    expect(await page.evaluate(async () => (await fetch("/api/auth/logout", { method: "POST" })).status)).toBe(200);
+    expect(await page.evaluate(async () => (await fetch("/api/auth/logout", { method: "POST" })).status)).toBe(204);
     const old = await oldContext.newPage(); await old.goto("/staff");
     const denied = await old.evaluate(async ({ target, payload }) => {
       const read = await fetch("/api/auth/me");

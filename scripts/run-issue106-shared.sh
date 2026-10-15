@@ -107,6 +107,7 @@ step=independent-sql
 "$PYTHON" scripts/verify-qr-lifecycle.py
 "$PYTHON" scripts/verify-browser-origins.py
 "$PYTHON" scripts/verify-issue106-concurrency.py
+"$PYTHON" scripts/verify-issue106-authorization.py
 step=financial-browser
 (cd apps/web && RODADA_CROSS_PHASE=financial npx playwright test --config playwright.android-cross-surface.config.ts)
 step=financial-sql
