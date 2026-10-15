@@ -25,6 +25,7 @@ def command(args, cwd=None):
 android = command(["adb", "shell", "getprop", "ro.build.version.sdk"])
 if android == "NOT_AVAILABLE" and Path("artifacts/android-emulator-api.txt").exists():
     android = Path("artifacts/android-emulator-api.txt").read_text().strip()
+if not android.isdigit(): android="NOT_AVAILABLE"
 node = command(["node", "--version"])
 browser = command(["node", "-e", "const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();try{console.log(b.version())}finally{await b.close()}})().catch(()=>process.exit(1))"], "apps/web")
 versions = {"sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),

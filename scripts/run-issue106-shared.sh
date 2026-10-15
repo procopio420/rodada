@@ -35,7 +35,7 @@ export RODADA_EVIDENCE_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 from pathlib import Path
 import shutil,sys
 out=Path(sys.argv[1])
-for pattern in ('*.json','*-instrumentation.txt','android-compose-*.png'):
+for pattern in ('*.json','*-instrumentation.txt','android-*.png'):
     for path in Path('artifacts').glob(pattern): shutil.move(str(path),out/path.name)
 for path in (Path('artifacts/sanitized-traces'),Path('apps/web/test-results/android-cross-surface'),Path('apps/web/test-results/android-cross-financial')):
     if path.exists(): shutil.move(str(path),out/path.name)
@@ -62,7 +62,7 @@ for path in Path('artifacts').glob('*.json'):
     try: receipt=json.loads(path.read_text())
     except ValueError: continue
     if instance and receipt.get('sha') == sha and receipt.get('database_instance_id') == instance: shutil.copy2(path,out/path.name)
-for pattern in ('*-instrumentation.txt','android-compose-confirmed.png'):
+for pattern in ('*-instrumentation.txt','android-*.png'):
     for path in Path('artifacts').glob(pattern): shutil.copy2(path,out/path.name)
 if Path('artifacts/sanitized-traces').exists(): shutil.copytree('artifacts/sanitized-traces',out/'sanitized-traces',dirs_exist_ok=True)
 (out/'execution.json').write_text(json.dumps({'sha':sha,'result':'PASS' if code==0 else 'FAIL','last_step':sys.argv[3], 'started_at':os.environ['RODADA_EVIDENCE_STARTED_AT'],'finished_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),'exit_code':code,'automated_gate':'NO-GO','reason':'This executable slice does not yet cover every E2E-01..14 or all A1–F8 requirements.'},indent=2)+'\n')
@@ -100,6 +100,7 @@ step=compose
 bash scripts/android-compose-order.sh
 RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
 RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
+RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true RODADA_COMPOSE_OFFLINE_REVOCATION=true bash scripts/android-compose-order.sh
 step=web-build
 (cd apps/web && npm ci --no-audit --no-fund && npm run typecheck && npm run build) > "$run_dir/web-build.txt" 2>&1
 (cd apps/web && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110) > "$run_dir/next.txt" 2>&1 &
