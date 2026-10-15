@@ -22,7 +22,7 @@ async function api(page: Page, path: string, body?: unknown) {
 // that localhost jar so Django can test credential/Host mismatch. Never publish
 // these headers; this does not certify subdomain cookies or external ingress.
 async function hostProbe(page: Page, path: string, host: string, extra: Record<string, string> = {}) {
-  const cookies = await page.context().cookies("http://127.0.0.1:3110");
+  const cookies = (await page.context().cookies()).filter(c => c.domain === "127.0.0.1");
   return page.request.get(`http://127.0.0.1:3110${path}`, {
     headers: { Host: host, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "), ...extra },
   });
