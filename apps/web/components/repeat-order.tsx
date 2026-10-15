@@ -107,7 +107,12 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
             <button type="button" className="buttonSecondary" aria-label={`Aumentar quantidade de ${line.product.name}`}
               disabled={!canEdit || !picked || !Number.isInteger(quantity) || quantity < 1 || quantity >= 99} onClick={() => adjust(id, 1)}>+</button>
           </div>
-          {line.changed && <p className="notice" data-state="warning">Preço ou descrição mudou. Anterior: {money(line.original.unit_price_cents!)} / un. Confira a configuração.</p>}
+          {line.changed && <div className="notice" data-state="warning">
+            <p>Anterior: {line.original.product_name} · {money(line.original.unit_price_cents!)} por unidade</p>
+            <CustomizationText snapshot={line.original.customization_snapshot} />
+            <p>Atual: {money(price)} por unidade</p>
+            <p>Preço ou descrição mudou. Confira os valores atuais.</p>
+          </div>}
         </section>;
       })}
     </div>
