@@ -130,3 +130,9 @@ A inclusão de testes **não comprova execução**; não marcar validações com
 - [ ] Revisão independente R3 sem P1/P0 aberto; aceite e merge autorizado; só então fechar #147.
 
 Checkpoint de integração (2026-10-15): `main` com TableGroups #145 e pairing Windows S2 reconciliada sem descartar Customer; o aceite #147 permanece condicionado a CI do novo HEAD e revisão R3 independente.
+
+### Spec025 preflight — concurrent profile rotation regression
+
+- [x] Prove cross-Venue same-credential rotation failure on disposable PostgreSQL.
+- [x] Lock global credential before per-visit authorization; revalidate revocation/version under locks.
+- [ ] Verify old tokens denied and anonymous visits preserved; independent R3 review and final CI before merge.

@@ -260,3 +260,30 @@ snapshot iguais, constraints validadas, restore0.85s**, sem dados/logs privados.
 Contrato `logical-sha256:<64hex>` + attestation de restore é implementado com
 regressões e gates próprios antes de `--apply`; não inventa ID Railway nem
 reclassifica as provas A/B, flag ou rollback como executadas.
+
+### P1 discovered during live-window preflight after PR165
+
+At source `4e6619d3dffe05ff4355913f818cd0503cc93d29`, independent review
+reproduced a real PostgreSQL deadlock twice (20.22s and 20.18s) using only new
+local fixtures: the same optional Customer credential has Relationships and
+independent GuestSessions in two Venues, and both rotate its password.
+`_authorized_customer` implicitly locks the authorization and joined credential;
+one transaction holds AuthA+credential while another holds AuthB waiting for the
+credential, and the first tries to revoke AuthB. PostgreSQL aborts a request with
+`40P01`, exposed as an internal error. No operational test or exploitation was
+performed. Live tenant activation remains gated on correction and green CI.
+
+Regression `test_guest_customer_rotation_concurrency.py` observes an actual
+competing PostgreSQL lock wait, without introducing artificial row locks. It
+requires one successful rotation and one explicit `CUSTOMER_AUTH_REVOKED`/401,
+exactly one current authorization/version, all original authorizations denied,
+and both anonymous visits preserved. Scope is auth locking, no money, migration,
+credential reset, DNS or deployment configuration change.
+
+Corrected candidate on base4e: regression-first FAIL `40P01` (18.43s), then
+**53 passed / 53.04s** in local PostgreSQL17.6, including customer identity/races,
+host security and SSE isolation. An intermediate after-patch run had25PASS/1FAIL
+from a test fixture using `error.status` instead of `status_code`; corrected
+without changing authorization expectations. Django checks0 issues; migration
+drift no changes; Ruff and diff check PASS. Independent distinct-context R3
+source review: NO_FINDINGS_WITH_GAPS; final exact commit/CI remain PR gates.
