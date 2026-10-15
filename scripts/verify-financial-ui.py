@@ -43,7 +43,7 @@ assert shift.business_date == expected_business_date
 roles = json.loads(Path("artifacts/financial-roles-browser.json").read_text())
 assert roles["sha"] == r["sha"] and roles["database_instance_id"] == f["database_instance_id"]
 assert roles["shift_id"] == str(shift.pk) and all(value == 403 for value in roles["denied_statuses"])
-assert CashShift.objects.filter(cash_point__venue_id=f["venue_id"]).count() == 1
+assert CashShift.objects.filter(cash_point_id=f["cash_point_id"]).count() == 1
 assert shift.expected_amount_cents_snapshot == r["expected_cents"]
 assert shift.discrepancy_cents == r["discrepancy_cents"] == -1000
 assert shift.counted_amount_cents == r["expected_cents"] - 1000
@@ -73,6 +73,21 @@ assert r["report_totals"]["paid_cents"] == venue_payments == r["paid_cents"]
 assert r["report_totals"]["current_open_exposure_cents"] == venue_charges - venue_payments + refund.amount_cents
 assert r["report_totals"]["refunds_cents"] == refund.amount_cents
 r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], audit_event_ids=[str(e.pk) for e in events], cash_movement_ids=[str(m.pk) for m in movements], status="PASS")
+cutoff = json.loads(Path("artifacts/cash-cutoff-browser.json").read_text())
+assert cutoff["sha"] == r["sha"] and cutoff["database_instance_id"] == f["database_instance_id"]
+policy = cutoff["policy"]
+assert venue.timezone == policy["original_timezone"] and venue.business_day_cutoff_hour == policy["original_cutoff_hour"]
+dates = []
+for entry in cutoff["shifts"]:
+    controlled = CashShift.objects.get(pk=entry["id"],cash_point_id=cutoff["cash_point_id"],cash_point__venue_id=f["venue_id"],status="CLOSED")
+    day = (controlled.opened_at.astimezone(ZoneInfo(policy["test_timezone"])) - timedelta(hours=policy[entry["phase"]+"_cutoff_hour"])).date()
+    assert controlled.business_date == day and str(day) == entry["business_date"]
+    assert controlled.expected_amount_cents_snapshot == controlled.counted_amount_cents == 0 and controlled.discrepancy_cents == 0
+    assert controlled.movements.count() == 1 and controlled.movements.get().kind == "OPENING_FLOAT" and controlled.movements.get().amount_cents == 0
+    dates.append(day)
+assert dates[1]-dates[0] == timedelta(days=1)
+cutoff.update(sql_independent=True, status="PASS", original_policy_restored=True)
+Path("artifacts/cash-cutoff-sql.json").write_text(json.dumps(cutoff,indent=2)+"\n")
 roles.update(sql_independent=True, business_date=str(expected_business_date), cutoff_hour=venue.business_day_cutoff_hour, status="PASS")
 Path("artifacts/financial-roles-sql.json").write_text(json.dumps(roles, indent=2)+"\n")
 Path("artifacts/financial-sql.json").write_text(json.dumps(r, indent=2) + "\n")

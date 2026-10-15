@@ -24,6 +24,7 @@ on:
       - "scripts/verify-issue106-unavailable.py"
       - "scripts/issue106-catalog-fault.py"
       - "scripts/issue106-runtime.py"
+      - "scripts/issue106-cash-cutoff.py"
       - "scripts/build-issue106-report.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
@@ -260,6 +261,7 @@ jobs:
             artifacts/pending-payment-*.json
             artifacts/unavailable-*.json
             artifacts/financial*.json
+            artifacts/cash-cutoff*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json
