@@ -215,3 +215,17 @@ provision/activate/deactivate remoto, flag, homologação habilitada e rollback
 operacional. Não houve escrita operacional, mudança DNS/proxy, criação de
 infraestrutura, pagamentos reais nem exposição PostgreSQL. #151/#130 permanecem
 OPEN; exceção ao preview fisicamente separado exige decisão formal, não inferida.
+
+### Atualização autenticada após merge159
+
+O bloqueio de acesso acima foi resolvido; [checkpoint atual](railway-151-checkpoint.md#authenticated-checkpoint--2026-10-15-utc).
+PR159 integrado em18da0109436bc76b199ec82ca7f7c75e5c54b57d após head7436deb
+API849/Web98/KB PASS e revisão independente R3 sem achados reproduzíveis.
+SSH confirmou seed-off/flag-off/HMAC explícito com preflight válido e PostgreSQL
+privado18.6; piloto/alias verificado e QA ausentes. Inventário sem staged changes,
+três serviços online e certificado Railway wildcard válido.
+Backup oficial **FAIL/BLOCKED**: listas de backup/agenda vazias, PITR desligado;
+create on-demand recusado por exigir Pro. Não existe ID de backup nem prova de
+recuperação. Nenhum provision/apply, ativação, flag ou rollback remoto executado.
+Decisão sobre custo/alternativa de backup e exceção de preview continua humana;
+#151/#130 abertas. Gates do merge e deployment exato são vinculados no checkpoint.
