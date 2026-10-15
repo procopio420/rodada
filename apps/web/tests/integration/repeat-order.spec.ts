@@ -44,7 +44,13 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/^Anterior:/)).toContainText("10,00"); await expect(dialog.getByText(/^Atual:/)).toContainText("12,00");
   await dialog.getByRole("button", { name: "Voltar", exact: true }).click(); await expect(draft.locator("article")).toHaveCount(1);
-  await repeat.click(); await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).dblclick();
+  await repeat.click();
+  const add = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+  await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
+  await dialog.getByRole("checkbox").check();
+  await dialog.getByRole("spinbutton", { name: "Quantidade de Kitchen E2E item" }).fill("2");
+  await expect(dialog.getByText(/Total a adicionar:/)).toContainText("24,00");
+  await add.dblclick();
   await expect(draft.locator("article")).toHaveCount(2);
   const beforeSend = await api(page, `tabs/${tab.id}/`); expect(beforeSend.orders).toHaveLength(1); expect(beforeSend.exposure_cents).toBe(1000);
   const attempts: string[] = []; let newOrderId = "";
@@ -62,7 +68,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]); expect(newOrderId).not.toBe(original.id);
-  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2700);
+  const after = await api(page, `tabs/${tab.id}/`); expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(3900);
   expect(after.payments).toEqual(beforeSend.payments);
   expect(after.orders.find((o: { id: string }) => o.id === original.id)).toEqual(beforeSend.orders[0]);
   expect(database(`print(Charge.objects.filter(tab_id='${tab.id}').count())`)).toBe("3");
