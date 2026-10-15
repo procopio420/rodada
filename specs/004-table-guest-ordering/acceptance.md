@@ -130,5 +130,6 @@ Checklists permanecem abertos até execução verificável; código adicionado n
 - [ ] Claim requer GuestSession + CustomerAuthSession compatíveis, mesmo Venue, ocupação, Table, generation e Tab; replay idempotente.
 - [ ] IDs estrangeiros, perfis de outro Venue, sessão/ocupação expiradas e outra Tab ativa rejeitados sem vazamento.
 - [ ] Logout, rotação de senha e revogação de QR invalidam token anterior e preservam Tab/Order.
+- [ ] Duas rotações da mesma credencial em Venues distintos serializam por credencial: uma vence e a outra recebe autorização revogada, sem deadlock/500. Sessões anteriores ficam revogadas e visitas anônimas permanecem válidas.
 - [ ] Cookie HttpOnly não entrega auth token à JS; CSRF/Host/cabeçalhos forjados testados com BFF real.
 - [ ] UI Guest responsive 360/390/430/desktop, acessibilidade, testes PostgreSQL/CI e revisor independente R3 aprovados; merge depois de aceite.

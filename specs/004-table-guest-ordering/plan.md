@@ -148,3 +148,10 @@ Aceite exige PostgreSQL real para concorrência, permissões, lifecycle/ledger i
 Estender guest_access com CustomerCredential/CustomerAuthSession, mantendo `Customer` e Tab existentes e nenhum migration financeiro. Autenticação com hash Django e lockout persistente, escopo no par GuestSession+Venue, tokens opacos com SHA-256 no banco, cookie HttpOnly pelo BFF. Nova UI sob disclosure `Meu perfil (opcional)`; login e registro opcionais. Claims transacionais com revalidação de TableOccupancyAssignment/geração e revisão de Tab.customer. Logout e troca de senha revogam prova de perfil sem alterar GuestSession ou ledger.
 
 Testar serviço e HTTP, isolamento cross-Venue, legacy Customer, senha inválida, concorrência em PostgreSQL, claim de outra Tab, dados de resposta, replay e BFF cookies. Gates de CI visual e revisão independente continuam obrigatórios antes de produção.
+
+Spec025 audit follow-up: serialize optional Customer identity by its global
+credential before locking a visit authorization. Do not rely on joined
+`SELECT FOR UPDATE` lock order when password rotation revokes authorizations in
+multiple Venues. Re-read and validate authorization after the credential lock.
+Use PostgreSQL lock-wait regression plus existing identity/claim/revocation tests;
+no schema, financial or anonymous-visit behavior change.
