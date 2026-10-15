@@ -34,11 +34,13 @@ class PaymentProviderServiceTests(TestCase):
                 with self.assertRaises(LedgerServiceError) as denied:
                     close_tab(tab_id=tab.pk, actor=self.actor)
                 self.assertEqual(denied.exception.code, "PAYMENT_ALREADY_PENDING")
-                tab.refresh_from_db(); payment.refresh_from_db()
+                tab.refresh_from_db()
+                payment.refresh_from_db()
                 self.assertEqual(tab.state, "OPEN")
                 self.assertIsNone(payment.confirmed_at)
                 self.assertEqual(totals(tab)["payments_cents"], 0)
-                payment.status = "CANCELLED"; payment.save(update_fields=["status"])
+                payment.status = "CANCELLED"
+                payment.save(update_fields=["status"])
                 self.assertEqual(close_tab(tab_id=tab.pk, actor=self.actor).state, "CLOSED")
 
     def setUp(self):
