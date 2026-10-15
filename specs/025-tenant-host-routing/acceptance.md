@@ -153,3 +153,7 @@ These checks certify the command locally, not its execution on Railway.
 - [ ] All five full-card module links point to the existing same-origin paths and remain protected by existing auth/capability gates.
 - [ ] At 360/390/430, 768/1024 and 1280/1440px, the grid renders 2/3/4 columns respectively, card tap targets are at least 44px tall, and the page does not overflow horizontally.
 - [ ] Browser/keyboard review covers focus, long venue name, mobile touch and reduced-motion behavior; integrate the two-Venue Playwright assertion without replacing the security checks above.
+
+### Native optional Customer identity ingress regression
+
+- [ ] The six canonical `/guest/customer/{register,login,context,claim,logout,password}/` APIs reach Django through the existing raw ingress, preserve methods and remove untrusted BFF assertions. Missing guest proof fails with JSON401; opaque `/guest/customer` pages and lookalikes remain on Next/BFF. Verify through the actual disposable Railway image before deployment.

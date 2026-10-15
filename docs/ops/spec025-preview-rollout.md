@@ -270,3 +270,15 @@ AAD is the UTF-8 encoding of the fixed source identities:
 - Operational recovery/restore, privileged ownership/ACL restoration and financial
   reconciliation require a separate incident procedure/authorization. The
   completed local restore is not PITR or permission/financial business sign-off.
+
+### New Guest identity endpoints and native ingress
+
+A new Django Guest endpoint must also be routed by the explicit raw Nginx API
+allowlist. BFF success alone is insufficient: missing native routing can fall
+through to a Next page redirect. The six fixed `/guest/customer/<action>/`
+endpoints inherit the same Host forwarding and assertion stripping; the opaque
+page `/guest/customer` and lookalikes remain on Next. Reproduce native contract
+through the existing disposable Railway image smoke using
+`scripts/verify-native-customer-ingress.py` (loopback-only, no guest credentials,
+expected JSON401 including forged assertion probes). Do not treat a redirect as
+native API acceptance. Test actual authorized QA identity again after deployment.
