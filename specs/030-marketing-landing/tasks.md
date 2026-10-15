@@ -5,7 +5,7 @@
 - [x] Recriar hero, dor operacional, manifesto, fluxo, telas, benefícios, piloto, FAQ e CTA final.
 - [x] Publicar cópias locais de screenshots de ambiente de teste com rótulos.
 - [x] Criar testes estáticos para links, landmarks, imagens e disclaimer.
-- [x] Rodar Chromium em 360/390/430/768/1440: primeiro passe detectou imagem lazy ainda não carregada e CTA baixo no desktop; ajustes implementados e novo passe pendente.
-- [ ] Revisar copy e screenshots para autorização de publicação.
-- [ ] Executar CI/revisão e decidir merge.
+- [x] Validar no Chromium em 360/390/430/768/1440: sem overflow horizontal, imagens carregadas, fonte carregada e CTA na primeira dobra. Ver [review](../../docs/design/landing-campaign-qa-2026-10-15.md).
+- [ ] Obter aprovação para publicação das capturas e, posteriormente, fotos/depoimentos do piloto.
+- [ ] Revisão independente e decisão de merge.
 - [ ] Deploy em rodada.bar após autorização explícita.

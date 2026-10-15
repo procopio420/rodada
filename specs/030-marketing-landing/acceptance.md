@@ -8,8 +8,8 @@
 - [x] Preço, migração, equipamentos e conectividade não recebem promessas não verificadas.
 - [x] Links legais e canonical de `rodada.bar` preservados.
 - [x] Documento usa HTML semântico, CSS responsivo, foco visível e opção de movimento reduzido.
-- [ ] Renderização com Chromium em 360/390/430/768/1440 sem overflow, imagens quebradas e CTA abaixo da dobra (segundo passe pendente).
-- [ ] Revisão humana de copy, screenshots e acessibilidade.
-- [ ] CI do PR verde.
+- [x] Renderização Chromium em 360/390/430/768/1440 sem overflow, imagens quebradas, erros de página ou CTA abaixo da primeira dobra. [Execução](https://github.com/procopio420/rodada/actions/runs/38759159228).
+- [ ] Aprovação comercial/humana das capturas para publicação e revisão de acessibilidade assistiva completa.
+- [x] CI estática e visual do PR aprovadas neste SHA de conteúdo. [Landing](https://github.com/procopio420/rodada/actions/runs/38759158959) · [Visual QA](https://github.com/procopio420/rodada/actions/runs/38759159228).
 
-Critérios em [x] são verificados por inspeção do código, não implicam homologação visual, merge ou deploy.
+Os critérios testados provam a renderização/contrato do **PR**, não homologação em bar, inspeção em Safari/Firefox ou publicação em `rodada.bar`.
