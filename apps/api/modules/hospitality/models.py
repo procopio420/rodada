@@ -258,3 +258,55 @@ class ServiceCommand(models.Model):
                 fields=("venue", "actor", "action", "key"), name="hospitality_service_intent_unique"
             )
         ]
+
+
+class TableGroup(models.Model):
+    """Temporary physical arrangement; never the owner of a Tab or occupancy."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    venue = models.ForeignKey(Venue, on_delete=models.PROTECT, related_name="table_groups")
+    label = models.CharField(max_length=80, blank=True)
+    created_by = models.ForeignKey(
+        StaffMember, on_delete=models.PROTECT, related_name="created_table_groups"
+    )
+    request_key = models.UUIDField()
+    fingerprint = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    dissolved_at = models.DateTimeField(null=True, blank=True)
+    dissolved_by = models.ForeignKey(
+        StaffMember, null=True, blank=True, on_delete=models.PROTECT,
+        related_name="dissolved_table_groups",
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("venue", "created_by", "request_key"),
+                name="hospitality_group_request_unique",
+            ),
+        ]
+
+
+class TableGroupMembership(models.Model):
+    """An active Table can belong to at most one physical group."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    group = models.ForeignKey(
+        TableGroup, on_delete=models.PROTECT, related_name="memberships"
+    )
+    table = models.ForeignKey(
+        Table, on_delete=models.PROTECT, related_name="group_memberships"
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+    removed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("group", "table"), name="hospitality_group_member_unique"
+            ),
+            models.UniqueConstraint(
+                fields=("table",), condition=Q(removed_at__isnull=True),
+                name="hospitality_one_active_table_group",
+            ),
+        ]

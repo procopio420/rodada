@@ -1,0 +1,800 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-15T02:40:36.475808+00:00",
+  "scope": "Sanitized executor observations, not independent signed provider attestation. No secrets/rows. Shared Web flag never activated; closure gates remain pending.",
+  "project_id": "1ca79d6a-a555-4346-b4b6-72b0a7706359",
+  "environment_id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+  "service_id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+  "logical_backup": {
+    "logical_backup_reference": "logical-sha256:8ab58dcd85832a489905f7db26053d32df02032552d392a90ee9796a34c44cfb",
+    "source_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "tables_verified": 90,
+    "all_same_snapshot_counts_match": true,
+    "all_restored_constraints_validated": true,
+    "dump_bytes": 522186,
+    "restore_seconds": 0.85,
+    "elapsed_seconds": 56.89,
+    "verified_at": "2026-10-15T01:42:59.315278+00:00",
+    "retention_review_at": "2026-10-22T01:42:59.315296+00:00",
+    "restored_copy_removed": true,
+    "restore_container_removed": true
+  },
+  "provision_runs": [
+    {
+      "operation": "provision",
+      "sha": "4056adbd0ba564a3c169db76b42f26141257977c",
+      "preexisting_rows_preserved_by_this_transaction": true,
+      "new_rows_only_reserved_qa": true,
+      "state_unchanged": false,
+      "database_unchanged": false,
+      "committed_readback_matches": true,
+      "qa": [
+        {
+          "host": "e2ea.rodada.bar",
+          "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+          "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": false,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        },
+        {
+          "host": "e2eb.rodada.bar",
+          "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+          "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": false,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        }
+      ]
+    },
+    {
+      "operation": "provision",
+      "sha": "4056adbd0ba564a3c169db76b42f26141257977c",
+      "preexisting_rows_preserved_by_this_transaction": true,
+      "new_rows_only_reserved_qa": true,
+      "state_unchanged": true,
+      "database_unchanged": true,
+      "committed_readback_matches": true,
+      "qa": [
+        {
+          "host": "e2ea.rodada.bar",
+          "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+          "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": false,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        },
+        {
+          "host": "e2eb.rodada.bar",
+          "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+          "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": false,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        }
+      ]
+    }
+  ],
+  "registry_activation_runs": [
+    {
+      "operation": "activate",
+      "sha": "4056adbd0ba564a3c169db76b42f26141257977c",
+      "foreign_rows_preserved_by_this_transaction": true,
+      "preexisting_rows_preserved_by_this_transaction": false,
+      "new_rows_only_reserved_qa": true,
+      "state_unchanged": false,
+      "database_unchanged": false,
+      "committed_readback_matches": true,
+      "qa": [
+        {
+          "host": "e2ea.rodada.bar",
+          "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+          "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+          "domain_owner_matches": true,
+          "active": true,
+          "verified": true,
+          "membership_status": "ACTIVE",
+          "guest_blocked": true
+        },
+        {
+          "host": "e2eb.rodada.bar",
+          "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+          "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+          "domain_owner_matches": true,
+          "active": true,
+          "verified": true,
+          "membership_status": "ACTIVE",
+          "guest_blocked": true
+        }
+      ]
+    }
+  ],
+  "edge_proof_4056adbd": {
+    "sha": "4056adbd0ba564a3c169db76b42f26141257977c",
+    "deployment": "179ceae2-712d-49e5-a299-63370dc50285",
+    "scope": "preactivation TLS and trusted ingress HMAC; not enabled A/B acceptance",
+    "all_required_edge_probes_pass": true,
+    "results": [
+      {
+        "scenario": "loopback_valid_hmac_context",
+        "pass": true,
+        "actual": 200,
+        "expected": 200
+      },
+      {
+        "scenario": "loopback_invalid",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_expired",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_adulterated",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_missing_hmac",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ]
+      },
+      {
+        "scenario": "public_api_strips_valid_external_hmac",
+        "pass": true,
+        "actual": [
+          200,
+          "compatibility"
+        ],
+        "expected": [
+          200,
+          "compatibility"
+        ]
+      },
+      {
+        "scenario": "public_pilot_received_host",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2ea.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2eb.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "public_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_unregistered-preview.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "bff_ignores_forged_external_headers",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "unknown_bff_rejected",
+        "pass": true,
+        "actual": 421,
+        "expected": 421
+      },
+      {
+        "scenario": "unknown_raw_api_rejected_by_allowed_hosts",
+        "pass": true,
+        "actual": 400,
+        "expected": 400
+      }
+    ]
+  },
+  "edge_proof_b63b611": {
+    "sha": "b63b6111d66c640e8d4fde8ab2042743c9083eee",
+    "deployment": "ef830243-aa54-4d45-a4df-4f0b08efe632",
+    "scope": "QA registry active; TLS and trusted ingress HMAC; Web flag off, not browser acceptance",
+    "all_required_edge_probes_pass": true,
+    "results": [
+      {
+        "scenario": "loopback_valid_hmac_context",
+        "pass": true,
+        "actual": 200,
+        "expected": 200
+      },
+      {
+        "scenario": "loopback_invalid",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_expired",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_adulterated",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_missing_hmac",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ]
+      },
+      {
+        "scenario": "public_api_strips_valid_external_hmac",
+        "pass": true,
+        "actual": [
+          200,
+          "compatibility"
+        ],
+        "expected": [
+          200,
+          "compatibility"
+        ]
+      },
+      {
+        "scenario": "public_pilot_received_host",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "active_registry_e2ea.rodada.bar_strips_external_pilot_assertion",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "active_registry_e2eb.rodada.bar_strips_external_pilot_assertion",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "public_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_unregistered-preview.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "bff_ignores_forged_external_headers",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "unknown_bff_rejected",
+        "pass": true,
+        "actual": 421,
+        "expected": 421
+      },
+      {
+        "scenario": "unknown_raw_api_rejected_by_allowed_hosts",
+        "pass": true,
+        "actual": 400,
+        "expected": 400
+      }
+    ]
+  },
+  "native_auth_4056adbd": {
+    "sha": "4056adbd0ba564a3c169db76b42f26141257977c",
+    "scope": "shared Android protocol + signed loopback ASGI A/B; Web flag remains off, no financial/order mutations",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "a_native_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_read_/auth/me/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_read_/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_read_/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "signed_ASGI_a_host_a",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "signed_ASGI_a_host_b",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "credentials_a_venue_b",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_refresh",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_read_/auth/me/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_read_/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_read_/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "signed_ASGI_b_host_a",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "signed_ASGI_b_host_b",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "credentials_b_venue_a",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_refresh",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "a_logout_own_new_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "a_logged_out_token_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_logout_own_new_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "b_logged_out_token_denied",
+        "status": 401,
+        "pass": true
+      }
+    ]
+  },
+  "containment_b63b611": {
+    "sha": "b63b6111d66c640e8d4fde8ab2042743c9083eee",
+    "scope": "QA domain/membership/session rollback with two concurrent signed ASGI SSE; shared UI flag never activated; guest session revocation not tested",
+    "containment": {
+      "operation": "deactivate",
+      "sha": "b63b6111d66c640e8d4fde8ab2042743c9083eee",
+      "foreign_rows_preserved_by_this_transaction": true,
+      "preexisting_rows_preserved_by_this_transaction": false,
+      "new_rows_only_reserved_qa": true,
+      "state_unchanged": false,
+      "database_unchanged": false,
+      "committed_readback_matches": true,
+      "qa": [
+        {
+          "host": "e2ea.rodada.bar",
+          "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+          "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": true,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        },
+        {
+          "host": "e2eb.rodada.bar",
+          "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+          "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": true,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        }
+      ]
+    },
+    "streams": {
+      "a": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 0
+      },
+      "b": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 0
+      }
+    },
+    "results": [
+      {
+        "scenario": "a_after_deactivate/auth/me/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_after_deactivate/auth/refresh/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_canonical_reconnect_after_domain_deactivate",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_relogin_suspended",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "b_after_deactivate/auth/me/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_after_deactivate/auth/refresh/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_canonical_reconnect_after_domain_deactivate",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_relogin_suspended",
+        "status": 403,
+        "pass": true
+      }
+    ],
+    "all_pass": true
+  },
+  "qa_final_readback": {
+    "sha": "b63b6111d66c640e8d4fde8ab2042743c9083eee",
+    "seed_off": true,
+    "flag_off": true,
+    "QA_only_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0,
+      "tabs": 0,
+      "active_memberships": 0,
+      "unrevoked_staff_sessions": 0,
+      "guest_sessions": 0
+    }
+  },
+  "pilot_authenticated_smoke": {
+    "pilot_authenticated_smoke": "NOT_TESTED",
+    "reason": "existing test operator/secret not valid; no credential changed"
+  },
+  "postcontainment_anonymous_smoke": [
+    {
+      "host": "bardoaderlan.rodada.bar",
+      "path": "/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "bardoaderlan.rodada.bar",
+      "path": "/health/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "bardoaderlan.rodada.bar",
+      "path": "/ready/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "bardoaderlan.rodada.bar",
+      "path": "/api/venue/context",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "rodada.bar",
+      "path": "/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "api.rodada.bar",
+      "path": "/health/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "api.rodada.bar",
+      "path": "/ready/",
+      "http_status": 200,
+      "tls_valid": true
+    },
+    {
+      "host": "api.rodada.bar",
+      "path": "/auth/me/",
+      "http_status": 401,
+      "tls_valid": true
+    },
+    {
+      "host": "e2ea.rodada.bar",
+      "path": "/manifest.webmanifest",
+      "http_status": 421,
+      "tls_valid": true
+    },
+    {
+      "host": "e2eb.rodada.bar",
+      "path": "/manifest.webmanifest",
+      "http_status": 421,
+      "tls_valid": true
+    }
+  ],
+  "http_logs_query": {
+    "deployment_id": "ef830243-aa54-4d45-a4df-4f0b08efe632",
+    "window": "15m",
+    "returned_5xx_records": 0,
+    "limit": 100,
+    "query_exit": 0,
+    "limit_note": "Bounded query, not proof of zero errors for every request/time."
+  },
+  "ci_followup": {
+    "api_4056adbd": {
+      "run_id": 38669986695,
+      "status": "SUCCESS",
+      "passed": 854
+    },
+    "web_4056adbd": {
+      "run_id": 38669986592,
+      "status": "SUCCESS",
+      "passed": 98
+    },
+    "web_b63b611": {
+      "run_id": 38671039040,
+      "status": "SUCCESS",
+      "passed": 98
+    },
+    "android_b63b611": {
+      "run_id": 38671039437,
+      "status": "SUCCESS"
+    },
+    "isolated_shift_b63b611": {
+      "run_id": 38671562736,
+      "status": "SUCCESS"
+    },
+    "release_b63b611": {
+      "run_id": 38671565495,
+      "status": "FAILURE",
+      "passed": 853,
+      "failed": 1,
+      "failed_test": "test_print_agents.py::test_standalone_contract_matches_backend",
+      "cause": "Standalone printer-agent contract source omitted from disposable demo image; FileNotFoundError. HTTP shift and restart passed."
+    },
+    "release_candidate_f02d11d": {
+      "run_id": 38672594038,
+      "status": "SUCCESS",
+      "fix_pr": 168,
+      "passed": 854,
+      "pytest_seconds": 428.63,
+      "merge_sha": "75f637f8e5297b960375df8c1dd83b6478a5d1ec"
+    }
+  }
+}

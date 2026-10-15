@@ -104,6 +104,20 @@ test("command search keeps unknown reads distinct from empty", async ({ page }) 
   await expect(page.getByText("Nenhuma mesa cadastrada.")).toHaveCount(0);
 });
 
+test("search finds standalone tabs and exposes matches without opening a table", async ({ page }) => {
+  await setup(page);
+  const standalone = { id: "tab-standalone", display_label: "Comanda da varanda", state: "OPEN", version: 1, exposure_cents: 0, payable_cents: 0, orders: [] };
+  await page.route(/\/api\/attendance\/tabs\/(\?.*)?$/, route => route.fulfill({ json: { results: [standalone], next_offset: null } }));
+  await page.route("**/api/attendance/tabs/tab-standalone/", route => route.fulfill({ json: standalone }));
+  await page.goto("/attendance");
+  await page.getByLabel("Buscar mesa ou comanda").fill("varanda");
+  const others = page.getByRole("region", { name: "Outras comandas" });
+  await expect(page.locator(".attendanceTable")).toHaveCount(0);
+  await expect(others.getByRole("button", { name: /Comanda da varanda/ })).toBeVisible();
+  await others.getByRole("button", { name: /Comanda da varanda/ }).click();
+  await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
+});
+
 test("rejected context read never reveals the previous tab as the new target", async ({ page }) => {
   await setup(page); await page.goto("/attendance"); const popup = await openTable(page); await page.keyboard.press("Escape");
   await page.route("**/api/attendance/tabs/tab-other/?*", route => route.fulfill({ status: 409, json: { code: "CONFLICT", message: "A comanda mudou de mesa." } }));
@@ -194,11 +208,40 @@ test("unavailable draft item can decrease but cannot increase or be sent", async
   await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: [{ id: "fries", name: "Fritas", active: true, availability: "UNAVAILABLE", price_cents: 7200 }] } }));
   await page.clock.runFor(15000);
   await expect(popup.getByRole("button", { name: "Adicionar Fritas", exact: true })).toBeDisabled();
+  await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
   await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  // Editing/removing an existing draft remains possible after inventory changes.
+  await popup.getByRole("button", { name: "Editar", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Personalizar Fritas", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(popup.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
   await popup.getByRole("button", { name: "Diminuir quantidade de Fritas", exact: true }).click();
   await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
 });
+
+for (const failure of ["unavailable", "stale"] as const) {
+  test(`customization opened before refresh cannot add a ${failure} product`, async ({ page }) => {
+    await setup(page);
+    await page.goto("/attendance");
+    const popup = await openTable(page);
+    await popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" }).click();
+    const customize = page.getByRole("dialog", { name: "Personalizar Fritas", exact: true });
+    const add = customize.getByRole("button", { name: /Adicionar ·/ });
+    await expect(add).toBeEnabled();
+    await page.route("**/api/attendance/catalog/products/", route =>
+      failure === "unavailable"
+        ? route.fulfill({ json: { results: [{ id: "fries", name: "Fritas", active: true, availability: "UNAVAILABLE", price_cents: 7200 }] } })
+        : route.fulfill({ status: 503, json: { message: "Catálogo indisponível" } }),
+    );
+    await page.clock.runFor(15000);
+    await expect(add).toBeDisabled();
+    await expect(customize.getByText("Produto indisponível ou catálogo desatualizado.")).toBeVisible();
+    await customize.getByRole("button", { name: "Voltar" }).click();
+    await expect(popup.locator(".posProduct").filter({ hasText: "Fritas" }).getByRole("button", { name: "Personalizar" })).toBeDisabled();
+    await popup.getByRole("button", { name: /Pedido atual/ }).click();
+    await expect(popup.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
+  });
+}
 
 test("legacy venue can still create a standalone tab in the unified area", async ({ page }) => {
   await setup(page, false); let writes = 0;

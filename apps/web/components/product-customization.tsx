@@ -28,7 +28,7 @@ export function CustomizationText({ snapshot }: { snapshot?: Snapshot }) {
   if (!snapshot) return null;
   return <div className="customizationText">{snapshot.variant && <strong>Variação: {snapshot.variant.name}</strong>}{snapshot.modifiers?.map((option, index) => <div key={index}>{option.semantic_kind === "ADD" ? "+ " : option.semantic_kind === "REMOVE" ? "− " : `${option.group_name}: `}{option.name}</div>)}{snapshot.special_instructions && <p className="muted">Observação: {snapshot.special_instructions}</p>}</div>;
 }
-export function ProductCustomization({ product, initial, onAdd, onCancel }: { product: OrderingProduct; initial?: Selection; onAdd: (selection: Selection) => void; onCancel: () => void }) {
+export function ProductCustomization({ product, initial, onAdd, onCancel, canSubmit = true }: { product: OrderingProduct; initial?: Selection; onAdd: (selection: Selection) => void; onCancel: () => void; canSubmit?: boolean }) {
   const [selection, setSelection] = useState(initial ?? defaults(product));
   const error = selectionError(product, selection);
   const panel = useRef<HTMLElement>(null);
@@ -42,6 +42,6 @@ export function ProductCustomization({ product, initial, onAdd, onCancel }: { pr
     {product.modifier_groups?.map(g => <fieldset key={g.id}><legend>{g.name} · {g.min_selections ? "obrigatório" : "opcional"} ({g.min_selections}–{g.max_selections})</legend>{g.options.map(o => <label className="customizationChoice" key={o.id}><input type={g.selection_mode === "SINGLE" && g.min_selections > 0 ? "radio" : "checkbox"} name={`group-${g.id}`} checked={selection.modifier_option_ids.includes(o.id)} disabled={!o.active || o.availability !== "AVAILABLE"} onChange={() => toggle(g, o)} /><span>{o.name}{o.price_delta_cents > 0 && ` + ${money(o.price_delta_cents)}`}{o.availability !== "AVAILABLE" && " · Indisponível"}</span></label>)}</fieldset>)}
     {!!unavailableIds.length && <button className="buttonSecondary" onClick={() => setSelection(s => ({ ...s, modifier_option_ids: s.modifier_option_ids.filter(id => !unavailableIds.includes(id)) }))}>Remover escolhas indisponíveis</button>}
     <div className="field"><label htmlFor="special-note">Pedido especial (opcional)</label><textarea className="fieldControl" id="special-note" maxLength={500} value={selection.special_instructions} onChange={e => setSelection(s => ({ ...s, special_instructions: e.target.value }))} placeholder="Ex.: molho separado" /></div>
-    {error && <p className="notice" data-state="warning" role="status">{error}</p>}<div className="actions"><button className="buttonSecondary" onClick={onCancel}>Voltar</button><button className="buttonPrimary" disabled={!!error} onClick={() => onAdd(selection)}>Adicionar · {money(unitPrice(product, selection))}</button></div>
+    {error && <p className="notice" data-state="warning" role="status">{error}</p>}{!canSubmit && <p className="notice" data-state="warning" role="status">Produto indisponível ou catálogo desatualizado. Atualize antes de adicionar.</p>}<div className="actions"><button className="buttonSecondary" onClick={onCancel}>Voltar</button><button className="buttonPrimary" disabled={!!error || !canSubmit} onClick={() => onAdd(selection)}>Adicionar · {money(unitPrice(product, selection))}</button></div>
   </section>;
 }

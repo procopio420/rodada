@@ -65,6 +65,7 @@ fun TablesScreen(
     partySizeEditor: @Composable (String) -> Unit = {},
     onOpenStandaloneTab: () -> Unit = {},
     onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
+    onLoadHistory: () -> Unit = {},
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var showHistory by rememberSaveable { mutableStateOf(false) }
@@ -97,8 +98,11 @@ fun TablesScreen(
                 table.activeOccupancy?.tabs.orEmpty().any { it.displayLabel.contains(search, true) || it.displayReference.contains(search, true) })
     }
     val columns = if (LocalDensity.current.fontScale > 1.3f) 1 else 2
-    val otherTabs = state.tabs.filter { (showHistory || it.id !in attachedTabIds) &&
-        (if (showHistory) it.state in setOf("CLOSED", "CANCELLED") else it.state !in setOf("CLOSED", "CANCELLED")) && it.matchesOperationalQuery(search) }
+    val otherTabs = (if (showHistory) state.historyTabs else state.tabs).filter {
+        (showHistory || it.id !in attachedTabIds) &&
+            (if (showHistory) it.state in setOf("CLOSED", "CANCELLED") else it.state !in setOf("CLOSED", "CANCELLED")) &&
+            it.matchesOperationalQuery(search)
+    }
     val locked = state.loading || state.submitting || state.pendingTableService != null
 
     Card(Modifier.padding(horizontal = 16.dp).fillMaxWidth(), border = BorderStroke(1.dp, RodadaVisual.Border), colors = CardDefaults.cardColors(containerColor = RodadaVisual.Surface)) {
@@ -109,7 +113,7 @@ fun TablesScreen(
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("Mesas e comandas", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                TextButton(onClick = { showHistory = !showHistory }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = if (showHistory) "Voltar às mesas" else "Histórico de comandas" }) { Text(if (showHistory) "Voltar" else "↶") }
+                TextButton(onClick = { showHistory = !showHistory; if (showHistory) onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = if (showHistory) "Voltar às mesas" else "Histórico de comandas" }) { Text(if (showHistory) "Voltar" else "↶") }
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(search, { search = it }, label = { Text("Buscar mesa ou comanda") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -144,7 +148,9 @@ fun TablesScreen(
         item {
             OutlinedButton(onClick = { otherExpanded = !otherExpanded }, modifier = Modifier.fillMaxWidth()) { Text(if (showHistory) "Histórico de comandas (${otherTabs.size})" else "Outras comandas (${otherTabs.size})") }
             if (otherExpanded && canOpenTabs && !showHistory) OutlinedButton(onClick = onOpenStandaloneTab, enabled = !locked, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda sem mesa") }
-            if (otherExpanded && otherTabs.isEmpty()) Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
+            if (showHistory && state.historyLoading) Text("Carregando histórico…")
+            if (showHistory && state.historyError != null) Text(state.historyError, color = MaterialTheme.colorScheme.error)
+            if ((otherExpanded || showHistory) && otherTabs.isEmpty() && (!showHistory || state.historyLoaded && !state.historyLoading)) Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
         }
         items(if (otherExpanded || showHistory) otherTabs else emptyList(), key = { "tab:${it.id}" }) { tab ->
             OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !locked, modifier = Modifier.fillMaxWidth().testTag("other-tab-${tab.id}")) {

@@ -135,3 +135,6 @@ RODADA_DEVELOPER_TOOLS = os.environ.get("RODADA_DEVELOPER_TOOLS", "false").lower
 # Only signed internal BFF assertions can carry the original browser Host.
 USE_X_FORWARDED_HOST = False
 RODADA_BFF_HOST_SECRET = os.environ.get("RODADA_BFF_HOST_SECRET", "")
+
+# Dedicated key for recoverable PoP pairing; no development fallback.
+RODADA_AGENT_PAIRING_SECRET = os.environ.get("RODADA_AGENT_PAIRING_SECRET", "")

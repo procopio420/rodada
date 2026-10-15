@@ -8,14 +8,16 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await page.getByRole("button", { name: "Agora", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
   await openNamedAttendanceTab(page, "Atendimento browser test");
-  await expect(page.getByRole("heading", { name: "Mesa Fixture Atendimento browser test", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: /Kitchen E2E item/ }).click();
+  await expect(page.locator(".attendanceOrderDialog")).toContainText("Mesa Fixture Atendimento browser test");
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /^Kitchen E2E item/ }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();
   await expect(page.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   const browserRequest = {
     get: (path: string) => call(path),
@@ -39,15 +41,17 @@ test("real Atendimento login, order, production, table lifecycle and logout with
     const r = await browserRequest.post(`/api/pos/order-items/${detail.orders[0].items[0].id}/transition/`, { data: { state } });
     expect(r.ok()).toBeTruthy();
   }
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Voltar", exact: true }).click();
   await page.getByRole("button", { name: "Agora", exact: true }).click();
   await expect(page.getByRole("button", { name: "Concluir entrega" })).toBeVisible();
   await page.getByRole("button", { name: "Concluir entrega" }).click();
   await expect(page.getByRole("button", { name: "Concluir entrega" })).toHaveCount(0);
   const tableResult = await browserRequest.post("/api/pos/hospitality/tables/", { data: { label: "Attendance test", guest_ordering_mode: "DIRECT" } });
   expect(tableResult.ok()).toBeTruthy();
-  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   await page.getByRole("button", { name: /^Mesa Attendance test/ }).click();
-  await page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" }).click();
+  await browserRequest.post(`/api/pos/hospitality/tables/${tableResult.ok() ? (await tableResult.json()).id : ""}/occupy/`, { data: {} });
+  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
   await page.getByRole("dialog", { name: "Mover comanda?" }).getByRole("button", { name: "Confirmar mudança de mesa" }).click();
@@ -56,7 +60,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
   await page.getByRole("button", { name: "Concluir limpeza" }).click();
-  await expect(page.getByRole("button", { name: "Iniciar atendimento · Mesa Attendance test" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Mesa Attendance test/ })).toBeVisible();
   await page.getByRole("button", { name: "Sair", exact: true }).click();
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeVisible();
   expect(errors).toEqual([]);

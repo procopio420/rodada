@@ -124,6 +124,7 @@ export function TabLocationMove({ selection, tables, onClose, onLockChange, onCo
       {message && <p className="notice" data-state="warning" role="alert">{message}</p>}
       {pending ? <><p>Destino confirmado: mesa {pending.destination}.</p><button className="buttonPrimary" disabled={busy} onClick={() => void submit()}>{busy ? "Verificando…" : "Verificar mesmo movimento"}</button></>
         : <><div className="field"><label htmlFor="move-destination">Mesa de destino</label><select id="move-destination" value={destination} disabled={busy || !version} onChange={e => setDestination(e.target.value)}><option value="">Escolha outra mesa</option>{targets.map(t => <option key={t.id} value={t.status === "AVAILABLE" ? t.id : t.active_occupancy!.id}>Mesa {t.label} · {t.status === "AVAILABLE" ? "Disponível" : "Em uso"}</option>)}</select></div>
+          <div className="field"><label htmlFor="move-reason">Motivo (opcional)</label><input id="move-reason" maxLength={240} value={reason} disabled={busy} onChange={event => setReason(event.target.value)} /></div>
           {!targets.length && <p>Nenhuma outra mesa disponível para receber a comanda.</p>}
           {destination && <p>Confirmar: mesa {selection!.table.label} → mesa {targets.find(t => (t.status === "AVAILABLE" ? t.id : t.active_occupancy?.id) === destination)?.label || "indisponível"}.</p>}
           <button className="buttonPrimary" disabled={!ready || busy || !version || !destination} onClick={() => void submit()}>Confirmar movimento</button></>}

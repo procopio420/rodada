@@ -219,3 +219,7 @@ roteiroslegados falhou em navegacao, interrompida e documentada na Spec029/aceit
 API/Weblocais reiniciadas, APKnovo preservando dados. Formulario Android aberto
 sem criar comanda; tamanho/fonte/animacoes restaurados. Sem publicacao.
 Proximo: operador preencher Nome ou apelido e testar a abertura autorizada.
+
+## Integração com main — 2026-10-15
+
+Branch reconciliada com TableGroups (#145), giro (#148), impressão S2 e confirmação direta de **Mais uma rodada** (#170). Android mantém o fluxo de repetição como Order independente, sem misturar com o carrinho manual; Web invoca `confirmRepeatedOrder` no diálogo. O merge de código não substitui CI Android/Web/API no HEAD final nem review R3 da experiência.

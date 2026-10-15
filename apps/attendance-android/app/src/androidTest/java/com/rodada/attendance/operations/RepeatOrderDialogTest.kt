@@ -16,49 +16,64 @@ class RepeatOrderDialogTest {
 
     @Test fun reviewRequiresExplicitAddAndShowsPriceChange() {
         var added = 0
-        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { added++ }) } } }
-        compose.onNodeWithText("Anterior: Água · ${formatCents(800)} por unidade").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Atual: ${formatCents(1000)} por unidade").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Preço ou descrição mudou. Confira os valores atuais.").performScrollTo().assertIsDisplayed()
-        val addBounds = compose.onNodeWithText("Adicionar ao carrinho").fetchSemanticsNode().boundsInRoot
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { _ -> added++ }) } } }
+        compose.onNodeWithText("Alteração: antes ${formatCents(800)} / un. Confira o valor e a descrição atuais.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("${formatCents(1000)} / un.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Alteração: antes ${formatCents(800)} / un. Confira o valor e a descrição atuais.").performScrollTo().assertIsDisplayed()
+        val addBounds = compose.onNodeWithText("Confirmar e enviar rodada").fetchSemanticsNode().boundsInRoot
         val cancelBounds = compose.onNodeWithText("Cancelar").fetchSemanticsNode().boundsInRoot
         org.junit.Assert.assertTrue("Ações devem ocupar regiões separadas", addBounds.bottom <= cancelBounds.top)
         captureCriticalEvidence(compose, "repeat-order", compose.onNode(isDialog()))
         assertEquals(0, added)
-        compose.onNodeWithText("Adicionar ao carrinho").assertIsEnabled().performClick()
+        compose.onNodeWithText("Confirmar e enviar rodada").assertIsEnabled().performClick()
         assertEquals(1, added)
     }
     @Test fun blockedConfigurationAndStaleContextCannotAddAndCancelHasNoMutation() {
         var added = 0
         var dismissed = 0
         val blocked = reviewRepeatedOrder(TabOrder("order", "", listOf(item.copy(customization = Customization(optionIds = listOf("removed"))))), listOf(product))
-        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(blocked, false, { dismissed++ }, { added++ }) } } }
-        compose.onNodeWithText("Adicionar ao carrinho").assertIsNotEnabled()
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(blocked, false, { dismissed++ }, { _ -> added++ }) } } }
+        compose.onNodeWithText("Confirmar e enviar rodada").assertIsNotEnabled()
         compose.onNodeWithText("Cancelar").performClick()
         assertEquals(0, added)
         assertEquals(1, dismissed)
     }
 
-    @Test fun historyActionAddsDraftAndOpensCartWithoutSending() {
+    @Test fun checkboxAndQuantityEditorControlExactlyWhatIsAdded() {
+        var selected: Map<String, Int>? = null
+        compose.setContent { RodadaTheme { Surface { RepeatOrderDialog(review, true, {}, { selected = it }) } } }
+        compose.onNode(isToggleable()).performClick()
+        compose.onNodeWithText("Confirmar e enviar rodada").assertIsNotEnabled()
+        compose.onNode(isToggleable()).performClick()
+        compose.onNode(hasSetTextAction()).performTextReplacement("1")
+        compose.onNodeWithText("Selecionados: 1 unidade(s) · ${formatCents(1000)}").assertExists()
+        compose.onNodeWithText("Confirmar e enviar rodada").assertIsEnabled().performClick()
+        assertEquals(mapOf(item.id to 1), selected)
+    }
+
+    @Test fun historyActionSendsSelectedRoundWithoutAddingItToCart() {
         val tab = TabSummary("tab", "Comanda", "OPEN", 1, 1600, 0, 1600)
         val order = TabOrder("order", "", listOf(item))
+        val draft = CartLine(product, 1)
         val ui = androidx.compose.runtime.mutableStateOf(OperationsUiState(products = listOf(product),
-            selectedTab = TabDetail(tab, listOf(order)), connectivity = ConnectivityState.ONLINE))
+            selectedTab = TabDetail(tab, listOf(order)), cart = listOf(draft), connectivity = ConnectivityState.ONLINE))
         var sent = 0
         compose.setContent { RodadaTheme { Surface {
             TabWorkspace(ui.value, ui.value.selectedTab!!, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
-                { sent++ }, {}, {}, {}, {}, {}, {}, {}, {},
-                onRepeatOrder = { ui.value = ui.value.withRepeatedOrder(tab.id, it) })
+                {}, {}, {}, {}, {}, {}, {}, {}, {},
+                onRepeatOrder = { review, quantities ->
+                    assertEquals(listOf(PendingOrderLine(product.id, 2)), ui.value.repeatedOrderLines(tab.id, review, quantities))
+                    sent++
+                })
         } } }
         compose.onNodeWithTag("workspace-Conta").performClick()
-        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Repetir rodada"))
-        compose.onNodeWithText("Repetir rodada").performClick()
+        compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Mais uma rodada"))
+        compose.onNodeWithText("Mais uma rodada").performClick()
         compose.onNodeWithText("Cancelar").performClick()
-        assertEquals(0, ui.value.cart.size)
-        compose.onNodeWithText("Repetir rodada").performClick()
-        compose.onNodeWithText("Adicionar ao carrinho").performClick()
-        compose.onNodeWithText("Confirmar pedido").assertIsDisplayed()
-        assertEquals(2, ui.value.cart.single().quantity)
-        assertEquals(0, sent)
+        assertEquals(listOf(draft), ui.value.cart)
+        compose.onNodeWithText("Mais uma rodada").performClick()
+        compose.onNodeWithText("Confirmar e enviar rodada").performClick()
+        assertEquals(listOf(draft), ui.value.cart)
+        assertEquals(1, sent)
     }
 }

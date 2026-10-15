@@ -50,7 +50,7 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
       // The already-open review may still show the previous guest policy.
       // Either realtime disables Add, or an attempted Add re-reads the policy
       // and refuses the repeat. Never assume a stale dialog is disabled.
-      const addButton = dialog.getByRole("button", { name: "Adicionar ao carrinho" });
+      const addButton = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
       if (await addButton.isEnabled()) {
         await addButton.click({ timeout: 5000 }).catch(async error => {
           // Realtime can disable the button between isEnabled and click.
@@ -67,10 +67,11 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
       await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
       await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
       await repeat.click();
-      await dialog.getByRole("button", { name: "Adicionar ao carrinho" }).dblclick();
-      await expect(dialog).toHaveCount(0);
+      const add = dialog.getByRole("button", { name: "Confirmar e enviar rodada" });
+      await dialog.getByRole("checkbox").uncheck(); await expect(add).toBeDisabled();
+      await dialog.getByRole("checkbox").check();
+      await dialog.getByRole("spinbutton", { name: "Quantidade de Kitchen E2E item" }).fill("1");
       expect((await api(`tabs/${tab.id}/`)).orders).toEqual(before.orders);
-      await guest.screenshot({ path: `test-results/guest-repeat-real-${scenario}.png`, fullPage: true });
       const attempts: string[] = [];
       await guest.route("**/api/guest/orders/confirm/", async route => {
         attempts.push(route.request().postData()!);
@@ -78,7 +79,10 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
         expect(response.status()).toBe(attempts.length === 1 ? 201 : 200);
         if (attempts.length === 1) await route.abort(); else await route.fulfill({ response });
       });
-      await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+      await add.dblclick();
+      await expect(dialog).toHaveCount(0);
+      await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+      await guest.screenshot({ path: `test-results/guest-repeat-direct-${scenario}.png`, fullPage: true });
       await expect(guest.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
       await expect(repeat).toBeDisabled();
       await guest.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
@@ -86,9 +90,11 @@ for (const scenario of [360, 390, 430, "blocked"] as const) test(`Guest repeat r
       expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]);
       expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(originalKey);
       const after = await api(`tabs/${tab.id}/`);
-      expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2500);
+      expect(after.orders).toHaveLength(2); expect(after.exposure_cents).toBe(2000);
       expect(after.orders.find((o: { id: string }) => o.id === before.orders[0].id)).toEqual(before.orders[0]);
       expect(after.payments).toEqual(before.payments);
+      // A direct repeated Order never consumes the unsent bar item from the guest cart.
+      await expect(guest.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
     }
     expect(resolves).toBe(initialResolves);
     expect(await guest.evaluate(k => sessionStorage.getItem(k), tokenKey)).toBe(originalToken);

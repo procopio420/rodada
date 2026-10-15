@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
-from modules.hospitality.models import Table, TableOccupancy, Zone
+from modules.hospitality.models import Table, TableGroupMembership, TableOccupancy, Zone
 from modules.hospitality.serializers import (
     AssignTabSerializer,
     GuestOrderingBlockSerializer,
@@ -78,7 +78,7 @@ def _occupancy_payload(occupancy: TableOccupancy) -> dict:
     }
 
 
-def _table_payload(table: Table) -> dict:
+def _table_payload(table: Table, *, group: dict | None = None) -> dict:
     active = (
         (table.current_occupancies[0] if table.current_occupancies else None)
         if hasattr(table, "current_occupancies")
@@ -93,6 +93,7 @@ def _table_payload(table: Table) -> dict:
         "guest_ordering_mode": table.guest_ordering_mode,
         "guest_ordering_blocked": table.guest_ordering_blocked,
         "status": table.status,
+        "group": group,
         "active_occupancy": _occupancy_payload(active) if active else None,
     }
 
@@ -104,10 +105,25 @@ class TableListCreateView(APIView):
         from .projections import staff_tables
 
         tables = staff_tables(request.actor_context.venue_id)
+        members = list(
+            TableGroupMembership.objects.filter(
+                table__venue_id=request.actor_context.venue_id,
+                removed_at__isnull=True,
+                group__dissolved_at__isnull=True,
+            ).select_related("group", "table")
+        )
+        groups = {}
+        for member in members:
+            info = groups.setdefault(
+                member.group_id,
+                {"id": str(member.group_id), "label": member.group.label, "tables": []},
+            )
+            info["tables"].append({"id": str(member.table_id), "label": member.table.label})
+        by_table = {member.table_id: groups[member.group_id] for member in members}
         return Response(
             {
                 "table_service_enabled": request.auth.venue.table_service_enabled,
-                "results": [_table_payload(table) for table in tables],
+                "results": [_table_payload(table, group=by_table.get(table.id)) for table in tables],
             }
         )
 
@@ -410,3 +426,35 @@ class TableCountView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response({"confirmed": True})
+
+
+class TableTurnoverReportView(APIView):
+    """Explicit coverage, not inferred turnover or historical capacity."""
+
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request):
+        from rest_framework import serializers
+
+        from modules.hospitality.metrics import table_turnover_report
+
+        class Period(serializers.Serializer):
+            start = serializers.DateField()
+            end = serializers.DateField()
+
+            def validate(self, attrs):
+                days = (attrs["end"] - attrs["start"]).days
+                if days < 0 or days > 365:
+                    raise serializers.ValidationError("Escolha até 366 dias em ordem cronológica.")
+                return attrs
+
+        period = Period(data=request.query_params)
+        period.is_valid(raise_exception=True)
+        return Response(
+            table_turnover_report(
+                venue=request.auth.venue,
+                start=period.validated_data["start"],
+                end=period.validated_data["end"],
+            )
+        )

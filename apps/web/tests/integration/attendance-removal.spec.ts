@@ -6,12 +6,14 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await page.getByLabel("Operador", { exact: true }).fill("test-staff");
  await page.getByLabel("PIN", { exact: true }).fill("2468");
  await page.getByRole("button", { name: "Entrar", exact: true }).click();
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+
   await openNamedAttendanceTab(page, "Correction E2E");
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
  await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
  await page.getByRole("button", { name: /Confirmar pedido/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
  await expect(page.getByText("Novo", { exact: true })).toBeVisible();
  await page.getByRole("button", { name: /^Remover / }).click();
  await expect(page.getByRole("group", { name: "Quantidade a remover" }).locator("output")).toHaveText("1");
