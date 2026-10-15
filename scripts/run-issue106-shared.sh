@@ -28,21 +28,7 @@ run_dir="$ROOT/artifacts/runs/$run_id"
 history_dir="$ROOT/artifacts/history/preexisting-$run_id"
 mkdir -p "$run_dir" "$history_dir"
 export RODADA_EVIDENCE_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-"$PYTHON" - "$run_dir/versions.json" <<'PYVERSIONS'
-import json,subprocess,sys
-from pathlib import Path
-import django;django.setup()
-from django.db import connection
-with connection.cursor() as cursor:
-    cursor.execute("SHOW server_version");postgresql=cursor.fetchone()[0]
-node=lambda expression:subprocess.check_output(["node","-p",expression],text=True).strip()
-versions={"postgresql":postgresql,"django":django.get_version(),
-    "android":"emulator API "+subprocess.check_output(["adb","shell","getprop","ro.build.version.sdk"],text=True).strip(),
-    "browser":node("require('./apps/web/node_modules/playwright/package.json').version") if Path('apps/web/node_modules/playwright/package.json').exists() else "NOT_YET_INSTALLED",
-    "nextjs":node("require('./apps/web/package.json').dependencies.next"),
-    "python":sys.version.split()[0],"node":subprocess.check_output(["node","--version"],text=True).strip()}
-Path(sys.argv[1]).write_text(json.dumps(versions,indent=2)+"\n")
-PYVERSIONS
+"$PYTHON" scripts/issue106-runtime.py "$run_dir/versions.json"
 # Preserve earlier evidence before producers use their compatible fixed paths.
 # Moving it aside creates a fresh capture boundary without deleting any history.
 "$PYTHON" - "$history_dir" <<'PYARCHIVE'
@@ -124,22 +110,7 @@ for i in $(seq 1 60); do
   sleep 1
 done
 export RODADA_ANDROID_PROOF="$ROOT/artifacts/android-real-post-drop.json" RODADA_ANDROID_COMPOSE_PROOF="$ROOT/artifacts/android-compose-order.json"
-# Record the running browser binary, not merely the Playwright package version.
-(cd apps/web && node - "$run_dir/versions.json" <<'NODEVERSIONS'
-const fs = require('node:fs');
-const { chromium } = require('playwright');
-(async () => {
-  const browser = await chromium.launch();
-  try {
-    const versions = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-    versions.browser = browser.version();
-    versions.playwright = require('playwright/package.json').version;
-    versions.nextjs = require('next/package.json').version;
-    fs.writeFileSync(process.argv[2], JSON.stringify(versions, null, 2) + '\n');
-  } finally { await browser.close(); }
-})().catch(error => { console.error(error.message); process.exit(1); });
-NODEVERSIONS
-)
+"$PYTHON" scripts/issue106-runtime.py "$run_dir/versions.json"
 step=shared-browser
 (cd apps/web && npx playwright test --config playwright.android-cross-surface.config.ts)
 step=independent-sql

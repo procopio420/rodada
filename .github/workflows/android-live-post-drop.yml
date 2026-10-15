@@ -23,6 +23,8 @@ on:
       - "scripts/verify-issue106-pending.py"
       - "scripts/verify-issue106-unavailable.py"
       - "scripts/issue106-catalog-fault.py"
+      - "scripts/issue106-runtime.py"
+      - "scripts/build-issue106-report.py"
       - "scripts/verify-financial-ui.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
@@ -88,6 +90,7 @@ jobs:
           python apps/api/manage.py migrate --noinput
       - name: Prepare fixture against the inspected disposable PostgreSQL service
         run: |
+          echo "RODADA_EVIDENCE_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           python scripts/verify-android-live-post-drop.py prepare
           python scripts/verify-android-live-post-drop.py prepare-resilience
           python scripts/verify-android-live-post-drop.py prepare-pending
@@ -202,12 +205,39 @@ jobs:
       - name: Export redacted traces
         if: always()
         run: python scripts/sanitize-cross-surface-traces.py
+      - name: Export exact-SHA scenario manifest and NO-GO decision
+        if: always()
+        env:
+          SLICE_STATUS: ${{ job.status }}
+        run: |
+          python scripts/issue106-runtime.py artifacts/versions.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timezone
+          Path("artifacts/execution.json").write_text(json.dumps({
+              "sha":os.environ["GITHUB_SHA"],"result":"PASS" if os.environ["SLICE_STATUS"]=="success" else "FAIL",
+              "last_step":"CI shared stack","started_at":os.environ.get("RODADA_EVIDENCE_STARTED_AT","NOT_RECORDED"),
+              "finished_at":datetime.now(timezone.utc).isoformat()},indent=2)+"\n")
+          PY
+          # NO-GO is expected for incomplete PR slices; the manual release gate below enforces it.
+          python scripts/build-issue106-report.py artifacts --fixture "$RODADA_POST_DROP_FIXTURE" --versions artifacts/versions.json \
+            --sha "$GITHUB_SHA" --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --pr "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}" || test -s artifacts/gate.json
+      - name: Enforce complete automated release gate on manual execution
+        if: always() && github.event_name == 'workflow_dispatch'
+        run: python scripts/e2e_evidence.py artifacts/manifest.json --sha "$GITHUB_SHA" --root artifacts
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-live-post-disconnect-evidence
           path: |
+            artifacts/execution.json
+            artifacts/versions.json
+            artifacts/manifest.json
+            artifacts/gate.json
+            artifacts/android-emulator-api.txt
             artifacts/android-real-post-drop.json
             artifacts/android-web-cross-surface.json
             artifacts/android-compose-*.json

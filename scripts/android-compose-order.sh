@@ -14,6 +14,7 @@ if [[ -n "${ANDROID_SERIAL:-}" ]]; then ADB+=(-s "$ANDROID_SERIAL"); fi
 export RODADA_COMPOSE_TAB_LABEL="Android-Compose-acceptance-$("$PYTHON" -c 'import uuid; print(uuid.uuid4().hex[:12])')"
 export PYTHONPATH="$ROOT/apps/api"
 mkdir -p artifacts
+"${ADB[@]}" shell getprop ro.build.version.sdk | tr -d '\r' > artifacts/android-emulator-api.txt
 if [[ "${RODADA_COMPOSE_READBACK:-false}" == true ]]; then
   read -r table_id table_label tab_one tab_two < <("$PYTHON" - <<'PYARGS'
 import json,re,os,sys
