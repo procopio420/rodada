@@ -165,7 +165,7 @@ export default function ManagementPage() {
 
     <Link className="buttonSecondary" href="/pos">Consultar comandas</Link>
     </div>}
-    {section === "vendas" && <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link></section>}
+    {section === "vendas" && <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link><Link className="backLink" href="/manage/table-turnover">Giro e limpeza das mesas →</Link></section>}
     {section === "mais" && <section className="panel" id="mais"><ManagementSectionHeader icon="more">Cadastros e configurações</ManagementSectionHeader><div className="actions">
       <Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link>
       <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
