@@ -48,6 +48,7 @@ missing Railway access. No deployment or acceptance is implied.
 
 - [ ] A `VenueDomain`-equivalent, unique and audited registry resolves `bardoaderlan.rodada.bar` to the seeded Venue ID whose slug remains `bar-do-aderlan`.
 - [ ] Reserved hostnames cannot be claimed; unrecognized/disabled/lookalike/invalid hostnames fail closed (404 or 421), with no default/demo fallback.
+- [ ] On the shared Railway `rodada-web` ingress, the reserved `api.rodada.bar` hostname reaches Django for **all** paths; `/ready/` succeeds while `/` and `/staff` return Django 404 rather than the Next.js UI. Other Venue hosts keep their same-origin Next BFF and protected raw API behavior. Verify Docker smoke and external HTTPS after an approved deploy.
 - [ ] Reverse proxy and application agree on the normalized trusted Host. Browser-supplied `X-Forwarded-Host`, `X-Rodada-*` or `?venue=` cannot choose a different Venue.
 
 ## Navigation
