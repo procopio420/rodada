@@ -14,6 +14,37 @@ if [[ -n "${ANDROID_SERIAL:-}" ]]; then ADB+=(-s "$ANDROID_SERIAL"); fi
 export RODADA_COMPOSE_TAB_LABEL="Android-Compose-acceptance-$("$PYTHON" -c 'import uuid; print(uuid.uuid4().hex[:12])')"
 export PYTHONPATH="$ROOT/apps/api"
 mkdir -p artifacts
+if [[ "${RODADA_COMPOSE_READBACK:-false}" == true ]]; then
+  read -r table_id table_label tab_one tab_two < <("$PYTHON" - <<'PYARGS'
+import json,re,os
+from pathlib import Path
+from cross_surface_fixture import require_disposable_database
+require_disposable_database()
+import django;django.setup()
+from django.db import connection
+from cross_surface_fixture import require_connected_database,database_instance_identity
+from modules.hospitality.models import Table
+from modules.ordering.models import Tab
+require_connected_database(connection)
+r=json.loads(Path("artifacts/browser-origins-sql.json").read_text())
+assert r["database_instance_id"]==database_instance_identity(connection)
+values=[r["table_id"],Table.objects.get(pk=r["table_id"],venue_id=r["venue_id"]).label]+[Tab.objects.get(pk=pk,venue_id=r["venue_id"]).display_label for pk in r["tab_ids"]]
+assert len(values)==4 and all(re.fullmatch(r"[A-Za-z0-9_-]+",v) for v in values)
+print(*values)
+PYARGS
+)
+  "${ADB[@]}" shell am force-stop com.rodada.attendance
+  "${ADB[@]}" shell pm clear com.rodada.attendance
+  "${ADB[@]}" shell am instrument -w -e liveReadback true -e tableId "$table_id" -e tableLabel "$table_label" -e tabOne "$tab_one" -e tabTwo "$tab_two" \
+    -e class com.rodada.attendance.operations.LiveComposeReadbackTest \
+    com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner | tee artifacts/android-context-readback-instrumentation.txt
+  grep -q 'OK (1 test)' artifacts/android-context-readback-instrumentation.txt
+  "$PYTHON" scripts/verify-browser-origins.py
+  cp artifacts/browser-origins-sql.json artifacts/android-context-readback-sql.json
+  "${ADB[@]}" exec-out screencap -p > artifacts/android-context-readback.png
+  "${ADB[@]}" shell am force-stop com.rodada.attendance
+  exit 0
+fi
 mode="${RODADA_COMPOSE_CATALOG_FAULT:-false}"
 if [[ "$mode" == true ]]; then
   "${ADB[@]}" shell am force-stop com.rodada.attendance
