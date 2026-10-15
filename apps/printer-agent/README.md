@@ -1,10 +1,11 @@
 # Rodada Impressoras
 
-S2 provides the Windows service, persistent installation identity, manager-approved
-pairing, machine DPAPI storage with a service SID ACL, heartbeat and revocation.
-The optional local diagnostic window reads only public status and pairing code.
-Protocol v1 advertises contract, activate and heartbeat; delivery remains false.
-No spooler, print claims, installer or public stable release is implemented yet.
+Version 0.3.0 includes the S2 Windows service, persistent installation identity,
+manager-approved pairing, machine DPAPI storage with a service SID ACL, heartbeat
+and revocation, plus S3 discovery and fenced delivery. The optional local diagnostic
+window reads only public status and pairing code. Protocol v1 enables delivery only
+for approved routes; S2 clients (0.2.0) continue with delivery disabled.
+Installer and public stable release remain pending for S6/S7.
 
 Service configuration and operational instructions: see
 `../../specs/028-windows-printer-agent/s2-pairing.md`.
