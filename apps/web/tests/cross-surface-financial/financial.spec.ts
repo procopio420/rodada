@@ -71,12 +71,31 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   // Read-only: guest/Web consuming Tabs must not inherit this payment.
   const origins = JSON.parse(await readFile("../../artifacts/browser-origins.json", "utf8"));
   for (const id of origins.tab_ids) expect((await read(`tabs/${id}/`)).payments_cents).toBe(0);
-  await page.getByLabel("Valor do pagamento", { exact: true }).fill((partial.exposure_cents / 100).toFixed(2).replace(".", ","));
+  // Compensatory manual-test refund preserves the original payment and charge rows.
+  await page.goto("/refunds");
+  await page.getByLabel("Comanda", { exact: true }).selectOption(native.original_tab_id);
+  await page.getByLabel("PIN do gerente").fill("2468");
+  await page.getByRole("button", { name: "Confirmar PIN", exact: true }).click();
+  await expect(page.locator("main").getByRole("alert")).toContainText("PIN confirmado");
+  await page.getByLabel("Valor a estornar").fill("1,00");
+  await page.getByLabel("Motivo do estorno").fill("Disposable #106 compensatory refund; retain original ledger");
+  await page.getByRole("button", { name: "Confirmar estorno", exact: true }).click();
+  await expect(page.getByText(/^Estorno confirmado\./)).toBeVisible();
+  const refunded = await read(`tabs/${native.original_tab_id}/`);
+  expect(refunded.refunds_cents).toBe(100);
+  expect(refunded.payments[0].id).toBe(firstPaymentId);
+  expect(refunded.payments[0].confirmed_at).toBe(partial.payments[0].confirmed_at);
+  expect(refunded.payments[0].amount_cents).toBe(300);
+  expect(refunded.exposure_cents).toBe(partial.exposure_cents + 100);
+  const refundId = refunded.payments[0].refunds[0].id;
+  await page.goto("/pos");
+  await page.getByRole("button", { name: new RegExp(`^${native.tab_label} ·`) }).click();
+  await page.getByLabel("Valor do pagamento", { exact: true }).fill((refunded.exposure_cents / 100).toFixed(2).replace(".", ","));
   await page.getByRole("button", { name: "Receber em dinheiro", exact: true }).click();
   await expect.poll(async () => (await read(`tabs/${native.original_tab_id}/`)).exposure_cents).toBe(0);
   const paid = await read(`tabs/${native.original_tab_id}/`);
   expect(paid.payments).toHaveLength(2);
-  expect(paid.payments_cents).toBe(before.exposure_cents);
+  expect(paid.payments_cents).toBe(before.exposure_cents + 100);
   await page.getByRole("button", { name: "Fechar comanda", exact: true }).click();
   await expect.poll(async () => (await read(`tabs/${native.original_tab_id}/`)).state).toBe("CLOSED");
   await page.goto("/cash");
@@ -110,12 +129,12 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   await page.getByRole("button", { name: "Aplicar período", exact: true }).click();
   await expect(page.getByRole("button", { name: "Exportar CSV", exact: true })).toBeEnabled();
   const report = await read(`management/reports/?start=${closed.business_date}&end=${closed.business_date}`);
-  expect(report.totals.paid_cents).toBe(before.exposure_cents);
-  expect(report.totals.refunds_cents).toBe(0);
+  expect(report.totals.paid_cents).toBe(before.exposure_cents + 100);
+  expect(report.totals.refunds_cents).toBe(100);
   await writeFile("../../artifacts/financial-browser.json", JSON.stringify({
     sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), status: "PASS", test_only: true,
     cash_response_loss_replays: paymentBodies.length, first_payment_id: firstPaymentId,
     tab_id: native.original_tab_id, payment_ids: paid.payments.map((p: { id: string }) => p.id), shift_id: shiftId,
-    business_date: closed.business_date, report_totals: report.totals, paid_cents: before.exposure_cents, expected_cents: expected, discrepancy_cents: -1000,
+    business_date: closed.business_date, report_totals: report.totals, paid_cents: before.exposure_cents + 100, refund_cents: 100, refund_id: refundId, expected_cents: expected, discrepancy_cents: -1000,
   }, null, 2));
 });
