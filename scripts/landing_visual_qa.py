@@ -73,6 +73,12 @@ async def audit(browser,name,width,height):
     focused=await page.evaluate("() => document.activeElement.id")
     await page.get_by_role("tab",name="01 Atendimento").click()
     restored=await page.locator("#panel-attendance").evaluate("(el) => !el.hidden")
+    # FAQ remains native and keyboard-accessible despite its optional CSS animation.
+    first_faq=page.locator(".faq-list details").first
+    await first_faq.locator("summary").click()
+    faq_open=await first_faq.evaluate("(el) => el.open && el.querySelector('p').getBoundingClientRect().height > 0")
+    await first_faq.locator("summary").press("Enter")
+    faq_closed=await first_faq.evaluate("(el) => !el.open")
     # Sticky conversion action should appear only between the hero and final CTA.
     await page.evaluate("""() => {
       const h=document.querySelector('.hero');
@@ -110,7 +116,19 @@ async def audit(browser,name,width,height):
         await motion_page.locator("#moments-title").scroll_into_view_if_needed()
         await motion_page.wait_for_timeout(180)
         reveal_happened = await motion_page.locator(".moments .section-head").evaluate("(el) => el.classList.contains('is-visible')")
-        motion_pass = hero_animation == "hero-copy-in" and tour_animation == "tour-enter" and reveal_happened
+        if width == 390:
+            await motion_page.evaluate("""() => {
+              const hero=document.querySelector('.hero');
+              scrollTo({top:hero.getBoundingClientRect().bottom+scrollY+90,behavior:'instant'});
+            }""")
+            await motion_page.wait_for_timeout(350)
+            sticky_animation = await motion_page.locator(".mobile-cta").evaluate(
+              "(el) => el.classList.contains('is-visible') && getComputedStyle(el).opacity === '1' && getComputedStyle(el).transitionProperty.includes('opacity')"
+            )
+        else:
+            sticky_animation = True
+        motion_pass = (hero_animation == "hero-copy-in" and tour_animation == "tour-enter"
+                       and reveal_happened and sticky_animation)
         await motion_page.close()
     else:
         motion_pass = True
@@ -118,13 +136,14 @@ async def audit(browser,name,width,height):
       **initial,"noJsPanels":fallback,"noJsCTA":fallback_cta,"noJsSticky":fallback_sticky,"animatedVariantsPass":motion_pass,"httpStatus":response.status if response else None,"errors":errors,
       "barSelected":bar_selected,"barPanelVisible":bar_panel,
       "manageSelected":manage_selected,"keyboardFocus":focused,
-      "firstRestored":restored,"stickyAfterHero":sticky_after,
+      "firstRestored":restored,"faqOpen":faq_open,"faqClosed":faq_closed,"stickyAfterHero":sticky_after,
       "stickyAtEndHidden":sticky_end
     }
     result["pass"]=bool(
         result["httpStatus"]==200 and not errors
         and initial["scrollWidth"]<=width+2
         and fallback and fallback_cta and fallback_sticky and motion_pass
+        and faq_open and faq_closed
         and all(i["loaded"] for i in initial["images"])
         and initial["loadedFonts"]
         and initial["heroHeading"]["w"]>0
