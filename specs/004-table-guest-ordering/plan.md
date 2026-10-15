@@ -142,3 +142,9 @@ Aceite por PostgreSQL: dados completos, incompletos/inconsistentes, filtro de Ve
 Adicionar `TableGroup` e `TableGroupMembership` no bounded context hospitality com migration `0006_table_groups`. Constraints PostgreSQL para chave de replay e exclusividade de membro ativo, lock ordenado das Tables. API `TABLE_MANAGE` para listar/criar/desfazer; alterações auditadas e reconsultadas. Projetar grupos na lista de mesas/Guest sanitizado, incorporar as ações na Gestão de Mesas reutilizando componentes existentes. Não alterar entidades financeiras nem depender da #144.
 
 Aceite exige PostgreSQL real para concorrência, permissões, lifecycle/ledger imutáveis, Web visual mobile/desktop, BFF integrado, migration dry-run, CI final e code review R3 independente.
+
+## Execução isolada #147 — Guest Customer opcional
+
+Estender guest_access com CustomerCredential/CustomerAuthSession, mantendo `Customer` e Tab existentes e nenhum migration financeiro. Autenticação com hash Django e lockout persistente, escopo no par GuestSession+Venue, tokens opacos com SHA-256 no banco, cookie HttpOnly pelo BFF. Nova UI sob disclosure `Meu perfil (opcional)`; login e registro opcionais. Claims transacionais com revalidação de TableOccupancyAssignment/geração e revisão de Tab.customer. Logout e troca de senha revogam prova de perfil sem alterar GuestSession ou ledger.
+
+Testar serviço e HTTP, isolamento cross-Venue, legacy Customer, senha inválida, concorrência em PostgreSQL, claim de outra Tab, dados de resposta, replay e BFF cookies. Gates de CI visual e revisão independente continuam obrigatórios antes de produção.

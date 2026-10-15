@@ -122,3 +122,13 @@ Checklist mantém estado pendente até execução e prova verificável, não ape
 - [ ] PR mergeado após evidência; só então encerrar issue.
 
 Checklists permanecem abertos até execução verificável; código adicionado não é teste executado.
+
+## Issue #147 — Customer opcional no Guest
+
+- [ ] Cliente anônimo permanece funcional, sem login, CPF ou alterações em ledger.
+- [ ] Cadastro cria credencial **nova**, impossível assumir Customer legado por rótulo; senha é hash Django e rate limit/lockout efetivo.
+- [ ] Claim requer GuestSession + CustomerAuthSession compatíveis, mesmo Venue, ocupação, Table, generation e Tab; replay idempotente.
+- [ ] IDs estrangeiros, perfis de outro Venue, sessão/ocupação expiradas e outra Tab ativa rejeitados sem vazamento.
+- [ ] Logout, rotação de senha e revogação de QR invalidam token anterior e preservam Tab/Order.
+- [ ] Cookie HttpOnly não entrega auth token à JS; CSRF/Host/cabeçalhos forjados testados com BFF real.
+- [ ] UI Guest responsive 360/390/430/desktop, acessibilidade, testes PostgreSQL/CI e revisor independente R3 aprovados; merge depois de aceite.
