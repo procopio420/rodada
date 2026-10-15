@@ -82,7 +82,7 @@ class LandingMarketingTest(unittest.TestCase):
         self.assertIn("animation:reveal-in",self.html)
         self.assertIn("prefers-reduced-motion:no-preference",self.html)
         self.assertIn("revealObserver.unobserve",self.html)
-        self.assertIn("No-JavaScript fallback",self.html)
+        self.assertIn("content stays fully visible",self.html)
 
     def test_no_tracking_dependencies(self):
         self.assertEqual(self.html.lower().count("<script"),1)
