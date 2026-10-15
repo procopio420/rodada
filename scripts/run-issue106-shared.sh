@@ -113,6 +113,7 @@ bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-in
 step=compose
 bash scripts/android-compose-order.sh
 RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
+RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
 step=web-build
 (cd apps/web && npm ci --no-audit --no-fund && npm run typecheck && npm run build) > "$run_dir/web-build.txt" 2>&1
 (cd apps/web && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110) > "$run_dir/next.txt" 2>&1 &

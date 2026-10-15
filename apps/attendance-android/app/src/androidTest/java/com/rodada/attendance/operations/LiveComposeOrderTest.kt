@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rodada.attendance.MainActivity
 import com.rodada.attendance.BuildConfig
+import com.rodada.attendance.auth.SecureSessionStore
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -43,14 +44,32 @@ class LiveComposeOrderTest {
         compose.onNodeWithTag("workspace-Pedido atual").performClick()
         waitText("Confirmar pedido")
         val fault = InstrumentationRegistry.getArguments().getString("catalogFault") == "true"
+        val offlineFault = InstrumentationRegistry.getArguments().getString("offlineFault") == "true"
+        var originalPending: RecoveryIntent.ConfirmOrder? = null
         if (fault) {
             // Host controls only the real backend fault; all order actions remain Compose taps.
             val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
             java.io.File(files, "catalog-cart-ready").writeText("ready")
             compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
         }
+        if (offlineFault) waitText("SEM SINAL")
         val confirmation = compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo()
         if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
+        if (offlineFault) {
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            val session = SecureSessionStore(context).load() ?: error("Missing real UI session")
+            val queue = PendingMutationIntentStore(context)
+            compose.waitUntil(30_000) { queue.orderQueue(session).size == 1 }
+            originalPending = queue.orderQueue(session).single()
+            check(originalPending!!.state == RecoveryState.PENDING)
+            java.io.File(context.filesDir, "offline-intent-ready").writeText("pending")
+            compose.waitUntil(60_000) { queue.orderQueue(session).singleOrNull()?.state == RecoveryState.ACTION_REQUIRED }
+            val rejected = queue.orderQueue(session).single()
+            check(rejected == originalPending!!.copy(state = RecoveryState.ACTION_REQUIRED))
+            // A dependent confirmation cannot create a new key or resubmit an ACTION_REQUIRED record.
+            compose.onNodeWithText("Confirmar pedido").performScrollTo().performClick()
+            check(queue.orderQueue(session).single() == rejected)
+        }
         if (fault) {
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty() &&
                 compose.onAllNodes(hasText("Um ou mais itens não podem mais ser confirmados.", substring = true)).fetchSemanticsNodes().isNotEmpty() }

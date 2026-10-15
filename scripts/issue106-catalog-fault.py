@@ -27,5 +27,5 @@ else:
     assert Order.objects.filter(pk=original["original_order_id"],tab_id=original["original_tab_id"]).count()==1
     assert {str(c.pk) for c in Charge.objects.filter(tab_id=original["original_tab_id"])}==set(original["charge_ids"])
     assert sum(Charge.objects.filter(tab_id=original["original_tab_id"]).values_list("amount_cents",flat=True))==1700
-    Path("artifacts/android-catalog-sql.json").write_text(json.dumps({"sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"database_instance_id":f["database_instance_id"],"venue_id":f["venue_id"],"tab_id":str(tab.pk),"status":"PASS","orders":0,"charges":0,"payments":0,"native_ui":"production MainActivity Compose","fault":"product made unavailable after cart before confirm"},indent=2)+"\n")
+    Path("artifacts/android-catalog-sql.json").write_text(json.dumps({"sha":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"database_instance_id":f["database_instance_id"],"venue_id":f["venue_id"],"tab_id":str(tab.pk),"status":"PASS","orders":0,"charges":0,"payments":0,"native_ui":"production MainActivity Compose","fault":"offline pending intent then product change and ACTION_REQUIRED" if os.environ.get("RODADA_COMPOSE_OFFLINE_CATALOG")=="true" else "product made unavailable after cart before confirm"},indent=2)+"\n")
 print("PASS: guarded catalog fault stage",sys.argv[1])

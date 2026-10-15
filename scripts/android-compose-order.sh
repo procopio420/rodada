@@ -49,22 +49,39 @@ mode="${RODADA_COMPOSE_CATALOG_FAULT:-false}"
 if [[ "$mode" == true ]]; then
   "${ADB[@]}" shell am force-stop com.rodada.attendance
 "${ADB[@]}" shell pm clear com.rodada.attendance
-"${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true \
+"${ADB[@]}" shell am instrument -w -e liveCompose true -e catalogFault true -e offlineFault "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" \
   -e tabLabel "$RODADA_COMPOSE_TAB_LABEL" -e class com.rodada.attendance.operations.LiveComposeOrderTest \
   com.rodada.attendance.test/androidx.test.runner.AndroidJUnitRunner > artifacts/android-catalog-instrumentation.txt &
 instrument_pid=$!
-trap '"$PYTHON" scripts/issue106-catalog-fault.py restore; kill "$instrument_pid" 2>/dev/null || true' EXIT
-for i in $(seq 1 90); do
-  kill -0 "$instrument_pid" 2>/dev/null || { echo "Instrumentation exited before cart readiness; inspect its log"; exit 1; }
-  if "${ADB[@]}" shell run-as com.rodada.attendance test -f files/catalog-cart-ready; then break; fi
-  if [[ "$i" == 90 ]]; then echo "Compose cart did not become ready"; exit 1; fi
-  sleep 1
-done
-"$PYTHON" scripts/issue106-catalog-fault.py unavailable
-"${ADB[@]}" shell run-as com.rodada.attendance touch files/catalog-fault-applied
+trap 'adb shell svc wifi enable; adb shell svc data enable; "$PYTHON" scripts/issue106-catalog-fault.py restore; kill "$instrument_pid" 2>/dev/null || true' EXIT
+wait_app_marker() {
+  for i in $(seq 1 90); do
+    kill -0 "$instrument_pid" 2>/dev/null || { echo "Instrumentation exited before $1; inspect its log"; exit 1; }
+    if "${ADB[@]}" shell run-as com.rodada.attendance test -f "files/$1"; then return; fi
+    if [[ "$i" == 90 ]]; then echo "Timed out waiting for $1"; return 1; fi
+    sleep 1
+  done
+}
+wait_app_marker catalog-cart-ready
+if [[ "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" == true ]]; then
+  "${ADB[@]}" shell svc wifi disable
+  "${ADB[@]}" shell svc data disable
+  "${ADB[@]}" shell run-as com.rodada.attendance touch files/catalog-fault-applied
+  wait_app_marker offline-intent-ready
+  "$PYTHON" scripts/issue106-catalog-fault.py unavailable
+  "${ADB[@]}" shell svc wifi enable
+  "${ADB[@]}" shell svc data enable
+else
+  "$PYTHON" scripts/issue106-catalog-fault.py unavailable
+  "${ADB[@]}" shell run-as com.rodada.attendance touch files/catalog-fault-applied
+fi
 wait "$instrument_pid"
   grep -q 'OK (1 test)' artifacts/android-catalog-instrumentation.txt
   "$PYTHON" scripts/issue106-catalog-fault.py verify
+  if [[ "${RODADA_COMPOSE_OFFLINE_CATALOG:-false}" == true ]]; then
+    cp artifacts/android-catalog-sql.json artifacts/android-offline-conflict-sql.json
+    cp artifacts/android-catalog-instrumentation.txt artifacts/android-offline-conflict-instrumentation.txt
+  fi
   "${ADB[@]}" exec-out screencap -p > artifacts/android-catalog-rejected.png
   "${ADB[@]}" shell am force-stop com.rodada.attendance
   exit 0

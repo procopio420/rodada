@@ -28,6 +28,7 @@ on:
       - "scripts/sanitize-cross-surface-traces.py"
       - "scripts/tests/test_trace_redaction.py"
       - "apps/attendance-android/app/src/androidTest/**/LiveCompose*.kt"
+      - "apps/attendance-android/app/src/androidTest/**/LivePostDropReconciliationTest.kt"
       - "scripts/tests/test_cross_surface_fixture.py"
 
 permissions:
@@ -128,6 +129,7 @@ jobs:
             bash scripts/android-table-service-post-drop.sh
             bash scripts/android-compose-order.sh
             RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
+            RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
       # The native emulator just committed and recovered the order in this
       # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
       # Web must read and mutate the native-origin Order/Tab, not a mock order.
@@ -215,6 +217,7 @@ jobs:
             artifacts/android-catalog-*.txt
             artifacts/android-catalog-*.png
             artifacts/android-context-readback*
+            artifacts/android-offline-conflict*
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
