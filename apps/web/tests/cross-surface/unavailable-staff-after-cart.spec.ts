@@ -22,6 +22,8 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     name: "E2E05 Web " + Date.now(), price_cents: 500, fulfillment_station: "BAR",
   })).product;
   const table = await api("hospitality/tables/", { label: "E2E05 Web " + Date.now(), guest_ordering_mode: "DIRECT" });
+  // Set up an occupied table before testing the staff ordering UI; AVAILABLE tables cannot open a second Tab directly.
+  await api("hospitality/tables/" + table.id + "/occupy/", {});
   const stationContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110", storageState: await page.context().storageState() });
   try {
     const station = await stationContext.newPage();
