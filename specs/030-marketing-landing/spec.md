@@ -28,3 +28,14 @@ Reutilizar `assets/brand/v1` distribuídos em `apps/landing/brand/`, Archivo loc
 - Frase secundária revisada: “Seu bar merece movimento. Menos correria.”
 - O QR na arte não é escaneável; tratá-lo como ilustração, sem sugerir cliente/piloto real.
 - Metadados og:image para compartilhamento e Docker incluindo pasta marketing/ e screenshots da galeria.
+
+## Direção 2026 — Slice 3 (substitui o hero-pôster)
+
+- A campanha ilustrativa permanece apenas como material social `og:image`; o hero da landing **não** pode depender de lettering ou logo rasterizados na foto.
+- O hero usa H1/CTA verdadeiros, responsivos, pesquisáveis e acessíveis. A fotografia recortada é contexto humano secundário, rotulada como ilustração de IA.
+- A primeira dobra combina posicionamento direto, demonstração e produto sem fingir números de clientes, dashboard ao vivo ou receita.
+- Mostrar um tour interativo real de interface para Atendimento, Bar e Gerência com capturas versionadas de ambiente de testes. Interação muda somente a apresentação; não usa API, não registra pedido, não chama endpoints e não coleta dados.
+- Navegação do tour por clique/toque/teclado com `role=tab`, `aria-selected`, `aria-controls`, `role=tabpanel` e foco visível. Sem JS, as três áreas continuam visíveis em sequência.
+- Motion é aprimoramento discreto, respeita `prefers-reduced-motion` e nunca impede a compreensão do conteúdo.
+- CTA mobile fixo segue surgindo após o hero; no fim da página deve desaparecer para não cobrir o último convite.
+- Manter `rodada.bar` canônico, WhatsApp aprovado, rotas legais e disclaimer de imagens conceituais.

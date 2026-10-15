@@ -22,3 +22,11 @@ Testes estáticos e checagem visual real de 360/390/430/desktop, acessibilidade 
 - Texto comercial orientado a momentos reais de bar cheio, com fluxo de pedido/produto concreto.
 - Galeria enquadrada e legendada como prova de teste, sem falsa fotografia de cliente.
 - Contratos Playwright para hero, scroll e CTA em novas larguras.
+
+## Slice 3 — sistema visual contemporâneo (PR #188)
+1. Tirar arte-pôster do primeiro viewport; texto de marca em HTML com hierarquia editorial e CTA acima da dobra.
+2. Usar o recorte humano da arte como fotografia ilustrativa sem tipografia embutida, mantendo a peça original só em OG.
+3. Construir um tour de três experiências usando screenshots reais de fixture, com fallback sem JS.
+4. Reduzir ruído de múltiplos cards decorativos: ritmo por seções de alto contraste, linhas e recortes.
+5. Rodar QA e screenshots mobile (320/360/390/430), tablet e desktop 1440/1920; validar tabs e CTA sticky.
+6. Sem merge/deploy, dados de produção, dependências externas ou alteração de branding.
