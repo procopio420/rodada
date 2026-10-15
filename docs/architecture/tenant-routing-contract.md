@@ -15,7 +15,7 @@ O hostname identifica o estabelecimento (Venue); o path identifica o módulo. `b
 | Caixa | `https://bardoaderlan.rodada.bar/caixa` | `/cash` |
 | Relatórios | `https://bardoaderlan.rodada.bar/relatorios` | `/reports` |
 | Guest QR | `https://bardoaderlan.rodada.bar/m/<opaque-token>` | `/guest/<opaque-token>` |
-| API técnica compartilhada | `https://api.rodada.bar/` | Django API, sujeito a deploy/ingress |
+| API técnica compartilhada | `https://api.rodada.bar/` | Django (Uvicorn `:8000`) dentro do serviço Railway `rodada-web`; Nginx roteia por `server_name`, sem Next.js |
 | Admin da plataforma (futuro) | `https://admin.rodada.bar/` | Não implementado |
 
 ## Fluxo de confiança
@@ -48,3 +48,13 @@ portáveis read-only com TTL/revogação; gestão continua escopada ao Venue.
 O hardening de código valida authorities assinadas e segredos production/pilot,
 e converte erro de mismatch no OAuth em403 antes de qualquer troca.
 Preview421 mantém #151/#130 bloqueados; CI/review de código não autorizam wildcard.
+
+## Incident follow-up — API hostname ingress (14/10/2026)
+
+**Confirmed runtime topology:** \`rodada-web\` is the **single Railway app service** running Nginx public \`:8080\`, Django/DRF/Uvicorn private \`:8000\`, Next.js private \`:3000\`, and the dispatcher. It connects to Railway \`Postgres\`; **there is no separate Railway service \`rodada-api\`** in the reviewed \`demo\` environment. See [deploy README](../../deploy/railway/README.md), \`start.sh\` and \`nginx.conf.tpl\`.
+
+**Root cause:** Tenant reservations already excluded \`api\` in both \`apps/web/lib/tenant-host.ts\` and \`apps/api/modules/venue/hostnames.py\`, but the ingress matched **URL path only**. Thus \`https://api.rodada.bar/\` redirected to the Next.js \`/staff\` page. The previous Docker smoke checked only \`/ready/\` and webhook routing, which already matched Django location rules; it missed the hostname-wide frontend leak.
+
+**Ingress invariant:** Exact \`Host: api.rodada.bar\` must choose the dedicated Django-only Nginx virtual host for all paths, including \`/\` and \`/staff\` (expected Django 404). The default Nginx virtual host handles verified Venue hostnames, same-origin Next.js \`/api/*\` BFF, static pages and existing legacy/demo compat routes; raw Django route families still bypass Next.js. Do not treat \`api\` as a Venue alias or add a per-bar Railway service. Public API routes start at Django's root, not the Next BFF \`/api/\` namespace.
+
+**Verification status:** The observed pre-fix Railway HTTP logs showed \`Host: api.rodada.bar\` returning \`307 /\`, then \`200 /staff\`; \`bardoaderlan.rodada.bar\` remained accessible. The ingress change and Docker regression test require PR CI and a separately authorized deploy/real HTTPS smoke before calling the public incident resolved. Cloudflare Full (strict) is orthogonal to this host/path mismatch.
