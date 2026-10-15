@@ -461,3 +461,14 @@ UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continua
   Correção sem pagamento e telas de decisão permanecem fora deste recorte.
 
 - [x] Contas do Atendimento limita cada página a 10 comandas e permite próxima/anterior, busca global e preservação de rascunhos; PDV permanece com 200.
+
+## T08e — Aceite da seleção de rodada
+
+- [ ] Revisão abre com elegíveis marcados; quantidades originais, preços atuais e configurações visíveis.
+- [ ] Desmarcar um de vários itens exclui só aquele; alterar 2→1 ou 2→3 copia exatamente a quantidade.
+- [ ] Tudo desmarcado, quantidade vazia/0/>99 ou ID estranho bloqueia sem mutation do draft.
+- [ ] Cancelar fecha sem alterar rascunho; confirmar inclui apenas itens escolhidos e mostra carrinho.
+- [ ] Alteração de catálogo, bloqueio de contexto, indisponibilidade ou pendência impede inclusão.
+- [ ] Pedido histórico, saldo, pagamentos e ledger permanecem intactos até confirmação explícita.
+- [ ] Repetição confirmada cria uma nova intenção; timeout/replay mantém UUID/payload congelados.
+- [ ] Mobile 360/390/430, teclado/IME, foco, leitores de tela e alvo >=44 px examinados.
