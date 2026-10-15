@@ -5,4 +5,5 @@ COPY tools/print-bridge/ /app/tools/print-bridge/
 # The existing cross-package contract test runs inside this disposable image.
 COPY apps/printer-agent/rodada_printer_agent/contracts.py /app/apps/printer-agent/rodada_printer_agent/contracts.py
 COPY deploy/railway/runtime-profile.sh /app/deploy/railway/runtime-profile.sh
+COPY deploy/railway/nginx.conf.tpl /app/deploy/railway/nginx.conf.tpl
 RUN pip install --no-cache-dir '.[dev]'

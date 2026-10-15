@@ -1,5 +1,25 @@
 # Spec 025 — Tasks
 
+## Estado final da janela A/B — 2026-10-15 UTC
+
+- [x] Exceção formal compartilhada e backup lógico reautenticado/restore90/90.
+- [x] PR174: corrigir deadlock Customer A/B reproduzido, CI/revisão independente.
+- [x] PR182: corrigir ingress nativo Customer e packaging; API952/Web105/Docker/KB
+  e release integrado952+HTTP/restart PASS, revisão R3; merge14d3240f.
+- [x] Browser HTTPS real173PASS e script oficial A/B, Host/HMAC/TLS/headers/cookies.
+- [x] Quatro streams concorrentes staff/guest: eventos próprios, revogação e replay
+  negado; flag=false, QA contido, repetição de deactivate idempotente.
+- [x] Smoke autenticado Aderlan antes/durante/depois; API Android protocolo PASS.
+- [x] Comparação19 grupos estrangeiros iguais; QA financeiro0, histórico preservado.
+- [x] Preservar falhas históricas e registrar limites em
+  [recibo final](evidence/railway-ab-20261015-final.json).
+- [ ] Aceite final CI/documentação e turno isolado do SHA final: rastrear PR175.
+- [ ] Canary/Gate3: NOT_RUN, sem autorização. GitHub consolidou151/152 em130;
+  não reabrir/desfazer consolidação nem fechar130 apenas pelo Gate2.
+
+As listas abaixo são checkpoints históricos; pendências antigas de login,
+backup, credenciais, aprovação temporária e prova A/B foram superadas acima.
+
 ## Auditoria P0 #130 — checkpoint 2026-10-14
 
 - [x] Fetch main, inventário #101/#116/#131/#140 e checks por SHA;

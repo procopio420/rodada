@@ -270,3 +270,94 @@ AAD is the UTF-8 encoding of the fixed source identities:
 - Operational recovery/restore, privileged ownership/ACL restoration and financial
   reconciliation require a separate incident procedure/authorization. The
   completed local restore is not PITR or permission/financial business sign-off.
+
+
+### Formal shared-environment acceptance — final authorized window
+
+The [responsible user's explicit decision](https://github.com/procopio420/rodada/issues/151#issuecomment-6183795233)
+accepts the existing shared Railway demo as substitute for a physically separate
+preview **for this Spec025 exercise only**, with verified recovery, exclusive QA
+Venues, negative tests, Host/HMAC/TLS, pilot monitoring and mandatory flag-off plus
+QA session containment. Shared-resource/deployment risk is retained explicitly;
+no automatic PASS, PSP, operational money simulation or #152 canary is authorized.
+The condition of a new authenticated Aderlan smoke was actually met on637b8e6:
+Ana HTTPS login/read-only tables/Tabs/catalog, refresh and SSE/reconnect PASS,
+new browser/native protocol sessions logged out. Do not publish/reuse credentials
+as fixtures or reset pilot access. Repeat after rollback. Earlier statements
+that the environment exception was pending are historical checkpoints.
+
+### Mandatory final-window rollback order
+
+For the already authorized exercise, record the exact source SHA and activation
+deployment before running the browser matrix. Check GitHub main and SSH runtime
+again immediately before changing the flag; a new commit requires a new inventory
+and applicable gates. A guard refusal is an aborted attempt, not homologation.
+
+Always finish with this order, including on a failed scenario:
+
+1. Set only `RODADA_ENABLE_TENANT_HOST_UI=false` on the existing web service.
+   Observe the resulting specific deployment reach SUCCESS; read back flag false
+   and `RODADA_DEMO_SEED_ON_START=false`. Do not substitute another deployment ID.
+2. Through private SSH in `/app/apps/api`, execute
+   `python manage.py provision_spec025_ab --operation deactivate --apply`.
+   Emergency containment must not depend on archive decryption or a fresh backup
+   proof. If execution times out or refuses stale SHA, inspect actual runtime and
+   QA state before a guarded retry; do not assume rollback happened.
+3. Check both QA domain bindings inactive, every active QA membership suspended,
+   staff/guest sessions revoked, guest mutations blocked and new native login/QR
+   issuance denied. Witness concurrently active A/B staff/guest streams closing
+   and their reconnects denied. Public QA root/manifest/BFF must return421.
+4. Re-run the authenticated pilot read-only smoke and shared API/landing health.
+   Compare foreign domain/order/ledger/catalog/table history digests to the
+   pre-window snapshot; publish only equality booleans and scoped model names.
+   Authentication/audit writes are excluded intentionally. Legitimate concurrent
+   pilot operations can change a digest and require investigation, not deletion.
+5. Keep QA history and all financial/audit records. Check operational QA
+   Order/Charge/Payment/Refund counts remain zero and service retries created no
+   duplicate Tab/occupancy. Financial test evidence is disposable-DB CI only.
+
+Do not restore the operational database or select an old image to demonstrate
+flag backout. Logical archive recovery is a separate incident operation. A
+successful exercise does not authorize #152 canary or permanent flag activation.
+
+### New Guest identity endpoints and native ingress
+
+A new Django Guest endpoint must also be routed by the explicit raw Nginx API
+allowlist. BFF success alone is insufficient: missing native routing can fall
+through to a Next page redirect. The six fixed `/guest/customer/<action>/`
+endpoints inherit the same Host forwarding and assertion stripping; the opaque
+page `/guest/customer` and lookalikes remain on Next. Reproduce native contract
+through the existing disposable Railway image smoke using
+`scripts/verify-native-customer-ingress.py` (loopback-only, no guest credentials,
+expected JSON401 including forged assertion probes). Do not treat a redirect as
+native API acceptance. Test actual authorized QA identity again after deployment.
+
+
+### Exercício concluído em 2026-10-15 UTC
+
+Fonte14d3240f (PR182), deployment inicial5337fcc1; flag temporária autorizada em
+fddbcc96, browser173PASS e scripts HTTPS A/B PASS. Flagfalse propagada em
+c006312d SUCCESS. Quatro streams staff/guest A/B receberam somente o marcador
+QA próprio e revogaram após contenção. Reconnect, replay, nova autenticação e QR
+negados. Smoke autenticado do piloto antes/durante/depois PASS, com logout somente
+das novas sessões de auditoria. Financeiro QA0,19 grupos estrangeiros inalterados.
+[Recibo e limites](../../specs/025-tenant-host-routing/evidence/railway-ab-20261015-final.json).
+
+Comandos efetivamente executados: inspeção/provisionamento idempotente protegido
+por referência `logical-sha256` autenticada; `provision_spec025_ab --operation
+activate --apply --backup-reference <referência-verificada> --logical-backup-verified
+--edge-confirmed`; flag Railwaytrue; script oficial para A/B; matriz Chromium;
+flagfalse/redeploy; `provision_spec025_ab --operation deactivate --apply`, incluindo
+repetição externa obrigatória e idempotente. Nenhum restore operacional ou seed
+geral foi executado. Não publicar PIN/token/cookie/HMAC; credenciais via memória.
+
+O wrapper de prova usa snapshot REPEATABLE READ para verificar escopo de cada
+transação. NOWAIT/serialização podem recusar contenção: jamais marcar sucesso
+nessa situação. O witness tem até três tentativas somente para erros transitórios
+reconhecidos, diagnósticos sanitizados e uma contenção externa incondicional; após
+qualquer falha verificar estado e revogar QA. Executores revisáveis e recibos estão
+na pasta de evidências. A primeira prova interrompida permanece FAIL, a repetição
+final confirmou commit na primeira tentativa. Isso não comprova a causa anterior.
+
+A consolidação atual de151/152 em130 mantém Gate3/canary aberto. Este exercício
+não é sign-off de canary, FullStrict administrativo, PSP real ou E2E físico106.

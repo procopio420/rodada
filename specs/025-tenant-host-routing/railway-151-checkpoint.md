@@ -1,5 +1,45 @@
 # #151 — existing Railway homologation checkpoint
 
+## Resultado executado — 2026-10-15 UTC (estado atual)
+
+Esta seção e o [recibo sanitizado final](evidence/railway-ab-20261015-final.json)
+substituem os bloqueios operacionais dos checkpoints históricos abaixo, sem
+transformar tentativas interrompidas em PASS. Fonte auditada/deployada:
+`14d3240f607523265f9fd0b972b515c1b549b4b0` (PR182); árvore inteira igual ao
+candidato `1e96050f5d5fe216c74a6f7313b890f22d8cf003` revisado e testado.
+
+| Critério | Ambiente/execução | Resultado/evidência |
+| --- | --- | --- |
+| Recuperação antes de escrita | Backup lógico privado cifrado PostgreSQL18.6; restore descartável18/tmpfs | PASS:90/90 contagens do mesmo snapshot, constraints, GCM/hash/recibo reautenticados; não é PITR nem restauração operacional |
+| A/A, B/B, A/B, B/A | Chromium real HTTPS, run053703, deployment `fddbcc96-3f8d-4ed4-8d2e-61be7473f2e0` | PASS:173 casos, fonte/deployment estáveis, login/refresh/logout, cookies host-only Secure/HttpOnly, QR/Guest, perfil/claim/rotação, catálogo/mesas/grupos/serviço idempotente, SSE/cursors, IDs e sessões estrangeiros negados |
+| Borda | Script oficial A/B; probes públicos, origem Railway e loopback Django | PASS:19 TLS/Host/HMAC/stripping/unknown; manifests distintos; HMAC inválido/ausente/expirado/adulterado403, unknownBFF421/raw400 |
+| Concorrência e revogação real | Quatro streams ASGI staff/guest A/B no SHA auditado, flag já false | PASS:um marcador próprio por stream, zero estrangeiro observado; quatro `revoked`, refresh/access/reconnect/novo login/QR/perfil negados após contenção |
+| Backout | Flag=false, deployment `c006312d-9a87-47b5-8b22-d3c21719fd31` SUCCESS, comando deactivate e repetição externa | PASS:aliases inativos, memberships suspensas, guest bloqueado, zero sessões QA staff/guest não revogadas; repetição idempotente |
+| Piloto e API nativa | Login novo autorizado, HTTPS, somente leitura, antes/durante/depois | PASS:16 checks por smoke, Venue/capabilities, mesas/comandas/catálogo, refresh e SSE/reconnect, protocolo Android; novas sessões de auditoria logout; nenhum fluxo financeiro/pedido real escrito |
+| Integridade | Comparação de estado em19 grupos fora do QA | PASS:iguais ao snapshot pré-janela; exclui autenticação/auditoria e QA, não prova ausência de writes revertidos |
+| Dinheiro operacional | Readback final QA | PASS:Orders/Charges/Payments/Refunds=0;9 Tabs QA históricas preservadas, sem reset/exclusão |
+| CI e revisão do código | API952, Web105 integrações, Docker e KB; release integrado952+turno HTTP/restart | PASS no candidato; API/Web/KB também SUCCESS no merge auditado; revisão independente R3 sem finding P0/P1 aberto |
+
+Correções reais: PR174 elimina deadlock reproduzido entre rotações Customer A/B;
+PR182 encaminha somente seis endpoints nativos Customer para Django e mantém
+páginas guest opacas/stripping. A primeira prova posterior recebeu eventos próprios,
+mas a contenção interna falhou: esse ensaio permanece FAIL. Contenção externa
+sucedeu; na repetição final o commit interno passou na primeira tentativa. Não se
+atribui causa definitiva ao erro anterior nem se afirma exploração. O executor
+agora guarda diagnósticos sanitizados e só repete, no máximo três vezes, erros
+transitórios reconhecidos; guardas de escopo permanecem obrigatórias.
+
+**Contrato GitHub atual:** #151 e #152 foram encerradas por consolidação externa;
+#130 foi ampliada para Gates1/2/3 e exige canary para fechamento. Estes resultados
+comprovam a janela A/B/Gate2, não Gate3. #130 permanece aberta; canary, expansão
+wildcard e E2E físico amplo Android/Web (#106) não foram executados. Cloudflare
+Full/Strict administrativo e PSP real não foram homologados por estes probes.
+A autorização de ambiente compartilhado está registrada explicitamente; não
+constitui dispensa de provas ou autorização de rollout.
+
+
+## Checkpoints históricos (preservados por SHA)
+
 Recorded 2026-10-14, source baseline
 `bbaa14799d832c60b3c2404f0e34e70f387512b1`.
 This is a read-only external checkpoint, not deployment or acceptance.
@@ -449,3 +489,97 @@ guestblocked, with no transaction changes and postcommit readback matching.
 No new activation or shared-flag change. Manual API/Web checks dispatched on992
 for fresh current-main evidence; results pending. Authenticated pilot, specific
 flag approval and formal separate-preview exception still await user response.
+
+
+## Final controlled window — preflight 2026-10-15 04:15 UTC
+
+The explicit [user authorization](https://github.com/procopio420/rodada/issues/151#issuecomment-6183795233)
+accepts this shared environment as the formal exception to physically separate
+preview, temporary flag activation and final deactivation. This changes the
+execution environment, not the security assertions or the requirement for actual
+browser A/B and rollback evidence. No further approval is pending for that scope.
+
+Observed source `04d82e764e36b79da9f1870c46c7c67a1e8b892b`, Railway deployment
+`1e821e0c-fb31-4ea5-920b-f75ffdb6bd01` SUCCESS. Before the window, logical archive
+and recovery receipt were authenticated again; the recorded 90/90 restore
+verification belongs to its original snapshot, not a current PITR guarantee.
+
+A fresh authorized pilot login passed 16 HTTPS BFF/native protocol assertions:
+Venue identity, active membership/capabilities, host-only Secure/HttpOnly cookies,
+tables/catalog/Tabs reads, snapshot, SSE and reconnect, refresh-only cookie,
+independent native login/me and logout of only the two newly created audit
+sessions. No pilot order, Tab, cash or financial mutation was performed. This
+is native API protocol compatibility, not a physical Android device test.
+
+Nineteen current edge probes passed: public/origin hostname-valid TLS; internal
+valid HMAC and rejection of missing/invalid/expired/altered signatures; external
+assertion stripping; pilot Host unchanged under forged forwarded/BFF headers;
+unknown host rejection; inactive QA rejection. DNS/TLS were independently checked
+for A/B/pilot/API/landing. API and Web full gates were still running at this
+checkpoint. Flag remains false, QA domains inactive, memberships suspended and
+guest mutations blocked. Browser A/B and final rollback are **not yet accepted**.
+
+New pairing boundary matrix PR172 head `ec1ce5fb479030285e05967e9c3ca142e292eb5c`:
+API [38678969723](https://github.com/procopio420/rodada/actions/runs/38678969723),
+Web [38678969787](https://github.com/procopio420/rodada/actions/runs/38678969787),
+KB [38678969768](https://github.com/procopio420/rodada/actions/runs/38678969768)
+all SUCCESS, independent R3 review recorded on the PR. PR172 is not integrated
+at this checkpoint. Prior isolated release at main9082351 passed 874 API tests
+and HTTP shift/restart, [38678983333](https://github.com/procopio420/rodada/actions/runs/38678983333);
+this does not replace the gates for newer main04d82e7.
+
+
+### Corrected source and interrupted live attempts
+
+PR174 merged `7bbe33788958b1a4355d2946307a2880daf694e3`, correcting the
+independently reproduced cross-Venue profile-rotation deadlock. Candidate
+`a2ff10778bd0170c53e63c375ece3d2ac184ea85` API931/Web105/KB SUCCESS; its entire
+Git tree equals the merge tree. Railway6714d542 SUCCESS, then actual flag-on
+deployment `e26c5dd9-1db9-454e-9c03-13bfef7d78d1` SUCCESS. Official HTTPS
+script A/B passed, as did a new authenticated pilot smoke with flag true.
+
+Browser run045556 stopped at QA contextual service409: the fixture had not
+enabled `table_service_enabled`; the product correctly failed closed. No Tab or
+financial row was created. Flag-off deployment60acbbc2 SUCCESS, explicit QA
+containment verified. The fixture was corrected to use the existing per-Venue
+management API with optimistic version/idempotency and independent finally
+restoration, reviewed before retry.
+
+Run050143 on flag-on `d5347e1b-9723-4ea0-bd75-7230140948a1` passed staff login,
+module routes, cookies, service creation201/replay200 and SSE/reconnect; stopped
+because the browser observer treated the QR308 redirect as its final response.
+Sanitized ingress confirmed QR POST308 then201. Observer corrected to require a
+nonredirect final POST response, with no application/security change. QA service
+policy was restored false, flag-off `c903394d-d956-433b-86ed-77d40637f3a8`
+SUCCESS and containment committed. Aderlan authenticated smoke passed again.
+
+Both interrupted runs remain FAIL, not completed A/B evidence. Nineteen foreign
+model-group fingerprints remained unchanged against the pre-window snapshot;
+financial QA Order/Charge/Payment/Refund counts stayed zero. The edge probe
+metadata now reads deployment ID from the actual runtime rather than a declared
+constant; the fresh19/19 proof after containment reports c903394d and source7b.
+Third full browser matrix and final four-stream containment remain pending.
+
+
+### Third browser run and native ingress blocker
+
+Run050630 on source `7bbe33788958b1a4355d2946307a2880daf694e3`, flag-on
+deployment `138ec6e9-b54d-4b36-b4ac-72e497f0e44e` SUCCESS, completed all
+173 browser scenarios PASS with runtime SHA/deployment stable before and after.
+Official HTTPS scripts for A/B also passed. This is browser evidence only.
+Flag-off deployment `16ca683e-e57d-43b2-9df5-cc8e17b057bb` SUCCESS.
+
+The subsequent four-stream containment witness stopped during setup: native
+`/guest/customer/login/` reached Next (redirect) instead of Django. No four-stream
+proof is claimed. Its finally block committed guarded QA deactivation; old staff
+credentials/refresh, native login/QR and reconnect were denied. PR182 fixes only
+the six native Customer endpoint ingress routes and preserves opaque guest pages
+and BFF header stripping. Independent review additionally caught a missing test
+template in the disposable API image; the corrected image was built locally and
+its 21 ingress contract cases passed inside the actual container. Full CI and
+integrated disposable release remain required before merge.
+
+After this containment, a fresh authenticated pilot smoke passed; comparison
+against the original pre-window snapshot again found all nineteen foreign
+model-group fingerprints unchanged. Neither result substitutes for the pending
+four-stream witness on corrected ingress. Issues151/130 remain open.
