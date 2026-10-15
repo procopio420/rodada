@@ -3,7 +3,6 @@
 Customer display_name, phone, Table label and Tab identifiers are never proofs.
 No unauthenticated enrollment against an existing Customer record is permitted.
 """
-import hashlib
 import secrets
 from datetime import timedelta
 
