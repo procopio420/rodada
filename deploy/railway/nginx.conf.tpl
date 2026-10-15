@@ -1,5 +1,30 @@
+# The shared API hostname is infrastructure, never an establishment UI.
+# Django and Next.js run inside the SAME Railway rodada-web container.
+# Match the host at ingress before pathname-based module/BFF routing.
 server {
     listen __PORT__;
+    server_name api.rodada.bar;
+    client_max_body_size 8m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $http_host;
+        # Strip untrusted incoming BFF assertions on public API traffic.
+        proxy_set_header X-Rodada-Bff-Host "";
+        proxy_set_header X-Rodada-Bff-Time "";
+        proxy_set_header X-Rodada-Bff-Signature "";
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+}
+
+server {
+    listen __PORT__ default_server;
     server_name _;
     client_max_body_size 8m;
 
