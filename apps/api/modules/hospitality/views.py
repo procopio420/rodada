@@ -410,3 +410,37 @@ class TableCountView(APIView):
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response({"confirmed": True})
+
+
+class TableTurnoverReportView(APIView):
+    """Explicit coverage, not inferred turnover or historical capacity."""
+
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request):
+        from datetime import timedelta
+
+        from rest_framework import serializers
+
+        from modules.hospitality.metrics import table_turnover_report
+
+        class Period(serializers.Serializer):
+            start = serializers.DateField()
+            end = serializers.DateField()
+
+            def validate(self, attrs):
+                days = (attrs["end"] - attrs["start"]).days
+                if days < 0 or days > 365:
+                    raise serializers.ValidationError("Escolha até 366 dias em ordem cronológica.")
+                return attrs
+
+        period = Period(data=request.query_params)
+        period.is_valid(raise_exception=True)
+        return Response(
+            table_turnover_report(
+                venue=request.auth.venue,
+                start=period.validated_data["start"],
+                end=period.validated_data["end"],
+            )
+        )
