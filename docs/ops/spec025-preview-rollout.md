@@ -125,8 +125,11 @@ python manage.py provision_spec025_ab --operation activate --apply \
 
 This does not toggle `RODADA_ENABLE_TENANT_HOST_UI` or validate cookies, SSE,
 HMAC, QR or Android. Those must still be tested separately before acceptance.
-For containment, disable QA aliases and revoke QA staff sessions without deleting
-or reassigning immutable identity/history:
+For containment, disable QA aliases, suspend the QA manager memberships (so
+login through the shared `api.rodada.bar` is also denied), revoke staff/guest
+sessions and block QA guest mutations without deleting or reassigning immutable
+identity/history. Re-activation restores only QA memberships; it does **not**
+resurrect revoked sessions or automatically enable guest transactions:
 
 ```bash
 python manage.py provision_spec025_ab --operation deactivate --apply
