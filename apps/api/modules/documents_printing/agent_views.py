@@ -11,7 +11,7 @@ from modules.access.agent_credentials import PrintAgentAuthentication, revoke_ag
 from modules.access.capabilities import Capability
 from modules.access.permissions import RequireCapability
 
-from . import pairing
+from . import agent_delivery, pairing
 from .agent_contracts import PRINT_SCOPE, PROTOCOL_VERSION, ContractResponse
 from .models import PrintAgent
 
@@ -28,8 +28,9 @@ class AgentContractView(APIView):
                     "agent_id": request.user.id,
                     "venue_id": request.user.venue_id,
                     "scope": PRINT_SCOPE,
-                    "operations": ["contract", "activate", "heartbeat"],
-                    "delivery_enabled": False,
+                    "operations": ["contract", "activate", "heartbeat"]
+                    + (["discovery", "claim", "result"] if request.user.version == "0.3.0" else []),
+                    "delivery_enabled": agent_delivery.delivery_enabled(request.user),
                 }
             ).data
         )

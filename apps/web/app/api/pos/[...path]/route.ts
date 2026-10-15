@@ -8,8 +8,8 @@ async function forward(request: NextRequest, params: Promise<{ path: string[] }>
   }
   if (path[0] === "printing" && path[1] === "agents" && path[2] === "v1") {
     const resource = path.slice(3).join("/");
-    const allowed = (request.method === "GET" && resource === "") || (request.method === "POST" && (
-      ["enabled", "pairing/inspect", "pairing/approve"].includes(resource) ||
+    const allowed = (request.method === "GET" && ["", "routes"].includes(resource)) || (request.method === "POST" && (
+      ["enabled", "pairing/inspect", "pairing/approve", "routes"].includes(resource) ||
       /^[0-9a-f-]{36}\/revoke$/.test(resource)
     ));
     if (!allowed) return NextResponse.json({ code: "AGENT_DEVICE_ENDPOINT", message: "Endpoint exclusivo do computador." }, { status: 403 });

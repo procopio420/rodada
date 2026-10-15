@@ -1,7 +1,7 @@
 # Plan — Spec 028 (Rodada Impressoras Windows)
 
-**Progresso:** S1 integrada no [PR #149](https://github.com/procopio420/rodada/pull/149). S2 implementada no [PR #155](https://github.com/procopio420/rodada/pull/155), aguardando gates/aprovação de merge; ver [contratos e evidências](s2-pairing.md). S3–S7 pendentes. Nenhum instalador ou homologação física entregue.
-**Status:** S1 implemented in PR #149; remaining slices planned. Plano de execução incremental; nenhuma etapa implica autorização para merge, deploy ou alteração da produção.
+**Progresso:** S1 integrada no PR #149 e S2 integrada no PR #155 (974e0bc), ambas com autorização. S3 em implementação e validação; ver [contrato e evidências](s3-printing-mvp.md). S4–S7 pendentes. Sem instalador ou homologação física.
+**Status:** S1/S2 merged; S3 implementation/testing in progress. S4–S7 pending; no public installer or physical certification.
 
 ## Baseline real
 
@@ -13,7 +13,7 @@
 
 ## Slices de entrega — 7 PRs independentes
 
-**Tracking:** cada slice corresponde a **um PR de implementação** e tem evidência própria. S1 está integrada pelo PR #149; S2 está no PR #155, com gates/aprovação de merge em andamento; S3–S7 ainda não têm PR de implementação. Estes cortes são a unidade de merge; as fases P0–P6 mais abaixo descrevem frentes de trabalho, não sete PRs adicionais. Usar branch curta feat/028-sN-<tema> e referenciar Spec 028 + ADR 0020 no corpo do PR. Fazer rebase/merge da main atual antes de começar e verificar conflitos semânticos.
+**Tracking:** cada slice corresponde a **um PR de implementação** e tem evidência própria. S1 está integrada pelo PR #149; S2 está integrada no PR #155; S3 em validação e S4–S7 ainda não têm PR de implementação. Estes cortes são a unidade de merge; as fases P0–P6 mais abaixo descrevem frentes de trabalho, não sete PRs adicionais. Usar branch curta feat/028-sN-<tema> e referenciar Spec 028 + ADR 0020 no corpo do PR. Fazer rebase/merge da main atual antes de começar e verificar conflitos semânticos.
 
 | Slice / PR previsto | Entrega testável | Depends on | Contratos de aceite da acceptance.md |
 | --- | --- | --- | --- |

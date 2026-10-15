@@ -1,0 +1,93 @@
+{
+  "base_sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+  "source_sha": "348db2a1d414ad1555999ce02ab1517d59320b7f",
+  "red": [
+    {
+      "scenario": "native Node fetch POST421 against disposable Uvicorn",
+      "result": "FAIL",
+      "exception": "UND_ERR_REQ_CONTENT_LENGTH_MISMATCH",
+      "control": "GET421 and POST403 returned their statuses; Connection:close did not fix POST421"
+    },
+    {
+      "scenario": "inactive A root with real Next/Django/PostgreSQL",
+      "result": "FAIL",
+      "expected": 421,
+      "actual": 404
+    },
+    {
+      "scenario": "Host guard before missing auth",
+      "result": "FAIL",
+      "expected": 421,
+      "actual": 401
+    },
+    {
+      "scenario": "initial non-replayable stream without Content-Length",
+      "result": "FAIL",
+      "actual": 400,
+      "cause": "DRF considered body empty; all login fields reported missing. Only fictional local fixtures used."
+    },
+    {
+      "scenario": "Content-Length UTF8 assertion without explicit header",
+      "result": "FAIL",
+      "expected": "UTF8 byte length",
+      "actual": "absent"
+    },
+    {
+      "scenario": "inactive A trailing slash before Next proxy",
+      "result": "FAIL",
+      "expected": 421,
+      "actual": 308
+    },
+    {
+      "scenario": "active QR alias trailing slash after disabling global308",
+      "result": "FAIL",
+      "expected": "/guest/opaque_QR-123",
+      "actual": null
+    },
+    {
+      "scenario": "Table-group response observer assumed automatic slash removal",
+      "result": "FAIL",
+      "full_suite": {
+        "passed": 109,
+        "failed": 1,
+        "skipped": 3
+      },
+      "reason": "waitForResponse only matched /dissolve; Next now serves /dissolve/ directly. No weakening of POST200 or business readback assertions."
+    }
+  ],
+  "green": [
+    {
+      "scenario": "native transport Uvicorn",
+      "result": "PASS",
+      "tests": 7,
+      "includes": "50POST421 returned421 with exactly50 requests; 200/403 Unicode, no307 replay, connection refusal, stream cancellation, pre-abort, Content-Length byte count"
+    },
+    {
+      "scenario": "tenant paths",
+      "result": "PASS",
+      "tests": 3,
+      "includes": "one optional QR final slash accepted, duplicated slash rejected"
+    },
+    {
+      "scenario": "Next authority fault injection plus attendance gateway",
+      "result": "PASS",
+      "tests": 2,
+      "includes": "403/5xx preserved, malformed502, real refusal503, second lookup403/503, guard200 then backend421 with exactly one POST"
+    },
+    {
+      "scenario": "real Django/PostgreSQL targeted Host suite before QRslash regression was added",
+      "result": "PASS",
+      "tests": 3,
+      "includes": "57 blocked variants; active A/B and cross-Venue auth/Guest/SSE tests"
+    },
+    {
+      "scenario": "table-group direct response and full table/financial readback",
+      "result": "PASS",
+      "tests": 1,
+      "duration": "29.7s",
+      "source_sha": "ed229fdb5799d3369b35a08fc2083a312475bc4a"
+    }
+  ],
+  "full_gates": "Recorded separately after completion; targeted PASS is not a claim of full-suite PASS.",
+  "historical_failure_preserved": "PR187 remains unchanged; no deployed fix is implied."
+}

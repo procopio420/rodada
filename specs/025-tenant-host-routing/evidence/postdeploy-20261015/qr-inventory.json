@@ -1,0 +1,8 @@
+{
+  "guest_mutations_blocked": false,
+  "eligible_existing_qr_count": 1,
+  "eligible_existing_occupied_count": 1,
+  "reasons": {},
+  "tokens_not_exported": true,
+  "transaction_read_only": true
+}

@@ -1,5 +1,17 @@
 # Spec 025 — Preview, evidence and rollback
 
+## Aceite operacional final — Lucas Procópio, 15/10/2026 13:50 UTC
+
+**Gates1/2/3 PASS; sign-off explícito recebido após os resultados.**
+[Registro do aceite e autorização de integração/fechamento](https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006).
+[Revisão R3 independente](https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847)
+sem findings P0/P1/P2; [CI das evidências](https://github.com/procopio420/rodada/actions/runs/38744120507)
+SUCCESS. Integração PR183 e verificação do deployment resultante autorizadas,
+com flagfalse/seedfalse e QA contido. O fechamento130 ocorre somente após esses
+gates finais. Os trechos de pendência abaixo são fotografias anteriores ao aceite.
+Sem rollout permanente, mudança DNS/proxy, PSP ou homologação Android física.
+
+
 Status: prepared, **not activated**. Requires P0 isolation gates and passing CI before exposing wildcard traffic.
 
 Checkpoint 2026-10-14: [audit #130](../../specs/025-tenant-host-routing/audit-130-evidence.md)
@@ -361,3 +373,15 @@ final confirmou commit na primeira tentativa. Isso não comprova a causa anterio
 
 A consolidação atual de151/152 em130 mantém Gate3/canary aberto. Este exercício
 não é sign-off de canary, FullStrict administrativo, PSP real ou E2E físico106.
+
+## Gate3 — janela controlada de 15/10/2026
+
+Canary e rollback técnicos executados no SHA c589ff0862b1a7702e12c20a00cffda6cb2f289e.
+Flag-on a9f59467-ccf7-4206-8fac-a3b1290ed722; flag-off 09536564-28fc-4f0e-a54b-97856de54fbc, ambos SUCCESS.
+87 checks browserQA, pilot browser/protocolo antes/durante/depois, observação15min,
+quatro streams próprios/revogados,23 grupos estrangeiros iguais,QA financeiro0,
+backup atualizado restaurado95/95. QA novamente contido/421 e seedfalse preservado.
+Nenhum restore operacional, pagamento/refund/order, seed, schema ou DNS alterado.
+Aceite pós-janela Lucas Procópio permanece pendente; não confundir intervenção
+autorizada com sign-off. Ver recibo gate3-window-20261015.json em evidence da Spec025
+e relatório final no PR183/issue130; tentativas invalidadas e limitações preservadas.

@@ -1,8 +1,9 @@
 import "server-only";
+import { fetchBackend } from "../backend-fetch";
 
 import { createHash, randomUUID } from "node:crypto";
 import { venueHostHeaders } from "./venue-host";
-import { readVenueContext } from "./venue-context";
+import { lookupVenueContext } from "./venue-context";
 import { tenantHostname } from "@/lib/tenant-host";
 import { SessionRefreshCoordinator } from "./session-refresh";
 import { NextRequest, NextResponse } from "next/server";
@@ -140,7 +141,7 @@ async function backendRequest(
   }
 
   try {
-    const response = await fetch(API_BASE_URL + path, {
+    const response = await fetchBackend(API_BASE_URL + path, {
       method: options.method ?? "GET",
       headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
@@ -285,8 +286,9 @@ export async function loginThroughGateway(
 
   let scopedBody = body;
   if (tenantHostname(request.headers.get("host"))) {
-    const context = await readVenueContext(request.headers);
-    if (!context) return NextResponse.json({ code: "VENUE_HOST_NOT_FOUND" }, { status: 421 });
+    const result = await lookupVenueContext(request.headers);
+    if (!result.ok) return NextResponse.json({ code: result.code }, { status: result.status, headers: { "Cache-Control": "no-store" } });
+    const context = result.context;
     if (body.venue_slug !== undefined && body.venue_slug !== "" && body.venue_slug !== context.venue.slug) {
       return NextResponse.json({ code: "VENUE_HOST_MISMATCH" }, { status: 403 });
     }

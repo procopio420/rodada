@@ -1,6 +1,7 @@
 """Outbound HTTPS JSON. No redirects, staff login, cookies or URL secrets."""
 
 import json
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -46,7 +47,14 @@ class AgentApi:
         self.opener = urllib.request.build_opener(NoRedirect())
 
     def post(self, path: str, body: dict[str, Any], token: str = "") -> dict[str, Any]:
-        if path not in ("pairing/start/", "pairing/status/", "me/activate/", "me/heartbeat/"):
+        if path not in (
+            "pairing/start/",
+            "pairing/status/",
+            "me/activate/",
+            "me/heartbeat/",
+            "me/discovery/",
+            "me/claim/",
+        ) and not re.fullmatch(r"me/jobs/[0-9a-f-]{36}/result/", path):
             raise ValueError("Protocol-relative API path required.")
         headers = {"Content-Type": "application/json"}
         if token:
@@ -59,7 +67,10 @@ class AgentApi:
         )
         try:
             with self.opener.open(request, timeout=8) as response:
-                result = json.loads(response.read(16385))
+                raw = response.read(524289)
+                if len(raw) > 524288:
+                    raise ValueError("API response exceeds limit.")
+                result = json.loads(raw)
         except urllib.error.HTTPError as exc:
             raise AgentHttpError(exc.code) from None
         if not isinstance(result, dict):

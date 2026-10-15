@@ -81,6 +81,7 @@ class TabListCreateView(APIView):
         class Query(serializers.Serializer):
             offset = serializers.IntegerField(min_value=0, default=0)
             active = serializers.BooleanField(default=False)
+            summary = serializers.BooleanField(default=False)
             q = serializers.CharField(max_length=120, allow_blank=True, default="")
         query = Query(data=request.query_params)
         query.is_valid(raise_exception=True)
@@ -95,7 +96,24 @@ class TabListCreateView(APIView):
             tabs = tabs.filter(search_label__contains=label_query)
         rows = list(tabs.order_by("-opened_at", "id")[offset:offset + 201])
         locations = tab_location_labels([tab.id for tab in rows[:200]], include_history=True)
-        return Response({"results": [_tab_payload(tab, locations=locations) for tab in rows[:200]],
+        if query.validated_data["summary"]:
+            # Attendance needs identity and placement only. Avoid N+1 financial
+            # position queries for every open tab on a busy venue's live list.
+            current, previous = locations
+            results = [
+                {
+                    "id": str(tab.id),
+                    "display_label": tab.display_label,
+                    "table_label": current.get(str(tab.id)),
+                    "last_table_label": previous.get(str(tab.id)),
+                    "state": tab.state,
+                    "opened_at": tab.opened_at,
+                }
+                for tab in rows[:200]
+            ]
+        else:
+            results = [_tab_payload(tab, locations=locations) for tab in rows[:200]]
+        return Response({"results": results,
                          "next_offset": offset + 200 if len(rows) > 200 else None})
 
     def post(self, request):

@@ -42,3 +42,12 @@
 - Replace the narrow inline-styled root with a CSS-module page shell and approved `/brand/wordmark.svg`; place the operator link in the header and reuse the shared operational SVG icon vocabulary.
 - Define explicit 2/3/4-column CSS breakpoints without modifying module paths or BFF routes.
 - Prove branding and responsive navigation with Playwright against the seeded two-Venue Next/Django integration environment, then review actual mobile/desktop screenshots before rollout.
+
+## Pós-ativação permanente — regressão PR187
+
+PR189 mantém um transporte interno sem replay421, tamanho UTF-8 explícito e
+validação Next antes de auth/Guest/redirect de barra. Revalidar Django após guard;
+falhas upstream não podem virar identidade inexistente. API/DB/infra permanecem
+sem alterações. Ver [runbook do fix](../../docs/ops/spec025-permanent-activation-fix.md)
+e evidência `evidence/permanent-fix-20261015/`. Reteste operacional do candidato
+exige novo deploy autorizado; não substitui os Gates1–3 históricos.

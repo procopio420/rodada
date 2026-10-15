@@ -1,0 +1,161 @@
+{
+  "mission": "Spec025 permanent activation — actual post-deploy validation",
+  "generated_at_utc": "2026-10-15T15:57:16.243220+00:00",
+  "generated_at_local": "2026-10-15T12:57:16.243220-03:00",
+  "timezone": "America/Sao_Paulo",
+  "environment": {
+    "project": "rodada-aderlan-demo-20261009",
+    "environment": "demo",
+    "service": "rodada-web"
+  },
+  "authorization": "User explicitly authorized sending the reviewed fix to Railway and validating after deploy. PR189 merged with exact head guard, no bypass; existing main autodeploy used; no variables/config changed.",
+  "fix_pr": "https://github.com/procopio420/rodada/pull/189",
+  "candidate_head": "109af29040f1f677a8ab8fa762c72321bd93c0cc",
+  "merged_at": "2026-10-15T15:47:57Z",
+  "runtime_before": {
+    "sha": "7189c972c29cfcdd41d5e00520b1be15f0e53189",
+    "deployment": "476c096a-47df-463e-9029-6f52f173211d"
+  },
+  "runtime_after": {
+    "sha": "017b110f62eb99f6297652c5c6544d59cddbfb72",
+    "deployment": "4e2d2203-14e7-4d0a-8e44-c29d9301ab42",
+    "success_at": "2026-10-15T15:54:09.660Z"
+  },
+  "methods": {
+    "runtime": "Private Railway SSH; process environment booleans only; preflight expected SHA; Django/PG read-only transactions",
+    "negative_hosts": "57 real curl HTTPS requests, no redirect following, verified TLS; plus 6 real Chromium UI probes; dummy capabilities and external forged headers",
+    "pilot": "22 real Chromium checks: fresh Ana UI login using hidden getpass/memory only, Venue, cookies, read APIs, refresh rotation, snapshot, SSE ready/reconnect, five modules, forged headers, own logout and replay401",
+    "qr": "4 Chromium checks using a privately selected pre-existing public QR on an already occupied pilot table. Token piped only in memory; no new QR/occupancy/order.",
+    "observability": "Railway HTTP/deploy logs scoped to exact deployment and bounded window; health/ready both pilot/API"
+  },
+  "results": [
+    {
+      "verification": "Deployment SHA correto",
+      "result": "PASS"
+    },
+    {
+      "verification": "Flag permanentemente true",
+      "result": "PASS"
+    },
+    {
+      "verification": "Seed desligado",
+      "result": "PASS"
+    },
+    {
+      "verification": "HMAC / Host / Venue",
+      "result": "PASS"
+    },
+    {
+      "verification": "QA contido no PostgreSQL",
+      "result": "PASS"
+    },
+    {
+      "verification": "503 inválidos corrigidos — quatro cenários públicos",
+      "result": "PASS"
+    },
+    {
+      "verification": "Login fresco do Aderlan",
+      "result": "PASS"
+    },
+    {
+      "verification": "Refresh e cookies",
+      "result": "PASS"
+    },
+    {
+      "verification": "Mesas/comandas/catálogo",
+      "result": "PASS"
+    },
+    {
+      "verification": "Módulos Atendimento/Bar/Cozinha/Caixa/Gerência",
+      "result": "PASS"
+    },
+    {
+      "verification": "SSE ready/snapshot/reconnect",
+      "result": "PASS"
+    },
+    {
+      "verification": "Logout próprio/replay negado",
+      "result": "PASS"
+    },
+    {
+      "verification": "QR Guest existente",
+      "result": "PASS"
+    },
+    {
+      "verification": "QA A — HTTP 421",
+      "result": "PASS"
+    },
+    {
+      "verification": "QA B — HTTP 421",
+      "result": "PASS"
+    },
+    {
+      "verification": "Host desconhecido — HTTP 421",
+      "result": "PASS"
+    },
+    {
+      "verification": "Integridade operacional/financeira",
+      "result": "PASS"
+    },
+    {
+      "verification": "CI API/Web e revisão R3 pré-deploy",
+      "result": "PASS"
+    },
+    {
+      "verification": "Validação pós-deploy",
+      "result": "PASS"
+    },
+    {
+      "verification": "Decisão final",
+      "result": "GO"
+    }
+  ],
+  "counts": {
+    "curl_negative": 57,
+    "browser_negative": 6,
+    "pilot": 22,
+    "qr": 4,
+    "unchanged_business_groups": 43
+  },
+  "former_503_scenarios": [
+    {
+      "scenario": "QA A invalid QR",
+      "status": 421
+    },
+    {
+      "scenario": "QA B invalid QR",
+      "status": 421
+    },
+    {
+      "scenario": "QA B invalid refresh on /api/auth/me",
+      "status": 421
+    },
+    {
+      "scenario": "unknown host invalid refresh on /api/auth/me",
+      "status": 421
+    }
+  ],
+  "observability": "observability.json",
+  "health": "health.json",
+  "integrity": "integrity.json",
+  "limitations": [
+    "Point-in-time smoke; not a load or long-duration endurance test. SSE ready/reconnect tested with once=1 and snapshot cursor.",
+    "Auth/Guest issuance writes only the test credentials/audit. Anonymous Guest credential follows normal expiry; no anonymous logout endpoint.",
+    "Four initial health probes incorrectly used /healthz and /readyz and returned404; retained in discarded-health-paths.json. Correct documented /health/ and /ready/ returned200 on both hosts.",
+    "29 client-closed499 requests during module navigation/context shutdown are preserved in log aggregates; no HTTP5xx.",
+    "Existing main integration also auto-deployed rodada-landing; final state online, no infra settings changed."
+  ],
+  "not_run": [
+    "No new full Gate1–3 homologation, operational finance tests, QA activation, seed, restore, direct DB writes, or long-running/load tests."
+  ],
+  "ci_and_r3": {
+    "web": "https://github.com/procopio420/rodada/actions/runs/38759933367",
+    "web_result": "110 passed;3 explicit unrelated skips",
+    "api": "https://github.com/procopio420/rodada/actions/runs/38756584211",
+    "api_result": "971 passed; exact unchanged API tree a9aa03fbb8763e81214a67ac864a1bfe56226ab2",
+    "r3": "https://github.com/procopio420/rodada/pull/189#issuecomment-6195714294"
+  },
+  "final_state": "Online; same exact post-deploy SHA/deployment throughout tests; flag=true,seed=false,HMAC valid; QA inactive with zero active memberships/unrevoked sessions; zero QA financial records; no pending migrations/work; 43 groups unchanged.",
+  "decision": "GO",
+  "postdeploy_validation": "PASS"
+}

@@ -91,7 +91,13 @@ export function OrderWorkspace({ tableMode = false, requestedTabSequence = 0, cr
     const listUrl = `${apiRoot}/tabs/${params.size ? `?${params}` : ""}`;
     try {
     setFresh(false);
-    const [tabResult, productResult, cashResult] = await Promise.all([apiCall<{ results: Tab[]; next_offset: number | null }>(listUrl), apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`)]);
+    // Unified table attendance selects Tabs from the table surface and reads each
+    // selected Tab canonically by ID. The expensive 200-Tab financial list is only
+    // needed when the operator explicitly opens history.
+    const tabsRequest = tableMode && !showHistory
+      ? Promise.resolve({ response: { ok: true }, body: { results: [] as Tab[], next_offset: null } })
+      : apiCall<{ results: Tab[]; next_offset: number | null }>(listUrl);
+    const [tabResult, productResult, cashResult] = await Promise.all([tabsRequest, apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`)]);
     if (request !== listRequest.current) return;
     if (tabResult.response.ok) {
       const page = tabResult.body as { results: Tab[]; next_offset: number | null };
@@ -106,7 +112,7 @@ export function OrderWorkspace({ tableMode = false, requestedTabSequence = 0, cr
     }
     setFresh(tabResult.response.ok && productResult.response.ok);
     } catch { if (request === listRequest.current) { setFresh(false); setMessage("Não foi possível atualizar. Os dados podem estar desatualizados."); } }
-  }, [apiRoot, withoutPayments, tabPageSize, setFresh, setTabs, setNextOffset, setOffset, setAppliedSearch, setMessage, setProducts, setCashPoints]);
+  }, [apiRoot, withoutPayments, tableMode, showHistory, tabPageSize, setFresh, setTabs, setNextOffset, setOffset, setAppliedSearch, setMessage, setProducts, setCashPoints]);
   const orderIntent = useOrderIntent(async (tabId, orderId, origin) => {
     const detail = await apiCall<Tab>(`${apiRoot}/tabs/${tabId}/`);
     if (!detail.response.ok || !detail.body || !("orders" in detail.body) || detail.body.id !== tabId

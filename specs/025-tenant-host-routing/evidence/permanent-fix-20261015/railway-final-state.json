@@ -1,0 +1,119 @@
+{
+  "method": "Railway MCP read-only environment_status and get_staged_changes",
+  "staged": {
+    "destructive": false,
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "privateNetworkDisabled": null,
+    "project": {
+      "id": "1ca79d6a-a555-4346-b4b6-72b0a7706359",
+      "name": "rodada-aderlan-demo-20261009"
+    },
+    "resources": [],
+    "sharedVariables": [],
+    "staged": null
+  },
+  "environment_status": {
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "pendingWork": [],
+    "services": [
+      {
+        "activeDeployments": [
+          {
+            "createdAt": "2026-10-15T14:12:33.879Z",
+            "id": "6650e88d-9658-4098-9ff2-0ab6447dcb56",
+            "status": "SUCCESS",
+            "statusUpdatedAt": "2026-10-15T14:12:54.778Z"
+          }
+        ],
+        "cronJob": null,
+        "hasIssues": false,
+        "hasVolume": false,
+        "isCronJob": false,
+        "issues": {
+          "criticalCount": 0,
+          "warningCount": 0
+        },
+        "recentFailedDeployments": [],
+        "recentFailures": 0,
+        "replicaStatus": {
+          "crashed": 0,
+          "running": 1,
+          "total": 1
+        },
+        "serviceId": "2c2ad312-b59d-4eab-924a-2668ba02b63e",
+        "serviceName": "rodada-landing",
+        "state": "online",
+        "statusText": "Online"
+      },
+      {
+        "activeDeployments": [
+          {
+            "createdAt": "2026-10-15T14:12:33.878Z",
+            "id": "476c096a-47df-463e-9029-6f52f173211d",
+            "status": "SUCCESS",
+            "statusUpdatedAt": "2026-10-15T14:15:16.786Z"
+          }
+        ],
+        "cronJob": null,
+        "hasIssues": false,
+        "hasVolume": false,
+        "isCronJob": false,
+        "issues": {
+          "criticalCount": 0,
+          "warningCount": 0
+        },
+        "recentFailedDeployments": [],
+        "recentFailures": 0,
+        "replicaStatus": {
+          "crashed": 0,
+          "running": 1,
+          "total": 1
+        },
+        "serviceId": "8129ec63-1222-4564-a552-d05a04ee07a2",
+        "serviceName": "rodada-web",
+        "state": "online",
+        "statusText": "Online"
+      },
+      {
+        "activeDeployments": [
+          {
+            "createdAt": "2026-10-10T01:38:32.878Z",
+            "id": "8f354251-5a0e-4692-a5ca-89d5b43ce8ab",
+            "status": "SUCCESS",
+            "statusUpdatedAt": "2026-10-10T01:38:37.566Z"
+          }
+        ],
+        "cronJob": null,
+        "hasIssues": false,
+        "hasVolume": true,
+        "isCronJob": false,
+        "issues": {
+          "criticalCount": 0,
+          "warningCount": 0
+        },
+        "recentFailedDeployments": [],
+        "recentFailures": 0,
+        "replicaStatus": {
+          "crashed": 0,
+          "running": 1,
+          "total": 1
+        },
+        "serviceId": "8a53ce2e-3923-43d2-98c5-590cffa0315b",
+        "serviceName": "Postgres",
+        "state": "online",
+        "statusText": "Online"
+      }
+    ],
+    "summary": {
+      "servicesWithIssues": 0,
+      "totalFailures": 0,
+      "totalServices": 3
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-15T15:05:35.648964+00:00",
+  "results": [
+    {
+      "url": "https://bardoaderlan.rodada.bar/health/",
+      "status": 200,
+      "tls_validated": true
+    },
+    {
+      "url": "https://bardoaderlan.rodada.bar/ready/",
+      "status": 200,
+      "tls_validated": true
+    },
+    {
+      "url": "https://api.rodada.bar/health/",
+      "status": 200,
+      "tls_validated": true
+    },
+    {
+      "url": "https://api.rodada.bar/ready/",
+      "status": 200,
+      "tls_validated": true
+    }
+  ]
+}

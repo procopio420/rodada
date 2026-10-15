@@ -16,12 +16,20 @@ test("Spec 025 P1: two real venue hosts have distinct branding and canonical ali
     expect(await manifest.json()).toMatchObject({ name: `Rodada — ${venueName}`, start_url: "/", scope: "/" });
     expect(manifest.headers()["cache-control"]).toContain("no-store");
   }
+  const slashContext = await request.get("/api/venue/context/", { headers: headers(A), maxRedirects: 0 });
+  expect(slashContext.status()).toBe(200);
+  const slashLogin = await request.post("/api/auth/login/", { headers: { ...headers(A), Origin: "http://" + A }, data: login("web-e2e", "test-manager"), maxRedirects: 0 });
+  expect(slashLogin.status()).toBe(200);
+  const slashPage = await request.get("/cozinha/", { headers: headers(A), maxRedirects: 0 });
+  expect(slashPage.status()).toBe(200);
   const alias = await request.get("/cozinha?board=1", { headers: headers(A) });
   expect(alias.status()).toBe(200);
+  const slashQR = await request.get("/m/e2e-guest-qr-a/", { headers: headers(A), maxRedirects: 0 });
+  expect(slashQR.status()).toBe(200);
   const qr = await request.get("/m/e2e-guest-qr-a", { headers: headers(A) });
   expect(qr.status()).toBe(200);
   const unknown = await request.get("/cozinha", { headers: headers("naocadastrado.rodada.bar") });
-  expect(unknown.status()).toBe(404);
+  expect(unknown.status()).toBe(421);
   expect(await unknown.text()).not.toContain("Kitchen E2E item");
   const otherRoot = await request.get("/", { headers: headers(B) });
   expect(otherRoot.status()).toBe(200);

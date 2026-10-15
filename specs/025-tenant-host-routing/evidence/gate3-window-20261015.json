@@ -1,0 +1,2739 @@
+{
+  "status": "ACCEPTED_BY_RESPONSIBLE",
+  "runtime_sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+  "responsible": "Lucas Procópio",
+  "authorization_comment": "https://github.com/procopio420/rodada/issues/130#issuecomment-6192900495",
+  "authorized_until": "2026-10-16T03:00:00Z",
+  "deployments": {
+    "initial": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "flag_on": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+    "flag_on_success_observed": true,
+    "flag_off": "09536564-28fc-4f0e-a54b-97856de54fbc",
+    "flag_off_success_observed": true
+  },
+  "pilot_browser_before": {
+    "phase": "pilot",
+    "at": "2026-10-15T13:12:47.269Z",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "pilot_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "false",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963"
+    },
+    "observed_runtime_after": {
+      "flag": "false",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963"
+    }
+  },
+  "pilot_browser_transition_invalidated": {
+    "phase": "pilot",
+    "at": "2026-10-15T13:16:10.344Z",
+    "all_pass": false,
+    "results": [
+      {
+        "scenario": "pilot_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "pilot_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "false",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963"
+    },
+    "observed_runtime_after": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "runtime_stable": false
+  },
+  "pilot_browser_active": {
+    "phase": "pilot",
+    "at": "2026-10-15T13:16:51.442Z",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "pilot_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "observed_runtime_after": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "runtime_stable": true
+  },
+  "pilot_http_native_active": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "scope": "authorized Ana/Bia operator, new audit sessions only; reads, no orders/payment mutation; protocol smoke not real Android device",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_BFF_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_host_only_secure_httponly_cookies",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_active_membership_and_capabilities",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/realtime/snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_once_current_cursor",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_refresh_from_only_refresh_cookie",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_reconnect_snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_reconnect",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_BFF_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_native_session",
+        "status": 204,
+        "pass": true
+      }
+    ]
+  },
+  "qa_browser_attempt1": {
+    "phase": "qa",
+    "at": "2026-10-15T13:16:40.301Z",
+    "all_pass": false,
+    "results": [
+      {
+        "scenario": "a_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "a_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_own_table_visible",
+        "pass": true
+      },
+      {
+        "scenario": "a_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_catalog_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "a_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_QA_reversible_availability",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_availability_idempotent_replay",
+        "pass": false,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_availability_restored",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "execution_stopped",
+        "pass": false,
+        "reason": "Scenario failed; response and credentials suppressed"
+      },
+      {
+        "scenario": "a_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "a_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "observed_runtime_after": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "runtime_stable": true
+  },
+  "qa_browser_final": {
+    "phase": "qa",
+    "at": "2026-10-15T13:17:49.908Z",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "a_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "a_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_own_table_visible",
+        "pass": true
+      },
+      {
+        "scenario": "a_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_catalog_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "a_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_QA_reversible_availability",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_availability_idempotent_replay",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_availability_restored",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_tenant_manifest",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_QA_guest_policy_read",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_QA_guest_enable",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_actual_browser_QR_page",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_actual_browser_QR_resolve",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "a_guest_own_context",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_guest_cookie_properties",
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_guest_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_customer_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_customer_own_context",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "b_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "b_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_own_table_visible",
+        "pass": true
+      },
+      {
+        "scenario": "b_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_catalog_no_foreign",
+        "pass": true
+      },
+      {
+        "scenario": "b_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_QA_reversible_availability",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_availability_idempotent_replay",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_availability_restored",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_tenant_manifest",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_QA_guest_policy_read",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_QA_guest_enable",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_actual_browser_QR_page",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_actual_browser_QR_resolve",
+        "pass": true,
+        "http_status": 201
+      },
+      {
+        "scenario": "b_guest_own_context",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_guest_cookie_properties",
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_guest_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_customer_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_customer_own_context",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "a_cross_host_session_/api/auth/me",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "a_cross_host_session_/api/realtime/snapshot",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "a_cross_host_session_/api/realtime/stream?once=1",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "a_foreign_credentials_denied",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "a_foreign_Tab_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "a_foreign_product_mutation_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "a_foreign_staff_cursor_reset",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_foreign_QR_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "a_foreign_guest_cursor_reset",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_forged_headers_no_switch",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_customer_logout",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "a_customer_logout_replay_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "a_anonymous_visit_preserved",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_cross_host_session_/api/auth/me",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "b_cross_host_session_/api/realtime/snapshot",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "b_cross_host_session_/api/realtime/stream?once=1",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "b_foreign_credentials_denied",
+        "pass": true,
+        "http_status": 403
+      },
+      {
+        "scenario": "b_foreign_Tab_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "b_foreign_product_mutation_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "b_foreign_staff_cursor_reset",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_foreign_QR_denied",
+        "pass": true,
+        "http_status": 404
+      },
+      {
+        "scenario": "b_foreign_guest_cursor_reset",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_forged_headers_no_switch",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_customer_logout",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "b_customer_logout_replay_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "b_anonymous_visit_preserved",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "unknown_host_denied",
+        "pass": true,
+        "http_status": 421
+      },
+      {
+        "scenario": "a_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "a_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      },
+      {
+        "scenario": "b_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "b_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "observed_runtime_after": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "runtime_stable": true
+  },
+  "executor_corrections": "Attempt1 JSON.stringify object key order comparison failed after HTTP200 and successful restore. Replaced by node:util.isDeepStrictEqual; reordered-key local fixture PASS; rerun87PASS. Pilot transition functional14PASS invalidated by runtime stability guard; stable active14PASS counted. No application source change.",
+  "official_https_script": {
+    "a": "PASS",
+    "b": "PASS",
+    "unknown_host_status": 421,
+    "manifest_specific": true,
+    "health_ready_status": 200
+  },
+  "rollback": "PASS",
+  "postwindow_signoff": {
+    "status": "PASS",
+    "responsible": "Lucas Procópio",
+    "received_at": "2026-10-15T13:50:51Z",
+    "statement": "confirmo e autorizo",
+    "evidence": "https://github.com/procopio420/rodada/issues/130#issuecomment-6193701006",
+    "scope": "Accept executed results, integrate PR183, close130 after final gates/deployment verification; flag stays false; no expanded operational scope"
+  },
+  "physical_android": "NOT_RUN; HTTP protocol only; issue106 owns full physical shift",
+  "pilot_browser_active_end": {
+    "phase": "pilot",
+    "at": "2026-10-15T13:27:44.850Z",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "pilot_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "observed_runtime_after": {
+      "flag": "true",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "a9f59467-ccf7-4206-8fac-a3b1290ed722"
+    },
+    "runtime_stable": true
+  },
+  "recorded_at": "2026-10-15T13:35:12.016670+00:00",
+  "backup": {
+    "logical_backup_reference": "logical-sha256:7dfdb4d8bbea43ec2c8ee005d66240186f803e3f4bcdf46371fa5e83e398432f",
+    "source_sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "source_deployment": "ad2f5da5-2a8b-4f11-b9d3-9f738b38f963",
+    "source_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "tables_verified": 95,
+    "all_same_snapshot_counts_match": true,
+    "all_restored_constraints_validated": true,
+    "dump_bytes": 601190,
+    "restore_seconds": 1.209,
+    "elapsed_seconds": 12.667,
+    "verified_at": "2026-10-15T12:49:43.614373+00:00",
+    "retention_review_at": "2026-10-22",
+    "archive_authenticated": true,
+    "custody_owner_only": true,
+    "key_separate": true,
+    "restored_copy_removed": true,
+    "restore_container_removed": true,
+    "limits": "Logical snapshot, not PITR/cluster roles/ACL/financial reconciliation sign-off; no operational restore."
+  },
+  "containment": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "flag_off": true,
+    "scope": "After flag false redeploy: four live signed ASGI staff/guest streams and QA containment; no money/order operations",
+    "containment": {
+      "operation": "deactivate",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "foreign_rows_preserved_by_this_transaction": true,
+      "preexisting_rows_preserved_by_this_transaction": false,
+      "new_rows_only_reserved_qa": true,
+      "state_unchanged": false,
+      "database_unchanged": false,
+      "committed_readback_matches": true,
+      "qa": [
+        {
+          "host": "e2ea.rodada.bar",
+          "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+          "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": true,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        },
+        {
+          "host": "e2eb.rodada.bar",
+          "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+          "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+          "domain_owner_matches": true,
+          "active": false,
+          "verified": true,
+          "membership_status": "SUSPENDED",
+          "guest_blocked": true
+        }
+      ]
+    },
+    "containment_attempts": [
+      {
+        "attempt": 1,
+        "committed": false,
+        "lock_not_available": false,
+        "qa_nowait_refusal": false,
+        "serialization_failure": true,
+        "deadlock": false,
+        "scope_guard_failed": false,
+        "error_types": [
+          "django.db.utils.OperationalError"
+        ],
+        "trace_lines": [
+          "59"
+        ]
+      },
+      {
+        "attempt": 2,
+        "committed": false,
+        "lock_not_available": false,
+        "qa_nowait_refusal": true,
+        "serialization_failure": false,
+        "deadlock": false,
+        "scope_guard_failed": false,
+        "error_types": [
+          "django.core.management.base.CommandError"
+        ],
+        "trace_lines": [
+          "59"
+        ]
+      },
+      {
+        "attempt": 3,
+        "committed": true,
+        "lock_not_available": false,
+        "qa_nowait_refusal": false,
+        "serialization_failure": false,
+        "deadlock": false,
+        "scope_guard_failed": false,
+        "error_types": [],
+        "trace_lines": []
+      }
+    ],
+    "streams": {
+      "aguest": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 2,
+        "own_catalog_change_seen": true,
+        "foreign_change_seen": false
+      },
+      "bstaff": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 2,
+        "own_catalog_change_seen": true,
+        "foreign_change_seen": false
+      },
+      "astaff": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 2,
+        "own_catalog_change_seen": true,
+        "foreign_change_seen": false
+      },
+      "bguest": {
+        "ready": true,
+        "revoked": true,
+        "change_events": 2,
+        "own_catalog_change_seen": true,
+        "foreign_change_seen": false
+      }
+    },
+    "results": [
+      {
+        "scenario": "a_QA_only_guest_policy_prepared",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "a_native_profile_valid_before_containment",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "b_QA_only_guest_policy_prepared",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "b_native_profile_valid_before_containment",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "four_streams_ready_before_containment",
+        "pass": true
+      },
+      {
+        "scenario": "four_concurrent_streams_receive_only_own_catalog_changes",
+        "pass": true
+      },
+      {
+        "scenario": "b_QA_availability_restored",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "a_QA_availability_restored",
+        "pass": true,
+        "status": 200
+      },
+      {
+        "scenario": "QA_containment_committed",
+        "pass": true
+      },
+      {
+        "scenario": "a_after_containment/auth/me/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_after_containment/auth/refresh/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_new_native_login_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "a_new_native_QR_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "a_customer_identity_after_guest_containment_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_old_native_guest_session_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_native_guest_SSE_reconnect_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "a_staff_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "a_guest_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "b_after_containment/auth/me/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_after_containment/auth/refresh/",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_new_native_login_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "b_new_native_QR_denied",
+        "status": 403,
+        "pass": true
+      },
+      {
+        "scenario": "b_customer_identity_after_guest_containment_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_old_native_guest_session_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_native_guest_SSE_reconnect_denied",
+        "status": 401,
+        "pass": true
+      },
+      {
+        "scenario": "b_staff_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      },
+      {
+        "scenario": "b_guest_canonical_reconnect_denied",
+        "status": 421,
+        "pass": true
+      }
+    ],
+    "all_pass": true
+  },
+  "external_deactivate": {
+    "operation": "deactivate",
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "foreign_rows_preserved_by_this_transaction": true,
+    "preexisting_rows_preserved_by_this_transaction": false,
+    "new_rows_only_reserved_qa": true,
+    "state_unchanged": true,
+    "database_unchanged": true,
+    "committed_readback_matches": true,
+    "qa": [
+      {
+        "host": "e2ea.rodada.bar",
+        "venue_id": "00c7e9b0-fad7-43fd-aa42-405e46ac2133",
+        "operator_id": "ea4e106b-04ed-4493-ac80-294adc10992d",
+        "domain_owner_matches": true,
+        "active": false,
+        "verified": true,
+        "membership_status": "SUSPENDED",
+        "guest_blocked": true
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "venue_id": "ff6b3b99-062d-4b83-ae8a-ef6cc41d937e",
+        "operator_id": "6213f996-4734-4612-8ce9-0092d6ae623b",
+        "domain_owner_matches": true,
+        "active": false,
+        "verified": true,
+        "membership_status": "SUSPENDED",
+        "guest_blocked": true
+      }
+    ]
+  },
+  "final_runtime": {
+    "observed_at": "2026-10-15T13:33:51.496339+00:00",
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "deployment": "09536564-28fc-4f0e-a54b-97856de54fbc",
+    "seed_off": true,
+    "tenant_ui_flag_off": true,
+    "hmac_present": true,
+    "hmac_minimum_policy_valid": true,
+    "hmac_distinct_from_django_secret": true,
+    "cash_scope": "Read-only historical counts; no amounts, payment IDs or customer data. Confirmed-money statuses include refunded/partially-refunded payments. No repair.",
+    "transaction_read_only": true,
+    "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+    "current_table_count": 95,
+    "qa": [
+      {
+        "host": "e2ea.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "owner_matches": true,
+        "domain_active": false,
+        "domain_verified": true,
+        "guest_blocked": true,
+        "active_memberships": 0,
+        "unrevoked_staff_sessions": 0,
+        "unrevoked_guest_sessions": 0
+      }
+    ],
+    "qa_financial_counts": {
+      "orders": 0,
+      "charges": 0,
+      "payments": 0,
+      "refunds": 0
+    },
+    "historical_cash_by_venue": [
+      {
+        "venue": "pilot_aderlan",
+        "confirmed_money_count": 1,
+        "confirmed_only_count": 1,
+        "missing_movement_count": 0,
+        "foreign_movement_venue_count": 0,
+        "unexpected_movement_kind_count": 0
+      }
+    ],
+    "historical_cash_gap_count": 0,
+    "financial_inspection_completed": true,
+    "historical_reconciliation_not_performed": true
+  },
+  "pilot_browser_after": {
+    "phase": "pilot",
+    "at": "2026-10-15T13:33:55.337Z",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_HTTPS_browser_staff",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_actual_UI_login",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_correct_venue",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_host_only_Secure_HttpOnly",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_snapshot",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_ready",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_refresh",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_SSE_reconnect",
+        "pass": true,
+        "http_status": 200
+      },
+      {
+        "scenario": "pilot_no_uncaught_browser_errors",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_audit_session",
+        "pass": true,
+        "http_status": 204
+      },
+      {
+        "scenario": "pilot_revoked_cookie_denied",
+        "pass": true,
+        "http_status": 401
+      }
+    ],
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "observed_runtime_before": {
+      "flag": "false",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "09536564-28fc-4f0e-a54b-97856de54fbc"
+    },
+    "observed_runtime_after": {
+      "flag": "false",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "deployment": "09536564-28fc-4f0e-a54b-97856de54fbc"
+    },
+    "runtime_stable": true
+  },
+  "pilot_http_native_after": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "scope": "authorized Ana/Bia operator, new audit sessions only; reads, no orders/payment mutation; protocol smoke not real Android device",
+    "all_pass": true,
+    "results": [
+      {
+        "scenario": "pilot_BFF_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_host_only_secure_httponly_cookies",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_active_membership_and_capabilities",
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/hospitality/tables/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/catalog/products/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/pos/tabs/",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_read_/api/realtime/snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_once_current_cursor",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_refresh_from_only_refresh_cookie",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_reconnect_snapshot",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_BFF_SSE_reconnect",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_login",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_native_protocol_me",
+        "status": 200,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_BFF_session",
+        "status": 204,
+        "pass": true
+      },
+      {
+        "scenario": "pilot_logout_only_own_new_native_session",
+        "status": 204,
+        "pass": true
+      }
+    ]
+  },
+  "edge_after": {
+    "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+    "deployment": "09536564-28fc-4f0e-a54b-97856de54fbc",
+    "scope": "TLS and trusted ingress HMAC; QA inactive assertions; Web flag off, not browser acceptance",
+    "all_required_edge_probes_pass": true,
+    "results": [
+      {
+        "scenario": "loopback_valid_hmac_context",
+        "pass": true,
+        "actual": 200,
+        "expected": 200
+      },
+      {
+        "scenario": "loopback_invalid",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_expired",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_adulterated",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_INVALID"
+        ]
+      },
+      {
+        "scenario": "loopback_missing_hmac",
+        "pass": true,
+        "actual": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ],
+        "expected": [
+          403,
+          "HOST_ASSERTION_REQUIRED"
+        ]
+      },
+      {
+        "scenario": "public_api_strips_valid_external_hmac",
+        "pass": true,
+        "actual": [
+          200,
+          "compatibility"
+        ],
+        "expected": [
+          200,
+          "compatibility"
+        ]
+      },
+      {
+        "scenario": "public_pilot_received_host",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2ea.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "inactive_qa_e2eb.rodada.bar_strips_external_assertion",
+        "pass": true,
+        "actual": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ],
+        "expected": [
+          421,
+          "VENUE_HOST_NOT_FOUND"
+        ]
+      },
+      {
+        "scenario": "public_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "public_tls_unregistered-preview.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_bardoaderlan.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2ea.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "origin_tls_e2eb.rodada.bar",
+        "pass": true,
+        "actual": true,
+        "expected": true
+      },
+      {
+        "scenario": "bff_ignores_forged_external_headers",
+        "pass": true,
+        "actual": [
+          200,
+          true
+        ],
+        "expected": [
+          200,
+          true
+        ]
+      },
+      {
+        "scenario": "unknown_bff_rejected",
+        "pass": true,
+        "actual": 421,
+        "expected": 421
+      },
+      {
+        "scenario": "unknown_raw_api_rejected_by_allowed_hosts",
+        "pass": true,
+        "actual": 400,
+        "expected": 400
+      }
+    ]
+  },
+  "monitor": {
+    "started_at": "2026-10-15T13:16:22.257861+00:00",
+    "samples": [
+      {
+        "at": "2026-10-15T13:16:22.257861+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 685
+      },
+      {
+        "at": "2026-10-15T13:16:22.671763+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 414
+      },
+      {
+        "at": "2026-10-15T13:16:24.235721+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 1564
+      },
+      {
+        "at": "2026-10-15T13:16:26.057751+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 1822
+      },
+      {
+        "at": "2026-10-15T13:16:56.442789+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 384
+      },
+      {
+        "at": "2026-10-15T13:16:56.791699+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 349
+      },
+      {
+        "at": "2026-10-15T13:16:57.073323+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 282
+      },
+      {
+        "at": "2026-10-15T13:16:57.523604+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 450
+      },
+      {
+        "at": "2026-10-15T13:17:27.918119+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 394
+      },
+      {
+        "at": "2026-10-15T13:17:28.322091+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 404
+      },
+      {
+        "at": "2026-10-15T13:17:29.759375+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 1437
+      },
+      {
+        "at": "2026-10-15T13:17:30.299654+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 540
+      },
+      {
+        "at": "2026-10-15T13:18:01.752103+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 1452
+      },
+      {
+        "at": "2026-10-15T13:18:02.290033+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 538
+      },
+      {
+        "at": "2026-10-15T13:18:02.567850+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 278
+      },
+      {
+        "at": "2026-10-15T13:18:02.905389+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 338
+      },
+      {
+        "at": "2026-10-15T13:18:33.231252+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 325
+      },
+      {
+        "at": "2026-10-15T13:18:33.620733+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 389
+      },
+      {
+        "at": "2026-10-15T13:18:34.033504+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 413
+      },
+      {
+        "at": "2026-10-15T13:18:34.632628+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 599
+      },
+      {
+        "at": "2026-10-15T13:19:05.153710+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 521
+      },
+      {
+        "at": "2026-10-15T13:19:05.655515+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 502
+      },
+      {
+        "at": "2026-10-15T13:19:05.956309+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 301
+      },
+      {
+        "at": "2026-10-15T13:19:06.539791+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 583
+      },
+      {
+        "at": "2026-10-15T13:19:36.908224+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 368
+      },
+      {
+        "at": "2026-10-15T13:19:37.409809+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 502
+      },
+      {
+        "at": "2026-10-15T13:19:37.914940+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 505
+      },
+      {
+        "at": "2026-10-15T13:19:38.433812+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 519
+      },
+      {
+        "at": "2026-10-15T13:20:08.764105+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 330
+      },
+      {
+        "at": "2026-10-15T13:20:09.222889+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 459
+      },
+      {
+        "at": "2026-10-15T13:20:09.479415+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 257
+      },
+      {
+        "at": "2026-10-15T13:20:09.975306+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 496
+      },
+      {
+        "at": "2026-10-15T13:20:40.359838+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 384
+      },
+      {
+        "at": "2026-10-15T13:20:40.853691+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 494
+      },
+      {
+        "at": "2026-10-15T13:20:41.365546+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 512
+      },
+      {
+        "at": "2026-10-15T13:20:42.734687+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 1369
+      },
+      {
+        "at": "2026-10-15T13:21:13.223031+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 488
+      },
+      {
+        "at": "2026-10-15T13:21:13.562649+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 340
+      },
+      {
+        "at": "2026-10-15T13:21:13.831262+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 269
+      },
+      {
+        "at": "2026-10-15T13:21:14.373527+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 542
+      },
+      {
+        "at": "2026-10-15T13:21:45.399934+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 1026
+      },
+      {
+        "at": "2026-10-15T13:21:45.927035+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 527
+      },
+      {
+        "at": "2026-10-15T13:21:46.360741+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 434
+      },
+      {
+        "at": "2026-10-15T13:21:47.511536+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 1151
+      },
+      {
+        "at": "2026-10-15T13:22:18.005746+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 494
+      },
+      {
+        "at": "2026-10-15T13:22:18.473596+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 468
+      },
+      {
+        "at": "2026-10-15T13:22:18.759540+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 286
+      },
+      {
+        "at": "2026-10-15T13:22:19.241306+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 482
+      },
+      {
+        "at": "2026-10-15T13:22:50.016375+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 775
+      },
+      {
+        "at": "2026-10-15T13:22:50.510897+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 495
+      },
+      {
+        "at": "2026-10-15T13:22:50.976696+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 466
+      },
+      {
+        "at": "2026-10-15T13:22:51.482999+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 506
+      },
+      {
+        "at": "2026-10-15T13:23:22.093960+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 610
+      },
+      {
+        "at": "2026-10-15T13:23:22.719061+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 625
+      },
+      {
+        "at": "2026-10-15T13:23:23.029293+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 310
+      },
+      {
+        "at": "2026-10-15T13:23:23.378488+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 349
+      },
+      {
+        "at": "2026-10-15T13:23:54.118820+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 740
+      },
+      {
+        "at": "2026-10-15T13:23:54.735888+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 617
+      },
+      {
+        "at": "2026-10-15T13:23:55.524018+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 788
+      },
+      {
+        "at": "2026-10-15T13:23:56.170195+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 646
+      },
+      {
+        "at": "2026-10-15T13:24:26.641659+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 471
+      },
+      {
+        "at": "2026-10-15T13:24:27.195086+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 553
+      },
+      {
+        "at": "2026-10-15T13:24:27.514108+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 319
+      },
+      {
+        "at": "2026-10-15T13:24:28.097610+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 583
+      },
+      {
+        "at": "2026-10-15T13:24:58.937360+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 839
+      },
+      {
+        "at": "2026-10-15T13:24:59.453880+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 517
+      },
+      {
+        "at": "2026-10-15T13:24:59.941668+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 488
+      },
+      {
+        "at": "2026-10-15T13:25:00.452525+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 511
+      },
+      {
+        "at": "2026-10-15T13:25:30.960338+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 507
+      },
+      {
+        "at": "2026-10-15T13:25:31.463875+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 504
+      },
+      {
+        "at": "2026-10-15T13:25:31.750745+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 287
+      },
+      {
+        "at": "2026-10-15T13:25:32.465452+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 715
+      },
+      {
+        "at": "2026-10-15T13:26:03.052249+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 586
+      },
+      {
+        "at": "2026-10-15T13:26:03.596112+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 544
+      },
+      {
+        "at": "2026-10-15T13:26:04.020041+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 424
+      },
+      {
+        "at": "2026-10-15T13:26:04.499497+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 479
+      },
+      {
+        "at": "2026-10-15T13:26:35.759248+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 1259
+      },
+      {
+        "at": "2026-10-15T13:26:36.546843+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 788
+      },
+      {
+        "at": "2026-10-15T13:26:37.341721+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 795
+      },
+      {
+        "at": "2026-10-15T13:26:38.364527+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 1023
+      },
+      {
+        "at": "2026-10-15T13:27:08.963332+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 598
+      },
+      {
+        "at": "2026-10-15T13:27:09.492789+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 529
+      },
+      {
+        "at": "2026-10-15T13:27:09.950868+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 458
+      },
+      {
+        "at": "2026-10-15T13:27:10.549726+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 599
+      },
+      {
+        "at": "2026-10-15T13:27:41.039411+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 489
+      },
+      {
+        "at": "2026-10-15T13:27:41.377123+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 338
+      },
+      {
+        "at": "2026-10-15T13:27:41.714999+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 338
+      },
+      {
+        "at": "2026-10-15T13:27:42.224439+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 509
+      },
+      {
+        "at": "2026-10-15T13:28:12.706871+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 482
+      },
+      {
+        "at": "2026-10-15T13:28:13.169663+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 463
+      },
+      {
+        "at": "2026-10-15T13:28:13.593977+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 424
+      },
+      {
+        "at": "2026-10-15T13:28:14.060977+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 467
+      },
+      {
+        "at": "2026-10-15T13:28:44.636821+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 575
+      },
+      {
+        "at": "2026-10-15T13:28:45.154753+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 518
+      },
+      {
+        "at": "2026-10-15T13:28:45.460223+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 305
+      },
+      {
+        "at": "2026-10-15T13:28:45.873897+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 414
+      },
+      {
+        "at": "2026-10-15T13:29:16.258145+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 384
+      },
+      {
+        "at": "2026-10-15T13:29:16.598247+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 340
+      },
+      {
+        "at": "2026-10-15T13:29:17.124474+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 526
+      },
+      {
+        "at": "2026-10-15T13:29:17.602812+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 478
+      },
+      {
+        "at": "2026-10-15T13:29:48.098998+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 495
+      },
+      {
+        "at": "2026-10-15T13:29:48.433962+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 335
+      },
+      {
+        "at": "2026-10-15T13:29:48.696531+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 263
+      },
+      {
+        "at": "2026-10-15T13:29:49.175515+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 479
+      },
+      {
+        "at": "2026-10-15T13:30:19.523533+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 347
+      },
+      {
+        "at": "2026-10-15T13:30:19.982376+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 459
+      },
+      {
+        "at": "2026-10-15T13:30:20.394112+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 412
+      },
+      {
+        "at": "2026-10-15T13:30:20.839183+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 445
+      },
+      {
+        "at": "2026-10-15T13:30:51.326952+00:00",
+        "target": "pilot_health",
+        "http_status": 200,
+        "latency_ms": 487
+      },
+      {
+        "at": "2026-10-15T13:30:51.871753+00:00",
+        "target": "pilot_ready",
+        "http_status": 200,
+        "latency_ms": 545
+      },
+      {
+        "at": "2026-10-15T13:30:52.226639+00:00",
+        "target": "landing",
+        "http_status": 200,
+        "latency_ms": 355
+      },
+      {
+        "at": "2026-10-15T13:30:52.790514+00:00",
+        "target": "native_ready",
+        "http_status": 200,
+        "latency_ms": 564
+      }
+    ],
+    "all_pass": true,
+    "completed": true,
+    "elapsed_seconds": 900,
+    "exit_code": 0,
+    "completed_observed_at": "2026-10-15T13:31:32.537519+00:00"
+  },
+  "runtime_watch": {
+    "all_pass": true,
+    "samples": [
+      {
+        "at": "2026-10-15T13:21:04.157734+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:21:36.342836+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:22:09.303795+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:22:42.810469+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:23:15.358153+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:23:49.468741+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:24:23.372413+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:24:55.565898+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:25:29.228373+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:26:02.079700+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:26:35.760461+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:27:08.767531+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:27:41.599284+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:28:14.509751+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:28:47.459269+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:29:20.260379+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:29:53.107850+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:30:26.064795+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:30:58.492032+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      },
+      {
+        "at": "2026-10-15T13:31:31.232657+00:00",
+        "matches_expected": true,
+        "runtime": {
+          "RAILWAY_GIT_COMMIT_SHA": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+          "RAILWAY_DEPLOYMENT_ID": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+          "RODADA_DEMO_SEED_ON_START": "false",
+          "RODADA_ENABLE_TENANT_HOST_UI": "true"
+        }
+      }
+    ]
+  },
+  "foreign_business_comparison": {
+    "groups": 23,
+    "baseline_at": "2026-10-15T13:13:02.474777+00:00",
+    "after_at": "2026-10-15T13:33:52.940965+00:00",
+    "all_equal": true,
+    "changed_model_names": [],
+    "private_digests_not_published": true,
+    "limits": "Staff auth/audit and QA excluded; optional Customer auth included. Snapshot equality does not prove absence of intermediate writes."
+  },
+  "executor_sha256": {
+    "gate3-browser-executor.cjs": "06099e752b971ed14df77e3c07776f90312993363e93a8ed79a624ed2d16f695",
+    "gate3-containment-executor.py": "84fc26b9f1744ea1b7a605a93ba3576a3db266be847efdde655818b1fdea2d14",
+    "live-stage-executor.py": "9c13896f01da2904ca143a87e66a4829d79f69d78589bf6c68e090b27c9be830"
+  },
+  "results": {
+    "preflight": "PASS",
+    "canary": "PASS",
+    "rollback": "PASS",
+    "pilot": "PASS",
+    "financial_readonly_invariants": "PASS"
+  },
+  "gate3_overall": "PASS",
+  "decision": "GO for authorized PR183 integration and closure after final CI/deployment verification",
+  "final_https_health": {
+    "at": "2026-10-15T13:34:17.899469+00:00",
+    "all_pass": true,
+    "results": [
+      {
+        "host": "bardoaderlan.rodada.bar",
+        "path": "/health/",
+        "status": 200,
+        "expected": 200,
+        "pass": true,
+        "latency_ms": 872
+      },
+      {
+        "host": "bardoaderlan.rodada.bar",
+        "path": "/ready/",
+        "status": 200,
+        "expected": 200,
+        "pass": true,
+        "latency_ms": 704
+      },
+      {
+        "host": "rodada.bar",
+        "path": "/",
+        "status": 200,
+        "expected": 200,
+        "pass": true,
+        "latency_ms": 469
+      },
+      {
+        "host": "api.rodada.bar",
+        "path": "/health/",
+        "status": 200,
+        "expected": 200,
+        "pass": true,
+        "latency_ms": 540
+      },
+      {
+        "host": "api.rodada.bar",
+        "path": "/ready/",
+        "status": 200,
+        "expected": 200,
+        "pass": true,
+        "latency_ms": 420
+      },
+      {
+        "host": "e2ea.rodada.bar",
+        "path": "/",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 482
+      },
+      {
+        "host": "e2ea.rodada.bar",
+        "path": "/manifest.webmanifest",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 401
+      },
+      {
+        "host": "e2ea.rodada.bar",
+        "path": "/api/venue/context",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 529
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "path": "/",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 396
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "path": "/manifest.webmanifest",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 449
+      },
+      {
+        "host": "e2eb.rodada.bar",
+        "path": "/api/venue/context",
+        "status": 421,
+        "expected": 421,
+        "pass": true,
+        "latency_ms": 479
+      }
+    ]
+  },
+  "observability_artifacts": [
+    "gate3-window-observability-20261015.json",
+    "gate3-rollback-mcp-20261015.json"
+  ],
+  "limits": [
+    "User attested Cloudflare Full(strict); Cloudflare panel/API not read. No DNS/proxy changed.",
+    "Physical Android not executed; HTTP native protocol tested; full physical shift remains issue106.",
+    "Short controlled sample does not certify continuous uptime, PSP or financial reconciliation.",
+    "Flag false; no permanent rollout; postwindow operational signoff recorded."
+  ],
+  "independent_review": {
+    "reviewed_sha": "d6f9f816a16be6539b3a5d252d92549f92029ba7",
+    "result": "NO_FINDINGS_WITH_GAPS",
+    "evidence": "https://github.com/procopio420/rodada/pull/183#issuecomment-6193411847"
+  }
+}

@@ -40,12 +40,22 @@ def run(*arguments):
 class Handler(BaseHTTPRequestHandler):
     response_status = 503
     calls = 0
+    discovered = False
 
     def do_POST(self):
         Handler.calls += 1
-        self.rfile.read(int(self.headers.get("Content-Length", "0")))
+        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))))
         self.send_response(Handler.response_status)
         self.end_headers()
+        if Handler.response_status == 200:
+            if self.path.endswith("/discovery/"):
+                assert isinstance(body["printers"], list)
+                assert all(row["health"] == "UNKNOWN" for row in body["printers"])
+                Handler.discovered = True
+                payload = {"protocol_version": 1, "observed": len(body["printers"])}
+            else:
+                payload = {"protocol_version": 1, "delivery_enabled": False}
+            self.wfile.write(json.dumps(payload).encode())
 
     def log_message(self, *arguments):
         pass
@@ -164,6 +174,8 @@ def main():
         finally:
             win32security.RevertToSelf()
             token.Close()
+        if win32serviceutil.QueryServiceStatus("Spooler")[1] != win32service.SERVICE_RUNNING:
+            win32serviceutil.StartService("Spooler")
         win32serviceutil.StartService(SERVICE_NAME)
         wait_for(
             lambda: (
@@ -184,6 +196,11 @@ def main():
             win32service.CloseServiceHandle(manager)
         assert service_config[1] == win32service.SERVICE_AUTO_START
         assert service_config[7].lower().endswith("localservice")
+        Handler.response_status = 200
+        wait_for(lambda: Handler.discovered)
+        wait_for(
+            lambda: json.loads((ROOT / "diagnostics/status.json").read_text())["state"] == "ONLINE"
+        )
         win32serviceutil.StopService(SERVICE_NAME)
         wait_for(
             lambda: (

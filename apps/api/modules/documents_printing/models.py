@@ -83,6 +83,7 @@ class PrinterEndpoint(models.Model):
         FILE = "FILE"
         NETWORK = "NETWORK"
         SPOOL = "SPOOL"
+        AGENT = "AGENT"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
@@ -163,6 +164,9 @@ class PrintAttempt(models.Model):
     job = models.ForeignKey(PrintJob, on_delete=models.PROTECT, related_name="attempts")
     token = models.UUIDField(unique=True)
     number = models.PositiveIntegerField()
+    agent = models.ForeignKey(PrintAgent, on_delete=models.PROTECT, null=True)
+    route = models.ForeignKey(AgentPrinterRoute, on_delete=models.PROTECT, null=True)
+    route_version = models.PositiveIntegerField(null=True)
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True)
     outcome = models.CharField(max_length=32, blank=True)

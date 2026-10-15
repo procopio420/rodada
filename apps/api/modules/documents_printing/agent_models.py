@@ -166,12 +166,18 @@ class AgentPrinterRoute(models.Model):
     port = models.PositiveIntegerField(default=9100)
     priority = models.PositiveIntegerField(default=100)
     enabled = models.BooleanField(default=False)
+    raw_escpos_verified = models.BooleanField(default=False)
     version = models.PositiveIntegerField(default=1)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints: ClassVar = [
             models.UniqueConstraint(fields=("endpoint", "printer"), name="printing_route_unique"),
+            models.UniqueConstraint(
+                fields=("endpoint",),
+                condition=models.Q(enabled=True),
+                name="printing_single_active_route",
+            ),
             models.CheckConstraint(
                 condition=models.Q(version__gte=1), name="printing_route_version"
             ),
@@ -189,7 +195,9 @@ class AgentPrinterRoute(models.Model):
 
         if self.endpoint.venue_id != self.printer.agent.venue_id:
             raise ValidationError("Route must belong to the agent's Venue.")
-        if self.transport != self.printer.transport:
+        if self.transport != self.printer.transport and not (
+            self.printer.transport == "WINDOWS_DRIVER" and self.transport == "WINDOWS_RAW"
+        ):
             raise ValidationError("Route transport must match discovered printer.")
         validate_destination(self.transport, self.destination, self.port)
 

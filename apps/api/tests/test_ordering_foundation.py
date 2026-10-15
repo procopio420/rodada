@@ -404,6 +404,41 @@ class OrderingFoundationTests(TestCase):
         assert conflict.status_code == 409
         assert conflict.json()["code"] == "IDEMPOTENCY_CONFLICT"
 
+    def test_active_summary_paginates_without_n_plus_one_financial_queries(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        Tab.objects.bulk_create(
+            [Tab(venue=self.venue, display_label=f"Active {i}") for i in range(201)]
+        )
+        Tab.objects.create(venue=self.other_venue, display_label="Other venue")
+        with CaptureQueriesContext(connection) as recorded:
+            response = self.client.get("/tabs/", {"active": "true", "summary": "true"})
+        self.assertEqual(response.status_code, 200)
+        first = response.json()
+        self.assertEqual(len(first["results"]), 200)
+        self.assertEqual(first["next_offset"], 200)
+        # This list must stay constant-query-count at venue scale.
+        self.assertLess(len(recorded), 30)
+        for tab in first["results"]:
+            self.assertIn("id", tab)
+            self.assertIn("display_label", tab)
+            self.assertIn("table_label", tab)
+            self.assertNotIn("exposure_cents", tab)
+            self.assertNotIn("payments_cents", tab)
+        second = self.client.get(
+            "/tabs/", {"active": "true", "summary": "true", "offset": 200}
+        ).json()
+        self.assertEqual(len(second["results"]), 1)
+        self.assertIsNone(second["next_offset"])
+        ids = {row["id"] for row in first["results"] + second["results"]}
+        self.assertEqual(
+            ids,
+            {str(pk) for pk in Tab.objects.filter(venue=self.venue).values_list("id", flat=True)},
+        )
+        # Standard callers still receive full financial fields.
+        self.assertIn("exposure_cents", self.client.get("/tabs/", {"offset": 200}).json()["results"][0])
+
     def test_tab_pages_cover_more_than_200_and_remain_venue_scoped(self):
         Tab.objects.bulk_create([Tab(venue=self.venue, display_label=f"Page {i}") for i in range(201)])
         Tab.objects.create(venue=self.other_venue, display_label="Other venue")

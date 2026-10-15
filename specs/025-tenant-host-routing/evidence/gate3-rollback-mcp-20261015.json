@@ -1,0 +1,71 @@
+{
+  "final_service": {
+    "service": {
+      "id": "8129ec63-1222-4564-a552-d05a04ee07a2",
+      "name": "rodada-web",
+      "state": "live"
+    },
+    "environment": {
+      "id": "ab6da311-0926-4b5a-ab86-1d21fe893e12",
+      "name": "demo"
+    },
+    "deployment": {
+      "createdAt": "2026-10-15T13:31:49.205Z",
+      "id": "09536564-28fc-4f0e-a54b-97856de54fbc",
+      "status": "SUCCESS",
+      "url": null
+    },
+    "staged": null,
+    "domains": {
+      "customDomains": [
+        {
+          "domain": "*.rodada.bar",
+          "id": "0b2b6f25-4735-44d8-8263-d9694ad6e7aa",
+          "targetPort": 8080
+        }
+      ],
+      "serviceDomains": [
+        {
+          "domain": "rodada-web-demo.up.railway.app",
+          "id": "b1b6c346-1d07-4e91-b48b-7cee48453eaa",
+          "targetPort": 8080
+        }
+      ]
+    }
+  },
+  "deployments": [
+    {
+      "id": "09536564-28fc-4f0e-a54b-97856de54fbc",
+      "status": "SUCCESS",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "createdAt": "2026-10-15T13:31:49.205Z",
+      "updatedAt": "2026-10-15T13:32:28.369Z"
+    },
+    {
+      "id": "a9f59467-ccf7-4206-8fac-a3b1290ed722",
+      "status": "REMOVED",
+      "sha": "c589ff0862b1a7702e12c20a00cffda6cb2f289e",
+      "createdAt": "2026-10-15T13:15:16.723Z",
+      "updatedAt": "2026-10-15T13:32:33.688Z"
+    }
+  ],
+  "rollback_logs": {
+    "deployment": "09536564-28fc-4f0e-a54b-97856de54fbc",
+    "from": "2026-10-15T13:32:28Z",
+    "until": "2026-10-15T13:35:00Z",
+    "http_count": 88,
+    "http5xx": 0,
+    "upstream_errors": 0,
+    "status_counts": {
+      "200": 52,
+      "201": 2,
+      "204": 1,
+      "304": 4,
+      "308": 3,
+      "400": 1,
+      "401": 12,
+      "403": 4,
+      "421": 9
+    }
+  }
+}
