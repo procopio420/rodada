@@ -8,6 +8,9 @@ Donos e gestores de bares brasileiros, começando por operações de alto movime
 
 ## Comportamento
 - Hero apresenta marca, benefício e CTA imediatamente.
+- A navegação mobile em 320–380px usa CTA curto, sem quebra de linha.
+- O CTA fixo mobile começa oculto, surge apenas depois que o hero sai da viewport e volta a ocultar na seção final; sem JS, links convencionais permanecem funcionais.
+- A galeria contextualiza o uso real do software com capturas de fixture, sem forjar cenas ou métricas.
 - Explicar problema → fluxo atendimento/produção/gerência → produto → piloto → FAQ → CTA.
 - Exibir apenas screenshots locais de ambiente de teste rotulados como tal.
 - Dar respostas prudentes a preço, migração, equipamento e conectividade.

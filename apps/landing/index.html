@@ -42,6 +42,9 @@
     .nav-links>a:not(.nav-cta):hover{color:var(--amber)}
     .nav-cta{display:inline-flex;align-items:center;min-height:44px;border:1px solid var(--paper);border-radius:8px;padding:8px 15px;text-decoration:none;font-size:14px;font-weight:850}
     .nav-cta:hover{background:var(--paper);color:var(--ink)}
+    .nav-cta{white-space:nowrap;gap:6px}
+    .nav-cta-short{display:none}
+    .nav-cta .cta-arrow{font-size:16px;line-height:1}
     .button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:56px;padding:12px 24px;background:var(--paper);color:var(--ink);border:2px solid var(--paper);border-radius:8px;text-decoration:none;font-weight:900;line-height:1.2}
     .button:hover{background:white;border-color:white}
     .button-outline{background:transparent;color:var(--paper)}
@@ -96,9 +99,10 @@
     .screen-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 18px;border-bottom:1px solid var(--border)}
     .screen-head strong{font-size:15px}
     .screen-head small{font-size:11px;font-weight:850;color:var(--amber)}
-    .screen-window{height:350px;overflow:hidden;background:var(--station);padding:13px 15px 0}
+    .screen-window{height:350px;overflow:hidden;background:var(--station);padding:13px 15px 0;position:relative}
+    .screen-window::after{content:"";position:absolute;inset:auto 0 0;height:40px;background:linear-gradient(transparent,var(--surface));pointer-events:none}
     .screen-window img{width:100%;height:auto;border:1px solid var(--border);border-radius:9px 9px 0 0}
-    .screen-caption{padding:15px 18px;margin:0;color:var(--muted);font-size:14px}
+    .screen-caption{padding:15px 18px;margin:0;color:var(--muted);font-size:15px;line-height:1.5;min-height:70px}
     .evidence-note{font-size:12px;color:var(--muted);margin:18px 0 0}
     .benefit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
     .benefit{border:1px solid var(--border);border-radius:var(--radius);padding:30px;background:var(--surface)}
@@ -127,6 +131,7 @@
     .foot-links{display:flex;gap:20px;flex-wrap:wrap}
     .foot-links a:hover{color:var(--paper)}
     .mobile-cta{display:none}
+    .mobile-cta[hidden]{display:none!important}
     @media(max-width:980px){
       .hero-grid{gap:15px;grid-template-columns:1fr 1fr}
       .hero-art{min-height:480px}
@@ -139,12 +144,12 @@
     }
     @media(max-width:760px){
       html{scroll-padding-top:24px}
-      body{padding-bottom:74px}
+      body{padding-bottom:0}
       .nav{min-height:72px}
       .logo img{width:142px}
       .nav-links{gap:10px}
       .nav-links>a:not(.nav-cta){display:none}
-      .nav-cta{font-size:12px;padding:8px 10px}
+      .nav-cta{font-size:12px;padding:8px 10px;min-height:44px}
       .hero-grid{grid-template-columns:1fr;gap:10px;min-height:0;padding-block:60px 50px}
       h1{font-size:clamp(51px,11.5vw,78px);margin:15px 0 26px}
       .hero-copy{font-size:16px}
@@ -179,6 +184,9 @@
       .art-label{padding:10px}
       .art-label strong{font-size:12px}
       .art-label small{font-size:10px}
+      .nav-cta-full{display:none}
+      .nav-cta-short{display:inline}
+      .nav-cta{padding:8px 12px;font-size:13px}
     }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
@@ -192,7 +200,7 @@
       <a href="#como-funciona">Como funciona</a>
       <a href="#produto">O sistema</a>
       <a href="#duvidas">Dúvidas</a>
-      <a class="nav-cta" href="https://wa.me/5524936180751?text=Ol%C3%A1%21%20Quero%20ver%20uma%20demonstra%C3%A7%C3%A3o%20do%20Rodada.">Pedir demonstração ↗</a>
+      <a class="nav-cta" href="https://wa.me/5524936180751?text=Ol%C3%A1%21%20Quero%20ver%20uma%20demonstra%C3%A7%C3%A3o%20do%20Rodada." aria-label="Pedir demonstração do Rodada pelo WhatsApp"><span class="nav-cta-full">Pedir demonstração</span><span class="nav-cta-short">Ver demo</span><span class="cta-arrow" aria-hidden="true">↗</span></a>
     </nav>
   </div>
 </header>
@@ -203,7 +211,7 @@
         <div class="eyebrow">Tecnologia para bares de verdade</div>
         <h1 id="titulo-principal"><span>Mais uma rodada.</span><span class="accent">Menos trabalho.</span></h1>
         <p class="hero-sub">Seu bar merece movimento. Não confusão.</p>
-        <p class="hero-copy">Bar cheio é coisa boa. Pedido perdido, correria entre o salão e o caixa e informação desencontrada não precisam fazer parte disso.</p>
+        <p class="hero-copy">Quando o bar lota, o garçom precisa atender — não fazer viagens ao caixa. O Rodada conecta pedidos, comandas, bar, cozinha e gerência.</p>
         <div class="hero-actions">
           <a class="button" href="https://wa.me/5524936180751?text=Ol%C3%A1%21%20Quero%20ver%20uma%20demonstra%C3%A7%C3%A3o%20do%20Rodada.">Quero ver o Rodada em ação <span class="arrow" aria-hidden="true">↗</span></a>
           <a href="#como-funciona" class="microcopy">Entenda como funciona ↓</a>
@@ -228,7 +236,7 @@
       <div class="section-head">
         <div class="eyebrow">Quem vive o bar conhece</div>
         <h2 id="problema-titulo">O bar lotou. <span class="accent">Ótimo.</span> E agora?</h2>
-        <p class="intro">O movimento cresce, a equipe acelera e a informação começa a se perder entre mesas, balcão e cozinha. Não precisa ser assim.</p>
+        <p class="intro">Quem trabalha com bar sabe: o movimento é bem-vindo. O que atrapalha é ter que repetir pedido, procurar comanda ou perguntar o que já foi preparado.</p>
       </div>
       <div class="pain-grid">
         <article class="pain"><span class="number">01 / SALÃO</span><h3>Seu garçom atende ou faz turismo até o caixa?</h3><p>Os pedidos podem sair do celular, sem uma ida ao computador a cada nova rodada.</p></article>
@@ -241,27 +249,27 @@
     <div class="wrap">
       <div class="eyebrow">A gente acredita</div>
       <h2 id="manifesto-titulo">Bar cheio é motivo para comemorar. Operação confusa <em>não é.</em></h2>
-      <p>Você cuida da experiência de quem chega. O Rodada foi pensado para ajudar sua equipe a manter o ritmo de quem atende, prepara e gerencia.</p>
+      <p>A casa enche. Outra mesa chama. Alguém pede mais uma. Você cuida de receber bem; o Rodada ajuda a informação a circular entre quem atende, prepara e gerencia.</p>
       <a class="button" href="#produto">Conheça o sistema <span class="arrow" aria-hidden="true">↗</span></a>
     </div>
   </section>
   <section class="section" id="como-funciona" aria-labelledby="como-titulo">
     <div class="wrap">
-      <div class="section-head"><div class="eyebrow">Uma operação, de ponta a ponta</div><h2 id="como-titulo">O garçom atende. <span class="accent">O Rodada conecta.</span></h2><p class="intro">Um pedido passa pelas etapas certas sem precisar virar recado, papel ou grito no balcão.</p></div>
+      <div class="section-head"><div class="eyebrow">Uma operação, de ponta a ponta</div><h2 id="como-titulo">O garçom atende. <span class="accent">O Rodada conecta.</span></h2><p class="intro">O pedido sai da mesa. A informação chega a quem precisa. A equipe segue trabalhando no ritmo do bar.</p></div>
       <div class="flow-grid">
-        <article class="flow-step"><span class="flow-index">01 / PEDIR</span><h3>Pedido no celular.</h3><p>Mesas, comandas e itens na mão de quem está atendendo. O cliente também pode acessar o cardápio por QR Code.</p></article>
-        <article class="flow-step"><span class="flow-index">02 / PREPARAR</span><h3>Cada setor na sua.</h3><p>Bar e cozinha acompanham os pedidos nas filas de produção, com contexto para preparar cada item.</p></article>
-        <article class="flow-step"><span class="flow-index">03 / ACOMPANHAR</span><h3>Mais visão do todo.</h3><p>A gerência acompanha a operação, comandas e caixa sem depender de ficar perguntando de mesa em mesa.</p></article>
+        <article class="flow-step"><span class="flow-index">01 / PEDIR</span><h3>Pedido no celular.</h3><p>O garçom abre a comanda e registra itens no celular. O cliente também pode acessar o cardápio por QR Code.</p></article>
+        <article class="flow-step"><span class="flow-index">02 / PREPARAR</span><h3>Cada setor na sua.</h3><p>Bar e cozinha recebem suas filas de pedidos e acompanham o preparo no próprio setor.</p></article>
+        <article class="flow-step"><span class="flow-index">03 / ACOMPANHAR</span><h3>Mais visão do todo.</h3><p>Comandas, pedidos e caixa ficam acessíveis à gerência para acompanhar o que acontece.</p></article>
       </div>
     </div>
   </section>
   <section class="section" id="produto" aria-labelledby="produto-titulo">
     <div class="wrap">
-      <div class="section-head"><div class="eyebrow">O produto, sem enrolação</div><h2 id="produto-titulo">Não é só uma ideia. <span class="accent">Olha o Rodada.</span></h2><p class="intro">Veja capturas de diferentes partes do sistema em ambiente de teste. A interface segue evoluindo durante o piloto.</p></div>
+      <div class="section-head"><div class="eyebrow">O produto, sem enrolação</div><h2 id="produto-titulo">Não é só uma ideia. <span class="accent">Olha o Rodada.</span></h2><p class="intro">Estas são telas de teste do próprio Rodada. Dá para conhecer a experiência antes de conversar sobre um piloto para seu bar.</p></div>
       <div class="gallery">
-        <article class="screen-card"><div class="screen-head"><strong>Atendimento</strong><small>01 / SALÃO</small></div><div class="screen-window"><img loading="lazy" src="/screens/pos-390.png" alt="Interface real de teste da tela de atendimento e comandas do Rodada" width="390" height="780"></div><p class="screen-caption">Comandas e pedidos no ponto de atendimento.</p></article>
-        <article class="screen-card"><div class="screen-head"><strong>Bar</strong><small>02 / PRODUÇÃO</small></div><div class="screen-window"><img loading="lazy" src="/screens/bar-390.png" alt="Interface real de teste da fila de pedidos do bar no Rodada" width="390" height="780"></div><p class="screen-caption">Fila de produção para o próximo pedido.</p></article>
-        <article class="screen-card"><div class="screen-head"><strong>Gerência</strong><small>03 / CONTROLE</small></div><div class="screen-window"><img loading="lazy" src="/screens/manage-390.png" alt="Interface real de teste do painel gerencial Rodada" width="390" height="780"></div><p class="screen-caption">Uma visão da operação para quem gerencia.</p></article>
+        <article class="screen-card"><div class="screen-head"><strong>Atendimento</strong><small>01 / SALÃO</small></div><div class="screen-window"><img loading="lazy" src="/screens/pos-390.png" alt="Interface real de teste da tela de atendimento e comandas do Rodada" width="390" height="780"></div><p class="screen-caption">O pedido começa com quem está atendendo, sem voltar ao caixa a cada rodada.</p></article>
+        <article class="screen-card"><div class="screen-head"><strong>Bar</strong><small>02 / PRODUÇÃO</small></div><div class="screen-window"><img loading="lazy" src="/screens/bar-390.png" alt="Interface real de teste da fila de pedidos do bar no Rodada" width="390" height="780"></div><p class="screen-caption">A equipe do bar vê o que preparar e acompanha a fila do seu setor.</p></article>
+        <article class="screen-card"><div class="screen-head"><strong>Gerência</strong><small>03 / CONTROLE</small></div><div class="screen-window"><img loading="lazy" src="/screens/manage-390.png" alt="Interface real de teste do painel gerencial Rodada" width="390" height="780"></div><p class="screen-caption">A gerência acompanha pedidos, comandas e operação no mesmo sistema.</p></article>
       </div>
       <p class="evidence-note">Imagens obtidas de testes visuais do projeto; não representam homologação em estabelecimento nem disponibilidade geral.</p>
     </div>
@@ -324,6 +332,31 @@
     </nav>
   </div>
 </footer>
-<div class="mobile-cta"><a href="https://wa.me/5524936180751?text=Ol%C3%A1%21%20Quero%20ver%20uma%20demonstra%C3%A7%C3%A3o%20do%20Rodada.">Ver o Rodada em ação ↗</a></div>
+<div class="mobile-cta" hidden><a href="https://wa.me/5524936180751?text=Ol%C3%A1%21%20Quero%20ver%20uma%20demonstra%C3%A7%C3%A3o%20do%20Rodada.">Ver o Rodada em ação ↗</a></div>
+<script>
+  // Progressive enhancement only: all normal WhatsApp links work without JavaScript.
+  (() => {
+    if (!("IntersectionObserver" in window)) return;
+    const bar = document.querySelector(".mobile-cta");
+    const hero = document.querySelector(".hero");
+    const end = document.querySelector(".final-cta");
+    const mobile = window.matchMedia("(max-width: 760px)");
+    if (!bar || !hero || !end) return;
+    let heroVisible = true;
+    let endVisible = false;
+    const update = () => { bar.hidden = !mobile.matches || heroVisible || endVisible; };
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (entry.target === hero) heroVisible = entry.isIntersecting;
+        if (entry.target === end) endVisible = entry.isIntersecting;
+      }
+      update();
+    }, { threshold: 0 });
+    observer.observe(hero);
+    observer.observe(end);
+    mobile.addEventListener("change", update);
+    update();
+  })();
+</script>
 </body>
 </html>

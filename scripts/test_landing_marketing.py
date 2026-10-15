@@ -62,7 +62,14 @@ class LandingMarketingTest(unittest.TestCase):
         self.assertIn("max-width:380px", self.html)
 
     def test_no_third_party_scripts_or_tracking(self):
-        self.assertNotIn("<script", self.html.lower())
+        # One audited inline enhancement may control the mobile sticky CTA.
+        self.assertEqual(self.html.lower().count("<script"), 1)
+        self.assertNotIn("<script src=", self.html.lower())
+        self.assertNotIn("fetch(", self.html.lower())
+        self.assertNotIn("XMLHttpRequest", self.html)
+        self.assertIn('const observer = new IntersectionObserver', self.html)
+        self.assertIn('class="mobile-cta" hidden', self.html)
+        self.assertIn('class="nav-cta-short"', self.html)
         self.assertNotIn("google-analytics", self.html.lower())
         self.assertNotIn("fonts.googleapis.com", self.html.lower())
         self.assertNotIn("100% garantido", self.html.lower())

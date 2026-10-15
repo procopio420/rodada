@@ -14,3 +14,11 @@ Definir metas e consentimento antes de analytics, eventos ou testes A/B. Sem scr
 
 ## Gate
 Testes estáticos e checagem visual real de 360/390/430/desktop, acessibilidade de teclado e imagens Docker. Deploy/merge separados, somente com autorização.
+
+
+## Slice 1b — revisão de conversão por dispositivo
+- CTA pequeno responsivo no header (360 px sem quebra).
+- CTA fixo somente após sair do hero e antes da seção final (progressive enhancement inline, sem tracking).
+- Texto comercial orientado a momentos reais de bar cheio, com fluxo de pedido/produto concreto.
+- Galeria enquadrada e legendada como prova de teste, sem falsa fotografia de cliente.
+- Contratos Playwright para hero, scroll e CTA em novas larguras.
