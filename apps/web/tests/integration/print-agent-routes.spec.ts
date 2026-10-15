@@ -30,7 +30,7 @@ for (const width of [360, 390, 430, 1280]) test(`printer route CAS and changed-d
   const printer = { local_id: `synthetic-${width}`, label: `Fila sintética ${width}`, queue_name: `Synthetic Queue ${width}`, driver_name: "Synthetic Driver A", transport: "WINDOWS_DRIVER", health: "UNKNOWN" };
   expect((await request.post(api + "me/discovery/", { headers, data: { protocol_version: 1, printers: [printer] } })).status()).toBe(200);
   await page.getByLabel("Nome", { exact: true }).fill(`Destino sintético ${width}`);
-  await page.getByLabel("Saída", { exact: true }).selectOption("AGENT");
+  await page.getByRole("combobox", { name: "Saída", exact: true }).selectOption("AGENT");
   await page.getByRole("button", { name: "Salvar destino", exact: true }).click();
   const panel = page.getByRole("region", { name: "Rotas dos computadores" });
   await panel.getByLabel("Destino lógico").focus();
