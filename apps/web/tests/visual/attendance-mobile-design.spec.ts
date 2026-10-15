@@ -132,6 +132,9 @@ test("overlapping list refreshes share one read and leave tab selection responsi
 
 test("release waits for a fresh canonical read after an older list refresh", async ({ page }) => {
   const { tables } = await setup(page);
+  // Pause before mount so only the explicit interval below can initiate polling.
+  // Real elapsed time and SSE reconnect timers must not add a third unrelated read.
+  await page.clock.pauseAt(new Date("2026-10-08T21:01:00Z"));
   await page.goto("/attendance");
   await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click();
   await page.getByRole("button", { name: "Liberar mesa 02", exact: true }).click();

@@ -30,14 +30,17 @@ class LiveComposeOrderTest {
         val newTab = hasText("Nova comanda sem mesa") and hasAnyAncestor(isDialog())
         compose.waitUntil(30_000) { compose.onAllNodes(newTab and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(newTab).assertIsEnabled().performClick()
-        waitText("Nome ou apelido (opcional)")
-        compose.onNodeWithText("Nome ou apelido (opcional)").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
+        waitText("Nome ou apelido")
+        compose.onNodeWithText("Nome ou apelido").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
-            compose.onNodeWithTag("workspace-list").performScrollToNode(hasContentDescription("Adicionar $product"))
-            compose.waitUntil(30_000) { compose.onAllNodes(hasContentDescription("Adicionar $product") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithContentDescription("Adicionar $product").assertIsEnabled().performClick()
+            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
+            compose.onNodeWithText("Buscar no catálogo").performTextReplacement(product)
+            compose.onNodeWithTag("catalog-category-Outros").assertIsEnabled().performClick()
+            compose.onNode(hasText(product) and hasClickAction()).assertIsEnabled().performClick()
+            compose.onNode(hasText("Adicionar ·", substring = true) and hasClickAction()).assertIsEnabled().performScrollTo().performClick()
+            compose.onNodeWithText("Voltar às categorias").performClick()
         }
         waitText("Ver pedido atual · 2 itens · R$ 17,00")
         compose.onNodeWithTag("workspace-Pedido atual").performClick()

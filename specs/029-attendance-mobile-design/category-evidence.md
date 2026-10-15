@@ -70,3 +70,19 @@ local e gates Linux antes de eventual pedido de publicação.
 Em 2026-10-15, após o teste local, solicitado novo PR com estas alterações e
 merge na main. Validar integração da main atual, revisão independente e CI do
 HEAD publicado antes do merge; os limites de homologação acima permanecem.
+
+### PR195 e integração da main
+PR: https://github.com/procopio420/rodada/pull/195. Implementação `f6dbec92`,
+main `2fc02bf7476bcf34cfcaca09f796e909fffc3813` integrada sem conflitos em
+`c1f6dab0978da9a4f3837abd4425320d543dcfb0`. Builds Web e Android/JVM/lint
+reexecutados PASS; segurança Web (sessão/tenant/backend/identidade/gateway):19 PASS.
+Revisão independente do commit integrado: NO_FINDINGS_WITH_GAPS, sem testes
+executados pelo revisor e sem aprovação GitHub simulada.
+
+Roteiro Android real recém-integrado da main alinhado ao nome obrigatório e ao
+novo fluxo por categorias, preservando uso de repositórios reais e confirmação
+canônica. Compilação AndroidTest PASS; não executado contra a demonstração. Teste
+Web de leitura canônica congela o relógio antes do mount para que somente o polling
+explícito avance; mantém duas leituras obrigatórias e confirmação após leitura nova.
+CI Web/Android do HEAD do PR precisa ser consultada antes do merge. Esses resultados
+não autorizam Play/deploy nem comprovam homologação integral.

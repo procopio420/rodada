@@ -300,3 +300,14 @@ comanda/pedido/pagamento na demonstração, publicação Git ou deploy neste rec
 Última ação: compilação e validação local do novo fluxo. Próximo passo: teste manual
 local; antes de eventual publicação solicitada, conferir status/diff, gates Linux
 e roteiro visual legado. GO para teste local; NO-GO de produção/homologação geral.
+
+
+### Publicação e merge solicitados — PR195
+Usuário autorizou novo PR e merge na main. PR195 aberto:
+https://github.com/procopio420/rodada/pull/195. Branch de categorias publicada,
+main atual integrada sem conflitos em `c1f6dab0978da9a4f3837abd4425320d543dcfb0`.
+Revisão independente R3 desse SHA sem achados reproduzíveis; builds locais
+pós-integração PASS e19 testes Web de segurança PASS. Ajustes posteriores somente
+nos roteiros de teste (LiveComposeOrderTest e relógio do teste de leitura canônica),
+com revisão adicional. Próximo passo: verificar o HEAD final remoto e a CI Web/Android,
+resolver falhas reais e só então mergear. Sem deploy/Play autorizado.
