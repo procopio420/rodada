@@ -34,6 +34,16 @@ assert Refund.objects.filter(payment__tab=tab).count() == 1
 assert r["cash_response_loss_replays"] == 2
 shift = CashShift.objects.get(pk=r["shift_id"], cash_point__venue_id=f["venue_id"])
 assert shift.status == "CLOSED" and shift.review_status == "REVIEWED"
+# Independent calendar calculation; do not call the API's business_date helper.
+from datetime import timedelta
+from zoneinfo import ZoneInfo
+venue = shift.cash_point.venue
+expected_business_date = (shift.opened_at.astimezone(ZoneInfo(venue.timezone)) - timedelta(hours=venue.business_day_cutoff_hour)).date()
+assert shift.business_date == expected_business_date
+roles = json.loads(Path("artifacts/financial-roles-browser.json").read_text())
+assert roles["sha"] == r["sha"] and roles["database_instance_id"] == f["database_instance_id"]
+assert roles["shift_id"] == str(shift.pk) and all(value == 403 for value in roles["denied_statuses"])
+assert CashShift.objects.filter(cash_point__venue_id=f["venue_id"]).count() == 1
 assert shift.expected_amount_cents_snapshot == r["expected_cents"]
 assert shift.discrepancy_cents == r["discrepancy_cents"] == -1000
 assert shift.counted_amount_cents == r["expected_cents"] - 1000
@@ -49,6 +59,7 @@ assert all(p.received_by_id == staff.pk and not p.provider and not p.provider_pa
 assert shift.closed_at and shift.reviewed_at and shift.review_reason
 assert all(m.actor_id == staff.pk and m.actor_session_id for m in movements)
 events = AuditEvent.objects.filter(venue_id=f["venue_id"], entity_id=str(shift.pk), actor_staff=staff).exclude(actor_session_id=None)
+assert events.filter(event_type="cash.discrepancy_reviewed").count() == 1
 assert {"cash.shift_opened", "cash.supplied", "cash.withdrawn", "cash.count_started", "cash.shift_closed", "cash.discrepancy_reviewed"}.issubset(set(events.values_list("event_type", flat=True)))
 origins = json.loads(Path("artifacts/browser-origins.json").read_text())
 assert not Payment.objects.filter(tab_id__in=origins["tab_ids"]).exists()
@@ -62,5 +73,7 @@ assert r["report_totals"]["paid_cents"] == venue_payments == r["paid_cents"]
 assert r["report_totals"]["current_open_exposure_cents"] == venue_charges - venue_payments + refund.amount_cents
 assert r["report_totals"]["refunds_cents"] == refund.amount_cents
 r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], audit_event_ids=[str(e.pk) for e in events], cash_movement_ids=[str(m.pk) for m in movements], status="PASS")
+roles.update(sql_independent=True, business_date=str(expected_business_date), cutoff_hour=venue.business_day_cutoff_hour, status="PASS")
+Path("artifacts/financial-roles-sql.json").write_text(json.dumps(roles, indent=2)+"\n")
 Path("artifacts/financial-sql.json").write_text(json.dumps(r, indent=2) + "\n")
 print("PASS: partial/residual CASH test payments=2, compensatory Refund=1, drawer movements=6, preserved -1000 discrepancy, other Tab ledgers untouched")

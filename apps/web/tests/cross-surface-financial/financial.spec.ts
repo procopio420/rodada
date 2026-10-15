@@ -21,6 +21,7 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   }, path);
   const before = await read(`tabs/${native.original_tab_id}/`);
   expect(before.payments_cents).toBe(0);
+  expect(before.orders.flatMap((o: { items: { state: string }[] }) => o.items).every((i: { state: string }) => i.state === "READY")).toBe(true);
   expect(before.exposure_cents).toBeGreaterThan(300);
   await page.goto("/cash");
   await page.getByLabel("Ponto de caixa", { exact: true }).selectOption(fixture.cash_point_id);
