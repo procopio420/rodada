@@ -143,6 +143,48 @@ class HospitalityTableApiTests(TestCase):
             .exists()
         )
 
+    def test_direct_cleaning_preserves_tabs_and_unknown_start_and_rejects_duplicate(self):
+        from modules.hospitality.models import TableOccupancy
+        table = self.table()
+        tab = self.tab()
+        self.client.post(f"/hospitality/tables/{table.id}/occupy/", {"tab_id": str(tab.id)}, format="json")
+        self.client.post(f"/hospitality/tables/{table.id}/release/", format="json")
+        response = self.client.post(f"/hospitality/tables/{table.id}/cleaning/complete/", format="json")
+        assert response.status_code == 200, response.json()
+        table.refresh_from_db()
+        assert table.status == TableStatus.AVAILABLE
+        assert table.access_generation == 2
+        occupancy = TableOccupancy.objects.get(table=table)
+        assert occupancy.released_at is not None and occupancy.ready_at is not None
+        assert occupancy.ready_by_id == self.staff.id
+        assert occupancy.cleaning_started_at is None and occupancy.cleaning_started_by_id is None
+        tab.refresh_from_db()
+        assert tab.state == TabState.OPEN
+        events = AuditEvent.objects.filter(entity_id=str(occupancy.id))
+        assert not events.filter(event_type="table.cleaning_started").exists()
+        completed = events.get(event_type="table.cleaning_completed")
+        assert completed.actor_staff_id == self.staff.id
+        assert completed.metadata["previous_status"] == "DIRTY"
+        assert completed.metadata["cleaning_start_recorded"] is False
+        again = self.client.post(f"/hospitality/tables/{table.id}/cleaning/complete/", format="json")
+        assert again.status_code == 409
+        table.refresh_from_db()
+        assert table.access_generation == 2
+        assert events.filter(event_type="table.cleaning_completed").count() == 1
+
+    def test_direct_cleaning_rejects_foreign_table_and_missing_release(self):
+        from modules.hospitality.models import TableOccupancy
+        foreign = Table.objects.create(venue=self.other_venue, label="foreign", status=TableStatus.DIRTY)
+        assert self.client.post(f"/hospitality/tables/{foreign.id}/cleaning/complete/", format="json").status_code == 404
+        table = self.table()
+        TableOccupancy.objects.create(table=table, generation=1)
+        table.status = TableStatus.DIRTY
+        table.save(update_fields=["status"])
+        response = self.client.post(f"/hospitality/tables/{table.id}/cleaning/complete/", format="json")
+        assert response.status_code == 409
+        table.refresh_from_db()
+        assert table.status == TableStatus.DIRTY and table.access_generation == 1
+
     def test_rejects_invalid_lifecycle_transition_without_generation_change(self):
         table = self.table()
 

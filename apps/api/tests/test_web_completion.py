@@ -46,7 +46,7 @@ class WebCompletionTests(HouseFixture, TestCase):
         assert not replay["product"]["active"]
 
     def test_report_totals_confirmed_money_and_historical_names(self):
-        tab = self.post(self.staff, "/tabs/", {}, status=201)
+        tab = self.post(self.staff, "/tabs/", {"display_label": "Comanda de teste"}, status=201)
         self.order(tab["id"], quantity=2, key="report-order")
         self.payment(tab["id"], amount=1000)
         Payment.objects.create(tab_id=tab["id"], amount_cents=9000, method="CARD", status="PENDING", idempotency_key="pending-report", received_by=self.venue.staff_memberships.get(staff_member__login_identifier="house-cashier").staff_member)

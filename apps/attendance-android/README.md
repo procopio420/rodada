@@ -273,7 +273,7 @@ Pendência abre o alvo original pela API, incluindo comanda encerrada e correç�
 
 ## Mesas e comandas — port nativo da Spec 029
 
-A entrada unificada permite buscar mesa/comanda, filtrar estado, expandir operações,
+A entrada unificada permite buscar mesa/comanda e abrir as operações em pop-up,
 abrir explicitamente uma Tab e consultar Outras comandas ou Histórico. A janela
 nativa separa Cardápio, Pedido atual e Conta; a revisão não depende da busca do
 catálogo e o saldo canônico não inclui o draft. Comandas encerradas abrem Conta.
@@ -288,3 +288,28 @@ Sem WebView ou dependências novas. O catálogo nativo usa o fallback genérico 
 ProductIcon; assets publicados ainda não são carregados neste port.
 Contrato e evidência: [Spec 029](../../specs/029-attendance-mobile-design/spec.md) e
 [validação Android](../../specs/029-attendance-mobile-design/android-evidence.md).
+
+
+### Alinhamento visual de mesas — 2026-10-15
+A navegação principal fica no topo, com destino ativo em Paper/Ink. O cabeçalho
+exibe o nome canônico do estabelecimento; Pico, Atualizar, Conta e Caixa continuam
+acessíveis. Mesas usa painel, busca sem filtros, histórico compacto e Outras
+comandas recolhidas. Os cartões usam faixa superior e ícone na cor semântica:
+verde disponível, azul ocupada, amarelo limpeza e vermelho fora de serviço,
+sempre acompanhados de texto. Fonte ampliada usa uma coluna.
+Toque abre TableCard em Dialog nativo rolável; Voltar/Back/toque fora preservam
+os bloqueios de operação e os diálogos de confirmação existentes. Não altera
+catálogo, regras financeiras, callbacks ou armazenamento de recovery.
+
+### Limpeza direta da mesa
+Liberar continua exigindo confirmacao e nao fecha comandas. Apos leitura canonica,
+a tela retorna a lista com Aguardando limpeza. Tocar nessa mesa oferece somente
+Concluir limpeza e Voltar; concluir retorna a lista Disponivel. O inicio de limpeza
+nao e inventado. CLEANING legado continua concluivel. API deve conter o adendo
+Spec004 de15/10; APK novo com API antiga rejeita conclusao direta de DIRTY.
+
+### Nome operacional obrigatorio
+Novas comandas staff exigem Nome ou apelido sempre visivel e nao vazio, ate120
+caracteres. Abrir bloqueado para vazio/espacos. Sem botao de mostrar/ocultar.
+Aplica-se a mesa livre, ocupada e sem mesa, sem exigir Customer/cadastro. Recibos
+antigos continuam repetiveis com corpo/chave originais, sem editar nomes legados.

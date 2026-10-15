@@ -70,7 +70,7 @@ class TabOperationHttpE2E(OperationFixture, LiveServerTestCase):
         closed_at = Tab.objects.get(pk=source).closed_at
         self.http(self.manager, f"/tabs/{source}/operations/", command(source, "REOPEN", "reopen", reason="Conferir serviço"))
         assert Tab.objects.get(pk=source).closed_at == closed_at
-        accidental = self.http(self.staff, "/tabs/", {}, expected=201)["id"]
+        accidental = self.http(self.staff, "/tabs/", {"display_label": "Comanda de teste"}, expected=201)["id"]
         cancelled = self.http(self.staff, f"/tabs/{accidental}/operations/", command(accidental, "CANCEL_EMPTY", "cancel"))
         assert cancelled["source"]["state"] == "CANCELLED"
         assert TableOccupancy.objects.filter(released_at__isnull=True).count() == 2

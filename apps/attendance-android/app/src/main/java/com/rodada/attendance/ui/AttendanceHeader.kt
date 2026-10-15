@@ -24,13 +24,15 @@ fun AttendanceHeader(
     onTogglePeak: () -> Unit,
     onOpenAccount: () -> Unit,
     onRefresh: () -> Unit,
+    venueName: String = "",
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().testTag("attendance-header").padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text("● rodada", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+            Text("RODADA / ATENDIMENTO", style = MaterialTheme.typography.labelSmall, color = RodadaVisual.Muted)
+            if (venueName.isNotBlank()) Text(venueName.uppercase(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
             Text(staffName, style = MaterialTheme.typography.bodySmall)
             Text(
                 when (connectivity) {

@@ -40,7 +40,7 @@ class PaytimeLiveTests(TestCase):
             price_cents=3000,
             fulfillment_station=FulfillmentStation.BAR,
         )
-        self.tab = self.client.post("/tabs/", {}, format="json").json()["id"]
+        self.tab = self.client.post("/tabs/", {"display_label": "Comanda de teste"}, format="json").json()["id"]
         self.client.post(
             f"/tabs/{self.tab}/orders/confirm/",
             {"idempotency_key": "order", "lines": [{"product_id": str(product.pk), "quantity": 1}]},

@@ -139,7 +139,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     fun tableService(accessToken: String, path: String, payload: JSONObject): JSONObject {
         val move = Regex("/tabs/[a-zA-Z0-9_-]+/operations/").matches(path)
-        require(move || Regex("/hospitality/(tables/[a-zA-Z0-9_-]+/service/start|occupancies/[a-zA-Z0-9_-]+/(tabs/open|responsibility/claim))/").matches(path))
+        require(move || Regex("/hospitality/(tables/[a-zA-Z0-9_-]+/service/(start|open-tab)|occupancies/[a-zA-Z0-9_-]+/(tabs/open|responsibility/claim))/").matches(path))
         if (move) {
             require(payload.optString("kind") == "MOVE_LOCATION")
             require(payload.keys().asSequence().all { it in setOf("kind", "expected_version", "occupancy_id", "idempotency_key", "reason") })

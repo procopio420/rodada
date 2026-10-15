@@ -63,7 +63,7 @@ class TableServiceTests(TestCase):
     def open(self, occupancy, key="open", client=None, **extra):
         return (client or self.client).post(
             f"/hospitality/occupancies/{occupancy.id}/tabs/open/",
-            {"idempotency_key": key, "expected_generation": occupancy.generation, **extra},
+            {"idempotency_key": key, "expected_generation": occupancy.generation, "display_label": "Comanda de teste", **extra},
             format="json",
         )
 
@@ -78,6 +78,41 @@ class TableServiceTests(TestCase):
             },
             format="json",
         )
+
+    def test_staff_tab_names_are_required_without_creating_identity(self):
+        before = Tab.objects.count()
+        for body in ({}, {"display_label": ""}, {"display_label": "   "}, {"display_label": "x" * 121}):
+            assert self.client.post("/tabs/", body, format="json").status_code == 400
+        assert Tab.objects.count() == before
+        created = self.client.post("/tabs/", {"display_label": "  Grupo 7  "}, format="json")
+        assert created.status_code == 201, created.json()
+        assert created.json()["display_label"] == "Grupo 7"
+        self.start()
+        occupancy = TableOccupancy.objects.get(table=self.table)
+        for index, name in enumerate(("", "   ")):
+            denied = self.open(occupancy, key=f"empty-{index}", display_label=name)
+            assert denied.status_code == 400, denied.json()
+        assert not ServiceCommand.objects.filter(key__startswith="empty-").exists()
+        assert Tab.objects.count() == before + 1
+
+    def test_existing_legacy_blank_contextual_receipt_replays_unchanged(self):
+        import hashlib
+        import json
+        self.start()
+        occupancy = TableOccupancy.objects.get(table=self.table)
+        response = self.open(occupancy, key="legacy")
+        assert response.status_code == 201, response.json()
+        receipt = ServiceCommand.objects.get(key="legacy", action="open")
+        payload = {"occupancy_id": str(occupancy.id), "expected_generation": occupancy.generation, "display_label": "", "customer_id": None}
+        receipt.fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+        receipt.result["display_label"] = ""
+        receipt.save(update_fields=["fingerprint", "result"])
+        Tab.objects.filter(pk=receipt.result["tab_id"]).update(display_label="")
+        replay = self.open(occupancy, key="legacy", display_label="")
+        assert replay.status_code == 200, replay.json()
+        assert replay.json()["replayed"] is True
+        assert replay.json()["display_label"] == ""
+        assert Tab.objects.count() == 1
 
     def test_start_no_financial_side_effects_replay_and_conflicts(self):
         result = self.start()

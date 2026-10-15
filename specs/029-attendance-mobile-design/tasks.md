@@ -23,3 +23,11 @@
 - [x] Drafts A/B/A isolados por sessão, sem alterar recovery cifrado.
 - [x] Testes JVM/Compose, build/lint e jornadas no emulador.
 - [x] Revisão independente e evidências; sem homologação de produção.
+
+## Android — alinhamento visual de mesas em 15/10
+
+- [x] Contrato visual e estados antes do codigo.
+- [x] Navegacao no topo, nome do Venue, selecao e painel.
+- [x] Remover filtros e recolher outras comandas.
+- [x] Cartoes com cores semanticas e popup reutilizando TableCard.
+- [x] Concluir matriz de fonte/tamanho e confirmar APK final no emulador.

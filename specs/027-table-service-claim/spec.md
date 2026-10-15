@@ -253,3 +253,15 @@ A ação global Android passa a `Nova comanda`, em duas linhas, mantendo geometr
 `Venue.table_service_enabled` inicia falso, sem backfill de responsáveis. Gerência com `venue.configure` ativa/desativa por comando auditado, versionado e idempotente em `/management/table-service-rollout/`. O rollback bloqueia apenas novas intenções start/open/claim; replays já confirmados continuam disponíveis e nenhuma ocupação, Tab, saldo ou QR é alterado. Comandos já admitidos podem terminar durante desativação. Mesas staff expõem a flag; clientes desativados conservam ocupar/vincular/liberar/limpar legados. Piloto real depende de ativação explícita e observação no estabelecimento; testes isolados ativam apenas seus próprios Venues.
 
 Mover comanda entre mesas exige `tab.move`, confirmação origem/destino e `MOVE_LOCATION` versionado da Spec 009. A intenção durável congela ocupação destino, versão da Tab e chave. Atendimento Web permite somente esse kind no endpoint de operações, rejeitando campos e kinds financeiros.
+
+## Limpeza direta — 2026-10-15
+
+A linha DIRTY da matriz acima passa a oferecer Concluir limpeza, conforme adendo
+specs/004-table-guest-ordering/spec.md. CLEANING legado continua concluivel;
+ambos bloqueiam start de atendimento ate AVAILABLE canonico.
+
+## Nome obrigatorio na abertura staff — 2026-10-15
+
+Nova comanda contextual exige nome/apelido nao vazio (trim, ate120), tanto mesa
+livre como ocupada. Campo sempre visivel; isso nao equivale a cadastro de cliente.
+Recibos antigos e seus replays exatos preservados, inclusive nomes vazios legados.
