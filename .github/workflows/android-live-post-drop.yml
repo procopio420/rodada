@@ -15,6 +15,9 @@ on:
       - "scripts/android-compose-order.sh"
       - "scripts/verify-android-compose-order.py"
       - "scripts/verify-qr-lifecycle.py"
+      - "scripts/verify-browser-origins.py"
+      - "scripts/verify-financial-ui.py"
+      - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
       - "scripts/tests/test_trace_redaction.py"
       - "apps/attendance-android/app/src/androidTest/**/LiveComposeOrderTest.kt"
@@ -150,6 +153,24 @@ jobs:
         run: |
           python scripts/verify-android-web-cross-surface.py
           python scripts/verify-qr-lifecycle.py
+          python scripts/verify-browser-origins.py
+      - name: Financial UI on the same native-origin Tab and disposable drawer
+        working-directory: apps/web
+        env:
+          RODADA_API_BASE_URL: http://127.0.0.1:8101
+          RODADA_ANDROID_COMPOSE_PROOF: ${{ github.workspace }}/artifacts/android-compose-order.json
+          RODADA_CROSS_PHASE: financial
+        run: |
+          node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110 >/tmp/rodada-cross-financial-next.log 2>&1 &
+          next_pid=$!
+          trap 'kill "$next_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3110/staff >/dev/null; then break; fi
+            sleep 1
+          done
+          npx playwright test --config playwright.android-cross-surface.config.ts
+      - name: Independently reconcile partial payments and drawer SQL
+        run: python scripts/verify-financial-ui.py
       - name: Export redacted traces
         if: always()
         run: python scripts/sanitize-cross-surface-traces.py
@@ -165,6 +186,8 @@ jobs:
             artifacts/android-compose-*.txt
             artifacts/android-compose-*.png
             artifacts/qr-lifecycle-*.json
+            artifacts/browser-origins*.json
+            artifacts/financial*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json

@@ -51,6 +51,7 @@ def export(source, destination):
 
 if __name__ == "__main__":
     sources = sorted(Path("apps/web/test-results/android-cross-surface").rglob("trace.zip"))
+    sources += sorted(Path("apps/web/test-results/android-cross-financial").rglob("trace.zip"))
     sources += sorted(Path("artifacts").glob("*-guest-trace.zip"))
     if not sources:
         raise SystemExit("No traces to sanitize")
