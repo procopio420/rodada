@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 
 /** Use the actual unified table workflow: open a contextual Tab and enter its catalog. */
 export async function openNamedAttendanceTab(page: Page, label: string) {
+  const previous = page.locator(".attendanceOrderDialog");
+  if (await previous.isVisible()) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
   const contextual = await page.evaluate(async () => {
     const session = await (await fetch("/api/auth/me")).json();
     const tables = await (await fetch("/api/attendance/hospitality/tables/")).json();

@@ -7,12 +7,13 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
+
   const label = `Order recovery ${width}`;
   await openNamedAttendanceTab(page, label);
-  await expect(page.getByRole("heading", { name: `Mesa Fixture ${label}`, exact: true })).toBeVisible();
+  await expect(page.locator(".attendanceOrderDialog")).toContainText(`Mesa Fixture ${label}`);
   await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
   await page.getByRole("button", { name: /^Kitchen E2E item/ }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
   await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
   const attempts: string[] = []; let orderId = "", tabId = "";
   await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {
