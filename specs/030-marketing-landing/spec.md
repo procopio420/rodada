@@ -24,7 +24,7 @@ Reutilizar `assets/brand/v1` distribuídos em `apps/landing/brand/`, Archivo loc
 
 ## Hero publicitário — Slice 2
 - Arte ilustrativa aprovada pelo usuário, integrada em apps/landing/marketing/rodada-campanha.jpg.
-- No desktop a imagem completa acompanha CTA real; no mobile há título acessível e recorte responsivo da cena.
+- No desktop a imagem completa acompanha CTA real; no mobile há título acessível e versão otimizada `marketing/rodada-campanha-mobile.webp` com enquadramento focado no atendimento.
 - Frase secundária revisada: “Seu bar merece movimento. Menos correria.”
 - O QR na arte não é escaneável; tratá-lo como ilustração, sem sugerir cliente/piloto real.
 - Metadados og:image para compartilhamento e Docker incluindo pasta marketing/ e screenshots da galeria.

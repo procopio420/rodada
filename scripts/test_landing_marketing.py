@@ -56,6 +56,7 @@ class LandingMarketingTest(unittest.TestCase):
         self.assertIn("QR mostrado é decorativo", self.html)
         self.assertIn('property="og:image"', self.html)
         self.assertTrue((LANDING / "marketing" / "rodada-campanha.jpg").is_file())
+        self.assertTrue((LANDING / "marketing" / "rodada-campanha-mobile.webp").is_file())
         docker = (LANDING / "Dockerfile").read_text(encoding="utf-8")
         self.assertIn("COPY apps/landing/screens/", docker)
         self.assertIn("COPY apps/landing/marketing/", docker)
