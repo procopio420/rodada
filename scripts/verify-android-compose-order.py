@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from cross_surface_fixture import require_disposable_database, require_connected_database, require_fixture_order
+from cross_surface_fixture import require_disposable_database, require_connected_database, require_fixture_order, database_instance_identity
 
 require_disposable_database()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodada_api.settings")
@@ -17,6 +17,7 @@ from modules.ordering.models import Order
 
 require_connected_database(connection)
 fixture = json.loads(Path(os.environ["RODADA_POST_DROP_FIXTURE"]).read_text())
+assert fixture["database_instance_id"] == database_instance_identity(connection)
 assert fixture["database"] == connection.settings_dict["NAME"]
 order = Order.objects.get(tab__venue_id=fixture["venue_id"], tab__display_label=os.environ["RODADA_COMPOSE_TAB_LABEL"])
 require_fixture_order(order, fixture)
@@ -34,6 +35,7 @@ with connection.cursor() as cursor:
     assert cursor.fetchone() == (0,)
 summary = {
     "sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+    "database_instance_id": fixture["database_instance_id"],
     "database": connection.settings_dict["NAME"], "venue_id": fixture["venue_id"],
     "venue_slug": fixture["venue_slug"], "result": "PASS", "native_ui": "production MainActivity Compose",
     "original_order_id": str(order.pk), "original_tab_id": str(order.tab_id),

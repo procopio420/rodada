@@ -60,3 +60,13 @@ def require_fixture_order(order, fixture):
         raise RuntimeError("Native order does not belong to the cross-surface fixture Venue")
     if str(order.tab.venue_id) != fixture.get("venue_id"):
         raise RuntimeError("Native order belongs to another fixture generation")
+
+
+def database_instance_identity(connection):
+    """Bind receipts to the actual PostgreSQL cluster, not merely a reused DB name."""
+    import hashlib
+    database = require_connected_database(connection)
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT system_identifier::text FROM pg_control_system()")
+        identifier, = cursor.fetchone()
+    return hashlib.sha256(f"{identifier}:{database}".encode()).hexdigest()

@@ -4,7 +4,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
-from cross_surface_fixture import require_disposable_database, require_connected_database
+from cross_surface_fixture import require_disposable_database, require_connected_database, database_instance_identity
 require_disposable_database()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodada_api.settings")
 import django
@@ -17,6 +17,7 @@ require_connected_database(connection)
 f = json.loads(Path(os.environ["RODADA_POST_DROP_FIXTURE"]).read_text())
 r = json.loads(Path("artifacts/browser-origins.json").read_text())
 assert r["sha"] == subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+assert f["database_instance_id"] == database_instance_identity(connection)
 assert f["database"] == connection.settings_dict["NAME"]
 o = TableOccupancy.objects.get(pk=r["occupancy_id"], table_id=r["table_id"], table__venue_id=f["venue_id"])
 assert set(str(x) for x in TabOccupancyAssignment.objects.filter(occupancy=o).values_list("tab_id", flat=True)) == set(r["tab_ids"])
@@ -33,6 +34,6 @@ for tab_id in r["tab_ids"]:
         assert cursor.fetchone() == (1700,)
     assert not Payment.objects.filter(tab_id=tab_id).exists()
 assert r["guest_replays"] == 2 and r["kitchen_reconnected"] is True
-r.update(database=f["database"], venue_id=f["venue_id"], status="PASS", orders=2, items=4, charges=4, payments=0)
+r.update(database_instance_id=f["database_instance_id"], database=f["database"], venue_id=f["venue_id"], status="PASS", orders=2, items=4, charges=4, payments=0)
 Path("artifacts/browser-origins-sql.json").write_text(json.dumps(r, indent=2) + "\n")
 print("PASS: Guest/Web share one occupancy, independent 1700-cent ledgers, 2 Orders/4 READY Items/4 Charges/0 Payments")

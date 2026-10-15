@@ -10,6 +10,7 @@ from cross_surface_fixture import (
     require_connected_database,
     require_disposable_database,
     require_fixture_order,
+    database_instance_identity,
 )
 
 require_disposable_database()
@@ -50,6 +51,7 @@ def prepare(path):
     table = Table.objects.create(venue=venue, label="Fault 027", guest_ordering_mode="DIRECT")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"venue_id": str(venue.pk), "database": connection.settings_dict["NAME"],
+                                "database_instance_id": database_instance_identity(connection),
                                 "table_id": str(table.pk), "product_id": str(product.pk),
                                 "kitchen_product_id": str(kitchen_product.pk), "cash_point_id": str(cash_point.pk),
                                 "venue_slug": venue.slug, "price_cents": 700}))
@@ -70,6 +72,7 @@ def verify(stage, marker, fixture, receipt):
     order = Order.objects.get(pk=first["order_id"])
     fixture_data = json.loads(fixture.read_text())
     assert fixture_data["database"] == connection.settings_dict["NAME"], "fixture from another database"
+    assert fixture_data["database_instance_id"] == database_instance_identity(connection)
     require_fixture_order(order, fixture_data)
     assert str(order.tab_id) == first["tab_id"]
     assert order.idempotency_key == first["idempotency_key"]
@@ -96,6 +99,7 @@ def verify(stage, marker, fixture, receipt):
     summary = {
         "sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "database": connection.settings_dict["NAME"],
+        "database_instance_id": fixture_data["database_instance_id"],
         "venue_id": str(order.tab.venue_id),
         "venue_slug": order.tab.venue.slug,
         "scenario": (

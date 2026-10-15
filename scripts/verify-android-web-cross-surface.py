@@ -13,6 +13,7 @@ from cross_surface_fixture import (
     require_connected_database,
     require_disposable_database,
     require_fixture_order,
+    database_instance_identity,
 )
 
 require_disposable_database()
@@ -38,6 +39,7 @@ for mode in ("recovery", "compose"):
         assert native["native_ui"] == "production MainActivity Compose"
     order = Order.objects.get(pk=native["original_order_id"])
     fixture = json.loads(Path(os.environ.get("RODADA_POST_DROP_FIXTURE", "/tmp/rodada-android-live-fixture.json")).read_text())
+    assert fixture["database_instance_id"] == native["database_instance_id"] == database_instance_identity(connection)
     require_fixture_order(order, fixture)
     assert fixture["database"] == connection.settings_dict["NAME"], "fixture from another database"
     assert native["database"] == connection.settings_dict["NAME"], "receipt from another database"
@@ -56,6 +58,7 @@ for mode in ("recovery", "compose"):
     assert sum(charge.amount_cents for charge in charges) == expected_total
     assert Payment.objects.filter(tab=order.tab).count() == 0, "unconfirmed payment"
     summary = {
+        "sha": native["sha"], "database_instance_id": fixture["database_instance_id"],
         "database": connection.settings_dict["NAME"],
         "venue_id": str(order.tab.venue_id),
         "status": "PASS",
@@ -75,4 +78,4 @@ for mode in ("recovery", "compose"):
     out = Path("artifacts/android-web-cross-surface.json" if mode == "recovery" else "artifacts/android-compose-web-sql.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
-    print("PASS: native Android -> Web Bar -> SQL READY; Order=1 Item=1 Charge=1 Payment=0")
+    print(f"PASS {mode}: native Android -> Web -> SQL READY; Order=1 Items={expected_count} Charges={expected_count} Payment=0")

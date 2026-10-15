@@ -13,10 +13,22 @@ from cross_surface_fixture import (
     require_connected_database,
     require_disposable_database,
     require_fixture_order,
+    database_instance_identity,
 )
 
 
 class CrossSurfaceFixtureTests(unittest.TestCase):
+    def test_receipts_distinguish_clusters_even_with_identical_database_names(self):
+        connection = MagicMock()
+        cursor = connection.cursor.return_value.__enter__.return_value
+        with patch("cross_surface_fixture.require_connected_database", return_value="rodada_android_post_drop"):
+            cursor.fetchone.return_value = ("cluster-a",)
+            original = database_instance_identity(connection)
+            self.assertEqual(database_instance_identity(connection), original)
+            cursor.fetchone.return_value = ("cluster-b",)
+            self.assertNotEqual(database_instance_identity(connection), original)
+            self.assertEqual(len(original), 64)
+
     def test_exact_database_and_loopback_required(self):
         for database in ("rodada_android_post_drop", "rodada_android_post_drop_link_cut"):
             with self.subTest(database=database), patch.dict(os.environ, {}, clear=True):

@@ -4,7 +4,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
-from cross_surface_fixture import require_disposable_database, require_connected_database
+from cross_surface_fixture import require_disposable_database, require_connected_database, database_instance_identity
 require_disposable_database()
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rodada_api.settings")
 import django
@@ -18,6 +18,7 @@ require_connected_database(connection)
 f = json.loads(Path(os.environ["RODADA_POST_DROP_FIXTURE"]).read_text())
 r = json.loads(Path("artifacts/qr-lifecycle-browser.json").read_text())
 assert r["sha"] == subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(), "stale browser receipt"
+assert f["database_instance_id"] == database_instance_identity(connection)
 assert f["database"] == connection.settings_dict["NAME"]
 t = Table.objects.get(pk=r["table_id"], venue_id=f["venue_id"])
 o = TableOccupancy.objects.get(pk=r["occupancy_id"], table=t)
@@ -34,6 +35,6 @@ assert not Charge.objects.filter(tab_id__in=r["tab_ids"]).exists()
 assert not Payment.objects.filter(tab_id__in=r["tab_ids"]).exists()
 events = list(AuditEvent.objects.filter(venue_id=f["venue_id"], entity_id=str(o.pk)).values("id", "event_type", "actor_staff_id"))
 assert any(e["event_type"] == "occupancy.responsibility_assigned" and e["actor_staff_id"] for e in events), events
-out = {**r, "database": f["database"], "venue_id": f["venue_id"], "orders": 0, "charges": 0, "payments": 0, "audit": events, "status": "PASS"}
+out = {**r, "database_instance_id": f["database_instance_id"], "database": f["database"], "venue_id": f["venue_id"], "orders": 0, "charges": 0, "payments": 0, "audit": events, "status": "PASS"}
 Path("artifacts/qr-lifecycle-sql.json").write_text(json.dumps(out, default=str, indent=2) + "\n")
 print("PASS: one visit, two closed independent Tabs, explicit release/cleaning, audited claim, zero financial effects")

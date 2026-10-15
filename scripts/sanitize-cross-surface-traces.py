@@ -54,7 +54,8 @@ if __name__ == "__main__":
     sources += sorted(Path("apps/web/test-results/android-cross-financial").rglob("trace.zip"))
     sources += sorted(Path("artifacts").glob("*-guest-trace.zip"))
     if not sources:
-        raise SystemExit("No traces to sanitize")
+        print("SKIP: no browser trace was produced before the earlier failure")
+        raise SystemExit(0)
     for index, source in enumerate(sources):
         export(source, Path(f"artifacts/sanitized-traces/{index}-{source.parent.name}.zip"))
     print(f"Exported {len(sources)} redacted trace archives; raw traces remain local")
