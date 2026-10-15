@@ -36,3 +36,26 @@ Archivo carregada em todos os formatos; sem pageerror; primeiro Tab alcança o l
 1. Aprovação do conteúdo visual e comercial, respeitando dados/autorizações.
 2. Revisão independente + CI no último SHA após integração.
 3. Merge e deploy separados mediante autorização explícita.
+
+
+## Rodada 2.1 — revisão comercial por dispositivo (15/10/2026)
+
+**Base testada antes desta nota:** `5656f02fa41377ebea2294ebe3a3ecf0abea779d` · [Chromium QA](https://github.com/procopio420/rodada/actions/runs/38764191415) · [static checks](https://github.com/procopio420/rodada/actions/runs/38764191585).
+
+### Checklist comercial implementado
+- Header mobile usa `Ver demo` em até 380px, com CTA de 44px e nenhuma quebra verificada.
+- Copy de identificação imediata do cliente: “Quando o bar lota, o garçom precisa atender — não fazer viagens ao caixa”.
+- Narrativa PEDIR → PREPARAR → ACOMPANHAR e legendas que explicam como cada tela ajuda.
+- CTA fixo mobile via pequena melhoria inline sem requisições: fica escondido no hero, aparece após o hero e se oculta quando a chamada final está visível. Sem JavaScript, CTAs convencionais continuam acessíveis.
+- Galeria usa somente screenshots de ambiente de teste, sem atribuir provas falsas ou usar fotos de terceiros como se fossem do piloto.
+- Mantidas informações honestas de preço, internet, equipamentos, funcionalidades, estágio de piloto e links legais.
+
+### Chromium / tamanhos testados
+Todos **10/10 PASS**: 320×700, 360×800, 375×667, 390×844, 430×932, 768×1024, 820×1180, 1024×768, 1440×900, 1920×1080. Contrato automatizado: HTTP 200, sem overflow horizontal, fontes/imagens carregadas, sem JS page errors, CTA header na primeira dobra sem quebra, sticky inicialmente oculta, após hero visível somente no mobile e próxima à seção final oculta novamente. Capturas de página inteira e screenshots após o hero estão no artifact do run.
+
+### Aprovação pendente (não confundir com CI verde)
+- Teste humano em navegadores reais, incluindo Safari e Firefox, orientação paisagem e leitores de tela.
+- Conferir se screenshots de ambiente de teste são material comercial autorizado/publicável. As capturas atuais não são do build mais recente necessariamente.
+- Fotos humanas (bar real e equipe) exigem mídia própria com direito de uso; **não** usar banco de imagens representando falsamente o piloto.
+- Nova arte social `og:image` em PNG/JPEG e prova social com depoimento autorizado são próximas prioridades comerciais; **não** declarar concluídas.
+- Revisão independente da branch e autorização explícita para merge e para deploy.
