@@ -83,7 +83,7 @@ for entry in cutoff["shifts"]:
     day = (controlled.opened_at.astimezone(ZoneInfo(policy["test_timezone"])) - timedelta(hours=policy[entry["phase"]+"_cutoff_hour"])).date()
     assert controlled.business_date == day and str(day) == entry["business_date"]
     assert controlled.expected_amount_cents_snapshot == controlled.counted_amount_cents == 0 and controlled.discrepancy_cents == 0
-    assert controlled.movements.count() == 1 and controlled.movements.get().kind == "OPENING_FLOAT" and controlled.movements.get().amount_cents == 0
+    assert controlled.opening_float_cents == 0 and not controlled.movements.exists()
     dates.append(day)
 assert dates[1]-dates[0] == timedelta(days=1)
 cutoff.update(sql_independent=True, status="PASS", original_policy_restored=True)

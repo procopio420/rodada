@@ -113,7 +113,8 @@ with transaction.atomic():
     assert main.status == "CLOSED" and main.review_status == "REVIEWED"
     assert main.expected_amount_cents_snapshot == 12700 and main.counted_amount_cents == 11700 and main.discrepancy_cents == -1000
     assert main.movements.count() == 6 and sum(main.movements.values_list("amount_cents", flat=True)) == 12700
-    assert CashMovement.objects.filter(shift__in=shifts).count() == 8
+    assert CashMovement.objects.filter(shift__in=shifts).count() == 6
+    assert not CashMovement.objects.filter(shift__in=shifts.exclude(pk=main.pk)).exists()
     old = GuestSession.objects.filter(occupancy_id=qr["occupancy_id"])
     assert old.exists() and not old.filter(revoked_at=None).exists()
     assert GuestSession.objects.filter(occupancy_id=qr["new_occupancy_id"], tab_id=qr["new_tab_id"], revoked_at=None).exists()
