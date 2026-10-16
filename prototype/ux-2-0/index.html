@@ -156,6 +156,20 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .bottomnav button{border:0;background:transparent;color:var(--muted);min-height:61px;display:flex;flex-direction:column;justify-content:center;gap:4px;align-items:center;font-size:11px;font-weight:750;border-radius:8px}
 .bottomnav button.active{color:var(--paper)}.bottomnav button .glyph{font-size:23px;line-height:1}
 .bottomnav button.middle{background:var(--paper);color:var(--ink);font-size:13px;font-weight:850}
+.order-status{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--green);padding:15px 16px;margin:13px 0 17px;border-radius:8px}
+.order-status.unconfirmed{border-left-color:var(--amber)}
+.order-status strong{display:block;font-size:15px;margin-bottom:5px}
+.order-status p{font-size:12px;line-height:1.5;margin:4px 0;color:var(--muted)}
+.order-status .route{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+.order-status .route span{font-size:11px;font-weight:800;background:var(--raised);border:1px solid var(--line2);border-radius:5px;padding:5px 8px}
+.order-status .btn{margin-top:9px}
+.order-status .tip{font-size:11px;color:var(--muted)}
+.draft-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:13px 0 4px;border-top:1px solid var(--line)}
+.draft-summary strong{font-size:13px}.draft-summary small{font-size:12px;color:var(--muted)}
+.inline-link{display:inline-flex;align-items:center;min-height:40px;background:none;border:0;padding:7px 0;color:var(--amber);font-size:13px;font-weight:800;text-align:left}
+.demo-test{border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:14px 0;font-size:12px;color:var(--muted)}
+.demo-test summary{cursor:pointer;font-weight:760;color:var(--muted);min-height:28px}
+.demo-test .btn{margin-top:7px}
 .toast{background:var(--green);color:var(--ink);padding:13px 14px;border-radius:10px;margin-bottom:18px;font-size:13px;font-weight:780}
 .kicker{color:var(--faint);text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.1em}
 .rule{height:1px;background:var(--line);margin:18px 0}
@@ -218,7 +232,7 @@ var tabs=[
 {id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",relationship:"RESTRICTED",customerLinked:false,limit:0,approvalRequested:false,balance:0,state:"OPEN",receipts:[],last:[]},
 {id:"f",generation:1,table:null,name:"Bruna · Da casa",ref:"#1053",relationship:"HOUSE",customerLinked:true,limit:50000,approvalRequested:false,balance:9300,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1054,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",limitMode:"WARN_ONLY"};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1054,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",limitMode:"WARN_ONLY",nextOrderNumber:2001,orderIntents:{},simulateLostAck:false};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -282,6 +296,55 @@ function prod(pid){return products.find(function(p){return p.id===pid})}
 function draft(){return state.draft[state.tab]||{}}
 function dcount(){return Object.values(draft()).reduce(function(n,q){return n+q},0)}
 function dsum(){return Object.keys(draft()).reduce(function(n,id){var p=prod(id);return n+(p?p.price*draft()[id]:0)},0)}
+function productStation(p){return p.cat==="Bebidas"?"Bar":"Cozinha"}
+function pendingOrder(t){return state.orderIntents[t.id]&&state.orderIntents[t.id].status==="UNKNOWN"?state.orderIntents[t.id]:null}
+function orderRoutes(lines){
+ var stations=[];
+ lines.forEach(function(item){var p=prod(item.pid),station=p?productStation(p):"Revisão necessária";if(!stations.includes(station))stations.push(station)});
+ return stations
+}
+function lastConfirmed(t){return t.orders&&t.orders.length?t.orders[t.orders.length-1]:null}
+function orderStatusCard(t){
+ var p=pendingOrder(t),last=lastConfirmed(t);
+ if(p)return '<div class="order-status unconfirmed" role="status"><strong>Envio sem confirmação</strong>'+
+ '<p>Pedido '+esc(p.ref)+' · '+esc(t.ref)+' · '+esc(t.name)+'. A resposta foi perdida nesta simulação. <strong>Não envie novamente.</strong> Os itens ainda estão guardados.</p>'+
+ '<p>Identificador da intenção: '+esc(p.key)+'</p>'+
+ button("reconcile-order","Verificar envio · mesma intenção","block primary")+
+ '<p class="tip">Nesta demo, a verificação reconcilia o envio fictício. Na API real, usa a mesma chave idempotente e o estado do servidor.</p></div>';
+ if(!last)return '';
+ return '<div class="order-status" role="status"><strong>Pedido '+esc(last.ref)+' confirmado · simulação</strong>'+
+ '<p>'+esc(t.name)+' · '+esc(t.ref)+(t.table?' · Mesa '+esc(t.table):' · Sem mesa')+' · '+money(last.total)+'</p>'+
+ '<div class="route">'+last.stations.map(function(st){return '<span>'+esc(st)+' · Na fila (simulação)</span>'}).join("")+'</div>'+
+ '<p class="tip">Confirmado nesta página, sem API. Na produção: exibir destino/estado apenas após readback canônico; bar/cozinha podem atualizar separadamente.</p></div>'
+}
+function confirmSimulatedOrder(t,origin){
+ if(!t||t.state!=="OPEN"||pendingOrder(t)||!dcount())return false;
+ var amount=dsum(),aboveReference=overLimit(t,amount);
+ if(limitBlocks(t,amount)){state.toast="Tenant com bloqueio de limite ativo; rascunho preservado.";screen("limit");return false}
+ var lines=Object.keys(draft()).filter(function(id){return draft()[id]>0&&prod(id)}).map(function(id){return {pid:id,q:draft()[id]}})
+ if(!lines.length)return false;
+ // Frozen intent; in production, idempotency key belongs to the canonical API.
+ var ref="SIM-"+state.nextOrderNumber++,key="demo-"+t.id+"-"+ref+"-"+(t.orders?.length||0);
+ var intent={key:key,ref:ref,lines:lines,total:amount,stations:orderRoutes(lines),status:"UNKNOWN",above:aboveReference};
+ state.orderIntents[t.id]=intent;state.picking=false;
+ if(state.simulateLostAck){
+  state.simulateLostAck=false;
+  state.toast="Resposta incerta. Não reenvie: verifique a mesma intenção.";
+  state.screen="tab";state.stack=[];render();return true
+ }
+ return reconcileSimulatedOrder(t);
+}
+function reconcileSimulatedOrder(t){
+ var intent=pendingOrder(t);if(!intent)return false;
+ if(!t.orders)t.orders=[];
+ if(!t.orders.some(function(o){return o.key===intent.key})){
+  t.orders.push({key:intent.key,ref:intent.ref,lines:intent.lines,stations:intent.stations,total:intent.total});
+  t.balance+=intent.total;t.last=intent.lines.map(function(x){return {pid:x.pid,q:x.q}});
+ }
+ state.draft[t.id]={};intent.status="CONFIRMED";state.toast="Pedido confirmado nesta simulação."+(intent.above?" Limite excedido: alerta visível, venda permitida.":"");
+ state.screen="tab";state.stack=[];render();return true
+}
+
 function row(x){return '<div class="rowline">'+x+"</div>"}
 function button(action,label,cls,extra){return '<button type="button" class="btn '+(cls||"")+'" data-action="'+action+'" '+(extra||"")+">"+label+"</button>"}
 function back(){return '<button type="button" class="back" data-action="back"><span aria-hidden="true">‹</span> Voltar</button>'}
