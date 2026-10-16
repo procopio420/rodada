@@ -327,8 +327,7 @@ function markPickupLine(orderId,lineId){
  const wasMarked=lineMarked(orderId,lineId);
  if(wasMarked){S.pickedLines=S.pickedLines.filter(x=>!(x.orderId===orderId&&x.lineId===lineId))}
  else if(isReady(o)||o.status==='Retirado (opcional)'){S.pickedLines.push({orderId,lineId})}
- if(o.items.every(x=>lineMarked(o.id,x.id)))o.status='Retirado (opcional)';
- else if(o.status==='Retirado (opcional)')o.status='Pronto para retirar';
+ // Optional guest acknowledgment must not change the canonical bar queue.
  render();
 }
 function readyPickupCount(){return S.orders.reduce((n,o)=>n+(isReady(o)?o.items.filter(x=>!lineMarked(o.id,x.id)).length:0),0)}
@@ -461,7 +460,7 @@ function reset(){S=fresh();render()}
 function isFicha(){return S.mode==='ficha'}
 function placeName(){return isFicha()?'Ficha '+S.fichaCode:'Mesa 08'}
 function isReady(o){return o&&o.status==='Pronto para retirar'}
-function markCollected(id){if(!isFicha())return;const o=S.orders.find(o=>o.id===id);if(!isReady(o))return;o.status='Retirado (opcional)';S.modal=null;flash('Retirada registrada só nesta simulação.');render()}
+function markCollected(id){if(!isFicha())return;const o=S.orders.find(o=>o.id===id);if(!isReady(o))return;for(const x of o.items)if(!lineMarked(o.id,x.id))S.pickedLines.push({orderId:o.id,lineId:x.id});S.modal=null;flash('Retirada marcada só neste aparelho.');render()}
 function startFichaScenario(ready){S=fresh();S.mode='ficha';S.hasJoined=!!ready;S.scene=ready?'ficha':'entry';S.fichaCode='FG84';if(ready){S.orders=[{id:'#185',status:'Pronto para retirar',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]}];S.orderCount=185}S.modal=null;render()}
 function makeItem(productId,qty,variant,owner){const p=getProduct(productId);return{id:'line'+(Math.random().toString(36).slice(2,10)),productId,name:p.name+(variant?' · '+variant:''),qty,price:p.price+(variant==='Morango'?300:0),owner:owner||S.actor,variant:variant||''}}
 function putOrder(items,status='Recebido'){
@@ -573,12 +572,12 @@ function renderFicha(){
  <button class="inline-link" onclick="S.modal='ficha-how';render()">Como retirar? ›</button>
  <div class="queuehead"><h2>Meus pedidos</h2><small>${orders.length} PEDIDO${orders.length===1?'':'S'}</small></div>
  ${orders.length?orders.map(o=>`<div class="ficha-order">
- <div class="row between"><strong>Pedido ${esc(o.id)}</strong><span class="statuspill ${isReady(o)?'success':'warning'}">${esc(o.status)}</span></div>
+ <div class="row between"><strong>Pedido ${esc(o.id)}</strong><span class="statuspill ${isReady(o)?'success':'warning'}">${o.items.every(x=>lineMarked(o.id,x.id))?'Retirada marcada*':esc(o.status)}</span></div>
  <div class="pickup-lines">${o.items.map(x=>`<div class="pickup-item">
  <span>${x.qty}× ${esc(x.name)}</span>
  ${lineMarked(o.id,x.id)?'<small class="positive">✓ Retirado*</small>':isReady(o)?'<small class="positive">Pronto</small>':''}
  </div>`).join('')}</div>
- ${(isReady(o)||o.status==='Retirado (opcional)')?`<button class="inline-link ficha-optional" onclick="S.pickupOrderId='${o.id}';S.modal='pickup-items';render()">${readyPickupCount()?'Marcar retirada (opcional)':'Revisar retirada'} ›</button>`:''}
+ ${isReady(o)?`<button class="inline-link ficha-optional" onclick="S.pickupOrderId='${o.id}';S.modal='pickup-items';render()">${readyPickupCount()?'Marcar retirada (opcional)':'Revisar retirada'} ›</button>`:''}
  ${canRequestChange(o)&&!isReady(o)?`<button class="inline-link ficha-optional" onclick="S.changeOrderId='${o.id}';S.modal='order-change';render()">Problema com pedido? ›</button>`:''}
  </div>`).join(''):'<p class="ficha-empty">Sem pedidos ainda.</p>'}
  <div class="sectionhead"><h2>Sua ficha</h2></div>
