@@ -115,6 +115,9 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .budgetnote{margin:12px 0 15px;border-left:3px solid var(--amber);padding:12px 14px;background:var(--panel);color:var(--muted);font-size:13px}
 .budgetnote strong{color:var(--paper)}
 .limit-actions{display:grid;gap:8px;margin-top:20px}
+.policy-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 8px}
+.policy-modes button{min-height:48px;border-radius:8px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);font-weight:800;font-size:13px}
+.policy-modes button[aria-pressed="true"]{border-color:var(--amber);background:var(--panel);box-shadow:inset 0 0 0 1px var(--amber)}
 .policyrow{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}
 .policyrow span{color:var(--muted);font-size:13px}
 .policyrow strong{font-size:14px;text-align:right;max-width:65%}
@@ -215,7 +218,7 @@ var tabs=[
 {id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",relationship:"RESTRICTED",customerLinked:false,limit:0,approvalRequested:false,balance:0,state:"OPEN",receipts:[],last:[]},
 {id:"f",generation:1,table:null,name:"Bruna · Da casa",ref:"#1053",relationship:"HOUSE",customerLinked:true,limit:50000,approvalRequested:false,balance:9300,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1054,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1054,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",limitMode:"WARN_ONLY"};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -239,6 +242,8 @@ function relationName(t){return relationshipLabels[t.relationship]||"Sem perfil"
 function capacity(t){return Math.max(0,t.limit-t.balance)}
 function forecast(t,extra){return t.balance+(extra||0)}
 function overLimit(t,extra){return forecast(t,extra)>t.limit||t.limit===0&&extra>0}
+function limitBlocks(t,extra){return state.limitMode==="ENFORCE"&&overLimit(t,extra)}
+function limitModeName(){return state.limitMode==="ENFORCE"?"Bloquear":"Apenas alertar"}
 function creditStatus(t,extra){
  if(t.limit===0||t.balance>=t.limit||overLimit(t,extra))return"exceeded";
  if(t.balance>=t.limit||forecast(t,extra)>=t.limit*.8)return"warning";
@@ -251,23 +256,23 @@ function creditPanel(t,extra,details,compact){
  var percent=t.limit>0?Math.round(100*t.balance/t.limit):null;
  var excess=Math.max(0,forecast(t,projected)-t.limit);
  var overNow=Math.max(0,t.balance-t.limit);
- var stateLabel=excess>0?"Atenção: pedido ultrapassa a referência em "+money(excess):overNow>0?"Atenção: consumo "+money(overNow)+" acima da referência":t.limit===0?"Limite de referência R$ 0 · informe o garçom":forecast(t,projected)>=t.limit*.8?"Próximo do limite de referência":"Dentro da referência";
+ var stateLabel=excess>0?(limitBlocks(t,projected)?"Pedido excede a referência em "+money(excess)+" · bloqueio ativo":"Aviso: pedido ultrapassa a referência em "+money(excess)):overNow>0?"Aviso: consumo "+money(overNow)+" acima da referência":t.limit===0?(state.limitMode==="ENFORCE"?"Referência zero · trava ativa":"Referência zero · alerta sem trava"):forecast(t,projected)>=t.limit*.8?"Próximo do limite de referência":"Dentro da referência";
  var label="Consumo "+money(t.balance)+" de "+money(t.limit)+"; "+money(available)+" disponíveis"+
  (projected>0?"; novo pedido "+money(projected)+(excess?"; excesso "+money(excess):""):"")+
- ". Limite informativo, não bloqueia a venda.";
+ ". Regra do tenant: "+limitModeName()+"." ;
  var bar=t.limit>0?'<div class="credit-progress" role="progressbar" aria-label="'+esc(label)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,Math.round(usedPct))+'">'+
  '<span class="current" style="width:'+usedPct+'%"></span>'+
  (projected>0?'<span class="pending" style="width:'+orderPct+'%"></span>':'')+
  '<span class="threshold" aria-hidden="true"></span></div>':"";
- if(compact)return '<section class="creditbar compact" data-level="'+status+'" aria-label="Limite informativo da comanda">'+
+ if(compact)return '<section class="creditbar compact" data-level="'+status+'" aria-label="Referência de consumo da comanda">'+
  '<div class="slim-head"><span>Limite · '+esc(relationName(t))+'</span><strong>'+money(t.balance)+' / '+money(t.limit)+'</strong></div>'+
  (bar||'<div class="credit-progress" aria-hidden="true"></div>')+
  '<div class="slim-foot"><small>'+(status==="ok"?money(available)+" disponíveis":esc(stateLabel))+'</small>'+
  (details?'<button type="button" data-action="limit-details">Detalhes ›</button>':"")+'</div></section>';
- return '<section class="creditbar" data-level="'+status+'" aria-label="Limite informativo da comanda">'+
+ return '<section class="creditbar" data-level="'+status+'" aria-label="Referência de consumo da comanda">'+
  '<div class="credit-heading"><span>Referência de consumo</span><span class="relationship">'+esc(relationName(t))+'</span></div>'+
  '<div class="credit-numbers"><span><strong>'+money(t.balance)+'</strong><small> de '+money(t.limit)+' usados</small></span><small>'+money(available)+' disponíveis</small></div>'+
- (bar||'<div class="credit-zero">Referência de consumo R$ 0,00 · o pedido pode continuar</div>')+
+ (bar||'<div class="credit-zero">Referência de consumo R$ 0,00 · regra aplicada conforme tenant</div>')+
  '<div class="credit-key"><span>'+(percent===null?"Limite zero":percent+"% utilizado"+(projected>0?" · pedido em listras":""))+'</span>'+
  (projected>0?'<b class="new-order">＋ '+money(projected)+' no pedido</b>':"")+'</div>'+
  '<div class="credit-foot"><span>'+esc(stateLabel)+'</span>'+
