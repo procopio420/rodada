@@ -30,6 +30,20 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .queueitem:focus-visible{border-radius:6px}
 .queue-top{display:flex;flex-wrap:wrap;align-items:center;gap:7px;font-size:11px;font-weight:820;color:var(--muted)}
 .queue-type{color:var(--amber)}.queue-type.bill{color:var(--blue)}.queue-type.delivery{color:var(--green)}
+.now-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px;margin-top:16px}
+.now-switch button{height:50px;min-width:0;border:0;border-radius:7px;background:none;color:var(--muted);font-size:13px;font-weight:820}
+.now-switch button[aria-pressed="true"]{background:var(--raised);color:var(--paper);box-shadow:inset 0 0 0 1px var(--line2)}
+.now-switch span{font:750 11px JetBrains,monospace;padding-left:5px;color:var(--amber)}
+.batchhint{display:block;width:100%;text-align:left;border:1px solid var(--line2);background:var(--panel);color:var(--paper);border-radius:10px;padding:16px;margin:14px 0 6px}
+.batchhint strong{display:block;font-size:15px}.batchhint span{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+.routepoint{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.routepoint .order{font:800 15px JetBrains,monospace;color:var(--amber);min-width:24px}.routepoint strong{display:block;font-size:15px}.routepoint small{display:block;font-size:12px;color:var(--muted)}
+.map-demo{border:1px solid var(--line2);background:var(--panel);border-radius:12px;padding:8px;overflow:hidden}
+.map-demo svg{display:block;width:100%;max-height:240px}
+.run-choice{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);padding:12px 0}
+.run-choice input{width:20px;height:20px;accent-color:var(--amber);flex-shrink:0}
+.run-choice label{flex:1;font-size:14px;line-height:1.4}.run-choice small{display:block;color:var(--muted);font-size:12px}
+
 .queue-title{display:block;margin-top:7px;font-size:17px;line-height:1.3;font-weight:850;letter-spacing:-.015em}
 .queue-detail{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px;color:var(--muted);font-size:12px}.queue-detail>span{min-width:0;flex:1;overflow-wrap:anywhere}.queue-detail strong{color:var(--paper);font-size:12px;flex-shrink:0;white-space:nowrap}
 .queueitem:hover .queue-title{text-decoration:underline;text-decoration-color:var(--amber)}
@@ -150,7 +164,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{}};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -172,12 +186,14 @@ function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
 function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
 var demoCalls=[
-{id:"ready-rafael",type:"DELIVERY",source:"production",tabId:"b",tableId:"08",title:"Mesa 08 · Rafael",summary:"Pedido pronto para levar",meta:"2 × Chopp Pilsen · Bar",time:"há 1 min",items:[{product:"Chopp Pilsen",quantity:2,station:"Bar"}]},
+{id:"ready-rafael",type:"DELIVERY",source:"production",tabId:"b",tableId:"08",title:"Mesa 08 · Rafael",summary:"Pedido pronto para levar",meta:"2 × Chopp Pilsen · Bar",time:"há 1 min",station:"Bar",items:[{product:"Chopp Pilsen",quantity:2,station:"Bar"}]},
+{id:"ready-marina",type:"DELIVERY",source:"production",tabId:"a",tableId:"08",title:"Mesa 08 · Marina",summary:"Bebida pronta para levar",meta:"1 × Água sem gás · Bar",time:"há 2 min",station:"Bar",items:[{product:"Água sem gás",quantity:1,station:"Bar"}]},
+{id:"ready-carla",type:"DELIVERY",source:"production",tabId:"d",tableId:"05",title:"Mesa 05 · Carla",summary:"Bebida pronta para levar",meta:"1 × Refrigerante lata · Bar",time:"há 3 min",station:"Bar",items:[{product:"Refrigerante lata",quantity:1,station:"Bar"}]},
+{id:"ready-joao",type:"DELIVERY",source:"production",tabId:"c",tableId:"12",title:"Mesa 12 · João",summary:"Porção pronta para levar",meta:"1 × Batata frita · Cozinha",time:"há 3 min",station:"Cozinha",items:[{product:"Batata frita",quantity:1,station:"Cozinha"}]},
 {id:"qr-bill-joao",type:"BILL_REQUEST",source:"guest",tabId:"c",tableId:"12",title:"João · Mesa 12",summary:"Cliente pediu a conta",meta:"Pelo celular · comanda #1050",time:"há 2 min"},
 {id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Pelo celular · comanda #1048",time:"há 3 min"},
 {id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12 · sem comanda",summary:"Pedido de conta sem comanda identificada",meta:"Seleção necessária · 1 comanda nessa mesa",time:"há 4 min"}
 ];
-function liveCalls(){return demoCalls.filter(function(c){return !state.doneCalls[c.id]})}
 function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO"}
 function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
@@ -192,21 +208,61 @@ function currentCall(){return state.activeCall&&liveCalls().find(function(c){ret
 function activeCallForTab(t){var c=currentCall();return c&&state.activeCall.targetTabId===t.id?c:null}
 function callActionName(screen){return screen==="delivery"?"Ver entrega":screen==="bill"?"Abrir conta":screen==="tab"?"Atender cliente":"Escolher comanda"}
 function viewNow(){
-var active=liveCalls();
+var active=state.nowMode==="delivery"?deliveries():services();
+var sCount=services().length,dCount=deliveries().length;
 app.innerHTML=first("Fila operacional · simulação")+
-'<h1 class="now-title">Agora <span style="color:var(--amber)">·</span> '+active.length+' '+(active.length===1?"tarefa":"tarefas")+'</h1>'+
-(state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-'<p class="now-summary">Cada solicitação já leva à próxima ação. Abrir não assume nem conclui.</p>'+
-'<div class="queuehead"><h2>Para resolver</h2><small>EXEMPLOS</small></div>'+
+'<h1 class="now-title">Agora</h1>'+
+'<div class="now-switch" role="group" aria-label="Tipo de trabalho">'+
+'<button type="button" data-action="now-mode" data-id="service" aria-pressed="'+(state.nowMode==="service")+'">Atendimentos <span>'+sCount+'</span></button>'+
+'<button type="button" data-action="now-mode" data-id="delivery" aria-pressed="'+(state.nowMode==="delivery")+'">Entregas <span>'+dCount+'</span></button></div>'+
+(state.toast?'<div class="toast" role="status" style="margin-top:13px">'+esc(state.toast)+'</div>':"")+
+(state.nowMode==="delivery"?
+'<div class="queuehead"><h2>Prontos para levar</h2><small>ITENS REAIS: NÃO</small></div>'+
+'<p class="now-summary">Fila separada do atendimento. Uma saída pode incluir destinos próximos, quando os itens forem compatíveis.</p>'+
+(deliveries().some(function(c){return c.station==="Bar"})?
+'<button type="button" class="batchhint" data-action="open-run"><strong>↗ Montar saída · Bar</strong><span>Até 4 unidades neste exercício · mapa ilustrativo · nenhuma rota real calculada</span></button>':"")
+:
+'<div class="queuehead"><h2>Chamados e pedidos de conta</h2><small>EXEMPLOS</small></div>')+
 (active.length?active.map(function(c){
 var target=resolvedCallTarget(c),verb=callActionName(target?target.screen:"table");
 return '<button type="button" class="queueitem" data-action="open-call" data-id="'+esc(c.id)+'" aria-label="'+esc(callKind(c)+", "+c.title+", "+c.summary+", "+verb)+'" '+(!target?'disabled':'')+'>'+
 '<span class="queue-top"><span class="queue-type '+(c.type==="BILL_REQUEST"?"bill":c.type==="DELIVERY"?"delivery":"")+'">'+callKind(c)+'</span><span aria-hidden="true">·</span><span>'+esc(c.time)+'</span>'+(state.claimedCalls[c.id]?'<span>· Em atendimento (simulado)</span>':"")+'</span>'+
 '<span class="queue-title">'+esc(c.title)+'</span>'+
 '<span class="queue-detail"><span>'+esc(c.meta)+'</span><strong>'+verb+' ›</strong></span></button>'
-}).join(""):'<div class="empty">Nenhuma tarefa pendente neste cenário. Use o botão + Pedir para explorar o resto do protótipo.</div>')+
-'<p style="font-size:12px;color:var(--faint);margin-top:22px">Dados e conclusão fictícios. Nenhuma ação afeta clientes ou pedidos reais.</p>';
+}).join(""):'<div class="empty">Nenhuma tarefa nesta fila. Selecione a outra categoria para conferir.</div>')+
+'<p style="font-size:12px;color:var(--faint);margin-top:22px">Dados e conclusões fictícios. Nenhuma ação afeta clientes ou pedidos reais.</p>';
 commonNav()
+}
+function viewDeliveryRun(){
+var chosen=currentRun(),route=demoRoute();
+app.innerHTML=back()+first("Experimento de saída em lote")+
+'<h1>Montar saída.</h1><p class="lede">Agrupe itens prontos da mesma estação, respeitando o que dá para carregar.</p>'+
+'<div class="sectionhead"><h2>Itens prontos</h2><small>CAPACIDADE FICTÍCIA: 4</small></div>'+
+deliveries().map(function(c){
+return '<div class="run-choice"><input type="checkbox" id="run-'+esc(c.id)+'" data-run-id="'+esc(c.id)+'" '+(state.runSelected&&state.runSelected[c.id]?'checked':'')+'><label for="run-'+esc(c.id)+'"><strong>'+esc(c.title)+'</strong><small>'+esc(c.meta)+'</small></label></div>'
+}).join("")+
+(!runValid()?'<div class="notice warn">Selecione itens da mesma origem e até quatro unidades. Bar e Cozinha são saídas diferentes neste exercício.</div>':
+'<div class="sectionhead"><h2>Rota ilustrativa</h2><small>'+route.order.length+' DESTINO(S)</small></div>'+
+'<div class="map-demo">'+renderFloorplan(route)+'</div>'+
+'<div class="notice"><strong>Conceito, não navegação real.</strong> Mesas em posições inventadas e ordem por proximidade simples. Para otimizar de verdade, o Rodada precisa de mapa calibrado, caminhos transitáveis, obstáculos, múltiplas origens, capacidade e estado do pedido.</div>'+
+route.order.map(function(table,i){return '<div class="routepoint"><span class="order">'+(i+1).toString().padStart(2,"0")+'</span><div><strong>Mesa '+esc(table)+'</strong><small>'+chosen.filter(function(c){return c.tableId===table}).map(function(c){return c.items.map(function(item){return item.quantity+'× '+item.product}).join(", ")}).join(" · ")+'</small></div></div>'}).join("")+
+'<div class="notice">O percurso é apenas uma sugestão. Não conclui entrega nem atribui responsabilidade automaticamente. A implementação real deve priorizar inferência passiva e correção por exceção.</div>')+
+button("back-to-now","Voltar sem concluir","block ghost");
+foot("simulate-run","Simular entrega do lote",!runValid())
+}
+function renderFloorplan(route){
+var coords=route.points,from=coords[route.station]||route.origin;
+var marks=[{x:from[0],y:from[1]}].concat(route.order.map(function(id){return{x:coords[id][0],y:coords[id][1]}}));
+var line=marks.map(function(p){return (p.x*3)+","+(p.y*2)}).join(" ");
+return '<svg viewBox="0 0 300 205" role="img" aria-label="Mapa de exemplo: '+esc(route.station)+' para '+route.order.map(function(x){return "Mesa "+x}).join(" e ")+'">'+
+'<rect x="2" y="2" width="296" height="201" rx="8" fill="#120F0C" stroke="#4D4335"/>'+
+'<path d="M145 2V203 M2 105H298" stroke="#3A3228" stroke-dasharray="4 5" fill="none"/>'+
+'<polyline points="'+line+'" stroke="#F5A524" stroke-width="3" stroke-linejoin="round" stroke-dasharray="6 4" fill="none"/>'+
+Object.keys(coords).map(function(id){
+var x=coords[id][0]*3,y=coords[id][1]*2,active=route.order.includes(id),start=id===route.station;
+return '<circle cx="'+x+'" cy="'+y+'" r="'+(start?14:active?13:9)+'" fill="'+(start?"#F5A524":active?"#F3ECE1":"#252019")+'" stroke="'+(start||active?"#F5A524":"#4D4335")+'"/>'+
+'<text x="'+x+'" y="'+(y+3.5)+'" font-family="Archivo, sans-serif" font-weight="850" text-anchor="middle" font-size="'+(id.length>4?8:10)+'" fill="'+(start||active?"#17130F":"#F3ECE1")+'">'+esc(id==="Cozinha"?"C":id==="Bar"?"B":id)+'</text>'
+}).join("")+'</svg>';
 }
 function viewTables(){
 var q=state.search.toLocaleLowerCase("pt-BR");
@@ -322,7 +378,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
@@ -332,6 +388,13 @@ if(act==="root-now"){root("now");return}
 if(act==="root-tables"){root("tables");return}
 if(act==="quick-order"){state.activeCall=null;state.picking=true;state.chooseSearch="";screen("choose");return}
 if(act==="back-to-now"){root("now");return}
+if(act==="now-mode"){state.nowMode=id==="delivery"?"delivery":"service";state.toast="";render();return}
+if(act==="open-run"){state.nowMode="delivery";setRunDefault();screen("delivery-run");return}
+if(act==="simulate-run"){
+ if(!runValid())return;
+ currentRun().forEach(function(c){state.doneCalls[c.id]=true});
+ state.nowMode="delivery";root("now");state.toast="Lote entregue somente na simulação. Nenhuma tarefa real foi modificada.";render();return;
+}
 if(act==="open-call"){
  var c=liveCalls().find(function(x){return x.id===id});if(!c)return;
  var target=resolvedCallTarget(c);if(!target)return;
@@ -351,6 +414,7 @@ if(act==="complete-delivery"||act==="complete-call"||act==="complete-service"){
  if(act==="complete-call"&&c.type!=="BILL_REQUEST")return;
  if(act==="complete-service"&&(c.type!=="SERVICE_REQUEST"||!state.claimedCalls[c.id]))return;
  state.doneCalls[c.id]=true;
+ state.nowMode=c.type==="DELIVERY"?"delivery":"service";
  root("now");state.toast=c.type==="DELIVERY"?"Entrega concluída somente na simulação.":c.type==="SERVICE_REQUEST"?"Atendimento resolvido somente na simulação.":"Solicitação de conta resolvida somente na simulação.";render();return;
 }
 if(act==="table"){state.activeCall=null;state.table=id;screen("table");return}
@@ -373,6 +437,11 @@ if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
 if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
 if(act==="submit"){var t=tab();if(!t||!dcount())return;state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+});
+document.addEventListener("change",function(e){
+ var id=e.target&&e.target.getAttribute&&e.target.getAttribute("data-run-id");
+ if(!id||!state.runSelected)return;
+ state.runSelected[id]=!!e.target.checked;render();
 });
 document.addEventListener("input",function(e){
 if(e.target.id==="choose-search"){var value=e.target.value,position=e.target.selectionStart;state.chooseSearch=value;render();var next=document.getElementById("choose-search");if(next){next.focus();next.setSelectionRange(position,position)}}
