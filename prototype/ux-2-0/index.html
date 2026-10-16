@@ -257,14 +257,6 @@ function creditPanel(t,extra,details){
  (details?'<button type="button" data-action="limit-details">Ver detalhes ›</button>':'')+'</div>'+
  '</section>'
 }
-function projectedNotice(t,total){
- var after=forecast(t,total),excess=Math.max(0,after-t.limit);
- if(overLimit(t,total))return '<div class="budgetnote" role="status"><strong>Pedido excede o limite em '+money(excess)+'.</strong> Disponível: '+money(capacity(t))+'. Receba parte da conta ou peça autorização antes de enviar.</div>';
- if(t.limit>0&&after>=t.limit*.8)return '<div class="budgetnote"><strong>Consumo perto do limite.</strong> Após este pedido, ficarão '+money(Math.max(0,t.limit-after))+' disponíveis.</div>';
- return ''
-}
-
-
 function prod(pid){return products.find(function(p){return p.id===pid})}
 function draft(){return state.draft[state.tab]||{}}
 function dcount(){return Object.values(draft()).reduce(function(n,q){return n+q},0)}
@@ -441,7 +433,7 @@ var t=tab();if(!t){root("tables");return}
 var cat=state.cat,search=state.catalogSearch.toLocaleLowerCase("pt-BR");
 var ps=products.filter(function(p){return (cat==="Todos"||p.cat===cat)&&p.name.toLocaleLowerCase("pt-BR").includes(search)});
 app.innerHTML=back()+first("Pedido para "+esc(t.ref))+'<h1>Adicionar itens.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+' <span class="kicker">· destino fixo</span></p>'+
-creditPanel(t,dsum(),true)+projectedNotice(t,dsum())+
+creditPanel(t,dsum(),true)+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Buscar no cardápio" value="'+esc(state.catalogSearch)+'" aria-label="Buscar produto"></label>'+
 '<div class="pills" role="group" aria-label="Categorias">'+["Todos","Bebidas","Porções","Lanches"].map(function(c){return '<button type="button" class="pill '+(cat===c?"active":"")+'" data-action="category" data-id="'+c+'" aria-pressed="'+(cat===c)+'">'+c+"</button>"}).join("")+'</div>'+
 '<div class="sectionhead"><h2>Cardápio</h2><small>'+ps.length+' ITENS</small></div>'+
@@ -456,7 +448,7 @@ app.innerHTML=back()+first("Conferência final")+'<h1>Revisar pedido.</h1><p cla
 '<div class="cardnote"><strong style="color:var(--paper)">'+esc(t.name)+' · '+esc(t.ref)+'</strong><div>'+(t.table?"Mesa "+t.table:"Sem mesa")+' · Rascunho ainda não enviado</div></div>'+
 (ids.length?ids.map(function(id){var p=prod(id),q=draft()[id];return '<div class="reviewrow"><div><b>'+q+'× '+esc(p.name)+'</b><small>'+money(p.price)+' cada</small></div><div><div class="money">'+money(q*p.price)+'</div><div class="quantity" style="justify-content:flex-end;margin-top:9px"><button type="button" class="qtybtn" aria-label="Remover '+esc(p.name)+'" data-action="qtyminus" data-id="'+p.id+'">−</button><button type="button" class="qtybtn plus" aria-label="Adicionar '+esc(p.name)+'" data-action="qtyplus" data-id="'+p.id+'">+</button></div></div></div>'}).join(""):'<div class="empty">O pedido está vazio.</div>')+
 '<div class="amountline"><small>Total do novo pedido <span class="kicker">· simulado</span></small><strong>'+money(dsum())+'</strong></div>'+
-creditPanel(t,dsum(),true)+projectedNotice(t,dsum())+
+creditPanel(t,dsum(),true)+
 (overLimit(t,dsum())?button("limit-details","Resolver limite","block ghost"):'')+
 '<div class="notice warn"><strong>Simulação local.</strong> Não há API nem pedido real. Na implementação, confirmar exige validação do servidor, intenção idempotente e reconciliação de resposta ambígua.</div>'+
 button("catalog","← Continuar escolhendo itens","block ghost");
