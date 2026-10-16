@@ -225,6 +225,11 @@ body{font:500 15px/1.45 var(--font)}
 .dispute-target small{font-size:10px;letter-spacing:.1em}.dispute-target strong{font-size:17px}.dispute-target span{font:750 19px var(--mono);color:var(--paper)}
 .dispute-stage{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:820;margin:16px 0 9px;color:var(--accent)}
 
+/* P0: persistent, nonblocking pending payment status */
+.payment-resume-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 20px;min-height:61px;background:var(--surface);border:0;border-bottom:1px solid var(--accent);color:var(--paper);text-align:left}
+.payment-resume-banner span{display:flex;flex-direction:column;gap:4px}.payment-resume-banner strong{font-size:13px;font-weight:850}.payment-resume-banner small{font-size:11px;color:var(--muted)}.payment-resume-banner b{font-size:12px;color:var(--accent);white-space:nowrap}
+@media(max-width:375px){.payment-resume-banner{padding-inline:16px}}
+
 </style>
 </head><body>
 <div class="shell">
@@ -1008,8 +1013,8 @@ else if(m==='payment-pending'){
  title=c?.method==='PIX'?'Aguardando Pix':'Pagamento por cartão';
  body=`<div class="pending-payment"><div class="pending-symbol">${c?.method==='PIX'?'◆':'▤'}</div><div class="micro">VALOR</div><strong class="pending-amount mono">${money(c?.amount||0)}</strong><p>${c?.method==='PIX'?'Aguardando confirmação do Pix.':'Aguardando aprovação do cartão.'}</p></div>
  ${c?.method==='PIX'?'<div class="fake-pix"><strong>Pix Copia e Cola</strong><code>PIX-DEMONSTRACAO-NAO-PAGAR</code><small>Código fictício. Não use no aplicativo do banco.</small><button class="copy-demo" onclick="copyDemoPix()">Copiar código de demonstração</button></div>':''}
- <p class="sim-note">Teste interativo: só o botão abaixo confirma a simulação. Nenhuma cobrança é feita.</p>`;
- footer=`<button class="btn" ${!S.online?'disabled':''} onclick="approveDemoPayment()">${c?.method==='PIX'?'Simular Pix recebido':'Simular cartão aprovado'} ✓</button><button class="btn ghost" onclick="failDemoPayment()">Simular falha</button><button class="inline-link" onclick="cancelDemoCheckout()">Voltar sem pagar</button>`;
+ <p class="sim-note">Você pode fechar esta tela e acompanhar pela conta. Nenhuma cobrança real é feita.</p><button class="inline-link" onclick="inspectPendingPayment()">↻ Verificar status</button>`;
+ footer=`<button class="btn" ${!S.online?'disabled':''} onclick="approveDemoPayment()">${c?.method==='PIX'?'Simular Pix recebido':'Simular cartão aprovado'} ✓</button><button class="btn ghost" onclick="failDemoPayment()">Simular falha</button><button class="inline-link" onclick="cancelDemoCheckout()">Voltar e acompanhar depois</button>`;
 }
 else if(m==='payment-failed'){
  title='Pagamento não concluído';
@@ -1029,14 +1034,43 @@ else if(m==='payment-all'){title='Pagar a conta toda';body=`${back('payment-opti
 else if(m==='payment-review'){title='Confirmar pagamento';body=`${back('payment-'+S.paymentMode)}<div class="payment-preview"><div class="micro">Valor simulado</div><strong class="mono">${money(Math.min(S.previewAmount||0,balance()))}</strong></div><div class="panel"><div class="row between"><span class="small muted">Saldo antes</span><b class="amount">${money(balance())}</b></div><div class="divider" style="margin:10px 0"></div><div class="row between"><span class="small muted">Saldo após</span><b class="amount positive">${money(Math.max(0,balance()-(S.previewAmount||0)))}</b></div></div><div class="notice" style="margin-top:15px">Simulação · nenhuma cobrança real.</div>`;footer=`<button class="btn" ${!S.online?'disabled':''} onclick="confirmPayment()">Confirmar pagamento simulado</button><button class="btn ghost" onclick="requestAssistance('bill')">Prefiro pagar com a equipe</button>`}
 else if(m==='payment-success'){title='Pagamento confirmado';body=`<div class="successbox"><div style="font-size:37px;margin-bottom:10px">✓</div><h2>Sua parte foi paga!</h2><div class="account-total mono" style="margin:15px 0;color:var(--paper)">${money(S.paymentSuccess)}</div><p class="small muted">Simulado · Saldo ${isFicha()?'da ficha':'da mesa'}: <b style="color:var(--paper)">${money(balance())}</b>.</p></div><p class="lead" style="margin-top:18px">${balance()>0?isFicha()?'Você pode continuar pedindo.':'O grupo pode continuar consumindo.':isFicha()?'Ficha quitada.':'Conta quitada. A mesa continua ocupada.'}</p>`;footer=`<button class="btn" onclick="S.modal=null;S.scene='account';render()">Voltar para a conta</button>`}
  else return '';
- return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this){S.modal=null;render()}"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="S.modal=null;render()">×</button></div><div class="sheet-body">${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
+ return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this)dismissModal()"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="dismissModal()">×</button></div><div class="sheet-body">${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
 }
 function sendCart(){if(!S.cart.length)return;if(!S.online){flash('Sem conexão. O pedido permanece no carrinho.');return}const items=S.cart.map(x=>({...makeItem(x.productId,x.qty,x.variant,S.actor),price:x.price,qty:x.qty}));submitOrderWithPolicy(items,'cart')}
 function saveName(){const name=el('nickname')?.value?.trim()?.slice(0,24);if(name){currentPerson().name=name;}S.modal='participants';render()}
 function oStatus(id,status){const o=S.orders.find(x=>x.id===id);if(o){o.status=status;flash('Recebimento confirmado pelo cliente (simulação).')}render()}
+
+/* Session-only DEMO persistence: browser storage is not an access grant and must
+   never replace server-side GuestSession and provider payment verification. */
+const DEMO_SESSION_KEY='rodada-guest-prototype-p0-20261016';
+function persistDemoSession(){
+ if(typeof window==='undefined'||!window.sessionStorage)return;
+ try{if(S.hasJoined)saveActiveTab();window.sessionStorage.setItem(DEMO_SESSION_KEY,JSON.stringify(S))}catch(err){}
+}
+function restoreDemoSession(){
+ if(typeof window==='undefined'||!window.sessionStorage)return false;
+ try{
+   const raw=window.sessionStorage.getItem(DEMO_SESSION_KEY);
+   if(!raw)return false;
+   const data=JSON.parse(raw);
+   if(!data||!['mesa','ficha'].includes(data.mode)||!Array.isArray(data.orders)||!Array.isArray(data.payments))return false;
+   S={...fresh(),...data};
+   S.tabs=typeof data.tabs==='object'&&data.tabs?data.tabs:{};
+   S.paymentIntents=Array.isArray(data.paymentIntents)?data.paymentIntents:[];
+   S.authorizedTabKeys=Array.isArray(data.authorizedTabKeys)?data.authorizedTabKeys:[];
+   const pending=S.paymentIntents.find(p=>p.status==='pending'&&p.tabKey===(S.tabKey||'ficha'));
+   if(pending)S.checkout=pending;
+   return true;
+ }catch(err){return false}
+}
+function paymentStatusBanner(){
+ const c=unresolvedPayment();if(!c||!S.hasJoined)return '';
+ return `<button class="payment-resume-banner" onclick="resumePendingPayment()" aria-label="Consultar pagamento pendente">
+ <span><strong>◷ Pagamento em verificação</strong><small>${money(c.amount)} · ${c.method==='PIX'?'Pix':'Cartão'} simulado</small></span><b>Verificar ›</b></button>`;
+}
 function render(opts={}){
  const scroller=el('view'),oldscroll=scroller.scrollTop;
- el('header').innerHTML=header();el('demo-mode').innerHTML=renderModeSwitch();el('alert').innerHTML=S.unknownAck?'<div class="alertbar">Envio sem confirmação · verifique o pedido.</div>':S.online?'':`<div class="alertbar">⚡ Sem conexão · pedido não enviado.</div>`;
+ el('header').innerHTML=header();el('demo-mode').innerHTML=renderModeSwitch();el('alert').innerHTML=paymentStatusBanner()+(S.unknownAck?'<div class="alertbar">Envio sem confirmação · verifique o pedido.</div>':S.online?'':`<div class="alertbar">⚡ Sem conexão · pedido não enviado.</div>`);
  scroller.innerHTML=S.scene==='entry'?renderEntry():S.scene==='home'?renderHome():S.scene==='catalog'?renderCatalog():S.scene==='ficha'?renderFicha():renderAccount();
  el('nav').innerHTML=nav();
  el('actionbar').innerHTML=S.scene==='account'&&balance()>0?`<button class="btn" onclick="S.modal='payment-options';render()">PAGAR AGORA · ${money(balance())} →</button>`:S.scene==='catalog'&&cartCount()>0?`<button class="btn" onclick="S.modal='cart';render()"><span>REVISAR PEDIDO · ${cartCount()} ${cartCount()===1?'ITEM':'ITENS'}</span><span style="margin-left:auto" class="mono">${money(calcCart())}</span></button>`:S.scene==='entry'&&S.tableState!=='DIRTY'&&S.tableState!=='CLEANING'&&!S.wrong?`<button class="btn" onclick="enter()">${isFicha()?'ABRIR MINHA FICHA':S.multiTab?'ESCOLHER COMANDA':S.entryMode==='busy'?'ENTRAR NA MESA':'VER CARDÁPIO'} →</button>`:'';
@@ -1047,9 +1081,11 @@ function render(opts={}){
  el('offlineBtn').textContent=S.online?'⚡ Desligar conexão':'✓ Restaurar conexão';
  el('st-table').textContent=isFicha()?'Sem mesa':{AVAILABLE:'Livre',OCCUPIED:'Ocupada',DIRTY:'Aguardando limpeza',CLEANING:'Limpando'}[S.tableState]||S.tableState;
  el('st-people').textContent=S.participants.length+' participante'+(S.participants.length===1?'':'s');el('st-orders').textContent=S.orders.length+' pedido'+(S.orders.length===1?'':'s');el('st-balance').textContent=money(balance());
+ persistDemoSession();
 }
 if(typeof window!=='undefined'){
  const demoHash=window.location?.hash?.toLowerCase();
+ if(!demoHash||demoHash==='#mesa'||demoHash==='#ficha')restoreDemoSession();
  if(demoHash==='#ficha'){S.mode='ficha';S.hasJoined=true;S.scene='ficha'}
  else if(demoHash==='#pay'){seedSelfPayDemo()}
  else if(demoHash==='#partial'){seedPartialDemo()}
