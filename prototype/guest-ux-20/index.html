@@ -350,7 +350,8 @@ function seedNoPhone(){
 }
 function waiterOrderWithoutPhone(){
  S.staffFallback=true;
- S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='busy';S.orders.push({id:'#185',source:'STAFF',status:'Recebido',items:[makeItem('heineken',2,'','staff')]});
+ S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='busy';S.orderCount++;
+ S.orders.push({id:'#'+S.orderCount,source:'STAFF',status:'Recebido',items:[makeItem('heineken',2,'','staff')]});
  S.modal='no-phone-done';render()
 }
 function guestLaterJoins(){
@@ -540,6 +541,8 @@ function submitOrderWithPolicy(items,source){
 function resumePaidOrder(){
  if(!S.pendingOrder)return false;
  if(!S.online||S.accountClosed){S.modal='order-after-payment';render();return false}
+ const drift=checkDraftForUpdates(S.pendingOrder.items);
+ if(drift.length){S.pendingOrderNeedsReview=true;S.modal='order-after-payment';render();return false}
  const needed=requiredToContinue(S.pendingOrder.total);
  if(needed>0){S.checkout=null;S.modal='payment-needed';render();return false}
  const intent=S.pendingOrder;
@@ -581,6 +584,11 @@ function failDemoPayment(){
 function retryDemoPayment(){
  if(!S.checkout||S.checkout.status!=='failed')return;
  S.checkout.status='select';S.modal='payment-method';render()
+}
+function reviewPendingOrder(){
+ if(!S.pendingOrder)return;
+ const source=S.pendingOrder.source;S.pendingOrder=null;S.pendingOrderNeedsReview=false;
+ S.modal=source==='repeat'?'repeat':'cart';S.scene=source==='repeat'?'home':'catalog';render();
 }
 function cancelDemoCheckout(){
  S.checkout=null;
@@ -890,7 +898,7 @@ else if(m==='cart-changes'){
  </div>`).join('')}<p class="sim-note">Os outros itens continuam no pedido. Nada foi enviado.</p>`;
  footer=`<button class="btn" onclick="acceptDraftUpdates()">Atualizar meu pedido</button><button class="btn ghost" onclick="S.modal=S.cartValidation?.source==='repeat'?'repeat':'cart';render()">Voltar sem alterar</button>`;
 }
-else if(m==='cart'){title='Seu pedido';body=S.cart.length?`${S.cart.map((x,i)=>`<div class="orderline"><div style="flex:1"><b style="font-size:14px">${esc(x.name)} ${x.variant?'· '+esc(x.variant):''}</b><p class="small muted">${money(x.price)} cada</p></div><div class="qty"><button aria-label="Remover uma unidade" onclick="qtyCart(${i},-1)">−</button><span>${x.qty}</span><button aria-label="Adicionar uma unidade" onclick="qtyCart(${i},1)">+</button></div></div>`).join('')}<div class="divider"></div><div class="totalrow"><strong>Total</strong><b class="big-price mono">${money(calcCart())}</b></div><p class="cart-note">Vai para ${isFicha()?'sua ficha '+esc(S.fichaCode):'a conta da Mesa 08'}.</p>${S.feeConfig.coverCents>0?`<p class="fee-tiny">Couvert de ${money(S.feeConfig.coverCents)} por pessoa na conta.</p>`:''}${S.feeConfig.serviceRate?'<p class="fee-tiny">Serviço opcional na conta.</p>':''}`:`<p class="lead">Nenhum item adicionado.</p>`;footer=`<button class="btn" ${!S.cart.length||!S.online?'disabled':''} onclick="sendCart()">Enviar pedido · ${money(calcCart())}</button><button class="btn ghost" onclick="S.modal=null;S.scene='catalog';render()">Continuar escolhendo</button>`}
+else if(m==='cart'){title='Seu pedido';body=S.cart.length?`${S.cart.map((x,i)=>`<div class="orderline"><div style="flex:1"><b style="font-size:14px">${esc(x.name)} ${x.variant?'· '+esc(x.variant):''}</b><p class="small muted">${money(x.price)} cada</p></div><div class="qty"><button aria-label="Remover uma unidade" onclick="qtyCart(${i},-1)">−</button><span>${x.qty}</span><button aria-label="Adicionar uma unidade" onclick="qtyCart(${i},1)">+</button></div></div>`).join('')}<div class="divider"></div><div class="totalrow"><strong>Total</strong><b class="big-price mono">${money(calcCart())}</b></div><p class="cart-note">Vai para ${isFicha()?'sua ficha '+esc(S.fichaCode):'a conta da ${esc(tableName())}'}.</p>${S.feeConfig.coverCents>0?`<p class="fee-tiny">Couvert de ${money(S.feeConfig.coverCents)} por pessoa na conta.</p>`:''}${S.feeConfig.serviceRate?'<p class="fee-tiny">Serviço opcional na conta.</p>':''}`:`<p class="lead">Nenhum item adicionado.</p>`;footer=`<button class="btn" ${!S.cart.length||!S.online?'disabled':''} onclick="sendCart()">Enviar pedido · ${money(calcCart())}</button><button class="btn ghost" onclick="S.modal=null;S.scene='catalog';render()">Continuar escolhendo</button>`}
 else if(m==='orders'){title=isFicha()?'Pedidos da ficha':'Pedidos da mesa';body=S.orders.length?`${S.orders.slice().reverse().map(o=>`<div class="panel" style="margin-bottom:10px"><div class="row between"><b>Pedido ${o.id}${o.source==='STAFF'?' · Garçom':''}</b><span class="statuspill ${o.status.startsWith('Entregue')?'success':'warning'}">${esc(o.status)}</span></div><div style="margin-top:12px">${o.items.map(x=>`<div class="row between" style="margin-top:8px"><span class="small">${x.qty}× ${esc(x.name)}</span><span class="amount muted-amt">${money(x.price*x.qty)}</span></div>`).join('')}</div>${canRequestChange(o)?`<button class="inline-link" onclick="S.modal='order-change';S.changeOrderId='${o.id}';render()">Algo errado com o pedido? ›</button>`:''}${orderRequest(o.id)?`<p class="order-request-label">${orderRequest(o.id).status==='requested'?'Solicitação enviada à equipe':orderRequest(o.id).status==='accepted'?'✓ Cancelamento confirmado':'Equipe vai conferir sua solicitação'}</p>`:''}${o.status==='Pronto / chegando'?`<button class="btn ghost smallbtn" style="margin-top:12px" onclick="oStatus('${o.id}','Entregue (cliente confirmou)')">Já recebi este pedido ✓</button>`:''}</div>`).join('')}`:`<p class="lead">Nenhum pedido ainda.</p>`;footer=`<button class="btn ghost" onclick="S.modal=null;render()">Voltar</button>`}
 else if(m==='repeat'){title='Mais uma rodada';body=`${S.repeated.map((x,i)=>`<div class="repeatline"><input class="check" type="checkbox" ${x.checked?'checked':''} aria-label="Repetir ${esc(x.name)}" onchange="S.repeated[${i}].checked=this.checked;render()"><div><b style="font-size:13px">${esc(x.name)}</b><div class="small muted">${money(x.price)} cada</div></div><div class="qty"><button onclick="repeatQty(${i},-1)" aria-label="Diminuir">−</button><span>${x.qty}</span><button onclick="repeatQty(${i},1)" aria-label="Aumentar">+</button></div></div>`).join('')}<div class="totalrow" style="margin-top:15px"><b>Total</b><b class="big-price mono">${money(S.repeated.filter(x=>x.checked).reduce((a,x)=>a+x.qty*x.price,0))}</b></div>`;footer=`<button class="btn amberbtn" ${!S.repeated.some(x=>x.checked)||!S.online?'disabled':''} onclick="confirmRepeat()">Confirmar nova rodada →</button>`}
 
@@ -929,8 +937,8 @@ else if(m==='payment-failed'){
 }
 else if(m==='order-after-payment'){
  title='Pagamento confirmado';
- body=`<p class="lead">O pagamento foi registrado nesta simulação, mas seu pedido ainda não foi enviado.</p><p class="sim-note">Verifique a conexão ou peça ajuda à equipe.</p>`;
- footer=`<button class="btn" onclick="resumePaidOrder()">Tentar enviar pedido</button><button class="btn ghost" onclick="S.modal='help';render()">Pedir ajuda à equipe</button>`;
+ body=`<p class="lead">O pagamento foi registrado nesta simulação, mas seu pedido ainda não foi enviado.</p><p class="sim-note">${S.pendingOrderNeedsReview?'Preço ou disponibilidade mudou. Confira os itens antes de tentar novamente.':'Confira a conexão ou peça ajuda à equipe.'}</p>`;
+ footer=`${S.pendingOrderNeedsReview?'<button class="btn" onclick="reviewPendingOrder()">Revisar pedido</button>':'<button class="btn" onclick="resumePaidOrder()">Tentar enviar pedido</button>'}<button class="btn ghost" onclick="S.modal='help';render()">Pedir ajuda à equipe</button>`;
 }
 else if(m==='payment-options'){title='Pagar agora';body=`<div class="payout" style="margin:0 0 14px"><span class="micro">Saldo ${isFicha()?'da ficha':'da mesa'}</span><div class="account-total mono" style="margin-bottom:0">${money(balance())}</div></div>${[['pick','▣','Escolher meus itens','Selecione itens'],...(!isFicha()?[['equal','👥','Dividir igualmente','Por pessoa']]:[]),['amount','↗','Pagar um valor','Valor livre'],['all','✓','Pagar tudo','Quitar saldo']].map(([id,ic,t,d])=>`<button class="option" onclick="startPayment('${id}')"><span class="ico">${ic}</span><span><strong>${t}</strong><small>${d}</small></span><span style="margin-left:auto;color:var(--accent)">›</span></button>`).join('')}`}
 else if(m==='payment-pick'){title='Escolher meus itens';const list=linesOwing();body=`${back('payment-options')}${list.slice().sort((a,b)=>(a.owner===S.actor?-1:0)-(b.owner===S.actor?-1:0)).map(x=>`<label class="selection"><input class="check" type="checkbox" ${S.selectedLines.includes(x.id)?'checked':''} onchange="togglePick('${x.id}',this.checked)"><span class="selection-info"><b style="font-size:13px">${x.qty}× ${esc(x.name)}</b><small style="display:block">${x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner))}</small></span><b class="amount">${money(x.owing)}</b></label>`).join('')}<p class="help-text">Cada seleção inclui o saldo pendente do item.</p>`;footer=`<div class="totalrow" style="margin-bottom:11px"><b>Selecionado</b><b class="amount">${money(selectionAmount())}</b></div><button class="btn" ${!selectionAmount()?'disabled':''} onclick="previewPayment()">Continuar →</button>`}
