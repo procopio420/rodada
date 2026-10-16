@@ -24,6 +24,20 @@ h2{font-size:18px;font-weight:800;letter-spacing:-.025em;margin:0}
 p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-size:14px}
 .sectionhead{display:flex;align-items:center;justify-content:space-between;margin:27px 0 13px}
 .sectionhead small{color:var(--faint);font:700 11px JetBrains,monospace}
+.now-title{font-size:28px;line-height:1.12;margin:0 0 8px}.now-summary{color:var(--muted);font-size:13px;line-height:1.45;margin-bottom:13px}
+.queuehead{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px;gap:12px}.queuehead h2{font-size:17px}.queuehead small{color:var(--faint);font:700 11px JetBrains,monospace}
+.queueitem{display:block;width:100%;min-height:94px;text-align:left;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--paper)}
+.queueitem:focus-visible{border-radius:6px}
+.queue-top{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:820;color:var(--muted)}
+.queue-type{color:var(--amber)}.queue-type.bill{color:var(--blue)}
+.queue-title{display:block;margin-top:7px;font-size:17px;line-height:1.3;font-weight:850;letter-spacing:-.015em}
+.queue-detail{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px;color:var(--muted);font-size:12px}.queue-detail strong{color:var(--paper);font-size:12px}
+.queueitem:hover .queue-title{text-decoration:underline;text-decoration-color:var(--amber)}
+.queue-source{color:var(--faint);font-size:11px}
+.contextual-call{border-left:3px solid var(--amber);background:var(--panel);padding:13px 15px;margin-bottom:18px;border-radius:0 8px 8px 0}
+.contextual-call strong{display:block;font-size:14px}.contextual-call p{color:var(--muted);font-size:12px;margin:5px 0 8px}
+.contextual-call button{background:none;border:0;color:var(--amber);padding:8px 0;min-height:44px;font-size:13px;font-weight:800}
+
 .rowline{border-bottom:1px solid var(--line)}.rowline:first-child{border-top:1px solid var(--line)}
 .rowbtn{border:0;width:100%;background:none;color:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;min-height:62px}
 .rowbtn:hover .rowtitle{text-decoration:underline;text-decoration-color:var(--amber)}
@@ -136,7 +150,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
 ];
-var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:""};
+var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -157,12 +171,34 @@ function tabRow(t){return row('<button type="button" class="rowbtn" data-action=
 function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
 function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
+var demoCalls=[
+{id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Chamada pelo celular · comanda #1048",time:"há 1 min"},
+{id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12",summary:"Solicitou a conta",meta:"Origem da mesa · comanda não identificada",time:"há 3 min"}
+];
+function resolvedCallTarget(call){
+if(call.source==="guest"&&call.tabId){
+ var t=tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId});
+ if(t)return{screen:"tab",tab:t.id,table:t.table};
+}
+var table=tables.find(function(x){return x.id===call.tableId});
+return table?{screen:"table",table:table.id}:null;
+}
+function activeCallForTab(t){return state.activeCall&&state.activeCall.targetTabId===t.id?demoCalls.find(function(c){return c.id===state.activeCall.id}):null}
 function viewNow(){
-app.innerHTML=first("Seu turno")+'<h1>O que precisa<br>de você agora.</h1><p class="lede">Sem contadores competindo com a próxima ação.</p><div class="sectionhead"><h2>Próximas ações</h2><small>2 PENDÊNCIAS · EXEMPLO</small></div>'+
-row('<button type="button" class="rowbtn" data-action="table" data-id="12"><span><span class="rowtitle">Mesa 12 pediu atendimento</span><span class="sub">Toque para ver a mesa e suas comandas</span></span><span class="arrow">›</span></button>')+
-row('<button type="button" class="rowbtn" data-action="table" data-id="08"><span><span class="rowtitle">Mesa 08 · 2 comandas</span><span class="sub">Consultar e adicionar pedidos</span></span><span class="arrow">›</span></button>')+
-'<div class="sectionhead"><h2>Atalhos</h2></div>'+button("root-tables","Ver mesas e comandas","block ghost")+
-'<div class="notice">As chamadas acima são <strong>cenários fictícios</strong>. O protótipo não acompanha produção, fila real ou conectividade.</div>';
+app.innerHTML=first("Atendimento · fila operacional")+
+'<h1 class="now-title">Agora <span style="color:var(--amber)">·</span> 2 chamados</h1>'+
+'<p class="now-summary">Abra a tarefa no contexto certo. Entrar nela não significa assumir nem concluir o chamado.</p>'+
+'<div class="queuehead"><h2>Precisam de atenção</h2><small>EXEMPLOS</small></div>'+
+demoCalls.map(function(c){
+var direct=resolvedCallTarget(c)?.screen==="tab";
+return '<button type="button" class="queueitem" data-action="open-call" data-id="'+esc(c.id)+'" aria-label="'+esc(c.summary)+', '+esc(c.title)+', '+(direct?"abrir comanda":"abrir mesa")+'">'+
+'<span class="queue-top"><span class="queue-type '+(c.type==="BILL_REQUEST"?"bill":"")+'">'+(c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO")+'</span><span aria-hidden="true">·</span><span>'+esc(c.time)+'</span></span>'+
+'<span class="queue-title">'+esc(c.title)+'</span>'+
+'<span class="queue-detail"><span>'+esc(c.meta)+'</span><strong>'+(direct?"Abrir comanda ›":"Ver mesa ›")+'</strong></span></button>'
+}).join("")+
+'<div class="queuehead"><h2>Outras tarefas</h2><small>SIMULAÇÃO</small></div>'+
+'<div class="empty">Nenhum item pronto para entrega neste cenário de teste.</div>'+
+'<div class="notice">Esta é uma fila <strong>fictícia</strong>, sem vínculo com chamadas reais. Abrir não assume, conclui nem remove um chamado.</div>';
 commonNav()
 }
 function viewTables(){
@@ -192,6 +228,7 @@ var t=tab();if(!t){root("tables");return}
 var d=dcount();
 app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
+(activeCallForTab(t)?'<div class="contextual-call"><strong>Cliente chamou pelo celular</strong><p>Atendimento solicitado por '+esc(t.name)+' · Mesa '+esc(t.table)+'. Abrir a comanda não conclui a chamada.</p><button type="button" data-action="back-to-now">Voltar à fila de chamados →</button></div>':"")+
 '<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
 button("bill","Ver conta","ghost")+'</div></div>'+
@@ -272,9 +309,19 @@ var act=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
 if(act==="back"){goBack();return}
 if(act==="root-now"){root("now");return}
 if(act==="root-tables"){root("tables");return}
-if(act==="quick-order"){state.picking=true;state.chooseSearch="";screen("choose");return}
-if(act==="table"){state.table=id;screen("table");return}
-if(act==="tab"||act==="tab-direct"){state.tab=id;if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return}
+if(act==="quick-order"){state.activeCall=null;state.picking=true;state.chooseSearch="";screen("choose");return}
+if(act==="back-to-now"){root("now");return}
+if(act==="open-call"){
+ var c=demoCalls.find(function(x){return x.id===id});if(!c)return;
+ var target=resolvedCallTarget(c);if(!target)return;
+ state.activeCall={id:c.id,targetTabId:target.screen==="tab"?target.tab:null};
+ state.table=target.table;
+ if(target.tab)state.tab=target.tab;
+ screen(target.screen);
+ return;
+}
+if(act==="table"){state.activeCall=null;state.table=id;screen("table");return}
+if(act==="tab"||act==="tab-direct"){state.activeCall=null;state.tab=id;if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return}
 if(act==="new-table"){screen("create");return}
 if(act==="new-any"){state.table=null;screen("create");return}
 if(act==="catalog"){state.cat="Todos";state.catalogSearch="";screen("catalog");return}
