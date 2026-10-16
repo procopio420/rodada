@@ -214,7 +214,7 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({mode:'mesa',fichaCode:'FG84',scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false});
 let S=fresh();
 const savedModes={mesa:null,ficha:null};
 function setPrototypeMode(mode){
@@ -242,6 +242,90 @@ function calcCart(){return S.cart.reduce((s,x)=>s+x.qty*x.price,0)}
 function cartCount(){return S.cart.reduce((s,x)=>s+x.qty,0)}
 function currentPerson(){return S.participants.find(x=>x.id===S.actor)||S.participants[0]}
 function labelOwner(id){const p=S.participants.find(p=>p.id===id);return p?p.name:'Convidado'}
+
+/* Demo-only settlement and venue policy simulation. No payment gateway is called. */
+function accountCredit(){return Math.max(0,paid()-total())}
+function proposedOrderTotal(items){return items.reduce((s,it)=>s+it.qty*it.price,0)}
+function requiredToContinue(orderAmount){
+ const exposure=balance()+orderAmount-accountCredit();
+ if(S.policy==='PREPAID')return Math.max(0,exposure);
+ if(S.policy==='REQUIRE_PARTIAL')return Math.max(0,exposure-S.demoCreditThreshold);
+ return 0;
+}
+function applyAvailablePayments(){
+ // Advance/overpayment is real credit in the demo ledger, NOT payment on an as-yet-uncreated order.
+ const allocations=allocated();
+ const owing=allLines().map(x=>({id:x.id,unpaid:Math.max(0,x.qty*x.price-(allocations[x.id]||0))}));
+ for(const p of S.payments){
+   let remaining=p.amount-p.allocations.reduce((a,x)=>a+x.amount,0);
+   for(const line of owing){if(remaining<=0)break;if(!line.unpaid)continue;
+     const amount=Math.min(remaining,line.unpaid);p.allocations.push({lineId:line.id,amount});line.unpaid-=amount;remaining-=amount;
+   }
+ }
+}
+function setPolicy(policy){
+ if(!['WARN_ONLY','REQUIRE_PARTIAL','PREPAID'].includes(policy))return;
+ S.policy=policy;S.pendingOrder=null;S.checkout=null;S.modal=null;render();
+}
+function seedPartialDemo(){
+ const mode=S.mode;S=fresh();S.mode=mode;S.hasJoined=true;S.scene='catalog';
+ S.policy='REQUIRE_PARTIAL';if(mode==='mesa'){S.occupancy=true;S.tableState='OCCUPIED'}
+ S.orders=[{id:'#185',status:'Recebido',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]}];S.orderCount=185;
+ S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];
+ S.modal='cart';render();
+}
+function submitOrderWithPolicy(items,source){
+ if(!items.length||!S.online||S.accountClosed){flash('Pedido não enviado. Confira a conexão e a conta.');return false}
+ const needed=requiredToContinue(proposedOrderTotal(items));
+ if(needed>0){S.pendingOrder={source,items:items.map(x=>({...x})),total:proposedOrderTotal(items)};
+    S.checkout=null;S.modal='payment-needed';render();return false}
+ const confirmed=putOrder(items);
+ if(confirmed){applyAvailablePayments();if(source==='cart')S.cart=[];S.pendingOrder=null;render()}
+ return confirmed;
+}
+function resumePaidOrder(){
+ if(!S.pendingOrder)return false;
+ if(!S.online||S.accountClosed){S.modal='order-after-payment';render();return false}
+ const needed=requiredToContinue(S.pendingOrder.total);
+ if(needed>0){S.checkout=null;S.modal='payment-needed';render();return false}
+ const intent=S.pendingOrder;
+ const confirmed=putOrder(intent.items);
+ if(confirmed){applyAvailablePayments();if(intent.source==='cart')S.cart=[];S.pendingOrder=null;return true}
+ S.modal='order-after-payment';render();return false
+}
+function checkoutFromBlock(){
+ if(!S.pendingOrder)return;
+ const amount=requiredToContinue(S.pendingOrder.total);
+ if(amount<=0){resumePaidOrder();return}
+ S.checkout={purpose:'unlock',amount,method:null,status:'select'};S.modal='payment-method';render();
+}
+function choosePaymentMethod(method){
+ if(!S.checkout||!['PIX','CARD'].includes(method))return;
+ if(!S.online){flash('Sem conexão. Pagamento não iniciado.');return}
+ S.checkout.method=method;S.checkout.status='pending';S.modal='payment-pending';render();
+}
+function approveDemoPayment(){
+ const c=S.checkout;
+ if(!c||c.status!=='pending'||!S.online){flash('Pagamento não confirmado.');return}
+ c.status='confirmed';const amount=c.purpose==='unlock'?c.amount:Math.min(c.amount,balance());
+ if(amount<=0){S.modal='account';S.checkout=null;render();return}
+ S.paymentSuccess=registerPayment(amount,S.actor,c.purpose==='unlock');
+ if(c.purpose==='unlock'){if(resumePaidOrder()){S.checkout=null;return}return}
+ S.checkout=null;S.modal='payment-success';render()
+}
+function failDemoPayment(){
+ if(!S.checkout||S.checkout.status!=='pending')return;
+ S.checkout.status='failed';S.modal='payment-failed';render();
+}
+function retryDemoPayment(){
+ if(!S.checkout||S.checkout.status!=='failed')return;
+ S.checkout.status='select';S.modal='payment-method';render()
+}
+function cancelDemoCheckout(){
+ S.checkout=null;
+ S.modal=S.pendingOrder?'payment-needed':null;
+ render();
+}
 function reset(){S=fresh();render()}
 function isFicha(){return S.mode==='ficha'}
 function placeName(){return isFicha()?'Ficha '+S.fichaCode:'Mesa 08'}
@@ -313,22 +397,21 @@ function requestAssistance(what){S.requestSent=true;S.checkoutRequested=what==='
 function startPayment(mode){if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
 function selectionAmount(){const owed=linesOwing();return owed.filter(x=>S.selectedLines.includes(x.id)).reduce((s,x)=>s+x.owing,0)}
 function paymentAmount(){if(S.paymentMode==='pick')return selectionAmount();if(S.paymentMode==='equal')return Math.ceil(balance()/S.paymentCount);if(S.paymentMode==='amount')return Math.round(Number((S.paymentValue||'').replace(',','.'))*100);if(S.paymentMode==='all')return balance();return 0}
-function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;S.modal='payment-review';render()}
-function registerPayment(amount,owner){
+function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;S.checkout={purpose:'voluntary',amount,method:null,status:'select'};S.modal='payment-method';render()}
+function registerPayment(amount,owner,allowCredit=false){
  let remaining=Math.min(amount,balance());const allocations=[];
  const order=owner===S.actor&&S.paymentMode==='pick'?linesOwing().filter(x=>S.selectedLines.includes(x.id)):linesOwing();
  for(const x of order){if(remaining<=0)break;const a=Math.min(remaining,x.owing);allocations.push({lineId:x.id,amount:a});remaining-=a;}
  if(remaining>0){for(const x of linesOwing().filter(x=>!order.some(y=>y.id===x.id))){if(remaining<=0)break;const a=Math.min(remaining,x.owing);allocations.push({lineId:x.id,amount:a});remaining-=a;}}
- S.payments.push({id:'pay'+Math.random().toString(36).slice(2,8),actor:owner||S.actor,amount:amount-remaining,allocations});
- return amount-remaining
+ const paidAmount=allowCredit?amount:amount-remaining;
+ S.payments.push({id:'pay'+Math.random().toString(36).slice(2,8),actor:owner||S.actor,amount:paidAmount,allocations});
+ return paidAmount
 }
-function confirmPayment(){if(!S.online){flash('Sem conexão para confirmar um pagamento.');return}
- const amount=Math.min(S.previewAmount||0,balance());if(amount<=0){flash('A conta já foi atualizada. Confira o saldo.');S.modal=null;render();return}
- S.paymentSuccess=registerPayment(amount,S.actor);S.modal='payment-success';render()}
+function confirmPayment(){approveDemoPayment()}
 function togglePick(id,checked){if(checked&&!S.selectedLines.includes(id))S.selectedLines.push(id);if(!checked)S.selectedLines=S.selectedLines.filter(x=>x!==id);render()}
 function repeatLast(){const o=S.orders.at(-1);if(!o){flash('Nenhum pedido anterior.');return}if(S.accountClosed){flash('Conta já encerrada.');return}S.repeated=o.items.map(x=>({...x,checked:true,qty:x.qty}));S.modal='repeat';render()}
 function repeatQty(i,d){const x=S.repeated[i];if(!x)return;x.qty=Math.max(1,Math.min(99,x.qty+d));render()}
-function confirmRepeat(){const selected=S.repeated.filter(x=>x.checked);if(!selected.length)return;putOrder(selected.map(x=>({...x,owner:S.actor})));}
+function confirmRepeat(){const selected=S.repeated.filter(x=>x.checked);if(!selected.length)return;submitOrderWithPolicy(selected.map(x=>({...x,owner:S.actor})),'repeat')}
 function setCategory(v){S.category=v;S.query='';render()}
 function queryCatalog(v){S.query=v;render({preserveView:true,focusSearch:true})}
 
@@ -394,7 +477,7 @@ else if(m==='payment-success'){title='Pagamento confirmado';body=`<div class="su
  else return '';
  return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this){S.modal=null;render()}"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="S.modal=null;render()">×</button></div><div class="sheet-body">${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
 }
-function sendCart(){if(!S.cart.length)return;if(!S.online){flash('Sem conexão. O pedido permanece no carrinho.');return}const items=S.cart.map(x=>makeItem(x.productId,x.qty,x.variant,S.actor));if(putOrder(items))S.cart=[]}
+function sendCart(){if(!S.cart.length)return;if(!S.online){flash('Sem conexão. O pedido permanece no carrinho.');return}const items=S.cart.map(x=>makeItem(x.productId,x.qty,x.variant,S.actor));submitOrderWithPolicy(items,'cart')}
 function saveName(){const name=el('nickname')?.value?.trim()?.slice(0,24);if(name){currentPerson().name=name;}S.modal='participants';render()}
 function oStatus(id,status){const o=S.orders.find(x=>x.id===id);if(o){o.status=status;flash('Recebimento confirmado pelo cliente (simulação).')}render()}
 function render(opts={}){
