@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       review_pr_number:
-        description: "PR number with an independent GitHub R3 approval on the exact tested HEAD; blank remains NO-GO"
+        description: "PR number with a verified independent human or qualified GitHub App R3 on exact tested HEAD; blank remains NO-GO"
         required: false
         type: string
   # Keep expensive Android emulator coverage opt-in for regular app changes.
@@ -48,6 +48,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -237,6 +238,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           R3_PR_NUMBER: ${{ inputs.review_pr_number }}
+          # Managed only by repository admins. Unknown bots cannot self-enroll.
+          RODADA_R3_QUALIFIED_AGENT_REVIEWERS: ${{ vars.RODADA_R3_QUALIFIED_AGENT_REVIEWERS }}
         run: |
           python scripts/issue106_review_from_github.py --repo "$GITHUB_REPOSITORY" \
             --pr "$R3_PR_NUMBER" --sha "$RODADA_EVIDENCE_SHA" \
