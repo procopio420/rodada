@@ -183,7 +183,7 @@ var list=tabs.filter(function(x){return x.table===t.id});
 app.innerHTML=back()+first(t.zone)+'<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+list.length+' comanda'+(list.length===1?"":"s")+'</div></div>'+
 '<div class="sectionhead"><h2>Quem você vai atender?</h2></div>'+
 (list.length?list.map(tabRow).join(""):'<div class="empty">Sem comanda aberta nesta mesa. Abrir uma comanda é uma ação separada.</div>')+
-'<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost")+'</div>'+
+'<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost",t.status==="dirty"?"disabled title=\"Aguarde a limpeza da mesa\"":"")+'</div>'+
 '<div class="notice">Uma mesa pode ter várias comandas. Escolher a mesa <strong>não</strong> escolhe uma comanda automaticamente.</div>';
 setFoot("")
 }
@@ -261,7 +261,7 @@ var act=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
 if(act==="back"){goBack();return}
 if(act==="root-now"){root("now");return}
 if(act==="root-tables"){root("tables");return}
-if(act==="quick-order"){if(state.tab){screen("catalog")}else{screen("choose")}return}
+if(act==="quick-order"){screen("choose");return}
 if(act==="table"){state.table=id;screen("table");return}
 if(act==="tab"){state.tab=id;screen("tab");return}
 if(act==="new-table"){screen("create");return}
@@ -283,7 +283,7 @@ if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStar
 document.addEventListener("submit",function(e){
 if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
 var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,last:[]});
-state.tab=id;state.screen="tab";state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
+if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen="tab";state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
 render();
