@@ -27,7 +27,7 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .rowline{border-bottom:1px solid var(--line)}.rowline:first-child{border-top:1px solid var(--line)}
 .rowbtn{border:0;width:100%;background:none;color:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;min-height:62px}
 .rowbtn:hover .rowtitle{text-decoration:underline;text-decoration-color:var(--amber)}
-.rowtitle{font-weight:820;font-size:16px;line-height:1.25}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.rowtitle{display:block;font-weight:820;font-size:16px;line-height:1.25;overflow-wrap:anywhere}.sub{display:block;font-size:12px;color:var(--muted);margin-top:4px}.rowbtn>span:first-child{min-width:0;flex:1}.rowbtn>span:last-child{flex-shrink:0}
 .mono{font-family:JetBrains,ui-monospace,monospace;font-variant-numeric:tabular-nums}.tiny{font-size:12px}
 .arrow{color:var(--faint);font-size:22px}
 .search{display:flex;align-items:center;gap:9px;background:var(--raised);border:1px solid var(--line2);border-radius:10px;padding:0 12px;height:52px;margin:17px 0}.search svg{color:var(--muted)}.search input{border:0;outline:none;background:none;color:var(--paper);width:100%;min-width:0}.search input::placeholder{color:var(--faint)}.search:focus-within{border-color:var(--amber)}
@@ -136,7 +136,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
 ];
-var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053};
+var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:""};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -149,7 +149,7 @@ function row(x){return '<div class="rowline">'+x+"</div>"}
 function button(action,label,cls,extra){return '<button type="button" class="btn '+(cls||"")+'" data-action="'+action+'" '+(extra||"")+">"+label+"</button>"}
 function back(){return '<button type="button" class="back" data-action="back"><span aria-hidden="true">‹</span> Voltar</button>'}
 function screen(s){state.stack.push(state.screen);state.screen=s;state.toast="";render();window.scrollTo({top:0,behavior:"instant"})}
-function root(s){state.screen=s;state.stack=[];state.toast="";render();window.scrollTo(0,0)}
+function root(s){state.screen=s;state.stack=[];state.toast="";state.picking=false;render();window.scrollTo(0,0)}
 function goBack(){state.screen=state.stack.pop()||"tables";state.toast="";render();window.scrollTo(0,0)}
 function first(s){return '<div class="eyebrow">'+s+"</div>"}
 function tableCard(t){var n=tabs.filter(function(x){return x.table===t.id}).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
@@ -181,10 +181,10 @@ function viewTable(){
 var t=tables.find(function(x){return x.id===state.table});if(!t){root("tables");return}
 var list=tabs.filter(function(x){return x.table===t.id});
 app.innerHTML=back()+first(t.zone)+'<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+list.length+' comanda'+(list.length===1?"":"s")+'</div></div>'+
-'<div class="sectionhead"><h2>Quem você vai atender?</h2></div>'+
+'<div class="sectionhead"><h2>'+(state.picking?"Qual comanda recebe o pedido?":"Quem você vai atender?")+'</h2></div>'+
 (list.length?list.map(tabRow).join(""):'<div class="empty">Sem comanda aberta nesta mesa. Abrir uma comanda é uma ação separada.</div>')+
 '<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost",t.status==="dirty"?"disabled title=\"Aguarde a limpeza da mesa\"":"")+'</div>'+
-'<div class="notice">Uma mesa pode ter várias comandas. Escolher a mesa <strong>não</strong> escolhe uma comanda automaticamente.</div>';
+(!state.picking?'<div class="notice">Uma mesa pode ter várias comandas. Escolher a mesa <strong>não</strong> escolhe uma comanda automaticamente.</div>':"");
 setFoot("")
 }
 function viewTab(){
@@ -249,8 +249,19 @@ app.innerHTML=back()+first("Ação explícita")+'<h1>Abrir comanda.</h1><p class
 setFoot("")
 }
 function viewChoose(){
-app.innerHTML=back()+first("Escolher antes de pedir")+'<h1>Qual comanda?</h1><p class="lede">O botão + não cria comanda nem envia itens sozinho.</p>'+
-tabs.map(tabRow).join("")+'<div style="margin-top:19px">'+button("new-any","Abrir uma nova comanda","block ghost")+'</div>';setFoot("")
+var q=state.chooseSearch.toLocaleLowerCase("pt-BR").trim();
+var visible=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
+var matches=q?tabs.filter(function(t){return (t.name+" "+t.ref+" "+(t.table||"balcão")).toLocaleLowerCase("pt-BR").includes(q)}):[];
+var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
+app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p class="lede">Escolha a mesa e depois a comanda. Também dá para buscar o cliente diretamente.</p>'+
+'<label class="search"><span aria-hidden="true">⌕</span><input id="choose-search" type="search" autocomplete="off" placeholder="Mesa, cliente ou comanda" value="'+esc(state.chooseSearch)+'" aria-label="Buscar mesa ou comanda"></label>'+
+(q&&matches.length?'<div class="sectionhead"><h2>Comandas encontradas</h2><small>'+matches.length+'</small></div>'+matches.map(function(t){return row('<button type="button" class="rowbtn" data-action="tab-direct" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</span></span><span class="arrow">›</span></button>')}).join(""):"")+
+'<div class="sectionhead"><h2>Mesas</h2><small>'+visible.length+' ENCONTRADAS</small></div>'+
+(visible.length?'<div class="tables">'+visible.map(tableCard).join("")+'</div>':'<div class="empty">Nenhuma mesa corresponde à busca.</div>')+
+'<div class="sectionhead"><h2>Balcão · sem mesa</h2></div>'+
+(loose.length?loose.map(function(t){return row('<button type="button" class="rowbtn" data-action="tab-direct" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+' · Sem mesa</span></span><span class="arrow">›</span></button>')}).join(""):'<div class="empty">Nenhuma comanda sem mesa encontrada.</div>')+
+'<div style="margin-top:20px">'+button("new-any","＋ Abrir comanda sem mesa","block ghost")+'</div>';
+setFoot("")
 }
 function render(){
 if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
@@ -261,9 +272,9 @@ var act=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
 if(act==="back"){goBack();return}
 if(act==="root-now"){root("now");return}
 if(act==="root-tables"){root("tables");return}
-if(act==="quick-order"){screen("choose");return}
+if(act==="quick-order"){state.picking=true;state.chooseSearch="";screen("choose");return}
 if(act==="table"){state.table=id;screen("table");return}
-if(act==="tab"){state.tab=id;screen("tab");return}
+if(act==="tab"||act==="tab-direct"){state.tab=id;if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return}
 if(act==="new-table"){screen("create");return}
 if(act==="new-any"){state.table=null;screen("create");return}
 if(act==="catalog"){state.cat="Todos";state.catalogSearch="";screen("catalog");return}
@@ -274,16 +285,17 @@ if(act==="category"){state.cat=id;render();return}
 if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
 if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
-if(act==="submit"){var t=tab();if(!t||!dcount())return;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+if(act==="submit"){var t=tab();if(!t||!dcount())return;state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
 });
 document.addEventListener("input",function(e){
+if(e.target.id==="choose-search"){var value=e.target.value,position=e.target.selectionStart;state.chooseSearch=value;render();var next=document.getElementById("choose-search");if(next){next.focus();next.setSelectionRange(position,position)}}
 if(e.target.id==="table-search"){var value=e.target.value,position=e.target.selectionStart;state.search=value;render();var next=document.getElementById("table-search");if(next){next.focus();next.setSelectionRange(position,position)}}
 if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStart;state.catalogSearch=v;render();var n=document.getElementById("catalog-search");if(n){n.focus();n.setSelectionRange(p,p)}}
 });
 document.addEventListener("submit",function(e){
 if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
 var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,last:[]});
-if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen="tab";state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
+if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen=state.picking?"catalog":"tab";state.picking=false;state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
 render();
