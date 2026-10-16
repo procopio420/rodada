@@ -312,11 +312,40 @@ function seedStaffOrder(){
  S.orders=[{id:'#185',source:'STAFF',status:'Recebido',items:[makeItem('heineken',2,'','staff'),makeItem('batata',1,'','staff')]}];
  S.orderCount=185;render()
 }
+
+function seedDisputeDemo(){
+ S=fresh();S.hasJoined=true;S.occupancy=true;S.tableState='OCCUPIED';S.scene='account';
+ S.orders=[{id:'#185',status:'Entregue (cliente confirmou)',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]}];
+ S.orderCount=185;registerPayment(1000,'you');S.modal='dispute-choose';render();
+}
+function beginDispute(kind,id){
+ const ref=kind==='payment'?S.payments.find(x=>x.id===id):allLines().find(x=>x.id===id);
+ if(!ref)return;
+ const exists=S.disputes.find(x=>x.refId===id);
+ if(exists){S.disputeFocus=exists.id;S.modal='dispute-track';render();return}
+ S.disputeTarget={kind,id,label:kind==='payment'?'Pagamento '+money(ref.amount):ref.name,amount:kind==='payment'?ref.amount:ref.price*ref.qty};
+ S.disputeReason=kind==='payment'?'Pagamento não reconhecido':'Item não reconhecido';
+ S.modal='dispute-start';render()
+}
+function submitDispute(){
+ const target=S.disputeTarget;if(!target)return;
+ if(S.disputes.some(x=>x.refId===target.id)){flash('Solicitação já registrada.');return}
+ const obj={id:'REQ-'+(S.disputes.length+1),refId:target.id,kind:target.kind,label:target.label,amount:target.amount,reason:S.disputeReason,status:'requested'};
+ S.disputes.push(obj);S.disputeFocus=obj.id;S.disputeTarget=null;S.modal='dispute-track';render()
+}
+function staffProcessDispute(){
+ const d=S.disputes.find(x=>x.status==='requested');if(!d){flash('Nenhuma contestação pendente.');return}
+ d.status='reviewing';S.disputeFocus=d.id;S.modal='dispute-track';render()
+}
+function staffRespondDispute(){
+ const d=S.disputes.find(x=>x.status==='reviewing');if(!d){flash('Nenhuma revisão em andamento.');return}
+ d.status='financial-check';S.disputeFocus=d.id;S.modal='dispute-track';render()
+}
 function seedNoPhone(){
  S=fresh();S.scene='entry';S.hasJoined=false;S.staffFallback=true;S.modal='no-phone';render()
 }
 function waiterOrderWithoutPhone(){
- if(!S.staffFallback)return;
+ S.staffFallback=true;
  S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='busy';S.orders.push({id:'#185',source:'STAFF',status:'Recebido',items:[makeItem('heineken',2,'','staff')]});
  S.modal='no-phone-done';render()
 }
@@ -594,6 +623,9 @@ function scenario(type){
  case 'move-confirm':staffConfirmMove();return;
  case 'staff-item':seedStaffOrder();return;
  case 'no-phone':seedNoPhone();return;
+ case 'dispute':seedDisputeDemo();return;
+ case 'dispute-review':staffProcessDispute();return;
+ case 'dispute-answer':staffRespondDispute();return;
  case 'multi-tab':seedMultipleTabs();return;
  case 'recovery':seedSessionRecovery();return;
  case 'change-request':seedChangeRequest();return;
