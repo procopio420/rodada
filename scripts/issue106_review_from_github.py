@@ -75,7 +75,9 @@ def required_scopes(number, fetch):
                     or name.startswith("scripts/issue106_review_")
                     or name.startswith("scripts/tests/test_issue106_review_")
                     or name.startswith("scripts/e2e_evidence")
-                    or name.startswith("scripts/build-issue106-report")):
+                    or name.startswith("scripts/build-issue106-report")
+                    or name.startswith("scripts/r3_chatgpt_reviewer")
+                    or name.startswith("scripts/tests/test_r3_chatgpt_reviewer")):
                 scopes.add("security")
                 matched = True
             if any(word in name for word in ("payment", "ledger", "cash", "refund", "financial", "stripe", "terminal")):
