@@ -178,7 +178,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",groupLeft:false};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -402,12 +402,67 @@ foot("apply-repeat","Revisar itens selecionados",!Object.values(chosen).some(fun
 }
 function viewBill(){
 var t=tab();if(!t){root("tables");return}
-app.innerHTML=back()+first("Conta · "+esc(t.ref))+'<h1>Conferir conta.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
-'<div class="billpeek"><span><label>Saldo da comanda</label><small>Valor demonstrativo · não vem da API</small></span><strong>'+money(t.balance)+'</strong></div>'+
-(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Cliente pediu a conta</strong><p>Solicitação vinculada à comanda '+esc(t.ref)+'. O saldo exibido é fictício. Abrir a conta não registra pagamento nem encerra o chamado.</p></div>':"")+
-'<div class="notice warn"><strong>Sem cobrança no protótipo.</strong> Valor apenas demonstrativo. Pagamentos e confirmação do saldo real exigem API, autorização e readback; o rascunho nunca entra nessa conta.</div>'+
-(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?button("complete-call","Simular solicitação de conta resolvida","block ghost"):'')+
-button("back",state.stack.length?"Voltar":"Voltar às mesas","block ghost");setFoot("")
+var closed=t.state==="CLOSED",receiptTotal=totalPaid(t);
+app.innerHTML=back()+first("Conta · "+esc(t.ref))+
+'<h1>'+(closed?"Conta encerrada.":"Conferir conta.")+'</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
+progress(closed?2:t.balance>0?0:2)+
+(state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Cliente pediu a conta</strong><p>Solicitação associada a '+esc(t.ref)+'. Abrir não equivale a receber ou concluir o chamado.</p></div>':"")+
+'<div class="settlement-summary"><small>Saldo ainda a receber · fictício</small><strong>'+money(t.balance)+'</strong><small>'+(closed?"Comanda já encerrada":t.balance===0?"Saldo zerado, pronto para revisão final":"Os recebimentos podem ser parciais")+'</small></div>'+
+'<div class="sectionhead"><h2>Resumo da conta</h2><small>DEMONSTRAÇÃO</small></div>'+
+'<div class="receiptline"><small>Consumo confirmado</small><strong>'+money(t.balance+receiptTotal)+'</strong></div>'+
+'<div class="receiptline"><small>Recebido manualmente (simulado)</small><strong>'+money(receiptTotal)+'</strong></div>'+
+'<div class="receiptline"><small>Saldo restante</small><strong>'+money(t.balance)+'</strong></div>'+
+(t.receipts.length?'<div class="sectionhead"><h2>Recebimentos simulados</h2></div>'+t.receipts.map(function(r){return '<div class="receiptline"><small>'+esc(methodLabel(r.method))+'</small><strong>'+money(r.amount)+'</strong></div>'}).join(""):"")+
+(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado nesta comanda.</strong> Confira ou descarte o rascunho antes de encerrá-la. O valor não faz parte do saldo.</div>':"")+
+'<div class="notice"><strong>Sem pagamento real.</strong> No protótipo, dinheiro, Pix e cartão são só registros fictícios. Na implementação, a confirmação depende do meio de pagamento, permissões, ledger, idempotência e readback do servidor.</div>'+
+(closed?button("go-to-table","Ver mesa / liberar quando o grupo sair","block primary"):
+'<div class="stack">'+button("payment-open","Registrar recebimento (simulação)","block primary",t.balance<=0?"disabled":"")+
+button("close-review","Revisar encerramento","block ghost",!safeToClose(t)?"disabled":"")+'</div>')+
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div style="margin-top:12px">'+button("complete-call","Marcar pedido de conta resolvido (simulação)","block ghost")+'</div>':"");
+setFoot("")
+}
+function viewPayment(){
+var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0){goBack();return}
+app.innerHTML=back()+first("Recebimento manual · demonstração")+
+'<h1>Registrar valor.</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+' · Saldo '+money(t.balance)+'</p>'+
+progress(1)+
+'<div class="settlement-summary"><small>Restante nesta comanda</small><strong>'+money(t.balance)+'</strong><small>Pagamento parcial é permitido</small></div>'+
+'<div class="sectionhead"><h2>Como o cliente pagou?</h2></div>'+
+'<div class="payment-methods" role="group" aria-label="Meio de recebimento">'+["CASH","PIX","CARD"].map(function(m){return '<button type="button" data-action="payment-method" data-id="'+m+'" class="'+(state.paymentMethod===m?"selected":"")+'" aria-pressed="'+(state.paymentMethod===m)+'">'+esc(methodLabel(m))+'</button>'}).join("")+'</div>'+
+'<form id="receipt-form"><label class="inputlabel" for="pay-amount">Valor recebido (R$)</label>'+
+'<input class="field mono" id="pay-amount" required inputmode="decimal" autocomplete="off" value="'+esc(state.paymentAmount)+'" placeholder="Ex.: '+formatInput(t.balance)+'" aria-describedby="pay-help pay-error">'+
+'<p id="pay-help" class="help-text">Informe o valor efetivamente recebido. Até '+money(t.balance)+'. Não inclua troco no valor do pagamento.</p>'+
+(state.paymentError?'<div id="pay-error" class="notice warn" role="alert">'+esc(state.paymentError)+'</div>':"")+
+'<button type="submit" class="btn primary block" style="margin-top:22px">Registrar recebimento simulado</button></form>'+
+'<div class="notice warn">Apenas exercício visual. Nenhum cartão/Pix é cobrado e nenhum movimento de caixa ou Payment real é criado.</div>';
+setFoot("")
+}
+function viewClose(){
+var t=tab();if(!t){root("tables");return}
+app.innerHTML=back()+first("Encerramento · confirmação")+
+'<h1>Encerrar comanda?</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
+progress(2)+
+'<div class="settlement-summary"><small>Saldo remanescente</small><strong>'+money(t.balance)+'</strong><small>'+(safeToClose(t)?"Apta para encerramento simulado":"Existem pendências para resolver")+'</small></div>'+
+'<div class="sectionhead"><h2>Antes de encerrar</h2></div>'+
+'<div class="stage"><span class="index">01</span><div><strong>Saldo zerado</strong><small>'+money(t.balance)+' a receber</small></div></div>'+
+'<div class="stage"><span class="index">02</span><div><strong>Sem pedidos não enviados</strong><small>'+(busyDraft(t)?"Existe rascunho desta comanda":"Nenhum rascunho pendente")+'</small></div></div>'+
+'<div class="stage"><span class="index">03</span><div><strong>A mesa continua ocupada</strong><small>Fechar comanda não libera o grupo nem encerra outras comandas</small></div></div>'+
+'<div class="notice warn"><strong>Simulação.</strong> Na produção, somente o servidor confirma o fechamento da comanda. O caixa/turno não é fechado aqui.</div>';
+foot("confirm-close","Confirmar encerramento simulado",!safeToClose(t))
+}
+function viewRelease(){
+var t=tableBy(state.table);if(!t){root("tables");return}
+var opened=openAt(t.id),delivery=deliveries().filter(function(c){return c.tableId===t.id});
+app.innerHTML=back()+first("Ciclo da mesa · confirmação")+
+'<h1>Liberar mesa '+esc(t.id)+'?</h1><p class="lede">A liberação acontece quando o grupo efetivamente sai, não ao pagar a última comanda.</p>'+
+'<div class="sectionhead"><h2>Conferência da ocupação</h2></div>'+
+'<div class="stage"><span class="index">01</span><div><strong>'+opened.length+' comanda(s) aberta(s)</strong><small>É preciso encerrar todas nesta jornada</small></div></div>'+
+'<div class="stage"><span class="index">02</span><div><strong>'+delivery.length+' entrega(s) pendentes</strong><small>Evite liberar o destino com pedidos prontos a caminho</small></div></div>'+
+'<div class="stage"><span class="index">03</span><div><strong>Revogação do QR desta ocupação</strong><small>O próximo grupo terá uma sessão nova após a limpeza</small></div></div>'+
+'<label class="run-choice" style="margin-top:18px"><input type="checkbox" id="group-left" '+(state.groupLeft?"checked":"")+'><span>Confirmo que o grupo saiu da mesa.</span></label>'+
+'<div class="notice">Liberar marca a mesa como <strong>aguardando limpeza</strong>. Não conclui a limpeza nem apaga o histórico das comandas.</div>';
+foot("confirm-release","Liberar mesa (simulação)",!readyForRelease(t)||!state.groupLeft)
 }
 function viewDelivery(){
 var c=currentCall(),t=tab();
@@ -444,7 +499,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="close")viewClose();else if(state.screen==="release")viewRelease();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
