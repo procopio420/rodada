@@ -53,3 +53,19 @@ P0 é o circuito **Agora → contexto → pedido confirmado → conta → saída
 Esta PR terá **somente arquivos de spec/plan/tasks/acceptance**. Não alterar API, Android/Web, migrations, Railway, publicação nem flags de produção. A execução será composta de PRs menores por epic/slice, com revisão independente quando envolver ledger/auth/isolamento. Nenhum AC pode ser marcado PASS com teste de protótipo estático.
 
 [Plano](plan.md) · [Tasks agregadas](tasks.md) · [Aceite geral](acceptance.md).
+
+## Diretriz de execução aprovada pelo responsável — 16/10/2026
+
+A missão de implementação e seu adendo explícito substituem os limites de PR
+somente documental acima **nas branches de implementação**. A PR216 permanece
+contrato draft; não pressupor seu merge. O protótipo PR212 em
+`ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0` é contrato visual e de interação,
+não inspiração. Web React/Next e Android Compose nativo devem reproduzir layout,
+cores, tipos, medidas, hierarquia, jornadas e número de intervenções. Adaptação
+de componentes existentes deve alcançar a referência; não redesenhar por conveniência.
+Diferenças inerentes à plataforma são permitidas. Simulações de pagamentos,
+policy, routing e confirmação devem ser substituídas por fatos canônicos sem
+simular sucesso. Divergências técnicas devem ser documentadas antes da resolução;
+diferenças intencionais exigem aprovação explícita. Nada autoriza merge/deploy.
+Cada épico exige jornada executada e capturas comparáveis protótipo/Web/Compose
+360/390/430 e desktop aplicável, matriz de paridade e regressões por SHA/dispositivo.
