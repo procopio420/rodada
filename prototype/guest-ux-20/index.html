@@ -1181,7 +1181,14 @@ function render(opts={}){
  scroller.innerHTML=S.scene==='entry'?renderEntry():S.scene==='home'?renderHome():S.scene==='catalog'?renderCatalog():S.scene==='ficha'?renderFicha():renderAccount();
  el('nav').innerHTML=nav();
  el('actionbar').innerHTML=S.scene==='account'&&balance()>0?`<button class="btn" onclick="S.modal='payment-options';render()">PAGAR AGORA · ${money(balance())} →</button>`:S.scene==='catalog'&&cartCount()>0?`<button class="btn" onclick="S.modal='cart';render()"><span>REVISAR PEDIDO · ${cartCount()} ${cartCount()===1?'ITEM':'ITENS'}</span><span style="margin-left:auto" class="mono">${money(calcCart())}</span></button>`:S.scene==='entry'&&!['DIRTY','CLEANING','OUT_OF_SERVICE'].includes(S.tableState)&&!S.wrong?`<button class="btn" onclick="enter()">${isFicha()?'ABRIR MINHA FICHA':S.multiTab?'ESCOLHER COMANDA':S.entryMode==='busy'?'ENTRAR NA MESA':'VER CARDÁPIO'} →</button>`:'';
- el('overlay').innerHTML=renderOverlay();
+ const overlaySurface=el('overlay');
+ overlaySurface.innerHTML=renderOverlay();
+ if(S.modal!==previousModalName){
+   if(S.modal&&!previousModalName)modalReturnFocus=typeof document!=='undefined'?document.activeElement:null;
+   if(S.modal)overlaySurface.querySelector?.('input:not([disabled]), textarea:not([disabled]), button:not([disabled])')?.focus?.();
+   else if(previousModalName&&modalReturnFocus?.focus){modalReturnFocus.focus();modalReturnFocus=null}
+   previousModalName=S.modal;
+ }
  if(opts.preserveView)scroller.scrollTop=oldscroll;else scroller.scrollTop=0;
  if(opts.focusSearch){const f=el('searchCatalog');if(f){f.focus();f.setSelectionRange(S.query.length,S.query.length)}}
  const p=el('personas');p.innerHTML=S.participants.map(x=>`<button class="toolbtn ${S.actor===x.id?'active':''}" onclick="changeActor('${x.id}')">${S.actor===x.id?'●':'○'} ${esc(x.name)} ${x.id==='you'?'· seu aparelho':''}</button>`).join('');
@@ -1210,6 +1217,24 @@ if(typeof window!=='undefined'){
  else if(demoHash==='#dispute'){seedDisputeDemo()}
  }
 }
+
+/* Keyboard access: close with Escape, keep Tab focus inside a visible modal. */
+if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
+ document.addEventListener('keydown',event=>{
+   if(!S.modal)return;
+   if(event.key==='Escape'){event.preventDefault();dismissModal();return}
+   if(event.key!=='Tab')return;
+   const sheet=el('overlay')?.querySelector?.('.sheet');if(!sheet)return;
+   const controls=Array.from(sheet.querySelectorAll('button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select:not([disabled]),a[href]'))
+     .filter(x=>!x.hidden&&x.getAttribute('aria-hidden')!=='true'&&x.getClientRects().length>0);
+   if(!controls.length){event.preventDefault();return}
+   const first=controls[0],last=controls.at(-1),focused=document.activeElement;
+   if(!sheet.contains(focused)){event.preventDefault();first.focus()}
+   else if(event.shiftKey&&focused===first){event.preventDefault();last.focus()}
+   else if(!event.shiftKey&&focused===last){event.preventDefault();first.focus()}
+ });
+}
+
 render();
 </script>
 </body></html>
