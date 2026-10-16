@@ -8,12 +8,13 @@ type Action="claim"|"complete";
 export function AttendanceTaskContext({taskId,staffId,recoveryScope,onBack,onChanged}:{taskId:string;staffId:string;recoveryScope:string;onBack:()=>void;onChanged?:()=>void}) {
   const [task,setTask]=useState<StaffTask|null>(null),[pending,setPending]=useState<Action|null>(null);
   const [fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState("");
-  const sending=useRef(false),active=useRef(true),currentTask=useRef(taskId);
+  const sending=useRef(false),active=useRef(true),currentTask=useRef(taskId),readEpoch=useRef(0);
   const storageKey=`rodada:dispatch-action:${recoveryScope}:${taskId}`;
   const refresh=useCallback(async()=>{
+    const epoch=++readEpoch.current;
     const result=await apiCall<StaffTask>(`/api/attendance/dispatch/tasks/${taskId}/`);
-    if(!result.response.ok||!result.body||!("id" in result.body))throw new Error(asApiError(result.body).message);
-    if(!active.current||currentTask.current!==taskId)return;
+    if(!result.response.ok||!result.body||!("id" in result.body)||result.body.id!==taskId)throw new Error(asApiError(result.body).message);
+    if(!active.current||currentTask.current!==taskId||epoch!==readEpoch.current)return;
     const canonical=result.body;setTask(canonical);setFresh(true);
     const saved=localStorage.getItem(storageKey);
     if(saved&&(canonical.state==="DONE"||(saved==="claim"&&canonical.claimed_by_id===staffId))){localStorage.removeItem(storageKey);setPending(null);onChanged?.();}
@@ -22,13 +23,13 @@ export function AttendanceTaskContext({taskId,staffId,recoveryScope,onBack,onCha
   useEffect(()=>{
     active.current=true;currentTask.current=taskId;setTask(null);setPending(null);setFresh(false);setError("");
     try{const stored=localStorage.getItem(storageKey);if(stored==="claim"||stored==="complete")setPending(stored);}
-    catch{setError("Recuperação indisponível. Confira a chamada antes de agir.");return;}
-    const read=()=>void refresh().catch(failure=>{if(active.current){setFresh(false);setError(failure.message)}});
-    read();const timer=setInterval(read,15000);return()=>{active.current=false;clearInterval(timer)};
+    catch{setError("Recuperação indisponível. Confira a chamada antes de agir.");return()=>{active.current=false;readEpoch.current++;};}
+    const read=()=>{if(sending.current)return;void refresh().catch(failure=>{if(active.current){setFresh(false);setError(failure.message)}});};
+    read();const timer=setInterval(read,15000);return()=>{active.current=false;readEpoch.current++;clearInterval(timer)};
   },[storageKey,refresh]);
   async function act(action:Action){
     if(sending.current||!fresh||!task)return;
-    sending.current=true;setBusy(true);setError("");
+    sending.current=true;readEpoch.current++;setBusy(true);setError("");
     try{
       // Save before the mutation. Reopening retries this task/action, never a new task.
       localStorage.setItem(storageKey,action);setPending(action);
