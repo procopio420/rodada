@@ -38,6 +38,13 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         raise ValueError("execution SHA mismatch")
     instance = fixture["database_instance_id"]
     artifacts, receipts = {}, {}
+    execution_file = root / "execution.json"
+    artifacts["execution.json"] = {
+        "path": "execution.json",
+        "sha256": hashlib.sha256(execution_file.read_bytes()).hexdigest(),
+        "kind": "runner-execution",
+        "sanitized": True,
+    }
     for path in sorted(root.glob("*.json")):
         if path.name in {"execution.json", "manifest.json", "gate.json"}:
             continue
@@ -72,8 +79,14 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         missing = [name for name in required if name not in receipts]
         reason = gap or ("Missing current-SHA shared-cluster receipts: " + ", ".join(missing) if missing else "Real client execution and independent PostgreSQL reconciliation completed.")
         status = "BLOCKED" if gap or missing or not required else "PASS"
-        if execution.get("result") == "FAIL" and missing:
-            status = "FAIL"; reason = "Runner failed at " + execution.get("last_step", "unknown") + "; " + reason
+        if execution.get("result") != "PASS":
+            if missing:
+                status = "FAIL"
+            else:
+                status = "BLOCKED"
+            reason = ("Runner did not finish successfully (" + str(execution.get("result", "UNKNOWN"))
+                + ") at " + str(execution.get("last_step", "unknown")) + "; "
+                + reason + " A complete-run PASS cannot be claimed.")
         refs = [name for name in required if name in receipts]
         trace_tests = {
             "E2E-01": ["qr-lifecycle"], "E2E-02": ["browser-origins", "android-native-to-web"],
@@ -109,7 +122,9 @@ def build(root, sha, fixture, versions, run_url, branch, pr, review=None):
         invariants[name] = ({"status":"PASS", "scenario":scenario["id"], "artifact_ref":"final-state-sql.json"}
             if final.get("invariants", {}).get(name) == "PASS" and scenario["status"] == "PASS"
             else {"status":"BLOCKED", "reason":"Requires current-SHA final SQL reconciliation and linked passing scenario."})
-    return {"schema_version":1,"sha":sha,"evidence_kind":"executed","database":{"engine":"postgresql","disposable":True,"instance_id":instance},"versions":versions,"artifacts":artifacts,"scenarios":records,"invariants":invariants,"review":review or {"sha":sha,"independent":False,"open_p0_p1":None,"reference":"NOT_VERIFIED"}}
+    return {"schema_version":1,"sha":sha,"evidence_kind":"executed",
+            "execution":{"sha":sha,"result":execution.get("result"),"artifact_ref":"execution.json"},
+            "database":{"engine":"postgresql","disposable":True,"instance_id":instance},"versions":versions,"artifacts":artifacts,"scenarios":records,"invariants":invariants,"review":review or {"sha":sha,"independent":False,"open_p0_p1":None,"reference":"NOT_VERIFIED"}}
 
 
 def branch_context(sha):
