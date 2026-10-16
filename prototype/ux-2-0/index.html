@@ -245,7 +245,7 @@ function overLimit(t,extra){return forecast(t,extra)>t.limit||t.limit===0&&extra
 function limitBlocks(t,extra){return state.limitMode==="ENFORCE"&&overLimit(t,extra)}
 function limitModeName(){return state.limitMode==="ENFORCE"?"Bloquear":"Apenas alertar"}
 function creditStatus(t,extra){
- if(t.limit===0||t.balance>=t.limit||overLimit(t,extra))return"exceeded";
+ if(t.limit===0||t.balance>=t.limit||overLimit(t,extra))return state.limitMode==="ENFORCE"?"exceeded":"warning";
  if(t.balance>=t.limit||forecast(t,extra)>=t.limit*.8)return"warning";
  return"ok"
 }
