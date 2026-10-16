@@ -153,6 +153,7 @@ def review_with_openai(api_key, model, context):
     )
     body = {
         "model": model, "instructions": instructions,
+        "reasoning": {"effort": "high"}, "store": False,
         "input": [{"role": "user", "content": [{"type": "input_text",
                     "text": json.dumps(context, ensure_ascii=False)}]}],
         "text": {"format": {"type": "json_schema", "name": "r3_review",
