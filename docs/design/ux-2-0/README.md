@@ -185,3 +185,12 @@ O próximo roadmap inclui um editor/mapa do salão e sugestões de rota que resp
 Direção técnica, invariantes de domain/Dispatch e gates futuros detalhados em [Entregas e DeliveryRuns orientados pelo salão](delivery-runs.md). A Spec 003 já prevê agrupamento por zona e confirma que a otimização de rota está fora do escopo inicial; UX 2.0 não a altera tacitamente.
 
 Validação desta iteração: **13/13 jornadas sintéticas JS/DOM** (duas filas, quatro entregas, seleção incompatível, lote e retorno, pedidos de conta intactos). Falta inspeção visual de browser e teste humano Android 360/390/430 dp.
+
+
+## Iteração 2026-10-16 — fechar a conta, liberar e limpar a mesa
+
+Após a revisão do fluxo de Atendimento, acrescentamos à hipótese A um ciclo de encerramento completo. **Fechar Tab ≠ liberar Table ≠ fechar CashShift.** Uma ocupação pode ter várias comandas, cada uma com seu saldo, recebimentos e fechamento próprios.
+
+No protótipo isolado: conferir saldo → registrar recebimento **apenas simulado** (dinheiro/Pix manual/cartão manual; parcial/total) → revisar saldo e rascunhos → encerrar Tab em saldo zero → voltar à mesa. Só depois de todas as Tabs encerradas e entregas pendentes conferidas, aparece a confirmação **grupo saiu → liberar mesa (DIRTY) → iniciar limpeza (CLEANING) → concluir (AVAILABLE)**. QR/ocupação antiga não é reutilizada com a geração nova.
+
+Todo o desenho, critérios de segurança financeira, necessidade de API e jornadas adversas estão em [Fechar conta e girar a mesa](settlement-and-table-turnover.md). **Não há Payment real ou efeito de banco na demo; recarregar zera as simulações.** A direção ainda depende de revisão visual humana e não foi integrada à produção.
