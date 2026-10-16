@@ -503,7 +503,7 @@ app.innerHTML=back()+first("Comanda "+esc(t.ref))+
 orderStatusCard(t)+
 (activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Abrir a comanda não conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?button("complete-service","Simular atendimento resolvido","ghost block"):button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
 '<div class="actioncluster">'+(closed?'<div class="notice">Comanda encerrada. Não é possível adicionar pedidos nem recebimentos.</div>':(pendingOrder(t)?button("reconcile-order","Verificar pedido antes de continuar","primary block"):button("catalog","＋ Adicionar itens","primary block")))+
-'<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",closed||!t.last.length?'disabled':"")+
+'<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",closed||!t.last.length||busyDraft(t)||!!pendingOrder(t)?'disabled title="Resolva o pedido pendente antes de repetir"':"")+
 button("bill",closed?"Ver conta encerrada":"Conferir / fechar conta","ghost")+'</div></div>'+
 '<div class="billpeek"><span><label>Saldo em aberto <span class="kicker">(simulação)</span></label><small>Sem incluir rascunhos não enviados</small></span><strong>'+money(t.balance)+'</strong></div>'+
 creditPanel(t,0,true,true)+
@@ -669,7 +669,7 @@ function viewChoose(){
 var q=state.chooseSearch.toLocaleLowerCase("pt-BR").trim();
 var visible=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id&&b.generation===t.generation&&b.state==="OPEN"}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
 var matches=q?tabs.filter(function(t){return t.state==="OPEN"&&(!t.table||tableBy(t.table)?.generation===t.generation&&tableBy(t.table)?.status==="occupied")&&(t.name+" "+t.ref+" "+(t.table||"balcão")).toLocaleLowerCase("pt-BR").includes(q)}):[];
-var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
+var loose=tabs.filter(function(t){return t.state==="OPEN"&&!t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
 app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p class="lede">Escolha a mesa e depois a comanda. Também dá para buscar o cliente diretamente.</p>'+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="choose-search" type="search" autocomplete="off" placeholder="Mesa, cliente ou comanda" value="'+esc(state.chooseSearch)+'" aria-label="Buscar mesa ou comanda"></label>'+
 (q&&matches.length?'<div class="sectionhead"><h2>Comandas encontradas</h2><small>'+matches.length+'</small></div>'+matches.map(function(t){return row('<button type="button" class="rowbtn" data-action="tab-direct" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</span></span><span class="arrow">›</span></button>')}).join(""):"")+
@@ -796,7 +796,7 @@ if(act==="clean-finish"){
  state.toast="Limpeza concluída nesta simulação. Mesa disponível.";
  render();return
 }
-if(act==="repeat"){var t=tab();if(t&&t.state==="OPEN"&&!pendingOrder(t)){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
+if(act==="repeat"){var t=tab();if(t&&t.state==="OPEN"&&!pendingOrder(t)&&!busyDraft(t)){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
 if(act==="category"){state.cat=id;render();return}
 if(act==="qtyminus"||act==="qtyplus"){var selectedTab=tab();if(!selectedTab||selectedTab.state!=="OPEN"||pendingOrder(selectedTab)||!["catalog","review"].includes(state.screen))return;var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
@@ -804,8 +804,8 @@ if(act==="apply-repeat"){
  if(state.screen!=="repeat")return;
  var t=tab(),r=state.repeat[state.tab]||{};
  if(!t||t.state!=="OPEN"||pendingOrder(t)||!Object.values(r).some(function(q){return q>0}))return;
- var d=Object.assign({},draft());
- Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});
+ var d={};
+ Object.keys(r).forEach(function(pid){if(r[pid]>0)d[pid]=r[pid]});
  state.draft[state.tab]=d;
  confirmSimulatedOrder(t,"repeat");return
 }
