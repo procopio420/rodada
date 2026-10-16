@@ -69,6 +69,24 @@ class ReviewProvenanceTests(unittest.TestCase):
         with self.assertRaises(module.ReviewBlocked):
             self.find(reviews=[self.review, dissent])
 
+    def test_comment_or_pending_does_not_clear_another_reviewers_veto(self):
+        dissent = dict(self.review, id=124, state="CHANGES_REQUESTED",
+                       user={"login":"another-reviewer", "type":"User"})
+        for state in ("COMMENTED", "PENDING"):
+            with self.subTest(state=state), self.assertRaises(module.ReviewBlocked):
+                self.find(reviews=[self.review, dissent, dict(dissent, id=125, state=state)])
+
+    def test_comment_does_not_discard_existing_approval(self):
+        proof = self.find(reviews=[self.review, dict(self.review, id=124, state="COMMENTED")])
+        self.assertIn("pullrequestreview-123", proof["reference"])
+
+    def test_explicit_approval_or_dismissal_resolves_previous_veto(self):
+        dissent = dict(self.review, id=124, state="CHANGES_REQUESTED",
+                       user={"login":"another-reviewer", "type":"User"})
+        for state in ("APPROVED", "DISMISSED"):
+            with self.subTest(state=state):
+                self.assertTrue(self.find(reviews=[self.review, dissent, dict(dissent, id=125, state=state)])["independent"])
+
     def test_dismissed_approval_rejected(self):
         self.review["state"] = "DISMISSED"
         with self.assertRaises(module.ReviewBlocked):
