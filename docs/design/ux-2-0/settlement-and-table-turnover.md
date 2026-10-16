@@ -15,27 +15,25 @@ A jornada do Rodada não termina na entrega: o atendente/caixa precisa conferir 
 
 Referências normativas: \`specs/001-core-pos/spec.md\` (POS-008/009/012), \`specs/004-table-guest-ordering/spec.md\` (TABLE-003/004 e guest revocation), \`specs/006-payments/\` quando aplicável, \`specs/012-cash-management/spec.md\`, \`docs/domain/model.md\`, \`docs/product/principles.md\`.
 
-## Arquitetura de tarefa proposta
+## Fluxo aprovado para avaliação — fechamento rápido (sem revisões redundantes)
 
-\`\`\`
-COMANDA → CONFERIR CONTA
-  ├─ saldo > 0 → registrar recebimento / parcial / total
-  │                 └─ atualiza saldo e recibos somente após confirmação canônica
-  ├─ saldo = 0 e nenhum rascunho ou intenção incerta
-  │       → REVISAR ENCERRAMENTO → CONFIRMAR ENCERRAMENTO DA TAB
-  └─ rascunho presente → voltar a pedido OU descartar com confirmação explícita
+```text
+Comanda → Conta → Receber (valor + método)
+  ├─ Parcial → Registrar valor → Conta (permanece OPEN)
+  ├─ Total + sem pendências → Receber e encerrar → Mesa diretamente
+  └─ Total, mas deseja manter OPEN → Só registrar → Conta
+Se saldo já é zero → Encerrar comanda diretamente (um toque)
+Se há rascunho → voltar ao pedido ou descartar com confirmação explícita
 
-MESA / OCUPAÇÃO
-  ├─ ainda há Tabs abertas → navegar para cada comanda pendente
-  ├─ entregas prontas pendentes → conferir entregas e seu destino
-  ├─ nenhuma Tab aberta e nenhum bloqueio operacional
-  │       → CONFIRMAR QUE GRUPO SAIU → LIBERAR TABLE
-  │           → DIRTY (QR anterior revogado)
-  │               → INICIAR LIMPEZA → CLEANING
-  │                   → CONCLUIR LIMPEZA → AVAILABLE
-  └─ histórico financeiro e pedidos confirmados permanecem intactos
-\`\`\`
+Mesa com outras comandas abertas → resolver cada Tab
+Mesa com READY pendente → Ver entregas
+Mesa sem Tabs abertas nem entregas pendentes → Grupo saiu · Liberar mesa (um toque) → DIRTY
+Limpeza: DIRTY → Iniciar limpeza → CLEANING → Mesa limpa · Disponibilizar → AVAILABLE
+```
 
+**Decisão UX:** botão final já expressa a confirmação e seu efeito. Foram removidas as telas separadas **Revisar encerramento**, **Revisar liberação** e o checkbox sobre saída do grupo. A mesa não é liberada só porque a última comanda foi paga; liberar é um comando explícito. A limpeza continua em etapa operacional distinta.
+
+**Segurança:** a combinação de receber + encerrar só é válida após confirmação financeira e verificação canônica de saldo, sessão, idempotência e autorização pelo backend na futura integração. Se a resposta for incerta, jamais cobrar novamente nem declarar fechamento por otimismo. O protótipo usa estado em memória, sem qualquer pagamento real. Pedidos em rascunho impedem fechamento automático; descartá-los continua exigindo confirmação destrutiva.
 ### Requisitos por etapa
 
 **Conferir conta:** título, nome/referência canônica da Tab, mesa se houver, valor de consumo confirmado, total recebido, saldo em aberto, histórico de recebimentos e alertas. Rascunhos não entram no total; ajustes e pagamentos seguem a API real, não somam valores do catálogo atual.
@@ -50,16 +48,9 @@ MESA / OCUPAÇÃO
 
 ## Protótipo funcional isolado
 
-\`prototype/ux-2-0/index.html\` implementa apenas estado **em memória do browser**:
-- Conferir/fechar a conta de Marina, Rafael, João, Carla ou Balcão.
-- Registrar valores fictícios com método CASH, PIX manual ou CARD manual, inclusive parcial, com validação de valor e saldo.
-- Se houver rascunho, exigir envio ou descarte explicitamente confirmado antes de fechar.
-- Encerrar uma Tab com saldo zero e conferir que outra Tab da mesma mesa continua aberta.
-- Resolver entregas de exemplo antes de liberar a mesa, marcar que o grupo saiu e percorrer DIRTY → CLEANING → AVAILABLE.
-- Preservar geração por mesa no cenário fictício para não mostrar comandas da visita anterior na nova ocupação.
+`prototype/ux-2-0/index.html` implementa em memória: saldo e recebimentos fictícios, pagamentos parciais; recebimento integral e encerramento em um comando explícito; opção de só registrar e manter OPEN; botão direto de encerrar quando saldo zero; confirmação destrutiva para descartar rascunho; separação de Tab/Table e bloqueio de liberação com Tabs abertas ou entregas READY; saída do grupo em um toque, depois limpeza separada. O histórico das visitas anteriores não é reutilizado na geração seguinte.
 
-Nenhum Payment, PIX, cobrança de cartão, movimento de caixa, recibo fiscal ou fechamento de Tab/Table de verdade é criado. \`Simular\` é importante no rótulo dos comandos; a demo **não deve ser usada para registrar pagamentos reais**. Os saldos e recibos desaparecem ao recarregar a página.
-
+**Nenhum Payment, Pix, cartão, dinheiro, caixa, QR real ou fechamento de produção é afetado.** Recarregar reinicia a simulação. Revisão de browser Android, acessibilidade, concorrência e homologação do backend continuam pendentes.
 ## Cenários de aceite / teste humano no Android
 
 1. Na Mesa 08, Marina tem R$ 56 e Rafael R$ 14. Registrar R$ 20 e depois R$ 36 na Tab de Marina; encerrar somente a de Marina; Rafael permanece aberto e a mesa não pode ser liberada.
