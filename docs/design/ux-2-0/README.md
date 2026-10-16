@@ -115,3 +115,26 @@ Nenhuma tela de produção muda; sem deploy, mudanças de API, migrações, chec
 ## Iteração 2026-10-16 — revisão com screenshot Android
 
 A primeira captura móvel revelou títulos e descrições da lista grudados. Corrigida a composição das linhas (`rowtitle` e `sub` como blocos, flex legível). Feedback adicional: operador procura primeiro por mesa, não pelo ID financeiro da comanda. O botão central `+ Pedir` no protótipo passa a abrir **Para qual mesa?**, depois a escolha explícita da Tab; pesquisa por nome/referência e contas de balcão continuam atalhos. Essa mudança afeta apenas a simulação isolada. A validação automatizada cobre fluxo em DOM simulado; screenshots após a correção em Android ainda não foram avaliados.
+
+## Iteração 2026-10-16 — Agora como roteador de trabalho
+
+**Observação do operador no Android:** título de abertura consome área útil e chamada feita pelo próprio cliente não deveria parar em uma mesa genérica quando há comanda canônica conhecida. É necessário distinguir `request target` de `request destination`.
+
+### Regras UX candidatas
+
+- **Chamada vinculada a GuestSession/Tab válida:** `Agora → comanda correta` em um toque; destacar tipo da solicitação, origem QR, cliente/mesa e ação contextual. Abrir **não equivale a assumir ou concluir** a chamada.
+- **Chamada de mesa sem Tab identificada:** `Agora → mesa → escolher Tab`, explicitamente; nunca atribuir a primeira comanda automaticamente.
+- **Pedido de conta de sessão válida:** `Agora → comanda → Conta` quando o vínculo for resolvido e permitido; no primeiro protótipo a conta exige seleção contextual própria.
+- **Comanda revogada, ocupação trocada, staff sem autorização ou referência ambígua:** não abrir comanda antiga por suposição; exibir contexto seguro da mesa e solicitar seleção/revalidação. Falha de leitura não declara que a chamada foi atendida.
+- **Fila mista e compacta:** trabalho real no primeiro viewport; classificar por tipo/estado/responsabilidade, sem métricas decorativas nem narrativas de introdução. Evitar tempo e prioridade inventados; no protótipo todo dado é rotulado simulação.
+- **Evento e estado separados:** abrir detalhes não dispara `claim`, `complete`, reconhecimento de entrega ou remoção da fila. Ações reais dependem de comando explícito e resposta/readback canônicos, com tratamento de conflito/resultado incerto.
+
+### Gap de integração já identificado
+
+Na implementação inspecionada, `apps/web/components/service-request-queue.tsx` consome `/api/attendance/dispatch/requests/` com `id`, `task_type`, `state`, `destination_label` e `claimed_by_id`, mas não expõe `tab_id` como contrato de navegação. A associação QR → Tab usada pelo protótipo é **fictícia**, não disponível automaticamente a partir desse payload.
+
+Antes de integrar UX 2.0, especificar uma **projeção de destino autorizada no servidor** para a fila staff, possivelmente `tab_id`, `table_id`, `occupancy_id` e origem da solicitação quando resolvidos de modo confiável. Conferir vínculo de GuestSession, Venue, ocupação ativa, sessão staff, permissões, eventual múltipla Tab e alterações concorrentes; o cliente só apresenta rotas autorizadas. Não usar apenas `destination_label` nem confiar em dados vindos do QR sem validação canônica. Se faltar Tab, fallback ao contexto da mesa.
+
+### Demonstração
+
+`prototype/ux-2-0/index.html` inclui chamada fictícia QR associada à comanda Marina / Mesa 08 e chamada genérica da Mesa 12. A primeira abre o workspace da Tab e oferece retorno à fila; a segunda abre a lista da mesa. Fila nunca é mutada ao navegar. **8/8 testes sintéticos de DOM passaram** nessa alteração, sem browser/Android reais, sem integração ao backend.
