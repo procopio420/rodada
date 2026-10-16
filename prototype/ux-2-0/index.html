@@ -215,7 +215,7 @@ function capacity(t){return Math.max(0,t.limit-t.balance)}
 function forecast(t,extra){return t.balance+(extra||0)}
 function overLimit(t,extra){return forecast(t,extra)>t.limit||t.limit===0&&extra>0}
 function creditStatus(t,extra){
- if(t.limit===0||overLimit(t,extra))return"blocked";
+ if(t.limit===0||t.balance>=t.limit||overLimit(t,extra))return"blocked";
  if(t.balance>=t.limit||forecast(t,extra)>=t.limit*.8)return"warning";
  return"ok"
 }
@@ -224,7 +224,7 @@ function creditPanel(t,extra,details){
  var used=t.limit>0?Math.min(100,Math.max(0,Math.round(t.balance*100/t.limit))):0;
  var label=status==="blocked"?"Consumo bloqueado":status==="warning"?"Próximo do limite":"Capacidade disponível";
  return '<section class="creditbar" data-level="'+status+'" aria-label="Limite operacional da comanda">'+
- '<div class="headline"><small>'+esc(relationName(t))+' · limite operacional '+money(t.limit)+'</small><strong>'+money(remaining)+' livre(s)</strong></div>'+
+ '<div class="headline"><small>'+esc(relationName(t))+' · limite operacional '+money(t.limit)+'</small><strong>'+money(remaining)+' disponíveis</strong></div>'+
  (t.limit?'<div class="ruleline" aria-hidden="true"><span style="width:'+used+'%" class="'+(status==="blocked"?"warn":"")+'"></span></div>':'')+
  '<div class="footrow"><span>'+label+(t.limit?' · '+used+'% utilizado':" · limite zero")+'</span>'+
  (details?'<button type="button" data-action="limit-details">Ver regras ›</button>':'')+'</div></section>'
@@ -400,6 +400,7 @@ app.innerHTML=back()+first("Comanda "+esc(t.ref))+
 '<div class="actioncluster">'+(closed?'<div class="notice">Comanda encerrada. Não é possível adicionar pedidos nem recebimentos.</div>':button("catalog","＋ Adicionar itens","primary block"))+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",closed||!t.last.length?'disabled':"")+
 button("bill",closed?"Ver conta encerrada":"Conferir / fechar conta","ghost")+'</div></div>'+
+creditPanel(t,0,true)+
 '<div class="billpeek"><span><label>Saldo em aberto <span class="kicker">(simulação)</span></label><small>Sem incluir rascunhos não enviados</small></span><strong>'+money(t.balance)+'</strong></div>'+
 (d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Confira ou descarte o rascunho antes de encerrar.</div>':'')+
 '<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
@@ -412,6 +413,7 @@ var t=tab();if(!t){root("tables");return}
 var cat=state.cat,search=state.catalogSearch.toLocaleLowerCase("pt-BR");
 var ps=products.filter(function(p){return (cat==="Todos"||p.cat===cat)&&p.name.toLocaleLowerCase("pt-BR").includes(search)});
 app.innerHTML=back()+first("Pedido para "+esc(t.ref))+'<h1>Adicionar itens.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+' <span class="kicker">· destino fixo</span></p>'+
+creditPanel(t,dsum(),true)+projectedNotice(t,dsum())+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Buscar no cardápio" value="'+esc(state.catalogSearch)+'" aria-label="Buscar produto"></label>'+
 '<div class="pills" role="group" aria-label="Categorias">'+["Todos","Bebidas","Porções","Lanches"].map(function(c){return '<button type="button" class="pill '+(cat===c?"active":"")+'" data-action="category" data-id="'+c+'" aria-pressed="'+(cat===c)+'">'+c+"</button>"}).join("")+'</div>'+
 '<div class="sectionhead"><h2>Cardápio</h2><small>'+ps.length+' ITENS</small></div>'+
@@ -426,9 +428,11 @@ app.innerHTML=back()+first("Conferência final")+'<h1>Revisar pedido.</h1><p cla
 '<div class="cardnote"><strong style="color:var(--paper)">'+esc(t.name)+' · '+esc(t.ref)+'</strong><div>'+(t.table?"Mesa "+t.table:"Sem mesa")+' · Rascunho ainda não enviado</div></div>'+
 (ids.length?ids.map(function(id){var p=prod(id),q=draft()[id];return '<div class="reviewrow"><div><b>'+q+'× '+esc(p.name)+'</b><small>'+money(p.price)+' cada</small></div><div><div class="money">'+money(q*p.price)+'</div><div class="quantity" style="justify-content:flex-end;margin-top:9px"><button type="button" class="qtybtn" aria-label="Remover '+esc(p.name)+'" data-action="qtyminus" data-id="'+p.id+'">−</button><button type="button" class="qtybtn plus" aria-label="Adicionar '+esc(p.name)+'" data-action="qtyplus" data-id="'+p.id+'">+</button></div></div></div>'}).join(""):'<div class="empty">O pedido está vazio.</div>')+
 '<div class="amountline"><small>Total do novo pedido <span class="kicker">· simulado</span></small><strong>'+money(dsum())+'</strong></div>'+
+creditPanel(t,dsum(),true)+projectedNotice(t,dsum())+
+(overLimit(t,dsum())?button("limit-details","Resolver limite","block ghost"):'')+
 '<div class="notice warn"><strong>Simulação local.</strong> Não há API nem pedido real. Na implementação, confirmar exige validação do servidor, intenção idempotente e reconciliação de resposta ambígua.</div>'+
 button("catalog","← Continuar escolhendo itens","block ghost");
-foot("submit","Simular envio do pedido",!ids.length)
+foot("submit",overLimit(t,dsum())?"Pedido acima do limite · resolver": "Simular envio do pedido",!ids.length||overLimit(t,dsum()))
 }
 function viewRepeat(){
 var t=tab();if(!t){root("tables");return}
@@ -456,11 +460,12 @@ app.innerHTML=back()+first("Conta · "+esc(t.ref))+
 '<h1>'+(closed?"Conta encerrada.":"Fechar a conta.")+'</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
 (activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Pedido de conta pelo celular</strong><p>Direto na comanda de '+esc(t.name)+'.</p></div>':"")+
+creditPanel(t,0,true)+
 '<div class="settlement-summary"><small>Falta receber · valor fictício</small><strong>'+money(t.balance)+'</strong><small>'+(closed?"Comanda já encerrada":t.balance===0?"Saldo quitado":"Pode receber tudo ou uma parte")+'</small></div>'+
 '<div class="receiptline"><small>Consumo registrado</small><strong>'+money(t.balance+receiptTotal)+'</strong></div>'+
 (receiptTotal?'<div class="receiptline"><small>Total já recebido (simulado)</small><strong>'+money(receiptTotal)+'</strong></div>':"")+
 (t.receipts.length?'<div class="sectionhead"><h2>Recebimentos</h2></div>'+t.receipts.map(function(r){return '<div class="receiptline"><small>'+esc(methodLabel(r.method))+'</small><strong>'+money(r.amount)+'</strong></div>'}).join(""):"")+
-(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado.</strong> Envie ou descarte o rascunho antes de encerrar.</div>'+button("catalog","Voltar ao pedido","block ghost")+button("discard-review","Descartar rascunho","block ghost"):"")+
+(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado.</strong> Envie ou descarte o rascunho antes de encerrar.</div>'+button("catalog","Voltar ao pedido pendente","block ghost")+button("discard-review","Descartar rascunho","block ghost"):"")+
 '<div class="notice">Exercício sem cobrança real. Recebimentos e encerramentos não são enviados ao servidor.</div>'+
 (closed?button("go-to-table",t.table?"Voltar à mesa":"Voltar às comandas","block primary"):
 t.balance>0?button("payment-open","Receber "+money(t.balance),"block primary"):
@@ -638,7 +643,7 @@ if(act==="category"){state.cat=id;render();return}
 if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
 if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
-if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();if(overLimit(t,orderTotal)){state.toast="Pedido bloqueado pelo limite operacional. Receba parte da conta ou solicite aprovação.";screen("limit");return}state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
 });
 document.addEventListener("change",function(e){
 
