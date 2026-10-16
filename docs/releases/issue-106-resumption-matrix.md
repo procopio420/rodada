@@ -2,9 +2,13 @@
 
 ## Estado técnico atual — 16/10/2026
 
-A issue foi fechada administrativamente pelo responsável; #205, #206 e #207 foram
+A issue foi fechada administrativamente pelo responsável; #205 e #206 foram
 integrados por outra execução. Isso não equivale a aprovação R3 independente ou
-GO de produção. `main` observado: `513de6a20f1cc2abc1521532602a66c83712081b`.
+GO de produção. Após liberação explícita do mantenedor, o PR #207 foi
+integrado em `main` no commit `513de6a20f1cc2abc1521532602a66c83712081b`.
+A integração não é uma aprovação independente autenticada. A comparação local
+confirmou árvore idêntica entre main 513de6a2 e o candidato testado 67fcaaca;
+isso não atribui uma execução E2E ao SHA do merge.
 
 O [run do #206](https://github.com/procopio420/rodada/actions/runs/38848540935)
 executou `956f2139ef782277a3a23de3a3ae05cef9265e8f`: **14 PASS / 0 FAIL /
@@ -15,8 +19,8 @@ execução ao SHA do merge por essa equivalência.
 
 A revisão independente posterior identificou um **P1 no gate R3**: COMMENTED ou
 PENDING sobrescrevia CHANGES_REQUESTED do mesmo reviewer, apagando um veto ainda
-válido. O [PR207](https://github.com/procopio420/rodada/pull/207) corrige a redução
-para considerar somente estados decisórios. R3 cumulativa de main+patch:
+válido. O [PR207](https://github.com/procopio420/rodada/pull/207), já integrado,
+corrigiu a redução para considerar somente estados decisórios. R3 cumulativa de main+patch:
 NO_FINDINGS_WITH_GAPS, zero P0/P1 abertos no código corrigido; **32 testes PASS**.
 O SHA da correção é `67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e`; seu
 [workflow](https://github.com/procopio420/rodada/actions/runs/38857293536) passou
@@ -30,15 +34,19 @@ dos binários. Essa limitação não é omitida do aceite.
 [Resumo machine-readable](evidence/issue-106-67fcaaca/ci-summary.json) registra
 SHA, ambiente, cenários/IDs, SQL, execução e gate. Não substitui os ZIPs completos.
 
-**NO-GO formal:** o manifesto contém somente o erro de revisão independente
-autenticada ausente. A consulta real ao GitHub para PR207 retornou REVIEW_BLOCKED.
-O código corrigido tem R3 local em contexto separado, sem P0/P1; isso não cria
-aprovação GitHub. O PR207 foi integrado externamente em 16/10/2026 às 07:28 UTC,
-no merge 513de6a2. Sua árvore é idêntica à árvore do candidato 67fcaaca testado;
-o P1 corrigido está em main, mas essa equivalência não reatribui a execução ao
-SHA do merge. Nenhum merge remoto/deploy foi feito nesta retomada. A matriz histórica abaixo
-permanece atribuída ao SHA 899255b1; para a execução atual, todos os 14 cenários foram
-reconfirmados em 67fcaaca, incluindo exclusão de estação e snapshots B4/B7.
+**NO-GO formal:** o manifesto gerado para o SHA `67fcaaca` contém somente o erro
+de revisão independente autenticada ausente. A consulta real ao GitHub para
+PR207 retornou REVIEW_BLOCKED, sem aprovação de reviewer diferente do autor.
+O código corrigido tem R3 local em contexto separado, sem P0/P1, mas isso não
+cria aprovação GitHub. O mantenedor autorizou o merge do PR207 e o código foi
+integrado em `main` no commit `513de6a2`; esse ato **não** substitui o gate R3.
+A execução concorrente registrou deploy automático da demo no Railway com
+SUCCESS para `rodada-web` e `rodada-landing` nesse commit; esse registro foi
+preservado, sem nova operação/validação Railway nesta retomada e sem comprovar
+aceite presencial ou GO.
+A matriz histórica abaixo permanece atribuída ao SHA 899255b1; a última
+execução integrada verificada reconfirmou os 14 cenários em `67fcaaca`, incluindo
+exclusão de estação e snapshots B4/B7. Não se atribui esse teste ao SHA do merge.
 F4 está implementada, mas a liberação formal permanece REVIEW_BLOCKED; os gates
 externos abaixo não são substituídos por CI verde.
 
@@ -73,8 +81,9 @@ de produto para acomodar esses asserts.
 `CI_VERIFIED` nesta tabela significa reconfirmação no candidato 67fcaaca pelo run
 38857293536 e revisão independente de seu pacote. Inventários preservam sua
 origem documentada. `REVIEW_BLOCKED` distingue o gate formal autenticado da prova
-de execução. Filtros seletivos não alteram o fato de o código fixado estar em PR,
-ainda não integrado. Gates físicos continuam separados.
+de execução. O código corrigido já foi integrado à `main` no merge `513de6a2`;
+esta prova automatizada continua vinculada ao SHA `67fcaaca`, sem atribuir teste
+inexistente ao merge. Gates físicos continuam separados.
 
 | Tarefa | Estado | Prova/escopo |
 |---|---|---|
@@ -154,14 +163,15 @@ IDs completos, tempos, versões, hashes e referências por cenário.
 
 ## Estado de integração e gates
 
-O responsável integrou #205 (incluindo os slices #196–#204) em 475acadd, #206
-em 307ec5d7 e #207 em 513de6a2, em outras execuções. O [PR207](https://github.com/procopio420/rodada/pull/207)
-contém a correção já integrada com R3 local e CI verde no head 67fcaaca; o
-[PR208](https://github.com/procopio420/rodada/pull/208) contém matriz/documentação
-atual e permanece aberto. A branch documental incorporou main sem descartar
-trabalho. Nenhum merge remoto/deploy foi feito aqui. main observado: 513de6a2.
-A aprovação GitHub independente e a execução manual com review válida continuam
-pendentes; não foram substituídas pelo merge.
+O responsável integrou #205 (incluindo os slices #196–#204) em 475acadd e #206
+em 307ec5d7, fechando as branches supersedidas. Posteriormente, o
+[PR207](https://github.com/procopio420/rodada/pull/207) foi integrado em
+`513de6a2`, após autorização explícita do mantenedor e CI integrada verde.
+Não houve aprovação independente autenticada registrada para o PR207; o
+NO-GO formal permanece. A execução concorrente registrou SUCCESS da demo no
+Railway para o mesmo commit, sem homologação física. O [PR208](https://github.com/procopio420/rodada/pull/208)
+contém a documentação atualizada e ainda precisa de integração separada.
+Revalidar bases antes de integrar; preservar worktrees e trabalho não commitado.
 
 Corte real de uplink comprovado em [workflow38797806054](https://github.com/procopio420/rodada/actions/runs/38797806054),
 SHA 7cb08ad7; nova prova a9cf em [workflow38815589150](https://github.com/procopio420/rodada/actions/runs/38815589150).
@@ -180,6 +190,8 @@ de uplink PASS no mesmo SHA 78e04816. São provas históricas; o resultado atual
 
 Pendências externas: dispositivo físico, rede do bar, PSP/Tap/NFC/Pix reais,
 impressoras, fiscal, aceite presencial e rollback VR System. Host probes locais
-não certificam DNS/TLS/ingress/cookies entre subdomínios. Autodeploy não foi
-certificado; integração deve permanecer atrás desse gate. Sem merge/deploy,
-Play Store, Railway, pagamento real ou fechamento artificial da issue.
+não certificam DNS/TLS/ingress/cookies entre subdomínios. O registro concorrente observou autodeploy da demo no commit `513de6a2`, com
+SUCCESS para web e landing; preserva-se essa evidência sem a revalidar aqui, e
+sem convertê-la em aceite/GO de release. Nenhum teste em
+pagamento real, publicação Play Store, PSP, impressão ou operação física foi
+inferido desses merges.
