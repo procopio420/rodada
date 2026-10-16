@@ -140,6 +140,36 @@ body{font:500 15px/1.45 var(--font)}
  .qtybtn{min-width:40px;width:40px;height:44px}
 }
 
+/* Ficha digital / retirada: same visual grammar as the Attendance prototype */
+.ficha-ticket{margin:17px 0 12px;border:1px solid var(--border-strong);border-radius:12px;background:var(--surface);padding:18px 20px 17px;text-align:center}
+.ficha-caption{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.12em}
+.ficha-caption span:last-child{color:var(--accent)}
+.ficha-code{display:block;font-family:var(--mono);font-size:clamp(52px,14vw,75px);font-weight:800;letter-spacing:.055em;line-height:1.2;margin:13px 0 13px;color:var(--paper)}
+.ficha-tip{border-top:1px solid var(--border);padding-top:12px;font-size:13px;line-height:1.45;color:var(--muted)}
+.ficha-tip strong{color:var(--success);font-weight:800}
+.ficha-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--success);margin-right:7px}
+.ficha-under{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 5px}
+.ficha-ticket.compact .ficha-code{font-size:50px}
+.ficha-shortcut{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--border-strong);color:var(--paper);text-align:left;min-height:76px;margin:8px 0 18px}
+.ficha-shortcut>span:first-child{font-size:11px;letter-spacing:.11em;font-weight:850;color:var(--muted)}
+.ficha-shortcut strong{font-size:29px;letter-spacing:.02em;color:var(--paper)}
+.ficha-chevron{font-size:12px;font-weight:750;color:var(--accent)}
+.ficha-order{border-bottom:1px solid var(--border);padding:14px 0}
+.ficha-order .statuspill{font-size:10px}
+.ficha-order .row strong{font-size:14px}
+.ficha-items{font-size:13px;color:var(--muted);margin:8px 0 0;line-height:1.4}
+.ficha-ready{margin-top:12px;font-weight:800;font-size:13px;color:var(--success)}
+.ficha-optional{color:var(--muted);text-decoration:underline;text-underline-offset:4px;font-size:12px;min-height:44px}
+.ficha-empty{font-size:13px;color:var(--muted);padding:12px 0;border-bottom:1px solid var(--border)}
+.ficha-steps>div{display:flex;align-items:center;gap:13px;padding:15px 0;border-bottom:1px solid var(--border);font-size:14px}
+.ficha-steps b{font:850 18px var(--mono);color:var(--accent);min-width:23px}
+.ficha-steps span{flex:1}
+.ficha-steps span strong{color:var(--paper)}
+.ficha-smallprint{color:var(--muted);font-size:12px;line-height:1.5;margin:15px 0 3px}
+.ficha-bar-code{border:1px solid var(--border-strong);background:var(--surface);border-radius:9px;padding:12px;text-align:center;font-size:46px;font-weight:850;color:var(--paper);letter-spacing:.04em}
+.ficha-bar-items{margin-top:12px}
+@media(max-width:380px){.ficha-shortcut{gap:6px;padding:14px 11px}.ficha-shortcut strong{font-size:25px}.ficha-chevron{font-size:11px}.ficha-code{font-size:53px}.ficha-caption{letter-spacing:.07em}}
+
 </style>
 </head><body>
 <div class="shell">
