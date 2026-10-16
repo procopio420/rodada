@@ -25,7 +25,14 @@ class EvidenceContractTests(unittest.TestCase):
             payload = b"SYNTHETIC UNIT TEST; NOT EXECUTION EVIDENCE"
             (self.root / kind).write_bytes(payload)
             artifacts[kind] = {"path": kind, "sha256": hashlib.sha256(payload).hexdigest(), "sanitized": True, "kind": kind}
+        execution = json.dumps({"sha": SHA, "result": "PASS", "last_step": "complete"}).encode()
+        (self.root / "execution.json").write_bytes(execution)
+        artifacts["execution.json"] = {
+            "path": "execution.json", "sha256": hashlib.sha256(execution).hexdigest(),
+            "sanitized": True, "kind": "runner-execution",
+        }
         self.proof = {
+            "execution": {"sha": SHA, "result": "PASS", "artifact_ref": "execution.json"},
             "schema_version": 1, "sha": SHA, "evidence_kind": "executed",
             "database": {"engine": "postgresql", "disposable": True, "instance_id": "isolated-unit-fixture"},
             "versions": {key: "synthetic" for key in ("android", "browser", "django", "postgresql", "nextjs")},
@@ -46,6 +53,34 @@ class EvidenceContractTests(unittest.TestCase):
         for value in ("NOT_AVAILABLE", "emulator API NOT_AVAILABLE"):
             self.proof["versions"]["android"] = value
             self.assertIn("all runtime versions required", gate.validate(self.proof, self.root, SHA))
+
+    def test_late_global_failure_never_goes_green_even_when_all_scenarios_pass(self):
+        # Regression for R3 P1: 14/14 receipts must not mask final runner failure.
+        self.proof["execution"]["result"] = "FAIL"
+        failed = json.dumps({"sha": SHA, "result": "FAIL", "last_step": "trace-export"}).encode()
+        (self.root / "execution.json").write_bytes(failed)
+        self.proof["artifacts"]["execution.json"]["sha256"] = hashlib.sha256(failed).hexdigest()
+        self.assertTrue(all(r["status"] == "PASS" for r in self.proof["scenarios"]))
+        self.assertIn("complete runner execution must be PASS on exact SHA", gate.validate(self.proof, self.root, SHA))
+        self.assertIn("runner execution artifact is failed, stale or tampered", gate.validate(self.proof, self.root, SHA))
+
+    def test_forged_or_missing_global_execution_cannot_grant_go(self):
+        for changed in ("missing", "tampered", "bad-sha", "missing-proof"):
+            proof = copy.deepcopy(self.proof)
+            if changed == "missing":
+                proof.pop("execution")
+            elif changed == "tampered":
+                (self.root / "execution.json").write_text('{"sha":"' + SHA + '","result":"FAIL"}')
+            elif changed == "bad-sha":
+                proof["execution"]["sha"] = "b" * 40
+            else:
+                proof["artifacts"].pop("execution.json")
+            with self.subTest(changed=changed):
+                self.assertTrue(gate.validate(proof, self.root, SHA))
+            # Restore fixture before next mutation.
+            (self.root / "execution.json").write_text(json.dumps({"sha": SHA, "result": "PASS", "last_step": "complete"}))
+            proof_bytes = (self.root / "execution.json").read_bytes()
+            self.proof["artifacts"]["execution.json"]["sha256"] = hashlib.sha256(proof_bytes).hexdigest()
 
     def test_complete_synthetic_contract_shape(self):
         self.assertEqual([], gate.validate(self.proof, self.root, SHA))
