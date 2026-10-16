@@ -19,11 +19,26 @@ válido. O [PR207](https://github.com/procopio420/rodada/pull/207) corrige a red
 para considerar somente estados decisórios. R3 cumulativa de main+patch:
 NO_FINDINGS_WITH_GAPS, zero P0/P1 abertos no código corrigido; **32 testes PASS**.
 O SHA da correção é `67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e`; seu
-[workflow](https://github.com/procopio420/rodada/actions/runs/38857293536) está
-em execução. **NO-GO técnico atual** até comprovar execução/pacote do novo SHA e
-resolver a integração/revisão autorizadas. Nenhum merge/deploy foi feito nesta
-retomada. A matriz abaixo preserva a execução histórica e não certifica o HEAD
-atual por herança.
+[workflow](https://github.com/procopio420/rodada/actions/runs/38857293536) passou
+em **13m55s**. O [artefato12028032853](https://github.com/procopio420/rodada/actions/runs/38857293536/artifacts/12028032853)
+foi baixado e verificado: **14 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED**, execução
+global PASS, 58 artefatos e 21 hashes de fontes íntegros, oito snapshots SQL. A R3 independente
+do código e pacote em `/root/review_foundations` confirmou zero P0/P1 técnicos
+abertos. Inspecionou 15 ZIPs sem campos sensíveis/JWT/PIN textual encontrados;
+sem traces brutos CI, não houve comparação literal de tokens nem inspeção visual
+dos binários. Essa limitação não é omitida do aceite.
+[Resumo machine-readable](evidence/issue-106-67fcaaca/ci-summary.json) registra
+SHA, ambiente, cenários/IDs, SQL, execução e gate. Não substitui os ZIPs completos.
+
+**NO-GO formal:** o manifesto contém somente o erro de revisão independente
+autenticada ausente. A consulta real ao GitHub para PR207 retornou REVIEW_BLOCKED.
+O código corrigido tem R3 local em contexto separado, sem P0/P1; isso não cria
+aprovação GitHub. Além disso, main307ec5d7 ainda contém o P1 até integração autorizada
+do PR207. Nenhum merge/deploy foi feito nesta retomada. A matriz histórica abaixo
+permanece atribuída ao SHA 899255b1; para a execução atual, todos os 14 cenários foram
+reconfirmados em 67fcaaca, incluindo exclusão de estação e snapshots B4/B7.
+F4 está implementada, mas a liberação formal permanece REVIEW_BLOCKED; os gates
+externos abaixo não são substituídos por CI verde.
 
 A revisão local em outro contexto não fabrica uma aprovação GitHub. O workflow
 manual consulta uma aprovação real do SHA por reviewer diferente do autor;
@@ -51,67 +66,70 @@ nova sessão válida. bff3fc31 falhou antes por expectativa incorreta de movimen
 zero; o serviço não cria OPENING_FLOAT quando o fundo é zero. Não houve mudança
 de produto para acomodar esses asserts.
 
-## Tarefas A–F
+## Matriz atual A–F — candidato 67fcaaca
 
-`TESTED` significa execução local real no SHA acima, com receipts correlacionados;
-`CI_PENDING` exige confirmação do workflow correspondente. Gates físicos continuam
-separados, sem transformar automação em aceite presencial.
+`CI_VERIFIED` nesta tabela significa reconfirmação no candidato 67fcaaca pelo run
+38857293536 e revisão independente de seu pacote. Inventários preservam sua
+origem documentada. `REVIEW_BLOCKED` distingue o gate formal autenticado da prova
+de execução. Filtros seletivos não alteram o fato de o código fixado estar em PR,
+ainda não integrado. Gates físicos continuam separados.
 
 | Tarefa | Estado | Prova/escopo |
 |---|---|---|
 | A1 | RECONCILIADO | Inventário reconciliado; fundações #185 e contrato #186 preservados sem diff incidental. |
-| A2 | TESTED | QR-first, claim Web, mesma ocupação/geração e auditoria; claim sem ledger. |
-| A3 | TESTED | Duas Tabs Guest/Web na mesma ocupação, pedidos/saldos separados; ambas lidas no Compose; Tab standalone nativa. |
-| A4 | TESTED | Última Tab fechada não libera; release explícito, DIRTY/CLEANING/AVAILABLE e novo ciclo com mesmo QR. |
-| A5 | TESTED | 403 da GuestSession antiga; nova visita/geração válida, sem Order/Charge indevido. |
-| A6 | TESTED | qr-lifecycle-sql, browser-origins-sql e android-context-readback-sql. |
+| A2 | CI_VERIFIED | QR-first, claim Web, mesma ocupação/geração e auditoria; claim sem ledger. |
+| A3 | CI_VERIFIED | Duas Tabs Guest/Web na mesma ocupação, pedidos/saldos separados; ambas lidas no Compose; Tab standalone nativa. |
+| A4 | CI_VERIFIED | Última Tab fechada não libera; release explícito, DIRTY/CLEANING/AVAILABLE e novo ciclo com mesmo QR. |
+| A5 | CI_VERIFIED | 403 da GuestSession antiga; nova visita/geração válida, sem Order/Charge indevido. |
+| A6 | CI_VERIFIED | qr-lifecycle-sql, browser-origins-sql e android-context-readback-sql. |
 | B1 | RECONCILIADO | Harness #127 reaproveitado; HTTP/storage distinguido da confirmação Compose. |
-| B2 | TESTED | Fixture única, cluster hash, Venue/produtos BAR 700 / KITCHEN 1000 e múltiplos atores. |
-| B3 | TESTED | Pedidos confirmados pela UI Compose, Atendimento Web e Guest; IDs correlacionados. |
-| B4 | REGRESSION_PENDING | NEW→PREPARING→READY por UI explícita nas estações; Guest mostra Pronto/chegando. |
-| B5 | TESTED | Android lê ambas Tabs prontas; Atendimento/Gerência mostram 7 DispatchTasks; OPEN sem conclusão ou provenance inventada. |
-| B6 | TESTED | Carrinhos stale Guest/Web/Compose negados com 409; offline ACTION_REQUIRED e pedidos anteriores preservados. |
-| B7 | REGRESSION_PENDING | SQL final: 5 Orders / 8 Items / 8 Charges, 6800 centavos; estações/centavos/quantidades e zero pagamento por preparo. |
+| B2 | CI_VERIFIED | Fixture única, cluster hash, Venue/produtos BAR 700 / KITCHEN 1000 e múltiplos atores. |
+| B3 | CI_VERIFIED | Pedidos confirmados pela UI Compose, Atendimento Web e Guest; IDs correlacionados. |
+| B4 | CI_VERIFIED | NEW→PREPARING→READY por UI explícita nas estações; Guest mostra Pronto/chegando. |
+| B5 | CI_VERIFIED | Android lê ambas Tabs prontas; Atendimento/Gerência mostram 7 DispatchTasks; OPEN sem conclusão ou provenance inventada. |
+| B6 | CI_VERIFIED | Carrinhos stale Guest/Web/Compose negados com 409; offline ACTION_REQUIRED e pedidos anteriores preservados. |
+| B7 | CI_VERIFIED | SQL final: 5 Orders / 8 Items / 8 Charges, 6800 centavos; estações/centavos/quantidades e zero pagamento por preparo. |
 | C1 | RECONCILIADO | Inventário cash/ledger/concurrency existente reutilizado. |
-| C2 | TESTED | Somente CASH de teste e PENDING controlado sem PSP, PostgreSQL descartável. |
-| C3 | TESTED | Parcial de 300, refund de 100 e residual de 1500 centavos; resposta perdida e replay com mesmo Payment ID; demais Tabs sem pagamento. |
-| C4 | TESTED | Fechamento com saldo retorna 409; PENDING sem confirmação bloqueia, sem CashMovement/PaymentAttempt. |
-| C5 | TESTED | Abertura 10000 / suprimento 2000 / sangria 1000; esperado 12700 / contado 11700 / divergência -1000 centavos revisada; STAFF/CASHIER recebem 403; cutoff nos dois lados. |
-| C6 | TESTED | Refund compensatório de 100 centavos preserva Payment/Charge, confirmação e auditoria. |
-| C7 | TESTED | financial-sql/cash-cutoff-sql/financial-roles-sql/final-state-sql; recebido 1800 − refund 100, exposição 5100 centavos. |
+| C2 | CI_VERIFIED | Somente CASH de teste e PENDING controlado sem PSP, PostgreSQL descartável. |
+| C3 | CI_VERIFIED | Parcial de 300, refund de 100 e residual de 1500 centavos; resposta perdida e replay com mesmo Payment ID; demais Tabs sem pagamento. |
+| C4 | CI_VERIFIED | Fechamento com saldo retorna 409; PENDING sem confirmação bloqueia, sem CashMovement/PaymentAttempt. |
+| C5 | CI_VERIFIED | Abertura 10000 / suprimento 2000 / sangria 1000; esperado 12700 / contado 11700 / divergência -1000 centavos revisada; STAFF/CASHIER recebem 403; cutoff nos dois lados. |
+| C6 | CI_VERIFIED | Refund compensatório de 100 centavos preserva Payment/Charge, confirmação e auditoria. |
+| C7 | CI_VERIFIED | financial-sql/cash-cutoff-sql/financial-roles-sql/final-state-sql; recebido 1800 − refund 100, exposição 5100 centavos. |
 | D1 | RECONCILIADO | Auditoria #130 reutilizada; controles limitados à jornada local #106. |
-| D2 | TESTED | start/start simultâneo com barreira/conexões PostgreSQL; uma ocupação/owner. |
-| D3 | TESTED | claim com CAS e release/open atômicos; auditoria única, sem Tab órfã/ledger. |
-| D4 | TESTED | Double tap Compose; perda de resposta/replay nativo e Guest; key/body idênticos e divergência retorna 409. |
-| D5 | TESTED | Revogação Web/nativa GET/POST/refresh/SSE; expiração 401 → refresh 200; intenção antiga exige revisão após novo login. |
-| D6 | TESTED | A/B próprio 200 / cruzado 404; Guest selectors/produtos negados; Host local assinado no BFF e Android direto negado. Não certifica ingress externo #130. |
-| D7 | TESTED | Receipts, instrumentation e SQL negativo: ausência de efeitos após 403/409/timeouts. |
+| D2 | CI_VERIFIED | start/start simultâneo com barreira/conexões PostgreSQL; uma ocupação/owner. |
+| D3 | CI_VERIFIED | claim com CAS e release/open atômicos; auditoria única, sem Tab órfã/ledger. |
+| D4 | CI_VERIFIED | Double tap Compose; perda de resposta/replay nativo e Guest; key/body idênticos e divergência retorna 409. |
+| D5 | CI_VERIFIED | Revogação Web/nativa GET/POST/refresh/SSE; expiração 401 → refresh 200; intenção antiga exige revisão após novo login. |
+| D6 | CI_VERIFIED | A/B próprio 200 / cruzado 404; Guest selectors/produtos negados; Host local assinado no BFF e Android direto negado. Não certifica ingress externo #130. |
+| D7 | CI_VERIFIED | Receipts, instrumentation e SQL negativo: ausência de efeitos após 403/409/timeouts. |
 | E1 | RECONCILIADO | RST, uplink do emulador e Wi-Fi físico separados; histórico CI documentado. |
-| E2 | TESTED | POST commitado / resposta perdida/force-stop/offline/replay; Order 1 / Item 1 / Charge 1 / Payment 0. |
-| E3 | TESTED | Mesmo Order recuperado → Bar READY; Compose contextual pós READY sem novo comando. |
-| E4 | TESTED | Somente SSE interrompido, HTTP saudável/polling/cursor retomado, item NEW único sem preparar sozinho. |
-| E5 | TESTED | Cozinha offline durante commits Guest/Web, recuperação NEW por snapshot e ações explícitas. |
-| E6 | TESTED | Offline PENDING → catálogo alterado → ACTION_REQUIRED; revogação e comando dependente bloqueado, histórico preservado. |
-| E7 | TESTED | Logs nativos/PIDs/interface, receipts SQL e 15 traces sanitizados; nenhum aceite de Wi-Fi físico inferido. |
+| E2 | CI_VERIFIED | POST commitado / resposta perdida/force-stop/offline/replay; Order 1 / Item 1 / Charge 1 / Payment 0. |
+| E3 | CI_VERIFIED | Mesmo Order recuperado → Bar READY; Compose contextual pós READY sem novo comando. |
+| E4 | CI_VERIFIED | Somente SSE interrompido, HTTP saudável/polling/cursor retomado, item NEW único sem preparar sozinho. |
+| E5 | CI_VERIFIED | Cozinha offline durante commits Guest/Web, recuperação NEW por snapshot e ações explícitas. |
+| E6 | CI_VERIFIED | Offline PENDING → catálogo alterado → ACTION_REQUIRED; revogação e comando dependente bloqueado, histórico preservado. |
+| E7 | CI_VERIFIED | Logs nativos/PIDs/interface, receipts SQL e 15 traces sanitizados; nenhum aceite de Wi-Fi físico inferido. |
 | F1 | RECONCILIADO | Gatilhos CI / filtros de paths e dispatch manual inventariados; proteção/autodeploy externo não inferidos. |
-| F2 | TESTED | Runner/fixture únicos, guards de DB e hash do cluster; execução completa local 899255b1. |
-| F3 | CI_PENDING | Smokes seletivos e gate pesado por paths; KB/Web e CI Android por SHA, sem ruleset alterado. |
-| F4 | CI_PENDING | Workflow manual A–E com upload always, exit real e corte de uplink separado; CI final pendente. |
-| F5 | TESTED | Schema/validador/manifest de 14 casos, versões reais, IDs / hashes de artefatos, SQL final e source_sha256. |
-| F6 | TESTED | Esta matriz e manifest por cenário; históricos FAIL preservados sem promover novo HEAD. |
-| F7 | TESTED | Gate automatizado exige 14 PASS / 10 invariantes / review; físico / PSP/fiscal separado. |
-| F8 | TESTED | R3 independente por slices/contexto; inspeção sanitização/IDs/pacote final e KB. |
+| F2 | CI_VERIFIED | Runner/fixture únicos, guards de DB e hash do cluster; execução completa CI 67fcaaca, mantendo a prova local histórica 899255b1. |
+| F3 | CI_VERIFIED | Smokes seletivos e gate pesado por paths; KB/Web e CI Android por SHA, sem ruleset alterado. |
+| F4 | REVIEW_BLOCKED | Workflow manual A–E com upload always, exit real e corte de uplink separado; execução de PR comprovada; review GitHub autenticada e GO manual pendentes. |
+| F5 | CI_VERIFIED | Schema/validador/manifest de 14 casos, versões reais, IDs / hashes de artefatos, SQL final e source_sha256. |
+| F6 | CI_VERIFIED | Esta matriz e manifest por cenário; históricos FAIL preservados sem promover novo HEAD. |
+| F7 | CI_VERIFIED | Gate automatizado exige 14 PASS / 10 invariantes / review; físico / PSP/fiscal separado. |
+| F8 | R3_LOCAL_AUTH_BLOCKED | R3 independente por slices/contexto; inspeção sanitização/IDs/pacote final e KB. |
 
-A auditoria posterior encontrou 53observações corretas das filas no pacote 899,
+A auditoria posterior encontrou 53 observações corretas das filas no pacote 899,
 mas faltavam asserts permanentes de exclusão de estação e SQL completo de
 source/route/snapshot. [PR205](https://github.com/procopio420/rodada/pull/205)
-acrescenta essas proteções no SHA 7f04f803; execução em andamento. B4/B7 foram
-reabertas na issue. O GO do contrato 899 permanece histórico, sem certificar
-antecipadamente essa ampliação ou o fechamento integral.
+acrescentou essas proteções a partir do SHA 7f04f803; a execução final do PR passou. B4/B7 foram
+reabertas durante a auditoria e depois comprovadas por snapshot/exclusão de estação
+na execução #205 e novamente em 67fcaaca. O GO do contrato 899255b1 permanece histórico;
+o gate formal do candidato atual continua NO-GO por revisão autenticada ausente.
 
-## E2E-01..14
+## Matriz atual E2E-01..14 — candidato 67fcaaca
 
-Todos os cenários abaixo usam o SHA/cluster da execução citada, com traces de UI,
+Todos os cenários abaixo foram reconfirmados no SHA/cluster do candidato 67fcaaca, com traces de UI,
 instrumentação nativa quando aplicável e SQL independente. O manifesto contém
 IDs completos, tempos, versões, hashes e referências por cenário.
 
@@ -134,10 +152,13 @@ IDs completos, tempos, versões, hashes e referências por cenário.
 
 ## Estado de integração e gates
 
-PRs196→197→198→199→200→201→202 são slices empilhados; não foram mergeados por
-esta execução. PRs191–193 foram integrados externamente. PR185 integrado e186
-fechado; somente o contrato legítimo de186 foi reaproveitado. main observado:
-2fc02bf7. Revalidar base/conflitos antes da integração, sem descartar worktrees.
+O responsável integrou #205 (incluindo os slices #196–#204) em 475acadd e #206
+em 307ec5d7, fechando as branches supersedidas. Esses merges ocorreram em outra
+execução autorizada pelo responsável. Nesta retomada, [PR207](https://github.com/procopio420/rodada/pull/207)
+está preparado com correção R3/CI verde e [PR208](https://github.com/procopio420/rodada/pull/208)
+com a matriz/documentação atual. Ambos aguardam integração autorizada; nenhum
+merge/deploy foi feito aqui. main observado: 307ec5d7. Revalidar bases antes de
+integrar; preservar worktrees e trabalho não commitado.
 
 Corte real de uplink comprovado em [workflow38797806054](https://github.com/procopio420/rodada/actions/runs/38797806054),
 SHA 7cb08ad7; nova prova a9cf em [workflow38815589150](https://github.com/procopio420/rodada/actions/runs/38815589150).
@@ -150,7 +171,9 @@ Não se atribui essa execução ao head local. O [PR204](https://github.com/proc
 corrige checkout/head/SHA efetivo/branch detached; execuções do novo SHA 78e04816
 [PR38818247857](https://github.com/procopio420/rodada/actions/runs/38818247857) e
 [manual38818268628](https://github.com/procopio420/rodada/actions/runs/38818268628)
-estão pendentes. F3/F4 continuam CI_PENDING até inspecionar esse pacote.
+foram concluídas: suíte de PR PASS e manual NO-GO por revisão ausente, com corte
+de uplink PASS no mesmo SHA 78e04816. São provas históricas; o resultado atual
+é o pacote 67fcaaca e seu gate NO-GO formal descrito no início.
 
 Pendências externas: dispositivo físico, rede do bar, PSP/Tap/NFC/Pix reais,
 impressoras, fiscal, aceite presencial e rollback VR System. Host probes locais

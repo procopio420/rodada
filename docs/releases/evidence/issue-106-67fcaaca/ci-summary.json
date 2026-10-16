@@ -1,0 +1,918 @@
+{
+  "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+  "workflow_url": "https://github.com/procopio420/rodada/actions/runs/38857293536",
+  "artifact_url": "https://github.com/procopio420/rodada/actions/runs/38857293536/artifacts/12028032853",
+  "gate": {
+    "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+    "generated_at": "2026-10-16T05:57:42.582696+00:00",
+    "counts": {
+      "PASS": 14,
+      "FAIL": 0,
+      "SKIP": 0,
+      "BLOCKED": 0
+    },
+    "automated_gate": "NO-GO",
+    "errors": [
+      "independent review of exact SHA with no open P0/P1 required"
+    ],
+    "physical_gates": "NOT_VERIFIED; separate onsite acceptance"
+  },
+  "execution": {
+    "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+    "result": "PASS",
+    "last_step": "CI shared stack",
+    "started_at": "2026-10-16T05:44:53Z",
+    "finished_at": "2026-10-16T05:57:42.460520+00:00"
+  },
+  "versions": {
+    "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+    "postgresql": "17.11 (Debian 17.11-1.pgdg13+2)",
+    "django": "5.2.18",
+    "android": "emulator API 36",
+    "browser": "145.0.7632.6",
+    "nextjs": "16.3.8",
+    "playwright": "1.58.2",
+    "python": "3.13.16",
+    "node": "v22.23.3"
+  },
+  "final_sql": {
+    "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+    "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+    "status": "PASS",
+    "sql_independent": true,
+    "venue_id": "c2e020c2-b685-4973-8b29-75976fff3d2f",
+    "order_ids": [
+      "4a9f4019-9276-4d12-955a-355c50c03a93",
+      "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+      "952f9287-85e9-4705-a31f-8d35765e24bb",
+      "a5721c0d-c809-4721-ad06-614e46340d3f",
+      "cf09ef15-c100-4d2e-85fe-7e0e4efa0fa4"
+    ],
+    "tab_ids": [
+      "1ce9d426-45a2-4b68-a284-4f369aedc837",
+      "339de6b6-4ea0-49b2-aba8-4d102280842a",
+      "9a1cc805-cbfd-463f-a5ad-219d05f93b41",
+      "c1340ade-0896-408f-9ea7-f351f599efdf",
+      "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+    ],
+    "item_ids": [
+      "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+      "2718fc2c-b6ef-41a2-b3f3-f29830f65b18",
+      "3a452daa-413f-4f56-ba2d-53419c5d5117",
+      "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+      "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+      "ce800607-7657-4abd-9da1-edb1933d76e1",
+      "cfb814b7-4c1a-43a6-9f67-d378af498504",
+      "f59fa6c3-0185-4646-9cae-359b8374c71c"
+    ],
+    "charge_ids": [
+      "002f86ab-f4ae-4284-b776-7cf301125c1f",
+      "01b4509e-430f-4967-a204-213d1b525568",
+      "12b777bf-453c-4f6b-90c5-aa90504ca2cf",
+      "21a02749-0218-414a-b999-eb5f466f6012",
+      "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+      "cedf433b-4b4d-4855-92b6-18b278338cfa",
+      "db0f7ae8-7712-4964-b693-87d747c3ff41",
+      "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+    ],
+    "payment_ids": [
+      "1b93d165-582a-40f8-a6f4-fadf0b34d177",
+      "6687ff8c-c938-46e3-9373-69b9aa84d0ba",
+      "f9423d8d-a60f-4bea-ba7a-df2145a18412"
+    ],
+    "charge_cents": 6800,
+    "confirmed_gross_cents": 1800,
+    "refund_cents": 100,
+    "open_exposure_cents": 5100,
+    "source_sha256": {
+      "android-web-cross-surface.json": "408938f8cfe4feba8d2234eb092871a81d497c9d022fe404dd708b37dbed6a91",
+      "android-compose-order.json": "1df8cf3f0188b84ecd515b995d59033e2d1ca4296c71e6d11284e05f02b032a1",
+      "android-compose-web-sql.json": "8e93c63716dc0aa4fd2cbb0dcb845e92dfb517ac5ce11c2c720c7671402fdbd3",
+      "android-context-readback-sql.json": "04f4a5eb32eef28a291ff2f8b7f4dd81f0e5ea0dcc20bc9e52cfbc45da644115",
+      "projection-sql.json": "7f5427b13e4d7431e29dbcc4872b0ec6bddf673696739864bb0b258cf3b0a5a2",
+      "browser-origins-sql.json": "04f4a5eb32eef28a291ff2f8b7f4dd81f0e5ea0dcc20bc9e52cfbc45da644115",
+      "sse-sql.json": "1241ce02fdad7c2e3c2cfb08f42bfb90d752a7b032c7c9193967d35325e7c5b0",
+      "financial-sql.json": "9cd49f1145387da756e9f62f344dcc5fe99121bbcbe4f47ff061db646ce68a2b",
+      "financial-roles-sql.json": "89d7fb6c241e93a39a7069a2d28af4900178b9bc3281c3f789009bd732c15f6b",
+      "cash-cutoff-sql.json": "b083a1372da43f547b4b863e76447b9ee3583bb985af87ce95f9a9b1eb148624",
+      "pending-payment-sql.json": "3aea0b20894b67b2b3ecc1ab347d6199398e8e38f1ee00a794df223031615dee",
+      "qr-lifecycle-sql.json": "37aaf838f417fb68a3b9a9e4826844fdae4a1c4109c06b253364fe8e0cd72edf",
+      "concurrency-sql.json": "504c0e953aee21f3cf63dca7096f054c6cca2227ede3f49b9598b2b2b2456c16",
+      "android-catalog-sql.json": "aafea2447daaf5caea4d78566b668b974db169494eb7e311d6eb92f54e4e4609",
+      "android-offline-conflict-sql.json": "4c66c7dc003e000c58463531dfce557a7857dc890af58a6234ec82025a1d019a",
+      "android-offline-revocation-sql.json": "dd46fb0279cba5c83ff6a8923c5b4639e37b9d3acb6d1cea32477bbc57336882",
+      "unavailable-cart-sql.json": "10cbc62257041d858eee50d59fefc9a785e06ffde2ddd231e9004c71bc6172be",
+      "unavailable-staff-sql.json": "1226b6d248e387567c9c7d7d987b3c9d8c3fce8558578ae08a2fe90d152ca6c1",
+      "revocation-sql.json": "b6bbb18c75990984031da36d55e4a16de6915dc7441a8687fc096997603bf46a",
+      "isolation-sql.json": "0789ad47ebd57a66ff3a8026c9e8dcefa00ae2875348282305a3d2a7a60fd6c0",
+      "guest-isolation-sql.json": "d496e064c07529b5471b5d1e48164f6c68881881155b1860b8c6e6657494d413"
+    },
+    "snapshot_rows": [
+      {
+        "item_id": "cfb814b7-4c1a-43a6-9f67-d378af498504",
+        "order_id": "cf09ef15-c100-4d2e-85fe-7e0e4efa0fa4",
+        "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+        "unit_price_cents": 700,
+        "quantity": 1,
+        "station": "BAR",
+        "product_name": "Android Post Drop Test Soda",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+          "product_name": "Android Post Drop Test Soda",
+          "base_price_cents": 700,
+          "line_total_cents": 700,
+          "unit_price_cents": 700,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "d176e224-3104-4b50-bc26-8b439f3460d3",
+          "1b1977eb-3d8b-4a1d-a69c-7ead09e7e28e"
+        ]
+      },
+      {
+        "item_id": "2718fc2c-b6ef-41a2-b3f3-f29830f65b18",
+        "order_id": "a5721c0d-c809-4721-ad06-614e46340d3f",
+        "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+        "unit_price_cents": 1000,
+        "quantity": 1,
+        "station": "KITCHEN",
+        "product_name": "Android Compose Test Meal",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+          "product_name": "Android Compose Test Meal",
+          "base_price_cents": 1000,
+          "line_total_cents": 1000,
+          "unit_price_cents": 1000,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "8f6a6007-0f39-49cc-a326-19486e8aa96c",
+          "7b565b63-6b71-4a6c-b70a-68f342d977e0"
+        ]
+      },
+      {
+        "item_id": "f59fa6c3-0185-4646-9cae-359b8374c71c",
+        "order_id": "a5721c0d-c809-4721-ad06-614e46340d3f",
+        "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+        "unit_price_cents": 700,
+        "quantity": 1,
+        "station": "BAR",
+        "product_name": "Android Post Drop Test Soda",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+          "product_name": "Android Post Drop Test Soda",
+          "base_price_cents": 700,
+          "line_total_cents": 700,
+          "unit_price_cents": 700,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "a81606e4-709a-4bed-969d-328bca6734c8",
+          "d78ae5ba-567a-4426-88fb-501738061985"
+        ]
+      },
+      {
+        "item_id": "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+        "order_id": "4a9f4019-9276-4d12-955a-355c50c03a93",
+        "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+        "unit_price_cents": 700,
+        "quantity": 1,
+        "station": "BAR",
+        "product_name": "Android Post Drop Test Soda",
+        "source": "GUEST",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+          "product_name": "Android Post Drop Test Soda",
+          "base_price_cents": 700,
+          "line_total_cents": 700,
+          "unit_price_cents": 700,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "0edfd36d-eb8f-433d-872f-999b562fdd03",
+          "06ef57c8-859b-4e5d-a4dc-8f42aac5f02c"
+        ]
+      },
+      {
+        "item_id": "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+        "order_id": "4a9f4019-9276-4d12-955a-355c50c03a93",
+        "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+        "unit_price_cents": 1000,
+        "quantity": 1,
+        "station": "KITCHEN",
+        "product_name": "Android Compose Test Meal",
+        "source": "GUEST",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+          "product_name": "Android Compose Test Meal",
+          "base_price_cents": 1000,
+          "line_total_cents": 1000,
+          "unit_price_cents": 1000,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "0e6ec668-1228-4b54-8056-5f2d246daa30",
+          "864120db-407b-4fb1-ab9a-f184c5df9aa4"
+        ]
+      },
+      {
+        "item_id": "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+        "order_id": "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+        "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+        "unit_price_cents": 700,
+        "quantity": 1,
+        "station": "BAR",
+        "product_name": "Android Post Drop Test Soda",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "a1d0c16e-66bd-40f1-8020-1bac2d00cb01",
+          "product_name": "Android Post Drop Test Soda",
+          "base_price_cents": 700,
+          "line_total_cents": 700,
+          "unit_price_cents": 700,
+          "fulfillment_station": "BAR",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "4a3314a7-4cc3-4ac2-bb95-af12a5869a64",
+          "89dc9b94-71f6-4e20-a7e6-693bea863100"
+        ]
+      },
+      {
+        "item_id": "ce800607-7657-4abd-9da1-edb1933d76e1",
+        "order_id": "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+        "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+        "unit_price_cents": 1000,
+        "quantity": 1,
+        "station": "KITCHEN",
+        "product_name": "Android Compose Test Meal",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+          "product_name": "Android Compose Test Meal",
+          "base_price_cents": 1000,
+          "line_total_cents": 1000,
+          "unit_price_cents": 1000,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": [
+          "63efbb37-86c1-4ae1-9d9a-30e4d033562f",
+          "4916a5a0-b2d3-4b68-bd8a-e0fd10d70021"
+        ]
+      },
+      {
+        "item_id": "3a452daa-413f-4f56-ba2d-53419c5d5117",
+        "order_id": "952f9287-85e9-4705-a31f-8d35765e24bb",
+        "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+        "unit_price_cents": 1000,
+        "quantity": 1,
+        "station": "KITCHEN",
+        "product_name": "Android Compose Test Meal",
+        "source": "STAFF",
+        "customization_snapshot": {
+          "variant": null,
+          "quantity": 1,
+          "modifiers": [],
+          "product_id": "40ea21b5-c31b-45e3-a13f-c5cd62f4ed18",
+          "product_name": "Android Compose Test Meal",
+          "base_price_cents": 1000,
+          "line_total_cents": 1000,
+          "unit_price_cents": 1000,
+          "fulfillment_station": "KITCHEN",
+          "special_instructions": ""
+        },
+        "transition_audit_ids": []
+      }
+    ],
+    "invariants": {
+      "guest_revoked": "PASS",
+      "ledger_reconciled": "PASS",
+      "new_not_preparing": "PASS",
+      "no_duplicates": "PASS",
+      "no_false_paid": "PASS",
+      "no_lost_orders": "PASS",
+      "offline_no_false_confirmation": "PASS",
+      "order_on_tab": "PASS",
+      "separate_tab_ledgers": "PASS",
+      "venue_isolated": "PASS"
+    },
+    "scope": "disposable integrated automation only; external device/network/PSP/fiscal gates separate"
+  },
+  "scenarios": [
+    {
+      "id": "E2E-01",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "attendance-web"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "e0904ede-f88f-47d4-9558-82c44dd3b86b"
+        ],
+        "tab": [
+          "33ff2323-7e57-43d5-9ede-ade7a968e91e",
+          "c569a896-0691-477a-9ff5-ecebc9525305"
+        ],
+        "occupancy": [
+          "b48cfedf-4c6e-44c2-97a0-a882dcc25f21"
+        ]
+      },
+      "artifact_refs": [
+        "qr-lifecycle-sql.json",
+        "sanitized-traces/8-qr-lifecycle-QR-first-expl-596ec-e-revoke-only-the-old-visit.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-02",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "attendance-web",
+        "android-instrumented"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "c07924af-0aa8-4c43-a202-8cb6ecff38d7"
+        ],
+        "order_item": [
+          "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+          "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+          "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+          "ce800607-7657-4abd-9da1-edb1933d76e1"
+        ],
+        "tab": [
+          "1ce9d426-45a2-4b68-a284-4f369aedc837",
+          "c1340ade-0896-408f-9ea7-f351f599efdf"
+        ],
+        "order": [
+          "4a9f4019-9276-4d12-955a-355c50c03a93",
+          "7ec3957c-f6d4-442c-8f2b-71dc660d03e1"
+        ],
+        "charge": [
+          "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+          "cedf433b-4b4d-4855-92b6-18b278338cfa",
+          "db0f7ae8-7712-4964-b693-87d747c3ff41",
+          "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+        ],
+        "occupancy": [
+          "5785cd1f-4b4d-4fb2-8df9-b3648973cf4f"
+        ]
+      },
+      "artifact_refs": [
+        "browser-origins-sql.json",
+        "android-context-readback-sql.json",
+        "sanitized-traces/0-android-native-to-web-nati-32f6d-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/1-android-native-to-web-nati-8bfae-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/5-browser-origins-Guest-and--4914c-ecover-disconnected-Kitchen.zip",
+        "android-context-readback-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-03",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "attendance-web",
+        "android-instrumented"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "c07924af-0aa8-4c43-a202-8cb6ecff38d7"
+        ],
+        "order_item": [
+          "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+          "2718fc2c-b6ef-41a2-b3f3-f29830f65b18",
+          "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+          "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+          "ce800607-7657-4abd-9da1-edb1933d76e1",
+          "f59fa6c3-0185-4646-9cae-359b8374c71c"
+        ],
+        "tab": [
+          "1ce9d426-45a2-4b68-a284-4f369aedc837",
+          "c1340ade-0896-408f-9ea7-f351f599efdf",
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "4a9f4019-9276-4d12-955a-355c50c03a93",
+          "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+          "a5721c0d-c809-4721-ad06-614e46340d3f"
+        ],
+        "charge": [
+          "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+          "cedf433b-4b4d-4855-92b6-18b278338cfa",
+          "db0f7ae8-7712-4964-b693-87d747c3ff41",
+          "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+        ],
+        "occupancy": [
+          "5785cd1f-4b4d-4fb2-8df9-b3648973cf4f"
+        ]
+      },
+      "artifact_refs": [
+        "browser-origins-sql.json",
+        "android-compose-web-sql.json",
+        "sanitized-traces/0-android-native-to-web-nati-32f6d-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/1-android-native-to-web-nati-8bfae-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/5-browser-origins-Guest-and--4914c-ecover-disconnected-Kitchen.zip",
+        "android-compose-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-04",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "bar",
+        "kitchen",
+        "android-instrumented",
+        "manage"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "c07924af-0aa8-4c43-a202-8cb6ecff38d7"
+        ],
+        "order_item": [
+          "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+          "2718fc2c-b6ef-41a2-b3f3-f29830f65b18",
+          "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+          "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+          "ce800607-7657-4abd-9da1-edb1933d76e1",
+          "cfb814b7-4c1a-43a6-9f67-d378af498504",
+          "f59fa6c3-0185-4646-9cae-359b8374c71c"
+        ],
+        "tab": [
+          "1ce9d426-45a2-4b68-a284-4f369aedc837",
+          "9a1cc805-cbfd-463f-a5ad-219d05f93b41",
+          "c1340ade-0896-408f-9ea7-f351f599efdf",
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "4a9f4019-9276-4d12-955a-355c50c03a93",
+          "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+          "a5721c0d-c809-4721-ad06-614e46340d3f"
+        ],
+        "charge": [
+          "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+          "cedf433b-4b4d-4855-92b6-18b278338cfa",
+          "db0f7ae8-7712-4964-b693-87d747c3ff41",
+          "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+        ],
+        "occupancy": [
+          "5785cd1f-4b4d-4fb2-8df9-b3648973cf4f"
+        ]
+      },
+      "artifact_refs": [
+        "browser-origins-sql.json",
+        "android-compose-web-sql.json",
+        "android-context-readback-sql.json",
+        "projection-sql.json",
+        "sanitized-traces/0-android-native-to-web-nati-32f6d-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/1-android-native-to-web-nati-8bfae-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/12-financial-test-only-partia-c2988--audited-drawer-discrepancy.zip",
+        "sanitized-traces/13-zz-financial-roles-Staff-c-c21e1-nnot-perform-manager-review.zip",
+        "sanitized-traces/14-zzz-financial-cutoff-real--204b9-off-preserve-business-dates.zip",
+        "sanitized-traces/5-browser-origins-Guest-and--4914c-ecover-disconnected-Kitchen.zip",
+        "android-context-readback-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-05",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "attendance-web",
+        "android-instrumented"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "4ea6aef7-c071-4e59-8f05-563a99abab19",
+          "80c547ff-f21f-41d2-bc57-6c39246473a5",
+          "9e28dea8-a74e-4ac0-abb0-48445d7596b3",
+          "eb573d9d-bc44-492f-87f1-492933d1890d"
+        ]
+      },
+      "artifact_refs": [
+        "unavailable-cart-sql.json",
+        "unavailable-staff-sql.json",
+        "android-catalog-sql.json",
+        "android-offline-conflict-sql.json",
+        "sanitized-traces/10-unavailable-after-cart-E2E-b873f-tional-availability-changes.zip",
+        "sanitized-traces/11-unavailable-staff-after-ca-49326-ctual-Bar-availability-flip.zip",
+        "android-catalog-instrumentation.txt",
+        "android-offline-conflict-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-06",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "cash",
+        "attendance-web"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "a5721c0d-c809-4721-ad06-614e46340d3f"
+        ],
+        "charge": [
+          "01b4509e-430f-4967-a204-213d1b525568",
+          "12b777bf-453c-4f6b-90c5-aa90504ca2cf"
+        ],
+        "payment": [
+          "1b93d165-582a-40f8-a6f4-fadf0b34d177",
+          "6687ff8c-c938-46e3-9373-69b9aa84d0ba"
+        ]
+      },
+      "artifact_refs": [
+        "financial-sql.json",
+        "sanitized-traces/12-financial-test-only-partia-c2988--audited-drawer-discrepancy.zip",
+        "sanitized-traces/13-zz-financial-roles-Staff-c-c21e1-nnot-perform-manager-review.zip",
+        "sanitized-traces/14-zzz-financial-cutoff-real--204b9-off-preserve-business-dates.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-07",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "cash",
+        "manage"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "a5721c0d-c809-4721-ad06-614e46340d3f"
+        ],
+        "charge": [
+          "01b4509e-430f-4967-a204-213d1b525568",
+          "12b777bf-453c-4f6b-90c5-aa90504ca2cf"
+        ],
+        "payment": [
+          "1b93d165-582a-40f8-a6f4-fadf0b34d177",
+          "6687ff8c-c938-46e3-9373-69b9aa84d0ba"
+        ]
+      },
+      "artifact_refs": [
+        "financial-sql.json",
+        "financial-roles-sql.json",
+        "cash-cutoff-sql.json",
+        "sanitized-traces/12-financial-test-only-partia-c2988--audited-drawer-discrepancy.zip",
+        "sanitized-traces/13-zz-financial-roles-Staff-c-c21e1-nnot-perform-manager-review.zip",
+        "sanitized-traces/14-zzz-financial-cutoff-real--204b9-off-preserve-business-dates.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-08",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "django",
+        "attendance-web"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "6938ecf1-55ab-476e-a553-e25b54d14356",
+          "8e692c06-ce0c-4c9e-8d88-c2ea7c9dd8c0",
+          "e211fc9e-22db-4b24-b79a-c1f94d72cb48"
+        ],
+        "occupancy": [
+          "07d70ff3-5ea1-49f3-90e4-3f8ec5ab36bf",
+          "12e427af-5f99-4144-8a48-2b63b8e9d7a3",
+          "a84fa467-931c-41d6-9405-56ddd13da1df"
+        ]
+      },
+      "artifact_refs": [
+        "concurrency-sql.json",
+        "sanitized-traces/6-concurrency-readback-concu-9ae97-in-the-shared-Attendance-UI.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-09",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "android-instrumented"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "c07924af-0aa8-4c43-a202-8cb6ecff38d7"
+        ],
+        "order_item": [
+          "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+          "2718fc2c-b6ef-41a2-b3f3-f29830f65b18",
+          "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+          "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+          "ce800607-7657-4abd-9da1-edb1933d76e1",
+          "cfb814b7-4c1a-43a6-9f67-d378af498504",
+          "f59fa6c3-0185-4646-9cae-359b8374c71c"
+        ],
+        "tab": [
+          "1ce9d426-45a2-4b68-a284-4f369aedc837",
+          "9a1cc805-cbfd-463f-a5ad-219d05f93b41",
+          "c1340ade-0896-408f-9ea7-f351f599efdf",
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "4a9f4019-9276-4d12-955a-355c50c03a93",
+          "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+          "a5721c0d-c809-4721-ad06-614e46340d3f",
+          "cf09ef15-c100-4d2e-85fe-7e0e4efa0fa4"
+        ],
+        "charge": [
+          "01b4509e-430f-4967-a204-213d1b525568",
+          "12b777bf-453c-4f6b-90c5-aa90504ca2cf",
+          "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+          "cedf433b-4b4d-4855-92b6-18b278338cfa",
+          "db0f7ae8-7712-4964-b693-87d747c3ff41",
+          "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+        ],
+        "occupancy": [
+          "5785cd1f-4b4d-4fb2-8df9-b3648973cf4f"
+        ]
+      },
+      "artifact_refs": [
+        "browser-origins-sql.json",
+        "android-web-cross-surface.json",
+        "android-compose-order.json",
+        "sanitized-traces/0-android-native-to-web-nati-32f6d-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/1-android-native-to-web-nati-8bfae-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/5-browser-origins-Guest-and--4914c-ecover-disconnected-Kitchen.zip",
+        "android-compose-instrumentation.txt",
+        "android-recovery-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-10",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "attendance-web",
+        "android-instrumented",
+        "guest"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "bef61faa-3712-4c6b-bd91-947e4d2df8c3",
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "225d987f-72b5-4497-8ee9-29a88ed45246",
+          "6052f0f4-1cae-4498-8a49-5ca24336e106",
+          "d3e17579-a472-4458-9e4f-e86697dc809a",
+          "f3a74461-7f0d-461e-9934-2f51032e1bb8",
+          "f7a350eb-d3d0-4113-9f6b-5c2d52cee376",
+          "fdfbf385-f2e4-4f5b-bb6d-eea2db59e5ef"
+        ]
+      },
+      "artifact_refs": [
+        "revocation-sql.json",
+        "isolation-sql.json",
+        "guest-isolation-sql.json",
+        "android-offline-revocation-sql.json",
+        "sanitized-traces/2-authorization-Guest-A-B-se-ff938--IDs-without-ledger-effects.zip",
+        "sanitized-traces/3-authorization-Venue-A-B-ca-a0dfe-y-isolated-through-real-BFF.zip",
+        "sanitized-traces/4-authorization-revoked-Web--b5822-d-new-login-requires-review.zip",
+        "android-offline-revocation-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-11",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "android-instrumented",
+        "bar"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "9a1cc805-cbfd-463f-a5ad-219d05f93b41"
+        ],
+        "order": [
+          "cf09ef15-c100-4d2e-85fe-7e0e4efa0fa4"
+        ],
+        "order_item": [
+          "cfb814b7-4c1a-43a6-9f67-d378af498504"
+        ]
+      },
+      "artifact_refs": [
+        "android-web-cross-surface.json",
+        "sanitized-traces/0-android-native-to-web-nati-32f6d-uction-on-the-identical-Tab.zip",
+        "sanitized-traces/1-android-native-to-web-nati-8bfae-uction-on-the-identical-Tab.zip",
+        "android-recovery-instrumentation.txt",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-12",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "attendance-web",
+        "kitchen"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "order": [
+          "4a9f4019-9276-4d12-955a-355c50c03a93",
+          "7ec3957c-f6d4-442c-8f2b-71dc660d03e1",
+          "952f9287-85e9-4705-a31f-8d35765e24bb"
+        ],
+        "order_item": [
+          "26f244a3-23c0-4302-90dd-50b4dd9c110a",
+          "3a452daa-413f-4f56-ba2d-53419c5d5117",
+          "569cecbe-77a2-4b83-b6bf-db8cf420db7b",
+          "986d3abb-8f39-4f98-b361-48e03d52c1b4",
+          "ce800607-7657-4abd-9da1-edb1933d76e1"
+        ],
+        "tab": [
+          "1ce9d426-45a2-4b68-a284-4f369aedc837",
+          "339de6b6-4ea0-49b2-aba8-4d102280842a",
+          "c1340ade-0896-408f-9ea7-f351f599efdf"
+        ],
+        "charge": [
+          "21a02749-0218-414a-b999-eb5f466f6012",
+          "b336250e-03df-4dad-9f63-2a3e1bdaef14",
+          "cedf433b-4b4d-4855-92b6-18b278338cfa",
+          "db0f7ae8-7712-4964-b693-87d747c3ff41",
+          "eddc0b66-2cb4-4df0-87ed-21bf2db52c5d"
+        ],
+        "table": [
+          "c07924af-0aa8-4c43-a202-8cb6ecff38d7"
+        ],
+        "occupancy": [
+          "5785cd1f-4b4d-4fb2-8df9-b3648973cf4f"
+        ]
+      },
+      "artifact_refs": [
+        "sse-sql.json",
+        "browser-origins-sql.json",
+        "sanitized-traces/5-browser-origins-Guest-and--4914c-ecover-disconnected-Kitchen.zip",
+        "sanitized-traces/9-sse-recovery-SSE-only-inte-b20a1-tation-polling-recovers-NEW.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-13",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "guest",
+        "attendance-web"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "table": [
+          "e0904ede-f88f-47d4-9558-82c44dd3b86b"
+        ],
+        "tab": [
+          "33ff2323-7e57-43d5-9ede-ade7a968e91e",
+          "c569a896-0691-477a-9ff5-ecebc9525305"
+        ],
+        "occupancy": [
+          "b48cfedf-4c6e-44c2-97a0-a882dcc25f21"
+        ]
+      },
+      "artifact_refs": [
+        "qr-lifecycle-sql.json",
+        "sanitized-traces/8-qr-lifecycle-QR-first-expl-596ec-e-revoke-only-the-old-visit.zip",
+        "final-state-sql.json"
+      ]
+    },
+    {
+      "id": "E2E-14",
+      "status": "PASS",
+      "sha": "67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e",
+      "database_instance_id": "e2b53d4de504a969708fb7e5a5c24deda39efc62f83180139344c42dbad534c3",
+      "surfaces": [
+        "cash",
+        "attendance-web"
+      ],
+      "canonical_ids": {
+        "venue": [
+          "c2e020c2-b685-4973-8b29-75976fff3d2f"
+        ],
+        "tab": [
+          "1d8db0ef-29ad-4b93-bfe0-209875d19257",
+          "e0f2ffbf-9efe-4c70-b5ac-c892ad5b1f9c"
+        ],
+        "order": [
+          "a5721c0d-c809-4721-ad06-614e46340d3f"
+        ],
+        "charge": [
+          "01b4509e-430f-4967-a204-213d1b525568",
+          "12b777bf-453c-4f6b-90c5-aa90504ca2cf"
+        ],
+        "payment": [
+          "1b93d165-582a-40f8-a6f4-fadf0b34d177",
+          "6687ff8c-c938-46e3-9373-69b9aa84d0ba"
+        ]
+      },
+      "artifact_refs": [
+        "pending-payment-sql.json",
+        "financial-sql.json",
+        "sanitized-traces/12-financial-test-only-partia-c2988--audited-drawer-discrepancy.zip",
+        "sanitized-traces/13-zz-financial-roles-Staff-c-c21e1-nnot-perform-manager-review.zip",
+        "sanitized-traces/14-zzz-financial-cutoff-real--204b9-off-preserve-business-dates.zip",
+        "sanitized-traces/7-pending-payment-controlled-19d10-ts-closing-zero-balance-Tab.zip",
+        "final-state-sql.json"
+      ]
+    }
+  ]
+}
