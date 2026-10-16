@@ -29,7 +29,7 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .queueitem{display:block;width:100%;min-height:94px;text-align:left;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--paper)}
 .queueitem:focus-visible{border-radius:6px}
 .queue-top{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:820;color:var(--muted)}
-.queue-type{color:var(--amber)}.queue-type.bill{color:var(--blue)}
+.queue-type{color:var(--amber)}.queue-type.bill{color:var(--blue)}.queue-type.delivery{color:var(--green)}
 .queue-title{display:block;margin-top:7px;font-size:17px;line-height:1.3;font-weight:850;letter-spacing:-.015em}
 .queue-detail{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px;color:var(--muted);font-size:12px}.queue-detail strong{color:var(--paper);font-size:12px}
 .queueitem:hover .queue-title{text-decoration:underline;text-decoration-color:var(--amber)}
@@ -150,7 +150,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
 ];
-var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null};
+var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{}};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -163,7 +163,7 @@ function row(x){return '<div class="rowline">'+x+"</div>"}
 function button(action,label,cls,extra){return '<button type="button" class="btn '+(cls||"")+'" data-action="'+action+'" '+(extra||"")+">"+label+"</button>"}
 function back(){return '<button type="button" class="back" data-action="back"><span aria-hidden="true">‹</span> Voltar</button>'}
 function screen(s){state.stack.push(state.screen);state.screen=s;state.toast="";render();window.scrollTo({top:0,behavior:"instant"})}
-function root(s){state.screen=s;state.stack=[];state.toast="";state.picking=false;render();window.scrollTo(0,0)}
+function root(s){state.screen=s;state.stack=[];state.toast="";state.picking=false;state.activeCall=null;render();window.scrollTo(0,0)}
 function goBack(){state.screen=state.stack.pop()||"tables";state.toast="";render();window.scrollTo(0,0)}
 function first(s){return '<div class="eyebrow">'+s+"</div>"}
 function tableCard(t){var n=tabs.filter(function(x){return x.table===t.id}).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
@@ -172,31 +172,40 @@ function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
 function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
 var demoCalls=[
-{id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Chamada pelo celular · comanda #1048",time:"há 1 min"},
-{id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12",summary:"Solicitou a conta",meta:"Origem da mesa · comanda não identificada",time:"há 3 min"}
+{id:"ready-rafael",type:"DELIVERY",source:"production",tabId:"b",tableId:"08",title:"Mesa 08 · Rafael",summary:"Pedido pronto para levar",meta:"2 × Chopp Pilsen · Bar",time:"há 1 min",items:[{product:"Chopp Pilsen",quantity:2,station:"Bar"}]},
+{id:"qr-bill-joao",type:"BILL_REQUEST",source:"guest",tabId:"c",tableId:"12",title:"João · Mesa 12",summary:"Cliente pediu a conta",meta:"Pelo celular · comanda #1050",time:"há 2 min"},
+{id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Pelo celular · comanda #1048",time:"há 3 min"},
+{id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12 · sem comanda",summary:"Pedido de conta sem comanda identificada",meta:"Seleção necessária · 1 comanda nessa mesa",time:"há 4 min"}
 ];
+function liveCalls(){return demoCalls.filter(function(c){return !state.doneCalls[c.id]})}
+function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO"}
+function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
-if(call.source==="guest"&&call.tabId){
- var t=tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId});
- if(t)return{screen:"tab",tab:t.id,table:t.table};
+ var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId});
+ var table=tables.find(function(x){return x.id===call.tableId&&x.status==="occupied"});
+ // A reference alone is never sufficient: the prototype models an authorized,
+ // active assignment by requiring both the tab and current occupied table.
+ if(t&&table&&call.source!=="table")return{screen:callDestination(call),tab:t.id,table:t.table};
+ return table?{screen:"table",table:table.id}:null;
 }
-var table=tables.find(function(x){return x.id===call.tableId});
-return table?{screen:"table",table:table.id}:null;
-}
-function activeCallForTab(t){return state.activeCall&&state.activeCall.targetTabId===t.id?demoCalls.find(function(c){return c.id===state.activeCall.id}):null}
+function currentCall(){return state.activeCall&&liveCalls().find(function(c){return c.id===state.activeCall.id})}
+function activeCallForTab(t){var c=currentCall();return c&&state.activeCall.targetTabId===t.id?c:null}
+function callActionName(screen){return screen==="delivery"?"Ver entrega":screen==="bill"?"Abrir conta":screen==="tab"?"Atender cliente":"Escolher comanda"}
 function viewNow(){
-app.innerHTML=first("Atendimento · fila operacional")+
-'<h1 class="now-title">Agora <span style="color:var(--amber)">·</span> 2 chamados</h1>'+
-'<p class="now-summary">Abra a tarefa no contexto certo. Entrar nela não significa assumir nem concluir o chamado.</p>'+
-'<div class="queuehead"><h2>Precisam de atenção</h2><small>EXEMPLOS</small></div>'+
-demoCalls.map(function(c){
-var direct=resolvedCallTarget(c)?.screen==="tab";
-return '<button type="button" class="queueitem" data-action="open-call" data-id="'+esc(c.id)+'" aria-label="'+esc(c.summary)+', '+esc(c.title)+', '+(direct?"abrir comanda":"abrir mesa")+'">'+
-'<span class="queue-top"><span class="queue-type '+(c.type==="BILL_REQUEST"?"bill":"")+'">'+(c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO")+'</span><span aria-hidden="true">·</span><span>'+esc(c.time)+'</span></span>'+
+var active=liveCalls();
+app.innerHTML=first("Fila operacional · simulação")+
+'<h1 class="now-title">Agora <span style="color:var(--amber)">·</span> '+active.length+' '+(active.length===1?"tarefa":"tarefas")+'</h1>'+
+(state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
+'<p class="now-summary">Cada solicitação já leva à próxima ação. Abrir não assume nem conclui.</p>'+
+'<div class="queuehead"><h2>Para resolver</h2><small>EXEMPLOS</small></div>'+
+(active.length?active.map(function(c){
+var target=resolvedCallTarget(c),verb=callActionName(target?target.screen:"table");
+return '<button type="button" class="queueitem" data-action="open-call" data-id="'+esc(c.id)+'" aria-label="'+esc(callKind(c)+", "+c.title+", "+c.summary+", "+verb)+'" '+(!target?'disabled':'')+'>'+
+'<span class="queue-top"><span class="queue-type '+(c.type==="BILL_REQUEST"?"bill":c.type==="DELIVERY"?"delivery":"")+'">'+callKind(c)+'</span><span aria-hidden="true">·</span><span>'+esc(c.time)+'</span>'+(state.claimedCalls[c.id]?'<span>· Em atendimento (simulado)</span>':"")+'</span>'+
 '<span class="queue-title">'+esc(c.title)+'</span>'+
-'<span class="queue-detail"><span>'+esc(c.meta)+'</span><strong>'+(direct?"Abrir comanda ›":"Ver mesa ›")+'</strong></span></button>'
-}).join("")+
-'<p style="font-size:12px;color:var(--faint);margin-top:22px">Fila fictícia para avaliar a navegação. Nenhuma ação afeta clientes ou chamados reais.</p>';
+'<span class="queue-detail"><span>'+esc(c.meta)+'</span><strong>'+verb+' ›</strong></span></button>'
+}).join(""):'<div class="empty">Nenhuma tarefa pendente neste cenário. Use o botão + Pedir para explorar o resto do protótipo.</div>')+
+'<p style="font-size:12px;color:var(--faint);margin-top:22px">Dados e conclusão fictícios. Nenhuma ação afeta clientes ou pedidos reais.</p>';
 commonNav()
 }
 function viewTables(){
@@ -226,7 +235,7 @@ var t=tab();if(!t){root("tables");return}
 var d=dcount();
 app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-(activeCallForTab(t)?'<div class="contextual-call"><strong>Cliente chamou pelo celular</strong><p>Atendimento solicitado por '+esc(t.name)+' · Mesa '+esc(t.table)+'. Abrir a comanda não conclui a chamada.</p><button type="button" data-action="back-to-now">Voltar à fila de chamados →</button></div>':"")+
+(activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Você já está na comanda correta. Abrir não assume nem conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?'':button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
 '<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
 button("bill","Ver conta","ghost")+'</div></div>'+
@@ -273,8 +282,22 @@ function viewBill(){
 var t=tab();if(!t){root("tables");return}
 app.innerHTML=back()+first("Conta · "+esc(t.ref))+'<h1>Conferir conta.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
 '<div class="billpeek"><span><label>Saldo da comanda</label><small>Valor demonstrativo · não vem da API</small></span><strong>'+money(t.balance)+'</strong></div>'+
-'<div class="notice warn"><strong>Sem pagamento neste protótipo.</strong> No app real, saldo, recebimentos, pagamentos parciais e fechamento são estados canônicos e exigem permissões e confirmação próprias. Rascunhos de pedido não alteram o saldo.</div>'+
-button("back","Voltar à comanda","block ghost");setFoot("")
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Cliente pediu a conta</strong><p>Solicitação vinculada à comanda '+esc(t.ref)+'. O saldo exibido é fictício. Abrir a conta não registra pagamento nem encerra o chamado.</p></div>':"")+
+'<div class="notice warn"><strong>Sem cobrança no protótipo.</strong> Valor apenas demonstrativo. Pagamentos e confirmação do saldo real exigem API, autorização e readback; o rascunho nunca entra nessa conta.</div>'+
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?button("complete-call","Simular solicitação de conta resolvida","block ghost"):'')+
+button("back",state.stack.length?"Voltar":"Voltar às mesas","block ghost");setFoot("")
+}
+function viewDelivery(){
+var c=currentCall(),t=tab();
+if(!c||c.type!=="DELIVERY"||!t||state.activeCall.targetTabId!==t.id){root("now");return}
+app.innerHTML=back()+first("Produção · pedido pronto")+
+'<h1>Levar pedido.</h1><p class="lede">Mesa '+esc(c.tableId)+' · '+esc(t.name)+' · '+esc(t.ref)+'</p>'+
+'<div class="contextual-call"><strong>Pronto para entrega</strong><p>Os itens abaixo estão marcados como prontos <em>nesta simulação</em>. Abrir a tarefa não conclui a entrega.</p></div>'+
+'<div class="sectionhead"><h2>O que levar</h2><small>EXEMPLO</small></div>'+
+(c.items||[]).map(function(item){return '<div class="reviewrow"><div><b>'+item.quantity+'× '+esc(item.product)+'</b><small>Origem · '+esc(item.station)+'</small></div><span class="tag">Pronto</span></div>'}).join("")+
+'<div class="notice">Confirme a entrega <strong>somente depois de entregar</strong>. No app real, a ação exige atualização canônica da tarefa e do item correto, com proteção contra repetição.</div>'+
+button("back-to-now","Voltar sem concluir","block ghost");
+foot("complete-delivery","Simular entrega concluída",false)
 }
 function viewCreate(){
 var label=state.table?"Mesa "+state.table:"Sem mesa";
@@ -299,7 +322,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
@@ -310,16 +333,34 @@ if(act==="root-tables"){root("tables");return}
 if(act==="quick-order"){state.activeCall=null;state.picking=true;state.chooseSearch="";screen("choose");return}
 if(act==="back-to-now"){root("now");return}
 if(act==="open-call"){
- var c=demoCalls.find(function(x){return x.id===id});if(!c)return;
+ var c=liveCalls().find(function(x){return x.id===id});if(!c)return;
  var target=resolvedCallTarget(c);if(!target)return;
- state.picking=false;state.activeCall={id:c.id,targetTabId:target.screen==="tab"?target.tab:null};
+ state.picking=false;state.activeCall={id:c.id,targetTabId:target.tab||null};
  state.table=target.table;
  if(target.tab)state.tab=target.tab;
  screen(target.screen);
  return;
 }
+if(act==="claim-call"){
+ var c=currentCall();if(!c||c.type!=="SERVICE_REQUEST"||!state.activeCall.targetTabId)return;
+ state.claimedCalls[c.id]=true;render();return;
+}
+if(act==="complete-delivery"||act==="complete-call"){
+ var c=currentCall();if(!c||!state.activeCall.targetTabId)return;
+ if(act==="complete-delivery"&&c.type!=="DELIVERY")return;
+ if(act==="complete-call"&&c.type!=="BILL_REQUEST")return;
+ state.doneCalls[c.id]=true;
+ root("now");state.toast=c.type==="DELIVERY"?"Entrega concluída somente na simulação.":"Solicitação de conta resolvida somente na simulação.";render();return;
+}
 if(act==="table"){state.activeCall=null;state.table=id;screen("table");return}
-if(act==="tab"||act==="tab-direct"){state.activeCall=null;state.tab=id;if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return}
+if(act==="tab"||act==="tab-direct"){
+ var prev=currentCall();
+ var resolvingBill=act==="tab"&&prev&&prev.type==="BILL_REQUEST"&&!state.activeCall.targetTabId&&state.table===prev.tableId&&tabs.some(function(t){return t.id===id&&t.table===prev.tableId});
+ state.tab=id;
+ if(resolvingBill){state.activeCall.targetTabId=id;screen("bill");return}
+ state.activeCall=null;
+ if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return
+}
 if(act==="new-table"){screen("create");return}
 if(act==="new-any"){state.table=null;screen("create");return}
 if(act==="catalog"){state.cat="Todos";state.catalogSearch="";screen("catalog");return}
