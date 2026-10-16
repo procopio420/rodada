@@ -36,7 +36,7 @@ type CashPoint = { id: string; label: string; active_shift: { id: string; status
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
 export type TableTabSelection = { requestId: number; tabId: string; occupancyId: string; tableId: string; tableLabel: string };
-export function OrderWorkspace({ presentation = "legacy", requestedSurface = "tab", addItemsRequest = 0, contextualTaskNode, onContextChange, returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { presentation?: "legacy" | "ux2"; requestedSurface?: "tab" | "bill" | "catalog"; addItemsRequest?: number; contextualTaskNode?: ReactNode; onContextChange?: (context: { tabId: string; surface: string } | null) => void; returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
+export function OrderWorkspace({ presentation = "legacy", requestedSurface = "tab", addItemsRequest = 0, closeContextRequest = 0, contextualTaskNode, onContextChange, returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { presentation?: "legacy" | "ux2"; requestedSurface?: "tab" | "bill" | "catalog"; addItemsRequest?: number; closeContextRequest?: number; contextualTaskNode?: ReactNode; onContextChange?: (context: { tabId: string; surface: string } | null) => void; returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catalogLayerOpen, setCatalogLayerOpen] = useState(false);
   const [standaloneCreate, setStandaloneCreate] = useState(false);
@@ -55,6 +55,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
   const recoveryKey = recoveryScope ? `rodada:order-draft:${recoveryScope}` : null;
   const [draftFeedback, setDraftFeedback] = useState("");
   const [catalogSearch, setCatalogSearch] = useState("");
+  const [uxCatalogs, setUxCatalogs] = useState<Record<string,{query:string;category:string}>>({});
   const [category, setCategory] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [tabs, setTabs] = useState<Tab[]>([]), [products, setProducts] = useState<Product[]>([]), [cashPoints, setCashPoints] = useState<CashPoint[]>([]), [selected, setSelected] = useState<Tab | null>(null), [label, setLabel] = useState(""), [message, setMessage] = useState(""), [confirming, setConfirming] = useState(false);
@@ -317,6 +318,11 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     performTableSelection(tableSelection);
   }, [tableSelection]);
   useEffect(() => { if (addItemsRequest && selected && !orderIntent.pending && !switching.current && !correctionPending && !cashPending) { setDialogView("catalog"); setDialogOpen(true); } }, [addItemsRequest]);
+  const handledCloseRequest = useRef(0);
+  useEffect(() => {
+    if (!closeContextRequest || handledCloseRequest.current === closeContextRequest || !dialogOpen || correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || repeatReview || configuring || discardDialog || closingDialog || removingItem) return;
+    handledCloseRequest.current = closeContextRequest; setDialogOpen(false); onDialogClose?.();
+  }, [closeContextRequest, dialogOpen, correctionPending, cashPending, orderIntent.ready, orderIntent.busy, orderIntent.pending, confirming, selecting, opening, closing, repeatLoading, repeatReview, configuring, discardDialog, closingDialog, removingItem, onDialogClose]);
   const handledExternalRequest = useRef("");
   const selectRequestedTab = useEffectEvent((id: string) => { void selectTab({ id }).then(failure => { if (failure) onOpenFailure?.(failure); }); });
   useEffect(() => {
@@ -386,6 +392,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     return <>
       <AttendanceUx2Workspace key={selected.id} tab={selected} surface={dialogView} products={products} lines={rows} total={total} locked={uxLocked} canSend={sendable} fresh={orderFresh && fresh} pending={!!orderIntent.pending} confirming={orderIntent.busy || confirming}
         message={<>{message && <p className="ux2Notice" role="alert">{message}</p>}{orderIntent.message && <p className="ux2Notice" role="alert">{orderIntent.message}</p>}{draftFeedback && <p className="ux2Notice" role="status">{draftFeedback}</p>}</>}
+        catalogState={uxCatalogs[selected.id] ?? {query:"",category:"Todos"}} onCatalogState={state => setUxCatalogs(current => ({...current,[selected.id]:state}))}
         credit={<AttendanceCreditBar position={selected as AttendanceCreditPosition} draftCents={dialogView === "tab" || dialogView === "bill" ? 0 : total} compact={dialogView === "tab"} onDetails={() => setDialogView("limit")} />}
         contextualTaskNode={contextualTaskNode} success={success} onSurface={setDialogView} onBack={() => { if (uxLocked) return; setDialogOpen(false); onDialogClose?.(); requestAnimationFrame(() => returnFocus?.focus()); }}
         onAdd={product => { const current = products.find(value => value.id === product.id); if (!current || uxLocked) return; if (current.variants?.length || current.modifier_groups?.length) { setEditing(null); setConfiguring(current); } else addDraftLine(current, defaults(current)); }}

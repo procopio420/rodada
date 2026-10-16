@@ -36,3 +36,29 @@ for (const width of [360,390,430,1280]) test(`UX2 pages preserve destination and
  expect(attempts).toHaveLength(1);
  await page.screenshot({path:`visual-artifacts/033/ux2-confirmed-${width}.png`,fullPage:true});
 });
+
+for(const kind of ["TAB","TABLE"] as const) test(`UX2 called task retains explicit actions for ${kind} target`,async({page})=>{
+ await fixture(page,"normal",true);
+ const tab={id:"tab-test",display_label:"Marina",table_label:"08",state:"OPEN",version:1,exposure_cents:0,effective_limit_cents:20000,remaining_capacity_cents:20000,relationship_snapshot:"REGULAR",orders:[],payments:[]};
+ const table={id:"table-test",label:"08",status:"OCCUPIED",active_occupancy:{id:"visit",generation:1,tabs:[tab]}};
+ let task={id:"call-exact",task_type:"BILL_REQUEST",state:"OPEN",destination_label:"Mesa08",claimed_by_id:null as string|null,target_version:1,target:{kind,tab_id:kind==="TAB"?tab.id:null,table_id:table.id,occupancy_id:"visit",generation:1}};
+ const mutations:string[]=[];
+ await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:[table]}}));
+ await page.route(/\/api\/attendance\/tabs\/tab-test\/(\?.*)?$/,r=>r.fulfill({json:tab}));
+ await page.route("**/api/attendance/dispatch/requests/",r=>r.fulfill({json:{results:task.state==="DONE"?[]:[task]}}));
+ await page.route("**/api/attendance/dispatch/tasks/call-exact/",r=>r.fulfill({json:task}));
+ await page.route("**/api/attendance/dispatch/requests/call-exact/complete/",r=>{mutations.push(r.request().url());task={...task,state:"DONE"};return r.fulfill({json:task});});
+ await page.goto("/attendance");await page.getByRole("button",{name:/Mesa08.*Abrir conta/}).click();
+ const context=page.getByRole("complementary",{name:"Chamado de origem"});await expect(context).toBeVisible();expect(mutations).toHaveLength(0);
+ if(kind==="TABLE") await page.locator('button[data-tab-id="tab-test"]').click();
+ await expect(page.getByRole("heading",{name:"Fechar a conta.",exact:true})).toBeVisible();
+ await context.getByRole("button",{name:"Apenas concluir pedido de conta",exact:true}).click();await expect(context.getByText("Chamada concluída no servidor.")).toBeVisible();expect(mutations).toHaveLength(1);
+ await context.getByRole("button",{name:"Voltar à fila →",exact:true}).click();await expect(page.getByRole("heading",{name:"Agora",exact:true})).toBeVisible();
+ await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa08|Mesa 08/}).click();await page.locator('button[data-tab-id="tab-test"]').click();await expect(page.getByRole("heading",{name:"Marina",exact:true})).toBeVisible();
+});
+
+test("UX2 task readback identity mismatch cannot navigate",async({page})=>{
+ await fixture(page,"normal",true);
+ await page.route("**/api/attendance/dispatch/tasks/service-test/",r=>r.fulfill({json:{id:"another-task",task_type:"SERVICE_REQUEST",state:"OPEN",target_version:1,target:{kind:"TAB",tab_id:"tab-test",table_id:null,occupancy_id:null,generation:null}}}));
+ await page.goto("/attendance");await page.getByRole("button",{name:/Mesa 24.*Atender cliente/}).click();await expect(page.getByRole("alert").filter({hasText:"Identidade da tarefa divergente"})).toBeVisible();await expect(page.getByRole("region",{name:"Comanda selecionada",exact:true})).toHaveCount(0);
+});

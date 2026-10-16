@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { tabReference } from "@/lib/client/tab-identity";
 import { attendanceCategory, normalizeCatalogSearch } from "@/lib/client/attendance-catalog";
 import { AttendanceOrderStatus } from "./attendance-order-status";
@@ -11,16 +11,22 @@ import "./attendance-ux2-workspace.css";
 type Product = OrderingProduct & { active: boolean; availability: string; category?: string };
 type Line = { product: Product; quantity: number; selection: Selection };
 export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
-export function AttendanceUx2Workspace({ tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
+export function AttendanceUx2Workspace({ tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
   tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
-  pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode;
+  pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode; catalogState?: {query: string; category: string}; onCatalogState?: (state: {query:string;category:string}) => void;
   onSurface: (surface: AttendanceSurface) => void; onBack: () => void;
   onAdd: (product: Product) => void; onCustomize: (product: Product) => void; onReduce: (product: Product) => void; onEdit: (index: number) => void;
   onQuantity: (index: number, delta: number) => void; onSend: () => void; onRepeat: () => void; onDiscard: () => void;
 }) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("Todos");
+  const [localQuery, setLocalQuery] = useState("");
+  const [localCategory, setLocalCategory] = useState("Todos");
+  const query = catalogState?.query ?? localQuery, category = catalogState?.category ?? localCategory;
+  const setQuery = (value: string) => onCatalogState ? onCatalogState({query:value,category}) : setLocalQuery(value);
+  const setCategory = (value: string) => onCatalogState ? onCatalogState({query,category:value}) : setLocalCategory(value);
+  const surfaceRef = useRef<HTMLElement>(null);
+  useEffect(() => { surfaceRef.current?.querySelector<HTMLHeadingElement>("h1")?.focus(); }, [surface]);
+  useEffect(() => { const back = (event: KeyboardEvent) => { if (event.key !== "Escape" || locked) return; event.preventDefault(); if (surface === "tab") onBack(); else onSurface(surface === "draft" ? "catalog" : "tab"); }; window.addEventListener("keydown", back); return () => window.removeEventListener("keydown", back); }, [surface, locked, onBack, onSurface]);
   const count = lines.reduce((sum, line) => sum + line.quantity, 0);
   const closed = ["CLOSED", "CANCELLED"].includes(tab.state);
   const categories = ["Todos", ...new Set(products.filter(product => product.active).map(attendanceCategory))];
@@ -28,12 +34,12 @@ export function AttendanceUx2Workspace({ tab, surface, products, lines, total, l
   const reference = tabReference(tab);
   const destination = `${tab.display_label || reference} · ${tab.table_label ? `Mesa ${tab.table_label}` : "Sem mesa"}`;
   const latest = tab.orders?.at(-1);
-  return <section className="ux2Workspace" aria-label="Comanda selecionada">
+  return <section ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada">
     <button className="ux2Back" disabled={locked} onClick={() => surface === "tab" ? onBack() : onSurface(surface === "draft" ? "catalog" : "tab")}><span aria-hidden="true">‹</span> Voltar</button>
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
-      <div className="ux2Context"><div><h1>{tab.display_label || reference}</h1><p>{tab.table_label ? `Mesa ${tab.table_label} · ` : "Sem mesa · "}{closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
-    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : destination}</p></>}
+      <div className="ux2Context"><div><h1 tabIndex={-1}>{tab.display_label || reference}</h1><p>{tab.table_label ? `Mesa ${tab.table_label} · ` : "Sem mesa · "}{closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
+    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1 tabIndex={-1}>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : destination}</p></>}
     {success && <p className="ux2Toast" role="status">{success}</p>}
     {message}
     {contextualTaskNode}
