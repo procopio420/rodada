@@ -1051,14 +1051,16 @@ function oStatus(id,status){const o=S.orders.find(x=>x.id===id);if(o){o.status=s
 const DEMO_SESSION_KEY='rodada-guest-prototype-p0-20261016';
 function persistDemoSession(){
  if(typeof window==='undefined'||!window.sessionStorage)return;
- try{if(S.hasJoined)saveActiveTab();window.sessionStorage.setItem(DEMO_SESSION_KEY,JSON.stringify(S))}catch(err){}
+ try{if(S.hasJoined)saveActiveTab();window.sessionStorage.setItem(DEMO_SESSION_KEY,JSON.stringify({hash:window.location?.hash?.toLowerCase()||'',state:S}))}catch(err){}
 }
-function restoreDemoSession(){
+function restoreDemoSession(expectedHash=''){
  if(typeof window==='undefined'||!window.sessionStorage)return false;
  try{
    const raw=window.sessionStorage.getItem(DEMO_SESSION_KEY);
    if(!raw)return false;
-   const data=JSON.parse(raw);
+   const saved=JSON.parse(raw);
+   if(!saved||typeof saved!=='object'||saved.hash!==expectedHash)return false;
+   const data=saved.state;
    if(!data||!['mesa','ficha'].includes(data.mode)||!Array.isArray(data.orders)||!Array.isArray(data.payments))return false;
    S={...fresh(),...data};
    S.tabs=typeof data.tabs==='object'&&data.tabs?data.tabs:{};
@@ -1091,7 +1093,7 @@ function render(opts={}){
 }
 if(typeof window!=='undefined'){
  const demoHash=window.location?.hash?.toLowerCase();
- if(!demoHash||demoHash==='#mesa'||demoHash==='#ficha')restoreDemoSession();
+ if(!restoreDemoSession(demoHash||'')){
  if(demoHash==='#ficha'){S.mode='ficha';S.hasJoined=true;S.scene='ficha'}
  else if(demoHash==='#pay'){seedSelfPayDemo()}
  else if(demoHash==='#partial'){seedPartialDemo()}
@@ -1107,6 +1109,7 @@ if(typeof window!=='undefined'){
  else if(demoHash==='#staff'){seedStaffOrder()}
  else if(demoHash==='#no-phone'){seedNoPhone()}
  else if(demoHash==='#dispute'){seedDisputeDemo()}
+ }
 }
 render();
 </script>
