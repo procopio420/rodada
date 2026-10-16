@@ -26,6 +26,11 @@ See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory stat
 - Run **Railway Aderlan demo Docker smoke** manually before changes that materially
   affect packaging/startup or a major pilot deployment; edits to `deploy/railway/**`
   still trigger it automatically.
+- Changes to ledger, ordering, tenant/auth, station UI or Android recovery require
+  the **Android real POST disconnect** integrated run on the exact candidate SHA
+  before pilot release, even when normal PR path filters do not launch it. Use
+  manual dispatch in that case and retain its reviewed artifact. The path filter
+  is a cost control, not an exemption from the release gate; no ruleset is changed.
 - Run **Aderlan isolated pilot shift acceptance** and/or **Integrated release demo**
   manually before a high-impact release or operational homologation.
 - For Android releases, run **Android** manually (including force-stop recovery) and

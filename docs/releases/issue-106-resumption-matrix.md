@@ -1,5 +1,37 @@
 # #106 — matriz verificável de execução
 
+## Estado técnico atual — 16/10/2026
+
+A issue foi fechada administrativamente pelo responsável; #205 e #206 foram
+integrados por outra execução. Isso não equivale a aprovação R3 independente ou
+GO de produção. `main` observado: `307ec5d791ef9f2bdff87e3249313cc0dd8d6850`.
+
+O [run do #206](https://github.com/procopio420/rodada/actions/runs/38848540935)
+executou `956f2139ef782277a3a23de3a3ae05cef9265e8f`: **14 PASS / 0 FAIL /
+0 SKIP / 0 BLOCKED**, execução global e hashes verificados no pacote baixado.
+Seu gate permanece **NO-GO**, somente por ausência de revisão independente
+registrada. A árvore do merge307ec5d7 é idêntica à árvore956f2139; não se atribui
+execução ao SHA do merge por essa equivalência.
+
+A revisão independente posterior identificou um **P1 no gate R3**: COMMENTED ou
+PENDING sobrescrevia CHANGES_REQUESTED do mesmo reviewer, apagando um veto ainda
+válido. O [PR207](https://github.com/procopio420/rodada/pull/207) corrige a redução
+para considerar somente estados decisórios. R3 cumulativa de main+patch:
+NO_FINDINGS_WITH_GAPS, zero P0/P1 abertos no código corrigido; **32 testes PASS**.
+O SHA da correção é `67fcaacaa7d7919a6ab3fa3a03f0dc6c206a438e`; seu
+[workflow](https://github.com/procopio420/rodada/actions/runs/38857293536) está
+em execução. **NO-GO técnico atual** até comprovar execução/pacote do novo SHA e
+resolver a integração/revisão autorizadas. Nenhum merge/deploy foi feito nesta
+retomada. A matriz abaixo preserva a execução histórica e não certifica o HEAD
+atual por herança.
+
+A revisão local em outro contexto não fabrica uma aprovação GitHub. O workflow
+manual consulta uma aprovação real do SHA por reviewer diferente do autor;
+`review_pr_number` não pode substituir esse requisito. Gates de aparelho/rede,
+PSP, impressão, fiscal e aceite/rollback presenciais continuam separados.
+
+## Execução histórica preservada
+
 Execução local integrada **TESTED** no SHA `899255b1406fc3fe51ace2977c7789fc65cf68d0`,
 15/10/2026, pacote `artifacts/runs/899255b1406f-20261015T221922Z` na worktree
 `issue106-ci-package`. Android Compose real em emulador API36/KVM, Chromium,
