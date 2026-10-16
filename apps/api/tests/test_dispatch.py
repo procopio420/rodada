@@ -251,6 +251,8 @@ class DispatchFoundationTests(TestCase):
                 "tab_label": "Ana",
                 "age_seconds": queue.json()["results"][0]["age_seconds"],
                 "target_version": 1,
+                "tab_display_label": "Ana",
+                "tab_display_reference": "Comanda " + str(item.order.tab_id)[:8].upper(),
                 "zone_id": None,
                 "target": {
                     "kind": "TAB", "tab_id": str(item.order.tab_id),
