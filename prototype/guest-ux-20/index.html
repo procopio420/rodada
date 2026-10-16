@@ -483,9 +483,9 @@ if(m==='ficha-how'){title='Retirar no bar';body=`<div class="ficha-steps"><div><
 else if(m==='bar-preview'){title='Visão do bar · simulação';const ready=S.orders.filter(isReady);body=`<p class="micro" style="margin:0 0 8px">FILA DE RETIRADA</p><div class="ficha-bar-code mono">${esc(S.fichaCode)}</div><div class="ficha-bar-items">${ready.length?ready.map(o=>`<div class="receiptline"><span><b>Pedido ${esc(o.id)}</b><small style="display:block;margin-top:3px">${esc(o.items.map(x=>x.qty+'× '+x.name).join(' · '))}</small></span><span class="statuspill success">PRONTO</span></div>`).join(''):'<p class="ficha-smallprint">Nenhum pedido pronto para retirada.</p>'}</div><p class="ficha-smallprint">Conferência visual de FG84 + itens; entrega sem escaneamento e sem confirmação obrigatória.</p>`;footer=`<button class="btn ghost" onclick="S.modal=null;S.scene='ficha';render()">Voltar à ficha</button>`}
 else if(m==='lab'){title='Cenários de teste';body=`<div class="notice info" style="margin-bottom:14px">Laboratório do protótipo. Todos os dados são fictícios.</div><p class="micro" style="margin-bottom:8px">Estado inicial</p><div class="feature" style="margin-bottom:14px"><button onclick="scenario('empty')" style="min-height:76px"><b>✨ Mesa livre</b><em>Primeiro QR</em></button><button onclick="scenario('busy')" style="min-height:76px"><b>🍻 Mesa ocupada</b><em>Entrar no grupo</em></button><button onclick="scenario('ficha')" style="min-height:76px"><b>🎟️ Ficha / balada</b><em>Código FG84</em></button><button onclick="scenario('ficha-ready')" style="min-height:76px"><b>✓ Ficha pronta</b><em>Retirada no bar</em></button></div><p class="micro" style="margin:12px 0 8px">POLÍTICA DO ESTABELECIMENTO · APENAS DEMO</p>
 <div class="policy-demo">
-<button class="\${S.policy==='WARN_ONLY'?'active':''}" aria-pressed="\${S.policy==='WARN_ONLY'}" onclick="setPolicy('WARN_ONLY')">Só alertar</button>
-<button class="\${S.policy==='REQUIRE_PARTIAL'?'active':''}" aria-pressed="\${S.policy==='REQUIRE_PARTIAL'}" onclick="setPolicy('REQUIRE_PARTIAL')">Exigir parcial</button>
-<button class="\${S.policy==='PREPAID'?'active':''}" aria-pressed="\${S.policy==='PREPAID'}" onclick="setPolicy('PREPAID')">Pré-pago</button>
+<button class="${S.policy==='WARN_ONLY'?'active':''}" aria-pressed="${S.policy==='WARN_ONLY'}" onclick="setPolicy('WARN_ONLY')">Só alertar</button>
+<button class="${S.policy==='REQUIRE_PARTIAL'?'active':''}" aria-pressed="${S.policy==='REQUIRE_PARTIAL'}" onclick="setPolicy('REQUIRE_PARTIAL')">Exigir parcial</button>
+<button class="${S.policy==='PREPAID'?'active':''}" aria-pressed="${S.policy==='PREPAID'}" onclick="setPolicy('PREPAID')">Pré-pago</button>
 </div>
 <div class="demo-fixtures">
  <button class="option" onclick="scenario('demo-partial')"><span><strong>▶ Testar parcial para enviar</strong><small>Pedido com consumo anterior</small></span><span class="arrow">›</span></button>
@@ -568,7 +568,12 @@ function render(opts={}){
  el('st-table').textContent=isFicha()?'Sem mesa':{AVAILABLE:'Livre',OCCUPIED:'Ocupada',DIRTY:'Aguardando limpeza',CLEANING:'Limpando'}[S.tableState]||S.tableState;
  el('st-people').textContent=S.participants.length+' participante'+(S.participants.length===1?'':'s');el('st-orders').textContent=S.orders.length+' pedido'+(S.orders.length===1?'':'s');el('st-balance').textContent=money(balance());
 }
-if(typeof window!=='undefined'&&window.location?.hash?.toLowerCase()==='#ficha'){S.mode='ficha';S.hasJoined=true;S.scene='ficha'}
+if(typeof window!=='undefined'){
+ const demoHash=window.location?.hash?.toLowerCase();
+ if(demoHash==='#ficha'){S.mode='ficha';S.hasJoined=true;S.scene='ficha'}
+ else if(demoHash==='#partial'){seedPartialDemo()}
+ else if(demoHash==='#prepaid'){seedPrepaidDemo()}
+}
 render();
 </script>
 </body></html>
