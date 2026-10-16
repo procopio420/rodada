@@ -467,7 +467,7 @@ function reconcileUnknownOrder(){
 
 /* Demo tenant-bound tabs. Only one authorized tab's financial data is hydrated in
    the guest view. REAL authorization must be issued and checked by the server. */
-const tabFields=['orders','payments','cart','pendingOrder','checkout','paymentIntents','pickedLines','orderRequests','disputes','feeConfig','orderCount'];
+const tabFields=['orders','payments','cart','pendingOrder','pendingOrderNeedsReview','checkout','paymentIntents','pickedLines','orderRequests','disputes','feeConfig','orderCount','paymentMode','paymentCount','paymentValue','selectedLines','previewAmount','paymentSuccess','repeated','cartValidation'];
 function saveActiveTab(){
  if(!S.hasJoined||!S.tabKey)return;
  const tab=S.tabs[S.tabKey]||{label:S.tabLabel,authorized:true};
@@ -476,9 +476,8 @@ function saveActiveTab(){
 }
 function structuredCloneSafe(value){return value===undefined?null:JSON.parse(JSON.stringify(value))}
 function clearVisibleTab(){
- S.orders=[];S.payments=[];S.cart=[];S.pendingOrder=null;S.checkout=null;
- S.paymentIntents=[];S.pickedLines=[];S.orderRequests=[];S.disputes=[];
- S.feeConfig={coverCents:0,serviceRate:0,serviceOptIn:false};
+ const clean=fresh();
+ for(const name of tabFields)S[name]=structuredCloneSafe(clean[name]);
  S.tabKey=null;S.tabLabel='';S.hasJoined=false;
 }
 function activateAuthorizedTab(key){
