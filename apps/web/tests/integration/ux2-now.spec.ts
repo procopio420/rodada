@@ -48,9 +48,9 @@ test('canonical call opens explicit table choice without claiming or completing'
   },label);
   await page.reload();
   const row=page.getByRole('article').filter({hasText:`Mesa ${label}`});
-  await expect(row.getByRole('button',{name:/Atender cliente/})).toBeVisible();
+  await expect(row.getByRole('button',{name:/Escolher comanda/})).toBeVisible();
   const writes:string[]=[];page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url())});
-  await row.getByRole('button',{name:/Atender cliente/}).click();
+  await row.getByRole('button',{name:/Escolher comanda/}).click();
   await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true})).toBeVisible();
   expect(writes).toEqual([]);
   const canonical=await page.evaluate(async()=> (await fetch('/api/attendance/dispatch/requests/')).json());
