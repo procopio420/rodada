@@ -188,9 +188,10 @@ var tabs=[
 {id:"b",generation:1,table:"08",name:"Rafael",ref:"#1049",relationship:"VISITOR",customerLinked:false,limit:3000,approvalRequested:false,balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
 {id:"c",generation:1,table:"12",name:"João",ref:"#1050",relationship:"VISITOR",customerLinked:false,limit:3000,approvalRequested:false,balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
 {id:"d",generation:1,table:"05",name:"Carla",ref:"#1051",relationship:"KNOWN",customerLinked:true,limit:8000,approvalRequested:false,balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
-{id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",relationship:"RESTRICTED",customerLinked:false,limit:0,approvalRequested:false,balance:0,state:"OPEN",receipts:[],last:[]}
+{id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",relationship:"RESTRICTED",customerLinked:false,limit:0,approvalRequested:false,balance:0,state:"OPEN",receipts:[],last:[]},
+{id:"f",generation:1,table:null,name:"Bruna · Da casa",ref:"#1053",relationship:"HOUSE",customerLinked:true,limit:50000,approvalRequested:false,balance:9300,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1054,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -503,7 +504,8 @@ function viewLimit(){
  block?'<div class="budgetnote" role="status"><strong>Não é possível enviar este pedido.</strong> Ele deixaria a comanda '+money(Math.max(0,projected-t.limit))+' acima do limite. O pagamento parcial confirmado pode liberar capacidade.</div>':
  (percent!==null&&percent>=80?'<div class="budgetnote"><strong>Atenção ao limite.</strong> O consumo está em '+percent+'% da capacidade. Um próximo pedido pode exigir intervenção.</div>':""))+
  '<div class="sectionhead"><h2>Garantia financeira</h2></div>'+
- '<div class="policyrow"><span>Pré-autorização / caução</span><strong>Não disponível nesta demonstração</strong></div>'+
+ '<div class="policyrow"><span>Pré-autorização / caução</span><strong>Não registrada (simulação)</strong></div>'+
+'<div class="notice">Futuro: pré-autorização confirmada pelo PSP, caução reembolsável com passivo separado e garantia vencida/revogável, cada uma com status e validade próprios. Nenhuma é ativada neste teste.</div>'+
  '<div class="notice"><strong>Aprovação de limite não é garantia.</strong> Autorização temporária da gerência não reserva dinheiro, não captura cartão e não representa depósito. Garantias reais terão fluxo e confirmação próprios no futuro.</div>'+
  '<div class="sectionhead"><h2>O que fazer agora?</h2></div>'+
  '<div class="limit-actions">'+
