@@ -260,7 +260,7 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,serviceRate:0,serviceOptIn:false},staffFallback:false});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentIntents:[],intentCounter:0,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,serviceRate:0,serviceOptIn:false},staffFallback:false});
 let S=fresh();
 const savedModes={mesa:null,ficha:null};
 function setPrototypeMode(mode){
@@ -590,11 +590,34 @@ function resumePaidOrder(){
  if(confirmed){applyAvailablePayments();if(intent.source==='cart')S.cart=[];S.pendingOrder=null;return true}
  S.modal='order-after-payment';render();return false
 }
+
+/* Prototype payment intents: real status must come from provider/backend. */
+function unresolvedPayment(){return (S.paymentIntents||[]).find(p=>p.status==='pending'&&p.tabKey===(S.tabKey||'ficha'))||null}
+function resumePendingPayment(){
+ const c=unresolvedPayment();
+ if(!c)return false;
+ S.checkout=c;S.modal='payment-pending';render();return true
+}
+function beginDemoCheckout(purpose,amount){
+ if(resumePendingPayment())return false;
+ if(!Number.isFinite(amount)||amount<=0)return false;
+ const id='demo-payment-'+(++S.intentCounter);
+ const c={id,tabKey:S.tabKey||(isFicha()?'ficha':'shared'),purpose,amount,method:null,status:'select'};
+ S.paymentIntents.push(c);S.checkout=c;S.modal='payment-method';render();return true
+}
+function inspectPendingPayment(){
+ if(!resumePendingPayment()){flash('Nenhum pagamento aguardando confirmação.');return}
+ flash('Ainda aguardando confirmação na simulação.');
+}
+function dismissModal(){
+ // Dismiss does not cancel or erase a provider-pending intent.
+ S.modal=null;render()
+}
 function checkoutFromBlock(){
  if(!S.pendingOrder)return;
  const amount=requiredToContinue(S.pendingOrder.total);
  if(amount<=0){resumePaidOrder();return}
- S.checkout={purpose:'unlock',amount,method:null,status:'select'};S.modal='payment-method';render();
+ beginDemoCheckout('unlock',amount);
 }
 function copyDemoPix(){
  const fake='PIX-DEMONSTRACAO-NAO-PAGAR';
@@ -604,16 +627,18 @@ function copyDemoPix(){
  }else{flash('Cópia indisponível nesta visualização.')}
 }
 function choosePaymentMethod(method){
- if(!S.checkout||!['PIX','CARD'].includes(method))return;
+ if(!S.checkout||!['PIX','CARD'].includes(method)||S.checkout.status!=='select')return;
+ if(unresolvedPayment()){resumePendingPayment();return}
  if(!S.online){flash('Sem conexão. Pagamento não iniciado.');return}
  S.checkout.method=method;S.checkout.status='pending';S.modal='payment-pending';render();
 }
 function approveDemoPayment(){
  const c=S.checkout;
- if(!c||c.status!=='pending'||!S.online){flash('Pagamento não confirmado.');return}
+ if(!c||c.status!=='pending'||!S.online||c.tabKey!==(S.tabKey||'ficha')){flash('Pagamento não confirmado.');return}
+ if(S.payments.some(p=>p.intentId===c.id)){c.status='confirmed';S.modal='account';render();return}
  c.status='confirmed';const amount=c.purpose==='unlock'?c.amount:Math.min(c.amount,balance());
  if(amount<=0){S.modal='account';S.checkout=null;render();return}
- S.paymentSuccess=registerPayment(amount,S.actor,c.purpose==='unlock');
+ S.paymentSuccess=registerPayment(amount,S.actor,c.purpose==='unlock',c.id);
  if(c.purpose==='unlock'){if(resumePaidOrder()){S.checkout=null;return}return}
  S.checkout=null;S.modal='payment-success';render()
 }
@@ -631,9 +656,10 @@ function reviewPendingOrder(){
  S.modal=source==='repeat'?'repeat':'cart';S.scene=source==='repeat'?'home':'catalog';render();
 }
 function cancelDemoCheckout(){
- S.checkout=null;
- S.modal=S.pendingOrder?'payment-needed':null;
- render();
+ // "Voltar" on a pending payment is only a minimization, never cancellation.
+ if(S.checkout?.status==='pending'){dismissModal();return}
+ if(S.checkout&&S.checkout.status==='select')S.checkout.status='cancelled';
+ S.checkout=null;S.modal=S.pendingOrder?'payment-needed':null;render();
 }
 function reset(){S=fresh();render()}
 function isFicha(){return S.mode==='ficha'}
@@ -735,17 +761,18 @@ function scenario(type){
 }
 function changeActor(id){if(!S.participants.some(x=>x.id===id))return;S.actor=id;S.modal=null;flash('Dispositivo simulado: '+labelOwner(id));render()}
 function requestAssistance(what){S.requestSent=true;S.checkoutRequested=what==='bill';S.modal='help-sent';render()}
-function startPayment(mode){if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
+function startPayment(mode){if(resumePendingPayment())return;if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
 function selectionAmount(){const owed=linesOwing();return owed.filter(x=>S.selectedLines.includes(x.id)).reduce((s,x)=>s+x.owing,0)}
 function paymentAmount(){if(S.paymentMode==='pick')return selectionAmount();if(S.paymentMode==='equal')return Math.ceil(balance()/S.paymentCount);if(S.paymentMode==='amount')return Math.round(Number((S.paymentValue||'').replace(',','.'))*100);if(S.paymentMode==='all')return balance();return 0}
-function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;S.checkout={purpose:'voluntary',amount,method:null,status:'select'};S.modal='payment-method';render()}
-function registerPayment(amount,owner,allowCredit=false){
+function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;beginDemoCheckout('voluntary',amount)}
+function registerPayment(amount,owner,allowCredit=false,intentId=null){
+ if(intentId&&S.payments.some(p=>p.intentId===intentId))return 0;
  let remaining=Math.min(amount,balance());const allocations=[];
  const order=owner===S.actor&&S.paymentMode==='pick'?linesOwing().filter(x=>S.selectedLines.includes(x.id)):linesOwing();
  for(const x of order){if(remaining<=0)break;const a=Math.min(remaining,x.owing);allocations.push({lineId:x.id,amount:a});remaining-=a;}
  if(remaining>0){for(const x of linesOwing().filter(x=>!order.some(y=>y.id===x.id))){if(remaining<=0)break;const a=Math.min(remaining,x.owing);allocations.push({lineId:x.id,amount:a});remaining-=a;}}
  const paidAmount=allowCredit?amount:amount-remaining;
- S.payments.push({id:'pay'+Math.random().toString(36).slice(2,8),actor:owner||S.actor,amount:paidAmount,allocations});
+ S.payments.push({id:'pay'+Math.random().toString(36).slice(2,8),actor:owner||S.actor,amount:paidAmount,allocations,intentId});
  return paidAmount
 }
 function confirmPayment(){approveDemoPayment()}
