@@ -175,7 +175,7 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false});
 let S=fresh();
 const el=id=>document.getElementById(id);
 function allLines(){return S.orders.flatMap(o=>o.items.map((it,i)=>({...it,orderId:o.id,status:o.status})));}
@@ -189,12 +189,17 @@ function cartCount(){return S.cart.reduce((s,x)=>s+x.qty,0)}
 function currentPerson(){return S.participants.find(x=>x.id===S.actor)||S.participants[0]}
 function labelOwner(id){const p=S.participants.find(p=>p.id===id);return p?p.name:'Convidado'}
 function reset(){S=fresh();render()}
+function isFicha(){return S.mode==='ficha'}
+function placeName(){return isFicha()?'Ficha '+S.fichaCode:'Mesa 08'}
+function isReady(o){return o&&o.status==='Pronto para retirar'}
+function markCollected(id){if(!isFicha())return;const o=S.orders.find(o=>o.id===id);if(!isReady(o))return;o.status='Retirado (opcional)';S.modal=null;flash('Retirada registrada só nesta simulação.');render()}
+function startFichaScenario(ready){S=fresh();S.mode='ficha';S.hasJoined=true;S.scene='ficha';S.fichaCode='FG84';if(ready){S.orders=[{id:'#185',status:'Pronto para retirar',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]}];S.orderCount=185}S.modal=null;render()}
 function makeItem(productId,qty,variant,owner){const p=getProduct(productId);return{id:'line'+(Math.random().toString(36).slice(2,10)),productId,name:p.name+(variant?' · '+variant:''),qty,price:p.price+(variant==='Morango'?300:0),owner:owner||S.actor,variant:variant||''}}
 function putOrder(items,status='Recebido'){
  if(!S.online){flash('Sem conexão. Seu pedido não foi enviado.');return false}
- if(S.tableState==='DIRTY'||S.tableState==='CLEANING'||S.tableState==='OUT_OF_SERVICE'||S.accountClosed){flash('Atendimento encerrado. Peça ajuda à equipe.');return false}
+ if((!isFicha()&&['DIRTY','CLEANING','OUT_OF_SERVICE'].includes(S.tableState))||S.accountClosed){flash('Atendimento encerrado. Peça ajuda à equipe.');return false}
  if(!items.length)return false;
- S.occupancy=true;S.hasJoined=true;S.tableState='OCCUPIED';S.entryMode='available';S.orderCount++;
+ if(!isFicha()){S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available'}S.hasJoined=true;S.orderCount++;
  S.orders.push({id:'#'+S.orderCount,status,items:items.map(x=>({...x,id:'line'+Math.random().toString(36).slice(2,11)}))});
  S.scene='home';S.modal=null;flash('Pedido '+S.orders.at(-1).id+' recebido no protótipo.');render();return true
 }
@@ -209,33 +214,39 @@ function catalogQty(id){return S.cart.filter(x=>x.productId===id&&!x.variant).re
 function changeCatalogQty(id,delta){if(delta>0){addProduct(id);return}const index=S.cart.findIndex(x=>x.productId===id&&!x.variant);if(index<0)return;if(S.cart[index].qty<=1)S.cart.splice(index,1);else S.cart[index].qty--;render({preserveView:true})}
 function qtyCart(i,d){const x=S.cart[i];if(!x)return;x.qty=Math.min(99,x.qty+d);if(x.qty<=0)S.cart.splice(i,1);render()}
 function switchView(scene){if(S.scene==='entry'&&!S.hasJoined)return;S.scene=scene;S.modal=null;render()}
-function enter(){if(S.tableState==='DIRTY'||S.tableState==='CLEANING'){flash('Esta mesa ainda está sendo preparada.');return}if(S.wrong){S.modal='wrong';render();return}if(S.entryMode==='busy'&&!S.hasJoined){S.modal='join';render();return}S.hasJoined=true;S.scene='catalog';render()}
+function enter(){if(isFicha()){S.hasJoined=true;S.scene='ficha';render();return}if(S.tableState==='DIRTY'||S.tableState==='CLEANING'){flash('Esta mesa ainda está sendo preparada.');return}if(S.wrong){S.modal='wrong';render();return}if(S.entryMode==='busy'&&!S.hasJoined){S.modal='join';render();return}S.hasJoined=true;S.scene='catalog';render()}
 function join(){S.hasJoined=true;S.occupancy=true;S.entryMode='available';S.tableState='OCCUPIED';S.modal=null;S.scene='home';render()}
 function flash(message){let n=el('snackbar');n.textContent=message;n.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.classList.remove('show'),2700)}
 function scenario(type){
  switch(type){
  case 'empty':reset();flash('Cenário: mesa livre');return;
+  case 'ficha':startFichaScenario(false);flash('Ficha digital FG84 · retirada no bar');return;
+  case 'ficha-ready':startFichaScenario(true);flash('FG84 · pedido pronto para retirar');return;
+  case 'bartender':if(!isFicha()){flash('Ative o cenário ficha primeiro.');return}S.modal='bar-preview';render();return;
+  case 'collected':{if(!isFicha()){flash('Disponível no modo ficha.');return}const ready=S.orders.find(isReady);if(!ready){flash('Nenhum pedido pronto para retirada.');return}markCollected(ready.id);return;}
  case 'busy':
  S=fresh();S.entryMode='busy';S.tableState='OCCUPIED';S.occupancy=true;S.participants=[{id:'you',name:'Você'},{id:'ana',name:'Ana'},{id:'bruno',name:'Bruno'}];
  S.orders=[{id:'#181',status:'Pronto / chegando',items:[makeItem('heineken',2,'','ana'),makeItem('batata',1,'','ana')]},{id:'#182',status:'Em preparo',items:[makeItem('caipi',1,'Limão','bruno'),makeItem('heineken',1,'','bruno')]}];
  S.orderCount=182;S.hasJoined=false;S.scene='entry';flash('Cenário: mesa em andamento');break;
  case 'add-person':{
- if(!S.occupancy){flash('Faça um pedido ou use o cenário de mesa ocupada.');return}
+ if(isFicha()){flash('Uma ficha por cliente neste modo.');return}if(!S.occupancy){flash('Faça um pedido ou use o cenário de mesa ocupada.');return}
  const k=S.participants.length;const id='visitor'+k;S.participants.push({id,name:['Carla','Diego','Bia','Rafa'][k%4]});flash('Outra pessoa entrou pelo QR da mesa.');break}
  case 'advance':{
  const o=S.orders.at(-1);if(!o){flash('Nenhum pedido ainda.');return}
- o.status=o.status==='Recebido'?'Em preparo':o.status==='Em preparo'?'Pronto / chegando':o.status==='Pronto / chegando'?'Entregue (cliente confirmou)':'Entregue (cliente confirmou)';flash('Status atualizado no cenário.');break;}
+ o.status=o.status==='Recebido'?'Em preparo':o.status==='Em preparo'?(isFicha()?'Pronto para retirar':'Pronto / chegando'):isFicha()?o.status:o.status==='Pronto / chegando'?'Entregue (cliente confirmou)':o.status;flash(isReady(o)?'Pedido pronto! Mostre '+S.fichaCode+' no bar.':'Status atualizado no cenário.');break;}
  case 'someone-paid':{
  if(!balance()){flash('Não há saldo pendente.');return}
  const amt=Math.min(3000,balance());registerPayment(amt,'bruno');flash('Outro cliente pagou '+money(amt)+' (simulação).');break;}
  case 'close':{
- if(!S.occupancy){flash('Não há atendimento para encerrar.');return}
+ if(!isFicha()&&!S.occupancy){flash('Não há atendimento para encerrar.');return}
  if(balance()>0){flash('Não é possível encerrar: saldo pendente de '+money(balance())+'.');return}
- S.accountClosed=true;S.modal=null;S.scene='account';flash('Equipe encerrou a conta. Mesa permanece ocupada.');break;}
+ S.accountClosed=true;S.modal=null;S.scene='account';flash(isFicha()?'Equipe encerrou a ficha.':'Equipe encerrou a conta. Mesa permanece ocupada.');break;}
  case 'release':{
+  if(isFicha()){flash('Não há mesa vinculada à ficha.');return}
  if(!S.occupancy){flash('Sem ocupação ativa.');return}
  S.tableState='DIRTY';S.occupancy=false;S.hasJoined=false;S.scene='entry';S.modal=null;S.wrong=false;flash('Mesa liberada. Saldo financeiro preservado; sessões antigas revogadas.');break;}
  case 'clean':{
+  if(isFicha()){flash('Não há mesa vinculada à ficha.');return}
  if(S.tableState!=='DIRTY'&&S.tableState!=='CLEANING'){flash('Mesa ainda não foi liberada.');return}
  S=fresh();flash('Mesa pronta para um novo grupo.');break;}
  case 'offline': S.online=!S.online;flash(S.online?'Conexão simulada restabelecida.':'Offline simulado: pedidos preservados, envio bloqueado.');break;
@@ -245,7 +256,7 @@ function scenario(type){
 }
 function changeActor(id){if(!S.participants.some(x=>x.id===id))return;S.actor=id;S.modal=null;flash('Dispositivo simulado: '+labelOwner(id));render()}
 function requestAssistance(what){S.requestSent=true;S.checkoutRequested=what==='bill';S.modal='help-sent';render()}
-function startPayment(mode){S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
+function startPayment(mode){if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
 function selectionAmount(){const owed=linesOwing();return owed.filter(x=>S.selectedLines.includes(x.id)).reduce((s,x)=>s+x.owing,0)}
 function paymentAmount(){if(S.paymentMode==='pick')return selectionAmount();if(S.paymentMode==='equal')return Math.ceil(balance()/S.paymentCount);if(S.paymentMode==='amount')return Math.round(Number((S.paymentValue||'').replace(',','.'))*100);if(S.paymentMode==='all')return balance();return 0}
 function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;S.modal='payment-review';render()}
