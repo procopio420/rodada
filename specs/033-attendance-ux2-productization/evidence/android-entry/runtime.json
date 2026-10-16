@@ -1,0 +1,27 @@
+{
+  "code_sha": "27ed61f25526b5ece1198367d282df3f9fac8143",
+  "sources_and_installed_apks_sha256": {
+    "apps/attendance-android/app/src/main/java/com/rodada/attendance/operations/AttendanceScreen.kt": "91a475187f50373e319049eca2f6cb1df32da3e8cf6d5deb08ced61ba5157459",
+    "apps/attendance-android/app/src/androidTest/java/com/rodada/attendance/operations/LiveComposeOrderTest.kt": "faaf3b0ce08ce6fa157aebafe995b89d87f5947f3f5e28e5dd702e8a44ef7a90",
+    "apps/attendance-android/app/build/outputs/apk/debug/app-debug.apk": "1865b69ce8657636b42f0dfaec4d89aa934efe0029faa71ecee80074ca2f4261",
+    "apps/attendance-android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "21351ea4440510748d6dd0b3d4a207c3d388bee627789990a32c8df034362ab6"
+  },
+  "jvm_results": {
+    "tests": 97,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "emulator": "rodada-api-36 / emulator-5558 / Android API36",
+  "density": 320,
+  "viewports_dp": [
+    360,
+    390,
+    430
+  ],
+  "height_dp": 950,
+  "api": "local disposable Django ASGI 18131 + PostgreSQL55491",
+  "physical_device": "PENDING",
+  "parity": "PENDING; selection and real order integration only",
+  "build": "executed before code commit with identical source hashes"
+}

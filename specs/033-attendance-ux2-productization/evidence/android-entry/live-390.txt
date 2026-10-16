@@ -1,0 +1,6 @@
+
+com.rodada.attendance.operations.LiveComposeOrderTest:.
+
+Time: 22.179
+
+OK (1 test)

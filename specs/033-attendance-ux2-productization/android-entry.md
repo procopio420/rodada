@@ -24,7 +24,7 @@ Comparação lado a lado em 360/390/430, todas as jornadas e sign-off operaciona
 permanecem gates da implementação completa. Aparelho físico não conectado.
 Resultados executados serão anexados após os gates locais.
 
-## Evidência local (2026-10-18)
+## Evidência local (2026-10-16)
 
 Base: `dcb3a79590904a2c289641d285eda639e1713c87`; branch
 `impl/033-e01-android-entry`. Fontes alteradas: apenas entrada NOW e teste
@@ -33,7 +33,7 @@ a revalidação canônica, sem remover asserts nem alterar regras de produção.
 
 - `./gradlew testDebugUnitTest lintDebug assembleDebug`: PASS; 97 JVM,
   zero falhas/erros/skips. Build local executado antes do commit com este diff.
-- `FrontlineNavigationTest`: PASS, 3 testes no emulador API36.
+- `AttendanceNavigationTest`: PASS, 3 testes no emulador API36.
 - `LiveComposeOrderTest` usando `expectedApiBaseUrl=http://10.0.2.2:18131/`:
   PASS em 360, 390 e 430dp, MainActivity e repositórios reais.
 - Readback independente `scripts/verify-android-compose-order.py`: PASS em cada
@@ -60,3 +60,18 @@ Nenhum critério integral da Spec033 é marcado concluído por este recorte.
 Paridade completa Web/Android/PR212, aparelho físico e aceite humano continuam
 pendentes. Sem merge/deploy; próximos slices: shell nativo fiel e confirmação
 persistente UX2, com comparação visual e revisão independente.
+
+### Reexecução vinculada ao commit de código
+
+`27ed61f2`: LiveComposeOrderTest PASS em 360/390/430dp, respectivamente
+22.064s / 22.179s / 25.512s (ver tempos autoritativos nos logs anexos).
+Cada execução pós-commit produziu Order real e readback SQL independente PASS.
+Arquivos em [evidence/android-entry](evidence/android-entry):
+logs de instrumentação, readbacks SQL com SHA exato, build/JVM, navegação e
+manifest dos hashes SHA256 das fontes e APKs instalados. Capturas `now-*.png`
+são da MainActivity autenticada reaberta e redimensionada neste mesmo APK; não são
+baselines de paridade aprovados. Base local descartável, API36, densidade320.
+
+Revisão independente deve inspecionar o commit de código; os anexos seguintes
+alteram somente documentação/evidência. Sem evidência de aparelho físico nem
+sign-off de paridade. E01/AC01 completos permanecem abertos.

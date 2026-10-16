@@ -1,0 +1,6 @@
+
+com.rodada.attendance.ui.AttendanceNavigationTest:...
+
+Time: 7.663
+
+OK (3 tests)
