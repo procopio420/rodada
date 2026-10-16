@@ -209,3 +209,12 @@ A Spec 002 já oferece limite por perfil local e exposição de ledger canônica
 ## Iteração 2026-10-16 — configurar alerta ou bloqueio por tenant
 
 A preferência de produto evoluiu para **dois modos por tenant/estabelecimento**: `WARN_ONLY` (avisar sem impedir venda) e `ENFORCE` (bloquear pedidos projetados acima do limite). O protótipo começa em **Apenas alertar**, permite testar ambos em **Ver detalhes → Regra por tenant (simulação)** e mantém a barra compacta na comanda, com alerta no carrinho. Em ENFORCE o rascunho é mantido sem envio; em WARN_ONLY o pedido fictício pode ser enviado mesmo acima do limite. **12/12 verificações de navegação simulada** passaram nos dois modos, mais a correção visual para não usar status vermelho de bloqueio em WARN_ONLY. O modo real **ainda não existe na API** e o enforcement atual da Spec 002 continua bloqueando; a proposta de configuração e migração segura está documentada em [Limites e garantias](limits-and-guarantees.md). Sem alterações de backend, banco ou produção.
+
+
+## Iteração 2026-10-16 — P0/P1 do Atendimento encerrados no protótipo
+
+Pedido deixa de depender de toast: **comanda exibe confirmação persistente da simulação, código SIM-xxxx, itens, valor e destinos Bar/Cozinha** (status não representa API real). Se a resposta do envio for simulada como perdida, a intenção congelada e o rascunho permanecem na comanda, o novo envio fica indisponível e **Verificar envio** resolve a mesma intenção sem duplicação local. Não garantir recuperação pós-reload, pois a demo é em memória.
+
+No Catálogo há envio **direto** com identidade/destino da Tab fixos; **Ver resumo** virou opcional. **Mais uma rodada** envia após seleção/ajuste, sem segunda revisão, e não mistura silenciosamente rascunho anterior. Voltar do pedido confirmado retorna à mesa correta. A comanda mantém **Adicionar itens** como ação primária acima do status compacto.
+
+Validação no modelo JS/DOM: **27/27** cenários PASS (envio, contexto, erro incerto, reconciliação, repetição, modo WARN_ONLY/ENFORCE, recebimento, limpeza), sem browser real. Foi adicionado \`scripts/ux2-prototype-smoke.mjs\` para capturas/responsividade mobile 360/390/430 e tratamento de overflow, **ainda não executado**. Contrato de integração e riscos em [P0/P1 de confirmação e fricção](p0-p1-operational-hardening.md). Sem alterações de API/Android/Web de produção, banco ou deploy.
