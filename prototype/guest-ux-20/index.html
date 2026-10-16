@@ -269,6 +269,7 @@ body{font:500 15px/1.45 var(--font)}
 }
 @media(prefers-reduced-motion:reduce){.sheet,.nav,.btn{animation:none!important;transition:none!important}}
 
+.success-check{font-size:36px;line-height:1.2;margin-bottom:8px;color:var(--success)}
 </style>
 </head><body>
 <div class="shell">
@@ -1079,7 +1080,16 @@ else if(m==='payment-equal'){title='Dividir igualmente';body=`${back('payment-op
 else if(m==='payment-amount'){title='Pagar um valor';body=`${back('payment-options')}<p class="small muted" style="margin-bottom:18px">Você pode contribuir com qualquer valor até ${money(balance())}.</p><div class="field"><label for="payAmount">Valor em reais</label><input id="payAmount" type="text" inputmode="decimal" placeholder="Ex.: 35,00" value="${esc(S.paymentValue)}" oninput="S.paymentValue=this.value; document.getElementById('amountHelp').textContent=money(Math.round(Number(this.value.replace(',','.'))*100)||0)"></div><div class="payout"><div class="row between"><span class="muted small">Você vai pagar</span><b id="amountHelp" class="amount">${money(paymentAmount())}</b></div></div>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
 else if(m==='payment-all'){title='Pagar a conta toda';body=`${back('payment-options')}<div class="payment-preview"><div class="micro">Valor para quitar o saldo</div><strong class="mono">${money(balance())}</strong></div>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
 else if(m==='payment-review'){title='Confirmar pagamento';body=`${back('payment-'+S.paymentMode)}<div class="payment-preview"><div class="micro">Valor simulado</div><strong class="mono">${money(Math.min(S.previewAmount||0,balance()))}</strong></div><div class="panel"><div class="row between"><span class="small muted">Saldo antes</span><b class="amount">${money(balance())}</b></div><div class="divider" style="margin:10px 0"></div><div class="row between"><span class="small muted">Saldo após</span><b class="amount positive">${money(Math.max(0,balance()-(S.previewAmount||0)))}</b></div></div><div class="notice" style="margin-top:15px">Simulação · nenhuma cobrança real.</div>`;footer=`<button class="btn" ${!S.online?'disabled':''} onclick="confirmPayment()">Confirmar pagamento simulado</button><button class="btn ghost" onclick="requestAssistance('bill')">Prefiro pagar com a equipe</button>`}
-else if(m==='payment-success'){title='Pagamento confirmado';body=`<div class="successbox"><div style="font-size:37px;margin-bottom:10px">✓</div><h2>Sua parte foi paga!</h2><div class="account-total mono" style="margin:15px 0;color:var(--paper)">${money(S.paymentSuccess)}</div><p class="small muted">Simulado · Saldo ${isFicha()?'da ficha':'da mesa'}: <b style="color:var(--paper)">${money(balance())}</b>.</p></div><p class="lead" style="margin-top:18px">${balance()>0?isFicha()?'Você pode continuar pedindo.':'O grupo pode continuar consumindo.':isFicha()?'Ficha quitada.':'Conta quitada. A mesa continua ocupada.'}</p>`;footer=`<button class="btn" onclick="S.modal=null;S.scene='account';render()">Voltar para a conta</button>`}
+else if(m==='payment-success'){
+ title='Pagamento confirmado';
+ body=`<div class="successbox"><div class="success-check" aria-hidden="true">✓</div>
+ <h2>${balance()>0?'Pagamento registrado!':'Tudo pago!'}</h2>
+ <div class="account-total mono" style="margin:14px 0;color:var(--paper)">${money(S.paymentSuccess)}</div>
+ <p class="small muted">Simulação · Restante: <strong>${money(balance())}</strong></p></div>
+ <p class="lead" style="margin-top:16px">${balance()>0?'Sua comanda continua aberta.':isFicha()?'Sua ficha permanece disponível.':'Sua mesa fica ocupada até a saída do grupo.'}</p>`;
+ footer=`<button class="btn" onclick="S.modal=null;S.scene='${balance()>0?'catalog':'home'}';render()">${balance()>0?'Continuar pedindo':'Voltar ao agora'} →</button>
+ <button class="btn ghost" onclick="S.modal=null;S.scene='account';render()">Ver conta</button>`;
+}
  else return '';
  return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this)dismissModal()"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="dismissModal()">×</button></div><div class="sheet-body">${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
 }
