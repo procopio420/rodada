@@ -11,6 +11,7 @@ import { AttendanceTabHistory } from "@/components/attendance-tab-history";
 import { AttendanceCatalogCard } from "@/components/attendance-catalog-card";
 import { AttendanceCategoryCatalog, sameCatalogSelection } from "@/components/attendance-category-catalog";
 import { AttendanceDraft } from "@/components/attendance-draft";
+import { AttendanceOrderStatus } from "@/components/attendance-order-status";
 import { RepeatOrderDialog, reviewRepeatedOrder, selectedRepeatedLines, type HistoricalOrder, type RepeatQuantities } from "@/components/repeat-order";
 import { ActionDialog } from "@/components/action-dialog";
 import { PosCashReceipt } from "@/components/pos-cash-receipt";
@@ -83,6 +84,9 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   const [offset, setOffset] = useState(0);
   const [nextOffset, setNextOffset] = useState<number | null>(null);
   const [fresh, setFresh] = useState(false);
+  const selectedTabId = useRef<string | null>(null);
+  const [orderFresh, setOrderFresh] = useState(false);
+  useEffect(() => { selectedTabId.current = selected?.id ?? null; }, [selected?.id]);
   const [configuring, setConfiguring] = useState<Product | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const load = useCallback(async (targetOffset = pageOffset.current, targetSearch = appliedQuery.current) => {
@@ -93,14 +97,20 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
     const listUrl = `${apiRoot}/tabs/${params.size ? `?${params}` : ""}`;
     try {
     setFresh(false);
+    const detailId = selectedTabId.current;
     // Unified table attendance selects Tabs from the table surface and reads each
     // selected Tab canonically by ID. The expensive 200-Tab financial list is only
     // needed when the operator explicitly opens history.
     const tabsRequest = tableMode && !showHistory
       ? Promise.resolve({ response: { ok: true }, body: { results: [] as Tab[], next_offset: null } })
       : apiCall<{ results: Tab[]; next_offset: number | null }>(listUrl);
-    const [tabResult, productResult, cashResult] = await Promise.all([tabsRequest, apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`)]);
+    const [tabResult, productResult, cashResult, selectedResult] = await Promise.all([tabsRequest, apiCall<{ results: Product[] }>(`${apiRoot}/catalog/products/`), withoutPayments ? Promise.resolve({ response: { ok: true }, body: { results: [] as CashPoint[] } }) : apiCall<{ results: CashPoint[] }>(`${apiRoot}/cash/points/`), tableMode && detailId ? apiCall<Tab>(`${apiRoot}/tabs/${detailId}/`) : Promise.resolve(null)]);
     if (request !== listRequest.current) return;
+    if (selectedResult && selectedTabId.current === detailId) {
+      if (selectedResult.response.ok && selectedResult.body && "id" in selectedResult.body && selectedResult.body.id === detailId) {
+        setSelected(selectedResult.body as Tab); setOrderFresh(true);
+      } else setOrderFresh(false);
+    }
     if (tabResult.response.ok) {
       const page = tabResult.body as { results: Tab[]; next_offset: number | null };
       setTabs(page.results.slice(0, tabPageSize)); setNextOffset(page.results.length > tabPageSize ? targetOffset + tabPageSize : page.next_offset ?? null);
@@ -113,7 +123,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       setCashPoints(points);
     }
     setFresh(tabResult.response.ok && productResult.response.ok);
-    } catch { if (request === listRequest.current) { setFresh(false); setMessage("Não foi possível atualizar. Os dados podem estar desatualizados."); } }
+    } catch { if (request === listRequest.current) { setFresh(false); setOrderFresh(false); setMessage("Não foi possível atualizar. Os dados podem estar desatualizados."); } }
   }, [apiRoot, withoutPayments, tableMode, showHistory, tabPageSize, setFresh, setTabs, setNextOffset, setOffset, setAppliedSearch, setMessage, setProducts, setCashPoints]);
   const orderIntent = useOrderIntent(async (tabId, orderId, origin) => {
     const detail = await apiCall<Tab>(`${apiRoot}/tabs/${tabId}/`);
@@ -121,7 +131,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       || !detail.body.orders?.some(order => order.id === orderId)) throw new Error("Order readback unavailable");
     await load();
     return () => {
-      setSelected(detail.body as Tab); setTabCollapsed(false);
+      setSelected(detail.body as Tab); setOrderFresh(true); setTabCollapsed(false);
       if (origin === "draft") setDrafts(current => ({ ...current, [tabId]: [] }));
       setSuccess("Pedido confirmado."); setMessage("");
     };
@@ -277,7 +287,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       const result = await apiCall<Tab>(`${apiRoot}/tabs/${tab.id}/${params}`);
       if (!result.response.ok) { const error = asApiError(result.body).message; setMessage(error); return error; }
       if (!result.body || !("id" in result.body) || result.body.id !== tab.id) throw new Error("Invalid tab detail");
-      setSelected(result.body as Tab); setTabCollapsed(false); setCatalogCollapsed(false); if (tableMode) { setStandaloneCreate(false); setDialogView("catalog"); setDialogOpen(true); } setDraftFeedback(""); setSuccess(""); setMessage(""); setSelectionFocus(n => n + 1); return null;
+      setSelected(result.body as Tab); setOrderFresh(true); setTabCollapsed(false); setCatalogCollapsed(false); if (tableMode) { setStandaloneCreate(false); setDialogView("catalog"); setDialogOpen(true); } setDraftFeedback(""); setSuccess(""); setMessage(""); setSelectionFocus(n => n + 1); return null;
     } catch { const error = "Não foi possível abrir a comanda. O rascunho anterior foi preservado."; setMessage(error); return error; }
     finally { switching.current = false; setSelecting(false); }
   };
@@ -331,6 +341,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   const closeTabButton = <button className={withoutPayments ? "buttonSecondary attendanceCloseTab" : "buttonQuiet"} style={withoutPayments ? undefined : { width: "100%", marginTop: 8 }} disabled={correctionPending || confirming || !!orderIntent.pending || !!cart.length || (withoutPayments && selected?.exposure_cents !== 0)} onClick={() => withoutPayments ? setClosingDialog(true) : void close()}>{withoutPayments && <OperationalIcon name="receipt" size={20} />}Fechar comanda</button>;
   const workspace = <section className={withoutPayments ? "attendanceOrders" : "appShell"}>{!tableMode && <header className="productHeader"><div className="eyebrow">RODADA / ATENDIMENTO</div><OperationalHeading as="h1" icon="cart">Comandas e pedidos</OperationalHeading><p className="muted">Estado financeiro e operacional persistido.</p>{withoutPayments && !fresh && <p className="notice" data-state="warning">Atualizando ou dados desatualizados. Verifique a conexão.</p>}{!withoutPayments && <div className="actions"><Link className="backLink" href="/cash">Abrir caixa →</Link><Link className="backLink" href="/manage">Gestão →</Link><Link className="backLink" href="/refunds">Estornos →</Link></div>}</header>}{tableMode && !fresh && <p className="notice" data-state="warning">Dados desatualizados. Atualize antes de confirmar.</p>}{tableMode && !standaloneCreate && <button className="buttonQuiet" aria-label="Histórico" title="Histórico de comandas" disabled={correctionPending || confirming || !!orderIntent.pending} onClick={() => setShowHistory(true)}><OperationalIcon name="history" size={20} /></button>}{success && <p className="notice" role="status" data-state="success">{success}</p>}{message && <div className="notice" role="alert" data-state="danger">{message}</div>}{orderIntent.message && <p className="notice" role="alert" data-state="warning">{orderIntent.message}</p>}{orderIntent.pending && (!selected || ["CLOSED", "CANCELLED"].includes(selected.state)) && <section className="panel" aria-label="Pedido pendente"><OperationalHeading as="h2" icon="cart">Pedido aguardando confirmação</OperationalHeading><p>Comanda original · Itens: {orderIntent.pending.payload.lines.reduce((n, l) => n + l.quantity, 0)}. Confira a mesma operação antes de enviar outro pedido.</p><button className="buttonPrimary" disabled={orderIntent.busy || cashPending} onClick={() => void orderIntent.submit(undefined, apiRoot)}>{orderIntent.busy ? "Verificando…" : "Verificar mesmo pedido"}</button></section>}{(selecting || opening) && <p className="notice" role="status">Abrindo comanda… O rascunho atual está preservado.</p>}<fieldset className="workspaceLock" disabled={repeatLoading || cashPending || selecting || opening || !orderIntent.ready || orderIntent.busy || (!!orderIntent.pending && !selected)}>{(!tableMode || standaloneCreate) && <section className="panel">{withoutPayments ? <div className="attendanceOpenHeading"><OperationalHeading as="h2" icon="cart">Abrir comanda</OperationalHeading><button className="buttonQuiet" aria-label="Histórico" title="Histórico de comandas" aria-haspopup="dialog" disabled={correctionPending || confirming || !!orderIntent.pending} onClick={() => setShowHistory(true)}><OperationalIcon name="history" size={20} /></button></div> : <OperationalHeading as="h2" icon="cart">Abrir comanda</OperationalHeading>}<div className="field"><label htmlFor="attendance-tab-name">Nome ou apelido</label><input id="attendance-tab-name" aria-label="Nome ou apelido" maxLength={120} required value={label} onChange={(event) => setLabel(event.target.value)} /></div><button className="buttonPrimary" disabled={correctionPending || opening || !fresh || confirming || !!orderIntent.pending || !label.trim()} onClick={() => void createTab()}>{withoutPayments ? "Abrir comanda" : "Abrir"}</button></section>}{!tableMode && <section className="panel"><OperationalHeading as="h2" icon="receipt">Comandas abertas</OperationalHeading>{!withoutPayments && <button className="buttonQuiet" aria-pressed={showHistory} onClick={() => setShowHistory(value => !value)}>{showHistory ? "Ocultar histórico de comandas encerradas" : "Ver histórico de comandas encerradas"}</button>}{searchControls("tab-search")}{pagination}{tabs.filter(tab => ((!withoutPayments && showHistory) || !["CLOSED", "CANCELLED"].includes(tab.state))).map((tab) => <button className={withoutPayments && selected?.id === tab.id ? "buttonSecondary attendanceTabOption attendanceTabOptionActive" : "buttonSecondary attendanceTabOption"} key={tab.id} disabled={correctionPending || confirming || !!orderIntent.pending} aria-expanded={withoutPayments ? selected?.id === tab.id && !tabCollapsed : undefined} aria-controls={withoutPayments && selected?.id === tab.id ? "attendance-selected-tab" : undefined} onClick={() => void selectTab(tab)}>{tabPrimaryLabel(tab)} · {tabSecondaryLabel(tab)} · {money(tab.exposure_cents)}</button>)}</section>}{withoutPayments && showHistory && <AttendanceTabHistory searchControls={searchControls("history-tab-search")} pagination={pagination} tabs={tabs.filter(tab => ["CLOSED", "CANCELLED"].includes(tab.state))} apiRoot={apiRoot} onClose={() => setShowHistory(false)} />}{selected && !standaloneCreate && <section ref={selectedSection} className={withoutPayments ? "panel attendanceSelectedTab" : "panel"}>{withoutPayments ? tableMode ? <h2 tabIndex={-1} className="attendanceDialogBalance" aria-label={tabPrimaryLabel(selected)}>Saldo aberto <strong>{money(selected.exposure_cents)}</strong></h2> : <h2 tabIndex={-1} className="attendanceTabTitle" aria-label={tabPrimaryLabel(selected)}><button className="attendanceTabToggle" aria-expanded={!tabCollapsed} aria-controls="attendance-selected-tab" disabled={correctionPending || confirming || !!orderIntent.pending || closing} onClick={() => setTabCollapsed(value => !value)}><span className="attendanceTabCaption">Comanda selecionada</span><span>{tabPrimaryLabel(selected)}</span><small className="muted">{tabSecondaryLabel(selected)}</small><span className="attendanceSelectedBalance">Saldo aberto · {money(selected.exposure_cents)}</span><span className="attendanceTabHint">{tabCollapsed ? "Expandir ▾" : "Recolher ▴"}</span></button></h2> : <OperationalHeading tabIndex={-1} as="h2" icon="cart">{tabPrimaryLabel(selected)}</OperationalHeading>}<div id={withoutPayments ? "attendance-selected-tab" : undefined} hidden={withoutPayments && tabCollapsed}>
 {withoutPayments && <nav className="attendanceOrderShortcuts" aria-label="Nesta comanda">{tableMode && <span className="attendanceOrderDestination">{selected.table_label ? `Mesa ${selected.table_label} · ` : ""}{selected.display_label || tabReference(selected)} · {tabReference(selected)}</span>}<button className="buttonSecondary" aria-pressed={tableMode ? dialogView === "catalog" : undefined} onClick={() => jumpTo("catalog")}><OperationalIcon name="cart" size={20} />Cardápio</button><button className="buttonSecondary" aria-pressed={tableMode ? dialogView === "draft" : undefined} onClick={() => jumpTo("draft")}><OperationalIcon name="receipt" size={20} /><span>Pedido atual · {rows.reduce((sum, row) => sum + row.quantity, 0)} itens<small>{money(total)} · não enviado</small></span></button><button className="buttonSecondary" aria-pressed={tableMode ? dialogView === "bill" : undefined} onClick={() => jumpTo("bill")}><OperationalIcon name="wallet" size={20} />Conta</button></nav>}
+{withoutPayments && <AttendanceOrderStatus orders={selected.orders ?? []} fresh={orderFresh && fresh} />}
 <div hidden={tableMode && dialogView !== "draft"}>
 {cart.length > 0 && <><p className="muted">Este rascunho pertence a esta comanda. Confirme ou descarte antes de fechar.</p><button className="buttonQuiet" disabled={correctionPending || confirming || !!orderIntent.pending} onClick={() => setDiscardDialog(true)}>Descartar rascunho</button></>}
 {discardDialog && <ActionDialog title="Descartar rascunho?" onClose={() => setDiscardDialog(false)}><p>Descartar somente os itens não enviados de {selected.display_label || "esta comanda"}?</p><button className="buttonDanger buttonDangerReadable" onClick={() => { if (orderIntent.pending || cashPending || correctionPending || switching.current) return; setCart([]); setDiscardDialog(false); }}>Confirmar descarte</button></ActionDialog>}
