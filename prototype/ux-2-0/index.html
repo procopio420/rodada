@@ -97,6 +97,20 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .inputlabel{display:block;font-size:13px;color:var(--muted);margin:18px 0 6px;font-weight:740}.field{width:100%;height:53px;border-radius:9px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);padding:0 14px;outline:none}
 .field:focus{border-color:var(--amber)}.notice{border:1px solid var(--line2);background:var(--panel);color:var(--muted);border-radius:9px;padding:13px;margin:16px 0;font-size:12px;line-height:1.5}
 .notice strong{color:var(--paper)}.notice.warn{border-left:3px solid var(--amber)}
+.checkout-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:17px 0 22px}
+.checkout-progress span{background:var(--panel);color:var(--muted);text-align:center;border:1px solid var(--line);font-size:11px;font-weight:750;padding:9px 5px;border-radius:6px}
+.checkout-progress span.on{background:var(--raised);color:var(--paper);border-color:var(--amber)}
+.receiptline{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:13px 0;gap:14px}
+.receiptline strong{font:760 13px JetBrains,monospace}.receiptline small{color:var(--muted);font-size:12px}
+.settlement-summary{padding:20px;border:1px solid var(--line2);background:var(--panel);border-radius:12px;margin:10px 0 16px}
+.settlement-summary small{color:var(--muted);font-size:12px}.settlement-summary strong{display:block;font:850 30px JetBrains,monospace;letter-spacing:-.04em;margin:8px 0}
+.payment-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 16px}
+.payment-methods button{min-height:52px;border-radius:8px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);font-weight:780}
+.payment-methods button.selected{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+.help-text{color:var(--muted);font-size:12px;margin-top:8px}
+.stage{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.stage .index{font:760 12px JetBrains,monospace;color:var(--amber);min-width:20px}
+.stage strong{display:block}.stage small{display:block;color:var(--muted);font-size:12px}
 .taskfoot{position:fixed;bottom:0;width:min(100%,510px);padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--night);border-top:1px solid var(--line);z-index:4;box-shadow:0 -12px 26px var(--night)}
 .taskfoot .btn{width:100%;min-height:56px}
 .bottomnav{position:fixed;bottom:0;width:min(100%,510px);display:grid;grid-template-columns:1fr 1.15fr 1fr;background:var(--panel);border-top:1px solid var(--line);padding:7px 7px calc(7px + env(safe-area-inset-bottom));z-index:4}
@@ -158,17 +172,33 @@ var tables=[
 {id:"06",status:"free",text:"Disponível",zone:"Salão"}
 ];
 var tabs=[
-{id:"a",table:"08",name:"Marina",ref:"#1048",balance:5600,last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
-{id:"b",table:"08",name:"Rafael",ref:"#1049",balance:1400,last:[{pid:"p1",q:1}]},
-{id:"c",table:"12",name:"João",ref:"#1050",balance:2800,last:[{pid:"p5",q:1}]},
-{id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
-{id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
+{id:"a",table:"08",name:"Marina",ref:"#1048",balance:5600,state:"OPEN",receipts:[],last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
+{id:"b",table:"08",name:"Rafael",ref:"#1049",balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
+{id:"c",table:"12",name:"João",ref:"#1050",balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
+{id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
+{id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
 function tab(){return tabs.find(function(t){return t.id===state.tab})}
+function tableBy(id){return tables.find(function(x){return x.id===id})}
+function openAt(id){return tabs.filter(function(t){return t.table===id&&t.state==="OPEN"})}
+function totalPaid(t){return (t.receipts||[]).reduce(function(sum,r){return sum+r.amount},0)}
+function busyDraft(t){return !!(state.draft[t.id]&&Object.values(state.draft[t.id]).some(function(q){return q>0}))}
+function safeToClose(t){return t.state==="OPEN"&&t.balance===0&&!busyDraft(t)}
+function readyForRelease(t){return t&&t.status==="occupied"&&openAt(t.id).length===0&&!deliveries().some(function(c){return c.tableId===t.id})}
+function formatInput(c){return (c/100).toFixed(2).replace(".",",")}
+function parseAmount(s){
+ var v=String(s).trim().replace(/\s/g,"").replace(/^R\$/i,"");
+ if(!/^\d{1,8}([.,]\d{1,2})?$/.test(v))return null;
+ var p=v.replace(",",".").split("."),cents=Number(p[0])*100+Number((p[1]||"").padEnd(2,"0"));
+ return Number.isSafeInteger(cents)&&cents>0?cents:null;
+}
+function methodLabel(s){return {CASH:"Dinheiro",PIX:"Pix manual",CARD:"Cartão manual"}[s]||"Outro"}
+function progress(stage){return '<div class="checkout-progress" aria-label="Jornada de encerramento">'+["Conferir conta","Receber","Encerrar"].map(function(x,i){return '<span class="'+(i===stage?"on":"")+'">'+esc(x)+'</span>'}).join("")+'</div>'}
+
 function prod(pid){return products.find(function(p){return p.id===pid})}
 function draft(){return state.draft[state.tab]||{}}
 function dcount(){return Object.values(draft()).reduce(function(n,q){return n+q},0)}
@@ -180,7 +210,7 @@ function screen(s){state.stack.push(state.screen);state.screen=s;state.toast="";
 function root(s){state.screen=s;state.stack=[];state.toast="";state.picking=false;state.activeCall=null;render();window.scrollTo(0,0)}
 function goBack(){state.screen=state.stack.pop()||"tables";state.toast="";render();window.scrollTo(0,0)}
 function first(s){return '<div class="eyebrow">'+s+"</div>"}
-function tableCard(t){var n=tabs.filter(function(x){return x.table===t.id}).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
+function tableCard(t){var n=openAt(t.id).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
 function tabRow(t){return row('<button type="button" class="rowbtn" data-action="tab" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</span></span><span style="display:flex;align-items:center;gap:12px"><span class="mono tiny">'+money(t.balance)+'</span><span class="arrow">›</span></span></button>')}
 function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
