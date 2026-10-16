@@ -11,6 +11,7 @@ import { AttendanceTabHistory } from "@/components/attendance-tab-history";
 import { AttendanceCatalogCard } from "@/components/attendance-catalog-card";
 import { AttendanceCategoryCatalog, sameCatalogSelection } from "@/components/attendance-category-catalog";
 import { AttendanceDraft } from "@/components/attendance-draft";
+import { AttendanceUx2Workspace, type AttendanceSurface } from "@/components/attendance-ux2-workspace";
 import { AttendanceOrderStatus } from "@/components/attendance-order-status";
 import { RepeatOrderDialog, reviewRepeatedOrder, selectedRepeatedLines, type HistoricalOrder, type RepeatQuantities } from "@/components/repeat-order";
 import { ActionDialog } from "@/components/action-dialog";
@@ -34,11 +35,11 @@ type CashPoint = { id: string; label: string; active_shift: { id: string; status
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
 export type TableTabSelection = { requestId: number; tabId: string; occupancyId: string; tableId: string; tableLabel: string };
-export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
+export function OrderWorkspace({ presentation = "legacy", requestedSurface = "tab", addItemsRequest = 0, onContextChange, returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { presentation?: "legacy" | "ux2"; requestedSurface?: "tab" | "bill" | "catalog"; addItemsRequest?: number; onContextChange?: (context: { tabId: string; surface: string } | null) => void; returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catalogLayerOpen, setCatalogLayerOpen] = useState(false);
   const [standaloneCreate, setStandaloneCreate] = useState(false);
-  const [dialogView, setDialogView] = useState("catalog");
+  const [dialogView, setDialogView] = useState<AttendanceSurface>(presentation === "ux2" ? "tab" : "catalog");
   const tabPageSize = withoutPayments ? 10 : 200;
   const apiRoot = withoutPayments ? "/api/attendance" : "/api/pos";
   const [closingDialog, setClosingDialog] = useState(false), [closing, setClosing] = useState(false), [success, setSuccess] = useState("");
@@ -65,6 +66,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   const [repeatReview, setRepeatReview] = useState<{ tabId: string; orderId: string; review: ReturnType<typeof reviewRepeatedOrder<Product>> } | null>(null);
   const [drafts, setDrafts] = useState<Record<string, DraftLine[]>>({});
   const cart = useMemo(() => selected ? drafts[selected.id] ?? [] : [], [selected, drafts]);
+  useEffect(() => { onContextChange?.(dialogOpen && selected ? { tabId: selected.id, surface: dialogView } : null); }, [dialogOpen, selected?.id, dialogView, onContextChange]);
   function setCart(update: DraftLine[] | ((current: DraftLine[]) => DraftLine[])) {
     if (!selected) return;
     const tabId = selected.id;
@@ -142,6 +144,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       setSelected(detail.body as Tab); setOrderFresh(true); setTabCollapsed(false);
       if (origin === "draft") setDrafts(current => ({ ...current, [tabId]: [] }));
       setSuccess("Pedido confirmado."); setMessage("");
+      if (presentation === "ux2") setDialogView("tab");
     };
   });
   const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); setDialogView("draft"); } onRecoveryNeeded?.(); });
@@ -262,7 +265,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       setRepeatLoading(false);
     }
   }
-  function jumpTo(region: string) {
+  function jumpTo(region: AttendanceSurface) {
     if (tableMode) {
       setDialogView(region);
       requestAnimationFrame(() => selectedSection.current?.querySelector<HTMLElement>(`[data-attendance-region="${region}"]`)?.focus());
@@ -291,7 +294,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   }
   const selectTab = async (tab: Pick<Tab, "id">, context?: TableTabSelection): Promise<string | null> => {
     if (catalogLayerOpen || switching.current || cashPending || correctionPending || orderIntent.pending || closing || discardDialog || configuring || repeatReading.current || repeatReview) return "Resolva a operação atual antes de abrir outra comanda.";
-    if (!context && selected?.id === tab.id) { if (tableMode) { setStandaloneCreate(false); setDialogView("catalog"); setDialogOpen(true); } setTabCollapsed(false); setSelectionFocus(n => n + 1); return null; }
+    if (!context && selected?.id === tab.id) { if (tableMode) { setStandaloneCreate(false); setDialogView(presentation === "ux2" ? requestedSurface : "catalog"); setDialogOpen(true); } setTabCollapsed(false); setSelectionFocus(n => n + 1); return null; }
     selectedReadEpoch.current++;
     switching.current = true; setSelecting(true);
     try {
@@ -299,7 +302,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
       const result = await apiCall<Tab>(`${apiRoot}/tabs/${tab.id}/${params}`);
       if (!result.response.ok) { const error = asApiError(result.body).message; setMessage(error); return error; }
       if (!result.body || !("id" in result.body) || result.body.id !== tab.id) throw new Error("Invalid tab detail");
-      selectedReadEpoch.current++; setSelected(result.body as Tab); setOrderFresh(true); setTabCollapsed(false); setCatalogCollapsed(false); if (tableMode) { setStandaloneCreate(false); setDialogView("catalog"); setDialogOpen(true); } setDraftFeedback(""); setSuccess(""); setMessage(""); setSelectionFocus(n => n + 1); return null;
+      selectedReadEpoch.current++; setSelected(result.body as Tab); setOrderFresh(true); setTabCollapsed(false); setCatalogCollapsed(false); if (tableMode) { setStandaloneCreate(false); setDialogView(presentation === "ux2" ? requestedSurface : "catalog"); setDialogOpen(true); } setDraftFeedback(""); setSuccess(""); setMessage(""); setSelectionFocus(n => n + 1); return null;
     } catch { const error = "Não foi possível abrir a comanda. O rascunho anterior foi preservado."; setMessage(error); return error; }
     finally { switching.current = false; setSelecting(false); }
   };
@@ -312,6 +315,7 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
     handledTableRequest.current = tableSelection.requestId;
     performTableSelection(tableSelection);
   }, [tableSelection]);
+  useEffect(() => { if (addItemsRequest && selected && !orderIntent.pending && !switching.current && !correctionPending && !cashPending) { setDialogView("catalog"); setDialogOpen(true); } }, [addItemsRequest]);
   const handledExternalRequest = useRef("");
   const selectRequestedTab = useEffectEvent((id: string) => { void selectTab({ id }).then(failure => { if (failure) onOpenFailure?.(failure); }); });
   useEffect(() => {
@@ -375,5 +379,27 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   setSelected(detail.body as Tab); await load();
 }} />}</section>;
   const dialogLocked = catalogLayerOpen || correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || !!orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || !!repeatReview || !!configuring || discardDialog || closingDialog || !!removingItem || showHistory;
+  if (presentation === "ux2" && tableMode && dialogOpen && selected && !standaloneCreate && !showHistory) {
+    const uxLocked = correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || !!orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || !!repeatReview || !!configuring || discardDialog || closingDialog || !!removingItem;
+    const sendable = rows.length > 0 && fresh && rows.every(row => row.product.active && row.product.availability === "AVAILABLE" && !selectionError(row.product, row.selection));
+    return <>
+      <AttendanceUx2Workspace key={selected.id} tab={selected} surface={dialogView} products={products} lines={rows} total={total} locked={uxLocked} canSend={sendable} fresh={orderFresh && fresh} pending={!!orderIntent.pending} confirming={orderIntent.busy || confirming}
+        message={<>{message && <p className="ux2Notice" role="alert">{message}</p>}{orderIntent.message && <p className="ux2Notice" role="alert">{orderIntent.message}</p>}{draftFeedback && <p className="ux2Notice" role="status">{draftFeedback}</p>}</>}
+        success={success} onSurface={setDialogView} onBack={() => { if (uxLocked) return; setDialogOpen(false); onDialogClose?.(); requestAnimationFrame(() => returnFocus?.focus()); }}
+        onAdd={product => { const current = products.find(value => value.id === product.id); if (!current || uxLocked) return; if (current.variants?.length || current.modifier_groups?.length) { setEditing(null); setConfiguring(current); } else addDraftLine(current, defaults(current)); }}
+        onCustomize={product => { const current = products.find(value => value.id === product.id); if (current && !uxLocked) { setEditing(null); setConfiguring(current); } }}
+        onReduce={product => { const matching = rows.flatMap((row, index) => row.product.id === product.id ? [index] : []); if (matching.length !== 1) { setDialogView("draft"); return; } setCart(current => current.flatMap((line, index) => index !== matching[0] ? [line] : line.quantity <= 1 ? [] : [{ ...line, quantity: line.quantity - 1 }])); }}
+        onEdit={index => { setConfiguring(rows[index].product); setEditing(index); }} onQuantity={(index, delta) => setCart(current => current.flatMap((line, i) => i !== index ? [line] : line.quantity + delta <= 0 ? [] : [{ ...line, quantity: line.quantity + delta }]))}
+        onSend={() => void confirm()} onRepeat={() => { const order = selected.orders?.at(-1); if (order) void startRepeat(order.id); }} onDiscard={() => setDiscardDialog(true)}
+        bill={<><div className="ux2Settlement"><small>Falta receber</small><strong>{money(selected.exposure_cents)}</strong><small>{selected.state === "CLOSED" ? "Comanda já encerrada" : selected.exposure_cents === 0 ? "Saldo quitado" : "Saldo canônico em aberto"}</small></div><BillSummary bill={selected} compact /><section aria-label="Pedidos confirmados">{selected.orders?.map(order => <article key={order.id}><h2>Pedido #{order.id}</h2>{order.items.map(item => <div key={item.id}><p>{item.quantity}× {item.product_name} · {item.state}</p><CustomizationText snapshot={item.customization_snapshot} />{["NEW", "ACCEPTED"].includes(item.state) && !["CLOSED", "CANCELLED"].includes(selected.state) && <button className="ux2Inline" disabled={uxLocked || !fresh} onClick={() => setRemovingItem(item)}>Remover {item.product_name}</button>}</div>)}</article>)}</section>{cart.length > 0 && <div className="ux2Notice">Pedido não enviado. Envie ou descarte o rascunho antes de encerrar.<button className="ux2Inline" onClick={() => setDialogView("draft")} disabled={uxLocked}>Voltar ao pedido pendente</button></div>}{closeTabButton}</>}
+      />
+      {repeatReview && <RepeatOrderDialog review={repeatReview.review} enabled={repeatAllowed && repeatUnchanged} onAdd={quantities => void confirmRepeatedOrder(quantities)} onClose={() => setRepeatReview(null)} />}
+      {configuring && <ActionDialog title={`Personalizar ${configuring.name}`} locked={correctionPending || confirming || !!orderIntent.pending} onClose={() => { setConfiguring(null); setEditing(null); }}><ProductCustomization key={`${configuring.id}-${editing}`} product={products.find(value => value.id === configuring.id) ?? configuring} initial={editing === null ? undefined : cart[editing]?.selection} canSubmit={fresh && !correctionPending && !confirming && !orderIntent.pending && !!products.find(value => value.id === configuring.id && value.active && value.availability === "AVAILABLE")} onCancel={() => { setConfiguring(null); setEditing(null); }} onAdd={selection => { if (editing === null) { if (!addDraftLine(configuring, selection)) return; } else { const quantity = cart[editing]?.quantity ?? 0; const matching = cart.reduce((sum, row, index) => sum + (index !== editing && row.product.id === configuring.id && sameCatalogSelection(row.selection, selection) ? row.quantity : 0), 0); if (quantity + matching > 99) { setDraftFeedback("Máximo de 99 unidades por configuração."); return; } setCart(current => current.map((line, index) => index === editing ? { ...line, selection } : line)); } setConfiguring(null); setEditing(null); }} /></ActionDialog>}
+      {removingItem && <ConfirmedItemRemoval item={selected.orders?.flatMap(order => order.items).find(item => item.id === removingItem.id) ?? removingItem} onPendingChange={onCorrectionPendingChange} onClose={() => setRemovingItem(null)} onRefresh={async () => { selectedReadEpoch.current++; const detail = await apiCall<Tab>(`${apiRoot}/tabs/${selected.id}/`); if (!detail.response.ok) throw new Error("Falha ao atualizar comanda."); selectedReadEpoch.current++; setSelected(detail.body as Tab); await load(); }} />}
+      {discardDialog && <ActionDialog title="Descartar rascunho?" locked={!!orderIntent.pending || confirming} onClose={() => setDiscardDialog(false)}><p>Descartar somente os itens não enviados de {selected.display_label}?</p><button className="ux2Button" disabled={!!orderIntent.pending || confirming} onClick={() => { setCart([]); setDiscardDialog(false); }}>Confirmar descarte</button></ActionDialog>}
+      {closingDialog && <ActionDialog title="Fechar comanda?" locked={closing} onClose={() => setClosingDialog(false)}><p>Confirme o encerramento de {selected.display_label}.</p>{message && <p role="alert">{message}</p>}<button className="ux2Button primary" disabled={closing || selected.exposure_cents !== 0} onClick={() => void close()}>Confirmar fechamento</button></ActionDialog>}
+    </>;
+  }
+  if (presentation === "ux2" && tableMode && !dialogOpen) return null;
   return tableMode ? <ActionDialog returnFocus={returnFocus} open={dialogOpen} dialogClassName="attendanceOrderDialog" title={selected && !standaloneCreate ? `${selected.table_label ? `Mesa ${selected.table_label}` : destinationLabel || "Comanda"} · ${selected.display_label || tabReference(selected)} · ${tabReference(selected)}` : "Comandas"} locked={dialogLocked} onClose={() => { if (dialogLocked) return; setDialogOpen(false); onDialogClose?.(); }}>{workspace}</ActionDialog> : workspace;
 }
