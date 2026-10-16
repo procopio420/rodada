@@ -119,7 +119,7 @@ fun AttendanceScreen(
         }
     }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
-    var section by rememberSaveable { mutableStateOf(FrontlineSection.TABLES) }
+    var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     val contextStates = rememberSaveableStateHolder()
     var peak by rememberSaveable { mutableStateOf(false) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
