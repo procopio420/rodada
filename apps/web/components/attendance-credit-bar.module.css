@@ -20,7 +20,7 @@
 .creditbar .key .newOrder{color:var(--color-warning)}
 .creditbar .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:7px}
 .creditbar .foot span{font-size:12px;color:var(--color-text-muted)}
-.creditbar .foot button{background:none;border:0;color:var(--color-warning);text-align:right;min-height:36px;font-size:12px;font-weight:800;padding:5px}
+.creditbar .foot button{background:none;border:0;color:var(--color-warning);text-align:right;min-height:44px;font-size:12px;font-weight:800;padding:5px}
 .creditbar[data-level="exceeded"] .foot span{color:var(--color-text)}
 .creditbar.compact{background:transparent;border:0;border-radius:0;padding:0;margin:8px 0 12px}
 .creditbar.compact[data-level="ok"],.creditbar.compact[data-level="warning"],.creditbar.compact[data-level="exceeded"]{border:0}
@@ -30,14 +30,14 @@
 .creditbar.compact .progress{height:5px;margin:7px 0 4px}
 .creditbar.compact .slimFoot{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .creditbar.compact .slimFoot small{color:var(--color-text-muted);font-size:11px}
-.creditbar.compact .slimFoot button{background:none;border:0;color:var(--color-text-muted);text-decoration:underline;min-height:28px;padding:1px 0;font-size:11px;font-weight:700}
+.creditbar.compact .slimFoot button{background:none;border:0;color:var(--color-text-muted);text-decoration:underline;min-height:44px;padding:1px 0;font-size:11px;font-weight:700}
 .creditbar.compact[data-level="exceeded"] .slimFoot small{color:var(--color-danger)}
 .creditbar .zero{background:var(--color-surface-2);border:1px solid var(--color-border-strong);border-radius:8px;padding:13px;margin:10px 0;font-size:13px;font-weight:750}
 .creditbar .zero strong{color:var(--color-text)}
 
 .creditbar { --credit-stripe-dark: #9B6417; overflow-wrap:anywhere; }
 .creditbar button { position:relative; cursor:pointer; }
-.creditbar button::after { content:""; position:absolute; inset:-4px 0; min-width:44px; min-height:44px; }
-.creditbar.compact button::after { inset:-8px 0; }
+.creditbar button { min-width:44px; }
+
 .creditbar .numbers { flex-wrap:wrap; }
 .creditbar.compact .slimHead { flex-wrap:wrap; }

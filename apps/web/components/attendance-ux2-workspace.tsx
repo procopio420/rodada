@@ -10,11 +10,11 @@ import "./attendance-ux2-workspace.css";
 
 type Product = OrderingProduct & { active: boolean; availability: string; category?: string };
 type Line = { product: Product; quantity: number; selection: Selection };
-export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill";
-export function AttendanceUx2Workspace({ tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
+export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
+export function AttendanceUx2Workspace({ tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
   tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
-  pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode;
+  pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode;
   onSurface: (surface: AttendanceSurface) => void; onBack: () => void;
   onAdd: (product: Product) => void; onCustomize: (product: Product) => void; onReduce: (product: Product) => void; onEdit: (index: number) => void;
   onQuantity: (index: number, delta: number) => void; onSend: () => void; onRepeat: () => void; onDiscard: () => void;
@@ -33,9 +33,10 @@ export function AttendanceUx2Workspace({ tab, surface, products, lines, total, l
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
       <div className="ux2Context"><div><h1>{tab.display_label || reference}</h1><p>{tab.table_label ? `Mesa ${tab.table_label} · ` : "Sem mesa · "}{closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
-    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : `Conta · ${reference}`}</div><h1>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : destination}</p></>}
+    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : destination}</p></>}
     {success && <p className="ux2Toast" role="status">{success}</p>}
     {message}
+    {contextualTaskNode}
     {!fresh && <p className="ux2Notice" role="status">Dados desatualizados. Atualize antes de enviar.</p>}
     {pending && <div className="ux2Unknown" role="status"><strong>Envio sem confirmação</strong><p>A intenção original está preservada. Não envie outro pedido.</p><button className="ux2Button primary" disabled={confirming} onClick={onSend}>Verificar mesmo pedido</button></div>}
     {surface === "tab" && <>
@@ -66,6 +67,7 @@ export function AttendanceUx2Workspace({ tab, surface, products, lines, total, l
       <button className="ux2Inline" disabled={locked || !count} onClick={onDiscard}>Descartar rascunho</button>
     </>}
     {surface === "bill" && bill}
+    {surface === "limit" && <>{credit}<div className="ux2SectionHead"><h2>Regra do estabelecimento</h2></div><p className="ux2Notice">Bloquear pedidos (ENFORCE). Somente a Gerência altera a política canônica. Excesso exige recebimento parcial ou aprovação autorizada.</p><div className="ux2SectionHead"><h2>Garantia financeira</h2></div><p className="ux2Notice">Nenhuma garantia verificada foi informada. Limite operacional e aprovação não representam caução, Pix ou cartão confirmado.</p><button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("bill")}>Conferir conta</button></>}
     {!closed && !pending && (surface === "catalog" || surface === "draft" || (surface === "tab" && count > 0)) && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canSend || locked} onClick={onSend}>{confirming ? "Confirmando…" : count ? `Enviar ${count} ${count === 1 ? "item" : "itens"} · ${money(total)}` : "Adicione itens para enviar"}</button></div>}
   </section>;
 }
