@@ -565,6 +565,7 @@ if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
 if(act==="discard-review"){var t=tab();if(!t||!busyDraft(t)||t.state!=="OPEN")return;screen("discard");return}
 if(act==="confirm-discard"){
+ if(state.screen!=="discard")return;
  var t=tab();if(!t||t.state!=="OPEN"||!busyDraft(t))return;
  state.draft[t.id]={};state.screen="bill";state.stack=[];state.toast="Rascunho descartado somente na simulação.";render();return
 }
@@ -579,6 +580,7 @@ if(act==="payment-method"){
 }
 if(act==="close-review"){var t=tab();if(t&&t.state==="OPEN")screen("close");return}
 if(act==="confirm-close"){
+ if(state.screen!=="close")return;
  var t=tab();if(!t||!safeToClose(t))return;
  t.state="CLOSED";
  // Keep occupancy/table and historical order separate from closed Tab.
@@ -593,6 +595,7 @@ if(act==="release-review"){
  state.groupLeft=false;screen("release");return
 }
 if(act==="confirm-release"){
+ if(state.screen!=="release")return;
  var t=tableBy(state.table);if(!readyForRelease(t)||!state.groupLeft)return;
  t.status="dirty";t.text="Limpeza pendente";
  // Historical Tab associations remain; table view hides previous occupancy.
@@ -601,10 +604,12 @@ if(act==="confirm-release"){
  render();return
 }
 if(act==="clean-start"){
+ if(state.screen!=="table")return;
  var t=tableBy(state.table);if(!t||t.status!=="dirty")return;
  t.status="cleaning";t.text="Em limpeza";render();return
 }
 if(act==="clean-finish"){
+ if(state.screen!=="table")return;
  var t=tableBy(state.table);if(!t||t.status!=="cleaning")return;
  t.status="free";t.text="Disponível";t.generation++;
  state.toast="Limpeza concluída nesta simulação. Mesa disponível.";
@@ -632,6 +637,7 @@ if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStar
 document.addEventListener("submit",function(e){
  if(e.target.id==="receipt-form"){
   e.preventDefault();
+  if(state.screen!=="payment")return;
   var t=tab();
   if(!t||t.state!=="OPEN"||t.balance<=0)return;
   var amountField=document.getElementById("pay-amount");
