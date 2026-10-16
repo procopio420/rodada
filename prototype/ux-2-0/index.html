@@ -164,19 +164,19 @@ var products=[
 {id:"p8",name:"Hambúrguer da casa",price:3400,cat:"Lanches"}
 ];
 var tables=[
-{id:"08",status:"occupied",text:"Ocupada",zone:"Salão"},
-{id:"12",status:"occupied",text:"Ocupada",zone:"Varanda"},
-{id:"03",status:"free",text:"Disponível",zone:"Salão"},
-{id:"14",status:"dirty",text:"Limpeza pendente",zone:"Varanda"},
-{id:"05",status:"occupied",text:"Ocupada",zone:"Salão"},
-{id:"06",status:"free",text:"Disponível",zone:"Salão"}
+{id:"08",generation:1,status:"occupied",text:"Ocupada",zone:"Salão"},
+{id:"12",generation:1,status:"occupied",text:"Ocupada",zone:"Varanda"},
+{id:"03",generation:1,status:"free",text:"Disponível",zone:"Salão"},
+{id:"14",generation:1,status:"dirty",text:"Limpeza pendente",zone:"Varanda"},
+{id:"05",generation:1,status:"occupied",text:"Ocupada",zone:"Salão"},
+{id:"06",generation:1,status:"free",text:"Disponível",zone:"Salão"}
 ];
 var tabs=[
-{id:"a",table:"08",name:"Marina",ref:"#1048",balance:5600,state:"OPEN",receipts:[],last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
-{id:"b",table:"08",name:"Rafael",ref:"#1049",balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
-{id:"c",table:"12",name:"João",ref:"#1050",balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
-{id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
-{id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
+{id:"a",generation:1,table:"08",name:"Marina",ref:"#1048",balance:5600,state:"OPEN",receipts:[],last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
+{id:"b",generation:1,table:"08",name:"Rafael",ref:"#1049",balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
+{id:"c",generation:1,table:"12",name:"João",ref:"#1050",balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
+{id:"d",generation:1,table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
+{id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
 ];
 var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",groupLeft:false};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
@@ -184,7 +184,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&am
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
 function tab(){return tabs.find(function(t){return t.id===state.tab})}
 function tableBy(id){return tables.find(function(x){return x.id===id})}
-function openAt(id){return tabs.filter(function(t){return t.table===id&&t.state==="OPEN"})}
+function openAt(id){var table=tableBy(id);return tabs.filter(function(t){return t.table===id&&t.state==="OPEN"&&table&&t.generation===table.generation})}
 function totalPaid(t){return (t.receipts||[]).reduce(function(sum,r){return sum+r.amount},0)}
 function busyDraft(t){return !!(state.draft[t.id]&&Object.values(state.draft[t.id]).some(function(q){return q>0}))}
 function safeToClose(t){return t.state==="OPEN"&&t.balance===0&&!busyDraft(t)}
@@ -252,7 +252,7 @@ function demoRoute(){
 function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO"}
 function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
- var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId});
+ var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId&&x.state==="OPEN"&&x.generation===tableBy(call.tableId)?.generation});
  var table=tables.find(function(x){return x.id===call.tableId&&x.status==="occupied"});
  // A reference alone is never sufficient: the prototype models an authorized,
  // active assignment by requiring both the tab and current occupied table.
@@ -322,7 +322,7 @@ return '<circle cx="'+x+'" cy="'+y+'" r="'+(start?14:active?13:9)+'" fill="'+(st
 function viewTables(){
 var q=state.search.toLocaleLowerCase("pt-BR");
 var filtered=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
-var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
+var loose=tabs.filter(function(t){return t.state==="OPEN"&&!t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
 app.innerHTML=first("Encontrar destino")+'<h1>Mesas e<br>comandas.</h1><p class="lede">Uma busca, sem filtros de status nem formulários na lista.</p>'+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="table-search" type="search" autocomplete="off" placeholder="Mesa, nome ou comanda" value="'+esc(state.search)+'" aria-label="Buscar mesa ou comanda"></label>'+
 '<div class="sectionhead"><h2>Mesas</h2><small>'+filtered.length+' DE '+tables.length+'</small></div>'+
@@ -333,13 +333,14 @@ commonNav()
 }
 function viewTable(){
 var t=tableBy(state.table);if(!t){root("tables");return}
-var list=t.status==="occupied"?tabs.filter(function(x){return x.table===t.id}):[];
+var list=t.status==="occupied"?tabs.filter(function(x){return x.table===t.id&&x.generation===t.generation}):[];
 var active=openAt(t.id),pending=deliveries().filter(function(x){return x.tableId===t.id});
 var lifecycle=t.status==="dirty"?'<div class="contextual-call"><strong>Aguardando limpeza</strong><p>O grupo saiu, mas esta mesa não pode receber novos clientes.</p>'+button("clean-start","Iniciar limpeza","block ghost")+'</div>':
 t.status==="cleaning"?'<div class="contextual-call"><strong>Em limpeza</strong><p>Quando a limpeza terminar, esta mesa estará disponível.</p>'+button("clean-finish","Concluir limpeza","block ghost")+'</div>':
 t.status==="free"?'<div class="notice">Esta mesa está disponível. Abra uma comanda para começar uma ocupação nova.</div>':"";
 app.innerHTML=back()+first(t.zone)+
 '<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+active.length+' aberta(s)</div></div>'+
+(state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
 lifecycle+
 '<div class="sectionhead"><h2>'+(state.picking?"Qual comanda recebe o pedido?":"Comandas desta mesa")+'</h2></div>'+
 (list.length?list.map(tabRow).join(""):'<div class="empty">Nenhuma comanda ativa nesta ocupação.</div>')+
@@ -486,7 +487,7 @@ setFoot("")
 function viewChoose(){
 var q=state.chooseSearch.toLocaleLowerCase("pt-BR").trim();
 var visible=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
-var matches=q?tabs.filter(function(t){return (t.name+" "+t.ref+" "+(t.table||"balcão")).toLocaleLowerCase("pt-BR").includes(q)}):[];
+var matches=q?tabs.filter(function(t){return t.state==="OPEN"&&(!t.table||tableBy(t.table)?.generation===t.generation&&tableBy(t.table)?.status==="occupied")&&(t.name+" "+t.ref+" "+(t.table||"balcão")).toLocaleLowerCase("pt-BR").includes(q)}):[];
 var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
 app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p class="lede">Escolha a mesa e depois a comanda. Também dá para buscar o cliente diretamente.</p>'+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="choose-search" type="search" autocomplete="off" placeholder="Mesa, cliente ou comanda" value="'+esc(state.chooseSearch)+'" aria-label="Buscar mesa ou comanda"></label>'+
@@ -592,7 +593,7 @@ if(act==="clean-start"){
 }
 if(act==="clean-finish"){
  var t=tableBy(state.table);if(!t||t.status!=="cleaning")return;
- t.status="free";t.text="Disponível";
+ t.status="free";t.text="Disponível";t.generation++;
  state.toast="Limpeza concluída nesta simulação. Mesa disponível.";
  render();return
 }
@@ -635,7 +636,7 @@ document.addEventListener("submit",function(e){
  }
 
 if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
-var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,state:"OPEN",receipts:[],last:[]});
+var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,generation:state.table?tableBy(state.table).generation:1,table:state.table,name:name,ref:ref,balance:0,state:"OPEN",receipts:[],last:[]});
 if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen=state.picking?"catalog":"tab";state.picking=false;state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
