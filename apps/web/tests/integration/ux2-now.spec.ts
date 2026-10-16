@@ -26,6 +26,31 @@ for (const width of [360,390,430,1280]) test(`UX2 Agora canonical queues and con
   expect(requests).toEqual([]);
   await page.getByRole('button',{name:'Agora',exact:true}).click();
   await mkdir('test-results/ux2-parity',{recursive:true});
+  await expect(page.getByText('Carregando chamadas…')).not.toBeVisible();
   await page.screenshot({path:`test-results/ux2-parity/web-now-${width}.png`,fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('canonical call opens explicit table choice without claiming or completing',async({page})=>{
+  await page.goto('/attendance');
+  await page.getByLabel('Estabelecimento').fill('web-e2e');
+  await page.getByLabel('Operador',{exact:true}).fill('test-manager');
+  await page.getByLabel('PIN',{exact:true}).fill('2468');
+  await page.getByRole('button',{name:'Entrar',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Agora',exact:true})).toBeVisible();
+  const label=`UX2 call ${Date.now()}`;
+  const task=await page.evaluate(async(label)=>{
+    async function post(path:string,body:object){const response=await fetch('/api/pos/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok)throw new Error(path+':'+response.status);return response.json()}
+    const table=await post('hospitality/tables/',{label});
+    await post(`hospitality/tables/${table.id}/occupy/`,{});
+    return post('dispatch/requests/',{table_id:table.id,task_type:'SERVICE_REQUEST',request_id:crypto.randomUUID()});
+  },label);
+  await page.reload();
+  const row=page.getByRole('article').filter({hasText:`Mesa ${label}`});
+  await expect(row.getByRole('button',{name:/Atender cliente/})).toBeVisible();
+  const writes:string[]=[];page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url())});
+  await row.getByRole('button',{name:/Atender cliente/}).click();
+  await expect(page.getByRole('dialog',{name:`Mesa ${label}`,exact:true})).toBeVisible();
+  expect(writes).toEqual([]);
+  const canonical=await page.evaluate(async()=> (await fetch('/api/attendance/dispatch/requests/')).json());
+  expect(canonical.results.find((row:{id:string})=>row.id===task.id)).toMatchObject({state:'OPEN',claimed_by_id:null});
 });
