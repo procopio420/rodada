@@ -260,7 +260,7 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,serviceRate:0,serviceOptIn:false},staffFallback:false});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,serviceRate:0,serviceOptIn:false},staffFallback:false});
 let S=fresh();
 const savedModes={mesa:null,ficha:null};
 function setPrototypeMode(mode){
@@ -459,34 +459,74 @@ function reconcileUnknownOrder(){
  if(!known){S.modal='order-uncertain';flash('Ainda não foi possível verificar.');render();return}
  S.unknownAck=null;S.modal='orders';render();flash('Pedido localizado. Nenhum segundo pedido criado.');
 }
+
+/* Demo tenant-bound tabs. Only one authorized tab's financial data is hydrated in
+   the guest view. REAL authorization must be issued and checked by the server. */
+const tabFields=['orders','payments','cart','pendingOrder','checkout','paymentIntents','pickedLines','orderRequests','disputes','feeConfig','orderCount'];
+function saveActiveTab(){
+ if(!S.hasJoined||!S.tabKey)return;
+ const tab=S.tabs[S.tabKey]||{label:S.tabLabel,authorized:true};
+ for(const name of tabFields)tab[name]=structuredCloneSafe(S[name]);
+ tab.label=S.tabLabel;S.tabs[S.tabKey]=tab;
+}
+function structuredCloneSafe(value){return value===undefined?null:JSON.parse(JSON.stringify(value))}
+function clearVisibleTab(){
+ S.orders=[];S.payments=[];S.cart=[];S.pendingOrder=null;S.checkout=null;
+ S.paymentIntents=[];S.pickedLines=[];S.orderRequests=[];S.disputes=[];
+ S.feeConfig={coverCents:0,serviceRate:0,serviceOptIn:false};
+ S.tabKey=null;S.tabLabel='';S.hasJoined=false;
+}
+function activateAuthorizedTab(key){
+ const tab=S.tabs[key];
+ if(!tab||!S.authorizedTabKeys.includes(key))return false;
+ clearVisibleTab();
+ S.tabKey=key;S.tabLabel=tab.label;S.hasJoined=true;S.multiTab=true;
+ for(const name of tabFields)if(Object.prototype.hasOwnProperty.call(tab,name))S[name]=structuredCloneSafe(tab[name]);
+ S.scene='home';S.entryMode='available';S.modal=null;render();return true
+}
+function exitGuestTab(){
+ saveActiveTab();clearVisibleTab();S.scene='entry';S.entryMode='busy';
+ S.modal=null;render()
+}
+function occupiedDemoTabs(){
+ const groupOrder={id:'#181',status:'Em preparo',items:[makeItem('heineken',2,'','ana'),makeItem('batata',1,'','ana')]};
+ const otherOrder={id:'#182',status:'Recebido',items:[makeItem('ipa',1,'','bruno')]};
+ return {
+ group:{label:'Comanda do grupo',orders:[groupOrder],payments:[],cart:[],orderCount:182},
+ private:{label:'Comanda reservada',orders:[otherOrder],payments:[],cart:[],orderCount:182}
+ }
+}
 function seedMultipleTabs(){
  S=fresh();S.multiTab=true;S.entryMode='busy';S.tableState='OCCUPIED';S.occupancy=true;
- S.tabKey=null;S.tabLabel='';S.hasJoined=false;S.scene='entry';S.modal=null;render();
+ S.tabs=occupiedDemoTabs();S.tabKey=null;S.tabLabel='';S.hasJoined=false;S.orders=[];S.payments=[];S.scene='entry';S.modal=null;render();
 }
 function createOwnTab(){
- S.multiTab=true;S.tabKey='new';S.tabLabel='Minha comanda';S.orders=[];S.payments=[];S.cart=[];
- S.hasJoined=true;S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available';S.scene='catalog';S.modal=null;render();
+ if(S.hasJoined)saveActiveTab();
+ const key='own-'+(++S.tabCounter);
+ S.tabs[key]={label:'Minha comanda',orders:[],payments:[],cart:[],orderCount:S.orderCount};
+ S.authorizedTabKeys.push(key);S.hasJoined=false;
+ if(!activateAuthorizedTab(key))return;
+ S.scene='catalog';S.modal=null;render()
 }
 function joinKnownTab(){
- // Simulated staff/session validation; a short visible code is never sufficient alone in production.
  const code=el('joinCode')?.value?.trim()?.toUpperCase();
- if(code!=='AB72'){flash('Não foi possível acessar esta comanda.');return}
- S.multiTab=true;S.tabKey='joined';S.tabLabel='Comanda compartilhada';
- S.hasJoined=true;S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available';
- S.orders=[{id:'#181',status:'Em preparo',items:[makeItem('heineken',2,'','you')]}];
- S.payments=[];S.cart=[];S.modal=null;S.scene='home';render();
+ // Test fixture only. QR alone gives NO authority to see the group's account.
+ const key=code==='AB72'?'group':code==='XY93'?'private':null;
+ if(!key||!S.tabs[key]){flash('Código não validado. Peça ajuda à equipe.');return}
+ S.authorizedTabKeys.push(key);
+ activateAuthorizedTab(key)
 }
 function seedSessionRecovery(){
- S=fresh();S.multiTab=true;S.hasJoined=false;S.occupancy=true;S.entryMode='busy';
- S.tableState='OCCUPIED';S.tabKey=null;S.tabLabel='';S.recoveryNeeded=true;S.scene='entry';render();
+ seedMultipleTabs();S.recoveryNeeded=true;S.tabs.recovered={
+ label:'Minha comanda',orders:[{id:'#186',status:'Em preparo',items:[makeItem('ipa',1,'','you')]}],
+ payments:[],cart:[],orderCount:186};S.scene='entry';render()
 }
 function recoverGuestSession(){
- // Demo-only token recovery. A real second device needs a valid authorization flow.
- S.recoveryNeeded=false;S.multiTab=true;S.tabKey='recovered';S.tabLabel='Minha comanda';
- S.hasJoined=true;S.entryMode='available';S.orders=[{id:'#186',status:'Em preparo',items:[makeItem('ipa',1,'','you')]}];
- S.scene='home';S.modal=null;render();
+ if(!S.recoveryNeeded||!S.tabs.recovered){flash('Nenhuma sessão válida para retomar.');return}
+ // Mock of a still-valid possession-bound guest token, not QR authorization.
+ S.authorizedTabKeys.push('recovered');S.recoveryNeeded=false;
+ activateAuthorizedTab('recovered')
 }
-
 function productAvailable(id){return !S.availability[id]}
 function liveProductPrice(item){const p=getProduct(item.productId);if(!p)return null;return (S.priceOverrides[item.productId]??p.price)+(item.variant==='Morango'?300:0)}
 function checkDraftForUpdates(items){const issues=[];for(const item of items){
@@ -621,8 +661,25 @@ function catalogQty(id){return S.cart.filter(x=>x.productId===id&&!x.variant).re
 function changeCatalogQty(id,delta){if(delta>0){addProduct(id);return}const index=S.cart.findIndex(x=>x.productId===id&&!x.variant);if(index<0)return;if(S.cart[index].qty<=1)S.cart.splice(index,1);else S.cart[index].qty--;render({preserveView:true})}
 function qtyCart(i,d){const x=S.cart[i];if(!x)return;x.qty=Math.min(99,x.qty+d);if(x.qty<=0)S.cart.splice(i,1);render()}
 function switchView(scene){if(S.scene==='entry'&&!S.hasJoined)return;S.scene=scene;S.modal=null;render()}
-function enter(){if(!isFicha()&&S.multiTab&&!S.hasJoined){S.modal=S.recoveryNeeded?'recover-session':'choose-tab';render();return}if(isFicha()){S.hasJoined=true;S.scene='ficha';render();return}if(S.tableState==='DIRTY'||S.tableState==='CLEANING'){flash('Esta mesa ainda está sendo preparada.');return}if(S.wrong){S.modal='wrong';render();return}if(S.entryMode==='busy'&&!S.hasJoined){S.modal='join';render();return}S.hasJoined=true;S.scene='catalog';render()}
-function join(){S.hasJoined=true;S.occupancy=true;S.entryMode='available';S.tableState='OCCUPIED';S.modal=null;S.scene='home';render()}
+function enter(){
+ if(isFicha()){S.hasJoined=true;S.scene='ficha';render();return}
+ if(['DIRTY','CLEANING','OUT_OF_SERVICE'].includes(S.tableState)){flash('Esta mesa não está disponível.');return}
+ if(S.wrong){S.modal='wrong';render();return}
+ if(!S.hasJoined&&(S.entryMode==='busy'||S.occupancy||S.multiTab)){
+   if(!S.multiTab){ // Existing occupancy: no QR-only access to its financial tab.
+     S.multiTab=true;
+     if(!Object.keys(S.tabs).length)S.tabs=occupiedDemoTabs();
+     clearVisibleTab();
+   }
+   S.modal=S.recoveryNeeded?'recover-session':'choose-tab';render();return
+ }
+ if(!S.hasJoined){
+   S.hasJoined=true;S.multiTab=true;S.tabKey='shared';S.tabLabel='Conta do grupo';
+   S.authorizedTabKeys.push('shared');saveActiveTab();
+ }
+ S.scene='catalog';S.modal=null;render()
+}
+function join(){S.modal='choose-tab';render()}
 function flash(message){let n=el('snackbar');n.textContent=message;n.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.classList.remove('show'),2700)}
 function scenario(type){
  switch(type){
@@ -649,10 +706,7 @@ function scenario(type){
   case 'bartender':if(!isFicha()){flash('Ative o cenário ficha primeiro.');return}S.modal='bar-preview';render();return;
   case 'pickup-multi':seedPickupMulti();return;
  case 'collected':{if(!isFicha()){flash('Disponível no modo ficha.');return}const ready=S.orders.find(isReady);if(!ready){flash('Nenhum pedido pronto para retirada.');return}markCollected(ready.id);return;}
- case 'busy':
- S=fresh();S.entryMode='busy';S.tableState='OCCUPIED';S.occupancy=true;S.participants=[{id:'you',name:'Você'},{id:'ana',name:'Ana'},{id:'bruno',name:'Bruno'}];
- S.orders=[{id:'#181',status:'Pronto / chegando',items:[makeItem('heineken',2,'','ana'),makeItem('batata',1,'','ana')]},{id:'#182',status:'Em preparo',items:[makeItem('caipi',1,'Limão','bruno'),makeItem('heineken',1,'','bruno')]}];
- S.orderCount=182;S.hasJoined=false;S.scene='entry';flash('Cenário: mesa em andamento');break;
+ case 'busy':seedMultipleTabs();flash('Mesa ocupada: escolha uma comanda autorizada.');return;
  case 'add-person':{
  if(isFicha()){flash('Uma ficha por cliente neste modo.');return}if(!S.occupancy){flash('Faça um pedido ou use o cenário de mesa ocupada.');return}
  const k=S.participants.length;const id='visitor'+k;S.participants.push({id,name:['Carla','Diego','Bia','Rafa'][k%4]});flash('Outra pessoa entrou pelo QR da mesa.');break}
@@ -746,7 +800,7 @@ function renderFichaHome(){
 }
 function header(){const show=S.scene!=='entry';return `<div class="phone-header"><div class="brand"><img src="../../assets/brand/v1/wordmark.svg" alt="Rodada" onerror="this.hidden=true;this.nextElementSibling.style.display='inline'"/><strong style="display:none">rodada.</strong></div><div class="meta"><b>Bar do Aderlan</b><span>${show?`${isFicha()?'Ficha '+S.fichaCode:'Mesa 08'} · ${esc(currentPerson().name)}`:(isFicha()?'Retirada no bar':'Conceito UX 2.0 · Cliente')}</span></div></div>`}
 function nav(){if(S.scene==='entry'||(S.scene==='catalog'&&cartCount()>0)||(S.scene==='account'&&balance()>0))return '';return `<nav class="nav" aria-label="Navegação principal"><button type="button" class="${S.scene==='home'?'selected':''}" onclick="switchView('home')"><span class="navicon">◷</span>Agora</button><button type="button" class="middle ${S.scene==='catalog'?'selected':''}" onclick="switchView('catalog')"><span class="navicon">＋</span>Pedir</button><button type="button" class="${(isFicha()?S.scene==='ficha':S.scene==='account')?'selected':''}" onclick="switchView('${isFicha()?'ficha':'account'}')"><span class="navicon">${isFicha()?'▣':'▤'}</span>${isFicha()?'Ficha':'Conta'}</button></nav>`}
-function renderEntry(){if(isFicha())return renderFichaIntro();const unavailable=['DIRTY','CLEANING'].includes(S.tableState);return `<div class="content"><div class="eyebrow">CLIENTE / QR</div><h1>${unavailable?'Mesa em preparação':S.wrong?'Mesa ocupada':'Bem-vindo!'}</h1><p class="lead">${unavailable?'Aguarde ou peça ajuda à equipe.':S.wrong?'Confira se este é seu grupo.':'Peça direto do seu celular.'}</p><div class="billpeek" style="margin-top:16px"><div><label>Seu lugar</label><strong style="font:850 24px Archivo,sans-serif">${esc(tableName())}</strong><small>Salão</small></div><span class="tag" style="color:${unavailable?'var(--accent)':S.entryMode==='busy'||S.wrong?'var(--blue)':'var(--success)'}">${unavailable?'PREPARANDO':S.entryMode==='busy'||S.wrong?'EM USO':'LIVRE'}</span></div>${!unavailable&&!S.wrong&&!S.multiTab?'<p class="entry-note">Conta compartilhada · separe ao pagar.</p>':''}${S.multiTab?'<p class="entry-note">Você pode criar sua própria comanda ou entrar em uma existente.</p>':''}${S.feeConfig.coverCents>0?`<div class="fee-disclosure">Couvert de ${money(S.feeConfig.coverCents)} por pessoa. <button onclick="S.modal='fees-help';render()">Ver detalhes</button></div>`:''}<div class="entry-exception">${unavailable?`<button class="btn ghost" onclick="flash('Peça ajuda à equipe para esta mesa.')">Falar com a equipe</button>`:S.wrong?`<button class="btn" onclick="S.modal='wrong';render()">Pedir ajuda à equipe</button><button class="btn ghost" style="margin-top:10px" onclick="S.wrong=false;S.modal='join';render()">Estou no grupo atual</button>`:``}</div><p class="entry-foot">Sem cadastro · Sem instalar nada</p><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
+function renderEntry(){if(isFicha())return renderFichaIntro();const unavailable=['DIRTY','CLEANING'].includes(S.tableState);return `<div class="content"><div class="eyebrow">CLIENTE / QR</div><h1>${unavailable?'Mesa em preparação':S.wrong?'Mesa ocupada':'Bem-vindo!'}</h1><p class="lead">${unavailable?'Aguarde ou peça ajuda à equipe.':S.wrong?'Confira se este é seu grupo.':'Peça direto do seu celular.'}</p><div class="billpeek" style="margin-top:16px"><div><label>Seu lugar</label><strong style="font:850 24px Archivo,sans-serif">${esc(tableName())}</strong><small>Salão</small></div><span class="tag" style="color:${unavailable?'var(--accent)':S.entryMode==='busy'||S.wrong?'var(--blue)':'var(--success)'}">${unavailable?'PREPARANDO':S.entryMode==='busy'||S.wrong?'EM USO':'LIVRE'}</span></div>${!unavailable&&!S.wrong&&!S.multiTab?'<p class="entry-note">Conta compartilhada · separe ao pagar.</p>':''}${S.multiTab?'<p class="entry-note">Você pode criar sua própria comanda ou entrar em uma existente.</p>':''}${S.feeConfig.coverCents>0?`<div class="fee-disclosure">Couvert de ${money(S.feeConfig.coverCents)} por pessoa. <button onclick="S.modal='fees-help';render()">Ver detalhes</button></div>`:''}<div class="entry-exception">${unavailable?`<button class="btn ghost" onclick="flash('Peça ajuda à equipe para esta mesa.')">Falar com a equipe</button>`:S.wrong?`<button class="btn" onclick="S.modal='wrong';render()">Pedir ajuda à equipe</button><button class="btn ghost" style="margin-top:10px" onclick="S.wrong=false;S.multiTab=true;S.tabs=occupiedDemoTabs();S.modal='choose-tab';render()">Estou no grupo atual</button>`:``}</div><p class="entry-foot">Sem cadastro · Sem instalar nada</p><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 function renderHome(){if(isFicha())return renderFichaHome();const last=S.orders.at(-1),n=S.orders.length,repeat=n>0&&!S.accountClosed;return `<div class="content"><div class="eyebrow">RODADA / CLIENTE</div><h1 class="now-title">Agora</h1><p class="now-summary">${S.accountClosed?'Sua conta está quitada. A mesa ainda é do seu grupo.':n?'':'Faça seu primeiro pedido.'}</p>${S.accountClosed?`<div class="order-status"><strong style="color:var(--success)">✓ Conta quitada</strong><p>A equipe ainda pode registrar a saída do grupo.</p></div>`:n?`<div class="queuehead"><h2>Último pedido</h2><small>${last.id}</small></div><button class="queueitem" onclick="S.modal='orders';render()"><span class="queue-top"><span class="queue-type">PEDIDO</span><span>· ${esc(last.status)}</span></span><strong class="queue-title">${esc(last.items.map(x=>x.qty+'× '+x.name).join(' · '))}</strong><span class="queue-detail"><span>Ver pedido</span><strong class="mono">${money(last.items.reduce((a,x)=>a+x.qty*x.price,0))}　›</strong></span></button><button class="btn block repeat-primary" onclick="repeatLast()">↻ MAIS UMA RODADA</button>`:`<button class="btn block" onclick="switchView('catalog')">＋ PEDIR AGORA</button>`}<div class="sectionhead"><h2>Sua mesa</h2><small>${esc(tableName())}</small></div><div class="rowline"><button class="rowbtn" onclick="S.modal='orders';render()"><span><strong class="rowtitle">Acompanhar pedidos</strong><small class="sub">${n?`${n} pedido${n>1?'s':''}`:'Nenhum pedido'}</small></span><span class="arrow">›</span></button></div><div class="rowline"><button class="rowbtn" onclick="switchView('account')"><span><strong class="rowtitle">${S.multiTab?esc(S.tabLabel):'Conta da mesa'}</strong><small class="sub">Dividir ou pagar</small></span><span style="display:flex;align-items:center;gap:10px"><strong class="mono tiny">${money(balance())}</strong><span class="arrow">›</span></span></button></div>${balance()>0?`<div class="rowline"><button class="rowbtn" onclick="S.modal='payment-options';render()"><span><strong class="rowtitle">Pagar agora</strong><small class="sub">Parcial ou total</small></span><span class="arrow">›</span></button></div>`:''}<div class="rowline"><button class="rowbtn" onclick="S.modal='participants';render()"><span><strong class="rowtitle">Participantes</strong><small class="sub">${S.participants.length} participante${S.participants.length===1?'':'s'}</small></span><span class="arrow">›</span></button></div><div class="rowline"><button class="rowbtn" onclick="S.modal='help';render()"><span><strong class="rowtitle">Pedir ajuda</strong><small class="sub">Garçom, serviço ou conta</small></span><span class="arrow">›</span></button></div><button class="inline-link" onclick="S.modal=S.moveRequest?.status==='requested'?'move-status':'move-table';render()">↗ Mudou de mesa? ›</button><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><button class="back" onclick="switchView('home')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / PEDIDO</div><h1>Adicionar itens</h1>${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 function renderAccount(){const t=total(),p=paid(),bal=balance(),has=t>0;const lines=allLines();return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'home')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / FINANCEIRO</div><h1>${isFicha()?'Conta da ficha':S.multiTab?esc(S.tabLabel):'Conta'}</h1>${S.feeConfig.serviceRate?`<button class="service-toggle" onclick="toggleServiceCharge()"><span><strong>Serviço ${S.feeConfig.serviceRate}% · opcional</strong><small>${S.feeConfig.serviceOptIn?'Incluído na conta':'Toque para incluir na conta'}</small></span><span class="service-checkbox" aria-hidden="true">${S.feeConfig.serviceOptIn?'✓':'＋'}</span></button>`:''}${has?`<div class="settlement-summary" style="margin-top:4px"><small>${bal?'Falta pagar':'Conta quitada'}</small><strong class="mono" style="color:${bal?'var(--paper)':'var(--success)'}">${money(bal)}</strong><div class="receiptline"><small>Consumo total</small><strong>${money(t)}</strong></div><div class="receiptline"><small>Já pago</small><strong style="color:var(--success)">${money(p)}</strong></div><div class="progress"><div style="width:${t?100*p/t:0}%"></div></div></div><div class="sectionhead"><h2>Consumo</h2><small>${lines.length} ITENS</small></div>${lines.map(x=>`<div class="details-row"><div><strong>${x.qty}× ${esc(x.name)}</strong><small>${x.productId?.startsWith('charge-')?'Taxa detalhada':(x.cancelled?'Cancelado pela equipe · ':'')+'Pedido '+x.orderId+' · '+(x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner)))}</small></div><div style="text-align:right"><b class="amount">${x.cancelled?'Cancelado':money(x.price*x.qty)}</b>${(allocated()[x.id]||0)>0?`<small class="positive">Pago ${money(allocated()[x.id])}</small>`:''}</div></div>`).join('')}${!bal?`<div class="order-status"><strong>✓ Tudo pago</strong><p>${isFicha()?'A ficha segue ativa até o encerramento.':'A mesa continua ocupada até a equipe liberá-la.'}</p></div>${isFicha()?'':'<button class="btn ghost" onclick="requestAssistance(\'bill\')">Avisar que vamos sair</button>'}`:''}${S.payments.length?'<div class="sectionhead"><h2>Pagamentos</h2></div>':''}${S.payments.length?S.payments.map(x=>`<div class="receiptline"><div><b style="font-size:13px">${esc(labelOwner(x.actor))}</b><small style="display:block">Pagamento simulado</small></div><strong style="color:var(--success)">${money(x.amount)}</strong></div>`).join(''):``}<button class="inline-link" onclick="S.modal='dispute-choose';render()">↳ Algum valor errado? Solicitar revisão ›</button>${S.disputes.length?`<button class="inline-link" onclick="S.disputeFocus=S.disputes.at(-1).id;S.modal='dispute-track';render()">◷ Acompanhar solicitação ›</button>`:''}<button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button>`:`<div class="empty"><h2>Sem consumo ainda</h2><p>Pedidos feitos pelo celular e pelo garçom aparecem aqui.</p><button class="btn" style="margin-top:22px" onclick="switchView('catalog')">＋ VER CARDÁPIO</button></div>`}</div>`}
@@ -812,7 +866,7 @@ else if(m==='choose-tab'){
  <p class="sim-note">O QR da mesa não mostra as contas de outros clientes.</p>`;
 }
 else if(m==='join-tab'){
- title='Entrar na comanda';body=`<div class="field"><label for="joinCode">Código de acesso (simulação)</label><input id="joinCode" maxlength="10" autocapitalize="characters" autocomplete="off" placeholder="Ex.: AB72"/></div><p class="sim-note">Para testar, digite AB72. No produto real, o acesso depende de autorização segura, não só do código.</p>`;
+ title='Entrar na comanda';body=`<div class="field"><label for="joinCode">Código de acesso (simulação)</label><input id="joinCode" maxlength="10" autocapitalize="characters" autocomplete="off" placeholder="Ex.: AB72"/></div><p class="sim-note">Demo: AB72 (grupo) ou XY93 (outra comanda). No produto real, o servidor valida a autorização; o QR nunca basta.</p>`;
  footer=`<button class="btn" onclick="joinKnownTab()">Entrar</button><button class="btn ghost" onclick="S.modal='choose-tab';render()">Voltar</button>`;
 }
 else if(m==='recover-session'){
@@ -820,7 +874,7 @@ else if(m==='recover-session'){
  <button class="option" onclick="recoverGuestSession()"><span class="ico">↻</span><span><strong>Recuperar neste aparelho</strong><small>Sessão válida simulada</small></span></button>
  <button class="option" onclick="S.recoveryNeeded=false;S.modal='join-tab';render()"><span class="ico">⌕</span><span><strong>Estou em outro aparelho</strong><small>Entrar com autorização</small></span></button>`;
 }
-else if(m==='join'){title='Entrar na Mesa 08?';body=`<p class="lead">Já tem um grupo nesta mesa. Está com ele?</p>`;footer=`<button class="btn" onclick="join()">Sim, estou com esse grupo</button><button class="btn ghost" onclick="S.modal='wrong';render()">Não, não é meu grupo</button>`}
+else if(m==='join'){title='Sua comanda';body=`<p class="lead">Para proteger a conta de cada grupo, escolha uma comanda autorizada.</p>`;footer=`<button class="btn" onclick="join()">Escolher comanda</button>`}
 else if(m==='wrong'){title='Mesa ocupada';body=`<p class="lead">Confira o número da mesa ou peça ajuda. A conta do outro grupo permanece privada.</p>`;footer=`<button class="btn" onclick="S.modal=null;flash('A equipe pode verificar a ocupação desta mesa.');render()">Entendi</button>`}
 else if(m==='help'){title='Como podemos ajudar?';body=`<button class="option" onclick="S.modal='no-phone';render()"><span class="ico">▣</span><span><strong>Pedir com o garçom</strong><small>Sem usar o celular</small></span></button><button class="option" onclick="requestAssistance('waiter')"><span class="ico">🙋</span><span><strong>Chamar o garçom</strong><small></small></span></button><button class="option" onclick="requestAssistance('service')"><span class="ico">🍴</span><span><strong>Preciso de algo na mesa</strong><small>Talheres, gelo ou pedido</small></span></button><button class="option" onclick="requestAssistance('bill')"><span class="ico">▧</span><span><strong>Quero pagar a conta</strong><small></small></span></button>`}
 else if(m==='help-sent'){title='Solicitação registrada';body=`<div class="successbox"><h2>✓ Tudo certo</h2><p class="small muted" style="margin-top:8px">Simulação · ninguém foi notificado.</p></div>`;footer=`<button class="btn" onclick="S.modal=null;render()">Voltar para a mesa</button>`}
