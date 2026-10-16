@@ -46,6 +46,16 @@ Recarregar a página **apaga** essa memória: o protótipo não garante recupera
 
 Testes JavaScript/DOM sintéticos com fixtures cobrem navegação, fluxo direto, perda simulada de resposta, reconciliação sem repetir saldo, rascunhos separados, repetição, limite e pagamentos. **Não equivalem a teste de navegador ou validação visual do Android.** Screenshots móveis e E2E integrado ainda são gates abertos.
 
+## Capturas reais de navegador — smoke disponibilizado, execução pendente
+
+Foi adicionado `scripts/ux2-prototype-smoke.mjs`, usando o `@playwright/test` já adotado em `apps/web`. No checkout local do repositório, com dependências e Chromium instalados:
+
+```bash
+node scripts/ux2-prototype-smoke.mjs
+```
+
+O script abre `prototype/ux-2-0/index.html` por `file://`, testa 360/390/430px, verifica overflow horizontal e erros JavaScript e salva capturas de Agora, catálogo com rascunho, pedido confirmado, resposta incerta, reconciliação e Mais uma Rodada em `visual-artifacts/ux2-p0-p1/`. **Não foi executado aqui**: não havia checkout completo do repositório disponível para o browser local, e não há testes Android reais. As capturas resultantes ainda precisam ser inspecionadas por alguém.
+
 ## Fora do escopo
 
 Não foi criada nova tela principal, feature de pagamento, fluxo de entrega por mapa, gateway de recuperação de rede, Worker offline, schema financeiro ou alteração da aplicação Android/Web de produção.
