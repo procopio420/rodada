@@ -194,3 +194,8 @@ Após a revisão do fluxo de Atendimento, acrescentamos à hipótese A um ciclo 
 No protótipo isolado: conferir saldo → registrar recebimento **apenas simulado** (dinheiro/Pix manual/cartão manual; parcial/total) → revisar saldo e rascunhos → encerrar Tab em saldo zero → voltar à mesa. Só depois de todas as Tabs encerradas e entregas pendentes conferidas, aparece a confirmação **grupo saiu → liberar mesa (DIRTY) → iniciar limpeza (CLEANING) → concluir (AVAILABLE)**. QR/ocupação antiga não é reutilizada com a geração nova.
 
 Todo o desenho, critérios de segurança financeira, necessidade de API e jornadas adversas estão em [Fechar conta e girar a mesa](settlement-and-table-turnover.md). **Não há Payment real ou efeito de banco na demo; recarregar zera as simulações.** A direção ainda depende de revisão visual humana e não foi integrada à produção.
+
+
+## Iteração 2026-10-16 — menos cliques no final
+
+Feedback: as telas de revisão e o checklist de saída repetiam decisões. No protótipo, **Receber e encerrar comanda** agora liquida integralmente **somente na simulação** e navega direto para Mesa; parcial volta à conta; **Só registrar** preserva OPEN mesmo com saldo zero; saldo já quitado expõe **Encerrar comanda** diretamente. O botão **Grupo saiu · Liberar mesa** opera em um toque apenas quando não há Tab OPEN ou entrega READY pendente, passando a DIRTY, sem confirmar a saída novamente. Limpeza permanece outra tarefa. Rascunho continua bloqueando encerramento e exige descarte explícito. Nenhuma operação real foi alterada. **21/21 testes sintéticos JS/DOM passaram; validação real no navegador Android pendente.** A especificação de [fechamento de conta e giro](settlement-and-table-turnover.md) foi atualizada com esse fluxo rápido.
