@@ -486,6 +486,33 @@ function receiptPrimaryLabel(t,raw){
  var cents=parseAmount(raw),full=cents===t.balance&&t.balance>0&&!busyDraft(t);
  return full?"Receber e encerrar comanda (simulação)":"Registrar recebimento (simulação)"
 }
+function viewLimit(){
+ var t=tab();if(!t){root("tables");return}
+ var c=capacity(t),projected=forecast(t,dsum()),block=overLimit(t,dsum()),percent=t.limit>0?Math.round(t.balance*100/t.limit):null;
+ app.innerHTML=back()+first("Conta da casa · perfil da comanda")+
+ '<h1>Limite e garantias.</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
+ (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
+ creditPanel(t,dsum(),false)+
+ '<div class="sectionhead"><h2>Política desta comanda</h2><small>FICTÍCIA</small></div>'+
+ '<div class="policyrow"><span>Perfil na abertura</span><strong>'+esc(relationName(t))+(t.customerLinked?" · cliente vinculado":" · sem cadastro vinculado")+'</strong></div>'+
+ '<div class="policyrow"><span>Limite operacional atual</span><strong>'+money(t.limit)+'</strong></div>'+
+ '<div class="policyrow"><span>Consumo ainda em aberto</span><strong>'+money(t.balance)+'</strong></div>'+
+ '<div class="policyrow"><span>Capacidade para novos pedidos</span><strong>'+money(c)+'</strong></div>'+
+ (dcount()?'<div class="policyrow"><span>Novo pedido em rascunho</span><strong>'+money(dsum())+'</strong></div>':"")+
+ (t.limit===0?'<div class="budgetnote"><strong>Limite zero:</strong> não é possível assumir novos gastos por esta política. O cliente pode ser atendido conforme um fluxo autorizado de pagamento antecipado ou decisão gerencial futura, mas a demo não oferece esse fluxo.</div>':
+ block?'<div class="budgetnote" role="status"><strong>Não é possível enviar este pedido.</strong> Ele deixaria a comanda '+money(Math.max(0,projected-t.limit))+' acima do limite. O pagamento parcial confirmado pode liberar capacidade.</div>':
+ (percent!==null&&percent>=80?'<div class="budgetnote"><strong>Atenção ao limite.</strong> O consumo está em '+percent+'% da capacidade. Um próximo pedido pode exigir intervenção.</div>':""))+
+ '<div class="sectionhead"><h2>Garantia financeira</h2></div>'+
+ '<div class="policyrow"><span>Pré-autorização / caução</span><strong>Não disponível nesta demonstração</strong></div>'+
+ '<div class="notice"><strong>Aprovação de limite não é garantia.</strong> Autorização temporária da gerência não reserva dinheiro, não captura cartão e não representa depósito. Garantias reais terão fluxo e confirmação próprios no futuro.</div>'+
+ '<div class="sectionhead"><h2>O que fazer agora?</h2></div>'+
+ '<div class="limit-actions">'+
+ (t.balance>0&&t.state==="OPEN"?button("limit-pay","Receber parte da conta · simulação","block primary"):"")+
+ (t.state==="OPEN"&&!t.approvalRequested?button("request-approval","Solicitar aumento à gerência · simulação","block ghost"):'<div class="notice">Solicitação de aprovação registrada apenas nesta simulação. O limite <strong>não foi aumentado</strong>; somente a gerência poderá aprovar no fluxo real.</div>')+
+ (dcount()?button("review","Voltar ao pedido pendente","block ghost"):button("back","Voltar à comanda","block ghost"))+
+ '</div>';
+ setFoot("")
+}
 function viewPayment(){
 var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0){goBack();return}
 var full=parseAmount(state.paymentAmount)===t.balance&&!busyDraft(t);
@@ -538,7 +565,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="discard")viewDiscard();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="limit")viewLimit();else if(state.screen==="discard")viewDiscard();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
@@ -593,6 +620,17 @@ if(act==="new-any"){state.table=null;screen("create");return}
 if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN")return;state.cat="Todos";state.catalogSearch="";screen("catalog");return}
 if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
+if(act==="limit-details"){screen("limit");return}
+if(act==="request-approval"){
+ if(state.screen!=="limit")return;
+ var t=tab();if(!t||t.state!=="OPEN"||t.approvalRequested)return;
+ t.approvalRequested=true;state.toast="Solicitação fictícia enviada à gerência. Sem aumento de limite.";render();return
+}
+if(act==="limit-pay"){
+ if(state.screen!=="limit")return;
+ var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0)return;
+ state.paymentMethod="CASH";state.paymentAmount=formatInput(t.balance);state.paymentError="";screen("payment");return
+}
 if(act==="discard-review"){var t=tab();if(!t||!busyDraft(t)||t.state!=="OPEN")return;screen("discard");return}
 if(act==="confirm-discard"){
  if(state.screen!=="discard")return;
