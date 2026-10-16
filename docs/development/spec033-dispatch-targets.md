@@ -40,7 +40,15 @@ Ambiente: PostgreSQL16 descartável exclusivo `rodada-033-dispatch-pg`, porta lo
 - Django `check` com settings PostgreSQL: PASS.
 - `makemigrations --check --dry-run` com settings PostgreSQL: PASS.
 - Ruff arquivos novos e urls: PASS; arquivos antigos preservam dívida preexistente.
-- Suíte PostgreSQL: em execução; resultado final será registrado antes do handoff.
+- Suíte PostgreSQL final em `c6352bf0`: **54 PASS em 99.09s**, sem skips.
+  Comando em `apps/api` (POSTGRES_* apontando exclusivamente ao container acima):
+  `python -m pytest tests/test_dispatch_targets.py tests/test_dispatch.py tests/test_service_requests_round2.py tests/test_tab_location_safety.py --ds=rodada_api.settings --no-header`.
+  Log local: `/tmp/rodada-033-dispatch-final.log`. Treze testes novos incluem
+  concorrência Guest real com duas conexões e volume de 100 tarefas em três queries.
+  Tentativas anteriores detectaram expectativa do DTO desatualizada e fixture de
+  Product duplicada; corrigidas sem remover campos/asertivas nem alterar constraints.
+  Uma rodada intermediária capturou imports antes da adição final de zone_id;
+  a rodada final foi executada com código congelado.
 - Revisão independente R3: PENDING, a cargo do integrador.
 - Web/Compose, visual, emulador/aparelho e CI: NOT_RUN nesta slice de API.
 
