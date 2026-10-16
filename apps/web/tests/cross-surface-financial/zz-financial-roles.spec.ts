@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 
-test("Staff cannot open cash and Cashier cannot perform manager review", async ({ page, browser }) => {
+test("Staff cannot open cash and Cashier cannot perform manager review", async ({ browser }) => {
   const f = JSON.parse(await readFile(process.env.RODADA_POST_DROP_FIXTURE!, "utf8"));
   const financial = JSON.parse(await readFile("../../artifacts/financial-browser.json", "utf8"));
   const denied: number[] = [];
