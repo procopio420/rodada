@@ -76,18 +76,32 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .btn.primary:hover{background:#fff}.btn.ghost{background:transparent}
 .btn.block{width:100%}.btn.text{border:0;background:none;color:var(--amber);min-height:44px;padding:8px}
 .stack{display:grid;gap:10px}.empty{border:1px dashed var(--line2);border-radius:12px;color:var(--muted);padding:21px;font-size:14px}
-.creditbar{border:1px solid var(--line2);border-radius:10px;background:var(--panel);padding:13px 14px;margin:12px 0 17px}
-.creditbar small{display:block;color:var(--muted);font-size:12px}
-.creditbar .headline{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.creditbar .headline strong{font:800 17px JetBrains,monospace}
+
+.creditbar{border:1px solid var(--line2);border-radius:11px;background:var(--panel);padding:14px 15px 11px;margin:12px 0 17px}
 .creditbar[data-level="warning"]{border-left:3px solid var(--amber)}
 .creditbar[data-level="blocked"]{border-left:3px solid var(--red)}
 .creditbar[data-level="ok"]{border-left:3px solid var(--green)}
-.creditbar .ruleline{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:12px 0 8px}
-.creditbar .ruleline>span{display:block;background:var(--amber);height:100%;min-width:0}
-.creditbar .ruleline>span.warn{background:var(--red)}
-.creditbar .footrow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}
-.creditbar button{background:none;border:0;color:var(--amber);text-align:right;min-height:36px;font-size:12px;font-weight:800;padding:5px}
+.creditbar .credit-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.creditbar .credit-heading>span{font-size:12px;font-weight:850;color:var(--paper)}
+.creditbar .credit-heading .relationship{font-size:11px;color:var(--muted);font-weight:720}
+.creditbar .credit-numbers{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:13px}
+.creditbar .credit-numbers strong{font:830 18px JetBrains,monospace;letter-spacing:-.045em}
+.creditbar .credit-numbers small{font-size:12px;color:var(--muted)}
+.creditbar .credit-progress{position:relative;display:flex;height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin:12px 0 9px}
+.creditbar .credit-progress .current{height:100%;flex:0 0 auto;background:var(--green)}
+.creditbar[data-level="warning"] .credit-progress .current{background:var(--amber)}
+.creditbar[data-level="blocked"] .credit-progress .current{background:var(--red)}
+.creditbar .credit-progress .pending{height:100%;flex:0 0 auto;background:repeating-linear-gradient(135deg,#F5A524,#F5A524 6px,#9B6417 6px,#9B6417 9px);box-shadow:inset 2px 0 #17130F}
+.creditbar .credit-progress .threshold{position:absolute;left:80%;top:0;bottom:0;width:2px;background:var(--paper);opacity:.85}
+.creditbar .credit-key{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.creditbar .credit-key b{color:var(--paper);font-size:11px}
+.creditbar .credit-key .new-order{color:var(--amber)}
+.creditbar .credit-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:7px}
+.creditbar .credit-foot span{font-size:12px;color:var(--muted)}
+.creditbar .credit-foot button{background:none;border:0;color:var(--amber);text-align:right;min-height:36px;font-size:12px;font-weight:800;padding:5px}
+.creditbar[data-level="blocked"] .credit-foot span{color:var(--paper)}
+.creditbar .credit-zero{background:var(--raised);border:1px solid var(--line2);border-radius:8px;padding:13px;margin:10px 0;font-size:13px;font-weight:750}
+.creditbar .credit-zero strong{color:var(--paper)}
 .budgetnote{margin:12px 0 15px;border-left:3px solid var(--amber);padding:12px 14px;background:var(--panel);color:var(--muted);font-size:13px}
 .budgetnote strong{color:var(--paper)}
 .limit-actions{display:grid;gap:8px;margin-top:20px}
@@ -221,14 +235,27 @@ function creditStatus(t,extra){
  return"ok"
 }
 function creditPanel(t,extra,details){
- var status=creditStatus(t,extra||0),remaining=capacity(t);
- var used=t.limit>0?Math.min(100,Math.max(0,Math.round(t.balance*100/t.limit))):0;
- var label=status==="blocked"?"Consumo bloqueado":status==="warning"?"Próximo do limite":"Capacidade disponível";
+ var projected=extra||0,status=creditStatus(t,projected),available=capacity(t);
+ var usedPct=t.limit>0?Math.min(100,Math.max(0,100*t.balance/t.limit)):0;
+ var orderPct=t.limit>0?Math.min(100-usedPct,Math.max(0,100*projected/t.limit)):0;
+ var percent=t.limit>0?Math.round(100*t.balance/t.limit):null;
+ var excess=Math.max(0,forecast(t,projected)-t.limit);
+ var stateLabel=excess>0?"Pedido excede o limite em "+money(excess):t.limit===0?"Limite zero · novos pedidos bloqueados":t.balance>=t.limit?"Limite atingido":forecast(t,projected)>=t.limit*.8?"Próximo do limite":"Dentro do limite";
+ var label="Consumo "+money(t.balance)+" de "+money(t.limit)+"; "+money(available)+" disponíveis"+
+ (projected>0?"; novo pedido "+money(projected)+(excess?"; excesso "+money(excess):""):"");
  return '<section class="creditbar" data-level="'+status+'" aria-label="Limite operacional da comanda">'+
- '<div class="headline"><small>'+esc(relationName(t))+' · limite operacional '+money(t.limit)+'</small><strong>'+money(remaining)+' disponíveis</strong></div>'+
- (t.limit?'<div class="ruleline" aria-hidden="true"><span style="width:'+used+'%" class="'+(status==="blocked"?"warn":"")+'"></span></div>':'')+
- '<div class="footrow"><span>'+label+(t.limit?' · '+used+'% utilizado':" · limite zero")+'</span>'+
- (details?'<button type="button" data-action="limit-details">Ver regras ›</button>':'')+'</div></section>'
+ '<div class="credit-heading"><span>Limite de consumo</span><span class="relationship">'+esc(relationName(t))+'</span></div>'+
+ '<div class="credit-numbers"><span><strong>'+money(t.balance)+'</strong><small> de '+money(t.limit)+' usados</small></span><small>'+money(available)+' disponíveis</small></div>'+
+ (t.limit>0?'<div class="credit-progress" role="progressbar" aria-label="'+esc(label)+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,Math.round(usedPct))+'">'+
+ '<span class="current" style="width:'+usedPct+'%"></span>'+
+ (projected>0?'<span class="pending" style="width:'+orderPct+'%"></span>':'')+
+ '<span class="threshold" aria-hidden="true"></span></div>':
+ '<div class="credit-zero">Sem limite disponível para novos consumos</div>')+
+ '<div class="credit-key"><span>'+ (percent===null?'Sem percentual de utilização':percent+'% utilizado'+(projected>0?' · pedido em listras':'') )+'</span>'+
+ (projected>0?'<b class="new-order">＋ '+money(projected)+' no pedido</b>':'')+'</div>'+
+ '<div class="credit-foot"><span>'+esc(stateLabel)+'</span>'+
+ (details?'<button type="button" data-action="limit-details">Ver detalhes ›</button>':'')+'</div>'+
+ '</section>'
 }
 function projectedNotice(t,total){
  var after=forecast(t,total),excess=Math.max(0,after-t.limit);
