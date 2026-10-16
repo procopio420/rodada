@@ -314,6 +314,7 @@ function orderStatusCard(t){
  if(!last)return '';
  return '<div class="order-status" role="status"><strong>Pedido '+esc(last.ref)+' confirmado · simulação</strong>'+
  '<p>'+esc(t.name)+' · '+esc(t.ref)+(t.table?' · Mesa '+esc(t.table):' · Sem mesa')+' · '+money(last.total)+'</p>'+
+'<p>'+last.lines.map(function(l){return l.q+'× '+esc(prod(l.pid)?.name||"Produto")}).join(' · ')+'</p>'+
  '<div class="route">'+last.stations.map(function(st){return '<span>'+esc(st)+' · Na fila (simulação)</span>'}).join("")+'</div>'+
  '<p class="tip">Confirmado nesta página, sem API. Na produção: exibir destino/estado apenas após readback canônico; bar/cozinha podem atualizar separadamente.</p></div>'
 }
@@ -500,16 +501,16 @@ var d=dcount(),closed=t.state==="CLOSED";
 app.innerHTML=back()+first("Comanda "+esc(t.ref))+
 '<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+(closed?"Encerrada":"Comanda aberta")+'</p></div><div class="tag">'+(closed?"Encerrada":"Em consumo")+'</div></div>'+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-orderStatusCard(t)+
 (activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Abrir a comanda não conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?button("complete-service","Simular atendimento resolvido","ghost block"):button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
 '<div class="actioncluster">'+(closed?'<div class="notice">Comanda encerrada. Não é possível adicionar pedidos nem recebimentos.</div>':(pendingOrder(t)?button("reconcile-order","Verificar pedido antes de continuar","primary block"):button("catalog","＋ Adicionar itens","primary block")))+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",closed||!t.last.length||busyDraft(t)||!!pendingOrder(t)?'disabled title="Resolva o pedido pendente antes de repetir"':"")+
 button("bill",closed?"Ver conta encerrada":"Conferir / fechar conta","ghost")+'</div></div>'+
+orderStatusCard(t)+
 '<div class="billpeek"><span><label>Saldo em aberto <span class="kicker">(simulação)</span></label><small>Sem incluir rascunhos não enviados</small></span><strong>'+money(t.balance)+'</strong></div>'+
 creditPanel(t,0,true,true)+
 (d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Confira ou descarte o rascunho antes de encerrar.</div>':'')+
-'<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
-(t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Pedido fictício anterior</span></span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>')+
+(!lastConfirmed(t)?'<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
+(t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Pedido fictício anterior</span></span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>'):'')+
 '<div style="margin-top:18px">'+button("root-tables","Trocar de mesa ou comanda","block ghost")+'</div>';
 if(d&&!closed&&!pendingOrder(t))foot("submit","Enviar "+d+" "+(d===1?"item":"itens")+" · "+money(dsum())+" · simulação",limitBlocks(t,dsum()));else setFoot("")
 }
