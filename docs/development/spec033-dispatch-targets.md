@@ -63,3 +63,22 @@ Web e Android, CI e revisão independente. Esta slice não declara GO operaciona
 Rollout: aplicar migration antes de publicar clientes consumidores. Campos antigos
 permanecem compatíveis. Rollback de cliente preserva campos de provenance e fatos;
 não remover migration/dados durante operação. Sem merge/deploy autorizados.
+
+## Additive staff identity copy — 2026-10-16
+
+E03 queue parity needs the authorized Tab name/reference in addition to IDs.
+The staff target projection now includes `tab_display_label` and
+`tab_display_reference` only when its validated target is `TAB`. Reference uses
+existing `Comanda <UUID first8 uppercase>` convention; no fictitious numeric
+account/order number. `TABLE`/`UNAVAILABLE` expose null copy, including revoked,
+expired or moved Guest bindings; names never establish financial identity.
+Existing select_related joins supply the copy with no per-task query.
+
+Executed against disposable local PostgreSQL port55635 (test database only):
+`manage.py check` clean; `makemigrations --check --dry-run` no changes;
+`pytest tests/test_dispatch_targets.py --ds=rodada_api.settings -q`15 PASS.
+Tests include scoped list/detail, invalid foreign Tab, revoked Guest fallback,
+released occupancy, closed financial Tab delivery and100tasks/3queries with the
+full identity projection. Prior target concurrency/security regressions remain.
+Independent R3 review, CI and Web/Android same-state screenshot parity are gates;
+this additive copy is not an epic acceptance or rollout approval.

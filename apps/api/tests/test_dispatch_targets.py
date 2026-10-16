@@ -69,6 +69,34 @@ class DispatchTargetTests(TestCase):
             str(first.requested_tab_id), str(second.requested_tab_id),
         }
 
+    def test_staff_identity_copy_follows_live_target_and_never_fallback_label(self):
+        table, _ = self.visit()
+        task, guest = self.call(table)
+        payload = self.detail(task)
+        assert payload["tab_display_label"] == "Mesmo nome"
+        assert payload["tab_display_reference"] == "Comanda " + str(task.requested_tab_id)[:8].upper()
+        rows = self.client.get("/dispatch/requests/").json()["results"]
+        assert rows[0]["tab_display_reference"] == payload["tab_display_reference"]
+        GuestSession.objects.filter(pk=guest.session.id).update(revoked_at=timezone.now())
+        fallback = self.detail(task)
+        assert fallback["target"]["kind"] == "TABLE"
+        assert fallback["tab_display_label"] is None
+        assert fallback["tab_display_reference"] is None
+
+    def test_identity_copy_is_not_disclosed_for_foreign_corrupt_tab_or_released_visit(self):
+        table, occupancy = self.visit()
+        task, _ = self.call(table)
+        original = task.requested_tab_id
+        foreign = Tab.objects.create(venue=self.other_venue, display_label="Private other Venue")
+        DispatchTask.objects.filter(pk=task.id).update(requested_tab=foreign)
+        payload = self.detail(task)
+        assert payload["tab_display_label"] is None
+        assert payload["tab_display_reference"] is None
+        DispatchTask.objects.filter(pk=task.id).update(requested_tab_id=original)
+        occupancy.released_at = timezone.now()
+        occupancy.save(update_fields=["released_at"])
+        assert self.detail(task)["tab_display_label"] is None
+
     def test_legacy_or_unbound_request_never_guesses_the_only_account(self):
         table, occupancy = self.visit()
         self.call(table)
@@ -130,6 +158,7 @@ class DispatchTargetTests(TestCase):
             "kind": "TAB", "tab_id": str(tab.id), "table_id": None,
             "occupancy_id": None, "generation": None,
         }
+        assert payload["tab_display_reference"] == "Comanda " + str(tab.id)[:8].upper()
         assert payload["order_id"] == str(item.order_id)
         assert payload["order_item_id"] == str(item.id)
         assert payload["fulfillment_station"] == "BAR"
@@ -212,7 +241,8 @@ class DispatchTargetTests(TestCase):
         with self.assertNumQueries(3):
             loaded = list(staff_tasks(DispatchTask.objects.filter(id__in=[task.id for task in tasks])))
             targets = StaffTargets(loaded, venue_id=self.venue.id)
-            projected = [targets.target(task) for task in loaded]
+            from modules.dispatch.views import _target_payload
+            projected = [_target_payload(task, targets)["target"] for task in loaded]
         assert len(projected) == 100
         assert sum(target["kind"] == "TAB" for target in projected) == 50
 
