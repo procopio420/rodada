@@ -192,15 +192,15 @@ var t=tab();if(!t){root("tables");return}
 var d=dcount();
 app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-'<div class="billpeek"><span><label>Consumo registrado <span class="kicker">(exemplo)</span></label><small>Não inclui itens que você ainda não enviou</small></span><strong>'+money(t.balance)+'</strong></div>'+
 '<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
 button("bill","Ver conta","ghost")+'</div></div>'+
+'<div class="billpeek"><span><label>Consumo registrado <span class="kicker">(exemplo)</span></label><small>Não inclui itens que você ainda não enviou</small></span><strong>'+money(t.balance)+'</strong></div>'+
 (d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Há um rascunho desta comanda. Adicionar itens para continuar, ou revisar antes de enviar.</div>':'<div class="notice">A próxima ação é pedir. Histórico, dados financeiros e operações não ficam concorrendo com o catálogo.</div>')+
 '<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
 (t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Confirmado anteriormente (exemplo)</span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>')+
 '<div style="margin-top:18px">'+button("root-tables","Trocar de mesa ou comanda","block ghost")+"</div>";
-if(d)foot("review","Revisar rascunho · "+d+" itens · "+money(dsum()));else setFoot("")
+if(d)foot("review","Revisar rascunho · "+d+" "+(d===1?"item":"itens")+" · "+money(dsum()));else setFoot("")
 }
 function viewCatalog(){
 var t=tab();if(!t){root("tables");return}
@@ -212,7 +212,7 @@ app.innerHTML=back()+first("Pedido para "+esc(t.ref))+'<h1>Adicionar itens.</h1>
 '<div class="sectionhead"><h2>Cardápio</h2><small>'+ps.length+' ITENS</small></div>'+
 (ps.length?ps.map(function(p){var q=draft()[p.id]||0;return '<div class="catalogline"><div class="info"><strong>'+esc(p.name)+'</strong><small>'+money(p.price)+'</small></div><div class="quantity"><button class="qtybtn" type="button" aria-label="Remover '+esc(p.name)+'" data-action="qtyminus" data-id="'+p.id+'" '+(!q?"disabled":"")+'>−</button><b>'+q+'</b><button class="qtybtn plus" type="button" aria-label="Adicionar '+esc(p.name)+'" data-action="qtyplus" data-id="'+p.id+'">+</button></div></div>'}).join(""):'<div class="empty">Nenhum produto corresponde à pesquisa. Limpe a busca para ver o cardápio inteiro.</div>')+
 '<div class="notice">Quantidade adicionada <strong>não significa pedido enviado</strong>. A revisão é independente dos filtros do cardápio.</div>';
-foot("review",dcount()?"Revisar "+dcount()+" itens · "+money(dsum()):"Adicione itens para revisar",!dcount())
+foot("review",dcount()?"Revisar "+dcount()+" "+(dcount()===1?"item":"itens")+" · "+money(dsum()):"Adicione itens para revisar",!dcount())
 }
 function viewReview(){
 var t=tab();if(!t){root("tables");return}
