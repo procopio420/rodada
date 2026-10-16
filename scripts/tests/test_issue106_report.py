@@ -61,6 +61,17 @@ class ReportBoundaryTests(unittest.TestCase):
             review = {"sha":sha,"independent":True,"open_p0_p1":0,"reference":"synthetic-only"}
             report = module.build(root,sha,fixture,versions,"synthetic","synthetic","synthetic",review)
             self.assertEqual([], module.validate(report,root,sha))
+            self.assertEqual("PASS", report["execution"]["result"])
+            self.assertEqual("runner-execution", report["artifacts"]["execution.json"]["kind"])
+            # A failed tail step cannot be promoted to 14 PASS, even if all
+            # receipts and verified R3 have already been written.
+            execution_path = root / "execution.json"
+            execution_path.write_text(json.dumps({"sha":sha,"result":"FAIL","last_step":"trace-export"}))
+            failed = module.build(root,sha,fixture,versions,"synthetic","synthetic","synthetic",review)
+            self.assertEqual(0, sum(s["status"] == "PASS" for s in failed["scenarios"]))
+            self.assertTrue(all(s["status"] == "BLOCKED" for s in failed["scenarios"]))
+            self.assertTrue(module.validate(failed,root,sha))
+            execution_path.write_text(json.dumps({"sha":sha,"result":"PASS","started_at":"synthetic","finished_at":"synthetic"}))
             # Rewriting a current-SHA receipt still invalidates final reconciliation.
             path = root / next(iter(sources)); path.write_text(path.read_text()+" ")
             report = module.build(root,sha,fixture,versions,"synthetic","synthetic","synthetic",review)
