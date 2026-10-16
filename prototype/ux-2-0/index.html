@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120F0C">
+<title>Rodada UX 2.0 — Atendimento / conceito</title>
+<style>
+@font-face{font-family:Archivo;src:url("../../apps/web/public/fonts/archivo.woff2") format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:JetBrains;src:url("../../apps/web/public/fonts/jetbrains-mono.woff2") format("woff2");font-weight:400 800;font-display:swap}
+:root{--night:#120F0C;--panel:#1B1713;--raised:#252019;--line:#3A3228;--line2:#4D4335;--paper:#F3ECE1;--muted:#BBAE9B;--faint:#A39686;--amber:#F5A524;--ink:#17130F;--green:#93DB8C;--blue:#82B8FF;--red:#FF5D47}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth} body{margin:0;background:var(--night);color:var(--paper);font:500 15px/1.45 Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.layout{display:flex;justify-content:center;min-height:100vh}
+.side{display:none}.shell{width:100%;max-width:510px;min-height:100svh;background:var(--night);position:relative;border-inline:1px solid var(--line)}
+header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line);gap:12px}
+.brand img{display:block;width:113px;height:42px;object-fit:contain;object-position:left center}.brand strong{display:none;letter-spacing:-.07em;font-size:28px}
+header .meta{text-align:right;line-height:1.2}header .meta b{display:block;font-size:13px;font-weight:750}header .meta span{display:block;font-size:11px;color:var(--muted);margin-top:5px}
+main{padding:24px 20px 128px}.eyebrow{text-transform:uppercase;letter-spacing:.15em;color:var(--amber);font-weight:850;font-size:10px;margin-bottom:9px}
+h1{font-size:34px;line-height:1.05;letter-spacing:-.055em;font-weight:900;margin:0 0 10px}
+h2{font-size:18px;font-weight:800;letter-spacing:-.025em;margin:0}
+p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-size:14px}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;margin:27px 0 13px}
+.sectionhead small{color:var(--faint);font:700 11px JetBrains,monospace}
+.rowline{border-bottom:1px solid var(--line)}.rowline:first-child{border-top:1px solid var(--line)}
+.rowbtn{border:0;width:100%;background:none;color:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 0;min-height:62px}
+.rowbtn:hover .rowtitle{text-decoration:underline;text-decoration-color:var(--amber)}
+.rowtitle{font-weight:820;font-size:16px;line-height:1.25}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.mono{font-family:JetBrains,ui-monospace,monospace;font-variant-numeric:tabular-nums}.tiny{font-size:12px}
+.arrow{color:var(--faint);font-size:22px}
+.search{display:flex;align-items:center;gap:9px;background:var(--raised);border:1px solid var(--line2);border-radius:10px;padding:0 12px;height:52px;margin:17px 0}.search svg{color:var(--muted)}.search input{border:0;outline:none;background:none;color:var(--paper);width:100%;min-width:0}.search input::placeholder{color:var(--faint)}.search:focus-within{border-color:var(--amber)}
+.tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tabletile{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:15px 13px;text-align:left;min-height:115px;color:var(--paper);position:relative}
+.tabletile:hover,.tabletile:focus-visible{border-color:var(--amber);background:var(--raised)}
+.tabletile b{display:block;font-size:21px;letter-spacing:-.04em;font-weight:870;margin-bottom:17px}
+.status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.dot{display:inline-block;background:var(--muted);width:6px;height:6px;border-radius:50%;flex:0 0 auto}
+.dot.occupied{background:var(--blue)}.dot.free{background:var(--green)}.dot.dirty{background:var(--amber)}
+.count{font:750 11px JetBrains,monospace;color:var(--faint);position:absolute;top:17px;right:11px}
+.back{display:flex;align-items:center;gap:8px;min-height:44px;margin:-12px 0 23px;background:none;border:none;color:var(--muted);padding:0;font-size:14px}
+.back:hover{color:var(--paper)}.back span{font-size:22px}
+.context{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:21px}.context h1{margin-bottom:2px}.context p{font-size:13px;color:var(--muted)}
+.tag{font-weight:760;font-size:11px;padding:6px 8px;background:var(--raised);border:1px solid var(--line);border-radius:5px;white-space:nowrap}
+.btn{border:1px solid var(--line2);border-radius:10px;min-height:52px;padding:12px 15px;color:var(--paper);background:var(--raised);font-weight:800;font-size:15px;text-align:center}
+.btn:hover{border-color:var(--amber)}.btn.primary{border-color:var(--paper);color:var(--ink);background:var(--paper);font-size:17px}
+.btn.primary:hover{background:#fff}.btn.ghost{background:transparent}
+.btn.block{width:100%}.btn.text{border:0;background:none;color:var(--amber);min-height:44px;padding:8px}
+.stack{display:grid;gap:10px}.empty{border:1px dashed var(--line2);border-radius:12px;color:var(--muted);padding:21px;font-size:14px}
+.billpeek{padding:17px 0 19px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;margin-bottom:19px}
+.billpeek strong{font:750 21px JetBrains,monospace;color:var(--paper)}
+.billpeek label{display:block;color:var(--muted);font-size:12px}
+.billpeek small{display:block;color:var(--faint);font-size:11px}
+.actioncluster{display:grid;gap:10px}.twoactions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cardnote{border-left:2px solid var(--amber);padding:10px 14px;background:var(--panel);color:var(--muted);font-size:12px;margin-bottom:20px}
+.bar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 15px}.bar .hint{font-size:12px;color:var(--muted)}
+.pills{display:flex;gap:7px;overflow-x:auto;padding-bottom:7px;scrollbar-width:thin}.pill{flex:0 0 auto;min-height:40px;border:1px solid var(--line2);border-radius:7px;background:none;color:var(--muted);padding:8px 12px;font-weight:700;font-size:13px}
+.pill.active{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.catalogline{display:flex;gap:14px;align-items:center;padding:17px 0;border-bottom:1px solid var(--line)}
+.catalogline .info{flex:1;min-width:0}.catalogline .info strong{display:block;font-size:16px;font-weight:800}
+.catalogline .info small{display:block;margin-top:4px;color:var(--muted);font:650 12px JetBrains,monospace}
+.quantity{display:flex;gap:7px;align-items:center}.quantity b{min-width:22px;text-align:center;font:780 14px JetBrains,monospace}
+.qtybtn{border:1px solid var(--line2);width:39px;height:42px;border-radius:8px;background:var(--raised);color:var(--paper);font-size:22px;line-height:1}
+.qtybtn.plus{color:var(--amber)}.qtybtn:disabled{opacity:.25}
+.reviewrow{display:flex;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);align-items:center}
+.reviewrow b{display:block;font-size:16px}.reviewrow small{display:block;color:var(--muted);margin-top:5px;font-size:12px}.reviewrow .money{font:700 13px JetBrains,monospace;text-align:right}
+.amountline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:18px 0}.amountline strong{font:800 23px JetBrains,monospace}.amountline small{color:var(--muted)}
+.inputlabel{display:block;font-size:13px;color:var(--muted);margin:18px 0 6px;font-weight:740}.field{width:100%;height:53px;border-radius:9px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);padding:0 14px;outline:none}
+.field:focus{border-color:var(--amber)}.notice{border:1px solid var(--line2);background:var(--panel);color:var(--muted);border-radius:9px;padding:13px;margin:16px 0;font-size:12px;line-height:1.5}
+.notice strong{color:var(--paper)}.notice.warn{border-left:3px solid var(--amber)}
+.taskfoot{position:fixed;bottom:0;width:min(100%,510px);padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--night);border-top:1px solid var(--line);z-index:4;box-shadow:0 -12px 26px var(--night)}
+.taskfoot .btn{width:100%;min-height:56px}
+.bottomnav{position:fixed;bottom:0;width:min(100%,510px);display:grid;grid-template-columns:1fr 1.15fr 1fr;background:var(--panel);border-top:1px solid var(--line);padding:7px 7px calc(7px + env(safe-area-inset-bottom));z-index:4}
+.bottomnav button{border:0;background:transparent;color:var(--muted);min-height:61px;display:flex;flex-direction:column;justify-content:center;gap:4px;align-items:center;font-size:11px;font-weight:750;border-radius:8px}
+.bottomnav button.active{color:var(--paper)}.bottomnav button .glyph{font-size:23px;line-height:1}
+.bottomnav button.middle{background:var(--paper);color:var(--ink);font-size:13px;font-weight:850}
+.toast{background:var(--green);color:var(--ink);padding:13px 14px;border-radius:10px;margin-bottom:18px;font-size:13px;font-weight:780}
+.kicker{color:var(--faint);text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.1em}
+.rule{height:1px;background:var(--line);margin:18px 0}
+.protolabel{font-size:11px;color:var(--faint);border:1px solid var(--line2);padding:5px 9px;border-radius:4px}
+@media(min-width:900px){
+ body{background:#0A0806}.layout{justify-content:center;gap:72px;align-items:flex-start}.side{display:block;width:310px;position:sticky;top:108px;padding:10px 0;color:var(--paper)}
+ .side h2{font-size:38px;line-height:1.06;letter-spacing:-.05em;margin:18px 0}
+ .side p{color:var(--muted);line-height:1.6}
+ .side ol{margin:25px 0;padding-left:22px;color:var(--muted);line-height:2}
+ .side .eyebrow{font-size:12px}
+ .shell{margin:35px 0;min-height:840px;border:1px solid var(--line2);border-radius:17px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,.4)}
+ main{min-height:690px}
+ .bottomnav,.taskfoot{position:sticky;bottom:0;width:100%}
+}
+@media(max-width:375px){main{padding-inline:15px}header{padding-inline:15px}.taskfoot{padding-inline:15px}.tabletile{padding:13px 11px}h1{font-size:30px}.rowtitle{font-size:15px}}
+@media(prefers-reduced-motion:no-preference){.btn,.tabletile,.pill{transition:background .15s ease,border-color .15s ease}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+ <div class="eyebrow">Rodada / Laboratório</div>
+ <h2>Menos sistema.<br>Mais bar.</h2>
+ <p>Experimento de UX 2.0 para o atendimento: as ações existem quando fazem sentido, não todas ao mesmo tempo.</p>
+ <ol><li>Encontre a Mesa 08</li><li>Escolha uma comanda</li><li>Adicione itens ou repita</li><li>Revise antes de enviar</li><li>Troque de comanda sem perder o rascunho</li></ol>
+ <div class="protolabel">Protótipo estático · dados fictícios</div>
+</aside>
+<div class="shell">
+ <header><div class="brand"><img src="../../assets/brand/v1/wordmark.svg" alt="Rodada" onerror="this.hidden=true;this.nextElementSibling.style.display='block'"><strong>rodada.</strong></div><div class="meta"><b>Bar do Aderlan</b><span>Conceito UX 2.0 · sem conexão</span></div></header>
+ <main id="main" aria-live="polite"></main>
+ <div id="footer"></div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+var products=[
+{id:"p1",name:"Chopp Pilsen",price:1400,cat:"Bebidas"},
+{id:"p2",name:"Água sem gás",price:600,cat:"Bebidas"},
+{id:"p3",name:"Refrigerante lata",price:800,cat:"Bebidas"},
+{id:"p4",name:"Suco de laranja",price:1200,cat:"Bebidas"},
+{id:"p5",name:"Batata frita",price:2800,cat:"Porções"},
+{id:"p6",name:"Polenta frita",price:2600,cat:"Porções"},
+{id:"p7",name:"Pastel de queijo",price:1600,cat:"Porções"},
+{id:"p8",name:"Hambúrguer da casa",price:3400,cat:"Lanches"}
+];
+var tables=[
+{id:"08",status:"occupied",text:"Ocupada",zone:"Salão"},
+{id:"12",status:"occupied",text:"Ocupada",zone:"Varanda"},
+{id:"03",status:"free",text:"Disponível",zone:"Salão"},
+{id:"14",status:"dirty",text:"Limpeza pendente",zone:"Varanda"},
+{id:"05",status:"occupied",text:"Ocupada",zone:"Salão"},
+{id:"06",status:"free",text:"Disponível",zone:"Salão"}
+];
+var tabs=[
+{id:"a",table:"08",name:"Marina",ref:"#1048",balance:5600,last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
+{id:"b",table:"08",name:"Rafael",ref:"#1049",balance:1400,last:[{pid:"p1",q:1}]},
+{id:"c",table:"12",name:"João",ref:"#1050",balance:2800,last:[{pid:"p5",q:1}]},
+{id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
+{id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
+];
+var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053};
+var app=document.getElementById("main"),footer=document.getElementById("footer");
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
+function tab(){return tabs.find(function(t){return t.id===state.tab})}
+function prod(pid){return products.find(function(p){return p.id===pid})}
+function draft(){return state.draft[state.tab]||{}}
+function dcount(){return Object.values(draft()).reduce(function(n,q){return n+q},0)}
+function dsum(){return Object.keys(draft()).reduce(function(n,id){var p=prod(id);return n+(p?p.price*draft()[id]:0)},0)}
+function row(x){return '<div class="rowline">'+x+"</div>"}
+function button(action,label,cls,extra){return '<button type="button" class="btn '+(cls||"")+'" data-action="'+action+'" '+(extra||"")+">"+label+"</button>"}
+function back(){return '<button type="button" class="back" data-action="back"><span aria-hidden="true">‹</span> Voltar</button>'}
+function screen(s){state.stack.push(state.screen);state.screen=s;state.toast="";render();window.scrollTo({top:0,behavior:"instant"})}
+function root(s){state.screen=s;state.stack=[];state.toast="";render();window.scrollTo(0,0)}
+function goBack(){state.screen=state.stack.pop()||"tables";state.toast="";render();window.scrollTo(0,0)}
+function first(s){return '<div class="eyebrow">'+s+"</div>"}
+function tableCard(t){var n=tabs.filter(function(x){return x.table===t.id}).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
+function tabRow(t){return row('<button type="button" class="rowbtn" data-action="tab" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</span></span><span style="display:flex;align-items:center;gap:12px"><span class="mono tiny">'+money(t.balance)+'</span><span class="arrow">›</span></span></button>')}
+function setFoot(html){footer.innerHTML=html}
+function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
+function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
+function viewNow(){
+app.innerHTML=first("Seu turno")+'<h1>O que precisa<br>de você agora.</h1><p class="lede">Sem contadores competindo com a próxima ação.</p><div class="sectionhead"><h2>Próximas ações</h2><small>2 PENDÊNCIAS · EXEMPLO</small></div>'+
+row('<button type="button" class="rowbtn" data-action="table" data-id="12"><span><span class="rowtitle">Mesa 12 pediu atendimento</span><span class="sub">Toque para ver a mesa e suas comandas</span></span><span class="arrow">›</span></button>')+
+row('<button type="button" class="rowbtn" data-action="table" data-id="08"><span><span class="rowtitle">Mesa 08 · 2 comandas</span><span class="sub">Consultar e adicionar pedidos</span></span><span class="arrow">›</span></button>')+
+'<div class="sectionhead"><h2>Atalhos</h2></div>'+button("root-tables","Ver mesas e comandas","block ghost")+
+'<div class="notice">As chamadas acima são <strong>cenários fictícios</strong>. O protótipo não acompanha produção, fila real ou conectividade.</div>';
+commonNav()
+}
+function viewTables(){
+var q=state.search.toLocaleLowerCase("pt-BR");
+var filtered=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
+var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
+app.innerHTML=first("Encontrar destino")+'<h1>Mesas e<br>comandas.</h1><p class="lede">Uma busca, sem filtros de status nem formulários na lista.</p>'+
+'<label class="search"><span aria-hidden="true">⌕</span><input id="table-search" type="search" autocomplete="off" placeholder="Mesa, nome ou comanda" value="'+esc(state.search)+'" aria-label="Buscar mesa ou comanda"></label>'+
+'<div class="sectionhead"><h2>Mesas</h2><small>'+filtered.length+' DE '+tables.length+'</small></div>'+
+(filtered.length?'<div class="tables">'+filtered.map(tableCard).join("")+"</div>":'<div class="empty">Nenhuma mesa corresponde à busca.</div>')+
+'<div class="sectionhead"><h2>Comandas sem mesa</h2></div>'+(loose.length?loose.map(tabRow).join(""):'<div class="empty">Nenhuma comanda sem mesa encontrada.</div>')+
+'<div style="margin-top:21px">'+button("new-any","Abrir comanda sem mesa","block ghost")+"</div>";
+commonNav()
+}
+function viewTable(){
+var t=tables.find(function(x){return x.id===state.table});if(!t){root("tables");return}
+var list=tabs.filter(function(x){return x.table===t.id});
+app.innerHTML=back()+first(t.zone)+'<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+list.length+' comanda'+(list.length===1?"":"s")+'</div></div>'+
+'<div class="sectionhead"><h2>Quem você vai atender?</h2></div>'+
+(list.length?list.map(tabRow).join(""):'<div class="empty">Sem comanda aberta nesta mesa. Abrir uma comanda é uma ação separada.</div>')+
+'<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost")+'</div>'+
+'<div class="notice">Uma mesa pode ter várias comandas. Escolher a mesa <strong>não</strong> escolhe uma comanda automaticamente.</div>';
+setFoot("")
+}
+function viewTab(){
+var t=tab();if(!t){root("tables");return}
+var d=dcount();
+app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
+(state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
+'<div class="billpeek"><span><label>Consumo registrado <span class="kicker">(exemplo)</span></label><small>Não inclui itens que você ainda não enviou</small></span><strong>'+money(t.balance)+'</strong></div>'+
+'<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
+'<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
+button("bill","Ver conta","ghost")+'</div></div>'+
+(d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Há um rascunho desta comanda. Adicionar itens para continuar, ou revisar antes de enviar.</div>':'<div class="notice">A próxima ação é pedir. Histórico, dados financeiros e operações não ficam concorrendo com o catálogo.</div>')+
+'<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
+(t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Confirmado anteriormente (exemplo)</span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>')+
+'<div style="margin-top:18px">'+button("root-tables","Trocar de mesa ou comanda","block ghost")+"</div>";
+if(d)foot("review","Revisar rascunho · "+d+" itens · "+money(dsum()));else setFoot("")
+}
+function viewCatalog(){
+var t=tab();if(!t){root("tables");return}
+var cat=state.cat,search=state.catalogSearch.toLocaleLowerCase("pt-BR");
+var ps=products.filter(function(p){return (cat==="Todos"||p.cat===cat)&&p.name.toLocaleLowerCase("pt-BR").includes(search)});
+app.innerHTML=back()+first("Pedido para "+esc(t.ref))+'<h1>Adicionar itens.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+' <span class="kicker">· destino fixo</span></p>'+
+'<label class="search"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Buscar no cardápio" value="'+esc(state.catalogSearch)+'" aria-label="Buscar produto"></label>'+
+'<div class="pills" role="group" aria-label="Categorias">'+["Todos","Bebidas","Porções","Lanches"].map(function(c){return '<button type="button" class="pill '+(cat===c?"active":"")+'" data-action="category" data-id="'+c+'" aria-pressed="'+(cat===c)+'">'+c+"</button>"}).join("")+'</div>'+
+'<div class="sectionhead"><h2>Cardápio</h2><small>'+ps.length+' ITENS</small></div>'+
+(ps.length?ps.map(function(p){var q=draft()[p.id]||0;return '<div class="catalogline"><div class="info"><strong>'+esc(p.name)+'</strong><small>'+money(p.price)+'</small></div><div class="quantity"><button class="qtybtn" type="button" aria-label="Remover '+esc(p.name)+'" data-action="qtyminus" data-id="'+p.id+'" '+(!q?"disabled":"")+'>−</button><b>'+q+'</b><button class="qtybtn plus" type="button" aria-label="Adicionar '+esc(p.name)+'" data-action="qtyplus" data-id="'+p.id+'">+</button></div></div>'}).join(""):'<div class="empty">Nenhum produto corresponde à pesquisa. Limpe a busca para ver o cardápio inteiro.</div>')+
+'<div class="notice">Quantidade adicionada <strong>não significa pedido enviado</strong>. A revisão é independente dos filtros do cardápio.</div>';
+foot("review",dcount()?"Revisar "+dcount()+" itens · "+money(dsum()):"Adicione itens para revisar",!dcount())
+}
+function viewReview(){
+var t=tab();if(!t){root("tables");return}
+var ids=Object.keys(draft()).filter(function(x){return draft()[x]>0&&prod(x)});
+app.innerHTML=back()+first("Conferência final")+'<h1>Revisar pedido.</h1><p class="lede">Confira o destino e todos os itens, mesmo que o cardápio estivesse filtrado.</p>'+
+'<div class="cardnote"><strong style="color:var(--paper)">'+esc(t.name)+' · '+esc(t.ref)+'</strong><div>'+(t.table?"Mesa "+t.table:"Sem mesa")+' · Rascunho ainda não enviado</div></div>'+
+(ids.length?ids.map(function(id){var p=prod(id),q=draft()[id];return '<div class="reviewrow"><div><b>'+q+'× '+esc(p.name)+'</b><small>'+money(p.price)+' cada</small></div><div><div class="money">'+money(q*p.price)+'</div><div class="quantity" style="justify-content:flex-end;margin-top:9px"><button type="button" class="qtybtn" aria-label="Remover '+esc(p.name)+'" data-action="qtyminus" data-id="'+p.id+'">−</button><button type="button" class="qtybtn plus" aria-label="Adicionar '+esc(p.name)+'" data-action="qtyplus" data-id="'+p.id+'">+</button></div></div></div>'}).join(""):'<div class="empty">O pedido está vazio.</div>')+
+'<div class="amountline"><small>Total do novo pedido <span class="kicker">· simulado</span></small><strong>'+money(dsum())+'</strong></div>'+
+'<div class="notice warn"><strong>Simulação local.</strong> Não há API nem pedido real. Na implementação, confirmar exige validação do servidor, intenção idempotente e reconciliação de resposta ambígua.</div>'+
+button("catalog","← Continuar escolhendo itens","block ghost");
+foot("submit","Simular envio do pedido",!ids.length)
+}
+function viewRepeat(){
+var t=tab();if(!t){root("tables");return}
+if(!t.last.length){screen("tab");return}
+var chosen=state.repeat[t.id]||{};
+app.innerHTML=back()+first("Repetir com escolha")+'<h1>Mais uma rodada.</h1><p class="lede">Tire o que ninguém quer repetir. Depois revise o novo pedido inteiro.</p>'+
+t.last.map(function(x){var p=prod(x.pid),q=chosen[x.pid]||0;return '<div class="reviewrow"><div><b>'+esc(p.name)+'</b><small>'+money(p.price)+' por unidade</small></div><div class="quantity"><button type="button" class="qtybtn" aria-label="Reduzir '+esc(p.name)+'" data-action="repeatminus" data-id="'+p.id+'" '+(!q?"disabled":"")+'>−</button><b>'+q+'</b><button type="button" class="qtybtn plus" aria-label="Aumentar '+esc(p.name)+'" data-action="repeatplus" data-id="'+p.id+'">+</button></div></div>'}).join("")+
+'<div class="notice">Repetir <strong>prepara um novo pedido</strong>; nunca reaproveita a confirmação anterior. Na produção, disponibilidade e preços são revalidados.</div>';
+foot("apply-repeat","Revisar itens selecionados",!Object.values(chosen).some(function(x){return x>0}))
+}
+function viewBill(){
+var t=tab();if(!t){root("tables");return}
+app.innerHTML=back()+first("Conta · "+esc(t.ref))+'<h1>Conferir conta.</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
+'<div class="billpeek"><span><label>Saldo da comanda</label><small>Valor demonstrativo · não vem da API</small></span><strong>'+money(t.balance)+'</strong></div>'+
+'<div class="notice warn"><strong>Sem pagamento neste protótipo.</strong> No app real, saldo, recebimentos, pagamentos parciais e fechamento são estados canônicos e exigem permissões e confirmação próprias. Rascunhos de pedido não alteram o saldo.</div>'+
+button("back","Voltar à comanda","block ghost");setFoot("")
+}
+function viewCreate(){
+var label=state.table?"Mesa "+state.table:"Sem mesa";
+app.innerHTML=back()+first("Ação explícita")+'<h1>Abrir comanda.</h1><p class="lede">'+label+' · Isso não acontece ao selecionar a mesa ou tocar em Pedir.</p>'+
+'<form id="new-form"><label class="inputlabel" for="new-name">Nome ou apelido <span style="color:var(--amber)">*</span></label><input class="field" id="new-name" required maxlength="120" autocomplete="off" placeholder="Ex.: Ana" aria-describedby="name-note"><p id="name-note" class="sub" style="margin-top:9px">Obrigatório no fluxo staff atual; não exige cadastro nem CPF.</p><button class="btn primary block" style="margin-top:24px" type="submit">Criar comanda (simulação)</button></form>'+
+'<div class="notice">Abertura simulada somente na memória desta página. Nenhuma mesa real é ocupada e nenhuma comanda real é criada.</div>';
+setFoot("")
+}
+function viewChoose(){
+app.innerHTML=back()+first("Escolher antes de pedir")+'<h1>Qual comanda?</h1><p class="lede">O botão + não cria comanda nem envia itens sozinho.</p>'+
+tabs.map(tabRow).join("")+'<div style="margin-top:19px">'+button("new-any","Abrir uma nova comanda","block ghost")+'</div>';setFoot("")
+}
+function render(){
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+}
+document.addEventListener("click",function(e){
+var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
+var act=btn.getAttribute("data-action"),id=btn.getAttribute("data-id");
+if(act==="back"){goBack();return}
+if(act==="root-now"){root("now");return}
+if(act==="root-tables"){root("tables");return}
+if(act==="quick-order"){if(state.tab){screen("catalog")}else{screen("choose")}return}
+if(act==="table"){state.table=id;screen("table");return}
+if(act==="tab"){state.tab=id;screen("tab");return}
+if(act==="new-table"){screen("create");return}
+if(act==="new-any"){state.table=null;screen("create");return}
+if(act==="catalog"){state.cat="Todos";state.catalogSearch="";screen("catalog");return}
+if(act==="review"){screen("review");return}
+if(act==="bill"){screen("bill");return}
+if(act==="repeat"){var t=tab();if(t){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
+if(act==="category"){state.cat=id;render();return}
+if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
+if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
+if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
+if(act==="submit"){var t=tab();if(!t||!dcount())return;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+});
+document.addEventListener("input",function(e){
+if(e.target.id==="table-search"){var value=e.target.value,position=e.target.selectionStart;state.search=value;render();var next=document.getElementById("table-search");if(next){next.focus();next.setSelectionRange(position,position)}}
+if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStart;state.catalogSearch=v;render();var n=document.getElementById("catalog-search");if(n){n.focus();n.setSelectionRange(p,p)}}
+});
+document.addEventListener("submit",function(e){
+if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
+var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,last:[]});
+state.tab=id;state.screen="tab";state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
+render();
+})();
+</script>
+</body></html>
