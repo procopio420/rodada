@@ -270,6 +270,16 @@ body{font:500 15px/1.45 var(--font)}
 @media(prefers-reduced-motion:reduce){.sheet,.nav,.btn{animation:none!important;transition:none!important}}
 
 .success-check{font-size:36px;line-height:1.2;margin-bottom:8px;color:var(--success)}
+/* Ficha: pickup tasks first, historical clutter behind disclosure. */
+.ficha-section-head{margin-top:19px}
+.ficha-order{padding:12px 0}
+.ficha-order-old{opacity:.82;padding:10px 0}
+.ficha-history{margin-top:13px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.ficha-history summary{cursor:pointer;min-height:48px;display:flex;align-items:center;justify-content:space-between;font-weight:800;font-size:13px;list-style:revert;padding:12px 4px}
+.ficha-history summary span{font-size:12px;font-weight:650;color:var(--muted)}
+.ficha-muted-count{color:var(--muted);font-size:12px;margin:6px 0 0}
+.ficha-optional{min-height:44px}
+
 </style>
 </head><body>
 <div class="shell">
@@ -843,21 +853,35 @@ function renderFichaIntro(){
  return `<div class="content"><div class="eyebrow">CLIENTE / RETIRADA NO BAR</div><h1>Sua ficha digital</h1>${fichaTicket()}<p class="ficha-under">Peça pelo celular. Retire no bar com este código.</p><button class="inline-link" onclick="S.modal='ficha-how';render()">Como funciona? ›</button><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`
 }
 
+
+function fichaAllPicked(o){return !!o.items.length&&o.items.every(x=>lineMarked(o.id,x.id))}
+function renderFichaOrder(o,history=false){
+ const remaining=o.items.filter(x=>!lineMarked(o.id,x.id));
+ const lines=history?o.items:remaining;
+ return `<div class="ficha-order ${history?'ficha-order-old':''}">
+ <div class="row between"><strong>Pedido ${esc(o.id)}</strong>
+ <span class="statuspill ${isReady(o)&&!history?'success':'warning'}">${history?'Histórico':isReady(o)?'Pronto':esc(o.status)}</span></div>
+ <div class="pickup-lines">${lines.map(x=>`<div class="pickup-item">
+ <span>${x.qty}× ${esc(x.name)}</span>
+ ${history&&lineMarked(o.id,x.id)?'<small class="positive">✓ Marcado como retirado</small>':''}
+ </div>`).join('')}</div>
+ ${!history&&o.items.length!==remaining.length?`<p class="ficha-muted-count">${o.items.length-remaining.length} item(ns) marcado(s) como retirado(s)</p>`:''}
+ ${!history&&isReady(o)?`<button class="inline-link ficha-optional" onclick="S.pickupOrderId='${o.id}';S.modal='pickup-items';render()">Marcar retirada (opcional) ›</button>`:''}
+ ${!history&&canRequestChange(o)&&!isReady(o)?`<button class="inline-link ficha-optional" onclick="S.changeOrderId='${o.id}';S.modal='order-change';render()">Problema com pedido? ›</button>`:''}
+ </div>`
+}
 function renderFicha(){
  const orders=S.orders.slice().reverse();
+ const ready=orders.filter(o=>isReady(o)&&!fichaAllPicked(o));
+ const active=orders.filter(o=>!isReady(o)&&!fichaAllPicked(o)&&!['Entregue (cliente confirmou)','Cancelado pela equipe'].includes(o.status));
+ const history=orders.filter(o=>!ready.includes(o)&&!active.includes(o));
  return `<div class="content"><div class="eyebrow">CLIENTE / RETIRADA</div><h1>Minha ficha</h1>${fichaTicket()}
  <button class="inline-link" onclick="S.modal='ficha-how';render()">Como retirar? ›</button>
- <div class="queuehead"><h2>Meus pedidos</h2><small>${orders.length} PEDIDO${orders.length===1?'':'S'}</small></div>
- ${orders.length?orders.map(o=>`<div class="ficha-order">
- <div class="row between"><strong>Pedido ${esc(o.id)}</strong><span class="statuspill ${isReady(o)?'success':'warning'}">${o.items.every(x=>lineMarked(o.id,x.id))?'Retirada marcada*':esc(o.status)}</span></div>
- <div class="pickup-lines">${o.items.map(x=>`<div class="pickup-item">
- <span>${x.qty}× ${esc(x.name)}</span>
- ${lineMarked(o.id,x.id)?'<small class="positive">✓ Retirado*</small>':isReady(o)?'<small class="positive">Pronto</small>':''}
- </div>`).join('')}</div>
- ${isReady(o)?`<button class="inline-link ficha-optional" onclick="S.pickupOrderId='${o.id}';S.modal='pickup-items';render()">${readyPickupCount()?'Marcar retirada (opcional)':'Revisar retirada'} ›</button>`:''}
- ${canRequestChange(o)&&!isReady(o)?`<button class="inline-link ficha-optional" onclick="S.changeOrderId='${o.id}';S.modal='order-change';render()">Problema com pedido? ›</button>`:''}
- </div>`).join(''):'<p class="ficha-empty">Sem pedidos ainda.</p>'}
- <div class="sectionhead"><h2>Sua ficha</h2></div>
+ ${ready.length?`<div class="queuehead ficha-section-head"><h2>Pronto para retirar</h2><small>${ready.length} PEDIDO${ready.length===1?'':'S'}</small></div>${ready.map(o=>renderFichaOrder(o)).join('')}`:''}
+ ${active.length?`<div class="queuehead ficha-section-head"><h2>Em andamento</h2><small>${active.length} PEDIDO${active.length===1?'':'S'}</small></div>${active.map(o=>renderFichaOrder(o)).join('')}`:''}
+ ${!orders.length?'<p class="ficha-empty">Nenhum pedido ainda. Faça seu primeiro pedido!</p>':''}
+ ${history.length?`<details class="ficha-history"><summary>Histórico <span>${history.length} pedido${history.length===1?'':'s'}</span></summary>${history.map(o=>renderFichaOrder(o,true)).join('')}</details>`:''}
+ <div class="sectionhead"><h2>Sua conta</h2></div>
  <div class="rowline"><button class="rowbtn" onclick="switchView('account')"><span><strong class="rowtitle">Ver conta</strong><small class="sub">Consumo e pagamento</small></span><span class="mono tiny">${money(balance())}　›</span></button></div>
  <div class="rowline"><button class="rowbtn" onclick="switchView('catalog')"><span><strong class="rowtitle">Pedir mais</strong></span><span class="arrow">›</span></button></div>
  ${balance()>0?`<div class="rowline"><button class="rowbtn" onclick="S.modal='payment-options';render()"><span><strong class="rowtitle">Pagar agora</strong><small class="sub">Parcial ou total</small></span><span class="arrow">›</span></button></div>`:''}
