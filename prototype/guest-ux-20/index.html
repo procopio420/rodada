@@ -203,6 +203,12 @@ body{font:500 15px/1.45 var(--font)}
 
 .order-request-label{font-size:12px;color:var(--accent);font-weight:780;padding:7px 0 0}
 
+.pickup-lines{margin-top:9px}
+.pickup-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pickup-item:last-child{border-bottom:0}
+.pickup-item small{font-size:11px;white-space:nowrap;color:var(--muted)}
+.pickup-item small.positive{color:var(--success)}
+
 </style>
 </head><body>
 <div class="shell">
@@ -212,7 +218,7 @@ body{font:500 15px/1.45 var(--font)}
  <p class="railfoot">Protótipo estático · dados fictícios. Sem conexão com o bar ou cobranças reais.</p>
  </aside>
  <main class="phone-wrap"><div class="phone" id="phone"><div id="header"></div><div id="demo-mode"></div><div id="alert"></div><div id="view" class="view"></div><div id="actionbar" class="actionbar"></div><div id="nav"></div><div id="overlay"></div><div class="snackbar" id="snackbar" role="status" aria-live="polite"></div></div></main>
- <aside class="rail toolbox"><div class="rail-card" style="margin-top:0"><div class="rail-kicker">Laboratório de cenários</div><h2>Simule a operação</h2><p class="small muted" style="margin:8px 0 12px">Altere dados fictícios para encontrar falhas e testar o fluxo do cliente.</p><div class="toolgroup"><div class="toolgroup-title">Começar de um estado</div><div class="fixture"><button class="toolbtn" onclick="scenario('empty')">✨ Mesa livre</button><button class="toolbtn" onclick="scenario('busy')">🍻 Mesa ocupada</button><button class="toolbtn" onclick="scenario('ficha')">🎟️ Ficha / balada</button><button class="toolbtn" onclick="scenario('ficha-ready')">✓ Ficha pronta</button></div></div><div class="toolgroup"><div class="toolgroup-title">Participantes / dispositivos</div><div id="personas"></div><button class="toolbtn" onclick="scenario('add-person')">＋ Outro cliente entra</button></div><div class="toolgroup"><div class="toolgroup-title">Entrada / segurança</div><button class="toolbtn" onclick="scenario('multi-tab')">▶ Mesa com várias comandas</button><button class="toolbtn" onclick="scenario('recovery')">▶ Recuperar sessão</button></div><div class="toolgroup"><div class="toolgroup-title">Pedido / erro</div><button class="toolbtn" onclick="scenario('change-request')">▶ Solicitar correção</button><button class="toolbtn" onclick="scenario('staff-approve-change')">✓ Equipe confirma cancelamento</button><button class="toolbtn" onclick="scenario('unknown-ack')">▶ Envio sem confirmação</button></div><div class="toolgroup"><div class="toolgroup-title">Pagamento · cenários</div><button class="toolbtn" onclick="scenario('demo-self-pay')">▶ Cliente paga por conta própria</button><button class="toolbtn" onclick="scenario('demo-partial')">▶ Pedido exige parcial</button><button class="toolbtn" onclick="scenario('demo-prepaid')">▶ Pedido pré-pago</button><button class="toolbtn" onclick="setPolicy('WARN_ONLY')">✓ Só alertar</button></div><div class="toolgroup"><div class="toolgroup-title">Operação do bar</div><button class="toolbtn" onclick="scenario('advance')">🍺 Avançar preparo do último pedido</button><button class="toolbtn" onclick="scenario('bartender')">🎟️ Ver tela do bar (ficha)</button><button class="toolbtn" onclick="scenario('collected')">✓ Marcar retirada (opcional)</button><button class="toolbtn" onclick="scenario('someone-paid')">💳 Outro cliente paga R$ 30</button><button class="toolbtn" onclick="scenario('close')">✓ Equipe encerra conta quitada</button><button class="toolbtn danger" onclick="scenario('release')">↗ Equipe libera mesa</button><button class="toolbtn" onclick="scenario('clean')">🧹 Equipe conclui limpeza</button></div><div class="toolgroup"><div class="toolgroup-title">Condições adversas</div><button class="toolbtn" id="offlineBtn" onclick="scenario('offline')">⚡ Desligar conexão</button><button class="toolbtn" onclick="scenario('wrong')">⚠ QR de mesa já ocupada por outro grupo</button></div></div><div class="rail-card" id="stateCard"><div class="rail-kicker">Estado atual do protótipo</div><div class="state-card"><div><span class="micro">Mesa</span><b id="st-table">—</b></div><div><span class="micro">Participantes</span><b id="st-people">—</b></div><div><span class="micro">Pedidos</span><b id="st-orders">—</b></div><div><span class="micro">Saldo</span><b id="st-balance">—</b></div></div></div></aside>
+ <aside class="rail toolbox"><div class="rail-card" style="margin-top:0"><div class="rail-kicker">Laboratório de cenários</div><h2>Simule a operação</h2><p class="small muted" style="margin:8px 0 12px">Altere dados fictícios para encontrar falhas e testar o fluxo do cliente.</p><div class="toolgroup"><div class="toolgroup-title">Começar de um estado</div><div class="fixture"><button class="toolbtn" onclick="scenario('empty')">✨ Mesa livre</button><button class="toolbtn" onclick="scenario('busy')">🍻 Mesa ocupada</button><button class="toolbtn" onclick="scenario('ficha')">🎟️ Ficha / balada</button><button class="toolbtn" onclick="scenario('ficha-ready')">✓ Ficha pronta</button></div></div><div class="toolgroup"><div class="toolgroup-title">Participantes / dispositivos</div><div id="personas"></div><button class="toolbtn" onclick="scenario('add-person')">＋ Outro cliente entra</button></div><div class="toolgroup"><div class="toolgroup-title">Entrada / segurança</div><button class="toolbtn" onclick="scenario('multi-tab')">▶ Mesa com várias comandas</button><button class="toolbtn" onclick="scenario('recovery')">▶ Recuperar sessão</button></div><div class="toolgroup"><div class="toolgroup-title">Pedido / erro</div><button class="toolbtn" onclick="scenario('change-request')">▶ Solicitar correção</button><button class="toolbtn" onclick="scenario('staff-approve-change')">✓ Equipe confirma cancelamento</button><button class="toolbtn" onclick="scenario('unknown-ack')">▶ Envio sem confirmação</button></div><div class="toolgroup"><div class="toolgroup-title">Pagamento · cenários</div><button class="toolbtn" onclick="scenario('demo-self-pay')">▶ Cliente paga por conta própria</button><button class="toolbtn" onclick="scenario('demo-partial')">▶ Pedido exige parcial</button><button class="toolbtn" onclick="scenario('demo-prepaid')">▶ Pedido pré-pago</button><button class="toolbtn" onclick="setPolicy('WARN_ONLY')">✓ Só alertar</button></div><div class="toolgroup"><div class="toolgroup-title">Operação do bar</div><button class="toolbtn" onclick="scenario('advance')">🍺 Avançar preparo do último pedido</button><button class="toolbtn" onclick="scenario('bartender')">🎟️ Ver tela do bar (ficha)</button><button class="toolbtn" onclick="scenario('pickup-multi')">🎟️ Retirada parcial / múltiplas rodadas</button><button class="toolbtn" onclick="scenario('collected')">✓ Marcar retirada (opcional)</button><button class="toolbtn" onclick="scenario('someone-paid')">💳 Outro cliente paga R$ 30</button><button class="toolbtn" onclick="scenario('close')">✓ Equipe encerra conta quitada</button><button class="toolbtn danger" onclick="scenario('release')">↗ Equipe libera mesa</button><button class="toolbtn" onclick="scenario('clean')">🧹 Equipe conclui limpeza</button></div><div class="toolgroup"><div class="toolgroup-title">Condições adversas</div><button class="toolbtn" id="offlineBtn" onclick="scenario('offline')">⚡ Desligar conexão</button><button class="toolbtn" onclick="scenario('wrong')">⚠ QR de mesa já ocupada por outro grupo</button></div></div><div class="rail-card" id="stateCard"><div class="rail-kicker">Estado atual do protótipo</div><div class="state-card"><div><span class="micro">Mesa</span><b id="st-table">—</b></div><div><span class="micro">Participantes</span><b id="st-people">—</b></div><div><span class="micro">Pedidos</span><b id="st-orders">—</b></div><div><span class="micro">Saldo</span><b id="st-balance">—</b></div></div></div></aside>
 </div>
 <script>
 'use strict';
@@ -313,6 +319,27 @@ function staffResolveRequest(){
  const order=S.orders.find(x=>x.id===req.orderId);
  if(req.kind==='cancel'&&order){order.cancelled=true;order.status='Cancelado pela equipe'}
  S.modal='orders';render();flash(req.kind==='cancel'?'Cancelamento confirmado pela equipe (demo).':'Equipe recebeu a solicitação (demo).');
+}
+
+function lineMarked(orderId,lineId){return S.pickedLines.some(x=>x.orderId===orderId&&x.lineId===lineId)}
+function markPickupLine(orderId,lineId){
+ const o=S.orders.find(x=>x.id===orderId);if(!o||!o.items.some(x=>x.id===lineId))return;
+ const wasMarked=lineMarked(orderId,lineId);
+ if(wasMarked){S.pickedLines=S.pickedLines.filter(x=>!(x.orderId===orderId&&x.lineId===lineId))}
+ else if(isReady(o)||o.status==='Retirado (opcional)'){S.pickedLines.push({orderId,lineId})}
+ if(o.items.every(x=>lineMarked(o.id,x.id)))o.status='Retirado (opcional)';
+ else if(o.status==='Retirado (opcional)')o.status='Pronto para retirar';
+ render();
+}
+function readyPickupCount(){return S.orders.reduce((n,o)=>n+(isReady(o)?o.items.filter(x=>!lineMarked(o.id,x.id)).length:0),0)}
+function seedPickupMulti(){
+ S=fresh();S.mode='ficha';S.hasJoined=true;S.scene='ficha';
+ const first={id:'#185',status:'Pronto para retirar',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]};
+ const second={id:'#186',status:'Pronto para retirar',items:[makeItem('ipa',1,'','you')]};
+ const third={id:'#187',status:'Em preparo',items:[makeItem('caipi',1,'Limão','you')]};
+ S.orders=[first,second,third];S.orderCount=187;
+ S.pickedLines=[{orderId:first.id,lineId:first.items[0].id}];
+ render();
 }
 function seedChangeRequest(){
  S=fresh();S.hasJoined=true;S.occupancy=true;S.entryMode='available';S.tableState='OCCUPIED';S.scene='home';
@@ -471,7 +498,8 @@ function scenario(type){
   case 'ficha':startFichaScenario(false);flash('Ficha digital FG84 · retirada no bar');return;
   case 'ficha-ready':startFichaScenario(true);flash('FG84 · pedido pronto para retirar');return;
   case 'bartender':if(!isFicha()){flash('Ative o cenário ficha primeiro.');return}S.modal='bar-preview';render();return;
-  case 'collected':{if(!isFicha()){flash('Disponível no modo ficha.');return}const ready=S.orders.find(isReady);if(!ready){flash('Nenhum pedido pronto para retirada.');return}markCollected(ready.id);return;}
+  case 'pickup-multi':seedPickupMulti();return;
+ case 'collected':{if(!isFicha()){flash('Disponível no modo ficha.');return}const ready=S.orders.find(isReady);if(!ready){flash('Nenhum pedido pronto para retirada.');return}markCollected(ready.id);return;}
  case 'busy':
  S=fresh();S.entryMode='busy';S.tableState='OCCUPIED';S.occupancy=true;S.participants=[{id:'you',name:'Você'},{id:'ana',name:'Ana'},{id:'bruno',name:'Bruno'}];
  S.orders=[{id:'#181',status:'Pronto / chegando',items:[makeItem('heineken',2,'','ana'),makeItem('batata',1,'','ana')]},{id:'#182',status:'Em preparo',items:[makeItem('caipi',1,'Limão','bruno'),makeItem('heineken',1,'','bruno')]}];
@@ -526,26 +554,36 @@ function setCategory(v){S.category=v;S.query='';render()}
 function queryCatalog(v){S.query=v;render({preserveView:true,focusSearch:true})}
 
 function fichaTicket(compact=false){
- const ready=S.orders.filter(isReady).length;
+ const ready=readyPickupCount();
  return `<div class="ficha-ticket ${compact?'compact':''}">
  <div class="ficha-caption"><span>FICHA DIGITAL</span><span>RETIRADA NO BAR</span></div>
  <strong class="ficha-code mono">${esc(S.fichaCode)}</strong>
- <div class="ficha-tip">${ready?'<span class="ficha-dot"></span><strong>'+ready+' pedido'+(ready===1?'':'s')+' pronto'+(ready===1?'':'s')+' para retirar</strong>':'Mostre este código quando seu pedido estiver pronto.'}</div>
+ <div class="ficha-tip">${ready?'<span class="ficha-dot"></span><strong>'+ready+' item'+(ready===1?'':'s')+' pronto'+(ready===1?'':'s')+' para retirar</strong>':'Mostre este código quando seu pedido estiver pronto.'}</div>
  </div>`
 }
 function renderFichaIntro(){
  return `<div class="content"><div class="eyebrow">CLIENTE / RETIRADA NO BAR</div><h1>Sua ficha digital</h1>${fichaTicket()}<p class="ficha-under">Peça pelo celular. Retire no bar com este código.</p><button class="inline-link" onclick="S.modal='ficha-how';render()">Como funciona? ›</button><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`
 }
+
 function renderFicha(){
  const orders=S.orders.slice().reverse();
  return `<div class="content"><div class="eyebrow">CLIENTE / RETIRADA</div><h1>Minha ficha</h1>${fichaTicket()}
  <button class="inline-link" onclick="S.modal='ficha-how';render()">Como retirar? ›</button>
  <div class="queuehead"><h2>Meus pedidos</h2><small>${orders.length} PEDIDO${orders.length===1?'':'S'}</small></div>
- ${orders.length?orders.map(o=>`<div class="ficha-order"><div class="row between"><strong>Pedido ${esc(o.id)}</strong><span class="statuspill ${isReady(o)?'success':'warning'}">${esc(o.status)}</span></div><p class="ficha-items">${esc(o.items.map(x=>x.qty+'× '+x.name).join(' · '))}</p>${isReady(o)?`<div class="ficha-ready">✓ Pronto para retirar · mostre ${esc(S.fichaCode)}</div><button class="inline-link ficha-optional" onclick="markCollected('${o.id}')">Já retirei (opcional)</button>`:''}</div>`).join(''):'<p class="ficha-empty">Sem pedidos ainda.</p>'}
+ ${orders.length?orders.map(o=>`<div class="ficha-order">
+ <div class="row between"><strong>Pedido ${esc(o.id)}</strong><span class="statuspill ${isReady(o)?'success':'warning'}">${esc(o.status)}</span></div>
+ <div class="pickup-lines">${o.items.map(x=>`<div class="pickup-item">
+ <span>${x.qty}× ${esc(x.name)}</span>
+ ${lineMarked(o.id,x.id)?'<small class="positive">✓ Retirado*</small>':isReady(o)?'<small class="positive">Pronto</small>':''}
+ </div>`).join('')}</div>
+ ${(isReady(o)||o.status==='Retirado (opcional)')?`<button class="inline-link ficha-optional" onclick="S.pickupOrderId='${o.id}';S.modal='pickup-items';render()">${readyPickupCount()?'Marcar retirada (opcional)':'Revisar retirada'} ›</button>`:''}
+ ${canRequestChange(o)&&!isReady(o)?`<button class="inline-link ficha-optional" onclick="S.changeOrderId='${o.id}';S.modal='order-change';render()">Problema com pedido? ›</button>`:''}
+ </div>`).join(''):'<p class="ficha-empty">Sem pedidos ainda.</p>'}
  <div class="sectionhead"><h2>Sua ficha</h2></div>
  <div class="rowline"><button class="rowbtn" onclick="switchView('account')"><span><strong class="rowtitle">Ver conta</strong><small class="sub">Consumo e pagamento</small></span><span class="mono tiny">${money(balance())}　›</span></button></div>
- <div class="rowline"><button class="rowbtn" onclick="switchView('catalog')"><span><strong class="rowtitle">Pedir mais</strong></span><span class="arrow">›</span></button></div>${balance()>0?`<div class="rowline"><button class="rowbtn" onclick="S.modal='payment-options';render()"><span><strong class="rowtitle">Pagar agora</strong><small class="sub">Parcial ou total</small></span><span class="arrow">›</span></button></div>`:''}<button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button>
- </div>`
+ <div class="rowline"><button class="rowbtn" onclick="switchView('catalog')"><span><strong class="rowtitle">Pedir mais</strong></span><span class="arrow">›</span></button></div>
+ ${balance()>0?`<div class="rowline"><button class="rowbtn" onclick="S.modal='payment-options';render()"><span><strong class="rowtitle">Pagar agora</strong><small class="sub">Parcial ou total</small></span><span class="arrow">›</span></button></div>`:''}
+ <button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`
 }
 function renderFichaHome(){
  const last=S.orders.at(-1),n=S.orders.length;
@@ -565,6 +603,16 @@ function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'|
 function renderAccount(){const t=total(),p=paid(),bal=balance(),has=t>0;const lines=allLines();return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'home')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):'MESA 08'} / FINANCEIRO</div><h1>${isFicha()?'Conta da ficha':'Conta'}</h1>${has?`<div class="settlement-summary" style="margin-top:4px"><small>${bal?'Falta pagar':'Conta quitada'}</small><strong class="mono" style="color:${bal?'var(--paper)':'var(--success)'}">${money(bal)}</strong><div class="receiptline"><small>Consumo total</small><strong>${money(t)}</strong></div><div class="receiptline"><small>Já pago</small><strong style="color:var(--success)">${money(p)}</strong></div><div class="progress"><div style="width:${t?100*p/t:0}%"></div></div></div><div class="sectionhead"><h2>Consumo</h2><small>${lines.length} ITENS</small></div>${lines.map(x=>`<div class="details-row"><div><strong>${x.qty}× ${esc(x.name)}</strong><small>Pedido ${x.orderId} · ${x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner))}</small></div><div style="text-align:right"><b class="amount">${money(x.price*x.qty)}</b>${(allocated()[x.id]||0)>0?`<small class="positive">Pago ${money(allocated()[x.id])}</small>`:''}</div></div>`).join('')}${!bal?`<div class="order-status"><strong>✓ Tudo pago</strong><p>${isFicha()?'A ficha segue ativa até o encerramento.':'A mesa continua ocupada até a equipe liberá-la.'}</p></div>${isFicha()?'':'<button class="btn ghost" onclick="requestAssistance(\'bill\')">Avisar que vamos sair</button>'}`:''}${S.payments.length?'<div class="sectionhead"><h2>Pagamentos</h2></div>':''}${S.payments.length?S.payments.map(x=>`<div class="receiptline"><div><b style="font-size:13px">${esc(labelOwner(x.actor))}</b><small style="display:block">Pagamento simulado</small></div><strong style="color:var(--success)">${money(x.amount)}</strong></div>`).join(''):``}<button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button>`:`<div class="empty"><h2>Sem consumo ainda</h2><p>Pedidos feitos pelo celular e pelo garçom aparecem aqui.</p><button class="btn" style="margin-top:22px" onclick="switchView('catalog')">＋ VER CARDÁPIO</button></div>`}</div>`}
 function renderOverlay(){if(!S.modal)return '';const m=S.modal;let title='',body='',footer='';const back=(to)=>`<button class="linkish" onclick="S.modal='${to}';render()">← Voltar</button>`;
 if(m==='ficha-how'){title='Retirar no bar';body=`<div class="ficha-steps"><div><b>1</b><span>Faça seu pedido pelo celular.</span></div><div><b>2</b><span>Espere aparecer <strong>Pronto para retirar</strong>.</span></div><div><b>3</b><span>Mostre <strong class="mono">${esc(S.fichaCode)}</strong> ao bartender.</span></div></div><p class="ficha-smallprint">O bartender confere o código e os itens. Não precisa escanear ou confirmar retirada.</p>`;footer=`<button class="btn" onclick="S.modal=null;render()">Entendi</button>`}
+else if(m==='pickup-items'){
+ const order=S.orders.find(x=>x.id===S.pickupOrderId);
+ title='Retirada de itens';
+ body=`<p class="ficha-smallprint" style="margin:0 0 8px">Pedido ${esc(order?.id||'')} · marque apenas se quiser.</p>
+ ${order?order.items.map(x=>`<button class="option" onclick="markPickupLine('${order.id}','${x.id}')">
+ <span class="ico">${lineMarked(order.id,x.id)?'✓':'○'}</span>
+ <span><strong>${x.qty}× ${esc(x.name)}</strong><small>${lineMarked(order.id,x.id)?'Retirada marcada':'Pronto para retirar'}</small></span></button>`).join(''):''}
+ <p class="ficha-smallprint">A confirmação é opcional. O bartender confere código e itens, sem escanear.</p>`;
+ footer=`<button class="btn ghost" onclick="S.modal=null;S.scene='ficha';render()">Voltar à ficha</button>`;
+}
 else if(m==='bar-preview'){title='Visão do bar · simulação';const ready=S.orders.filter(isReady);body=`<p class="micro" style="margin:0 0 8px">FILA DE RETIRADA</p><div class="ficha-bar-code mono">${esc(S.fichaCode)}</div><div class="ficha-bar-items">${ready.length?ready.map(o=>`<div class="receiptline"><span><b>Pedido ${esc(o.id)}</b><small style="display:block;margin-top:3px">${esc(o.items.map(x=>x.qty+'× '+x.name).join(' · '))}</small></span><span class="statuspill success">PRONTO</span></div>`).join(''):'<p class="ficha-smallprint">Nenhum pedido pronto para retirada.</p>'}</div><p class="ficha-smallprint">Conferência visual de FG84 + itens; entrega sem escaneamento e sem confirmação obrigatória.</p>`;footer=`<button class="btn ghost" onclick="S.modal=null;S.scene='ficha';render()">Voltar à ficha</button>`}
 else if(m==='lab'){title='Cenários de teste';body=`<div class="notice info" style="margin-bottom:14px">Laboratório do protótipo. Todos os dados são fictícios.</div><p class="micro" style="margin-bottom:8px">Estado inicial</p><div class="feature" style="margin-bottom:14px"><button onclick="scenario('empty')" style="min-height:76px"><b>✨ Mesa livre</b><em>Primeiro QR</em></button><button onclick="scenario('busy')" style="min-height:76px"><b>🍻 Mesa ocupada</b><em>Entrar no grupo</em></button><button onclick="scenario('ficha')" style="min-height:76px"><b>🎟️ Ficha / balada</b><em>Código FG84</em></button><button onclick="scenario('ficha-ready')" style="min-height:76px"><b>✓ Ficha pronta</b><em>Retirada no bar</em></button></div><p class="micro" style="margin:11px 0 7px">ENTRADA E ACESSO</p><div class="demo-fixtures"><button class="option" onclick="scenario('multi-tab')"><span><strong>▶ Mesa com várias comandas</strong><small>Entrar ou criar sem ver contas alheias</small></span></button><button class="option" onclick="scenario('recovery')"><span><strong>▶ Recuperar sessão</strong><small>Mesmo aparelho ou outro dispositivo</small></span></button></div><p class="micro" style="margin:11px 0 7px">PEDIDOS / ERROS</p><div class="demo-fixtures"><button class="option" onclick="scenario('change-request')"><span><strong>▶ Corrigir ou cancelar pedido</strong><small>Equipe precisa confirmar</small></span></button>
 <button class="option" onclick="scenario('unknown-ack')"><span><strong>▶ Envio sem confirmação</strong><small>Verificar sem duplicar</small></span></button>
@@ -579,7 +627,7 @@ else if(m==='lab'){title='Cenários de teste';body=`<div class="notice info" sty
  <button class="option" onclick="scenario('demo-partial')"><span><strong>▶ Testar parcial para enviar</strong><small>Pedido com consumo anterior</small></span><span class="arrow">›</span></button>
  <button class="option" onclick="scenario('demo-prepaid')"><span><strong>▶ Testar pedido pré-pago</strong><small>Pedido antes de consumir</small></span><span class="arrow">›</span></button>
 </div>
-<p class="micro" style="margin-bottom:8px">Simular equipe e outras pessoas</p>${[['add-person','👥 Outro cliente entra'],['advance','🍺 Avançar preparo'],['bartender','🎟️ Ver fila do bar'],['collected','✓ Marcar retirada (opcional)'],['someone-paid','💳 Outro cliente paga R$ 30'],['close','✓ Encerrar conta quitada'],['release','↗ Liberar mesa'],['clean','🧹 Concluir limpeza'],['offline',S.online?'⚡ Ficar offline':'✓ Restaurar conexão'],['wrong','⚠ QR de outro grupo']].map(([id,t])=>`<button class="option" style="min-height:48px;padding:10px 13px" onclick="scenario('${id}');S.modal=null;render()"><span><strong>${t}</strong></span></button>`).join('')}<p class="micro" style="margin:17px 0 8px">Trocar de dispositivo</p>${S.participants.map(x=>`<button class="option" style="min-height:44px;padding:10px" onclick="changeActor('${x.id}');S.modal=null;render()"><span><strong>${x.id===S.actor?'◉':'○'} ${esc(x.name)}</strong></span></button>`).join('')}`}
+<p class="micro" style="margin-bottom:8px">Simular equipe e outras pessoas</p>${[['add-person','👥 Outro cliente entra'],['advance','🍺 Avançar preparo'],['bartender','🎟️ Ver fila do bar'],['collected','✓ Marcar retirada (opcional)'],['pickup-multi','🎟️ Duas rodadas / retirada parcial'],['someone-paid','💳 Outro cliente paga R$ 30'],['close','✓ Encerrar conta quitada'],['release','↗ Liberar mesa'],['clean','🧹 Concluir limpeza'],['offline',S.online?'⚡ Ficar offline':'✓ Restaurar conexão'],['wrong','⚠ QR de outro grupo']].map(([id,t])=>`<button class="option" style="min-height:48px;padding:10px 13px" onclick="scenario('${id}');S.modal=null;render()"><span><strong>${t}</strong></span></button>`).join('')}<p class="micro" style="margin:17px 0 8px">Trocar de dispositivo</p>${S.participants.map(x=>`<button class="option" style="min-height:44px;padding:10px" onclick="changeActor('${x.id}');S.modal=null;render()"><span><strong>${x.id===S.actor?'◉':'○'} ${esc(x.name)}</strong></span></button>`).join('')}`}
 else if(m==='order-change'){
  const order=S.orders.find(x=>x.id===S.changeOrderId);
  title='Corrigir pedido';
