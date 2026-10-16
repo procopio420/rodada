@@ -116,6 +116,65 @@ periodic human oversight remains necessary. GitHub branch-protection rules
 requiring human approvals are separate and are not overridden. A green
 workflow is not physical/PSP/fiscal acceptance.
 
+
+#### ChatGPT R3 execution: trusted automation and onboarding
+
+The separate `ChatGPT R3 reviewer` workflow is implemented in
+`.github/workflows/chatgpt-r3-review.yml`. It listens for completed
+PR checks (API, Web, Android, Knowledge Base, Android real POST disconnect) and
+also offers a manual `workflow_dispatch` with a PR number. **Default OFF**:
+nothing can act on a PR without explicitly setting the repository Actions
+variable `RODADA_R3_AGENT_ENABLED=true`.
+
+The reviewer runs the **trusted `main` script**, never checks out or
+executes PR code, rejects forks/draft PRs/changed SHAs, checks GitHub CI and
+all changed files, treats source/logs/diffs as untrusted data, and sends the
+source and diff to a separate OpenAI API model context for a structured review.
+It requires explicit coverage of every changed path, applicable reviewed risks
+and no P0/P1; missing/binary/oversized context, API/model errors and non-green
+CI fail closed. It refuses to approve a PR authored by its own bot account.
+Output is from an automated AI reviewer, not this ChatGPT conversation identity.
+
+**One-time manual setup by repository administrator:**
+
+1. Create a **dedicated GitHub App** (e.g. `rodada-r3-reviewer`),
+   installed only on `procopio420/rodada`. Give it repository
+   **Contents: Read**, **Pull requests: Read and write**, and
+   **Issues: Read and write**. Do **not** give it code push, deployments,
+   administration, or access to other repositories.
+2. Add Actions repository variable `RODADA_R3_APP_CLIENT_ID` with the
+   GitHub App client ID, and secret `RODADA_R3_APP_PRIVATE_KEY` with
+   the private key from that App. Add secret `RODADA_R3_OPENAI_API_KEY`
+   holding an OpenAI API key with budget and rotation controls.
+3. Set `RODADA_R3_BOT_LOGIN` to the actual installation bot login
+   (e.g. `rodada-r3-reviewer[bot]`), and
+   `RODADA_R3_OPENAI_MODEL` to a supported model that can return
+   JSON-schema structured Responses output. Validate the model and budget
+   before enabling.
+4. In the *admin-only* qualified review registry
+   `RODADA_R3_QUALIFIED_AGENT_REVIEWERS` enroll exactly the
+   authenticated bot login, declared skill capabilities, expiration and a
+   named maintainer. The runner checks this **before** using the model;
+   the release verifier checks it again when validating the GitHub review.
+5. Set `RODADA_R3_AGENT_ENABLED=true` only after the above is
+   complete and tested on a non-critical PR. The workflow automatically
+   reacts to eligible CI completion, or run it manually using Actions.
+   Removing the enabled variable or the qualified entry disables approval
+   for future reviews; revoke the App credentials if compromised.
+
+No credentials or model access are provisioned by the repository itself.
+The existing ChatGPT GitHub connector acting as the **repo owner's account**
+cannot authenticate as a distinct qualified reviewer. Its comments and
+self-reviews do **not** satisfy this gate. The API key is only used in the
+trusted workflow, and prompt content from PRs never runs as commands.
+
+Even with a GitHub App and a model in separate context, automation cannot
+guarantee the model truly found every vulnerability, nor replace branch rules
+that require a human reviewer or production/PSP/onsite sign-off. Logs and bot
+comments must never contain secrets or personal data. OpenAI API processing
+of repository source is an intentional additional data transfer controlled
+by the repository administrator.
+
 To obtain a **manual release GO** (not an onsite/pilot/PSP GO):
 
 1. Have a reviewer other than the PR author inspect the **exact head commit**.
