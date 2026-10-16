@@ -174,3 +174,14 @@ Antes do rollout, adicionar projeções staff server-side autorizadas e revalida
 ### Experiência disponibilizada nesta branch
 
 \`prototype/ux-2-0/index.html\` inicia diretamente no Agora com quatro tarefas **inventadas**: entrega de 2 chopps para Rafael (Mesa 08); conta de João via QR (Mesa 12); chamada de Marina via QR (Mesa 08); pedido de conta sem Tab identificada (Mesa 12). A entrega, cobrança e atendimento abrem em contextos próprios. Pode-se assumir um chamado, simular sua resolução ou a entrega; apenas memória da página é modificada. Voltar sem confirmar conserva as tarefas. Nenhum dado é persistido nem enviado. Execução de JS/DOM sintética cobriu fluxos de roteamento, fallback, claim, conclusão explícita e preservação da fila; **não prova browser real, viewport móvel ou contratos do backend**.
+
+
+## Iteração 2026-10-16 — separar Atendimento e Entregas + futuro mapa
+
+Feedback de campo visual: trabalho de entrega não deve disputar o mesmo espaço que chamadas e pedidos de conta. A navegação **Agora → Atendimentos | Entregas** foi aplicada ao protótipo: as filas possuem contagens, contexto e ações independentes. Entrega individual continua abrindo os itens prontos; **Montar saída** demonstra seleção de um lote, capacidade e rota ilustrativa para múltiplos destinos.
+
+O próximo roadmap inclui um editor/mapa do salão e sugestões de rota que respeitem os caminhos transitáveis, múltiplas origens e capacidade de transporte. **Nenhum algoritmo real ou mapa do Bar do Aderlan foi implementado.** O SVG de demo utiliza coordenadas fictícias e uma heurística simples para exemplificar o fluxo. Há simulação de 3 tasks do Bar (4 bebidas / 2 mesas) e 1 task separada da Cozinha. Nenhum DeliveryRun real é criado, nem se afirma otimização com ganho medido.
+
+Direção técnica, invariantes de domain/Dispatch e gates futuros detalhados em [Entregas e DeliveryRuns orientados pelo salão](delivery-runs.md). A Spec 003 já prevê agrupamento por zona e confirma que a otimização de rota está fora do escopo inicial; UX 2.0 não a altera tacitamente.
+
+Validação desta iteração: **13/13 jornadas sintéticas JS/DOM** (duas filas, quatro entregas, seleção incompatível, lote e retorno, pedidos de conta intactos). Falta inspeção visual de browser e teste humano Android 360/390/430 dp.
