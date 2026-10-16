@@ -91,3 +91,26 @@ test('old A poll cannot replace new A after A-B-A',async({page})=>{
  await page.clock.runFor(100);
  await expect(status).toContainText('Bar · Pronto');
 });
+
+test('poll started during same A selection cannot override canonical selection',async({page})=>{
+ await fixture(page,'normal',true);
+ const a={id:'tab-a',display_label:'Alpha',state:'OPEN',exposure_cents:100,version:1,orders:[{id:'alpha',status:'CONFIRMED',confirmed_at:'2026-10-16T00:00:00Z',items:[{id:'alpha',product_name:'alpha',quantity:1,state:'NEW',fulfillment_station_snapshot:'BAR'}]}],payments:[]};
+ const table={id:'table-test',label:'08',status:'OCCUPIED',active_occupancy:{id:'visit',generation:1,tabs:[a]}};
+ await page.route('**/api/attendance/hospitality/tables/',r=>r.fulfill({json:{table_service_enabled:true,results:[table]}}));
+ let holdSelection=false,selection: import('@playwright/test').Route,poll: import('@playwright/test').Route;let selSignal:()=>void,pollSignal:()=>void;
+ const selCaptured=new Promise<void>(r=>selSignal=r),pollCaptured=new Promise<void>(r=>pollSignal=r);
+ await page.route(/\/api\/attendance\/tabs\/tab-a\/(\?.*)?$/,async r=>{
+  if(holdSelection&&r.request().url().includes('?')){selection=r;selSignal();}
+  else if(holdSelection&&!r.request().url().includes('?')){poll=r;pollSignal();}
+  else await r.fulfill({json:a});
+ });
+ await page.goto('/attendance');await page.getByRole('button',{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-a"]').click();
+ const status=page.getByRole('region',{name:'Último pedido confirmado'});await expect(status).toContainText('Bar · Na fila');
+ await page.keyboard.press('Escape');holdSelection=true;
+ await page.locator('button[data-tab-id="tab-a"]').click();await selCaptured;
+ await page.clock.runFor(15000);await pollCaptured;
+ const old=structuredClone(a);a.orders[0].items[0].state='READY';a.version=2;
+ await selection!.fulfill({json:a});await expect(status).toContainText('Bar · Pronto');
+ holdSelection=false;await poll!.fulfill({json:old});await page.clock.runFor(100);
+ await expect(status).toContainText('Bar · Pronto');
+});
