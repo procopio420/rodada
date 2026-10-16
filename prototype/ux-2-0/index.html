@@ -733,7 +733,7 @@ if(act==="tab"||act==="tab-direct"){
 }
 if(act==="new-table"){var t=tableBy(state.table);if(!t||t.status==="dirty"||t.status==="cleaning")return;screen("create");return}
 if(act==="new-any"){state.table=null;screen("create");return}
-if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN")return;state.cat="Todos";state.catalogSearch="";screen("catalog");return}
+if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN"||pendingOrder(t))return;state.cat="Todos";state.catalogSearch="";screen("catalog");return}
 if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
 if(act==="limit-details"){screen("limit");return}
@@ -796,12 +796,32 @@ if(act==="clean-finish"){
  state.toast="Limpeza concluída nesta simulação. Mesa disponível.";
  render();return
 }
-if(act==="repeat"){var t=tab();if(t&&t.state==="OPEN"){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
+if(act==="repeat"){var t=tab();if(t&&t.state==="OPEN"&&!pendingOrder(t)){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
 if(act==="category"){state.cat=id;render();return}
-if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
+if(act==="qtyminus"||act==="qtyplus"){if(pendingOrder(tab()))return;var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
-if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
-if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();var aboveReference=overLimit(t,orderTotal);if(limitBlocks(t,orderTotal)){state.toast="Pedido não enviado: tenant com bloqueio ativo. O rascunho foi preservado.";screen("limit");return}state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido enviado apenas na simulação. Nenhuma venda real foi feita."+(aboveReference?" Referência de consumo ultrapassada; garçom informado.":"");state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+if(act==="apply-repeat"){
+ if(state.screen!=="repeat")return;
+ var t=tab(),r=state.repeat[state.tab]||{};
+ if(!t||t.state!=="OPEN"||pendingOrder(t)||!Object.values(r).some(function(q){return q>0}))return;
+ var d=Object.assign({},draft());
+ Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});
+ state.draft[state.tab]=d;
+ confirmSimulatedOrder(t,"repeat");return
+}
+if(act==="submit"){
+ if(!["catalog","review","tab"].includes(state.screen))return;
+ var t=tab();if(!t||t.state!=="OPEN"||!dcount()||pendingOrder(t))return;
+ confirmSimulatedOrder(t,state.screen);return
+}
+if(act==="toggle-lost-ack"){
+ if(state.screen!=="catalog")return;
+ state.simulateLostAck=!state.simulateLostAck;render();return
+}
+if(act==="reconcile-order"){
+ var t=tab();if(!t||!pendingOrder(t))return;
+ reconcileSimulatedOrder(t);return
+}
 });
 document.addEventListener("change",function(e){
 
