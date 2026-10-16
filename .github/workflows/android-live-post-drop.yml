@@ -33,6 +33,9 @@ on:
       - "scripts/build-issue106-report.py"
       - "scripts/issue106_review_from_github.py"
       - "scripts/tests/test_issue106_review_from_github.py"
+      - "scripts/r3_chatgpt_reviewer.py"
+      - "scripts/tests/test_r3_chatgpt_reviewer.py"
+      - ".github/workflows/chatgpt-r3-review.yml"
       - "scripts/verify-financial-ui.py"
       - "scripts/verify-issue106-final-state.py"
       - "scripts/e2e_evidence.py"
@@ -104,6 +107,7 @@ jobs:
           python -m unittest discover -s scripts/tests -p 'test_issue106_report.py' -v
           python -m unittest discover -s scripts/tests -p 'test_e2e_evidence.py' -v
           python -m unittest discover -s scripts/tests -p 'test_issue106_review_from_github.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_r3_chatgpt_reviewer.py' -v
       - name: Test trace credential redaction
         run: python -m unittest discover -s scripts/tests -p test_trace_redaction.py -v
       - name: Reject unsafe shared-fixture destinations before any seed
