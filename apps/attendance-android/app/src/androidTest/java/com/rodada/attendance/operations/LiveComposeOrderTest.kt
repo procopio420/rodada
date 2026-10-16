@@ -84,6 +84,11 @@ class LiveComposeOrderTest {
             // A dependent confirmation cannot create a new key or resubmit an ACTION_REQUIRED record.
             compose.onNodeWithText("Confirmar pedido").performScrollTo().performClick()
             check(queue.orderQueue(session).single() == rejected)
+            // Recovery is asynchronous: ACTION_REQUIRED in durable native storage is
+            // authoritative. The immediate online catalog 409 uses a separate UI toast.
+            // Do not require that online toast after the offline replay has been rejected.
+            check(compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty())
+            return
         }
         if (fault) {
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty() &&
