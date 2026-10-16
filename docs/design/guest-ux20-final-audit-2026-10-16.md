@@ -4,6 +4,38 @@
 **Referência de paridade:** `prototype/ux-2-0/index.html` na branch `design/ux-2-0-attendance-concept`.  
 **Método:** revisão do HTML/CSS/JS atual via GitHub, execução simulada de estados do renderizador, comparação de contratos e tokens com o Design System/Spec 004. **Não houve screenshot ou validação browser real da versão atual**. Qualquer conclusão sobre recorte real, sobreposição, contraste percebido ou scroll de dispositivo continua hipótese até Playwright/Android.
 
+## Atualização — P1 e P2 aplicados no protótipo (16/10/2026)
+
+**Status:** alterações de comportamento e estilo P1/P2 incorporadas na branch de protótipo, **sem merge na main**. Ainda **não foi feito o gate visual de screenshot/browser real**. Este documento mantém os achados originais abaixo como histórico, não como pendências de código.
+
+### P1
+
+1. **Rodapé/navegação:** `Agora / Pedir / Conta` (ou `Ficha`) continua visível mesmo com carrinho ou conta aberta. CTA contextual mantém barra própria acima da navegação, respeitando `env(safe-area-inset-bottom)`.
+2. **Espaço no mobile:** faixa `DEMO Mesa / Ficha` mais enxuta; acesso a todos os cenários passa por botão `⚙` na faixa, escondendo links de laboratório repetidos dentro do conteúdo.
+3. **Paridade com Atendimento:** header visual ajustado a 68px, gutters mobile de 20px (16px em telas estreitas), largura máxima desktop do protótipo de 510px, espaçamento mais consistente de botões, cards e sheets. Paridade definitiva depende de comparação de screenshots.
+4. **A11y e interação:** alvos de chip/fechar ≥44px, destaque `:focus-visible`, foco inicial/retorno de modal, fechamento via Escape, Tab contido no diálogo e estilo para contraste aumentado e redução de movimento. Deve ser validado no navegador e com leitor de tela.
+5. **Couvert e serviço:** `coverCount` explícito, calculado por pessoa efetivamente cobrada no cenário, não por visitantes de QR. Exibição do total e explicação sobre a origem da cobrança; fixture de couvert para 3 pessoas. Serviço de 10% continua opt-in e baseado no total dos produtos no exemplo. Qualquer vínculo real com pessoas atendidas é responsabilidade do backend.
+6. **Após pagar:** CTA primária `Continuar pedindo` enquanto a comanda está aberta com saldo restante, ou `Voltar ao agora` se quitada; `Ver conta` como alternativa.
+7. **Ficha/retirada:** FG84 e pedidos prontos primeiro; itens ainda não marcados como retirados ganham destaque, pedidos em preparo vêm depois e histórico fica em `details` recolhível. Marcação opcional não altera o estado canônico do bar.
+8. **Feedback contextual:** falha de código de acesso e valor de pagamento inválido são exibidos em alerta permanente no diálogo, com valor digitado preservado. Estoque/preço já possuem revisão persistente do carrinho; Pix pendente mantém sua própria faixa de status.
+
+### P2
+
+1. **Informação mínima do produto:** catálogo mostra tamanho/volume essencial (por exemplo, 330ml/400ml), sem textos descritivos longos.
+2. **Vocabulário:** padronização de `Conta do grupo`, `Pagar agora`, `Ver conta`, `Minha ficha` e `Continuar pedindo` nos contextos ajustados.
+3. **Laboratório isolado visualmente:** cenários técnicos concentrados no ícone `⚙` da faixa de demonstração; marca e operações de cliente permanecem em primeiro plano.
+4. **Estados vazios e financeiros:** `Sem consumo` quando o total é zero; `Tudo pago` apenas quando houve débito quitado; couvert explícito se efetivamente cobrado no fixture.
+5. **Teclado, toque, zoom:** alvos maiores, revisão de safe areas, foco em diálogos; validação a 200% e com teclado do Android ainda faz parte do gate visual real.
+
+### Testes e limites
+
+- **13 cenários funcionais** passaram via execução isolada do JS do protótipo com mock DOM, cobrindo navegação, ficha, cobrança por pessoas, pagamento pós-pagamento, erros inline, metadados de cardápio e regressões P0/P1.
+- Suítes para execução no repositório: `node --test prototype/guest-ux-20/tests/*.test.mjs`, incluindo `p0-regression.test.mjs` e `p1-p2-regression.test.mjs`. O arquivo da suíte foi criado, mas **não foi executado no ambiente Node do repositório nesta sessão**.
+- **Pendente**: capturar screenshots reais em 360×640 / 390×844 / 430×932 / desktop 1440×900, testar viewport reduzido, teclado virtual, zoom 200%, foco real, contraste e ausência de overlap. Os mocks não substituem estes testes; não declarar pixel-perfect GO ainda.
+- **Produção**: somente protótipo alterado. Autorização de GuestSession/Tab, cobranças, Pix/card e estados server-side exigem implementação real separada.
+
+---
+
 ## Atualização — P0 corrigidos no protótipo (16/10/2026)
 
 Os três P0 identificados na auditoria foram implementados em `prototype/guest-ux-20/index.html` na branch `prototype-guest-ux20-20261016`, com suíte de regressão `prototype/guest-ux-20/tests/p0-regression.test.mjs`. A implementação é **simulação interativa**; não altera Django, autorização real nem gateway de pagamentos.
