@@ -1162,6 +1162,7 @@ function restoreDemoSession(expectedHash=''){
    const data=saved.state;
    if(!data||!['mesa','ficha'].includes(data.mode)||!Array.isArray(data.orders)||!Array.isArray(data.payments))return false;
    S={...fresh(),...data};
+   if(S.feeConfig&&S.feeConfig.coverCount===undefined)S.feeConfig.coverCount=S.feeConfig.coverCents>0?1:0;
    S.tabs=typeof data.tabs==='object'&&data.tabs?data.tabs:{};
    S.paymentIntents=Array.isArray(data.paymentIntents)?data.paymentIntents:[];
    S.authorizedTabKeys=Array.isArray(data.authorizedTabKeys)?data.authorizedTabKeys:[];
@@ -1211,6 +1212,7 @@ if(typeof window!=='undefined'){
  else if(demoHash==='#pickup'){seedPickupMulti()}
  else if(demoHash==='#stock'){seedUnavailableDemo()}
  else if(demoHash==='#fees'){seedFeesDemo()}
+ else if(demoHash==='#fees-multi'){seedFeesMultiDemo()}
  else if(demoHash==='#move'){seedMoveDemo()}
  else if(demoHash==='#staff'){seedStaffOrder()}
  else if(demoHash==='#no-phone'){seedNoPhone()}
