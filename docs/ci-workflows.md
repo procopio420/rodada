@@ -55,17 +55,80 @@ to the SHA-256 digest of the actual `execution.json`. If the runner fails after
 writing all 14 successful receipts, the report shows those scenarios as BLOCKED
 and the gate remains NO-GO.
 
+
+#### Qualified independent agent R3 (administrator-enrolled, default-deny)
+
+The GitHub API verifier permits **either** a human `APPROVED` review, or a
+review from a **separate, pre-qualified GitHub App bot**. Both require `R3: PASS`
+and `P0/P1: 0` on the tested PR HEAD, and neither may be the author.
+Outstanding `CHANGES_REQUESTED` reviews block both. An agent statement in a
+comment, a model claiming independence, or an arbitrary bot account is never enough.
+
+For agent enrollment, the repository administrator must first vet the GitHub
+App's independent identity, model/tools, financial/auth/offline competence,
+ability to inspect full diffs, adversarial tests, evidence and isolation.
+Create Actions repository variable **`RODADA_R3_QUALIFIED_AGENT_REVIEWERS`**
+with a JSON dictionary of dedicated bot identities and their authorized scopes:
+
+```json
+{
+  "rodada-r3-reviewer[bot]": {
+    "capabilities": ["general", "backend", "web", "android", "payments", "security"],
+    "expires_on": "2027-01-31",
+    "sponsor": "maintainer-github-login"
+  }
+}
+```
+
+**Example only:** no agent is registered by committing this document.
+The verifier ignores PR-provided configuration and requires an administrator
+maintained variable, exact GitHub bot account, unexpired qualification, and
+competency for **all changed-file scopes** as read directly from the GitHub
+API. Ledger and financial changes require `payments`, CI/gate/security
+changes require `security`, app UI/native code requires the applicable
+`web`/`android`/`backend` skills. Expired/unregistered bots fail
+closed. Revocation is removing the agent from the repo variable.
+
+For each independent review, the qualified GitHub App must first post a
+**same-PR** comment using its own identity:
+
+```text
+R3-Reviewed-SHA: <exact 40-char PR HEAD>
+R3-Tests-Checked: <executed tests and reviewed links>
+R3-Risks-Checked: <negative cases and risk areas>
+```
+
+Then it must submit an authenticated `APPROVED` GitHub review on that SHA
+whose body has these standalone lines:
+
+```text
+R3: PASS
+P0/P1: 0
+R3-Agent-Context: isolated
+R3-Evidence: https://github.com/procopio420/rodada/pull/<PR>#issuecomment-<COMMENT_ID>
+```
+
+The gate fetches the evidence comment through GitHub, verifies its author,
+PR URL, SHA, tests and risks, and reports the reviewer identity, registration
+sponsor, reviewed scopes and reference in `r3-verified.json`.
+This is **technical release evidence**, not proof of perfect agent independence;
+periodic human oversight remains necessary. GitHub branch-protection rules
+requiring human approvals are separate and are not overridden. A green
+workflow is not physical/PSP/fiscal acceptance.
+
 To obtain a **manual release GO** (not an onsite/pilot/PSP GO):
 
-1. Have a reviewer other than the PR author inspect the **exact head commit** and
-   submit a GitHub **Approve** review containing two standalone lines:
+1. Have a reviewer other than the PR author inspect the **exact head commit**.
+   This may be a human GitHub reviewer or an administrator-qualified GitHub App
+   agent meeting the evidence protocol above. Submit an authenticated **Approve**
+   review containing two standalone lines:
    `R3: PASS` and `P0/P1: 0`. A later changes-requested or dismissed approval
    is not sufficient. A waiver or owner comment is not an independent review.
 2. Run **Actions → Android real POST disconnect → Run workflow** selecting the
    approved PR **branch**, not `main` after a squash. Enter its number in
    `review_pr_number`. The workflow verifies that the checked-out commit equals
-   the PR HEAD and approval commit, that the reviewer is a different GitHub user
-   and that the review is recorded in the GitHub API.
+   the PR HEAD and approval commit, that the reviewer has a different authenticated
+   GitHub identity and, for a bot, that competence/expiry/evidence are verified.
 3. The verified reference is exported to `artifacts/r3-verified.json` and
    passed as `--review` to the evidence compiler. Missing, stale, dismissed,
    self-authored or changes-requested review stays NO-GO. The manifest records
