@@ -36,3 +36,8 @@ Paridade observada: cartão usa geometria e cores da referência, mas tela da
 comanda ainda é029(modal/categorias), diferente da página033. Resultado global
 **PENDING**, sem alegação de paridadeE02. Capturas locais em
 apps/web/visual-artifacts/033; aparelho físico eCompose fora deste slice.
+
+Reexecução final do código5c4eaef6: **11/11 integraçãoPASS** em PostgreSQL real,
+Web/BFF/Django, quatro tamanhos360/390/430/1280 para estado/readback/reload e
+recuperação staff/guest após commit sem resposta. Nenhuma duplicação no readback;
+sessão guest revogada rejeitada. Evidência não cobre paridadeCompose nem piloto.
