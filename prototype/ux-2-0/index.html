@@ -76,6 +76,24 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .btn.primary:hover{background:#fff}.btn.ghost{background:transparent}
 .btn.block{width:100%}.btn.text{border:0;background:none;color:var(--amber);min-height:44px;padding:8px}
 .stack{display:grid;gap:10px}.empty{border:1px dashed var(--line2);border-radius:12px;color:var(--muted);padding:21px;font-size:14px}
+.creditbar{border:1px solid var(--line2);border-radius:10px;background:var(--panel);padding:13px 14px;margin:12px 0 17px}
+.creditbar small{display:block;color:var(--muted);font-size:12px}
+.creditbar .headline{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.creditbar .headline strong{font:800 17px JetBrains,monospace}
+.creditbar[data-level="warning"]{border-left:3px solid var(--amber)}
+.creditbar[data-level="blocked"]{border-left:3px solid var(--red)}
+.creditbar[data-level="ok"]{border-left:3px solid var(--green)}
+.creditbar .ruleline{height:4px;border-radius:2px;background:var(--line);overflow:hidden;margin:12px 0 8px}
+.creditbar .ruleline>span{display:block;background:var(--amber);height:100%;min-width:0}
+.creditbar .ruleline>span.warn{background:var(--red)}
+.creditbar .footrow{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted)}
+.creditbar button{background:none;border:0;color:var(--amber);text-align:right;min-height:36px;font-size:12px;font-weight:800;padding:5px}
+.budgetnote{margin:12px 0 15px;border-left:3px solid var(--amber);padding:12px 14px;background:var(--panel);color:var(--muted);font-size:13px}
+.budgetnote strong{color:var(--paper)}
+.limit-actions{display:grid;gap:8px;margin-top:20px}
+.policyrow{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}
+.policyrow span{color:var(--muted);font-size:13px}
+.policyrow strong{font-size:14px;text-align:right;max-width:65%}
 .billpeek{padding:17px 0 19px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;margin-bottom:19px}
 .billpeek strong{font:750 21px JetBrains,monospace;color:var(--paper)}
 .billpeek label{display:block;color:var(--muted);font-size:12px}
@@ -166,11 +184,11 @@ var tables=[
 {id:"06",generation:1,status:"free",text:"Disponível",zone:"Salão"}
 ];
 var tabs=[
-{id:"a",generation:1,table:"08",name:"Marina",ref:"#1048",balance:5600,state:"OPEN",receipts:[],last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
-{id:"b",generation:1,table:"08",name:"Rafael",ref:"#1049",balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
-{id:"c",generation:1,table:"12",name:"João",ref:"#1050",balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
-{id:"d",generation:1,table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
-{id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
+{id:"a",generation:1,table:"08",name:"Marina",ref:"#1048",relationship:"REGULAR",customerLinked:true,limit:20000,approvalRequested:false,balance:5600,state:"OPEN",receipts:[],last:[{pid:"p1",q:2},{pid:"p5",q:1}]},
+{id:"b",generation:1,table:"08",name:"Rafael",ref:"#1049",relationship:"VISITOR",customerLinked:false,limit:3000,approvalRequested:false,balance:1400,state:"OPEN",receipts:[],last:[{pid:"p1",q:1}]},
+{id:"c",generation:1,table:"12",name:"João",ref:"#1050",relationship:"VISITOR",customerLinked:false,limit:3000,approvalRequested:false,balance:2800,state:"OPEN",receipts:[],last:[{pid:"p5",q:1}]},
+{id:"d",generation:1,table:"05",name:"Carla",ref:"#1051",relationship:"KNOWN",customerLinked:true,limit:8000,approvalRequested:false,balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
+{id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",relationship:"RESTRICTED",customerLinked:false,limit:0,approvalRequested:false,balance:0,state:"OPEN",receipts:[],last:[]}
 ];
 var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
@@ -191,6 +209,33 @@ function parseAmount(s){
  return Number.isSafeInteger(cents)&&cents>0?cents:null;
 }
 function methodLabel(s){return {CASH:"Dinheiro",PIX:"Pix manual",CARD:"Cartão manual"}[s]||"Outro"}
+var relationshipLabels={VISITOR:"Visitante",KNOWN:"Conhecido",REGULAR:"Regular",HOUSE:"Da casa",RESTRICTED:"Restrito"};
+function relationName(t){return relationshipLabels[t.relationship]||"Sem perfil"}
+function capacity(t){return Math.max(0,t.limit-t.balance)}
+function forecast(t,extra){return t.balance+(extra||0)}
+function overLimit(t,extra){return forecast(t,extra)>t.limit||t.limit===0&&extra>0}
+function creditStatus(t,extra){
+ if(t.limit===0||overLimit(t,extra))return"blocked";
+ if(t.balance>=t.limit||forecast(t,extra)>=t.limit*.8)return"warning";
+ return"ok"
+}
+function creditPanel(t,extra,details){
+ var status=creditStatus(t,extra||0),remaining=capacity(t);
+ var used=t.limit>0?Math.min(100,Math.max(0,Math.round(t.balance*100/t.limit))):0;
+ var label=status==="blocked"?"Consumo bloqueado":status==="warning"?"Próximo do limite":"Capacidade disponível";
+ return '<section class="creditbar" data-level="'+status+'" aria-label="Limite operacional da comanda">'+
+ '<div class="headline"><small>'+esc(relationName(t))+' · limite operacional '+money(t.limit)+'</small><strong>'+money(remaining)+' livre(s)</strong></div>'+
+ (t.limit?'<div class="ruleline" aria-hidden="true"><span style="width:'+used+'%" class="'+(status==="blocked"?"warn":"")+'"></span></div>':'')+
+ '<div class="footrow"><span>'+label+(t.limit?' · '+used+'% utilizado':" · limite zero")+'</span>'+
+ (details?'<button type="button" data-action="limit-details">Ver regras ›</button>':'')+'</div></section>'
+}
+function projectedNotice(t,total){
+ var after=forecast(t,total),excess=Math.max(0,after-t.limit);
+ if(overLimit(t,total))return '<div class="budgetnote" role="status"><strong>Pedido excede o limite em '+money(excess)+'.</strong> Disponível: '+money(capacity(t))+'. Receba parte da conta ou peça autorização antes de enviar.</div>';
+ if(t.limit>0&&after>=t.limit*.8)return '<div class="budgetnote"><strong>Consumo perto do limite.</strong> Após este pedido, ficarão '+money(Math.max(0,t.limit-after))+' disponíveis.</div>';
+ return ''
+}
+
 
 function prod(pid){return products.find(function(p){return p.id===pid})}
 function draft(){return state.draft[state.tab]||{}}
@@ -639,7 +684,7 @@ document.addEventListener("submit",function(e){
  }
 
 if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
-var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,generation:state.table?tableBy(state.table).generation:1,table:state.table,name:name,ref:ref,balance:0,state:"OPEN",receipts:[],last:[]});
+var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,generation:state.table?tableBy(state.table).generation:1,table:state.table,name:name,ref:ref,balance:0,relationship:"VISITOR",customerLinked:false,limit:3000,approvalRequested:false,state:"OPEN",receipts:[],last:[]});
 if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen=state.picking?"catalog":"tab";state.picking=false;state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
