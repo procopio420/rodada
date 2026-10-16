@@ -46,7 +46,7 @@ def find_review(repo, number, sha, fetch):
         for review in reviews:
             user = review.get("user") or {}
             login = str(user.get("login") or "").casefold()
-            if login and user.get("type") == "User":
+            if login and user.get("type") == "User" and review.get("state") in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}:
                 latest[login] = review
         if len(reviews) < 100:
             break
