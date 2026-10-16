@@ -57,7 +57,9 @@ MESAS E COMANDAS (busca conjunta; mesas e comandas sem mesa)
        └─ ABRIR NOVA COMANDA (explícito e identificável)
 
 AÇÃO CENTRAL + PEDIR (sem comanda atual)
-   └─ escolher destino existente → CATÁLOGO
+   └─ escolher MESA → selecionar explicitamente uma COMANDA → CATÁLOGO
+       ├─ busca direta por cliente / referência como atalho
+       ├─ BALCÃO / sem mesa: escolher comanda diretamente
        └─ alternativa separada: ABRIR NOVA COMANDA
 ```
 
@@ -110,3 +112,6 @@ Tarefas com dados falsos: (1) achar Mesa 08 e identificar duas comandas; (2) ped
 ## Fora de escopo desta entrega
 
 Nenhuma tela de produção muda; sem deploy, mudanças de API, migrações, checkout real, pagamentos, publicação Android, alteração da identidade visual aprovada ou substituição das specs vigentes. Escolha final de arquitetura UX depende de revisão do protótipo e teste com operadores.
+## Iteração 2026-10-16 — revisão com screenshot Android
+
+A primeira captura móvel revelou títulos e descrições da lista grudados. Corrigida a composição das linhas (`rowtitle` e `sub` como blocos, flex legível). Feedback adicional: operador procura primeiro por mesa, não pelo ID financeiro da comanda. O botão central `+ Pedir` no protótipo passa a abrir **Para qual mesa?**, depois a escolha explícita da Tab; pesquisa por nome/referência e contas de balcão continuam atalhos. Essa mudança afeta apenas a simulação isolada. A validação automatizada cobre fluxo em DOM simulado; screenshots após a correção em Android ainda não foram avaliados.
