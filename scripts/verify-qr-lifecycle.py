@@ -26,9 +26,9 @@ assert TableOccupancy.objects.filter(table=t).count() == 2
 new_visit = TableOccupancy.objects.get(pk=r["new_occupancy_id"], table=t, generation=r["final_generation"], released_at=None)
 assert new_visit.pk != o.pk and new_visit.responsible_staff_id is None
 assert TabOccupancyAssignment.objects.filter(occupancy=new_visit, tab_id=r["new_tab_id"]).count() == 1
-assert r["cleaning_mode"] == "direct"
-assert o.released_at and o.ready_at and o.responsible_staff_id
-assert o.cleaning_started_at is None, "direct cleaning must not fabricate a start timestamp"
+assert r["cleaning_mode"] == "staged"
+assert o.released_at and o.cleaning_started_at and o.ready_at and o.responsible_staff_id
+assert o.released_at <= o.cleaning_started_at <= o.ready_at, "Cleaning timestamps out of lifecycle order"
 assert t.status == "OCCUPIED" and t.access_generation == r["final_generation"] > r["initial_generation"]
 assert set(str(x) for x in TabOccupancyAssignment.objects.filter(occupancy=o).values_list("tab_id", flat=True)) == set(r["tab_ids"])
 assert Tab.objects.filter(pk__in=r["tab_ids"], venue_id=f["venue_id"], state="CLOSED").count() == 2

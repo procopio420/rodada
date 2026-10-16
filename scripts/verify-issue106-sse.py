@@ -29,6 +29,6 @@ assert not Payment.objects.filter(tab_id=order.tab_id).exists()
 events = OutboxEvent.objects.filter(venue_id=f["venue_id"], aggregate_id=str(order.pk), event_type="order.confirmed")
 assert events.count() == 1
 assert r["cuts"] > 0 and r["cursor_before"] == r["cursor_resumed"]
-r.update(sql_independent=True, outbox_ids=[str(e.pk) for e in events], orders=1, charges=1, payments=0)
+r.update(charge_ids=[str(Charge.objects.get(tab_id=order.tab_id).pk)], sql_independent=True, outbox_ids=[str(e.pk) for e in events], orders=1, charges=1, payments=0)
 Path("artifacts/sse-sql.json").write_text(json.dumps(r, indent=2)+"\n")
 print("PASS: SSE-only cut, unique NEW Order/Charge and outbox; no automatic prepare or Payment")

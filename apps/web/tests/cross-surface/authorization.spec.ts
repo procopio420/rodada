@@ -18,6 +18,16 @@ async function api(page: Page, path: string, body?: unknown) {
     return { status: r.status, body: await r.json() };
   }, { path, body });
 }
+// Deliberate localhost HTTP boundary probe: browser UI established the session.
+// APIRequestContext chooses cookies using overridden Host; explicitly reuse only
+// that localhost jar so Django can test credential/Host mismatch. Never publish
+// these headers; this does not certify subdomain cookies or external ingress.
+async function hostProbe(page: Page, path: string, host: string, extra: Record<string, string> = {}) {
+  const cookies = (await page.context().cookies()).filter(c => c.domain === "127.0.0.1");
+  return page.request.get(`http://127.0.0.1:3110${path}`, {
+    headers: { Host: host, Cookie: cookies.map(c => `${c.name}=${c.value}`).join("; "), ...extra },
+  });
+}
 const sha = () => execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 
 test("Venue A/B canonical Tab reads and mutations stay isolated through real BFF", async ({ page, browser }) => {
@@ -31,6 +41,13 @@ test("Venue A/B canonical Tab reads and mutations stay isolated through real BFF
     const ownA = await api(page, `tabs/${tab.body.id}/`);
     const ownB = await api(foreign, `tabs/${f.foreign_tab_id}/`);
     expect(ownA.status).toBe(200); expect(ownB.status).toBe(200);
+    // Real localhost BFF signs these fixture-only Host headers using the #130 contract.
+    for (const [client, target, ownHost, wrongHost] of [[page, tab.body.id, f.local_tenant_hosts.a, f.local_tenant_hosts.b], [foreign, f.foreign_tab_id, f.local_tenant_hosts.b, f.local_tenant_hosts.a]] as const) {
+      const own = await hostProbe(client, `/api/pos/tabs/${target}/`, ownHost);
+      const denied = await hostProbe(client, `/api/pos/tabs/${target}/`, wrongHost);
+      expect(own.status()).toBe(200); expect(denied.status()).toBe(403);
+      expect((await denied.json()).code).toBe("VENUE_HOST_MISMATCH");
+    }
     const denied = [];
     for (const [client, target, product] of [[page, f.foreign_tab_id, f.foreign_product_id], [foreign, tab.body.id, f.product_id]] as const) {
       const read = await api(client, `tabs/${target}/`);
@@ -85,4 +102,44 @@ test("revoked Web session cannot replay captured UI intent and new login require
     expect(detail.body.orders).toHaveLength(0); expect(detail.body.exposure_cents).toBe(0); expect(detail.body.payments).toHaveLength(0);
     await writeFile("../../artifacts/revocation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_id: f.venue_id, tab_id: intent.tab, session_id: intent.session, request_key_hash: createHash("sha256").update(intent.payload.idempotency_key).digest("hex"), status: "PASS", denied, intent_preserved: true, scope: "Web logout revokes original session; captured before-commit intent; native expiry/refresh/SSE unproven" }, null, 2));
   } finally { await oldContext.close(); }
+});
+
+test("Guest A/B sessions reject foreign selectors and product IDs without ledger effects", async ({ page, browser }) => {
+  const f = JSON.parse(await readFile(process.env.RODADA_POST_DROP_FIXTURE!, "utf8"));
+  await login(page);
+  const foreignContext = await browser.newContext({ baseURL: "http://127.0.0.1:3110" });
+  const guestContexts = await Promise.all([0, 1].map(() => browser.newContext({ baseURL: "http://127.0.0.1:3110" })));
+  try {
+    const foreign = await foreignContext.newPage(); await login(foreign, true);
+    const tables = [];
+    for (const [index, staff] of [page, foreign].entries()) {
+      const result = await api(staff, "hospitality/tables/", { label: `Guest isolation ${index} ${Date.now()}`, guest_ordering_mode: "DIRECT" });
+      expect(result.status).toBe(201); tables.push(result.body);
+    }
+    const tabs: string[] = [], denials = [];
+    for (const index of [0, 1]) {
+      const guest = await guestContexts[index].newPage();
+      await guest.goto(`/guest/${tables[index].public_token}`);
+      await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
+      const proof = await guest.evaluate(async ({ selector, foreignSelector, foreignProduct }) => {
+        const get = async (s: string) => {
+          const r = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": s } });
+          return { status: r.status, body: await r.json() };
+        };
+        const own = await get(selector), deniedRead = await get(foreignSelector);
+        const r = await fetch("/api/guest/orders/confirm/", { method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": selector }, body: JSON.stringify({ idempotency_key: crypto.randomUUID(), lines: [{ product_id: foreignProduct, quantity: 1 }] }) });
+        return { own, deniedRead, deniedPost: { status: r.status, body: await r.json() } };
+      }, { selector: tables[index].public_token, foreignSelector: tables[1-index].public_token, foreignProduct: index === 0 ? f.foreign_product_id : f.product_id });
+      expect(proof.own.status).toBe(200); expect([401,403]).toContain(proof.deniedRead.status);
+      expect(proof.deniedPost.status).toBe(409); expect(proof.deniedPost.body.code).toBe("PRODUCTS_NOT_CONFIRMABLE");
+      const ownHost = index === 0 ? f.local_tenant_hosts.a : f.local_tenant_hosts.b;
+      const wrongHost = index === 0 ? f.local_tenant_hosts.b : f.local_tenant_hosts.a;
+      const ownHostRead = await hostProbe(guest, "/api/guest/context/", ownHost, { "X-Guest-Session": tables[index].public_token });
+      const wrongHostRead = await hostProbe(guest, "/api/guest/context/", wrongHost, { "X-Guest-Session": tables[index].public_token });
+      expect(ownHostRead.status()).toBe(200); expect(wrongHostRead.status()).toBe(404);
+      expect((await wrongHostRead.json()).code).toBe("QR_NOT_FOUND");
+      tabs.push(proof.own.body.tab.id); denials.push({ get: proof.deniedRead.status, post: proof.deniedPost.status, own_host: ownHostRead.status(), wrong_host: wrongHostRead.status() });
+    }
+    await writeFile("../../artifacts/guest-isolation-browser.json", JSON.stringify({ sha: sha(), database_instance_id: f.database_instance_id, venue_ids: [f.venue_id, f.foreign_venue_id], tab_ids: tabs, status: "PASS", denials, scope: "local Guest/BFF selectors, product IDs and signed Host mismatch; no DNS/production ingress certification" }, null, 2));
+  } finally { await Promise.all([...guestContexts, foreignContext].map(context => context.close())); }
 });

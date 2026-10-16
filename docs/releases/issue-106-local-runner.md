@@ -1,7 +1,8 @@
 # Issue #106 — local shared-client runner
 
-This runner exercises the implemented slices, not the complete 14-scenario
-acceptance or onsite gates. Missing coverage keeps full release NO-GO.
+This runner exercises all 14 automated scenarios on one disposable shared stack.
+The scenario result and reviewed automated GO are separate from onsite gates.
+The verified execution is recorded in [the matrix](issue-106-resumption-matrix.md).
 
 Prerequisites: Docker, Python 3.13, Node 22+, JDK17, Android SDK37, an explicitly
 disposable running emulator (API36/KVM), adb in PATH and Chromium dependencies.
@@ -47,8 +48,36 @@ remain local; inspect exported archives before publishing. Logs, receipts and a
 machine-readable execution status are preserved in `artifacts/runs/<SHA-time>/`.
 A successful slice status is explicitly separate from the full #106 GO gate.
 
-Known remaining acceptance includes unavailable-after-cart in all clients,
-shared-journey authorization/tenant and concurrent command negatives, Android
-canonical conflict recovery, isolated SSE outage, pending payment and
-compensatory refund/report coverage. Existing domain tests are reusable evidence
-of components, not replacements for those integrated UI paths.
+The runner additionally executes native stale-cart/offline/revocation, Web/Guest
+isolation, shared HTTP concurrency, SSE/KDS recovery, native contextual readback,
+negative financial capabilities, both business-cutoff sides and final read-only
+SQL reconciliation. Zero opening float creates no CashMovement. Guest release
+revocation is authoritative through generation/occupancy, not a required terminal
+`revoked_at` marker. Catalog and clock-policy faults touch only the guarded fixture.
+
+A successful run initially exports NO-GO until an independent reviewer inspects
+the exact SHA and artifacts. Record the actual review (not self-approval) as JSON:
+
+```json
+{"sha":"FULL_TESTED_COMMIT_SHA","independent":true,"open_p0_p1":0,"reference":"TRACEABLE_REVIEW_REFERENCE"}
+```
+
+Then regenerate and verify using the same checkout, fixture, versions and capture:
+
+```sh
+python scripts/build-issue106-report.py "$CAPTURE" --fixture "$RODADA_POST_DROP_FIXTURE" \
+  --versions "$CAPTURE/versions.json" --sha "$TESTED_SHA" --run-url "$RUN_URL" \
+  --pr "$PR_URL" --review "$REVIEW_JSON"
+python scripts/e2e_evidence.py "$CAPTURE/manifest.json" --sha "$TESTED_SHA" --root "$CAPTURE"
+```
+
+`CAPTURE`, `TESTED_SHA`, `RUN_URL`, `PR_URL` and `REVIEW_JSON` refer to the actual
+run and review. The compiler validates the final SQL's hashes of its intermediate
+receipts; an edited receipt invalidates invariant promotion. Never rewrite receipt
+SHAs to reuse another run. Raw traces stay local; publish only inspected sanitized
+archives. No external payment settlement, physical Wi-Fi, device, printing,
+fiscal or ingress certification follows from automated GO.
+
+CI PR jobs export factual artifacts even for incomplete runs; manual dispatch
+also enforces the full validator and remains NO-GO without exact-SHA independent
+review. A green scenario job alone never supplies that review.

@@ -91,3 +91,16 @@ is an attestation requiring review, not a claim that this script detects secrets
 Physical Android on bar Wi-Fi, Tap/NFC/Pix providers, printers, fiscal acceptance
 and VR System rollback remain separate `NOT_VERIFIED` entries even when the
 automated contract says GO. No field in this schema approves field homologation.
+
+## Contexto sem comanda na disputa E2E-08
+
+A disputa start/claim pode legitimamente terminar sem criar Tab. E2E-08 exige
+IDs reais de Venue, Table e Occupancy; não se inventa Tab para preencher o
+contrato. Os demais cenários continuam exigindo Venue e Tab. O SQL registra
+`tab_ids` somente quando a corrida release/open efetivamente criou uma comanda.
+
+O compilador só promove os dez invariantes quando existe `final-state-sql.json`
+do mesmo SHA e cluster, produzido após todas as mutações financeiras. Esse
+readback correlaciona os cinco Orders, oito Charges imutáveis, pagamentos,
+reembolso, caixa, revogação Guest e ausência de efeitos no Venue de controle.
+A revisão independente do SHA continua obrigatória e separada da execução.

@@ -34,7 +34,7 @@ def validate(document, root, expected_sha):
     if database.get("engine") != "postgresql" or database.get("disposable") is not True or not nonempty(database.get("instance_id")):
         errors.append("shared disposable PostgreSQL instance required")
     versions = document.get("versions", {})
-    if not isinstance(versions, dict) or any(not nonempty(versions.get(key)) for key in ("android", "browser", "django", "postgresql", "nextjs")):
+    if not isinstance(versions, dict) or any(not nonempty(versions.get(key)) or "NOT_AVAILABLE" in str(versions.get(key)).upper() for key in ("android", "browser", "django", "postgresql", "nextjs")):
         errors.append("all runtime versions required")
     artifacts = document.get("artifacts", {})
     if not isinstance(artifacts, dict):
@@ -100,8 +100,9 @@ def validate(document, root, expected_sha):
         else:
             observed_surfaces.update(surfaces)
         ids = record.get("canonical_ids")
-        if not isinstance(ids, dict) or any(not isinstance(ids.get(key), list) or not ids[key] or any(not nonempty(value) for value in ids[key]) for key in ("venue", "tab")):
-            errors.append(f"{label}: canonical Venue/Tab IDs required")
+        required_context = ("venue", "table", "occupancy") if sid == "E2E-08" else ("venue", "tab")
+        if not isinstance(ids, dict) or any(not isinstance(ids.get(key), list) or not ids[key] or any(not nonempty(value) for value in ids[key]) for key in required_context):
+            errors.append(f"{label}: canonical context IDs required: {required_context}")
         if isinstance(ids, dict) and any(not nonempty(key) or not isinstance(values, list) or not values or any(not nonempty(value) for value in values) for key, values in ids.items()):
             errors.append(f"{label}: every supplied canonical ID field must be a nonempty string list")
         refs = record.get("artifact_refs")

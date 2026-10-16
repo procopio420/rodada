@@ -37,6 +37,6 @@ if r["release_open"][1]["status"] == 201:
 else:
     assert tabs.count() == 0
 assert not Charge.objects.filter(tab__in=tabs).exists() and not Payment.objects.filter(tab__in=tabs).exists()
-r.update(occupancy_ids=ids+[str(released.pk)], tab_ids=[str(t.pk) for t in tabs], status="PASS")
+r.update(table_ids=list(f["race_tables"].values()), occupancy_ids=ids+[str(released.pk)], tab_ids=[str(t.pk) for t in tabs], status="PASS")
 Path("artifacts/concurrency-sql.json").write_text(json.dumps(r, indent=2)+"\n")
 print("PASS: one occupancy/owner per race, one claim audit, atomic release/open and no financial effects")

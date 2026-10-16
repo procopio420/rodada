@@ -22,11 +22,20 @@ on:
       - "scripts/verify-issue106-sse.py"
       - "scripts/verify-issue106-pending.py"
       - "scripts/verify-issue106-unavailable.py"
+      - "scripts/issue106-catalog-fault.py"
+      - "scripts/issue106-runtime.py"
+      - "scripts/issue106-cash-cutoff.py"
+      - "scripts/build-issue106-report.py"
       - "scripts/verify-financial-ui.py"
+      - "scripts/verify-issue106-final-state.py"
+      - "scripts/e2e_evidence.py"
+      - "scripts/tests/test_e2e_evidence.py"
+      - "scripts/tests/test_issue106_report.py"
       - "apps/web/tests/cross-surface-financial/**"
       - "scripts/sanitize-cross-surface-traces.py"
       - "scripts/tests/test_trace_redaction.py"
-      - "apps/attendance-android/app/src/androidTest/**/LiveComposeOrderTest.kt"
+      - "apps/attendance-android/app/src/androidTest/**/LiveCompose*.kt"
+      - "apps/attendance-android/app/src/androidTest/**/LivePostDropReconciliationTest.kt"
       - "scripts/tests/test_cross_surface_fixture.py"
 
 permissions:
@@ -49,7 +58,8 @@ jobs:
       POSTGRES_HOST: 127.0.0.1
       POSTGRES_PORT: "5432"
       DJANGO_SECRET_KEY: disposable-only-not-used-in-production
-      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2,issue106a-ci.rodada.bar,issue106b-ci.rodada.bar
+      RODADA_ENABLE_TENANT_HOST_UI: "true"
       RODADA_BFF_HOST_SECRET: rodada-integration-local-only
       RODADA_POST_DROP_FIXTURE: /tmp/rodada-android-live-fixture.json
       RODADA_POST_DROP_MARKER: /tmp/rodada-android-live-drop.json
@@ -66,6 +76,10 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Record actual checked-out evidence identity
+        run: echo "RODADA_EVIDENCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -86,6 +100,7 @@ jobs:
           python apps/api/manage.py migrate --noinput
       - name: Prepare fixture against the inspected disposable PostgreSQL service
         run: |
+          echo "RODADA_EVIDENCE_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
           python scripts/verify-android-live-post-drop.py prepare
           python scripts/verify-android-live-post-drop.py prepare-resilience
           python scripts/verify-android-live-post-drop.py prepare-pending
@@ -123,9 +138,13 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
           script: |
-            bash scripts/android-live-post-drop.sh
-            bash scripts/android-table-service-post-drop.sh
+            mkdir -p artifacts
+            bash -o pipefail -c 'bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrumentation.txt'
+            bash -o pipefail -c 'bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-instrumentation.txt'
             bash scripts/android-compose-order.sh
+            RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
+            RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
+            RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true RODADA_COMPOSE_OFFLINE_REVOCATION=true bash scripts/android-compose-order.sh
       # The native emulator just committed and recovered the order in this
       # exact PostgreSQL DB. Do not start the Web fixture runner's own DB:
       # Web must read and mutate the native-origin Order/Tab, not a mock order.
@@ -169,6 +188,15 @@ jobs:
           python scripts/verify-issue106-sse.py
           python scripts/verify-issue106-pending.py
           python scripts/verify-issue106-unavailable.py
+      - name: Native Compose reads both contextual Tabs after explicit Web READY
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-options: -no-window -no-audio -no-snapshot -gpu swiftshader_indirect -no-boot-anim
+          script: RODADA_COMPOSE_READBACK=true bash scripts/android-compose-order.sh
       - name: Financial UI on the same native-origin Tab and disposable drawer
         working-directory: apps/web
         env:
@@ -185,30 +213,71 @@ jobs:
           done
           npx playwright test --config playwright.android-cross-surface.config.ts
       - name: Independently reconcile partial payments and drawer SQL
-        run: python scripts/verify-financial-ui.py
+        run: |
+          python scripts/verify-financial-ui.py
+          python scripts/verify-issue106-final-state.py
       - name: Export redacted traces
         if: always()
         run: python scripts/sanitize-cross-surface-traces.py
+      - name: Export exact-SHA scenario manifest and NO-GO decision
+        if: always()
+        env:
+          SLICE_STATUS: ${{ job.status }}
+        run: |
+          python scripts/issue106-runtime.py artifacts/versions.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from datetime import datetime,timezone
+          Path("artifacts/execution.json").write_text(json.dumps({
+              "sha":os.environ["RODADA_EVIDENCE_SHA"],"result":"PASS" if os.environ["SLICE_STATUS"]=="success" else "FAIL",
+              "last_step":"CI shared stack","started_at":os.environ.get("RODADA_EVIDENCE_STARTED_AT","NOT_RECORDED"),
+              "finished_at":datetime.now(timezone.utc).isoformat()},indent=2)+"\n")
+          PY
+          # NO-GO is expected for incomplete PR slices; the manual release gate below enforces it.
+          python scripts/build-issue106-report.py artifacts --fixture "$RODADA_POST_DROP_FIXTURE" --versions artifacts/versions.json \
+            --sha "$RODADA_EVIDENCE_SHA" --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            --pr "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}" || test -s artifacts/gate.json
+      - name: Enforce complete automated release gate on manual execution
+        if: always() && github.event_name == 'workflow_dispatch'
+        run: python scripts/e2e_evidence.py artifacts/manifest.json --sha "$RODADA_EVIDENCE_SHA" --root artifacts
       - name: Upload factual verification and transport evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-live-post-disconnect-evidence
           path: |
+            artifacts/execution.json
+            artifacts/versions.json
+            artifacts/manifest.json
+            artifacts/gate.json
+            artifacts/final-state-sql.json
+            artifacts/projection*.json
+            artifacts/android-emulator-api.txt
             artifacts/android-real-post-drop.json
+            artifacts/android-recovery-instrumentation.txt
+            artifacts/android-table-instrumentation.txt
             artifacts/android-web-cross-surface.json
             artifacts/android-compose-*.json
             artifacts/android-compose-*.txt
             artifacts/android-compose-*.png
+            artifacts/android-catalog-*.json
+            artifacts/android-catalog-*.txt
+            artifacts/android-catalog-*.png
+            artifacts/android-context-readback*
+            artifacts/android-offline-conflict*
+            artifacts/android-offline-revocation*
             artifacts/qr-lifecycle-*.json
             artifacts/browser-origins*.json
             artifacts/concurrency-*.json
             artifacts/isolation-*.json
+            artifacts/guest-isolation-*.json
             artifacts/revocation-*.json
             artifacts/sse-*.json
             artifacts/pending-payment-*.json
             artifacts/unavailable-*.json
             artifacts/financial*.json
+            artifacts/cash-cutoff*.json
             artifacts/sanitized-traces/
             /tmp/rodada-cross-surface-next.log
             artifacts/android-table-*-response-loss.json
@@ -231,7 +300,7 @@ jobs:
       POSTGRES_HOST: 127.0.0.1
       POSTGRES_PORT: "5432"
       DJANGO_SECRET_KEY: disposable-only-not-used-in-production
-      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,10.0.2.2,issue106a-ci.rodada.bar,issue106b-ci.rodada.bar
       RODADA_POST_DROP_FIXTURE: /tmp/rodada-android-live-fixture.json
       RODADA_POST_DROP_MARKER: /tmp/rodada-android-live-drop.json
       RODADA_NETWORK_CUT_MODE: emulator-link
@@ -248,6 +317,10 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Record actual checked-out evidence identity
+        run: echo "RODADA_EVIDENCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

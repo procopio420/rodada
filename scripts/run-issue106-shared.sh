@@ -6,7 +6,8 @@ cd "$ROOT"
 PYTHON="${RODADA_TEST_PYTHON:-$ROOT/.venv/bin/python}"
 export PATH="$(dirname "$PYTHON"):$PATH"
 export PYTHONPATH="$ROOT/apps/api" DJANGO_SETTINGS_MODULE=rodada_api.settings
-export DJANGO_SECRET_KEY=issue106-disposable-only DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2
+export DJANGO_SECRET_KEY=issue106-disposable-only DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,10.0.2.2,issue106a-ci.rodada.bar,issue106b-ci.rodada.bar
+export RODADA_ENABLE_TENANT_HOST_UI=true
 export RODADA_BFF_HOST_SECRET=rodada-integration-local-only RODADA_API_BASE_URL=http://127.0.0.1:8101
 "$PYTHON" -c 'import sys;sys.path.insert(0,"scripts");from cross_surface_fixture import require_disposable_database;require_disposable_database();import django;django.setup();from django.db import connection;from cross_surface_fixture import require_connected_database;require_connected_database(connection)'
 if [[ -n "$(git status --porcelain --untracked-files=normal)" ]]; then echo 'Commit source changes before an exact-SHA run'; exit 2; fi
@@ -27,13 +28,15 @@ run_id="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 run_dir="$ROOT/artifacts/runs/$run_id"
 history_dir="$ROOT/artifacts/history/preexisting-$run_id"
 mkdir -p "$run_dir" "$history_dir"
+export RODADA_EVIDENCE_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+"$PYTHON" scripts/issue106-runtime.py "$run_dir/versions.json"
 # Preserve earlier evidence before producers use their compatible fixed paths.
 # Moving it aside creates a fresh capture boundary without deleting any history.
 "$PYTHON" - "$history_dir" <<'PYARCHIVE'
 from pathlib import Path
 import shutil,sys
 out=Path(sys.argv[1])
-for pattern in ('*.json','*-instrumentation.txt','android-compose-*.png'):
+for pattern in ('*.json','*-instrumentation.txt','android-*.png'):
     for path in Path('artifacts').glob(pattern): shutil.move(str(path),out/path.name)
 for path in (Path('artifacts/sanitized-traces'),Path('apps/web/test-results/android-cross-surface'),Path('apps/web/test-results/android-cross-financial')):
     if path.exists(): shutil.move(str(path),out/path.name)
@@ -60,11 +63,16 @@ for path in Path('artifacts').glob('*.json'):
     try: receipt=json.loads(path.read_text())
     except ValueError: continue
     if instance and receipt.get('sha') == sha and receipt.get('database_instance_id') == instance: shutil.copy2(path,out/path.name)
-for pattern in ('*-instrumentation.txt','android-compose-confirmed.png'):
+for pattern in ('*-instrumentation.txt','android-*.png'):
     for path in Path('artifacts').glob(pattern): shutil.copy2(path,out/path.name)
 if Path('artifacts/sanitized-traces').exists(): shutil.copytree('artifacts/sanitized-traces',out/'sanitized-traces',dirs_exist_ok=True)
-(out/'execution.json').write_text(json.dumps({'sha':sha,'result':'PASS' if code==0 else 'FAIL','last_step':sys.argv[3], 'exit_code':code,'automated_gate':'NO-GO','reason':'This executable slice does not yet cover every E2E-01..14 or all A1–F8 requirements.'},indent=2)+'\n')
+(out/'execution.json').write_text(json.dumps({'sha':sha,'result':'PASS' if code==0 else 'FAIL','last_step':sys.argv[3], 'started_at':os.environ['RODADA_EVIDENCE_STARTED_AT'],'finished_at':__import__('datetime').datetime.now(__import__('datetime').timezone.utc).isoformat(),'exit_code':code,'automated_gate':'NO-GO','reason':'This executable slice does not yet cover every E2E-01..14 or all A1–F8 requirements.'},indent=2)+'\n')
 PY
+  if [[ -e "$RODADA_POST_DROP_FIXTURE" ]]; then
+    "$PYTHON" scripts/build-issue106-report.py "$run_dir" --fixture "$RODADA_POST_DROP_FIXTURE" --versions "$run_dir/versions.json" \
+      --sha "$(git rev-parse HEAD)" --run-url "${GITHUB_SERVER_URL:-local://}/${GITHUB_REPOSITORY:-$run_id}${GITHUB_RUN_ID:+/actions/runs/$GITHUB_RUN_ID}" \
+      --pr "${RODADA_EVIDENCE_PR:-NOT_LINKED}" > "$run_dir/report-export.txt" 2>&1 || true
+  fi
   echo "Evidence preserved: $run_dir; slice exit=$code; full #106 remains NO-GO"
   exit "$code"
 }
@@ -91,6 +99,9 @@ bash scripts/android-live-post-drop.sh | tee artifacts/android-recovery-instrume
 bash scripts/android-table-service-post-drop.sh | tee artifacts/android-table-instrumentation.txt
 step=compose
 bash scripts/android-compose-order.sh
+RODADA_COMPOSE_CATALOG_FAULT=true bash scripts/android-compose-order.sh
+RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true bash scripts/android-compose-order.sh
+RODADA_COMPOSE_CATALOG_FAULT=true RODADA_COMPOSE_OFFLINE_CATALOG=true RODADA_COMPOSE_OFFLINE_REVOCATION=true bash scripts/android-compose-order.sh
 step=web-build
 (cd apps/web && npm ci --no-audit --no-fund && npm run typecheck && npm run build) > "$run_dir/web-build.txt" 2>&1
 (cd apps/web && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3110) > "$run_dir/next.txt" 2>&1 &
@@ -101,6 +112,7 @@ for i in $(seq 1 60); do
   sleep 1
 done
 export RODADA_ANDROID_PROOF="$ROOT/artifacts/android-real-post-drop.json" RODADA_ANDROID_COMPOSE_PROOF="$ROOT/artifacts/android-compose-order.json"
+"$PYTHON" scripts/issue106-runtime.py "$run_dir/versions.json"
 step=shared-browser
 (cd apps/web && npx playwright test --config playwright.android-cross-surface.config.ts)
 step=independent-sql
@@ -108,6 +120,8 @@ step=independent-sql
 "$PYTHON" scripts/verify-qr-lifecycle.py
 "$PYTHON" scripts/verify-browser-origins.py
 "$PYTHON" scripts/verify-issue106-unavailable.py
+step=native-context-readback
+RODADA_COMPOSE_READBACK=true bash scripts/android-compose-order.sh
 "$PYTHON" scripts/verify-issue106-concurrency.py
 "$PYTHON" scripts/verify-issue106-authorization.py
 "$PYTHON" scripts/verify-issue106-sse.py
@@ -116,4 +130,6 @@ step=financial-browser
 (cd apps/web && RODADA_CROSS_PHASE=financial npx playwright test --config playwright.android-cross-surface.config.ts)
 step=financial-sql
 "$PYTHON" scripts/verify-financial-ui.py
+step=final-state-sql
+"$PYTHON" scripts/verify-issue106-final-state.py
 step=complete

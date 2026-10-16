@@ -25,7 +25,7 @@ type TabDetail = {
   payments_cents: number;
   orders: Array<{
     id: string;
-    items: Array<{ id: string; state: string; product_id: string; quantity: number }>;
+    items: Array<{ id: string; state: string; product_id: string; product_name: string; quantity: number }>;
   }>;
 };
 
@@ -86,6 +86,9 @@ for (const source of ["recovery", "compose"] as const) test(`native Android ${so
     expect(item, `missing ${station} route`).toBeTruthy();
     expect(item.state).toBe("NEW");
     await page.goto(station === "BAR" ? "/bar" : "/kitchen");
+    for (const foreignItem of before.orders[0].items.filter(i => i.id !== item.id)) {
+      await expect(page.locator(".stationDish").filter({ has: page.getByText(foreignItem.product_name, { exact: true }) })).toHaveCount(0);
+    }
     const start = page.getByRole("button", { name: new RegExp(`^Iniciar preparo:.*${label}$`) }).first();
     await expect(start).toBeVisible();
     await start.click();

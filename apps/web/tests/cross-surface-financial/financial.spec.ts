@@ -21,7 +21,33 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   }, path);
   const before = await read(`tabs/${native.original_tab_id}/`);
   expect(before.payments_cents).toBe(0);
+  expect(before.orders.flatMap((o: { items: { state: string }[] }) => o.items).every((i: { state: string }) => i.state === "READY")).toBe(true);
   expect(before.exposure_cents).toBeGreaterThan(300);
+  // Read-only cross-client projection after the native readback, before money.
+  const originsProjection = JSON.parse(await readFile("../../artifacts/browser-origins-sql.json", "utf8"));
+  const recoveryProjection = JSON.parse(await readFile("../../artifacts/android-web-cross-surface.json", "utf8"));
+  const projectedTabs = [native.original_tab_id, recoveryProjection.original_tab_id, ...originsProjection.tab_ids];
+  const readyItems: { id: string; state: string }[] = (await Promise.all(projectedTabs.map(id => read(`tabs/${id}/`))))
+    .flatMap(t => t.orders.flatMap((o: { items: { id: string; state: string }[] }) => o.items));
+  expect(readyItems).toHaveLength(7); expect(readyItems.every(i => i.state === "READY")).toBe(true);
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: "Agora", exact: true }).click();
+  const readySection = page.locator("section").filter({ has: page.getByRole("heading", { name: "Entregas prontas", exact: true }) });
+  await expect(readySection.getByRole("button", { name: "Concluir entrega", exact: true })).toHaveCount(7);
+  await expect(readySection.locator("article").filter({ hasText: native.tab_label })).toHaveCount(2);
+  await page.goto("/manage#operacao");
+  await expect(page.getByRole("heading", { name: "Produção e entrega", exact: true })).toBeVisible();
+  const deliveries = (await read("dispatch/delivery/")).results;
+  expect(deliveries.map((d: { order_item_id: string }) => d.order_item_id).sort()).toEqual(readyItems.map(i => i.id).sort());
+  await expect(page.locator(".dataRow").filter({ has: page.getByText("Prontos para entrega", { exact: true }) }).locator("strong")).toHaveText("7");
+  await page.getByText("Ver mais das entregas (7)", { exact: true }).click();
+  await expect(page.locator("#operacao details .movement")).toHaveCount(7);
+  await writeFile("../../artifacts/projection-browser.json", JSON.stringify({
+    sha: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), database_instance_id: fixture.database_instance_id,
+    venue_id: fixture.venue_id, tab_ids: projectedTabs, item_ids: readyItems.map(i => i.id), dispatch_ids: deliveries.map((d: { id: string }) => d.id),
+    status: "PASS", attendance_ready_ui: 7, management_ready_ui: 7, guest_ready_ui: originsProjection.guest_ready_ui,
+    delivery_scope: "READY tasks remain open; no invented pickup, delivery or completion provenance",
+  }, null, 2));
   await page.goto("/cash");
   await page.getByLabel("Ponto de caixa", { exact: true }).selectOption(fixture.cash_point_id);
   await page.getByLabel("Fundo inicial", { exact: true }).fill("100,00");
@@ -121,7 +147,8 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   }
   await expect.poll(async () => (await read(`cash/shifts/${shiftId}/`)).review_status).toBe("REVIEWED");
   const reviewed = await read(`cash/shifts/${shiftId}/`);
-  expect(reviewed.expected_at_close_cents).toBe(closed.expected_at_close_cents);
+  expect(closed.expected_amount_cents_snapshot).toBe(expected);
+  expect(reviewed.expected_amount_cents_snapshot).toBe(expected);
   expect(reviewed.discrepancy_cents).toBe(closed.discrepancy_cents);
   await page.goto("/manage");
   await expect(page.getByRole("heading", { name: "O que precisa de atenção", exact: true })).toBeVisible();
