@@ -138,3 +138,39 @@ Antes de integrar UX 2.0, especificar uma **projeção de destino autorizada no 
 ### Demonstração
 
 `prototype/ux-2-0/index.html` inclui chamada fictícia QR associada à comanda Marina / Mesa 08 e chamada genérica da Mesa 12. A primeira abre o workspace da Tab e oferece retorno à fila; a segunda abre a lista da mesa. Fila nunca é mutada ao navegar. **8/8 testes sintéticos de DOM passaram** nessa alteração, sem browser/Android reais, sem integração ao backend.
+
+
+## Iteração 2026-10-16 — Agora orientado pela intenção (protótipo B0)
+
+Feedback: "Agora" não deve levar o garçom a uma tela genérica; o tipo do trabalho define **qual ação contextual abrir**.
+
+### Matriz de roteamento
+
+| Trabalho na fila | Alvo conhecido/validado | Próximo destino | Sem Tab confiável |
+| --- | --- | --- | --- |
+| SERVICE_REQUEST do guest QR | GuestSession → Tab / Table / Occupancy atuais, autorizados | **Comanda** com destaque da chamada e CTA Adicionar itens | Mesa da ocupação se atual e autorizada; senão detalhe bloqueado/revalidação |
+| BILL_REQUEST do guest QR | Tab vinculada e válida | **Conta** da comanda, com saldo canônico e cobrança pelas permissões existentes | Mesa para escolha explícita da comanda |
+| DELIVERY (READY) | DeliveryTask → OrderItem → Tab e destino atuais | **Entrega**, mostrando itens prontos, quantidade, estação e destino | Detalhe bloqueado/consulta ao registro; jamais inferir cliente pelo nome |
+| Serviço/conta da mesa, Tab desconhecida | Table / Occupancy válidas, sem adivinhar uma Tab | **Mesa → escolha explícita da Tab** e depois ação pretendida | Informar desatualização; não executar comando |
+
+### Padrões comportamentais
+
+1. A primeira dobra mostra tarefas de fato, não cabeçalho decorativo, texto explicativo longo ou cartão de status redundante.
+2. Cada linha explicita natureza da tarefa e próximo verbo: **Atender cliente**, **Abrir conta**, **Ver entrega**, **Escolher comanda**. O CTA deriva de \`task_type\`, não apenas do nome da mesa.
+3. **Navegar não muta a fila:** sem auto-claim, auto-complete, auto-paid ou auto-delivered. O protótipo tem controles explicitamente rotulados como **simulação** para assumir e resolver; nenhuma operação chega ao servidor.
+4. Serviço pode ser assumido explicitamente; conclusão é uma ação separada. Pedidos/recuperação enviados e pendências canônicas não podem ser alterados pela navegação.
+5. Entrega abre o item exato em READY. Não presumir que abrir ou visualizar equivale a entregar. O objetivo final é evitar qualquer toque **obrigatório apenas para telemetria**, preservando confirmação humana quando operacionalmente necessária e origem/confiança para eventos inferidos.
+6. Pedido de conta encaminha à comanda financeira, sem somar rascunhos nem simular pagamento real. Registro de pagamento exige autorização, comprovante/readback e estados próprios.
+7. Quando não há Tab vinculada, a seleção é explícita, mesmo com somente uma opção. A seleção deve revalidar Table/Occupancy/Venue e não confiar em referência/label.
+8. Fila não desaparece durante navegação, erro ou volta; tarefa só sai após confirmação explícita e atualização canônica. Timeout/perda de ACK mantém a intenção original e exibe recuperação contextual.
+9. Perfis de permissão e responsabilidades (outro operador, sessão revogada, mudança de mesa) determinam ações disponíveis, não regras implícitas de UI.
+
+### Integração necessária e limites
+
+Na main inspecionada em 16/10, \`ServiceRequestQueue\` utiliza uma projeção com \`id\`, \`task_type\`, \`state\`, \`destination_label\`, \`claimed_by_id\` e \`age_seconds\` — sem \`tab_id\` navegável. \`AttendanceWeb\` tipa a fila de entrega com \`id\`, \`product_name\`, \`quantity\`, \`tab_label\`, \`destination_label\` e \`age_seconds\`; não há \`tab_id\` confiável na projeção UI inspecionada. Os labels não podem ser usados para deduzir IDs.
+
+Antes do rollout, adicionar projeções staff server-side autorizadas e revalidadas para \`task_id\`, tipo, \`tab_id\` opcional, \`table_id\`, \`occupancy_id\`, versão/generation do vínculo, \`order_item_id\` e estação quando forem canônicos; especificar indicadores de confiança/indisponibilidade e permissões das ações. Nunca expor GuestSession token aos funcionários por conveniência da navegação. Cada destino deve ser revalidado por leitura canônica no momento de abrir, inclusive conflitos/revogação/reauth. Preservar endpoints e contratos financeiros e de dispatch existentes. Implementação real requer spec proprietária, testes de concorrência, E2E/Web/Android e validação no bar.
+
+### Experiência disponibilizada nesta branch
+
+\`prototype/ux-2-0/index.html\` inicia diretamente no Agora com quatro tarefas **inventadas**: entrega de 2 chopps para Rafael (Mesa 08); conta de João via QR (Mesa 12); chamada de Marina via QR (Mesa 08); pedido de conta sem Tab identificada (Mesa 12). A entrega, cobrança e atendimento abrem em contextos próprios. Pode-se assumir um chamado, simular sua resolução ou a entrega; apenas memória da página é modificada. Voltar sem confirmar conserva as tarefas. Nenhum dado é persistido nem enviado. Execução de JS/DOM sintética cobriu fluxos de roteamento, fallback, claim, conclusão explícita e preservação da fila; **não prova browser real, viewport móvel ou contratos do backend**.
