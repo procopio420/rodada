@@ -209,5 +209,15 @@ class ReviewProvenanceTests(unittest.TestCase):
             module.find_review(REPO, 106, SHA, original, qualified_agents=registry)
 
 
+    def test_chatgpt_review_automation_requires_security_qualification(self):
+        _review, _comment, registry, fetch = self.agent_fixture(
+            paths=["scripts/r3_chatgpt_reviewer.py",
+                   "scripts/tests/test_r3_chatgpt_reviewer.py"]
+        )
+        registry["r3-reviewer[bot]"]["capabilities"].discard("security")
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+
+
 if __name__ == "__main__":
     unittest.main()
