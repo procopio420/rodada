@@ -830,6 +830,32 @@ else if(m==='move-done'){
  body=`<div class="successbox"><h2>✓ Agora é ${esc(tableName())}</h2><p class="small muted" style="margin-top:10px">Sua comanda e seu saldo continuam aqui.</p></div><p class="sim-note">O QR da mesa antiga continua identificando aquela mesa, não esta comanda.</p>`;
  footer=`<button class="btn" onclick="S.modal=null;render()">Voltar ao atendimento</button>`;
 }
+
+else if(m==='dispute-choose'){
+ title='Revisar cobrança';
+ body=`<p class="lead">O que você precisa conferir?</p>
+ <div class="micro" style="margin:10px 0 6px">CONSUMO</div>
+ ${allLines().filter(x=>!x.cancelled).map(x=>`<button class="option" onclick="beginDispute('item','${x.id}')"><span class="ico">▤</span><span><strong>${esc(x.name)}</strong><small>${money(x.price*x.qty)}</small></span><span class="arrow">›</span></button>`).join('')}
+ ${S.payments.length?'<div class="micro" style="margin:12px 0 6px">PAGAMENTOS</div>':''}
+ ${S.payments.map(p=>`<button class="option" onclick="beginDispute('payment','${p.id}')"><span class="ico">↗</span><span><strong>Pagamento ${money(p.amount)}</strong><small>Verificar / solicitar estorno</small></span><span class="arrow">›</span></button>`).join('')}`;
+ footer=`<button class="btn ghost" onclick="S.modal=null;render()">Voltar para conta</button>`;
+}
+else if(m==='dispute-start'){
+ title='Solicitar revisão';
+ body=`<div class="dispute-target"><small>REVISAR</small><strong>${esc(S.disputeTarget?.label||'')}</strong><span>${money(S.disputeTarget?.amount||0)}</span></div>
+ <div class="micro" style="margin:14px 0 8px">MOTIVO</div>
+ <div class="reason-chips">${(S.disputeTarget?.kind==='payment'?['Pagamento não reconhecido','Valor diferente','Não apareceu na conta']:['Item não reconhecido','Quantidade incorreta','Valor diferente']).map(t=>`<button class="${S.disputeReason===t?'active':''}" onclick="S.disputeReason='${t}';render()">${t}</button>`).join('')}</div>
+ <p class="sim-note">A solicitação não cancela itens nem estorna dinheiro automaticamente.</p>`;
+ footer=`<button class="btn" onclick="submitDispute()">Enviar solicitação</button><button class="btn ghost" onclick="S.modal='dispute-choose';render()">Voltar</button>`;
+}
+else if(m==='dispute-track'){
+ const d=S.disputes.find(x=>x.id===S.disputeFocus)||S.disputes.at(-1);
+ title='Acompanhar solicitação';
+ body=d?`<div class="dispute-target"><small>${esc(d.id)}</small><strong>${esc(d.label)}</strong><span>${money(d.amount)}</span></div>
+ <p class="dispute-stage"><span class="ficha-dot"></span>${d.status==='requested'?'Solicitação registrada':d.status==='reviewing'?'Equipe analisando':'Aguardando ajuste / estorno financeiro'}</p>
+ <p class="small muted">${d.status==='financial-check'?'A equipe respondeu. Se houver ajuste ou estorno, ele só aparecerá na conta após confirmação do sistema financeiro.':'Seus itens e pagamentos permanecem inalterados enquanto a equipe verifica.'}</p>`:'';
+ footer=`<button class="btn" onclick="S.modal=null;S.scene='account';render()">Voltar para conta</button><button class="btn ghost" onclick="S.modal='help';render()">Falar com equipe</button>`;
+}
 else if(m==='no-phone'){
  title='Sem celular? Sem problema.';
  body=`<p class="lead">Peça diretamente ao garçom. Ele registra tudo no Rodada, na mesma comanda.</p>
