@@ -19,13 +19,12 @@ No navigation claims/completes a task or creates a Tab.
 - `npm run test:auth`: 4 PASS. `npm run test:tenant`: 10 PASS.
 - `node --experimental-strip-types --test tests/dispatch-target.test.mjs`: 3 PASS.
 - Real PostgreSQL port55635 / isolated `rodada_web_e2e`, Django PR218 `52244ecd`
-  at18135 and actual BFF/Next at32635: `ux2-now.spec.ts` 5 PASS before final
-  queue typography/verb followup. Covers360/390/430/1280, context/filter return,
+  at18135 and actual BFF/Next at32635: `ux2-now.spec.ts` 5 PASS after table-page / queue-verb followup on `d30751cd`. Covers360/390/430/1280, context/filter return,
   no writes during navigation, real request remains OPEN/unclaimed after opening.
 - Full `npm run test:visual` invoked, interrupted after first3 legacy attendance
   tests failed on replaced navigation selectors. NOT PASS. Existing regression
   suites need journey-preserving migration to new UX and complete execution.
-- Reference and real screenshots produced in `apps/web/test-results/ux2-parity/`.
+- Reference and real screenshots produced in `docs/development/spec033-web-now-evidence/`.
   Prototype inspected at all4 widths. These show different fixture populations;
   not an equivalent-state pixel parity PASS. Initial inspection found inherited
   uppercase/condensed heading; corrected by scoped normal case/stretch.
