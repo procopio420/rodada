@@ -473,7 +473,7 @@ creditPanel(t,dsum(),true)+
 
 '<div class="notice warn"><strong>Simulação local.</strong> Não há API nem pedido real. Na implementação, confirmar exige validação do servidor, intenção idempotente e reconciliação de resposta ambígua.</div>'+
 button("catalog","← Continuar escolhendo itens","block ghost");
-foot("submit",overLimit(t,dsum())?"Enviar pedido · limite excedido (simulação)":"Simular envio do pedido",!ids.length)
+foot("submit",limitBlocks(t,dsum())?"Pedido acima do limite · bloqueado":overLimit(t,dsum())?"Enviar mesmo com aviso · simulação":"Simular envio do pedido",!ids.length||limitBlocks(t,dsum()))
 }
 function viewRepeat(){
 var t=tab();if(!t){root("tables");return}
@@ -534,15 +534,21 @@ function viewLimit(){
  '<h1>Limite e garantias.</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
  (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
  creditPanel(t,dsum(),false)+
- '<div class="sectionhead"><h2>Política desta comanda</h2><small>FICTÍCIA</small></div>'+
+ '<div class="sectionhead"><h2>Regra por tenant</h2><small>SIMULAÇÃO</small></div>'+
+'<p class="help-text">Na produção, só a Gerência altera esta configuração. Aqui os dois modos servem para testar a UX.</p>'+
+'<div class="policy-modes" role="group" aria-label="Prévia da regra de limite por tenant">'+
+'<button type="button" data-action="limit-mode" data-id="WARN_ONLY" aria-pressed="'+(state.limitMode==="WARN_ONLY")+'">Só alertar</button>'+
+'<button type="button" data-action="limit-mode" data-id="ENFORCE" aria-pressed="'+(state.limitMode==="ENFORCE")+'">Bloquear pedidos</button></div>'+
+'<div class="notice">Regra simulada: <strong>'+limitModeName()+'</strong>. '+(state.limitMode==="ENFORCE"?"Pedidos acima do limite não podem ser enviados.":"Pedidos acima da referência continuam permitidos e sinalizados.")+' Não altera nenhum tenant real.</div>'+
+'<div class="sectionhead"><h2>Política desta comanda</h2><small>FICTÍCIA</small></div>'+
  '<div class="policyrow"><span>Perfil na abertura</span><strong>'+esc(relationName(t))+(t.customerLinked?" · cliente vinculado":" · sem cadastro vinculado")+'</strong></div>'+
  '<div class="policyrow"><span>Limite operacional atual</span><strong>'+money(t.limit)+'</strong></div>'+
  '<div class="policyrow"><span>Consumo ainda em aberto</span><strong>'+money(t.balance)+'</strong></div>'+
  '<div class="policyrow"><span>Capacidade para novos pedidos</span><strong>'+money(c)+'</strong></div>'+
  (dcount()?'<div class="policyrow"><span>Novo pedido em rascunho</span><strong>'+money(dsum())+'</strong></div>':"")+
- (t.limit===0?'<div class="budgetnote"><strong>Limite zero:</strong> não é possível assumir novos gastos por esta política. O cliente pode ser atendido conforme um fluxo autorizado de pagamento antecipado ou decisão gerencial futura, mas a demo não oferece esse fluxo.</div>':
- block?'<div class="budgetnote" role="status"><strong>Não é possível enviar este pedido.</strong> Ele deixaria a comanda '+money(Math.max(0,projected-t.limit))+' acima do limite. O pagamento parcial confirmado pode liberar capacidade.</div>':
- (percent!==null&&percent>=80?'<div class="budgetnote"><strong>Atenção ao limite.</strong> O consumo está em '+percent+'% da capacidade. Um próximo pedido pode exigir intervenção.</div>':""))+
+ (t.limit===0?'<div class="budgetnote"><strong>Referência zero.</strong> '+(state.limitMode==="ENFORCE"?"Novos pedidos positivos ficam bloqueados neste teste.":"Apenas aviso visual, sem impedir pedidos.")+'</div>':
+ block?'<div class="budgetnote" role="status"><strong>'+(state.limitMode==="ENFORCE"?"Novo pedido bloqueado.":"Aviso de limite sem bloqueio.")+'</strong> Projeção '+money(Math.max(0,projected-t.limit))+' acima da referência. '+(state.limitMode==="ENFORCE"?"Receba parte da conta ou solicite aprovação para continuar.":"O garçom pode prosseguir normalmente.")+'</div>':
+ (percent!==null&&percent>=80?'<div class="budgetnote"><strong>Próximo do limite.</strong> '+percent+'% da referência consumidos.</div>':""))+
  '<div class="sectionhead"><h2>Garantia financeira</h2></div>'+
  '<div class="policyrow"><span>Pré-autorização / caução</span><strong>Não registrada (simulação)</strong></div>'+
 '<div class="notice">Futuro: pré-autorização confirmada pelo PSP, caução reembolsável com passivo separado e garantia vencida/revogável, cada uma com status e validade próprios. Nenhuma é ativada neste teste.</div>'+
@@ -663,6 +669,10 @@ if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN")return;state.cat="Todos"
 if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
 if(act==="limit-details"){screen("limit");return}
+if(act==="limit-mode"){
+ if(state.screen!=="limit"||!["WARN_ONLY","ENFORCE"].includes(id))return;
+ state.limitMode=id;state.toast="Prévia alterada para "+limitModeName()+". Nenhum tenant real foi modificado.";render();return
+}
 if(act==="request-approval"){
  if(state.screen!=="limit")return;
  var t=tab();if(!t||t.state!=="OPEN"||t.approvalRequested)return;
@@ -723,7 +733,7 @@ if(act==="category"){state.cat=id;render();return}
 if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
 if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
-if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();var aboveReference=overLimit(t,orderTotal);state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido enviado apenas na simulação. Nenhuma venda real foi feita."+(aboveReference?" Referência de consumo ultrapassada; garçom informado.":"");state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();var aboveReference=overLimit(t,orderTotal);if(limitBlocks(t,orderTotal)){state.toast="Pedido não enviado: tenant com bloqueio ativo. O rascunho foi preservado.";screen("limit");return}state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido enviado apenas na simulação. Nenhuma venda real foi feita."+(aboveReference?" Referência de consumo ultrapassada; garçom informado.":"");state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
 });
 document.addEventListener("change",function(e){
 
