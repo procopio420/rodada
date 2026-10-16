@@ -335,8 +335,8 @@ function viewTable(){
 var t=tableBy(state.table);if(!t){root("tables");return}
 var list=t.status==="occupied"?tabs.filter(function(x){return x.table===t.id&&x.generation===t.generation}):[];
 var active=openAt(t.id),pending=deliveries().filter(function(x){return x.tableId===t.id});
-var lifecycle=t.status==="dirty"?'<div class="contextual-call"><strong>Aguardando limpeza</strong><p>O grupo saiu, mas esta mesa não pode receber novos clientes.</p>'+button("clean-start","Iniciar limpeza","block ghost")+'</div>':
-t.status==="cleaning"?'<div class="contextual-call"><strong>Em limpeza</strong><p>Quando a limpeza terminar, esta mesa estará disponível.</p>'+button("clean-finish","Concluir limpeza","block ghost")+'</div>':
+var lifecycle=t.status==="dirty"?'<div class="contextual-call"><strong>Aguardando limpeza</strong><p>A mesa está liberada, mas ainda não está pronta para outro grupo.</p>'+button("clean-start","Iniciar limpeza","block ghost")+'</div>':
+t.status==="cleaning"?'<div class="contextual-call"><strong>Em limpeza</strong><p>Quando terminar, marque a mesa como pronta.</p>'+button("clean-finish","Mesa limpa · Disponibilizar","block primary")+'</div>':
 t.status==="free"?'<div class="notice">Esta mesa está disponível. Abra uma comanda para começar uma ocupação nova.</div>':"";
 app.innerHTML=back()+first(t.zone)+
 '<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+active.length+' aberta(s)</div></div>'+
@@ -345,10 +345,10 @@ lifecycle+
 '<div class="sectionhead"><h2>'+(state.picking?"Qual comanda recebe o pedido?":"Comandas desta mesa")+'</h2></div>'+
 (list.length?list.map(tabRow).join(""):'<div class="empty">Nenhuma comanda ativa nesta ocupação.</div>')+
 (t.status==="occupied"&&!state.picking?'<div class="sectionhead"><h2>Saída do grupo</h2></div>'+
-(active.length?'<div class="notice warn"><strong>'+active.length+' comanda(s) ainda abertas.</strong> Encerre cada uma antes de liberar esta mesa.</div>':
-pending.length?'<div class="notice warn"><strong>'+pending.length+' entrega(s) pendentes.</strong> Confira os itens prontos antes de liberar o destino.</div>':
-'<div class="notice"><strong>Comandas encerradas.</strong> Quando o grupo sair, libere a mesa. Isso revoga o QR da ocupação anterior.</div>')+
-button("release-review","Revisar liberação da mesa","block ghost",!readyForRelease(t)?"disabled":""):"")+
+(active.length?'<div class="notice warn"><strong>'+active.length+' comanda(s) abertas.</strong> Encerre cada uma para liberar a mesa.</div>':
+pending.length?'<div class="notice warn"><strong>'+pending.length+' entrega(s) ainda prontas.</strong> Resolva as entregas antes de liberar.</div>'+button("go-to-deliveries","Ver entregas prontas","block ghost"):
+'<div class="stack">'+button("release-table","Grupo saiu · Liberar mesa","block primary")+
+'<p class="help-text">A mesa passará para Aguardando limpeza e o QR desta ocupação perderá o acesso.</p></div>'):"")+
 '<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost",t.status==="dirty"||t.status==="cleaning"?"disabled title=\"Aguarde a limpeza\"":"")+'</div>';
 setFoot("")
 }
@@ -570,6 +570,7 @@ if(act==="close-tab"){
  var t=tab();if(!t||!safeToClose(t))return;
  finishTab(t);return
 }
+if(act==="go-to-deliveries"){state.nowMode="delivery";root("now");return}
 if(act==="go-to-table"){
  var t=tab();if(t&&t.table){state.table=t.table;state.activeCall=null;screen("table")}else{root("tables")}return
 }
