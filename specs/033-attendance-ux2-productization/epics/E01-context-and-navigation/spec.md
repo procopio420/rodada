@@ -7,7 +7,7 @@ Web apps/web/components/attendance-web.tsx e order-workspace.tsx usam TableTabSe
 
 ## Experiência alvo
 - Navegação primária coerente **Agora | + Pedir | Mesas**, com área ativa clara. O botão central + Pedir pede destino Mesa→Tab quando o funcionário está sem contexto; na Tab escolhida abre catálogo imediatamente. Busca direta por código/nome/Tab sem mesa disponível.
-- A partir de Mesa, listar todas as Tabs **da ocupação ativa**; várias comandas nunca são fundidas nem selecionadas automaticamente por coincidência de label. Um QR de cliente deve navegar para Tab autorizada (E03).
+- A partir de Mesa, listar Tabs **da ocupação ativa**. Quando houver **exatamente uma Tab OPEN confirmada pelo backend**, um atalho pode entrar direto nela, exibindo sua identidade; múltiplas Tabs exigem escolha. Um pedido de conta/chamado sem Tab identificada **nunca infere automaticamente** a comanda, nem quando há somente uma opção (E03). QR de cliente vinculado abre apenas a Tab autorizada.
 - Na comanda, manter primeiro CTA **Adicionar itens**, depois status/limite compactos e atalhos da Conta; não exibir formulário de Nova comanda permanentemente na primeira dobra.
 - Troca de tela, Voltar/Escape/Back e fechar popup preservam draft por Tab, filtros, foco e a tarefa que originou a navegação; ao terminar operação, retornar ao destino útil sem enviar de novo.
 - Toda navegação profunda valida Venue, staff capabilities, TableOccupancy id/generation, assignment e Tab atual; label/mesa não são chave financeira. Se vínculo foi revogado ou mesa liberada, apresentar recuperação segura, não tentar outra Tab automaticamente.
