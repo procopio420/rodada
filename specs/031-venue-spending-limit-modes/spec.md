@@ -99,7 +99,7 @@ Os paths são propostas; o integrador deve conciliar as rotas existentes em `app
 
 ## 7. Concorrência e auditoria
 
-A leitura transacional de `spending_limit_mode` não pode ser uma decisão temporal ambígua. Documentar uma **ordem de locking consistente** entre confirmação de Tab e update de política (por exemplo, adquirir lock da linha de política de Venue **antes** do lock da Tab quando necessário, e revisar fluxo atual de locks; ou usar versão/config snapshot verificado sob bloqueio apropriado). Não introduzir inversão de locks / deadlock com pagamento ou refund.
+A leitura transacional de `spending_limit_mode` não pode ser uma decisão temporal ambígua. Documentar uma **ordem de locking consistente** antes de implementar. O fluxo atual de confirmação bloqueia **Tab primeiro**; como estratégia inicial, a confirmação pode seguir **Tab → policy de Venue**, enquanto a atualização gerencial bloqueia **somente policy**, sem travar Tabs na mesma transação. Validar linearização com PostgreSQL real e conferir os caminhos de pagamento/refund. Não introduzir inversão de locks, deadlock ou leitura stale da política efetiva.
 
 Contrato exigido:
 - Um pedido iniciado no modo A e confirmado no modo B segue o **modo efetivo na linearização da transação**, exceto replay já materializado, que mantém resultado original.
