@@ -33,6 +33,27 @@ def validate(document, root, expected_sha):
         database = {}
     if database.get("engine") != "postgresql" or database.get("disposable") is not True or not nonempty(database.get("instance_id")):
         errors.append("shared disposable PostgreSQL instance required")
+    # The runner's overall completion result is a first-class, hash-bound proof.
+    # All per-scenario receipts can be PASS while a late runner step has failed.
+    execution = document.get("execution")
+    artifacts_preview = document.get("artifacts")
+    execution_record = artifacts_preview.get("execution.json") if isinstance(artifacts_preview, dict) else None
+    if not isinstance(execution, dict) or execution.get("sha") != expected_sha or execution.get("result") != "PASS" or execution.get("artifact_ref") != "execution.json":
+        errors.append("complete runner execution must be PASS on exact SHA")
+    if not isinstance(execution_record, dict) or execution_record.get("kind") != "runner-execution" or execution_record.get("path") != "execution.json":
+        errors.append("hash-bound runner execution.json artifact required")
+    else:
+        try:
+            raw = (root / "execution.json").read_bytes()
+            observed = json.loads(raw)
+            if (not isinstance(observed, dict) or observed.get("sha") != expected_sha
+                    or observed.get("result") != "PASS"
+                    or not isinstance(execution, dict)
+                    or execution.get("result") != observed.get("result")
+                    or hashlib.sha256(raw).hexdigest() != execution_record.get("sha256")):
+                errors.append("runner execution artifact is failed, stale or tampered")
+        except (OSError, ValueError, TypeError):
+            errors.append("runner execution artifact cannot be verified")
     versions = document.get("versions", {})
     if not isinstance(versions, dict) or any(not nonempty(versions.get(key)) or "NOT_AVAILABLE" in str(versions.get(key)).upper() for key in ("android", "browser", "django", "postgresql", "nextjs")):
         errors.append("all runtime versions required")
