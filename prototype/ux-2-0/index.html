@@ -150,7 +150,7 @@ var tabs=[
 {id:"d",table:"05",name:"Carla",ref:"#1051",balance:2200,last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",table:null,name:"Balcão 1",ref:"#1052",balance:0,last:[]}
 ];
-var state={screen:"tables",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{}};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{}};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -235,7 +235,7 @@ var t=tab();if(!t){root("tables");return}
 var d=dcount();
 app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-(activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Você já está na comanda correta. Abrir não assume nem conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?'':button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
+(activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Você já está na comanda correta. Abrir não assume nem conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?button("complete-service","Simular atendimento resolvido","ghost block"):button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
 '<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
 '<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
 button("bill","Ver conta","ghost")+'</div></div>'+
@@ -345,12 +345,13 @@ if(act==="claim-call"){
  var c=currentCall();if(!c||c.type!=="SERVICE_REQUEST"||!state.activeCall.targetTabId)return;
  state.claimedCalls[c.id]=true;render();return;
 }
-if(act==="complete-delivery"||act==="complete-call"){
+if(act==="complete-delivery"||act==="complete-call"||act==="complete-service"){
  var c=currentCall();if(!c||!state.activeCall.targetTabId)return;
  if(act==="complete-delivery"&&c.type!=="DELIVERY")return;
  if(act==="complete-call"&&c.type!=="BILL_REQUEST")return;
+ if(act==="complete-service"&&(c.type!=="SERVICE_REQUEST"||!state.claimedCalls[c.id]))return;
  state.doneCalls[c.id]=true;
- root("now");state.toast=c.type==="DELIVERY"?"Entrega concluída somente na simulação.":"Solicitação de conta resolvida somente na simulação.";render();return;
+ root("now");state.toast=c.type==="DELIVERY"?"Entrega concluída somente na simulação.":c.type==="SERVICE_REQUEST"?"Atendimento resolvido somente na simulação.":"Solicitação de conta resolvida somente na simulação.";render();return;
 }
 if(act==="table"){state.activeCall=null;state.table=id;screen("table");return}
 if(act==="tab"||act==="tab-direct"){
