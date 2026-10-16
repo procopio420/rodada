@@ -194,6 +194,31 @@ var demoCalls=[
 {id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Pelo celular · comanda #1048",time:"há 3 min"},
 {id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12 · sem comanda",summary:"Pedido de conta sem comanda identificada",meta:"Seleção necessária · 1 comanda nessa mesa",time:"há 4 min"}
 ];
+function liveCalls(){return demoCalls.filter(function(c){return !state.doneCalls[c.id]})}
+function deliveries(){return liveCalls().filter(function(c){return c.type==="DELIVERY"})}
+function services(){return liveCalls().filter(function(c){return c.type!=="DELIVERY"})}
+function setRunDefault(){state.runSelected={};deliveries().filter(function(c){return c.station==="Bar"}).slice(0,3).forEach(function(c){state.runSelected[c.id]=true})}
+function currentRun(){return deliveries().filter(function(c){return state.runSelected&&state.runSelected[c.id]})}
+function runValid(){
+ var tasks=currentRun();return tasks.length>0&&tasks.every(function(c){return c.station===tasks[0].station})&&
+ tasks.reduce(function(sum,c){return sum+(c.items||[]).reduce(function(q,item){return q+item.quantity},0)},0)<=4;
+}
+function demoRoute(){
+ // Illustrative unsurveyed coordinates, NOT a venue routing engine.
+ var pts={Bar:[14,25],Cozinha:[14,80],"08":[73,27],"05":[62,69],"12":[87,82]};
+ var todo=[];currentRun().forEach(function(c){if(!todo.includes(c.tableId))todo.push(c.tableId)});
+ var station=currentRun()[0]?.station||"Bar",origin=pts[station]||pts.Bar,order=[];
+ while(todo.length){
+  todo.sort(function(a,b){
+   var pa=pts[a]||origin,pb=pts[b]||origin;
+   var da=Math.pow(pa[0]-origin[0],2)+Math.pow(pa[1]-origin[1],2);
+   var db=Math.pow(pb[0]-origin[0],2)+Math.pow(pb[1]-origin[1],2);
+   return da-db||a.localeCompare(b);
+  });
+  var next=todo.shift();order.push(next);origin=pts[next]||origin;
+ }
+ return {station:station,origin:pts[station]||pts.Bar,points:pts,order:order};
+}
 function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO"}
 function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
