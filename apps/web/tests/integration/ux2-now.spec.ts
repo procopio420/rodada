@@ -20,6 +20,8 @@ for (const width of [360,390,430,1280]) test(`UX2 Agora canonical queues and con
   await page.getByRole('button',{name:'Agora',exact:true}).click();
   await page.getByRole('button',{name:'Mesas',exact:true}).click();
   await expect(page.getByLabel('Buscar mesa ou comanda')).toHaveValue('QR-A');
+  await mkdir('test-results/ux2-parity',{recursive:true});
+  await page.screenshot({path:`test-results/ux2-parity/web-tables-${width}.png`,fullPage:true});
   await page.getByRole('button',{name:'Pedir',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Onde vamos pedir?'})).toBeVisible();
   await page.getByRole('button',{name:'Escolher mesa ou comanda'}).click();
@@ -49,7 +51,7 @@ test('canonical call opens explicit table choice without claiming or completing'
   await expect(row.getByRole('button',{name:/Atender cliente/})).toBeVisible();
   const writes:string[]=[];page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url())});
   await row.getByRole('button',{name:/Atender cliente/}).click();
-  await expect(page.getByRole('dialog',{name:`Mesa ${label}`,exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true})).toBeVisible();
   expect(writes).toEqual([]);
   const canonical=await page.evaluate(async()=> (await fetch('/api/attendance/dispatch/requests/')).json());
   expect(canonical.results.find((row:{id:string})=>row.id===task.id)).toMatchObject({state:'OPEN',claimed_by_id:null});
