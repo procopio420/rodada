@@ -210,7 +210,7 @@ body{font:500 15px/1.45 var(--font)}
  <p class="railfoot">Protótipo estático · dados fictícios. Sem conexão com o bar ou cobranças reais.</p>
  </aside>
  <main class="phone-wrap"><div class="phone" id="phone"><div id="header"></div><div id="demo-mode"></div><div id="alert"></div><div id="view" class="view"></div><div id="actionbar" class="actionbar"></div><div id="nav"></div><div id="overlay"></div><div class="snackbar" id="snackbar" role="status" aria-live="polite"></div></div></main>
- <aside class="rail toolbox"><div class="rail-card" style="margin-top:0"><div class="rail-kicker">Laboratório de cenários</div><h2>Simule a operação</h2><p class="small muted" style="margin:8px 0 12px">Altere dados fictícios para encontrar falhas e testar o fluxo do cliente.</p><div class="toolgroup"><div class="toolgroup-title">Começar de um estado</div><div class="fixture"><button class="toolbtn" onclick="scenario('empty')">✨ Mesa livre</button><button class="toolbtn" onclick="scenario('busy')">🍻 Mesa ocupada</button><button class="toolbtn" onclick="scenario('ficha')">🎟️ Ficha / balada</button><button class="toolbtn" onclick="scenario('ficha-ready')">✓ Ficha pronta</button></div></div><div class="toolgroup"><div class="toolgroup-title">Participantes / dispositivos</div><div id="personas"></div><button class="toolbtn" onclick="scenario('add-person')">＋ Outro cliente entra</button></div><div class="toolgroup"><div class="toolgroup-title">Pagamento · cenários</div><button class="toolbtn" onclick="scenario('demo-partial')">▶ Pedido exige parcial</button><button class="toolbtn" onclick="scenario('demo-prepaid')">▶ Pedido pré-pago</button><button class="toolbtn" onclick="setPolicy('WARN_ONLY')">✓ Só alertar</button></div><div class="toolgroup"><div class="toolgroup-title">Operação do bar</div><button class="toolbtn" onclick="scenario('advance')">🍺 Avançar preparo do último pedido</button><button class="toolbtn" onclick="scenario('bartender')">🎟️ Ver tela do bar (ficha)</button><button class="toolbtn" onclick="scenario('collected')">✓ Marcar retirada (opcional)</button><button class="toolbtn" onclick="scenario('someone-paid')">💳 Outro cliente paga R$ 30</button><button class="toolbtn" onclick="scenario('close')">✓ Equipe encerra conta quitada</button><button class="toolbtn danger" onclick="scenario('release')">↗ Equipe libera mesa</button><button class="toolbtn" onclick="scenario('clean')">🧹 Equipe conclui limpeza</button></div><div class="toolgroup"><div class="toolgroup-title">Condições adversas</div><button class="toolbtn" id="offlineBtn" onclick="scenario('offline')">⚡ Desligar conexão</button><button class="toolbtn" onclick="scenario('wrong')">⚠ QR de mesa já ocupada por outro grupo</button></div></div><div class="rail-card" id="stateCard"><div class="rail-kicker">Estado atual do protótipo</div><div class="state-card"><div><span class="micro">Mesa</span><b id="st-table">—</b></div><div><span class="micro">Participantes</span><b id="st-people">—</b></div><div><span class="micro">Pedidos</span><b id="st-orders">—</b></div><div><span class="micro">Saldo</span><b id="st-balance">—</b></div></div></div></aside>
+ <aside class="rail toolbox"><div class="rail-card" style="margin-top:0"><div class="rail-kicker">Laboratório de cenários</div><h2>Simule a operação</h2><p class="small muted" style="margin:8px 0 12px">Altere dados fictícios para encontrar falhas e testar o fluxo do cliente.</p><div class="toolgroup"><div class="toolgroup-title">Começar de um estado</div><div class="fixture"><button class="toolbtn" onclick="scenario('empty')">✨ Mesa livre</button><button class="toolbtn" onclick="scenario('busy')">🍻 Mesa ocupada</button><button class="toolbtn" onclick="scenario('ficha')">🎟️ Ficha / balada</button><button class="toolbtn" onclick="scenario('ficha-ready')">✓ Ficha pronta</button></div></div><div class="toolgroup"><div class="toolgroup-title">Participantes / dispositivos</div><div id="personas"></div><button class="toolbtn" onclick="scenario('add-person')">＋ Outro cliente entra</button></div><div class="toolgroup"><div class="toolgroup-title">Pagamento · cenários</div><button class="toolbtn" onclick="scenario('demo-self-pay')">▶ Cliente paga por conta própria</button><button class="toolbtn" onclick="scenario('demo-partial')">▶ Pedido exige parcial</button><button class="toolbtn" onclick="scenario('demo-prepaid')">▶ Pedido pré-pago</button><button class="toolbtn" onclick="setPolicy('WARN_ONLY')">✓ Só alertar</button></div><div class="toolgroup"><div class="toolgroup-title">Operação do bar</div><button class="toolbtn" onclick="scenario('advance')">🍺 Avançar preparo do último pedido</button><button class="toolbtn" onclick="scenario('bartender')">🎟️ Ver tela do bar (ficha)</button><button class="toolbtn" onclick="scenario('collected')">✓ Marcar retirada (opcional)</button><button class="toolbtn" onclick="scenario('someone-paid')">💳 Outro cliente paga R$ 30</button><button class="toolbtn" onclick="scenario('close')">✓ Equipe encerra conta quitada</button><button class="toolbtn danger" onclick="scenario('release')">↗ Equipe libera mesa</button><button class="toolbtn" onclick="scenario('clean')">🧹 Equipe conclui limpeza</button></div><div class="toolgroup"><div class="toolgroup-title">Condições adversas</div><button class="toolbtn" id="offlineBtn" onclick="scenario('offline')">⚡ Desligar conexão</button><button class="toolbtn" onclick="scenario('wrong')">⚠ QR de mesa já ocupada por outro grupo</button></div></div><div class="rail-card" id="stateCard"><div class="rail-kicker">Estado atual do protótipo</div><div class="state-card"><div><span class="micro">Mesa</span><b id="st-table">—</b></div><div><span class="micro">Participantes</span><b id="st-people">—</b></div><div><span class="micro">Pedidos</span><b id="st-orders">—</b></div><div><span class="micro">Saldo</span><b id="st-balance">—</b></div></div></div></aside>
 </div>
 <script>
 'use strict';
@@ -289,6 +289,9 @@ function setPolicy(policy){
  if(!['WARN_ONLY','REQUIRE_PARTIAL','PREPAID'].includes(policy))return;
  const inLab=S.modal==='lab';S.policy=policy;S.pendingOrder=null;S.checkout=null;S.modal=inLab?'lab':null;render();
 }
+function seedSelfPayDemo(){const mode=S.mode;S=fresh();S.mode=mode;S.hasJoined=true;S.scene='account';S.policy='WARN_ONLY';
+ if(mode==='mesa'){S.occupancy=true;S.tableState='OCCUPIED'}
+ S.orders=[{id:'#185',status:'Recebido',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]}];S.orderCount=185;S.modal=null;render()}
 function seedPrepaidDemo(){const mode=S.mode;S=fresh();S.mode=mode;S.policy='PREPAID';S.hasJoined=true;S.scene='catalog';S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];S.modal='cart';render()}
 function seedPartialDemo(){
  const mode=S.mode;S=fresh();S.mode=mode;S.hasJoined=true;S.scene='catalog';
@@ -389,6 +392,7 @@ function scenario(type){
  switch(type){
  case 'empty':reset();flash('Cenário: mesa livre');return;
  case 'demo-partial':seedPartialDemo();return;
+ case 'demo-self-pay':seedSelfPayDemo();return;
  case 'demo-prepaid':seedPrepaidDemo();return;
   case 'ficha':startFichaScenario(false);flash('Ficha digital FG84 · retirada no bar');return;
   case 'ficha-ready':startFichaScenario(true);flash('FG84 · pedido pronto para retirar');return;
@@ -495,6 +499,7 @@ else if(m==='lab'){title='Cenários de teste';body=`<div class="notice info" sty
 <button class="${S.policy==='PREPAID'?'active':''}" aria-pressed="${S.policy==='PREPAID'}" onclick="setPolicy('PREPAID')">Pré-pago</button>
 </div>
 <div class="demo-fixtures">
+ <button class="option" onclick="scenario('demo-self-pay')"><span><strong>▶ Testar pagar por conta própria</strong><small>Conta aberta, pagamento parcial ou total</small></span><span class="arrow">›</span></button>
  <button class="option" onclick="scenario('demo-partial')"><span><strong>▶ Testar parcial para enviar</strong><small>Pedido com consumo anterior</small></span><span class="arrow">›</span></button>
  <button class="option" onclick="scenario('demo-prepaid')"><span><strong>▶ Testar pedido pré-pago</strong><small>Pedido antes de consumir</small></span><span class="arrow">›</span></button>
 </div>
@@ -578,6 +583,7 @@ function render(opts={}){
 if(typeof window!=='undefined'){
  const demoHash=window.location?.hash?.toLowerCase();
  if(demoHash==='#ficha'){S.mode='ficha';S.hasJoined=true;S.scene='ficha'}
+ else if(demoHash==='#pay'){seedSelfPayDemo()}
  else if(demoHash==='#partial'){seedPartialDemo()}
  else if(demoHash==='#prepaid'){seedPrepaidDemo()}
 }
