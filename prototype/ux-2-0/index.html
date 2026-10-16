@@ -216,13 +216,13 @@ function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
 function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
 var demoCalls=[
-{id:"ready-rafael",type:"DELIVERY",source:"production",tabId:"b",tableId:"08",title:"Mesa 08 · Rafael",summary:"Pedido pronto para levar",meta:"2 × Chopp Pilsen · Bar",time:"há 1 min",station:"Bar",items:[{product:"Chopp Pilsen",quantity:2,station:"Bar"}]},
-{id:"ready-marina",type:"DELIVERY",source:"production",tabId:"a",tableId:"08",title:"Mesa 08 · Marina",summary:"Bebida pronta para levar",meta:"1 × Água sem gás · Bar",time:"há 2 min",station:"Bar",items:[{product:"Água sem gás",quantity:1,station:"Bar"}]},
-{id:"ready-carla",type:"DELIVERY",source:"production",tabId:"d",tableId:"05",title:"Mesa 05 · Carla",summary:"Bebida pronta para levar",meta:"1 × Refrigerante lata · Bar",time:"há 3 min",station:"Bar",items:[{product:"Refrigerante lata",quantity:1,station:"Bar"}]},
-{id:"ready-joao",type:"DELIVERY",source:"production",tabId:"c",tableId:"12",title:"Mesa 12 · João",summary:"Porção pronta para levar",meta:"1 × Batata frita · Cozinha",time:"há 3 min",station:"Cozinha",items:[{product:"Batata frita",quantity:1,station:"Cozinha"}]},
-{id:"qr-bill-joao",type:"BILL_REQUEST",source:"guest",tabId:"c",tableId:"12",title:"João · Mesa 12",summary:"Cliente pediu a conta",meta:"Pelo celular · comanda #1050",time:"há 2 min"},
-{id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Pelo celular · comanda #1048",time:"há 3 min"},
-{id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",title:"Mesa 12 · sem comanda",summary:"Pedido de conta sem comanda identificada",meta:"Seleção necessária · 1 comanda nessa mesa",time:"há 4 min"}
+{id:"ready-rafael",type:"DELIVERY",source:"production",tabId:"b",tableId:"08",generation:1,title:"Mesa 08 · Rafael",summary:"Pedido pronto para levar",meta:"2 × Chopp Pilsen · Bar",time:"há 1 min",station:"Bar",items:[{product:"Chopp Pilsen",quantity:2,station:"Bar"}]},
+{id:"ready-marina",type:"DELIVERY",source:"production",tabId:"a",tableId:"08",generation:1,title:"Mesa 08 · Marina",summary:"Bebida pronta para levar",meta:"1 × Água sem gás · Bar",time:"há 2 min",station:"Bar",items:[{product:"Água sem gás",quantity:1,station:"Bar"}]},
+{id:"ready-carla",type:"DELIVERY",source:"production",tabId:"d",tableId:"05",generation:1,title:"Mesa 05 · Carla",summary:"Bebida pronta para levar",meta:"1 × Refrigerante lata · Bar",time:"há 3 min",station:"Bar",items:[{product:"Refrigerante lata",quantity:1,station:"Bar"}]},
+{id:"ready-joao",type:"DELIVERY",source:"production",tabId:"c",tableId:"12",generation:1,title:"Mesa 12 · João",summary:"Porção pronta para levar",meta:"1 × Batata frita · Cozinha",time:"há 3 min",station:"Cozinha",items:[{product:"Batata frita",quantity:1,station:"Cozinha"}]},
+{id:"qr-bill-joao",type:"BILL_REQUEST",source:"guest",tabId:"c",tableId:"12",generation:1,title:"João · Mesa 12",summary:"Cliente pediu a conta",meta:"Pelo celular · comanda #1050",time:"há 2 min"},
+{id:"qr-marina",type:"SERVICE_REQUEST",source:"guest",tabId:"a",tableId:"08",generation:1,title:"Marina · Mesa 08",summary:"Cliente pediu atendimento",meta:"Pelo celular · comanda #1048",time:"há 3 min"},
+{id:"bill-table12",type:"BILL_REQUEST",source:"table",tabId:null,tableId:"12",generation:1,title:"Mesa 12 · sem comanda",summary:"Pedido de conta sem comanda identificada",meta:"Seleção necessária · 1 comanda nessa mesa",time:"há 4 min"}
 ];
 function liveCalls(){return demoCalls.filter(function(c){return !state.doneCalls[c.id]})}
 function deliveries(){return liveCalls().filter(function(c){return c.type==="DELIVERY"})}
@@ -253,7 +253,7 @@ function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_R
 function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
  var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId&&x.state==="OPEN"&&x.generation===tableBy(call.tableId)?.generation});
- var table=tables.find(function(x){return x.id===call.tableId&&x.status==="occupied"});
+ var table=tables.find(function(x){return x.id===call.tableId&&x.status==="occupied"&&x.generation===call.generation});
  // A reference alone is never sufficient: the prototype models an authorized,
  // active assignment by requiring both the tab and current occupied table.
  if(t&&table&&call.source!=="table")return{screen:callDestination(call),tab:t.id,table:t.table};
@@ -279,7 +279,7 @@ app.innerHTML=first("Fila operacional · simulação")+
 :
 '<div class="queuehead"><h2>Chamados e pedidos de conta</h2><small>EXEMPLOS</small></div>')+
 (active.length?active.map(function(c){
-var target=resolvedCallTarget(c),verb=callActionName(target?target.screen:"table");
+var target=resolvedCallTarget(c),verb=target?callActionName(target.screen):"Vínculo desatualizado";
 return '<button type="button" class="queueitem" data-action="open-call" data-id="'+esc(c.id)+'" aria-label="'+esc(callKind(c)+", "+c.title+", "+c.summary+", "+verb)+'" '+(!target?'disabled':'')+'>'+
 '<span class="queue-top"><span class="queue-type '+(c.type==="BILL_REQUEST"?"bill":c.type==="DELIVERY"?"delivery":"")+'">'+callKind(c)+'</span><span aria-hidden="true">·</span><span>'+esc(c.time)+'</span>'+(state.claimedCalls[c.id]?'<span>· Em atendimento (simulado)</span>':"")+'</span>'+
 '<span class="queue-title">'+esc(c.title)+'</span>'+
@@ -321,7 +321,7 @@ return '<circle cx="'+x+'" cy="'+y+'" r="'+(start?14:active?13:9)+'" fill="'+(st
 }
 function viewTables(){
 var q=state.search.toLocaleLowerCase("pt-BR");
-var filtered=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
+var filtered=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id&&b.generation===t.generation&&b.state==="OPEN"}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
 var loose=tabs.filter(function(t){return t.state==="OPEN"&&!t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
 app.innerHTML=first("Encontrar destino")+'<h1>Mesas e<br>comandas.</h1><p class="lede">Uma busca, sem filtros de status nem formulários na lista.</p>'+
 '<label class="search"><span aria-hidden="true">⌕</span><input id="table-search" type="search" autocomplete="off" placeholder="Mesa, nome ou comanda" value="'+esc(state.search)+'" aria-label="Buscar mesa ou comanda"></label>'+
@@ -415,13 +415,21 @@ progress(closed?2:t.balance>0?0:2)+
 '<div class="receiptline"><small>Recebido manualmente (simulado)</small><strong>'+money(receiptTotal)+'</strong></div>'+
 '<div class="receiptline"><small>Saldo restante</small><strong>'+money(t.balance)+'</strong></div>'+
 (t.receipts.length?'<div class="sectionhead"><h2>Recebimentos simulados</h2></div>'+t.receipts.map(function(r){return '<div class="receiptline"><small>'+esc(methodLabel(r.method))+'</small><strong>'+money(r.amount)+'</strong></div>'}).join(""):"")+
-(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado nesta comanda.</strong> Confira ou descarte o rascunho antes de encerrá-la. O valor não faz parte do saldo.</div>':"")+
+(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado nesta comanda.</strong> Confira ou descarte o rascunho antes de encerrá-la. O valor não faz parte do saldo.</div>'+button("catalog","Voltar ao pedido","block ghost")+button("discard-review","Descartar rascunho desta comanda","block ghost"):"")+
 '<div class="notice"><strong>Sem pagamento real.</strong> No protótipo, dinheiro, Pix e cartão são só registros fictícios. Na implementação, a confirmação depende do meio de pagamento, permissões, ledger, idempotência e readback do servidor.</div>'+
 (closed?button("go-to-table","Ver mesa / liberar quando o grupo sair","block primary"):
 '<div class="stack">'+button("payment-open","Registrar recebimento (simulação)","block primary",t.balance<=0?"disabled":"")+
 button("close-review","Revisar encerramento","block ghost",!safeToClose(t)?"disabled":"")+'</div>')+
 (activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div style="margin-top:12px">'+button("complete-call","Marcar pedido de conta resolvido (simulação)","block ghost")+'</div>':"");
 setFoot("")
+}
+function viewDiscard(){
+var t=tab();if(!t||t.state!=="OPEN"||!busyDraft(t)){goBack();return}
+app.innerHTML=back()+first("Descartar rascunho")+
+'<h1>Descartar pedido?</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
+'<div class="settlement-summary"><small>Rascunho ainda não enviado</small><strong>'+money(dsum())+'</strong><small>'+dcount()+' item(ns) serão removidos somente desta comanda</small></div>'+
+'<div class="notice warn"><strong>Confirme a exclusão.</strong> Isto remove apenas os itens locais não enviados, sem alterar pedidos confirmados, saldo ou recebimentos.</div>';
+foot("confirm-discard","Descartar itens não enviados",false)
 }
 function viewPayment(){
 var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0){goBack();return}
@@ -486,7 +494,7 @@ setFoot("")
 }
 function viewChoose(){
 var q=state.chooseSearch.toLocaleLowerCase("pt-BR").trim();
-var visible=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
+var visible=tables.filter(function(t){return ("mesa "+t.id+" "+t.zone+" "+tabs.filter(function(b){return b.table===t.id&&b.generation===t.generation&&b.state==="OPEN"}).map(function(b){return b.name+" "+b.ref}).join(" ")).toLocaleLowerCase("pt-BR").includes(q)});
 var matches=q?tabs.filter(function(t){return t.state==="OPEN"&&(!t.table||tableBy(t.table)?.generation===t.generation&&tableBy(t.table)?.status==="occupied")&&(t.name+" "+t.ref+" "+(t.table||"balcão")).toLocaleLowerCase("pt-BR").includes(q)}):[];
 var loose=tabs.filter(function(t){return !t.table&&(!q||(t.name+" "+t.ref).toLocaleLowerCase("pt-BR").includes(q))});
 app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p class="lede">Escolha a mesa e depois a comanda. Também dá para buscar o cliente diretamente.</p>'+
@@ -500,7 +508,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="close")viewClose();else if(state.screen==="release")viewRelease();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="discard")viewDiscard();else if(state.screen==="close")viewClose();else if(state.screen==="release")viewRelease();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
@@ -555,6 +563,11 @@ if(act==="new-any"){state.table=null;screen("create");return}
 if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN")return;state.cat="Todos";state.catalogSearch="";screen("catalog");return}
 if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
+if(act==="discard-review"){var t=tab();if(!t||!busyDraft(t)||t.state!=="OPEN")return;screen("discard");return}
+if(act==="confirm-discard"){
+ var t=tab();if(!t||t.state!=="OPEN"||!busyDraft(t))return;
+ state.draft[t.id]={};state.screen="bill";state.stack=[];state.toast="Rascunho descartado somente na simulação.";render();return
+}
 if(act==="payment-open"){
  var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0)return;
  state.paymentMethod="CASH";state.paymentAmount=formatInput(t.balance);state.paymentError="";screen("payment");return
