@@ -55,17 +55,139 @@ to the SHA-256 digest of the actual `execution.json`. If the runner fails after
 writing all 14 successful receipts, the report shows those scenarios as BLOCKED
 and the gate remains NO-GO.
 
+
+#### Qualified independent agent R3 (administrator-enrolled, default-deny)
+
+The GitHub API verifier permits **either** a human `APPROVED` review, or a
+review from a **separate, pre-qualified GitHub App bot**. Both require `R3: PASS`
+and `P0/P1: 0` on the tested PR HEAD, and neither may be the author.
+Outstanding `CHANGES_REQUESTED` reviews block both. An agent statement in a
+comment, a model claiming independence, or an arbitrary bot account is never enough.
+
+For agent enrollment, the repository administrator must first vet the GitHub
+App's independent identity, model/tools, financial/auth/offline competence,
+ability to inspect full diffs, adversarial tests, evidence and isolation.
+Create Actions repository variable **`RODADA_R3_QUALIFIED_AGENT_REVIEWERS`**
+with a JSON dictionary of dedicated bot identities and their authorized scopes:
+
+```json
+{
+  "rodada-r3-reviewer[bot]": {
+    "capabilities": ["general", "backend", "web", "android", "payments", "security"],
+    "expires_on": "2027-01-31",
+    "sponsor": "maintainer-github-login"
+  }
+}
+```
+
+**Example only:** no agent is registered by committing this document.
+The verifier ignores PR-provided configuration and requires an administrator
+maintained variable, exact GitHub bot account, unexpired qualification, and
+competency for **all changed-file scopes** as read directly from the GitHub
+API. Ledger and financial changes require `payments`, CI/gate/security
+changes require `security`, app UI/native code requires the applicable
+`web`/`android`/`backend` skills. Expired/unregistered bots fail
+closed. Revocation is removing the agent from the repo variable.
+
+For each independent review, the qualified GitHub App must first post a
+**same-PR** comment using its own identity:
+
+```text
+R3-Reviewed-SHA: <exact 40-char PR HEAD>
+R3-Tests-Checked: <executed tests and reviewed links>
+R3-Risks-Checked: <negative cases and risk areas>
+```
+
+Then it must submit an authenticated `APPROVED` GitHub review on that SHA
+whose body has these standalone lines:
+
+```text
+R3: PASS
+P0/P1: 0
+R3-Agent-Context: isolated
+R3-Evidence: https://github.com/procopio420/rodada/pull/<PR>#issuecomment-<COMMENT_ID>
+```
+
+The gate fetches the evidence comment through GitHub, verifies its author,
+PR URL, SHA, tests and risks, and reports the reviewer identity, registration
+sponsor, reviewed scopes and reference in `r3-verified.json`.
+This is **technical release evidence**, not proof of perfect agent independence;
+periodic human oversight remains necessary. GitHub branch-protection rules
+requiring human approvals are separate and are not overridden. A green
+workflow is not physical/PSP/fiscal acceptance.
+
+
+#### ChatGPT R3 execution: trusted automation and onboarding
+
+The separate `ChatGPT R3 reviewer` workflow is implemented in
+`.github/workflows/chatgpt-r3-review.yml`. It listens for completed
+PR checks (API, Web, Android, Knowledge Base, Android real POST disconnect) and
+also offers a manual `workflow_dispatch` with a PR number. **Default OFF**:
+nothing can act on a PR without explicitly setting the repository Actions
+variable `RODADA_R3_AGENT_ENABLED=true`.
+
+The reviewer runs the **trusted `main` script**, never checks out or
+executes PR code, rejects forks/draft PRs/changed SHAs, checks GitHub CI and
+all changed files, treats source/logs/diffs as untrusted data, and sends the
+source and diff to a separate OpenAI API model context for a structured review.
+It requires explicit coverage of every changed path, applicable reviewed risks
+and no P0/P1; missing/binary/oversized context, API/model errors and non-green
+CI fail closed. It refuses to approve a PR authored by its own bot account.
+Output is from an automated AI reviewer, not this ChatGPT conversation identity.
+
+**One-time manual setup by repository administrator:**
+
+1. Create a **dedicated GitHub App** (e.g. `rodada-r3-reviewer`),
+   installed only on `procopio420/rodada`. Give it repository
+   **Contents: Read**, **Pull requests: Read and write**, and
+   **Issues: Read and write**. Do **not** give it code push, deployments,
+   administration, or access to other repositories.
+2. Add Actions repository variable `RODADA_R3_APP_CLIENT_ID` with the
+   GitHub App client ID, and secret `RODADA_R3_APP_PRIVATE_KEY` with
+   the private key from that App. Add secret `RODADA_R3_OPENAI_API_KEY`
+   holding an OpenAI API key with budget and rotation controls.
+3. Set `RODADA_R3_BOT_LOGIN` to the actual installation bot login
+   (e.g. `rodada-r3-reviewer[bot]`), and
+   `RODADA_R3_OPENAI_MODEL` to a supported model that can return
+   JSON-schema structured Responses output. Validate the model and budget
+   before enabling.
+4. In the *admin-only* qualified review registry
+   `RODADA_R3_QUALIFIED_AGENT_REVIEWERS` enroll exactly the
+   authenticated bot login, declared skill capabilities, expiration and a
+   named maintainer. The runner checks this **before** using the model;
+   the release verifier checks it again when validating the GitHub review.
+5. Set `RODADA_R3_AGENT_ENABLED=true` only after the above is
+   complete and tested on a non-critical PR. The workflow automatically
+   reacts to eligible CI completion, or run it manually using Actions.
+   Removing the enabled variable or the qualified entry disables approval
+   for future reviews; revoke the App credentials if compromised.
+
+No credentials or model access are provisioned by the repository itself.
+The existing ChatGPT GitHub connector acting as the **repo owner's account**
+cannot authenticate as a distinct qualified reviewer. Its comments and
+self-reviews do **not** satisfy this gate. The API key is only used in the
+trusted workflow, and prompt content from PRs never runs as commands.
+
+Even with a GitHub App and a model in separate context, automation cannot
+guarantee the model truly found every vulnerability, nor replace branch rules
+that require a human reviewer or production/PSP/onsite sign-off. Logs and bot
+comments must never contain secrets or personal data. OpenAI API processing
+of repository source is an intentional additional data transfer controlled
+by the repository administrator.
+
 To obtain a **manual release GO** (not an onsite/pilot/PSP GO):
 
-1. Have a reviewer other than the PR author inspect the **exact head commit** and
-   submit a GitHub **Approve** review containing two standalone lines:
+1. Have a reviewer other than the PR author inspect the **exact head commit**.
+   This may be a human GitHub reviewer or an administrator-qualified GitHub App
+   agent meeting the evidence protocol above. Submit an authenticated **Approve**
+   review containing two standalone lines:
    `R3: PASS` and `P0/P1: 0`. A later changes-requested or dismissed approval
    is not sufficient. A waiver or owner comment is not an independent review.
 2. Run **Actions → Android real POST disconnect → Run workflow** selecting the
    approved PR **branch**, not `main` after a squash. Enter its number in
    `review_pr_number`. The workflow verifies that the checked-out commit equals
-   the PR HEAD and approval commit, that the reviewer is a different GitHub user
-   and that the review is recorded in the GitHub API.
+   the PR HEAD and approval commit, that the reviewer has a different authenticated
+   GitHub identity and, for a bot, that competence/expiry/evidence are verified.
 3. The verified reference is exported to `artifacts/r3-verified.json` and
    passed as `--review` to the evidence compiler. Missing, stale, dismissed,
    self-authored or changes-requested review stays NO-GO. The manifest records

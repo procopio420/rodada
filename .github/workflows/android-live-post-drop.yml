@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       review_pr_number:
-        description: "PR number with an independent GitHub R3 approval on the exact tested HEAD; blank remains NO-GO"
+        description: "PR number with a verified independent human or qualified GitHub App R3 on exact tested HEAD; blank remains NO-GO"
         required: false
         type: string
   # Keep expensive Android emulator coverage opt-in for regular app changes.
@@ -33,6 +33,9 @@ on:
       - "scripts/build-issue106-report.py"
       - "scripts/issue106_review_from_github.py"
       - "scripts/tests/test_issue106_review_from_github.py"
+      - "scripts/r3_chatgpt_reviewer.py"
+      - "scripts/tests/test_r3_chatgpt_reviewer.py"
+      - ".github/workflows/chatgpt-r3-review.yml"
       - "scripts/verify-financial-ui.py"
       - "scripts/verify-issue106-final-state.py"
       - "scripts/e2e_evidence.py"
@@ -48,6 +51,7 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  issues: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -103,6 +107,7 @@ jobs:
           python -m unittest discover -s scripts/tests -p 'test_issue106_report.py' -v
           python -m unittest discover -s scripts/tests -p 'test_e2e_evidence.py' -v
           python -m unittest discover -s scripts/tests -p 'test_issue106_review_from_github.py' -v
+          python -m unittest discover -s scripts/tests -p 'test_r3_chatgpt_reviewer.py' -v
       - name: Test trace credential redaction
         run: python -m unittest discover -s scripts/tests -p test_trace_redaction.py -v
       - name: Reject unsafe shared-fixture destinations before any seed
@@ -237,6 +242,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           R3_PR_NUMBER: ${{ inputs.review_pr_number }}
+          # Managed only by repository admins. Unknown bots cannot self-enroll.
+          RODADA_R3_QUALIFIED_AGENT_REVIEWERS: ${{ vars.RODADA_R3_QUALIFIED_AGENT_REVIEWERS }}
         run: |
           python scripts/issue106_review_from_github.py --repo "$GITHUB_REPOSITORY" \
             --pr "$R3_PR_NUMBER" --sha "$RODADA_EVIDENCE_SHA" \

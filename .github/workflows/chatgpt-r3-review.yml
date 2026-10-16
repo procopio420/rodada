@@ -1,0 +1,82 @@
+name: ChatGPT R3 reviewer
+
+# Trusted reviewer workflow from main. PR source is read as data, never executed.
+on:
+  workflow_run:
+    workflows: ["API", "Web", "Android", "Knowledge Base", "Android real POST disconnect"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Open same-repo PR to review using an independent GitHub App"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+
+concurrency:
+  group: chatgpt-r3-${{ github.event.workflow_run.pull_requests[0].number || inputs.pr_number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  chatgpt-r3-agent:
+    name: ChatGPT R3 agent
+    if: >-
+      vars.RODADA_R3_AGENT_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.pull_requests[0].number != null))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout trusted default-branch reviewer code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Generate dedicated GitHub App token
+        id: reviewer-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RODADA_R3_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RODADA_R3_APP_PRIVATE_KEY }}
+          permission-contents: read
+          permission-issues: write
+          permission-pull-requests: write
+      - name: Resolve PR and exact head, never trusting a PR-supplied command
+        env:
+          GH_TOKEN: ${{ github.token }}
+          R3_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number || inputs.pr_number }}
+          R3_TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$R3_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid PR number" >&2
+            exit 1
+          fi
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$R3_PR_NUMBER" --jq '.head.sha')
+          if [[ ! "$sha" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "Invalid PR SHA" >&2
+            exit 1
+          fi
+          if [[ -n "$R3_TRIGGER_SHA" && "$R3_TRIGGER_SHA" != "$sha" ]]; then
+            echo "PR head changed since CI check; skip stale review" >&2
+            exit 1
+          fi
+          echo "R3_PR_NUMBER=$R3_PR_NUMBER" >> "$GITHUB_ENV"
+          echo "R3_EXPECTED_SHA=$sha" >> "$GITHUB_ENV"
+      - name: Independent model review and authenticated App evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          R3_APP_TOKEN: ${{ steps.reviewer-token.outputs.token }}
+          R3_BOT_LOGIN: ${{ vars.RODADA_R3_BOT_LOGIN }}
+          RODADA_R3_QUALIFIED_AGENT_REVIEWERS: ${{ vars.RODADA_R3_QUALIFIED_AGENT_REVIEWERS }}
+          OPENAI_API_KEY: ${{ secrets.RODADA_R3_OPENAI_API_KEY }}
+          R3_MODEL: ${{ vars.RODADA_R3_OPENAI_MODEL }}
+        run: python scripts/r3_chatgpt_reviewer.py
