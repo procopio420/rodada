@@ -98,5 +98,116 @@ class ReviewProvenanceTests(unittest.TestCase):
             self.find()
 
 
+    def agent_fixture(self, *, paths=None, login="r3-reviewer[bot]", sha=SHA):
+        paths = paths if paths is not None else [
+            "apps/api/modules/ledger/services.py",
+            "apps/web/tests/cross-surface/financial.spec.ts",
+            "apps/attendance-android/app/src/main/java/Orders.kt",
+        ]
+        evidence_url = f"https://github.com/{REPO}/pull/106#issuecomment-456"
+        review = dict(
+            self.review, id=987,
+            body=f"R3: PASS\nP0/P1: 0\nR3-Agent-Context: isolated\nR3-Evidence: {evidence_url}",
+            user={"login": login, "type": "Bot"},
+        )
+        comment = {
+            "user": {"login": login},
+            "html_url": evidence_url,
+            "body": f"R3-Reviewed-SHA: {sha}\nR3-Tests-Checked: native + payments SQL regression\nR3-Risks-Checked: concurrency, replay, auth and tenant",
+        }
+        def fetch(path):
+            if path == "/pulls/106":
+                return self.pr
+            if path.startswith("/pulls/106/reviews?"):
+                return [review] if path.endswith("page=1") else []
+            if path == "/pulls/106/files?per_page=100&page=1":
+                return [{"filename": name} for name in paths]
+            if path == "/issues/comments/456":
+                return comment
+            raise AssertionError(path)
+        registry = module.parse_qualified_agents(
+            '{"r3-reviewer[bot]":{"capabilities":["backend","payments","web","android","security"],'
+            '"expires_on":"2027-10-16","sponsor":"engineering-lead"}}'
+        )
+        return review, comment, registry, fetch
+
+    def test_qualified_app_bot_approved_with_scoped_evidence(self):
+        _review, _comment, registry, fetch = self.agent_fixture()
+        proof = module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+        self.assertEqual("qualified-agent", proof["reviewer_kind"])
+        self.assertEqual("github-api-qualified-agent-exact-head", proof["source"])
+        self.assertEqual("engineering-lead", proof["qualification_sponsor"])
+        self.assertEqual(["android", "backend", "payments", "web"], proof["reviewed_scopes"])
+        self.assertIn("issuecomment-456", proof["evidence_url"])
+
+    def test_unknown_bot_cannot_approve(self):
+        _review, _comment, _registry, fetch = self.agent_fixture()
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch)
+
+    def test_expired_qualification_cannot_approve(self):
+        _review, _comment, registry, fetch = self.agent_fixture()
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry,
+                               today=__import__("datetime").date(2028, 1, 1))
+
+    def test_bot_missing_required_capability_cannot_approve(self):
+        _review, _comment, registry, fetch = self.agent_fixture()
+        registry["r3-reviewer[bot]"]["capabilities"].discard("payments")
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+
+    def test_bot_self_approval_cannot_approve(self):
+        _review, _comment, registry, fetch = self.agent_fixture()
+        self.pr["user"]["login"] = "r3-reviewer[bot]"
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+
+    def test_bot_evidence_rejects_wrong_author_or_sha(self):
+        review, comment, registry, fetch = self.agent_fixture()
+        for mutator in (
+            lambda: comment["user"].update(login="someone-else"),
+            lambda: comment.update(body=comment["body"].replace(SHA, "b" * 40)),
+            lambda: review.update(body="R3: PASS\nP0/P1: 0\nR3-Agent-Context: isolated"),
+            lambda: review.update(commit_id="b" * 40),
+        ):
+            with self.subTest(mutator=mutator):
+                review["body"] = (f"R3: PASS\nP0/P1: 0\nR3-Agent-Context: isolated\n"
+                                  f"R3-Evidence: https://github.com/{REPO}/pull/106#issuecomment-456")
+                review["commit_id"] = SHA
+                comment["user"]["login"] = "r3-reviewer[bot]"
+                comment["body"] = (f"R3-Reviewed-SHA: {SHA}\nR3-Tests-Checked: SQL and native\n"
+                                   "R3-Risks-Checked: money and replay")
+                mutator()
+                with self.assertRaises(module.ReviewBlocked):
+                    module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+
+    def test_bot_changes_requested_veto_overrides_approval(self):
+        review, _comment, registry, orig_fetch = self.agent_fixture()
+        veto = dict(review, id=991, state="CHANGES_REQUESTED",
+                    user={"login": "another-reviewer", "type": "User"})
+        def fetch(path):
+            if path.startswith("/pulls/106/reviews?"):
+                return [review, veto, dict(veto, id=992, state="COMMENTED")]
+            return orig_fetch(path)
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, fetch, qualified_agents=registry)
+
+    def test_bot_qualification_rejects_fake_and_malformed_registries(self):
+        for raw in (
+            "not json", "[]", '{"any-user":{"capabilities":["security"],"expires_on":"2027-01-01","sponsor":"lead"}}',
+            '{"github-actions[bot]":{"capabilities":["superuser"],"expires_on":"2027-01-01","sponsor":"lead"}}',
+            '{"r3-reviewer[bot]":{"capabilities":["security"],"expires_on":"invalid","sponsor":"lead"}}',
+            '{"r3-reviewer[bot]":{"capabilities":[],"expires_on":"2027-01-01","sponsor":"lead"}}',
+        ):
+            with self.subTest(raw=raw), self.assertRaises(module.ReviewBlocked):
+                module.parse_qualified_agents(raw)
+
+    def test_bot_qualification_pagination_and_empty_files_fail_closed(self):
+        _review, _comment, registry, original = self.agent_fixture(paths=[])
+        with self.assertRaises(module.ReviewBlocked):
+            module.find_review(REPO, 106, SHA, original, qualified_agents=registry)
+
+
 if __name__ == "__main__":
     unittest.main()
