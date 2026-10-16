@@ -211,7 +211,7 @@ function root(s){state.screen=s;state.stack=[];state.toast="";state.picking=fals
 function goBack(){state.screen=state.stack.pop()||"tables";state.toast="";render();window.scrollTo(0,0)}
 function first(s){return '<div class="eyebrow">'+s+"</div>"}
 function tableCard(t){var n=openAt(t.id).length;return '<button type="button" class="tabletile" data-action="table" data-id="'+t.id+'" aria-label="Mesa '+t.id+', '+t.text+', '+n+' comandas"><span class="count">'+(n?n+" conta"+(n!==1?"s":""):"")+'</span><b>Mesa '+t.id+'</b><span class="status"><i class="dot '+t.status+'"></i>'+esc(t.text)+'</span></button>'}
-function tabRow(t){return row('<button type="button" class="rowbtn" data-action="tab" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</span></span><span style="display:flex;align-items:center;gap:12px"><span class="mono tiny">'+money(t.balance)+'</span><span class="arrow">›</span></span></button>')}
+function tabRow(t){return row('<button type="button" class="rowbtn" data-action="tab" data-id="'+t.id+'"><span><span class="rowtitle">'+esc(t.name)+'</span><span class="sub">'+esc(t.ref)+(t.table?" · Mesa "+t.table:" · Sem mesa")+(t.state==="CLOSED"?" · Encerrada":"")+'</span></span><span style="display:flex;align-items:center;gap:12px"><span class="mono tiny">'+money(t.balance)+'</span><span class="arrow">›</span></span></button>')}
 function setFoot(html){footer.innerHTML=html}
 function commonNav(){setFoot('<nav class="bottomnav" aria-label="Navegação principal"><button type="button" class="'+(state.screen==="now"?"active":"")+'" data-action="root-now"><span class="glyph">◷</span>Agora</button><button type="button" class="middle" data-action="quick-order"><span class="glyph">＋</span>Pedir</button><button type="button" class="'+(state.screen==="tables"?"active":"")+'" data-action="root-tables"><span class="glyph">▦</span>Mesas</button></nav>')}
 function foot(action,text,disabled){setFoot('<div class="taskfoot">'+button(action,text,"primary block",disabled?"disabled":"")+"</div>")}
@@ -332,30 +332,41 @@ app.innerHTML=first("Encontrar destino")+'<h1>Mesas e<br>comandas.</h1><p class=
 commonNav()
 }
 function viewTable(){
-var t=tables.find(function(x){return x.id===state.table});if(!t){root("tables");return}
-var list=tabs.filter(function(x){return x.table===t.id});
-app.innerHTML=back()+first(t.zone)+'<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+list.length+' comanda'+(list.length===1?"":"s")+'</div></div>'+
-'<div class="sectionhead"><h2>'+(state.picking?"Qual comanda recebe o pedido?":"Quem você vai atender?")+'</h2></div>'+
-(list.length?list.map(tabRow).join(""):'<div class="empty">Sem comanda aberta nesta mesa. Abrir uma comanda é uma ação separada.</div>')+
-'<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost",t.status==="dirty"?"disabled title=\"Aguarde a limpeza da mesa\"":"")+'</div>'+
-(!state.picking?'<div class="notice">Uma mesa pode ter várias comandas. Escolher a mesa <strong>não</strong> escolhe uma comanda automaticamente.</div>':"");
+var t=tableBy(state.table);if(!t){root("tables");return}
+var list=t.status==="occupied"?tabs.filter(function(x){return x.table===t.id}):[];
+var active=openAt(t.id),pending=deliveries().filter(function(x){return x.tableId===t.id});
+var lifecycle=t.status==="dirty"?'<div class="contextual-call"><strong>Aguardando limpeza</strong><p>O grupo saiu, mas esta mesa não pode receber novos clientes.</p>'+button("clean-start","Iniciar limpeza","block ghost")+'</div>':
+t.status==="cleaning"?'<div class="contextual-call"><strong>Em limpeza</strong><p>Quando a limpeza terminar, esta mesa estará disponível.</p>'+button("clean-finish","Concluir limpeza","block ghost")+'</div>':
+t.status==="free"?'<div class="notice">Esta mesa está disponível. Abra uma comanda para começar uma ocupação nova.</div>':"";
+app.innerHTML=back()+first(t.zone)+
+'<div class="context"><div><h1>Mesa '+t.id+'</h1><p>'+esc(t.text)+'</p></div><div class="tag">'+active.length+' aberta(s)</div></div>'+
+lifecycle+
+'<div class="sectionhead"><h2>'+(state.picking?"Qual comanda recebe o pedido?":"Comandas desta mesa")+'</h2></div>'+
+(list.length?list.map(tabRow).join(""):'<div class="empty">Nenhuma comanda ativa nesta ocupação.</div>')+
+(t.status==="occupied"&&!state.picking?'<div class="sectionhead"><h2>Saída do grupo</h2></div>'+
+(active.length?'<div class="notice warn"><strong>'+active.length+' comanda(s) ainda abertas.</strong> Encerre cada uma antes de liberar esta mesa.</div>':
+pending.length?'<div class="notice warn"><strong>'+pending.length+' entrega(s) pendentes.</strong> Confira os itens prontos antes de liberar o destino.</div>':
+'<div class="notice"><strong>Comandas encerradas.</strong> Quando o grupo sair, libere a mesa. Isso revoga o QR da ocupação anterior.</div>')+
+button("release-review","Revisar liberação da mesa","block ghost",!readyForRelease(t)?"disabled":""):"")+
+'<div style="margin-top:20px">'+button("new-table","＋ Abrir nova comanda","block ghost",t.status==="dirty"||t.status==="cleaning"?"disabled title=\"Aguarde a limpeza\"":"")+'</div>';
 setFoot("")
 }
 function viewTab(){
 var t=tab();if(!t){root("tables");return}
-var d=dcount();
-app.innerHTML=back()+first("Comanda "+esc(t.ref))+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+"Comanda aberta</p></div></div>"+
+var d=dcount(),closed=t.state==="CLOSED";
+app.innerHTML=back()+first("Comanda "+esc(t.ref))+
+'<div class="context"><div><h1>'+esc(t.name)+'</h1><p>'+(t.table?"Mesa "+t.table+" · ":"Sem mesa · ")+(closed?"Encerrada":"Comanda aberta")+'</p></div><div class="tag">'+(closed?"Encerrada":"Em consumo")+'</div></div>'+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-(activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Você já está na comanda correta. Abrir não assume nem conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?button("complete-service","Simular atendimento resolvido","ghost block"):button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
-'<div class="actioncluster">'+button("catalog","＋ Adicionar itens","primary block")+
-'<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",!t.last.length?'disabled title="Sem rodada anterior"':"")+
-button("bill","Ver conta","ghost")+'</div></div>'+
-'<div class="billpeek"><span><label>Consumo registrado <span class="kicker">(exemplo)</span></label><small>Não inclui itens que você ainda não enviou</small></span><strong>'+money(t.balance)+'</strong></div>'+
-(d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Há um rascunho desta comanda. Adicionar itens para continuar, ou revisar antes de enviar.</div>':'<div class="notice">A próxima ação é pedir. Histórico, dados financeiros e operações não ficam concorrendo com o catálogo.</div>')+
+(activeCallForTab(t)&&activeCallForTab(t).type==="SERVICE_REQUEST"?'<div class="contextual-call"><strong>Pedido de atendimento · '+esc(t.name)+'</strong><p>O chamado veio do celular do cliente. Abrir a comanda não conclui o chamado.</p>'+(state.claimedCalls[activeCallForTab(t).id]?button("complete-service","Simular atendimento resolvido","ghost block"):button("claim-call","Assumir chamado (simulação)","ghost block"))+'<button type="button" data-action="back-to-now">Voltar à fila →</button></div>':"")+
+'<div class="actioncluster">'+(closed?'<div class="notice">Comanda encerrada. Não é possível adicionar pedidos nem recebimentos.</div>':button("catalog","＋ Adicionar itens","primary block"))+
+'<div class="twoactions">'+button("repeat","↻ Mais uma rodada","ghost",closed||!t.last.length?'disabled':"")+
+button("bill",closed?"Ver conta encerrada":"Conferir / fechar conta","ghost")+'</div></div>'+
+'<div class="billpeek"><span><label>Saldo em aberto <span class="kicker">(simulação)</span></label><small>Sem incluir rascunhos não enviados</small></span><strong>'+money(t.balance)+'</strong></div>'+
+(d?'<div class="notice warn"><strong>'+d+' item(ns) não enviados.</strong> Confira ou descarte o rascunho antes de encerrar.</div>':'')+
 '<div class="sectionhead"><h2>Último pedido</h2><small>EXEMPLO</small></div>'+
-(t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Confirmado anteriormente (exemplo)</span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>')+
-'<div style="margin-top:18px">'+button("root-tables","Trocar de mesa ou comanda","block ghost")+"</div>";
-if(d)foot("review","Revisar rascunho · "+d+" "+(d===1?"item":"itens")+" · "+money(dsum()));else setFoot("")
+(t.last.length?t.last.map(function(x){var p=prod(x.pid);return row('<div class="rowbtn" style="cursor:default"><span><span class="rowtitle">'+x.q+'× '+esc(p?p.name:"Produto")+'</span><span class="sub">Pedido fictício anterior</span></span></div>')}).join(""):'<div class="empty">Nenhum pedido anterior.</div>')+
+'<div style="margin-top:18px">'+button("root-tables","Trocar de mesa ou comanda","block ghost")+'</div>';
+if(d&&!closed)foot("review","Revisar rascunho · "+d+" "+(d===1?"item":"itens")+" · "+money(dsum()));else setFoot("")
 }
 function viewCatalog(){
 var t=tab();if(!t){root("tables");return}
