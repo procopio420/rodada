@@ -45,6 +45,16 @@ class DispatchTask(models.Model):
         null=True,
         blank=True,
     )
+    # Exact authorized account at request creation; legacy calls remain unbound.
+    # Never reconstruct this identity from a table label or today's occupants.
+    requested_tab = models.ForeignKey(
+        "ordering.Tab", on_delete=models.PROTECT, related_name="service_requests",
+        null=True, blank=True,
+    )
+    requesting_guest_session = models.ForeignKey(
+        "guest_access.GuestSession", on_delete=models.PROTECT,
+        related_name="service_requests", null=True, blank=True,
+    )
     destination_table = models.ForeignKey(
         Table,
         on_delete=models.PROTECT,
