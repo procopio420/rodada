@@ -199,7 +199,7 @@ body{font:500 15px/1.45 var(--font)}
 .pending-amount{display:block;font-size:33px;font-weight:850;margin:5px 0 10px}
 .pending-payment p{font-size:13px;color:var(--muted)}.fake-pix{padding:15px 0;border-bottom:1px solid var(--border)}
 .fake-pix strong{display:block;font-size:13px}.fake-pix code{display:block;font:650 11px/1.6 var(--mono);padding:10px 8px;background:var(--raised);border-radius:6px;overflow-wrap:anywhere;margin:8px 0}
-.fake-pix small{font-size:11px;color:var(--muted)}
+.fake-pix small{font-size:11px;color:var(--muted)}.copy-demo{width:100%;min-height:44px;margin-top:12px;border-radius:8px;border:1px solid var(--border-strong);color:var(--paper);background:var(--surface2);font-size:12px;font-weight:800}
 
 </style>
 </head><body>
@@ -287,7 +287,7 @@ function applyAvailablePayments(){
 }
 function setPolicy(policy){
  if(!['WARN_ONLY','REQUIRE_PARTIAL','PREPAID'].includes(policy))return;
- S.policy=policy;S.pendingOrder=null;S.checkout=null;S.modal=null;render();
+ const inLab=S.modal==='lab';S.policy=policy;S.pendingOrder=null;S.checkout=null;S.modal=inLab?'lab':null;render();
 }
 function seedPrepaidDemo(){const mode=S.mode;S=fresh();S.mode=mode;S.policy='PREPAID';S.hasJoined=true;S.scene='catalog';S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];S.modal='cart';render()}
 function seedPartialDemo(){
@@ -321,6 +321,13 @@ function checkoutFromBlock(){
  const amount=requiredToContinue(S.pendingOrder.total);
  if(amount<=0){resumePaidOrder();return}
  S.checkout={purpose:'unlock',amount,method:null,status:'select'};S.modal='payment-method';render();
+}
+function copyDemoPix(){
+ const fake='PIX-DEMONSTRACAO-NAO-PAGAR';
+ // The mock code is intentionally invalid. Never copy a plausible real payment payload.
+ if(typeof navigator!=='undefined'&&navigator.clipboard?.writeText){
+   navigator.clipboard.writeText(fake).then(()=>flash('Código fictício copiado.'),()=>flash('Cópia indisponível nesta visualização.'));
+ }else{flash('Cópia indisponível nesta visualização.')}
 }
 function choosePaymentMethod(method){
  if(!S.checkout||!['PIX','CARD'].includes(method))return;
@@ -527,7 +534,7 @@ else if(m==='payment-pending'){
  const c=S.checkout;
  title=c?.method==='PIX'?'Aguardando Pix':'Pagamento por cartão';
  body=`<div class="pending-payment"><div class="pending-symbol">${c?.method==='PIX'?'◆':'▤'}</div><div class="micro">VALOR</div><strong class="pending-amount mono">${money(c?.amount||0)}</strong><p>${c?.method==='PIX'?'Aguardando confirmação do Pix.':'Aguardando aprovação do cartão.'}</p></div>
- ${c?.method==='PIX'?'<div class="fake-pix"><strong>Pix Copia e Cola</strong><code>PIX-DEMONSTRACAO-NAO-PAGAR</code><small>Código fictício. Não use no aplicativo do banco.</small></div>':''}
+ ${c?.method==='PIX'?'<div class="fake-pix"><strong>Pix Copia e Cola</strong><code>PIX-DEMONSTRACAO-NAO-PAGAR</code><small>Código fictício. Não use no aplicativo do banco.</small><button class="copy-demo" onclick="copyDemoPix()">Copiar código de demonstração</button></div>':''}
  <p class="sim-note">Teste interativo: só o botão abaixo confirma a simulação. Nenhuma cobrança é feita.</p>`;
  footer=`<button class="btn" ${!S.online?'disabled':''} onclick="approveDemoPayment()">${c?.method==='PIX'?'Simular Pix recebido':'Simular cartão aprovado'} ✓</button><button class="btn ghost" onclick="failDemoPayment()">Simular falha</button><button class="inline-link" onclick="cancelDemoCheckout()">Voltar sem pagar</button>`;
 }
