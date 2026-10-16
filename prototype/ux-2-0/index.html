@@ -97,9 +97,6 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .inputlabel{display:block;font-size:13px;color:var(--muted);margin:18px 0 6px;font-weight:740}.field{width:100%;height:53px;border-radius:9px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);padding:0 14px;outline:none}
 .field:focus{border-color:var(--amber)}.notice{border:1px solid var(--line2);background:var(--panel);color:var(--muted);border-radius:9px;padding:13px;margin:16px 0;font-size:12px;line-height:1.5}
 .notice strong{color:var(--paper)}.notice.warn{border-left:3px solid var(--amber)}
-.checkout-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:17px 0 22px}
-.checkout-progress span{background:var(--panel);color:var(--muted);text-align:center;border:1px solid var(--line);font-size:11px;font-weight:750;padding:9px 5px;border-radius:6px}
-.checkout-progress span.on{background:var(--raised);color:var(--paper);border-color:var(--amber)}
 .receiptline{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:13px 0;gap:14px}
 .receiptline strong{font:760 13px JetBrains,monospace}.receiptline small{color:var(--muted);font-size:12px}
 .settlement-summary{padding:20px;border:1px solid var(--line2);background:var(--panel);border-radius:12px;margin:10px 0 16px}
@@ -108,9 +105,6 @@ p{margin:0}.lede{color:var(--muted);line-height:1.45;margin-bottom:23px;font-siz
 .payment-methods button{min-height:52px;border-radius:8px;border:1px solid var(--line2);background:var(--raised);color:var(--paper);font-weight:780}
 .payment-methods button.selected{border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
 .help-text{color:var(--muted);font-size:12px;margin-top:8px}
-.stage{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
-.stage .index{font:760 12px JetBrains,monospace;color:var(--amber);min-width:20px}
-.stage strong{display:block}.stage small{display:block;color:var(--muted);font-size:12px}
 .taskfoot{position:fixed;bottom:0;width:min(100%,510px);padding:12px 20px calc(12px + env(safe-area-inset-bottom));background:var(--night);border-top:1px solid var(--line);z-index:4;box-shadow:0 -12px 26px var(--night)}
 .taskfoot .btn{width:100%;min-height:56px}
 .bottomnav{position:fixed;bottom:0;width:min(100%,510px);display:grid;grid-template-columns:1fr 1.15fr 1fr;background:var(--panel);border-top:1px solid var(--line);padding:7px 7px calc(7px + env(safe-area-inset-bottom));z-index:4}
@@ -178,7 +172,7 @@ var tabs=[
 {id:"d",generation:1,table:"05",name:"Carla",ref:"#1051",balance:2200,state:"OPEN",receipts:[],last:[{pid:"p2",q:1},{pid:"p7",q:1}]},
 {id:"e",generation:1,table:null,name:"Balcão 1",ref:"#1052",balance:0,state:"OPEN",receipts:[],last:[]}
 ];
-var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:"",groupLeft:false};
+var state={screen:"now",stack:[],table:"08",tab:null,search:"",catalogSearch:"",cat:"Todos",draft:{},repeat:{},toast:"",newCount:1053,picking:false,chooseSearch:"",activeCall:null,doneCalls:{},claimedCalls:{},nowMode:"service",runSelected:null,paymentMethod:"CASH",paymentAmount:"",paymentError:""};
 var app=document.getElementById("main"),footer=document.getElementById("footer");
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function money(c){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(c/100)}
@@ -197,7 +191,6 @@ function parseAmount(s){
  return Number.isSafeInteger(cents)&&cents>0?cents:null;
 }
 function methodLabel(s){return {CASH:"Dinheiro",PIX:"Pix manual",CARD:"Cartão manual"}[s]||"Outro"}
-function progress(stage){return '<div class="checkout-progress" aria-label="Jornada de encerramento">'+["Conferir conta","Receber","Encerrar"].map(function(x,i){return '<span class="'+(i===stage?"on":"")+'">'+esc(x)+'</span>'}).join("")+'</div>'}
 
 function prod(pid){return products.find(function(p){return p.id===pid})}
 function draft(){return state.draft[state.tab]||{}}
@@ -252,7 +245,7 @@ function demoRoute(){
 function callKind(c){return c.type==="DELIVERY"?"PEDIDO PRONTO":c.type==="BILL_REQUEST"?"PEDIDO DE CONTA":"ATENDIMENTO"}
 function callDestination(c){return c.type==="DELIVERY"?"delivery":c.type==="BILL_REQUEST"?"bill":"tab"}
 function resolvedCallTarget(call){
- var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId&&x.state==="OPEN"&&x.generation===tableBy(call.tableId)?.generation});
+ var t=call.tabId&&tabs.find(function(x){return x.id===call.tabId&&x.table===call.tableId&&(x.state==="OPEN"||call.type==="DELIVERY"&&x.state==="CLOSED")&&x.generation===tableBy(call.tableId)?.generation});
  var table=tables.find(function(x){return x.id===call.tableId&&x.status==="occupied"&&x.generation===call.generation});
  // A reference alone is never sufficient: the prototype models an authorized,
  // active assignment by requiring both the tab and current occupied table.
@@ -407,7 +400,7 @@ function finishTab(t){
  demoCalls.filter(function(c){return c.type==="BILL_REQUEST"&&c.tabId===t.id&&c.generation===t.generation}).forEach(function(c){state.doneCalls[c.id]=true});
  state.activeCall=null;
  state.stack=[];state.picking=false;
- state.toast=esc(t.name)+" · "+t.ref+" encerrada somente na simulação. A mesa continua ocupada.";
+ state.toast=t.name+" · "+t.ref+" encerrada somente na simulação. A mesa continua ocupada.";
  if(t.table){state.table=t.table;state.screen="table"}else{state.screen="bill"}
  render();return true
 }
@@ -603,7 +596,7 @@ if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},dr
 if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
 });
 document.addEventListener("change",function(e){
- if(e.target&&e.target.id==="group-left"){state.groupLeft=!!e.target.checked;render();return}
+
 
  var id=e.target&&e.target.getAttribute&&e.target.getAttribute("data-run-id");
  if(!id||!state.runSelected)return;
