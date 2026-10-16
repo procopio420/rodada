@@ -62,3 +62,32 @@ test("unconfirmed read models never show canonical order confirmation", async ({
   await page.clock.runFor(15000);
   await expect(page.getByRole("region", { name: "Último pedido confirmado" })).toHaveCount(0);
 });
+
+test('old A poll cannot replace new A after A-B-A',async({page})=>{
+ await fixture(page,'normal',true);
+ const order=(name:string,state:string)=>({id:name,status:'CONFIRMED',confirmed_at:'2026-10-16T00:00:00Z',items:[{id:name,product_name:name,quantity:1,state,fulfillment_station_snapshot:'BAR'}]});
+ const a={id:'tab-a',display_label:'Alpha',state:'OPEN',exposure_cents:100,version:1,orders:[order('alpha','NEW')],payments:[]};
+ const b={...a,id:'tab-b',display_label:'Bravo',orders:[order('bravo','NEW')]};
+ const table={id:'table-test',label:'08',status:'OCCUPIED',active_occupancy:{id:'visit',generation:1,tabs:[a,b]}};
+ await page.route('**/api/attendance/hospitality/tables/',r=>r.fulfill({json:{table_service_enabled:true,results:[table]}}));
+ let hold=false,held: import('@playwright/test').Route; let signal:()=>void; const captured=new Promise<void>(r=>signal=r);
+ await page.route(/\/api\/attendance\/tabs\/tab-a\/(\?.*)?$/,async r=>{ if(hold&&!r.request().url().includes('?')){hold=false;held=r;signal();}else await r.fulfill({json:a}); });
+ await page.route(/\/api\/attendance\/tabs\/tab-b\/(\?.*)?$/,r=>r.fulfill({json:b}));
+ await page.goto('/attendance');
+ await page.getByRole('button',{name:/Mesa 08 Ocupada/}).click();
+ await page.locator('button[data-tab-id="tab-a"]').click();
+ await expect(page.getByRole('region',{name:'Último pedido confirmado'})).toContainText('Bar · Na fila');
+ hold=true;await page.clock.runFor(15000);await captured;
+ const old=structuredClone(a);
+ await page.keyboard.press('Escape');
+ await page.locator('button[data-tab-id="tab-b"]').click();
+ await expect(page.getByRole('region',{name:'Último pedido confirmado'})).toContainText('#bravo');
+ await page.keyboard.press('Escape');
+ a.orders[0].items[0].state='READY';a.version=2;
+ await page.locator('button[data-tab-id="tab-a"]').click();
+ const status=page.getByRole('region',{name:'Último pedido confirmado'});
+ await expect(status).toContainText('Bar · Pronto');
+ await held!.fulfill({json:old});
+ await page.clock.runFor(100);
+ await expect(status).toContainText('Bar · Pronto');
+});
