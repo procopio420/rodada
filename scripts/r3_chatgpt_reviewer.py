@@ -4,6 +4,7 @@
 Runs from trusted main workflow code. Never executes code from the PR. No credentials in output.
 """
 import base64
+from datetime import datetime, timezone
 import json
 import os
 import re
@@ -11,6 +12,8 @@ import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
+
+from issue106_review_from_github import parse_qualified_agents, required_scopes
 
 MAX_FILES = 35
 MAX_SOURCE_BYTES = 160_000
@@ -69,7 +72,7 @@ def prepare_context(repo, token, files, sha):
         path = file.get("filename")
         patch = file.get("patch")
         if (not isinstance(path, str) or not path or path.startswith("/")
-                or not isinstance(patch, str) or not patch):
+                or ".." in path.split("/") or not isinstance(patch, str) or not patch):
             raise ReviewBlocked("Missing or binary/truncated PR diff; manual R3 required")
         total_patch += len(patch.encode())
         if total_patch > MAX_PATCH_BYTES:
@@ -244,8 +247,10 @@ def post_result(repo, token, number, sha, result, ci, bot_login):
                    f"R3-Evidence: {url}\n\n{summary}")
     response = github(repo, token, f"/pulls/{number}/reviews", "POST",
                       {"body": review_body, "commit_id": sha, "event": "APPROVE"})
-    if response.get("state") != "APPROVED":
-        raise ReviewBlocked("GitHub App did not record APPROVED state")
+    if (response.get("state") != "APPROVED" or
+            str(response.get("user", {}).get("login", "")).casefold() != bot_login.casefold()
+            or response.get("commit_id") != sha):
+        raise ReviewBlocked("GitHub App identity or exact-SHA APPROVED review not verified")
     return {"approved": True, "review_url": response.get("html_url")}
 
 
@@ -262,6 +267,16 @@ def main():
         print("R3 already approved by this bot for exact SHA; nothing to do")
         return
     pr, files = get_pr_and_files(repo, token, number, sha, bot_login)
+    registry = parse_qualified_agents(
+        os.environ.get("RODADA_R3_QUALIFIED_AGENT_REVIEWERS", "")
+    )
+    qualification = registry.get(bot_login.casefold())
+    if (qualification is None or
+            qualification["expires_on"] < datetime.now(timezone.utc).date()):
+        raise ReviewBlocked("Reviewer bot is unqualified or expired")
+    scopes = required_scopes(number, lambda endpoint: github(repo, token, endpoint))
+    if not scopes <= qualification["capabilities"]:
+        raise ReviewBlocked("Reviewer bot lacks competence for changed files")
     sources = prepare_context(repo, token, files, sha)
     checks = verified_checks(repo, token, sha)
     context = {"pr": {"number": number, "head_sha": sha, "base": "main"},
@@ -270,6 +285,8 @@ def main():
     result = post_result(repo, app_token, number, sha,
                          {"review": review, "context_files": sources}, checks, bot_login)
     print(json.dumps(result))
+    if not result.get("approved"):
+        raise ReviewBlocked("Independent R3 found unresolved findings; approval withheld")
 
 
 if __name__ == "__main__":
