@@ -540,6 +540,8 @@ if(act==="complete-delivery"||act==="complete-call"||act==="complete-service"){
 }
 if(act==="table"){state.activeCall=null;state.table=id;screen("table");return}
 if(act==="tab"||act==="tab-direct"){
+ var candidate=tabs.find(function(t){return t.id===id});
+ if(!candidate||state.picking&&candidate.state!=="OPEN")return;
  var prev=currentCall();
  var resolvingBill=act==="tab"&&prev&&prev.type==="BILL_REQUEST"&&!state.activeCall.targetTabId&&state.table===prev.tableId&&tabs.some(function(t){return t.id===id&&t.table===prev.tableId});
  state.tab=id;
@@ -547,19 +549,63 @@ if(act==="tab"||act==="tab-direct"){
  state.activeCall=null;
  if(state.picking){state.cat="Todos";state.catalogSearch="";screen("catalog")}else{screen("tab")}return
 }
-if(act==="new-table"){screen("create");return}
+if(act==="new-table"){var t=tableBy(state.table);if(!t||t.status==="dirty"||t.status==="cleaning")return;screen("create");return}
 if(act==="new-any"){state.table=null;screen("create");return}
-if(act==="catalog"){state.cat="Todos";state.catalogSearch="";screen("catalog");return}
+if(act==="catalog"){var t=tab();if(!t||t.state!=="OPEN")return;state.cat="Todos";state.catalogSearch="";screen("catalog");return}
 if(act==="review"){screen("review");return}
 if(act==="bill"){screen("bill");return}
-if(act==="repeat"){var t=tab();if(t){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
+if(act==="payment-open"){
+ var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0)return;
+ state.paymentMethod="CASH";state.paymentAmount=formatInput(t.balance);state.paymentError="";screen("payment");return
+}
+if(act==="payment-method"){
+ if(!["CASH","PIX","CARD"].includes(id))return;state.paymentMethod=id;
+ var field=document.getElementById("pay-amount");if(field)state.paymentAmount=field.value;
+ render();return
+}
+if(act==="close-review"){var t=tab();if(t&&t.state==="OPEN")screen("close");return}
+if(act==="confirm-close"){
+ var t=tab();if(!t||!safeToClose(t))return;
+ t.state="CLOSED";
+ // Keep occupancy/table and historical order separate from closed Tab.
+ state.toast="Comanda "+t.ref+" encerrada somente na simulação. A mesa continua ocupada.";
+ state.screen="bill";state.stack=[];render();return
+}
+if(act==="go-to-table"){
+ var t=tab();if(t&&t.table){state.table=t.table;state.activeCall=null;screen("table")}else{root("tables")}return
+}
+if(act==="release-review"){
+ var t=tableBy(state.table);if(!readyForRelease(t))return;
+ state.groupLeft=false;screen("release");return
+}
+if(act==="confirm-release"){
+ var t=tableBy(state.table);if(!readyForRelease(t)||!state.groupLeft)return;
+ t.status="dirty";t.text="Limpeza pendente";
+ // Historical Tab associations remain; table view hides previous occupancy.
+ state.groupLeft=false;state.activeCall=null;
+ state.screen="table";state.stack=[];state.toast="Mesa liberada somente na simulação.";
+ render();return
+}
+if(act==="clean-start"){
+ var t=tableBy(state.table);if(!t||t.status!=="dirty")return;
+ t.status="cleaning";t.text="Em limpeza";render();return
+}
+if(act==="clean-finish"){
+ var t=tableBy(state.table);if(!t||t.status!=="cleaning")return;
+ t.status="free";t.text="Disponível";
+ state.toast="Limpeza concluída nesta simulação. Mesa disponível.";
+ render();return
+}
+if(act==="repeat"){var t=tab();if(t&&t.state==="OPEN"){state.repeat[t.id]={};t.last.forEach(function(x){state.repeat[t.id][x.pid]=x.q});screen("repeat")}return}
 if(act==="category"){state.cat=id;render();return}
 if(act==="qtyminus"||act==="qtyplus"){var d=Object.assign({},draft());d[id]=Math.max(0,(d[id]||0)+(act==="qtyplus"?1:-1));state.draft[state.tab]=d;render();return}
 if(act==="repeatminus"||act==="repeatplus"){var s=Object.assign({},state.repeat[state.tab]||{});s[id]=Math.max(0,(s[id]||0)+(act==="repeatplus"?1:-1));state.repeat[state.tab]=s;render();return}
 if(act==="apply-repeat"){var r=state.repeat[state.tab]||{},d=Object.assign({},draft());Object.keys(r).forEach(function(pid){d[pid]=(d[pid]||0)+r[pid]});state.draft[state.tab]=d;screen("review");return}
-if(act==="submit"){var t=tab();if(!t||!dcount())return;state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
+if(act==="submit"){var t=tab();if(!t||t.state!=="OPEN"||!dcount())return;var orderTotal=dsum();state.picking=false;t.last=Object.keys(draft()).filter(function(pid){return draft()[pid]>0}).map(function(pid){return {pid:pid,q:draft()[pid]}});state.draft[t.id]={};t.balance+=orderTotal;state.toast="Pedido confirmado apenas na simulação. Nenhum envio real foi feito.";state.screen="tab";state.stack=[];render();window.scrollTo(0,0)}
 });
 document.addEventListener("change",function(e){
+ if(e.target&&e.target.id==="group-left"){state.groupLeft=!!e.target.checked;render();return}
+
  var id=e.target&&e.target.getAttribute&&e.target.getAttribute("data-run-id");
  if(!id||!state.runSelected)return;
  state.runSelected[id]=!!e.target.checked;render();
@@ -570,8 +616,26 @@ if(e.target.id==="table-search"){var value=e.target.value,position=e.target.sele
 if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStart;state.catalogSearch=v;render();var n=document.getElementById("catalog-search");if(n){n.focus();n.setSelectionRange(p,p)}}
 });
 document.addEventListener("submit",function(e){
+ if(e.target.id==="receipt-form"){
+  e.preventDefault();
+  var t=tab();
+  if(!t||t.state!=="OPEN"||t.balance<=0)return;
+  var amountField=document.getElementById("pay-amount");
+  var cents=parseAmount(amountField?amountField.value:state.paymentAmount);
+  if(cents===null||cents>t.balance){
+   state.paymentAmount=amountField?amountField.value:state.paymentAmount;
+   state.paymentError="Informe um valor maior que zero e até "+money(t.balance)+".";
+   render();return
+  }
+  if(!["CASH","PIX","CARD"].includes(state.paymentMethod))return;
+  t.balance-=cents;t.receipts.push({amount:cents,method:state.paymentMethod});
+  state.paymentError="";
+  state.toast="Recebimento de "+money(cents)+" registrado somente na simulação.";
+  state.screen="bill";state.stack=[];render();return
+ }
+
 if(e.target.id!=="new-form")return;e.preventDefault();var name=document.getElementById("new-name").value.trim();if(!name)return;
-var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,last:[]});
+var id="demo-"+state.newCount,ref="#"+state.newCount++;tabs.push({id:id,table:state.table,name:name,ref:ref,balance:0,state:"OPEN",receipts:[],last:[]});
 if(state.table){var table=tables.find(function(x){return x.id===state.table});if(table&&table.status==="free"){table.status="occupied";table.text="Ocupada"}}state.tab=id;state.screen=state.picking?"catalog":"tab";state.picking=false;state.stack=[];state.toast="Comanda criada somente nesta simulação.";render();window.scrollTo(0,0)
 });
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&state.stack.length&&!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){goBack()}});
