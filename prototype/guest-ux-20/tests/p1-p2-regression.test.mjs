@@ -34,9 +34,9 @@ test('P1 persistent navigation with unpaid account and nonempty cart', () => {
 
 test('P1 ready pickup is prioritized and historical items are collapsed', () => {
   const run = boot('#pickup');
-  assert.ok(run("renderFicha().includes('<details')"));
   assert.ok(run("renderFicha().indexOf('Pronto para retirar') < renderFicha().indexOf('Em andamento')"));
   run("markPickupLine(S.orders[0].id,S.orders[0].items[1].id)");
+  assert.ok(run("renderFicha().includes('<details')"));
   assert.equal(run('readyPickupCount()'), 1);
   assert.equal(run('S.orders[0].status'), 'Pronto para retirar');
 });
