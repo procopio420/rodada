@@ -401,26 +401,34 @@ t.last.map(function(x){var p=prod(x.pid),q=chosen[x.pid]||0;return '<div class="
 '<div class="notice">Repetir <strong>prepara um novo pedido</strong>; nunca reaproveita a confirmação anterior. Na produção, disponibilidade e preços são revalidados.</div>';
 foot("apply-repeat","Revisar itens selecionados",!Object.values(chosen).some(function(x){return x>0}))
 }
+function finishTab(t){
+ if(!safeToClose(t))return false;
+ t.state="CLOSED";
+ demoCalls.filter(function(c){return c.type==="BILL_REQUEST"&&c.tabId===t.id&&c.generation===t.generation}).forEach(function(c){state.doneCalls[c.id]=true});
+ state.activeCall=null;
+ state.stack=[];state.picking=false;
+ state.toast=esc(t.name)+" · "+t.ref+" encerrada somente na simulação. A mesa continua ocupada.";
+ if(t.table){state.table=t.table;state.screen="table"}else{state.screen="bill"}
+ render();return true
+}
 function viewBill(){
 var t=tab();if(!t){root("tables");return}
 var closed=t.state==="CLOSED",receiptTotal=totalPaid(t);
 app.innerHTML=back()+first("Conta · "+esc(t.ref))+
-'<h1>'+(closed?"Conta encerrada.":"Conferir conta.")+'</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
-progress(closed?2:t.balance>0?0:2)+
+'<h1>'+(closed?"Conta encerrada.":"Fechar a conta.")+'</h1><p class="lede">'+esc(t.name)+(t.table?" · Mesa "+t.table:" · Sem mesa")+'</p>'+
 (state.toast?'<div class="toast" role="status">'+esc(state.toast)+'</div>':"")+
-(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Cliente pediu a conta</strong><p>Solicitação associada a '+esc(t.ref)+'. Abrir não equivale a receber ou concluir o chamado.</p></div>':"")+
-'<div class="settlement-summary"><small>Saldo ainda a receber · fictício</small><strong>'+money(t.balance)+'</strong><small>'+(closed?"Comanda já encerrada":t.balance===0?"Saldo zerado, pronto para revisão final":"Os recebimentos podem ser parciais")+'</small></div>'+
-'<div class="sectionhead"><h2>Resumo da conta</h2><small>DEMONSTRAÇÃO</small></div>'+
-'<div class="receiptline"><small>Consumo confirmado</small><strong>'+money(t.balance+receiptTotal)+'</strong></div>'+
-'<div class="receiptline"><small>Recebido manualmente (simulado)</small><strong>'+money(receiptTotal)+'</strong></div>'+
-'<div class="receiptline"><small>Saldo restante</small><strong>'+money(t.balance)+'</strong></div>'+
-(t.receipts.length?'<div class="sectionhead"><h2>Recebimentos simulados</h2></div>'+t.receipts.map(function(r){return '<div class="receiptline"><small>'+esc(methodLabel(r.method))+'</small><strong>'+money(r.amount)+'</strong></div>'}).join(""):"")+
-(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado nesta comanda.</strong> Confira ou descarte o rascunho antes de encerrá-la. O valor não faz parte do saldo.</div>'+button("catalog","Voltar ao pedido","block ghost")+button("discard-review","Descartar rascunho desta comanda","block ghost"):"")+
-'<div class="notice"><strong>Sem pagamento real.</strong> No protótipo, dinheiro, Pix e cartão são só registros fictícios. Na implementação, a confirmação depende do meio de pagamento, permissões, ledger, idempotência e readback do servidor.</div>'+
-(closed?button("go-to-table","Ver mesa / liberar quando o grupo sair","block primary"):
-'<div class="stack">'+button("payment-open","Registrar recebimento (simulação)","block primary",t.balance<=0?"disabled":"")+
-button("close-review","Revisar encerramento","block ghost",!safeToClose(t)?"disabled":"")+'</div>')+
-(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div style="margin-top:12px">'+button("complete-call","Marcar pedido de conta resolvido (simulação)","block ghost")+'</div>':"");
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"?'<div class="contextual-call"><strong>Pedido de conta pelo celular</strong><p>Direto na comanda de '+esc(t.name)+'.</p></div>':"")+
+'<div class="settlement-summary"><small>Falta receber · valor fictício</small><strong>'+money(t.balance)+'</strong><small>'+(closed?"Comanda já encerrada":t.balance===0?"Saldo quitado":"Pode receber tudo ou uma parte")+'</small></div>'+
+'<div class="receiptline"><small>Consumo registrado</small><strong>'+money(t.balance+receiptTotal)+'</strong></div>'+
+(receiptTotal?'<div class="receiptline"><small>Total já recebido (simulado)</small><strong>'+money(receiptTotal)+'</strong></div>':"")+
+(t.receipts.length?'<div class="sectionhead"><h2>Recebimentos</h2></div>'+t.receipts.map(function(r){return '<div class="receiptline"><small>'+esc(methodLabel(r.method))+'</small><strong>'+money(r.amount)+'</strong></div>'}).join(""):"")+
+(busyDraft(t)?'<div class="notice warn"><strong>Pedido não enviado.</strong> Envie ou descarte o rascunho antes de encerrar.</div>'+button("catalog","Voltar ao pedido","block ghost")+button("discard-review","Descartar rascunho","block ghost"):"")+
+'<div class="notice">Exercício sem cobrança real. Recebimentos e encerramentos não são enviados ao servidor.</div>'+
+(closed?button("go-to-table",t.table?"Voltar à mesa":"Voltar às comandas","block primary"):
+t.balance>0?button("payment-open","Receber "+money(t.balance),"block primary"):
+safeToClose(t)?button("close-tab","Encerrar comanda · simulação","block primary"):
+'<div class="notice warn">Resolva os itens não enviados para encerrar.</div>')+
+(activeCallForTab(t)&&activeCallForTab(t).type==="BILL_REQUEST"&&!closed?'<div style="margin-top:12px">'+button("complete-call","Apenas concluir pedido de conta","block ghost")+'</div>':"");
 setFoot("")
 }
 function viewDiscard(){
@@ -431,47 +439,26 @@ app.innerHTML=back()+first("Descartar rascunho")+
 '<div class="notice warn"><strong>Confirme a exclusão.</strong> Isto remove apenas os itens locais não enviados, sem alterar pedidos confirmados, saldo ou recebimentos.</div>';
 foot("confirm-discard","Descartar itens não enviados",false)
 }
+function receiptPrimaryLabel(t,raw){
+ var cents=parseAmount(raw),full=cents===t.balance&&t.balance>0&&!busyDraft(t);
+ return full?"Receber e encerrar comanda (simulação)":"Registrar recebimento (simulação)"
+}
 function viewPayment(){
 var t=tab();if(!t||t.state!=="OPEN"||t.balance<=0){goBack();return}
-app.innerHTML=back()+first("Recebimento manual · demonstração")+
-'<h1>Registrar valor.</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+' · Saldo '+money(t.balance)+'</p>'+
-progress(1)+
-'<div class="settlement-summary"><small>Restante nesta comanda</small><strong>'+money(t.balance)+'</strong><small>Pagamento parcial é permitido</small></div>'+
-'<div class="sectionhead"><h2>Como o cliente pagou?</h2></div>'+
+var full=parseAmount(state.paymentAmount)===t.balance&&!busyDraft(t);
+app.innerHTML=back()+first("Recebimento manual · simulação")+
+'<h1>Receber conta.</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
+'<div class="settlement-summary"><small>Valor ainda a receber</small><strong>'+money(t.balance)+'</strong><small>Pode receber só uma parte</small></div>'+
+'<div class="sectionhead"><h2>Como foi recebido?</h2></div>'+
 '<div class="payment-methods" role="group" aria-label="Meio de recebimento">'+["CASH","PIX","CARD"].map(function(m){return '<button type="button" data-action="payment-method" data-id="'+m+'" class="'+(state.paymentMethod===m?"selected":"")+'" aria-pressed="'+(state.paymentMethod===m)+'">'+esc(methodLabel(m))+'</button>'}).join("")+'</div>'+
 '<form id="receipt-form"><label class="inputlabel" for="pay-amount">Valor recebido (R$)</label>'+
 '<input class="field mono" id="pay-amount" required inputmode="decimal" autocomplete="off" value="'+esc(state.paymentAmount)+'" placeholder="Ex.: '+formatInput(t.balance)+'" aria-describedby="pay-help pay-error">'+
-'<p id="pay-help" class="help-text">Informe o valor efetivamente recebido. Até '+money(t.balance)+'. Não inclua troco no valor do pagamento.</p>'+
+'<p id="pay-help" class="help-text">Informe o valor recebido, sem incluir troco.</p>'+
 (state.paymentError?'<div id="pay-error" class="notice warn" role="alert">'+esc(state.paymentError)+'</div>':"")+
-'<button type="submit" class="btn primary block" style="margin-top:22px">Registrar recebimento simulado</button></form>'+
-'<div class="notice warn">Apenas exercício visual. Nenhum cartão/Pix é cobrado e nenhum movimento de caixa ou Payment real é criado.</div>';
+'<button type="submit" id="receipt-primary" data-receipt-mode="primary" class="btn primary block" style="margin-top:22px">'+receiptPrimaryLabel(t,state.paymentAmount)+'</button>'+
+'<button type="submit" id="receipt-only" data-receipt-mode="only" class="btn ghost block" style="margin-top:8px;'+(full?"":"display:none")+'">Só registrar; manter comanda aberta</button></form>'+
+'<div class="notice">Sem transação real: nenhum dinheiro, Pix ou cartão é cobrado. Na implementação, a liquidação deverá ser confirmada pelo servidor antes do encerramento.</div>';
 setFoot("")
-}
-function viewClose(){
-var t=tab();if(!t){root("tables");return}
-app.innerHTML=back()+first("Encerramento · confirmação")+
-'<h1>Encerrar comanda?</h1><p class="lede">'+esc(t.name)+' · '+esc(t.ref)+(t.table?" · Mesa "+t.table:"")+'</p>'+
-progress(2)+
-'<div class="settlement-summary"><small>Saldo remanescente</small><strong>'+money(t.balance)+'</strong><small>'+(safeToClose(t)?"Apta para encerramento simulado":"Existem pendências para resolver")+'</small></div>'+
-'<div class="sectionhead"><h2>Antes de encerrar</h2></div>'+
-'<div class="stage"><span class="index">01</span><div><strong>Saldo zerado</strong><small>'+money(t.balance)+' a receber</small></div></div>'+
-'<div class="stage"><span class="index">02</span><div><strong>Sem pedidos não enviados</strong><small>'+(busyDraft(t)?"Existe rascunho desta comanda":"Nenhum rascunho pendente")+'</small></div></div>'+
-'<div class="stage"><span class="index">03</span><div><strong>A mesa continua ocupada</strong><small>Fechar comanda não libera o grupo nem encerra outras comandas</small></div></div>'+
-'<div class="notice warn"><strong>Simulação.</strong> Na produção, somente o servidor confirma o fechamento da comanda. O caixa/turno não é fechado aqui.</div>';
-foot("confirm-close","Confirmar encerramento simulado",!safeToClose(t))
-}
-function viewRelease(){
-var t=tableBy(state.table);if(!t){root("tables");return}
-var opened=openAt(t.id),delivery=deliveries().filter(function(c){return c.tableId===t.id});
-app.innerHTML=back()+first("Ciclo da mesa · confirmação")+
-'<h1>Liberar mesa '+esc(t.id)+'?</h1><p class="lede">A liberação acontece quando o grupo efetivamente sai, não ao pagar a última comanda.</p>'+
-'<div class="sectionhead"><h2>Conferência da ocupação</h2></div>'+
-'<div class="stage"><span class="index">01</span><div><strong>'+opened.length+' comanda(s) aberta(s)</strong><small>É preciso encerrar todas nesta jornada</small></div></div>'+
-'<div class="stage"><span class="index">02</span><div><strong>'+delivery.length+' entrega(s) pendentes</strong><small>Evite liberar o destino com pedidos prontos a caminho</small></div></div>'+
-'<div class="stage"><span class="index">03</span><div><strong>Revogação do QR desta ocupação</strong><small>O próximo grupo terá uma sessão nova após a limpeza</small></div></div>'+
-'<label class="run-choice" style="margin-top:18px"><input type="checkbox" id="group-left" '+(state.groupLeft?"checked":"")+'><span>Confirmo que o grupo saiu da mesa.</span></label>'+
-'<div class="notice">Liberar marca a mesa como <strong>aguardando limpeza</strong>. Não conclui a limpeza nem apaga o histórico das comandas.</div>';
-foot("confirm-release","Liberar mesa (simulação)",!readyForRelease(t)||!state.groupLeft)
 }
 function viewDelivery(){
 var c=currentCall(),t=tab();
@@ -508,7 +495,7 @@ app.innerHTML=back()+first("Adicionar um pedido")+'<h1>Para qual mesa?</h1><p cl
 setFoot("")
 }
 function render(){
-if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="discard")viewDiscard();else if(state.screen==="close")viewClose();else if(state.screen==="release")viewRelease();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
+if(state.screen==="now")viewNow();else if(state.screen==="tables")viewTables();else if(state.screen==="table")viewTable();else if(state.screen==="tab")viewTab();else if(state.screen==="catalog")viewCatalog();else if(state.screen==="review")viewReview();else if(state.screen==="repeat")viewRepeat();else if(state.screen==="bill")viewBill();else if(state.screen==="payment")viewPayment();else if(state.screen==="discard")viewDiscard();else if(state.screen==="delivery")viewDelivery();else if(state.screen==="delivery-run")viewDeliveryRun();else if(state.screen==="create")viewCreate();else if(state.screen==="choose")viewChoose();
 }
 document.addEventListener("click",function(e){
 var btn=e.target.closest("[data-action]");if(!btn||btn.disabled)return;
@@ -578,29 +565,21 @@ if(act==="payment-method"){
  var field=document.getElementById("pay-amount");if(field)state.paymentAmount=field.value;
  render();return
 }
-if(act==="close-review"){var t=tab();if(t&&t.state==="OPEN")screen("close");return}
-if(act==="confirm-close"){
- if(state.screen!=="close")return;
+if(act==="close-tab"){
+ if(state.screen!=="bill")return;
  var t=tab();if(!t||!safeToClose(t))return;
- t.state="CLOSED";
- // Keep occupancy/table and historical order separate from closed Tab.
- state.toast="Comanda "+t.ref+" encerrada somente na simulação. A mesa continua ocupada.";
- state.screen="bill";state.stack=[];render();return
+ finishTab(t);return
 }
 if(act==="go-to-table"){
  var t=tab();if(t&&t.table){state.table=t.table;state.activeCall=null;screen("table")}else{root("tables")}return
 }
-if(act==="release-review"){
+if(act==="release-table"){
+ if(state.screen!=="table")return;
  var t=tableBy(state.table);if(!readyForRelease(t))return;
- state.groupLeft=false;screen("release");return
-}
-if(act==="confirm-release"){
- if(state.screen!=="release")return;
- var t=tableBy(state.table);if(!readyForRelease(t)||!state.groupLeft)return;
+ var generation=t.generation;
  t.status="dirty";t.text="Limpeza pendente";
- // Historical Tab associations remain; table view hides previous occupancy.
- state.groupLeft=false;state.activeCall=null;
- state.screen="table";state.stack=[];state.toast="Mesa liberada somente na simulação.";
+ demoCalls.filter(function(c){return c.tableId===t.id&&c.generation===generation&&c.type!=="DELIVERY"}).forEach(function(c){state.doneCalls[c.id]=true});
+ state.activeCall=null;state.toast="Mesa liberada somente na simulação. Aguardando limpeza.";
  render();return
 }
 if(act==="clean-start"){
@@ -632,6 +611,14 @@ document.addEventListener("change",function(e){
 document.addEventListener("input",function(e){
 if(e.target.id==="choose-search"){var value=e.target.value,position=e.target.selectionStart;state.chooseSearch=value;render();var next=document.getElementById("choose-search");if(next){next.focus();next.setSelectionRange(position,position)}}
 if(e.target.id==="table-search"){var value=e.target.value,position=e.target.selectionStart;state.search=value;render();var next=document.getElementById("table-search");if(next){next.focus();next.setSelectionRange(position,position)}}
+if(e.target.id==="pay-amount"&&state.screen==="payment"){
+ state.paymentAmount=e.target.value;
+ var t=tab(),primary=document.getElementById("receipt-primary"),only=document.getElementById("receipt-only");
+ if(t&&primary&&only){
+  primary.textContent=receiptPrimaryLabel(t,state.paymentAmount);
+  only.style.display=parseAmount(state.paymentAmount)===t.balance&&!busyDraft(t)?"":"none";
+ }
+}
 if(e.target.id==="catalog-search"){var v=e.target.value,p=e.target.selectionStart;state.catalogSearch=v;render();var n=document.getElementById("catalog-search");if(n){n.focus();n.setSelectionRange(p,p)}}
 });
 document.addEventListener("submit",function(e){
@@ -648,9 +635,12 @@ document.addEventListener("submit",function(e){
    render();return
   }
   if(!["CASH","PIX","CARD"].includes(state.paymentMethod))return;
+  var closeRequested=e.submitter?.getAttribute("data-receipt-mode")!=="only";
+  var fullAndClosable=closeRequested&&cents===t.balance&&!busyDraft(t);
   t.balance-=cents;t.receipts.push({amount:cents,method:state.paymentMethod});
+  if(fullAndClosable){finishTab(t);return}
   state.paymentError="";
-  state.toast="Recebimento de "+money(cents)+" registrado somente na simulação.";
+  state.toast="Recebimento de "+money(cents)+" registrado somente na simulação." + (t.balance===0?" Você já pode encerrar a comanda.":"");
   state.screen="bill";state.stack=[];render();return
  }
 
