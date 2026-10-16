@@ -22,15 +22,34 @@ class LiveComposeOrderTest {
         compose.waitUntil(30_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     }
 
+    private fun waitForEnabledCatalog(matcher: SemanticsMatcher) {
+        var stableSince: Long? = null
+        compose.waitUntil(30_000) {
+            val now = android.os.SystemClock.uptimeMillis()
+            if (compose.onAllNodes(matcher and isEnabled()).fetchSemanticsNodes().isEmpty()) {
+                stableSince = null
+                false
+            } else {
+                if (stableSince == null) stableSince = now
+                now - checkNotNull(stableSince) >= 1_000
+            }
+        }
+    }
+
     @Test fun confirmThroughProductionCompose() {
         assumeTrue("Disposable runner only", InstrumentationRegistry.getArguments().getString("liveCompose") == "true")
-        check(BuildConfig.RODADA_API_BASE_URL == "http://10.0.2.2:8101/")
+        val expectedApi = InstrumentationRegistry.getArguments().getString("expectedApiBaseUrl")
+            ?: "http://10.0.2.2:8101/"
+        check(expectedApi.matches(Regex("http://10\\.0\\.2\\.2:[0-9]{4,5}/")))
+        check(BuildConfig.RODADA_API_BASE_URL == expectedApi)
         waitText("Estabelecimento")
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
         compose.onNodeWithText("Entrar").performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("attendance-now").assertIsSelected()
+        compose.onNodeWithTag("attendance-tables").assertIsNotSelected()
         compose.onNodeWithTag("attendance-order").assertIsEnabled().performClick()
         val newTab = hasText("Nova comanda sem mesa") and hasAnyAncestor(isDialog())
         compose.waitUntil(30_000) { compose.onAllNodes(newTab and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
@@ -42,9 +61,15 @@ class LiveComposeOrderTest {
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
             // PR #195: select category, product, quantity; the old flat "Adicionar" action no longer exists.
             compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
+            waitForEnabledCatalog(hasText("Buscar no catálogo"))
             compose.onNodeWithText("Buscar no catálogo").performTextReplacement(product)
+            waitForEnabledCatalog(hasTestTag("catalog-category-Outros"))
             compose.onNodeWithTag("catalog-category-Outros").assertIsEnabled().performClick()
-            compose.onNode(hasText(product) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).assertIsEnabled().performClick()
+            val productChoice = hasText(product) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))
+            // Realtime may revalidate the catalog after opening the Tab. Wait for the
+            // existing production guard rather than tapping a temporarily disabled item.
+            waitForEnabledCatalog(productChoice)
+            compose.onNode(productChoice).assertIsEnabled().performClick()
             compose.onNode(hasText("Adicionar ·", substring = true) and hasClickAction()).assertIsEnabled().performScrollTo().performClick()
             compose.onNodeWithText("Voltar às categorias").performClick()
         }
