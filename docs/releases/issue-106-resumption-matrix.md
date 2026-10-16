@@ -2,9 +2,9 @@
 
 ## Estado técnico atual — 16/10/2026
 
-A issue foi fechada administrativamente pelo responsável; #205 e #206 foram
+A issue foi fechada administrativamente pelo responsável; #205, #206 e #207 foram
 integrados por outra execução. Isso não equivale a aprovação R3 independente ou
-GO de produção. `main` observado: `307ec5d791ef9f2bdff87e3249313cc0dd8d6850`.
+GO de produção. `main` observado: `513de6a20f1cc2abc1521532602a66c83712081b`.
 
 O [run do #206](https://github.com/procopio420/rodada/actions/runs/38848540935)
 executou `956f2139ef782277a3a23de3a3ae05cef9265e8f`: **14 PASS / 0 FAIL /
@@ -33,8 +33,10 @@ SHA, ambiente, cenários/IDs, SQL, execução e gate. Não substitui os ZIPs com
 **NO-GO formal:** o manifesto contém somente o erro de revisão independente
 autenticada ausente. A consulta real ao GitHub para PR207 retornou REVIEW_BLOCKED.
 O código corrigido tem R3 local em contexto separado, sem P0/P1; isso não cria
-aprovação GitHub. Além disso, main307ec5d7 ainda contém o P1 até integração autorizada
-do PR207. Nenhum merge/deploy foi feito nesta retomada. A matriz histórica abaixo
+aprovação GitHub. O PR207 foi integrado externamente em 16/10/2026 às 07:28 UTC,
+no merge 513de6a2. Sua árvore é idêntica à árvore do candidato 67fcaaca testado;
+o P1 corrigido está em main, mas essa equivalência não reatribui a execução ao
+SHA do merge. Nenhum merge remoto/deploy foi feito nesta retomada. A matriz histórica abaixo
 permanece atribuída ao SHA 899255b1; para a execução atual, todos os 14 cenários foram
 reconfirmados em 67fcaaca, incluindo exclusão de estação e snapshots B4/B7.
 F4 está implementada, mas a liberação formal permanece REVIEW_BLOCKED; os gates
@@ -152,13 +154,14 @@ IDs completos, tempos, versões, hashes e referências por cenário.
 
 ## Estado de integração e gates
 
-O responsável integrou #205 (incluindo os slices #196–#204) em 475acadd e #206
-em 307ec5d7, fechando as branches supersedidas. Esses merges ocorreram em outra
-execução autorizada pelo responsável. Nesta retomada, [PR207](https://github.com/procopio420/rodada/pull/207)
-está preparado com correção R3/CI verde e [PR208](https://github.com/procopio420/rodada/pull/208)
-com a matriz/documentação atual. Ambos aguardam integração autorizada; nenhum
-merge/deploy foi feito aqui. main observado: 307ec5d7. Revalidar bases antes de
-integrar; preservar worktrees e trabalho não commitado.
+O responsável integrou #205 (incluindo os slices #196–#204) em 475acadd, #206
+em 307ec5d7 e #207 em 513de6a2, em outras execuções. O [PR207](https://github.com/procopio420/rodada/pull/207)
+contém a correção já integrada com R3 local e CI verde no head 67fcaaca; o
+[PR208](https://github.com/procopio420/rodada/pull/208) contém matriz/documentação
+atual e permanece aberto. A branch documental incorporou main sem descartar
+trabalho. Nenhum merge remoto/deploy foi feito aqui. main observado: 513de6a2.
+A aprovação GitHub independente e a execução manual com review válida continuam
+pendentes; não foram substituídas pelo merge.
 
 Corte real de uplink comprovado em [workflow38797806054](https://github.com/procopio420/rodada/actions/runs/38797806054),
 SHA 7cb08ad7; nova prova a9cf em [workflow38815589150](https://github.com/procopio420/rodada/actions/runs/38815589150).
