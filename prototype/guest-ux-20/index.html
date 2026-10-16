@@ -289,6 +289,15 @@ body{font:500 15px/1.45 var(--font)}
 .demo-tools:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media(max-width:375px){.demo-mode-buttons{min-width:152px}.demo-mode-switch{gap:5px}.demo-mode-label{font-size:9px}.demo-tools{width:44px}}
 
+/* Persistent contextual errors and high-contrast focus/touch targets. */
+.inline-error{margin:0 0 15px;padding:11px 12px;border:1px solid var(--danger);border-radius:9px;background:rgba(185,65,50,.12);font-size:13px;line-height:1.45;color:var(--paper)}
+.phone :is(button,input,summary):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.phone :is(button,.chip,.x-btn,.inline-link){touch-action:manipulation}
+.eyebrow,.micro,.ficha-caption{font-size:max(11px,.6875rem)}
+.ficha-code{font-size:clamp(52px,13vw,75px)}
+@media(prefers-contrast:more){.sub,.muted,.small,.micro{color:var(--paper)}.ficha-ticket,.sheet,.catalogline{border-color:var(--paper)}}
+@media(max-width:375px){.ficha-code{font-size:clamp(49px,13.4vw,62px)}}
+
 </style>
 </head><body>
 <div class="shell">
@@ -328,8 +337,9 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentIntents:[],intentCounter:0,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,coverCount:0,serviceRate:0,serviceOptIn:false},staffFallback:false});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentIntents:[],intentCounter:0,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,coverCount:0,serviceRate:0,serviceOptIn:false},staffFallback:false,formError:null,joinCodeDraft:''});
 let S=fresh();
+let previousModalName=null,modalReturnFocus=null;
 const savedModes={mesa:null,ficha:null};
 function setPrototypeMode(mode){
  if(!['mesa','ficha'].includes(mode)||mode===S.mode)return;
@@ -582,8 +592,8 @@ function joinKnownTab(){
  const code=el('joinCode')?.value?.trim()?.toUpperCase();
  // Test fixture only. QR alone gives NO authority to see the group's account.
  const key=code==='AB72'?'group':code==='XY93'?'private':null;
- if(!key||!S.tabs[key]){flash('Código não validado. Peça ajuda à equipe.');return}
- S.authorizedTabKeys.push(key);
+ if(!key||!S.tabs[key]){S.joinCodeDraft=code||'';setInlineError('Não foi possível acessar esta comanda. Confira o código ou peça ajuda.');return}
+ S.formError=null;S.joinCodeDraft='';S.authorizedTabKeys.push(key);
  activateAuthorizedTab(key)
 }
 function seedSessionRecovery(){
@@ -776,6 +786,7 @@ function enter(){
  S.scene='catalog';S.modal=null;render()
 }
 function join(){S.modal='choose-tab';render()}
+function setInlineError(message){S.formError={modal:S.modal,message};render()}
 function flash(message){let n=el('snackbar');n.textContent=message;n.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.classList.remove('show'),2700)}
 function scenario(type){
  switch(type){
@@ -832,10 +843,10 @@ function scenario(type){
 }
 function changeActor(id){if(!S.participants.some(x=>x.id===id))return;S.actor=id;S.modal=null;flash('Dispositivo simulado: '+labelOwner(id));render()}
 function requestAssistance(what){S.requestSent=true;S.checkoutRequested=what==='bill';S.modal='help-sent';render()}
-function startPayment(mode){if(resumePendingPayment())return;if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
+function startPayment(mode){if(resumePendingPayment())return;if(isFicha()&&mode==='equal'){flash('Divisão entre pessoas é do modo mesa.');return}S.formError=null;S.paymentMode=mode;S.paymentCount=3;S.paymentValue='';S.selectedLines=[];S.modal='payment-'+mode;render()}
 function selectionAmount(){const owed=linesOwing();return owed.filter(x=>S.selectedLines.includes(x.id)).reduce((s,x)=>s+x.owing,0)}
 function paymentAmount(){if(S.paymentMode==='pick')return selectionAmount();if(S.paymentMode==='equal')return Math.ceil(balance()/S.paymentCount);if(S.paymentMode==='amount')return Math.round(Number((S.paymentValue||'').replace(',','.'))*100);if(S.paymentMode==='all')return balance();return 0}
-function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){flash('Escolha um valor válido dentro do saldo pendente.');return}S.previewAmount=amount;beginDemoCheckout('voluntary',amount)}
+function previewPayment(){const amount=paymentAmount();if(!Number.isFinite(amount)||amount<=0||amount>balance()){setInlineError('Escolha um valor válido até '+money(balance())+'.');return}S.formError=null;S.previewAmount=amount;beginDemoCheckout('voluntary',amount)}
 function registerPayment(amount,owner,allowCredit=false,intentId=null){
  if(intentId&&S.payments.some(p=>p.intentId===intentId))return 0;
  let remaining=Math.min(amount,balance());const allocations=[];
@@ -983,7 +994,7 @@ else if(m==='choose-tab'){
  <p class="sim-note">O QR da mesa não mostra as contas de outros clientes.</p>`;
 }
 else if(m==='join-tab'){
- title='Entrar na comanda';body=`<div class="field"><label for="joinCode">Código de acesso (simulação)</label><input id="joinCode" maxlength="10" autocapitalize="characters" autocomplete="off" placeholder="Ex.: AB72"/></div><p class="sim-note">Demo: AB72 (grupo) ou XY93 (outra comanda). No produto real, o servidor valida a autorização; o QR nunca basta.</p>`;
+ title='Entrar na comanda';body=`<div class="field"><label for="joinCode">Código de acesso (simulação)</label><input id="joinCode" maxlength="10" autocapitalize="characters" autocomplete="off" placeholder="Ex.: AB72" value="${esc(S.joinCodeDraft||'')}" oninput="S.joinCodeDraft=this.value;S.formError=null"/></div><p class="sim-note">Demo: AB72 (grupo) ou XY93 (outra comanda). No produto real, o servidor valida a autorização; o QR nunca basta.</p>`;
  footer=`<button class="btn" onclick="joinKnownTab()">Entrar</button><button class="btn ghost" onclick="S.modal='choose-tab';render()">Voltar</button>`;
 }
 else if(m==='recover-session'){
@@ -1114,7 +1125,7 @@ else if(m==='order-after-payment'){
 else if(m==='payment-options'){title='Pagar agora';body=`<div class="payout" style="margin:0 0 14px"><span class="micro">Saldo ${isFicha()?'da ficha':'da comanda'}</span><div class="account-total mono" style="margin-bottom:0">${money(balance())}</div></div>${[['pick','▣','Escolher meus itens','Selecione itens'],...(!isFicha()?[['equal','👥','Dividir igualmente','Por pessoa']]:[]),['amount','↗','Pagar um valor','Valor livre'],['all','✓','Pagar tudo','Quitar saldo']].map(([id,ic,t,d])=>`<button class="option" onclick="startPayment('${id}')"><span class="ico">${ic}</span><span><strong>${t}</strong><small>${d}</small></span><span style="margin-left:auto;color:var(--accent)">›</span></button>`).join('')}`}
 else if(m==='payment-pick'){title='Escolher meus itens';const list=linesOwing();body=`${back('payment-options')}${list.slice().sort((a,b)=>(a.owner===S.actor?-1:0)-(b.owner===S.actor?-1:0)).map(x=>`<label class="selection"><input class="check" type="checkbox" ${S.selectedLines.includes(x.id)?'checked':''} onchange="togglePick('${x.id}',this.checked)"><span class="selection-info"><b style="font-size:13px">${x.qty}× ${esc(x.name)}</b><small style="display:block">${x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner))}</small></span><b class="amount">${money(x.owing)}</b></label>`).join('')}<p class="help-text">Cada seleção inclui o saldo pendente do item.</p>`;footer=`<div class="totalrow" style="margin-bottom:11px"><b>Selecionado</b><b class="amount">${money(selectionAmount())}</b></div><button class="btn" ${!selectionAmount()?'disabled':''} onclick="previewPayment()">Continuar →</button>`}
 else if(m==='payment-equal'){title='Dividir igualmente';body=`${back('payment-options')}<p class="small muted">Dividir entre quantas pessoas?</p><div class="stepperbig"><button onclick="S.paymentCount=Math.max(2,S.paymentCount-1);render()">−</button><b>${S.paymentCount}</b><button onclick="S.paymentCount=Math.min(25,S.paymentCount+1);render()">+</button></div><div class="payout" style="text-align:center"><div class="micro">Sua parte aproximada</div><div class="account-total mono" style="margin-bottom:0">${money(paymentAmount())}</div></div><p class="help-text">Centavos ajustados no último pagamento.</p>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
-else if(m==='payment-amount'){title='Pagar um valor';body=`${back('payment-options')}<p class="small muted" style="margin-bottom:18px">Você pode contribuir com qualquer valor até ${money(balance())}.</p><div class="field"><label for="payAmount">Valor em reais</label><input id="payAmount" type="text" inputmode="decimal" placeholder="Ex.: 35,00" value="${esc(S.paymentValue)}" oninput="S.paymentValue=this.value; document.getElementById('amountHelp').textContent=money(Math.round(Number(this.value.replace(',','.'))*100)||0)"></div><div class="payout"><div class="row between"><span class="muted small">Você vai pagar</span><b id="amountHelp" class="amount">${money(paymentAmount())}</b></div></div>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
+else if(m==='payment-amount'){title='Pagar um valor';body=`${back('payment-options')}<p class="small muted" style="margin-bottom:18px">Você pode contribuir com qualquer valor até ${money(balance())}.</p><div class="field"><label for="payAmount">Valor em reais</label><input id="payAmount" type="text" inputmode="decimal" placeholder="Ex.: 35,00" value="${esc(S.paymentValue)}" oninput="S.paymentValue=this.value;S.formError=null; document.getElementById('amountHelp').textContent=money(Math.round(Number(this.value.replace(',','.'))*100)||0)"></div><div class="payout"><div class="row between"><span class="muted small">Você vai pagar</span><b id="amountHelp" class="amount">${money(paymentAmount())}</b></div></div>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
 else if(m==='payment-all'){title='Pagar a conta toda';body=`${back('payment-options')}<div class="payment-preview"><div class="micro">Valor para quitar o saldo</div><strong class="mono">${money(balance())}</strong></div>`;footer=`<button class="btn" onclick="previewPayment()">Continuar →</button>`}
 else if(m==='payment-review'){title='Confirmar pagamento';body=`${back('payment-'+S.paymentMode)}<div class="payment-preview"><div class="micro">Valor simulado</div><strong class="mono">${money(Math.min(S.previewAmount||0,balance()))}</strong></div><div class="panel"><div class="row between"><span class="small muted">Saldo antes</span><b class="amount">${money(balance())}</b></div><div class="divider" style="margin:10px 0"></div><div class="row between"><span class="small muted">Saldo após</span><b class="amount positive">${money(Math.max(0,balance()-(S.previewAmount||0)))}</b></div></div><div class="notice" style="margin-top:15px">Simulação · nenhuma cobrança real.</div>`;footer=`<button class="btn" ${!S.online?'disabled':''} onclick="confirmPayment()">Confirmar pagamento simulado</button><button class="btn ghost" onclick="requestAssistance('bill')">Prefiro pagar com a equipe</button>`}
 else if(m==='payment-success'){
@@ -1128,7 +1139,7 @@ else if(m==='payment-success'){
  <button class="btn ghost" onclick="S.modal=null;S.scene='account';render()">Ver conta</button>`;
 }
  else return '';
- return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this)dismissModal()"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="dismissModal()">×</button></div><div class="sheet-body">${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
+ return `<div class="bottom-sheet-backdrop" onclick="if(event.target===this)dismissModal()"><section class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="sheet-handle"></div><div class="sheet-header"><h2>${title}</h2><button class="x-btn" aria-label="Fechar" onclick="dismissModal()">×</button></div><div class="sheet-body">${S.formError?.modal===m?`<div class="inline-error" role="alert">${esc(S.formError.message)}</div>`:""}${body}</div>${footer?`<div class="sheet-footer">${footer}</div>`:''}</section></div>`;
 }
 function sendCart(){if(!S.cart.length)return;if(!S.online){flash('Sem conexão. O pedido permanece no carrinho.');return}const items=S.cart.map(x=>({...makeItem(x.productId,x.qty,x.variant,S.actor),price:x.price,qty:x.qty}));submitOrderWithPolicy(items,'cart')}
 function saveName(){const name=el('nickname')?.value?.trim()?.slice(0,24);if(name){currentPerson().name=name;}S.modal='participants';render()}
