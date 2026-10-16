@@ -39,6 +39,45 @@ See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory stat
 This change modifies workflow scheduling and removes the duplicated API job,
 but **does not delete the underlying tests**.
 
+### #106 R3 manual release gate (fail-closed)
+
+The expensive `Android real POST disconnect` workflow remains selective for pull
+requests and supports a manual `workflow_dispatch`. Its E2E evidence has **two
+independent signals**: per-scenario/SQL receipts and the overall `execution.json`.
+A scenario can only contribute to a complete GO after the **entire runner** reports
+PASS. The runner result is included in the manifest under `execution` and bound
+to the SHA-256 digest of the actual `execution.json`. If the runner fails after
+writing all 14 successful receipts, the report shows those scenarios as BLOCKED
+and the gate remains NO-GO.
+
+To obtain a **manual release GO** (not an onsite/pilot/PSP GO):
+
+1. Have a reviewer other than the PR author inspect the **exact head commit** and
+   submit a GitHub **Approve** review containing two standalone lines:
+   `R3: PASS` and `P0/P1: 0`. A later changes-requested or dismissed approval
+   is not sufficient. A waiver or owner comment is not an independent review.
+2. Run **Actions → Android real POST disconnect → Run workflow** selecting the
+   approved PR **branch**, not `main` after a squash. Enter its number in
+   `review_pr_number`. The workflow verifies that the checked-out commit equals
+   the PR HEAD and approval commit, that the reviewer is a different GitHub user
+   and that the review is recorded in the GitHub API.
+3. The verified reference is exported to `artifacts/r3-verified.json` and
+   passed as `--review` to the evidence compiler. Missing, stale, dismissed,
+   self-authored or changes-requested review stays NO-GO. The manifest records
+   the **actual** runner result and R3 reference; it never creates either.
+   Final `e2e_evidence.py` validation is blocking on manual dispatch.
+
+`workflow_dispatch` on `main` cannot claim an R3 approval for a prior PR
+SHA: merge/squash changes the commit hash. Run the release gate on the reviewed
+branch SHA before merging, or obtain a separately verified review of the exact
+new SHA. The normal PR check may be green while its attached gate report remains
+NO-GO pending review. A GitHub Actions green job is not a replacement for the
+machine-readable `automated_gate` decision.
+
+These gates use disposable PostgreSQL/emulators. Physical bar Wi-Fi/Android,
+PSP/Tap/Pix/NFC, printing, fiscal acceptance and VR System rollback remain
+separately verified.
+
 ## Issue #106 shared-fixture safety
 
 `scripts/cross_surface_fixture.py` is the shared destination/Venue boundary for
