@@ -4,6 +4,21 @@
 **Referência de paridade:** `prototype/ux-2-0/index.html` na branch `design/ux-2-0-attendance-concept`.  
 **Método:** revisão do HTML/CSS/JS atual via GitHub, execução simulada de estados do renderizador, comparação de contratos e tokens com o Design System/Spec 004. **Não houve screenshot ou validação browser real da versão atual**. Qualquer conclusão sobre recorte real, sobreposição, contraste percebido ou scroll de dispositivo continua hipótese até Playwright/Android.
 
+## Atualização — P0 corrigidos no protótipo (16/10/2026)
+
+Os três P0 identificados na auditoria foram implementados em `prototype/guest-ux-20/index.html` na branch `prototype-guest-ux20-20261016`, com suíte de regressão `prototype/guest-ux-20/tests/p0-regression.test.mjs`. A implementação é **simulação interativa**; não altera Django, autorização real nem gateway de pagamentos.
+
+- **P0-01 / QR ocupado:** caminho legado `join()` agora redireciona para escolha de comanda. Uma mesa ocupada apresenta `Começar minha comanda` ou `Entrar em comanda existente`. A seleção exige autorização simulada; sem isso, pedidos e pagamentos não são apresentados. A recuperação de sessão usa o caminho específico de sessão previamente autorizada. O QR da mesa por si só não autoriza acesso à Tab.
+- **P0-02 / pagamentos em andamento:** cada tentativa simulada tem ID e status (seleção → pendente → confirmada/falha), escopo da comanda e deduplicação por ID. Fechar a sheet não apaga a tentativa pendente; há faixa `Pagamento em verificação` com retorno à mesma tentativa, opção `Verificar status` sem simular confirmação automática e retomada após atualizar a página no **mesmo link** por `sessionStorage` de demonstração. Abrir um link de cenário diferente inicia nova fixture, sem misturar sessões. **A única confirmação no protótipo é explicitamente simulada**, via botão de teste.
+- **P0-03 / múltiplas Tabs:** o modelo da demo agora preserva snapshots isolados de pedidos, pagamentos, carrinho, cobranças e intents para cada Tab, ativando no cliente apenas a autorizada. Demonstrado com códigos fictícios `AB72` e `XY93` e com a ação `Trocar de comanda`. Saldos e pagamentos não são transportados entre contas.
+- **Regressão:** executar `node --test prototype/guest-ux-20/tests/p0-regression.test.mjs`. Verifica QR ocupado, caminho legado, duas comandas financeiras independentes, Pix pendente minimizado e restaurado, idempotência e partial/prepaid. Os cenários foram validados ainda com mocks DOM durante a implementação; execução do arquivo Node e teste visual/Playwright devem fazer parte do próximo gate.
+
+**Pendente para produção (não tratado como resolvido no backend):** tokens de sessão e autorização de Tab emitidos/verificados no servidor (não confiar em `sessionStorage` ou códigos de demonstração), intenção de pagamento durável no provedor/ledger, webhooks assinados e idempotentes, reconciliação Pix/cartão, tratamento de pagamentos concorrentes e retomada cross-device. O mecanismo de armazenamento no protótipo guarda somente fixtures fictícias e **não é uma implementação segura de autorização**.
+
+**Status revisado:** P0 de **fluxo no protótipo: corrigidos**. P0 de **segurança/financeiro na implementação real: ainda dependentes de API + integração**. O gate visual pixel-perfect continua pendente.
+
+---
+
 ## Veredito
 
 **GO para refinamento de UX e especificação; NO-GO para declarar pixel-perfect pronto para implementação.**
