@@ -154,6 +154,51 @@ class LiveUx2ReceiptRecoveryTest {
         api.closeTab(sessionA.tokens.accessToken, tabA.id)
     }
 
+    @Test fun partialCashRemainsOpenAndZeroBalanceCloseDoesNotCreateAnotherPayment() {
+        val args = InstrumentationRegistry.getArguments()
+        assumeTrue(args.getString("liveUx2Receipt") == "true")
+        val upstream = requireNotNull(args.getString("upstreamUrl"))
+        check(upstream.matches(Regex("""http://10\.0\.2\.2:[0-9]{4,5}/""")))
+        check(BuildConfig.RODADA_API_BASE_URL == "http://10.0.2.2:18131/")
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val session = AuthHttpClient(upstream).login(LoginRequest("android-post-drop-ci", "android-post-drop-operator", "2468", "partial-" + UUID.randomUUID()))
+        SecureSessionStore(context).save(session)
+        val api = OperationsHttpClient(upstream)
+        val point = requireNotNull(api.cashPoints(session.tokens.accessToken).firstOrNull { it.activeShiftId != null })
+        val product = api.products(session.tokens.accessToken).first { it.active && it.availability == "AVAILABLE" && it.priceCents in 1..1000 && it.variants.isEmpty() && it.modifierGroups.isEmpty() }
+        val tab = api.openTab(session.tokens.accessToken, "Partial " + UUID.randomUUID().toString().take(6))
+        api.confirmOrder(session.tokens.accessToken, tab.id, listOf(CartLine(product, 2)), UUID.randomUUID().toString())
+        val queue = PendingMutationIntentStore(context)
+        val auth = AuthRepository(context)
+        lateinit var model: OperationsViewModel
+        compose.runOnUiThread {
+            model = OperationsViewModel(OperationsRepository(auth), queue, auth, CorrectionsRepository(auth), RefundsRepository(auth))
+            model.selectTab(session, tab.id)
+        }
+        compose.waitUntil(30_000) { model.state.selectedTab?.summary?.id == tab.id && !model.state.submitting }
+        val total = model.state.selectedTab!!.summary.exposureCents
+        val partial = total / 2
+        check(partial > 0)
+        compose.runOnUiThread { model.collectPayment(session, partial, PaymentMethod.CASH, point.id, false) }
+        compose.waitUntil(30_000) { !model.state.submitting && model.state.pendingPayment == null && model.state.selectedTab?.payments?.size == 1 }
+        val first = api.tabDetail(session.tokens.accessToken, tab.id)
+        assertEquals("OPEN", first.summary.state)
+        assertEquals(total - partial, first.summary.exposureCents)
+        assertEquals(partial, first.payments.single().amountCents)
+        compose.runOnUiThread { model.collectPayment(session, total - partial, PaymentMethod.CASH, point.id, false) }
+        compose.waitUntil(30_000) { !model.state.submitting && model.state.pendingPayment == null && model.state.selectedTab?.payments?.size == 2 }
+        val paid = api.tabDetail(session.tokens.accessToken, tab.id)
+        assertEquals("OPEN", paid.summary.state)
+        assertEquals(0L, paid.summary.exposureCents)
+        compose.runOnUiThread { model.closeTab(session) }
+        compose.waitUntil(30_000) { !model.state.submitting && model.state.selectedTab?.summary?.state == "CLOSED" }
+        val closed = api.tabDetail(session.tokens.accessToken, tab.id)
+        assertEquals(paid.payments.map { it.id }.toSet(), closed.payments.map { it.id }.toSet())
+        assertEquals(total, closed.summary.paymentsCents)
+        assertTrue(queue.loadFor(session).isEmpty())
+        assertEquals(point.activeShiftId, api.cashPoints(session.tokens.accessToken).first { it.id == point.id }.activeShiftId)
+    }
+
     private fun faultStatus(): String {
         val connection = URL(BuildConfig.RODADA_API_BASE_URL + "__fault/status").openConnection() as HttpURLConnection
         try { return connection.inputStream.bufferedReader().use { it.readText() } } finally { connection.disconnect() }
