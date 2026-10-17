@@ -86,9 +86,10 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
             return
-        if self.path in ("/__fault/arm-table-start", "/__fault/arm-table-open"):
+        if self.path in ("/__fault/arm-table-start", "/__fault/arm-table-open", "/__fault/arm-payment", "/__fault/arm-close"):
             with self.server.lock:
-                self.server.mode = "start" if self.path.endswith("start") else "open"
+                self.server.mode = {"/__fault/arm-table-start": "start", "/__fault/arm-table-open": "open",
+                                    "/__fault/arm-payment": "payment", "/__fault/arm-close": "close"}[self.path]
                 self.server.armed = True
                 self.server.events = []
                 self.server.replays = []
@@ -147,9 +148,12 @@ class Handler(BaseHTTPRequestHandler):
             response_headers = upstream.getheaders()
             mode = self.server.mode
             route = urlsplit(self.path).path
-            matches = MATCH.fullmatch(route) if mode == "order" else re.fullmatch(
-                r"/hospitality/tables/[0-9a-fA-F-]+/service/start/" if mode == "start" else
-                r"/hospitality/occupancies/[0-9a-fA-F-]+/tabs/open/", route)
+            pattern = {"order": MATCH.pattern,
+                       "start": r"/hospitality/tables/[0-9a-fA-F-]+/service/start/",
+                       "open": r"/hospitality/occupancies/[0-9a-fA-F-]+/tabs/open/",
+                       "payment": r"/tabs/[0-9a-fA-F-]+/payments/",
+                       "close": r"/tabs/[0-9a-fA-F-]+/close/"}[mode]
+            matches = re.fullmatch(pattern, route)
             if method == "POST" and matches and 200 <= status < 300:
                 original = json.loads(body or b"{}")
                 data = json.loads(response_body)
@@ -161,7 +165,7 @@ class Handler(BaseHTTPRequestHandler):
                     "tab_id": data.get("tab_id"),
                     "table_id": data.get("table_id"),
                     "occupancy_id": data.get("occupancy_id") or data.get("active_occupancy", {}).get("id"),
-                    "idempotency_key": original["idempotency_key"],
+                    "idempotency_key": original.get("idempotency_key"),
                     "body_sha256": hashlib.sha256(body or b"").hexdigest(),
                 }
                 with self.server.lock:
