@@ -627,3 +627,11 @@ completa10px, valor18mono, referência efetiva e capacidade canônicas. Novos
 pedidos continuam no enforcement atualENFORCE até integração031. A variante
 adapta targetsvisuais39/42 da referência para hitarea44, sem reduzir legibilidade.
 Diferença de acessibilidade deve constar na matriz antes de aprovação final.
+
+Spec033: recebimento no Atendimento usa página contextual com Back, eyebrow,
+título, saldo, meio, valor e ação principal conforme PR212. O opt-in reutiliza
+PosCashReceipt; POS conserva sua apresentação. Caixa aberto é seleção canônica
+necessária à operação real CASH. Pix/cartão permanecem indisponíveis até contrato
+real homologado; a diferença funcional é registrada no gate de paridade. Valores
+preenchidos não são recebimentos confirmados. Formulário aberto bloqueia troca de
+Tab; Back sem intenção pendente volta à Conta. Recuperação mantém a mesma origem.

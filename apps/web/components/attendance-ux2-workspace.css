@@ -19,3 +19,5 @@
 .ux2ContentWorkspace{padding:0!important}.ux2BottomNav[hidden]{display:none}
 
 .ux2ProductName{display:block;background:none;border:0;color:inherit;text-align:left;padding:0;min-height:44px;width:100%;cursor:pointer}
+
+.ux2ContentWorkspace{display:flex;flex-direction:column}.ux2ContentWorkspace>.ux2Workspace{order:1}.ux2ReceiptHost{order:2}.ux2ContentWorkspace:has(>.ux2ReceiptHost:not([hidden]))>.ux2Workspace{padding-bottom:0}.ux2ReceiptEntry{padding:0 20px 128px}.ux2PaymentMethods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 16px}.ux2PaymentMethods button{border:1px solid var(--color-border-strong);border-radius:7px;background:var(--color-surface-1);color:var(--color-text-muted);min-height:44px;padding:9px 6px;font-size:12px;font-weight:750}.ux2PaymentMethods [aria-pressed="true"]{border-color:var(--color-accent);color:var(--color-accent)}.ux2PaymentHelp{font-size:12px;color:var(--color-text-muted);margin:6px 0 22px!important}.ux2Payment form>.ux2Button+.ux2Button{margin-top:8px}.ux2Payment .field input{font-family:var(--font-mono)}

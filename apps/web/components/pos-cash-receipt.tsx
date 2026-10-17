@@ -51,13 +51,15 @@ function clearIntent(intent: Intent) {
 }
 
 export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirmed,
-  apiRoot = "/api/pos", presentation = "pos", allowCloseAfterReceipt = false, onClosed }: {
+  apiRoot = "/api/pos", presentation = "pos", allowCloseAfterReceipt = false, onClosed, onPaymentSurfaceChange }: {
   tab: Tab | null; points: CashPoint[]; locked: boolean;
   apiRoot?: "/api/pos" | "/api/attendance"; presentation?: "pos" | "attendance";
+  onPaymentSurfaceChange?: (open: boolean) => void;
   allowCloseAfterReceipt?: boolean; onClosed?: (tabId: string) => Promise<void>;
   onPendingChange: (pending: boolean) => void; onConfirmed: (tabId: string) => Promise<void>;
 }) {
   const [amount, setAmount] = useState("");
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const [pointId, setPointId] = useState("");
   const [ready, setReady] = useState(false);
   const [pending, setPending] = useState<Intent | null>(null);
@@ -83,7 +85,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
     }
   }
   useEffect(() => { queueMicrotask(() => void initialize()); }, []);
-  useEffect(() => { onPendingChange(!ready || !!pending || busy); }, [ready, pending, busy, onPendingChange]);
+  useEffect(() => { onPendingChange(!ready || !!pending || busy || paymentOpen); }, [ready, pending, busy, paymentOpen, onPendingChange]);
 
   const activePoint = pointId || points[0]?.id || "";
   async function collect(fullAndClose = false, keepOpen = false) {
@@ -187,6 +189,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       await onConfirmed(intent.tab);
       if (intent.schema === 2 && intent.close_requested) await onClosed?.(intent.tab);
       clearIntent(intent); intentRef.current = null; setPending(null); setAmount("");
+      setPaymentOpen(false); onPaymentSurfaceChange?.(false);
       setMessage(intent.schema === 2 && intent.close_requested ? "Recebimento e encerramento confirmados." : "Recebimento confirmado. Saldo atualizado.");
     } catch {
       if (!attempted && !intentRef.current) {
@@ -200,7 +203,32 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
   }
 
   if (ready && !pending && (!tab || ["CLOSED", "CANCELLED"].includes(tab.state))) return null;
-  return <section className={presentation === "attendance" ? "attendanceReceipt" : "panel"} aria-label="Recebimento em dinheiro">
+  if (presentation === "attendance") {
+    const normalized = amount.trim().replace(",", ".");
+    const full = !!tab && allowCloseAfterReceipt && /^\d+(\.\d{1,2})?$/.test(normalized) && Math.round(Number(normalized)*100) === tab.exposure_cents && positiveInteger(tab.exposure_cents);
+    if (ready && !pending && !paymentOpen) return <section aria-label="Recebimento em dinheiro" className="ux2ReceiptEntry">
+      {message && <p className="ux2Notice" role="status">{message}</p>}
+      <button className="ux2Button primary block" disabled={locked || !positiveInteger(tab?.exposure_cents)} onClick={() => { setAmount(((tab?.exposure_cents??0)/100).toFixed(2).replace(".",",")); setPaymentOpen(true); onPaymentSurfaceChange?.(true); }}>Receber {money(tab?.exposure_cents??0)}</button>
+    </section>;
+    return <section className="ux2Workspace ux2Payment" aria-label="Recebimento em dinheiro">
+      <button className="ux2Back" disabled={busy || !!pending || !ready} onClick={() => {setPaymentOpen(false);onPaymentSurfaceChange?.(false);}}><span aria-hidden="true">‹</span> Voltar</button>
+      <div className="ux2Eyebrow">Recebimento manual</div><h1>Receber conta.</h1><p className="ux2Lede">{tab?.display_label || "Comanda original"}</p>
+      {message && <p className="ux2Notice" role="status">{message}</p>}
+      {pending ? <><p className="ux2Notice">Recebimento de {money(pending.payload.amount_cents)} na comanda original.</p>{canKeepOpen && <button className="ux2Button ghost block" disabled={busy} onClick={()=>void collect(false,true)}>Manter comanda aberta</button>}<button className="ux2Button primary block" disabled={busy} onClick={()=>void collect()}>{busy?"Verificando…":"Verificar mesmo recebimento"}</button></> : ready && tab ? <>
+        <div className="ux2Settlement"><small>Valor ainda a receber</small><strong>{money(tab.exposure_cents??0)}</strong><small>Pode receber só uma parte</small></div>
+        <div className="ux2SectionHead"><h2>Como foi recebido?</h2></div>
+        <div className="ux2PaymentMethods" role="group" aria-label="Meio de recebimento"><button type="button" aria-pressed="true">Dinheiro</button><button type="button" disabled>Pix indisponível</button><button type="button" disabled>Cartão indisponível</button></div>
+        <form onSubmit={event=>{event.preventDefault();void collect(full);}}>
+          <div className="field"><label htmlFor="attendance-cash-point">Caixa aberto</label><select id="attendance-cash-point" value={activePoint} disabled={busy || locked} onChange={e=>setPointId(e.target.value)}><option value="">Selecionar caixa aberto</option>{points.map(point=><option key={point.id} value={point.id}>{point.label}</option>)}</select></div>
+          <div className="field"><label htmlFor="attendance-cash-amount">Valor recebido (R$)</label><input id="attendance-cash-amount" inputMode="decimal" autoComplete="off" value={amount} disabled={busy || locked} onChange={e=>setAmount(e.target.value)} aria-describedby="attendance-cash-help" /></div>
+          <p id="attendance-cash-help" className="ux2PaymentHelp">Informe o valor recebido, sem incluir troco.</p>
+          <button type="submit" className="ux2Button primary block" disabled={busy || locked || !activePoint || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
+          {full && <button type="button" className="ux2Button ghost block" disabled={busy || locked || !activePoint} onClick={()=>void collect()}>Só registrar; manter comanda aberta</button>}
+        </form><p className="ux2Notice">Registre somente dinheiro efetivamente recebido. O servidor confirma o recebimento antes do encerramento.</p>
+      </> : <button className="ux2Button ghost block" onClick={()=>void initialize()}>Verificar armazenamento</button>}
+    </section>;
+  }
+  return <section className="panel" aria-label="Recebimento em dinheiro">
     <OperationalHeading as="h2" icon="wallet">Receber em dinheiro</OperationalHeading>
     {message && <p className="notice" role="status" data-state={pending || !ready ? "warning" : "info"}>{message}</p>}
     {pending ? <>
@@ -209,12 +237,10 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       <button className="buttonPrimary" disabled={busy} onClick={() => void collect()}>{busy ? "Verificando…" : "Verificar mesmo recebimento"}</button>
     </> : ready && tab ? <>
       <p>{tab.display_label || "Comanda selecionada"}</p>
-      {presentation === "attendance" && <p>Confirme o valor efetivamente recebido em dinheiro.</p>}
       <div className="field"><label htmlFor="pos-cash-point">Caixa aberto</label><select id="pos-cash-point" value={activePoint} disabled={busy || locked} onChange={e => setPointId(e.target.value)}>
         <option value="">Selecionar caixa aberto</option>{points.map(point => <option key={point.id} value={point.id}>{point.label}</option>)}
       </select></div>
       <div className="field"><label htmlFor="pos-cash-amount">Valor do pagamento</label><input id="pos-cash-amount" inputMode="decimal" value={amount} disabled={busy || locked} onChange={e => setAmount(e.target.value)} placeholder="Valor" /></div>
-      {presentation === "attendance" && allowCloseAfterReceipt && <button className="buttonPrimary" disabled={busy || locked || !activePoint || !positiveInteger(tab.exposure_cents)} onClick={() => void collect(true)}>{busy ? "Verificando…" : `Receber integralmente e encerrar · ${money(tab.exposure_cents ?? 0)}`}</button>}
       <button className="buttonPrimary" disabled={busy || locked || !activePoint || !amount || ["CLOSED", "CANCELLED"].includes(tab.state)} onClick={() => void collect()}>{busy ? "Verificando…" : "Receber em dinheiro"}</button>
     </> : <button className="buttonSecondary" onClick={() => void initialize()}>Verificar armazenamento</button>}
   </section>;

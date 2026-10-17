@@ -37,6 +37,7 @@ const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency",
 
 export type TableTabSelection = { requestId: number; tabId: string; occupancyId: string; tableId: string; tableLabel: string };
 export function OrderWorkspace({ presentation = "legacy", requestedSurface = "tab", addItemsRequest = 0, closeContextRequest = 0, contextualTaskNode, onContextChange, returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { presentation?: "legacy" | "ux2"; requestedSurface?: "tab" | "bill" | "catalog"; addItemsRequest?: number; closeContextRequest?: number; contextualTaskNode?: ReactNode; onContextChange?: (context: { tabId: string; surface: string } | null) => void; returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
+  const [receiptSurface, setReceiptSurface] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catalogLayerOpen, setCatalogLayerOpen] = useState(false);
   const [standaloneCreate, setStandaloneCreate] = useState(false);
@@ -399,8 +400,8 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
   if (!detail.response.ok) throw new Error("Não foi possível atualizar o saldo.");
   setSelected(detail.body as Tab); await load();
 }} />}</section>;
-  const attendanceReceipt = presentation === "ux2" && <div hidden={!cashPending && (!dialogOpen || dialogView !== "bill")} className="ux2ReceiptHost">
-    <PosCashReceipt apiRoot="/api/attendance" presentation="attendance" tab={selected} points={cashPoints}
+  const attendanceReceipt = presentation === "ux2" && <div hidden={!cashPending && !receiptSurface && (!dialogOpen || dialogView !== "bill")} className="ux2ReceiptHost">
+    <PosCashReceipt onPaymentSurfaceChange={setReceiptSurface} apiRoot="/api/attendance" presentation="attendance" tab={selected} points={cashPoints}
       allowCloseAfterReceipt={!cart.length} locked={!fresh || !orderIntent.ready || orderIntent.busy || correctionPending || confirming || !!orderIntent.pending || closing || selecting || opening || repeatLoading || !!repeatReview}
       onPendingChange={setCashPending} onConfirmed={async tabId => {
         selectedReadEpoch.current++;
@@ -416,7 +417,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     const sendable = rows.length > 0 && fresh && rows.every(row => row.product.active && row.product.availability === "AVAILABLE" && !selectionError(row.product, row.selection));
     if (repeatReview) return <>{attendanceReceipt}<RepeatOrderDialog presentation="ux2" review={repeatReview.review} enabled={repeatAllowed && repeatUnchanged} busy={confirming || orderIntent.busy} onAdd={quantities => void confirmRepeatedOrder(quantities)} onClose={() => { if (!confirming && !orderIntent.busy) setRepeatReview(null); }} /></>;
     return <>{attendanceReceipt}
-      <AttendanceUx2Workspace key={selected.id} tab={selected} surface={dialogView} products={products} lines={rows} total={total} locked={uxLocked} canSend={sendable} fresh={orderFresh && fresh} pending={!!orderIntent.pending} confirming={orderIntent.busy || confirming}
+      <AttendanceUx2Workspace hidden={receiptSurface || cashPending} key={selected.id} tab={selected} surface={dialogView} products={products} lines={rows} total={total} locked={uxLocked} canSend={sendable} fresh={orderFresh && fresh} pending={!!orderIntent.pending} confirming={orderIntent.busy || confirming}
         message={<>{message && <p className="ux2Notice" role="alert">{message}</p>}{orderIntent.message && <p className="ux2Notice" role="alert">{orderIntent.message}</p>}{draftFeedback && <p className="ux2Notice" role="status">{draftFeedback}</p>}</>}
         catalogState={uxCatalogs[selected.id] ?? {query:"",category:"Todos"}} onCatalogState={state => setUxCatalogs(current => ({...current,[selected.id]:state}))}
         credit={<AttendanceCreditBar position={selected as AttendanceCreditPosition} draftCents={dialogView === "tab" || dialogView === "bill" ? 0 : total} compact={dialogView === "tab"} onDetails={() => setDialogView("limit")} />}

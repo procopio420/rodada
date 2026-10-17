@@ -11,8 +11,8 @@ import "./attendance-ux2-workspace.css";
 type Product = OrderingProduct & { active: boolean; availability: string; category?: string };
 type Line = { product: Product; quantity: number; selection: Selection };
 export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
-export function AttendanceUx2Workspace({ tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
-  tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
+export function AttendanceUx2Workspace({ hidden = false, tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
+  hidden?: boolean; tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
   pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode; catalogState?: {query: string; category: string}; onCatalogState?: (state: {query:string;category:string}) => void;
   onSurface: (surface: AttendanceSurface) => void; onBack: () => void;
@@ -34,7 +34,7 @@ export function AttendanceUx2Workspace({ tab, surface, products, lines, total, l
   const reference = tabReference(tab);
   const destination = `${tab.display_label || reference} · ${tab.table_label ? `Mesa ${tab.table_label}` : "Sem mesa"}`;
   const latest = tab.orders?.at(-1);
-  return <section ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada">
+  return <section hidden={hidden} ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada">
     <button className="ux2Back" disabled={locked} onClick={() => surface === "tab" ? onBack() : onSurface(surface === "draft" ? "catalog" : "tab")}><span aria-hidden="true">‹</span> Voltar</button>
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
