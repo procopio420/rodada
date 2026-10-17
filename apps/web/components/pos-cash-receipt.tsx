@@ -202,8 +202,9 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
     } finally { sending.current = false; setBusy(false); }
   }
 
-  if (ready && !pending && (!tab || ["CLOSED", "CANCELLED"].includes(tab.state))) return null;
+  if (ready && !pending && !paymentOpen && (!tab || ["CLOSED", "CANCELLED"].includes(tab.state))) return null;
   if (presentation === "attendance") {
+    const terminal = !tab || ["CLOSED", "CANCELLED"].includes(tab.state);
     const normalized = amount.trim().replace(",", ".");
     const full = !!tab && allowCloseAfterReceipt && /^\d+(\.\d{1,2})?$/.test(normalized) && Math.round(Number(normalized)*100) === tab.exposure_cents && positiveInteger(tab.exposure_cents);
     if (ready && !pending && !paymentOpen) return <section aria-label="Recebimento em dinheiro" className="ux2ReceiptEntry">
@@ -214,15 +215,16 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       <button className="ux2Back" disabled={busy || !!pending || !ready} onClick={() => {setPaymentOpen(false);onPaymentSurfaceChange?.(false);}}><span aria-hidden="true">‹</span> Voltar</button>
       <div className="ux2Eyebrow">Recebimento manual</div><h1>Receber conta.</h1><p className="ux2Lede">{tab?.display_label || "Comanda original"}</p>
       {message && <p className="ux2Notice" role="status">{message}</p>}
+      {terminal && !pending && <p className="ux2Notice" role="status">A comanda não está aberta para recebimento. Volte para conferir a conta atualizada.</p>}
       {pending ? <><p className="ux2Notice">Recebimento de {money(pending.payload.amount_cents)} na comanda original.</p>{canKeepOpen && <button className="ux2Button ghost block" disabled={busy} onClick={()=>void collect(false,true)}>Manter comanda aberta</button>}<button className="ux2Button primary block" disabled={busy} onClick={()=>void collect()}>{busy?"Verificando…":"Verificar mesmo recebimento"}</button></> : ready && tab ? <>
         <div className="ux2Settlement"><small>Valor ainda a receber</small><strong>{money(tab.exposure_cents??0)}</strong><small>Pode receber só uma parte</small></div>
         <div className="ux2SectionHead"><h2>Como foi recebido?</h2></div>
         <div className="ux2PaymentMethods" role="group" aria-label="Meio de recebimento"><button type="button" aria-pressed="true">Dinheiro</button><button type="button" disabled>Pix indisponível</button><button type="button" disabled>Cartão indisponível</button></div>
-        <form onSubmit={event=>{event.preventDefault();void collect(full);}}>
+        <form onSubmit={event=>{event.preventDefault();if(!terminal)void collect(full);}}>
           <div className="field"><label htmlFor="attendance-cash-point">Caixa aberto</label><select id="attendance-cash-point" value={activePoint} disabled={busy || locked} onChange={e=>setPointId(e.target.value)}><option value="">Selecionar caixa aberto</option>{points.map(point=><option key={point.id} value={point.id}>{point.label}</option>)}</select></div>
           <div className="field"><label htmlFor="attendance-cash-amount">Valor recebido (R$)</label><input id="attendance-cash-amount" inputMode="decimal" autoComplete="off" value={amount} disabled={busy || locked} onChange={e=>setAmount(e.target.value)} aria-describedby="attendance-cash-help" /></div>
           <p id="attendance-cash-help" className="ux2PaymentHelp">Informe o valor recebido, sem incluir troco.</p>
-          <button type="submit" className="ux2Button primary block" disabled={busy || locked || !activePoint || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
+          <button type="submit" className="ux2Button primary block" disabled={busy || locked || terminal || !activePoint || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
           {full && <button type="button" className="ux2Button ghost block" disabled={busy || locked || !activePoint} onClick={()=>void collect()}>Só registrar; manter comanda aberta</button>}
         </form><p className="ux2Notice">Registre somente dinheiro efetivamente recebido. O servidor confirma o recebimento antes do encerramento.</p>
       </> : <button className="ux2Button ghost block" onClick={()=>void initialize()}>Verificar armazenamento</button>}

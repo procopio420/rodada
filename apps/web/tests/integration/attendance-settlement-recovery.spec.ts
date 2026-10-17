@@ -85,7 +85,8 @@ test("Attendance confirmed Payment permits keep open after concurrent consumptio
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
   expect(mutations).toBe(0); const bill=await api(page,`tabs/${tab.id}/`);
   expect(bill.state).toBe("OPEN");expect(bill.exposure_cents).toBe(product.price_cents);expect(bill.payments).toHaveLength(1);
-  await expect(page.getByLabel("Valor do pagamento")).toBeEnabled();
+  await page.getByRole("region",{name:"Recebimento em dinheiro",exact:true}).getByRole("button",{name:/^Receber R/}).click();
+  await expect(page.getByLabel("Valor recebido (R$)",{exact:true})).toBeEnabled();
 });
 
 test("Attendance preserves original pending identity when confirmed phase cannot be persisted",async({page})=>{

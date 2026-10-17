@@ -96,3 +96,23 @@ R3 financeiro independente sobre3fc2ac55: NO_FINDINGS_WITH_GAPS (outrocontexto
 review_e04_final), sem execução independente/GitHubapproval. Lacunas: repetir
 recovery/keepOpen emAttendance (atuais ensaios principais emPOS), storagephase
 failure e callbackfailure. Agente independente assumiu testes adicionais.
+
+## Página de pagamento fiel — incremento68b7f48c
+
+Conta abre páginaReceber conta com saldo canônico pré-preenchido, campo manual,
+Dinheiro selecionado, ação parcial ou integral+encerrar e opção manteraberta.
+Stage bloqueia trocaTab durante formulário; não cria intenção até confirmar.
+PIX/CARD indisponíveis e seleçãoCaixa são diferenças necessárias ao contrato real,
+registradas como gate de paridade, sem aprovação implícita. MotorPayment/Close
+reutilizado. Visual4/4PASS nos4tamanhos(15s), build/typecheck/lintPASS.
+
+Revisão independente do incremento encontrou P2: Tab fechada por outrooperador
+podia esconder formulário e manter bloqueio. Correção preserva saídaVoltar e
+mostra estado canônico terminal, sem novoPayment. Regressão visual concorrente
+adicionada; reexecuções visual/PG emandamento, não marcarPASSantesresultado.
+
+Testes independentes6194fbb9 incorporados:3/3PASS noSHAoriginal do teste/produção
+3fc2, cobrindoAttendance selectednull/reload, Payment/Close ACKlost, Close503,
+consumo concorrente+callback503 e falha storage na faseconfirmed. Sobre68b7 foram
+7/8PASS: única falha eraassert final do campo POSantigo, agora navegaReceber e
+valida campo da páginaUX2, mantendo todas as verificações monetárias.
