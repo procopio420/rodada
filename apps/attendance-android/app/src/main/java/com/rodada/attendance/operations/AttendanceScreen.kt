@@ -336,6 +336,7 @@ fun AttendanceScreen(
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
+                    onVerifyPending = { viewModel.revalidateConnection(session) },
                     onAdjustPricing = { adjustingPricing = true },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
@@ -698,6 +699,7 @@ internal fun TabWorkspace(
     requestedSection: String? = null,
     onRequestedSectionConsumed: () -> Unit = {},
     onAddQuantity: (Product, Customization, Int) -> Unit = { product, selection, quantity -> repeat(quantity) { onAdd(product, selection) } },
+    onVerifyPending: () -> Unit = onConfirmOrder,
 ) {
     var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Comanda") }
     LaunchedEffect(requestedSection) {
@@ -706,9 +708,12 @@ internal fun TabWorkspace(
             onRequestedSectionConsumed()
         }
     }
+    val pagesState = rememberSaveableStateHolder()
     if (workspaceSection != "Conta") {
-        Ux2TabPages(state, tab, workspaceSection, { workspaceSection = it }, onBack,
-            onAdd, onEdit, onQuantity, onConfirmOrder, onRepeatOrder, onResolveLimit)
+        pagesState.SaveableStateProvider("pages") {
+            Ux2TabPages(state, tab, workspaceSection, { workspaceSection = it }, onBack,
+                onAdd, onEdit, onQuantity, onConfirmOrder, onRepeatOrder, onResolveLimit, onVerifyPending)
+        }
         return
     }
     androidx.activity.compose.BackHandler { if (state.canLeaveTabContext()) workspaceSection = "Comanda" }

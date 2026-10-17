@@ -41,6 +41,7 @@ internal fun Ux2TabPages(
     onEdit: (String, Customization) -> Unit, onQuantity: (String, Int) -> Unit,
     onConfirm: () -> Unit, onRepeat: (RepeatOrderReview, Map<String, Int>) -> Unit,
     onLimit: () -> Unit,
+    onVerifyPending: () -> Unit = onConfirm,
 ) {
     val summary = tab.summary
     val label = summary.displayLabel.ifBlank { summary.operationalReference() }
@@ -52,6 +53,10 @@ internal fun Ux2TabPages(
     val pending = state.orderIntentId != null || state.queuedOrders.any { it.tabId == summary.id }
     var query by rememberSaveable(summary.id) { mutableStateOf("") }
     var category by rememberSaveable(summary.id) { mutableStateOf("Todos") }
+    val homeScroll = rememberScrollState()
+    val catalogScroll = rememberScrollState()
+    val reviewScroll = rememberScrollState()
+    val pageScroll = when (section) { "Comanda" -> homeScroll; "Pedido atual" -> reviewScroll; else -> catalogScroll }
     var configuring by remember(summary.id) { mutableStateOf<Product?>(null) }
     var editing by remember(summary.id) { mutableStateOf<CartLine?>(null) }
     var repeat by remember(summary.id) { mutableStateOf<RepeatOrderReview?>(null) }
@@ -74,7 +79,7 @@ internal fun Ux2TabPages(
         return
     }
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp).testTag("ux2-tab-pages")) {
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Column(Modifier.weight(1f).verticalScroll(pageScroll), verticalArrangement = Arrangement.spacedBy(13.dp)) {
             TextButton(onClick = back, enabled = !locked, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("‹  Voltar", style = AttendanceUx2.text(14), color = RodadaVisual.Muted) }
             Ux2Eyebrow(if (section == "Comanda") summary.operationalReference() else if (section == "Pedido atual") "Resumo opcional" else "Pedido para ${summary.operationalReference()}")
             Ux2Title(when (section) { "Comanda" -> label; "Pedido atual" -> "Resumo do pedido."; else -> "Adicionar itens." })
@@ -85,7 +90,7 @@ internal fun Ux2TabPages(
             if (pending) Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(8.dp)).border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(8.dp)).padding(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(OrderSubmissionStatus.message(if (state.submitting) RecoveryState.PENDING else RecoveryState.CHECKING), style = AttendanceUx2.text(15, 800), color = RodadaVisual.Amber)
                 Text("Não registre outro pedido. A verificação usa a mesma intenção e o destino original.", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
-                Ux2Action("Verificar mesmo pedido", !state.submitting && !state.loading, onConfirm, primary = true)
+                Ux2Action("Verificar mesmo pedido", !state.submitting && !state.loading, onVerifyPending, primary = true)
             }
             if (section == "Comanda") {
                 if (closed) Text("Comanda encerrada. Não é possível adicionar pedidos nem recebimentos.")

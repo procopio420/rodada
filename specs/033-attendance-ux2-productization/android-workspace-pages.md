@@ -62,3 +62,16 @@ XML JVM: 102 testes, zero falhas/errors/skips. APK debug montado; teste Android
 compilado, ainda não executado. Depreciação de createComposeRule permanece warning.
 Esse gate não aceita paridade visual, jornada real, API composta nem revisão R3.
 Runtime5558 permaneceu com Matrix durante o build; nenhuma instalação ocorreu.
+
+### Correções P1/P2 após revisão independente
+
+- P1: verificar intenção pendente usa callback próprio ligado ao
+  `revalidateConnection(session)` existente (readback canônico → fila durável →
+  reconciliação). Não passa por `confirmOrder`, que exige draft não vazio;
+  repetição ambígua com cart vazio continua verificável, sem criar intenção nova.
+- P2: holder interno em TabWorkspace conserva os estados de Ux2TabPages quando
+  Conta ocupa a composição. Home/catalog/resumo mantêm scrolls separados.
+  Regressão cobre catálogo→home→Conta→home→catálogo, query e categoria.
+- Primeiro runtime360/font1: 3/4 testes passaram; teste A/B/A falhou na asserção
+  textual do campo vazio porque a semântica inclui placeholder. Corrigida para
+  `EditableText`; falha e nova execução permanecem registradas, sem apagar prova.

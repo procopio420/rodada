@@ -86,11 +86,44 @@ class Ux2TabPagesTest {
         compose.onNodeWithText("Mesas").performClick()
         compose.onNodeWithText("B").performClick()
         compose.onNodeWithText("＋ Adicionar itens").performClick()
-        compose.onNode(hasSetTextAction()).assertTextEquals("")
+        compose.onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.EditableText, androidx.compose.ui.text.AnnotatedString("")))
         compose.onNodeWithText("Mesas").performClick()
         compose.onNodeWithText("A").performClick()
-        compose.onNode(hasSetTextAction()).assertTextEquals("inexistente")
+        compose.onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.EditableText, androidx.compose.ui.text.AnnotatedString("inexistente")))
         compose.onNodeWithText("Nenhum produto corresponde à pesquisa.").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun unknownRepeatWithEmptyCartVerifiesWithoutSubmittingDraft() {
+        var confirms = 0
+        var verifications = 0
+        compose.setContent { RodadaTheme { Surface {
+            TabWorkspace(state = OperationsUiState(selectedTab = tab, orderIntentId = "original-repeat-key", connectivity = ConnectivityState.STALE), tab = tab,
+                onBack = {}, onAdd = { _, _ -> }, onEdit = { _, _ -> }, onQuantity = { _, _ -> }, onConfirmOrder = { confirms++ }, onVerifyPending = { verifications++ },
+                onPay = {}, onClose = {}, onAdjustPricing = {}, onOperations = {}, onResolveLimit = {}, onCorrectItem = {}, onRefundPayment = {}, onSettleCorrection = {})
+        } } }
+        compose.onNodeWithText("Verificar mesmo pedido").performScrollTo().performClick()
+        assertEquals(1, verifications)
+        assertEquals(0, confirms)
+        compose.onNodeWithText("Trocar de mesa ou comanda").performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test fun accountRoundTripPreservesCatalogSearchAndCategory() {
+        compose.setContent { RodadaTheme { Surface {
+            TabWorkspace(state = OperationsUiState(products = listOf(product, product.copy(id = "coffee", name = "Café", category = "Bebidas")), selectedTab = tab, connectivity = ConnectivityState.ONLINE), tab = tab,
+                onBack = {}, onAdd = { _, _ -> }, onEdit = { _, _ -> }, onQuantity = { _, _ -> }, onConfirmOrder = {},
+                onPay = {}, onClose = {}, onAdjustPricing = {}, onOperations = {}, onResolveLimit = {}, onCorrectItem = {}, onRefundPayment = {}, onSettleCorrection = {})
+        } } }
+        compose.onNodeWithText("＋ Adicionar itens").performClick()
+        compose.onNodeWithText("Outros").performClick()
+        compose.onNode(hasSetTextAction()).performTextInput("inexistente")
+        compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+        compose.onNodeWithText("Conferir / fechar conta").performScrollTo().performClick()
+        compose.onNodeWithText("← Voltar à comanda").performClick()
+        compose.onNodeWithText("＋ Adicionar itens").performScrollTo().performClick()
+        compose.onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.EditableText, androidx.compose.ui.text.AnnotatedString("inexistente")))
+        compose.onNode(hasSetTextAction()).performTextClearance()
+        compose.onNodeWithText("Água").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Café").assertDoesNotExist()
     }
 
 }
