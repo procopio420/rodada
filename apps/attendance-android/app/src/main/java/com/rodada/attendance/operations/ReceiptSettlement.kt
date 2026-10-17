@@ -23,6 +23,7 @@ internal suspend fun settleReceipt(
         "Recebimento ainda não confirmado no histórico canônico."
     }
     check(detail.summary.state != "CLOSED" || detail.summary.exposureCents == 0L) { "Encerramento divergente do saldo canônico." }
+    check(!original.closeRequested || detail.summary.state != "CANCELLED") { "Recebido; comanda cancelada exige revisão do estado canônico." }
     observed(detail)
     if (original.closeRequested && detail.summary.state !in setOf("CLOSED", "CANCELLED")) {
         check(detail.summary.exposureCents == 0L) {

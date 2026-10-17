@@ -675,7 +675,7 @@ class OperationsViewModel(
                 provider.collect(com.rodada.attendance.payments.TapPaymentRequest(prepared.id, prepared.amountCents))
                 provider.tearDown()
                 repository.reconcileIntegrated(session, prepared.id)
-            }.onSuccess { acceptIntegrated(session, it) }.onFailure {
+            }.mapCatching { acceptIntegrated(session, it, intent) }.onFailure {
                 state = state.copy(submitting = false, tapPhase = "SIMULAÇÃO — resultado desconhecido; reconcilie sem cobrar novamente")
                 showFailure(it)
             }
@@ -696,7 +696,7 @@ class OperationsViewModel(
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
         viewModelScope.launch {
             runCatching { repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
-                .onSuccess { acceptIntegrated(session, it) }
+                .mapCatching { acceptIntegrated(session, it, intent) }
                 .onFailure {
                     state = state.copy(submitting = false)
                     showFailure(it, "Confirmando Pix. Verifique a mesma intenção; não cobre novamente.")
@@ -706,31 +706,33 @@ class OperationsViewModel(
 
     fun reconcilePix(session: StoredSession) {
         if (state.submitting) return
-        val payment = state.integratedPayment
-        if (payment == null) {
-            val pending = state.pendingPayment
-            val persisted = state.selectedTab?.payments?.lastOrNull { it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED") }
-            if (persisted != null) {
-                reconcilePixId(session, persisted.id)
-            } else if (pending != null) {
-                state = state.copy(submitting = true)
-                viewModelScope.launch {
-                    runCatching { repository.integratedPayment(session, pending.tabId, pending.amountCents,
-                        pending.idempotencyKey, pending.method.apiValue, pending.expectedVersion) }
-                        .onSuccess { acceptIntegrated(session, it) }
-                        .onFailure { state = state.copy(submitting = false); showFailure(it) }
-                }
+        val original = state.pendingPayment
+        if (original != null) {
+            if (original.method !in setOf(PaymentMethod.PIX, PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT)) return
+            state = state.copy(submitting = true)
+            viewModelScope.launch {
+                runCatching {
+                    recoverIntegratedIntent(original,
+                        replay = { command -> repository.integratedPayment(session, command.tabId, command.amountCents,
+                            command.idempotencyKey, command.method.apiValue, command.expectedVersion) },
+                        reconcile = { repository.reconcileIntegrated(session, it) })
+                }.mapCatching { acceptIntegrated(session, it, original) }
+                    .onFailure { state = state.copy(submitting = false); showFailure(it) }
             }
             return
         }
-        reconcilePixId(session, payment.id)
+        val paymentId = state.integratedPayment?.id ?: state.selectedTab?.payments?.lastOrNull {
+            it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED")
+        }?.id ?: return
+        reconcilePixId(session, paymentId)
     }
 
     private fun reconcilePixId(session: StoredSession, id: String) {
+        if (state.pendingPayment != null) { reconcilePix(session); return }
         state = state.copy(submitting = true, errorMessage = null)
         viewModelScope.launch {
-            runCatching { repository.reconcileIntegrated(session, id) }
-                .onSuccess { acceptIntegrated(session, it) }
+            runCatching { repository.reconcileIntegrated(session, id).also { check(it.id == id) } }
+                .mapCatching { acceptIntegrated(session, it) }
                 .onFailure {
                     state = state.copy(submitting = false)
                     showFailure(it, "Pagamento ainda não verificado. Não cobre novamente.")
@@ -738,13 +740,28 @@ class OperationsViewModel(
         }
     }
 
-    private suspend fun acceptIntegrated(session: StoredSession, payment: com.rodada.attendance.payments.IntegratedPayment) {
-        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message)
-        if (!payment.blocksNewCharge) {
-            state.pendingPayment?.let { pendingMutationIntentStore.remove(it.id) }
-            state = state.copy(pendingPayment = null, paymentIntentId = null)
+    private suspend fun acceptIntegrated(session: StoredSession,
+        payment: com.rodada.attendance.payments.IntegratedPayment,
+        source: RecoveryIntent.StartPayment? = null,
+    ) {
+        val pending = state.pendingPayment
+        if (pending != null) {
+            check(source == pending) { "A resposta não pertence à intenção de pagamento original." }
+            validateIntegratedIntent(pending, payment)
         }
-        runCatching { repository.tabDetail(session, payment.tabId) }.onSuccess(::replaceDetail)
+        val detail = repository.tabDetail(session, payment.tabId)
+        check(detail.summary.id == payment.tabId)
+        if (!payment.blocksNewCharge) {
+            check(detail.payments.any { it.id == payment.id && it.amountCents == payment.amountCents &&
+                it.method == payment.method && it.status == payment.status && it.simulated == payment.simulated }) {
+                "Pagamento ainda não corresponde ao histórico canônico."
+            }
+            pending?.let { pendingMutationIntentStore.remove(it.id) }
+        }
+        replaceDetail(detail)
+        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message,
+            pendingPayment = if (payment.blocksNewCharge) pending else null,
+            paymentIntentId = if (payment.blocksNewCharge) state.paymentIntentId else null)
     }
 
     fun collectPayment(
