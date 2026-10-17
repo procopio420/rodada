@@ -59,3 +59,25 @@ Typecheck/ESLint/build PASS. Três testes financeiros reais Attendance passaram
 concorrente+keepOpen/callback503, e falha ao persistir fase confirmada. Mesmo
 payment/UUID, readback canônico e ausência de cobrança adicional continuam
 assertados. Revisão final de composição e CI ainda pendentes.
+### Recuperação em páginas completas
+
+E02-04/05,E06-02: helper passa pela página Comanda→Adicionar itens; catálogo usa
+quantidade direta e resumo opcional. Três testes existentes de perda de ACK
+foram migrados sem remover doubleclick/reload/mesmo payload/Order/ledger;
+390 também retoma pelo POS para validar a intenção original entre superfícies.
+Resultado real PG55638:3PASS/29,6s,360/390/430. A primeira tentativa falhou por
+label de busca antigo; o seletor final usa Buscar produto. Typecheck/ESLint dos
+arquivos modificados PASS. Testes amplos remanescentes em migração, CI nãoaceito.
+
+Regressão funcional encontrada na migração: a página ocultava repetição histórica
+na Conta e bloqueava atalho home quando havia rascunho, embora engine existente
+já preservasse esse rascunho. Restaurada entrada histórica e atalho sem count gate;
+a engine continua autorizando/revalidando intenção original. Ação histórica na
+Conta preserva capacidade anterior e exige comparação/aprovação de diferença
+visual; não constitui paridade aceita. Teste real de repetição ainda em execução.
+
+A regressão de remoção identificou outra diferença involuntária: a Conta UX2
+listava linha cancelada como consumo ativo, enquanto a superfície anterior já a
+retirava. Restaurado filtro de linhas CANCELLED apenas na lista ativa; histórico
+canônico e ledger não são alterados. O teste mantém a assertion de ausência da
+linha cancelada e as provas de reversão financeira, sem enfraquecimento.

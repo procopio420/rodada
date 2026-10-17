@@ -1,0 +1,57 @@
+[2m[WebServer] [22m(node:833174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:833233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:833233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (15.9s)
+(node:834698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:834698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  2 tests/integration/tab-pagination.spec.ts:7:5 › Real PostgreSQL Attendance finds the 201st Tab and retains an unsent draft (36.1s)
+
+  ✓  3 tests/integration/tab-search.spec.ts:7:5 › PostgreSQL global homonym search finds older Tabs and preserves contextual page drafts (11.5s)
+
+
+  1) tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('2× Kitchen E2E item', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('2× Kitchen E2E item', { exact: true })[22m
+
+
+      23 |   await expect(workspace.getByRole("button", { name: /^Enviar / })).toHaveCount(0);
+      24 |   await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+    > 25 |   await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
+         |                                                                        ^
+      26 |   const browserRequest = {
+      27 |     get: (path: string) => call(path),
+      28 |     post: (path: string, options: { data: unknown }) => call(path, options.data),
+        at /home/lucas/projects/rodada/ux2-web-remaining-ci/apps/web/tests/integration/attendance.spec.ts:25:72
+
+    Error Context: test-results/remaining-focused/attendance-real-Atendiment-72532-and-logout-without-payments/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/remaining-focused/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/remaining-focused/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+  2 passed (1.3m)
