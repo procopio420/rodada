@@ -281,6 +281,8 @@ class DispatchFoundationTests(TestCase):
                 "id": str(task.id),
                 "task_type": "DELIVERY",
                 "state": DispatchTaskState.OPEN,
+                "claimed_by_id": None,
+                "claimed_at": None,
                 "priority": 0,
                 "destination_label": "",
                 "destination_table_id": None,
