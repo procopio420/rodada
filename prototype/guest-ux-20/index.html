@@ -327,6 +327,28 @@ body{font:500 15px/1.45 var(--font)}
 .sent-order-actions button{border:0;background:transparent;padding:7px 0;font-size:12px;font-weight:800;color:var(--accent);min-height:40px;text-align:left}
 .sent-order-actions span{font-size:11px;color:var(--muted)}
 
+/* Guest comanda: action first, dense statuses and progressive financial disclosure. */
+.order-pulse{display:flex;flex-wrap:wrap;gap:7px 13px;margin:4px 0 10px}
+.order-pulse span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--paper)}
+.pulse-dot{width:7px;height:7px;display:inline-block;border-radius:50%;background:var(--muted);flex-shrink:0}
+.pulse-dot.ready{background:var(--success)}.pulse-dot.preparing{background:var(--accent)}
+.order-compact-row{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;width:100%;min-height:57px;background:transparent;border:0;border-bottom:1px solid var(--border);padding:8px 2px;color:var(--paper)}
+.order-compact-row>span:first-child{min-width:0;flex:1}
+.order-compact-row strong{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.order-compact-row small{font-size:12px;display:block;color:var(--muted);margin-top:3px}
+.comanda-order-section .quick-repeat{margin-top:12px}
+.comanda-balance{margin:18px 0 12px;padding:16px;border:1px solid var(--border-strong);background:var(--surface);border-radius:12px}
+.comanda-balance>.micro{display:block;margin-bottom:4px}
+.comanda-balance>strong{font-size:30px;line-height:1.15;letter-spacing:-.035em}
+.balance-subline{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px;font-size:12px;color:var(--muted)}
+.settled-note{font-size:12px;color:var(--success);line-height:1.4;margin:10px 0 14px}
+.bill-details{border-bottom:1px solid var(--border);margin:12px 0 10px}
+.bill-details>summary{list-style:none;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;font-weight:800;cursor:pointer;color:var(--paper)}
+.bill-details>summary::-webkit-details-marker{display:none}
+.bill-details>summary span{font-size:12px;color:var(--muted)}
+.bill-details-content{padding:3px 0 16px}.bill-line-price{text-align:right;flex-shrink:0}.bill-line-price small{display:block}
+.comanda-empty-state{border:1px solid var(--border);border-radius:11px;padding:16px;margin-top:15px}.comanda-empty-state strong{font-size:14px}.comanda-empty-state p{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0 16px}
+
 </style>
 </head><body>
 <div class="shell">
@@ -571,7 +593,7 @@ function reconcileUnknownOrder(){
 
 /* Demo tenant-bound tabs. Only one authorized tab's financial data is hydrated in
    the guest view. REAL authorization must be issued and checked by the server. */
-const tabFields=['orders','payments','cart','pendingOrder','pendingOrderNeedsReview','checkout','paymentIntents','pickedLines','orderRequests','disputes','feeConfig','orderCount','paymentMode','paymentCount','paymentValue','selectedLines','previewAmount','paymentSuccess','repeated','cartValidation'];
+const tabFields=['orders','payments','cart','pendingOrder','pendingOrderNeedsReview','checkout','paymentIntents','pickedLines','orderRequests','disputes','feeConfig','orderCount','paymentMode','paymentCount','paymentValue','selectedLines','previewAmount','paymentSuccess','repeated','cartValidation','lastOrderNotice'];
 function saveActiveTab(){
  if(!S.hasJoined||!S.tabKey)return;
  const tab=S.tabs[S.tabKey]||{label:S.tabLabel,authorized:true};
@@ -975,19 +997,40 @@ function renderOrderNotice(){
 }
 function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'account')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / PEDIDO</div><h1>Adicionar itens</h1>${renderOrderNotice()}${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 
+
+function activeOrderStage(order){
+ const st=order.status||'';
+ if(order.cancelled||st==='Cancelado pela equipe')return 'done';
+ if(/Entregue|Retirado/i.test(st))return 'done';
+ if(/Pronto|chegando/i.test(st))return 'ready';
+ if(/preparo/i.test(st))return 'preparing';
+ return 'waiting';
+}
 function renderComandaOrders(){
  if(isFicha())return '';
- const count=S.orders.length,last=S.orders.at(-1);
- return `<div class="comanda-order-section">
-  <div class="queuehead"><h2>Meus pedidos</h2><button class="inline-link compact-link" onclick="S.modal='orders';render()">${count?'Ver todos ('+count+')':'Ver pedidos'} ›</button></div>
-  ${last?`<button class="queueitem compact-order" onclick="S.modal='orders';render()">
-    <span class="queue-top"><span class="queue-type">${esc(last.id)}${last.source==='STAFF'?' · Garçom':''}</span><span>· ${esc(last.status)}</span></span>
-    <strong class="queue-title">${esc(last.items.map(x=>x.qty+'× '+x.name).join(' · '))}</strong>
-    <span class="queue-detail"><span>Acompanhar pedido</span><strong>›</strong></span>
-  </button>
-  ${!S.accountClosed?`<button class="quick-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>`:''}`:
-  '<p class="comanda-empty-copy">Seus pedidos vão aparecer aqui.</p>'}
- </div>`
+ const count=S.orders.length;
+ const active=S.orders.filter(o=>activeOrderStage(o)!=='done');
+ const nReady=active.filter(o=>activeOrderStage(o)==='ready').length;
+ const nPreparing=active.filter(o=>activeOrderStage(o)==='preparing').length;
+ const nWaiting=active.filter(o=>activeOrderStage(o)==='waiting').length;
+ const focus=active.slice().sort((x,y)=>{
+   const rank={ready:0,preparing:1,waiting:2};
+   return rank[activeOrderStage(x)]-rank[activeOrderStage(y)];
+ }).slice(0,2);
+ return `<section class="comanda-order-section" aria-label="Acompanhamento dos pedidos">
+ <div class="queuehead"><h2>Seus pedidos</h2><button class="inline-link compact-link" onclick="S.modal='orders';render()">${count?'Ver todos ('+count+')':'Ver pedidos'} ›</button></div>
+ ${active.length?`<div class="order-pulse" aria-label="${active.length} pedidos em andamento">
+ ${nReady?`<span><b class="pulse-dot ready"></b>${nReady} ${nReady===1?'pronto ou chegando':'prontos ou chegando'}</span>`:''}
+ ${nPreparing?`<span><b class="pulse-dot preparing"></b>${nPreparing} em preparo</span>`:''}
+ ${nWaiting?`<span><b class="pulse-dot waiting"></b>${nWaiting} recebido${nWaiting===1?'':'s'}</span>`:''}
+ </div>
+ ${focus.map(o=>`<button class="order-compact-row" onclick="S.modal='orders';render()">
+ <span><strong>${esc(o.id)} · ${esc(o.items.map(i=>i.qty+'× '+i.name).join(' · '))}</strong><small>${esc(o.status)}</small></span><span class="arrow">›</span>
+ </button>`).join('')}
+ ${active.length>2?`<button class="inline-link" onclick="S.modal='orders';render()">+ ${active.length-2} ${active.length===3?'pedido':'pedidos'} em andamento ›</button>`:''}
+ `:count?'<p class="comanda-empty-copy">Pedidos anteriores concluídos. Veja o histórico se precisar.</p>':'<p class="comanda-empty-copy">Seus pedidos vão aparecer aqui.</p>'}
+ ${count&&!S.accountClosed?'<button class="quick-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>':''}
+ </section>`
 }
 function renderComandaActions(){
  if(isFicha())return '';
@@ -1000,7 +1043,38 @@ function renderComandaActions(){
  ${S.multiTab&&S.hasJoined?'<button class="rowbtn" onclick="exitGuestTab()"><span><strong class="rowtitle">Trocar de comanda</strong></span><span class="arrow">›</span></button>':''}
  </div></details>`
 }
-function renderAccount(){const t=total(),p=paid(),bal=balance(),has=t>0;const lines=allLines();return `<div class="content">${isFicha()?'<button class="back" onclick="switchView(\'ficha\')"><span>‹</span> Minha ficha</button>':''}<div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / CONSUMO</div><h1>${isFicha()?'Conta da ficha':'Minha comanda'}</h1>${!isFicha()?`<p class="comanda-context">${esc(S.tabLabel||'Conta do grupo')} · ${esc(tableName())}</p>${renderComandaOrders()}`:''}${S.feeConfig.serviceRate?`<button class="service-toggle" onclick="toggleServiceCharge()"><span><strong>Serviço ${S.feeConfig.serviceRate}% · opcional</strong><small>${S.feeConfig.serviceOptIn?'Incluído na conta':'Toque para incluir na conta'}</small></span><span class="service-checkbox" aria-hidden="true">${S.feeConfig.serviceOptIn?'✓':'＋'}</span></button>`:''}${has?`<div class="settlement-summary" style="margin-top:4px"><small>${bal?'Falta pagar':'Conta quitada'}</small><strong class="mono" style="color:${bal?'var(--paper)':'var(--success)'}">${money(bal)}</strong><div class="receiptline"><small>Consumo total</small><strong>${money(t)}</strong></div><div class="receiptline"><small>Já pago</small><strong style="color:var(--success)">${money(p)}</strong></div><div class="progress"><div style="width:${t?100*p/t:0}%"></div></div></div><div class="sectionhead"><h2>Consumo</h2><small>${lines.length} ITENS</small></div>${lines.map(x=>`<div class="details-row"><div><strong>${x.qty}× ${esc(x.name)}</strong><small>${x.productId?.startsWith('charge-')?'Taxa detalhada':(x.cancelled?'Cancelado pela equipe · ':'')+'Pedido '+x.orderId+' · '+(x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner)))}</small></div><div style="text-align:right"><b class="amount">${x.cancelled?'Cancelado':money(x.price*x.qty)}</b>${(allocated()[x.id]||0)>0?`<small class="positive">Pago ${money(allocated()[x.id])}</small>`:''}</div></div>`).join('')}${!bal?`<div class="order-status"><strong>✓ Tudo pago</strong><p>${isFicha()?'A ficha segue ativa até o encerramento.':'A mesa continua ocupada até a equipe liberá-la.'}</p></div>${isFicha()?'':'<button class="btn ghost" onclick="requestAssistance(\'bill\')">Avisar que vamos sair</button>'}`:''}${S.payments.length?'<div class="sectionhead"><h2>Pagamentos</h2></div>':''}${S.payments.length?S.payments.map(x=>`<div class="receiptline"><div><b style="font-size:13px">${esc(labelOwner(x.actor))}</b><small style="display:block">Pagamento simulado</small></div><strong style="color:var(--success)">${money(x.amount)}</strong></div>`).join(''):``}<button class="inline-link" onclick="S.modal='dispute-choose';render()">↳ Algum valor errado? Solicitar revisão ›</button>${S.disputes.length?`<button class="inline-link" onclick="S.disputeFocus=S.disputes.at(-1).id;S.modal='dispute-track';render()">◷ Acompanhar solicitação ›</button>`:''}<button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button>`:`<div class="empty"><h2>Sem consumo ainda</h2><p>Pedidos feitos pelo celular e pelo garçom aparecem aqui.</p><button class="btn" style="margin-top:22px" onclick="switchView('catalog')">＋ VER CARDÁPIO</button></div>`}${renderComandaActions()}</div>`}
+
+function renderAccount(){
+ const t=total(),p=paid(),bal=balance(),has=t>0,lines=allLines();
+ return `<div class="content">
+ ${isFicha()?'<button class="back" onclick="switchView(\'ficha\')"><span>‹</span> Minha ficha</button>':''}
+ <div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / CONSUMO</div>
+ <h1>${isFicha()?'Conta da ficha':'Minha comanda'}</h1>
+ ${!isFicha()?`<p class="comanda-context">${esc(S.tabLabel||'Conta do grupo')} · ${esc(tableName())}</p>${renderComandaOrders()}`:''}
+ ${has?`<div class="comanda-balance">
+ <span class="micro">${bal?'FALTA PAGAR':'TUDO PAGO'}</span>
+ <strong class="mono">${money(bal)}</strong>
+ <div class="balance-subline"><span>Já pago: ${money(p)}</span><span>Consumo total: ${money(t)}</span></div>
+ </div>
+ ${!bal?`<div class="settled-note">✓ Conta quitada. ${isFicha()?'Sua ficha permanece disponível.':'A mesa segue com o grupo até a saída.'}</div>`:''}
+ <details class="bill-details">
+ <summary>Ver consumo detalhado <span>${lines.length} itens <span aria-hidden="true">⌄</span></span></summary>
+ <div class="bill-details-content">
+ ${S.feeConfig.serviceRate?`<button class="service-toggle" onclick="toggleServiceCharge()"><span><strong>Serviço ${S.feeConfig.serviceRate}% · opcional</strong><small>${S.feeConfig.serviceOptIn?'Incluído na conta':'Toque para incluir na conta'}</small></span><span class="service-checkbox" aria-hidden="true">${S.feeConfig.serviceOptIn?'✓':'＋'}</span></button>`:''}
+ ${lines.map(x=>`<div class="details-row"><div><strong>${x.qty}× ${esc(x.name)}</strong>
+ <small>${x.productId?.startsWith('charge-')?'Taxa detalhada':(x.cancelled?'Cancelado pela equipe · ':'')+'Pedido '+x.orderId+' · '+(x.owner===S.actor?'Seu pedido':esc(labelOwner(x.owner)))}</small></div>
+ <div class="bill-line-price"><b class="amount">${x.cancelled?'Cancelado':money(x.price*x.qty)}</b>
+ ${(allocated()[x.id]||0)>0?`<small class="positive">Pago ${money(allocated()[x.id])}</small>`:''}</div></div>`).join('')}
+ ${S.payments.length?`<div class="sectionhead"><h2>Pagamentos</h2></div>${S.payments.map(x=>`<div class="receiptline"><div><b>${esc(labelOwner(x.actor))}</b><small>Pagamento simulado</small></div><strong class="positive">${money(x.amount)}</strong></div>`).join('')}`:''}
+ <button class="inline-link" onclick="S.modal='dispute-choose';render()">Algum valor errado? Pedir revisão ›</button>
+ ${S.disputes.length?`<button class="inline-link" onclick="S.disputeFocus=S.disputes.at(-1).id;S.modal='dispute-track';render()">Acompanhar solicitação ›</button>`:''}
+ </div></details>
+ ${!bal&&!isFicha()?'<button class="inline-link" onclick="requestAssistance(\'bill\')">Avisar que vamos sair ›</button>':''}
+ `:
+ `<div class="comanda-empty-state"><strong>Sem consumo ainda</strong><p>Seus pedidos e os lançamentos do garçom vão aparecer aqui.</p><button class="quick-repeat" onclick="switchView('catalog')">Ver cardápio →</button></div>`}
+ ${renderComandaActions()}
+ </div>`
+}
 function renderOverlay(){if(!S.modal)return '';const m=S.modal;let title='',body='',footer='';const back=(to)=>`<button class="linkish" onclick="S.modal='${to}';render()">← Voltar</button>`;
 if(m==='ficha-how'){title='Retirar no bar';body=`<div class="ficha-steps"><div><b>1</b><span>Faça seu pedido pelo celular.</span></div><div><b>2</b><span>Espere aparecer <strong>Pronto para retirar</strong>.</span></div><div><b>3</b><span>Mostre <strong class="mono">${esc(S.fichaCode)}</strong> ao bartender.</span></div></div><p class="ficha-smallprint">O bartender confere o código e os itens. Não precisa escanear ou confirmar retirada.</p>`;footer=`<button class="btn" onclick="S.modal=null;render()">Entendi</button>`}
 else if(m==='pickup-items'){
