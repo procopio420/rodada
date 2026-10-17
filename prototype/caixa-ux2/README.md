@@ -2,6 +2,12 @@
 
 Protótipo navegável de recebimentos, caixa e histórico. **Somente dados fictícios**, persistidos em `localStorage`; não acessa backend, PSP, POS, fila de Bar/Cozinha ou banco real.
 
+## Especificação operacional para implementação
+
+O contrato consolidado da experiência do caixa (jornadas, linguagem de sangria/suprimento, estados financeiros, responsividade, mapeamento para Spec 012 e 18 critérios de aceite para o produto real) está em **[Caixa 2.0 — contrato de UX operacional](../../docs/design/caixa-ux2-operational-ux.md)**.
+
+Este README registra o histórico dos ajustes do protótipo; a especificação operacional é a referência para implementação Web/API e QA, sem substituir as regras financeiras da Spec 012.
+
 ## Auditoria de operador — 2026-10-17
 
 Correções aplicadas a partir do uso simulado de um caixa movimentado:
