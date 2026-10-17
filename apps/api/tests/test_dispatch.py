@@ -235,6 +235,7 @@ class DispatchFoundationTests(TestCase):
         assert queue.json()["results"] == [
             {
                 "id": str(task.id),
+                "task_type": "DELIVERY",
                 "state": DispatchTaskState.OPEN,
                 "priority": 0,
                 "destination_label": "",
@@ -249,6 +250,15 @@ class DispatchFoundationTests(TestCase):
                 "quantity": 1,
                 "tab_label": "Ana",
                 "age_seconds": queue.json()["results"][0]["age_seconds"],
+                "target_version": 1,
+                "zone_id": None,
+                "target": {
+                    "kind": "TAB", "tab_id": str(item.order.tab_id),
+                    "table_id": None, "occupancy_id": None, "generation": None,
+                },
+                "order_id": str(item.order_id),
+                "fulfillment_station": None,
+                "item_state": "READY",
             }
         ]
 

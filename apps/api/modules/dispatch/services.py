@@ -218,8 +218,8 @@ def refresh_tab_destination(tab, actor):
 @transaction.atomic
 def create_service_request(*, request_id, task_type, actor=None, table_id=None, session_token=None):
     """Persist a structured call; identity makes retries safe after completion."""
-    from modules.hospitality.models import Table, TableOccupancy
     from modules.guest_access.services import _locked_authorized_session, _record_guest_audit
+    from modules.hospitality.models import Table, TableOccupancy
 
     if task_type not in (DispatchTaskType.SERVICE_REQUEST, DispatchTaskType.BILL_REQUEST):
         raise DispatchServiceError("INVALID_REQUEST_TYPE", "Tipo de solicitação inválido.")
@@ -235,6 +235,15 @@ def create_service_request(*, request_id, task_type, actor=None, table_id=None, 
         occupancy = TableOccupancy.objects.filter(table=table, released_at__isnull=True).first()
     if occupancy is None or occupancy.released_at is not None:
         raise DispatchServiceError("ACTIVE_OCCUPANCY_REQUIRED", "Atendimento ativo obrigatório.", 409)
+    requested_tab_id = None
+    # Session and table are locked by guest authorization. Moving/releasing
+    # an assignment also locks this table, so capture a valid origin only.
+    if session and session.tab_id and TabOccupancyAssignment.objects.filter(
+        tab_id=session.tab_id, tab__venue_id=table.venue_id,
+        occupancy=occupancy, released_at__isnull=True,
+        occupancy__generation=table.access_generation,
+    ).exists():
+        requested_tab_id = session.tab_id
     # All callers lock the destination table before this lookup/create, so
     # concurrent retries in a visit serialize without a second task.
     existing = DispatchTask.objects.filter(pk=request_id).first()
@@ -249,6 +258,8 @@ def create_service_request(*, request_id, task_type, actor=None, table_id=None, 
             task = DispatchTask.objects.create(
                 id=request_id, venue_id=table.venue_id, task_type=task_type,
                 destination_table=table, destination_occupancy=occupancy,
+                requested_tab_id=requested_tab_id,
+                requesting_guest_session=session,
                 destination_label=f"Mesa {table.label}",
             )
     except IntegrityError:
