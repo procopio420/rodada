@@ -200,3 +200,15 @@ test('Two-tab navigation and payment CTA remain visible with a populated account
   assert.ok(run("S.scene==='account' && balance()>0"));
   assert.ok(run("renderAccount().includes('Ver consumo detalhado')"));
 });
+
+
+test('Cancelled orders are not suggested as a new round', () => {
+  const run = boot('#pay');
+  run("S.orders.push({id:'#999',status:'Cancelado pela equipe',cancelled:true,items:[makeItem('ipa',1,'','you')]})");
+  assert.ok(run("repeatableOrder().id !== '#999'"));
+  run("repeatLast()");
+  assert.ok(run("S.repeated.every(x=>x.productId!=='ipa')"));
+  run("S.orders.forEach(x=>{x.cancelled=true;x.status='Cancelado pela equipe'})");
+  assert.equal(run('repeatableOrder()'), null);
+  assert.equal(run("renderComandaOrders().includes('Mais uma rodada')"), false);
+});
