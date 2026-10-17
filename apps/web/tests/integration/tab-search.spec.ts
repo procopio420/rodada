@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { selectExistingAttendanceTab } from "./attendance-helpers";
 
-test("PostgreSQL global homonym search finds older Tabs and preserves unified-dialog drafts", async ({ page }) => {
+test("PostgreSQL global homonym search finds older Tabs and preserves contextual page drafts", async ({ page }) => {
   test.setTimeout(90000);
   execFileSync(process.env.RODADA_TEST_PYTHON!, ["-c", `import os
 os.environ['DJANGO_SETTINGS_MODULE']='rodada_api.settings'
@@ -29,23 +29,29 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   const matches = await page.evaluate(async () =>
     (await (await fetch("/api/attendance/tabs/?q=joao%20da%20praca")).json()).results);
   expect(matches).toHaveLength(2);
-  const popup = page.locator(".attendanceOrderDialog");
+  const popup = page.getByRole("region", { name: "Comanda selecionada", exact: true });
 
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 900 });
     await selectExistingAttendanceTab(page, "João  da Praça");
+    await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     await addCatalogItem(page, "Kitchen E2E item");
-    await popup.getByRole("button", { name: /Pedido atual/ }).click();
+    await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
     await expect(popup.getByText(`${[360, 390, 430].indexOf(width) + 1}× Kitchen E2E item`, { exact: true })).toBeVisible();
     await popup.getByRole("button", { name: "Voltar", exact: true }).click();
 
+    await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+    await expect(popup.getByRole("heading", { name: "João  da Praça", exact: true })).toBeVisible();
+    await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+    await expect(popup).not.toBeVisible();
     await page.getByLabel("Buscar mesa ou comanda").fill("joao da praca");
     const others = page.getByRole("region", { name: "Outras comandas" });
     for (const match of matches)
       await expect(others.locator(`button[data-tab-id][data-tab-id="${match.id}"]`)).toBeVisible();
 
     await selectExistingAttendanceTab(page, "João  da Praça");
-    await popup.getByRole("button", { name: /Pedido atual/ }).click();
+    await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+    await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
     await expect(popup.getByText(`${[360, 390, 430].indexOf(width) + 1}× Kitchen E2E item`, { exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
