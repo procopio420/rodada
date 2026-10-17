@@ -31,3 +31,17 @@ Nenhum critério integralmente aceito por este documento.
 - Testes novos cobrem orchestration JVM e instrumentação opt-in com Django/PG real,
   mas sua existência não comprova execução. Resultados finais serão registrados
   após os processos terminarem e sempre associados ao SHA efetivamente compilado.
+
+## R3: respostas financeiras tardias
+
+A revisão independente encontrou um P1: um readback iniciado pelo operador A podia
+terminar depois de `ensureLoaded` trocar a sessão e limpar os locks da sessão B.
+`4003b726` invalida respostas por geração de sessão (inclusive A → B → A) e exige
+que a intenção em memória e o envelope durável ainda sejam os originais antes de
+checkpoint, Close, remoção ou publicação. Falhas tardias também ficam sem efeito
+na nova sessão. O envelope anterior permanece disponível para reconciliação.
+
+Três regressões JVM cobrem coleta tardia, readback suspenso com intenção B e troca
+A → B → A. Elas exercitam o fence usado pelo ViewModel e a sequência real
+`settleReceipt`; não constituem um ensaio completo da troca de operador na UI.
+Nova revisão independente e os gates do SHA corrigido ainda são necessários.
