@@ -57,6 +57,13 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertExists()
                     compose.onNodeWithText("Concluir chamada").assertExists()
+                    listOf("Assumir chamada", "Concluir chamada").forEach { label ->
+                        val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+                        compose.onNodeWithText(label, useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                        check(layouts.single().lineCount <= 2) { "Action label must remain readable: $label" }
+                        check(!layouts.single().hasVisualOverflow) { "Action label overflow: $label" }
+                        compose.onNodeWithText(label).assertHeightIsAtLeast(androidx.compose.ui.unit.Dp(48f))
+                    }
                     captureCriticalEvidence(compose, "live-agora-explicit-fallback", compose.onRoot())
                     // Leaving the workspace ends the task-origin navigation. Reopening the
                     // same Tab manually must not restore the old call.

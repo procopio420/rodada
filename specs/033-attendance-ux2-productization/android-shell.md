@@ -136,3 +136,9 @@ paridade integral seguem não executados/fora deste ensaio.
 Gate visual font2: NO-GO. A captura de fallback430/font2 mostra a ação Concluir
 chamada quebrando palavras em coluna estreita; a jornada automatizada passar
 não comprova legibilidade. Correção visual e novo sign-off ficam pendentes.
+
+Correção visual solicitada após esse gate: contexto de chamada usa coluna com
+botões de largura completa em fontScale>=1.5 ou área menor que360dp; demais
+larguras dividem o espaço igualmente. Ambos mantêm mínimo48dp e todas as ações,
+sem alterar gates de autorização/freshness. Regressão exige até duas linhas,
+sem overflow e altura>=48dp. Exige novo ensaio430/font2 no SHA da correção.
