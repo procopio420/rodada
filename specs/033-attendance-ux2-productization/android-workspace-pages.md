@@ -94,3 +94,13 @@ preparação preservada localmente. Revisão do teste/proxy ainda pendente.
 Screenshot incerta mantém aviso antigo “Enviando”; correção textual/paridade
 pendente. Não prova MainActivity/reinício, aparelho/TalkBack, todas larguras ou
 paridade integral; nenhum épico/AC global aceito.
+
+fa1a859f: o estado pendente suprime notice genérico antigo e mantém recuperação/
+erros específicos. Assertions agora leem a prova do proxy e exigem mesma Tab,
+UUID, OrderID e hash em todos os eventos/replays. Revisão R3/R2 independente
+sem findings. Ensaio real repetido com proxy permanente:PASS1/14,525s em390/font1.
+102 JVM/build/instrumentação/lint PASS3m26s. Fixture Compose passou6casos em cada
+360/390/430dp×font1/2, incluindo filtroConta/A-B-A e carrinho vazio; não converter
+esse resultado em evidência backend das seis combinações. Manifest e logs novos
+estão em evidence/spec033-native-repeat/final-assertions; versão anterior preservada.
+Paridade visual pareada, MainActivity/reinício e homologação continuam pendentes.
