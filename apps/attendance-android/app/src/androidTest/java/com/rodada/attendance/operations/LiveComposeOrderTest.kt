@@ -86,7 +86,9 @@ class LiveComposeOrderTest {
             java.io.File(files, "catalog-cart-ready").writeText("ready")
             compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
         }
-        if (offlineFault) waitText("SEM SINAL")
+        if (offlineFault) compose.waitUntil(30_000) {
+            compose.onAllNodes(hasTestTag("attendance-connectivity") and hasText("sem sinal", substring = true)).fetchSemanticsNodes().isNotEmpty()
+        }
         val confirmation = compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo()
         if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
         if (offlineFault) {

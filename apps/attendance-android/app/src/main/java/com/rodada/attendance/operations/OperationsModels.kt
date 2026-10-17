@@ -116,6 +116,11 @@ data class DeliveryTask(
     val quantity: Int,
     val tabLabel: String,
     val ageSeconds: Long,
+    val target: StaffTaskTarget = StaffTaskTarget.Unavailable,
+    val fulfillmentStation: String? = null,
+    val orderItemId: String? = null,
+    val orderId: String? = null,
+    val claimedById: String? = null,
 )
 
 data class CartLine(

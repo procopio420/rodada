@@ -5,6 +5,7 @@ import org.json.JSONObject
 data class ServiceRequest(
     val id: String, val type: String, val state: String, val destination: String,
     val claimedById: String?, val ageSeconds: Long?,
+    val target: StaffTaskTarget = StaffTaskTarget.Unavailable,
 ) {
     fun belongsToOther(staffId: String) = claimedById != null && claimedById != staffId
     fun responsibility(staffId: String) = when {
@@ -20,6 +21,7 @@ data class ServiceRequest(
             json.optString("destination_label").ifBlank { "Destino não informado" },
             if (json.isNull("claimed_by_id")) null else json.getString("claimed_by_id"),
             if (json.isNull("age_seconds")) null else json.getLong("age_seconds"),
+            StaffTaskTarget.fromPayload(json),
         )
     }
 }

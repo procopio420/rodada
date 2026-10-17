@@ -27,6 +27,7 @@ object RodadaVisual {
     val Surface = Color(0xFF1B1713)
     val Control = Color(0xFF252019)
     val Border = Color(0xFF3A3228)
+    val StrongBorder = Color(0xFF4D4335)
     val Paper = Color(0xFFF3ECE1)
     val Ink = Color(0xFF17130F)
     val Muted = Color(0xFFBBAE9B)
