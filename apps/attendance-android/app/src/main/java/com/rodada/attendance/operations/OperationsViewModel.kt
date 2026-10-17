@@ -661,11 +661,15 @@ class OperationsViewModel(
                 (loadedSessionKey == null || loadedSessionKey == "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}") &&
                 pending == expected && (expected == null ||
                     (expected!!.staffId == session.staffId && expected!!.venueId == session.venueId &&
-                        expected!!.deviceId == session.deviceId &&
-                        pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>()
-                            .any { it == expected }))
+                        expected!!.deviceId == session.deviceId))
             },
             checkpoint = { updated -> expected = updated },
+            verify = {
+                check(expected == null || pendingMutationIntentStore.loadFor(session)
+                    .filterIsInstance<RecoveryIntent.StartPayment>().any { it == expected }) {
+                    "A intenção financeira durável mudou. Confira a recuperação original."
+                }
+            },
         )
     }
 

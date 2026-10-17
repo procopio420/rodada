@@ -64,6 +64,16 @@ class FinancialResponseFenceTest {
         assertFalse(current.isCurrent())
     }
 
+    @Test fun `storage verification failure still permits current session error presentation`() {
+        val fence = FinancialResponseFence()
+        val guard = fence.capture(current = { true }, verify = { error("Unreadable encrypted storage") })
+        try { guard.check(); fail("Cannot mutate without durable verification") }
+        catch (_: IllegalStateException) { }
+        assertTrue(guard.isCurrent())
+        fence.invalidate()
+        assertFalse(guard.isCurrent())
+    }
+
     @Test fun `late collect response cannot checkpoint or close after session changes`() = runBlocking {
         val fence = FinancialResponseFence()
         val guard = fence.capture({ true })

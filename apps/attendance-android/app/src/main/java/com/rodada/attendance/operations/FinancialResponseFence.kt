@@ -7,15 +7,18 @@ internal class FinancialResponseFence {
     private var generation = 0L
     fun invalidate() { generation++ }
 
-    fun capture(current: () -> Boolean, checkpoint: (RecoveryIntent.StartPayment) -> Unit = {}): Guard {
+    fun capture(current: () -> Boolean, checkpoint: (RecoveryIntent.StartPayment) -> Unit = {}, verify: () -> Unit = {}): Guard {
         val originalGeneration = generation
-        return Guard({ generation == originalGeneration && current() }, checkpoint)
+        return Guard({ generation == originalGeneration && current() }, checkpoint, verify)
     }
 
     class Guard internal constructor(private val current: () -> Boolean,
-        private val update: (RecoveryIntent.StartPayment) -> Unit) {
+        private val update: (RecoveryIntent.StartPayment) -> Unit, private val verify: () -> Unit) {
         fun isCurrent(): Boolean = current()
-        fun check() { if (!isCurrent()) throw CancellationException("A sessão ou intenção financeira original mudou.") }
+        fun check() {
+            if (!isCurrent()) throw CancellationException("A sessão ou intenção financeira original mudou.")
+            verify()
+        }
         fun checkpoint(intent: RecoveryIntent.StartPayment) { update(intent) }
     }
 }
