@@ -1,0 +1,29 @@
+{
+  "source_sha": "359917ff",
+  "prototype_sha": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
+  "tests": "9/9 Playwright, zero retries; production build/typecheck/eslint passed",
+  "scope": "Web presentation only; controlled fixtures, not integration evidence",
+  "limitations": [
+    "Android full shell comparison pending",
+    "Web font2 and multiple/stale cash-point visual cases pending",
+    "Tab fixture lacks prototype fictional historical orders"
+  ],
+  "hashes": {
+    "web-tab-1280.png": "006b4497124bae02e0b2a7b64b2cfbf806490850ba52a56d07f27f043c46bb0f",
+    "web-catalog-430.png": "c6840d001cc0a5defe54b2351edbb1ad04355c1b5fe18f80aeecd521a1fb8694",
+    "web-review-1280.png": "a0dae50111057e8350c02a9e55ecb0fefbb026c3d9a7ea07ff3b85343595a826",
+    "web-payment-360.png": "8d030953f920aeeb55907a400bf7ff1aafd5f066107398db92f6bcdd9373ca2d",
+    "web-review-360.png": "5cf55d2507960fa690b70e6c6c54ab43f3150a3193541aaa780402405abfb567",
+    "web-payment-390.png": "54e888fb21ac2df688b94d5cb3c9657be6aad740e054306cb664a4b20f4d4e6e",
+    "web-payment-430.png": "fcee46ef66cbcda0a0188366c696d1bb10517335e20dca3848553cc105f42477",
+    "web-catalog-1280.png": "cf6758e7fd02bee1137008b9e5c9ade0e19163ed76a962908b37100a604831c8",
+    "web-tab-390.png": "c1871629d6c2a05bb690d0b17d7336294e47bd771242fa9527e78674bd71440f",
+    "web-catalog-390.png": "39b44f2fa2b4fe1600c2625a9edfb574e2367868f9833c506b4e7beb8788fba9",
+    "web-review-430.png": "e611c67fb770d9356d5edd73020a7217e37c604750b991254ed01b6e36ada0ef",
+    "web-review-390.png": "3682f681fafca628636a7b19a8ca126b8ffac7dda7d40d9c05b2890d8a260464",
+    "web-tab-430.png": "8f9682f41c299669c940e48c628607a442bd41b39091ea0fa5e6c25aeec8907c",
+    "web-tab-360.png": "72549492c6eece324f2d15507e715019a001e8bc434b1c0c971cd49335b2b574",
+    "web-payment-1280.png": "f1823f4ae067e108b67c63ae4e955fe269a9c1dc3c80dde6f673effd1f090b13",
+    "web-catalog-360.png": "3114f394cc24cfc83d736f78d3e7f03f078a368bb043e78da6d33f420204fd01"
+  }
+}
