@@ -1,6 +1,6 @@
 # Backlog mestre — Spec 033 por epic
 
-**Não executado:** todos os itens abaixo são pedidos futuros de engenharia. Detalhes e critérios em cada epic. IDs estáveis: E01-xx até E06-xx. Não abrir uma GitHub issue por task automaticamente; esta spec é o tracker mestre.
+**Execução parcial em andamento:** as caixas permanecem abertas até evidência suficiente por tarefa e plataforma. Status incremental em `parity.md`, `baseline.md` e nas notas de cada épico; código ou uma suíte estreita não concluem a tarefa. Detalhes e critérios em cada epic. IDs estáveis: E01-xx até E06-xx. Não abrir uma GitHub issue por task automaticamente; esta spec é o tracker mestre.
 
 ## E01 — Contexto e navegação
 
