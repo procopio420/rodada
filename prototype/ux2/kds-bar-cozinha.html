@@ -14,7 +14,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .stage{padding:10px;overflow-x:auto;overflow-y:hidden;background:#0d0b09;min-height:300px}
 .holder{margin:0 auto;width:max-content;max-width:none}
 .surface{display:flex;flex-direction:column;position:relative;container:station / inline-size;width:1200px;height:clamp(500px,calc(100dvh - var(--controls-h,70px) - 25px),920px);background:var(--bg);border:1px solid var(--edge);border-radius:10px;overflow:hidden;box-shadow:0 10px 30px #0006}
-.surface.mobile{width:min(390px,calc(100vw - 22px))}.surface.tablet{width:850px}.surface.desktop{width:1200px}
+.surface.mobile{width:min(390px,calc(100vw - 22px))}.surface.tablet{width:min(850px,calc(100vw - 22px))}.surface.desktop{width:min(1200px,calc(100vw - 22px))}
 .head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 17px;background:#1b1713;border-bottom:1px solid #3a3228;flex:none}
 .heading{display:flex;align-items:center;gap:13px;min-width:0}.wordmark{font-weight:950;font-size:21px;letter-spacing:-1px}.wordmark span{color:var(--amber)}.divider{height:30px;width:1px;background:var(--edge)}
 .sub{font-size:11px;letter-spacing:.8px;font-weight:850;color:var(--muted);text-transform:uppercase}.station{font-size:22px;font-weight:900}
@@ -166,7 +166,7 @@ function render({resetScroll=false,focus=null}={}){
  requestAnimationFrame(layout);
 }
 function layout(){const controls=root.querySelector('.controls');root.style.setProperty('--controls-h',Math.ceil(controls.getBoundingClientRect().height)+'px');
- const width=device==='mobile'?'min(390px,calc(100vw - 22px))':device==='tablet'?'850px':'1200px';surface.style.width=width;holder.style.width=device==='mobile'?'min(390px,calc(100vw - 22px))':width;
+ const width=device==='mobile'?'min(390px,calc(100vw - 22px))':device==='tablet'?'min(850px,calc(100vw - 22px))':'min(1200px,calc(100vw - 22px))';surface.style.width=width;holder.style.width=device==='mobile'?'min(390px,calc(100vw - 22px))':width;
  stage.style.overflowX='auto';surface.style.transform='none';holder.style.height='auto';
 }
 function log(kind,id){history.push({kind,id,time:Date.now()})}
