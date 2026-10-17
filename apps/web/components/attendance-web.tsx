@@ -108,10 +108,10 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   }, []);
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 15000); return () => clearInterval(timer); }, [refresh]);
   function openTableTab(table: Table, tab: Tab) {
+    if (tableOpeningLock.current || busy || moveLocked || pendingOrder || !online || !table.active_occupancy) return;
     if (originTaskId && orderOrigin.current.screen === "now") { setRequestedSurface(originTaskType === "BILL_REQUEST" ? "bill" : "tab"); }
     else { setOriginTaskId(null); setRequestedSurface(pickingOrder ? "catalog" : "tab"); orderOrigin.current = {screen:"tables",tableId:table.id}; }
     setPickingOrder(false);
-    if (tableOpeningLock.current || busy || moveLocked || pendingOrder || !online || !table.active_occupancy) return;
     setWorkspaceReturnFocus(document.activeElement as HTMLElement | null);
     tableOpeningLock.current = true; setTableOpening(true); setError(""); setMessage("");
     setTableSelection({ requestId: ++openingTableRequest.current, tabId: tab.id, tableId: table.id, tableLabel: table.label, occupancyId: table.active_occupancy.id });
