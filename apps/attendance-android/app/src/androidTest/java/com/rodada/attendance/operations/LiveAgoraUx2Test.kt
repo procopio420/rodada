@@ -23,9 +23,18 @@ class LiveAgoraUx2Test {
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
-        // This opt-in runner exercises task navigation; invoke login's real action
-        // independent of IME movement. Login touch/IME acceptance is a separate gate.
-        compose.onNodeWithText("Entrar").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) { check(it()) }
+        // Dismiss a visible IME, then tap the real button after its viewport settles.
+        if (androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true) {
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+            compose.waitUntil(10_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+            }
+        }
+        compose.waitForIdle()
+        if (compose.onAllNodes(hasText("Entrar") and hasAnyAncestor(hasScrollAction())).fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithText("Entrar").performScrollTo()
+        }
+        compose.onNodeWithText("Entrar").assertIsDisplayed().performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
