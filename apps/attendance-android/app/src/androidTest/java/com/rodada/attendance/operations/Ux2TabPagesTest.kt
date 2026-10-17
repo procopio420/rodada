@@ -47,7 +47,7 @@ class Ux2TabPagesTest {
                 "Pedido atual", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, { sends++ }, { _, _ -> }, {})
         } } }
         compose.onNodeWithText("Enviando pedido...").assertDoesNotExist()
-        compose.onNodeWithText("Editar configuração").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Editar configuração").assertDoesNotExist()
         compose.onNodeWithContentDescription("Adicionar Água").assertIsNotEnabled()
         compose.onNodeWithText("Verificar mesmo pedido").performScrollTo().performClick()
         assertEquals(1, sends)
@@ -125,6 +125,26 @@ class Ux2TabPagesTest {
         compose.onNode(hasSetTextAction()).performTextClearance()
         compose.onNodeWithText("Água").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Café").assertDoesNotExist()
+    }
+
+    /** Same presentation data as PR212; isolated Compose, no API mutation evidence. */
+    @Test fun prototypeMarinaCatalogAndSummary() {
+        val names = listOf("Chopp Pilsen", "Água sem gás", "Refrigerante lata", "Suco de laranja", "Batata frita", "Polenta frita", "Pastel de queijo", "Hambúrguer da casa")
+        val prices = listOf(1400L, 600L, 800L, 1200L, 2800L, 2600L, 1600L, 3400L)
+        val products = names.mapIndexed { index, name -> Product("p${index + 1}", name, prices[index], true,
+            if (index < 4) "BAR" else "KITCHEN", "AVAILABLE", category = if (index < 4) "Bebidas" else if (index < 7) "Porções" else "Lanches") }
+        val marina = TabDetail(TabSummary("1048", "Marina", "OPEN", 1, 5600, 0, 5600,
+            effectiveLimitCents = 20000, remainingCapacityCents = 14400, tableLabel = "08", relationshipSnapshot = "REGULAR"), emptyList())
+        compose.setContent {
+            var section by remember { mutableStateOf("Cardápio") }
+            RodadaTheme { Surface { Ux2TabPages(OperationsUiState(products = products, cart = listOf(CartLine(products.first(), 1)), connectivity = ConnectivityState.ONLINE),
+                marina, section, { section = it }, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {}) } }
+        }
+        captureCriticalEvidence(compose, "prototype-marina-catalog", compose.onRoot())
+        compose.onNodeWithText("Ver resumo · 1 itens · ${formatCents(1400)}").performScrollTo().performClick()
+        compose.onNodeWithText("Editar configuração").assertDoesNotExist()
+        compose.onNodeWithText("1× Chopp Pilsen").performScrollTo().assertIsDisplayed()
+        captureCriticalEvidence(compose, "prototype-marina-summary", compose.onRoot())
     }
 
 }

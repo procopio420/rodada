@@ -86,11 +86,14 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
     var raw by rememberSaveable(summary.id) { mutableStateOf("${summary.exposureCents / 100},${(summary.exposureCents % 100).toString().padStart(2, '0')}") }
     var method by rememberSaveable(summary.id) { mutableStateOf(PaymentMethod.CASH) }
     var cashPoint by rememberSaveable(summary.id) { mutableStateOf(state.cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty()) }
+    val openCashPoints = state.cashPoints.filter { it.activeShiftId != null }
+    val selectedCashPoint = openCashPoints.singleOrNull()?.id ?: cashPoint
+    var paymentDetails by rememberSaveable(summary.id) { mutableStateOf(false) }
     val amount = parseCents(raw)
     val full = method in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL) && amount == summary.exposureCents && state.cart.isEmpty() && state.orderIntentId == null
     val valid = amount != null && amount > 0 && amount <= summary.exposureCents && !state.submitting && pending == null &&
         summary.state !in setOf("CLOSED", "CANCELLED") && !summary.serviceAssessmentStale &&
-        (method != PaymentMethod.CASH || state.cashPoints.any { it.id == cashPoint && it.activeShiftId != null })
+        (method != PaymentMethod.CASH || state.cashPoints.any { it.id == selectedCashPoint && it.activeShiftId != null })
     BackHandler { if (!state.submitting && pending == null) onBack() }
     Column(Modifier.fillMaxSize().background(RodadaVisual.Ground).verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
         Ux2AccountBack(!state.submitting && pending == null, onBack)
@@ -116,19 +119,19 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                     }
                 }
             }
-            Text(if (state.paymentProviderSimulated && method == PaymentMethod.PIX)
-                "SIMULAÇÃO Pix. Não recebe dinheiro; não comprova liquidação real."
-                else "Pix depende da capacidade canônica do estabelecimento; cartão integrado aguarda homologação.", style = AttendanceUx2.text(12))
-            if (state.tapSimulationEnabled) Ux2Action("Testar aproximação · SIMULAÇÃO", valid,
-                { onPay(amount ?: 0, PaymentMethod.TAP_CREDIT, null, false) })
-            Ux2Action(if (method == PaymentMethod.EXTERNAL_TERMINAL) "✓ Terminal externo confirmado" else "Registrar terminal externo confirmado", !state.submitting, { method = PaymentMethod.EXTERNAL_TERMINAL })
-            if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O aplicativo não efetua essa cobrança.")
+            if (state.paymentProviderSimulated && method == PaymentMethod.PIX)
+                Text("SIMULAÇÃO Pix. Não recebe dinheiro; não comprova liquidação real.", style = AttendanceUx2.text(12), color = RodadaVisual.Amber)
+            if (method == PaymentMethod.EXTERNAL_TERMINAL)
+                Text("Registre somente após confirmação no terminal/provedor. O aplicativo não efetua essa cobrança.", style = AttendanceUx2.text(12))
             if (method == PaymentMethod.CASH) {
-                Text("Caixa aberto", style = AttendanceUx2.text(13, 740), color = RodadaVisual.Muted)
-                state.cashPoints.filter { it.activeShiftId != null }.forEach { point ->
-                    Ux2Action((if (cashPoint == point.id) "✓ " else "") + point.label, !state.submitting, { cashPoint = point.id })
+                val openPoints = openCashPoints
+                if (openPoints.size != 1) {
+                    Text("Caixa aberto", style = AttendanceUx2.text(13, 740), color = RodadaVisual.Muted)
+                    openPoints.forEach { point ->
+                        Ux2Action((if (cashPoint == point.id) "✓ " else "") + point.label, !state.submitting, { cashPoint = point.id })
+                    }
+                    if (openPoints.isEmpty()) Text("Abra um caixa antes de receber dinheiro.")
                 }
-                if (state.cashPoints.none { it.activeShiftId != null }) Text("Abra um caixa antes de receber dinheiro.")
             }
             Text("Valor recebido (R$)", color = RodadaVisual.Muted, style = AttendanceUx2.text(13, 740))
             OutlinedTextField(raw, { raw = it }, enabled = !state.submitting,
@@ -140,9 +143,21 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                 modifier = Modifier.fillMaxWidth().heightIn(min = 53.dp))
             Text("Informe o valor recebido, sem incluir troco.", style = AttendanceUx2.text(12))
             Ux2Action(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
-                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) cashPoint else null, full) }, true)
+                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, full) }, true)
             if (full) Ux2Action("Só registrar; manter comanda aberta", valid,
-                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) cashPoint else null, false) })
+                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, false) })
+            if (method == PaymentMethod.CASH && openCashPoints.size == 1)
+                Text("Caixa: ${openCashPoints.single().label}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            TextButton({ paymentDetails = !paymentDetails }, enabled = !state.submitting,
+                contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) {
+                Text(if (paymentDetails) "Recolher outros meios e condições" else "Outros meios e condições", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            }
+            if (paymentDetails) {
+                Text("Pix depende da capacidade canônica do estabelecimento; cartão integrado aguarda homologação.", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+                if (state.tapSimulationEnabled) Ux2Action("Testar aproximação · SIMULAÇÃO", valid,
+                    { onPay(amount ?: 0, PaymentMethod.TAP_CREDIT, null, false) })
+                Ux2Action(if (method == PaymentMethod.EXTERNAL_TERMINAL) "✓ Terminal externo confirmado" else "Registrar terminal externo confirmado", !state.submitting, { method = PaymentMethod.EXTERNAL_TERMINAL })
+            }
         }
         state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         state.noticeMessage?.let { Text(it) }

@@ -11,7 +11,7 @@ import org.junit.Test
 /** Deterministic presentation tests; never evidence of a real financial mutation. */
 class Ux2AccountPagesTest {
     @get:Rule val compose = createComposeRule()
-    private val tab = TabDetail(TabSummary("tab", "Ana", "OPEN", 1, 2400, 0, 2400), emptyList())
+    private val tab = TabDetail(TabSummary("1048", "Marina", "OPEN", 1, 2400, 0, 2400, tableLabel = "08", effectiveLimitCents = 20000, remainingCapacityCents = 17600, relationshipSnapshot = "REGULAR"), emptyList())
 
     @Test fun fullReceiptOffersCloseAndKeepOpenWithOriginalCashPoint() {
         var command: List<Any?>? = null
