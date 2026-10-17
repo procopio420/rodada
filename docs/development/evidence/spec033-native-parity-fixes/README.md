@@ -10,4 +10,8 @@ Delta de apresentação:
 
 Fixtures de apresentação: Marina/Mesa08, exposição56/limite200/draft14 com os mesmos oito produtos do protótipo; recebimento Marina/Mesa08/saldo24. ID da Tab é uma fixture explícita, não inferido da mesa. Capturas de teste Compose são isoladas e não provam shell, API ou liquidação real. Diferenças de referência canônica e indisponibilidade de PSP não estão implicitamente aprovadas.
 
-Validação e capturas serão registradas após a execução. Sem aparelho físico, sem aceite global de paridade, sem merge/deploy.
+Fonte final: `a7298ee2` (inclui correção de revisão P2: observações/configurações restauradas mantêm edição). Controles pintados conforme protótipo: categorias40dp; quantidade39×42dp; detalhes36dp/compacto28dp, com alvo nativo mínimo e teste de toque fora da pintura. Categorias preservam ordem recebida; cabeçalho informa contagem real filtrada. Fonte200% adapta crédito para preservar legibilidade.
+
+Execução: `ANDROID_HOME=/home/lucas/Android/Sdk JAVA_HOME=/home/lucas/.local/share/mise/installs/java/17.0.2 ./gradlew testDebugUnitTest assembleDebug lintDebug assembleDebugAndroidTest` no diretório Android; `python docs/development/evidence/spec033-native-parity-fixes/run-matrix.py` na raiz. O runner usa exclusivamente emulator-5558 e restaura dimensões/fontes no finally.
+
+Validação final e hashes em manifest.json. As capturas são fixtures isoladas: sem shell, backend, PSP ou prova de liquidação. Sem aparelho físico, sem aceite global de paridade, sem merge/deploy. Tipografia/renderização nativa, espaços do sistema e os fluxos completos ainda precisam de comparação integrada; estas evidências não aprovam diferenças intencionais nem encerram épicos.
