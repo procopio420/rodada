@@ -60,3 +60,9 @@ já preservasse esse rascunho. Restaurada entrada histórica e atalho sem count 
 a engine continua autorizando/revalidando intenção original. Ação histórica na
 Conta preserva capacidade anterior e exige comparação/aprovação de diferença
 visual; não constitui paridade aceita. Teste real de repetição ainda em execução.
+
+A regressão de remoção identificou outra diferença involuntária: a Conta UX2
+listava linha cancelada como consumo ativo, enquanto a superfície anterior já a
+retirava. Restaurado filtro de linhas CANCELLED apenas na lista ativa; histórico
+canônico e ledger não são alterados. O teste mantém a assertion de ausência da
+linha cancelada e as provas de reversão financeira, sem enfraquecimento.
