@@ -128,7 +128,14 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                 }
                 if (state.cashPoints.none { it.activeShiftId != null }) Text("Abra um caixa antes de receber dinheiro.")
             }
-            OutlinedTextField(raw, { raw = it }, enabled = !state.submitting, label = { Text("Valor recebido (R$)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true, modifier = Modifier.fillMaxWidth())
+            Text("Valor recebido (R$)", color = RodadaVisual.Muted, style = AttendanceUx2.text(13, 740))
+            OutlinedTextField(raw, { raw = it }, enabled = !state.submitting,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true,
+                textStyle = AttendanceUx2.text(16).copy(fontFamily = RodadaVisual.Number),
+                shape = RoundedCornerShape(9.dp),
+                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = RodadaVisual.Control,
+                    focusedContainerColor = RodadaVisual.Control, unfocusedBorderColor = RodadaVisual.StrongBorder),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 53.dp))
             Text("Informe o valor recebido, sem incluir troco.", style = AttendanceUx2.text(12))
             Ux2Action(if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
                 { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) cashPoint else null, full) }, true)
