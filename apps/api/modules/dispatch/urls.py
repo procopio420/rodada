@@ -1,9 +1,16 @@
 from django.urls import path
 
-from modules.dispatch.views import DeliveryCompleteView, DeliveryQueueView, ServiceRequestQueueView, ServiceRequestClaimView, ServiceRequestCompleteView
-
+from modules.dispatch.views import (
+    DeliveryCompleteView,
+    DeliveryQueueView,
+    DispatchTaskDetailView,
+    ServiceRequestClaimView,
+    ServiceRequestCompleteView,
+    ServiceRequestQueueView,
+)
 
 urlpatterns = [
+    path("tasks/<uuid:task_id>/", DispatchTaskDetailView.as_view()),
     path("requests/", ServiceRequestQueueView.as_view()),
     path("requests/<uuid:task_id>/claim/", ServiceRequestClaimView.as_view()),
     path("requests/<uuid:task_id>/complete/", ServiceRequestCompleteView.as_view()),
