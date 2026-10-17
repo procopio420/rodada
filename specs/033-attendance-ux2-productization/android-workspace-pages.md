@@ -52,3 +52,13 @@ Gates do freeze 3cf374e8: `ANDROID_HOME=/home/lucas/Android/Sdk ./gradlew
 testDebugUnitTest assembleDebug lintDebug compileDebugAndroidTestKotlin --stacktrace`
 terminou BUILD SUCCESSFUL (102 testes JVM, zero falhas/errors/skips). Este resultado
 NÃO valida as correções posteriores nem substitui paridade reprovada.
+
+### Gate local das correções — 894785b9
+
+Em 17/10/2026, comando `ANDROID_HOME=/home/lucas/Android/Sdk ./gradlew
+testDebugUnitTest assembleDebug lintDebug compileDebugAndroidTestKotlin
+--max-workers=1 --stacktrace` terminou BUILD SUCCESSFUL em 3m36s.
+XML JVM: 102 testes, zero falhas/errors/skips. APK debug montado; teste Android
+compilado, ainda não executado. Depreciação de createComposeRule permanece warning.
+Esse gate não aceita paridade visual, jornada real, API composta nem revisão R3.
+Runtime5558 permaneceu com Matrix durante o build; nenhuma instalação ocorreu.
