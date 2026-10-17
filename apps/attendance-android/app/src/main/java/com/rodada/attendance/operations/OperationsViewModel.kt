@@ -828,11 +828,13 @@ class OperationsViewModel(
         viewModelScope.launch {
             runCatching {
                 val current = repository.tabDetail(session, tab.id)
+                check(current.summary.id == tab.id)
+                check(current.summary.exposureCents == 0L) { "A conta possui saldo atualizado; confira antes de encerrar." }
                 if (current.summary.state == "CLOSED") current else {
                     check(current.summary.exposureCents == 0L) { "A conta possui saldo atualizado; confira antes de encerrar." }
                     repository.closeTab(session, tab.id)
                     repository.tabDetail(session, tab.id).also {
-                        check(it.summary.state == "CLOSED") { "Encerramento ainda não confirmado." }
+                        check(it.summary.id == tab.id && it.summary.state == "CLOSED" && it.summary.exposureCents == 0L) { "Encerramento ainda não confirmado." }
                     }
                 }
             }.onSuccess { detail ->

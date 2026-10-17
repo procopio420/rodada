@@ -22,6 +22,7 @@ internal suspend fun settleReceipt(
     check(detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
         "Recebimento ainda não confirmado no histórico canônico."
     }
+    check(detail.summary.state != "CLOSED" || detail.summary.exposureCents == 0L) { "Encerramento divergente do saldo canônico." }
     observed(detail)
     if (original.closeRequested && detail.summary.state !in setOf("CLOSED", "CANCELLED")) {
         check(detail.summary.exposureCents == 0L) {
@@ -29,11 +30,11 @@ internal suspend fun settleReceipt(
         }
         close(original.tabId)
         detail = read(original.tabId)
-        observed(detail)
         check(detail.summary.id == original.tabId && detail.summary.state == "CLOSED" && detail.summary.exposureCents == 0L &&
             detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
             "Recebido; encerramento ainda não confirmado."
         }
+        observed(detail)
     }
     return detail
 }
