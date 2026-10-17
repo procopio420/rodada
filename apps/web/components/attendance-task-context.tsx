@@ -5,7 +5,7 @@ import {apiCall,asApiError} from "@/lib/client/staff-auth";
 import type {StaffTask} from "@/lib/client/dispatch-target";
 
 type Action="claim"|"complete";
-export function AttendanceTaskContext({taskId,staffId,recoveryScope,onBack,onChanged}:{taskId:string;staffId:string;recoveryScope:string;onBack:()=>void;onChanged?:()=>void}) {
+export function AttendanceTaskContext({taskId,staffId,recoveryScope,navigationLocked=false,onBack,onChanged}:{taskId:string;staffId:string;recoveryScope:string;navigationLocked?:boolean;onBack:()=>void;onChanged?:()=>void}) {
   const [task,setTask]=useState<StaffTask|null>(null),[pending,setPending]=useState<Action|null>(null);
   const [fresh,setFresh]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState("");
   const sending=useRef(false),active=useRef(true),currentTask=useRef(taskId),readEpoch=useRef(0);
@@ -54,6 +54,6 @@ export function AttendanceTaskContext({taskId,staffId,recoveryScope,onBack,onCha
     {pending&&<p role="status">Ação sem confirmação preservada nesta chamada.</p>}
     {!fresh&&<button disabled={busy} onClick={()=>void refresh().catch(failure=>setError(failure.message))}>Verificar mesma chamada</button>}
     {fresh&&!done&&!other&&<button disabled={busy} onClick={()=>void act(pending??(mine||task?.task_type==="BILL_REQUEST"?"complete":"claim"))}>{pending?"Verificar mesma ação":mine?"Atendimento resolvido":task?.task_type==="BILL_REQUEST"?"Apenas concluir pedido de conta":"Assumir chamado"}</button>}
-    <button disabled={busy} onClick={onBack}>Voltar à fila →</button>
+    <button disabled={busy||navigationLocked} onClick={onBack}>Voltar à fila →</button>
   </aside>;
 }

@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './fixtures';
 import {mkdir} from 'node:fs/promises';
 for (const width of [360,390,430,1280]) test(`UX2 Agora canonical queues and contextual navigation ${width}`,async({page})=>{
   await page.setViewportSize({width,height:844});

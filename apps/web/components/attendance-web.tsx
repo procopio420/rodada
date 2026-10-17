@@ -1,11 +1,11 @@
 "use client";
 
 import "./attendance-ux2.css";
+import { AttendanceTaskContext } from "@/components/attendance-task-context";
 import Image from "next/image";
 import { currentTaskTarget, type StaffTask } from "@/lib/client/dispatch-target";
 import { OperationalIcon } from "@/components/operational-icon";
 import { tabPrimaryLabel, tabReference } from "@/lib/client/tab-identity";
-import { OperationalHeading } from "@/components/operational-heading";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
@@ -33,6 +33,7 @@ export function AttendanceWeb() {
   return <StaffAuthScreen renderSession={(session, logout) => <Workspace key={session.session.id} session={session} logout={logout} />} />;
 }
 function Workspace({ session, logout }: { session: StaffSessionView; logout: () => Promise<void> }) {
+  const [operatorMenu, setOperatorMenu] = useState(false);
   const storageKey = `rodada:table-service:${session.venue.id}:${session.staff.id}:${session.session.id}`;
   const [serviceEnabled, setServiceEnabled] = useState(false);
   const [moving, setMoving] = useState<{ table: Table; tab: Tab; origin: string } | null>(null);
@@ -41,19 +42,26 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const tableReturnFocus = useRef<HTMLElement | null>(null);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   useEffect(() => { if (selectedTable) document.getElementById(`ux2-table-title-${selectedTable}`)?.focus(); }, [selectedTable]);
-  function leaveTable() { setSelectedTable(null); requestAnimationFrame(() => tableReturnFocus.current?.focus()); }
+  function leaveTable() { setOriginTaskId(null); setSelectedTable(null); requestAnimationFrame(() => tableReturnFocus.current?.focus()); }
   const [requestedTab, setRequestedTab] = useState<{ id: string; sequence: number; destination: string } | null>(null);
   const [createRequest, setCreateRequest] = useState(0);
   const [destinationPicker, setDestinationPicker] = useState(false);
   const [nowMode, setNowMode] = useState<"service" | "delivery">("service");
+  const orderOrigin = useRef<{ screen: "now" | "tables"; tableId: string | null }>({ screen: "tables", tableId: null });
+  const [originTaskId, setOriginTaskId] = useState<string | null>(null);
+  const [orderContext, setOrderContext] = useState<{ tabId: string; surface: string } | null>(null);
+  const [closeContextRequest, setCloseContextRequest] = useState(0);
   const [activeTask, setActiveTask] = useState<StaffTask | null>(null);
   const [serviceCount, setServiceCount] = useState<number | null>(null);
   const [historyRequest, setHistoryRequest] = useState(0);
   const [openingAt, setOpeningAt] = useState<Table | null>(null);
   const [newLabel, setNewLabel] = useState("");
   const [takeoverAt, setTakeoverAt] = useState<Table | null>(null);
-  const [error, setError] = useState(""), [message, setMessage] = useState(""), [updated, setUpdated] = useState("");
+  const [error, setError] = useState(""), [message, setMessage] = useState(""), [, setUpdated] = useState("");
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+    if (!active) return;
     try {
       const prefix = `rodada:table-service:${session.venue.id}:${session.staff.id}:`;
       if (Object.keys(localStorage).some(key => key.startsWith(prefix) && key !== storageKey)) {
@@ -62,7 +70,9 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       const stored = localStorage.getItem(storageKey); if (stored) setIntent(JSON.parse(stored));
     }
     catch { setRecoveryBlocked(true); setError("Recuperação indisponível. Confira o histórico antes de repetir."); }
-  }, [storageKey]);
+    });
+    return () => { active = false; };
+  }, [storageKey, session.venue.id, session.staff.id]);
   const [tableDialog, setTableDialog] = useState<{id: string; release: boolean} | null>(null);
   const [moveSelection, setMoveSelection] = useState<MoveSelection | null>(null);
   const [moveLocked, setMoveLocked] = useState(true);
@@ -96,10 +106,11 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     })();
     refreshInFlight.current = pending;
     try { await pending; } finally { if (refreshInFlight.current === pending) refreshInFlight.current = null; }
-  }, []);
+  }, [setError]);
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 15000); return () => clearInterval(timer); }, [refresh]);
   function openTableTab(table: Table, tab: Tab) {
     if (tableOpeningLock.current || busy || moveLocked || pendingOrder || !online || !table.active_occupancy) return;
+    if (!originTaskId) orderOrigin.current = { screen: "tables", tableId: table.id };
     setWorkspaceReturnFocus(document.activeElement as HTMLElement | null);
     tableOpeningLock.current = true; setTableOpening(true); setError(""); setMessage("");
     setTableSelection({ requestId: ++openingTableRequest.current, tabId: tab.id, tableId: table.id, tableLabel: table.label, occupancyId: table.active_occupancy.id });
@@ -109,12 +120,13 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     tableOpeningLock.current = false; setTableOpening(false);
     if (failure) { setError(failure); return; }
     setScreen("tables");
-  }, [setError]);
-  const revealOrder = useCallback(() => setScreen("tables"), []);
-  const closeOrder = useCallback(() => { void refresh(); }, [refresh]);
+  }, [setError, setScreen]);
+  const revealOrder = useCallback(() => setScreen("tables"), [setScreen]);
+  const closeOrder = useCallback(() => { setOriginTaskId(null); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);
   const visibleTables = tables.filter(table => (normalizeTable(table.label).includes(tableQuery) || table.active_occupancy?.tabs?.some(tab => normalizeCatalogSearch(`${tab.display_label} ${tab.display_reference || tabReference(tab)}`).includes(normalizeCatalogSearch(tableSearch)))));
+  const displayedTables = selectedTable ? tables.filter(table => table.id === selectedTable) : visibleTables;
   useRealtime(refresh, { onRevoked: () => setOnline(false) });
   async function command(path: string, payload: object = {}, expected?: { tableId: string; status: string }) {
     if (busy || moveLocked || !online || intent || recoveryBlocked || pendingOrder) return;
@@ -149,12 +161,15 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     setBusy(true); setError("");
     try {
       const task = await request<StaffTask>(`dispatch/tasks/${id}/`);
+      if (task.id !== id) throw new Error("Identidade da tarefa divergente. Atualize a fila.");
       if (!["OPEN", "CLAIMED"].includes(task.state)) throw new Error("Esta tarefa já mudou. Atualize a fila.");
       if (task.task_type === "DELIVERY") { setActiveTask(task); return; }
       const list = await request<{results: Table[]}>("hospitality/tables/");
       setTables(list.results);
       const target = currentTaskTarget(task, list.results);
       if (!target) throw new Error("Vínculo desatualizado. Atualize a fila e confira o destino.");
+      orderOrigin.current = { screen: "now", tableId: null };
+      setOriginTaskId(task.id);
       if (target.kind === "TABLE") { setSelectedTable(target.table_id); setScreen("tables"); return; }
       if (target.table_id) {
         const table = list.results.find(row => row.id === target.table_id)!;
@@ -185,7 +200,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     </div>;
   }
   return <main className="appShell attendanceShell ux2Shell">
-    <header className="ux2Header"><Image src="/brand/wordmark.svg" alt="Rodada" width="113" height="42" /><div className="ux2Meta"><b>{session.venue.name}</b><span>{loading ? "Atualizando…" : online ? session.staff.display_name : "Desatualizado · verifique a conexão"}</span></div></header>
+    <header className="ux2Header"><Image src="/brand/wordmark.svg" alt="Rodada" width="113" height="42" /><button className="ux2Meta ux2OperatorButton" aria-label="Opções do atendimento" aria-haspopup="dialog" disabled={busy || moveLocked || pendingOrder || !!intent} onClick={() => setOperatorMenu(true)}><b>{session.venue.name}</b><span>{loading ? "Atualizando…" : online ? session.staff.display_name : "Desatualizado · verifique a conexão"}</span></button></header>
     <div className="ux2Content">
     {error && !selectedTable && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && !selectedTable && <p className="notice" data-state="success" role="status">{message}</p>}
     {intent && !openingAt && !takeoverAt && !moving && <div className="notice" data-state="warning" role="status"><p>Verificando atendimento. A intenção original está preservada.</p><button className="buttonPrimary" disabled={busy || !online || recoveryBlocked || pendingOrder} onClick={() => void serviceCommand()}>Verificar mesma intenção</button></div>}
@@ -196,8 +211,9 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       {attention.map(table => <article className="ux2Attention" key={table.active_occupancy!.id}><h3>Mesa {table.label}</h3>{serviceInfo(table)}<button className="buttonSecondary" disabled={busy || pendingOrder || !!intent || recoveryBlocked} onClick={() => { setSelectedTable(table.id); setScreen("tables"); }}>Ver mesa</button></article>)}</div>
       <div hidden={nowMode !== "delivery"}><div className="ux2QueueHead"><h2>Prontos para levar</h2></div><p className="ux2Summary">Fila separada do atendimento. Itens confirmados pelo Bar e pela Cozinha.</p>{loading ? <p role="status">Carregando entregas…</p> : !deliveries.length && online ? <div className="ux2Empty">Nenhuma tarefa nesta fila. Selecione a outra categoria para conferir.</div> : deliveries.map(delivery => <article className="ux2QueueItem" key={delivery.id}><div className="ux2QueueTop"><span className="ux2Delivery">PEDIDO PRONTO</span><span>· {Math.floor(delivery.age_seconds / 60)} min</span></div><strong className="ux2QueueTitle">{delivery.quantity || 1}× {delivery.product_name}</strong><div className="ux2QueueDetail"><span>{delivery.destination_label || "Sem mesa"} · {delivery.tab_label || "Comanda"}</span></div><button className="ux2QueueOpen" disabled={busy || pendingOrder || !!intent || recoveryBlocked || !online} onClick={() => void openTask(delivery.id)}>Ver entrega ›</button></article>)}</div>
     </section>}
-    <OrderWorkspace returnFocus={workspaceReturnFocus} tableMode onOpenFailure={setError} tableSelection={tableSelection} onTableSelectionResult={tableSelectionResult} onRecoveryNeeded={revealOrder} onDialogClose={closeOrder} withoutPayments recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} onPendingChange={setPendingOrder} requestedTabId={requestedTab?.id} requestedTabSequence={requestedTab?.sequence} destinationLabel={requestedTab?.destination} createRequest={createRequest} historyRequest={historyRequest} />
-    {screen === "tables" && <section className="panel ux2TablesPanel"><div className="ux2TableListIntro" hidden={!!selectedTable}><div className="ux2Eyebrow">Encontrar destino</div><h1>Mesas e<br />comandas.</h1><p className="ux2Lede">Uma busca, sem filtros de status nem formulários na lista.</p></div><div className="attendanceUnifiedHeading" hidden={!!selectedTable}><h2>Mesas</h2><button className="buttonQuiet" aria-label="Histórico" disabled={busy || pendingOrder || !!intent || recoveryBlocked} onClick={() => setHistoryRequest(current => current + 1)}><OperationalIcon name="history" size={20} /></button></div><div className="field ux2TableSearch" hidden={!!selectedTable}><label htmlFor="attendance-table-search" className="ux2SrOnly">Buscar mesa ou comanda</label><span aria-hidden="true">⌕</span><input id="attendance-table-search" type="search" placeholder="Mesa, nome ou comanda" value={tableSearch} onChange={event => setTableSearch(event.target.value)} /></div><div className="attendanceTableGrid" data-context={!!selectedTable}>{loading ? <p role="status">Carregando mesas…</p> : !tables.length && online ? <p className="muted">Nenhuma mesa cadastrada.</p> : !online && !tables.length ? <p className="muted" role="status">Mesas indisponíveis. Atualize para tentar novamente.</p> : !visibleTables.length ? <p className="muted" role="status">Nenhuma mesa encontrada. Ajuste a busca.</p> : visibleTables.map(table => <article className="attendanceTable" data-selected={selectedTable === table.id} data-state={table.status} key={table.id}><h3 tabIndex={-1} id={`attendance-table-${table.id}`}><button className="buttonSecondary attendanceTableSummary" aria-haspopup="dialog" disabled={busy || !!intent || pendingOrder || tableOpening} onClick={event => { tableReturnFocus.current = event.currentTarget; setSelectedTable(table.id); }}><span className="attendanceTableNumber"><OperationalIcon name="table" /><span>Mesa {table.label}</span></span><small className="ux2TableStatus"><i aria-hidden="true" />{labels[table.status] || table.status}</small>{!!table.active_occupancy?.tabs?.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length && <span className="ux2TableCount">{table.active_occupancy.tabs.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length} conta(s)</span>}<OperationalIcon name="chevron-right" size={20} /></button></h3>{selectedTable === table.id && <section className="ux2TablePage" aria-labelledby={`ux2-table-title-${table.id}`}><button className="ux2Back" disabled={busy || tableOpening || !!intent || pendingOrder} onClick={leaveTable}><span aria-hidden="true">‹</span> Voltar</button><div className="ux2Eyebrow">{table.zone?.label || "Salão"}</div><div className="ux2TableContext"><h1 tabIndex={-1} id={`ux2-table-title-${table.id}`}>Mesa {table.label}</h1><span>{table.active_occupancy?.tabs?.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length || 0} aberta(s)</span></div><p className="muted">{labels[table.status] || table.status}{table.zone && <> · {table.zone.label}</>}</p>{error && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && <p className="notice" data-state="success" role="status">{message}</p>}{["DIRTY", "CLEANING"].includes(table.status) ? <button className="buttonPrimary" disabled={busy || moveLocked || tableOpening || !online || !!intent || recoveryBlocked || pendingOrder} onClick={() => void command(`hospitality/tables/${table.id}/cleaning/complete/`, {}, { tableId: table.id, status: "AVAILABLE" }).then(ok => { if (ok) setSelectedTable(null); })}>Concluir limpeza</button> : <>
+    {originTaskId && selectedTable && !orderContext && <AttendanceTaskContext key={originTaskId} taskId={originTaskId} staffId={session.staff.id} recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} navigationLocked={pendingOrder} onBack={() => { if (!pendingOrder) { setSelectedTable(null); setScreen("now"); setOriginTaskId(null); } }} />}
+    <OrderWorkspace onContextChange={setOrderContext} closeContextRequest={closeContextRequest} contextualTaskNode={originTaskId ? <AttendanceTaskContext key={originTaskId} taskId={originTaskId} staffId={session.staff.id} recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} navigationLocked={pendingOrder} onBack={() => { if (!pendingOrder) { setCloseContextRequest(value => value + 1); setSelectedTable(null); setScreen("now"); setOriginTaskId(null); } }} /> : undefined} returnFocus={workspaceReturnFocus} tableMode onOpenFailure={setError} tableSelection={tableSelection} onTableSelectionResult={tableSelectionResult} onRecoveryNeeded={revealOrder} onDialogClose={closeOrder} withoutPayments recoveryScope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} onPendingChange={setPendingOrder} requestedTabId={requestedTab?.id} requestedTabSequence={requestedTab?.sequence} destinationLabel={requestedTab?.destination} createRequest={createRequest} historyRequest={historyRequest} />
+    {screen === "tables" && <section className="panel ux2TablesPanel"><div className="ux2TableListIntro" hidden={!!selectedTable}><div className="ux2Eyebrow">Encontrar destino</div><h1>Mesas e<br />comandas.</h1><p className="ux2Lede">Uma busca, sem filtros de status nem formulários na lista.</p></div><div className="attendanceUnifiedHeading" hidden={!!selectedTable}><h2>Mesas</h2><button className="buttonQuiet" aria-label="Histórico" disabled={busy || pendingOrder || !!intent || recoveryBlocked} onClick={() => setHistoryRequest(current => current + 1)}><OperationalIcon name="history" size={20} /></button></div><div className="field ux2TableSearch" hidden={!!selectedTable}><label htmlFor="attendance-table-search" className="ux2SrOnly">Buscar mesa ou comanda</label><span aria-hidden="true">⌕</span><input id="attendance-table-search" type="search" placeholder="Mesa, nome ou comanda" value={tableSearch} onChange={event => setTableSearch(event.target.value)} /></div><div className="attendanceTableGrid" data-context={!!selectedTable}>{loading ? <p role="status">Carregando mesas…</p> : !tables.length && online ? <p className="muted">Nenhuma mesa cadastrada.</p> : !online && !tables.length ? <p className="muted" role="status">Mesas indisponíveis. Atualize para tentar novamente.</p> : !displayedTables.length ? <p className="muted" role="status">Nenhuma mesa encontrada. Ajuste a busca.</p> : displayedTables.map(table => <article className="attendanceTable" data-selected={selectedTable === table.id} data-state={table.status} key={table.id}><h3 tabIndex={-1} id={`attendance-table-${table.id}`}><button className="buttonSecondary attendanceTableSummary" aria-haspopup="dialog" disabled={busy || !!intent || pendingOrder || tableOpening} onClick={event => { tableReturnFocus.current = event.currentTarget; setSelectedTable(table.id); }}><span className="attendanceTableNumber"><OperationalIcon name="table" /><span>Mesa {table.label}</span></span><small className="ux2TableStatus"><i aria-hidden="true" />{labels[table.status] || table.status}</small>{!!table.active_occupancy?.tabs?.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length && <span className="ux2TableCount">{table.active_occupancy.tabs.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length} conta(s)</span>}<OperationalIcon name="chevron-right" size={20} /></button></h3>{selectedTable === table.id && <section className="ux2TablePage" aria-labelledby={`ux2-table-title-${table.id}`}><button className="ux2Back" disabled={busy || tableOpening || !!intent || pendingOrder} onClick={leaveTable}><span aria-hidden="true">‹</span> Voltar</button><div className="ux2Eyebrow">{table.zone?.label || "Salão"}</div><div className="ux2TableContext"><h1 tabIndex={-1} id={`ux2-table-title-${table.id}`}>Mesa {table.label}</h1><span>{table.active_occupancy?.tabs?.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).length || 0} aberta(s)</span></div><p className="muted">{labels[table.status] || table.status}{table.zone && <> · {table.zone.label}</>}</p>{error && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && <p className="notice" data-state="success" role="status">{message}</p>}{["DIRTY", "CLEANING"].includes(table.status) ? <button className="buttonPrimary" disabled={busy || moveLocked || tableOpening || !online || !!intent || recoveryBlocked || pendingOrder} onClick={() => void command(`hospitality/tables/${table.id}/cleaning/complete/`, {}, { tableId: table.id, status: "AVAILABLE" }).then(ok => { if (ok) setSelectedTable(null); })}>Concluir limpeza</button> : <>
 {serviceInfo(table)}{table.active_occupancy && <><p>{table.active_occupancy.tabs?.length || 0} comandas</p>{table.active_occupancy.tabs?.filter(tab => !["CLOSED", "CANCELLED"].includes(tab.state || "")).map(tab => <div key={tab.id}><button data-tab-id={tab.id} className="buttonSecondary" key={tab.id} disabled={busy || pendingOrder || !!intent || recoveryBlocked || ["CLOSED", "CANCELLED"].includes(tab.state || "")} onClick={() => openExisting(table, tab.id)}>{tab.display_label || "Comanda sem nome"} · {tab.display_reference || tabReference(tab)}</button>{session.capabilities.includes("tab.move") && <button className="buttonSecondary attendanceMoveButton" disabled={busy || moveLocked || pendingOrder || tableOpening || !online || !!intent || recoveryBlocked} onClick={() => setMoveSelection({ table, tab })}><OperationalIcon name="chevron-right" size={20} />Mover comanda</button>}</div>)}{serviceEnabled && session.capabilities.includes("tab.open") && <button className="buttonPrimary" disabled={busy || pendingOrder || !!intent || recoveryBlocked || !online} onClick={event => { setWorkspaceReturnFocus(event.currentTarget); setNewLabel(""); setOpeningAt(table); }}>Nova comanda nesta mesa</button>}</>}<button className="buttonQuiet" disabled={busy || moveLocked || tableOpening || !online || !!intent || recoveryBlocked || pendingOrder} onClick={() => setTableDialog({ id: table.id, release: false })}>Organizar mesa {table.label}</button>{tableDialog?.id === table.id && !tableDialog.release && <ActionDialog title={`Organizar mesa ${table.label}`} locked={busy} onClose={() => setTableDialog(null)}>{error && <p className="notice" role="alert" data-state="danger">{error}</p>}{message && <p className="notice" role="status" data-state="success">{message}</p>}<div className="field"><label htmlFor={`zone-${table.id}`}>Localização da mesa {table.label}</label><select id={`zone-${table.id}`} value={table.zone?.id || ""} disabled={busy || moveLocked || tableOpening || !online || !!intent || recoveryBlocked || pendingOrder} onChange={event => void command(`hospitality/tables/${table.id}/location/`, { zone_id: event.target.value || null })}><option value="">Sem zona</option>{zones.map(zone => <option key={zone.id} value={zone.id}>{zone.label}</option>)}</select></div>{table.active_occupancy && <div className="field"><label htmlFor={`attach-${table.id}`}>Associar comanda à mesa {table.label}</label><select id={`attach-${table.id}`} value="" disabled={busy || moveLocked || tableOpening || !online || !!intent || recoveryBlocked || pendingOrder} onChange={event => {
   const tab = tabs.find(row => row.id === event.target.value); if (!tab) return;
   const origin = tables.find(row => row.active_occupancy?.tabs?.some(link => link.id === tab.id));
@@ -235,6 +251,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   <TabLocationMove selection={moveSelection} tables={tables} onClose={closeMove} onLockChange={setMoveLocked} onConfirmed={() => refresh(undefined, true)} />
     </div><nav hidden={!!selectedTable} className="ux2BottomNav" aria-label="Navegação principal"><button aria-current={screen === "now" ? "page" : undefined} disabled={busy || tableOpening || pendingOrder || !!intent} onClick={() => setScreen("now")}><span className="ux2Glyph" aria-hidden="true">◷</span>Agora</button><button className="ux2Middle" disabled={busy || moveLocked || tableOpening || pendingOrder || !!intent || recoveryBlocked} onClick={() => setDestinationPicker(true)}><span className="ux2Glyph" aria-hidden="true">＋</span>Pedir</button><button aria-current={screen === "tables" ? "page" : undefined} disabled={busy || tableOpening || pendingOrder || !!intent} onClick={() => setScreen("tables")}><span className="ux2Glyph" aria-hidden="true">▦</span>Mesas</button></nav>
     {activeTask && <ActionDialog title="Entrega pronta" onClose={() => setActiveTask(null)}><p>{activeTask.quantity}× {activeTask.product_name}</p><p>{activeTask.fulfillment_station === "BAR" ? "Bar" : activeTask.fulfillment_station === "KITCHEN" ? "Cozinha" : "Estação não informada"} · {activeTask.destination_label || "Sem mesa"}</p><p>Abrir esta entrega não altera o estado do pedido.</p><button className="buttonSecondary" disabled={busy || !online || !!intent || pendingOrder} onClick={() => void command(`dispatch/delivery/${activeTask.id}/complete/`).then(ok => { if (ok) setActiveTask(null); })}>Registrar entrega por exceção</button></ActionDialog>}
+    {operatorMenu && <ActionDialog title="Opções do atendimento" onClose={() => setOperatorMenu(false)}><button className="buttonSecondary" disabled={busy || loading} onClick={() => { setOperatorMenu(false); void refresh(); }}>Atualizar</button><button className="buttonSecondary" disabled={busy || pendingOrder || !!intent} onClick={() => void logout()}>Sair</button></ActionDialog>}
     {destinationPicker && <ActionDialog title="Onde vamos pedir?" onClose={() => setDestinationPicker(false)}><p>Selecione uma mesa ou comanda para adicionar itens.</p><button className="buttonPrimary" onClick={() => { setDestinationPicker(false); setScreen("tables"); }}>Escolher mesa ou comanda</button>{session.capabilities.includes("tab.open") && <button className="buttonSecondary" onClick={event => { setWorkspaceReturnFocus(event.currentTarget); setDestinationPicker(false); setCreateRequest(current => current + 1); }}>Nova comanda sem mesa</button>}</ActionDialog>}
   </main>;
 }
