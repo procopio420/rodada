@@ -46,16 +46,17 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   });
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Agora", exact: true }).click();
-  const panel = page.getByRole("region", { name: "Chamadas de atendimento" });
-  await expect(panel.getByRole("heading", { name: "Pedido de conta · Mesa Pilot frontend table" })).toBeVisible();
-  await panel.getByRole("button", { name: "Assumir chamada" }).click();
-  await expect(panel.getByText("Você está responsável")).toBeVisible();
+  const panel = page.getByRole("region", { name: "Chamados e pedidos de conta" });
+  await panel.getByRole("button", { name: /Mesa Pilot frontend table.*Escolher comanda/ }).click();
+  const taskContext = page.getByRole("complementary", { name: "Chamado de origem" });
+  await expect(taskContext.getByRole("button", { name: "Apenas concluir pedido de conta" })).toBeVisible();
   await evidence(page, "service-call");
-  await panel.getByRole("button", { name: "Concluir chamada" }).click();
-  await expect(panel.getByText("Nenhuma chamada aberta.")).toBeVisible();
+  await taskContext.getByRole("button", { name: "Apenas concluir pedido de conta" }).click();
+  await expect(taskContext.getByText("Chamada concluída no servidor.")).toBeVisible();
+  await taskContext.getByRole("button", { name: "Voltar à fila →" }).click();
   const taskState = await page.evaluate(async () => (await (await fetch("/api/pos/dispatch/requests/")).json()).results);
   expect(taskState.some((row: { id: string }) => row.id === created.task.id)).toBe(false);
-  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   const table = page.locator("article").filter({ has: page.getByRole("button", { name: /^Mesa Pilot frontend table/ }) });
   await table.getByRole("button", { name: /^Mesa Pilot frontend table/ }).click();
   // The current Attendance UI hides covers; retain the authenticated canonical
