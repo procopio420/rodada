@@ -2,6 +2,10 @@ package com.rodada.attendance.operations
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.ui.AttendanceUx2
+import com.rodada.attendance.ui.RodadaVisual
 
 @Composable
 internal fun Ux2AccountPage(state: OperationsUiState, tab: TabDetail, onBack: () -> Unit,
@@ -102,7 +107,13 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
             Text("Como foi recebido?", style = AttendanceUx2.text(20, 800))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Dinheiro", "Pix", "Cartão").forEachIndexed { index, label ->
-                    OutlinedButton({ method = PaymentMethod.CASH }, enabled = index == 0 && !state.submitting, modifier = Modifier.weight(1f)) { Text(if (index == 0 && method == PaymentMethod.CASH) "✓ $label" else label) }
+                    OutlinedButton({ method = PaymentMethod.CASH }, enabled = index == 0 && !state.submitting, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                        shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(4.dp),
+                        border = BorderStroke(if (index == 0 && method == PaymentMethod.CASH) 2.dp else 1.dp,
+                            if (index == 0 && method == PaymentMethod.CASH) RodadaVisual.Amber else RodadaVisual.StrongBorder),
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper)) {
+                        Text(label, style = AttendanceUx2.text(13, 780))
+                    }
                 }
             }
             Text("Pix e cartão integrados aguardam disponibilidade e homologação.", style = AttendanceUx2.text(12))
@@ -130,12 +141,19 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
 }
 
 @Composable private fun Ux2SettlementSummary(label: String, cents: Long, help: String) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(label, style = AttendanceUx2.text(13)); Text(formatCents(cents), style = AttendanceUx2.text(38, 900)); Text(help, style = AttendanceUx2.text(13))
+    Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(12.dp))
+        .border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(12.dp)).padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(label, color = RodadaVisual.Muted, style = AttendanceUx2.text(12))
+        Text(formatCents(cents), style = AttendanceUx2.text(30, 850).copy(fontFamily = RodadaVisual.Number))
+        Text(help, color = RodadaVisual.Muted, style = AttendanceUx2.text(12))
     }
 }
 @Composable private fun Ux2ReceiptLine(label: String, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, modifier = Modifier.weight(1f), style = AttendanceUx2.text(13)); Text(value, style = AttendanceUx2.text(14, 800))
+    Column {
+        Row(Modifier.fillMaxWidth().padding(vertical = 13.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(label, modifier = Modifier.weight(1f), color = RodadaVisual.Muted, style = AttendanceUx2.text(12))
+            Text(value, style = AttendanceUx2.text(13, 760).copy(fontFamily = RodadaVisual.Number))
+        }
+        HorizontalDivider(color = RodadaVisual.Border)
     }
 }
