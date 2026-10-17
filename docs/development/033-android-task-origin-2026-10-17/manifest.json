@@ -56,7 +56,21 @@
   ],
   "failure_preserved": "failed-w430-f2",
   "hashes": {
+    "adaptive-final-w430-f2/build.log": "9e4a9b321e101ccd835a5e882a846a21fe128a0bcab0d4c04fd73b871016a548",
+    "adaptive-final-w430-f2/instrumentation.txt": "7e4dbaafef7d0a53a7e08444bd494bbf13f384680455f7b25db20539f051c145",
+    "adaptive-final-w430-f2/live-agora-delivery-w430-f200.png": "f2cca8f24b8fc77556231377a76544394de3b7db6f4cbd5ec5da1c4b8dc5a1b0",
+    "adaptive-final-w430-f2/live-agora-explicit-fallback-w430-f200.png": "b58d73e5a4929d820a98d98f13b3e6c236d9fdf3c638181c7ad44fb0bf7c99ab",
+    "adaptive-final-w430-f2/live-agora-manual-return-w430-f200.png": "963bcd25c3b79f93ffa77ab3a611b7accfa6dfe972c4cd082dc1462f63711123",
+    "adaptive-final-w430-f2/live-agora-service-w430-f200.png": "dc4be3c2834bad1cffd7e5c179d87864befa71dd443760a3f4e6ee032885e027",
+    "adaptive-final-w430-f2/runner.py": "ff2ce8fdd08b42bea9f5229afa6845199a936acf1bb4d46ef283010b70f7b07d",
     "delayed_api.py": "274a4677c9682908810cb3a11732dc8fe578376c52b9d057d2c142cc0cccfefa",
+    "diagnostics/system-ui-anr-after-reboot.png": "912d9cc8ece0fe3615776f9eac2038372d8406c98391938ff374c6c815a217fd",
+    "diagnostics/w430-f2-adaptive-context/instrumentation.txt": "83c890c3021a065da37b9b5b87310f0cb79dfc063bd8214b85a780d78070cd9d",
+    "diagnostics/w430-f2-layout-diagnostic/instrumentation.txt": "a705160242344400c88c38b12264ed185a45007982fc41f6313bd91696b133f6",
+    "diagnostics/w430-f2-real-click/fallback.png": "7164773b8a408d35ceec621d6634145c8f3ee72629b1d0743f879beb7f20610a",
+    "diagnostics/w430-f2-real-click/instrumentation.txt": "4029c9692492fbb8cd070c1a038c98027c37be0ddbf4b386dfce94f27aed4438",
+    "diagnostics/w430-f2-semantic-login/instrumentation.txt": "2eedf2b4c8819bf50e27e3b560ac25b3c26cf64042848deda905d96c5a8e815c",
+    "diagnostics/w430-f2-stable-login/instrumentation.txt": "2f30d403810f3077742eb5653dc48007d6fab21fb5724f815fedfbd222dadad6",
     "failed-w430-f2/diagnostic-ime-covers-login.png": "68444ba0329871c76fa5f2731fa8f4e20ee190567224d4cc70c42daf252785de",
     "failed-w430-f2/diagnostic-instrumentation.txt": "67a059fc3cf812f747b36957b49f3571c9f3ddc134b3cb6ba155634585aedad9",
     "failed-w430-f2/instrumentation.txt": "d99db62fcea99ffb6fc44adacd33a96956963948e79a353a88c4afd55869352d",
@@ -93,5 +107,25 @@
     "w430-f2/live-agora-explicit-fallback-w430-f200.png": "7ec7df15d909b04a143fd268d1996787ed8505f99f2deb5f3abc49fe00281003",
     "w430-f2/live-agora-manual-return-w430-f200.png": "963bcd25c3b79f93ffa77ab3a611b7accfa6dfe972c4cd082dc1462f63711123",
     "w430-f2/live-agora-service-w430-f200.png": "4b29d86df38585bc95ab461f757de2c7265c195d30a0c3313a910fad973f2099"
+  },
+  "adaptive_final": {
+    "product_sha": "b3a5c98c47cfa56b3ae74d047e4936f9177779a1",
+    "test_sha": "1138dc4d0de6429839f000787c7210ba074ddf83",
+    "width_dp": 430,
+    "font_scale": 2,
+    "passed": true,
+    "revoked": true,
+    "login": "real visible Compose pointer click; conditional BACK and scroll",
+    "assertions": [
+      "labels <=2 lines",
+      "no visual overflow",
+      "action height >=48dp",
+      "explicit fallback Conta",
+      "Back then manual no task origin"
+    ],
+    "jvm_tests": 102,
+    "jvm_failures": 0,
+    "gates": "testDebugUnitTest assembleDebug assembleDebugAndroidTest lintDebug PASS",
+    "visual_scope": "specific task action legibility only; full parity/TalkBack/device not signed off"
   }
 }
