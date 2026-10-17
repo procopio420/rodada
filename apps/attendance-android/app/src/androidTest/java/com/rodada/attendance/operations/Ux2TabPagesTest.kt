@@ -154,8 +154,8 @@ class Ux2TabPagesTest {
         } } }
         val node = compose.onNodeWithContentDescription("Adicionar Chopp")
         val bounds = node.getUnclippedBoundsInRoot()
-        assertEquals(39f, bounds.width.value, .1f)
-        assertEquals(42f, bounds.height.value, .1f)
+        assertEquals(39f, (bounds.right - bounds.left).value, .1f)
+        assertEquals(42f, (bounds.bottom - bounds.top).value, .1f)
         val pixels = node.fetchSemanticsNode().boundsInRoot
         // Native minimum target extends outside the 39dp painted rectangle.
         compose.onRoot().performTouchInput {
