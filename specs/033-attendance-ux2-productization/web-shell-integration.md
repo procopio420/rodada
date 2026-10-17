@@ -43,3 +43,19 @@ A execução inicial de 36 teve 28 PASS/8 FAIL, corrigidas nesta rodada dirigida
 a suíte ampla e o CI do novo commit ainda precisam rodar. Paridade integral Web/
 Android, acessibilidade e homologação continuam pendentes. Nenhuma task ou AC
 integralmente aceita apenas por estes testes.
+
+## Composição das páginas e conta
+
+PR224 integrou o shell em25ae6645 e testes emd6815f40. Typecheck/ESLint/build
+passaram (warning de setter sem uso removido depois). Rodada11:9PASS/2FAIL;
+os dois casos dirigidos, após ajuste de seletor para página e espera pelo término
+da limpeza da intenção, passaram2/2 em20,3s. Identidade/payload/ledger e zero
+writes do caso negativo permanecem exigidos. Suíte ampla antiga ainda precisa
+migração para páginas completas; não aceitar CI por estreitar seleção.
+
+PR225 compôs sem remover receipt sempre montado nem fluxo CLEANING em ae73cfb4.
+Typecheck/ESLint/build PASS. Três testes financeiros reais Attendance passaram
+3/3 em24,1s após composição: PaymentACK perdido+Close503/ACK perdido, consumo
+concorrente+keepOpen/callback503, e falha ao persistir fase confirmada. Mesmo
+payment/UUID, readback canônico e ausência de cobrança adicional continuam
+assertados. Revisão final de composição e CI ainda pendentes.
