@@ -29,7 +29,7 @@ internal fun Ux2AccountPage(state: OperationsUiState, tab: TabDetail, onBack: ()
     val locked = !state.canLeaveTabContext()
     var details by rememberSaveable(summary.id) { mutableStateOf(false) }
     BackHandler { if (!locked) onBack() }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
         TextButton(onBack, enabled = !locked) { Text("← Voltar") }
         Ux2Eyebrow("Conta · ${summary.operationalReference()}")
         Ux2Title(if (closed) "Conta encerrada." else "Fechar a conta.")
@@ -87,12 +87,12 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
     var method by rememberSaveable(summary.id) { mutableStateOf(PaymentMethod.CASH) }
     var cashPoint by rememberSaveable(summary.id) { mutableStateOf(state.cashPoints.firstOrNull { it.activeShiftId != null }?.id.orEmpty()) }
     val amount = parseCents(raw)
-    val full = amount == summary.exposureCents && state.cart.isEmpty() && state.orderIntentId == null
+    val full = method in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL) && amount == summary.exposureCents && state.cart.isEmpty() && state.orderIntentId == null
     val valid = amount != null && amount > 0 && amount <= summary.exposureCents && !state.submitting && pending == null &&
         summary.state !in setOf("CLOSED", "CANCELLED") && !summary.serviceAssessmentStale &&
         (method != PaymentMethod.CASH || state.cashPoints.any { it.id == cashPoint && it.activeShiftId != null })
     BackHandler { if (!state.submitting && pending == null) onBack() }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
         TextButton(onBack, enabled = !state.submitting && pending == null) { Text("← Voltar") }
         Ux2Eyebrow("Recebimento manual")
         Ux2Title("Receber conta.")
@@ -107,16 +107,20 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
             Text("Como foi recebido?", style = AttendanceUx2.text(20, 800))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("Dinheiro", "Pix", "Cartão").forEachIndexed { index, label ->
-                    OutlinedButton({ method = PaymentMethod.CASH }, enabled = index == 0 && !state.submitting, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                    OutlinedButton({ method = if (index == 1) PaymentMethod.PIX else PaymentMethod.CASH }, enabled = (index == 0 || index == 1 && state.pixEnabled) && !state.submitting, modifier = Modifier.weight(1f).heightIn(min = 52.dp),
                         shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(4.dp),
-                        border = BorderStroke(if (index == 0 && method == PaymentMethod.CASH) 2.dp else 1.dp,
-                            if (index == 0 && method == PaymentMethod.CASH) RodadaVisual.Amber else RodadaVisual.StrongBorder),
+                        border = BorderStroke(if ((index == 0 && method == PaymentMethod.CASH || index == 1 && method == PaymentMethod.PIX)) 2.dp else 1.dp,
+                            if ((index == 0 && method == PaymentMethod.CASH || index == 1 && method == PaymentMethod.PIX)) RodadaVisual.Amber else RodadaVisual.StrongBorder),
                         colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper)) {
                         Text(label, style = AttendanceUx2.text(13, 780))
                     }
                 }
             }
-            Text("Pix e cartão integrados aguardam disponibilidade e homologação.", style = AttendanceUx2.text(12))
+            Text(if (state.paymentProviderSimulated && method == PaymentMethod.PIX)
+                "SIMULAÇÃO Pix. Não recebe dinheiro; não comprova liquidação real."
+                else "Pix depende da capacidade canônica do estabelecimento; cartão integrado aguarda homologação.", style = AttendanceUx2.text(12))
+            if (state.tapSimulationEnabled) Ux2Action("Testar aproximação · SIMULAÇÃO", valid,
+                { onPay(amount ?: 0, PaymentMethod.TAP_CREDIT, null, false) })
             OutlinedButton({ method = PaymentMethod.EXTERNAL_TERMINAL }, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) {
                 Text(if (method == PaymentMethod.EXTERNAL_TERMINAL) "✓ Terminal externo confirmado" else "Registrar terminal externo confirmado")
             }
@@ -137,7 +141,7 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                     focusedContainerColor = RodadaVisual.Control, unfocusedBorderColor = RodadaVisual.StrongBorder),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 53.dp))
             Text("Informe o valor recebido, sem incluir troco.", style = AttendanceUx2.text(12))
-            Ux2Action(if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
+            Ux2Action(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
                 { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) cashPoint else null, full) }, true)
             if (full) Ux2Action("Só registrar; manter comanda aberta", valid,
                 { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) cashPoint else null, false) })

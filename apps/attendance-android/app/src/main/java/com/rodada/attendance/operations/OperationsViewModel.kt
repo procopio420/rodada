@@ -31,6 +31,7 @@ import java.util.UUID
 
 data class OperationsUiState(
     val pixEnabled: Boolean = false,
+    val paymentProviderSimulated: Boolean = false,
     val tapSimulationEnabled: Boolean = false,
     val tapPhase: String? = null,
     val integratedPayment: com.rodada.attendance.payments.IntegratedPayment? = null,
@@ -263,7 +264,7 @@ class OperationsViewModel(
             readServiceRequests(session)
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
-                state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
+                state = state.copy(pixEnabled = caps.pix, paymentProviderSimulated = caps.simulated, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
@@ -803,6 +804,10 @@ class OperationsViewModel(
 
     fun recoverReceipt(session: StoredSession) {
         val original = state.pendingPayment ?: return
+        if (original.method !in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL)) {
+            reconcilePix(session)
+            return
+        }
         collectPayment(session, original.amountCents, original.method, original.cashPointId, original.closeRequested)
     }
 
