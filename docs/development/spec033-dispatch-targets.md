@@ -33,7 +33,13 @@ POSTGRES_PORT=55636, POSTGRES_USER=rodada, POSTGRES_DB=rodada033guard:
 Earlier runs: the first collected an incorrect foreign-Venue fixture before its
 correction (1 failure); the expanded run then exposed the old exact delivery DTO
 expectation (29 pass,1 failure). The final run above includes both corrections.
-Review remains pending independently; no PR publication or merge performed here.
+Independent static review by the separate integrator context (`/root`) inspected
+`4a9ff73d` and `76aa7e0d`: `NO_FINDINGS_WITH_GAPS`. The reviewer confirmed direct
+read-only ownership fields, preserved existing view scopes, and reviewed the
+state/list/detail/auth/foreign-Venue/revoked-session regressions. The reviewer did
+not rerun pytest; CI and device acceptance remain pending. This is independent
+code review evidence, not authenticated GitHub R3 approval or release acceptance.
+No PR publication or merge performed here.
 
 Base: `origin/main@dcb3a79590904a2c289641d285eda639e1713c87`.
 Contrato: Spec033 da branch `spec/033-attendance-ux2-productization`, E03;
