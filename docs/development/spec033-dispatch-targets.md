@@ -15,6 +15,26 @@ read-only audit/state behavior, foreign-Venue exclusion, anonymous access and
 revoked staff sessions. Independent review and client/device acceptance remain
 separate gates; this projection alone does not complete E03.
 
+Frozen code/test SHA: `76aa7e0d` (base `756a3e83`). Executed in isolated
+worktree `ux2-delivery-claim-projection`, Python3.13.15 from the existing venv,
+PostgreSQL17.6 localhost55636, pytest-owned `test_rodada033guard`; no shared
+demo/production DB, seed or deploy used. With POSTGRES_HOST=127.0.0.1,
+POSTGRES_PORT=55636, POSTGRES_USER=rodada, POSTGRES_DB=rodada033guard:
+
+- `pytest tests/test_dispatch_targets.py tests/test_dispatch.py
+  --ds=rodada_api.settings -q
+  --junitxml=/home/lucas/.cache/rodada033claimprojection-final.xml`: exit0,
+  **30 passed,0 failures/errors/skips**, including existing PostgreSQL concurrency.
+- `manage.py check --settings=rodada_api.settings`: no issues;
+  `manage.py makemigrations --check --dry-run --settings=rodada_api.settings`:
+  no changes; `git diff --check`: PASS.
+- Ruff serializer and target regressions: PASS. Full API suite and CI not run.
+
+Earlier runs: the first collected an incorrect foreign-Venue fixture before its
+correction (1 failure); the expanded run then exposed the old exact delivery DTO
+expectation (29 pass,1 failure). The final run above includes both corrections.
+Review remains pending independently; no PR publication or merge performed here.
+
 Base: `origin/main@dcb3a79590904a2c289641d285eda639e1713c87`.
 Contrato: Spec033 da branch `spec/033-attendance-ux2-productization`, E03;
 Specs003/004 e ADR0004. Risco R3 (Guest/tenant, migration).
