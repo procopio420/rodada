@@ -3,10 +3,12 @@ import { test, expect, type Page } from "./fixtures";
 // Independent regression authorship: review_e04_final, base 3fc2ac55.
 // Domain effects use real Attendance BFF/Django/PostgreSQL; routes inject transport faults only.
 const key = "rodada.intent.pos-cash.v1";
-async function api(page: Page, path: string, body?: unknown): Promise<any> {
+type Tab = { id: string; state: string; exposure_cents: number; version: number; payments: { id: string }[] };
+type Product = { id: string; name: string; price_cents: number };
+async function api<T = Tab>(page: Page, path: string, body?: unknown): Promise<T> {
   return page.evaluate(async ({path, body}) => {
     const r = await fetch(`/api/attendance/${path}`, body === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    const data = await r.json(); if (!r.ok) throw new Error(`${r.status} ${JSON.stringify(data)}`); return data;
+    const data = await r.json(); if (!r.ok) throw new Error(`${r.status} ${JSON.stringify(data)}`); return data as T;
   }, {path, body});
 }
 async function setup(page: Page) {
@@ -16,12 +18,13 @@ async function setup(page: Page) {
   await page.getByLabel("PIN", {exact:true}).fill("2468");
   await page.getByRole("button", {name:"Entrar", exact:true}).click();
   await expect(page.getByRole("button", {name:"Mesas", exact:true})).toBeVisible();
-  const point = (await api(page,"cash/points/")).results[0];
+  const point = (await api<{results: {id: string; active_shift: unknown}[]}>(page,"cash/points/")).results[0];
   if (!point.active_shift) await page.evaluate(async id => {
     const r = await fetch("/api/pos/cash/shifts/", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({cash_point_id:id,opening_float_cents:0,business_date:"2026-10-17",idempotency_key:crypto.randomUUID()})});
     if(!r.ok) throw new Error(`shift ${r.status}`);
   },point.id);
-  const product = (await api(page,"catalog/products/")).results.find((p:any)=>p.name==="Kitchen E2E item");
+  const product = (await api<{results: Product[]}>(page,"catalog/products/")).results.find(p=>p.name==="Kitchen E2E item");
+  if (!product) throw new Error("Canonical fixture product missing");
   const tab = await api(page,"tabs/",{display_label:`Independent recovery ${crypto.randomUUID()}`});
   await api(page,`tabs/${tab.id}/orders/confirm/`,{idempotency_key:crypto.randomUUID(),lines:[{product_id:product.id,quantity:1}]});
   const bill = await api(page,`tabs/${tab.id}/`);
