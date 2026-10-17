@@ -24,13 +24,13 @@ internal fun ServiceTaskContext(task: ServiceRequest, staffId: String, state: Op
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 if (largeFont || maxWidth < 360.dp) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Assumir chamada") }
-                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Concluir chamada") }
+                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Assumir chamada", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Concluir chamada", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
                     }
                 } else {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Assumir chamada") }
-                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Concluir chamada") }
+                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Assumir chamada", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Concluir chamada", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
                     }
                 }
             }
