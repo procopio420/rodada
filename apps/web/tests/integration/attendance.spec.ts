@@ -19,7 +19,7 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByRole("button", { name: /Confirmar pedido/ }).click();
   await expect(page.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
   await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
-  await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Rodada 1", exact: true }).getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   const browserRequest = {
     get: (path: string) => call(path),
     post: (path: string, options: { data: unknown }) => call(path, options.data),

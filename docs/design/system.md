@@ -605,3 +605,12 @@ ActionDialog/Dialog, superfícies, bordas, radius, tipografia e alvos existentes
 Back fecha só a camada ativa e restaura foco. Opções obrigatórias não são ocultas.
 Este fluxo substitui os steppers do catálogo no Atendimento, preservando revisão
 integral, disponibilidade, limite99 e isolamento por Tab. POS/Guest inalterados.
+
+### Atendimento033 — confirmação persistente
+
+O cartão `attendanceOrderStatus` reproduz o bloco order-status da PR212:
+Surface1, border-strong, success3px à esquerda, radius8, padding15/16,
+margin13/17, título15px, corpo12px/1.5, destinos11px/800 em Surface2 com
+borda e radius5. Estas medidas são a variante aprovada UX2, não novo padrão
+global. ID/status/estação vêm do readback histórico, nunca do catálogo atual.
+Cartão pode mostrar vários estados por estação; informação stale é textual.

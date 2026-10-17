@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CustomizationText, money, selectionError, unitPrice, type OrderingProduct, type Selection, type Snapshot } from "@/components/product-customization";
 
 export type RepeatProduct = OrderingProduct & { active: boolean; availability: string };
-export type HistoricalOrder = { id: string; items: { id: string; product_id?: string; product_name: string; quantity: number; unit_price_cents?: number; state: string; customization_snapshot?: Snapshot }[] };
+export type HistoricalOrder = { id: string; status?: string; confirmed_at?: string | null; items: { id: string; product_id?: string; product_name: string; quantity: number; unit_price_cents?: number; state: string; fulfillment_station_snapshot?: string; customization_snapshot?: Snapshot }[] };
 export function currentSnapshot(product: OrderingProduct, selection: Selection): Snapshot {
   return { variant: product.variants?.find(v => v.id === selection.variant_id) ?? null,
     modifiers: (product.modifier_groups ?? []).flatMap(g => g.options.filter(o => selection.modifier_option_ids.includes(o.id)).map(o => ({ ...o, group_name: g.name }))), special_instructions: selection.special_instructions };
