@@ -17,10 +17,12 @@ import com.rodada.attendance.ui.AttendanceUx2
 internal fun Ux2AccountPage(state: OperationsUiState, tab: TabDetail, onBack: () -> Unit,
     onPay: () -> Unit, onClose: () -> Unit, onReturn: () -> Unit,
     onAdjustPricing: () -> Unit, onRefund: (TabPayment) -> Unit,
-    onSettleCorrection: (RefundRequiredCorrection) -> Unit) {
+    onSettleCorrection: (RefundRequiredCorrection) -> Unit, onOperations: () -> Unit,
+    onCorrectItem: (OrderItem) -> Unit) {
     val summary = tab.summary
     val closed = summary.state in setOf("CLOSED", "CANCELLED")
     val locked = !state.canLeaveTabContext()
+    var details by rememberSaveable(summary.id) { mutableStateOf(false) }
     BackHandler { if (!locked) onBack() }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextButton(onBack, enabled = !locked) { Text("← Voltar") }
@@ -41,6 +43,20 @@ internal fun Ux2AccountPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                 TextButton({ onRefund(payment) }, enabled = !locked) { Text("Estornar recebimento") }
         }
         if (state.cart.isNotEmpty() || state.orderIntentId != null) Text("Pedido não enviado. Resolva o rascunho antes de encerrar.")
+        TextButton({ details = !details }, enabled = !locked) { Text(if (details) "Recolher detalhes da conta" else "Ver detalhes da conta") }
+        if (details) {
+            Ux2ReceiptLine("Subtotal original", formatCents(summary.originalSubtotalCents))
+            Ux2ReceiptLine("Descontos", formatCents(summary.discountsCents))
+            Ux2ReceiptLine("Cortesias", formatCents(summary.courtesyCents))
+            Ux2ReceiptLine("Taxa de serviço", formatCents(summary.serviceChargeCents))
+            tab.orders.forEach { order -> order.items.forEach { item ->
+                Ux2ReceiptLine("${item.quantity}× ${item.productName}", formatCents(item.lineTotalCents))
+                Text(itemStateLabel(item.state), style = AttendanceUx2.text(12))
+                if (!closed && item.state != "CANCELLED") TextButton({ onCorrectItem(item) }, enabled = !locked) { Text("Corrigir item") }
+            } }
+            Ux2Action("Revisar valores da conta", !locked, onAdjustPricing)
+            Ux2Action("Operações da comanda", !locked, onOperations)
+        }
         if (summary.serviceAssessmentStale) {
             Text("Atualize a taxa de serviço antes de receber.")
             Ux2Action("Revisar valores da conta", !locked, onAdjustPricing)

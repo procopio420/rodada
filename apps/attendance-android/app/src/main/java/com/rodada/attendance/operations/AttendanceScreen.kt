@@ -715,7 +715,8 @@ internal fun TabWorkspace(
     }
     Ux2AccountPage(state, tab, onBack = { workspaceSection = "Comanda" },
         onPay = onPay, onClose = onClose, onReturn = onBack,
-        onAdjustPricing = onAdjustPricing, onRefund = onRefundPayment, onSettleCorrection = onSettleCorrection)
+        onAdjustPricing = onAdjustPricing, onRefund = onRefundPayment, onSettleCorrection = onSettleCorrection,
+        onOperations = onOperations, onCorrectItem = onCorrectItem)
 }
 
 @Composable
