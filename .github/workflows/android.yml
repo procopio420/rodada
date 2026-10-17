@@ -6,6 +6,8 @@ on:
     paths:
       - "apps/attendance-android/**"
       - "scripts/android-force-stop-recovery.sh"
+      - "scripts/lib/android-instrumentation-result.sh"
+      - "scripts/tests/test_android_instrumentation_result.py"
       - ".github/workflows/android.yml"
   push:
     branches: [main]
@@ -23,6 +25,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Instrumentation result parser regression
+        run: python3 -m unittest discover -s scripts/tests -p test_android_instrumentation_result.py -v
 
       - uses: actions/setup-java@v4
         with:
