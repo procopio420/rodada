@@ -1,6 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+from threading import Barrier
 
-from django.test import TestCase
+from django.db import close_old_connections
+from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -226,6 +229,47 @@ class DispatchFoundationTests(TestCase):
             event_type="dispatch.delivery_completed", entity_id=str(task.id)
         ).count() == 1
 
+    def rival_actor(self):
+        staff = StaffMember.objects.create(display_name="Rival", login_identifier="delivery-rival")
+        membership = VenueStaffMembership.objects.create(
+            venue=self.venue, staff_member=staff, role=StaffRole.STAFF,
+        )
+        session = StaffSession.objects.create(
+            venue=self.venue, staff_member=staff, membership=membership,
+            expires_at=timezone.now() + timedelta(hours=1),
+        )
+        return ActorContext.from_session(session)
+
+    def test_delivery_rival_claim_rejected_without_item_or_audit_mutation(self):
+        rival = self.rival_actor()
+        item = self.ready_item()
+        task = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
+        DispatchTask.objects.filter(pk=task.id).update(state="CLAIMED", claimed_by_id=rival.staff_id)
+        before = AuditEvent.objects.count()
+        response = self.client.post(f"/dispatch/delivery/{task.id}/complete/", {}, format="json")
+        assert response.status_code == 409, response.json()
+        assert response.json()["code"] == "DELIVERY_TASK_ALREADY_CLAIMED"
+        task.refresh_from_db()
+        item.refresh_from_db()
+        assert task.state == "CLAIMED" and task.claimed_by_id == rival.staff_id
+        assert task.completed_at is None and task.completed_by_id is None
+        assert item.state == OrderItemState.READY and item.delivered_at is None
+        assert AuditEvent.objects.count() == before
+
+    def test_delivery_claim_owner_completes_and_rival_terminal_replay_is_harmless(self):
+        rival = self.rival_actor()
+        item = self.ready_item()
+        task = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
+        DispatchTask.objects.filter(pk=task.id).update(state="CLAIMED", claimed_by_id=self.actor.staff_id)
+        complete_delivery_task(task_id=task.id, actor=self.actor)
+        task.refresh_from_db()
+        before = AuditEvent.objects.count()
+        replay = complete_delivery_task(task_id=task.id, actor=rival)
+        assert replay._completion_replay is True
+        assert replay.completed_by_id == self.actor.staff_id
+        assert replay.completed_at == task.completed_at
+        assert AuditEvent.objects.count() == before
+
     def test_delivery_queue_and_completion_http_api_use_persisted_state(self):
         item = self.ready_item()
         task = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
@@ -293,3 +337,40 @@ class DispatchFoundationTests(TestCase):
         assert captured.exception.code == "DELIVERY_TASK_NOT_FOUND"
         task.refresh_from_db()
         assert task.state == DispatchTaskState.OPEN
+
+
+@skipUnlessDBFeature("has_select_for_update")
+class DeliveryCompletionConcurrencyTests(TransactionTestCase):
+    setUp = DispatchFoundationTests.setUp
+    ready_item = DispatchFoundationTests.ready_item
+    rival_actor = DispatchFoundationTests.rival_actor
+
+    def test_rival_and_owner_serialize_without_duplicate_completion(self):
+        rival = self.rival_actor()
+        item = self.ready_item()
+        task = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
+        DispatchTask.objects.filter(pk=task.id).update(state="CLAIMED", claimed_by_id=self.actor.staff_id)
+
+        simultaneous = Barrier(2)
+
+        def complete(actor):
+            close_old_connections()
+            try:
+                simultaneous.wait(timeout=10)
+                result = complete_delivery_task(task_id=task.id, actor=actor)
+                return result.completed_by_id
+            except DispatchServiceError as error:
+                return error.code
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            owner_result, rival_result = list(pool.map(complete, [self.actor, rival]))
+        assert owner_result == self.actor.staff_id
+        assert rival_result in ("DELIVERY_TASK_ALREADY_CLAIMED", self.actor.staff_id)
+        task.refresh_from_db()
+        item.refresh_from_db()
+        assert task.completed_by_id == self.actor.staff_id and task.state == "DONE"
+        assert item.state == OrderItemState.DELIVERED
+        assert AuditEvent.objects.filter(event_type="dispatch.delivery_completed", entity_id=str(task.id)).count() == 1
+        assert AuditEvent.objects.filter(event_type="order_item.transitioned", entity_id=str(item.id)).count() == 1
