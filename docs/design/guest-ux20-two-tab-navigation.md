@@ -56,3 +56,27 @@ Testes de DOM simulado cobrem mesa livre → catálogo → pedido **sem sair do 
 - **Não manter uma barra DEMO na primeira dobra.** Botão `⚙` no cabeçalho só para exploração do protótipo.
 
 **Validação:** 14 testes da suíte UX e 4 P0 foram executados com DOM simulado; passaram após estas alterações. A suíte Node em ambiente real e o gate visual em Chromium/Android ainda estão pendentes.
+
+
+## Polimento de layout e interação — 16/10/2026
+
+**Escopo congelado:** nenhuma aba, fluxo ou funcionalidade nova. Alterações realizadas apenas no protótipo da branch.
+
+- Removido o botão de voltar redundante do catálogo, que já possui a navegação de duas abas.
+- O título do catálogo foi simplificado para **Cardápio** e a primeira dobra ficou mais compacta, com margens, respiros e linha de produtos consistentes.
+- A confirmação de envio foi deslocada para **faixa visível fixa logo abaixo do cabeçalho**, fora do scroll do catálogo. A faixa mantém número do pedido, botão **Ver pedido** e opção de dispensar; o usuário permanece no catálogo.
+- Barra de ação contextual (revisar carrinho/pagar) com cor âmbar e alvos de toque claros, preservando a navegação inferior de duas abas.
+- Comanda: maior contraste do saldo, status dos pedidos mais compactos, informações financeiras longas sob `Ver consumo detalhado`, sem reintroduzir `Agora`.
+- Ficha: código FG84 com destaque suficiente, mas menos espaço vertical consumido na primeira dobra; acesso a conta e pagamento permanece único.
+- Bottom sheets: header/footer mais compactos, conteúdo rolável, área segura no rodapé e `max-height` orientado por `dvh` para dispositivos baixos.
+- Microcopy reduzida e repetição de rodada desabilitada para pedidos cancelados (nenhum item cancelado é sugerido como novo pedido).
+- Nenhuma alteração intencional aos contratos P0 (QR/Tabs, pagamento pendente, ledger), às regras de pré-pago e parcial ou ao código exibido na ficha.
+
+### Verificação
+
+- **21 testes comportamentais no DOM simulado:** 4 testes P0 + 17 de UX e polimento, todos passando. A suíte permanece no repositório em `prototype/guest-ux-20/tests/`.
+- **Teste visual automatizado adicionado:** `prototype/guest-ux-20/tests/visual_smoke.py`. Ele fotografa nove cenários com Chromium em **360×640, 390×844, 430×932 e 1440×900**, registra falhas JS, overflow horizontal, contagem de abas e posição do rodapé.
+- **Comando após checkout da branch:** `python -m pip install playwright && python -m playwright install chromium && python prototype/guest-ux-20/tests/visual_smoke.py --out /tmp/rodada-guest-visual`.
+- **Gate aberto:** screenshots reais ainda não foram gerados sobre a versão atual; revisar arquivos e ajustar eventuais falhas antes de declarar pixel-perfect. O teste comportamental não substitui renderização ou validação no aparelho Android.
+
+**Resultado:** referência de UX do protótipo polida e testada por comportamento; validação visual pixel-perfect ainda pendente.
