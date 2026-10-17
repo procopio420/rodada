@@ -363,6 +363,57 @@ body{font:500 15px/1.45 var(--font)}
 .ficha-bill-row{min-height:62px}.ficha-bill-amount{font-size:15px;font-weight:850;white-space:nowrap}
 @media(max-width:390px){.phone-header .brand img{max-width:100px}.guest-header-tools{gap:4px}.guest-header-tools .meta b{font-size:12px}.guest-header-tools .meta span{font-size:10px}.guest-help,.guest-demo{width:40px;min-width:40px;height:44px}}
 
+/* Polimento 2.1: fixed design rhythm, strong single CTA and thumb-first layout. */
+#alert:empty{display:none}
+#alert .sent-order-notice{border-width:0 0 1px 3px;border-radius:0;background:var(--surface2);padding:10px 17px;margin:0;box-shadow:0 8px 16px #0003}
+#alert .sent-order-copy strong{font-size:13px}
+#alert .sent-order-actions{gap:6px}
+#alert .sent-order-actions span{font-size:11px}
+#alert .sent-order-close{min-height:44px;min-width:44px;height:44px;width:44px}
+#alert .sent-order-actions button{min-height:44px;font-size:12px}
+.content{padding-top:18px;padding-bottom:24px}
+.content h1{font-size:clamp(27px,7.6vw,31px);line-height:1.15;letter-spacing:-.04em}
+.eyebrow{margin-bottom:5px;letter-spacing:.08em;font-size:11px}
+.comanda-context{margin:3px 0 13px;font-size:12px}
+.comanda-order-section{margin-bottom:16px}
+.comanda-order-section .queuehead{margin-top:8px;margin-bottom:7px}
+.order-pulse{margin:2px 0 8px;gap:5px 12px}
+.order-compact-row{min-height:52px}
+.comanda-order-section .quick-repeat{margin-top:10px}
+.comanda-balance{margin:14px 0 8px;padding:14px 16px}
+.comanda-balance>strong{font-size:30px}
+.balance-subline{margin-top:9px}
+.bill-details{margin:7px 0 8px}
+.comanda-more{margin-top:16px}
+.catalogline{min-height:72px;padding:13px 0}
+.actionbar{background:var(--bg);border-top:1px solid var(--border);padding-top:8px;padding-bottom:8px}
+.actionbar .btn{background:var(--accent);color:var(--ink);border-radius:10px;box-shadow:none;min-height:48px;font-weight:850;letter-spacing:0}
+.nav-client{min-height:62px;background:var(--surface);border-top:1px solid var(--border);padding-top:3px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}
+.nav-client button{min-height:54px;gap:3px;font-size:12px}
+.nav-client .navicon{font-size:21px}
+.ficha-ticket{margin:11px 0 8px;padding:14px 16px}
+.ficha-code{font-size:clamp(52px,13vw,68px);margin:7px 0 8px}
+.ficha-tip{font-size:13px;line-height:1.35}
+.ficha-section-head{margin-top:15px}
+.sheet{max-height:min(90dvh,820px);border-radius:15px 15px 0 0}
+.sheet-header{flex-shrink:0;padding:11px 16px 12px}
+.sheet-body{padding:14px 16px 16px;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.sheet-footer{padding:10px 16px calc(12px + env(safe-area-inset-bottom));flex-shrink:0}
+.sheet .x-btn{height:44px;width:44px;min-height:44px;min-width:44px}
+.option{margin-bottom:7px;padding:12px;min-height:58px}
+@media(max-width:390px){
+ .content{padding:17px 16px 23px}
+ .comanda-balance{padding:13px 14px}
+ #alert .sent-order-notice{padding:10px 14px}
+ #alert .sent-order-actions span{display:none}
+ .sheet-header,.sheet-body{padding-left:16px;padding-right:16px}
+}
+@media(max-height:700px){
+ .sheet{max-height:calc(100dvh - 8px)}
+ .sheet-body{padding-top:12px;padding-bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){.progress>div{transition:none}}
+
 </style>
 </head><body>
 <div class="shell">
@@ -1015,10 +1066,10 @@ function renderOrderNotice(){
  <div class="sent-order-icon" aria-hidden="true">✓</div>
  <div class="sent-order-copy"><strong>Pedido ${esc(notice.orderId)} enviado!</strong><small>${esc(notice.summary)}</small></div>
  <button class="sent-order-close" onclick="dismissOrderNotice()" aria-label="Dispensar confirmação">×</button>
- <div class="sent-order-actions"><button onclick="openSentOrder()">Acompanhar pedido ›</button><span>Continue escolhendo à vontade</span></div>
+ <div class="sent-order-actions"><button onclick="openSentOrder()">Ver pedido ›</button><span>Pode continuar pedindo</span></div>
  </div>`
 }
-function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'account')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / PEDIDO</div><h1>Adicionar itens</h1>${renderOrderNotice()}${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
+function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / CARDÁPIO</div><h1>Cardápio</h1>${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 
 
 function activeOrderStage(order){
@@ -1349,7 +1400,7 @@ function paymentStatusBanner(){
 }
 function render(opts={}){
  const scroller=el('view'),oldscroll=scroller.scrollTop;
- el('header').innerHTML=header();el('demo-mode').innerHTML=renderModeSwitch();el('alert').innerHTML=paymentStatusBanner()+(S.unknownAck?'<div class="alertbar">Envio sem confirmação · verifique o pedido.</div>':S.online?'':`<div class="alertbar">⚡ Sem conexão · pedido não enviado.</div>`);
+ el('header').innerHTML=header();el('demo-mode').innerHTML=renderModeSwitch();el('alert').innerHTML=paymentStatusBanner()+(S.unknownAck?'<div class="alertbar">Envio sem confirmação · verifique o pedido.</div>':S.online?'':`<div class="alertbar">⚡ Sem conexão · pedido não enviado.</div>`)+(S.scene==='catalog'&&!S.modal?renderOrderNotice():'');
  if(S.scene==='home')S.scene=isFicha()?'ficha':'account';
  scroller.innerHTML=S.scene==='entry'?renderEntry():S.scene==='catalog'?renderCatalog():S.scene==='ficha'?renderFicha():renderAccount();
  el('nav').innerHTML=nav();
