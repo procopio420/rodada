@@ -23,8 +23,9 @@ class LiveAgoraUx2Test {
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
-        // With fontScale 2 the IME can cover the login button; scroll it into the viewport.
-        compose.onNodeWithText("Entrar").performScrollTo().performClick()
+        // This opt-in runner exercises task navigation; invoke login's real action
+        // independent of IME movement. Login touch/IME acceptance is a separate gate.
+        compose.onNodeWithText("Entrar").performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.OnClick) { check(it()) }
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
@@ -57,14 +58,14 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertExists()
                     compose.onNodeWithText("Concluir chamada").assertExists()
+                    captureCriticalEvidence(compose, "live-agora-explicit-fallback", compose.onRoot())
                     listOf("Assumir chamada", "Concluir chamada").forEach { label ->
                         val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
                         compose.onNodeWithText(label, useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
                         check(layouts.single().lineCount <= 2) { "Action label must remain readable: $label" }
-                        check(!layouts.single().hasVisualOverflow) { "Action label overflow: $label" }
+                        check(!layouts.single().hasVisualOverflow) { "Action label overflow: $label lines=${layouts.single().lineCount} size=${layouts.single().size} width=${layouts.single().didOverflowWidth} height=${layouts.single().didOverflowHeight}" }
                         compose.onNodeWithText(label).assertHeightIsAtLeast(androidx.compose.ui.unit.Dp(48f))
                     }
-                    captureCriticalEvidence(compose, "live-agora-explicit-fallback", compose.onRoot())
                     // Leaving the workspace ends the task-origin navigation. Reopening the
                     // same Tab manually must not restore the old call.
                     compose.onNodeWithText("← Mesas e comandas").performClick()
