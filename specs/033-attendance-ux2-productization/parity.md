@@ -85,3 +85,21 @@ Evidência versionada em PR229: docs/development/evidence/spec033-native-repeat/
 final-assertions. MainActivity/reinício, dispositivo, TalkBack, comparações
 pareadas de todas telas, regressão ampla e piloto continuam gates. Nenhum
 checkbox de épico/AC foi fechado por essa evidência parcial.
+
+### Correções após comparação pareada — PR232/233
+
+| Tela/estado | Protótipo | Web | Android | Diferenças / resultado |
+|---|---|---|---|---|
+| Catálogo/resumo | PR212 ec26e26b, Marina56/limite200/rascunho14 | PR232 produto47592a1d: dimensões, duas colunas, destino fixo, sem aviso redundante; capturas360/390/430/1280 | Correções e recaptura em curso, não aceitas | Web9/9Playwright +4/4recaptura; fixture controlada, não E2E real |
+| Recebimento | Marina/Mesa08/saldo24 | PR232 caixa único após CTA, meios reais indisponíveis desabilitados, múltiplos preservam seleção | PR233 produto8991c2ba, HEAD1fed3a5c | Paridade integral e shell nativo ainda não provados |
+| Recuperação financeira nativa | Simulação substituída por contratos reais | Evidência financeira PR225 anterior permanece por seu SHA | PR233116JVM/build/lint e3/3instrumentados Django/PostgreSQL reais | R3final NO_FINDINGS_WITH_GAPS: UUID, fenceA→B→A, durabilidade e readback; sem force-stop/UIoperator/PSP/aparelho |
+
+PR232: https://github.com/procopio420/rodada/pull/232
+PR233: https://github.com/procopio420/rodada/pull/233
+Comparador antes/depois e hashes: PR232
+`docs/development/evidence/spec033-parity-comparison/after-web/`.
+CI das PRs ainda não encerrado na atualização deste registro. Fonte2 Web,
+múltiplos/caixa revogado visuais, shell Android completo, dispositivo físico,
+PSP, piloto e aceite integral continuam pendentes. Nenhum AC global foi marcado
+concluído por esse recorte. PR233 depende da pilha nativa227/228/229; PR232 da
+pilha Web224/225/230/231. Não há merge/deploy autorizado.
