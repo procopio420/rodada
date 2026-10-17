@@ -4,9 +4,9 @@ import { resolve } from "node:path";
 
 /** Use the actual unified table workflow: open a contextual Tab and enter its catalog. */
 export async function openNamedAttendanceTab(page: Page, label: string) {
-  const previous = page.locator(".attendanceOrderDialog");
-  if (await previous.isVisible()) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
+  const previous = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  for (let step = 0; step < 2 && await previous.isVisible(); step++) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true, includeHidden: true })).toBeAttached();
   const { contextual, canManageTables } = await page.evaluate(async () => {
     const session = await (await fetch("/api/auth/me")).json();
     const tables = await (await fetch("/api/attendance/hospitality/tables/")).json();
@@ -15,9 +15,10 @@ export async function openNamedAttendanceTab(page: Page, label: string) {
       canManageTables: session.capabilities.includes("table.manage"),
     };
   });
-  const tableDialog = page.locator(".attendanceTableDialog");
+  const tableDialog = page.locator(".ux2TablePage");
   if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
-  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   // The unified search persists between tab visits. Show the newly seeded table.
   await page.getByLabel("Buscar mesa ou comanda").fill("");
   if (contextual) {
@@ -32,7 +33,8 @@ from modules.hospitality.models import Table,TableOccupancy
 table=Table.objects.create(venue=Venue.objects.get(slug='web-e2e'),label=sys.argv[1],status='AVAILABLE' if sys.argv[2]=='1' else 'OCCUPIED')
 if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.access_generation)
 `, tableLabel, canManageTables ? "1" : "0"], { cwd: resolve("../api"), env: process.env });
-    await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+    await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
+    await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Atualizar", exact: true }).click();
     await page.getByRole("button", { name: new RegExp(`^Mesa ${tableLabel}`) }).click();
     await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: new RegExp(`Nova comanda · Mesa ${tableLabel}`) });
@@ -40,23 +42,24 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
     await dialog.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
   } else {
     const other = page.getByRole("region", { name: "Outras comandas" });
-    await other.locator("summary").click();
     await other.getByRole("button", { name: "Abrir comanda sem mesa", exact: true }).click();
     const popup = page.locator(".attendanceOrderDialog");
     await popup.getByLabel("Nome ou apelido", { exact: true }).fill(label);
     await popup.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   }
-  await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
-  await expect(page.locator(".attendanceOrderDialog").getByRole("button", { name: /Cardápio/ })).toBeVisible();
+  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await expect(workspace).toBeVisible();
+  await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await expect(workspace.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
 }
 
 /** Choose any existing Tab through table expansion or the unassigned-Tabs section. */
 export async function selectExistingAttendanceTab(page: Page, label: string) {
-  const popup = page.locator(".attendanceOrderDialog");
-  if (await popup.isVisible()) await popup.getByRole("button", { name: "Voltar", exact: true }).click();
-  const tableDialog = page.locator(".attendanceTableDialog");
+  const popup = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  for (let step = 0; step < 2 && await popup.isVisible(); step++) await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+  const tableDialog = page.locator(".ux2TablePage");
   if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
-  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   const located = await page.evaluate(async name => {
     const result = await (await fetch(`/api/attendance/tabs/?q=${encodeURIComponent(name)}`)).json();
     const tab = result.results.find((row: { display_label: string }) => row.display_label === name);
@@ -72,7 +75,7 @@ export async function selectExistingAttendanceTab(page: Page, label: string) {
     await page.locator(`button[data-tab-id="${located.tabId}"]`).click();
   } else {
     // Labels may be homonymous; use the canonical identity instead of fuzzy text.
-    await page.getByRole("region", { name: "Outras comandas" }).locator(`button.attendanceTabOption[data-tab-id="${located.tabId}"]`).click();
+    await page.getByRole("region", { name: "Outras comandas" }).locator(`button[data-tab-id][data-tab-id="${located.tabId}"]`).click();
   }
   await expect(popup).toBeVisible();
   // A visible dialog is not enough if a previous Tab selection is still settling.

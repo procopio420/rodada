@@ -605,3 +605,25 @@ ActionDialog/Dialog, superfícies, bordas, radius, tipografia e alvos existentes
 Back fecha só a camada ativa e restaura foco. Opções obrigatórias não são ocultas.
 Este fluxo substitui os steppers do catálogo no Atendimento, preservando revisão
 integral, disponibilidade, limite99 e isolamento por Tab. POS/Guest inalterados.
+
+### Atendimento033 — confirmação persistente
+
+O cartão `attendanceOrderStatus` reproduz o bloco order-status da PR212:
+Surface1, border-strong, success3px à esquerda, radius8, padding15/16,
+margin13/17, título15px, corpo12px/1.5, destinos11px/800 em Surface2 com
+borda e radius5. Estas medidas são a variante aprovada UX2, não novo padrão
+global. ID/status/estação vêm do readback histórico, nunca do catálogo atual.
+Cartão pode mostrar vários estados por estação; informação stale é textual.
+
+### Atendimento033 — páginas e barra canônica da UX2
+
+PR212ec26e26b é o contrato aprovado para as páginas da comanda, catálogo em lista
+e resumo opcional. A apresentaçãoUX2 reutiliza controller de pedidos e drafts;
+substitui os modais encadeados029 nas jornadas primárias. Header72, página com
+padding24/20/128 (15nas telas≤375), títulos34/30, botões52/footer56, radius10,
+lista17px de padding vertical e dimensões de creditbar seguem a referência.
+Barra compacta5px com marcador80%, tipografia12/11, exposição/draft distintos;
+completa10px, valor18mono, referência efetiva e capacidade canônicas. Novos
+pedidos continuam no enforcement atualENFORCE até integração031. A variante
+adapta targetsvisuais39/42 da referência para hitarea44, sem reduzir legibilidade.
+Diferença de acessibilidade deve constar na matriz antes de aprovação final.

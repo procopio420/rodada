@@ -1,0 +1,43 @@
+/* Approved PR212 creditPanel measurements. Read-only financial projection. */
+.creditbar{border:1px solid var(--color-border-strong);border-radius:11px;background:var(--color-surface-1);padding:14px 15px 11px;margin:12px 0 17px}
+.creditbar[data-level="warning"]{border-left:3px solid var(--color-warning)}
+.creditbar[data-level="exceeded"]{border-left:3px solid var(--color-danger)}
+.creditbar[data-level="ok"]{border-left:3px solid var(--color-success)}
+.creditbar .heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.creditbar .heading>span{font-size:12px;font-weight:850;color:var(--color-text)}
+.creditbar .heading .relationship{font-size:11px;color:var(--color-text-muted);font-weight:720}
+.creditbar .numbers{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:13px}
+.creditbar .numbers strong{font:830 18px var(--font-mono);letter-spacing:-.045em}
+.creditbar .numbers small{font-size:12px;color:var(--color-text-muted)}
+.creditbar .progress{position:relative;display:flex;height:10px;border-radius:999px;background:var(--color-border);overflow:hidden;margin:12px 0 9px}
+.creditbar .progress .current{height:100%;flex:0 0 auto;background:var(--color-success)}
+.creditbar[data-level="warning"] .progress .current{background:var(--color-warning)}
+.creditbar[data-level="exceeded"] .progress .current{background:var(--color-danger)}
+.creditbar .progress .pending{height:100%;flex:0 0 auto;background:repeating-linear-gradient(135deg,var(--color-warning),var(--color-warning) 6px,var(--credit-stripe-dark) 6px,var(--credit-stripe-dark) 9px);box-shadow:inset 2px 0 var(--color-on-accent)}
+.creditbar .progress .threshold{position:absolute;left:80%;top:0;bottom:0;width:2px;background:var(--color-text);opacity:.85}
+.creditbar .key{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--color-text-muted);font-size:11px}
+.creditbar .key b{color:var(--color-text);font-size:11px}
+.creditbar .key .newOrder{color:var(--color-warning)}
+.creditbar .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:7px}
+.creditbar .foot span{font-size:12px;color:var(--color-text-muted)}
+.creditbar .foot button{background:none;border:0;color:var(--color-warning);text-align:right;min-height:44px;font-size:12px;font-weight:800;padding:5px}
+.creditbar[data-level="exceeded"] .foot span{color:var(--color-text)}
+.creditbar.compact{background:transparent;border:0;border-radius:0;padding:0;margin:8px 0 12px}
+.creditbar.compact[data-level="ok"],.creditbar.compact[data-level="warning"],.creditbar.compact[data-level="exceeded"]{border:0}
+.creditbar.compact .slimHead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:12px}
+.creditbar.compact .slimHead span{color:var(--color-text-muted);min-width:0}
+.creditbar.compact .slimHead strong{font:750 12px var(--font-mono);white-space:nowrap}
+.creditbar.compact .progress{height:5px;margin:7px 0 4px}
+.creditbar.compact .slimFoot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.creditbar.compact .slimFoot small{color:var(--color-text-muted);font-size:11px}
+.creditbar.compact .slimFoot button{background:none;border:0;color:var(--color-text-muted);text-decoration:underline;min-height:44px;padding:1px 0;font-size:11px;font-weight:700}
+.creditbar.compact[data-level="exceeded"] .slimFoot small{color:var(--color-danger)}
+.creditbar .zero{background:var(--color-surface-2);border:1px solid var(--color-border-strong);border-radius:8px;padding:13px;margin:10px 0;font-size:13px;font-weight:750}
+.creditbar .zero strong{color:var(--color-text)}
+
+.creditbar { --credit-stripe-dark: #9B6417; overflow-wrap:anywhere; }
+.creditbar button { position:relative; cursor:pointer; }
+.creditbar button { min-width:44px; }
+
+.creditbar .numbers { flex-wrap:wrap; }
+.creditbar.compact .slimHead { flex-wrap:wrap; }
