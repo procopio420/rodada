@@ -787,7 +787,9 @@ class OperationsViewModel(
                     close = { repository.closeTab(session, it) },
                     observed = ::replaceDetail)
                 pendingMutationIntentStore.remove(intent.id)
-                state = state.copy(paymentIntentId = null, pendingPayment = null,
+                val remaining = pendingMutationIntentStore.loadFor(session)
+                state = state.copy(contextRecoveryPending = remaining.any { it.targetsContext(detail) },
+                    recoveryEvidence = remaining.map { it.evidence() }, paymentIntentId = null, pendingPayment = null,
                     noticeMessage = if (detail.summary.state == "CLOSED") "Comanda encerrada." else "Pagamento registrado.",
                     connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
             }.onFailure { error ->
@@ -814,7 +816,9 @@ class OperationsViewModel(
                 check(detail.summary.id == original.tabId && detail.payments.any { receiptMatches(original, original.confirmedPaymentId, it) })
                 replaceDetail(detail)
                 pendingMutationIntentStore.remove(original.id)
-                state = state.copy(pendingPayment = null, paymentIntentId = null,
+                val remaining = pendingMutationIntentStore.loadFor(session)
+                state = state.copy(contextRecoveryPending = remaining.any { it.targetsContext(detail) },
+                    recoveryEvidence = remaining.map { it.evidence() }, pendingPayment = null, paymentIntentId = null,
                     noticeMessage = "Recebimento confirmado; comanda mantida no estado canônico.")
             }.onFailure { showFailure(it) }
             state = state.copy(submitting = false)
