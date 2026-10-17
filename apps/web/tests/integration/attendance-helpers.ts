@@ -2,10 +2,22 @@ import { expect, type Page } from "./fixtures";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
+async function leaveAttendanceContext(page: Page) {
+  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  for (let step = 0; step < 3 && await workspace.isVisible(); step++) {
+    await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+  }
+  await expect(workspace).not.toBeVisible();
+  const table = page.locator(".ux2TablePage");
+  const tables = page.getByRole("button", { name: "Mesas", exact: true });
+  await expect.poll(async () => await table.isVisible() || await tables.isVisible()).toBe(true);
+  if (await table.isVisible()) await table.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(tables).toBeVisible();
+}
+
 /** Use the actual unified table workflow: open a contextual Tab and enter its catalog. */
 export async function openNamedAttendanceTab(page: Page, label: string) {
-  const previous = page.locator(".attendanceOrderDialog");
-  if (await previous.isVisible()) await previous.getByRole("button", { name: "Voltar", exact: true }).click();
+  await leaveAttendanceContext(page);
   await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true, includeHidden: true })).toBeAttached();
   const { contextual, canManageTables } = await page.evaluate(async () => {
     const session = await (await fetch("/api/auth/me")).json();
@@ -15,9 +27,7 @@ export async function openNamedAttendanceTab(page: Page, label: string) {
       canManageTables: session.capabilities.includes("table.manage"),
     };
   });
-  const tableDialog = page.locator(".ux2TablePage");
-  if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   // The unified search persists between tab visits. Show the newly seeded table.
   await page.getByLabel("Buscar mesa ou comanda").fill("");
@@ -47,16 +57,16 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
     await popup.getByLabel("Nome ou apelido", { exact: true }).fill(label);
     await popup.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   }
-  await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
-  await expect(page.locator(".attendanceOrderDialog").getByRole("button", { name: /Cardápio/ })).toBeVisible();
+  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await expect(workspace).toBeVisible();
+  await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await expect(workspace.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
 }
 
 /** Choose any existing Tab through table expansion or the unassigned-Tabs section. */
 export async function selectExistingAttendanceTab(page: Page, label: string) {
-  const popup = page.locator(".attendanceOrderDialog");
-  if (await popup.isVisible()) await popup.getByRole("button", { name: "Voltar", exact: true }).click();
-  const tableDialog = page.locator(".ux2TablePage");
-  if (await tableDialog.isVisible()) await tableDialog.getByRole("button", { name: "Voltar", exact: true }).click();
+  const popup = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await leaveAttendanceContext(page);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   const located = await page.evaluate(async name => {
     const result = await (await fetch(`/api/attendance/tabs/?q=${encodeURIComponent(name)}`)).json();
