@@ -136,3 +136,31 @@ Checkpoint de integração (2026-10-15): `main` com TableGroups #145 e pairing W
 - [x] Prove cross-Venue same-credential rotation failure on disposable PostgreSQL.
 - [x] Lock global credential before per-visit authorization; revalidate revocation/version under locks.
 - [ ] Verify old tokens denied and anonymous visits preserved; independent R3 review and final CI before merge.
+
+
+## Cliente UX 2.0 — fechamento de especificação, execução ainda pendente
+
+Fonte canônica: [guest-ux20-contract.md](guest-ux20-contract.md). A aprovação dos fluxos em 16/10/2026 não significa implementação em Django/Web/Manage.
+
+### Slice A — configuração e acesso (backend/Manage)
+- [ ] Mode tipado por Venue MESA / FICHA / HIBRIDO, capability gerencial, auditoria, migração e defaults compatíveis.
+- [ ] AccessPoint tipado TABLE/BAR_PICKUP, geração e resolução de QR distintos; Híbrido por QR/área.
+- [ ] Snapshot do tipo de serviço em Tab e regra para sessões existentes ao alterar modo.
+
+### Slice B — bebida e fila BAR (backend/Web)
+- [ ] Elegibilidade explícita BEVERAGE + BAR_PICKUP e revalidação transacional antes de confirmar Order.
+- [ ] Bloquear comida, porções, combos mistos e manipulação de API na Ficha.
+- [ ] FG84 legível, único entre fichas ativas, exibido ao cliente e na fila BAR; sem scan obrigatório.
+- [ ] Tab de Ficha sem TableOccupancy, retirada opcional sem mutar estado canônico por confirmação guest.
+
+### Slice C — interface Cliente e integração
+- [ ] Implementar Web guest fiel ao protótipo aprovado: dois destinos, pedidos ativos, confirmação sem navegação, conta recolhida e Ficha.
+- [ ] Unificar serviço/entrega por modo sem inventar terceira aba; preservar staff e cliente sem celular.
+- [ ] Validar pagamento parcial/prepay, pendência PSP, autorização Tab e políticas de exposição invisíveis.
+
+### Slice D — qualidade/fechamento técnico
+- [ ] E2E UI/API/PostgreSQL em Mesa/Ficha/Híbrido, isolamento, mudança do Venue com sessões em aberto, auto bloqueio de comida Ficha, retry e código FG84.
+- [ ] Screenshots Playwright 360/390/430/desktop; a11y e teclado; CI SHA final, R3 e merge.
+- [ ] Go/no-go de rollout por Venue com rollback seguro, sem prejudicar Tabs antigas.
+
+**Horários automáticos** devem virar spec/slice futura após validação comercial; não misturar com estes P0.
