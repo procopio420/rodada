@@ -1,6 +1,6 @@
 # Guest Experience — UX do cliente
 
-Este documento define a experiência canônica do cliente no Rodada e complementa a Spec 004 e o Design System.
+Este documento define a experiência canônica do cliente no Rodada e complementa a Spec 004 e o Design System. **A decisão de UX 2.0 de 16/10/2026 tem precedência sobre descrições históricas do MVP:** [contrato Mesa/Ficha/Híbrido](../../specs/004-table-guest-ordering/guest-ux20-contract.md). Não confundir protótipo de UX com implementação Web já homologada.
 
 ## Norte
 
@@ -123,58 +123,37 @@ Depois de resolver o contexto físico:
 
 Login nunca é requisito do fluxo básico.
 
+## Modo de operação: Mesa, Ficha ou Híbrido
+
+O **gestor** escolhe no Manage e o **QR/ponto de acesso** resolve a experiência. O cliente não escolhe o modo.
+
+- **Mesa:** QR permanente de Table; bebidas e comidas configuradas para servir na mesa; entrega por Bar/Cozinha.
+- **Ficha:** QR de BAR/Pista, Tab sem mesa, código FG84 na ficha/fila do bartender; **somente bebidas e retirada no bar**, sem cozinha, sem comida ou combos mistos.
+- **Híbrido:** mesas e ficha simultaneamente dentro do mesmo Venue, de acordo com QR/área; não fundir identidades ou cobranças.
+- **MVP:** gerente altera manualmente a configuração; turnos automáticos ficam fora. Mudança de modo afeta novas sessões, nunca converte Tab/ledger/sessões existentes.
+
+Este modo de **experiência do Venue** é independente do controle técnico Table.guest_ordering_mode (DISABLED/JOIN_ACTIVE/DIRECT).
+
 ## Navegação
 
-A experiência guest possui três destinos primários:
+A experiência cliente UX 2.0 possui **exatamente dois destinos principais**:
 
-```text
-Cardápio | Pedidos | Conta
-```
+- **Mesa:** Pedir | Minha comanda.
+- **Ficha:** Pedir | Minha ficha (com subtela Conta e pagamento).
 
-Nada além disso compete como navegação principal no MVP.
+**Não existe Agora guest** nem tela independente de Pedidos. Pedir é a home operacional do cliente: após enviar, permanece no cardápio e mostra confirmação compacta visível, sem navegação forçada.
 
-### Cardápio é a home
+### Pedir e repetir
 
-O primeiro pedido não encerra a jornada. Em bar, pedir é recorrente.
+Quick-add prioritário, detalhes apenas para variantes/observações. **Mais uma rodada** permite desmarcar itens e ajustar quantidades, confirmar uma única vez e já enviar. Produtos que deixaram de estar disponíveis exigem revisão do carrinho; pedidos cancelados não são sugeridos como repetição.
 
-Depois de enviar um pedido, o cliente volta naturalmente ao Cardápio e pode continuar consumindo.
+### Acompanhar pedidos
 
-Cards favorecem quick-add:
+**Minha comanda** reúne status resumidos de todos os pedidos ativos (Recebido / Preparando / Pronto-chegando), dois mais relevantes em destaque, Ver todos e saldo. Consumo detalhado e histórico financeiro ficam recolhidos, pagamento é acessível e a ação de ajudar fica no cabeçalho.
 
-```text
-Original 600 ml        R$ 14
-                         [ + ]
-```
+**Minha ficha** prioriza código FG84, Pronto para retirar, Em andamento e histórico recolhido; retirada é opcional, sem scan ou confirmação obrigatória. A Ficha possui apenas uma entrada de **Conta e pagamento**.
 
-Abrir detalhe apenas quando modificadores, quantidade especial ou observação forem necessários.
-
-## Pedidos
-
-A tela Pedidos mostra histórico e pedidos ativos.
-
-O Rodada não expõe microestados que o staff não mede de forma confiável.
-
-Baseline guest:
-
-```text
-Recebido
-Preparando
-Pronto / chegando
-```
-
-Esses estados são projeções dos estados internos de fulfillment.
-
-Um resumo persistente opcional (`LiveOrderBar`) pode aparecer no rodapé:
-
-```text
-2 pedidos preparando · Ver pedidos
-```
-
-### Pedir novamente
-
-Pedido anterior oferece **Pedir novamente** se o Product continuar disponível.
-
-O objetivo é evitar que o cliente navegue repetidamente pela taxonomia para pedir a mesma bebida/comida.
+As telas não inventam microestados/entregas que o staff não confirmou. O resumo persistente não precisa de aba própria.
 
 ## Solicitar atendimento
 
@@ -243,14 +222,16 @@ Cardápio
 enviar Order
   ↓
 Cardápio continua ativo
-  ├─ Pedidos → acompanhar / pedir novamente
+  ├─ Minha comanda / Minha ficha → status, repetição e saldo
   ├─ solicitar atendimento → Dispatch
-  └─ Conta → total / pagamento quando suportado
+  └─ Conta e pagamento (subtela da ficha / comanda) → pagamento
 ```
 
 ## Referências
 
 - `specs/004-table-guest-ordering/spec.md`
+- `specs/004-table-guest-ordering/guest-ux20-contract.md`
+- `docs/design/guest-ux20-two-tab-navigation.md`
 - `docs/adr/0004-tab-identity-and-table-occupancy.md`
 - `docs/adr/0006-dynamic-table-placement-and-floorplan.md`
 - `docs/domain/model.md`
@@ -259,7 +240,7 @@ Cardápio continua ativo
 ## Escopo operacional entregue versus roadmap — 14/10/2026
 
 No MVP, localização é Zone textual e acesso é GuestSession de dispositivo.
-Navegação Cardápio/Pedidos/Conta usa atalhos persistentes com foco nas regiões
+**Nota histórica (MVP antes da decisão UX 2.0):** navegação Cardápio/Pedidos/Conta usava atalhos persistentes com foco nas regiões
 montadas; não perde draft nem confirma pedido ao navegar. Microestados são
 projetados como Recebido/Preparando/Pronto-chegando; entrega e cancelamento
 exigem fato canônico. O mapa e seus fluxos acima são intenção futura (#144),
