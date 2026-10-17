@@ -72,3 +72,10 @@ liberada foi rejeitada corretamente pela API; corrigida para representar ocupaç
 realmente liberada. Nova execução conjunta valida também timestamps e autoria.
 Dependências API #218/#222 integradas na branch para testes do contrato completo;
 sem merge dessas PRs na main. #225 continua draft, sem aceite de épico/paridade.
+
+Execução conjunta após API #218/#222:10/11 PASS, incluindo limpeza com timestamps
+released_at<=cleaning_started_at<=ready_at e atores reais. ACK perdido falhou apenas
+na leitura imediata do envelope ainda em limpeza assíncrona após readback; passou
+em reexecução1/1(13,5s) aguardando término com expect.poll. Identidade/payload,
+Order único, exposição1500 e ausência de Payment continuam assertados. Não relatar
+execução conjunta como11/11; evidência é10PASS+reexecução dirigida1PASS.
