@@ -100,6 +100,25 @@ class ReceiptSettlementTest {
         }
     }
 
+    @Test fun `divergent close response is not published and paid checkpoint is retained`() = runBlocking {
+        var durable = intent
+        var readCount = 0
+        val observed = mutableListOf<TabDetail>()
+        try {
+            settleReceipt(intent, { "payment" }, { durable = it }, {
+                if (readCount++ == 0) detail() else detail(state = "CLOSED").let { d -> d.copy(summary = d.summary.copy(id = "wrong-tab")) }
+            }, {}, { observed += it })
+            fail()
+        } catch (_: IllegalStateException) { }
+        assertEquals("payment", durable.confirmedPaymentId)
+        assertEquals(1, observed.size)
+        assertEquals("tab", observed.single().summary.id)
+        try {
+            settleReceipt(durable, { error("Already received") }, {}, { detail(1, "CLOSED") }, {}, {})
+            fail()
+        } catch (_: IllegalStateException) { }
+    }
+
     @Test fun `legacy payment envelope defaults to no automatic closing`() {
         val json = intent.copy(closeRequested = false).toJson().apply { remove("close_requested"); remove("confirmed_payment_id") }
         val restored = RecoveryIntent.fromJson(json) as RecoveryIntent.StartPayment
