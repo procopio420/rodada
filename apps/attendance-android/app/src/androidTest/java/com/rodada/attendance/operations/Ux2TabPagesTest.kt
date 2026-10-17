@@ -147,6 +147,15 @@ class Ux2TabPagesTest {
         captureCriticalEvidence(compose, "prototype-marina-summary", compose.onRoot())
     }
 
+    @Test fun restoredNoteOnlyDraftRetainsEditing() {
+        compose.setContent { RodadaTheme { Surface {
+            Ux2TabPages(OperationsUiState(products = listOf(product), cart = listOf(CartLine(product, 1, Customization(note = "Sem gelo"))), connectivity = ConnectivityState.ONLINE), tab,
+                "Pedido atual", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {})
+        } } }
+        compose.onNodeWithText("Editar configuração").performScrollTo().performClick()
+        compose.onNode(hasSetTextAction()).assertTextContains("Sem gelo")
+    }
+
     @Test fun quantityPaintKeepsPrototypeSizeAndExpandedTouchTarget() {
         var additions = 0
         compose.setContent { RodadaTheme { Surface {

@@ -213,7 +213,8 @@ internal fun Ux2TabPages(
             val configuration = line.product.configurationText(line.customization)
             if (configuration.isNotBlank()) Text(configuration, style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
             Text("${formatCents(line.unitPriceCents)} cada", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
-            if (line.product.variants.isNotEmpty() || line.product.modifierGroups.isNotEmpty())
+            if (line.product.variants.isNotEmpty() || line.product.modifierGroups.isNotEmpty() ||
+                line.customization.variantId != null || line.customization.optionIds.isNotEmpty() || line.customization.note.isNotBlank())
                 TextButton(onEdit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("Editar configuração", style = AttendanceUx2.text(13)) }
         }
         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(9.dp)) {
