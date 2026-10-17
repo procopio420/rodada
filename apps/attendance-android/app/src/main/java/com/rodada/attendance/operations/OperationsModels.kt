@@ -30,6 +30,7 @@ data class TabSummary(
     val actionReasons: List<String> = emptyList(),
     val tableLabel: String? = null,
     val lastTableLabel: String? = null,
+    val relationshipSnapshot: String? = null,
 )
 
 /** Mesa atual é uma projeção operacional; nunca substitui o ID da comanda. */
