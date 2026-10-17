@@ -55,6 +55,7 @@ class OperationsHttpClient(baseUrl: String) {
                                 customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
                                 productId = item.optString("product_id").takeIf { it.isNotBlank() },
                                 customization = historicalCustomization(item.optJSONObject("customization_snapshot")),
+                                fulfillmentStationSnapshot = item.optString("fulfillment_station_snapshot").takeIf { it.isNotBlank() && it != "null" },
                             )
                         },
                 )

@@ -26,7 +26,7 @@ class Ux2TabPagesTest {
         captureCriticalEvidence(compose, "ux2-tab-home", compose.onRoot())
         compose.onNodeWithText("＋ Adicionar itens").assertIsDisplayed().performClick()
         captureCriticalEvidence(compose, "ux2-tab-catalog", compose.onRoot())
-        compose.onNodeWithText("Buscar no cardápio").performTextInput("inexistente")
+        compose.onNode(hasSetTextAction()).performTextInput("inexistente")
         compose.onNodeWithText("Nenhum produto corresponde à pesquisa.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Ver resumo · 2 itens · ${formatCents(1000)}").performScrollTo().performClick()
         compose.onNodeWithText("2× Água").performScrollTo().assertIsDisplayed()
@@ -47,4 +47,16 @@ class Ux2TabPagesTest {
         compose.onNodeWithText("Verificar mesmo pedido").performScrollTo().performClick()
         assertEquals(1, sends)
     }
+    @Test fun confirmedOrderUsesHistoricalStationAndLocalizedState() {
+        val item = OrderItem("item", "Água", 500, 1, 500, "NEW", fulfillmentStationSnapshot = "BAR")
+        val canonical = tab.copy(orders = listOf(TabOrder("real-order-id", "", listOf(item))))
+        compose.setContent { RodadaTheme { Surface {
+            Ux2TabPages(OperationsUiState(products = listOf(product.copy(fulfillmentStation = "KITCHEN")), connectivity = ConnectivityState.ONLINE), canonical,
+                "Comanda", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {})
+        } } }
+        compose.onNodeWithText("Pedido real-order-id confirmado").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Bar · Na fila").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Cozinha · Na fila").assertDoesNotExist()
+    }
+
 }

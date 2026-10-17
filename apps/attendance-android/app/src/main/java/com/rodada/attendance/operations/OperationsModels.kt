@@ -65,6 +65,7 @@ data class OrderItem(
     val customizationText: String = "",
     val productId: String? = null,
     val customization: Customization? = null,
+    val fulfillmentStationSnapshot: String? = null,
 )
 
 data class TabOrder(
