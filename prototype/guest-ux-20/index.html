@@ -318,6 +318,15 @@ body{font:500 15px/1.45 var(--font)}
 .comanda-more-content .rowbtn{width:100%;padding:12px 2px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}
 .comanda-more-content .rowbtn + .rowbtn{border-top:1px solid var(--border)}
 
+/* Nonblocking, inline acknowledgement keeps guests in ordering context. */
+.sent-order-notice{display:grid;grid-template-columns:30px minmax(0,1fr) 36px;gap:8px 10px;background:var(--surface);border:1px solid var(--border-strong);border-left:3px solid var(--success);border-radius:10px;padding:12px 10px;margin:14px 0 16px}
+.sent-order-icon{height:28px;width:28px;display:flex;align-items:center;justify-content:center;background:rgba(82,155,114,.17);color:var(--success);border-radius:100%;font-size:17px;font-weight:900}
+.sent-order-copy{min-width:0}.sent-order-copy strong{display:block;font-size:14px}.sent-order-copy small{display:block;color:var(--muted);font-size:12px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sent-order-close{height:36px;width:36px;font-size:24px;color:var(--muted);border:0;background:transparent}
+.sent-order-actions{grid-column:2 / 4;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sent-order-actions button{border:0;background:transparent;padding:7px 0;font-size:12px;font-weight:800;color:var(--accent);min-height:40px;text-align:left}
+.sent-order-actions span{font-size:11px;color:var(--muted)}
+
 </style>
 </head><body>
 <div class="shell">
@@ -357,7 +366,7 @@ const paths={
 };
 function I(name,size=22){return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||''}</svg>`}
 
-const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentIntents:[],intentCounter:0,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,coverCount:0,serviceRate:0,serviceOptIn:false},staffFallback:false,formError:null,joinCodeDraft:''});
+const fresh=()=>({mode:'mesa',fichaCode:'FG84',policy:'WARN_ONLY',demoCreditThreshold:6000,pendingOrder:null,checkout:null,paymentIntents:[],intentCounter:0,paymentMethod:null,scene:'entry',entryMode:'available',hasJoined:false,occupancy:false,tableState:'AVAILABLE',accountClosed:false,online:true,actor:'you',participants:[{id:'you',name:'Você'}],orders:[],payments:[],cart:[],category:'Todos',query:'',modal:null,paymentMode:null,paymentCount:3,paymentValue:'',selectedLines:[],paymentSuccess:0,requestSent:false,consumptionName:'',repeated:[],payPrevMode:null,detailVariant:'Limão',events:[],orderCount:184,wrong:false,checkoutRequested:false,changeLineId:null,changeReason:'Item diferente',multiTab:false,tabLabel:'Conta do grupo',tabKey:'shared',tabs:{},tabCounter:0,authorizedTabKeys:[],recoveryNeeded:false,unknownAck:null,orderRequests:[],pickedLines:[],availability:{},priceOverrides:{},cartValidation:null,tableLabel:'08',moveRequest:null,disputes:[],feeConfig:{coverCents:0,coverCount:0,serviceRate:0,serviceOptIn:false},staffFallback:false,formError:null,joinCodeDraft:'',lastOrderNotice:null});
 let S=fresh();
 let previousModalName=null,modalReturnFocus=null;
 const savedModes={mesa:null,ficha:null};
@@ -774,7 +783,14 @@ function putOrder(items,status='Recebido'){
  if(!items.length)return false;
  if(!isFicha()){S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available'}S.hasJoined=true;S.orderCount++;
  S.orders.push({id:'#'+S.orderCount,status,items:items.map(x=>({...x,id:'line'+Math.random().toString(36).slice(2,11)}))});
- S.scene=isFicha()?'ficha':'account';S.modal=null;flash('Pedido '+S.orders.at(-1).id+' recebido no protótipo.');render();return true
+ const submitted=S.orders.at(-1);
+ S.lastOrderNotice={orderId:submitted.id,summary:submitted.items.map(x=>x.qty+'× '+x.name).join(' · ')};
+ // Returning guests stay on the catalogue; never interrupt the next round.
+ if(S.scene==='entry')S.scene='catalog';
+ S.modal=null;
+ flash('Pedido '+submitted.id+' enviado (simulação).');
+ render({preserveView:S.scene==='catalog'});
+ return true
 }
 function addProduct(id,variant=''){
  const p=getProduct(id);if(!p||S.accountClosed||!productAvailable(id)){flash('Não é possível adicionar este item.');return}
@@ -943,7 +959,21 @@ function nav(){
  </nav>`
 }
 function renderEntry(){if(isFicha())return renderFichaIntro();const unavailable=['DIRTY','CLEANING'].includes(S.tableState);return `<div class="content"><div class="eyebrow">CLIENTE / QR</div><h1>${unavailable?'Mesa em preparação':S.wrong?'Mesa ocupada':'Bem-vindo!'}</h1><p class="lead">${unavailable?'Aguarde ou peça ajuda à equipe.':S.wrong?'Confira se este é seu grupo.':'Peça direto do seu celular.'}</p><div class="billpeek" style="margin-top:16px"><div><label>Seu lugar</label><strong style="font:850 24px Archivo,sans-serif">${esc(tableName())}</strong><small>Salão</small></div><span class="tag" style="color:${unavailable?'var(--accent)':S.entryMode==='busy'||S.wrong?'var(--blue)':'var(--success)'}">${unavailable?'PREPARANDO':S.entryMode==='busy'||S.wrong?'EM USO':'LIVRE'}</span></div>${!unavailable&&!S.wrong&&!S.multiTab?'<p class="entry-note">Conta compartilhada · separe ao pagar.</p>':''}${S.multiTab?'<p class="entry-note">Você pode criar sua própria comanda ou entrar em uma existente.</p>':''}${S.feeConfig.coverCents>0?`<div class="fee-disclosure">Couvert: ${money(S.feeConfig.coverCents)} por pessoa · ${S.feeConfig.coverCount||0} pessoa(s) cobrada(s). <button onclick="S.modal='fees-help';render()">Ver detalhes</button></div>`:''}<div class="entry-exception">${unavailable?`<button class="btn ghost" onclick="flash('Peça ajuda à equipe para esta mesa.')">Falar com a equipe</button>`:S.wrong?`<button class="btn" onclick="S.modal='wrong';render()">Pedir ajuda à equipe</button><button class="btn ghost" style="margin-top:10px" onclick="S.wrong=false;S.multiTab=true;S.tabs=occupiedDemoTabs();S.modal='choose-tab';render()">Estou no grupo atual</button>`:``}</div><p class="entry-foot">Sem cadastro · Sem instalar nada</p><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
-function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'account')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / PEDIDO</div><h1>Adicionar itens</h1>${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
+function dismissOrderNotice(){S.lastOrderNotice=null;render({preserveView:true})}
+function openSentOrder(){S.lastOrderNotice=null;S.modal='orders';S.scene=isFicha()?'ficha':'account';render()}
+function renderOrderNotice(){
+ const notice=S.lastOrderNotice;
+ if(!notice)return '';
+ const exists=S.orders.some(o=>o.id===notice.orderId);
+ if(!exists)return '';
+ return `<div class="sent-order-notice" role="status" aria-label="Pedido enviado">
+ <div class="sent-order-icon" aria-hidden="true">✓</div>
+ <div class="sent-order-copy"><strong>Pedido ${esc(notice.orderId)} enviado!</strong><small>${esc(notice.summary)}</small></div>
+ <button class="sent-order-close" onclick="dismissOrderNotice()" aria-label="Dispensar confirmação">×</button>
+ <div class="sent-order-actions"><button onclick="openSentOrder()">Acompanhar pedido ›</button><span>Continue escolhendo à vontade</span></div>
+ </div>`
+}
+function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><button class="back" onclick="switchView(isFicha()?'ficha':'account')"><span>‹</span> Voltar</button><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / PEDIDO</div><h1>Adicionar itens</h1>${renderOrderNotice()}${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 
 function renderComandaOrders(){
  if(isFicha())return '';
