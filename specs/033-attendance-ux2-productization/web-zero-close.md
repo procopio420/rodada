@@ -25,3 +25,9 @@ Teste adicional de navegação: PASS1/14,0s com Close deliberadamente atrasado;
 Back/Encerrar permanecem desabilitados, Escape mantém a Tab original e a leitura
 canônica final confirma CLOSED. Essa prova fecha a lacuna funcional de navegação
 mencionada na primeira revisão; não substitui a comparação visual.
+
+Validação visual adjacente: `npm run test:visual -- attendance-ux2-workspace.spec.ts
+--grep 'receipt page|payment form'`:5PASS16,6s em360/390/430/1280, incluindo
+retorno após fechamento concorrente. Usa fixtures de apresentação, não prova
+financeira/backend ou paridade integral. Mantém pendentes comparação pareada
+da nova ação direta e CI amplo.
