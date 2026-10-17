@@ -63,6 +63,10 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
 
+    suspend fun staffTask(session: StoredSession, id: String, type: String) = authRepository.withAuthorizedAccess(session) {
+        StaffTaskRead.fromJson(client.request("GET", "/dispatch/tasks/$id/", accessToken = it), id, type)
+    }
+
     suspend fun serviceRequests(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
         val rows = client.request("GET", "/dispatch/requests/", accessToken = it).getJSONArray("results")
         List(rows.length()) { index -> ServiceRequest.fromJson(rows.getJSONObject(index)) }

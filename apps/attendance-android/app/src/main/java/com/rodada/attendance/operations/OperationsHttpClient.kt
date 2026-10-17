@@ -111,6 +111,11 @@ class OperationsHttpClient(baseUrl: String) {
                     quantity = it.optInt("quantity", 1),
                     tabLabel = it.optString("tab_label"),
                     ageSeconds = it.optLong("age_seconds", 0),
+                    target = StaffTaskTarget.fromPayload(it),
+                    fulfillmentStation = it.optString("fulfillment_station").takeIf { value -> value.isNotBlank() && value != "null" },
+                    orderItemId = it.optString("order_item_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    orderId = it.optString("order_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    claimedById = it.optString("claimed_by_id").takeIf { value -> value.isNotBlank() && value != "null" },
                 )
             }
 

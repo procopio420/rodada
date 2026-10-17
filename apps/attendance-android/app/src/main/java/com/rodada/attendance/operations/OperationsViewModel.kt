@@ -373,6 +373,19 @@ class OperationsViewModel(
         }
     }
 
+    /** Read-only navigation boundary; an old queue target never authorizes a deep link. */
+    suspend fun readOperationalTask(session: StoredSession, id: String, type: String): StaffTaskRead {
+        val expectedSession = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
+        check(loadedSessionKey == expectedSession) { "A sessão original mudou." }
+        val read = repository.staffTask(session, id, type)
+        val tables = if (read.service.target is StaffTaskTarget.Table) repository.tables(session) else null
+        check(loadedSessionKey == expectedSession) { "A sessão original mudou." }
+        state = if (type == "DELIVERY") state.copy(deliveryTasks = state.deliveryTasks.map { if (it.id == id) requireNotNull(read.delivery) else it })
+            else state.copy(serviceRequests = state.serviceRequests.map { if (it.id == id) read.service else it })
+        if (tables != null) state = state.copy(tables = tables)
+        return read
+    }
+
     fun openRecovery(session: StoredSession, intentId: String) = action {
         val refreshingOriginal = state.exceptionalRecoveryContext?.original?.id == intentId
         check(refreshingOriginal || state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }

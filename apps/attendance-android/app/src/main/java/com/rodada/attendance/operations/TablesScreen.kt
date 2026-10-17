@@ -66,11 +66,19 @@ fun TablesScreen(
     onOpenStandaloneTab: () -> Unit = {},
     onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
     onLoadHistory: () -> Unit = {},
+    requestedTarget: StaffTaskTarget.Table? = null,
+    onTargetConsumed: () -> Unit = {},
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var showHistory by rememberSaveable { mutableStateOf(false) }
     var otherExpanded by rememberSaveable { mutableStateOf(false) }
     var expandedTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(requestedTarget, state.tables) {
+        if (requestedTarget != null) {
+            expandedTableId = requestedTarget.currentTable(state.tables)?.id
+            onTargetConsumed()
+        }
+    }
     var returnTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var returnStatus by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(state.tables, returnTableId, returnStatus) {
