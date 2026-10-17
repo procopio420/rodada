@@ -1,5 +1,9 @@
 package com.rodada.attendance.operations
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Modifier
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.test.*
@@ -57,6 +61,36 @@ class Ux2TabPagesTest {
         compose.onNodeWithText("Pedido real-order-id confirmado").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Bar · Na fila").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Cozinha · Na fila").assertDoesNotExist()
+    }
+
+    @Test fun filtersAndSectionSurviveTabSwitchAndLeavingWorkspace() {
+        compose.setContent {
+            var selectedId by remember { mutableStateOf<String?>("A") }
+            val contexts = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
+            RodadaTheme { Surface {
+                Column(Modifier.fillMaxSize()) {
+                    Row {
+                        listOf("A", "B", "Mesas").forEach { name -> TextButton({ selectedId = name.takeUnless { it == "Mesas" } }) { Text(name) } }
+                    }
+                    selectedId?.let { id -> contexts.SaveableStateProvider("tab:$id") {
+                        val selected = tab.copy(summary = tab.summary.copy(id = id))
+                        TabWorkspace(state = OperationsUiState(products = listOf(product), selectedTab = selected, connectivity = ConnectivityState.ONLINE), tab = selected,
+                            onBack = { selectedId = null }, onAdd = { _, _ -> }, onEdit = { _, _ -> }, onQuantity = { _, _ -> }, onConfirmOrder = {},
+                            onPay = {}, onClose = {}, onAdjustPricing = {}, onOperations = {}, onResolveLimit = {}, onCorrectItem = {}, onRefundPayment = {}, onSettleCorrection = {})
+                    } }
+                }
+            } }
+        }
+        compose.onNodeWithText("＋ Adicionar itens").performClick()
+        compose.onNode(hasSetTextAction()).performTextInput("inexistente")
+        compose.onNodeWithText("Mesas").performClick()
+        compose.onNodeWithText("B").performClick()
+        compose.onNodeWithText("＋ Adicionar itens").performClick()
+        compose.onNode(hasSetTextAction()).assertTextEquals("")
+        compose.onNodeWithText("Mesas").performClick()
+        compose.onNodeWithText("A").performClick()
+        compose.onNode(hasSetTextAction()).assertTextEquals("inexistente")
+        compose.onNodeWithText("Nenhum produto corresponde à pesquisa.").performScrollTo().assertIsDisplayed()
     }
 
 }
