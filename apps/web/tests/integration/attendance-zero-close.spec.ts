@@ -77,3 +77,23 @@ test("lost close and unavailable readback recover by reading the same Tab withou
   const canonical=await page.evaluate(async id=>(await(await fetch(`/api/attendance/tabs/${id}/`)).json()),tab.id);
   expect(canonical).toMatchObject({state:"CLOSED",exposure_cents:0});expect(canonical.payments).toHaveLength(0);
 });
+
+test("delayed Close keeps the original account and blocks contextual Back",async({page})=>{
+  const tab=await setup(page);
+  let release!:()=>void;
+  const held=new Promise<void>(resolve=>{release=resolve;});
+  let arrived=false;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),async route=>{
+    arrived=true;await held;await route.continue();
+  });
+  await page.getByRole("button",{name:"Encerrar comanda",exact:true}).click();
+  await expect.poll(()=>arrived).toBe(true);
+  try {
+    const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});
+    await expect(workspace.getByRole("button",{name:"Voltar",exact:true})).toBeDisabled();
+    await expect(workspace.getByRole("button",{name:"Encerrar comanda",exact:true})).toBeDisabled();
+    await page.keyboard.press("Escape");
+    await expect(workspace).toContainText(tab.display_label);
+  } finally {release();}
+  await expect(page.getByRole("heading",{name:"Conta encerrada.",exact:true})).toBeVisible();
+});

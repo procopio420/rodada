@@ -20,3 +20,8 @@ Teste adicional PASS13,6s: Close200 confirmado, resposta perdida e GET503;
 a segunda ação lê CLOSED e não faz segundo Close ou Payment. Revisão R3
 independente do código: NO_FINDINGS_WITH_GAPS; tentativa de navegação durante
 Close atrasado e paridade visual continuam gaps. Sem merge/deploy.
+
+Teste adicional de navegação: PASS1/14,0s com Close deliberadamente atrasado;
+Back/Encerrar permanecem desabilitados, Escape mantém a Tab original e a leitura
+canônica final confirma CLOSED. Essa prova fecha a lacuna funcional de navegação
+mencionada na primeira revisão; não substitui a comparação visual.
