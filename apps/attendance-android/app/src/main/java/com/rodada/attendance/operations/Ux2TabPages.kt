@@ -153,8 +153,8 @@ internal fun Ux2TabPages(
                         }
                     })
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        (listOf("Todos") + state.products.map { it.category.ifBlank { "Outros" } }.distinct().sorted()).forEach { name ->
-                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 15.dp, vertical = 8.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
+                        (listOf("Todos") + state.products.map { it.category.ifBlank { "Outros" } }.distinct()).forEach { name ->
+                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = 40.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
                         }
                     }
                     Text("Cardápio", style = AttendanceUx2.text(18, 800))
@@ -200,9 +200,9 @@ internal fun Ux2TabPages(
 }
 @Composable internal fun Ux2Quantity(count: Int, minus: Boolean, plus: Boolean, onMinus: () -> Unit, onPlus: () -> Unit, name: String) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        OutlinedButton(onMinus, enabled = minus && count > 0, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(44.dp).semantics { contentDescription = "Reduzir $name" }) { Text("−", style = AttendanceUx2.text(22)) }
+        OutlinedButton(onMinus, enabled = minus && count > 0, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper), contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().size(width = 39.dp, height = 42.dp).semantics { contentDescription = "Reduzir $name" }) { Text("−", style = AttendanceUx2.text(22)) }
         Text("$count", modifier = Modifier.widthIn(min = 22.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = AttendanceUx2.text(14, 780).copy(fontFamily = RodadaVisual.Number))
-        OutlinedButton(onPlus, enabled = plus && count < 99, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Amber), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(44.dp).semantics { contentDescription = "Adicionar $name" }) { Text("+", style = AttendanceUx2.text(22)) }
+        OutlinedButton(onPlus, enabled = plus && count < 99, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Amber), contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().size(width = 39.dp, height = 42.dp).semantics { contentDescription = "Adicionar $name" }) { Text("+", style = AttendanceUx2.text(22)) }
     }
 }
 @Composable private fun Ux2DraftRow(line: CartLine, enabled: Boolean, onQuantity: (String, Int) -> Unit, onEdit: () -> Unit) {
@@ -243,12 +243,21 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
             val profile = @Composable { relationship?.let { Text(it, style = AttendanceUx2.text(11, 720), color = RodadaVisual.Muted) } }
             if (LocalDensity.current.fontScale > 1.3f) { heading(); profile() }
             else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { heading(); profile() }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
+            val used = @Composable { modifier: Modifier ->
                 Text(buildAnnotatedString {
                     withStyle(SpanStyle(fontFamily = RodadaVisual.Number, fontSize = 18.sp, fontWeight = FontWeight(830), letterSpacing = (-.81).sp)) { append(formatCents(summary.exposureCents)) }
                     withStyle(SpanStyle(fontSize = 12.sp, color = RodadaVisual.Muted)) { append(" de ${formatCents(limit)} usados") }
-                }, modifier = Modifier.weight(1.7f), style = AttendanceUx2.text(12), color = RodadaVisual.Paper)
-                Text("${formatCents(summary.remainingCapacityCents)} disponíveis", modifier = Modifier.weight(1f), style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+                }, modifier = modifier, style = AttendanceUx2.text(12), color = RodadaVisual.Paper)
+            }
+            val available = @Composable { modifier: Modifier ->
+                Text("${formatCents(summary.remainingCapacityCents)} disponíveis", modifier = modifier, style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            }
+            if (LocalDensity.current.fontScale > 1.3f) {
+                used(Modifier.fillMaxWidth())
+                available(Modifier.fillMaxWidth())
+            } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
+                used(Modifier.weight(1.7f))
+                available(Modifier.weight(1f))
             }
         }
         val current = if (limit > 0) (summary.exposureCents.toFloat() / limit).coerceIn(0f, 1f) else 0f
@@ -273,7 +282,7 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(caption, modifier = Modifier.weight(1f), style = AttendanceUx2.text(if (compact) 11 else 12), color = if (excess > 0) RodadaVisual.Danger else RodadaVisual.Muted)
-            TextButton(onLimit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text(if (compact) "Detalhes ›" else "Ver detalhes ›", style = AttendanceUx2.text(if (compact) 11 else 12, if (compact) 700 else 800), color = if (compact) RodadaVisual.Muted else RodadaVisual.Amber) }
+            TextButton(onLimit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = if (compact) 28.dp else 36.dp)) { Text(if (compact) "Detalhes ›" else "Ver detalhes ›", style = AttendanceUx2.text(if (compact) 11 else 12, if (compact) 700 else 800), color = if (compact) RodadaVisual.Muted else RodadaVisual.Amber) }
         }
     }
 }

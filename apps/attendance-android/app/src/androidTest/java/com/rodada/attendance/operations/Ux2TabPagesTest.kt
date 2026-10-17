@@ -147,4 +147,21 @@ class Ux2TabPagesTest {
         captureCriticalEvidence(compose, "prototype-marina-summary", compose.onRoot())
     }
 
+    @Test fun quantityPaintKeepsPrototypeSizeAndExpandedTouchTarget() {
+        var additions = 0
+        compose.setContent { RodadaTheme { Surface {
+            Ux2Quantity(1, true, true, {}, { additions++ }, "Chopp")
+        } } }
+        val node = compose.onNodeWithContentDescription("Adicionar Chopp")
+        val bounds = node.getUnclippedBoundsInRoot()
+        assertEquals(39f, bounds.width.value, .1f)
+        assertEquals(42f, bounds.height.value, .1f)
+        val pixels = node.fetchSemanticsNode().boundsInRoot
+        // Native minimum target extends outside the 39dp painted rectangle.
+        compose.onRoot().performTouchInput {
+            click(androidx.compose.ui.geometry.Offset(pixels.left - 1f, pixels.center.y))
+        }
+        assertEquals(1, additions)
+    }
+
 }
