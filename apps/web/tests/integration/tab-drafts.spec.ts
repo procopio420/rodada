@@ -61,6 +61,7 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
   await page.getByRole("dialog", { name: "Descartar rascunho?", exact: true }).getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
   await popup.getByRole("button", { name: /^Enviar / }).click();
+  await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   await expect(popup.locator(".ux2ReviewRow")).toHaveCount(0);
   const afterB = await api(page, `tabs/${bId}/`);
   expect(afterB.orders).toHaveLength(1);
