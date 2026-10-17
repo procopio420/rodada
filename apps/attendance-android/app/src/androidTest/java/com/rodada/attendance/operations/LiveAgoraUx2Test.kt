@@ -23,7 +23,8 @@ class LiveAgoraUx2Test {
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
-        compose.onNodeWithText("Entrar").performClick()
+        // With fontScale 2 the IME can cover the login button; scroll it into the viewport.
+        compose.onNodeWithText("Entrar").performScrollTo().performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
