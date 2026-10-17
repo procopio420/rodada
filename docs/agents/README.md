@@ -17,13 +17,15 @@ A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e t
 | Android/recovery | Specs 006/008/014/024/026 + `apps/attendance-android/README.md` | JVM, emulador, force-stop, test device |
 | CI, deploy, piloto | [Política de CI](../ci-workflows.md), [readiness](../releases/aderlan-pilot-final-readiness.md), [escopo Web-only](../releases/aderlan-web-only-homologation-2026-10-14.md) | GitHub Actions do **SHA**, Railway/hardware/operador verificados, não screenshots históricos |
 
+Codex: [guia de contexto e quota](CODEX-EFFICIENCY.md). Guardrails de produto/UX/financeiro foram [separados por domínio](DOMAIN-GUARDRAILS.md) para leitura seletiva; **continuam normativos**.
+
 Static quality: [incremental gates e dívida](QUALITY-GATES.md). Operações: [runbooks para Codex](../ops/README.md), incluindo Railway MCP, venues, usuários, incidentes e backups. Skills por stack: [catálogo e regras de descoberta](SKILLS.md). Abra a skill correspondente apenas quando a tarefa realmente exigir.
 
 Revisão de AI coding: [protocolo independente por risco](CODE-REVIEW.md) e [proteção contra prompt injection](UNTRUSTED-INPUTS.md). Casos exemplares em [review examples](REVIEW-EXAMPLES.md).
 
 Codex Evals & Evidence: [cenários, trace grading e registro de critérios](CODEX-EVALS-EVIDENCE.md). É um gate estrutural, **não** execução de modelo ou homologação.
 
-Entrada universal: [AGENTS raiz](../../AGENTS.md) → [procedimentos](PROCEDURES.md) → [registro de specs](SPEC-REGISTER-2026-10-13.md) → spec exata → implementação e testes. Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
+Entrada recomendada: [AGENTS raiz](../../AGENTS.md) + AGENTS local → este mapa (índice) → spec pelo caminho completo (use [registro](SPEC-REGISTER-2026-10-13.md) quando houver ambiguidade) → seções pertinentes dos [procedimentos](PROCEDURES.md)/[guardrails](DOMAIN-GUARDRAILS.md) → código/testes. **Não é uma sequência de leituras integrais.** Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
 
 ## Fonte de verdade: regras para conflitos
 

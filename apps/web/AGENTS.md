@@ -10,14 +10,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Rodada Web — regras locais
 
-Além de `../../AGENTS.md`, siga `../../docs/agents/PROCEDURES.md`, `../../docs/design/system.md` e `README.md` deste diretório. **Preserve intacto** o bloco `BEGIN:nextjs-agent-rules` acima: ele é mantido pelo Next.js e não deve ser removido em refatorações.
+Além de `../../AGENTS.md`, consulte as seções relevantes de `../../docs/agents/PROCEDURES.md`; leia `../../docs/design/system.md` e os guardrails de UX **para mudanças visuais**, e `README.md` quando setup/ambiente for relevante. **Preserve intacto** o bloco `BEGIN:nextjs-agent-rules` acima: ele é mantido pelo Next.js e não deve ser removido em refatorações.
 
 - Next.js 16.3.x, React 19; antes de alterar APIs do framework, leia a documentação instalada em `node_modules/next/dist/docs/` como instrui o bloco gerado.
 - BFF é a fronteira de auth: nunca expor access/refresh token no navegador, nem contornar cookies host-only, CSRF, resolução de Venue ou assinatura de origem. Nunca usar URL pública como prova de autorização.
 - Todo comando mutável deve ter readback canônico; SSE é atualização, não confirmação. Estados `loading`, rede degradada e erro real são distintos.
 - Mesas, comandas, guest, produção e dinheiro mantêm as mesmas regras da API. Não iniciar PREPARING automaticamente; o operador inicia o preparo no fluxo definido.
 - Mudanças visuais: validar 360/390/430 px e largura desktop, foco/teclado/touch e `npm run test:visual`; não atualizar baselines sem causa e comparação registrada.
-- Gates comuns após `npm ci`: `npm run typecheck`, `npm run test:auth`, `npm run build`, `npm run test:visual`. Com integração Web↔API: `npm run test:integration` em PostgreSQL de teste, conforme `.github/workflows/web.yml`.
+- Na iteração local, rode primeiro o teste focalizado. Para PRs Web, valide typecheck/build e os gates aplicáveis; **mudança visual sempre exige `npm run test:visual`**. Mudanças de auth/Host/tenant exigem testes auth/tenant e negativos; integração Web↔API exige `npm run test:integration` em PostgreSQL de teste conforme `.github/workflows/web.yml`. A CI completa definida por paths **permanece obrigatória**; não declarar PASS para testes não executados.
 - Spec/PR para alteração de fluxo: incluir happy path, condição de corrida, timeout/resposta perdida, renovação/revogação de sessão e replay sem duplicação quando pertinentes.
 
 ## Skill sob demanda

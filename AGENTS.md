@@ -8,18 +8,14 @@ Este repositório é desenvolvido de forma **spec-driven**.
 
 Código implementa specs. Código não é a fonte primária de intenção de produto.
 
-## Ordem de leitura
+## Leitura adaptativa (contexto mínimo suficiente)
 
-Antes de alterar comportamento:
+1. Ler este `AGENTS.md` e o `AGENTS.md` **da área tocada**, quando houver. Conferir branch, HEAD e estado das alterações antes de editar.
+2. Usar o [índice da KB](docs/agents/README.md) para encontrar a **spec pelo caminho completo**; ler o contrato/aceite e apenas as partes relevantes de [procedimentos](docs/agents/PROCEDURES.md).
+3. Abrir **sob demanda**, conforme o impacto: `README.md` (setup), visão/princípios (decisão de produto), modelo/arquitetura (domínio/integração), design system (UX), ADRs relacionados (decisão arquitetural) e os [guardrails detalhados](docs/agents/DOMAIN-GUARDRAILS.md) da área alterada.
+4. Ativar apenas as skills necessárias. Investigar código/testes com caminhos ou buscas delimitadas; expandir leitura em caso de ambiguidade, risco R3 ou conflito de contrato.
 
-1. `README.md`
-2. `docs/product/vision.md`
-3. `docs/product/principles.md`
-4. `docs/design/system.md`
-5. `docs/architecture/overview.md`
-6. `docs/domain/model.md`
-7. spec relevante em `specs/`
-8. ADRs relacionados em `docs/adr/`
+**Não carregar toda a KB, todos os ADRs ou a documentação-base em toda sessão.** Economia de contexto não dispensa fonte obrigatória, evidência ou testes proporcionais ao risco. Roteiro prático: [eficiência do Codex](docs/agents/CODEX-EFFICIENCY.md).
 
 ## Workflow
 
@@ -33,130 +29,14 @@ Antes de alterar comportamento:
 8. Adicione testes alinhados aos critérios.
 9. Atualize a spec se a descoberta durante implementação mudar o contrato.
 
-## Guardrails de produto
+## Guardrails essenciais — sempre ativos
 
-- Rodada **é um PDV próprio**, não apenas uma integração com PDV existente.
-- Não transformar Rodada num ERP genérico antes de validar o núcleo operacional.
-- **Identity optional, Tab mandatory.**
-- `Tab`/comanda é a unidade operacional/financeira; não depende de mesa física.
-- Pedido pertence a `Tab`, nunca diretamente a `Table`.
-- `Product.active` representa configuração/publicação de catálogo; indisponibilidade durante a operação é estado separado e auditável.
-- Criação rápida de produto deve buscar/autocompletar o catálogo antes de criar; correspondência exata normalizada reutiliza o Product existente.
-- Se o nome não existir, usar `resolve-or-create` transacional; fuzzy match nunca pode mesclar itens automaticamente.
-- `ProductIcon` é identidade visual 1:1 do Product e é reutilizado em todas as superfícies; não gerar ícone novamente em cada tela/render.
-- Novo Product dispara geração de ícone automaticamente; falha de IA nunca bloqueia criação ou venda.
-- Disponibilidade operacional é uma fonte de verdade compartilhada: staff, caixa e guest não podem confirmar item indisponível.
-- A API deve validar disponibilidade novamente na confirmação do pedido; UI desabilitada sozinha não é garantia.
-- Tornar item indisponível não altera nem cancela `OrderItem` já confirmado.
-- Uma `TableOccupancy` pode conter várias Tabs.
-- Fechar a última Tab não deve, sozinho, encerrar `TableOccupancy`.
-- Mesa/localização é contexto mutável, não identidade financeira.
-- QR físico de mesa identifica a mesa por token opaco; nunca usar IDs sequenciais públicos como `/mesa/24`.
-- Uma foto/URL antiga não deve manter uma sessão guest válida depois que a ocupação for liberada; usar geração/epoch e revogação.
-- Guest ordering precisa poder ser bloqueado imediatamente pelo staff sem bloquear pedidos internos.
-- Cliente não deve precisar instalar app ou criar conta para pedir no fluxo básico.
-- Perfil Rodada, NFC, código curto e sessão do dispositivo são identificadores/acessos à mesma Tab, não novos tipos de conta.
-- NFC é conveniência operacional; não tratar UID simples como prova forte de identidade.
-- Não exigir CPF no fluxo básico.
-- Não chamar relacionamento de “score de crédito” na UX.
-- Não automatizar promoção/rebaixamento de relacionamento sem spec explícita.
-- Dispatch é parte do núcleo operacional, não um add-on cosmético.
-- Medição não pode virar trabalho do garçom: não exigir taps de `PICKED_UP`/`DELIVERED` no happy path apenas para produzir métricas.
-- Milestones inferidos devem registrar `source`, `confidence` e provenance; inferência nunca pode ser mascarada como confirmação manual.
-- Correção de inferência é por exceção e deve preservar o evento original para auditoria/calibração.
-- BLE/presença pode melhorar precisão, mas falha/ausência de sensor nunca bloqueia POS, fulfillment ou delivery.
-- Não acoplar pagamentos a um provider específico no domínio central.
-- Pagamentos devem ser idempotentes e auditáveis.
-- Override de limite deve registrar ator, horário, valor anterior, novo valor e motivo opcional.
-- “Cliente da casa” é uma relação local entre cliente e estabelecimento.
-- Fiscal, estoque profundo, delivery e loyalty não entram por reflexo: precisam de spec própria e justificativa.
-
-## Convenções de domínio
-
-- **Venue**: estabelecimento.
-- **StaffMember**: usuário operacional.
-- **Customer**: pessoa identificada opcionalmente.
-- **Relationship**: relação Customer ↔ Venue.
-- **Tab**: sessão operacional/financeira de consumo; unidade obrigatória para pedidos.
-- **TabIdentifier**: identificador técnico opcional para resolver/acessar uma Tab, como código curto, guest session, QR dinâmico ou NFC.
-- **Table**: recurso físico do salão com estado operacional e QR próprio.
-- **TableOccupancy**: período em que um grupo usa uma Table; pode conter várias Tabs.
-- **ServicePoint**: ponto/localização operacional genérico, opcional, especialmente para dispatch fora de mesa.
-- **Zone**: agrupamento operacional de pontos.
-- **FulfillmentStation**: destino operacional de preparo, como `BAR` ou `KITCHEN`.
-- **Product**: item configurado no catálogo com preço e routing.
-- **ProductAvailability**: estado operacional vendável/não vendável de Product, separado de ativação administrativa e auditável.
-- **Order**: solicitação operacional de itens sempre ligada a uma Tab.
-- **OrderItem**: item individual com rota/estado próprios quando necessário.
-- **Task**: unidade de trabalho despachável.
-- **Charge**: lançamento financeiro positivo derivado ou manual.
-- **Payment**: valor recebido.
-- **Adjustment**: cortesia/correção/reversão.
-- **Open Exposure**: valor efetivamente aberto.
-- **Operating Limit**: exposição máxima sem ação adicional.
-
-## Guardrails de design
-
-- Toda superfície do produto deve seguir `docs/design/system.md`.
-- PDV, Cozinha/Bar, Dispatch, Conta da Casa, Table Ops e Guest Ordering são módulos do mesmo produto; não criar identidades visuais independentes.
-- Reutilizar tokens e componentes semânticos antes de introduzir novos padrões.
-- Estados de domínio mantêm a mesma semântica visual entre superfícies: neutral, info, warning, success e danger.
-- Quick Catalog usa Field + CatalogCombobox + ProductIcon + StatusBadge + Button do sistema; não criar um fluxo visual paralelo.
-- Nome de Product no Quick Catalog é autocomplete-first; resultado existente reutiliza Product/ProductIcon e item novo usa a ação **Criar "{nome}"**.
-- Product novo inicia geração de ProductIcon automaticamente; não adicionar botão obrigatório “Gerar ícone”.
-- Assets gerados seguem `docs/product/icon-style.md`; estado visual de disponibilidade/seleção/geração fica na UI.
-- Não usar hex, spacing, radius ou sombra ad hoc em componentes de produto sem atualizar o design system.
-- A experiência base é mobile-first (360–430 px), touch-first e otimizada para operação de pico.
-- Não depender de hover; alvo de toque mínimo de 44 px e estado de foco visível.
-- Evitar visual de SaaS genérico, glassmorphism, dashboards decorativos e cards sem função operacional.
-- Rodada Gerência é mobile-first; durante o serviço deve priorizar exceções e próxima ação antes de gráficos históricos.
-- Não criar leaderboard simplista de funcionários; métricas individuais exigem contexto e provenance quando houver inferência.
-- Analytics/fechamentos devem distinguir fato, estimativa e hipótese e nunca inventar precisão para telemetria inferida.
-- Relatórios operacionais usam business date/cutoff do Venue; não assumir que o dia termina à meia-noite.
-- Protótipos e implementação real compartilham o mesmo vocabulário de componentes e tokens.
-- Antes de aceitar uma nova tela, revisar consistência com pelo menos uma superfície adjacente do fluxo.
-- Mudanças em Web/PWA que alterem UI devem executar `cd apps/web && npm run test:visual`; quando houver referência executável correspondente, atualizar a comparação com fixture determinística e corrigir diferenças em vez de aceitar baseline novo sem justificativa.
-
-
-- Redesigns operacionais devem seguir a seção **UX operacional — task-first** de `docs/design/system.md`: uma tarefa dominante, criação explícita de Tab, ação central para adicionar itens, catálogo/revisão distintos e rascunho por contexto.
-- Para UX nova ou revista, acionar seletivamente `rodada-ux-research`, `rodada-ux-critique`, `rodada-ux-handoff` e `rodada-accessibility-review` conforme `docs/agents/SKILLS.md`; capturas reais e jornada executada são evidência, não screenshot isolado.
-
-## Qualidade financeira
-
-Toda regra financeira precisa de:
-
-- teste unitário;
-- idempotência quando houver evento externo;
-- trilha de auditoria;
-- valores monetários em centavos, nunca `float`;
-- transação de banco quando alterar saldo/exposição.
-
-## Qualidade operacional
-
-Mudanças de disponibilidade de produto devem registrar ator, horário, estado anterior, novo estado e motivo opcional.
-
-Mudanças de estado em pedido/task devem registrar timestamps suficientes para medir:
-
-- pedido → aceito;
-- aceito → pronto;
-- pronto → retirado;
-- retirado → entregue;
-- origem/confiança de retirada e entrega quando inferidas;
-- chamada → claim → concluída.
-
-Mudanças de mesa/ocupação devem registrar timestamps suficientes para medir:
-
-- ocupação iniciada;
-- mesa liberada;
-- início de limpeza;
-- mesa novamente disponível.
-
-Toda mutation relevante deve responder:
-
-- quem fez;
-- o que mudou;
-- quando;
-- por quê, quando aplicável.
+- **PDV próprio; identity optional, Tab mandatory.** Pedidos pertencem à `Tab`, não à mesa. `TableOccupancy` e `Tab` têm ciclos independentes.
+- Servidor é a autoridade para autorização, Venue/tenant, disponibilidade, pedidos e dinheiro. Nunca usar UI, Host, SSE ou identificador de mesa como autorização suficiente.
+- Dinheiro em **centavos**, ledger auditável, transações e idempotência para mutações financeiras; validar cenários positivos, negativos, concorrência e replay conforme o risco.
+- Segurança guest: QR opaco, revogação de sessão e isolamento entre Venues. Falha de sensor/telemetria não bloqueia venda; métricas inferidas têm provenance.
+- **Mudanças de Web UI executam `npm run test:visual`**, com comparação determinística quando houver referência. Acessibilidade e design system continuam obrigatórios.
+- Antes de alterar produto/domínio, UI ou operação, carregar as **seções pertinentes** de [guardrails detalhados](docs/agents/DOMAIN-GUARDRAILS.md), além da spec exata. Não carregar o documento inteiro para tarefas sem relação com essas áreas.
 
 ## Commits/PRs
 
@@ -164,7 +44,7 @@ Preferir commits pequenos por slice. PR deve apontar para a spec e indicar quais
 
 ## Contrato de operação de agentes (2026-10-13)
 
-Este arquivo é o **ponto de entrada**; as regras específicas de API, Web e Android complementam, sem substituir, os guardrails acima. Leia o [mapa da KB](docs/agents/README.md) e os [procedimentos](docs/agents/PROCEDURES.md) antes de executar uma tarefa não trivial.
+Este arquivo é o **ponto de entrada**; regras locais de API, Web e Android e os [guardrails detalhados](docs/agents/DOMAIN-GUARDRAILS.md) complementam, sem substituir, as regras essenciais acima. Antes de tarefas não triviais, use o [mapa da KB](docs/agents/README.md) e consulte as seções aplicáveis dos [procedimentos](docs/agents/PROCEDURES.md), sem carregar documentação não relacionada.
 
 ### Precedência e grau de evidência
 
