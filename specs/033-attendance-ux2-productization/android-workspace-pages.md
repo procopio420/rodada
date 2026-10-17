@@ -75,3 +75,22 @@ Runtime5558 permaneceu com Matrix durante o build; nenhuma instalação ocorreu.
 - Primeiro runtime360/font1: 3/4 testes passaram; teste A/B/A falhou na asserção
   textual do campo vazio porque a semântica inclui placeholder. Corrigida para
   `EditableText`; falha e nova execução permanecem registradas, sem apagar prova.
+
+## Recuperação real da rodada vazia — 2026-10-17
+
+E02-03/04/05, E06-02/06 parciais. Revisão independente encontrou P1 (Verify
+chamava confirmação com carrinho vazio) e P2 (filtros perdidos ao Conta).
+20e86b4f corrigiu ambos; releitura independente NO_FINDINGS_WITH_GAPS.
+
+Novo LiveUx2RepeatRecoveryTest usa Compose/VM/repos reais, PostgreSQL55501 e
+API composta com snapshot histórico. Proxy corta resposta após commit. Em
+390dp/fonte1: PASS1/14,742s; pedido original1→commit2→verificação2, cobrança1400,
+mesma UUID e hash do payload, fila cifrada limpa. Nada confirmado otimisticamente.
+Evidência versionada em docs/development/evidence/spec033-native-repeat.
+
+O proxy permanente ganhou portas opcionais (defaults preservados) e passagem
+SSE sem acumular stream. Sem isso, o ensaio não atingia ONLINE; falha de
+preparação preservada localmente. Revisão do teste/proxy ainda pendente.
+Screenshot incerta mantém aviso antigo “Enviando”; correção textual/paridade
+pendente. Não prova MainActivity/reinício, aparelho/TalkBack, todas larguras ou
+paridade integral; nenhum épico/AC global aceito.
