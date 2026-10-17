@@ -25,7 +25,7 @@ class TableReleaseTest {
                 onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
         compose.onNodeWithTag("table-table-a").performClick()
-        compose.onNodeWithText("Liberar mesa").performScrollTo().performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performScrollTo().performClick()
     }
 
     @Test fun cancellationHasNoMutationAndConfirmationUsesOriginalTable() {
@@ -35,7 +35,7 @@ class TableReleaseTest {
         captureCriticalEvidence(compose, "table-release", compose.onNode(isDialog()))
         compose.onNodeWithText("Cancelar").assertHeightIsAtLeast(44.dp).performClick()
         assertEquals(emptyList<String>(), released)
-        compose.onNodeWithText("Liberar mesa").performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performClick()
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)

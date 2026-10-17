@@ -10,7 +10,7 @@ import org.junit.Test
 
 class TablePresentationInstrumentedTest {
     @get:Rule val compose = createComposeRule()
-    @Test fun allStatesRemainReadableAndTableOpensInDialogWithBusyProtection() {
+    @Test fun allStatesRemainReadableAndTableOpensAsPageWithBusyProtection() {
         val statuses = listOf("AVAILABLE", "OCCUPIED", "DIRTY", "CLEANING", "OUT_OF_SERVICE")
         val tables = statuses.mapIndexed { index, status -> TableSummary("table-$index", "${index + 1}", status, "DIRECT", false, null, null) }
         val state = mutableStateOf(OperationsUiState(tables = tables, connectivity = ConnectivityState.ONLINE))
@@ -36,25 +36,29 @@ class TablePresentationInstrumentedTest {
         compose.onNodeWithText("Sem ocupação ativa").assertDoesNotExist()
         captureCriticalEvidence(compose, "table-statuses-web-style", compose.onRoot())
     }
-    @Test fun releaseAndDirectCleaningReturnToListOnlyAfterCanonicalStatus() {
+    @Test fun releaseAndSequentialCleaningFollowCanonicalStatus() {
         val occupied = TableSummary("flow", "8", "OCCUPIED", "DIRECT", false, null, TableOccupancy("visit", 1, emptyList()))
         val state = mutableStateOf(OperationsUiState(tables = listOf(occupied), connectivity = ConnectivityState.ONLINE))
         var released = false
+        var started = false
         var completed = false
         compose.setContent { RodadaTheme { Surface {
-            TablesScreen(state.value, true, { _, _ -> }, { released = true }, {}, { completed = true })
+            TablesScreen(state.value, true, { _, _ -> }, { released = true }, { started = true }, { completed = true })
         } } }
         compose.onNodeWithTag("table-flow").performClick()
-        compose.onNodeWithText("Liberar mesa", substring = false).performScrollTo().performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa", substring = false).performScrollTo().performClick()
         compose.onNodeWithText("Confirmar liberação").performClick()
         org.junit.Assert.assertTrue(released)
         compose.onNodeWithText("Voltar").assertExists()
         compose.runOnIdle { state.value = state.value.copy(tables = listOf(occupied.copy(status = "DIRTY", activeOccupancy = null))) }
         compose.onNodeWithText("Voltar").assertDoesNotExist()
         compose.onNodeWithTag("table-flow").performClick()
-        compose.onNodeWithText("Iniciar limpeza").assertDoesNotExist()
-        compose.onNodeWithText("Sem ocupação ativa").assertDoesNotExist()
-        compose.onNodeWithText("Concluir limpeza").performClick()
+        compose.onNodeWithText("Iniciar limpeza").performClick()
+        org.junit.Assert.assertTrue(started)
+        org.junit.Assert.assertFalse(completed)
+        compose.onNodeWithText("Mesa limpa · Disponibilizar").assertDoesNotExist()
+        compose.runOnIdle { state.value = state.value.copy(tables = listOf(occupied.copy(status = "CLEANING", activeOccupancy = null))) }
+        compose.onNodeWithText("Mesa limpa · Disponibilizar").performClick()
         org.junit.Assert.assertTrue(completed)
         compose.onNodeWithText("Voltar").assertExists()
         compose.runOnIdle { state.value = state.value.copy(tables = listOf(occupied.copy(status = "AVAILABLE", activeOccupancy = null))) }

@@ -123,6 +123,7 @@ fun AttendanceScreen(
         }
     }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
+    var tableDetailVisible by remember { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     val contextStates = rememberSaveableStateHolder()
     var peak by rememberSaveable { mutableStateOf(false) }
@@ -284,6 +285,7 @@ fun AttendanceScreen(
                             state = state,
                             requestedTarget = targetTableId?.let { tableId -> targetOccupancyId?.let { occupancyId -> targetGeneration?.let { generation -> StaffTaskTarget.Table(tableId, occupancyId, generation) } } },
                             onTargetConsumed = { targetTableId = null; targetOccupancyId = null; targetGeneration = null },
+                            onDetailVisibility = { tableDetailVisible = it },
                             canManageTables = "table.manage" in session.capabilities,
                             staffId = session.staffId,
                             canOpenTabs = "tab.open" in session.capabilities,
@@ -307,16 +309,12 @@ fun AttendanceScreen(
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
                 }
-                else -> Dialog(
-                    onDismissRequest = ::leaveTaskWorkspace,
-                    properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
-                ) { Surface(Modifier.fillMaxSize().safeDrawingPadding()) {
+                else -> Surface(Modifier.fillMaxSize(), color = RodadaVisual.Ground) {
                     val recovery = state.exceptionalRecoveryContext
                     if (recovery != null) ExceptionalRecoveryScreen(recovery, state.submitting,
                         onRefresh = { viewModel.openRecovery(session, recovery.original.id) },
                         onBack = { viewModel.leaveForExceptionalRecovery(session); section = FrontlineSection.NOW })
                     else Column {
-                    state.tables.firstOrNull { table -> table.activeOccupancy?.tabs?.any { it.id == selected.summary.id } == true }?.let { Text("Mesa ${it.label} · ${selected.summary.displayLabel}") }
                     if (state.orderIntentId != null) Text("Pedido pendente. Verifique a intenção original antes de sair.")
                     if (state.contextRecoveryPending && state.orderIntentId == null && state.paymentIntentId == null) {
                         OutlinedButton(onClick = { viewModel.leaveForExceptionalRecovery(session); if (viewModel.state.selectedTab == null) section = FrontlineSection.NOW }, enabled = !state.submitting && !state.loading) { Text("Conferir pendências") }
@@ -347,7 +345,7 @@ fun AttendanceScreen(
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                     onRepeatOrder = { review, quantities -> viewModel.repeatOrder(session, selected.summary.id, review, quantities) },
                 ) }
-                } } }
+                } }
             }
             if (cashShiftViewModel.recoveryContext.intentId != null) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -364,7 +362,7 @@ fun AttendanceScreen(
                 }
             }
             }
-            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+            if (state.selectedTab == null && !tableDetailVisible && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
                 FrontlineNavigation(section = section, onSelect = { section = it; choosingOrderDestination = false; targetTableId = null; targetOccupancyId = null; targetGeneration = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null },
                     onOrder = { serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null; choosingOrderDestination = true }, busy = state.loading || state.submitting || readingTask || state.pendingTableService != null)
             }

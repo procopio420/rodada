@@ -86,7 +86,7 @@ internal fun Ux2TabPages(
             TextButton(onClick = back, enabled = !locked, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("‹  Voltar", style = AttendanceUx2.text(14), color = RodadaVisual.Muted) }
             Ux2Eyebrow(if (section == "Comanda") summary.operationalReference() else if (section == "Pedido atual") "Resumo opcional" else "Pedido para ${summary.operationalReference()}")
             Ux2Title(when (section) { "Comanda" -> label; "Pedido atual" -> "Resumo do pedido."; else -> "Adicionar itens." })
-            Text(if (section == "Comanda") "${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else if (section == "Pedido atual") "Conferência opcional: itens e destino antes do envio." else "${label} · ${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · DESTINO FIXO", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+            Text(if (section == "Comanda") "${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else if (section == "Pedido atual") "Conferência opcional: itens e destino antes do envio." else "${label} · ${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · DESTINO FIXO", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
             if (state.connectivity != ConnectivityState.ONLINE) Text(state.connectivity.label(), style = AttendanceUx2.text(12), color = RodadaVisual.Amber)
             state.errorMessage?.let { Text(it, color = RodadaVisual.Danger, style = AttendanceUx2.text(14)) }
             if (!pending) state.noticeMessage?.let { Text(it, style = AttendanceUx2.text(14)) }
@@ -132,7 +132,7 @@ internal fun Ux2TabPages(
                 if (section == "Pedido atual") {
                     Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface).drawBehind { drawRect(RodadaVisual.Amber, size = Size(2.dp.toPx(), size.height)) }.padding(horizontal = 14.dp, vertical = 10.dp)) {
                         Text("$label · ${summary.operationalReference()}", style = AttendanceUx2.text(14, 800))
-                        Text("${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · Rascunho ainda não enviado", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+                        Text("${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · Rascunho ainda não enviado", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
                     }
                     if (cart.isEmpty()) Text("O pedido está vazio.")
                     cart.forEach { line ->

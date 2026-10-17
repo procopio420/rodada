@@ -230,3 +230,7 @@ fun serviceOrderAgeLabel(timestamp: String?): String = runCatching {
     val seconds = java.time.Duration.between(java.time.Instant.parse(timestamp), java.time.Instant.now()).seconds.coerceAtLeast(0)
     if (seconds < 60) "Há menos de 1 min" else "Há ${seconds / 60} min"
 }.getOrDefault("Tempo não informado")
+
+/** Canonical table projections may already include their human-readable prefix. */
+internal fun attendanceTableLocation(label: String): String =
+    if (label.startsWith("Mesa ", ignoreCase = true)) label else "Mesa $label"

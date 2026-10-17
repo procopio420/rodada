@@ -20,7 +20,7 @@ class LiveAgoraUx2Test {
         check(expectedApi.matches(Regex("http://10\\.0\\.2\\.2:[0-9]{4,5}/")))
         check(BuildConfig.RODADA_API_BASE_URL == expectedApi)
         compose.waitUntil(30_000) { compose.onAllNodesWithText("Estabelecimento").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
+        compose.onNodeWithText("Estabelecimento").performTextInput(args.getString("venueSlug") ?: "android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
         // Dismiss a visible IME, then tap the real button after its viewport settles.
@@ -39,6 +39,34 @@ class LiveAgoraUx2Test {
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
         captureCriticalEvidence(compose, "live-agora-service", compose.onRoot())
+        if (args.getString("shellJourney") == "true") {
+            compose.onNodeWithTag("attendance-tables").performClick()
+            captureCriticalEvidence(compose, "live-shell-tables", compose.onRoot())
+            compose.onNodeWithTag("table-${args.getString("tableId") ?: error("Missing fixture table")}").performClick()
+            compose.onAllNodes(isDialog()).assertCountEquals(0)
+            captureCriticalEvidence(compose, "live-shell-table", compose.onRoot())
+            compose.onNode(hasText("Marina", substring = true) and hasClickAction()).performScrollTo().performClick()
+            compose.waitUntil(30_000) { compose.onAllNodesWithTag("ux2-tab-pages").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithTag("attendance-header").assertIsDisplayed()
+            compose.onAllNodes(isDialog()).assertCountEquals(0)
+            captureCriticalEvidence(compose, "live-shell-tab", compose.onRoot())
+            compose.onNodeWithText("＋ Adicionar itens").performClick()
+            compose.onNodeWithContentDescription("Adicionar Chopp Pilsen").performScrollTo().performClick()
+            captureCriticalEvidence(compose, "live-shell-catalog", compose.onRoot())
+            compose.onNode(hasText("Ver resumo ·", substring = true) and hasClickAction()).performScrollTo().performClick()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("Resumo do pedido.").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("1× Chopp Pilsen").assertExists()
+            captureCriticalEvidence(compose, "live-shell-review", compose.onRoot())
+            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("Adicionar itens.").assertExists()
+            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("Marina", substring = false).assertExists()
+            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("Mesa 08").assertExists()
+            compose.onNodeWithText("Voltar").performClick()
+            compose.onNodeWithTag("tables-list").assertExists()
+            return
+        }
         compose.onNodeWithTag("now-queue-Entregas").performClick().assertIsSelected()
         captureCriticalEvidence(compose, "live-agora-delivery", compose.onRoot())
         compose.onNodeWithTag("attendance-tables").performClick()
