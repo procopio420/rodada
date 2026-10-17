@@ -12,20 +12,20 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await addCatalogItem(page, "Kitchen E2E item");
  await addCatalogItem(page, "Kitchen E2E item");
  await addCatalogItem(page, "Kitchen E2E item");
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
- await page.getByRole("button", { name: /Confirmar pedido/ }).click();
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
- await expect(page.getByText("Novo", { exact: true })).toBeVisible();
+ await page.getByRole("button", { name: /^Enviar / }).click();
+ await page.locator(".ux2Workspace").getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+ await expect(page.getByRole("region", { name: "Pedidos confirmados" })).toContainText("3× Kitchen E2E item");
+ await expect(page.getByRole("region", { name: "Pedidos confirmados" }).getByText("3× Kitchen E2E item · Novo", { exact: true })).toBeVisible();
  await page.getByRole("button", { name: /^Remover / }).click();
  await expect(page.getByRole("group", { name: "Quantidade a remover" }).locator("output")).toHaveText("1");
  await page.getByLabel("Motivo da remoção").selectOption("WRONG_ITEM_ENTERED");
  await page.getByRole("button", { name: "Confirmar remoção" }).click();
- await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
- await page.getByRole("button", { name: /^Remover 2×/ }).click();
+ await expect(page.getByRole("region", { name: "Pedidos confirmados" })).toContainText("2× Kitchen E2E item");
+ await page.getByRole("button", { name: /^Remover Kitchen E2E item/ }).click();
  await page.getByRole("button", { name: "Aumentar quantidade a remover" }).click();
  await page.getByRole("button", { name: "Confirmar remoção" }).click();
  await expect(page.getByText("Cancelado", { exact: true })).toHaveCount(0);
- const bill = page.getByRole("region", { name: "Valores da comanda" });
+ const bill = page.locator('.billSummary[aria-label="Resumo da conta"]');
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 0,00", { exact: true })).toBeVisible();
  const canonical = await page.evaluate(async () => {
   const list = await (await fetch("/api/attendance/tabs/")).json();

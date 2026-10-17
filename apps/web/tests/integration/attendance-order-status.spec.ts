@@ -13,9 +13,9 @@ for (const width of [360, 390, 430, 1280]) test(`real order reference and histor
   await openNamedAttendanceTab(page, name);
   await addCatalogItem(page, "Kitchen E2E item");
   await addCatalogItem(page, "Bar E2E item");
-  const popup = page.locator(".attendanceOrderDialog");
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
-  await popup.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  const popup = page.locator(".ux2Workspace");
+  await popup.getByRole("button", { name: /^Enviar / }).click();
+  await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   const status = page.getByRole("region", { name: "Último pedido confirmado" });
   await expect(status).toContainText("Cozinha · Na fila");
   await expect(status).toContainText("Bar · Na fila");
