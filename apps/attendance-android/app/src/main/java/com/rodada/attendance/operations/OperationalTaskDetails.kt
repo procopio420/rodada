@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.ui.RodadaVisual
 
@@ -17,9 +18,22 @@ internal fun ServiceTaskContext(task: ServiceRequest, staffId: String, state: Op
         val pending = state.pendingServiceAction
         val enabled = !state.loading && !state.submitting && state.serviceRequestsFresh && state.connectivity == ConnectivityState.ONLINE && !task.belongsToOther(staffId)
         if (pending?.taskId == task.id) TextButton(onClick = { onAction(pending.complete) }, enabled = enabled) { Text("Verificar mesma chamada") }
-        else if (pending == null) Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled) { Text("Assumir chamada") }
-            TextButton(onClick = { onAction(true) }, enabled = enabled) { Text("Concluir chamada") }
+        else if (pending == null) {
+            // Preserve readable labels and touch areas when user fonts need more width.
+            val largeFont = LocalDensity.current.fontScale >= 1.5f
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                if (largeFont || maxWidth < 360.dp) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Assumir chamada") }
+                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Concluir chamada") }
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (task.claimedById != staffId) TextButton(onClick = { onAction(false) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Assumir chamada") }
+                        TextButton(onClick = { onAction(true) }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Concluir chamada") }
+                    }
+                }
+            }
         }
     }
 }
