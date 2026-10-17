@@ -820,7 +820,7 @@ function putOrder(items,status='Recebido'){
  if(!isFicha()){S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available'}S.hasJoined=true;S.orderCount++;
  S.orders.push({id:'#'+S.orderCount,status,items:items.map(x=>({...x,id:'line'+Math.random().toString(36).slice(2,11)}))});
  const submitted=S.orders.at(-1);
- S.lastOrderNotice={orderId:submitted.id,summary:submitted.items.map(x=>x.qty+'× '+x.name).join(' · ')};
+ S.lastOrderNotice=S.scene==='catalog'?{orderId:submitted.id,summary:submitted.items.map(x=>x.qty+'× '+x.name).join(' · ')}:null;
  // Returning guests stay on the catalogue; never interrupt the next round.
  if(S.scene==='entry')S.scene='catalog';
  S.modal=null;
