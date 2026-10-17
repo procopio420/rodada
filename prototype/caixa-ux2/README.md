@@ -14,13 +14,26 @@ Correções aplicadas a partir do uso simulado de um caixa movimentado:
 6. **Venda rápida e produção** — itens ganham roteamento demonstrativo `BAR` ou `KITCHEN`, visível na comanda e Atividade. **Não há envio verdadeiro às estações**: integração com o produto Web/API é uma etapa distinta.
 7. **Divisão por itens** — quando há pagamento anterior sem atribuição de itens, a interface impede nova divisão por unidades e orienta cobrar por valor, evitando atribuição dupla.
 
+## Segunda auditoria — 2026-10-17 (correções complementares)
+
+Foram corrigidos os quatro novos P1 e os dois P2 encontrados em cenários adversos:
+
+1. **Divisão igual sem edição oculta**: parcelas do plano ficam bloqueadas no formulário; a ação de confirmação verifica o valor exato no JavaScript, inclusive para Pix/cartão demonstrativos. Valores diferentes devem passar pelo fluxo explícito de divisão por valor. `paidParts` só avança após valor correto.
+2. **Estorno em dinheiro financiado**: se o dinheiro físico estimado não for suficiente, a interface explica o bloqueio, e o handler rejeita o estorno; é preciso fazer um suprimento autorizado ou encaminhar à administração. Nunca registra saldo da gaveta negativo.
+3. **Troco entregue antes do fechamento**: o turno não entra em contagem enquanto houver lembrete aberto de troco. O bloqueio é verificado também nos handlers de contagem e fechamento e sobrevive ao reload. Confirmar a entrega acrescenta evento auditável demonstrativo.
+4. **Revisão de estorno pós-fechamento**: comandas históricas com revisão pendente aparecem na lista inicial (e no filtro `Revisar estornos`), com acesso direto à revisão. Gerente informa PIN e providência; registra evento e marca revisão, mas **não altera o ledger, não cobra cliente e não reabre a comanda**. O saldo pós-estorno permanece para acerto separado, mesmo quando o caso deixa de ser uma revisão pendente.
+5. **Teclado/rolagem em telas pequenas**: re-render preserva a posição vertical e horizontal dentro da área rolável do modal.
+6. **Troco sem sobreposição de diálogo**: o lembrete fica oculto enquanto um diálogo está aberto, sem ser apagado. Reaparece automaticamente ao fechar; sua camada também fica abaixo da do modal.
+
+O smoke passou de 7 para **14 cenários** e adicionou tentativas de alterar valores bloqueados, estorno sem fundos + suprimento, contagem bloqueada por troco, revisão gerencial, persistência/reload, ocultação e posição de rolagem do modal. Estes são testes de lógica com DOM simulado: permanece obrigatória a inspeção visual/teclado em navegadores desktop, tablet e telefone, além da integração real do backend e testes de transações/concorrência.
+
 ## Smoke de regressão
 
 ```bash
 node prototype/caixa-ux2/smoke.test.cjs
 ```
 
-Teste sem dependências que usa o mesmo JavaScript do protótipo e simula interações/eventos e reload. É um teste de lógica de UI, **não** equivale a Playwright em navegador, integração financeira, auditoria da API ou homologação no caixa do estabelecimento.
+Teste sem dependências que usa o mesmo JavaScript do protótipo e simula 14 cenários de interações/eventos e reload. É um teste de lógica de UI, **não** equivale a Playwright em navegador, integração financeira, auditoria da API ou homologação no caixa do estabelecimento.
 
 ## Abrir
 
