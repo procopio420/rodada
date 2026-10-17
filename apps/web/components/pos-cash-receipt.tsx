@@ -63,6 +63,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
   const [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [canKeepOpen, setCanKeepOpen] = useState(false);
   const intentRef = useRef<Intent | null>(null);
   const sending = useRef(false);
 
@@ -85,9 +86,9 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
   useEffect(() => { onPendingChange(!ready || !!pending || busy); }, [ready, pending, busy, onPendingChange]);
 
   const activePoint = pointId || points[0]?.id || "";
-  async function collect(fullAndClose = false) {
+  async function collect(fullAndClose = false, keepOpen = false) {
     if (sending.current || !ready || (!intentRef.current && locked)) return;
-    sending.current = true; setBusy(true);
+    sending.current = true; setBusy(true); setCanKeepOpen(false);
     let attempted = false;
     const recovering = !!intentRef.current;
     try {
@@ -157,15 +158,24 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
         || (intent.schema === 2 && detail.body.id !== intent.tab)
         || !detail.body.payments?.some(p => p.id === paymentId && p.method === "CASH" && p.amount_cents === expectedAmount && settledStatuses.includes(p.status)))
         throw new Error("Receipt readback unavailable");
+      if (keepOpen) {
+        if (intent.schema !== 2 || !intent.close_requested || !intent.payment_id || detail.body.state === "CLOSED")
+          throw new Error("Receipt cannot remain open");
+        // An explicit operator decision can withdraw the unexecuted close;
+        // preserve the confirmed Payment identity until canonical refresh finishes.
+        saveProgress({ ...intent, close_requested: false });
+      }
       if (intent.schema === 2 && intent.close_requested) {
         if (detail.body.state !== "CLOSED") {
           if (detail.body.exposure_cents !== 0) {
+            setCanKeepOpen(true);
             setMessage("Recebimento confirmado; encerramento pendente. O saldo mudou. Confira a conta antes de encerrar."); return;
           }
           const closed = await apiCall<{ id: string; state: string }>(`${root}/tabs/${intent.tab}/close/`, {
             method: "POST", body: JSON.stringify({}),
           });
           if (!closed.response.ok) {
+            setCanKeepOpen(true);
             setMessage(`Recebimento confirmado; encerramento pendente. ${asApiError(closed.body).message}`); return;
           }
           const readback = await apiCall<Bill>(`${root}/tabs/${intent.tab}/`);
@@ -195,6 +205,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
     {message && <p className="notice" role="status" data-state={pending || !ready ? "warning" : "info"}>{message}</p>}
     {pending ? <>
       <p>Recebimento de {money(pending.payload.amount_cents)} na comanda original.</p>
+      {canKeepOpen && <button className="buttonSecondary" disabled={busy} onClick={() => void collect(false, true)}>Manter comanda aberta</button>}
       <button className="buttonPrimary" disabled={busy} onClick={() => void collect()}>{busy ? "Verificando…" : "Verificar mesmo recebimento"}</button>
     </> : ready && tab ? <>
       <p>{tab.display_label || "Comanda selecionada"}</p>

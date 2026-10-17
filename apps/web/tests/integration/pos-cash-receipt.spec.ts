@@ -156,3 +156,51 @@ test("Attendance CASH gateway preserves server capability guard", async ({ page 
   expect(result.body.code).toBe("CAPABILITY_REQUIRED");
   expect((await api(page, `tabs/${tab.id}/`)).payments).toEqual([]);
 });
+
+test("Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again", async ({ page }) => {
+  await page.goto("/staff");
+  await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-manager");
+  await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
+  const point = (await api(page, "cash/points/")).results[0];
+  const shift = point.active_shift ?? await api(page, "cash/shifts/", {
+    cash_point_id: point.id, opening_float_cents: 0, business_date: "2026-10-16", idempotency_key: "033-race-shift",
+  });
+  const product = (await api(page, "catalog/products/")).results.find((p: { name: string }) => p.name === "Kitchen E2E item");
+  const tab = await api(page, "tabs/", { display_label: "Concurrent consumption after receipt" });
+  await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-before", lines: [{ product_id: product.id, quantity: 1 }] });
+  const bill = await api(page, `tabs/${tab.id}/`);
+  const auth = await page.evaluate(async () => (await fetch("/api/auth/me")).json());
+  const payload = { amount_cents: bill.exposure_cents, expected_version: bill.version, method: "CASH",
+    cash_point_id: point.id, idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id };
+  const receipt = await api(page, `tabs/${tab.id}/payments/`, payload);
+  // Another canonical order arrives after receipt, before the close readback.
+  await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-after", lines: [{ product_id: product.id, quantity: 1 }] });
+  const before = await api(page, `cash/shifts/${shift.id}/`);
+  await page.evaluate(intent => sessionStorage.setItem("rodada.intent.pos-cash.v1", JSON.stringify(intent)), {
+    schema: 2, api_root: "/api/attendance", phase: "PAYMENT_CONFIRMED", payment_id: receipt.id,
+    close_requested: true, venue: auth.venue.id, staff: auth.staff.id, session: auth.session.id,
+    tab: tab.id, captured_at: new Date().toISOString(), payload,
+  });
+  let mutationAttempts = 0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/(payments|close)/?$`), route => {
+    mutationAttempts++; return route.abort();
+  });
+  await page.goto("/pos");
+  await page.getByRole("button", { name: "Verificar mesmo recebimento" }).click();
+  await expect(page.getByText(/O saldo mudou/)).toBeVisible();
+  const keep = page.getByRole("button", { name: "Manter comanda aberta", exact: true });
+  await expect(keep).toBeEnabled();
+  await keep.click();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
+  expect(mutationAttempts).toBe(0);
+  const current = await api(page, `tabs/${tab.id}/`);
+  expect(current.state).toBe("OPEN"); expect(current.exposure_cents).toBe(product.price_cents);
+  expect(current.payments).toHaveLength(1); expect(current.payments[0].id).toBe(receipt.id);
+  const after = await api(page, `cash/shifts/${shift.id}/`);
+  expect(after.expected_cents).toBe(before.expected_cents);
+  expect(after.movements.filter((m: { payment_id: string }) => m.payment_id === receipt.id)).toHaveLength(1);
+  await expect(page.getByLabel("Valor do pagamento")).toBeEnabled();
+});
