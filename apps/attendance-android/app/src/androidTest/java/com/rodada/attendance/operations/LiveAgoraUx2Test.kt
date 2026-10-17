@@ -49,6 +49,14 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertExists()
                     compose.onNodeWithText("Concluir chamada").assertExists()
+                    // Leaving the workspace ends the task-origin navigation. Reopening the
+                    // same Tab manually must not restore the old call.
+                    compose.onNodeWithText("← Mesas e comandas").performClick()
+                    compose.onNode(hasText("$name ·", substring = true) and hasClickAction()).performScrollTo().performClick()
+                    compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() }
+                    compose.onNodeWithText("Assumir chamada").assertDoesNotExist()
+                    compose.onNodeWithText("Concluir chamada").assertDoesNotExist()
+
                 }
                 return
             }

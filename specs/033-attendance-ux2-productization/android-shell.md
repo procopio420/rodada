@@ -27,6 +27,8 @@ repositórios reais. Abrir linha não assume nem conclui tarefa.
   fallback TABLE reconsulta a chamada e a ocupação/generation antes de abrir.
   Contexto de chamada e ações continuam disponíveis nessa Tab escolhida, com
   Conta como seção inicial para BILL. Navegação manual limpa a origem da tarefa.
+  Voltar do workspace (botão ou dismiss) também encerra essa origem, somente
+  quando a saída foi permitida; a primeira seleção explícita TABLE a preserva.
 - Recuperação original permanece acessível. Conta/Atualizar/Pico/Caixa existentes
   continuam acessíveis em menu operacional na área meta do header. Essa adaptação
   necessária ao app real é diferença intencional proposta, sem aprovação implícita;
@@ -56,3 +58,21 @@ Correções exigem reexecução e nova revisão; este registro não é aprovaç�
 API218 ainda não publica `claimed_by_id` no serializer DELIVERY; completar a
 projeção é dependência da identificação visual do outro responsável. A API
 continua autorizando/negando a mutation canônica; este cliente não cria bypass.
+
+## Correção da segunda passagem — origem após voltar
+
+A revisão independente de `ffcf8533` encontrou P2: voltar do workspace mantinha
+`serviceTableTarget`, bloqueando outra Tab ou reaplicando ações da chamada em
+seleção manual. O botão de retorno e dismiss agora encerram a origem somente
+após `clearSelection` efetivar a saída; uma pendência que bloqueia saída mantém
+o contexto. A primeira seleção TABLE continua revalidada e preserva chamada/Conta.
+
+Regressão: `LiveAgoraUx2Test`, variante `revokeBeforeOpen` com `fallbackTabName`,
+confere ações após seleção explícita e ausência delas após voltar/reabrir
+manualmente a mesma Tab. Compilação do teste não equivale à execução em dispositivo.
+
+Validação local da correção: `testDebugUnitTest assembleDebug lintDebug
+compileDebugAndroidTestKotlin --stacktrace` PASS (102 testes JVM, zero falhas).
+A regressão Compose foi compilada, mas não executada; nenhum emulador, aparelho,
+API real, PR ou operação GitHub nesta correção. Exige revisão independente do
+novo SHA e execução do cenário isolado antes de alegar aceite de navegação.
