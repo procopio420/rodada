@@ -86,7 +86,7 @@ internal fun Ux2TabPages(
             TextButton(onClick = back, enabled = !locked, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("‹  Voltar", style = AttendanceUx2.text(14), color = RodadaVisual.Muted) }
             Ux2Eyebrow(if (section == "Comanda") summary.operationalReference() else if (section == "Pedido atual") "Resumo opcional" else "Pedido para ${summary.operationalReference()}")
             Ux2Title(when (section) { "Comanda" -> label; "Pedido atual" -> "Resumo do pedido."; else -> "Adicionar itens." })
-            Text(if (section == "Comanda") "${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else if (section == "Pedido atual") "Conferência opcional: itens e destino antes do envio." else "${label} · ${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · destino fixo", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+            Text(if (section == "Comanda") "${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else if (section == "Pedido atual") "Conferência opcional: itens e destino antes do envio." else "${label} · ${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · DESTINO FIXO", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
             if (state.connectivity != ConnectivityState.ONLINE) Text(state.connectivity.label(), style = AttendanceUx2.text(12), color = RodadaVisual.Amber)
             state.errorMessage?.let { Text(it, color = RodadaVisual.Danger, style = AttendanceUx2.text(14)) }
             if (!pending) state.noticeMessage?.let { Text(it, style = AttendanceUx2.text(14)) }
@@ -157,13 +157,15 @@ internal fun Ux2TabPages(
                             OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = 40.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
                         }
                     }
-                    Text("Cardápio", style = AttendanceUx2.text(18, 800))
                     val products = state.products.filter { (category == "Todos" || it.category.ifBlank { "Outros" } == category) && it.name.contains(query.trim(), true) }
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Cardápio", style = AttendanceUx2.text(18, 800))
+                        Text("${products.size} ITENS", style = AttendanceUx2.text(11, 750).copy(letterSpacing = 1.sp), color = RodadaVisual.Muted)
+                    }
                     if (products.isEmpty()) Text(if (state.loading) "Carregando catálogo…" else "Nenhum produto corresponde à pesquisa.")
                     products.forEach { product ->
                         val lines = cart.filter { it.product.id == product.id }
                         val selectable = !locked && !closed && product.active && product.availability == "AVAILABLE" && state.connectivity == ConnectivityState.ONLINE
-                        HorizontalDivider(color = RodadaVisual.Border)
                         Column(Modifier.fillMaxWidth()) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
@@ -177,6 +179,7 @@ internal fun Ux2TabPages(
                             if (!product.active || product.availability != "AVAILABLE") Text("Indisponível", color = RodadaVisual.Amber, style = AttendanceUx2.text(12))
                             if (lines.size > 1) TextButton(onClick = { onSection("Pedido atual") }, enabled = !locked) { Text("${lines.size} configurações · editar no resumo") }
                         }
+                        HorizontalDivider(color = RodadaVisual.Border)
                     }
                     if (count > 0) Ux2Action("Ver resumo · $count itens · ${formatCents(total)}", !locked, { onSection("Pedido atual") })
                 }
