@@ -29,8 +29,8 @@ internal fun Ux2AccountPage(state: OperationsUiState, tab: TabDetail, onBack: ()
     val locked = !state.canLeaveTabContext()
     var details by rememberSaveable(summary.id) { mutableStateOf(false) }
     BackHandler { if (!locked) onBack() }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
-        TextButton(onBack, enabled = !locked) { Text("← Voltar") }
+    Column(Modifier.fillMaxSize().background(RodadaVisual.Ground).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Ux2AccountBack(!locked, onBack)
         Ux2Eyebrow("Conta · ${summary.operationalReference()}")
         Ux2Title(if (closed) "Conta encerrada." else "Fechar a conta.")
         Text(summary.displayLabel.ifBlank { summary.operationalReference() } + (summary.tableLabel?.let { " · Mesa $it" } ?: " · Sem mesa"), style = AttendanceUx2.text(16))
@@ -92,11 +92,11 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
         summary.state !in setOf("CLOSED", "CANCELLED") && !summary.serviceAssessmentStale &&
         (method != PaymentMethod.CASH || state.cashPoints.any { it.id == cashPoint && it.activeShiftId != null })
     BackHandler { if (!state.submitting && pending == null) onBack() }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
-        TextButton(onBack, enabled = !state.submitting && pending == null) { Text("← Voltar") }
+    Column(Modifier.fillMaxSize().background(RodadaVisual.Ground).verticalScroll(rememberScrollState()).imePadding().padding(20.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Ux2AccountBack(!state.submitting && pending == null, onBack)
         Ux2Eyebrow("Recebimento manual")
         Ux2Title("Receber conta.")
-        Text("${summary.displayLabel.ifBlank { summary.operationalReference() }} · ${summary.operationalReference()}" + (summary.tableLabel?.let { " · Mesa $it" } ?: " · Sem mesa"))
+        Text("${summary.displayLabel.ifBlank { summary.operationalReference() }} · ${summary.operationalReference()}" + (summary.tableLabel?.let { " · Mesa $it" } ?: " · Sem mesa"), style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
         Ux2SettlementSummary("Valor ainda a receber", summary.exposureCents, "Pode receber só uma parte")
         if (pending != null) {
             Text(if (pending.confirmedPaymentId != null) "Recebido; encerramento pendente." else "Verificando recebimento original. Não cobre novamente.")
@@ -121,14 +121,12 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
                 else "Pix depende da capacidade canônica do estabelecimento; cartão integrado aguarda homologação.", style = AttendanceUx2.text(12))
             if (state.tapSimulationEnabled) Ux2Action("Testar aproximação · SIMULAÇÃO", valid,
                 { onPay(amount ?: 0, PaymentMethod.TAP_CREDIT, null, false) })
-            OutlinedButton({ method = PaymentMethod.EXTERNAL_TERMINAL }, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) {
-                Text(if (method == PaymentMethod.EXTERNAL_TERMINAL) "✓ Terminal externo confirmado" else "Registrar terminal externo confirmado")
-            }
+            Ux2Action(if (method == PaymentMethod.EXTERNAL_TERMINAL) "✓ Terminal externo confirmado" else "Registrar terminal externo confirmado", !state.submitting, { method = PaymentMethod.EXTERNAL_TERMINAL })
             if (method == PaymentMethod.EXTERNAL_TERMINAL) Text("Registre somente após confirmação no terminal/provedor. O aplicativo não efetua essa cobrança.")
             if (method == PaymentMethod.CASH) {
-                Text("Caixa aberto")
+                Text("Caixa aberto", style = AttendanceUx2.text(13, 740), color = RodadaVisual.Muted)
                 state.cashPoints.filter { it.activeShiftId != null }.forEach { point ->
-                    OutlinedButton({ cashPoint = point.id }, enabled = !state.submitting, modifier = Modifier.fillMaxWidth()) { Text((if (cashPoint == point.id) "✓ " else "") + point.label) }
+                    Ux2Action((if (cashPoint == point.id) "✓ " else "") + point.label, !state.submitting, { cashPoint = point.id })
                 }
                 if (state.cashPoints.none { it.activeShiftId != null }) Text("Abra um caixa antes de receber dinheiro.")
             }
@@ -166,5 +164,12 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
             Text(value, style = AttendanceUx2.text(13, 760).copy(fontFamily = RodadaVisual.Number))
         }
         HorizontalDivider(color = RodadaVisual.Border)
+    }
+}
+
+@Composable private fun Ux2AccountBack(enabled: Boolean, onBack: () -> Unit) {
+    TextButton(onClick = onBack, enabled = enabled, contentPadding = PaddingValues(0.dp),
+        modifier = Modifier.heightIn(min = 44.dp)) {
+        Text("‹  Voltar", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
     }
 }
