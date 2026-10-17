@@ -43,7 +43,17 @@ def _task_payload(task: DispatchTask, *, current_locations=None, targets=None) -
 
 def _target_payload(task, targets=None):
     targets = targets or StaffTargets([task], venue_id=task.venue_id)
-    return {"target_version": 1, "target": targets.target(task), "zone_id": targets.zone_id(task)}
+    target = targets.target(task)
+    # Identity copy is staff-only and follows the same live authorization as IDs.
+    # A stale Guest link must not disclose the formerly associated Tab label.
+    tab = None
+    if target["kind"] == "TAB":
+        tab = task.order_item.order.tab if task.order_item_id else task.requested_tab
+    return {
+        "target_version": 1, "target": target, "zone_id": targets.zone_id(task),
+        "tab_display_label": tab.display_label if tab else None,
+        "tab_display_reference": "Comanda " + str(tab.id)[:8].upper() if tab else None,
+    }
 
 
 class DeliveryQueueView(APIView):

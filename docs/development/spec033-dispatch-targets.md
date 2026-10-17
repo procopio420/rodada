@@ -63,3 +63,69 @@ Web e Android, CI e revisão independente. Esta slice não declara GO operaciona
 Rollout: aplicar migration antes de publicar clientes consumidores. Campos antigos
 permanecem compatíveis. Rollback de cliente preserva campos de provenance e fatos;
 não remover migration/dados durante operação. Sem merge/deploy autorizados.
+
+## Additive staff identity copy — 2026-10-16
+
+E03 queue parity needs the authorized Tab name/reference in addition to IDs.
+The staff target projection now includes `tab_display_label` and
+`tab_display_reference` only when its validated target is `TAB`. Reference uses
+existing `Comanda <UUID first8 uppercase>` convention; no fictitious numeric
+account/order number. `TABLE`/`UNAVAILABLE` expose null copy, including revoked,
+expired or moved Guest bindings; names never establish financial identity.
+Existing select_related joins supply the copy with no per-task query.
+
+Executed against disposable local PostgreSQL port55635 (test database only):
+`manage.py check` clean; `makemigrations --check --dry-run` no changes;
+`pytest tests/test_dispatch_targets.py --ds=rodada_api.settings -q`15 PASS.
+Tests include scoped list/detail, invalid foreign Tab, revoked Guest fallback,
+released occupancy, closed financial Tab delivery and100tasks/3queries with the
+full identity projection. Prior target concurrency/security regressions remain.
+Independent R3 review, CI and Web/Android same-state screenshot parity are gates;
+this additive copy is not an epic acceptance or rollout approval.
+
+## Rival delivery completion regression — 2026-10-16
+
+Spec033 E03 requires that an operator cannot complete another operator's live
+claimed task. Spec003 DSP-004 keeps claim optional. The delivery service now
+rejects a live task whose `claimed_by_id` differs from the actor with HTTP409
+`DELIVERY_TASK_ALREADY_CLAIMED`, inside the existing OrderItem/task locks. DONE
+replay remains a harmless canonical readback with original completion author and
+timestamp; unclaimed completion remains available. No ledger, claim endpoint,
+telemetry requirement, financial policy or schema changed in this followup.
+
+Code/test SHA: `f332a5184e1e2a4580c75eeccc7b5f3f8388c52b`.
+Environment: newly initialized disposable PostgreSQL17.6 on localhost55636,
+DB `rodada033guard`, cluster `/home/lucas/.cache/rodada033guard-pg`.
+Docker was unresponsive; no shared/remote database was used.
+
+Executed with POSTGRES_HOST=127.0.0.1, POSTGRES_PORT=55636,
+POSTGRES_USER=rodada, POSTGRES_DB=rodada033guard and dedicated Python3.12 venv:
+
+- `manage.py check`: PASS; `makemigrations --check --dry-run`: no changes.
+- `pytest tests/test_dispatch.py tests/test_dispatch_targets.py
+  tests/test_service_requests_round2.py tests/test_tab_location_safety.py
+  --ds=rodada_api.settings -q`: exit0,63 passed, no skips. Log:
+  `/home/lucas/.cache/rodada033guard-tests.log`. The full run began before a
+  test-only Barrier was added to synchronize the new concurrency workers; the
+  final three regressions were then rerun on the frozen code/test SHA below.
+- `git diff --check`: PASS. Ruff services clean; test file retains three prior
+  RUF059/B009 findings (lines unrelated to this followup); imports pass.
+
+Independent review: separate context `review_dispatch_followup` inspected
+`52244ecd..f332a518` (authorized identity copy, exact delivery DTO expectation,
+completion guard and regressions), result `NO_FINDINGS_WITH_GAPS`. This is code
+review evidence, not authenticated GitHub R3 approval. Review gaps remain CI,
+real Web/Compose parity and authorized operational/device acceptance.
+
+Merge dependency: PR218 supplies the canonical target API. This followup is
+stacked against `impl/033-dispatch-targets`; retarget after its authorized merge.
+No merge/deploy performed. AC09/10/11 remain partial across the full clients;
+this backend result does not complete E03 or authorize rollout.
+
+Final frozen-SHA regression command: `pytest
+ tests/test_dispatch.py::DispatchFoundationTests::test_delivery_rival_claim_rejected_without_item_or_audit_mutation
+ tests/test_dispatch.py::DispatchFoundationTests::test_delivery_claim_owner_completes_and_rival_terminal_replay_is_harmless
+ tests/test_dispatch.py::DeliveryCompletionConcurrencyTests
+ --ds=rodada_api.settings -q --junitxml=/home/lucas/.cache/rodada033guard-final.xml`:
+ **3 PASS,0 failures/errors/skips**, including synchronized PostgreSQL workers.
+ Log: `/home/lucas/.cache/rodada033guard-final.log`.
