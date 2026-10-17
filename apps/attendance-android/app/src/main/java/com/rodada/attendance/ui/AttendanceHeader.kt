@@ -46,7 +46,7 @@ fun AttendanceHeader(
                     .testTag("attendance-options").semantics { contentDescription = "Opções do atendimento" },
                     horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
                     if (venueName.isNotBlank()) {
-                        Text(venueName, style = AttendanceUx2.text(13, 750, 15.6f), maxLines = 1,
+                        Text(venueName, modifier = Modifier.fillMaxWidth(), style = AttendanceUx2.text(13, 750, 15.6f), maxLines = 1,
                             overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End)
                         Spacer(Modifier.height(5.dp))
                     }
@@ -56,7 +56,7 @@ fun AttendanceHeader(
                         ConnectivityState.STALE -> "desatualizado"
                         ConnectivityState.OFFLINE -> "sem sinal"
                     }}", style = AttendanceUx2.text(11, lineHeight = 13.2f), color = RodadaVisual.Muted,
-                        modifier = Modifier.testTag("attendance-connectivity").semantics { contentDescription = connectivity.label() },
+                        modifier = Modifier.fillMaxWidth().testTag("attendance-connectivity").semantics { contentDescription = connectivity.label() },
                         maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End)
                 }
                 DropdownMenu(expanded = options, onDismissRequest = { options = false }) {
