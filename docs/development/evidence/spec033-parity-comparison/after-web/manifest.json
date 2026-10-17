@@ -1,7 +1,7 @@
 {
-  "source_sha": "47592a1d",
+  "source_sha": "d8b7e92a",
   "prototype_sha": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
-  "tests": "9/9 Playwright, zero retries; production build/typecheck/eslint passed; fixed-destination follow-up build and4/4 capture cases passed",
+  "tests": "Composed stack: production build;17/17 visual;8/8 real Django/PostgreSQL financial no retries",
   "scope": "Web presentation only; controlled fixtures, not integration evidence",
   "limitations": [
     "Android full shell comparison pending",
@@ -25,5 +25,6 @@
     "web-tab-360.png": "72549492c6eece324f2d15507e715019a001e8bc434b1c0c971cd49335b2b574",
     "web-payment-1280.png": "f1823f4ae067e108b67c63ae4e955fe269a9c1dc3c80dde6f673effd1f090b13",
     "web-catalog-360.png": "ab70eff7cfe2ad1d0bf784d69f0ed402ebcb5682f5df6c91e143224fe12b0a4e"
-  }
+  },
+  "verification_note": "Prior real run failed duplicate fixture at startup; after reset7/8 passed with login failure during concurrent rebuild. Final8/8 uses unchanged stable build. Never treat those failed runs as acceptance."
 }

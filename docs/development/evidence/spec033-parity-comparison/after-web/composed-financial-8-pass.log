@@ -1,0 +1,19 @@
+[2m[WebServer] [22m(node:870901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:870931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:870931) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance pending Payment survives lost ACK and close 503/ACK loss across reload with no selection (8.9s)
+  ✓  2 tests/integration/attendance-settlement-recovery.spec.ts:70:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (4.8s)
+  ✓  3 tests/integration/attendance-settlement-recovery.spec.ts:95:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (4.0s)
+  ✓  4 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (5.8s)
+  ✓  5 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (2.7s)
+  ✓  6 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (2.6s)
+  ✓  7 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (2.8s)
+  ✓  8 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (2.7s)
+
+  8 passed (41.2s)

@@ -25,3 +25,16 @@ locks; corrigidos recorte do alvo de pills no scroller e área relativa à borda
 Pintura: pills40, quantidade39×42, crédito36/28 e meios52, como PR212; alvo de
 ponteiro estendido preserva44. Não comprova paridade de todos os estados,
 Android completo, fonte2 no Web, múltiplos caixas ou implantação real.
+
+## Composição final
+
+Workspace22459809484 integrado sem perder controles de conta/zero-close.
+Conflito na lista de pedidos resolvido preservando: repetição histórica, filtro
+CANCELLED, estados localizados, descarte contextual e retorno pós-fechamento.
+Build estável d8b7e92a:17/17Playwright visual e8/8financeiros reais PostgreSQL
+55634 passaram, sem retries. Helper44px verifica área efetiva de ::after e
+quatro extremos com elementFromPoint quando em viewport; não dispensa
+controles por classe. Revisão independente sem finding bloqueante; controles
+parcialmente fora de viewport não têm ownership comprovado por esse helper.
+Falhas anteriores de preparação/build concorrente preservadas nos logs; não
+são contadas como aceite. Fonte2 e múltiplos caixas visuais ainda pendentes.
