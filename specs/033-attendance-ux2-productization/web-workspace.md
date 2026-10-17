@@ -35,3 +35,22 @@ Estes testes não comprovam paridade Android, revisão independente da nova pág
 suíte completa nem aceite final. PR deve permanecer draft enquanto esses gates
 estiverem pendentes. Dependências: #218/#219/#221; identidade autorizada adicional
 em #222. Nenhum merge/deploy autorizado ou executado.
+
+## E04 integração em branch separada — 2026-10-17
+
+Branch impl/033-web-account, dependente de #224: PosCashReceipt existente recebe
+opt-in Attendance, envelope v2 com gateway original e fase Payment persistida
+antes de Close; callback lê Tab exata. Componente permanece montado sem Tab para
+recuperação. Pagamento parcial permanece disponível com rascunho; recebimento
+integral/encerramento desabilitado com rascunho. Saldo zero usa Close existente.
+Backend continua autoridade de cash.shift/capability. Apenas CASH efetivo.
+
+Build passou e integração pos-cash-receipt.spec.ts passou 5/5 em29,7s usando
+Django/PostgreSQL17.6 porta55634, incluindo: POS legado ACK perdido, Payment/Close
+com ACK perdido/reload, capability negada, consumo concorrente após Payment
+seguido de manter aberta sem mutação extra, e jornada inicial UI Attendance
+parcial500+integral1500=2000, dois Payments, Tab CLOSED e envelope retirado.
+A revisão independente anterior encontrou bloqueio de saldo concorrente e foi
+corrigida em473a8e93; nova revisão da correção/integração permanece pendente por
+indisponibilidade do executor independente. Nenhuma alegação R3 aprovado.
+Paridade da página de pagamento, screenshots e CI deste novo SHA pendentes.

@@ -75,8 +75,8 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, pres
   }
 
   if (presentation === "ux2") return <section className="ux2Workspace" aria-label="Repetir rodada">
-    <button className="ux2Inline" disabled={busy} onClick={onClose}>← Voltar</button>
-    <p className="ux2Eyebrow">Repetir com escolha</p><h1>Mais uma rodada.</h1>
+    <button className="ux2Back" disabled={busy} onClick={onClose}><span aria-hidden="true">‹</span> Voltar</button>
+    <div className="ux2Eyebrow">Repetir com escolha</div><h1>Mais uma rodada.</h1>
     <p className="ux2Lede">Ajuste os itens e quantidades. Um toque confirma a nova rodada.</p>
     {(message || !enabled) && <p role="alert" className="ux2Notice">{message || "O contexto mudou ou está ocupado. Volte e revise novamente."}</p>}
     {!!review.excluded && <p>{review.excluded} linha(s) canceladas ou sem unidades restantes não serão repetidas.</p>}
@@ -94,8 +94,7 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, pres
       </div>;
     })}
     {!review.lines.length && <p className="ux2Empty">Nenhum item para repetir.</p>}
-    <div className="ux2AmountLine" role="status"><small>{units} unidade(s) · Total da rodada</small><strong>{money(total)}</strong></div>
-    <p className="ux2Notice">Esta seleção cria um novo pedido. Seu rascunho atual permanece preservado.</p>
+    <p className="ux2Notice">Repetir <strong>prepara um novo pedido</strong>; nunca reaproveita a confirmação anterior. Disponibilidade e preços são revalidados.</p>
     <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canEdit || !selected} onClick={() => {if(selected)onAdd(quantities);}}>{busy ? "Enviando rodada…" : "Repetir rodada · enviar"}</button></div>
   </section>;
 

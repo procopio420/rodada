@@ -5,7 +5,6 @@ import Image from "next/image";
 import { currentTaskTarget, type StaffTask } from "@/lib/client/dispatch-target";
 import { OperationalIcon } from "@/components/operational-icon";
 import { tabPrimaryLabel, tabReference } from "@/lib/client/tab-identity";
-import { OperationalHeading } from "@/components/operational-heading";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRealtime } from "@/lib/client/use-realtime";
@@ -33,7 +32,7 @@ async function request<T>(path: string, payload?: object): Promise<T> {
 export function AttendanceWeb() {
   return <StaffAuthScreen renderSession={(session, logout) => <Workspace key={session.session.id} session={session} logout={logout} />} />;
 }
-function Workspace({ session, logout }: { session: StaffSessionView; logout: () => Promise<void> }) {
+function Workspace({ session }: { session: StaffSessionView; logout: () => Promise<void> }) {
   const storageKey = `rodada:table-service:${session.venue.id}:${session.staff.id}:${session.session.id}`;
   const [serviceEnabled, setServiceEnabled] = useState(false);
   const [orderContext, setOrderContext] = useState<{tabId: string; surface: string} | null>(null);
@@ -61,8 +60,11 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const [openingAt, setOpeningAt] = useState<Table | null>(null);
   const [newLabel, setNewLabel] = useState("");
   const [takeoverAt, setTakeoverAt] = useState<Table | null>(null);
-  const [error, setError] = useState(""), [message, setMessage] = useState(""), [updated, setUpdated] = useState("");
+  const [error, setError] = useState(""), [message, setMessage] = useState(""), [, setUpdated] = useState("");
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+    if (!active) return;
     try {
       const prefix = `rodada:table-service:${session.venue.id}:${session.staff.id}:`;
       if (Object.keys(localStorage).some(key => key.startsWith(prefix) && key !== storageKey)) {
@@ -71,7 +73,9 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       const stored = localStorage.getItem(storageKey); if (stored) setIntent(JSON.parse(stored));
     }
     catch { setRecoveryBlocked(true); setError("Recuperação indisponível. Confira o histórico antes de repetir."); }
-  }, [storageKey]);
+    });
+    return () => { active = false; };
+  }, [storageKey, session.venue.id, session.staff.id]);
   const [tableDialog, setTableDialog] = useState<{id: string; release: boolean} | null>(null);
   const [moveSelection, setMoveSelection] = useState<MoveSelection | null>(null);
   const [moveLocked, setMoveLocked] = useState(true);
@@ -122,8 +126,8 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     tableOpeningLock.current = false; setTableOpening(false);
     if (failure) { setError(failure); return; }
     setSelectedTable(null); setScreen("tables");
-  }, [setError]);
-  const revealOrder = useCallback(() => setScreen("tables"), []);
+  }, [setError, setScreen]);
+  const revealOrder = useCallback(() => setScreen("tables"), [setScreen]);
   const closeOrder = useCallback(() => { setOriginTaskId(null); setOriginTaskType(null); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);

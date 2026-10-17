@@ -204,3 +204,14 @@ test("Confirmed receipt with concurrent new consumption can explicitly keep Tab 
   expect(after.movements.filter((m: { payment_id: string }) => m.payment_id === receipt.id)).toHaveLength(1);
   await expect(page.getByLabel("Valor do pagamento")).toBeEnabled();
 });
+
+test("UX2 Account receives partial CASH then settles and closes from real page", async ({page}) => {
+ await page.goto("/staff");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();await expect(page.getByRole("link",{name:/Continuar trabalhando/})).toBeVisible();
+ const point=(await api(page,"cash/points/")).results[0];const shift=point.active_shift??await api(page,"cash/shifts/",{cash_point_id:point.id,opening_float_cents:0,business_date:"2026-10-17",idempotency_key:"ux2-page-shift"});
+ const tab=await api(page,"tabs/",{display_label:"UX2 account real page"});const product=(await api(page,"catalog/products/")).results.find((p:{name:string})=>p.name==="Kitchen E2E item");await api(page,`tabs/${tab.id}/orders/confirm/`,{idempotency_key:"ux2-page-order",lines:[{product_id:product.id,quantity:2}]});
+ await page.goto("/attendance");if(await page.getByLabel("Estabelecimento").isVisible()){await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();}
+ await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill("UX2 account real page");await page.locator(`button[data-tab-id="${tab.id}"]`).click();await page.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();
+ const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});await receipt.getByLabel("Valor do pagamento").fill("5,00");await receipt.getByRole("button",{name:"Receber em dinheiro",exact:true}).click();await expect(receipt.getByText("Recebimento confirmado. Saldo atualizado.",{exact:true})).toBeVisible();
+ const read=()=>page.evaluate(async id=>(await fetch(`/api/attendance/tabs/${id}/`)).json(),tab.id);const partial=await read();expect(partial.payments).toHaveLength(1);expect(partial.exposure_cents).toBe(1500);
+ await receipt.getByRole("button",{name:/Receber integralmente e encerrar/}).click();await expect.poll(async()=>(await read()).state).toBe("CLOSED");const final=await read();expect(final.exposure_cents).toBe(0);expect(final.payments).toHaveLength(2);expect(final.payments.reduce((n:number,p:{amount_cents:number})=>n+p.amount_cents,0)).toBe(2000);expect(await page.evaluate(()=>sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();expect(shift.id).toBeTruthy();
+});
