@@ -35,8 +35,9 @@ TabOccupancyAssignment.objects.create(tab=tab,occupancy=occupancy)
 
 test("UX2 real committed order lost ACK reload reconciles one intent and ledger",async({page})=>{
  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+ await expect(page.getByRole("button",{name:"Mesas",exact:true})).toBeVisible();
  const label="UX2 lost ACK original";
- const tab=await page.evaluate(async display_label=>{const response=await fetch("/api/pos/tabs/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({display_label})});if(!response.ok)throw new Error(`Create fixture ${response.status}`);return response.json();},label);
+ const tab=await page.evaluate(async display_label=>{const response=await fetch("/api/attendance/tabs/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({display_label})});if(!response.ok)throw new Error(`Create fixture ${response.status}`);return response.json();},label);
  await page.reload();await page.getByRole("button",{name:"Mesas",exact:true}).click();
  await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.locator(`button[data-tab-id="${tab.id}"]`).click();
  await page.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();for(const product of ["Kitchen E2E item","Bar E2E item"])await page.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();

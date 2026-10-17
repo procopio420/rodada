@@ -52,8 +52,8 @@ export function selectedRepeatedLines<P extends RepeatProduct>(
   return lines;
 }
 
-export function RepeatOrderDialog({ review, enabled, busy = false, message, onAdd, onClose }: {
-  review: ReturnType<typeof reviewRepeatedOrder>; enabled: boolean; busy?: boolean; message?: string;
+export function RepeatOrderDialog({ review, enabled, busy = false, message, presentation = "legacy", onAdd, onClose }: {
+  review: ReturnType<typeof reviewRepeatedOrder>; enabled: boolean; busy?: boolean; message?: string; presentation?: "legacy" | "ux2";
   onAdd: (quantities: RepeatQuantities) => void; onClose: () => void;
 }) {
   const [checked, setChecked] = useState<Record<string, boolean>>(() =>
@@ -73,6 +73,31 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, onAd
     if (Number.isSafeInteger(current) && current + delta >= 1 && current + delta <= 99)
       setInputs(values => ({ ...values, [id]: String(current + delta) }));
   }
+
+  if (presentation === "ux2") return <section className="ux2Workspace" aria-label="Repetir rodada">
+    <button className="ux2Inline" disabled={busy} onClick={onClose}>← Voltar</button>
+    <p className="ux2Eyebrow">Repetir com escolha</p><h1>Mais uma rodada.</h1>
+    <p className="ux2Lede">Ajuste os itens e quantidades. Um toque confirma a nova rodada.</p>
+    {(message || !enabled) && <p role="alert" className="ux2Notice">{message || "O contexto mudou ou está ocupado. Volte e revise novamente."}</p>}
+    {!!review.excluded && <p>{review.excluded} linha(s) canceladas ou sem unidades restantes não serão repetidas.</p>}
+    {review.problems.map((problem, index) => <p key={index} role="alert" className="ux2Notice">{problem}</p>)}
+    {review.lines.map(line => {
+      const id = line.original.id, quantity = checked[id] ? Number(inputs[id]) : 0;
+      const change = (delta: number) => {
+        const next = quantity + delta;
+        if (!canEdit || !Number.isSafeInteger(next) || next < 0 || next > 99) return;
+        setChecked(values => ({...values, [id]:next > 0}));
+        setInputs(values => ({...values,[id]:String(Math.max(1,next))}));
+      };
+      return <div className="ux2ReviewRow" key={id}><div><strong>{line.product.name}</strong><small>{money(unitPrice(line.product,line.selection))} por unidade</small><CustomizationText snapshot={currentSnapshot(line.product,line.selection)} />{line.changed && <p className="ux2Notice">Preço ou descrição mudou. Anterior: {money(line.original.unit_price_cents!)} por unidade. Confira os valores atuais.</p>}</div>
+        <div className="ux2Quantity"><button aria-label={`Reduzir ${line.product.name}`} disabled={!canEdit || quantity === 0} onClick={() => change(-1)}>−</button><output aria-label={`Quantidade de ${line.product.name}`}>{quantity}</output><button aria-label={`Aumentar ${line.product.name}`} disabled={!canEdit || quantity >= 99} onClick={() => change(1)}>+</button></div>
+      </div>;
+    })}
+    {!review.lines.length && <p className="ux2Empty">Nenhum item para repetir.</p>}
+    <div className="ux2AmountLine" role="status"><small>{units} unidade(s) · Total da rodada</small><strong>{money(total)}</strong></div>
+    <p className="ux2Notice">Esta seleção cria um novo pedido. Seu rascunho atual permanece preservado.</p>
+    <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canEdit || !selected} onClick={() => {if(selected)onAdd(quantities);}}>{busy ? "Enviando rodada…" : "Repetir rodada · enviar"}</button></div>
+  </section>;
 
   return <ActionDialog title="Conferir rodada" onClose={onClose} locked={busy}>
     <p className="muted">Marque os itens e ajuste as quantidades. Ao confirmar, a rodada será enviada diretamente ao bar e à cozinha.</p>
