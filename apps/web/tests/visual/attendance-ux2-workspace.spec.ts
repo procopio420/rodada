@@ -48,7 +48,7 @@ for(const kind of ["TAB","TABLE"] as const) test(`UX2 called task retains explic
  await page.route("**/api/attendance/dispatch/requests/",r=>r.fulfill({json:{results:task.state==="DONE"?[]:[task]}}));
  await page.route("**/api/attendance/dispatch/tasks/call-exact/",r=>r.fulfill({json:task}));
  await page.route("**/api/attendance/dispatch/requests/call-exact/complete/",r=>{mutations.push(r.request().url());task={...task,state:"DONE"};return r.fulfill({json:task});});
- await page.goto("/attendance");await page.getByRole("button",{name:/Mesa08.*Abrir conta/}).click();
+ await page.goto("/attendance");await page.getByRole("button",{name:kind === "TABLE" ? /Mesa08.*Escolher comanda/ : /Mesa08.*Abrir conta/}).click();
  const context=page.getByRole("complementary",{name:"Chamado de origem"});await expect(context).toBeVisible();expect(mutations).toHaveLength(0);
  if(kind==="TABLE") await page.locator('button[data-tab-id="tab-test"]').click();
  await expect(page.getByRole("heading",{name:"Fechar a conta.",exact:true})).toBeVisible();
@@ -61,4 +61,24 @@ test("UX2 task readback identity mismatch cannot navigate",async({page})=>{
  await fixture(page,"normal",true);
  await page.route("**/api/attendance/dispatch/tasks/service-test/",r=>r.fulfill({json:{id:"another-task",task_type:"SERVICE_REQUEST",state:"OPEN",target_version:1,target:{kind:"TAB",tab_id:"tab-test",table_id:null,occupancy_id:null,generation:null}}}));
  await page.goto("/attendance");await page.getByRole("button",{name:/Mesa 24.*Atender cliente/}).click();await expect(page.getByRole("alert").filter({hasText:"Identidade da tarefa divergente"})).toBeVisible();await expect(page.getByRole("region",{name:"Comanda selecionada",exact:true})).toHaveCount(0);
+});
+
+test("UX2 preserves table search without hiding a task destination or leaking task to next Tab",async({page})=>{
+ await fixture(page,"normal",true);
+ const makeTab=(id:string,name:string,table:string)=>({id,display_label:name,table_label:table,state:"OPEN",version:1,exposure_cents:0,effective_limit_cents:20000,remaining_capacity_cents:20000,relationship_snapshot:"REGULAR",orders:[],payments:[]});
+ const a=makeTab("tab-a","Marina","08"),b=makeTab("tab-b","João","12");
+ const tables=[{id:"table-a",label:"08",status:"OCCUPIED",active_occupancy:{id:"visit-a",generation:1,tabs:[a]}},{id:"table-b",label:"12",status:"OCCUPIED",active_occupancy:{id:"visit-b",generation:1,tabs:[b]}}];
+ const task={id:"call-table-b",task_type:"SERVICE_REQUEST",state:"OPEN",destination_label:"Mesa12",claimed_by_id:null,target_version:1,target:{kind:"TABLE",tab_id:null,table_id:"table-b",occupancy_id:"visit-b",generation:1}};
+ let mutations=0;
+ await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:tables}}));
+ await page.route(/\/api\/attendance\/tabs\/(tab-a|tab-b)\/(\?.*)?$/,r=>r.fulfill({json:r.request().url().includes("tab-a")?a:b}));
+ await page.route("**/api/attendance/dispatch/requests/",r=>r.fulfill({json:{results:[task]}}));
+ await page.route("**/api/attendance/dispatch/tasks/call-table-b/",r=>r.fulfill({json:task}));
+ await page.route("**/api/attendance/dispatch/requests/call-table-b/*/",r=>{mutations++;return r.abort();});
+ await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill("08");
+ await page.getByRole("button",{name:"Agora",exact:true}).click();await page.getByRole("button",{name:/Mesa12.*Escolher comanda/}).click();
+ await expect(page.getByRole("heading",{name:"Mesa 12",exact:true})).toBeVisible();await page.locator('button[data-tab-id="tab-b"]').click();await expect(page.getByRole("heading",{name:"João",exact:true})).toBeVisible();
+ await page.getByRole("complementary",{name:"Chamado de origem"}).getByRole("button",{name:"Voltar à fila →",exact:true}).click();await expect(page.getByRole("heading",{name:"Agora",exact:true})).toBeVisible();
+ await page.getByRole("button",{name:"Pedir",exact:true}).click();await page.getByRole("button",{name:"Escolher mesa ou comanda",exact:true}).click();await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("08");await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-a"]').click();
+ await expect(page.getByRole("heading",{name:"Adicionar itens.",exact:true})).toBeVisible();await expect(page.getByRole("complementary",{name:"Chamado de origem"})).toHaveCount(0);expect(mutations).toBe(0);
 });
