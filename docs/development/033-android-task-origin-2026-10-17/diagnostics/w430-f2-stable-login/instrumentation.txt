@@ -1,0 +1,41 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.LiveAgoraUx2Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.LiveAgoraUx2Test:
+INSTRUMENTATION_STATUS: test=authenticatedQueuesAndReturnKeepTheOriginalContext
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.LiveAgoraUx2Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 30000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at com.rodada.attendance.operations.LiveAgoraUx2Test.authenticatedQueuesAndReturnKeepTheOriginalContext(LiveAgoraUx2Test.kt:37)
+
+INSTRUMENTATION_STATUS: stream=
+Error in authenticatedQueuesAndReturnKeepTheOriginalContext(com.rodada.attendance.operations.LiveAgoraUx2Test):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 30000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at com.rodada.attendance.operations.LiveAgoraUx2Test.authenticatedQueuesAndReturnKeepTheOriginalContext(LiveAgoraUx2Test.kt:37)
+
+INSTRUMENTATION_STATUS: test=authenticatedQueuesAndReturnKeepTheOriginalContext
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 34.543
+There was 1 failure:
+1) authenticatedQueuesAndReturnKeepTheOriginalContext(com.rodada.attendance.operations.LiveAgoraUx2Test)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 30000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at com.rodada.attendance.operations.LiveAgoraUx2Test.authenticatedQueuesAndReturnKeepTheOriginalContext(LiveAgoraUx2Test.kt:37)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

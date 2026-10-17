@@ -142,6 +142,18 @@ fun AttendanceScreen(
     var readingTask by remember { mutableStateOf(false) }
     val taskScope = rememberCoroutineScope()
     val canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }
+    fun leaveTaskWorkspace() {
+        viewModel.clearSelection(session)
+        if (viewModel.state.selectedTab == null) {
+            serviceTaskId = null
+            serviceContextTabId = null
+            serviceTableTarget = null
+            requestedWorkspaceSection = null
+            targetTableId = null
+            targetOccupancyId = null
+            targetGeneration = null
+        }
+    }
     fun openService(task: ServiceRequest) {
         if (readingTask) return
         readingTask = true
@@ -157,8 +169,9 @@ fun AttendanceScreen(
                 viewModel.selectTab(session, target.tabId)
             }
             is StaffTaskTarget.Table -> {
-                val table = target.currentTable(viewModel.state.tables)
-                if (table == null || state.loading || state.connectivity != ConnectivityState.ONLINE) {
+                val freshState = viewModel.state
+                val table = target.currentTable(freshState.tables)
+                if (table == null || freshState.loading || freshState.connectivity != ConnectivityState.ONLINE) {
                     taskNotice = "Vínculo desatualizado. Atualize a fila e confira a ocupação; nenhuma comanda foi escolhida."
                     viewModel.refresh(session)
                 } else {
@@ -295,7 +308,7 @@ fun AttendanceScreen(
                     }
                 }
                 else -> Dialog(
-                    onDismissRequest = { viewModel.clearSelection(session) },
+                    onDismissRequest = ::leaveTaskWorkspace,
                     properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
                 ) { Surface(Modifier.fillMaxSize().safeDrawingPadding()) {
                     val recovery = state.exceptionalRecoveryContext
@@ -317,7 +330,7 @@ fun AttendanceScreen(
                     onRequestedSectionConsumed = { requestedWorkspaceSection = null },
                     state = state,
                     tab = selected,
-                    onBack = { viewModel.clearSelection(session) },
+                    onBack = ::leaveTaskWorkspace,
                     onAdd = { product, selection -> viewModel.addProduct(product, selection) },
                     onAddQuantity = { product, selection, quantity -> viewModel.addProduct(product, selection, quantity) },
                     onEdit = viewModel::editCartLine,
