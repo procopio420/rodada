@@ -76,3 +76,14 @@ compileDebugAndroidTestKotlin --stacktrace` PASS (102 testes JVM, zero falhas).
 A regressão Compose foi compilada, mas não executada; nenhum emulador, aparelho,
 API real, PR ou operação GitHub nesta correção. Exige revisão independente do
 novo SHA e execução do cenário isolado antes de alegar aceite de navegação.
+
+Revisão estática independente do fix `749ca37f` pelo contexto integrador/root:
+`NO_FINDINGS_WITH_GAPS`. Conferiu `clearSelection` síncrono: bloqueio/pendência
+mantém `selectedTab`, preservando origem; saída efetivada limpa origem. Fallback
+da primeira seleção não mudou. Regressão Compose adequada, ainda não executada.
+Não corresponde a aprovação GitHub nem autorização de merge/deploy.
+
+Checagem posterior de runtime: `adb devices` sem dispositivos; nenhum processo
+da API isolada 18131, emulador 5558 ou runner live-agora encontrado. Ensaio real
+`NOT_RUN` por runtime indisponível; nenhuma stack foi recriada/resetada. Fix
+mantido na worktree isolada para integração pelo responsável.
