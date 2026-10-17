@@ -27,6 +27,10 @@ Codex Evals & Evidence: [cenários, trace grading e registro de critérios](CODE
 
 Entrada recomendada: [AGENTS raiz](../../AGENTS.md) + AGENTS local → este mapa (índice) → spec pelo caminho completo (use [registro](SPEC-REGISTER-2026-10-13.md) quando houver ambiguidade) → seções pertinentes dos [procedimentos](PROCEDURES.md)/[guardrails](DOMAIN-GUARDRAILS.md) → código/testes. **Não é uma sequência de leituras integrais.** Para delegação paralela, use o [brief/handoff](TASK-BRIEF.md).
 
+## Atualização — KDS Bar/Cozinha UX 2.0 (2026-10-17)
+
+Para trabalho de Bar, Cozinha, Passe e Expedição, usar a **[Spec 031 por caminho completo](../../specs/031-kds-ux2/spec.md)**, com [plano](../../specs/031-kds-ux2/plan.md), [tarefas](../../specs/031-kds-ux2/tasks.md) e [critérios de aceite](../../specs/031-kds-ux2/acceptance.md). O [protótipo UX navegável](../../prototype/ux2/kds-bar-cozinha.html) é referência visual **simulada**; não prova que a API real implemente preparo parcial, correções, alergias ou expedição. Continuam normativas as Specs 003/014/017/026 e ADR 0018; não promover preview a evidência de release.
+
 ## Fonte de verdade: regras para conflitos
 
 1. **Contrato pretendido:** princípios + spec por pasta + ADR vigente. Um documento que diz "planejado" não confirma deploy.
