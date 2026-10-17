@@ -137,4 +137,140 @@ check("item allocation unavailable after payments with no item association", () 
   assert(x.app.innerHTML.includes("Quantidade de pessoas"));
 });
 
+
+check("equal split rejects tampered cash installment and preserves pending part", () => {
+  const x=mount();
+  x.click("select-tab",{id:"t2"});x.click("split");x.click("split-plus");x.click("split-plus");x.click("split-continue");
+  x.input("tendered","28,00");x.click("confirm-payment");
+  x.click("next-split");
+  assert(x.app.innerHTML.includes("valor fixo"));
+  x.input("payAmount","1,00");x.input("tendered","1,00");x.click("confirm-payment");
+  let tab=x.db().tabs.find(t=>t.id==="t2");
+  assert.equal(tab.payments.length,1);
+  assert.equal(tab.splitPlan.paidParts,1);
+  x.input("payAmount","28,00");x.input("tendered","28,00");x.click("confirm-payment");
+  tab=x.db().tabs.find(t=>t.id==="t2");
+  assert.equal(tab.payments.length,2);
+  assert.equal(tab.splitPlan.paidParts,2);
+});
+
+check("split installment cannot bypass locked amount for Pix/Card", () => {
+  const x=mount();
+  x.click("select-tab",{id:"t2"});x.click("split");x.click("split-plus");x.click("split-plus");x.click("split-continue");
+  x.click("method",{method:"PIX"});
+  x.input("payAmount","1,00");x.click("confirm-payment");
+  assert.equal(x.db().attempts.length,0);
+  x.input("payAmount","28,00");x.click("confirm-payment");
+  assert.equal(x.db().attempts.length,1);
+  assert.equal(x.db().attempts[0].amount,2800);
+});
+
+check("cash refund cannot drive physical drawer below zero; supplement first", () => {
+  const x=mount();x.click("select-tab",{id:"t2"});x.click("pay");x.input("tendered","112,00");
+  x.click("confirm-payment");x.click("close-tab");
+  const payment=x.db().activity.find(a=>a.type==="payment"&&a.tabId==="t2");
+  const drawerExpected=()=>x.db().drawer.movements.reduce((n,m)=>n+m.amount,0);
+  x.click("nav",{view:"shift"});x.click("movement",{type:"out"});
+  x.input("movementAmount",(drawerExpected()/100).toFixed(2).replace(".",","));
+  x.input("movementReason","Sangria ao cofre");x.click("commit-movement");
+  assert.equal(drawerExpected(),0);
+  x.click("nav",{view:"activity"});x.click("refund",{id:payment.id});
+  x.input("refundReason","Cliente solicitou");x.input("refundPin","1234");
+  assert(x.app.innerHTML.includes("Dinheiro insuficiente"));
+  x.click("commit-refund");assert.equal(drawerExpected(),0);
+  assert.equal(x.db().tabs.find(t=>t.id==="t2").payments[0].refund,0);
+  x.click("modal-close");x.click("nav",{view:"shift"});x.click("movement",{type:"in"});
+  x.input("movementAmount","112,00");x.input("movementReason","Suprimento autorizado");x.click("commit-movement");
+  x.click("nav",{view:"activity"});x.click("refund",{id:payment.id});
+  x.input("refundReason","Cliente solicitou");x.input("refundPin","1234");x.click("commit-refund");
+  assert.equal(drawerExpected(),0);
+  assert.equal(x.db().tabs.find(t=>t.id==="t2").payments[0].refund,11200);
+});
+
+check("undelivered change blocks counting and closing across reload", () => {
+  const x=mount();x.click("pay");x.input("tendered","200,00");x.click("confirm-payment");
+  x.click("nav",{view:"shift"});
+  assert(x.app.innerHTML.includes("troco(s) ainda não marcado(s)"));
+  x.click("start-count");
+  assert.equal(x.db().drawer.counting,false);
+  const y=mount(x.saved.current);y.click("nav",{view:"shift"});
+  y.click("start-count");assert.equal(y.db().drawer.counting,false);
+  y.click("dismiss-change");y.click("start-count");
+  assert.equal(y.db().drawer.counting,true);
+  y.input("countInput","1.384,50");y.click("count-next");y.click("commit-count");
+  assert.equal(y.db().drawer.open,false);
+  assert(y.db().activity.some(a=>a.title==="Troco entregue (demo)"));
+});
+
+check("post-close refund is discoverable and requires managerial review", () => {
+  const x=mount();x.click("select-tab",{id:"t2"});x.click("pay");x.input("tendered","112,00");
+  x.click("confirm-payment");x.click("close-tab");
+  const activity=x.db().activity.find(a=>a.type==="payment"&&a.tabId==="t2");
+  x.click("nav",{view:"activity"});x.click("refund",{id:activity.id});
+  x.input("refundReason","Cliente solicitou");x.input("refundPin","1234");x.click("commit-refund");
+  x.click("nav",{view:"receive"});
+  assert(x.app.innerHTML.includes("C-2837"));
+  assert(x.app.innerHTML.includes("Revisar estorno"));
+  x.click("review-refund",{id:"t2"});x.input("refundReviewNote","Encaminhado ao gerente");
+  x.input("refundReviewPin","9999");x.click("commit-refund-review");
+  assert.equal(x.db().tabs.find(t=>t.id==="t2").refundReview,"PENDING");
+  x.input("refundReviewPin","1234");x.click("commit-refund-review");
+  const tab=x.db().tabs.find(t=>t.id==="t2");
+  assert.equal(tab.refundReview,"REVIEWED");
+  assert.equal(tab.closed,true);
+  assert.equal(tab.payments[0].refund,11200);
+  assert(x.db().activity.some(a=>a.title==="Revisão gerencial de estorno"));
+  x.click("filter",{filter:"closed"});
+  assert(x.app.innerHTML.includes("Estorno revisado"));
+});
+
+check("open modal suppresses change overlay, preserves reminder on return", () => {
+  const x=mount();x.click("pay");x.input("tendered","200,00");x.click("confirm-payment");
+  assert(x.app.innerHTML.includes('class="change-reminder"'));
+  x.click("select-tab",{id:"t2"});x.click("pay");
+  assert(x.app.innerHTML.includes('class="modal-screen"'));
+  assert(!x.app.innerHTML.includes('class="change-reminder"'));
+  x.click("modal-close");
+  assert(x.app.innerHTML.includes('class="change-reminder"'));
+  assert.equal(x.db().changeNotices.length,1);
+  assert(html.includes(".change-reminder{position:fixed;z-index:45;"));
+});
+
+check("rerender preserves scroll position within payment modal", () => {
+  const app={innerHTML:""};
+  const events={};
+  let snapshot=null;
+  let oldBody={scrollTop:278,scrollLeft:6};
+  const document={
+    activeElement:null,
+    querySelector(selector){
+      if(selector==="#app")return app;
+      if(selector===".modal-body")return oldBody;
+      return null;
+    },
+    addEventListener(name,fn){events[name]=fn;},
+  };
+  vm.runInNewContext(source,{
+    document,window:{scrollY:0,scrollTo(){},print(){}},
+    localStorage:{getItem(){return snapshot},setItem(_key,v){snapshot=v}},
+    crypto:{randomUUID:()=>"scroll-id"},structuredClone,
+    setTimeout:()=>0,clearTimeout(){},
+  },{timeout:1000});
+  const click=(act,extra={})=>{const target={dataset:{act,...extra},closest:()=>({dataset:{act,...extra}})};events.click({target})};
+  click("pay");
+  const before=oldBody;
+  before.scrollTop=278;before.scrollLeft=6;
+  // A real browser replaces the scroll container during innerHTML; model the
+  // replacement on the next lookup so the regression is observable without a browser.
+  let first=true,newBody={scrollTop:0,scrollLeft:0};
+  document.querySelector=selector=>{
+    if(selector==="#app")return app;
+    if(selector===".modal-body"){if(first){first=false;return before;}return newBody}
+    return null;
+  };
+  click("method",{method:"PIX"});
+  assert.equal(newBody.scrollTop,278);
+  assert.equal(newBody.scrollLeft,6);
+});
+
 console.log("All Caixa UX2 prototype regression scenarios passed.");
