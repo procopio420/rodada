@@ -4,6 +4,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rodada.attendance.BuildConfig
 import com.rodada.attendance.auth.*
@@ -118,6 +120,8 @@ class LiveUx2ReceiptRecoveryTest {
         compose.runOnUiThread { model.collectPayment(sessionA, amount, PaymentMethod.CASH, cashPoint.id, true) }
         compose.waitUntil(15_000) { model.state.pendingPayment?.confirmedPaymentId != null && faultStatus().contains("\"read_holding\": true") }
         val original = queue.loadFor(sessionA).filterIsInstance<RecoveryIntent.StartPayment>().single()
+        lateinit var originalRequest: Job
+        compose.runOnUiThread { originalRequest = model.viewModelScope.coroutineContext[Job]!!.children.single() }
         val id = UUID.randomUUID().toString()
         val pendingB = RecoveryIntent.StartPayment(id, sessionB.staffId, sessionB.venueId, sessionB.deviceId,
             id, System.currentTimeMillis(), RecoveryState.CHECKING, tabB.id, 1, PaymentMethod.CASH, cashPoint.id, tabB.version)
@@ -129,10 +133,10 @@ class LiveUx2ReceiptRecoveryTest {
         compose.waitUntil(15_000) { model.state.selectedTab?.summary?.id == tabB.id && model.state.pendingPayment == pendingB && !model.state.submitting }
         val messageB = model.state.noticeMessage
         control("release-tab-read")
-        // Wait for the held HTTP completion and Main dispatcher callback to settle.
+        // Wait for the exact original ViewModel coroutine, including its failure/finally callbacks.
         compose.waitUntil(15_000) { !faultStatus().contains("\"read_holding\": true") }
+        compose.waitUntil(15_000) { originalRequest.isCompleted }
         androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        android.os.SystemClock.sleep(750)
         compose.runOnUiThread {
             assertEquals(tabB.id, model.state.selectedTab?.summary?.id)
             assertEquals(pendingB, model.state.pendingPayment)
