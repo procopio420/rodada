@@ -149,6 +149,18 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
       if (presentation === "ux2") setDialogView("tab");
     };
   });
+  useEffect(() => {
+    if (presentation !== "ux2" || !orderIntent.pending || selected?.id === orderIntent.pending.tab) return;
+    let active = true;
+    const tabId = orderIntent.pending.tab;
+    selectedReadEpoch.current++;
+    void apiCall<Tab>(`${orderIntent.pending.api_root}/tabs/${tabId}/`).then(result => {
+      if (!active) return;
+      if (!result.response.ok || !result.body || !("id" in result.body) || result.body.id !== tabId) { setMessage("A comanda original não pôde ser consultada. A intenção permanece preservada."); return; }
+      selectedReadEpoch.current++; setSelected(result.body as Tab); setOrderFresh(true); setDialogOpen(true); setDialogView("tab");
+    }).catch(() => { if (active) setMessage("Não foi possível consultar a comanda original. Verifique a mesma intenção."); });
+    return () => { active = false; };
+  }, [presentation, orderIntent.pending, selected?.id]);
   const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); setDialogView("draft"); } onRecoveryNeeded?.(); });
   useEffect(() => { onPendingChange?.(!orderIntent.ready || orderIntent.busy || !!orderIntent.pending || correctionPending || cashPending || selecting || opening || repeatLoading || !!repeatReview); }, [confirming, orderIntent.pending, orderIntent.busy, orderIntent.ready, correctionPending, cashPending, selecting, opening, repeatLoading, repeatReview, onPendingChange]);
   useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) queueMicrotask(() => revealRecoveredDraft()); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
@@ -399,7 +411,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
         onCustomize={product => { const current = products.find(value => value.id === product.id); if (current && !uxLocked) { setEditing(null); setConfiguring(current); } }}
         onReduce={product => { const matching = rows.flatMap((row, index) => row.product.id === product.id ? [index] : []); if (matching.length !== 1) { setDialogView("draft"); return; } setCart(current => current.flatMap((line, index) => index !== matching[0] ? [line] : line.quantity <= 1 ? [] : [{ ...line, quantity: line.quantity - 1 }])); }}
         onEdit={index => { setConfiguring(rows[index].product); setEditing(index); }} onQuantity={(index, delta) => setCart(current => current.flatMap((line, i) => i !== index ? [line] : line.quantity + delta <= 0 ? [] : [{ ...line, quantity: line.quantity + delta }]))}
-        onSend={() => void confirm()} onRepeat={() => { const order = selected.orders?.at(-1); if (order) void startRepeat(order.id); }} onDiscard={() => setDiscardDialog(true)}
+        onSend={() => { if (orderIntent.pending) void orderIntent.submit(undefined, apiRoot); else void confirm(); }} onRepeat={() => { const order = selected.orders?.at(-1); if (order) void startRepeat(order.id); }} onDiscard={() => setDiscardDialog(true)}
         bill={<><div className="ux2Settlement"><small>Falta receber</small><strong>{money(selected.exposure_cents)}</strong><small>{selected.state === "CLOSED" ? "Comanda já encerrada" : selected.exposure_cents === 0 ? "Saldo quitado" : "Saldo canônico em aberto"}</small></div><BillSummary bill={selected} compact /><section aria-label="Pedidos confirmados">{selected.orders?.map(order => <article key={order.id}><h2>Pedido #{order.id}</h2>{order.items.map(item => <div key={item.id}><p>{item.quantity}× {item.product_name} · {item.state}</p><CustomizationText snapshot={item.customization_snapshot} />{["NEW", "ACCEPTED"].includes(item.state) && !["CLOSED", "CANCELLED"].includes(selected.state) && <button className="ux2Inline" disabled={uxLocked || !fresh} onClick={() => setRemovingItem(item)}>Remover {item.product_name}</button>}</div>)}</article>)}</section>{cart.length > 0 && <div className="ux2Notice">Pedido não enviado. Envie ou descarte o rascunho antes de encerrar.<button className="ux2Inline" onClick={() => setDialogView("draft")} disabled={uxLocked}>Voltar ao pedido pendente</button></div>}{closeTabButton}</>}
       />
       {repeatReview && <RepeatOrderDialog review={repeatReview.review} enabled={repeatAllowed && repeatUnchanged} onAdd={quantities => void confirmRepeatedOrder(quantities)} onClose={() => setRepeatReview(null)} />}

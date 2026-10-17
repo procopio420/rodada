@@ -82,3 +82,19 @@ test("UX2 preserves table search without hiding a task destination or leaking ta
  await page.getByRole("button",{name:"Pedir",exact:true}).click();await page.getByRole("button",{name:"Escolher mesa ou comanda",exact:true}).click();await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("08");await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-a"]').click();
  await expect(page.getByRole("heading",{name:"Adicionar itens.",exact:true})).toBeVisible();await expect(page.getByRole("complementary",{name:"Chamado de origem"})).toHaveCount(0);expect(mutations).toBe(0);
 });
+
+test("UX2 unknown order reload verifies the original payload without duplicate or false success",async({page})=>{
+ await fixture(page,"normal",true);
+ const tab={id:"tab-test",display_label:"Marina",table_label:"08",state:"OPEN",version:1,exposure_cents:0,effective_limit_cents:20000,remaining_capacity_cents:20000,relationship_snapshot:"REGULAR",orders:[] as unknown[],payments:[]};
+ const attempts:string[]=[];let readbackFail=false;
+ await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:[{id:"table-test",label:"08",status:"OCCUPIED",active_occupancy:{id:"visit",generation:1,tabs:[tab]}}]}}));
+ await page.route(/\/api\/attendance\/tabs\/tab-test\/(\?.*)?$/,r=>r.fulfill(readbackFail?{status:503,json:{message:"Readback indisponível"}}:{json:tab}));
+ await page.route("**/api/attendance/tabs/tab-test/orders/confirm/",r=>{attempts.push(r.request().postData()!);tab.orders=[{id:"original-order",status:"CONFIRMED",confirmed_at:"2026-10-16T20:00:00Z",items:[{id:"i",product_name:"Fritas",quantity:1,state:"NEW",fulfillment_station_snapshot:"KITCHEN"}]}];return attempts.length===1?r.abort():r.fulfill({json:{id:"original-order",tab_id:tab.id}});});
+ await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-test"]').click();
+ await page.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();await page.getByRole("button",{name:"Adicionar Fritas",exact:true}).click();await page.getByRole("button",{name:/Enviar 1 item/}).click();
+ await expect(page.getByText("Envio sem confirmação",{exact:true})).toBeVisible();expect(attempts).toHaveLength(1);
+ const key="rodada.intent.staff-order.v1";const original=await page.evaluate(k=>sessionStorage.getItem(k),key);expect(original).toBeTruthy();
+ await page.reload();await expect(page.getByText("Envio sem confirmação",{exact:true})).toBeVisible();expect(attempts).toHaveLength(1);
+ readbackFail=true;await page.getByRole("button",{name:"Verificar mesmo pedido",exact:true}).click();await expect(page.getByText(/Resultado ainda não confirmado/)).toBeVisible();expect(await page.evaluate(k=>sessionStorage.getItem(k),key)).toBe(original);
+ readbackFail=false;await page.getByRole("button",{name:"Verificar mesmo pedido",exact:true}).click();await expect(page.getByText("Pedido confirmado.",{exact:true})).toBeVisible();expect(attempts).toHaveLength(3);expect(new Set(attempts).size).toBe(1);expect(await page.evaluate(k=>sessionStorage.getItem(k),key)).toBeNull();
+});
