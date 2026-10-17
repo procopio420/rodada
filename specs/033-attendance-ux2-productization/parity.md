@@ -103,3 +103,13 @@ múltiplos/caixa revogado visuais, shell Android completo, dispositivo físico,
 PSP, piloto e aceite integral continuam pendentes. Nenhum AC global foi marcado
 concluído por esse recorte. PR233 depende da pilha nativa227/228/229; PR232 da
 pilha Web224/225/230/231. Não há merge/deploy autorizado.
+
+Atualização adicional: PR2348f539af1 (fontea7298ee2) corrige páginas
+Compose com116JVM/build/lint e24/24instrumentados,18PNGs matched, três
+larguras×duasfontes. P2 de edição note-only corrigido e teste incluído.
+Fixtures continuam sem shell/API, não aceitam paridade integral. PR233CI
+AndroidPASS; forced-stop-recovery SKIPPED, portanto gate não satisfeito.
+PR232HEAD75ffdaac (fonted8b7e92a): composição224/225/230 reconciliada,
+17/17visuais e8/8financeiros reais PostgreSQL passaram após buildestável;
+falhas anteriores preservadas, CIamplo ainda pendente. Comparadores antes/
+depois em after-web/index.html e after-android/index.html no pacotePR232.
