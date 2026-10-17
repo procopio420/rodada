@@ -1,6 +1,7 @@
 "use client";
 
 import "./attendance-ux2.css";
+import Image from "next/image";
 import { currentTaskTarget, type StaffTask } from "@/lib/client/dispatch-target";
 import { OperationalIcon } from "@/components/operational-icon";
 import { tabPrimaryLabel, tabReference } from "@/lib/client/tab-identity";
@@ -184,7 +185,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     </div>;
   }
   return <main className="appShell attendanceShell ux2Shell">
-    <header className="ux2Header"><img src="/brand/wordmark.svg" alt="Rodada" width="113" height="42" /><div className="ux2Meta"><b>{session.venue.name}</b><span>{loading ? "Atualizando…" : online ? session.staff.display_name : "Desatualizado · verifique a conexão"}</span></div></header>
+    <header className="ux2Header"><Image src="/brand/wordmark.svg" alt="Rodada" width="113" height="42" /><div className="ux2Meta"><b>{session.venue.name}</b><span>{loading ? "Atualizando…" : online ? session.staff.display_name : "Desatualizado · verifique a conexão"}</span></div></header>
     <div className="ux2Content">
     {error && !selectedTable && <p className="notice" data-state="danger" role="alert">{error}</p>}{message && !selectedTable && <p className="notice" data-state="success" role="status">{message}</p>}
     {intent && !openingAt && !takeoverAt && !moving && <div className="notice" data-state="warning" role="status"><p>Verificando atendimento. A intenção original está preservada.</p><button className="buttonPrimary" disabled={busy || !online || recoveryBlocked || pendingOrder} onClick={() => void serviceCommand()}>Verificar mesma intenção</button></div>}
