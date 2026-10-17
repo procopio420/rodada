@@ -142,3 +142,34 @@ botões de largura completa em fontScale>=1.5 ou área menor que360dp; demais
 larguras dividem o espaço igualmente. Ambos mantêm mínimo48dp e todas as ações,
 sem alterar gates de autorização/freshness. Regressão exige até duas linhas,
 sem overflow e altura>=48dp. Exige novo ensaio430/font2 no SHA da correção.
+
+### Reensaio após correção de legibilidade
+
+O contexto de chamada passou a adaptar suas ações por largura/fontScale. Textos
+usam toda a área disponível, centralizados; o gate de overflow permaneceu ativo.
+O ensaio inicial dessa correção encontrou `Assumir chamada` com largura intrínseca
+240px marcada como overflow mesmo em uma linha; usar largura disponível eliminou
+a restrição sem reduzir fonte, remover ações ou relaxar a asserção.
+
+430dp/font2 foi reexecutado com clique físico Compose em Entrar visível após
+BACK condicional ao IME e scroll somente quando há ancestor rolável (teste
+`1138dc4d`). PASS: login real, filas, revogação real, atualização concorrente,
+seleção explícita em Conta, labels com até2linhas/semoverflow/botões>=48dp,
+retorno e reabertura manual sem origem. Capturas finais em `adaptive-final-w430-f2`
+no mesmo pacote de evidência; Concluir/Assumir estão legíveis em uma linha.
+Esse resultado encerra o achado visual específico, sem conceder sign-off de
+paridade integral. As outras cinco combinações pertencem ao produto9b15 e não
+foram repetidas após a adaptação visual.
+
+Preservados diagnósticos adicionais: scroll sem ancestor após cold boot,
+SystemUI ANR no AVD e API18131 encerrada durante a sessão. Só a própria API e
+AVD foram reiniciados, sem wipe/reset de banco. Tentativa OnClick semântico foi
+apenas diagnóstico, falhou sem API e não conta como PASS de UX/login. A versão
+final voltou a clique real visível. Não foram usados dados reais do bar.
+
+SHA produto final `b3a5c98c`, teste `1138dc4d`: gates finais executados
+`testDebugUnitTest assembleDebug assembleDebugAndroidTest lintDebug
+-ProdadaApiBaseUrl=http://10.0.2.2:18131/` PASS (102JVM, zero falhas). Nova
+revisão independente desse diff é responsabilidade do root, pendente neste
+handoff; revisão estática anterior não aprova automaticamente essa adaptação.
+Runtime foi liberado para o próximo agente, mantido em execução sem reset.
