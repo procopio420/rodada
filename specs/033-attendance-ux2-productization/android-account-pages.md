@@ -45,3 +45,21 @@ Três regressões JVM cobrem coleta tardia, readback suspenso com intenção B e
 A → B → A. Elas exercitam o fence usado pelo ViewModel e a sequência real
 `settleReceipt`; não constituem um ensaio completo da troca de operador na UI.
 Nova revisão independente e os gates do SHA corrigido ainda são necessários.
+
+## Evidência incremental final desta rodada
+
+Em `8991c2ba`, gates JVM/build/lint/instrumentation compile passaram (116 testes
+JVM, zero falhas; 1m19s). O runner opt-in com Django/PostgreSQL real e CASH passou
+3/3 em 20.429s: recebimento parcial, saldo zero com Close sem novo Payment, ACK
+perdido em Payment/Close com reconstrução do controller, e readback A suspenso
+atravessando `ensureLoaded(B)` com os envelopes e contexto de B preservados. O teste
+espera o Job original terminar antes de verificar B. Não é prova de force-stop.
+
+[Manifesto e logs versionados](../../docs/development/evidence/spec033-native-account/manifest.json)
+registram APKs, comandos, hashes e limites. Capturas visuais são do código visual
+`512b7edc` em 390dp/fonte1, páginas isoladas sem shell e fixture distinta do protótipo;
+não representam paridade aprovada. A matriz anterior `a35af825` passou 18/18 testes
+nas seis combinações de largura/fonte, mas antecede a correção visual. Fonte, formas
+e fundo foram aproximados da referência; diferenças operacionais e comparação da
+jornada completa ainda aguardam validação. R3 final, force-stop, aparelho físico,
+TalkBack e homologação permanecem pendentes. Nenhuma checkbox de épico foi marcada.
