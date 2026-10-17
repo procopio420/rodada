@@ -155,3 +155,14 @@ credential before locking a visit authorization. Do not rely on joined
 multiple Venues. Re-read and validate authorization after the credential lock.
 Use PostgreSQL lock-wait regression plus existing identity/claim/revocation tests;
 no schema, financial or anonymous-visit behavior change.
+
+
+## Novo plano — Cliente UX 2.0 aprovado em 16/10/2026
+
+Ver [guest-ux20-contract.md](guest-ux20-contract.md) e checklist específico em [tasks.md](tasks.md) / [acceptance.md](acceptance.md).
+
+Ordem: **A** política Venue + AccessPoint + snapshot de Tab (sem quebrar DISABLED/JOIN_ACTIVE/DIRECT); **B** drinks-only em Ficha validados na API, FG84 e fila BAR; **C** Web/PWA real 1:1 com o protótipo de duas abas; **D** regressão financeira, PostgreSQL, visual, E2E e revisão.
+
+Manter slices independentes e comportamento Mesa legado compatível. Não habilitar Ficha para clientes reais até Bar, Catálogo e proteção transacional estarem aprovados juntos. Híbrido só pode ser liberado após testar simultaneidade Mesa/Ficha no mesmo Venue e troca manual de modo com sessões ativas.
+
+Agendamento por horário/turno fica **fora do MVP**. É add-on futuro, com timezone/corte de dia de negócio e sem converter Tab aberta.
