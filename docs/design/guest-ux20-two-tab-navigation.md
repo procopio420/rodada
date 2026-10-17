@@ -1,5 +1,7 @@
 # Cliente UX 2.0 — Navegação simplificada (16/10/2026)
 
+**Contrato operacional aprovado:** [Spec 004 — Cliente Mesa/Ficha/Híbrido](../../specs/004-table-guest-ordering/guest-ux20-contract.md). Esta página registra navegação e polimento do protótipo; a Spec 004 estabelece escolha pelo QR/área, bebidas exclusivas da Ficha, mudança manual de modo e gates de implementação.
+
 ## Decisão
 
 **Remover a aba e o conceito de página “Agora” da experiência Cliente.** Ela é útil para a operação do garçom, mas desnecessária no celular de quem consome.
@@ -80,3 +82,13 @@ Testes de DOM simulado cobrem mesa livre → catálogo → pedido **sem sair do 
 - **Gate aberto:** screenshots reais ainda não foram gerados sobre a versão atual; revisar arquivos e ajustar eventuais falhas antes de declarar pixel-perfect. O teste comportamental não substitui renderização ou validação no aparelho Android.
 
 **Resultado:** referência de UX do protótipo polida e testada por comportamento; validação visual pixel-perfect ainda pendente.
+
+## Decisão adicional — Ficha e Híbrido (16/10/2026)
+
+- Venue configura MESA, FICHA ou HIBRIDO no Manage. Guest **não vê seletor** de experiência.
+- Em HIBRIDO, QR Table abre Mesa (bebida/comida/entrega); QR BAR_PICKUP abre Ficha (somente bebidas/retirada). Não reaproveitar QR de Table como Ficha.
+- Ficha exibe FG84 e bartender confere visualmente código + itens. Nenhuma confirmação compulsória da retirada.
+- Alterações de modo manualmente configuradas pelo gerente afetam **novas sessões**, não Tabs abertas. Automatização por horário fica no roadmap.
+- **Ajuste pendente no protótipo ilustrativo:** a filtragem visual do catálogo Ficha ainda precisa refletir integralmente bebidas-only. O backend real deve validar independentemente, conforme contrato canônico. Não usar protótipo sozinho como aprovação técnica dessa regra.
+
+**Fechamento de UX:** decisões de navegação, componentes e regras de experiência congeladas. Fechamento de produto/produção depende dos gates em Spec 004, acceptance.md.
