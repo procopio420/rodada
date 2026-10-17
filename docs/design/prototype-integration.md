@@ -43,3 +43,7 @@ O [plano de implementação](../architecture/full-product-implementation-plan.md
 ## Próxima entrega — paridade visual atualizada
 
 O [plano pixel-perfect](pixel-perfect-implementation-plan.md) e a [Spec 023](../../specs/023-updated-prototype-visual-parity/spec.md) definem como alcançar fidelidade por tela/estado aos exports atualizados. A integração de tema/componentes não equivale a paridade completa; implementação e novos gates permanecem pendentes.
+
+## Caixa 2.0 — especificação de UX operacional (17/10/2026)
+
+A experiência do Caixa 2.0 é descrita em [Caixa 2.0 — contrato de UX operacional](caixa-ux2-operational-ux.md) e implementada como **protótipo, não no Caixa publicado**, em [HTML navegável](../../prototype/caixa-ux2/index.html). O contrato detalha **Receber**, **Turno de caixa** e **Atividade** e mantém a linguagem **Retirar dinheiro (Sangria)** e **Adicionar dinheiro (Suprimento)**, seus efeitos na gaveta, prevenção de cobranças duplicadas, erros, contagem cega, revisão gerencial, responsividade e aceite. Regras canônicas financeiras continuam na [Spec 012](../../specs/012-cash-management/spec.md). Os 17 testes do protótipo não provam prontidão para produção.
