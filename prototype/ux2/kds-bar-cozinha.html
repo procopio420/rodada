@@ -67,8 +67,102 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .status .tinybutton{margin-left:8px;border:1px solid currentColor;color:inherit;background:transparent;min-height:44px;padding:7px 10px}
 .surface.large-text .lineTitle{font-size:23px}.surface.large-text .dest{font-size:27px}.surface.large-text .meta,.surface.large-text .phase{font-size:16px}.surface.large-text .actions button{font-size:17px;min-height:56px}.surface.large-text .note{font-size:16px}.surface.large-text .ticketgrid{gap:16px}
 @media(max-width:679px){.toast{bottom:90px}}
+
+/* UX 2.0 · visual polish: faster scanning, quiet chrome, stronger task contrast. */
+body{background:#0c0a08;-webkit-font-smoothing:antialiased}
+.controls{padding:9px 14px;background:#15110e;column-gap:12px}
+.ctrlgroup{gap:4px}.ctrlgroup>span{font-size:12px;color:#a89a87;letter-spacing:.02em}
+.control{border-radius:8px;background:#251e18;border-color:#403629;color:#cfc2b0;transition:background-color .12s ease,border-color .12s ease,color .12s ease}
+.control:hover{background:#33291f;border-color:#776047}.control.active:hover{background:#fff7eb}
+.demoTools{border-top-color:#30271e}.demoTools summary{min-height:40px;letter-spacing:0;color:#ac9d89}
+.demoTools summary:hover{color:#f3ece1}
+.stage{padding:12px;background:radial-gradient(ellipse at top,#18120c 0%,#0c0a08 65%)}
+.surface{border-color:#554938;border-radius:13px;box-shadow:0 18px 45px #0008}
+.head{background:#191511;padding:12px 18px;border-bottom-color:#393025}
+.wordmark{font-size:22px;letter-spacing:-1.1px}.heading{gap:14px}.sub{font-size:10px;color:#ae9d87;letter-spacing:.11em}
+.station{font-size:23px;letter-spacing:-.035em;line-height:1.13}
+.connection-indicator{gap:7px;color:#abd5a0}
+.connection-indicator::before{content:'';height:7px;width:7px;border-radius:50%;background:#8dcc85;box-shadow:0 0 0 3px #8dcc8518}
+.connection-indicator.offline::before{background:#ff8068;box-shadow:0 0 0 3px #ff80681a}
+.summary{background:#392e23}.summary>div{padding:12px 17px;background:#191511;gap:12px}
+.summary strong{font-size:27px;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.summary span{color:#b7a994;font-size:12px}
+.mainnav{padding:0 15px;gap:6px;background:#191511}
+.mainnav button{display:flex;align-items:center;gap:8px;white-space:nowrap;padding:12px 13px;min-height:48px;border-bottom-width:2px;transition:color .12s ease,background .12s ease}
+.mainnav button:hover,.bottombar button:hover{color:#fff5e7;background:#292118}
+.mainnav button.active{color:#fff2e0;border-bottom-color:#f5a524}
+.nav-glyph{font-size:15px;color:#c0aa8b}.active>.nav-glyph{color:#f5a524}
+.nav-compact{display:none}.nav-count{font-size:11px;font-weight:900;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:6px;padding:0 5px;background:#3c3023;color:#f8d3a0}
+.active .nav-count{background:#563c1d;color:#ffe3b4}
+.work{padding:18px 18px 24px}
+.sect{margin-bottom:15px;align-items:baseline}.sect strong{font-size:15px;letter-spacing:0;font-weight:850}.sect small{font-size:12px;color:#a89c8a}
+.ticketgrid,.passgrid,.expGrid{gap:14px}
+.ticket{background:#1c1713;border:1px solid #473b30;border-left:4px solid #625446;border-radius:10px;box-shadow:0 2px 8px #0002;transition:border-color .12s ease,background-color .12s ease}
+.ticket.urgent{border-left-color:#dba050}.ticket.overdue{border-left-color:#ed8066}
+.ticket.allergen{border-top:3px solid #ec927f}
+.ticket.new{box-shadow:inset 0 0 0 1px #dfa448,0 2px 8px #0003}
+.ticket.changed{box-shadow:inset 0 0 0 2px #e8aa75,0 3px 11px #0003}
+.thead{padding:13px 14px 12px;background:#211a15;border-bottom-color:#433529}
+.dest{font-size:23px;letter-spacing:-.04em;line-height:1.08}.time{font-size:14px;color:#dfb56c;letter-spacing:-.02em}.time.late{color:#ff9b86}
+.thead .meta{font-size:12px;color:#bcae9c;margin-top:6px}
+.chip{font-size:10px;letter-spacing:.035em;border-radius:5px;padding:4px 7px;margin-top:8px}
+.chip.overdue-tag{background:#503029;color:#ffc7b7}.chip.new{background:#45351d;color:#ffe4b2}
+.line{padding:13px 14px 14px;border-bottom-color:#383026}
+.lineTitle{font-size:17px;letter-spacing:-.01em;line-height:1.32}
+.lineTitle + .phase{margin-top:7px}.phase{margin-top:7px;color:#b9aa95;font-size:12px}.phase.good{color:#a7d49e}
+.note{font-size:13px;line-height:1.4;letter-spacing:.005em;color:#ffbf99;margin-top:8px}
+.note.allergy,.note.blocked,.note.change{line-height:1.48}
+.actions{gap:8px;margin-top:12px}.actions button{border-radius:8px;min-height:48px;font-size:13px;transition:background-color .12s ease,border-color .12s ease,transform .1s ease}
+.actions button:not(:disabled):active,.more-content button:not(:disabled):active{transform:translateY(1px)}
+.actions button.primary{background:#f3ece1;border-color:#d8c7ad;color:#19140f;box-shadow:0 1px 0 #fff3e9 inset}
+.actions button.primary:hover{background:#fff7eb;border-color:#f8dfbb}
+.actions button.secondary{background:#30271e;border-color:#5d4d3b;color:#f2e8db}
+.actions button.secondary:hover{background:#403225;border-color:#8c6e48}
+.actions button.quiet{border-color:#493b2f;background:transparent;color:#c1b3a0}
+.ticketfoot{padding:6px 12px 8px;background:#1b1713}
+.ticketfoot .more{width:100%}
+.more summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;background:transparent;border:1px solid transparent;color:#bdab92;padding:8px 4px;font-size:12px;border-radius:6px;letter-spacing:0}
+.more summary:hover{color:#fff2df;background:#2b221b;border-color:#443526}
+.more[open] summary{color:#f5c88b;border-color:#7c5b37;background:#31261b}
+.disclosure-caret{font-size:18px;font-weight:700;line-height:1;transition:transform .14s ease;display:inline-block}
+.more[open] .disclosure-caret{transform:rotate(180deg)}
+.more-content{padding-bottom:5px}
+.more-content button{border-radius:7px}
+.passcard,.expCard,.allDayRow{border-radius:10px;box-shadow:0 2px 8px #0002}
+.passcard{background:#201a15;border-color:#514738;padding:16px}
+.passcard.old{background:#30221b}
+.passcard h3{font-size:23px;letter-spacing:-.03em}.passcard .green{letter-spacing:.03em}
+.passcard p{line-height:1.52}
+.expCard{background:#1c1713;padding:17px}.expCard h3{letter-spacing:-.03em}
+.expRow{line-height:1.45}.nextStep{font-weight:850}
+.allDayRow{background:#201a14;padding:16px}
+.bottombar{gap:3px;padding-inline:6px;background:#191511;border-top-color:#4a3927}
+.bottombar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;line-height:1.12;font-size:11px;padding:7px 2px;white-space:normal}
+.bottombar button.active{background:#35281c;color:#ffe0aa}
+.bottombar .nav-glyph{font-size:18px}.bottombar .nav-full{display:none}.bottombar .nav-compact{display:inline}
+.bottombar .nav-count{position:absolute;transform:translate(22px,-15px);height:17px;min-width:17px;font-size:10px;padding:0 3px;border-radius:5px}
+.bottombar button{position:relative}
+.status{border-radius:8px;padding:11px 13px;margin:9px 16px 0;line-height:1.45}
+.status .tinybutton{border-radius:7px;font-weight:850}
+.notice-banner{background:#3c2a1c!important;border-color:#a97c3e!important;color:#ffe0ad!important}
+.passfilter,.pass-archive{border-radius:9px}
+.settings{border-radius:10px}
+.empty{background:#1a1510}
+.modal{background:#231c16;border-color:#78604a;border-radius:13px;box-shadow:0 20px 65px #000b}
+.modal h3{letter-spacing:-.02em}.modal .line{border-bottom-color:#44352b}
+.footnote{background:#15110e;color:#a59682}
+@container station (max-width:679px){
+ .head{padding:12px 13px}.wordmark{font-size:18px}.station{font-size:20px}.heading{gap:10px}
+ .summary>div{padding:11px 9px}.summary strong{font-size:24px}.summary span{font-size:11px}
+ .work{padding:13px 12px 20px}.sect{display:grid;gap:2px}.sect small{font-size:12px}
+ .ticketgrid,.passgrid,.expGrid{gap:12px}.thead{padding:13px 13px 11px}.dest{font-size:23px}
+ .line{padding:12px 13px}.actions button{min-height:52px;font-size:14px}
+ .ticketfoot{padding:3px 12px 6px}
+ .bottombar{padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+}
+@media(prefers-reduced-motion:reduce){.disclosure-caret{transition:none}.actions button{transition:none}}
+
 </style></head><body>
-<div id="app"><div class="controls"><div class="ctrlgroup"><span>Dispositivo</span><button class="control active" data-device="mobile">Celular</button><button class="control" data-device="tablet">Tablet</button><button class="control" data-device="desktop">Desktop</button></div><div class="ctrlgroup"><span>Estação</span><button class="control active" data-station="BAR">Bar</button><button class="control" data-station="KITCHEN">Cozinha</button></div><details class="demoTools"><summary>▸ Ferramentas de simulação (fora da operação)</summary><div class="demoActions"><button class="control" data-act="new">+ Pedido de teste</button><button class="control" data-act="simulateChange">+ Alteração/cancelamento recebido</button><button class="control" data-act="connection">Alternar rede simulada</button><button class="control" data-scenario="peak">Simular pico · 30</button><button class="control" data-reset="1">↻ Reiniciar</button></div></details></div><div class="stage" id="stage"><div class="holder" id="holder"><div class="surface mobile" id="surface"><header class="head"><div class="heading"><div class="wordmark">rodada<span>.</span></div><div class="divider"></div><div><div class="sub">PRODUÇÃO 2.0</div><div class="station" id="stationTitle">Bar</div></div></div><div class="headtools"><span class="round">22:57</span><span id="connectionBtn" class="connection-indicator" role="status">● Online</span></div></header><div class="summary" id="summary"></div><nav class="mainnav" id="nav"></nav><div id="alerts"></div><main class="work" id="work"></main><nav class="bottombar" id="bottom"></nav><footer class="footnote">Protótipo navegável · dados fictícios. Transições, alertas e operações de correção são simulações; não há conexão com a API.</footer><div id="modalHost"></div></div></div></div></div><div class="toast" id="toast" hidden role="status"></div></div>
+<div id="app"><div class="controls"><div class="ctrlgroup"><span>Dispositivo</span><button class="control active" data-device="mobile">Celular</button><button class="control" data-device="tablet">Tablet</button><button class="control" data-device="desktop">Desktop</button></div><div class="ctrlgroup"><span>Estação</span><button class="control active" data-station="BAR">Bar</button><button class="control" data-station="KITCHEN">Cozinha</button></div><details class="demoTools"><summary>▸ Ferramentas de simulação (fora da operação)</summary><div class="demoActions"><button class="control" data-act="new">+ Pedido de teste</button><button class="control" data-act="simulateChange">+ Alteração/cancelamento recebido</button><button class="control" data-act="connection">Alternar rede simulada</button><button class="control" data-scenario="peak">Simular pico · 30</button><button class="control" data-reset="1">↻ Reiniciar</button></div></details></div><div class="stage" id="stage"><div class="holder" id="holder"><div class="surface mobile" id="surface"><header class="head"><div class="heading"><div class="wordmark">rodada<span>.</span></div><div class="divider"></div><div><div class="sub">PRODUÇÃO</div><div class="station" id="stationTitle">Bar</div></div></div><div class="headtools"><span class="round">22:57</span><span id="connectionBtn" class="connection-indicator" role="status">● Online</span></div></header><div class="summary" id="summary"></div><nav class="mainnav" id="nav"></nav><div id="alerts"></div><main class="work" id="work"></main><nav class="bottombar" id="bottom"></nav><footer class="footnote">Protótipo navegável · dados fictícios. Transições, alertas e operações de correção são simulações; não há conexão com a API.</footer><div id="modalHost"></div></div></div></div></div><div class="toast" id="toast" hidden role="status"></div></div>
 <script>
 (function(){'use strict';
 const root=document.getElementById('app'),stage=document.getElementById('stage'),holder=document.getElementById('holder'),surface=document.getElementById('surface'),work=document.getElementById('work');
@@ -115,10 +209,10 @@ function ticket(o){
  ${i.note?`<div class="note">⚑ ${esc(i.note)}</div>`:''}${i.correction?`<span class="chip remake">${esc(i.correction)}</span>`:''}
  ${i.blocked?'<div class="note blocked" role="alert">⛔ PREPARO SUSPENSO · aguardando responsável. Não preparar ou entregar até reavaliar.</div>':''}
  ${i.pendingCorrection?`<div class="note change">⌛ Correção de ${i.pendingCorrection.qty} unidade(s) solicitada · aguardando gerente</div>`:''}
- <div class="phase ${i.ready?'good':''}">${i.ready?i.ready+' unidade(s) pronta(s) · ':''}${i.phase==='making'?'Em preparo':'Aguardando preparo'}</div>
- <div class="actions"><button class="primary" data-act="${i.blocked||i.allergy&&!i.allergyAcknowledged?'ackallergy':'ready'}" data-id="${esc(i.id)}" ${disabled()}>${i.blocked?'⛔ Reavaliar com responsável':i.allergy&&!i.allergyAcknowledged?'⚠ Conferir alergia':remaining(i)>1?'✓ Pronto · todos':'✓ Pronto'}</button>
- ${remaining(i)>1&&!i.allergy?`<button class="secondary" data-act="one" data-id="${esc(i.id)}" ${disabled()}>1 pronto</button>`:''}</div></div>`).join('')}
- <div class="ticketfoot">${o.notice?.active?`<button class="attention-button" data-act="reviewChange" data-order="${esc(o.id)}">⚠ Revisar alteração recebida</button>`:''}<details class="more"><summary aria-label="Mais ações do pedido ${esc(o.id)}">⋯ Mais ações</summary><div class="more-content">
+ <div class="phase ${i.ready?'good':''}">${i.ready?i.ready+' de '+(i.qty-i.cancelled)+' prontos · ':''}${i.phase==='making'?'Em preparo':'Aguardando'}</div>
+ <div class="actions"><button class="primary" data-act="${i.blocked||i.allergy&&!i.allergyAcknowledged?'ackallergy':'ready'}" data-id="${esc(i.id)}" ${disabled()}>${i.blocked?'⛔ Reavaliar com responsável':i.allergy&&!i.allergyAcknowledged?'⚠ Conferir alergia':remaining(i)>1?'✓ '+remaining(i)+' prontos':'✓ Marcar pronto'}</button>
+ ${remaining(i)>1&&!i.allergy?`<button class="secondary" data-act="one" data-id="${esc(i.id)}" ${disabled()}>✓ 1 pronto</button>`:''}</div></div>`).join('')}
+ <div class="ticketfoot">${o.notice?.active?`<button class="attention-button" data-act="reviewChange" data-order="${esc(o.id)}">⚠ Revisar alteração recebida</button>`:''}<details class="more"><summary aria-label="Mais ações do pedido ${esc(o.id)}"><span>Outras ações</span><span class="disclosure-caret" aria-hidden="true">⌄</span></summary><div class="more-content">
  <button data-act="priority" data-order="${esc(o.id)}" ${disabled()}>${o.urgent?'Retirar destaque':'⚡ Destacar pedido'}</button>
  <button data-act="print" data-order="${esc(o.id)}">Imprimir ticket</button><button data-act="correct" data-order="${esc(o.id)}">Corrigir / refazer</button>
  ${its.some(i=>i.phase==='new')?`<button data-act="startall" data-order="${esc(o.id)}" ${disabled()}>Marcar em preparo</button>`:''}
@@ -127,12 +221,12 @@ function ticket(o){
 }
 function passCard(o,old){const its=localItems(o).filter(i=>passqty(i)>0&&isOld(i)===old);if(!its.length)return '';
  return `<article class="passcard ${old?'old':''}" data-pass-order="${esc(o.id)}"><div class="green">${old?'⚠ AGUARDANDO HÁ MAIS TEMPO':'● PRONTO PARA SAÍDA'}</div><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div><p>${its.map(i=>`${passqty(i)}× ${esc(i.name)}${i.note?` · ${esc(i.note)}`:''}${i.allergy?' · ALERGIA':''}`).join('<br>')}</p>
- <div class="actions">${its.map(i=>`<button class="secondary" data-act="pickup" data-id="${esc(i.id)}" ${disabled()}>Registrar retirada · ${esc(i.name)}</button>`).join('')}<button class="quiet" data-act="correct" data-order="${esc(o.id)}">Exceção</button></div></article>`;
+ <div class="actions">${its.map(i=>`<button class="secondary" data-act="pickup" data-id="${esc(i.id)}" ${disabled()}>Retirada · ${esc(i.name)}</button>`).join('')}<button class="quiet" data-act="correct" data-order="${esc(o.id)}">Exceção</button></div></article>`;
 }
-function nav(){let names=[['queue','▤ Pedidos'],['ready','✓ Passe'],['all','▦ Resumo por produto'],['settings','⚙ Ajustes']];if(station==='KITCHEN'&&mode==='expedite')names.splice(2,0,['expedite','↗ Expedição']);let h=names.map(([v,n])=>`<button data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${n}${v==='ready'?' ('+readyUnits()+')':''}${v==='queue'&&unseen().length?' · '+unseen().length+' novo(s)':''}</button>`).join('');document.getElementById('nav').innerHTML=h;document.getElementById('bottom').innerHTML=h}
+function nav(){let names=[['queue','▤ Pedidos'],['ready','✓ Passe'],['all','▦ Resumo por produto'],['settings','⚙ Ajustes']];if(station==='KITCHEN'&&mode==='expedite')names.splice(2,0,['expedite','↗ Expedição']);let h=names.map(([v,n])=>{const icon=n.split(' ')[0],plain=n.slice(icon.length+1),short=v==='all'?'Produtos':v==='settings'?'Ajustes':v==='expedite'?'Expedição':v==='queue'?'Pedidos':'Passe';const count=v==='ready'?readyUnits():v==='queue'?unseen().length:0;const suffix=count?' <span class="nav-count" aria-label="'+(v==='ready'?'unidades prontas':'avisos pendentes')+'">'+count+'</span>':'';return `<button data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''} aria-label="${esc(plain)}${count?' · '+count+' pendentes':''}"><span class="nav-glyph" aria-hidden="true">${icon}</span><span class="nav-full">${esc(plain)}</span><span class="nav-compact">${esc(short)}</span>${suffix}</button>`}).join('');document.getElementById('nav').innerHTML=h;document.getElementById('bottom').innerHTML=h}
 function content(){
  if(view==='queue'){
- const list=fresh();work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Pedidos para produzir</strong><small>${list.length} tickets · ordem de chegada estável</small></div>`+
+ const list=fresh();work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Pedidos para preparar</strong><small>${list.length} tickets · mais antigos primeiro</small></div>`+
  (list.length?`<div class="ticketgrid">${list.map(ticket).join('')}</div>`:'<div class="empty">✓ Tudo em dia. Nenhum pedido aguardando preparo.</div>')+
  `${station==='KITCHEN'?`<div class="tools"><button data-act="mode">${mode==='simple'?'Ativar expedição':'Desativar expedição'}</button></div>`:''}`;return;
  }
@@ -185,7 +279,7 @@ function render({resetScroll=false,focus=null}={}){
  surface.className='surface '+device+(largeText?' large-text':'');document.getElementById('stationTitle').textContent=station==='BAR'?'Bar':'Cozinha';document.getElementById('connectionBtn').textContent=online?'● Online':'● Offline';document.getElementById('connectionBtn').classList.toggle('offline',!online);
  document.getElementById('summary').innerHTML=[['Pedidos na fila',fresh().length],['Em preparo',activeCount()],['Prontos recentes',readyUnits()]].map(([label,n])=>`<div><strong>${n}</strong><span>${label}</span></div>`).join('');nav();
  document.getElementById('alerts').innerHTML=
- (unseen().length?`<div class="status notice-banner" role="status">● ${unseen().filter(o=>o.isNew).length} pedido(s) novo(s) · ${unseen().filter(o=>o.notice?.active).length} alteração(ões) pendente(s) na ${station==='BAR'?'área do Bar':'Cozinha'}. <button class="tinybutton" data-act="jumpNew">Ver na fila</button></div>`:'')+
+ (unseen().length?`<div class="status notice-banner" role="status">● ${unseen().filter(o=>o.isNew).length} pedido(s) novo(s) · ${unseen().filter(o=>o.notice?.active).length} alteração(ões) pendente(s) na ${station==='BAR'?'área do Bar':'Cozinha'}. <button class="tinybutton" data-act="jumpNew">Ver pedidos →</button></div>`:'')+
  (localItemsBlocked().length?`<div class="status danger" role="alert">⛔ ${localItemsBlocked().length} item(ns) com preparo suspenso por segurança. Acione o responsável antes de retomar.</div>`:'')+
  (!online?'<div class="status danger" role="alert">Sem conexão. Últimos dados conhecidos; não concluir nem corrigir itens. Reconecte e consulte o estado atualizado.</div>':'')+
  (fresh().some(o=>localItems(o).some(i=>i.allergy&&!i.allergyAcknowledged&&!i.blocked))?'<div class="status" role="status">⚠ Restrições alimentares a conferir antes de preparar e liberar.</div>':'');
