@@ -89,7 +89,9 @@ class ReceiptSettlementTest {
         val valid = detail()
         val invalid = listOf(valid.copy(summary = valid.summary.copy(id = "foreign")),
             valid.copy(payments = valid.payments.map { it.copy(status = "PENDING") }),
-            valid.copy(payments = valid.payments.map { it.copy(simulated = true) }))
+            valid.copy(payments = valid.payments.map { it.copy(simulated = true) }),
+            valid.copy(payments = valid.payments.map { it.copy(amountCents = 1) }),
+            valid.copy(payments = valid.payments.map { it.copy(method = "PIX") }))
         invalid.forEach { snapshot ->
             var closed = false
             try { settleReceipt(intent, { "payment" }, {}, { snapshot }, { closed = true }, {}); fail() }

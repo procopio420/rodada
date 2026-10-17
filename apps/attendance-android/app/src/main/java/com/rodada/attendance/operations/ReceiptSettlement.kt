@@ -19,7 +19,7 @@ internal suspend fun settleReceipt(
     }
     var detail = read(original.tabId)
     check(detail.summary.id == original.tabId) { "Comanda recebida não corresponde à intenção original." }
-    check(detail.payments.any { it.id == confirmed.confirmedPaymentId && !it.simulated && it.status == "CONFIRMED" }) {
+    check(detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
         "Recebimento ainda não confirmado no histórico canônico."
     }
     observed(detail)
@@ -30,7 +30,14 @@ internal suspend fun settleReceipt(
         close(original.tabId)
         detail = read(original.tabId)
         observed(detail)
-        check(detail.summary.state == "CLOSED") { "Recebido; encerramento ainda não confirmado." }
+        check(detail.summary.id == original.tabId && detail.summary.state == "CLOSED" && detail.summary.exposureCents == 0L &&
+            detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
+            "Recebido; encerramento ainda não confirmado."
+        }
     }
     return detail
 }
+
+internal fun receiptMatches(original: RecoveryIntent.StartPayment, paymentId: String?, payment: TabPayment): Boolean =
+    payment.id == paymentId && !payment.simulated && payment.status == "CONFIRMED" &&
+        payment.amountCents == original.amountCents && payment.method == original.method.apiValue

@@ -811,7 +811,7 @@ class OperationsViewModel(
         viewModelScope.launch {
             runCatching {
                 val detail = repository.tabDetail(session, original.tabId)
-                check(detail.payments.any { it.id == original.confirmedPaymentId && !it.simulated && it.status == "CONFIRMED" })
+                check(detail.summary.id == original.tabId && detail.payments.any { receiptMatches(original, original.confirmedPaymentId, it) })
                 replaceDetail(detail)
                 pendingMutationIntentStore.remove(original.id)
                 state = state.copy(pendingPayment = null, paymentIntentId = null,
