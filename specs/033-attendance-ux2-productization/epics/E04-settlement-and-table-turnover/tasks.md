@@ -13,3 +13,16 @@
 - [ ] **E04-09 Gate:** AC-12..16 PASS, revisão independente R3 financeira, nenhum débito/recebimento duplicado. Não ativar cartão Tap to Pay sem homologação.
 
 **PRs sugeridas:** E04-a UI Bill/readback, E04-b pagamento/close recovery, E04-c ocupação e limpeza native/Web.
+
+## Evidência incremental — 2026-10-17 (não equivale a aceite)
+
+| Subtarefa | Estado verificável | Evidência / gate restante |
+|---|---|---|
+| E04-03 Partial | Web implementado e teste real executado | PR225;500+1500 em CASH, ledger2000, duas Payments. Compose/paridade e R3 final pendentes. |
+| E04-04 Full+close | Sequência recuperável implementada | PR225; PaymentACK perdido, Close503/ACK perdido, reload/readback, sem cobrança extra. Revisão independente encontrou bloqueio concorrente, corrigido; rereview pendente. |
+| E04-06 Mesa | Web exige início e fim reais de limpeza | commit813bcda3; teste PG PASS com autoria e released_at<=cleaning_started_at<=ready_at. Release/Guest e Compose ainda requerem jornada conjunta. |
+| E04-07 Timeouts | Cobertura parcial real | Capability negada, replay e consumo concorrente passam em PostgreSQL; não comprova todos os cenários dessa tarefa. |
+| E04-08/09 | Em andamento | PRs224/225 draft; nenhum gate de piloto ou aceite integral. |
+
+IDs desta tabela são os detalhados deste épico; a checklist agregada possui outra
+granularidade. Nenhuma caixa foi marcada com base apenas em código.
