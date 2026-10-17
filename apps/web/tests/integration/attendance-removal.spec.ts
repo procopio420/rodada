@@ -15,7 +15,7 @@ test("Attendance cancels a confirmed unpaid item through canonical financial rev
  await page.getByRole("button", { name: /^Enviar / }).click();
  await page.locator(".ux2Workspace").getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
  await expect(page.getByRole("region", { name: "Pedidos confirmados" })).toContainText("3× Kitchen E2E item");
- await expect(page.getByText("Novo", { exact: true })).toBeVisible();
+ await expect(page.getByRole("region", { name: "Pedidos confirmados" }).getByText("3× Kitchen E2E item · Novo", { exact: true })).toBeVisible();
  await page.getByRole("button", { name: /^Remover / }).click();
  await expect(page.getByRole("group", { name: "Quantidade a remover" }).locator("output")).toHaveText("1");
  await page.getByLabel("Motivo da remoção").selectOption("WRONG_ITEM_ENTERED");

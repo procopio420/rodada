@@ -35,7 +35,7 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
  const firstPage = (await read(page,"tabs/")).results; expect(firstPage.some((t: {id:string}) => t.id === a.id || t.id === b.id)).toBe(false);
  await page.getByLabel("Buscar mesa ou comanda").fill("mesa patio 24");
  await page.getByRole("button", {name:/^Mesa Pátio 24/}).click();
- for (const [index,width] of [360,390,430].entries()) {
+ for (const width of [360,390,430]) {
   await page.setViewportSize({width,height:900});
   await page.locator(`button[data-tab-id="${a.id}"]`).click();
   await expect(page.locator(".ux2Workspace")).toBeVisible();
