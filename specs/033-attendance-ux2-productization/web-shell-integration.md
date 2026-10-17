@@ -43,3 +43,13 @@ A execução inicial de 36 teve 28 PASS/8 FAIL, corrigidas nesta rodada dirigida
 a suíte ampla e o CI do novo commit ainda precisam rodar. Paridade integral Web/
 Android, acessibilidade e homologação continuam pendentes. Nenhuma task ou AC
 integralmente aceita apenas por estes testes.
+
+### Recuperação em páginas completas
+
+E02-04/05,E06-02: helper passa pela página Comanda→Adicionar itens; catálogo usa
+quantidade direta e resumo opcional. Três testes existentes de perda de ACK
+foram migrados sem remover doubleclick/reload/mesmo payload/Order/ledger;
+390 também retoma pelo POS para validar a intenção original entre superfícies.
+Resultado real PG55638:3PASS/29,6s,360/390/430. A primeira tentativa falhou por
+label de busca antigo; o seletor final usa Buscar produto. Typecheck/ESLint dos
+arquivos modificados PASS. Testes amplos remanescentes em migração, CI nãoaceito.
