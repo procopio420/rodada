@@ -145,7 +145,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
       selectedReadEpoch.current++;
       setSelected(detail.body as Tab); setOrderFresh(true); setTabCollapsed(false);
       if (origin === "draft") setDrafts(current => ({ ...current, [tabId]: [] }));
-      setSuccess("Pedido confirmado."); setMessage("");
+      setSuccess("Pedido confirmado."); setMessage(""); setDraftFeedback("");
       if (presentation === "ux2") setDialogView("tab");
     };
   });
@@ -161,9 +161,10 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     }).catch(() => { if (active) setMessage("Não foi possível consultar a comanda original. Verifique a mesma intenção."); });
     return () => { active = false; };
   }, [presentation, orderIntent.pending, selected?.id]);
-  const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); setDialogView("draft"); } onRecoveryNeeded?.(); });
+  const revealRecoveredDraft = useEffectEvent(() => { if (tableMode) { setDialogOpen(true); setStandaloneCreate(false); setDialogView(presentation === "ux2" ? "tab" : "draft"); } onRecoveryNeeded?.(); });
   useEffect(() => { onPendingChange?.(!orderIntent.ready || orderIntent.busy || !!orderIntent.pending || correctionPending || cashPending || selecting || opening || repeatLoading || !!repeatReview); }, [confirming, orderIntent.pending, orderIntent.busy, orderIntent.ready, correctionPending, cashPending, selecting, opening, repeatLoading, repeatReview, onPendingChange]);
-  useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) queueMicrotask(() => revealRecoveredDraft()); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
+  const revealPendingOrder = useEffectEvent(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) revealRecoveredDraft(); });
+  useEffect(() => { if ((!orderIntent.ready && orderIntent.message) || orderIntent.pending) queueMicrotask(() => revealPendingOrder()); }, [orderIntent.ready, orderIntent.message, orderIntent.pending, selected, onRecoveryNeeded]);
   useEffect(() => {
     if (!recoveryKey) return;
     let active = true;
