@@ -65,3 +65,23 @@ E01-03/04/05, E02-03/04/05, E03-03/05, E06-02/03/06 continuam parciais.
 Estas evidências não aceitam um épico completo. PRs permanecem abertas; sem
 merge/deploy. Aparelho físico, TalkBack, paridade integral, reinício completo e
 piloto seguem gates. Findings novos são corrigidos antes de fechar cada slice.
+
+### Evidência adicional — composição real e páginas nativas
+
+- PR224 `e0b15b1b`: três recuperações staff reais360/390/430 PASS, incluindo
+  retorno pelo POS em390; mesmo payload/Order/ledger e envelope limpo.
+- PR225 `ca7a7817`: composição relida por revisor independente R3 sem novos
+  findings; três testes financeiros reais PASS24,1s. Regressão ampla pendente.
+- PR229 `16bcd521` / produto `fa1a859f`: novo ensaio real lostACK da rodada
+  vazia PASS14,525s. Assertions automáticas conferem Tab/UUID/OrderID/hash em
+  eventos e replay; notice Enviando antigo suprimido no pending, R2/R3 relidos.
+  102JVM/build/lint PASS. Seis casos Compose em cada combinação360/390/430 e
+  fonte1/2 PASS; esta matriz usa fixture e não prova backend nas seis combinações.
+- PR227/228/229 são drafts encadeados, sem merge/deploy. E04 nativo agora em
+  implementação independente: pagamentos/limpeza existentes reutilizados, nova
+  sequência persistida Payment→Close e páginas aprovadas ainda sem aceite real.
+
+Evidência versionada em PR229: docs/development/evidence/spec033-native-repeat/
+final-assertions. MainActivity/reinício, dispositivo, TalkBack, comparações
+pareadas de todas telas, regressão ampla e piloto continuam gates. Nenhum
+checkbox de épico/AC foi fechado por essa evidência parcial.
