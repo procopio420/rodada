@@ -219,7 +219,7 @@ internal fun Ux2TabPages(
 }
 
 @Composable
-private fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> Unit, enabled: Boolean, compact: Boolean = false) {
+internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> Unit, enabled: Boolean, compact: Boolean = false) {
     val limit = summary.effectiveLimitCents
     val excess = (summary.exposureCents + draftCents - limit).coerceAtLeast(0)
     val warning = summary.limitWarning || (limit > 0 && summary.exposureCents + draftCents >= limit * .8)
