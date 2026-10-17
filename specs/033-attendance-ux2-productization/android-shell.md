@@ -22,6 +22,11 @@ repositórios reais. Abrir linha não assume nem conclui tarefa.
   UNAVAILABLE e target ausente/desconhecido não inferem Tab de destination_label.
 - BILL abre Conta da Tab autorizada; SERVICE abre contexto da Tab; READY abre
   detalhe do item, quantidade, estação e destino. Nenhuma mutation ao abrir.
+- Cada abertura reconsulta `GET /dispatch/tasks/{id}/` e valida ID, tipo, estado
+  e target canônico; READY exige item ainda READY. A seleção explícita após
+  fallback TABLE reconsulta a chamada e a ocupação/generation antes de abrir.
+  Contexto de chamada e ações continuam disponíveis nessa Tab escolhida, com
+  Conta como seção inicial para BILL. Navegação manual limpa a origem da tarefa.
 - Recuperação original permanece acessível. Conta/Atualizar/Pico/Caixa existentes
   continuam acessíveis em menu operacional na área meta do header. Essa adaptação
   necessária ao app real é diferença intencional proposta, sem aprovação implícita;
@@ -34,3 +39,20 @@ repositórios reais. Abrir linha não assume nem conclui tarefa.
 Não altera motores de pedidos, pagamentos, recovery, políticas nem autenticação.
 Home da comanda, catálogo, resumo/pedido e Mesas ficam nos próximos recortes;
 não apresentar shell como paridade integral.
+
+## Revisão independente — primeira passagem
+
+`646bb629` / `2b2b1b06`, revisor em outro contexto `dispatch_finish_guard`:
+
+- P1: fila tinha target autorizado na leitura, mas abrir não revalidava a task;
+  Guest revogado após a fila poderia manter o deep link antigo. Correção neste
+  recorte: leitura exata antes de SERVICE/BILL/READY e novamente na seleção TABLE
+  ou ação Abrir comanda da entrega. Sessão original conferida antes/depois do IO.
+- P2: fallback TABLE perdia ações da chamada e BILL não selecionava Conta após
+  escolha explícita. Correção: origem preservada por IDs/occupancy/generation,
+  novo readback na escolha e contexto vinculado somente à Tab escolhida.
+
+Correções exigem reexecução e nova revisão; este registro não é aprovação.
+API218 ainda não publica `claimed_by_id` no serializer DELIVERY; completar a
+projeção é dependência da identificação visual do outro responsável. A API
+continua autorizando/negando a mutation canônica; este cliente não cria bypass.

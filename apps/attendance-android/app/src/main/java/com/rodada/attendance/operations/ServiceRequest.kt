@@ -19,7 +19,7 @@ data class ServiceRequest(
         fun fromJson(json: JSONObject) = ServiceRequest(
             json.getString("id"), json.getString("task_type"), json.getString("state"),
             json.optString("destination_label").ifBlank { "Destino não informado" },
-            if (json.isNull("claimed_by_id")) null else json.getString("claimed_by_id"),
+            json.optString("claimed_by_id").takeIf { it.isNotBlank() && it != "null" },
             if (json.isNull("age_seconds")) null else json.getLong("age_seconds"),
             StaffTaskTarget.fromPayload(json),
         )

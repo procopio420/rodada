@@ -35,10 +35,28 @@ class LiveAgoraUx2Test {
         compose.onNodeWithTag("now-queue-Entregas").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").performClick()
         args.getString("serviceTaskId")?.let { id ->
+            if (args.getString("revokeBeforeOpen") == "true") {
+                val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
+                java.io.File(files, "task-readback-ready").writeText("ready")
+                compose.waitUntil(60_000) { java.io.File(files, "task-readback-revoked").exists() }
+                compose.onNodeWithTag("service-$id").performScrollTo().performClick()
+                compose.waitUntil(30_000) { compose.onAllNodes(hasText("Em uso ·", substring = true)).fetchSemanticsNodes().isNotEmpty() }
+                compose.onNodeWithTag("workspace-Conta").assertDoesNotExist()
+                compose.onNodeWithText("Saldo em aberto").assertDoesNotExist()
+                // Explicit selection is now required; opening the stale Guest row selected no Tab.
+                args.getString("fallbackTabName")?.let { name ->
+                    compose.onNode(hasText("$name ·", substring = true) and hasClickAction()).performScrollTo().performClick()
+                    compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
+                    compose.onNodeWithText("Assumir chamada").assertExists()
+                    compose.onNodeWithText("Concluir chamada").assertExists()
+                }
+                return
+            }
             compose.onNodeWithTag("service-$id").performScrollTo().performClick()
             compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithTag("workspace-Conta").assertExists()
             compose.onNodeWithText("Saldo em aberto").assertExists()
+            compose.onNodeWithText("Assumir chamada").assertExists()
             compose.onNodeWithText("← Mesas e comandas").assertIsDisplayed().performClick()
             compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
         }
