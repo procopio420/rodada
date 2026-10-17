@@ -116,8 +116,9 @@ test('After sending a table order, guest stays in Pedir with inline confirmation
   run("S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];sendCart()");
   assert.equal(run('S.scene'), 'catalog');
   assert.equal(run('S.orders.length'), 1);
-  assert.ok(run("renderCatalog().includes('Pedido #')"));
-  assert.ok(run("renderCatalog().includes('Acompanhar pedido')"));
+  assert.ok(run("el('alert').innerHTML.includes('Pedido #')"));
+  assert.ok(run("el('alert').innerHTML.includes('Ver pedido')"));
+  assert.equal(run("renderCatalog().includes('sent-order-notice')"), false);
   run("switchView('account')");
   assert.ok(run("renderAccount().includes('Mais uma rodada')"));
   run('repeatLast();confirmRepeat()');
@@ -177,4 +178,25 @@ test('Header gear opens lab while DEMO strip is not customer-facing', () => {
   assert.ok(run("renderOverlay().includes('Visualizar')"));
   assert.ok(run("renderOverlay().includes('Mesa')"));
   assert.ok(run("renderOverlay().includes('Ficha')"));
+});
+
+
+test('Sent order notice stays visible outside the scrolled catalogue and can be dismissed', () => {
+  const run = boot('#mesa');
+  run("enter();S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];sendCart()");
+  assert.equal(run('S.scene'), 'catalog');
+  assert.ok(run("el('alert').innerHTML.includes('Pedido #')"));
+  assert.ok(run("el('alert').innerHTML.includes('Ver pedido')"));
+  assert.equal(run("renderCatalog().includes('sent-order-notice')"), false);
+  run('dismissOrderNotice()');
+  assert.equal(run("el('alert').innerHTML.includes('sent-order-notice')"), false);
+});
+
+test('Two-tab navigation and payment CTA remain visible with a populated account', () => {
+  const run = boot('#pay');
+  assert.equal(run("(nav().match(/<button/g)||[]).length"), 2);
+  assert.ok(run("nav().includes('Pedir')"));
+  assert.ok(run("nav().includes('Minha comanda')"));
+  assert.ok(run("S.scene==='account' && balance()>0"));
+  assert.ok(run("renderAccount().includes('Ver consumo detalhado')"));
 });
