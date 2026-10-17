@@ -89,6 +89,13 @@ Testes de DOM simulado cobrem mesa livre → catálogo → pedido **sem sair do 
 - Em HIBRIDO, QR Table abre Mesa (bebida/comida/entrega); QR BAR_PICKUP abre Ficha (somente bebidas/retirada). Não reaproveitar QR de Table como Ficha.
 - Ficha exibe FG84 e bartender confere visualmente código + itens. Nenhuma confirmação compulsória da retirada.
 - Alterações de modo manualmente configuradas pelo gerente afetam **novas sessões**, não Tabs abertas. Automatização por horário fica no roadmap.
-- **Ajuste pendente no protótipo ilustrativo:** a filtragem visual do catálogo Ficha ainda precisa refletir integralmente bebidas-only. O backend real deve validar independentemente, conforme contrato canônico. Não usar protótipo sozinho como aprovação técnica dessa regra.
+- **Protótipo Ficha alinhado (16/10):** catálogo exibe somente bebidas (Cervejas, Drinks, Sem álcool). A demonstração bloqueia também inclusão/envio indevido de pizza/porções e a fixture FG84 não contém comida. Essa é uma proteção de **simulação**, não substitui a validação de elegibilidade e roteamento BAR_PICKUP no Django.
 
 **Fechamento de UX:** decisões de navegação, componentes e regras de experiência congeladas. Fechamento de produto/produção depende dos gates em Spec 004, acceptance.md.
+
+## Verificação da Ficha drinks-only (16/10/2026)
+
+- O protótipo usa classificação explícita de bebidas e flag de elegibilidade da retirada, em vez de presumir elegibilidade a partir da categoria visual.
+- Fluxos de Ficha testados: cardápio sem Porções/Comidas; tentativa de incluir pizza/batata via funções manipuladas rejeitada sem Order; bebidas aceitas; fixture FG84 só contém bebidas.
+- Os testes de DOM simulado agora totalizam **24 casos aprovados (4 P0 + 20 UX/Ficha)**. Não representam suíte Django real nem fotos Playwright executadas.
+- **Pendente para produção:** autorização/segurança da GuestSession, tipos reais de AccessPoint, filtro e roteamento no servidor, fila BAR e unicidade de FG84, PSP, visual E2E.
