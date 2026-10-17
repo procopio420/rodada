@@ -54,3 +54,9 @@ A revisão independente anterior encontrou bloqueio de saldo concorrente e foi
 corrigida em473a8e93; nova revisão da correção/integração permanece pendente por
 indisponibilidade do executor independente. Nenhuma alegação R3 aprovado.
 Paridade da página de pagamento, screenshots e CI deste novo SHA pendentes.
+
+Validação adicional f620ee60: build PASS e Playwright visual workspace+cash receipt
+24/24 em48,5s. Inclui sessão alterada/revogada nos schemas1/2, storage corrompido/
+indisponível, conflito fingerprint após5xx, readback ausente e repetição nos4tamanhos.
+Main fb3ea55d (somente instruções/KB) e correções de CI #224 integradas semconflito.
+Testes visuais aqui não são aceite de paridade da nova página de pagamento.
