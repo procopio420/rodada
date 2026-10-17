@@ -333,10 +333,11 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
   const revealRequestedCatalog = useEffectEvent(() => { if (selected && !orderIntent.pending && !switching.current && !correctionPending && !cashPending) { setDialogView("catalog"); setDialogOpen(true); } });
   useEffect(() => { if (addItemsRequest) revealRequestedCatalog(); }, [addItemsRequest]);
   const handledCloseRequest = useRef(0);
-  useEffect(() => {
-    if (!closeContextRequest || handledCloseRequest.current === closeContextRequest || !dialogOpen || correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || repeatReview || configuring || discardDialog || closingDialog || removingItem) return;
+  const closeRequestedContext = useEffectEvent(() => {
+    if (!closeContextRequest || handledCloseRequest.current === closeContextRequest || !dialogOpen || correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || repeatReview || configuring || discardDialog || closingDialog || removingItem || catalogLayerOpen || showHistory) return;
     handledCloseRequest.current = closeContextRequest; setDialogOpen(false); onDialogClose?.();
-  }, [closeContextRequest, dialogOpen, correctionPending, cashPending, orderIntent.ready, orderIntent.busy, orderIntent.pending, confirming, selecting, opening, closing, repeatLoading, repeatReview, configuring, discardDialog, closingDialog, removingItem, onDialogClose]);
+  });
+  useEffect(() => { if (closeContextRequest) queueMicrotask(closeRequestedContext); }, [closeContextRequest]);
   const handledExternalRequest = useRef("");
   const selectRequestedTab = useEffectEvent((id: string) => { void selectTab({ id }).then(failure => { if (failure) onOpenFailure?.(failure); }); });
   useEffect(() => {
@@ -424,5 +425,5 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     </>;
   }
   if (presentation === "ux2" && tableMode && !dialogOpen) return null;
-  return tableMode ? <ActionDialog returnFocus={returnFocus} open={dialogOpen} dialogClassName="attendanceOrderDialog" title={selected && !standaloneCreate ? `${selected.table_label ? `Mesa ${selected.table_label}` : destinationLabel || "Comanda"} · ${selected.display_label || tabReference(selected)} · ${tabReference(selected)}` : "Comandas"} locked={dialogLocked} onClose={() => { if (dialogLocked) return; setDialogOpen(false); onDialogClose?.(); }}>{workspace}</ActionDialog> : workspace;
+  return tableMode ? <ActionDialog returnFocus={returnFocus} open={dialogOpen} dialogClassName="attendanceOrderDialog" title={selected && !standaloneCreate ? `${selected.table_label ? `Mesa ${selected.table_label}` : destinationLabel || "Comanda"} · ${selected.display_label || tabReference(selected)} · ${tabReference(selected)}` : "Comandas"} locked={dialogLocked} onClose={() => { if (dialogLocked) return; setDialogOpen(false); onDialogClose?.(); }}>{contextualTaskNode}{workspace}</ActionDialog> : workspace;
 }
