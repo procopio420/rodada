@@ -88,7 +88,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
   useEffect(() => { queueMicrotask(() => void initialize()); }, []);
   useEffect(() => { onPendingChange(!ready || !!pending || busy || paymentOpen); }, [ready, pending, busy, paymentOpen, onPendingChange]);
 
-  const activePoint = pointId || points[0]?.id || "";
+  const activePoint = pointId ? (points.some(point => point.id === pointId) ? pointId : "") : points[0]?.id || "";
   async function collect(fullAndClose = false, keepOpen = false) {
     if (sending.current || !ready || (!intentRef.current && locked)) return;
     sending.current = true; setBusy(true); setCanKeepOpen(false);
