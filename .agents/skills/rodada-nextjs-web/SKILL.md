@@ -9,7 +9,7 @@ description: Use when changing Next.js App Router, React, route handlers, Web au
 `apps/web/**`: Next.js App Router, server/client components, route handlers, BFF, same-origin auth, polling/SSE, visual and browser integration.
 
 ## Before writing code
-1. Read [Web AGENTS](../../../apps/web/AGENTS.md), [Next package manifest](../../../apps/web/package.json), the specific spec and [routing contract](../../../docs/architecture/tenant-routing-contract.md).
+1. Read [Web AGENTS](../../../apps/web/AGENTS.md), the specific spec/acceptance and relevant package metadata. Load the [routing contract](../../../docs/architecture/tenant-routing-contract.md) when the task touches Host, tenant, BFF, auth or guest sessions; load relevant design rules for visual changes.
 2. **This project uses Next.js 16.3.x.** Read the installed `apps/web/node_modules/next/dist/docs/` for APIs you modify; don't rely on memory of older Next versions or bypass the automatically generated Next.js AGENTS block.
 3. Inspect the existing auth gateway, `proxy.ts`, Venue host resolution, API routes, relevant components and tests.
 
@@ -22,14 +22,12 @@ description: Use when changing Next.js App Router, React, route handlers, Web au
 - Reuse components/tokens from [design system](../../../docs/design/system.md). Also activate `rodada-ui-design` for visual/UX changes.
 
 ## Validation
-```sh
-cd apps/web
-npm ci
-npm run typecheck
-npm run test:auth
-npm run test:tenant
-npm run build
-npm run test:visual
-npm run test:integration
-```
-The browser/BFF suite needs isolated PostgreSQL and real Django per `.github/workflows/web.yml`. Do not fake a successful E2E with a mocked browser service. Test both Venue-positive and cross-Venue-negative flows when auth/host changes. Retain traces and report limitations in handoff.
+
+During local iterations run the nearest test first. Before PR readiness, run the **applicable gates** in `apps/web/package.json` and `docs/ci-workflows.md`; full CI remains authoritative and its path-triggered checks are not optional:
+
+- Any Web code or type/API change: `cd apps/web && npm run typecheck && npm run build` (plus relevant tests).
+- Visual/UI changes: **always** `npm run test:visual`, including deterministic comparison and mobile/desktop checks when relevant.
+- Auth, BFF, Host/tenant, guest access: `npm run test:auth` and `npm run test:tenant`, with positive and cross-Venue-negative cases; for real cross-stack interactions, also `npm run test:integration`.
+- Payment, recovery, ordering and high-risk cross-surface changes: integration/replay/negative tests and release gates required by the corresponding spec and CI policy.
+
+Run `npm ci` when dependencies are not installed or need refreshing; don't reinstall reflexively for every small edit. The browser/BFF integration suite needs isolated PostgreSQL and real Django per `.github/workflows/web.yml`; don't claim mock E2E as a real pass. Retain traces and report skipped or unavailable gates explicitly.
