@@ -83,6 +83,78 @@ class LiveUx2ReceiptRecoveryTest {
         }
     }
 
+    @Test fun delayedReceiptReadCannotReplaceNewSessionTabOrRemoveItsPendingIntent() {
+        val args = InstrumentationRegistry.getArguments()
+        assumeTrue(args.getString("liveUx2Receipt") == "true")
+        val upstream = requireNotNull(args.getString("upstreamUrl"))
+        check(upstream.matches(Regex("""http://10\.0\.2\.2:[0-9]{4,5}/""")))
+        check(BuildConfig.RODADA_API_BASE_URL == "http://10.0.2.2:18131/")
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val authClient = AuthHttpClient(upstream)
+        fun login() = authClient.login(LoginRequest("android-post-drop-ci", "android-post-drop-operator", "2468", "session-fence-" + UUID.randomUUID()))
+        val sessionA = login()
+        val sessionB = login()
+        val store = SecureSessionStore(context)
+        store.save(sessionA)
+        val api = OperationsHttpClient(upstream)
+        val cashPoint = requireNotNull(api.cashPoints(sessionA.tokens.accessToken).firstOrNull { it.activeShiftId != null })
+        val product = api.products(sessionA.tokens.accessToken).first { it.active && it.availability == "AVAILABLE" && it.priceCents in 1..1000 && it.variants.isEmpty() && it.modifierGroups.isEmpty() }
+        val tabA = api.openTab(sessionA.tokens.accessToken, "Session A " + UUID.randomUUID().toString().take(6))
+        val tabB = api.openTab(sessionB.tokens.accessToken, "Session B " + UUID.randomUUID().toString().take(6))
+        api.confirmOrder(sessionA.tokens.accessToken, tabA.id, listOf(CartLine(product, 1)), UUID.randomUUID().toString())
+        val queue = PendingMutationIntentStore(context)
+        check(queue.loadFor(sessionA).isEmpty() && queue.loadFor(sessionB).isEmpty())
+        val auth = AuthRepository(context)
+        lateinit var model: OperationsViewModel
+        compose.runOnUiThread {
+            model = OperationsViewModel(OperationsRepository(auth), queue, auth, CorrectionsRepository(auth), RefundsRepository(auth))
+            model.ensureLoaded(sessionA)
+        }
+        compose.waitUntil(30_000) { !model.state.loading }
+        compose.runOnUiThread { model.selectTab(sessionA, tabA.id) }
+        compose.waitUntil(30_000) { model.state.selectedTab?.summary?.id == tabA.id && !model.state.submitting }
+        val amount = model.state.selectedTab!!.summary.exposureCents
+        control("hold-tab-read/" + tabA.id)
+        compose.runOnUiThread { model.collectPayment(sessionA, amount, PaymentMethod.CASH, cashPoint.id, true) }
+        compose.waitUntil(15_000) { model.state.pendingPayment?.confirmedPaymentId != null && faultStatus().contains("\"read_holding\": true") }
+        val original = queue.loadFor(sessionA).filterIsInstance<RecoveryIntent.StartPayment>().single()
+        val id = UUID.randomUUID().toString()
+        val pendingB = RecoveryIntent.StartPayment(id, sessionB.staffId, sessionB.venueId, sessionB.deviceId,
+            id, System.currentTimeMillis(), RecoveryState.CHECKING, tabB.id, 1, PaymentMethod.CASH, cashPoint.id, tabB.version)
+        queue.save(pendingB, sessionB)
+        store.save(sessionB)
+        compose.runOnUiThread { model.ensureLoaded(sessionB) }
+        compose.waitUntil(15_000) { !model.state.loading }
+        compose.runOnUiThread { model.selectTab(sessionB, tabB.id) }
+        compose.waitUntil(15_000) { model.state.selectedTab?.summary?.id == tabB.id && model.state.pendingPayment == pendingB && !model.state.submitting }
+        val messageB = model.state.noticeMessage
+        control("release-tab-read")
+        // Wait for the held HTTP completion and Main dispatcher callback to settle.
+        compose.waitUntil(15_000) { !faultStatus().contains("\"read_holding\": true") }
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        android.os.SystemClock.sleep(750)
+        compose.runOnUiThread {
+            assertEquals(tabB.id, model.state.selectedTab?.summary?.id)
+            assertEquals(pendingB, model.state.pendingPayment)
+            assertEquals(messageB, model.state.noticeMessage)
+            assertFalse(model.state.submitting)
+        }
+        assertEquals(original, queue.loadFor(sessionA).filterIsInstance<RecoveryIntent.StartPayment>().single())
+        assertEquals(pendingB, queue.loadFor(sessionB).filterIsInstance<RecoveryIntent.StartPayment>().single())
+        val canonical = api.tabDetail(sessionA.tokens.accessToken, tabA.id)
+        assertEquals("OPEN", canonical.summary.state)
+        assertEquals(1, canonical.payments.size)
+        assertEquals(original.confirmedPaymentId, canonical.payments.single().id)
+        // Remove only this disposable test's retained records after all assertions.
+        queue.remove(original.id); queue.remove(pendingB.id)
+        api.closeTab(sessionA.tokens.accessToken, tabA.id)
+    }
+
+    private fun faultStatus(): String {
+        val connection = URL(BuildConfig.RODADA_API_BASE_URL + "__fault/status").openConnection() as HttpURLConnection
+        try { return connection.inputStream.bufferedReader().use { it.readText() } } finally { connection.disconnect() }
+    }
+
     private fun control(action: String) {
         val connection = URL(BuildConfig.RODADA_API_BASE_URL + "__fault/$action").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
