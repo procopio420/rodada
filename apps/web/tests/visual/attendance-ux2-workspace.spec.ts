@@ -111,3 +111,11 @@ for(const width of [360,390,430,1280]) test(`UX2 repeat page edits selection and
  await page.getByRole("button",{name:"Aumentar Fritas",exact:true}).click();await page.getByRole("button",{name:"Aumentar Fritas",exact:true}).click();await expect(page.getByLabel("Quantidade de Fritas",{exact:true})).toHaveText("2");await layoutAndA11y(page);await page.screenshot({path:`visual-artifacts/033/ux2-repeat-${width}.png`,fullPage:true});
  await page.getByRole("button",{name:"Repetir rodada · enviar",exact:true}).click();await expect(page.getByRole("region",{name:"Último pedido confirmado"})).toContainText("#new-round");expect(sends).toBe(1);
 });
+
+test("UX2 cleaning requires canonical DIRTY then CLEANING then AVAILABLE",async({page})=>{
+ await fixture(page,"normal",true);
+ const table={id:"table-clean",label:"08",status:"DIRTY",active_occupancy:null};
+ await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:[table]}}));
+ const actions:string[]=[];await page.route("**/api/attendance/hospitality/tables/table-clean/cleaning/*/",r=>{const action=r.request().url().includes("/start/")?"start":"complete";actions.push(action);expect(table.status).toBe(action==="start"?"DIRTY":"CLEANING");table.status=action==="start"?"CLEANING":"AVAILABLE";return r.fulfill({json:table});});
+ await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa 08 Aguardando limpeza/}).click();await expect(page.getByRole("button",{name:"Concluir limpeza",exact:true})).toHaveCount(0);await page.getByRole("button",{name:"Iniciar limpeza",exact:true}).click();await expect(page.getByRole("button",{name:"Concluir limpeza",exact:true})).toBeEnabled();expect(actions).toEqual(["start"]);await page.getByRole("button",{name:"Concluir limpeza",exact:true}).click();await expect(page.getByRole("button",{name:/Mesa 08 Disponível/})).toBeVisible();expect(actions).toEqual(["start","complete"]);
+});

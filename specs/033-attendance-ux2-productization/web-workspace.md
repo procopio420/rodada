@@ -60,3 +60,15 @@ Validação adicional f620ee60: build PASS e Playwright visual workspace+cash re
 indisponível, conflito fingerprint após5xx, readback ausente e repetição nos4tamanhos.
 Main fb3ea55d (somente instruções/KB) e correções de CI #224 integradas semconflito.
 Testes visuais aqui não são aceite de paridade da nova página de pagamento.
+
+## E04 ciclo de limpeza explícito
+
+A tela anteriormente oferecia complete em DIRTY; agora chama cleaning/start e
+aguarda readback CLEANING antes de oferecer cleaning/complete. Nenhum timestamp
+é sintetizado no cliente; API existente permanece compatível com clientes antigos.
+Teste visual específico PASS1/1(4,9s); integração real PASS1/1(13,2s), antes do
+acréscimo final de verificação de timestamps/atores. Fixture inicial sem ocupação
+liberada foi rejeitada corretamente pela API; corrigida para representar ocupação
+realmente liberada. Nova execução conjunta valida também timestamps e autoria.
+Dependências API #218/#222 integradas na branch para testes do contrato completo;
+sem merge dessas PRs na main. #225 continua draft, sem aceite de épico/paridade.
