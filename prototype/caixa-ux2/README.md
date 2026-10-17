@@ -25,7 +25,18 @@ Foram corrigidos os quatro novos P1 e os dois P2 encontrados em cenários advers
 5. **Teclado/rolagem em telas pequenas**: re-render preserva a posição vertical e horizontal dentro da área rolável do modal.
 6. **Troco sem sobreposição de diálogo**: o lembrete fica oculto enquanto um diálogo está aberto, sem ser apagado. Reaparece automaticamente ao fechar; sua camada também fica abaixo da do modal.
 
-O smoke passou de 7 para **14 cenários** e adicionou tentativas de alterar valores bloqueados, estorno sem fundos + suprimento, contagem bloqueada por troco, revisão gerencial, persistência/reload, ocultação e posição de rolagem do modal. Estes são testes de lógica com DOM simulado: permanece obrigatória a inspeção visual/teclado em navegadores desktop, tablet e telefone, além da integração real do backend e testes de transações/concorrência.
+O smoke passou de 7 para **17 cenários** e adicionou tentativas de alterar valores bloqueados, estorno sem fundos + suprimento, contagem bloqueada por troco, revisão gerencial, persistência/reload, ocultação e posição de rolagem do modal. Estes são testes de lógica com DOM simulado: permanece obrigatória a inspeção visual/teclado em navegadores desktop, tablet e telefone, além da integração real do backend e testes de transações/concorrência.
+
+## Linguagem simples para movimentar dinheiro — 2026-10-17
+
+Na seção **Turno de caixa**, as ações agora priorizam o que o operador quer fazer, mantendo o nome contábil apenas como ajuda:
+
+- **Retirar dinheiro** — *Sangria*. Ex.: tirar dinheiro da gaveta e guardar no cofre. Reduz o dinheiro físico esperado.
+- **Adicionar dinheiro** — *Suprimento*. Ex.: pegar dinheiro do cofre para reforçar troco na gaveta. Aumenta o dinheiro físico esperado.
+
+Os modais descrevem o sentido da movimentação, dão um exemplo, solicitam valor e motivo e mostram **dinheiro antes → quanto entra/sai → dinheiro esperado depois**. O botão final usa *Confirmar retirada* ou *Confirmar entrada*. O histórico mostra a ação em linguagem natural junto ao termo contábil. Não altera pagamentos de clientes nem vendas.
+
+Os rótulos e os efeitos financeiros continuam exclusivamente no protótipo, não na página real do Caixa do Rodada. Três novos cenários de smoke cobrem os textos e o efeito do saldo na gaveta.
 
 ## Smoke de regressão
 
@@ -33,7 +44,7 @@ O smoke passou de 7 para **14 cenários** e adicionou tentativas de alterar valo
 node prototype/caixa-ux2/smoke.test.cjs
 ```
 
-Teste sem dependências que usa o mesmo JavaScript do protótipo e simula 14 cenários de interações/eventos e reload. É um teste de lógica de UI, **não** equivale a Playwright em navegador, integração financeira, auditoria da API ou homologação no caixa do estabelecimento.
+Teste sem dependências que usa o mesmo JavaScript do protótipo e simula 17 cenários de interações/eventos e reload. É um teste de lógica de UI, **não** equivale a Playwright em navegador, integração financeira, auditoria da API ou homologação no caixa do estabelecimento.
 
 ## Abrir
 
