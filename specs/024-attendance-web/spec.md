@@ -44,3 +44,25 @@ changes financial state. No historical edit or other occupancy commands added.
 ## Integração de 13/10/2026
 
 Executar os contratos existentes na main atual e registrar provas em [matriz de conclusão](../../docs/development/spec023-024-completion.md). Preservar regras canônicas, referências/tolerâncias, dados e gates externos. Não marcar aceite por presença de código ou execução histórica.
+
+## Spec033 E04 — recebimento CASH e encerramento recuperável (2026-10-16)
+
+A autorização explícita da missão Spec033 amplia o companion apenas para
+recebimento manual CASH real. GET cash/points e POST tabs/{id}/payments são
+permitidos pelo BFF; métodos diferentes de CASH, refund e outras operações de
+caixa continuam excluídos. Sessão, Venue, payment.collect, caixa aberto, versão,
+valor e idempotência são revalidados pela API canônica. Não habilita PSP/Pix/cartão.
+
+O componente PosCashReceipt reutilizado mantém o comportamento POS por padrão.
+Apresentação attendance é opt-in. Receber integralmente e encerrar captura a
+intenção explícita em envelope v2, com gateway original e sessão/ator/Venue/Tab.
+Payment confirmado persiste ID/fase antes de leitura/close. Readback confere
+Payment por ID/método/valor/status; saldo zero permite close naturalmente
+idempotente. Falha de close/reload retoma leitura/close, nunca novo Payment.
+Lost ACK de Payment mantém payload/chave originais. Envelope v1 continua com
+gateway POS original; nova sessão não adota uma intenção antiga.
+
+Encerramento não libera mesa nem fecha caixa. Enquanto close estiver pendente,
+a intenção permanece bloqueante e visível mesmo sem Tab selecionada. Não há
+autoenvio após reload. AC-12/13/16 da Spec033 exigem testes reais e revisão R3;
+esta atualização de contrato não comprova aceite/paridade ou rollout.

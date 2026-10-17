@@ -48,3 +48,31 @@ test("UX2 real committed order lost ACK reload reconciles one intent and ledger"
  await expect(page.getByRole("region",{name:"Último pedido confirmado"})).toContainText(`#${originalOrder}`);expect(attempts).toHaveLength(2);expect(attempts[0]).toBe(attempts[1]);await expect.poll(()=>page.evaluate(k=>sessionStorage.getItem(k),key)).toBeNull();
  const canonical=await page.evaluate(async id=>(await fetch(`/api/attendance/tabs/${id}/`)).json(),tab.id);expect(canonical.orders).toHaveLength(1);expect(canonical.orders[0].id).toBe(originalOrder);expect(canonical.orders[0].items).toHaveLength(2);expect(canonical.exposure_cents).toBe(1500);expect(canonical.payments).toHaveLength(0);
 });
+
+test("UX2 real cleaning records both canonical lifecycle transitions",async({page})=>{
+ const label="UX2 cleaning canonical";
+ execFileSync(process.env.RODADA_TEST_PYTHON!,["-c",`import os,sys
+os.environ['DJANGO_SETTINGS_MODULE']='rodada_api.settings'
+import django;django.setup()
+from django.conf import settings
+assert settings.DATABASES['default']['NAME']=='rodada_web_e2e' and settings.DATABASES['default']['HOST']=='127.0.0.1'
+from modules.venue.models import Venue
+from modules.hospitality.models import Table,TableOccupancy
+from django.utils import timezone
+table=Table.objects.create(venue=Venue.objects.get(slug='web-e2e'),label=sys.argv[1],status='DIRTY')
+TableOccupancy.objects.create(table=table,generation=table.access_generation,released_at=timezone.now())
+`,label],{cwd:resolve("../api"),env:process.env});
+ await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();
+ const read=()=>page.evaluate(async label=>{const payload=await(await fetch('/api/attendance/hospitality/tables/')).json();return payload.results.find((t:{label:string})=>t.label===label);},label);
+ expect((await read()).status).toBe("DIRTY");await expect(page.getByRole("button",{name:"Concluir limpeza",exact:true})).toHaveCount(0);await page.getByRole("button",{name:"Iniciar limpeza",exact:true}).click();await expect(page.getByRole("button",{name:"Concluir limpeza",exact:true})).toBeEnabled();expect((await read()).status).toBe("CLEANING");await page.getByRole("button",{name:"Concluir limpeza",exact:true}).click();await expect(page.getByRole("button",{name:new RegExp(`Mesa ${label} Disponível`)})).toBeVisible();expect((await read()).status).toBe("AVAILABLE");
+ execFileSync(process.env.RODADA_TEST_PYTHON!,["-c",`import os,sys
+os.environ['DJANGO_SETTINGS_MODULE']='rodada_api.settings'
+import django;django.setup()
+from django.conf import settings
+assert settings.DATABASES['default']['NAME']=='rodada_web_e2e' and settings.DATABASES['default']['HOST']=='127.0.0.1'
+from modules.hospitality.models import TableOccupancy
+occupancy=TableOccupancy.objects.get(table__venue__slug='web-e2e',table__label=sys.argv[1])
+assert occupancy.released_at <= occupancy.cleaning_started_at <= occupancy.ready_at
+assert occupancy.cleaning_started_by_id and occupancy.ready_by_id
+`,label],{cwd:resolve("../api"),env:process.env});
+});

@@ -5,14 +5,14 @@
 ## 1. Intake e investigação (antes de editar)
 
 1. Identificar tarefa, impacto operacional, módulo, spec **pelo caminho completo** e critérios envolvidos. Verificar `git status`, branch, SHA da main, PRs abertos e divergências locais.
-2. Selecionar 3–6 documentos no [mapa da KB](README.md); não ler a KB inteira, não se basear em snippet isolado nem em relatório datado para alegar estado atual.
+2. A partir do [mapa da KB](README.md), abrir primeiro a spec exata/aceite e as **referências necessárias à tarefa**, em vez de um número fixo de documentos. Ampliar conforme impactos, dúvidas, riscos e contratos cruzados; não ler a KB inteira por padrão nem alegar estado atual a partir de snippet isolado ou relatório datado. Para mudanças de domínio/UX/financeiro, carregar as seções aplicáveis dos [guardrails](DOMAIN-GUARDRAILS.md).
 3. Definir em texto: antes/depois esperado, não escopo, invariantes, risco (P0/P1/P2), dependências, testes e resultado observável. Se houver dúvida factual, identificar bloqueio e evidência requerida.
 4. Para feature/alteração de comportamento: atualizar spec/acceptance antes da implementação. Para bug dentro de contrato válido: teste de regressão primeiro; documentar quando a correção altera contrato.
 
 ## 2. Implementação e concorrência
 
-- Trabalhar em branch própria saindo do HEAD verificado e com diff mínimo. Commits por vertical slice; não misturar upgrade de dependência, UX, migração e documentação histórica sem necessidade.
-- Delegação paralela: tarefas por **ownership não sobreposto** (API, Web, Android, QA/docs). Um agente integrador controla arquivos de contrato compartilhados (`AGENTS.md`, spec, ADR, schema, workflows), conflitos, merges e ordem de branches.
+- Trabalhar em branch própria saindo do HEAD verificado e com diff mínimo. Commits por vertical slice; não misturar upgrade de dependência, UX, migração e documentação histórica sem necessidade. Para reduzir contexto repetido, seguir [roteiro do Codex](CODEX-EFFICIENCY.md), sem dispensar checks ou review.
+- Delegação paralela **apenas quando gerar ganho verificável**: tarefas por **ownership não sobreposto** (API, Web, Android, QA/docs), evitando subagentes que só repetem a leitura de KB. Um integrador controla arquivos de contrato compartilhados (`AGENTS.md`, spec, ADR, schema, workflows), conflitos, merges e ordem de branches.
 - Contrato do subagente: objetivo, base SHA, pasta/arquivos permitidos, interface esperada, invariantes, testes/evidências exigidos e exclusões. Resultado deve devolver diff/commit e riscos; não pode reivindicar integração sem merge e testes.
 - Evitar sobreposição de `models/migrations`, APIs, tokens de design, fixtures e snapshots entre agentes. Se inevitável, serializar mudanças e revalidar depois do merge.
 - Rebase/merge da main exige leitura de ambos os lados e teste pós-integração. Não descartar branch alheia, squash histórico de evidência ou usar force push sem motivo e autorização.
@@ -29,7 +29,7 @@
 | Auth/multitenant | Scope/capability/CSRF/Host, cookies, revogação | Dois Venues e rejeição de leitura/write/refresh/SSE/guest cross-tenant |
 | Release/piloto | CI do SHA e smoke em sandbox isolado | Release gates manuais conforme `docs/ci-workflows.md`, operador in loco, rede/dispositivo/fiscal/rollback |
 
-Usar **somente comandos executados de fato** ao declarar PASS. Reportar skips/infra failures e provas inconclusivas. Nunca baixar limiar visual, afrouxar segurança, trocar PostgreSQL por SQLite para obter "verde", nem apagar teste falho sem causa e evidência.
+Na iteração local, começar pelo gate mínimo da área/risco e diagnóstico focalizado; antes de declarar prontidão do PR/release, executar a validação aplicável ao escopo conforme tabela e [política CI](../ci-workflows.md). **Não remover gates obrigatórios** para economizar contexto/quota. Usar **somente comandos executados de fato** ao declarar PASS. Reportar skips/infra failures e provas inconclusivas. Nunca baixar limiar visual, afrouxar segurança, trocar PostgreSQL por SQLite para obter "verde", nem apagar teste falho sem causa e evidência.
 
 ## 4. Operações com efeito externo
 
