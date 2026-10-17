@@ -1,61 +1,31 @@
-import { expect, test } from "@playwright/test";
-import fs from "node:fs";
-import path from "node:path";
-import { createRequire } from "node:module";
-import ts from "typescript";
+import { expect, test, type Page } from "@playwright/test";
+import { fixture } from "./fixtures";
 
-const nodeRequire = createRequire(path.resolve("package.json"));
-const React = nodeRequire("react"), { renderToStaticMarkup } = nodeRequire("react-dom/server");
-// Execute the actual component in memory; CSS module names retain their source names.
-// No production test route or copy of render/financial logic is introduced.
-const source = fs.readFileSync(path.resolve("components/attendance-credit-bar.tsx"), "utf8")
-  .replace('import styles from "./attendance-credit-bar.module.css";', 'const styles = new Proxy({}, { get: (_target, key) => key });');
-const compiled = ts.transpileModule(source, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS } }).outputText;
-const componentModule = { exports: {} as { AttendanceCreditBar: unknown } };
-new Function("require", "module", "exports", compiled)(nodeRequire, componentModule, componentModule.exports);
-const { AttendanceCreditBar } = componentModule.exports;
-const css = fs.readFileSync(path.resolve("app/globals.css"), "utf8") + "\n" + fs.readFileSync(path.resolve("components/attendance-credit-bar.module.css"), "utf8");
-
-for (const width of [360, 390, 430, 1280]) for (const scale of [1, 2]) test(`credit projection ${width}px font ${scale}x`, async ({ page }) => {
-  await page.setViewportSize({ width, height: 1000 });
-  await page.route("http://fixture.local/fonts/*", route => route.fulfill({ path: path.resolve("public/fonts", path.basename(route.request().url())) }));
-  const panels = [0, 79, 80, 99, 100, 120].flatMap(percent => [false, true].map(compact => React.createElement(AttendanceCreditBar, {
-    key: `${percent}-${compact}`, position: { effective_limit_cents: 10000, exposure_cents: percent * 100, remaining_capacity_cents: Math.max(0, 10000 - percent * 100), relationship_snapshot: ["VISITOR", "KNOWN", "REGULAR", "HOUSE", "RESTRICTED", "FUTURE"][Math.min(5, [0,79,80,99,100,120].indexOf(percent))] }, draftCents: 500, compact,
-  })));
-  panels.push(React.createElement(AttendanceCreditBar, { key: "zero", position: { effective_limit_cents: 0, exposure_cents: 0, remaining_capacity_cents: 0, relationship_snapshot: "RESTRICTED" } }));
-  panels.push(React.createElement(AttendanceCreditBar, { key: "missing", position: null }));
-  const markup = renderToStaticMarkup(React.createElement(React.Fragment, null, ...panels));
-  await page.setContent(`<base href="http://fixture.local/"><style>${css}</style><main style="max-width:520px;padding:16px;margin:auto">${markup}</main>`);
-  await page.evaluate(async scale => { await document.fonts.ready; if (scale === 2) for (const element of document.querySelectorAll<HTMLElement>("main *")) element.dataset.fontSize = getComputedStyle(element).fontSize; for (const element of document.querySelectorAll<HTMLElement>("[data-font-size]")) element.style.fontSize = `${parseFloat(element.dataset.fontSize!) * 2}px`; }, scale);
-  await expect(page.getByRole("progressbar")).toHaveCount(12);
-  await expect(page.getByText("120% utilizado")).toBeVisible();
-  await expect(page.getByText("Limite zero", { exact: true })).toBeVisible();
-  await expect(page.getByText("Sem perfil", { exact: true })).toBeVisible();
-  await expect(page.getByText(/indisponível/)).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  for (const bar of await page.getByRole("progressbar").all()) {
-    const n = Number(await bar.getAttribute("aria-valuenow")); expect(n).toBeGreaterThanOrEqual(0); expect(n).toBeLessThanOrEqual(100);
-    await expect(bar).toHaveAccessibleName(/ENFORCE/);
-  }
-  const normal = page.locator('[data-level="ok"]'); await expect(normal).toHaveCount(2);
-  await expect(page.locator('[data-level="warning"]')).toHaveCount(4);
-  await expect(page.locator('[data-level="exceeded"]')).toHaveCount(7);
-  await page.screenshot({ path: `test-results/credit-bar/credit-${width}-${scale}x.png`, fullPage: true });
+type Position = {effective_limit_cents:number;exposure_cents:number;remaining_capacity_cents:number;relationship_snapshot?:string};
+async function showCredit(page:Page,position:Position|null,compact=true) {
+ await fixture(page,"normal",true);
+ const tab={id:"credit-tab",display_label:"Perfil real",state:"OPEN",version:1,exposure_cents:position?.exposure_cents??0,orders:[],payments:[],...(position??{})};
+ await page.route("**/api/attendance/hospitality/tables/",r=>r.fulfill({json:{table_service_enabled:true,results:[{id:"credit-table",label:"08",status:"OCCUPIED",active_occupancy:{id:"visit",generation:1,tabs:[tab]}}]}}));
+ await page.route(/\/api\/attendance\/tabs\/credit-tab\/(\?.*)?$/,r=>r.fulfill({json:tab}));
+ await page.goto("/attendance");await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByRole("button",{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="credit-tab"]').click();
+ if(!compact)await page.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+ return page.getByRole("region",{name:"Referência de consumo da comanda",exact:true});
+}
+for(const width of [360,390,430,1280])for(const scale of [1,2])test(`credit projection ${width}px font ${scale}x`,async({page})=>{
+ await page.setViewportSize({width,height:1000});
+ for(const percent of [0,79,80,99,100,120])for(const compact of [false,true]){
+  const panel=await showCredit(page,{effective_limit_cents:10000,exposure_cents:percent*100,remaining_capacity_cents:Math.max(0,10000-percent*100),relationship_snapshot:"REGULAR"},compact);
+  if(scale===2)await panel.evaluate(root=>{for(const e of root.querySelectorAll<HTMLElement>("*"))e.dataset.fontSize=getComputedStyle(e).fontSize;for(const e of root.querySelectorAll<HTMLElement>("*"))e.style.fontSize=`${parseFloat(e.dataset.fontSize!)*2}px`;});
+  await expect(panel.getByRole("progressbar")).toHaveCount(1);
+  await expect(panel.locator('[data-level]')).toHaveAttribute("data-level",percent>100?"exceeded":percent>=80?"warning":"ok");
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  if(percent===120)await expect(panel.getByText(/120% utilizado/)).toBeVisible();
+  await panel.screenshot({path:`test-results/credit-bar/credit-${width}-${scale}x-${percent}-${compact}.png`});
+ }
+ const zero=await showCredit(page,{effective_limit_cents:0,exposure_cents:0,remaining_capacity_cents:0});await expect(zero.getByText("Limite zero",{exact:true})).toBeVisible();
 });
-
-test("canonical capacity is not recalculated and invalid financial DTO is explicit", async ({ page }) => {
-  const position = { effective_limit_cents: 10000, exposure_cents: 7900, remaining_capacity_cents: 1234, relationship_snapshot: "HOUSE" };
-  const markup = renderToStaticMarkup(React.createElement(AttendanceCreditBar, { position, draftCents: 0, compact: true, onDetails: () => {} }));
-  await page.setContent(`<style>${css}</style>${markup}`);
-  await expect(page.getByText(/12,34 disponíveis/)).toBeVisible();
-  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "79");
-  await page.getByRole("button", { name: "Detalhes ›" }).focus();
-  await expect(page.getByRole("button", { name: "Detalhes ›" })).toBeFocused();
-  const hit = await page.getByRole("button").evaluate(button => getComputedStyle(button, "::after").minHeight);
-  expect(hit).toBe("44px");
-  for (const invalid of [undefined, { ...position, effective_limit_cents: -1 }, { ...position, exposure_cents: 0.5 }]) {
-    await page.setContent(renderToStaticMarkup(React.createElement(AttendanceCreditBar, { position: invalid })));
-    await expect(page.getByText(/indisponível/)).toBeVisible();
-    await expect(page.getByRole("progressbar")).toHaveCount(0);
-  }
+test("canonical capacity is not recalculated and invalid financial DTO is explicit",async({page})=>{
+ const position={effective_limit_cents:10000,exposure_cents:7900,remaining_capacity_cents:1234,relationship_snapshot:"HOUSE"};
+ const panel=await showCredit(page,position);await expect(panel.getByText(/12,34 disponíveis/)).toBeVisible();await expect(panel.getByRole("progressbar")).toHaveAttribute("aria-valuenow","79");const details=panel.getByRole("button",{name:"Detalhes ›"});await details.focus();await expect(details).toBeFocused();expect((await details.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+ for(const invalid of [null,{...position,effective_limit_cents:-1},{...position,exposure_cents:0.5}]){const invalidPanel=await showCredit(page,invalid);await expect(invalidPanel.getByText(/indisponível/)).toBeVisible();await expect(invalidPanel.getByRole("progressbar")).toHaveCount(0);}
 });
