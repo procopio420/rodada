@@ -86,7 +86,7 @@ internal fun Ux2TabPages(
             Text(if (section == "Comanda") "${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else "${label} · ${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · destino fixo", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
             if (state.connectivity != ConnectivityState.ONLINE) Text(state.connectivity.label(), style = AttendanceUx2.text(12), color = RodadaVisual.Amber)
             state.errorMessage?.let { Text(it, color = RodadaVisual.Danger, style = AttendanceUx2.text(14)) }
-            state.noticeMessage?.let { Text(it, style = AttendanceUx2.text(14)) }
+            if (!pending) state.noticeMessage?.let { Text(it, style = AttendanceUx2.text(14)) }
             if (pending) Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(8.dp)).border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(8.dp)).padding(15.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(OrderSubmissionStatus.message(if (state.submitting) RecoveryState.PENDING else RecoveryState.CHECKING), style = AttendanceUx2.text(15, 800), color = RodadaVisual.Amber)
                 Text("Não registre outro pedido. A verificação usa a mesma intenção e o destino original.", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)

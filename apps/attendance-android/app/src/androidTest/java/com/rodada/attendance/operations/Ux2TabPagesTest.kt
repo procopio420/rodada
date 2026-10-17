@@ -43,9 +43,10 @@ class Ux2TabPagesTest {
     @Test fun pendingLocksEditingAndOnlyReplaysOriginalCallback() {
         var sends = 0
         compose.setContent { RodadaTheme { Surface {
-            Ux2TabPages(OperationsUiState(products = listOf(product), cart = listOf(CartLine(product, 2)), connectivity = ConnectivityState.ONLINE, orderIntentId = "immutable"), tab,
+            Ux2TabPages(OperationsUiState(products = listOf(product), cart = listOf(CartLine(product, 2)), connectivity = ConnectivityState.ONLINE, orderIntentId = "immutable", noticeMessage = "Enviando pedido..."), tab,
                 "Pedido atual", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, { sends++ }, { _, _ -> }, {})
         } } }
+        compose.onNodeWithText("Enviando pedido...").assertDoesNotExist()
         compose.onNodeWithText("Editar configuração").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithContentDescription("Adicionar Água").assertIsNotEnabled()
         compose.onNodeWithText("Verificar mesmo pedido").performScrollTo().performClick()

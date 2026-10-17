@@ -75,6 +75,26 @@ class LiveUx2RepeatRecoveryTest {
         val canonical = api.tabDetail(session.tokens.accessToken, opened.id)
         assertEquals(2, canonical.orders.size)
         assertEquals(afterCommit.summary.chargesCents, canonical.summary.chargesCents)
+        val statusConnection = URL(BuildConfig.RODADA_API_BASE_URL + "__fault/status").openConnection() as HttpURLConnection
+        statusConnection.connectTimeout = 10_000
+        statusConnection.readTimeout = 10_000
+        val proxyProof = try {
+            assertEquals(200, statusConnection.responseCode)
+            org.json.JSONObject(statusConnection.inputStream.bufferedReader().use { it.readText() })
+        } finally { statusConnection.disconnect() }
+        val events = proxyProof.getJSONArray("events")
+        val replay = proxyProof.getJSONArray("replays")
+        assertTrue("A committed response must actually have been dropped", events.length() >= 1)
+        assertTrue("Verification must replay the original request", replay.length() >= 1)
+        val committedOrderId = (afterCommit.orders.map { it.id } - before.orders.map { it.id }.toSet()).single()
+        val payloadHash = events.getJSONObject(0).getString("body_sha256")
+        for (records in listOf(events, replay)) for (index in 0 until records.length()) {
+            val record = records.getJSONObject(index)
+            assertEquals(opened.id, record.getString("tab_id"))
+            assertEquals(original.idempotencyKey, record.getString("idempotency_key"))
+            assertEquals(committedOrderId, record.getString("order_id"))
+            assertEquals(payloadHash, record.getString("body_sha256"))
+        }
         assertTrue(vm.state.cart.isEmpty())
         captureCriticalEvidence(compose, "ux2-repeat-reconciled-empty-cart", compose.onRoot())
         val proof = org.json.JSONObject().put("tab_id", opened.id).put("idempotency_key", original.idempotencyKey).put("intent_id", original.id).put("clear_cart_on_confirmation", original.clearCartOnConfirmation)
