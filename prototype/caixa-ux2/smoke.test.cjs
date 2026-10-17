@@ -273,4 +273,47 @@ check("rerender preserves scroll position within payment modal", () => {
   assert.equal(newBody.scrollLeft,6);
 });
 
+
+check("cashier sees plain-language Add/Remove money actions and not accounting jargon alone", () => {
+  const x=mount();x.click("nav",{view:"shift"});
+  assert(x.app.innerHTML.includes("Retirar dinheiro"));
+  assert(x.app.innerHTML.includes("Adicionar dinheiro"));
+  assert(x.app.innerHTML.includes("Sangria · levar ao cofre"));
+  assert(x.app.innerHTML.includes("Suprimento · colocar troco"));
+  assert(x.app.innerHTML.includes("não registram venda ou pagamento"));
+});
+
+check("sangria modal explains withdrawal and accurately decreases drawer balance", () => {
+  const x=mount();x.click("nav",{view:"shift"});
+  const cash=()=>x.db().drawer.movements.reduce((n,m)=>n+m.amount,0);
+  const start=cash();
+  x.click("movement",{type:"out"});
+  assert(x.app.innerHTML.includes("Retirar dinheiro da gaveta"));
+  assert(x.app.innerHTML.includes("O dinheiro vai SAIR do caixa"));
+  assert(x.app.innerHTML.includes("guardar no cofre"));
+  x.input("movementAmount","200,00");x.click("reason",{reason:"Envio ao cofre"});
+  assert(x.app.innerHTML.includes("Dinheiro esperado depois"));
+  assert(x.app.innerHTML.includes("Confirmar retirada"));
+  x.click("commit-movement");
+  assert.equal(cash(),start-20000);
+  assert(x.app.innerHTML.includes("Retirada · Sangria"));
+  assert.equal(x.db().drawer.movements.at(-1).kind,"Sangria");
+});
+
+check("suprimento modal explains cash addition and increases physical drawer only", () => {
+  const x=mount();x.click("nav",{view:"shift"});
+  const cash=()=>x.db().drawer.movements.reduce((n,m)=>n+m.amount,0);
+  const start=cash();const existingPayments=x.db().tabs.reduce((n,t)=>n+t.payments.length,0);
+  x.click("movement",{type:"in"});
+  assert(x.app.innerHTML.includes("Adicionar dinheiro à gaveta"));
+  assert(x.app.innerHTML.includes("O dinheiro vai ENTRAR no caixa"));
+  assert(x.app.innerHTML.includes("dar troco"));
+  x.input("movementAmount","100,00");x.click("reason",{reason:"Reforço de troco"});
+  assert(x.app.innerHTML.includes("Confirmar entrada"));
+  x.click("commit-movement");
+  assert.equal(cash(),start+10000);
+  assert.equal(x.db().drawer.movements.at(-1).kind,"Suprimento");
+  assert.equal(x.db().tabs.reduce((n,t)=>n+t.payments.length,0),existingPayments);
+  assert(x.app.innerHTML.includes("Entrada · Suprimento"));
+});
 console.log("All Caixa UX2 prototype regression scenarios passed.");
