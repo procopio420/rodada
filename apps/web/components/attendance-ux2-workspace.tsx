@@ -39,7 +39,7 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
       <div className="ux2Context"><div><h1 tabIndex={-1}>{tab.display_label || reference}</h1><p>{tab.table_label ? `Mesa ${tab.table_label} · ` : "Sem mesa · "}{closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
-    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1 tabIndex={-1}>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : destination}</p></>}
+    </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1 tabIndex={-1}>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : <>{destination}{surface === "catalog" && <span className="ux2FixedDestination"> · Destino fixo</span>}</>}</p></>}
     {success && <p className="ux2Toast" role="status">{success}</p>}
     {message}
     {contextualTaskNode}
