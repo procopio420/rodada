@@ -103,3 +103,36 @@ O runner local usa delays ASGI em reads (tables 800 ms/task exata 2 s) para
 exercitar a conclusão da atualização durante o readback, sem alterar respostas
 nem enfraquecer os casos negativos. Captura também a seleção fallback e o
 retorno manual. Resultados e SHA final devem acompanhar o novo ensaio.
+
+## Ensaio isolado de origem — 2026-10-17
+
+Produto `9b15ba7cb7af04f71c9fdf4585958d94827ebcd5`, teste original nesse SHA:
+PASS em 360/390/430 dp font1 e 360/390 dp font2. O primeiro 430/font2 falhou
+antes da fila, esperando `attendance-order`: nenhum sexto POST de login chegou
+à API. Reprodução mostrou IME cobrindo Entrar; o harness clicava fora da viewport.
+O teste `c2464ea0` usa `performScrollTo()` antes de Entrar. Compilação
+`assembleDebugAndroidTest -ProdadaApiBaseUrl=http://10.0.2.2:18131/` PASS e
+430/font2 PASS com revogação real, fallback explícito em Conta e retorno manual
+sem ações da chamada. Nenhuma alteração de produto foi necessária nesse último
+ensaio. Falha original e reprodução permanecem na evidência.
+
+Ambiente próprio: emulator-5558/API36, Django ASGI 18131 e PostgreSQL 55501,
+DB descartável `rodada_android_post_drop`; delays tables800ms/task2000ms.
+Sem reset de banco compartilhado, PR, merge, push ou deploy neste fechamento.
+Capturas exatas de cada largura/font e logs têm SHA256 no
+[manifest](../../docs/development/033-android-task-origin-2026-10-17/manifest.json).
+O runner original também foi preservado; os diretórios exportados pelo Android
+acumulavam capturas antigas, por isso o pacote versionado inclui somente os
+quatro nomes correspondentes à largura/font de cada execução.
+
+Resultado de navegação: TESTADO_LOCAL em seis combinações; exit0 do adb sozinho
+não foi usado como PASS (instrumentação exige `OK (1 test)` e revogação=true).
+Revisão estática independente do root em 9b15: `NO_FINDINGS_WITH_GAPS`, conforme
+handoff do integrador; isso não é aprovação GitHub nem homologação.
+JVM102/lint/build já tinham PASS no handoff anterior; não foram reexecutados
+nesta rodada de evidência. Dispositivo físico, desconexão POST, homologação e
+paridade integral seguem não executados/fora deste ensaio.
+
+Gate visual font2: NO-GO. A captura de fallback430/font2 mostra a ação Concluir
+chamada quebrando palavras em coluna estreita; a jornada automatizada passar
+não comprova legibilidade. Correção visual e novo sign-off ficam pendentes.

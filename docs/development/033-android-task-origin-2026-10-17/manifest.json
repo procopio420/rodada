@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-17",
+  "scope": "real Django/PostgreSQL isolated emulator journey; not visual sign-off",
+  "api_port": 18131,
+  "postgres_port": 55501,
+  "emulator": "5558 API36",
+  "matrix": [
+    {
+      "width_dp": 360,
+      "font_scale": 1,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "9b15ba7c",
+      "passed": true,
+      "revoked": true
+    },
+    {
+      "width_dp": 390,
+      "font_scale": 1,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "9b15ba7c",
+      "passed": true,
+      "revoked": true
+    },
+    {
+      "width_dp": 430,
+      "font_scale": 1,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "9b15ba7c",
+      "passed": true,
+      "revoked": true
+    },
+    {
+      "width_dp": 360,
+      "font_scale": 2,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "9b15ba7c",
+      "passed": true,
+      "revoked": true
+    },
+    {
+      "width_dp": 390,
+      "font_scale": 2,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "9b15ba7c",
+      "passed": true,
+      "revoked": true
+    },
+    {
+      "width_dp": 430,
+      "font_scale": 2,
+      "product_sha": "9b15ba7cb7af04f71c9fdf4585958d94827ebcd5",
+      "test_sha": "c2464ea0",
+      "passed": true,
+      "revoked": true
+    }
+  ],
+  "failure_preserved": "failed-w430-f2",
+  "hashes": {
+    "delayed_api.py": "274a4677c9682908810cb3a11732dc8fe578376c52b9d057d2c142cc0cccfefa",
+    "failed-w430-f2/diagnostic-ime-covers-login.png": "68444ba0329871c76fa5f2731fa8f4e20ee190567224d4cc70c42daf252785de",
+    "failed-w430-f2/diagnostic-instrumentation.txt": "67a059fc3cf812f747b36957b49f3571c9f3ddc134b3cb6ba155634585aedad9",
+    "failed-w430-f2/instrumentation.txt": "d99db62fcea99ffb6fc44adacd33a96956963948e79a353a88c4afd55869352d",
+    "failed-w430-f2/screen.png": "d3449d7e70af4427719f44d5fc03848fdb28be5f3525b097930a08304904299c",
+    "failed-w430-f2/window.xml": "636ed4666b0b97538137b8abfec3dea77fc84d97fe11000a521f9f9fa7ddcce1",
+    "run_native.py": "0cec07d348053190b3c1be3d6f56fd6f980cc426956eb4d9de688eb335028001",
+    "w360-f1/instrumentation.txt": "e40611f94889d46dd4f02c05c165eaef5a149bf49ba901fe9cfb78c048b2646a",
+    "w360-f1/live-agora-delivery-w360-f100.png": "77cca148671d5fc1f186d1772ba9a241be03da374bc3bb3362ccabac51158514",
+    "w360-f1/live-agora-explicit-fallback-w360-f100.png": "9a5d701100d4771baa6d18af38e67821c8547832619936074e2c33050789185a",
+    "w360-f1/live-agora-manual-return-w360-f100.png": "567a016840ba09237af4118c793c52999c3848541b2e9b69ed5e3d68c930f666",
+    "w360-f1/live-agora-service-w360-f100.png": "e4b43bc7a26f1527f47e3228d2bbf16d10ad7859f1f7f4337943feb8712f9d69",
+    "w360-f2/instrumentation.txt": "2b2f17ef028216ee0425797c41e19eeef595d1deb07b3e28360b5e08fc735b04",
+    "w360-f2/live-agora-delivery-w360-f200.png": "7537fa98f545567243ffc344b5ddf680ed6c19934bac35e4f5b3a387ea839d19",
+    "w360-f2/live-agora-explicit-fallback-w360-f200.png": "d731818140e91dc9c49d2b5134f20345732a16e134e7077649dba5b7fbe6780d",
+    "w360-f2/live-agora-manual-return-w360-f200.png": "62f7a48627f1a55263c737b811e602e3956c5902c619a90033fe022f38ccb77e",
+    "w360-f2/live-agora-service-w360-f200.png": "3c99d7251abd62422adca1721ca3c33b9eb64825fcd930bf4d015b018ebf0177",
+    "w390-f1/instrumentation.txt": "1368ff4f6ee917154284ad89007559c7edfe50c38c87a34b74e32929fdef56ba",
+    "w390-f1/live-agora-delivery-w390-f100.png": "cb3750fe16717f29896b3a6d6d95b0c1345760e2f8b228a07384c8eb7b044c26",
+    "w390-f1/live-agora-explicit-fallback-w390-f100.png": "3789230fd392596a6d2af8bbb653e1e9d07e6a273a90b9db38ac5319966e1462",
+    "w390-f1/live-agora-manual-return-w390-f100.png": "c891a5b99a0a771b2ab6d8cc89b16a7f85f593e90f877ed6b0a3b7abd56c6d31",
+    "w390-f1/live-agora-service-w390-f100.png": "5285822f2ba80da9b536f0d07aac0a98cdbe9a467c01062257cd9028ca50f3fa",
+    "w390-f2/instrumentation.txt": "8fb50168c87929bee327bf5106465b9ca7a01492ac7fabcd2ba7e51339913179",
+    "w390-f2/live-agora-delivery-w390-f200.png": "9ca50cd2db9c58ee51823525bb255f58ac6a7c8631a890129ca5659d5127bf2f",
+    "w390-f2/live-agora-explicit-fallback-w390-f200.png": "c070dfbb0ff29f8cb38bd6ec4537b46bf5e65a2c7b449ec1a198682e3f23084c",
+    "w390-f2/live-agora-manual-return-w390-f200.png": "daef8dd9a194c5df3aff1fb1752ea3be81d2e2961aff2ceeb1d4a3092e20a3af",
+    "w390-f2/live-agora-service-w390-f200.png": "d50157c0342476b1a65c70e6ac2005538e501a30c3cf398e9912a2938c0f8326",
+    "w430-f1/instrumentation.txt": "0508d757f75ab91c59861a42e979b7a060e97d9f830114e70cf17946c2a3de4e",
+    "w430-f1/live-agora-delivery-w430-f100.png": "92fa5ccd3bfc63fa8244b68b698e3214a887e55e82575a1197e499f886e5255c",
+    "w430-f1/live-agora-explicit-fallback-w430-f100.png": "9cce2fc9e73794c3da994f41f80e57462900c62a711deb89009dcab07058fd25",
+    "w430-f1/live-agora-manual-return-w430-f100.png": "fd9d5e0010e5b27329cbbe473a429430c6c5b3090f49f502a279713dc3a68ab5",
+    "w430-f1/live-agora-service-w430-f100.png": "3f997a89acd832865e376bb698c028ca906f6ffad95e6a97c6f90572f5311615",
+    "w430-f2/instrumentation.txt": "e05c9b617604567ecfd07b86b44ff74b163002b5ddfb7bee96d3fbc7f05d075c",
+    "w430-f2/live-agora-delivery-w430-f200.png": "f2cca8f24b8fc77556231377a76544394de3b7db6f4cbd5ec5da1c4b8dc5a1b0",
+    "w430-f2/live-agora-explicit-fallback-w430-f200.png": "7ec7df15d909b04a143fd268d1996787ed8505f99f2deb5f3abc49fe00281003",
+    "w430-f2/live-agora-manual-return-w430-f200.png": "963bcd25c3b79f93ffa77ab3a611b7accfa6dfe972c4cd082dc1462f63711123",
+    "w430-f2/live-agora-service-w430-f200.png": "4b29d86df38585bc95ab461f757de2c7265c195d30a0c3313a910fad973f2099"
+  }
+}
