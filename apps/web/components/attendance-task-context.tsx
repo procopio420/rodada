@@ -21,12 +21,18 @@ export function AttendanceTaskContext({taskId,staffId,recoveryScope,onBack,onCha
     return canonical;
   },[taskId,storageKey,staffId,onChanged]);
   useEffect(()=>{
-    active.current=true;currentTask.current=taskId;setTask(null);setPending(null);setFresh(false);setError("");
-    try{const stored=localStorage.getItem(storageKey);if(stored==="claim"||stored==="complete")setPending(stored);}
-    catch{setError("Recuperação indisponível. Confira a chamada antes de agir.");return()=>{active.current=false;readEpoch.current++;};}
-    const read=()=>{if(sending.current)return;void refresh().catch(failure=>{if(active.current){setFresh(false);setError(failure.message)}});};
-    read();const timer=setInterval(read,15000);return()=>{active.current=false;readEpoch.current++;clearInterval(timer)};
-  },[storageKey,refresh]);
+    active.current=true;currentTask.current=taskId;
+    let storageReady=false;
+    const read=()=>{if(sending.current||!storageReady)return;void refresh().catch(failure=>{if(active.current){setFresh(false);setError(failure.message)}});};
+    queueMicrotask(()=>{
+      if(!active.current||currentTask.current!==taskId)return;
+      setTask(null);setPending(null);setFresh(false);setError("");
+      try{const stored=localStorage.getItem(storageKey);if(stored==="claim"||stored==="complete")setPending(stored);storageReady=true;}
+      catch{setError("Recuperação indisponível. Confira a chamada antes de agir.");return;}
+      read();
+    });
+    const timer=setInterval(read,15000);return()=>{active.current=false;readEpoch.current++;clearInterval(timer)};
+  },[taskId,storageKey,refresh]);
   async function act(action:Action){
     if(sending.current||!fresh||!task)return;
     sending.current=true;readEpoch.current++;setBusy(true);setError("");
