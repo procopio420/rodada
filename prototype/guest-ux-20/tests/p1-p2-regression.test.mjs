@@ -105,17 +105,20 @@ test('Guest has exactly two primary destinations: Pedir and Minha comanda', () =
   assert.ok(run("nav().includes('Minha comanda')"));
   assert.ok(run("renderAccount().includes('Minha comanda')"));
   assert.ok(run("renderAccount().includes('Mais uma rodada')"));
-  assert.ok(run("renderAccount().includes('Acompanhar pedido')"));
+  assert.ok(run("renderAccount().includes('Ver todos')"));
   assert.ok(run("renderAccount().includes('Trocar de comanda')") || run("renderAccount().includes('Ajuda e opções')"));
 });
 
-test('After sending a table order, guest lands in Comanda with tracking and repeat', () => {
+test('After sending a table order, guest stays in Pedir with inline confirmation', () => {
   const run = boot('#mesa');
   run('enter()');
   assert.equal(run('S.scene'), 'catalog');
   run("S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];sendCart()");
-  assert.equal(run('S.scene'), 'account');
+  assert.equal(run('S.scene'), 'catalog');
   assert.equal(run('S.orders.length'), 1);
+  assert.ok(run("renderCatalog().includes('Pedido #')"));
+  assert.ok(run("renderCatalog().includes('Acompanhar pedido')"));
+  run("switchView('account')");
   assert.ok(run("renderAccount().includes('Mais uma rodada')"));
   run('repeatLast();confirmRepeat()');
   assert.equal(run('S.orders.length'), 2);
@@ -129,8 +132,9 @@ test('Nightclub Ficha replaces Agora and retains pickup/repeat/help/payment', ()
   assert.ok(run("nav().includes('Minha ficha')"));
   assert.ok(run("renderFicha().includes('FG84')"));
   assert.ok(run("renderFicha().includes('Mais uma rodada')"));
-  assert.ok(run("renderFicha().includes('Ajuda e opções')"));
-  assert.ok(run("renderFicha().includes('Ver conta')"));
+  assert.ok(run("header().includes('Pedir ajuda à equipe')"));
+  assert.ok(run("renderFicha().includes('Conta e pagamento')"));
+  assert.equal(run("(renderFicha().match(/Pagar agora/g)||[]).length"), 0);
   assert.ok(run("renderFicha().includes('Pronto para retirar')"));
 });
 
@@ -141,4 +145,36 @@ test('Migrates legacy home scene to Comanda and updates current table label', ()
   run("requestMove('12');staffConfirmMove()");
   assert.equal(run('S.scene'), 'account');
   assert.ok(run("header().includes('Mesa 12')"));
+});
+
+
+test('All active table orders contribute to one compact, actionable summary', () => {
+  const run = boot('#pay');
+  run("S.orders=[{id:'#201',status:'Recebido',items:[makeItem('heineken',1,'','you')]},{id:'#202',status:'Em preparo',items:[makeItem('batata',1,'','you')]},{id:'#203',status:'Pronto / chegando',items:[makeItem('ipa',1,'','you')]},{id:'#204',status:'Entregue (cliente confirmou)',items:[makeItem('heineken',1,'','you')]}]");
+  assert.equal(run('S.orders.length'), 4);
+  assert.ok(run("renderComandaOrders().includes('1 pronto ou chegando')"));
+  assert.ok(run("renderComandaOrders().includes('1 em preparo')"));
+  assert.ok(run("renderComandaOrders().includes('1 recebido')"));
+  assert.ok(run("renderComandaOrders().includes('+ 1 pedido em andamento')"));
+  assert.ok(run("renderComandaOrders().includes('Ver todos (4)')"));
+});
+
+test('Account keeps balance prominent and detailed consumption collapsed', () => {
+  const run = boot('#pay');
+  const account = run('renderAccount()');
+  assert.ok(account.includes('FALTA PAGAR'));
+  assert.ok(account.includes('R$ 60,00'));
+  assert.ok(account.includes('<details class="bill-details">'));
+  assert.ok(account.includes('Ver consumo detalhado'));
+  assert.ok(run("header().includes('Pedir ajuda à equipe')"));
+});
+
+test('Header gear opens lab while DEMO strip is not customer-facing', () => {
+  const run = boot('#mesa');
+  assert.ok(run("header().includes('Abrir laboratório do protótipo')"));
+  assert.equal(run("renderOverlay()"), '');
+  run("S.modal='lab'");
+  assert.ok(run("renderOverlay().includes('Visualizar')"));
+  assert.ok(run("renderOverlay().includes('Mesa')"));
+  assert.ok(run("renderOverlay().includes('Ficha')"));
 });
