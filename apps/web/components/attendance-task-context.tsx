@@ -21,6 +21,7 @@ export function AttendanceTaskContext({taskId,staffId,recoveryScope,navigationLo
     return canonical;
   },[taskId,storageKey,staffId,onChanged]);
   useEffect(()=>{
+    const epochRef=readEpoch;
     active.current=true;currentTask.current=taskId;
     let storageReady=false;
     const read=()=>{if(sending.current||!storageReady)return;void refresh().catch(failure=>{if(active.current){setFresh(false);setError(failure.message)}});};
@@ -31,7 +32,7 @@ export function AttendanceTaskContext({taskId,staffId,recoveryScope,navigationLo
       catch{setError("Recuperação indisponível. Confira a chamada antes de agir.");return;}
       read();
     });
-    const timer=setInterval(read,15000);return()=>{active.current=false;readEpoch.current++;clearInterval(timer)};
+    const timer=setInterval(read,15000);return()=>{active.current=false;epochRef.current++;clearInterval(timer)};
   },[taskId,storageKey,refresh]);
   async function act(action:Action){
     if(sending.current||!fresh||!task)return;
