@@ -32,6 +32,8 @@ class LiveUx2ReceiptRecoveryTest {
         val session = AuthHttpClient(upstream).login(LoginRequest("android-post-drop-ci", "android-post-drop-operator", "2468", "receipt-" + UUID.randomUUID()))
         SecureSessionStore(context).save(session)
         val api = OperationsHttpClient(upstream)
+        val cashPoint = api.cashPoints(session.tokens.accessToken).firstOrNull { it.activeShiftId != null }
+        val method = if (cashPoint != null) PaymentMethod.CASH else PaymentMethod.EXTERNAL_TERMINAL
         val auth = AuthRepository(context)
         val queue = PendingMutationIntentStore(context)
         check(queue.loadFor(session).isEmpty())
@@ -53,7 +55,7 @@ class LiveUx2ReceiptRecoveryTest {
             compose.waitUntil(30_000) { model!!.state.selectedTab?.summary?.id == tab.id && !model!!.state.loading }
             val amount = model!!.state.selectedTab!!.summary.exposureCents
             control("arm-$fault")
-            compose.runOnUiThread { model!!.collectPayment(session, amount, PaymentMethod.EXTERNAL_TERMINAL, null, true) }
+            compose.runOnUiThread { model!!.collectPayment(session, amount, method, cashPoint?.id, true) }
             compose.waitUntil(45_000) { !model!!.state.submitting && model!!.state.pendingPayment != null }
             val original = queue.loadFor(session).filterIsInstance<RecoveryIntent.StartPayment>().single()
             assertEquals(amount, original.amountCents)

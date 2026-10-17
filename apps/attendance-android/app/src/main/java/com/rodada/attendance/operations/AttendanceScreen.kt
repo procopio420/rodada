@@ -1146,7 +1146,7 @@ internal fun TabSummary.stateLabel(): String =
         else -> state
     }
 
-private fun itemStateLabel(state: String): String =
+internal fun itemStateLabel(state: String): String =
     when (state) {
         "NEW" -> "Novo"
         "ACCEPTED" -> "Aceito"
