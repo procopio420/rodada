@@ -93,9 +93,9 @@ test('failed contextual Tab read cannot attach the previous call to another Tab'
   await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true}).getByText('Comanda indisponível para este teste',{exact:true})).toBeVisible();
   await expect(page.getByRole('complementary',{name:'Chamado de origem'})).toHaveCount(0);
   await page.locator(`button[data-tab-id="${secondId}"]`).click();
-  await expect(page.locator('.attendanceOrderDialog')).toContainText('Manual B');
+  await expect(page.getByRole('region',{name:'Comanda selecionada',exact:true})).toContainText('Manual B');
   await expect(page.getByRole('complementary',{name:'Chamado de origem'})).toHaveCount(0);
-  await page.locator('.attendanceOrderDialog').getByRole('button',{name:'Voltar',exact:true}).click();
+  await page.getByRole('region',{name:'Comanda selecionada',exact:true}).getByRole('button',{name:'Voltar',exact:true}).click();
   await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true})).toBeVisible();
   expect(writes).toEqual([]);
   const canonical=await page.evaluate(async id=>(await (await fetch(`/api/attendance/dispatch/tasks/${id}/`)).json()),fixture.task.id);
