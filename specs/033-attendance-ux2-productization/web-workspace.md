@@ -79,3 +79,20 @@ na leitura imediata do envelope ainda em limpeza assíncrona após readback; pas
 em reexecução1/1(13,5s) aguardando término com expect.poll. Identidade/payload,
 Order único, exposição1500 e ausência de Payment continuam assertados. Não relatar
 execução conjunta como11/11; evidência é10PASS+reexecução dirigida1PASS.
+
+## Gate de código dinâmico e cobertura da barra real
+
+O CI #224 rejeitou new Function no harness da barra. O teste foi migrado para
+navegar Attendance real com fixtures de API, sem transpile/eval/rota de teste.
+Mantém 0/79/80/99/100/120%, projeção500 nas versões expandidas, zero/DTOinválido,
+capacidade canônica e foco/alvo44. Suíte final9/9PASS em1,1min cobrindo360/390/430/
+1280 e fontes1/2x. Tentativas anteriores falharam por seletor no filho emvezraiz,
+rascunho persistido entre fixtures e expectativa de texto sópresente na versão
+expandida; corrigidas sem bypass/remoção do gate. Execuções paralelas anteriores
+colidiram nos paths de artefatos; contagem final vem do handle36204, não do report
+sobrescrito. Capturas/report limpos exigem execução isolada com output próprio.
+
+R3 financeiro independente sobre3fc2ac55: NO_FINDINGS_WITH_GAPS (outrocontexto
+review_e04_final), sem execução independente/GitHubapproval. Lacunas: repetir
+recovery/keepOpen emAttendance (atuais ensaios principais emPOS), storagephase
+failure e callbackfailure. Agente independente assumiu testes adicionais.
