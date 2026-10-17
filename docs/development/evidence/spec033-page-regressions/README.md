@@ -69,3 +69,33 @@ reversão canônica, e repetindo rodada em 360/390/430 com preço atual, mesmo
 payload/UUID no replay, OrderID único, ledger e snapshot histórico preservados.
 Log `run-removal-repeat.log`. O helper ainda precisa corrigir a sincronização
 antes da revalidação final; estes resultados não concedem aceite de paridade.
+
+
+## Revalidação final com sincronização dos retornos
+
+Helper do integrador `6afc602f` integrado como `d051f84a`: aguarda a comanda
+ficar oculta e a presença da mesa ou da navegação real antes de voltar à lista.
+Não aumenta timeouts nem substitui cliques por chamadas da API. Typecheck e
+ESLint passaram. A primeira execução dos 12 cenários produziu **11/12 PASS**
+(3,9 min): rascunho 430 falhou após cancelar o descarte e clicar Enviar, sem
+POST de confirmação da Tab B no trace. O draft permaneceu intacto. O teste
+verificava o item atrás do diálogo sem aguardar explicitamente sua remoção.
+
+Acrescentada a assertion de diálogo de descarte oculto após Voltar, antes de
+verificar o rascunho e enviar. Nenhuma assertion de confirmação, ledger,
+quantidade, UUID, payload ou isolamento foi removida. A execução dirigida dos
+três rascunhos passou **3/3** (47,5 s). A causa interna do clique perdido não é
+provada por um resultado verde; a sincronização exige agora o fim observável
+da etapa anterior, e os resultados falhos ficam preservados.
+
+Execução integral final com a sincronização explícita: **12/12 PASS, 3,3 min**,
+sem retries. `run-twelve-verified.log` contém o comando e cada resultado.
+Cobertura: referência e estação histórica canônicas em 360/390/430/1280;
+transição real de produção; reversão financeira de item confirmado;
+repetição com preço atual/ACK perdido e replay idêntico em 360/390/430;
+rascunhos A/B/C isolados e confirmação independente em 360/390/430; mesa
+compartilhada com Tabs anteriores à primeira página e pedidos no destino certo.
+
+Esta evidência cobre os cinco arquivos de integração, não a regressão Web
+inteira, Android, fonte ampliada, paridade lado a lado ou homologação operacional.
+Nenhum épico é declarado aceito por este resultado. Sem merge ou deploy.
