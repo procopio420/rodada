@@ -133,3 +133,34 @@ Checklists permanecem abertos até execução verificável; código adicionado n
 - [ ] Duas rotações da mesma credencial em Venues distintos serializam por credencial: uma vence e a outra recebe autorização revogada, sem deadlock/500. Sessões anteriores ficam revogadas e visitas anônimas permanecem válidas.
 - [ ] Cookie HttpOnly não entrega auth token à JS; CSRF/Host/cabeçalhos forjados testados com BFF real.
 - [ ] UI Guest responsive 360/390/430/desktop, acessibilidade, testes PostgreSQL/CI e revisor independente R3 aprovados; merge depois de aceite.
+
+
+## Cliente UX 2.0 — Mesa, Ficha e Híbrido (decisão de 16/10/2026)
+
+**Fonte de verdade:** [guest-ux20-contract.md](guest-ux20-contract.md). A lista abaixo é de **gates ainda pendentes em código real**, não revalida o MVP antigo nem marca testes simulados como integração.
+
+### Configuração / acesso
+- [ ] Manage/API fornece modo de experiência tipado MESA | FICHA | HIBRIDO por Venue; somente gerente pode alterar; auditoria, versão, isolamento e concorrência testados.
+- [ ] QR TABLE e QR BAR_PICKUP são tipos distintos de ponto de acesso com token opaco; QR de mesa nunca é reinterpretado como Ficha.
+- [ ] Em HIBRIDO, scan de Table abre Mesa e scan de BAR_PICKUP abre Ficha, sem seletor de modo na UI.
+- [ ] Mudar configuração com Tabs e pagamentos ativos não converte modo da Tab, não apaga/mescla ledger e não migra GuestSession silenciosamente. Novas sessões seguem modo novo.
+- [ ] Table.guest_ordering_mode DISABLED/JOIN_ACTIVE/DIRECT continua ortogonal ao modo Venue; staff ainda bloqueia guest ordering.
+
+### Venda e produção
+- [ ] Mesa permite comida e bebida elegíveis com roteamento canônico Bar/Cozinha e entrega.
+- [ ] **Ficha somente BEVERAGE elegível para BAR_PICKUP**: UI filtra, API bloqueia comida, porções, combos mistos, variações e bypass por API, sem Order/Charge.
+- [ ] Ficha não exige TableOccupancy. Código FG84 visível na ficha e no BAR, único entre fichas ativas, gerado/revogado com consistência sob concorrência.
+- [ ] Bartender verifica código + itens visualmente; nenhum scan/PIN/ack obrigatório. Marcação de retirada opcional não apaga fila canônica.
+- [ ] Mesa e Ficha funcionam simultaneamente em Híbrido sem criar pedidos de Ficha na Cozinha ou compartilhar financeiro.
+
+### UX / dinheiro / resiliência
+- [ ] UI real em dois destinos Pedir + Minha comanda ou Pedir + Minha ficha, sem Agora ou terceira aba; Ficha tem um único Conta e pagamento.
+- [ ] Envio deixa cliente no catálogo com confirmação visível e Ver pedido, suporta Mais uma rodada sem confirmar duas vezes e status agregados.
+- [ ] Partial/prepay/PSP, tentativa pendente, concorrência, refresh e retry mantêm idempotência e ledger por Tab. Completar pagamento não libera mesa.
+- [ ] QR ocupado não revela itens de outras Tabs; QR e FG84 não são segredos para abrir ledger; cross-Venue/Tab e sessão revogada rejeitados no servidor.
+- [ ] Limite e risco internos não aparecem ao cliente; quando política exigir adiantamento, só mostrar valor necessário, sem score.
+- [ ] Produto esgotado ou preço alterado revalida na API; offline/ACK incerto não duplica pedidos.
+- [ ] 360×640, 390×844, 430×932 e desktop renderizados em navegador real, incluindo sheets, teclado, safe area, zoom, screen reader e ausência de overflow.
+- [ ] E2E com Django/PostgreSQL reais, Web Guest + Bar + Cozinha + Caixa + Manage, CI no SHA final e revisão independente.
+
+**Fora do MVP:** agendamento por horário/turno, comida em Ficha, escolha de modo pelo guest e migração automática entre Mesa e Ficha. **Não marcar nenhum checkbox como feito sem evidência de implementação.**
