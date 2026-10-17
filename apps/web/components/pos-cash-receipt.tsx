@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { tabReference } from "@/lib/client/tab-identity";
 import { OperationalHeading } from "@/components/operational-heading";
 import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-auth";
 
 const storageKey = "rodada.intent.pos-cash.v1";
-type Tab = { id: string; display_label: string; version: number; state: string; exposure_cents?: number };
+type Tab = { id: string; display_label: string; table_label?: string | null; version: number; state: string; exposure_cents?: number };
 type CashPoint = { id: string; label: string };
 type LegacyIntent = {
   schema: 1; venue: string; staff: string; session: string; tab: string; captured_at: string;
@@ -213,7 +214,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
     </section>;
     return <section className="ux2Workspace ux2Payment" aria-label="Recebimento em dinheiro">
       <button className="ux2Back" disabled={busy || !!pending || !ready} onClick={() => {setPaymentOpen(false);onPaymentSurfaceChange?.(false);}}><span aria-hidden="true">‹</span> Voltar</button>
-      <div className="ux2Eyebrow">Recebimento manual</div><h1>Receber conta.</h1><p className="ux2Lede">{tab?.display_label || "Comanda original"}</p>
+      <div className="ux2Eyebrow">Recebimento manual</div><h1>Receber conta.</h1><p className="ux2Lede">{tab ? `${tab.display_label || "Comanda"} · ${tabReference(tab)} · ${tab.table_label ? `Mesa ${tab.table_label}` : "Sem mesa"}` : "Comanda original"}</p>
       {message && <p className="ux2Notice" role="status">{message}</p>}
       {terminal && !pending && <p className="ux2Notice" role="status">A comanda não está aberta para recebimento. Volte para conferir a conta atualizada.</p>}
       {pending ? <><p className="ux2Notice">Recebimento de {money(pending.payload.amount_cents)} na comanda original.</p>{canKeepOpen && <button className="ux2Button ghost block" disabled={busy} onClick={()=>void collect(false,true)}>Manter comanda aberta</button>}<button className="ux2Button primary block" disabled={busy} onClick={()=>void collect()}>{busy?"Verificando…":"Verificar mesmo recebimento"}</button></> : ready && tab ? <>
