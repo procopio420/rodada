@@ -7,6 +7,8 @@ Recuperação da intenção segue o contrato de sessão da Spec 009.
 
 **Status:** MVP operacional implementado e validado; integração condicionada aos gates do PR #150. Roadmap explicitamente rastreado em `closeout.md` (#144–#148).
 
+**Aditivo de produto (16/10/2026):** [Cliente UX 2.0 — Mesa/Ficha/Híbrido](guest-ux20-contract.md) define a referência para futuras alterações. Aprovação da UX **não equivale** a backend/PSP/Manage integrado ou E2E real homologado.
+
 ## Objetivo
 
 Permitir que mesas selecionadas tenham ciclo operacional explícito e que clientes possam pedir pelo próprio celular sem instalação obrigatória, mantendo **Tab como unidade financeira**.
@@ -238,15 +240,16 @@ DIRECT
 - `JOIN_ACTIVE`: guest só entra quando há ocupação ativa.
 - `DIRECT`: guest pode iniciar fluxo numa mesa disponível.
 
-### GUEST-012 — Navegação contínua
+### GUEST-012 — Navegação contínua (decisão UX 2.0 — 16/10/2026)
 
-A navegação base da experiência guest possui no máximo três destinos primários:
+**Contrato UX 2.0 aprovado:** somente duas abas guest:
 
-- **Cardápio**;
-- **Pedidos**;
-- **Conta**.
+- **Mesa:** Pedir | Minha comanda.
+- **Ficha:** Pedir | Minha ficha (Conta e pagamento é subtela).
 
-O cardápio prioriza quick-add e uso com uma mão; detalhes/modificadores aparecem somente quando necessários. Pedidos anteriores oferecem **Pedir novamente** quando o item continua disponível.
+**Não** adicionar “Agora” ou “Pedidos” como terceira aba. Cardápio é a home: envia pedido, mostra confirmação não bloqueante com Ver pedido e mantém o guest em Pedir. Comanda/ficha exibem status agregados, Mais uma rodada e saldo. A Ficha prioriza código curto FG84 e bebidas prontas para retirada, com histórico recolhível. Detalhes/modificadores apenas quando necessários.
+
+A antiga navegação de três destinos foi entregue no MVP histórico, mas **não é a referência para novos trabalhos**. A decisão detalhada, incluindo modos, catálogo e aceites, consta em [guest-ux20-contract.md](guest-ux20-contract.md).
 
 ### GUEST-013 — Solicitações de atendimento
 
@@ -263,6 +266,19 @@ Essas ações criam DispatchTask sem exigir que o garçom marque manualmente cad
 Guest pode consultar sua Tab em tempo real. Quando houver identidade de participante suficiente, a UI pode distinguir `minha parte` do total do grupo e preparar futuros fluxos de divisão/pagamento sem transformar Table em conta.
 
 Pagamento online e regras avançadas de split permanecem fora do escopo inicial desta spec.
+
+### GUEST-015 — Configuração de experiência do Venue (UX 2.0)
+
+O gestor configura **Mesa, Ficha ou Híbrido**. Essa política tipada é diferente de guest_ordering_mode DISABLED/JOIN_ACTIVE/DIRECT (controle de permissão da Table). O cliente não seleciona modo; servidor resolve por Venue e acesso/QR tipado.
+
+- Mesa: bebidas/comidas e entrega na mesa.
+- Ficha: **somente bebidas para retirada no BAR**, com FG84 na tela guest e na fila bartender, conferência visual sem scan/ack obrigatório.
+- Híbrido: os dois simultâneos por área/QR distintos; QR TABLE não vira BAR_PICKUP.
+- Configuração manual no Manage no MVP, automática por turno somente no roadmap.
+- Tab/ledger/sessão já ativa preserva modo original quando configuração muda.
+- Elegibilidade de bebida e roteamento BAR_PICKUP validados no backend, não por ocultação de comida no frontend.
+- Cada Tab mantém pagamentos, limites e ledger separados. Guest não vê valores internos de risco.
+- Critérios, modelo sugerido e gates estão em [guest-ux20-contract.md](guest-ux20-contract.md).
 
 ## Identificadores de Tab
 
