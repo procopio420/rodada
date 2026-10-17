@@ -57,7 +57,7 @@ test('P1 self payment has a consumption-first next action', () => {
   assert.ok(run("renderOverlay().includes('Continuar pedindo')"));
   assert.ok(run("renderOverlay().includes('Ver conta')"));
   run("startPayment('all');previewPayment();choosePaymentMethod('CARD');approveDemoPayment()");
-  assert.ok(run("renderOverlay().includes('Voltar ao agora')"));
+  assert.ok(run("renderOverlay().includes('Ver minha comanda')"));
 });
 
 test('P1 invalid join and payment amounts display persistent, local alerts', () => {
@@ -94,4 +94,51 @@ test('P0 regressions: QR authorization, pending payment, partial and prepaid', (
   prepaid("sendCart();checkoutFromBlock();choosePaymentMethod('CARD');approveDemoPayment()");
   assert.equal(prepaid('S.orders.length'), 1);
   assert.equal(prepaid('balance()'), 0);
+});
+
+
+test('Guest has exactly two primary destinations: Pedir and Minha comanda', () => {
+  const run = boot('#pay');
+  assert.equal(run("nav().includes('Agora')"), false);
+  assert.equal(run("(nav().match(/<button/g)||[]).length"), 2);
+  assert.ok(run("nav().includes('Pedir')"));
+  assert.ok(run("nav().includes('Minha comanda')"));
+  assert.ok(run("renderAccount().includes('Minha comanda')"));
+  assert.ok(run("renderAccount().includes('Mais uma rodada')"));
+  assert.ok(run("renderAccount().includes('Acompanhar pedido')"));
+  assert.ok(run("renderAccount().includes('Trocar de comanda')") || run("renderAccount().includes('Ajuda e opções')"));
+});
+
+test('After sending a table order, guest lands in Comanda with tracking and repeat', () => {
+  const run = boot('#mesa');
+  run('enter()');
+  assert.equal(run('S.scene'), 'catalog');
+  run("S.cart=[{...getProduct('ipa'),productId:'ipa',variant:'',qty:1,price:1900}];sendCart()");
+  assert.equal(run('S.scene'), 'account');
+  assert.equal(run('S.orders.length'), 1);
+  assert.ok(run("renderAccount().includes('Mais uma rodada')"));
+  run('repeatLast();confirmRepeat()');
+  assert.equal(run('S.orders.length'), 2);
+  assert.equal(run('S.scene'), 'account');
+});
+
+test('Nightclub Ficha replaces Agora and retains pickup/repeat/help/payment', () => {
+  const run = boot('#pickup');
+  assert.equal(run("nav().includes('Agora')"), false);
+  assert.equal(run("(nav().match(/<button/g)||[]).length"), 2);
+  assert.ok(run("nav().includes('Minha ficha')"));
+  assert.ok(run("renderFicha().includes('FG84')"));
+  assert.ok(run("renderFicha().includes('Mais uma rodada')"));
+  assert.ok(run("renderFicha().includes('Ajuda e opções')"));
+  assert.ok(run("renderFicha().includes('Ver conta')"));
+  assert.ok(run("renderFicha().includes('Pronto para retirar')"));
+});
+
+test('Migrates legacy home scene to Comanda and updates current table label', () => {
+  const run = boot('#move');
+  run("S.scene='home';render()");
+  assert.equal(run('S.scene'), 'account');
+  run("requestMove('12');staffConfirmMove()");
+  assert.equal(run('S.scene'), 'account');
+  assert.ok(run("header().includes('Mesa 12')"));
 });
