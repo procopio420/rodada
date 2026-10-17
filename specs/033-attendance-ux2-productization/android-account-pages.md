@@ -5,7 +5,7 @@ Reutilizar Payment CASH/terminal externo, ledger, close e armazenamento cifrado.
 Adicionar sequência durável com ID de Payment confirmado antes de Close, readback
 entre operações e recuperação sem repetir recebimento confirmado. Campos opcionais
 preservam envelopes antigos. Parcial mantém OPEN; fechamento não libera ocupação.
-Pix e cartão não homologados permanecem indisponíveis nesta apresentação. Terminal
+Pix segue a capability canônica; cartão não homologado permanece indisponível. Terminal
 externo exige confirmação humana prévia e mantém o contrato canônico existente.
 
 Gates pendentes: testes de falha/reinício/concorrência, R3 independente, comparação
@@ -25,8 +25,8 @@ Nenhum critério integralmente aceito por este documento.
 - Funcionalidades preexistentes de correção, restituição, precificação e operações
   da Tab continuam acessíveis nos detalhes (`0e5a5f4c`).
 - CASH exige caixa com turno ativo; registro de terminal externo confirma apenas
-  informação manual observada, sem disparar PSP. Pix/cartão desabilitados nesta
-  apresentação aguardam disponibilidade/homologação. Essas diferenças operacionais
+  informação manual observada, sem disparar PSP. Pix segue capability canônica; SDK de cartão aguarda homologação. Sandbox Pix e
+  Tap debug permanecem explicitamente marcados SIMULAÇÃO, sem afirmar dinheiro recebido. Essas diferenças operacionais
   frente ao protótipo devem ser explicitamente aprovadas no gate de paridade.
 - Testes novos cobrem orchestration JVM e instrumentação opt-in com Django/PG real,
   mas sua existência não comprova execução. Resultados finais serão registrados
