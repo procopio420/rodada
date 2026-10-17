@@ -169,8 +169,9 @@ fun AttendanceScreen(
                 viewModel.selectTab(session, target.tabId)
             }
             is StaffTaskTarget.Table -> {
-                val table = target.currentTable(viewModel.state.tables)
-                if (table == null || state.loading || state.connectivity != ConnectivityState.ONLINE) {
+                val freshState = viewModel.state
+                val table = target.currentTable(freshState.tables)
+                if (table == null || freshState.loading || freshState.connectivity != ConnectivityState.ONLINE) {
                     taskNotice = "Vínculo desatualizado. Atualize a fila e confira a ocupação; nenhuma comanda foi escolhida."
                     viewModel.refresh(session)
                 } else {

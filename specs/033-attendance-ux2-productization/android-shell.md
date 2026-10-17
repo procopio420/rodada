@@ -87,3 +87,19 @@ Checagem posterior de runtime: `adb devices` sem dispositivos; nenhum processo
 da API isolada 18131, emulador 5558 ou runner live-agora encontrado. Ensaio real
 `NOT_RUN` por runtime indisponível; nenhuma stack foi recriada/resetada. Fix
 mantido na worktree isolada para integração pelo responsável.
+
+## Readback durante atualização concorrente
+
+Ensaio nativo real do fix de origem: 360 dp/font1 passou; 390 dp/font1
+falhou ao exibir vínculo desatualizado após leitura exata. A abertura TABLE
+consultava `loading`/conectividade do snapshot da composição anterior ao IO,
+ao mesmo tempo que validava a mesa recém-lida. Correção: avaliar esses três
+campos do mesmo estado atual após o IO; verificações de sessão, ID/tipo/estado
+e occupancy/generation permanecem.
+
+A variante de teste `refreshBeforeTask` inicia atualização explícita, comprova
+que Atualizar está indisponível enquanto ela ocorre e então abre a chamada.
+O runner local usa delays ASGI em reads (tables 800 ms/task exata 2 s) para
+exercitar a conclusão da atualização durante o readback, sem alterar respostas
+nem enfraquecer os casos negativos. Captura também a seleção fallback e o
+retorno manual. Resultados e SHA final devem acompanhar o novo ensaio.

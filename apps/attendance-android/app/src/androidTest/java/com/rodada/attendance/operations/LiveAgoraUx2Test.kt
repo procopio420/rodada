@@ -39,6 +39,13 @@ class LiveAgoraUx2Test {
                 val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
                 java.io.File(files, "task-readback-ready").writeText("ready")
                 compose.waitUntil(60_000) { java.io.File(files, "task-readback-revoked").exists() }
+                if (args.getString("refreshBeforeTask") == "true") {
+                    compose.onNodeWithTag("attendance-options").performClick()
+                    compose.onNodeWithText("Atualizar").performClick()
+                    compose.onNodeWithTag("attendance-options").performClick()
+                    compose.onNodeWithText("Atualizar").assertIsNotEnabled()
+                    InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+                }
                 compose.onNodeWithTag("service-$id").performScrollTo().performClick()
                 compose.waitUntil(30_000) { compose.onAllNodes(hasText("Em uso ·", substring = true)).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("workspace-Conta").assertDoesNotExist()
@@ -49,6 +56,7 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertExists()
                     compose.onNodeWithText("Concluir chamada").assertExists()
+                    captureCriticalEvidence(compose, "live-agora-explicit-fallback", compose.onRoot())
                     // Leaving the workspace ends the task-origin navigation. Reopening the
                     // same Tab manually must not restore the old call.
                     compose.onNodeWithText("← Mesas e comandas").performClick()
@@ -56,6 +64,7 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertDoesNotExist()
                     compose.onNodeWithText("Concluir chamada").assertDoesNotExist()
+                    captureCriticalEvidence(compose, "live-agora-manual-return", compose.onRoot())
 
                 }
                 return
