@@ -751,58 +751,90 @@ class OperationsViewModel(
         amountCents: Long,
         method: PaymentMethod,
         cashPointId: String?,
+        closeRequested: Boolean = false,
     ) {
         if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
             startTapSimulation(session, amountCents, method)
             return
         }
-        if (method == PaymentMethod.PIX) {
-            startPix(session, amountCents)
+        if (method == PaymentMethod.PIX) { startPix(session, amountCents); return }
+        val tab = state.selectedTab?.summary ?: return
+        if (state.submitting) return
+        val existing = state.pendingPayment
+        if (existing == null && (amountCents <= 0 || amountCents > tab.exposureCents)) return
+        if (existing != null && (existing.tabId != tab.id || existing.amountCents != amountCents ||
+            existing.method != method || existing.cashPointId != cashPointId)) {
+            state = state.copy(errorMessage = "Reconcilie o recebimento original antes de iniciar outro.")
             return
         }
-        val tab = state.selectedTab?.summary ?: return
-        if (amountCents <= 0 || amountCents > tab.exposureCents || state.submitting) return
-        state.pendingPayment?.let { pending ->
-            if (pending.amountCents != amountCents || pending.method != method || pending.cashPointId != cashPointId) {
-                state = state.copy(errorMessage = "Há um pagamento pendente nesta comanda. Refaça somente a mesma cobrança de ${formatCents(pending.amountCents)}.")
-                return
-            }
-        }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
-        val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId, tab.version)
+        val intent = existing ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
+            tab.id, amountCents, method, cashPointId, tab.version, closeRequested)
         if (!preserveIntent(intent, session)) return
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null,
+            paymentIntentId = intent.idempotencyKey, pendingPayment = intent)
         viewModelScope.launch {
             runCatching {
-                repository.collectPayment(session, tab.id, amountCents, method, key, cashPointId, intent.expectedVersion)
-                repository.tabDetail(session, tab.id)
-            }.onSuccess { detail ->
-                replaceDetail(detail)
-                state = state.copy(
-                    submitting = false,
-                    paymentIntentId = null,
-                    pendingPayment = null,
-                    noticeMessage = "Pagamento registrado.",
-                    connectivity = ConnectivityState.ONLINE,
-                    lastSyncedAtMillis = System.currentTimeMillis(),
-                )
+                val detail = settleReceipt(intent,
+                    collect = { command -> repository.collectPayment(session, command.tabId, command.amountCents,
+                        command.method, command.idempotencyKey, command.cashPointId, command.expectedVersion).id },
+                    persist = { confirmed ->
+                        pendingMutationIntentStore.save(confirmed, session)
+                        state = state.copy(pendingPayment = confirmed)
+                    },
+                    read = { repository.tabDetail(session, it) },
+                    close = { repository.closeTab(session, it) },
+                    observed = ::replaceDetail)
                 pendingMutationIntentStore.remove(intent.id)
+                state = state.copy(paymentIntentId = null, pendingPayment = null,
+                    noticeMessage = if (detail.summary.state == "CLOSED") "Comanda encerrada." else "Pagamento registrado.",
+                    connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
             }.onFailure { error ->
-                // Retrying this same action uses the same idempotency key and is safe server-side.
-                state = state.copy(submitting = false)
-                showFailure(error, "Verificando pagamento. Não tente cobrar novamente até reconciliar esta mesma cobrança.")
+                showFailure(error, if (state.pendingPayment?.confirmedPaymentId != null)
+                    "Recebido; encerramento pendente. Confira a comanda, sem cobrar novamente."
+                    else "Verificando pagamento. Reconcilie somente a cobrança original.")
             }
+            state = state.copy(submitting = false)
+        }
+    }
+
+    fun recoverReceipt(session: StoredSession) {
+        val original = state.pendingPayment ?: return
+        collectPayment(session, original.amountCents, original.method, original.cashPointId, original.closeRequested)
+    }
+
+    fun keepPaidTabOpen(session: StoredSession) {
+        val original = state.pendingPayment ?: return
+        if (original.confirmedPaymentId == null || state.submitting) return
+        state = state.copy(submitting = true)
+        viewModelScope.launch {
+            runCatching {
+                val detail = repository.tabDetail(session, original.tabId)
+                check(detail.payments.any { it.id == original.confirmedPaymentId && !it.simulated && it.status == "CONFIRMED" })
+                replaceDetail(detail)
+                pendingMutationIntentStore.remove(original.id)
+                state = state.copy(pendingPayment = null, paymentIntentId = null,
+                    noticeMessage = "Recebimento confirmado; comanda mantida no estado canônico.")
+            }.onFailure { showFailure(it) }
+            state = state.copy(submitting = false)
         }
     }
 
     fun closeTab(session: StoredSession) {
         val tab = state.selectedTab?.summary ?: return
-        if (state.submitting) return
+        if (state.submitting || state.pendingPayment != null || state.orderIntentId != null || state.cart.isNotEmpty()) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
-                repository.closeTab(session, tab.id)
-                repository.tabDetail(session, tab.id)
+                val current = repository.tabDetail(session, tab.id)
+                if (current.summary.state == "CLOSED") current else {
+                    check(current.summary.exposureCents == 0L) { "A conta possui saldo atualizado; confira antes de encerrar." }
+                    repository.closeTab(session, tab.id)
+                    repository.tabDetail(session, tab.id).also {
+                        check(it.summary.state == "CLOSED") { "Encerramento ainda não confirmado." }
+                    }
+                }
             }.onSuccess { detail ->
                 replaceDetail(detail)
                 state = state.copy(submitting = false, noticeMessage = "Comanda fechada.")
