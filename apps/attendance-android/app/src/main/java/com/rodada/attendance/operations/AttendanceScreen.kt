@@ -336,6 +336,7 @@ fun AttendanceScreen(
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
+                    onVerifyPending = { viewModel.revalidateConnection(session) },
                     onAdjustPricing = { adjustingPricing = true },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
@@ -698,14 +699,24 @@ internal fun TabWorkspace(
     requestedSection: String? = null,
     onRequestedSectionConsumed: () -> Unit = {},
     onAddQuantity: (Product, Customization, Int) -> Unit = { product, selection, quantity -> repeat(quantity) { onAdd(product, selection) } },
+    onVerifyPending: () -> Unit = onConfirmOrder,
 ) {
-    var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Cardápio") }
+    var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Comanda") }
     LaunchedEffect(requestedSection) {
         if (requestedSection != null) {
             workspaceSection = requestedSection
             onRequestedSectionConsumed()
         }
     }
+    val pagesState = rememberSaveableStateHolder()
+    if (workspaceSection != "Conta") {
+        pagesState.SaveableStateProvider("pages") {
+            Ux2TabPages(state, tab, workspaceSection, { workspaceSection = it }, onBack,
+                onAdd, onEdit, onQuantity, onConfirmOrder, onRepeatOrder, onResolveLimit, onVerifyPending)
+        }
+        return
+    }
+    androidx.activity.compose.BackHandler { if (state.canLeaveTabContext()) workspaceSection = "Comanda" }
     val reviewingCart = workspaceSection == "Pedido atual"
     val viewingAccount = workspaceSection == "Conta"
     var repeatReview by remember(tab.summary.id) { mutableStateOf<RepeatOrderReview?>(null) }
@@ -742,7 +753,7 @@ internal fun TabWorkspace(
     val cartTotal = currentCart.sumOf { it.unitPriceCents * it.quantity }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        TextButton(onClick = onBack, enabled = state.canLeaveTabContext(), modifier = Modifier.heightIn(min = 48.dp)) { Text("← Mesas e comandas") }
+        TextButton(onClick = { workspaceSection = "Comanda" }, enabled = state.canLeaveTabContext(), modifier = Modifier.heightIn(min = 48.dp)) { Text("← Voltar à comanda") }
         Text(tab.summary.operationalLabel(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Text(tab.summary.operationalSubtitle(), style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
         Text(state.connectivity.label(), style = MaterialTheme.typography.labelSmall)
