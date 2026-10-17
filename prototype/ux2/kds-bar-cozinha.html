@@ -44,6 +44,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 @container station (max-width:1099px){.ticketgrid,.passgrid,.expGrid,.allDayGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @container station (max-width:679px){.mainnav{display:none}.bottombar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.bottombar:has(button:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}.ticketgrid,.passgrid,.expGrid,.allDayGrid{grid-template-columns:1fr}.head{padding:10px 12px}.heading{gap:8px}.wordmark{font-size:17px}.station{font-size:19px}.divider{height:26px}.headtools{gap:5px}.headtools button{font-size:13px;min-height:44px;min-width:44px;padding:7px}.headtools .round{display:none}.summary>div{display:block;padding:10px 9px}.summary strong{font-size:23px}.summary span{display:block;font-size:11px;line-height:1.15;margin-top:4px}.work{padding:12px}.actions button{min-height:52px}.dest{font-size:23px}.footnote{display:none}.ticketfoot .more-content button{font-size:13px}}
 @container station (min-width:680px) and (max-width:950px){.ticketgrid,.passgrid,.expGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Operational attention, escalation and narrow-screen work surfaces. */
+.demoTools{width:100%;border-top:1px solid #42372a;padding:3px 0 0}.demoTools summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:12px;color:#cfbda9;font-weight:850;letter-spacing:.2px}.demoTools .demoActions{display:flex;gap:7px;flex-wrap:wrap;padding:7px 0}.demoTools .demoActions .control{font-size:12px}
+.connection-indicator{display:flex;align-items:center;gap:5px;font-weight:850;font-size:12px;color:#9ed49b}.connection-indicator.offline{color:#ffbaa0}
+.notice-banner{background:#503021!important;border-color:#e7a24d!important;color:#fff0d9!important}
+.notice-banner.danger{background:#4b2521!important;border-color:#ee9279!important;color:#ffdad1!important}
+.ticket.changed{box-shadow:inset 0 0 0 2px #ffb16e}.ticket.blocked{border-top:4px solid #ff775d}
+.note.change{background:#4b3020;border:1px solid #bd7c3a;padding:9px;border-radius:6px;color:#ffe1b5}
+.note.blocked{background:#4c2622;border:1px solid #c96555;padding:9px;border-radius:6px;color:#ffe2dc}
+.pass-archive{border:1px solid #6c4b3c;background:#251b16;border-radius:8px;margin-top:18px}.pass-archive summary{list-style:none;padding:15px;min-height:52px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:9px;color:#ffe0c1;font-weight:900}.pass-archive summary::-webkit-details-marker{display:none}.pass-archive[open] summary{border-bottom:1px solid #6c4b3c}.pass-archive .passgrid{padding:12px}.pass-archive .mutedHelp{margin:0;padding:0 12px 12px}
+.passfilter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px;background:#2c241b;border:1px solid #785d3f;border-radius:8px;margin-bottom:15px;font-size:14px;font-weight:850}.passfilter button{margin-left:auto;border:1px solid #997b58;background:#392c20;color:#f3ece1;min-height:44px;border-radius:7px;padding:8px 12px;font-size:13px;font-weight:850}
+.modal input[type=number]{max-width:90px;min-height:44px;background:#31291f;color:#fff;border:1px solid #876b4a;border-radius:7px;padding:8px;margin:6px 8px 8px 0}
+.modal .critical-action{background:#8c3d31;color:white;border-color:#c97767}
+.modal .request-state{border-left:4px solid #f5a524;padding:10px;background:#3e2c1b;margin:9px 0;font-size:13px}
+.expCard .actionLink{min-height:48px;width:100%;font-size:14px}
+.attention-button{width:100%;min-height:48px;border-radius:7px;background:#e8ab67;color:#25160c;border:1px solid #fec385;font-size:14px;font-weight:900}.newchip{background:#f5a524;color:#18120b}.attentionCount{font-variant-numeric:tabular-nums}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 @media(max-width:550px){.controls{padding:7px}.ctrlgroup>span{display:none}.control{padding:8px 10px}}
 
@@ -53,11 +68,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .surface.large-text .lineTitle{font-size:23px}.surface.large-text .dest{font-size:27px}.surface.large-text .meta,.surface.large-text .phase{font-size:16px}.surface.large-text .actions button{font-size:17px;min-height:56px}.surface.large-text .note{font-size:16px}.surface.large-text .ticketgrid{gap:16px}
 @media(max-width:679px){.toast{bottom:90px}}
 </style></head><body>
-<div id="app"><div class="controls"><div class="ctrlgroup"><span>Dispositivo</span><button class="control active" data-device="mobile">Celular</button><button class="control" data-device="tablet">Tablet</button><button class="control" data-device="desktop">Desktop</button></div><div class="ctrlgroup"><span>Estação</span><button class="control active" data-station="BAR">Bar</button><button class="control" data-station="KITCHEN">Cozinha</button></div><div class="ctrlgroup"><button class="control" data-scenario="peak">Simular pico · 30</button><button class="control" data-reset="1">↻ Reiniciar</button></div></div><div class="stage" id="stage"><div class="holder" id="holder"><div class="surface mobile" id="surface"><header class="head"><div class="heading"><div class="wordmark">rodada<span>.</span></div><div class="divider"></div><div><div class="sub">PRODUÇÃO 2.0</div><div class="station" id="stationTitle">Bar</div></div></div><div class="headtools"><span class="round">22:57</span><button data-act="new" title="Simular pedido novo">+ Pedido</button><button data-act="connection" id="connectionBtn" title="Simular rede">● Online</button></div></header><div class="summary" id="summary"></div><nav class="mainnav" id="nav"></nav><div id="alerts"></div><main class="work" id="work"></main><nav class="bottombar" id="bottom"></nav><footer class="footnote">Protótipo navegável · dados fictícios. Transições, alertas e operações de correção são simulações; não há conexão com a API.</footer><div id="modalHost"></div></div></div></div></div><div class="toast" id="toast" hidden role="status"></div></div>
+<div id="app"><div class="controls"><div class="ctrlgroup"><span>Dispositivo</span><button class="control active" data-device="mobile">Celular</button><button class="control" data-device="tablet">Tablet</button><button class="control" data-device="desktop">Desktop</button></div><div class="ctrlgroup"><span>Estação</span><button class="control active" data-station="BAR">Bar</button><button class="control" data-station="KITCHEN">Cozinha</button></div><details class="demoTools"><summary>▸ Ferramentas de simulação (fora da operação)</summary><div class="demoActions"><button class="control" data-act="new">+ Pedido de teste</button><button class="control" data-act="simulateChange">+ Alteração/cancelamento recebido</button><button class="control" data-act="connection">Alternar rede simulada</button><button class="control" data-scenario="peak">Simular pico · 30</button><button class="control" data-reset="1">↻ Reiniciar</button></div></details></div><div class="stage" id="stage"><div class="holder" id="holder"><div class="surface mobile" id="surface"><header class="head"><div class="heading"><div class="wordmark">rodada<span>.</span></div><div class="divider"></div><div><div class="sub">PRODUÇÃO 2.0</div><div class="station" id="stationTitle">Bar</div></div></div><div class="headtools"><span class="round">22:57</span><span id="connectionBtn" class="connection-indicator" role="status">● Online</span></div></header><div class="summary" id="summary"></div><nav class="mainnav" id="nav"></nav><div id="alerts"></div><main class="work" id="work"></main><nav class="bottombar" id="bottom"></nav><footer class="footnote">Protótipo navegável · dados fictícios. Transições, alertas e operações de correção são simulações; não há conexão com a API.</footer><div id="modalHost"></div></div></div></div></div><div class="toast" id="toast" hidden role="status"></div></div>
 <script>
 (function(){'use strict';
 const root=document.getElementById('app'),stage=document.getElementById('stage'),holder=document.getElementById('holder'),surface=document.getElementById('surface'),work=document.getElementById('work');
-let seq=50,device=window.innerWidth<680?'mobile':window.innerWidth<1080?'tablet':'desktop',station='BAR',view='queue',mode='simple',online=true,sound=false,largeText=false,threshold={BAR:5,KITCHEN:12},modal=null,orders=[],history=[],availability={},toastTimer,returnFocus=null;
+let seq=50,device=window.innerWidth<680?'mobile':window.innerWidth<1080?'tablet':'desktop',station='BAR',view='queue',mode='simple',online=true,sound=false,largeText=false,threshold={BAR:5,KITCHEN:12},modal=null,orders=[],history=[],availability={},toastTimer,returnFocus=null,filterReadyOrder=null;
 const sample=()=>[
  {id:'O921',dest:'FG84',type:'FICHA',age:3,items:[{name:'Chopp Pilsen',qty:2,station:'BAR',quick:true},{name:'Gin tônica',qty:1,station:'BAR',note:'POUCO GELO'}]},
  {id:'O922',dest:'MESA 12',type:'MESA',age:6,items:[{name:'Água com gás',qty:2,station:'BAR',quick:true},{name:'Burger da casa',qty:1,station:'KITCHEN'},{name:'Burger da casa',qty:1,station:'KITCHEN',note:'SEM CEBOLA'}]},
@@ -66,8 +81,8 @@ const sample=()=>[
  {id:'O925',dest:'MESA 02',type:'MESA',age:14,items:[{name:'Porção de fritas',qty:1,station:'KITCHEN',ready:1,phase:'ready',readyAge:14},{name:'Refrigerante lata',qty:2,station:'BAR',ready:2,phase:'ready',quick:true,readyAge:3}]}
 ];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function build(data){const created=Date.now()-data.age*60000;return{id:data.id,created,dest:data.dest,type:data.type,urgent:false,isNew:!!data.isNew,items:data.items.map((i,n)=>({...i,id:data.id+'-'+n,qty:i.qty||1,ready:i.ready||0,picked:0,cancelled:0,phase:i.phase||'new',readyAt:i.ready?Date.now()-(i.readyAge||0)*60000:null,allergyAcknowledged:false,correction:null}))}}
-function init(){orders=sample().map(build);history=[];availability={};seq=50;online=true;mode='simple';view='queue';modal=null;render({resetScroll:true})}
+function build(data){const created=Date.now()-data.age*60000;return{id:data.id,created,dest:data.dest,type:data.type,urgent:false,isNew:!!data.isNew,notice:null,items:data.items.map((i,n)=>({...i,id:data.id+'-'+n,qty:i.qty||1,ready:i.ready||0,picked:0,cancelled:0,phase:i.phase||'new',readyAt:i.ready?Date.now()-(i.readyAge||0)*60000:null,allergyAcknowledged:false,assistanceRequested:false,blocked:false,pendingCorrection:null,correction:null}))}}
+function init(){orders=sample().map(build);history=[];availability={};seq=50;online=true;mode='simple';view='queue';modal=null;filterReadyOrder=null;render({resetScroll:true})}
 const age=o=>Math.max(0,Math.floor((Date.now()-o.created)/60000));
 const remaining=i=>Math.max(0,i.qty-i.ready-i.cancelled);
 const passqty=i=>Math.max(0,i.ready-i.picked);
@@ -75,7 +90,10 @@ const localItems=o=>o.items.filter(i=>i.station===station);
 const pending=o=>localItems(o).some(i=>remaining(i)>0);
 const fresh=()=>orders.filter(pending).sort((a,b)=>a.created-b.created);
 const readyOrders=()=>orders.filter(o=>localItems(o).some(i=>passqty(i)>0));
-const readyUnits=()=>orders.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+passqty(i),0),0);
+const readyUnits=()=>orders.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(!isOld(i)?passqty(i):0),0),0);
+const unconfirmedUnits=()=>orders.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(isOld(i)?passqty(i):0),0),0);
+const unseen=()=>fresh().filter(o=>o.isNew||o.notice?.active);
+const localItemsBlocked=()=>orders.flatMap(o=>localItems(o).filter(i=>i.blocked));
 const activeCount=()=>orders.reduce((s,o)=>s+localItems(o).filter(i=>remaining(i)>0&&i.phase==='making').length,0);
 const breached=o=>age(o)>=threshold[station];
 const isOld=i=>!!i.readyAt&&(Date.now()-i.readyAt)>=9*60000;
@@ -87,17 +105,20 @@ function disabled(){return online?'':' disabled aria-disabled="true"'}
 function ticket(o){
  const its=localItems(o).filter(i=>remaining(i)>0);if(!its.length)return '';
  const allergy=its.some(i=>!!i.allergy),late=breached(o),canBatch=its.length>1&&its.every(i=>!i.allergy);
- const classes=['ticket',late?'overdue':'',o.urgent?'urgent':'',allergy?'allergen':'',o.isNew?'new':''].join(' ');
- const chips=(o.isNew?'<span class="chip new">NOVO · PRECISA DE ATENÇÃO</span>':'')+(late?'<span class="chip overdue-tag">ATRASADO</span>':'')+(o.urgent?'<span class="chip">⚡ PRIORIDADE</span>':'')+(allergy?'<span class="chip allergy">ALERGIA / RESTRIÇÃO CRÍTICA</span>':'');
+ const classes=['ticket',late?'overdue':'',o.urgent?'urgent':'',allergy?'allergen':'',o.isNew?'new':'',o.notice?.active?'changed':'',its.some(i=>i.blocked)?'blocked':''].join(' ');
+ const chips=(o.isNew?'<span class="chip new">NOVO · PRECISA DE ATENÇÃO</span>':'')+(late?'<span class="chip overdue-tag">ATRASADO</span>':'')+(o.urgent?'<span class="chip">⚡ PRIORIDADE</span>':'')+(o.notice?.active?'<span class="chip allergy">ALTERAÇÃO RECEBIDA</span>':'')+(allergy?'<span class="chip allergy">ALERGIA / RESTRIÇÃO CRÍTICA</span>':'');
  return `<article class="${classes}" data-order="${esc(o.id)}" aria-label="Pedido ${esc(o.id)}">
  <div class="thead"><div class="topline"><div><div class="dest">${esc(o.dest)}</div><div class="meta">${esc(label(o))} · #${esc(o.id)}</div></div><time class="time ${late?'late':''}" data-age-order="${esc(o.id)}" aria-label="Tempo do pedido">${age(o)} min</time></div>${chips}</div>
+ ${o.notice?.active?`<div class="line"><div class="note change" role="alert">⚠ ${esc(o.notice.message)}<br>Revise com o responsável antes de alterar ou descartar itens. Nenhum pedido foi modificado automaticamente.</div></div>`:''}
  ${its.map(i=>`<div class="line" data-item="${esc(i.id)}"><div class="lineTitle">${remaining(i)}× ${esc(i.name)}</div>
  ${i.allergy?`<div class="note allergy" role="note">⚠ ${esc(i.allergy)}${i.allergyAcknowledged?' · RESTRIÇÃO CONFERIDA':''}</div>`:''}
  ${i.note?`<div class="note">⚑ ${esc(i.note)}</div>`:''}${i.correction?`<span class="chip remake">${esc(i.correction)}</span>`:''}
+ ${i.blocked?'<div class="note blocked" role="alert">⛔ PREPARO SUSPENSO · aguardando responsável. Não preparar ou entregar até reavaliar.</div>':''}
+ ${i.pendingCorrection?`<div class="note change">⌛ Correção de ${i.pendingCorrection.qty} unidade(s) solicitada · aguardando gerente</div>`:''}
  <div class="phase ${i.ready?'good':''}">${i.ready?i.ready+' unidade(s) pronta(s) · ':''}${i.phase==='making'?'Em preparo':'Aguardando preparo'}</div>
- <div class="actions"><button class="primary" data-act="${i.allergy&&!i.allergyAcknowledged?'ackallergy':'ready'}" data-id="${esc(i.id)}" ${disabled()}>${i.allergy&&!i.allergyAcknowledged?'⚠ Conferir alergia':remaining(i)>1?'✓ Pronto · todos':'✓ Pronto'}</button>
+ <div class="actions"><button class="primary" data-act="${i.blocked||i.allergy&&!i.allergyAcknowledged?'ackallergy':'ready'}" data-id="${esc(i.id)}" ${disabled()}>${i.blocked?'⛔ Reavaliar com responsável':i.allergy&&!i.allergyAcknowledged?'⚠ Conferir alergia':remaining(i)>1?'✓ Pronto · todos':'✓ Pronto'}</button>
  ${remaining(i)>1&&!i.allergy?`<button class="secondary" data-act="one" data-id="${esc(i.id)}" ${disabled()}>1 pronto</button>`:''}</div></div>`).join('')}
- <div class="ticketfoot"><details class="more"><summary aria-label="Mais ações do pedido ${esc(o.id)}">⋯ Mais ações</summary><div class="more-content">
+ <div class="ticketfoot">${o.notice?.active?`<button class="attention-button" data-act="reviewChange" data-order="${esc(o.id)}">⚠ Revisar alteração recebida</button>`:''}<details class="more"><summary aria-label="Mais ações do pedido ${esc(o.id)}">⋯ Mais ações</summary><div class="more-content">
  <button data-act="priority" data-order="${esc(o.id)}" ${disabled()}>${o.urgent?'Retirar destaque':'⚡ Destacar pedido'}</button>
  <button data-act="print" data-order="${esc(o.id)}">Imprimir ticket</button><button data-act="correct" data-order="${esc(o.id)}">Corrigir / refazer</button>
  ${its.some(i=>i.phase==='new')?`<button data-act="startall" data-order="${esc(o.id)}" ${disabled()}>Marcar em preparo</button>`:''}
@@ -108,23 +129,26 @@ function passCard(o,old){const its=localItems(o).filter(i=>passqty(i)>0&&isOld(i
  return `<article class="passcard ${old?'old':''}" data-pass-order="${esc(o.id)}"><div class="green">${old?'⚠ AGUARDANDO HÁ MAIS TEMPO':'● PRONTO PARA SAÍDA'}</div><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div><p>${its.map(i=>`${passqty(i)}× ${esc(i.name)}${i.note?` · ${esc(i.note)}`:''}${i.allergy?' · ALERGIA':''}`).join('<br>')}</p>
  <div class="actions">${its.map(i=>`<button class="secondary" data-act="pickup" data-id="${esc(i.id)}" ${disabled()}>Registrar retirada · ${esc(i.name)}</button>`).join('')}<button class="quiet" data-act="correct" data-order="${esc(o.id)}">Exceção</button></div></article>`;
 }
-function nav(){let names=[['queue','▤ Pedidos'],['ready','✓ Passe'],['all','▦ All Day'],['settings','⚙ Ajustes']];if(station==='KITCHEN'&&mode==='expedite')names.splice(2,0,['expedite','↗ Expedição']);let h=names.map(([v,n])=>`<button data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${n}${v==='ready'?' ('+readyUnits()+')':''}</button>`).join('');document.getElementById('nav').innerHTML=h;document.getElementById('bottom').innerHTML=h}
+function nav(){let names=[['queue','▤ Pedidos'],['ready','✓ Passe'],['all','▦ Resumo por produto'],['settings','⚙ Ajustes']];if(station==='KITCHEN'&&mode==='expedite')names.splice(2,0,['expedite','↗ Expedição']);let h=names.map(([v,n])=>`<button data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''}>${n}${v==='ready'?' ('+readyUnits()+')':''}${v==='queue'&&unseen().length?' · '+unseen().length+' novo(s)':''}</button>`).join('');document.getElementById('nav').innerHTML=h;document.getElementById('bottom').innerHTML=h}
 function content(){
  if(view==='queue'){
  const list=fresh();work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Pedidos para produzir</strong><small>${list.length} tickets · ordem de chegada estável</small></div>`+
  (list.length?`<div class="ticketgrid">${list.map(ticket).join('')}</div>`:'<div class="empty">✓ Tudo em dia. Nenhum pedido aguardando preparo.</div>')+
- `<div class="tools"><button data-act="simulate">+ Simular pedido novo</button>${station==='KITCHEN'?`<button data-act="mode">${mode==='simple'?'Ativar expedição':'Desativar expedição'}</button>`:''}</div>`;return;
+ `${station==='KITCHEN'?`<div class="tools"><button data-act="mode">${mode==='simple'?'Ativar expedição':'Desativar expedição'}</button></div>`:''}`;return;
  }
  if(view==='ready'){
- const older=readyOrders().map(o=>passCard(o,true)).filter(Boolean),recent=readyOrders().map(o=>passCard(o,false)).filter(Boolean);
- work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Passe · prontos para saída</strong><small>${readyUnits()} unidades ainda sem retirada registrada</small></div>`+
- (older.length?`<div class="sect"><strong>⚠ Aguardando há mais tempo · atenção</strong><small>${older.length} pedidos</small></div><div class="passgrid">${older.join('')}</div>`:'')+
- (recent.length?`<div class="sect" style="margin-top:16px"><strong>Prontos recentes</strong></div><div class="passgrid">${recent.join('')}</div>`:older.length?'':'<div class="empty">Nenhum item aguardando retirada.</div>')+
- '<p class="mutedHelp">O sistema não presume que o item foi entregue. Registro de retirada é opcional; pedidos antigos continuam visíveis até resolução.</p>';return;
+ const scoped=filterReadyOrder?orders.filter(o=>o.id===filterReadyOrder):orders;
+ const older=scoped.map(o=>passCard(o,true)).filter(Boolean),recent=scoped.map(o=>passCard(o,false)).filter(Boolean);
+ const oldTotal=scoped.reduce((s,o)=>s+localItems(o).reduce((t,i)=>t+(isOld(i)?passqty(i):0),0),0);
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Passe · itens prontos agora</strong><small>${recent.reduce((s,c)=>s+1,0)} pedido(s) recentes · ${oldTotal} sem confirmação</small></div>`+
+ (filterReadyOrder?`<div class="passfilter">Exibindo apenas ${esc(scoped[0]?.dest||filterReadyOrder)} · pedido ${esc(filterReadyOrder)} <button data-act="clearPassFilter">Ver Passe geral</button></div>`:'')+
+ (recent.length?`<div class="passgrid">${recent.join('')}</div>`:'<div class="empty">Sem itens recentemente prontos nesta seleção.</div>')+
+ (older.length?`<details class="pass-archive" ${filterReadyOrder?'open':''}><summary>⚠ ${oldTotal} unidade(s) sem retirada registrada <span>Ver e conferir ▾</span></summary><p class="mutedHelp">Estas unidades saíram da fila recente por tempo, mas NÃO foram marcadas entregues ou retiradas. Confira o balcão se necessário; nenhuma confirmação individual é obrigatória.</p><div class="passgrid">${older.join('')}</div></details>`:'')+
+ '<p class="mutedHelp">Prontos recentes são a fila de ação. Registros antigos ficam acessíveis separadamente sem fingir entrega; confirmar retirada continua opcional.</p>';return;
  }
  if(view==='all'){
  const m={};orders.forEach(o=>localItems(o).forEach(i=>{let q=remaining(i);if(q>0)m[i.name]=(m[i.name]||0)+q}));let names=Object.keys(m).sort((a,b)=>a.localeCompare(b,'pt-BR'));
- work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">All Day · unidades pendentes</strong><small>Visão consultiva, sem mesclar modificadores</small></div>`+
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Resumo por produto · unidades pendentes</strong><small>Visão consultiva, sem mesclar modificadores</small></div>`+
  (names.length?`<div class="allDayGrid">${names.map(n=>`<div class="allDayRow"><strong>${esc(n)}</strong><b>${m[n]}</b></div>`).join('')}</div>`:'<div class="empty">Nenhuma unidade pendente.</div>')+'<p class="mutedHelp">Configurações e alergias ficam nos tickets originais. Esta soma não autoriza preparo em lote de itens diferentes.</p>';return;
  }
  if(view==='settings'){
@@ -141,26 +165,30 @@ function content(){
  if(view==='expedite'){
  const list=orders.filter(o=>o.items.some(i=>i.station==='KITCHEN')).sort((a,b)=>a.created-b.created);
  const cards=list.map(o=>{
- let rows=['KITCHEN','BAR'].map(st=>{
- const its=o.items.filter(i=>i.station===st);if(!its.length)return '';
- const expected=its.reduce((s,i)=>s+i.qty-i.cancelled,0),ready=its.reduce((s,i)=>s+i.ready,0);
- return `<div class="expRow"><span>${st==='BAR'?'Bar':'Cozinha'} · ${its.map(i=>esc(i.name)).join(', ')}</span><b class="${ready>=expected?'ready':'pending'}">${ready}/${expected}</b></div>`;
+  const rows=['KITCHEN','BAR'].map(st=>{const its=o.items.filter(i=>i.station===st);if(!its.length)return '';
+   const expected=its.reduce((s,i)=>s+i.qty-i.cancelled,0),ready=its.reduce((s,i)=>s+i.ready,0);
+   return `<div class="expRow"><span>${st==='BAR'?'Bar':'Cozinha'} · ${its.map(i=>esc(i.name)).join(', ')}</span><b class="${ready>=expected?'ready':'pending'}">${ready}/${expected}</b></div>`;}).join('');
+  const pendingItems=o.items.filter(i=>remaining(i)>0),available=o.items.some(i=>passqty(i)>0);
+  const next=pendingItems.length?'Aguardando '+[...new Set(pendingItems.map(i=>i.station==='BAR'?'Bar':'Cozinha'))].join(' e '):available?'Itens prontos para encaminhar':'Sem itens aguardando expedição';
+  const action=available?`<button class="secondary actionLink" data-act="openPass" data-order="${esc(o.id)}">Ver prontos desta mesa</button>`:'<div class="meta">Ainda não há itens prontos para consultar no Passe.</div>';
+  return `<article class="expCard ${pendingItems.length?'waiting':'completed'}"><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div>${rows}<div class="nextStep">${esc(next)}</div><div class="actions">${action}</div></article>`;
  }).join('');
- const pendingItems=o.items.filter(i=>remaining(i)>0);
- const next=pendingItems.length?'Aguardando '+[...new Set(pendingItems.map(i=>i.station==='BAR'?'Bar':'Cozinha'))].join(' e '):'Itens preparados · conferir passe';
- return `<article class="expCard ${pendingItems.length?'waiting':'completed'}"><h3>${esc(o.dest)}</h3><div class="meta">#${esc(o.id)} · ${esc(label(o))}</div>${rows}<div class="nextStep">${esc(next)}</div><div class="actions"><button class="secondary" data-view="ready">Abrir passe</button></div></article>`;
- }).join('');
- work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Expedição · próximo passo</strong><small>Itens do Bar e da Cozinha, sem confirmar entrega automaticamente</small></div><div class="expGrid">${cards}</div>`;return;
+ work.innerHTML=`<div class="sect"><strong id="work-title" tabindex="-1">Expedição · próximo passo</strong><small>Bar e Cozinha · consulte os prontos por mesa</small></div><div class="expGrid">${cards}</div>`;return;
  }
+
 }
 function focusSelector(el){if(!el||!el.closest('#app'))return null;if(el.matches('[data-act]'))return `[data-act="${CSS.escape(el.dataset.act)}"]${el.dataset.id?`[data-id="${CSS.escape(el.dataset.id)}"]`:el.dataset.order?`[data-order="${CSS.escape(el.dataset.order)}"]`:''}`;if(el.matches('[data-view]'))return `[data-view="${CSS.escape(el.dataset.view)}"]`;if(el.matches('[data-product]'))return `[data-product="${CSS.escape(el.dataset.product)}"]`;return null}
 function render({resetScroll=false,focus=null}={}){
  const oldFocus=focus||focusSelector(document.activeElement),oldScroll=work.scrollTop;
  root.querySelectorAll('[data-device]').forEach(b=>{b.classList.toggle('active',b.dataset.device===device);b.setAttribute('aria-pressed',String(b.dataset.device===device))});
  root.querySelectorAll('[data-station]').forEach(b=>{b.classList.toggle('active',b.dataset.station===station);b.setAttribute('aria-pressed',String(b.dataset.station===station))});
- surface.className='surface '+device+(largeText?' large-text':'');document.getElementById('stationTitle').textContent=station==='BAR'?'Bar':'Cozinha';document.getElementById('connectionBtn').textContent=online?'● Online':'● Offline';
- document.getElementById('summary').innerHTML=[['Pedidos na fila',fresh().length],['Em preparo',activeCount()],['Unidades prontas',readyUnits()]].map(([label,n])=>`<div><strong>${n}</strong><span>${label}</span></div>`).join('');nav();
- document.getElementById('alerts').innerHTML=(view==='queue'&&fresh().some(o=>o.isNew)?'<div class="status" role="status">● '+fresh().filter(o=>o.isNew).length+' novo(s) pedido(s) ainda sem reconhecimento. <button class="tinybutton" data-act="jumpNew">Ver pedidos novos</button></div>':'')+(!online?'<div class="status danger" role="alert">Sem conexão. Você pode consultar os últimos dados, mas não concluir pedidos, fazer correções nem confirmar retiradas. Reconecte e confira o estado antes de tentar novamente.</div>':'')+(fresh().some(o=>localItems(o).some(i=>i.allergy&&!i.allergyAcknowledged))?'<div class="status" role="status">⚠ Há alergias a conferir. Priorize a segurança antes de preparar ou liberar estes itens.</div>':'');
+ surface.className='surface '+device+(largeText?' large-text':'');document.getElementById('stationTitle').textContent=station==='BAR'?'Bar':'Cozinha';document.getElementById('connectionBtn').textContent=online?'● Online':'● Offline';document.getElementById('connectionBtn').classList.toggle('offline',!online);
+ document.getElementById('summary').innerHTML=[['Pedidos na fila',fresh().length],['Em preparo',activeCount()],['Prontos recentes',readyUnits()]].map(([label,n])=>`<div><strong>${n}</strong><span>${label}</span></div>`).join('');nav();
+ document.getElementById('alerts').innerHTML=
+ (unseen().length?`<div class="status notice-banner" role="status">● ${unseen().filter(o=>o.isNew).length} pedido(s) novo(s) · ${unseen().filter(o=>o.notice?.active).length} alteração(ões) pendente(s) na ${station==='BAR'?'área do Bar':'Cozinha'}. <button class="tinybutton" data-act="jumpNew">Ver na fila</button></div>`:'')+
+ (localItemsBlocked().length?`<div class="status danger" role="alert">⛔ ${localItemsBlocked().length} item(ns) com preparo suspenso por segurança. Acione o responsável antes de retomar.</div>`:'')+
+ (!online?'<div class="status danger" role="alert">Sem conexão. Últimos dados conhecidos; não concluir nem corrigir itens. Reconecte e consulte o estado atualizado.</div>':'')+
+ (fresh().some(o=>localItems(o).some(i=>i.allergy&&!i.allergyAcknowledged&&!i.blocked))?'<div class="status" role="status">⚠ Restrições alimentares a conferir antes de preparar e liberar.</div>':'');
  content();drawModal();work.scrollTop=resetScroll?0:oldScroll;
  if(oldFocus&&!modal){const target=root.querySelector(oldFocus);if(target&&target.offsetParent!==null)target.focus({preventScroll:true});else if(focus){work.querySelector('#work-title')?.focus({preventScroll:true})}}
  requestAnimationFrame(layout);
@@ -170,10 +198,11 @@ function layout(){const controls=root.querySelector('.controls');root.style.setP
  stage.style.overflowX='auto';surface.style.transform='none';holder.style.height='auto';
 }
 function log(kind,id){history.push({kind,id,time:Date.now()})}
-function see(o){o.isNew=false}
+function see(o){o.isNew=false;if(o.notice)o.notice.active=false}
 function newOrder(){const id='N'+(++seq),opts=station==='BAR'?[['Chopp Pilsen',true],['Gin tônica',false],['Água com gás',true]]:[['Batata frita',false],['Pastel de queijo',false],['Burger da casa',false]];
  let selected=opts.filter(x=>availability[x[0]]!==false);if(!selected.length){notify('Todos os produtos de exemplo estão indisponíveis.');return}
  let item=selected[seq%selected.length];orders.push(build({id,dest:'MESA '+String(seq%20+1).padStart(2,'0'),type:'MESA',isNew:true,age:0,items:[{name:item[0],qty:seq%3===0?2:1,station,quick:item[1]}]}));log('new',id);soundPing();notify('Novo pedido '+id+' · sinalizado até ser reconhecido');render({resetScroll:false})}
+function simulateExternalChange(){const o=fresh().find(o=>localItems(o).some(i=>remaining(i)>0));if(!o){notify('Sem pedidos ativos nesta estação para simular alteração.');return}o.notice={active:true,message:'Cliente solicitou ALTERAÇÃO / CANCELAMENTO de um item deste pedido.'};log('external-change',o.id);soundPing();notify('Alteração recebida · '+o.dest+' — atenção antes de continuar');render()}
 function openModal(config,source){modal=config;returnFocus=source||document.activeElement;render();document.getElementById('modalHost').querySelector('input,select,button')?.focus({preventScroll:true})}
 function closeModal(){modal=null;const target=returnFocus;returnFocus=null;render();if(target?.isConnected&&target.offsetParent!==null)target.focus({preventScroll:true});else work.querySelector('#work-title')?.focus({preventScroll:true})}
 function drawModal(){const host=document.getElementById('modalHost');
@@ -182,24 +211,38 @@ function drawModal(){const host=document.getElementById('modalHost');
  const {kind,id}=modal;let body='';
  if(kind==='allergy'){
  const match=getItem(id);if(!match){closeModal();return}const {i}=match;
- body=`<h3 id="modalTitle">⚠ Conferir alergia</h3><p><strong>${esc(i.name)}</strong></p><div class="note allergy" role="alert">${esc(i.allergy)}</div><p>Confira ingredientes, utensílios e risco de contato cruzado antes de liberar o preparo. Em caso de dúvida, não marque pronto e acione o responsável.</p><label><input type="checkbox" id="allergyCheck"> Confirmo que conferi a restrição e as condições de preparo.</label><div class="actions"><button class="secondary" data-act="close">Voltar</button><button class="primary" data-act="confirmAllergy" data-id="${esc(id)}" disabled>Registrar conferência</button></div>`;
+ body=`<h3 id="modalTitle">⚠ Conferir alergia</h3><p><strong>${esc(i.name)}</strong></p><div class="note allergy" role="alert">${esc(i.allergy)}</div><p>${i.blocked?'Preparo suspenso: reavalie COM o responsável antes de retomar.':'Confira ingredientes, utensílios e contato cruzado. Se não for seguro, suspenda o preparo e avise o responsável.'}</p><label><input type="checkbox" id="allergyCheck"> ${i.blocked?'Confirmei com o responsável que as condições agora permitem o preparo seguro.':'Conferi ingredientes, utensílios e as condições do preparo.'}</label><div class="actions"><button class="secondary critical-action" data-act="requestHelp" data-id="${esc(id)}">⛔ Não consigo preparar com segurança</button><button class="secondary" data-act="close">Voltar</button><button class="primary" data-act="confirmAllergy" data-id="${esc(id)}" disabled>${i.blocked?'Registrar reavaliação (simulação)':'Registrar conferência'}</button></div><p class="mutedHelp">Na aplicação real, escalar e liberar o preparo exigem regras de autorização e registro auditável.</p>`;
+ } else if(kind==='change'){
+ const o=orders.find(x=>x.id===id);if(!o){closeModal();return}
+ body=`<h3 id="modalTitle">⚠ Pedido alterado · ${esc(o.dest)}</h3><div class="note change" role="alert">${esc(o.notice?.message||'Alteração recebida.')}</div><p>A mudança ainda não foi aplicada aos itens existentes. Confira a solicitação e o estado real do pedido antes de continuar o preparo.</p>${o.notice?.escalated?'<div class="request-state">⌛ Responsável acionado; não continue sem orientação.</div>':''}<div class="actions"><button class="secondary critical-action" data-act="escalateChange" data-order="${esc(o.id)}">Solicitar responsável</button><button class="secondary" data-act="close">Voltar ao pedido</button><button class="primary" data-act="ackChange" data-order="${esc(o.id)}" ${o.notice?.escalated?'disabled':''}>Revisei a solicitação · manter pedido atual</button></div><p class="mutedHelp">Demonstração: não há mudança real de itens nem autorização de gerente.</p>`;
  } else if(kind==='correct'){
  const o=orders.find(x=>x.id===id);if(!o){closeModal();return}
  body=`<h3 id="modalTitle">Corrigir pedido ${esc(o.id)}</h3><p>Uma correção não apaga o histórico. Um item pronto não volta para preparo: uma refeitura cria uma nova linha vinculada.</p><label for="correctionReason">Motivo da correção</label><select id="correctionReason"><option value="">Selecionar motivo</option><option value="WRONG_ITEM">Item lançado errado</option><option value="CUSTOMER_CHANGED">Solicitação do cliente</option><option value="REMAKE">Problema no preparo / refeitura</option></select>
- ${localItems(o).map(i=>`<div class="line"><strong>${esc(i.name)}</strong><div class="meta">Pendente ${remaining(i)} · Pronto ${i.ready} · Cancelado ${i.cancelled}</div><div class="actions">${remaining(i)>0?`<button class="secondary" data-act="cancel" data-id="${esc(i.id)}" ${disabled()}>Solicitar cancelamento</button>`:''}<button class="secondary" data-act="remake" data-id="${esc(i.id)}" ${disabled()}>Solicitar refeitura</button></div></div>`).join('')}
+ ${localItems(o).map(i=>`<div class="line"><strong>${esc(i.name)}</strong><div class="meta">Pendente ${remaining(i)} · Pronto ${i.ready} · Cancelado ${i.cancelled}</div>
+ ${i.pendingCorrection?`<div class="request-state" role="status">⌛ Solicitação de cancelar ${i.pendingCorrection.qty} unidade(s) aguardando aprovação do gerente (${esc(i.pendingCorrection.reason)}).<div class="actions"><button class="secondary" data-act="approveCorrection" data-id="${esc(i.id)}" ${disabled()}>Simular aprovação do gerente</button><button class="quiet" data-act="rejectCorrection" data-id="${esc(i.id)}" ${disabled()}>Simular recusa</button></div></div>`:''}
+ ${remaining(i)>0&&!i.pendingCorrection?`<label for="qty-${esc(i.id)}">Quantidade a cancelar (máx. ${remaining(i)})</label><input type="number" inputmode="numeric" min="1" max="${remaining(i)}" step="1" id="qty-${esc(i.id)}" value="1" aria-label="Quantidade a cancelar de ${esc(i.name)}">`:''}
+ <div class="actions">${remaining(i)>0&&!i.pendingCorrection?`<button class="secondary" data-act="cancel" data-id="${esc(i.id)}" ${disabled()}>${i.phase==='making'||i.ready>0?'Solicitar aprovação de cancelamento':'Cancelar quantidade selecionada'}</button>`:''}<button class="secondary" data-act="remake" data-id="${esc(i.id)}" ${disabled()}>Solicitar refeitura</button></div></div>`).join('')}
  <p class="mutedHelp">Na implementação real, motivo, permissões, efeitos financeiros e idempotência dependem da API. Aqui são operações simuladas.</p><div class="actions"><button class="primary" data-act="close">Voltar à produção</button></div>`;
  }
  host.innerHTML=`<div class="popup"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">${body}</section></div>`;
 }
 function act(b){const kind=b.dataset.act,match=b.dataset.id?getItem(b.dataset.id):null,o=b.dataset.order?orders.find(o=>o.id===b.dataset.order):match?.o,i=match?.i;
- if(!online&&['ready','one','startall','all','pickup','cancel','remake','priority','confirmAllergy','ackallergy'].includes(kind)){notify('Offline: ação não enviada; reconecte e confira o estado.');return}
+ if(!online&&['ready','one','startall','all','pickup','cancel','remake','priority','confirmAllergy','ackallergy','requestHelp','approveCorrection','rejectCorrection','ackChange','escalateChange'].includes(kind)){notify('Offline: ação não enviada; reconecte e confira o estado.');return}
  if(kind==='new'||kind==='simulate'){newOrder();return}
- if(kind==='jumpNew'){const target=work.querySelector('.ticket.new');if(target){target.scrollIntoView({block:'start',behavior:'instant'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true})}return}
+ if(kind==='simulateChange'){simulateExternalChange();return}
+ if(kind==='jumpNew'){view='queue';filterReadyOrder=null;render({resetScroll:true});const target=work.querySelector('.ticket.changed,.ticket.new');if(target){target.scrollIntoView({block:'start',behavior:'instant'});target.setAttribute('tabindex','-1');target.focus({preventScroll:true})}return}
  if(kind==='connection'){online=!online;notify(online?'Reconectado. Confira os estados atuais (simulação).':'Modo offline simulado: alterações pausadas.');render();return}
  if(kind==='close'){closeModal();return}
+ if(kind==='openPass'&&o){filterReadyOrder=o.id;view='ready';render({resetScroll:true});work.querySelector('#work-title')?.focus({preventScroll:true});return}
+ if(kind==='clearPassFilter'){filterReadyOrder=null;render({resetScroll:true});return}
+ if(kind==='reviewChange'&&o){openModal({kind:'change',id:o.id},b);return}
+ if(o?.notice?.active&&['ready','one','all','startall'].includes(kind)){openModal({kind:'change',id:o.id},b);return}
+ if(kind==='ackChange'&&o){if(o.notice.escalated){notify('Aguardando responsável. Não é possível liberar por aqui.');return}o.notice.active=false;o.notice.reviewed=true;log('change-reviewed',o.id);closeModal();notify('Aviso lido. Continue somente conforme instrução do responsável e pedido confirmado.');return}
+ if(kind==='escalateChange'&&o){o.notice.escalated=true;log('change-escalated',o.id);closeModal();notify('Solicitação encaminhada ao responsável (simulação). Ticket aguarda resolução.');return}
  if(kind==='ackallergy'&&i){openModal({kind:'allergy',id:i.id},b);return}
- if(kind==='confirmAllergy'&&i){if(!document.getElementById('allergyCheck')?.checked)return;i.allergyAcknowledged=true;see(o);log('allergy-ack',i.id);closeModal();notify('Restrição conferida. Revise o item antes de marcar pronto.');return}
- if(kind==='ready'&&i){if(i.allergy&&!i.allergyAcknowledged){openModal({kind:'allergy',id:i.id},b);return}i.ready+=remaining(i);i.phase='ready';i.readyAt=Date.now();see(o);log('ready',i.id);notify('Item pronto para saída.');render({focus:focusSelector(b)});return}
+ if(kind==='requestHelp'&&i){i.blocked=true;i.assistanceRequested=true;i.allergyAcknowledged=false;log('allergy-escalation',i.id);closeModal();notify('Preparo suspenso · aviso ao responsável simulado. Não preparar nem liberar.');return}
+ if(kind==='confirmAllergy'&&i){if(!document.getElementById('allergyCheck')?.checked)return;i.allergyAcknowledged=true;i.blocked=false;see(o);log('allergy-ack',i.id);closeModal();notify('Restrição conferida. Revise o item antes de marcar pronto.');return}
+ if(kind==='ready'&&i){if(i.blocked){notify('Preparo suspenso: reavalie com responsável antes de concluir.');return}if(i.allergy&&!i.allergyAcknowledged){openModal({kind:'allergy',id:i.id},b);return}i.ready+=remaining(i);i.phase='ready';i.readyAt=Date.now();see(o);log('ready',i.id);notify('Item pronto para saída.');render({focus:focusSelector(b)});return}
  if(kind==='one'&&i&&remaining(i)>0&&!i.allergy){i.ready++;i.phase=remaining(i)>0?'making':'ready';i.readyAt=Date.now();see(o);log('partial',i.id);render({focus:focusSelector(b)});return}
  if(kind==='all'&&o){const its=localItems(o).filter(i=>remaining(i)>0);if(its.length<2||its.some(i=>i.allergy)){notify('Conclua individualmente os itens com alergia.');return}its.forEach(i=>{i.ready+=remaining(i);i.readyAt=Date.now();i.phase='ready';log('ready-all',i.id)});see(o);notify('Itens deste pedido prontos (simulação).');render({focus:focusSelector(b)});return}
  if(kind==='startall'&&o){localItems(o).filter(i=>remaining(i)>0&&i.phase==='new'&&!i.allergy).forEach(i=>{i.phase='making';log('start',i.id)});see(o);render({focus:focusSelector(b)});return}
@@ -207,16 +250,33 @@ function act(b){const kind=b.dataset.act,match=b.dataset.id?getItem(b.dataset.id
  if(kind==='print'){notify('Impressão simulada. Nenhum ticket foi enviado para impressora.');return}
  if(kind==='correct'&&o){openModal({kind:'correct',id:o.id},b);return}
  if(kind==='pickup'&&i){i.picked=i.ready;log('pickup',i.id);notify('Retirada registrada, sem afirmar entrega ao cliente.');render({focus:focusSelector(b)});return}
- if((kind==='cancel'||kind==='remake')&&i&&o){const reason=document.getElementById('correctionReason')?.value;if(!reason){notify('Selecione um motivo para a correção.');document.getElementById('correctionReason')?.focus();return}
- if(kind==='cancel'){if(remaining(i)<1)return;i.cancelled+=remaining(i);log('cancel-request',i.id);notify('Cancelamento simulado. API real exigirá validação e auditoria.')}else{const clone={...i,id:'R'+(++seq),qty:1,ready:0,picked:0,cancelled:0,phase:'new',readyAt:null,allergyAcknowledged:false,correction:'REFAZER '+i.id};o.items.push(clone);log('remake-request',i.id);notify('Refeitura simulada como nova linha; original preservado.')}see(o);closeModal();return}
+ if((kind==='cancel'||kind==='remake')&&i&&o){const reason=document.getElementById('correctionReason')?.value;
+ if(!reason){notify('Selecione o motivo da correção.');document.getElementById('correctionReason')?.focus();return}
+ if(kind==='cancel'){
+  const field=document.getElementById('qty-'+i.id),qty=Number(field?.value);
+  if(!Number.isInteger(qty)||qty<1||qty>remaining(i)){notify('Informe uma quantidade inteira entre 1 e '+remaining(i)+'.');field?.focus();return}
+  if(i.pendingCorrection){notify('Existe uma solicitação aguardando decisão.');return}
+  if(i.phase==='making'||i.ready>0){i.pendingCorrection={qty,reason,status:'PENDING'};log('cancel-pending',i.id);o.notice={active:true,message:'Cancelamento de '+qty+' unidade(s) aguardando decisão do gerente. Não alterar o preparo até a resposta.'};notify('Solicitação criada, SEM cancelar unidades até aprovação (simulação).')}
+  else{i.cancelled+=qty;i.correction='CANCELAMENTO APLICADO · '+qty+' un.';log('cancel-applied',i.id);notify(qty+' unidade(s) cancelada(s) na simulação.');see(o)}
+ }else{
+  const clone={...i,id:'R'+(++seq),qty:1,ready:0,picked:0,cancelled:0,phase:'new',readyAt:null,allergyAcknowledged:false,blocked:false,assistanceRequested:false,pendingCorrection:null,correction:'REFAZER '+i.id};
+  o.items.push(clone);log('remake-request',i.id);notify('Nova linha de refeitura simulada. Original preservado; autorização real não foi concedida.');see(o);
+ }
+ closeModal();return;
+ }
+ if((kind==='approveCorrection'||kind==='rejectCorrection')&&i&&o&&i.pendingCorrection){const p=i.pendingCorrection;
+  if(kind==='approveCorrection'){if(p.qty>remaining(i)){notify('Quantidade mudou. Faça nova solicitação.');return}i.cancelled+=p.qty;i.correction='CANCELAMENTO APROVADO · '+p.qty+' un.';log('cancel-approved',i.id);notify('Gerente aprovou cancelamento de '+p.qty+' unidade(s) (SIMULAÇÃO).');}
+  else{log('cancel-rejected',i.id);notify('Cancelamento recusado (simulação); itens mantidos.')}
+  i.pendingCorrection=null;o.notice={active:true,message:kind==='approveCorrection'?'Gerente aprovou cancelamento parcial. Confira as quantidades.':'Gerente recusou cancelamento. Produção permanece conforme pedido.'};closeModal();return;
+ }
  if(kind==='mode'){mode=mode==='simple'?'expedite':'simple';view=mode==='expedite'?'expedite':'queue';render({resetScroll:true});return}
  if(kind==='sound'){sound=!sound;notify(sound?'Som ativado':'Som desativado');render();return}
  if(kind==='largeText'){largeText=!largeText;render({focus:focusSelector(b)});return}
 }
 root.addEventListener('click',event=>{const b=event.target.closest('button');if(!b||!root.contains(b))return;
  if(b.dataset.device){device=b.dataset.device;render({resetScroll:true});return}
- if(b.dataset.station){station=b.dataset.station;view='queue';render({resetScroll:true});return}
- if(b.dataset.view){view=b.dataset.view;render({resetScroll:true,focus:focusSelector(b)});return}
+ if(b.dataset.station){station=b.dataset.station;view='queue';filterReadyOrder=null;render({resetScroll:true});return}
+ if(b.dataset.view){view=b.dataset.view;if(view!=='ready')filterReadyOrder=null;render({resetScroll:true,focus:focusSelector(b)});return}
  if(b.dataset.product!==undefined){if(!online){notify('Offline: não é possível alterar disponibilidade.');return}availability[b.dataset.product]=!(availability[b.dataset.product]!==false);notify((availability[b.dataset.product]?'Reativado':'Indisponível')+' para novos pedidos (simulação)');render({focus:focusSelector(b)});return}
  if(b.dataset.reset){init();return}
  if(b.dataset.scenario){init();for(let k=0;k<25;k++){const id='P'+(500+k),st=k%2===0?'BAR':'KITCHEN',name=st==='BAR'?(k%3?'Chopp Pilsen':'Caipirinha'):(k%3?'Burger da casa':'Batata frita');orders.push(build({id,dest:'MESA '+String(k+10).padStart(2,'0'),type:'MESA',age:2+k%19,items:[{name,qty:1+k%3,station:st,quick:name==='Chopp Pilsen'}]}))}render({resetScroll:true});notify('Cenário de pico: 30 pedidos simulados');return}
