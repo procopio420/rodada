@@ -428,10 +428,10 @@ body{font:500 15px/1.45 var(--font)}
 <script>
 'use strict';
 const catalog=[
- {id:'heineken',name:'Heineken',desc:'Long neck · 330 ml · bem gelada',price:1300,cat:'Bebidas',emoji:'🍺'},
- {id:'ipa',name:'IPA da casa',desc:'Chope artesanal · 400 ml',price:1900,cat:'Bebidas',emoji:'🍻'},
- {id:'caipi',name:'Caipirinha',desc:'Limão ou morango · feita na hora',price:2600,cat:'Bebidas',emoji:'🍹',custom:true},
- {id:'agua',name:'Água mineral',desc:'Sem gás · 500 ml',price:600,cat:'Bebidas',emoji:'💧'},
+ {id:'heineken',name:'Heineken',desc:'Long neck · 330 ml · bem gelada',price:1300,cat:'Bebidas',kind:'BEVERAGE',pickupGroup:'Cervejas',pickupEligible:true,emoji:'🍺'},
+ {id:'ipa',name:'IPA da casa',desc:'Chope artesanal · 400 ml',price:1900,cat:'Bebidas',kind:'BEVERAGE',pickupGroup:'Cervejas',pickupEligible:true,emoji:'🍻'},
+ {id:'caipi',name:'Caipirinha',desc:'Limão ou morango · feita na hora',price:2600,cat:'Bebidas',kind:'BEVERAGE',pickupGroup:'Drinks',pickupEligible:true,emoji:'🍹',custom:true},
+ {id:'agua',name:'Água mineral',desc:'Sem gás · 500 ml',price:600,cat:'Bebidas',kind:'BEVERAGE',pickupGroup:'Sem álcool',pickupEligible:true,emoji:'💧'},
  {id:'batata',name:'Batata frita',desc:'Crocante · acompanha molho da casa',price:3400,cat:'Porções',emoji:'🍟'},
  {id:'queijo',name:'Queijo coalho',desc:'Na brasa · melado à parte',price:2600,cat:'Porções',emoji:'🧀'},
  {id:'burguer',name:'Hambúrguer da casa',desc:'Pão brioche · queijo · cebola',price:3900,cat:'Comidas',emoji:'🍔'},
@@ -440,6 +440,10 @@ const catalog=[
 const money=n=>'R$ '+(Math.max(0,Math.round(n||0))/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const getProduct=id=>catalog.find(p=>p.id===id);
+function guestCanOrderProduct(id){
+ const p=getProduct(id);
+ return !!p&&(!isFicha()||(p.kind==='BEVERAGE'&&p.pickupEligible===true));
+}
 function productMeta(p){
  const v=p.desc.match(/\d+\s*(?:ml|l|kg|g)\b/i);
  return v?v[0]:p.custom?'Escolher sabor':p.desc.split(' · ')[0];
@@ -631,7 +635,7 @@ function markPickupLine(orderId,lineId){
 function readyPickupCount(){return S.orders.reduce((n,o)=>n+(isReady(o)?o.items.filter(x=>!lineMarked(o.id,x.id)).length:0),0)}
 function seedPickupMulti(){
  S=fresh();S.mode='ficha';S.hasJoined=true;S.scene='ficha';
- const first={id:'#185',status:'Pronto para retirar',items:[makeItem('heineken',2,'','you'),makeItem('batata',1,'','you')]};
+ const first={id:'#185',status:'Pronto para retirar',items:[makeItem('heineken',2,'','you'),makeItem('agua',1,'','you')]};
  const second={id:'#186',status:'Pronto para retirar',items:[makeItem('ipa',1,'','you')]};
  const third={id:'#187',status:'Em preparo',items:[makeItem('caipi',1,'Limão','you')]};
  S.orders=[first,second,third];S.orderCount=187;
@@ -727,7 +731,7 @@ function productAvailable(id){return !S.availability[id]}
 function liveProductPrice(item){const p=getProduct(item.productId);if(!p)return null;return (S.priceOverrides[item.productId]??p.price)+(item.variant==='Morango'?300:0)}
 function checkDraftForUpdates(items){const issues=[];for(const item of items){
  const current=liveProductPrice(item);
- if(current===null||!productAvailable(item.productId))issues.push({id:item.productId,type:'unavailable',item});
+ if(current===null||!productAvailable(item.productId)||!guestCanOrderProduct(item.productId))issues.push({id:item.productId,type:'unavailable',item});
  else if(current!==item.price)issues.push({id:item.productId,type:'price',item,current});
  }return issues
 }
@@ -763,6 +767,7 @@ function seedPartialDemo(){
 }
 function submitOrderWithPolicy(items,source){
  if(!items.length||!S.online||S.accountClosed){flash('Pedido não enviado. Confira a conexão e a conta.');return false}
+ if(items.some(item=>!guestCanOrderProduct(item.productId))){flash('Na ficha, apenas bebidas para retirar no bar.');return false}
  if(S.unknownAck){S.modal='order-uncertain';render();return false}
  if(S.pendingOrder){S.modal='payment-needed';render();return false}
  const issues=checkDraftForUpdates(items);
@@ -868,6 +873,7 @@ function putOrder(items,status='Recebido'){
  if(!S.online){flash('Sem conexão. Seu pedido não foi enviado.');return false}
  if((!isFicha()&&['DIRTY','CLEANING','OUT_OF_SERVICE'].includes(S.tableState))||S.accountClosed){flash('Atendimento encerrado. Peça ajuda à equipe.');return false}
  if(!items.length)return false;
+ if(items.some(x=>!guestCanOrderProduct(x.productId))){flash('Item indisponível neste tipo de atendimento.');return false}
  if(!isFicha()){S.occupancy=true;S.tableState='OCCUPIED';S.entryMode='available'}S.hasJoined=true;S.orderCount++;
  S.orders.push({id:'#'+S.orderCount,status,items:items.map(x=>({...x,id:'line'+Math.random().toString(36).slice(2,11)}))});
  const submitted=S.orders.at(-1);
@@ -880,7 +886,7 @@ function putOrder(items,status='Recebido'){
  return true
 }
 function addProduct(id,variant=''){
- const p=getProduct(id);if(!p||S.accountClosed||!productAvailable(id)){flash('Não é possível adicionar este item.');return}
+ const p=getProduct(id);if(!p||S.accountClosed||!productAvailable(id)||!guestCanOrderProduct(id)){flash('Não é possível adicionar este item.');return}
  const price=(S.priceOverrides[id]??p.price)+(variant==='Morango'?300:0);
  const existing=S.cart.find(x=>x.productId===id&&x.variant===variant);
  if(existing){existing.qty=Math.min(99,existing.qty+1)}else S.cart.push({...p,productId:id,variant,price,qty:1});
@@ -1076,7 +1082,9 @@ function renderOrderNotice(){
  <div class="sent-order-actions"><button onclick="openSentOrder()">Ver pedido ›</button><span>Pode continuar pedindo</span></div>
  </div>`
 }
-function renderCatalog(){const filtered=catalog.filter(x=>(S.category==='Todos'||x.cat===S.category)&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / CARDÁPIO</div><h1>Cardápio</h1>${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${['Todos','Bebidas','Porções','Comidas'].map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
+function renderCatalog(){
+ const categories=isFicha()?['Todos','Cervejas','Drinks','Sem álcool']:['Todos','Bebidas','Porções','Comidas'];
+ const filtered=catalog.filter(x=>guestCanOrderProduct(x.id)&&(S.category==='Todos'||(isFicha()?x.pickupGroup===S.category:x.cat===S.category))&&(!S.query||(x.name+' '+x.desc).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(S.query.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase())));return `<div class="content"><div class="eyebrow">${isFicha()?'FICHA '+esc(S.fichaCode):esc(tableName().toUpperCase())} / CARDÁPIO</div><h1>Cardápio</h1>${S.accountClosed?`<div class="notice danger">A equipe encerrou esta conta. Cardápio apenas para consulta.</div>`:''}<label class="search" style="margin-top:10px"><span aria-hidden="true">⌕</span><input id="searchCatalog" aria-label="Buscar no cardápio" placeholder="Buscar item" value="${esc(S.query)}" oninput="queryCatalog(this.value)"/></label><div class="cat-scroll">${categories.map(c=>`<button class="chip ${S.category===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}</div><div style="margin-top:12px">${filtered.length?filtered.map(p=>`<div class="catalogline"><div class="info"><strong>${esc(p.name)}</strong><small>${productAvailable(p.id)?money(S.priceOverrides[p.id]??p.price)+' · '+esc(productMeta(p)):'<span class="sold-out">Esgotado</span>'}</small></div>${p.custom?`<button class="qtybtn plus" style="width:auto;padding:0 12px;font-size:13px;font-weight:800" ${S.accountClosed||!productAvailable(p.id)?'disabled':''} onclick="S.modal='detail';S.detailId='${p.id}';S.detailVariant='Limão';render()">Escolher +</button>`:`<div class="quantity"><button class="qtybtn" ${S.accountClosed||catalogQty(p.id)===0?'disabled':''} aria-label="Diminuir ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',-1)">−</button><b>${catalogQty(p.id)}</b><button class="qtybtn plus" ${S.accountClosed||!productAvailable(p.id)||catalogQty(p.id)>=99?'disabled':''} aria-label="Adicionar ${esc(p.name)}" onclick="changeCatalogQty('${p.id}',1)">+</button></div>`}</div>`).join(''):`<div class="empty"><h2>Nada por aqui</h2><p>Tente outra busca ou categoria.</p></div>`}</div><button class="inline-link" onclick="S.modal='lab';render()">⚙ Cenários de teste →</button></div>`}
 
 
 function activeOrderStage(order){
