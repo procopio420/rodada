@@ -8,16 +8,20 @@ internal suspend fun settleReceipt(
     read: suspend (String) -> TabDetail,
     close: suspend (String) -> Unit,
     observed: (TabDetail) -> Unit,
+    checkCurrent: () -> Unit = {},
 ): TabDetail {
+    checkCurrent()
     var confirmed = original
     if (confirmed.confirmedPaymentId == null) {
         val paymentId = collect(original)
+        checkCurrent()
         check(paymentId.isNotBlank()) { "Identidade do recebimento ausente." }
         confirmed = original.copy(confirmedPaymentId = paymentId)
         // A failed checkpoint prevents Close. Original UUID remains safe to reconcile.
         persist(confirmed)
     }
     var detail = read(original.tabId)
+    checkCurrent()
     check(detail.summary.id == original.tabId) { "Comanda recebida não corresponde à intenção original." }
     check(detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
         "Recebimento ainda não confirmado no histórico canônico."
@@ -31,6 +35,7 @@ internal suspend fun settleReceipt(
         }
         close(original.tabId)
         detail = read(original.tabId)
+        checkCurrent()
         check(detail.summary.id == original.tabId && detail.summary.state == "CLOSED" && detail.summary.exposureCents == 0L &&
             detail.payments.any { receiptMatches(original, confirmed.confirmedPaymentId, it) }) {
             "Recebido; encerramento ainda não confirmado."
