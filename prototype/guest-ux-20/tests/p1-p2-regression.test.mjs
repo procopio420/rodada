@@ -212,3 +212,44 @@ test('Cancelled orders are not suggested as a new round', () => {
   assert.equal(run('repeatableOrder()'), null);
   assert.equal(run("renderComandaOrders().includes('Mais uma rodada')"), false);
 });
+
+
+test('Ficha catalogue only shows eligible beverages and bar-pickup categories', () => {
+  const run=boot('#ficha');
+  assert.equal(run('S.mode'), 'ficha');
+  run("switchView('catalog')");
+  assert.ok(run("renderCatalog().includes('Cervejas')"));
+  assert.ok(run("renderCatalog().includes('Drinks')"));
+  assert.ok(run("renderCatalog().includes('Sem álcool')"));
+  assert.equal(run("renderCatalog().includes('Pizza margherita')"), false);
+  assert.equal(run("renderCatalog().includes('Batata frita')"), false);
+  assert.equal(run("renderCatalog().includes('Comidas</button>')"), false);
+  assert.equal(run("guestCanOrderProduct('pizza')"), false);
+  assert.equal(run("guestCanOrderProduct('caipi')"), true);
+});
+
+test('Ficha refuses food even on manipulated add and submit, never creates Order', () => {
+  const run=boot('#ficha');
+  run("switchView('catalog')");
+  run("addProduct('pizza');addProduct('batata')");
+  assert.equal(run('S.cart.length'), 0);
+  const initial=run('S.orders.length');
+  run("submitOrderWithPolicy([makeItem('pizza',1,'','you')],'cart')");
+  assert.equal(run('S.orders.length'),initial);
+  run("putOrder([makeItem('batata',1,'','you')])");
+  assert.equal(run('S.orders.length'),initial);
+  run("addProduct('agua');sendCart()");
+  assert.equal(run('S.orders.length'),initial+1);
+  assert.ok(run("S.orders.at(-1).items.every(x=>getProduct(x.productId).kind==='BEVERAGE')"));
+});
+
+test('Mesa keeps food and drink eligibility; Ficha pickup fixture contains beverages only', () => {
+  const mesa=boot('#mesa');
+  mesa("enter();addProduct('pizza');addProduct('heineken');sendCart()");
+  assert.equal(mesa("S.orders.length"),1);
+  assert.ok(mesa("S.orders[0].items.some(x=>x.productId==='pizza')"));
+
+  const ficha=boot('#pickup');
+  assert.ok(ficha("S.orders.every(o=>o.items.every(x=>getProduct(x.productId).kind==='BEVERAGE'))"));
+  assert.equal(ficha("readyPickupCount()"),2);
+});
