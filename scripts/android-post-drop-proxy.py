@@ -28,8 +28,9 @@ class Proxy(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, handler, evidence, hold_response=False):
+    def __init__(self, address, handler, evidence, hold_response=False, upstream_port=8101):
         super().__init__(address, handler)
+        self.upstream_port = upstream_port
         self.lock = threading.Lock()
         self.armed = True
         self.mode = "order"
@@ -121,11 +122,26 @@ class Handler(BaseHTTPRequestHandler):
             return
         body = self.rfile.read(size) if size else None
         headers = {key: value for key, value in self.headers.items() if key.lower() not in HOP}
-        headers["Host"] = "127.0.0.1:8101"
-        conn = http.client.HTTPConnection("127.0.0.1", 8101, timeout=30)
+        headers["Host"] = f"127.0.0.1:{self.server.upstream_port}"
+        conn = http.client.HTTPConnection("127.0.0.1", self.server.upstream_port, timeout=30)
         try:
             conn.request(method, self.path, body=body, headers=headers)
             upstream = conn.getresponse()
+            if method == "GET" and self.path.startswith("/realtime/stream/"):
+                self.send_response(upstream.status)
+                for key, value in upstream.getheaders():
+                    if key.lower() not in HOP:
+                        self.send_header(key, value)
+                self.send_header("Connection", "close")
+                self.end_headers()
+                while True:
+                    line = upstream.readline()
+                    if not line:
+                        break
+                    self.wfile.write(line)
+                    self.wfile.flush()
+                self.close_connection = True
+                return
             response_body = upstream.read()  # upstream response => transaction committed
             status = upstream.status
             response_headers = upstream.getheaders()
@@ -214,12 +230,14 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", required=True)
+    parser.add_argument("--listen-port", type=int, default=8000)
+    parser.add_argument("--upstream-port", type=int, default=8101)
     parser.add_argument("--hold-response", action="store_true",
                         help="Pause a committed POST until externally verified Android uplink cut")
     args = parser.parse_args()
-    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence, hold_response=args.hold_response)
+    app = Proxy(("0.0.0.0", args.listen_port), Handler, args.evidence, hold_response=args.hold_response, upstream_port=args.upstream_port)
     app.persist()
-    print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :8000 => Django :8101", flush=True)
+    print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :{args.listen_port} => Django :{args.upstream_port}", flush=True)
     app.serve_forever()
 
 
