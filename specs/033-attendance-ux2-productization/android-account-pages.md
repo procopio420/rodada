@@ -63,3 +63,18 @@ nas seis combinações de largura/fonte, mas antecede a correção visual. Fonte
 e fundo foram aproximados da referência; diferenças operacionais e comparação da
 jornada completa ainda aguardam validação. R3 final, force-stop, aparelho físico,
 TalkBack e homologação permanecem pendentes. Nenhuma checkbox de épico foi marcada.
+
+## Revisão independente final do fence financeiro
+
+Resultado `NO_FINDINGS_WITH_GAPS`, revisão independente de 4003b726,
+8991c2ba e 65f6e0e4 em6704b2ba. Inspecionados FinancialResponseFence,
+settleReceipt, callers, armazenamento cifrado e cenários de sessão A→B→A.
+Geração invalida efeitos tardios; checkpoints verificam intenção original;
+recuperação mantém UUID/payload e ID confirmado antes do Close. Leitura
+durável falha preservando feedback e pendência. Hashes dos logs conferidos
+com manifesto; teste suspenso espera Job original terminar antes das
+asserções dos envelopes/contexto B. Instrumentação versionada3/3PASS.
+
+Revisor não executou Gradle. Não cobre troca real de operador pela UI,
+force-stop, Pix/Tap reais ou callbacks dessas modalidades. Não representa
+aprovação de merge/deploy nem aceite integral E04/E06.
