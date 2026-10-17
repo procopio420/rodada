@@ -982,7 +982,14 @@ function registerPayment(amount,owner,allowCredit=false,intentId=null){
 }
 function confirmPayment(){approveDemoPayment()}
 function togglePick(id,checked){if(checked&&!S.selectedLines.includes(id))S.selectedLines.push(id);if(!checked)S.selectedLines=S.selectedLines.filter(x=>x!==id);render()}
-function repeatLast(){const o=S.orders.at(-1);if(!o){flash('Nenhum pedido anterior.');return}if(S.accountClosed){flash('Conta já encerrada.');return}S.repeated=o.items.map(x=>({...x,checked:true,qty:x.qty}));S.modal='repeat';render()}
+function repeatableOrder(){return S.orders.slice().reverse().find(o=>!o.cancelled&&o.status!=='Cancelado pela equipe'&&o.items?.length)||null}
+function repeatLast(){
+ const o=repeatableOrder();
+ if(!o){flash('Nenhum pedido disponível para repetir.');return}
+ if(S.accountClosed){flash('Conta já encerrada.');return}
+ S.repeated=o.items.map(x=>({...x,checked:true,qty:x.qty}));
+ S.modal='repeat';render();
+}
 function repeatQty(i,d){const x=S.repeated[i];if(!x)return;x.qty=Math.max(1,Math.min(99,x.qty+d));render()}
 function confirmRepeat(){const selected=S.repeated.filter(x=>x.checked);if(!selected.length)return;submitOrderWithPolicy(selected.map(x=>({...x,owner:S.actor})),'repeat')}
 function setCategory(v){S.category=v;S.query='';render()}
@@ -1028,7 +1035,7 @@ function renderFicha(){
  ${active.length?`<div class="queuehead ficha-section-head"><h2>Em andamento</h2><small>${active.length} PEDIDO${active.length===1?'':'S'}</small></div>${active.map(o=>renderFichaOrder(o)).join('')}`:''}
  ${!orders.length?'<p class="ficha-empty">Nenhum pedido ainda. Faça seu primeiro pedido!</p>':''}
  ${history.length?`<details class="ficha-history"><summary>Histórico <span>${history.length} pedido${history.length===1?'':'s'}</span></summary>${history.map(o=>renderFichaOrder(o,true)).join('')}</details>`:''}
- ${S.orders.length&&!S.accountClosed?'<button class="quick-repeat ficha-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>':''}
+ ${repeatableOrder()&&!S.accountClosed?'<button class="quick-repeat ficha-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>':''}
  <div class="sectionhead"><h2>Sua conta</h2></div>
  <div class="rowline"><button class="rowbtn ficha-bill-row" onclick="switchView('account')"><span><strong class="rowtitle">Conta e pagamento</strong><small class="sub">${balance()>0?'Ver consumo e pagar':'Ver consumo detalhado'}</small></span><span class="ficha-bill-amount mono">${money(balance())}　›</span></button></div>
  
@@ -1092,7 +1099,7 @@ function renderComandaOrders(){
    return rank[activeOrderStage(x)]-rank[activeOrderStage(y)];
  }).slice(0,2);
  return `<section class="comanda-order-section" aria-label="Acompanhamento dos pedidos">
- <div class="queuehead"><h2>Seus pedidos</h2><button class="inline-link compact-link" onclick="S.modal='orders';render()">${count?'Ver todos ('+count+')':'Ver pedidos'} ›</button></div>
+ <div class="queuehead"><h2>Pedidos</h2><button class="inline-link compact-link" onclick="S.modal='orders';render()">${count?'Ver todos ('+count+')':'Ver pedidos'} ›</button></div>
  ${active.length?`<div class="order-pulse" aria-label="${active.length} pedidos em andamento">
  ${nReady?`<span><b class="pulse-dot ready"></b>${nReady} ${nReady===1?'pronto ou chegando':'prontos ou chegando'}</span>`:''}
  ${nPreparing?`<span><b class="pulse-dot preparing"></b>${nPreparing} em preparo</span>`:''}
@@ -1103,7 +1110,7 @@ function renderComandaOrders(){
  </button>`).join('')}
  ${active.length>2?`<button class="inline-link" onclick="S.modal='orders';render()">+ ${active.length-2} ${active.length===3?'pedido':'pedidos'} em andamento ›</button>`:''}
  `:count?'<p class="comanda-empty-copy">Pedidos anteriores concluídos. Veja o histórico se precisar.</p>':'<p class="comanda-empty-copy">Seus pedidos vão aparecer aqui.</p>'}
- ${count&&!S.accountClosed?'<button class="quick-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>':''}
+ ${repeatableOrder()&&!S.accountClosed?'<button class="quick-repeat" onclick="repeatLast()">↻ Mais uma rodada</button>':''}
  </section>`
 }
 function renderComandaActions(){
