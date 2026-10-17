@@ -32,3 +32,18 @@ TabOccupancyAssignment.objects.create(tab=tab,occupancy=occupancy)
  const detail=await page.evaluate(async label=>{const list=await(await fetch(`/api/attendance/tabs/?q=${encodeURIComponent(label)}`)).json();const tab=list.results.find((value:{display_label:string})=>value.display_label===label);return(await fetch(`/api/attendance/tabs/${tab.id}/`)).json();},label);
  expect(detail.orders).toHaveLength(1);expect(detail.orders[0].items).toHaveLength(2);expect(detail.exposure_cents).toBe(1500);expect(detail.payments).toHaveLength(0);
 });
+
+test("UX2 real committed order lost ACK reload reconciles one intent and ledger",async({page})=>{
+ await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+ const label="UX2 lost ACK original";
+ const tab=await page.evaluate(async display_label=>{const response=await fetch("/api/pos/tabs/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({display_label})});if(!response.ok)throw new Error(`Create fixture ${response.status}`);return response.json();},label);
+ await page.reload();await page.getByRole("button",{name:"Mesas",exact:true}).click();
+ await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.locator(`button[data-tab-id="${tab.id}"]`).click();
+ await page.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();for(const product of ["Kitchen E2E item","Bar E2E item"])await page.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();
+ const attempts:string[]=[];let originalOrder="";
+ await page.route(`**/api/attendance/tabs/${tab.id}/orders/confirm/`,async route=>{attempts.push(route.request().postData()!);const response=await route.fetch({url:route.request().url().replace(/\/$/,""),headers:await route.request().allHeaders()});expect(response.ok()).toBeTruthy();const body=await response.json();if(!originalOrder)originalOrder=body.id;else expect(body.id).toBe(originalOrder);if(attempts.length===1)await route.abort();else await route.fulfill({response});});
+ await page.getByRole("button",{name:/Enviar 2 itens/}).click();await expect(page.getByText("Envio sem confirmação",{exact:true})).toBeVisible();
+ const key="rodada.intent.staff-order.v1",saved=await page.evaluate(k=>sessionStorage.getItem(k),key);expect(saved).toBeTruthy();await page.reload();await expect(page.getByText("Envio sem confirmação",{exact:true})).toBeVisible();expect(attempts).toHaveLength(1);await page.getByRole("button",{name:"Verificar mesmo pedido",exact:true}).click();
+ await expect(page.getByRole("region",{name:"Último pedido confirmado"})).toContainText(`#${originalOrder}`);expect(attempts).toHaveLength(2);expect(attempts[0]).toBe(attempts[1]);expect(await page.evaluate(k=>sessionStorage.getItem(k),key)).toBeNull();
+ const canonical=await page.evaluate(async id=>(await fetch(`/api/attendance/tabs/${id}/`)).json(),tab.id);expect(canonical.orders).toHaveLength(1);expect(canonical.orders[0].id).toBe(originalOrder);expect(canonical.orders[0].items).toHaveLength(2);expect(canonical.exposure_cents).toBe(1500);expect(canonical.payments).toHaveLength(0);
+});
