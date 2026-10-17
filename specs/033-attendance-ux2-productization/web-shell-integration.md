@@ -53,3 +53,10 @@ foram migrados sem remover doubleclick/reload/mesmo payload/Order/ledger;
 Resultado real PG55638:3PASS/29,6s,360/390/430. A primeira tentativa falhou por
 label de busca antigo; o seletor final usa Buscar produto. Typecheck/ESLint dos
 arquivos modificados PASS. Testes amplos remanescentes em migração, CI nãoaceito.
+
+Regressão funcional encontrada na migração: a página ocultava repetição histórica
+na Conta e bloqueava atalho home quando havia rascunho, embora engine existente
+já preservasse esse rascunho. Restaurada entrada histórica e atalho sem count gate;
+a engine continua autorizando/revalidando intenção original. Ação histórica na
+Conta preserva capacidade anterior e exige comparação/aprovação de diferença
+visual; não constitui paridade aceita. Teste real de repetição ainda em execução.
