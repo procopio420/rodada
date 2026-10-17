@@ -24,7 +24,8 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   const matches = await page.evaluate(async () =>
     (await (await fetch("/api/attendance/tabs/?q=joao%20da%20praca")).json()).results);
   expect(matches).toHaveLength(2);
@@ -41,7 +42,7 @@ Tab.objects.bulk_create([Tab(venue=v,display_label=f'Global search filler {i}') 
     await page.getByLabel("Buscar mesa ou comanda").fill("joao da praca");
     const others = page.getByRole("region", { name: "Outras comandas" });
     for (const match of matches)
-      await expect(others.locator(`button.attendanceTabOption[data-tab-id="${match.id}"]`)).toBeVisible();
+      await expect(others.locator(`button[data-tab-id][data-tab-id="${match.id}"]`)).toBeVisible();
 
     await selectExistingAttendanceTab(page, "João  da Praça");
     await popup.getByRole("button", { name: /Pedido atual/ }).click();

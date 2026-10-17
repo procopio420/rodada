@@ -6,7 +6,7 @@ import { attendanceCategory, compareAttendanceCategories, normalizeCatalogSearch
 import { OperationalHeading } from "@/components/operational-heading";
 import { OperationalIcon } from "@/components/operational-icon";
 
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type ReactNode } from "react";
 import { AttendanceTabHistory } from "@/components/attendance-tab-history";
 import { AttendanceCatalogCard } from "@/components/attendance-catalog-card";
 import { AttendanceCategoryCatalog, sameCatalogSelection } from "@/components/attendance-category-catalog";
@@ -33,7 +33,7 @@ type CashPoint = { id: string; label: string; active_shift: { id: string; status
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 
 export type TableTabSelection = { requestId: number; tabId: string; occupancyId: string; tableId: string; tableLabel: string };
-export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
+export function OrderWorkspace({ contextualTaskNode, closeContextRequest = 0, onContextChange, returnFocus, tableMode = false, requestedTabSequence = 0, createRequest = 0, historyRequest = 0, onDialogClose, onOpenFailure, withoutPayments = false, onPendingChange, onRecoveryNeeded, onOpenTableRequest, tableSelection, onTableSelectionResult, requestedTabId, destinationLabel, recoveryScope }: { contextualTaskNode?: ReactNode; closeContextRequest?: number; onContextChange?: (context: { tabId: string; surface: string } | null) => void; returnFocus?: HTMLElement | null; tableMode?: boolean; requestedTabSequence?: number; createRequest?: number; historyRequest?: number; onDialogClose?: () => void; onOpenFailure?: (message: string) => void; requestedTabId?: string; destinationLabel?: string; recoveryScope?: string; withoutPayments?: boolean; onPendingChange?: (pending: boolean) => void; onRecoveryNeeded?: () => void; onOpenTableRequest?: (displayLabel: string) => void; tableSelection?: TableTabSelection | null; onTableSelectionResult?: (error: string | null, selection: TableTabSelection) => void }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catalogLayerOpen, setCatalogLayerOpen] = useState(false);
   const [standaloneCreate, setStandaloneCreate] = useState(false);
@@ -352,5 +352,12 @@ export function OrderWorkspace({ returnFocus, tableMode = false, requestedTabSeq
   setSelected(detail.body as Tab); await load();
 }} />}</section>;
   const dialogLocked = catalogLayerOpen || correctionPending || cashPending || !orderIntent.ready || orderIntent.busy || !!orderIntent.pending || confirming || selecting || opening || closing || repeatLoading || !!repeatReview || !!configuring || discardDialog || closingDialog || !!removingItem || showHistory;
-  return tableMode ? <ActionDialog returnFocus={returnFocus} open={dialogOpen} dialogClassName="attendanceOrderDialog" title={selected && !standaloneCreate ? `${selected.table_label ? `Mesa ${selected.table_label}` : destinationLabel || "Comanda"} · ${selected.display_label || tabReference(selected)} · ${tabReference(selected)}` : "Comandas"} locked={dialogLocked} onClose={() => { if (dialogLocked) return; setDialogOpen(false); onDialogClose?.(); }}>{workspace}</ActionDialog> : workspace;
+  useEffect(() => { onContextChange?.(dialogOpen && selected ? { tabId: selected.id, surface: dialogView } : null); }, [dialogOpen, selected, dialogView, onContextChange]);
+  const handledCloseRequest = useRef(0);
+  const closeRequestedContext = useEffectEvent(() => {
+    if (!closeContextRequest || handledCloseRequest.current === closeContextRequest || !dialogOpen || dialogLocked) return;
+    handledCloseRequest.current = closeContextRequest; setDialogOpen(false); onDialogClose?.();
+  });
+  useEffect(() => { queueMicrotask(() => closeRequestedContext()); }, [closeContextRequest, dialogOpen, dialogLocked]);
+  return tableMode ? <ActionDialog returnFocus={returnFocus} open={dialogOpen} dialogClassName="attendanceOrderDialog" title={selected && !standaloneCreate ? `${selected.table_label ? `Mesa ${selected.table_label}` : destinationLabel || "Comanda"} · ${selected.display_label || tabReference(selected)} · ${tabReference(selected)}` : "Comandas"} locked={dialogLocked} onClose={() => { if (dialogLocked) return; setDialogOpen(false); onDialogClose?.(); }}>{contextualTaskNode}{workspace}</ActionDialog> : workspace;
 }

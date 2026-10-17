@@ -28,7 +28,8 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=a)
 TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
 `], { cwd: resolve("../api"), env: process.env });
  await page.goto("/attendance"); await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager"); await page.getByLabel("PIN", { exact: true }).fill("2468");
- await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
+ await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
  const table = (await read(page,"hospitality/tables/")).results[0], tabs = table.active_occupancy.tabs;
  const a = tabs.find((t: {display_label:string}) => t.display_label === "Table entry A"), b = tabs.find((t: {display_label:string}) => t.display_label === "Table entry B");
  const firstPage = (await read(page,"tabs/")).results; expect(firstPage.some((t: {id:string}) => t.id === a.id || t.id === b.id)).toBe(false);
@@ -40,7 +41,7 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
   await page.locator(".attendanceOrderDialog").getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await addCatalogItem(page, "Kitchen E2E item");
   await page.locator(".attendanceOrderDialog").getByRole("button", {name:"Voltar",exact:true}).click();
-  await expect(page.locator(`#attendance-table-${table.id}`)).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
+  await expect(page.locator(".ux2TablePage").getByRole("heading",{name:`Mesa ${table.label}`,exact:true})).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
   await page.locator(`button[data-tab-id="${b.id}"]`).click();
   await page.locator(".attendanceOrderDialog").getByRole("button", {name:/Pedido atual/}).click();
   await expect(page.locator(".attendanceOrderDialog").locator(".attendanceDraftLine")).toHaveCount(0);

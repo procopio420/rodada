@@ -10,7 +10,8 @@ for (const width of [360, 390, 430]) test(`canonical photographed menu orders re
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
+  await page.getByRole("button", { name: /^Entregas / }).click();
+  await expect(page.getByRole("heading", { name: "Prontos para levar" })).toBeVisible();
   const catalog = await page.evaluate(async () => (await (await fetch("/api/attendance/catalog/products/")).json()).results);
   const imported = catalog.filter((p: { name: string }) => !p.name.endsWith("E2E item"));
   expect(imported).toHaveLength(143);
