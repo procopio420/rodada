@@ -109,3 +109,7 @@ sem exceções; após leitura válida, painel de alertas mantém seu tratamento 
 Extrato concluído: Total da conta substitui Total a pagar; selo Paga depende de quitação confirmada líquida e ausência de taxa desatualizada; simulação explícita. Omitir saldozero e parcelas zeradas sem esconder transferência/estorno/pendências. Casos pagos, transferência, pendente, cortesia, simulado, estornado e taxa desatualizada cobertos em management-tab-history.spec.ts.
 
 Evidência do recorte de navegação por tarefa: [navigation-evidence.md](navigation-evidence.md), 42 casos focados PASS; gate global bloqueado em seletor legado de Atendimento.
+
+
+## Regressão de integração do editor — PR247
+O teste real de criação/reuso/ícone percorre a ação Editar produto e ícone → busca → Todos → card do produto → formulário. Mantém prova de criação única, preço/estação, regeneração, upload e remoção do ícone no mesmo Product. Não exigir select ou details removidos pelo contrato de categorias.

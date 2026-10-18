@@ -31,8 +31,12 @@ test("quick create, exact reuse and manager icon lifecycle", async ({ page }) =>
   expect(product.price_cents).toBe(1250);
   expect(product.fulfillment_station).toBe("BAR");
   await page.goto("/manage/products");
-  await page.getByText("Editar produto e ícone", { exact: true }).click();
-  await page.getByLabel("Produto", { exact: true }).selectOption(product.id);
+  await page.getByRole("button", { name: "Editar produto e ícone", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  await editor.getByLabel("Buscar produto", { exact: true }).fill(name);
+  await editor.getByRole("button", { name: /^Todos/ }).click();
+  await editor.getByRole("button", { name: `Editar ${name}`, exact: true }).click();
+  await expect(editor.getByLabel("Nome do produto", { exact: true })).toHaveValue(name);
   await page.getByRole("button", { name: "Regenerar ícone", exact: true }).click();
   await expect(page.getByText("Geração solicitada. O ícone atual permanece visível.")).toBeVisible();
   const fixture = new PNG({ width: 128, height: 128 });
@@ -41,7 +45,7 @@ test("quick create, exact reuse and manager icon lifecycle", async ({ page }) =>
     name: "manual-test-only.png", mimeType: "image/png", buffer: PNG.sync.write(fixture),
   });
   await expect(page.getByText("Ícone atualizado.")).toBeVisible();
-  const preview = page.locator("details .productIcon img");
+  const preview = editor.locator(".catalogOption .productIcon img");
   await expect(preview).toBeVisible();
   await expect.poll(() => preview.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBe(128);
   const updated = await page.evaluate(async () => (await (await fetch("/api/pos/catalog/products/")).json()).results);

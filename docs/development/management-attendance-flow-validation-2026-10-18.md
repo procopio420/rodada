@@ -38,3 +38,11 @@ TESTADO_LOCAL por recorte; NO-GO para declarar homologação/produção. PR em r
 ## Revalidação para abertura do PR
 
 2026-10-18, mesma árvore candidata: build Next.js PASS;45 testes Playwright PASS em1.1min (management-navigation, management-catalog-editor, management-tab-history e quick-catalog). KB PASS49documentos/297links/12skills; diff staged e padrões sensíveis PASS. Não repetida a suíte visual global após essa rodada; sua falha registrada permanece pendente. Não reexecutados PostgreSQL e Android nesta etapa de publicação: evidências por slice acima vinculadas à árvore de implementação.
+
+
+## Follow-up de CI após integração do PR237 — 2026-10-18
+O PR237 foi integrado à main em9754cc22. Merge local da main em8ac4b862 preservou os quatro blocos documentais da Spec029 de ambas as branches; sem conflito de código. As quatro falhas API e sete falhas Bar Web do CI13b5c5cb correspondiam exatamente às regressões corrigidas na main pelo PR237. Não afrouxar assertions nem reabrir automaticamente comandas quitadas.
+
+A falha Web adicional de quick-catalog procurava o select Produto removido pelo editor por categorias. O teste agora percorre busca→Todos→card→formulário e procura o preview dentro do editor; mantém criação única, reuso normalizado, preço/estação, regeneração, upload128px, ID de ícone preservado e remoção. Aceite Spec007 atualizado antes do teste.
+
+Build, validação visual pós-integração e novos checks ainda em execução nesta fotografia; resultados e revisão do SHA final serão registrados após conclusão. Integração BFF local requer fcntl, indisponível neste runtime; CI Linux permanece obrigatório, sem shim/SQLite. Aprovação qualificada R3 ainda não verificada; merge condicionado aos gates reais. Nenhum deploy, banco compartilhado ou root checkout alterado.
