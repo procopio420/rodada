@@ -185,7 +185,14 @@ class TableServiceTests(TestCase):
         listing = self.client.get("/hospitality/tables/").json()["results"][0]["active_occupancy"]
         assert len(listing["tabs"]) == 2
         assert len({t["display_reference"] for t in listing["tabs"]}) == 2
-        self.client.post(f"/hospitality/tables/{self.table.id}/release/", {}, format="json")
+        self.client.post(
+            f"/hospitality/tables/{self.table.id}/release/",
+            {
+                "expected_occupancy_id": str(occupancy.id),
+                "expected_generation": occupancy.generation,
+            },
+            format="json",
+        )
         assert self.open(occupancy, key="after").json()["code"] == "OCCUPANCY_RELEASED"
         assert Tab.objects.count() == 2
         assert self.open(occupancy, display_label="João").status_code == 200
@@ -305,6 +312,8 @@ class TableServiceTests(TestCase):
         assert len(large) == len(small), (len(small), len(large))
         assert self.claim(occupancy).status_code == 201
         assert listing()["unassigned_service_attention"] == "NONE"
+        assert self.claim(occupancy).status_code == 201
+        assert listing()["unassigned_service_attention"] == "NONE"
 
     def test_real_direct_qr_replay_claim_preserves_guest_and_cycle_revokes(self):
         from modules.access.context import ActorContext
@@ -360,7 +369,14 @@ class TableServiceTests(TestCase):
             ]
             == "NONE"
         )
-        self.client.post(f"/hospitality/tables/{self.table.id}/release/", {}, format="json")
+        self.client.post(
+            f"/hospitality/tables/{self.table.id}/release/",
+            {
+                "expected_occupancy_id": str(occupancy.id),
+                "expected_generation": occupancy.generation,
+            },
+            format="json",
+        )
         assert (
             self.client.get("/hospitality/tables/").json()["results"][0]["active_occupancy"] is None
         )
