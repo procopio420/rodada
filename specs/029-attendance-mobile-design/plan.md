@@ -69,3 +69,7 @@ capturas com fixtures existentes. Preservar todas as regras e os callbacks.
 3. Validar capturas, guards/callbacks, fonte ampliada, build/lint e revisão.
 
 Histórico da noite Android: extender leitura GET tabs com history_day=current/data e metadata history_business_date; fixar data entre páginas. Separar historyDetail de selectedTab, geração de leitura para respostas fora de ordem. Diálogo com componentes/tokens existentes e nenhuma mutation. Reutilizar endpoints de detalhe autenticados.
+
+
+## Manutenção Web PR237
+Reutilizar catálogo por categorias e ActionDialog; restaurar somente contratos perdidos na migração (Todos, Escape/foco, retorno do histórico). Migrar testes de navegação para as superfícies reais, preservando cenários de pendência e comandos idempotentes. Alvos de toque usam touch-min. Validar build, lint proporcional, regressões de catálogo/draft/histórico/removals, fluxos de mesa e suíte visual global. Não alterar ledger/API, CI ou tolerâncias/baselines.

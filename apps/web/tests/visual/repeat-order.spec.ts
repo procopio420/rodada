@@ -1,3 +1,5 @@
+import { addCatalogItem } from "./category-actions";
+import { openOtherTabs } from "./attendance-actions";
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
 
@@ -30,14 +32,15 @@ async function setup(page: Page, mode = "valid") {
   await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ status: failRead ? 503 : 200, json: failRead ? { message: "Read failed" } : detail }));
   const posts: unknown[] = [];
   await page.route("**/api/attendance/tabs/tab-test/orders/confirm/", route => { posts.push(route.request().postDataJSON()); return route.abort(); });
-  await page.goto("/attendance"); await page.getByRole("button", { name: "Contas", exact: true }).click();
+  await page.goto("/attendance"); await openOtherTabs(page);
   await page.getByRole("button", { name: /^Comanda de teste ·/ }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   return { posts, detail, changePrice: () => { catalog = catalog.map(p => ({ ...p, price_cents: 9000 })); }, fail: () => { failRead = true; } };
 }
 for (const width of [360, 390, 430]) test(`Repeat explicit review preserves draft current price and original history at ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); const state = await setup(page);
-  await page.getByRole("button", { name: /^Fritas/ }).click();
-  const draft = page.getByRole("region", { name: "Pedido atual" }); await expect(draft.locator("article")).toHaveCount(1);
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Cardápio", exact: true }).click(); await addCatalogItem(page, "Fritas"); await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
+  const draft = page.getByRole("region", { name: "Pedido atual", includeHidden: true }); await expect(draft.locator("article")).toHaveCount(1);
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/Anterior: Fritas anteriores/)).toContainText("72,00");
@@ -58,18 +61,18 @@ for (const width of [360, 390, 430]) test(`Repeat explicit review preserves draf
   expect(payload.lines).toEqual([
     { product_id: "fries", quantity: 2, variant_id: null, modifier_option_ids: [], special_instructions: "Sem sal" },
   ]);
-  await expect(page.getByRole("button", { name: "Repetir rodada 1", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Repetir rodada 1", exact: true, includeHidden: true })).toBeDisabled();
 });
 for (const mode of ["inactive", "unavailable", "absent", "legacy", "removed", "quantity"]) test(`Repeat blocks ${mode} without defaults or partial inclusion`, async ({ page }) => {
   const state = await setup(page, mode); await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByRole("button", { name: "Confirmar e enviar rodada" })).toBeDisabled();
   await dialog.getByRole("button", { name: "Voltar" }).click();
-  await expect(page.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Pedido atual", includeHidden: true }).locator("article")).toHaveCount(0);
   expect(state.posts).toHaveLength(0);
 });
 test("Repeat rejects catalog change during review and read failure preserves existing draft", async ({ page }) => {
-  const state = await setup(page); await page.getByRole("button", { name: /^Fritas/ }).click();
+  const state = await setup(page); await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Cardápio", exact: true }).click(); await addCatalogItem(page, "Fritas"); await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   state.changePrice(); await page.clock.runFor(15001);
@@ -78,23 +81,21 @@ test("Repeat rejects catalog change during review and read failure preserves exi
   await dialog.getByRole("button", { name: "Voltar" }).click(); state.fail();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   await expect(page.getByText(/Não foi possível conferir a rodada/)).toBeVisible();
-  await expect(page.getByRole("region", { name: "Pedido atual" }).locator("article")).toHaveCount(1);
+  await expect(page.getByRole("region", { name: "Pedido atual", includeHidden: true }).locator("article")).toHaveCount(1);
   expect(state.posts).toHaveLength(0);
 });
 
 test("Repeat keeps historical variant modifier and note distinct from existing default draft", async ({ page }) => {
   const state = await setup(page, "configured");
-  await page.getByRole("button", { name: /^Fritas/ }).click();
-  const customization = page.getByRole("dialog", { name: "Personalizar Fritas" });
-  await customization.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Cardápio", exact: true }).click(); await addCatalogItem(page, "Fritas"); await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Conferir rodada" });
   await expect(dialog.getByText(/^Atual:/)).toContainText("105,00");
   await expect(dialog.getByText("Variação: Grande", { exact: true })).toHaveCount(2);
   await dialog.getByRole("button", { name: "Confirmar e enviar rodada" }).click();
-  const draft = page.getByRole("region", { name: "Pedido atual" });
+  const draft = page.getByRole("region", { name: "Pedido atual", includeHidden: true });
   await expect(draft.locator("article")).toHaveCount(1);
-  await expect(draft.getByText("Variação: Pequena", { exact: true })).toBeVisible();
+  await expect(draft.getByText("Variação: Pequena", { exact: true })).toHaveText("Variação: Pequena");
   await expect.poll(() => state.posts.length).toBe(1);
   expect((state.posts[0] as { lines: unknown[] }).lines).toEqual([
     { product_id: "fries", quantity: 2, variant_id: "large", modifier_option_ids: ["extra"], special_instructions: "Sem sal" },

@@ -270,3 +270,10 @@ mutation, testes de callbacks/guards e revisão independente da apresentação.
 ## Histórico da noite em diálogo — Android (2026-10-17)
 
 Garçom acessa ícone discreto com alvo48dp em Mesas e comandas. Um diálogo mostra apenas Tabs concluídas/canceladas no dia operacional atual do Venue (timezone/cutoff), independente de quem recebeu o pagamento. Cada linha abre detalhes somente leitura no mesmo diálogo: identificação/mesa histórica, totais canônicos, pedidos e pagamentos. Voltar retorna à lista; fechar retorna às mesas sem trocar contexto ou rascunho. Estados loading/vazio/erro/retry reais, scroll com fonte ampliada e sem ações financeiras. Paginação fixa a business date da primeira resposta. Tenant/autenticação existentes preservados; fora de escopo gerência Web, relatórios e alteração de permissões financeiras.
+
+## Regressões do catálogo Web — PR237
+A migração do catálogo para popups preserva Todos como primeiro agrupamento virtual: reúne produtos ativos de todas as categorias, respeita busca e disponibilidade e não duplica produtos. Categoria real chamada Todos continua distinta. Pedido/Conta são superfícies separadas, com rascunho preservado ao alternar/fechar/reabrir; não se exige presença simultânea de catálogo e financeiro na mesma tela. Restaurar o agrupamento ausente, sem mudar API/preços/drafts.
+
+Diálogos aninhados: Escape fecha somente a camada superior e devolve foco ao acionador. Histórico aberto pelo ícone da lista retorna à lista ao fechar, sem deixar workspace vazio; histórico aberto dentro de comanda retorna a ela. Preservar bloqueios de pendências.
+
+Na conferência de rodada, seleção e quantidade mantêm alvos mínimos de 44px, usando o token existente. Auditorias de controles em modal consideram a camada ativa; controles de fundo inertes são auditados quando sua própria tela estiver ativa.

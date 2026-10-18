@@ -120,15 +120,17 @@ test("Guest grouping uses variant and unordered option IDs, preserving different
   expect(lines.map((line: { modifier_option_ids: string[] }) => line.modifier_option_ids)).toEqual([[], ["one", "two"], ["one", "two"], ["one"]]);
 });
 
-test("Guest repeat grouped overflow preserves all existing units", async ({ page }) => {
+test("Guest repeat grouped historical overflow preserves all existing units", async ({ page }) => {
   const state = await setup(page);
-  Object.assign(state.context.tab, { orders: [{ id: "history-test", status: "CONFIRMED", items: [{ id: "history-item", product_id: "fries", product_name: "Fritas", quantity: 99,
-    unit_price_cents: 7200, line_total_cents: 712800, state: "NEW", customization_snapshot: { variant: null, modifiers: [], special_instructions: "" } }] }] });
+  const historical = { id: "history-item", product_id: "fries", product_name: "Fritas", quantity: 99,
+    unit_price_cents: 7200, line_total_cents: 712800, state: "NEW", customization_snapshot: { variant: null, modifiers: [], special_instructions: "" } };
+  Object.assign(state.context.tab, { orders: [{ id: "history-test", status: "CONFIRMED", items: [historical, { ...historical, id: "history-extra", quantity: 1, line_total_cents: 7200 }] }] });
   await page.getByRole("button", { name: "Atualizar comanda" }).click();
   await page.getByRole("button", { name: "Repetir rodada 1", exact: true }).click();
-  await page.getByRole("dialog", { name: "Conferir rodada" }).getByRole("button", { name: "Adicionar ao carrinho" }).click();
-  await expect(page.getByRole("dialog").getByText(/A quantidade agrupada ultrapassa 99/)).toBeVisible();
+  await page.getByRole("dialog", { name: "Conferir rodada" }).getByRole("button", { name: "Confirmar e enviar rodada" }).click();
+  await expect(page.getByRole("dialog", { name: "Conferir rodada" })).toBeVisible();
   await page.getByRole("dialog").getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.getByText(/A quantidade agrupada ultrapassa 99/)).toBeVisible();
   await expect(page.getByRole("region", { name: "Pedido atual" }).getByText("1× Fritas", { exact: true })).toBeVisible();
   expect(state.attempts).toHaveLength(0);
 });

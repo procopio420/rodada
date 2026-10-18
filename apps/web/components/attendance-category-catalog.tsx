@@ -22,21 +22,22 @@ export function AttendanceCategoryCatalog({ products, lines, locked, fresh, onAd
   useEffect(() => { onLayerChange(category !== null || picked !== null); return () => onLayerChange(false); }, [category, picked, onLayerChange]);
   const filtered = products.filter(p => p.active && normalizeCatalogSearch(p.name).includes(normalizeCatalogSearch(query)));
   const categories = [...new Set(filtered.map(attendanceCategory))].sort(compareAttendanceCategories);
+  const visible = filtered.filter(p => category === "" || attendanceCategory(p) === category).sort((a, b) => compareAttendanceCategories(attendanceCategory(a), attendanceCategory(b)) || a.name.localeCompare(b.name, "pt-BR"));
   const current = picked ? products.find(p => p.id === picked.id) ?? { ...picked, active: false } : null;
   const capacity = (selection: Selection) => 99 - lines.filter(line => line.product.id === picked?.id && sameCatalogSelection(line.selection, selection)).reduce((sum, line) => sum + line.quantity, 0);
   return <>
     <div className="field"><label htmlFor="attendance-category-search">Buscar item no cardápio</label><input id="attendance-category-search" type="search" value={query} disabled={locked} onChange={event => setQuery(event.target.value)} /></div>
-    <nav className="attendanceCategoryGrid" aria-label="Categorias do cardápio">{categories.map(name => <button className="buttonSecondary" key={name} disabled={locked} aria-haspopup="dialog" onClick={() => setCategory(name)}><strong>{name}</strong><small>{filtered.filter(p => attendanceCategory(p) === name).length} itens</small></button>)}</nav>
+    <nav className="attendanceCategoryGrid" aria-label="Categorias do cardápio">{!!filtered.length && <button className="buttonSecondary" disabled={locked} aria-haspopup="dialog" onClick={() => setCategory("")}><strong>Todos</strong><small>{filtered.length} itens</small></button>}{categories.map(name => <button className="buttonSecondary" key={name} disabled={locked} aria-haspopup="dialog" onClick={() => setCategory(name)}><strong>{name}</strong><small>{filtered.filter(p => attendanceCategory(p) === name).length} itens</small></button>)}</nav>
     {!categories.length && <p role="status">{!fresh ? "Catálogo ainda não disponível. Atualize para tentar novamente." : query.trim() ? "Nenhum item encontrado." : "Nenhum produto no catálogo."}</p>}
-    {category !== null && <ActionDialog title={category} dismissOnBackdrop locked={locked || picked !== null} dialogClassName="attendanceCategoryDialog" onClose={() => setCategory(null)}>
-      <div className="posProducts">{filtered.filter(p => attendanceCategory(p) === category).map(product => {
+    {category !== null && <ActionDialog title={category || "Todos"} dismissOnBackdrop locked={locked || picked !== null} dialogClassName="attendanceCategoryDialog" onClose={() => setCategory(null)}>
+      <div className="posProducts">{visible.map(product => {
         const count = lines.filter(line => line.product.id === product.id).reduce((sum, line) => sum + line.quantity, 0);
         return <button className="buttonSecondary posProduct attendanceProductPick" key={product.id} data-product-id={product.id} data-selected={count > 0} aria-label={`Escolher ${product.name}`} disabled={locked || !fresh || !product.active || product.availability !== "AVAILABLE"} onClick={() => { setQuantity(1); setPicked(product); }}>
           <ProductIcon name={product.name} icon={product.icon} /><strong>{product.name}</strong><small>{money(product.price_cents)}</small>
           {product.availability !== "AVAILABLE" && <span>Indisponível</span>}{count > 0 && <output aria-label={`Quantidade selecionada de ${product.name}`}>{count} no pedido</output>}
         </button>;
       })}</div>
-      {!filtered.some(p => attendanceCategory(p) === category) && <p>Nenhum produto nesta categoria.</p>}
+      {!filtered.some(p => category === "" || attendanceCategory(p) === category) && <p>Nenhum produto nesta categoria.</p>}
       <button className="buttonPrimary attendanceCategoryReview" disabled={locked || picked !== null} onClick={() => { setCategory(null); onReview(); }}>Ver pedido atual · {lines.reduce((sum, line) => sum + line.quantity, 0)} itens</button>
     </ActionDialog>}
     {current && <ActionDialog title={`Adicionar ${current.name}`} dismissOnBackdrop locked={locked} dialogClassName="attendanceItemDialog" onClose={() => setPicked(null)}>

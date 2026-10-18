@@ -12,12 +12,13 @@ for (const width of [360, 390, 430]) test(`compact tables expand on touch at ${w
     { id: "other", label: "03", status: "OCCUPIED", active_occupancy: { id: "other-visit", generation: 1, tabs: [] } },
   ] } }));
   await page.goto("/attendance");
-  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
   const table = page.getByRole("button", { name: /Mesa 01 Ocupada/ });
-  await expect(table).toHaveAttribute("aria-expanded", "false");
+  await expect(table).toHaveAttribute("aria-haspopup", "dialog");
+  await expect(page.getByRole("dialog", { name: "Mesa 01", exact: true })).toHaveCount(0);
   await expect(page.getByText("Pessoas na ocupação")).toHaveCount(0);
   await table.click();
-  await expect(table).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("dialog", { name: "Mesa 01", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Comanda de teste · Comanda 001", exact: true })).toBeVisible();
   await layoutAndA11y(page);
   await page.getByRole("button", { name: "Mover comanda", exact: true }).click();

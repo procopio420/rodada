@@ -103,6 +103,9 @@ export async function layoutAndA11y(page: Page, receiptPreview = false) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(overflow, "horizontal overflow").toBe(false);
   const smallControls = await page.locator("button:not(:disabled), input:not(:disabled), select:not(:disabled), a.backLink, .surfaceNav a").evaluateAll(elements => elements.filter(el => {
+    const dialogs = [...document.querySelectorAll("dialog:modal")];
+    const focused = document.activeElement?.closest("dialog:modal");
+    const top = focused ?? dialogs.at(-1); if (top && !top.contains(el)) return false;
     const box = el.getBoundingClientRect(); return box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44);
   }).map(el => el.outerHTML));
   expect(smallControls, "important controls must be at least 44 × 44 px").toEqual([]);

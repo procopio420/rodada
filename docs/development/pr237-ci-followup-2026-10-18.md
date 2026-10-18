@@ -11,7 +11,7 @@ O CI do SHA base teve4 falhas de API (994 casos aprovados) e7 falhas Web BFF (10
 - Web production-regions/workflows: Bar percorre abertura do seletor, Todos, item e Sim para indisponibilizar/reativar, com readback. Cozinha mantém controles existentes.
 - Recovery Bar: comando aplica no servidor, resposta é perdida, outra seleção ocorre após fim de busy do modal; reload/replay reutiliza payload/recibo original. O cenário não mede ações simultâneas enquanto a resposta original permanece em voo.
 
-Nenhuma alteração de código produtivo, CI, schema, autorização ou regra financeira. Aceites existentes Specs001/026 atualizados antes dos testes.
+Neste primeiro delta não houve alteração de código produtivo, CI, schema, autorização ou regra financeira. Aceites existentes Specs001/026 atualizados antes dos testes.
 
 ## Evidência do delta
 - PostgreSQL de teste isolado:7 testes API PASS em190.639s (quatro falhas originais cobertas, mais adjacentes). System check PASS. Não executada novamente a suíte completa de998 neste ambiente.
@@ -23,3 +23,21 @@ Nenhuma alteração de código produtivo, CI, schema, autorização ou regra fin
 
 ## Decisão
 NO-GO para merge nesta fotografia: suíte visual global falha, integração do delta aguarda CI e não há aprovação qualificada GitHub do PR237. A autorização de merge do solicitante não altera os gates. Sem main/deploy/banco remoto alterados. Próximo responsável: manutenção do teste de Atendimento e revisão qualificada do SHA final; revalidar toda a cadeia antes de merge. Artefatos locais ignorados: visual-artifacts/android-sync-runtime/pr237-*.log.
+
+
+## Manutenção visual subsequente — base 4fe7d080
+CI Linux deste SHA concluiu com sucesso: API run39166338613, Web run39166338624 e Android run39166338629. O workflow Web não executa o visual global neste PR; essa validação continua separada.
+
+Correções de apresentação identificadas na regressão:
+- Todos virtual restaurado no catálogo, distinto de categoria real homônima; busca, ativos e indisponibilidade preservados.
+- Escape de ActionDialog não propaga cancelamento a diálogos ancestrais.
+- Histórico aberto pela lista fecha o workspace ao retornar e restaura foco ao ícone; abertura interna mantém contexto.
+- Seleção/quantidade da conferência de rodada usam touch-min, sem alterar payload/preço.
+
+Os testes legados percorrem agora a área unificada, popups de categorias e superfícies Cardápio/Pedido atual/Conta. Mantêm payload imutável, replay, armazenamento, isolamento A/B, configurações e erros de seleção. A abertura disponível migrou para service/open-tab atômico; seguida de abertura em ocupação, ambas com resposta perdida e repetição da mesma intenção. O controle de covers removido não emite comandos; cobertura canônica permanece em integração/API. Auditoria de toque considera o modal focado e preserva auditoria da tela quando ativa e Axe.
+
+Build webpack e typecheck PASS. ESLint dos testes/componentes focados PASS; execução completa dos arquivos alterados encontra dívida anterior de setState em effect em attendance-web.tsx:50 e dependências do mesmo effect. Nenhuma supressão adicionada.
+
+Revisão independente do delta, fingerprint1f1dc1061947e58f523c1e547e2acfd76a4e3081: NO_FINDINGS_WITH_GAPS após restaurar cobertura de mesa DIRTY; inclui revisão dos controles produtivos, payload/replay e helper de auditoria. Não representa aprovação GitHub ou execução do revisor.
+
+Suíte visual global em execução; não há PASS global nesta fotografia. Nenhuma mudança de CI, baseline, tolerância, API, schema ou ledger. Aprovação qualificada GitHub ainda ausente.

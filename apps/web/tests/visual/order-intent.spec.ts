@@ -1,3 +1,5 @@
+import { addCatalogItem } from "./category-actions";
+import { openOtherTabs } from "./attendance-actions";
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 
@@ -15,9 +17,12 @@ async function setup(page: Page, surface = "attendance") {
       orders: attempts.length > 1 ? [{ id: "order-recovered", items: [] }] : [], payments: [], refund_required_corrections: [] } }
     : { status: 503, json: { code: "TEMPORARY", message: "Leitura indisponível" } }));
   await page.goto(`/${surface}`);
-  if (surface === "attendance") await page.getByRole("button", { name: "Contas", exact: true }).click();
+  if (surface === "attendance") await openOtherTabs(page);
   await page.getByRole("button", { name: /^Comanda de teste ·/ }).click();
-  await page.getByRole("button", { name: /^Fritas/ }).click();
+  if (surface === "attendance") {
+    await addCatalogItem(page, "Fritas");
+    await page.locator(".attendanceOrderDialog").getByRole("button", { name: /^Pedido atual/ }).click();
+  } else await page.getByRole("button", { name: /^Fritas/ }).click();
   return { attempts, failReadback: () => { readback = false; }, restoreReadback: () => { readback = true; } };
 }
 for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]) test(`Staff order lost response reload immutable recovery ${surface} ${width}`, async ({ page }) => {
@@ -29,7 +34,8 @@ for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]
   await page.reload();
   const verify = page.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
   expect(state.attempts).toHaveLength(1);
-  await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
+  if (surface === "pos") await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
+  else await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
   await layoutAndA11y(page); await page.screenshot({ path: `../../visual-artifacts/spec026/t05-order-${surface}-${width}.png`, fullPage: true });
   state.failReadback(); await verify.click();
   await expect(page.getByText("Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro.", { exact: true })).toBeVisible();
@@ -38,7 +44,11 @@ for (const surface of ["attendance", "pos"]) for (const width of [360, 390, 430]
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   expect(state.attempts).toHaveLength(3); expect(new Set(state.attempts).size).toBe(1);
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeNull();
-  await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeEnabled();
+  if (surface === "pos") {
+    await page.getByLabel("Nome ou apelido", { exact: true }).fill("Nova comanda de teste");
+    await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeEnabled();
+  }
+  else await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeEnabled();
 });
 
 for (const failure of ["different-session", "revoked", "changed-envelope"]) test(`Order recovery blocks ${failure}`, async ({ page }) => {
@@ -62,7 +72,7 @@ for (const failure of ["invalid", "write-failure"]) test(`Order storage blocks $
   if (failure === "invalid") {
     await fixture(page, "normal", true); await page.goto("/attendance");
     await expect(page.getByText("Não foi possível preservar o pedido neste navegador. Confira o histórico antes de continuar.", { exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
+    await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
   } else {
     const state = await setup(page); await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
     await expect(page.getByText("Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.", { exact: true })).toBeVisible();
@@ -83,7 +93,7 @@ test("Initial known rejection allows review but recovered rejection preserves in
   await page.reload(); await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
   await expect(page.getByText("Revise os itens", { exact: true })).toBeVisible();
   expect(await page.evaluate(k => sessionStorage.getItem(k), key)).toBeTruthy(); expect(state.attempts).toHaveLength(1);
-  await expect(page.getByRole("button", { name: "Abrir", exact: true })).toBeDisabled();
+  await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeDisabled();
 });
 
 test("Attendance pending order recovers from POS through original gateway", async ({ page }) => {

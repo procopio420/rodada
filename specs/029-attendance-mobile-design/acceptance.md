@@ -286,3 +286,6 @@ sem publicação Git, merge ou deploy. Revisão do diff pelo autor, escopo R2.
 Histórico da noite Android: ícone em Mesas e comandas abre diálogo; seleção abre detalhe somente leitura com pedidos/totais/pagamentos; voltar preserva lista e contexto. Dia operacional do Venue, timezone/cutoff e tenant corretos; paginação201; resposta antiga ignorada após voltar/reabrir/retry. Validar loading/vazio/erro, fonte200% e alvos48dp. Gerência Web fora deste slice.
 
 Evidência local do diálogo: [histórico da noite](night-history-evidence.md).
+
+## Manutenção das regressões Web — PR237 (2026-10-18)
+Os testes legados devem percorrer Mesas e comandas/Outras comandas → Tab → Cardápio/Pedido atual/Conta, respeitando categorias e popup de quantidade. Preservar cobertura de busca/global/Todos/inativo/indisponível, quantidade/draft e resumo financeiro separado; não restaurar navegação monolítica nem remover cenários de erro/recovery para obter CI verde. Sem alteração da intenção do produto.
