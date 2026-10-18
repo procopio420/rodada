@@ -235,6 +235,8 @@ fun TablesScreen(
         val sameOccupancy = current?.status == "OCCUPIED" &&
             current.activeOccupancy?.id == releasingOccupancyId &&
             current.activeOccupancy?.generation == releasingGeneration
+        val releaseReady = sameOccupancy && current?.activeOccupancy?.tabs.orEmpty().none { it.state !in setOf("CLOSED", "CANCELLED") } &&
+            state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOfNotNull(current)) != null }
         AlertDialog(
             onDismissRequest = { releasingTableId = null },
             title = { Text("Liberar mesa $releasingLabel?") },
@@ -243,15 +245,16 @@ fun TablesScreen(
                     Text("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.")
                     Text("As comandas e seus saldos permanecem. Esta ação não recebe pagamentos nem fecha comandas.")
                     if (!sameOccupancy) Text("A ocupação mudou. Cancele e confira a mesa novamente.", color = MaterialTheme.colorScheme.error)
+                    if (sameOccupancy && !releaseReady) Text("Há comandas abertas ou entregas prontas. Cancele e confira a mesa.", color = MaterialTheme.colorScheme.error)
                     if (!canManageTables) Text("Seu acesso atual não permite liberar a mesa.")
                 }
             },
             confirmButton = {
                 TextButton(
                     modifier = Modifier.heightIn(min = 44.dp),
-                    enabled = sameOccupancy && canManageTables && !state.submitting,
+                    enabled = releaseReady && canManageTables && !locked,
                     onClick = {
-                        if (releasingTableId == tableId && sameOccupancy && canManageTables && !state.submitting) {
+                        if (releasingTableId == tableId && releaseReady && canManageTables && !locked) {
                             releasingTableId = null
                             returnTableId = tableId
                             returnStatus = "DIRTY"

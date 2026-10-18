@@ -59,4 +59,15 @@ class TableReleaseTest {
         compose.onNodeWithText("Cancelar").assertIsEnabled().performClick()
         assertEquals(emptyList<String>(), released)
     }
+    @Test fun readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork() {
+        render()
+        compose.runOnIdle { state.value = state.value.copy(deliveryTasks = listOf(
+            DeliveryTask("ready", "OPEN", "A", "Água", 1, "", 0, StaffTaskTarget.Table("table-a", "visit-a", 1))
+        )) }
+        compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
+        compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(emptyList<String>(), released)
+        assertEquals("OPEN", state.value.deliveryTasks.single().state)
+    }
+
 }
