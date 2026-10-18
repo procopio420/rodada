@@ -15,7 +15,7 @@ test("attendance requires a tab name and selects an available table before openi
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
-  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Nova comanda · Mesa 12" });
   const open = dialog.getByRole("button", { name: "Abrir e pedir", exact: true });
   await expect(open).toBeDisabled();
@@ -43,10 +43,10 @@ test("contextual opening adds a tab to an occupied table and excludes unavailabl
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 13 Aguardando limpeza/ }).click();
-  await expect(page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
-  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Nova comanda · Mesa 12" });
   await dialog.getByLabel("Nome ou apelido", { exact: true }).fill("João");
   await dialog.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
@@ -104,10 +104,11 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await page.reload();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   expect(starts).toHaveLength(2); expect(starts[0]).toEqual(starts[1]);
   expect(starts[0]).toEqual(originalStart.payload);
-  await page.getByRole("button", { name: "Nova comanda nesta mesa" }).click();
+  await page.getByRole("button", { name: "＋ Abrir nova comanda" }).click();
   await page.getByLabel("Nome ou apelido", { exact: true }).fill("João");
   await page.getByRole("button", { name: "Abrir e pedir" }).click();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
@@ -136,6 +137,7 @@ test("one QR attention per occupancy and explicit claim removes warning", async 
   await expect(page.getByText("Pedido via QR · Sem responsável", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   await layoutAndA11y(page);
 });
@@ -194,6 +196,7 @@ test("linked Tab moves with confirmation and frozen recovery intent", async ({ p
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 13 Ocupada/ }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await page.getByRole("button", { name: "Organizar mesa 13" }).click();
   await page.getByLabel("Associar comanda à mesa 13").selectOption("tab-test");
   await expect(page.getByText(/Mesa 12 → Mesa 13/)).toBeVisible();
@@ -214,6 +217,7 @@ test("disabled Venue retains legacy occupy without offering contextual service",
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await expect(page.getByRole("button", { name: "Ocupar mesa", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /Iniciar atendimento/ })).toHaveCount(0);
 });
