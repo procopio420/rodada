@@ -7,3 +7,10 @@ The harness now checks exact current class counts and rejects crash/failure outp
 Validation: four Python parser regressions passed (real CI four-test output, zero/partial count, singular CRLF output, errors after success); shell syntax and diff checks passed. Native instrumentation compilation, width-loop execution and independent review are pending. This does not constitute API-backed force-stop recovery acceptance; the staged test explicitly verifies encrypted persistence without a real POST.
 
 Depends on PR #234. No merge or deployment performed.
+
+Revisão independente root: diff5658d686 inspecionado; parser exige contagem
+positiva exata e rejeita falha mesmo com marcador OK. Método novo usa TabList
+real e mede layout/viewport/callback único, sem substituir teste por simulação.
+Quatro testes Python reexecutadosPASS pelo root. Sem findings bloqueantes no
+harness; compilação e execução Android do método novo/force-stop corrigido
+continuam pendentes e não são provadas pelo CI de PR que pula esse job.
