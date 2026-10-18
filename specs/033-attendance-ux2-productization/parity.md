@@ -135,3 +135,26 @@ métodoinexistente. Corrigidos parser/targetcomtesteproduçãolabel;4PythonPASS
 e revisão root. CIunit/build/lintPASS, mas jobforce-stopéSKIPPEDnasPRs.
 Ensaioexplícitoanterior passou fasesforcestop e falhounoharness; gatecorrigido
 com emulador ainda pendente, não considerar aceito. Nativefullshell emcurso.
+
+### Páginas Mesa e navegação real — PR239/240/241
+
+PR239633aa3c9 migrafocused027:10/10PASS25,7s, build/typecheck/ESLint;
+UUID/payload/unknownnavigationguards preservados e revisão rootsemfindings
+bloqueantes. PR240 produto115deffa+14191b08, HEADb8093b81: páginaMesa
+flatrows/saldosreadback apenasMesaescolhida/saída/novaTabcontextual.
+4/4jornadascanônicasPASS16,1s e24capturas;3dirigidoslimpeza/READYstale/
+ClosedreadPASS;2/2followupPASS5,8srevalidaREADYchegandoeocupação
+substituída com diálogojáaberto. R3findingREADYcorrigido; releasecontinua
+backendcanônico. Menulegadocompatíveladicionalnãoestáimplicitamenteaprovado.
+
+PR24149c175d3 (produtobebcd273): AndroidMesa/Comanda fullpages sobshell,
+117JVM/build/lintPASS,12ComposePASS31,462s,3jornadasMainActivityreais
+360/390/430PASS(21,228s/23,801s/23,723s)com18capturas. MesmoTenant/
+IDsMarina56/200/Rafael14dasjornadasWeb. FindingR3: parserTABdescartava
+localizaçãocanônicaqueguardREADYprecisava; preservadocontexto opcional
+validadoUUID/ocupação/generation, helpercurrentTable, testesbackendshape.
+RevisãorootsemnovoP0/P1apósfix; nãoaceitarREADYmockcomomutaçãoAPIreal.
+
+CIamploaindapendente. Gate236force-stopcorrigidoemexecuçãoseparada;
+fonte2shell/TalkBack/aparelho/PSP/piloto/paridadeintegralcontinuamgates.
+NenhumépicoouACglobalencerrado, semmerge/deploy.
