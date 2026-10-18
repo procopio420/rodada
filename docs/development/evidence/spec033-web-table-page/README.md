@@ -31,3 +31,9 @@ também com diálogo aberto. Build e2/2dirigidosPASS6,3s: refreshcanônico
 injetado mostra aviso e desabilitaConfirmar, semescritas; depoisclosedTab
 continua legível. Não altera APIrelease nem garante atomicidade nofrontend;
 o backend mantém autoridade no instante da operação.
+
+Guard adicional revisadoR3: diálogo captura occupancyID/generation originais,
+exigeOCCUPIEDmesmaidentidade e invalida confirmação/avisaapósrefresh.
+Teste retiraREADY antesdetrocarocupação para provarguardindependente.
+Buildfinal e2/2PASS5,8s. Semfindingsreproduzíveisapósfix. Concorrênciaentre
+últimoleituracliente ePOST ainda pertenceaobackend; sempromessadeatomicidadeUI.
