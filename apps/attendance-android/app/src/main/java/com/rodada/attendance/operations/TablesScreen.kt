@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -353,14 +355,16 @@ private fun TableCard(
         val tabs = table.activeOccupancy?.tabs.orEmpty()
         if (tabs.isEmpty()) Text("Sem ocupação ativa", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
         tabs.forEach { tab ->
-            OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Column {
+                HorizontalDivider(color = RodadaVisual.Border)
+                Row(Modifier.fillMaxWidth().clickable(enabled = !busy && tab.state != "CANCELLED", role = androidx.compose.ui.semantics.Role.Button) { onSelectTab(tab.id) }.heightIn(min = 72.dp).padding(vertical = 14.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(tab.displayLabel.ifBlank { tab.displayReference }, style = AttendanceUx2.text(17, 800))
-                        Text("${tab.displayReference} · Mesa ${table.label}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+                        Text("${tab.displayReference} · ${if (tab.state == "CLOSED") "Encerrada" else "Mesa ${table.label}"}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
                     }
-                    Text("${balances[tab.id]?.let(::formatCents) ?: "Ver conta"}  ›", style = AttendanceUx2.text(15, 800))
+                    Text("${balances[tab.id]?.let(::formatCents) ?: "Ver conta"}  ›", style = AttendanceUx2.text(15, 800).copy(fontFamily = RodadaVisual.Number))
                 }
+                HorizontalDivider(color = RodadaVisual.Border)
             }
         }
         if (table.status == "OCCUPIED") {
@@ -374,10 +378,10 @@ private fun TableCard(
         if (canOpenTabs) Ux2Action("＋ Abrir nova comanda", !busy && table.status in setOf("AVAILABLE", "OCCUPIED"), {
             table.activeOccupancy?.let(onNewTab) ?: onNewFirstTab()
         })
+        if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
         if (canManage) {
             TextButton(onClick = { managementExpanded = !managementExpanded }) { Text("Opções da mesa") }
             if (managementExpanded) {
-                if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
                 table.activeOccupancy?.let { occupancy ->
                     androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) }
                     OutlinedButton(onClick = { onAttach(occupancy.id) }, enabled = !busy) { Text("Vincular comanda existente") }

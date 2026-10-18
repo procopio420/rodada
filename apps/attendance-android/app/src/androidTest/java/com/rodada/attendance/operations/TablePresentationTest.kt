@@ -66,4 +66,21 @@ class TablePresentationInstrumentedTest {
         compose.onNodeWithText("Disponível", substring = true).assertIsDisplayed()
     }
 
+    @Test fun closedTabRemainsReadableAndBlockedQrIsVisibleWithoutManagement() {
+        val closed = TableOccupancyTab("closed", "Conta anterior", "CLOSED", displayReference = "CANONICAL")
+        val table = TableSummary("closed-table", "08", "OCCUPIED", "DIRECT", true, null,
+            TableOccupancy("visit", 1, listOf(closed)))
+        var selected: String? = null
+        compose.setContent { RodadaTheme { Surface {
+            TablesScreen(OperationsUiState(tables = listOf(table)), false, { _, _ -> }, {}, {}, {}, onSelectTab = { selected = it })
+        } } }
+        compose.onNodeWithTag("table-closed-table").performClick()
+        compose.onNodeWithText("CANONICAL · Encerrada").assertExists()
+        compose.onNodeWithText("Pedidos por QR bloqueados").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").assertDoesNotExist()
+        compose.onNodeWithText("Opções da mesa").assertDoesNotExist()
+        compose.onNode(hasText("Conta anterior") and hasClickAction()).performScrollTo().performClick()
+        org.junit.Assert.assertEquals("closed", selected)
+    }
+
 }

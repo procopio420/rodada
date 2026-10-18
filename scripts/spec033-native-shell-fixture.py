@@ -15,7 +15,7 @@ from modules.catalog.models import Product
 from modules.ordering.models import Tab
 from modules.ordering.services import confirm_order
 from modules.hospitality.models import Table,Zone
-from modules.hospitality.services import occupy_table
+from modules.hospitality.services import occupy_table,assign_tab
 with transaction.atomic():
  v,created=Venue.objects.get_or_create(slug='spec033-native-shell-parity',defaults={'name':'Bar do Zé','table_service_enabled':True})
  if not v.table_service_enabled:
@@ -37,4 +37,9 @@ with transaction.atomic():
   tab=Tab.objects.create(venue=v,display_label='Marina',operating_limit_cents=20000,relationship_snapshot='REGULAR',opened_by=staff)
   occupy_table(table_id=t.pk,actor=a,tab_id=tab.pk)
   confirm_order(tab_id=tab.pk,source='STAFF',actor=a,idempotency_key='spec033-shell-seed56',lines=[{'product_id':products[0].id,'quantity':2},{'product_id':products[4].id,'quantity':1}])
+ rafael=Tab.objects.filter(venue=v,display_label='Rafael').first()
+ if rafael is None:
+  rafael=Tab.objects.create(venue=v,display_label='Rafael',operating_limit_cents=3000,opened_by=staff)
+  assign_tab(occupancy_id=t.occupancies.get(released_at=None).pk,tab_id=rafael.pk,actor=a)
+  confirm_order(tab_id=rafael.pk,source='STAFF',actor=a,idempotency_key='spec033-shell-rafael14',lines=[{'product_id':products[0].pk,'quantity':1}])
  print(json.dumps({'venue_slug':v.slug,'table_id':str(t.pk),'tab_id':str(tab.pk),'balance_cents':5600}))
