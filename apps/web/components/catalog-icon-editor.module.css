@@ -1,0 +1,33 @@
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.categories > button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: var(--touch-primary);
+  padding: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.categories small { color: var(--color-text-muted); }
+
+.products {
+  min-height: 0;
+  grid-auto-rows: max-content;
+  overflow-y: auto;
+  align-content: start;
+  overscroll-behavior: contain;
+}
+
+.products > button { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
+.products :global(.productIcon) { width: var(--touch-primary); height: var(--touch-primary); }

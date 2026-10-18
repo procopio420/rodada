@@ -181,3 +181,7 @@ e fila separadamente, pois ambos precisam mostrar as mesmas escolhas.
 ## Deterministic visual transport — 2026-10-12
 
 Visual snapshots use a fixed Date with timers available for hydration and accessibility analysis. Their finite mock SSE response must represent disconnected realtime consistently: no ready event claiming an open connection immediately before EOF. Actual realtime/polling/recovery tests retain their own explicit transport fixtures.
+
+## Evolução da navegação gerencial — 2026-10-18
+
+O agrupamento de destinos da entrega V02 histórica é sucedido pela Spec007, seção Navegação mobile: Agora/Operação/Financeiro/Cardápio/Gestão. Ícones, tokens, cinco alvos e geometria permanecem; Impressoras passa a Gestão. Não atualizar baseline literal dos protótipos para ocultar esta extensão explícita de produto.

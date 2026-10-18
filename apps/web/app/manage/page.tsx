@@ -11,7 +11,7 @@ import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { OperationalAlerts } from "@/components/operational-alerts";
 import { ManagementSectionHeader, OperationalIcon } from "@/components/operational-icon";
-import { ManagementNav, useManagementSection } from "@/components/management-nav";
+import { ManagementNav, managementSections, useManagementSection } from "@/components/management-nav";
 import { DeveloperLink } from "@/components/developer-link";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { ManagementTabHistory } from "@/components/management-tab-history";
@@ -38,8 +38,24 @@ async function getResults<T>(path: string): Promise<T[]> {
   return (result.body as { results: T[] }).results;
 }
 
+async function getOpenTabs(): Promise<Tab[]> {
+  const tabs = new Map<string, Tab>();
+  let offset: number | null = 0;
+  while (offset !== null) {
+    const result = await apiCall<{ results: Tab[]; next_offset: number | null }>(`/api/pos/tabs/?active=true&offset=${offset}`);
+    if (!result.response.ok) throw new Error(asApiError(result.body).message);
+    const page = result.body as { results: Tab[]; next_offset: number | null };
+    for (const tab of page.results) tabs.set(tab.id, tab);
+    const next: number | null = page.next_offset ?? null;
+    if (next !== null && (!Number.isInteger(next) || next <= offset)) throw new Error("Não foi possível consultar todas as comandas abertas.");
+    offset = next;
+  }
+  return [...tabs.values()];
+}
+
 export default function ManagementPage() {
   const section = useManagementSection();
+  const currentSection = managementSections[section];
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [bar, setBar] = useState<QueueItem[]>([]);
@@ -60,7 +76,7 @@ export default function ManagementPage() {
     setMessage("");
     try {
       const [nextTabs, nextProducts, nextBar, nextKitchen, nextDeliveries, nextCash, nextTables] = await Promise.all([
-        getResults<Tab>("/api/pos/tabs/"),
+        getOpenTabs(),
         getResults<Product>("/api/pos/catalog/products/"),
         getResults<QueueItem>("/api/pos/production/BAR/"),
         getResults<QueueItem>("/api/pos/production/KITCHEN/"),
@@ -108,8 +124,8 @@ export default function ManagementPage() {
   return <main className="appShell managementShell">
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
-      <OperationalHeading as="h1" icon="warning">O que precisa de atenção</OperationalHeading>
-      <p className="muted">Visão operacional atual, sem números de vaidade.</p>
+      <OperationalHeading as="h1" icon={currentSection.icon}>{currentSection.title}</OperationalHeading>
+      <p className="muted">{currentSection.description}</p>
       <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button>{hasSnapshot && !historyRevoked && <ManagementTabHistory />}</div>
     </header>
     <ManagementNav />
@@ -139,7 +155,7 @@ export default function ManagementPage() {
       </div>
     </section>
 
-    <details className="panel"><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><Link className="backLink" href="/manage#operacao">Ver operação →</Link></details>
+    <details className="panel"><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><a className="backLink" href="/manage#operacao">Ver operação →</a></details>
     <div className="actions"><Link className="buttonSecondary" href="/attendance">Abrir Atendimento</Link><Link className="buttonSecondary" href="/cash">Abrir Caixa</Link></div>
     </>}
     {section === "operacao" && <>
@@ -151,33 +167,25 @@ export default function ManagementPage() {
       <div className="actions"><Link className="backLink" href="/bar">Abrir Bar</Link><Link className="backLink" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <section className="panel"><ManagementSectionHeader icon="table">Salão</ManagementSectionHeader><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="actions"><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
+    <section className="panel"><ManagementSectionHeader icon="table">Salão</ManagementSectionHeader><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter(table => table.status === "CLEANING").length}</strong></div><div className="managementLinkList"><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/manage/tables">Organizar mesas</Link><Link className="buttonSecondary" href="/manage/table-turnover">Giro e limpeza das mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
     {unavailable.length ? <details className="panel"><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary>{unavailable.map(product => <div className="dataRow" key={product.id}>{product.name}</div>)}</details> : null}
     </>}
-    {section === "gestao" && <div id="gestao">
-    <Link className="buttonSecondary managementUtilityLink" href="/manage/tables"><OperationalIcon name="table" size={20} />Mesas</Link>
-    <Link className="buttonSecondary" href="/manage/setup">Preparar mesas, zonas e equipe</Link>
-    <Link className="buttonSecondary" href="/manage/pricing">Preços, serviço e aprovações</Link>
-    <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e salão</ManagementSectionHeader>
-      {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
-      <div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div>
-      <div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter((table) => table.status === "CLEANING").length}</strong></div>
-      <div className="actions"><Link className="backLink" href="/cash">Abrir caixa</Link><Link className="backLink" href="/manage/daily-close">Fechamento diário e aprovações →</Link><Link className="backLink" href="/refunds">Estornos</Link></div>
-    </section>
-
-    <Link className="buttonSecondary" href="/pos">Consultar comandas</Link>
+    {section === "financeiro" && <div id="financeiro">
+      <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e fechamento</ManagementSectionHeader>
+        {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
+        <div className="managementLinkList"><Link className="buttonSecondary" href="/cash">Caixa e turnos</Link><Link className="buttonSecondary" href="/manage/daily-close">Fechamento diário e aprovações</Link></div>
+      </section>
+      <section className="panel"><ManagementSectionHeader icon="receipt">Ajustes e aprovações</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/refunds">Correções e estornos</Link><Link className="buttonSecondary" href="/manage/pricing">Serviço, descontos e aprovações</Link></div></section>
+      <section className="panel"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos e produtos por período operacional.</p><div className="managementLinkList"><Link className="buttonSecondary" href="/reports">Relatórios de vendas e recebimentos</Link></div></section>
     </div>}
-    {section === "vendas" && <section className="panel" id="vendas"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos, produtos, estornos e caixa por período operacional.</p><Link className="backLink" href="/reports">Abrir relatórios →</Link><Link className="backLink" href="/manage/table-turnover">Giro e limpeza das mesas →</Link></section>}
-    {section === "mais" && <section className="panel" id="mais"><ManagementSectionHeader icon="more">Cadastros e configurações</ManagementSectionHeader><div className="actions">
-      <Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link>
-      <Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link>
-      <Link className="buttonSecondary" href="/manage/customers">Clientes e conta da casa</Link>
-      <Link className="buttonSecondary" href="/manage/setup">Mesas, zonas e equipe</Link>
-      <Link className="buttonSecondary" href="/manage/pricing">Preços e serviço</Link>
-      <Link className="buttonSecondary managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link>
-      <Link className="buttonSecondary" href="/manage/alerts/settings">Alertas e prazos</Link>
-      <Link className="buttonSecondary" href="/staff">Minha sessão</Link><DeveloperLink />
-    </div></section>}
+    {section === "cardapio" && <div id="cardapio">
+      <section className="panel"><ManagementSectionHeader icon="receipt">Produtos do cardápio</ManagementSectionHeader><p className="muted">Nomes, preços e publicação dos produtos.</p><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link><Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link></div></section>
+    </div>}
+    {section === "gestao" && <div id="gestao">
+      <section className="panel"><ManagementSectionHeader icon="people">Estabelecimento e pessoas</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/setup">Mesas, zonas e equipe</Link><Link className="buttonSecondary" href="/manage/customers">Clientes e conta da casa</Link></div></section>
+      <section className="panel"><ManagementSectionHeader icon="settings">Configurações da operação</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/alerts/settings">Alertas e prazos</Link><Link className="buttonSecondary managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link></div></section>
+      <section className="panel"><ManagementSectionHeader icon="lock">Acesso</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/staff">Minha sessão</Link><DeveloperLink /></div></section>
+    </div>}
     </>}
   </main>;
 }

@@ -286,3 +286,12 @@ sem publicação Git, merge ou deploy. Revisão do diff pelo autor, escopo R2.
 Histórico da noite Android: ícone em Mesas e comandas abre diálogo; seleção abre detalhe somente leitura com pedidos/totais/pagamentos; voltar preserva lista e contexto. Dia operacional do Venue, timezone/cutoff e tenant corretos; paginação201; resposta antiga ignorada após voltar/reabrir/retry. Validar loading/vazio/erro, fonte200% e alvos48dp. Gerência Web fora deste slice.
 
 Evidência local do diálogo: [histórico da noite](night-history-evidence.md).
+
+## Pedir: nova comanda em mesa — 2026-10-18
+Reutilizar comando existente em seletor de mesa disponível → nome/apelido → Abrir e pedir. Validar navegação sem mutação, permissão/busy, vazio e mesa alterada, callback ID/nome e build/JVM/lint/Compose. Evidência de execução registrada após os testes.
+
+### Revisão: mesas ocupadas e rodapé do seletor
+Mesas ocupadas com ocupação ativa abrem uma Tab separada pelo comando existente; ID/generation capturados revalidados. Testar ocupação trocada e botões separados verticalmente, inclusive fonte200%; Cancelar integra a mesma coluna das opções de criação.
+
+### Retorno após pedido confirmado
+Sinal explícito emitido somente após ACK/readback; consumir após fim do envio/leitura e retornar a Mesas e comandas via clearSelection. Validar rascunho, pendências, outro contexto e ausência de sucesso; preservar confirmação/recovery.

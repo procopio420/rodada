@@ -5,19 +5,28 @@ import { useEffect, useId, useRef, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
 import { IconReference, IconStatus, ProductIcon } from "./product-icon";
 
-export type CatalogProduct = { id: string; name: string; normalized_name: string; price_cents: number; active: boolean; fulfillment_station: "BAR" | "KITCHEN"; availability: string; icon: IconReference };
+export type CatalogProduct = { id: string; name: string; category?: string; normalized_name: string; price_cents: number; active: boolean; fulfillment_station: "BAR" | "KITCHEN"; availability: string; icon: IconReference };
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 const normalize = (value: string) => value.normalize("NFKD").replace(/\p{M}/gu, "").toLocaleLowerCase().trim().replace(/\s+/g, " ");
 
-export function QuickCatalog({ station, onResolved, onChanged }: { station: "BAR" | "KITCHEN"; onResolved?: (product: CatalogProduct) => void; onChanged?: () => Promise<void> }) {
+export function QuickCatalog({ station, chooseStation = false, onResolved, onChanged }: { station: "BAR" | "KITCHEN"; chooseStation?: boolean; onResolved?: (product: CatalogProduct) => void; onChanged?: () => Promise<void> }) {
   const id = useId();
   const [authorized, setAuthorized] = useState(false);
+  const [creationStation, setCreationStation] = useState(station);
+  const [allowedStations, setAllowedStations] = useState<("BAR" | "KITCHEN")[]>([]);
   const [open, setOpen] = useState(false), [name, setName] = useState(""), [price, setPrice] = useState("");
   const [results, setResults] = useState<CatalogProduct[]>([]), [searching, setSearching] = useState(false), [searchOk, setSearchOk] = useState(false);
   const [creating, setCreating] = useState(false), [saving, setSaving] = useState(false), [message, setMessage] = useState("");
   const [selected, setSelected] = useState<CatalogProduct | null>(null), [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null), trigger = useRef<HTMLButtonElement>(null);
-  useEffect(() => { let live = true; void apiCall<StaffSessionView>("/api/auth/me").then(({ response, body }) => { if (live && response.ok) setAuthorized((body as StaffSessionView).capabilities.some(c => c === `catalog.create.${station.toLowerCase()}` || c === "catalog.product.create")); }); return () => { live = false; }; }, [station]);
+  useEffect(() => { let live = true; void apiCall<StaffSessionView>("/api/auth/me").then(({ response, body }) => {
+    if (!live || !response.ok) return;
+    const capabilities = (body as StaffSessionView).capabilities;
+    const stations = (["BAR", "KITCHEN"] as const).filter(value => capabilities.includes("catalog.product.create") || capabilities.includes(`catalog.create.${value.toLowerCase()}`));
+    setAllowedStations(stations);
+    setAuthorized(chooseStation ? stations.length > 0 : stations.includes(station));
+    setCreationStation(chooseStation ? stations.find(value => value === station) ?? stations[0] ?? station : station);
+  }).catch(() => { if (live) setAuthorized(false); }); return () => { live = false; }; }, [station, chooseStation]);
   useEffect(() => {
     if (!open || creating || selected) return;
     const abort = new AbortController();
@@ -51,7 +60,7 @@ export function QuickCatalog({ station, onResolved, onChanged }: { station: "BAR
     const cents = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
     setSaving(true); setMessage("");
     try {
-      const result = await apiCall<{ product: CatalogProduct; created: boolean }>("/api/pos/catalog/resolve-or-create/", { method: "POST", body: JSON.stringify({ name, price_cents: cents, fulfillment_station: station }) });
+      const result = await apiCall<{ product: CatalogProduct; created: boolean }>("/api/pos/catalog/resolve-or-create/", { method: "POST", body: JSON.stringify({ name, price_cents: cents, fulfillment_station: creationStation }) });
       if (!result.response.ok) throw new Error(asApiError(result.body).message);
       const body = result.body as { product: CatalogProduct; created: boolean };
       resolve(body.product); setMessage(body.created ? "Item criado e disponível para vender." : "Produto existente reutilizado.");
@@ -59,10 +68,10 @@ export function QuickCatalog({ station, onResolved, onChanged }: { station: "BAR
     finally { setSaving(false); }
   };
   if (!authorized) return null;
-  return <section className="quickCatalog" aria-label={`Catálogo rápido ${station === "BAR" ? "Bar" : "Cozinha"}`}>
-    <button ref={trigger} className="buttonSecondary" onClick={() => { setOpen(true); setTimeout(() => input.current?.focus(), 0); }}>+ Item</button>
+  return <section className="quickCatalog" aria-label={chooseStation ? "Cadastro de produto" : `Catálogo rápido ${station === "BAR" ? "Bar" : "Cozinha"}`}>
+    <button ref={trigger} className="buttonSecondary" onClick={() => { setOpen(true); setTimeout(() => input.current?.focus(), 0); }}>{chooseStation ? "Adicionar produto" : "+ Item"}</button>
     {open && <div className="panel quickCatalogPanel"><div className="catalogHeading"><OperationalHeading as="h2" icon="cart">{creating ? `Criar “${name.trim()}”` : "Item do catálogo"}</OperationalHeading><button className="buttonQuiet" disabled={saving} onClick={close}>Fechar</button></div>
-      <p className="muted">Estação: {station === "BAR" ? "Bar" : "Cozinha"}</p>
+      {chooseStation && !selected ? <div className="field"><label htmlFor={`${id}-station`}>Preparar em</label><select id={`${id}-station`} value={creationStation} disabled={saving} onChange={event => setCreationStation(event.target.value as "BAR" | "KITCHEN")}>{allowedStations.map(value => <option key={value} value={value}>{value === "BAR" ? "Bar" : "Cozinha"}</option>)}</select></div> : <p className="muted">Estação: {(selected?.fulfillment_station ?? creationStation) === "BAR" ? "Bar" : "Cozinha"}</p>}
       {!selected && !creating && <><div className="field fieldComfortable"><label htmlFor={id}>Nome do produto</label><input ref={input} id={id} maxLength={160} autoComplete="off" role="combobox" aria-expanded={searchOk} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined} value={name} onChange={e => { setName(e.target.value); setSearchOk(false); }} onKeyDown={e => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); setActive(current => options ? (current + (e.key === "ArrowDown" ? 1 : options - 1) + options) % options : -1); }
         if (e.key === "Enter" && searchOk && !searching) { e.preventDefault(); if (active >= 0) choose(active); else if (exact) resolve(exact); }

@@ -209,7 +209,7 @@ export default function DailyCloseManagement() {
       <div className="eyebrow">RODADA / GERÊNCIA / CAIXA</div>
       <OperationalHeading as="h1" icon="wallet">Fechamento diário</OperationalHeading>
       <p className="muted">Recebimentos, gavetas e correções são fatos distintos. Revisões antigas nunca são reescritas.</p>
-      <Link className="backLink" href="/manage">← Voltar à Gerência</Link>
+      <a className="backLink" href="/manage#financeiro">← Voltar à Gerência</a>
     </header>
 
     <section className="panel">

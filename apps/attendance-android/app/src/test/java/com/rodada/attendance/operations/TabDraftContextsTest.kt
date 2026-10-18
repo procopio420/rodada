@@ -59,4 +59,17 @@ class TabDraftContextsTest {
         assertFalse(state.canLeaveWithRecords(listOf(record)))
         assertTrue(state.canLeaveWithRecords(emptyList()))
     }
+    @Test fun confirmedOrderReturnsOnlyWhenCanonicalContextIsSafe() {
+        val tab = TabDetail(TabSummary("tab", "Comanda", "OPEN", 1, 800, 0, 800), emptyList())
+        val state = OperationsUiState(selectedTab = tab, completedOrderTabId = "tab")
+        assertTrue(state.shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(completedOrderTabId = null, noticeMessage = "Pedido confirmado pelo servidor.").shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(completedOrderTabId = "other").shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(cart = listOf(CartLine(product, 1))).shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(submitting = true).shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(loading = true).shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(orderIntentId = "unknown-outcome").shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(paymentIntentId = "payment-pending").shouldReturnAfterConfirmedOrder())
+        assertFalse(state.copy(selectedTab = null).shouldReturnAfterConfirmedOrder())
+    }
 }

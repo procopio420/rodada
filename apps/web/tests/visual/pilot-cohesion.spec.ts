@@ -10,13 +10,13 @@ for(const width of [360,390,430]) test(`Gerência reveals one section and return
   await page.getByRole("navigation").getByRole("link",{name:"Operação",exact:true}).click();
   await expect(page.getByRole("heading",{name:"Produção e entrega"})).toBeVisible();
   await expect(page.getByRole("heading",{name:"Agora",exact:true})).toHaveCount(0);
-  await page.getByRole("navigation").getByRole("link",{name:"Mais",exact:true}).click();
+  await page.getByRole("navigation").getByRole("link",{name:"Cardápio",exact:true}).click();
   await page.getByRole("link",{name:"Cardápio e nomes dos produtos",exact:true}).click();
   await expect(page.getByRole("heading",{name:"Cardápio",exact:true}).first()).toBeVisible();
   await page.getByRole("link",{name:"Voltar à Gerência →",exact:true}).click();
-  await expect(page.getByRole("heading",{name:"Cadastros e configurações"})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Produtos do cardápio"})).toBeVisible();
   await page.goBack();await expect(page.getByRole("heading",{name:"Cardápio",exact:true}).first()).toBeVisible();
-  await page.goForward();await expect(page.getByRole("heading",{name:"Cadastros e configurações"})).toBeVisible();
+  await page.goForward();await expect(page.getByRole("heading",{name:"Produtos do cardápio"})).toBeVisible();
   await layoutAndA11y(page);
 });
 

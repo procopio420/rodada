@@ -1,11 +1,26 @@
 # Acceptance — Spec 007 Management Cockpit + Analytics
 
+## Catálogo gerencial — 2026-10-18
+
+Uma ação de adicionar (sem duplicar Bar/Cozinha); escolha de estação autorizada na criação; editar visível como botão. Popup: categorias/Todos→grade→formulário do produto correto, busca e retorno/Escape/foco, loading/vazio/erro e save pendente explícitos. Navegar não emite mutation. Nome/ícone mantêm endpoints/validações; polling não sobrescreve nome em edição. Validar 360/390/430/desktop, fonte200%, teclado/axe e regressão do QuickCatalog nas estações.
+
+## Navegação por tarefa — 2026-10-18
+
+- Cinco destinos: Agora, Operação, Financeiro, Cardápio e Gestão, com heading/descrição correspondentes.
+- Caixa/fechamento/estornos/aprovações/relatórios juntos; salão/produção/giro juntos; produtos/variações juntos; configuração/equipe/clientes/impressoras juntos, sem duplicação de destinos principais.
+- Retornos internos preservam a área; aliases vendas/mais e voltar/avançar do navegador selecionam a aba correta.
+- Validar navegação com fixtures equivalentes antes/depois, 360/390/430/1280px, fonte200%, teclado, alvos44px, axe, loading/vazio/erro e alertas financeiros preservados. Testes de UI não comprovam aceite de operador real.
+
 ## A1 — Home mobile
 
 Dado um gerente autenticado em viewport de 360–430 px,
 quando abrir Gerência,
 então deve ver primeiro pulso do dia, alertas acionáveis e estado operacional,
 sem depender de gráfico histórico para entender se existe problema agora.
+
+Regressão de 2026-10-18: resumo consulta somente Tabs ativas e percorre next_offset antes de publicar contagem/exposição. Histórico encerrado não pode esconder abertas antigas. Falha/401 em página intermediária ou offset inválido não publica totais parciais. Paginação não constitui snapshot transacional de alterações concorrentes; revalidação continua necessária.
+
+Leituras entre papéis: abertura pelo atendimento aparece à gerência; parcial/pendente fica aberta; quitação confirmada sai das ativas e aparece no histórico com itens/pagamentos; cancelamento vazio auditado aparece Cancelada sem recebimento. Itens totalmente cancelados e Tab encerrada preservam histórico sem selo Paga. Período usa dia operacional; outro Venue não acessa os dados. Evidência: [manager-history-audit.md](manager-history-audit.md).
 
 ## A2 — Exceção aparece sem caça manual
 
@@ -92,3 +107,5 @@ sem exceções; após leitura válida, painel de alertas mantém seu tratamento 
 Ícone discreto no cabeçalho abre histórico do dia operacional, permite data/busca/paginação e detalhes somente leitura; transferência é explícita. Voltar restaura lista/foco. Revogação desmonta/limpa histórico e resposta antiga não pode repopular. Evidência: [histórico da gerência](tab-history-evidence.md).
 
 Extrato concluído: Total da conta substitui Total a pagar; selo Paga depende de quitação confirmada líquida e ausência de taxa desatualizada; simulação explícita. Omitir saldozero e parcelas zeradas sem esconder transferência/estorno/pendências. Casos pagos, transferência, pendente, cortesia, simulado, estornado e taxa desatualizada cobertos em management-tab-history.spec.ts.
+
+Evidência do recorte de navegação por tarefa: [navigation-evidence.md](navigation-evidence.md), 42 casos focados PASS; gate global bloqueado em seletor legado de Atendimento.

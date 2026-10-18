@@ -1,5 +1,13 @@
 # Plan — Spec 007 Management Cockpit + Analytics
 
+Auditoria de histórico entre papéis (2026-10-18): corrigir leitura do resumo para active=true e paginação completa, com deduplicação/validação de offset e falha sem totais parciais. Não alterar regras de ledger. Validar API com sessões distintas ANDROID/WEB e PostgreSQL descartável, UI de canceladas/pagas e regressão de200+comandas.
+
+Catálogo gerencial: reutilizar ActionDialog, attendanceCategoryGrid, posProducts/ProductIcon e normalização/categorias existentes. QuickCatalog ganha opção explícita de estação autorizada, mantendo comportamento padrão nas estações. CatalogIconEditor separa escolha de categoria/produto do formulário, sem lista select extensa ou disclosure escondido.
+
+## Reorganização por tarefa — 2026-10-18
+
+Centralizar metadados/aliases das cinco abas na navegação. Reagrupar somente links/painéis de manage, mantendo leituras e guards. Atualizar retornos estáticos internos e vocabulário do design system. Usar âncoras nativas para hash/retorno: Next Link concatenava hash inicial ao retornar de página interna, reproduzido em regressão. Validar jornadas/pixels com fixtures, responsividade/acessibilidade, typecheck/build e suite visual; risco R2, sem mutations novas.
+
 ## Estratégia
 
 Implementar em vertical slices, começando pelo read model operacional e pela home mobile. Não começar por gráficos históricos.

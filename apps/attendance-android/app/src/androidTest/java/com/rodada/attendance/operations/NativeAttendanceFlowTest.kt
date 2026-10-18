@@ -66,6 +66,96 @@ class NativeAttendanceFlowTest {
         assertEquals(0, opened)
     }
 
+    @Test fun quickOrderCreatesTableTabOnlyAfterNameConfirmation() {
+        val table = TableSummary("available", "01", "AVAILABLE", "STAFF", false, null, null)
+        var opened = ""
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, false, {}, {}, {},
+                tables = listOf(table, table.copy(id = "dirty", status = "DIRTY")), canOpenTableTabs = true,
+                onNewTableTab = { id, name -> opened = "${id.id}:$name" })
+        } } }
+        compose.onNodeWithText("Nova comanda em mesa").performClick()
+        compose.onNodeWithTag("quick-order-table-dirty").assertDoesNotExist()
+        compose.onNodeWithTag("quick-order-table-available").performClick()
+        assertEquals("", opened)
+        compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("  Grupo  ")
+        compose.onNodeWithText("Abrir e pedir").performClick()
+        assertEquals("available:Grupo", opened)
+        captureCriticalEvidence(compose, "quick-order-table-name", compose.onNode(isDialog()))
+    }
+
+    @Test fun quickOrderTableSelectionHandlesEmptyAndBackWithoutMutation() {
+        var opened = 0
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, false, {}, {}, {},
+                canOpenTableTabs = true, onNewTableTab = { _, _ -> opened++ })
+        } } }
+        compose.onNodeWithText("Nova comanda em mesa").performClick()
+        compose.onNodeWithText("Nenhuma mesa disponível no momento.").assertIsDisplayed()
+        compose.onNodeWithText("Voltar").performClick()
+        compose.onNodeWithText("Nova comanda sem mesa").assertIsDisplayed()
+        assertEquals(0, opened)
+    }
+
+    @Test fun quickOrderRevalidatesTableBeforeConfirmation() {
+        val table = TableSummary("available", "01", "AVAILABLE", "STAFF", false, null, null)
+        val tables = androidx.compose.runtime.mutableStateOf(listOf(table))
+        var opened = 0
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, false, {}, {}, {}, tables = tables.value,
+                canOpenTableTabs = true, onNewTableTab = { _, _ -> opened++ })
+        } } }
+        compose.onNodeWithText("Nova comanda em mesa").performClick()
+        compose.onNodeWithTag("quick-order-table-available").performClick()
+        compose.onNodeWithText("Nome ou apelido").performTextInput("Grupo")
+        compose.runOnIdle { tables.value = listOf(table.copy(status = "OCCUPIED")) }
+        compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
+        compose.onNodeWithText("A mesa não está mais disponível. Volte e escolha outra mesa.").assertIsDisplayed()
+        compose.onNodeWithText("Voltar").performClick()
+        compose.onNodeWithText("Nenhuma mesa disponível no momento.").assertIsDisplayed()
+        assertEquals(0, opened)
+    }
+
+    @Test fun quickOrderHidesTableCreationWithoutCapability() {
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, false, {}, {}, {})
+        } } }
+        compose.onNodeWithText("Nova comanda em mesa").assertDoesNotExist()
+        compose.onNodeWithText("Nova comanda sem mesa").assertIsDisplayed()
+    }
+
+    @Test fun quickOrderOccupiedTableKeepsOccupancyAndDetectsReplacement() {
+        val occupancy = TableOccupancy("occupancy", 3, emptyList())
+        val table = TableSummary("occupied", "02", "OCCUPIED", "STAFF", false, null, occupancy)
+        val tables = androidx.compose.runtime.mutableStateOf(listOf(table))
+        var opened: TableSummary? = null
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, false, {}, {}, {}, tables = tables.value,
+                canOpenTableTabs = true, onNewTableTab = { selected, _ -> opened = selected })
+        } } }
+        val newButton = compose.onNodeWithText("Nova comanda sem mesa").fetchSemanticsNode().boundsInRoot
+        val cancelButton = compose.onNodeWithText("Cancelar").fetchSemanticsNode().boundsInRoot
+        org.junit.Assert.assertTrue(cancelButton.top >= newButton.bottom)
+        captureCriticalEvidence(compose, "quick-order-actions", compose.onNode(isDialog()))
+        compose.onNodeWithText("Nova comanda em mesa").performClick()
+        compose.onNodeWithText("Mesa 02 · Ocupada").assertIsDisplayed().performClick()
+        assertEquals(null, opened)
+        compose.onNodeWithText("Nome ou apelido").performTextInput("Grupo")
+        compose.onNodeWithText("Abrir e pedir").performClick()
+        assertEquals(occupancy, opened?.activeOccupancy)
+        compose.runOnIdle { tables.value = listOf(table.copy(activeOccupancy = occupancy.copy(generation = 4))) }
+        compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
+    }
+
+    @Test fun quickOrderDisablesCreationWhileBusy() {
+        compose.setContent { RodadaTheme { Surface {
+            QuickOrderDestinationDialog(emptyList(), true, true, {}, {}, {}, canOpenTableTabs = true)
+        } } }
+        compose.onNodeWithText("Nova comanda em mesa").assertIsNotEnabled()
+        compose.onNodeWithText("Nova comanda sem mesa").assertIsNotEnabled()
+    }
+
     @Test fun historyIsRequestedOnDemandForStaffWithoutReopenPermission() {
         var requested = 0
         compose.setContent { RodadaTheme { Surface {

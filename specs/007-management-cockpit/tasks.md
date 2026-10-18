@@ -1,5 +1,17 @@
 # Tasks — Spec 007 Management Cockpit + Analytics
 
+## Auditoria garçom → Gerência — 2026-10-18
+
+- [x] Verificar abertura, parcial, quitação, cancelamento e relatórios com sessões distintas em PostgreSQL descartável.
+- [x] Reproduzir contagem0 incorreta com histórico extenso e corrigir active/paginação.
+- [x] Negativas de segunda página/offset, cancelada sem Paga, revisão independente e evidência em manager-history-audit.md.
+
+## Navegação por tarefa — 2026-10-18
+
+- [x] Definir agrupamento e compatibilidade dos destinos antigos.
+- [x] Reagrupar áreas e retornos sem alterar regras operacionais.
+- [x] Validar navegação, estados, responsividade e acessibilidade; registrar evidência e bloqueio visual global em navigation-evidence.md.
+
 ## Domain / contracts
 
 - [ ] Definir business date/cutoff por Venue.
@@ -72,3 +84,9 @@
 - [x] Revisão independente; corrigir revogação e transferência.
 - [x] Typecheck/build/lint focado, visual9 e consulta local real.
 - [x] Registrar evidência e limites em tab-history-evidence.md.
+
+## Editor de cardápio por categorias — 2026-10-18
+
+- [x] Uma ação de criação, com estação autorizada no fluxo existente.
+- [x] Edição visível: popup categorias/Todos, grade, formulário e retorno/foco.
+- [x] Revisão independente, regressões de polling, permissão/upload e grade extensa; evidência em catalog-editor-evidence.md.

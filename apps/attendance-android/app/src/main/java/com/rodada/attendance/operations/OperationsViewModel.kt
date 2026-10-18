@@ -75,6 +75,7 @@ data class OperationsUiState(
     val queuedOrders: List<RecoveryIntent.ConfirmOrder> = emptyList(),
     /** Lets the composable close only the correction sheet that the server accepted. */
     val completedCorrectionItemId: String? = null,
+    val completedOrderTabId: String? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
     val lastSyncedAtMillis: Long? = null,
     val contextRecoveryPending: Boolean = false,
@@ -477,6 +478,15 @@ class OperationsViewModel(
         )
     }
 
+    fun returnAfterConfirmedOrder(session: StoredSession): Boolean {
+        if (state.submitting || state.loading || state.completedOrderTabId == null) return false
+        val shouldReturn = state.shouldReturnAfterConfirmedOrder()
+        state = state.copy(completedOrderTabId = null)
+        if (!shouldReturn) return false
+        clearSelection(session)
+        return state.selectedTab == null
+    }
+
     fun clearSelection(session: StoredSession? = null) {
         val records = try { session?.let { pendingMutationIntentStore.loadFor(it) } }
             catch (error: Exception) { showFailure(error); return }
@@ -631,7 +641,8 @@ class OperationsViewModel(
                     if (state.selectedTab?.summary?.id == now.tabId) {
                         replaceDetail(canonical)
                         state = state.copy(cart = if (now.clearCartOnConfirmation) emptyList() else state.cart,
-                            orderIntentId = null)
+                            orderIntentId = null,
+                            completedOrderTabId = if (now.clearCartOnConfirmation) now.tabId else null)
                     }
                     state = state.copy(noticeMessage = "Pedido confirmado pelo servidor.",
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())

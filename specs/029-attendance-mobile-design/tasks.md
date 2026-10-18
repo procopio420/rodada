@@ -62,3 +62,12 @@
 - [x] Implementar recorte do dia operacional e detalhe separado.
 - [x] Validar API3, tenant, cutoff e paginação; revisão independente com proteção de geração.
 - [x] Compose2 + quatro cenários de tela/fonte, instalação e evidência em night-history-evidence.md.
+
+## Pedir: nova comanda em mesa — 2026-10-18
+Reutilizar comando existente em seletor de mesa disponível → nome/apelido → Abrir e pedir. Validar navegação sem mutação, permissão/busy, vazio e mesa alterada, callback ID/nome e build/JVM/lint/Compose. Evidência de execução registrada após os testes.
+
+### Revisão: mesas ocupadas e rodapé do seletor
+Mesas ocupadas com ocupação ativa abrem uma Tab separada pelo comando existente; ID/generation capturados revalidados. Testar ocupação trocada e botões separados verticalmente, inclusive fonte200%; Cancelar integra a mesma coluna das opções de criação.
+
+### Retorno após pedido confirmado
+Sinal explícito emitido somente após ACK/readback; consumir após fim do envio/leitura e retornar a Mesas e comandas via clearSelection. Validar rascunho, pendências, outro contexto e ausência de sucesso; preservar confirmação/recovery.

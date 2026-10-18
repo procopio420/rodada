@@ -43,18 +43,24 @@ Fora do pico, a mesma superfície muda de foco para:
 
 ## Navegação mobile
 
+### Gerenciar produtos por categoria — 2026-10-18
+
+Em /manage/products, apresentar uma ação Adicionar produto e uma ação normal Editar produto e ícone. A criação preserva autocomplete-first/resolve-or-create da Spec020 e escolhe Bar/Cozinha dentro do mesmo fluxo, somente entre estações autorizadas. Editar abre ActionDialog com busca, categorias e Todos; categoria mostra produtos em grade com ProductIcon/nome; selecionar abre o formulário existente de nome/ícone no mesmo diálogo. Voltar retorna item→produtos→categorias→página, Escape segue a mesma ordem e o fechamento restaura foco. Preservar rascunho ao atualizar catálogo, travar navegação durante gravação e expor loading/vazio/erro/retry. Não alterar APIs, disponibilidade, permissões ou regras financeiras; não gerar ícone ao navegar. Edição de preços e novos campos ficam fora deste recorte.
+
 Navegação principal inferior:
 
 ```text
-Agora | Operação | Vendas | Gestão | Mais
+Agora | Operação | Financeiro | Cardápio | Gestão
 ```
 
 Mapeamento:
 - **Agora**: pulso + exceções;
-- **Operação**: cozinha, bar, atendimento, mesas, pagamentos;
-- **Vendas**: receita, ticket, clientes, mix e comparações;
-- **Gestão**: fechamento, exceções financeiras, aprovações e configuração operacional;
-- **Mais**: cardápio, clientes, equipe, relatórios e configurações.
+- **Operação**: atendimento/comandas, salão/mesas, cozinha/bar e entregas;
+- **Financeiro**: caixa, fechamento diário, estornos, serviço/descontos/aprovações e relatórios de vendas;
+- **Cardápio**: produtos/preços do catálogo e variações/adicionais;
+- **Gestão**: estabelecimento/equipe, clientes/conta da casa, alertas, impressoras e sessão.
+
+Reorganização de 2026-10-18: cada função tem um destino principal; atalhos de exceção em Agora continuam permitidos. Título e descrição do cabeçalho identificam a aba atual. Giro/limpeza fica junto de mesas em Operação. Páginas internas retornam à aba correspondente; hashes antigos vendas e mais continuam aceitos como aliases de financeiro e gestao. Nenhuma regra financeira, permissão, API ou estado de conexão é alterado. Loading/vazio/erro/revogação e histórico em popup preservam seus contratos. Fora de escopo: novos relatórios, novos cadastros e redesign de formulários internos.
 
 No desktop, a navegação pode ganhar mais densidade, mas deve preservar a mesma arquitetura de informação.
 

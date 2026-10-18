@@ -69,3 +69,12 @@ capturas com fixtures existentes. Preservar todas as regras e os callbacks.
 3. Validar capturas, guards/callbacks, fonte ampliada, build/lint e revisão.
 
 Histórico da noite Android: extender leitura GET tabs com history_day=current/data e metadata history_business_date; fixar data entre páginas. Separar historyDetail de selectedTab, geração de leitura para respostas fora de ordem. Diálogo com componentes/tokens existentes e nenhuma mutation. Reutilizar endpoints de detalhe autenticados.
+
+## Pedir: nova comanda em mesa — 2026-10-18
+Reutilizar comando existente em seletor de mesa disponível → nome/apelido → Abrir e pedir. Validar navegação sem mutação, permissão/busy, vazio e mesa alterada, callback ID/nome e build/JVM/lint/Compose. Evidência de execução registrada após os testes.
+
+### Revisão: mesas ocupadas e rodapé do seletor
+Mesas ocupadas com ocupação ativa abrem uma Tab separada pelo comando existente; ID/generation capturados revalidados. Testar ocupação trocada e botões separados verticalmente, inclusive fonte200%; Cancelar integra a mesma coluna das opções de criação.
+
+### Retorno após pedido confirmado
+Sinal explícito emitido somente após ACK/readback; consumir após fim do envio/leitura e retornar a Mesas e comandas via clearSelection. Validar rascunho, pendências, outro contexto e ausência de sucesso; preservar confirmação/recovery.
