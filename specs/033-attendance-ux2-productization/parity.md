@@ -174,3 +174,19 @@ HarnessPR23627f2631e corrigidolayoutlabelNovaComanda(font1,5)enãoapenas
 contagens: fullscriptEXIT0[1,1,1,4,3,1,1,1],116JVM/build/lint/compilePASS
 e3fitsstandalonePASS. Force-stopprovaapenaspersistênciasintética, nãoPOST
 financeiroreal. Falhasanterioresretidas;R2rootreviewsemfindingsbloqueantes.
+
+### Adoção obrigatória concluída nos recortes Web/Android
+
+PR243af223739 (Web914095f7/testsaba5733b/3f94a059):
+3/3visualPASS10,5s;2/2DjangoPGPASS15,5s(happyrelease e corridaA→B
+comPOSToriginalA409eBintacta);5/5PASS38,8sincluiGuestrevogado,
+chamadosQRecontadorcanônicodegiro. R3independente semfindingsnoescopo.
+PR244db62c7f9 (produto90b0290c,testb313edc2):119JVM/build/lintPASS,
+5/5instrumentados11,588s(4Compose+1APIreal18134/PG55501), targetA
+409preservaB, confirmaçãoexplícitaBhappyDIRTY. R3rootsemnovosfindings;
+manifest/logs/priorfalhasversionados. Dependências241/242deintegração.
+
+Nãoreintroduziromissãodecamposporcompatibilidade. Backend242+clientes
+243/244devemintegrarjuntos, semmerge/deployautorizados. SUITEWeb143
+emexecuçãoparaHEADcomposto, nãorepresentadapelosrecortesacima.
+ParidadeentregasWeb/Androidépróximoslicereal, ACglobaisaindaabertos.
