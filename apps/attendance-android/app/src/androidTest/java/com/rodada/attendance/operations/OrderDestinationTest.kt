@@ -57,7 +57,7 @@ class OrderDestinationTest {
         val layouts = mutableListOf<TextLayoutResult>()
         label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
         assertTrue("Production label must expose its text layout", layouts.isNotEmpty())
-        layouts.forEach { assertFalse("Nova comanda must fit without clipping", it.hasVisualOverflow) }
+        layouts.forEach { assertFalse("Nova comanda must fit without clipping: size=${it.size}, lines=${it.lineCount}, width=${it.didOverflowWidth}, height=${it.didOverflowHeight}", it.hasVisualOverflow) }
         val bounds = label.fetchSemanticsNode().boundsInRoot
         val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
         assertTrue("Entire production label must remain in the viewport", root.contains(bounds.topLeft) && root.contains(bounds.bottomRight))
