@@ -3,6 +3,7 @@ from io import StringIO
 from django.core.management import call_command
 from django.test import TestCase
 
+from modules.audit.models import AuditEvent
 from modules.ordering.models import Tab
 
 
@@ -19,3 +20,9 @@ class RestoreRehearsalCommandsTests(TestCase):
             1,
         )
         self.assertIn("RESTORE VERIFIED", output.getvalue())
+        tab = Tab.objects.get(display_label="Restore history")
+        self.assertEqual(tab.state, "CLOSED")
+        reopened = AuditEvent.objects.get(event_type="tab.reopened", entity_id=str(tab.id))
+        self.assertIsNotNone(reopened.actor_session_id)
+        self.assertIsNotNone(reopened.actor_session.revoked_at)
+        self.assertIsNone(reopened.actor_session.access_token_hash)
