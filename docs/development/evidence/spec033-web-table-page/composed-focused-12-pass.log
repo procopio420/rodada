@@ -1,0 +1,24 @@
+[2m[WebServer] [22m(node:3522510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [18/Oct/2026 10:18:29] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 12 tests using 1 worker
+
+(node:3522569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3522569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/table-service.spec.ts:4:5 › attendance requires a tab name and selects an available table before opening (2.4s)
+  ✓   2 tests/visual/table-service.spec.ts:30:5 › contextual opening adds a tab to an occupied table and excludes unavailable tables (978ms)
+  ✓   3 tests/visual/table-service.spec.ts:57:5 › attendance preserves named opening without table when contextual service is disabled (764ms)
+  ✓   4 tests/visual/table-service.spec.ts:75:42 › table service start/open recovery and contextual selection at 360px (3.0s)
+  ✓   5 tests/visual/table-service.spec.ts:75:42 › table service start/open recovery and contextual selection at 390px (3.1s)
+  ✓   6 tests/visual/table-service.spec.ts:75:42 › table service start/open recovery and contextual selection at 430px (3.0s)
+  ✓   7 tests/visual/table-service.spec.ts:123:5 › one QR attention per occupancy and explicit claim removes warning (2.2s)
+  ✓   8 tests/visual/table-service.spec.ts:146:5 › draft and committed order with lost response retain original Tab and payload across reload (2.7s)
+  ✓   9 tests/visual/table-service.spec.ts:182:5 › linked Tab moves with confirmation and frozen recovery intent (1.1s)
+  ✓  10 tests/visual/table-service.spec.ts:213:5 › disabled Venue retains legacy occupy without offering contextual service (622ms)
+  ✓  11 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true (646ms)
+  ✓  12 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false (1.1s)
+
+  12 passed (25.6s)

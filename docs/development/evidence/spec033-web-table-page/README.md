@@ -37,3 +37,7 @@ exigeOCCUPIEDmesmaidentidade e invalida confirmação/avisaapósrefresh.
 Teste retiraREADY antesdetrocarocupação para provarguardindependente.
 Buildfinal e2/2PASS5,8s. Semfindingsreproduzíveisapósfix. Concorrênciaentre
 últimoleituracliente ePOST ainda pertenceaobackend; sempromessadeatomicidadeUI.
+
+ComposiçãoPR239:12/12focused+releasePASS25,6s após migração dosseletores
+paraNovaComanda/Opções, sem removerUUID/payload/reload/moveassertions.
+Regressão ampla real PostgreSQL emexecução, não aceita pelorecorte12.
