@@ -48,7 +48,7 @@ fun AttendanceHeader(
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onTogglePeak, modifier = Modifier.heightIn(min = 44.dp).semantics { contentDescription = if (peak) "Sair do modo pico" else "Ativar modo pico" }) { Text(if (peak) "Pico ●" else "Pico", color = RodadaVisual.Amber) }
-            TextButton(onClick = onRefresh, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Atualizar") }
+            RodadaOutlinedButton(onClick = onRefresh, enabled = !busy, modifier = Modifier.heightIn(min = 44.dp)) { Text("Atualizar") }
             RodadaOutlinedButton(onClick = onOpenAccount, enabled = !busy) { Text("Conta") }
         }
     }

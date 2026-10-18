@@ -124,3 +124,13 @@ Reconciliação gerencial, aparelho físico e piloto permanecem abertos.
 T12b.3/026: item/correção históricos conferíveis sem mutation financeira; pagamento
 explícito validado junto do item/Tab e sessão. IDs inválidos, sem acesso e ausentes
 não exibem alvo alternativo; intenções existentes ficam intactas.
+
+## Lançamento indevido Android — 2026-10-17
+
+- Cancelar disponível após entrega, motivo/PIN obrigatórios; unidade explícita e revisão de quantidade.
+- Autoridade na API: manager+reauth/capability/tenant; entregue1de3 mantém2 e reverte só cobrança indevida, sem Payment.
+- Replay idêntico é único; quantidade divergente conflita; inválidos, pago/transferido e ator inadequado não alteram dados.
+- Recuperação guarda quantidade e payload original sem PIN; legado sem quantidade preservado.
+- Validar API PostgreSQL isolado, JVM/Compose, build/lint e revisão independente R3.
+
+Quantidade no cancelamento Android usa controle − / número / +, limitado a 1 até as unidades restantes; controles ficam bloqueados durante envio e após congelar intenção.

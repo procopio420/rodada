@@ -192,6 +192,33 @@ def courtesy_replacement(correction, item: OrderItem, actor) -> LedgerAdjustment
     return adjustment
 
 
+def complete_paid_tab(*, payment, actor=None):
+    """Caller holds the Tab lock; finish only newly confirmed settlement."""
+    tab = payment.tab
+    if tab.state in (TabState.CLOSED, TabState.CANCELLED) or exposure_cents(tab) != 0:
+        return
+    if payment.status != PaymentStatus.CONFIRMED:
+        return
+    from modules.ledger.pricing import assert_settleable, PricingError
+    try:
+        assert_settleable(tab)
+    except PricingError:
+        # Confirmed provider money remains recorded; stale pricing needs review.
+        return
+    if tab.payments.filter(status__in=(PaymentStatus.CREATED, PaymentStatus.PENDING,
+        PaymentStatus.PROCESSING, PaymentStatus.AUTHORIZED, PaymentStatus.CONFIRMATION_PENDING)).exists():
+        return
+    tab.state, tab.closed_at, tab.version = TabState.CLOSED, timezone.now(), tab.version + 1
+    tab.save(update_fields=["state", "closed_at", "version"])
+    metadata = {"exposure_cents": 0, "payment_id": str(payment.id), "source": "confirmed_payment"}
+    if actor is not None:
+        record_audit_event(actor=actor, event_type="tab.closed", entity_type="Tab", entity_id=str(tab.id), metadata=metadata)
+    else:
+        from modules.audit.models import AuditEvent
+        AuditEvent.objects.create(venue_id=tab.venue_id, event_type="tab.closed", entity_type="Tab",
+            entity_id=str(tab.id), metadata=metadata)
+
+
 @transaction.atomic
 def collect_payment(
     *,
@@ -308,6 +335,7 @@ def collect_payment(
         entity_id=str(payment.id),
         metadata={**result, "method": method, "status": payment.status},
     )
+    complete_paid_tab(payment=payment, actor=actor)
     return payment, result
 
 

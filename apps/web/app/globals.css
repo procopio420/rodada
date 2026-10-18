@@ -472,6 +472,13 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 
 .removalDialog { width: calc(100% - var(--space-6)); max-width: 520px; max-height: calc(100dvh - var(--space-6)); overflow: auto; margin: auto; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-1); color: var(--color-text); }
 .removalDialog::backdrop { background: color-mix(in srgb, var(--color-bg) 80%, transparent); }
+.productionShell .attendanceCategoryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.productionShell .attendanceCategoryGrid > button { display: flex; flex-direction: column; align-items: flex-start; min-height: var(--touch-primary); padding: var(--space-3); overflow-wrap: anywhere; }
+.productionShell .attendanceCategoryGrid small { color: var(--color-text-muted); }
+.productionShell .attendanceCategoryDialog[open] { display: flex; flex-direction: column; gap: var(--space-2); }
+.productionShell .attendanceCategoryDialog > .posProducts { min-height: 0; overflow-y: auto; align-content: start; overscroll-behavior: contain; }
+.productionShell .attendanceCategoryDialog .posProduct { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
+.productionShell .attendanceCategoryDialog .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
 
 .attendanceTabOption { width: 100%; margin-bottom: var(--space-2); text-align: left; }
 .attendanceTabOptionActive { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)); }
@@ -541,3 +548,5 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .repeatOrderQuantity input { text-align: center; font-variant-numeric: tabular-nums; }
 .repeatOrderTotal { font-weight: 800; font-variant-numeric: tabular-nums; }
 @media (max-width: 390px) { .repeatOrderQuantity { justify-content: flex-start; } }
+
+.actions > .managementHistoryTrigger { flex: 0 0 var(--touch-min); width: var(--touch-min); padding: var(--space-2); display: grid; place-items: center; }

@@ -182,3 +182,5 @@ UX23/T10d amplo e gates aparelho/tempo humano/piloto/publicação permanecem abe
 
 - Web production acceptance waits for canonical READY after its asynchronous confirmation;
   a successful browser click alone is not evidence that the item persisted as READY.
+
+Quitação automática (2026-10-17): pagamento confirmado integral fecha Tab com closed_at e um audit tab.closed vinculado ao Payment; parcial/pendente mantém aberta; replay não duplica; webhook sem ator não impersona staff; taxa desatualizada preserva dinheiro confirmado sem fechar. Mesa e produção permanecem independentes.

@@ -8,6 +8,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class SessionBoundRecoveryIntentTest {
+    @Test fun `cancellation quantity survives recreation and legacy remains absent`() {
+        val correction = RecoveryIntent.Correction("correction", "staff", "venue", "device", "key", 42L,
+            RecoveryState.CHECKING, "item", "DELIVERED", CorrectionRecoveryAction.CANCEL, "WRONG_ENTRY", "Motivo", null, 2)
+        val restored = SessionBoundRecoveryIntent.decode(JSONArray().put(correction.toJson().put("originating_session_id", "original-session")).toString()).single()
+        assertEquals(correction, restored.intent)
+        assertFalse(correction.toJson().has("pin"))
+        val legacy = correction.copy(quantity = null)
+        assertFalse(legacy.toJson().has("quantity"))
+        assertEquals(legacy, SessionBoundRecoveryIntent.decode(JSONArray().put(legacy.toJson()).toString()).single().intent)
+    }
     private val session = StoredSession(AuthTokens("access", "", "refresh", ""), "staff", "Operator",
         "venue", "venue", "Venue", "STAFF", "device", "TRUSTED", sessionId = "original-session")
     private val intent = RecoveryIntent.ConfirmOrder("intent", "staff", "venue", "device", "original-key",

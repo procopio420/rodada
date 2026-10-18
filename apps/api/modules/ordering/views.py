@@ -83,12 +83,33 @@ class TabListCreateView(APIView):
             active = serializers.BooleanField(default=False)
             summary = serializers.BooleanField(default=False)
             q = serializers.CharField(max_length=120, allow_blank=True, default="")
+            history_day = serializers.CharField(required=False)
         query = Query(data=request.query_params)
         query.is_valid(raise_exception=True)
         offset = query.validated_data["offset"]
         tabs = Tab.objects.filter(venue=request.auth.venue)
         if query.validated_data["active"]:
             tabs = tabs.filter(state__in=["OPEN", "REQUIRES_ACTION", "SETTLING"])
+        history_day = query.validated_data.get("history_day")
+        if history_day:
+            from datetime import timedelta
+            from django.db.models import Q
+            from modules.venue.calendar import business_date, business_boundary
+            from modules.audit.models import AuditEvent
+            if query.validated_data["active"]:
+                raise serializers.ValidationError({"history_day": "Histórico não aceita filtro ativo."})
+            day = business_date(request.auth.venue) if history_day == "current" else serializers.DateField().run_validation(history_day)
+            lower = business_boundary(request.auth.venue, day)
+            upper = business_boundary(request.auth.venue, day + timedelta(days=1))
+            cancelled = AuditEvent.objects.filter(venue=request.auth.venue, entity_type="Tab",
+                event_type="tab.cancelled", occurred_at__gte=lower, occurred_at__lt=upper).values("entity_id")
+            # Audit entity IDs are strings; keep the comparison typed on PostgreSQL.
+            from django.db.models.functions import Cast
+            from django.db.models import CharField
+            tabs = tabs.annotate(history_id=Cast("id", CharField())).filter(
+                Q(state="CLOSED", closed_at__gte=lower, closed_at__lt=upper) |
+                Q(state="CANCELLED", history_id__in=cancelled))
+            history_day = day.isoformat()
         from .search import normalize_tab_label
 
         label_query = normalize_tab_label(query.validated_data["q"])
@@ -114,6 +135,7 @@ class TabListCreateView(APIView):
         else:
             results = [_tab_payload(tab, locations=locations) for tab in rows[:200]]
         return Response({"results": results,
+                         **({"history_business_date": history_day} if history_day else {}),
                          "next_offset": offset + 200 if len(rows) > 200 else None})
 
     def post(self, request):

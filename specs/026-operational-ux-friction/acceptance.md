@@ -473,3 +473,30 @@ UX27 com source/confidence/provenance, aparelho/tempos humanos e piloto continua
 - [ ] Pedido histórico, saldo, pagamentos e ledger permanecem intactos até confirmação canônica; depois apenas novas Charges/Order da rodada.
 - [ ] Repetição usa nova intenção durável; timeout/replay mantém UUID/payload e não duplicam Order/Charge; após readback a UI mostra confirmação.
 - [ ] Mobile 360/390/430, teclado/IME, foco, leitores de tela e alvo >=44 px examinados.
+
+## Bar: seletor de disponibilidade — 2026-10-17
+
+- Tela inicial sem lista integral; indisponibilizar/reativar abrem categorias + Todos.
+- Busca e categorias não incluem outra estação nem produto inativo; contagens reais.
+- Cancelar não envia POST; confirmação nomeada envia só o produto escolhido.
+- APPLIED + readback retorna ao início; rejeição/erro/resposta perdida não simula sucesso.
+- Repetição conserva payload/chave; mudanças de versão/estado bloqueiam seleção antiga.
+- Validar tipos/build/visual, 360/390/430 e desktop, foco/teclado e acessibilidade.
+
+Evidência local 2026-10-17, base fb3ea55d, branch codex/android-attendance-colors:
+build Web e typecheck PASS; 65 testes Playwright de seletor/disponibilidade,
+produção/lote/regiões/configuração PASS, mais 3 seleções alteradas (versão,
+inativação, remoção) e 2 regressões de salvamento/falha PASS: 70 casos distintos.
+Inclui 360/390/430 e desktop1280, axe/alvos44px e foco/retorno. Cinco unitários
+de agrupamento PASS. Lint dos arquivos novos e availability-intents PASS;
+production-board conserva falha preexistente set-state-in-effect em setNow.
+Suíte visual completa iniciada (575 casos), interrompida após falha alheia ao
+recorte: attendance-catalog.spec.ts ainda procura Contas, ausente no fluxo atual.
+Nenhum baseline alterado. Não declarar suíte completa aprovada.
+Revisão independente review_bar_availability reavaliada: sem achados
+reproduzíveis; P2 de replay no modal e busca vazia corrigidos antes do fechamento.
+Na página local real, categorias/Todos, seleção, confirmação e Tab/Voltar
+conferidos sem confirmar mutation. Capturas determinísticas em
+apps/web/test-results/bar-availability-{categories,confirm}-*.png.
+Fixtures não comprovam API/PostgreSQL real, dispositivo físico ou produção.
+Sem alteração de API/permissões/banco, sem commit/push/merge/deploy.

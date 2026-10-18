@@ -75,3 +75,11 @@ sem alterar baseline. Fora de escopo: remoção parcial paga e produção avanç
    concorrência em PostgreSQL; jornadas Web/API360/390/430, visual completo/build.
 
 T11d/026: resolver alvo por ID/capability/Venue e validar vínculo payment/correction, sem mutation. Conferência Android separada mantém o envelope e seleção anterior; evidências em specs/026-operational-ux-friction/revalidation.md.
+## Cancelar lançamento indevido Android — 2026-10-17
+
+Reutilizar serviço transacional de cancelamento parcial apenas pela rota
+privilegiada com WRONG_ITEM_ENTERED e quantidade explícita. Preservar legado,
+ledger e autoria; cancelar task pendente só quando não restarem unidades.
+Android escolhe quantidade, revisa múltiplos e congela motivo/quantidade/chave
+após envio. Recovery conserva payload sem PIN. Validar PostgreSQL separado,
+concorrência/negações/replay, JVM/Compose, build/lint e revisão independente.

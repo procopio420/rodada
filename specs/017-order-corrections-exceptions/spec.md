@@ -12,6 +12,27 @@ Acceptance: cancel1/3 leaves2 with correct canonical amount and kitchen quantity
 
 ## Objective
 
+### 2026-10-17 — Cancelar lançamento indevido no Android
+
+Corrigir oferece Cancelar também em PICKED_UP/DELIVERED, exclusivamente como
+WRONG_ITEM_ENTERED com quantidade explícita, motivo não vazio e PIN recente de
+MANAGER/OWNER. Usar o endpoint privilegiado existente post-production em todos
+os estados vendáveis para esse novo comando; CANCEL_ITEM legado não ganha
+permissão de cancelar entrega. Quantidade escolhida entre1 e unidades restantes,
+com revisão explícita antes de enviar quando houver várias unidades; uma unidade
+também informa1. Preservar snapshots, preço/quantidade originais, ledger e audit.
+Reutilizar o cancelamento parcial transacional e seu arredondamento. Remoção
+parcial conserva o estado original; só zero restante encerra a linha. Lançamento
+indevido não gera desperdício/preparo fictício. Pagamento confirmado em estágio
+avançado e responsabilidade transferida são bloqueados para revisão gerencial,
+sem criar estorno ou pagamento automático. Pedidos antigos sem quantidade e seus
+fingerprints/rotas permanecem compatíveis. Novas intenções guardam quantidade
+com motivo/chave/sessão originais, nunca PIN; resultado ambíguo bloqueia novo
+comando divergente e mantém consulta de recuperação existente. API valida tipo,
+faixa, motivo, capability, tenant, manager e reauth. Sem mutation em demo/produção
+para testar; usar PostgreSQL descartável. Este adendo amplia apenas lançamento
+indevido autorizado, não o cancelamento operacional genérico após entrega.
+
 Define what Rodada does after an ordering/production mistake or customer exception, preserving original OrderItem history while coordinating production, pricing/refund and management facts.
 
 ## Product problem

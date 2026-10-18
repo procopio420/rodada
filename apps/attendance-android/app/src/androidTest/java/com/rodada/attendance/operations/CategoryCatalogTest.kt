@@ -12,6 +12,20 @@ import org.junit.Test
 class CategoryCatalogTest {
     @get:Rule val compose = createComposeRule()
     private val product = Product("fixture-product", "Produto do catálogo", 800, true, "BAR", "AVAILABLE", category = "Bebidas")
+    @Test fun allIncludesMultipleCategoriesAndRespectsSearch() {
+        val second = product.copy(id = "fixture-food", name = "Porção do catálogo", category = "Porções")
+        compose.setContent { RodadaTheme { Surface {
+            CategoryCatalog(OperationsUiState(products = listOf(product, second), connectivity = ConnectivityState.ONLINE), "tab-fixture", false, { _, _, _ -> }, {})
+        } } }
+        compose.onNodeWithTag("catalog-category-all").assertTextContains("2 itens").performClick()
+        compose.onNodeWithText(product.name).assertExists()
+        compose.onNodeWithText(second.name).assertExists()
+        compose.onNodeWithText("Voltar às categorias").performClick()
+        compose.onNodeWithText("Buscar no catálogo").performTextInput(second.name)
+        compose.onNodeWithTag("catalog-category-all").assertTextContains("1 itens").performClick()
+        compose.onNode(hasText(second.name) and hasAnyAncestor(hasTestTag("category-products"))).assertExists()
+        compose.onNode(hasText(product.name) and hasAnyAncestor(hasTestTag("category-products"))).assertDoesNotExist()
+    }
     @Test fun categoryThenProductThenQuantityAndCustomizationOnlyChangesDraftOnAdd() {
         val state = mutableStateOf(OperationsUiState(products = listOf(product), connectivity = ConnectivityState.ONLINE))
         var reviewed = 0

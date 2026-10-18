@@ -24,7 +24,17 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
   await expect(page.getByRole("button", { name: /^Iniciar preparo:/ })).toHaveCount(7);
   await layoutAndA11y(page); await page.screenshot({ path: `test-results/production-configuration-${station}-${width}.png` });
   await page.getByRole("navigation", { name: "Regiões da produção" }).getByRole("button", { name: /^Disponibilidade/ }).click();
-  await page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true }).click(); await expect(page.getByRole("button", { name: "Reativar Fritas", exact: true })).toBeEnabled();
+  if (station === "BAR") {
+    await chooseBarAvailability(page, "Fritas");
+    await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+    await chooseBarAvailability(page, "Fritas", true);
+    await expect(page.getByRole("button", { name: "Sim, reativar", exact: true })).toBeEnabled();
+    await closeBarAvailability(page);
+  } else {
+    await page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true }).click(); await expect(page.getByRole("button", { name: "Reativar Fritas", exact: true })).toBeEnabled();
+  }
   await expect(groups).toHaveCount(6); await expect(groups.nth(1)).toContainText("Variação: Grande");
   expect(changes).toBe(1); expect(JSON.stringify(rows)).toBe(before);
 });
+import { chooseBarAvailability, closeBarAvailability } from "./station-availability-actions";

@@ -20,10 +20,11 @@ import { useAvailabilityIntents } from "@/lib/client/availability-intents";
 import { groupProductionItems, productionConfiguration } from "@/lib/client/production-groups";
 import { useProductionBatchIntent } from "@/lib/client/production-batch-intent";
 import { ProductionBatchReview } from "./production-batch-review";
+import { StationAvailabilityPicker } from "./station-availability-picker";
 type Item = { snapshot_fingerprint?: string; customization_snapshot?: Snapshot; id: string; product_id?: string; order_id?: string; tab_id?: string; ready_at?: string | null; state: string; quantity: number; product_name: string; tab_label: string; table_label?: string | null; created_at: string };
 const itemPrimary = (item: Item) => tabPrimaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label });
 const itemSecondary = (item: Item) => item.tab_id ? tabSecondaryLabel({ id: item.tab_id, display_label: item.tab_label, table_label: item.table_label }) : "";
-type Product = OrderingProduct & { id: string; name: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; availability_version?: number; icon?: IconData };
+type Product = OrderingProduct & { id: string; name: string; active?: boolean; category?: string; fulfillment_station: "BAR" | "KITCHEN"; availability: "AVAILABLE" | "UNAVAILABLE"; availability_version?: number; icon?: IconData };
 const next: Record<string, { state: string; label: string }> = {
   NEW: { state: "PREPARING", label: "Iniciar preparo" },
   ACCEPTED: { state: "PREPARING", label: "Iniciar preparo" },
@@ -33,6 +34,9 @@ const labels: Record<string, string> = { NEW: "Aguardando preparo", ACCEPTED: "A
 const apiMessage = (body: unknown) => { const error = asApiError(body); return `${error.code} · ${error.message}`; };
 
 export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"; title: string }) {
+  const [availabilityPicker, setAvailabilityPicker] = useState<"AVAILABLE" | "UNAVAILABLE" | null>(null);
+  const [availabilityOrigin, setAvailabilityOrigin] = useState<HTMLElement | null>(null);
+  const stationStart = useRef<HTMLElement>(null);
   const [review, setReview] = useState<{ target: "PREPARING" | "READY"; items: Item[] } | null>(null);
   const reviewRef = useRef(false);
   const [reviewOrigin, setReviewOrigin] = useState<HTMLElement | null>(null);
@@ -103,6 +107,13 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const batchIntent = useProductionBatchIntent(station, readback);
   const itemIntents = useProductionItemIntents(station, readback);
   const availabilityIntents = useAvailabilityIntents(station, readback);
+  const returnToStation = useCallback(() => {
+    setAvailabilityPicker(null);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      stationStart.current?.scrollIntoView({ block: "start" });
+      stationStart.current?.focus({ preventScroll: true });
+    }));
+  }, []);
   function closeReview() { reviewRef.current = false; setReview(null); }
 
   useEffect(() => {
@@ -129,6 +140,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       const result = await apiCall(path, { method: "POST", body: JSON.stringify({ state }) });
       if (!result.response.ok) { setMessage(apiMessage(result.body)); return; }
       await load(true);
+      return true;
     } catch {
       setMessage("Não foi possível confirmar a alteração. Atualize a estação para conferir o estado antes de tentar novamente.");
     } finally {
@@ -166,6 +178,18 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
   const disabled = independentDisabled || !!batchIntent.pending || batchIntent.busy || availabilityIntents.pending.length > 0 || availabilityIntents.busy.length > 0;
   const individualDisabled = independentDisabled;
   const versionedProduct = (product: Product) => Number.isSafeInteger(product.availability_version) && product.availability_version! >= 1 && product.availability_version! <= 2147483647;
+  function openAvailability(origin: HTMLElement, target: "AVAILABLE" | "UNAVAILABLE") {
+    setAvailabilityOrigin(origin); setAvailabilityPicker(target);
+  }
+  async function confirmAvailability(product: Product, target: "AVAILABLE" | "UNAVAILABLE") {
+    if (mutating.current || reviewRef.current || independentDisabled) return;
+    const current = products.find(p => p.id === product.id);
+    if (!current || current.active === false || current.availability !== product.availability || current.availability_version !== product.availability_version) return;
+    if (versionedProduct(product)) {
+      const receipt = await availabilityIntents.submit(product.id, { product_id: product.id, station, state: target, expected_version: product.availability_version! });
+      if (receipt?.status === "APPLIED") returnToStation();
+    } else if (await change(`/api/pos/catalog/products/${product.id}/availability/`, target, "product", product.id)) returnToStation();
+  }
 
   const verified = (item: Item) => verifiedItem(item, station);
   const batches = groupProductionItems(waiting, station).map(group => ({ ...group, product: products.find(product => product.id === group.items[0].product_id) }));
@@ -174,7 +198,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     const seconds = Math.max(0, Math.floor((now - Date.parse(timestamp)) / 1000));
     return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
   };
-  return <main className="appShell productionShell">
+  return <main className="appShell productionShell" ref={stationStart} tabIndex={-1}>
     <header className="stationHeader">
       <div className="stationIdentity"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{station === "KITCHEN" ? <path d="M12 22c4 0 7-2.7 7-6.5 0-4-3-6-4-9.5-2 1.5-3 3.5-3 5.5-1.5-1-2.5-2.5-2.5-4C6.5 9.5 5 12.5 5 15.5 5 19.3 8 22 12 22z" /> : <><path d="M5 4h12v16H5zM17 7h2a3 3 0 0 1 0 6h-2M8 1v4M13 1v4" /></>}</svg><h1>{title}</h1><span>Fila da estação</span></div>
       <div className="stationSummary">{hasSnapshot && <><span><b>{new Set(pending.map(item => item.order_id ?? item.id)).size}</b> pedidos aguardando</span><span><b>{inProgress.length}</b> itens em preparo</span></>}<time>{now ? new Date(now).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</time></div>
@@ -257,7 +281,13 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     <section className="panel stationRegion" ref={availabilityRegion} tabIndex={-1} aria-labelledby="availability-title" aria-busy={loading}>
       <div className="eyebrow">Cardápio da estação</div>
       <OperationalHeading as="h2" icon="operation" id="availability-title">Disponibilidade agora</OperationalHeading>
-      {loading ? <div className="loadingState" role="status">Carregando disponibilidade…</div> : products.map(product => {
+      {station === "BAR" ? <>
+        <div className="actions">
+          <button className="buttonSecondary" disabled={loading || independentDisabled} onClick={event => openAvailability(event.currentTarget, "UNAVAILABLE")}>Indisponibilizar item</button>
+          <button className="buttonSecondary" disabled={loading || independentDisabled} onClick={event => openAvailability(event.currentTarget, "AVAILABLE")}>Reativar item</button>
+        </div>
+        {loading && <div className="loadingState" role="status">Carregando disponibilidade…</div>}
+      </> : loading ? <div className="loadingState" role="status">Carregando disponibilidade…</div> : products.map(product => {
         const available = product.availability === "AVAILABLE";
         return <article className="dataRow productionRow" key={product.id}>
           <div className="productIconRow"><ProductIcon name={product.name} icon={product.icon} /><div><strong>{product.name}</strong><br /><small className="muted">{available ? "Disponível para vender" : "Indisponível em todos os canais"}</small></div></div>
@@ -282,6 +312,15 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       <QuickCatalog station={station} onChanged={() => load(true).catch(() => {})} />
     </div>
     </div>
+    {station === "BAR" && availabilityPicker && <StationAvailabilityPicker products={products} target={availabilityPicker} returnFocus={availabilityOrigin}
+      busy={changingProductId !== null || availabilityIntents.busy.length > 0}
+      retryDisabled={!availabilityIntents.ready || connectivity.state === "OFFLINE" || !!review || changingItemId !== null || changingProductId !== null}
+      blocked={product => independentDisabled || (!versionedProduct(product as Product) && (disabled || itemIntents.pending.length > 0 || itemIntents.busy.length > 0))}
+      pending={id => availabilityIntents.pending.some(intent => intent.product_id === id)}
+      error={id => availabilityIntents.errors[id] ?? (message || availabilityIntents.message || undefined)}
+      resultMessage={id => availabilityIntents.result?.product_id === id && availabilityIntents.result.status === "REJECTED" ? "Disponibilidade não aplicada. Volte e selecione o item atualizado." : undefined}
+      onClose={() => setAvailabilityPicker(null)} onConfirm={(product, target) => void confirmAvailability(product as Product, target)}
+      onRetry={async id => { const receipt = await availabilityIntents.submit(id); if (receipt?.status === "APPLIED") returnToStation(); }} />}
     {review && <ProductionBatchReview station={station} target={review.target} captured={review.items} current={items}
       returnFocus={reviewOrigin} unavailable={connectivity.state === "OFFLINE" || !!message || batchIntent.locked() || !!changingItemId || !!changingProductId} onClose={closeReview}
       onConfirm={draft => { if (batchIntent.locked() || mutating.current || message) return; void batchIntent.submit(draft); closeReview(); }} />}

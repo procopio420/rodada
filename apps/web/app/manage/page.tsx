@@ -14,6 +14,7 @@ import { ManagementSectionHeader, OperationalIcon } from "@/components/operation
 import { ManagementNav, useManagementSection } from "@/components/management-nav";
 import { DeveloperLink } from "@/components/developer-link";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+import { ManagementTabHistory } from "@/components/management-tab-history";
 
 
 
@@ -50,6 +51,7 @@ export default function ManagementPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [hasSnapshot, setHasSnapshot] = useState(false);
+  const [historyRevoked, setHistoryRevoked] = useState(false);
 
   const cache = useMemo(() => projectionCache<{ tabs: Tab[]; products: Product[]; bar: QueueItem[]; kitchen: QueueItem[]; deliveries: Delivery[]; cash: CashPoint[]; tables: Table[] }>("management"), []);
   const [cachedAt, setCachedAt] = useState<number>();
@@ -94,7 +96,7 @@ export default function ManagementPage() {
       if (cached) { const data = cached.data; setTabs(data.tabs); setProducts(data.products); setBar(data.bar); setKitchen(data.kitchen); setDeliveries(data.deliveries); setCashPoints(data.cash); setTables(data.tables); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
     });
   }, [cache]);
-  const connectivity = useRealtime(load, { onRevoked: () => { cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); setHasSnapshot(false); setLoading(false); setMessage("Sessão encerrada. Entre novamente."); } });
+  const connectivity = useRealtime(load, { onRevoked: () => { setHistoryRevoked(true); cache.clear(); setTabs([]); setProducts([]); setBar([]); setKitchen([]); setDeliveries([]); setCashPoints([]); setTables([]); setRefunds([]); setHasSnapshot(false); setLoading(false); setMessage("Sessão encerrada. Entre novamente."); } });
   const openTabs = useMemo(() => tabs.filter((tab) => !["CLOSED", "CANCELLED"].includes(tab.state)), [tabs]);
   const exposure = useMemo(() => openTabs.reduce((total, tab) => total + tab.exposure_cents, 0), [openTabs]);
   const unavailable = useMemo(() => products.filter((product) => product.active && product.availability !== "AVAILABLE"), [products]);
@@ -108,7 +110,7 @@ export default function ManagementPage() {
       <div className="eyebrow">RODADA / GESTÃO</div>
       <OperationalHeading as="h1" icon="warning">O que precisa de atenção</OperationalHeading>
       <p className="muted">Visão operacional atual, sem números de vaidade.</p>
-      <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button></div>
+      <div className="actions"><button className="buttonQuiet" onClick={() => void load().catch(() => {})} disabled={loading}>{loading ? "Atualizando…" : "Atualizar"}</button>{hasSnapshot && !historyRevoked && <ManagementTabHistory />}</div>
     </header>
     <ManagementNav />
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />

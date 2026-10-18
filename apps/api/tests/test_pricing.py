@@ -218,6 +218,8 @@ class PricingTests(PricingFixture, TestCase):
     def test_reverse_and_net_refund_preview(self):
         applied = self.apply(self.command(value=400)).json()
         self.pay(1600)
+        # This pricing exception fixture represents a separately reopened Tab.
+        Tab.objects.filter(pk=self.tab.pk).update(state="OPEN")
         helper = self.client.get(
             f"/tabs/{self.tab.id}/pricing/refund-preview/{self.charge.id}/"
         ).json()
@@ -418,6 +420,8 @@ class PricingTests(PricingFixture, TestCase):
     def test_refund_after_discount_preserves_pricing(self):
         self.apply(self.command(value=400))
         payment = self.pay(1600).json()
+        # Refund policy still requires an explicitly reopened Tab after settlement.
+        Tab.objects.filter(pk=self.tab.pk).update(state="OPEN")
         result = self.client.post(
             f"/payments/{payment['id']}/refunds/",
             {"amount_cents": 600, "idempotency_key": "refund", "reason": "CUSTOMER_REQUEST"},

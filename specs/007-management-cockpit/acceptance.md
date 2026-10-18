@@ -86,3 +86,9 @@ então deve ser possível identificar período/base/dados que o sustentam e se e
 
 Piloto: falha inicial de autorização mostra um aviso e nenhuma conclusão de operação
 sem exceções; após leitura válida, painel de alertas mantém seu tratamento de falhas.
+
+## Histórico em popup — 2026-10-17
+
+Ícone discreto no cabeçalho abre histórico do dia operacional, permite data/busca/paginação e detalhes somente leitura; transferência é explícita. Voltar restaura lista/foco. Revogação desmonta/limpa histórico e resposta antiga não pode repopular. Evidência: [histórico da gerência](tab-history-evidence.md).
+
+Extrato concluído: Total da conta substitui Total a pagar; selo Paga depende de quitação confirmada líquida e ausência de taxa desatualizada; simulação explícita. Omitir saldozero e parcelas zeradas sem esconder transferência/estorno/pendências. Casos pagos, transferência, pendente, cortesia, simulado, estornado e taxa desatualizada cobertos em management-tab-history.spec.ts.

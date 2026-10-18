@@ -254,3 +254,11 @@ Dependência: slices entregues; manter gates externos abertos.
 - [ ] Executar unitários Android e instrumentação em emulador/aparelho, registrar evidência.
 - [ ] Executar integração PostgreSQL/Web 360/390/430 e suíte visual sem aceitar baseline novo.
 - [ ] Revisar PR e integrar apenas após checks exigidos.
+
+## Bar: disponibilidade por categorias — 2026-10-17
+
+- [x] Definir contrato, limites e aceite antes do código.
+- [x] Implementar categorias/Todos, confirmação e retorno confirmado.
+- [x] Validar gates focados, revisão independente e atualizar checkpoint.
+- [ ] Suíte visual global: falha preexistente no seletor Contas do Atendimento;
+  manter pendência explícita, sem alegar PASS global ou ampliar este recorte.

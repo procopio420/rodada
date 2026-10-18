@@ -245,3 +245,10 @@ Contas: limitar apresentação a 10 resultados e avançar offset em 10 quando a 
    da Tab/GuestScope original. Guest reconsulta contexto antes de agrupar.
 4. Validar com testes unitários de seleção, instrumentação Android, integração
    Web/API em 360/390/430, visual e replay. Não alegar validação não executada.
+
+## Bar: disponibilidade por categorias — 2026-10-17
+
+1. Criar seletor apresentacional com ActionDialog, busca/grade existentes e confirmação.
+2. Integrar apenas BAR; manter intents/readback/auditoria existentes e reativação.
+3. Testar cancelamento, sucesso, conflito e replay com fixtures e gates Web.
+4. Revisão independente do novo diff e teste visual local; sem merge/deploy.

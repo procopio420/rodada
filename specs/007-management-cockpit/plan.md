@@ -83,3 +83,7 @@ Priorizar componentes existentes:
 Novos padrões transversais só entram no design system se não puderem ser compostos de primitives existentes.
 
 Piloto: adiar montagem de alertas até snapshot autorizado; preservar falha explícita.
+
+## Histórico em popup — 2026-10-17
+
+ManagementTabHistory reutiliza ActionDialog, OperationalIcon/history, BillSummary e tokens. GET via BFF existente com history_day, data fixada entre páginas e detalhe canônico; nenhum comando financeiro. AbortController e geração invalidam leituras em navegação/close/unmount. Parent mantém trava após revogação, impedindo remontagem por leitura antiga.

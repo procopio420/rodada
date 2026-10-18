@@ -52,12 +52,12 @@ class OrderWorkspaceTest {
         compose.setContent { RodadaTheme { Surface {
             BalanceCard(tab.copy(serviceAssessmentStale = true), { paid++ }, { closed++ }, false, true)
         } } }
-        compose.onNodeWithText("Subtotal original ${formatCents(3800)}").assertDoesNotExist()
+        compose.onNodeWithText("Subtotal original").assertDoesNotExist()
         compose.onNodeWithText("Atualize a taxa de serviço no caixa antes de receber.").assertIsDisplayed()
         compose.onNodeWithText("Pagar").assertIsNotEnabled()
         compose.onNodeWithText("Fechar").assertIsNotEnabled()
         compose.onNodeWithText("Ver detalhes da conta").performClick()
-        compose.onNodeWithText("Subtotal original ${formatCents(3800)}").assertIsDisplayed()
+        compose.onNode(hasText("Subtotal original") and hasText(formatCents(3800))).assertIsDisplayed()
         compose.onNodeWithText("Recolher detalhes da conta").performClick()
         compose.onNodeWithText("Pagar").assertIsNotEnabled()
         assertEquals(0, paid)

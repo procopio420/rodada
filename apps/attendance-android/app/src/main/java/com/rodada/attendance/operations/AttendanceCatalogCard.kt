@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.ui.RodadaOutlinedButton
+import com.rodada.attendance.ui.RodadaButtonTone
 import com.rodada.attendance.ui.RodadaVisual
 
 @Composable
@@ -26,9 +27,10 @@ internal fun AttendanceCatalogCard(
     onSelect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier.testTag("product-${product.id}"), colors = CardDefaults.cardColors(containerColor = if (quantity > 0) RodadaVisual.Control else RodadaVisual.Surface)) {
+    Card(modifier.testTag("product-${product.id}"), colors = CardDefaults.cardColors(containerColor = if (quantity > 0) RodadaVisual.AccentDraft else RodadaVisual.Control)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            RodadaOutlinedButton(onClick = onSelect, enabled = canSelect, modifier = Modifier.fillMaxWidth()) {
+            RodadaOutlinedButton(onClick = onSelect, enabled = canSelect,
+                tone = if (quantity > 0) RodadaButtonTone.DRAFT else RodadaButtonTone.NEUTRAL, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     // Same generic fallback as Web; never synthesize a new ProductIcon identity.
                     val ink = RodadaVisual.Muted

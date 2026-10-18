@@ -96,3 +96,5 @@ produção. Journal por produto/sessão antes do POST; recibo validado antes de
 remover pendência. Separar controles de disponibilidade das barreiras de
 configuração/legado e verificar sessão dos journals coexistentes. Evidências e
 limites em specs/026-operational-ux-friction/revalidation.md.
+
+Quitação automática (2026-10-17): helper no serviço ledger, chamado sob lock da Tab na transação do pagamento manual ou confirmação do provider. Reutiliza assert_settleable; sem migração ou fechamento por leitura. Clientes já filtram CLOSED no histórico.

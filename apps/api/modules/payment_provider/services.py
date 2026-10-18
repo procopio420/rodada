@@ -9,7 +9,7 @@ from modules.access.context import ActorContext
 from modules.audit.models import AuditEvent
 from modules.audit.services import record_audit_event
 from modules.ledger.models import Payment, PaymentMethod, PaymentStatus
-from modules.ledger.services import exposure_cents
+from modules.ledger.services import exposure_cents, complete_paid_tab
 from modules.ordering.models import Tab, TabState
 
 from .adapters import (
@@ -403,6 +403,8 @@ def apply_provider_result(
         from modules.house_account.services import sync_attention
 
         sync_attention(payment.tab, actor)
+    if incoming == PaymentStatus.CONFIRMED:
+        complete_paid_tab(payment=payment, actor=actor)
     if attempt_updates:
         attempt.save(update_fields=sorted(set(attempt_updates)))
     metadata = {

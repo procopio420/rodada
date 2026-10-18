@@ -1,5 +1,17 @@
 # Rodada Design System
 
+Conta Android: resumo em Surface/Border sem elevação, saldo Paper em Number;
+detalhes com rótulos Muted e valores alinhados. Ações secundárias agrupadas em
+disclosure, avisos críticos sempre visíveis. Histórico preserva nome/subtotal
+confirmados e usa ações de texto com alvo48dp. Fonte ampliada empilha valores
+e controles. Referência e aceite: Spec029, adendo Conta de 2026-10-17.
+
+Disponibilidade do Bar: ações compactas abrem ActionDialog; categorias/Todos
+reutilizam a grade de duas colunas do Cardápio, ProductIcon e botões semânticos.
+Produtos rolam dentro do popup limitado à viewport. Confirmação nomeada não
+exibe quantidade/carrinho; sucesso canônico retorna foco/rolagem ao início da
+estação. Reativação usa o mesmo padrão. Ver Spec026, adendo de 2026-10-17.
+
 Este documento é a fonte de verdade visual e de interação para todas as superfícies do Rodada.
 
 O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para manter **PDV, Cozinha/Bar, Dispatch, Conta da Casa e Guest Ordering** reconhecíveis como o mesmo produto durante operação de bar cheio.
@@ -605,3 +617,14 @@ ActionDialog/Dialog, superfícies, bordas, radius, tipografia e alvos existentes
 Back fecha só a camada ativa e restaura foco. Opções obrigatórias não são ocultas.
 Este fluxo substitui os steppers do catálogo no Atendimento, preservando revisão
 integral, disponibilidade, limite99 e isolamento por Tab. POS/Guest inalterados.
+
+
+### Receitas cromáticas do Atendimento nativo
+O port Android deve reutilizar as cores aplicadas em `/attendance`: controle
+neutro Surface2/BorderStrong; contexto selecionado Amber12% sobre Surface2 com
+bordaAmber; produto no rascunho Amber8% sobre Surface2; ação contextual Amber8%
+sobre Surface1/bordaAmber40% sobre Border; mesa ocupada bordaAmber45% sobre Border,
+sem substituir faixa/íconeInfo. Misturas sRGB com tokens canônicos, sem novas cores
+hexadecimais independentes. Campos Surface2/BorderStrong/focoAmber; primárioPaper/Ink.
+
+Gerência: histórico usa botão quiet apenas com ícone history20, alvo touch-min e nome acessível. No grupo actions, o controle mantém largura touch-min e o botão textual ocupa o espaço restante. O diálogo reutiliza ActionDialog, campos, dataRow, BillSummary e dialogReturn; sem paleta ou escala paralela.

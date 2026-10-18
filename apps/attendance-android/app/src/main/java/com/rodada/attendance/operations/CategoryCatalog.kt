@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rodada.attendance.ui.RodadaOutlinedButton
+import com.rodada.attendance.ui.rodadaTextFieldColors
 import com.rodada.attendance.ui.RodadaVisual
 
 @Composable
@@ -30,18 +31,20 @@ internal fun CategoryCatalog(
     val locked = !state.canLeaveTabContext()
     val filtered = state.products.filter { it.name.contains(query.trim(), ignoreCase = true) }
     val groups = filtered.groupBy { it.category.trim().ifBlank { "Outros" } }.toSortedMap()
+    // Empty category key is reserved for the aggregate; blank product categories use Outros.
+    val categories = if (filtered.isEmpty()) emptyList() else listOf("" to filtered) + groups.toList()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("Escolha uma categoria", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(query, { query = it }, label = { Text("Buscar no catálogo") },
+        OutlinedTextField(query, { query = it }, colors = rodadaTextFieldColors(), label = { Text("Buscar no catálogo") },
             modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !locked && !closed)
         if (state.loading && state.products.isEmpty()) Text("Carregando catálogo…")
         else if (groups.isEmpty()) Text(if (query.isBlank()) "Nenhum produto no catálogo." else "Nenhum produto encontrado.")
-        groups.entries.toList().chunked(columns).forEach { row ->
+        categories.chunked(columns).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 row.forEach { (name, products) ->
                     RodadaOutlinedButton(onClick = { category = name }, enabled = !locked && !closed,
-                        modifier = Modifier.weight(1f).heightIn(min = 88.dp).testTag("catalog-category-$name")) {
-                        Column { Text(name); Text("${products.size} itens", style = MaterialTheme.typography.bodySmall) }
+                        modifier = Modifier.weight(1f).heightIn(min = 88.dp).testTag(if (name.isEmpty()) "catalog-category-all" else "catalog-category-$name")) {
+                        Column { Text(name.ifEmpty { "Todos" }); Text("${products.size} itens", style = MaterialTheme.typography.bodySmall) }
                     }
                 }
                 if (row.size < columns) Spacer(Modifier.weight(1f))
@@ -54,9 +57,9 @@ internal fun CategoryCatalog(
             Surface(Modifier.fillMaxWidth(.95f).fillMaxHeight(.9f).safeDrawingPadding(),
                 shape = MaterialTheme.shapes.medium, color = RodadaVisual.Surface) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(name, style = MaterialTheme.typography.titleLarge)
+                    Text(name.ifEmpty { "Todos" }, style = MaterialTheme.typography.titleLarge)
                     LazyColumn(Modifier.weight(1f).testTag("category-products"), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        val products = groups[name].orEmpty()
+                        val products = if (name.isEmpty()) filtered else groups[name].orEmpty()
                         if (products.isEmpty()) item { Text("Nenhum produto nesta categoria.") }
                         items(products.chunked(columns), key = { row -> row.joinToString { it.id } }) { row ->
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

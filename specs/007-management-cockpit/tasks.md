@@ -64,3 +64,11 @@
 - [ ] Nenhum fechamento reescreve histórico silenciosamente.
 
 - [x] Piloto: acesso negado sem duplicar avisos de painéis não autorizados.
+
+## Histórico em popup — 2026-10-17
+
+- [x] Especificar período, consulta e estados de recuperação.
+- [x] Implementar ícone discreto, lista, data/busca/paginação e detalhe.
+- [x] Revisão independente; corrigir revogação e transferência.
+- [x] Typecheck/build/lint focado, visual9 e consulta local real.
+- [x] Registrar evidência e limites em tab-history-evidence.md.

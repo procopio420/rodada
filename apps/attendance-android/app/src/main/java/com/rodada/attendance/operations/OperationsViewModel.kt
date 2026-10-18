@@ -46,6 +46,10 @@ data class OperationsUiState(
     val historyLoading: Boolean = false,
     val historyLoaded: Boolean = false,
     val historyError: String? = null,
+    val historyDetailId: String? = null,
+    val historyDetail: TabDetail? = null,
+    val historyDetailLoading: Boolean = false,
+    val historyDetailError: String? = null,
     val customers: List<CustomerSummary> = emptyList(),
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
@@ -91,6 +95,7 @@ class OperationsViewModel(
     private val tabDrafts = TabDraftContexts()
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
+    private val historyDetailReads = LatestHistoryRead()
     private var orderReplayJob: Job? = null
     private var streamConnected = false
     private var invalidationJob: Job? = null
@@ -313,6 +318,23 @@ class OperationsViewModel(
                         historyLoading = false, historyLoaded = false,
                         historyError = "Não foi possível carregar o histórico. Tente novamente.")
                 }
+        }
+    }
+
+    fun inspectHistory(session: StoredSession, tabId: String?) {
+        val read = historyDetailReads.start()
+        val scope = loadedSessionKey
+        state = state.copy(historyDetailId = tabId, historyDetail = null,
+            historyDetailLoading = tabId != null, historyDetailError = null)
+        if (tabId == null) return
+        viewModelScope.launch {
+            runCatching { repository.tabDetail(session, tabId) }.onSuccess { detail ->
+                if (scope == loadedSessionKey && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+                    historyDetail = detail, historyDetailLoading = false)
+            }.onFailure {
+                if (scope == loadedSessionKey && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+                    historyDetailLoading = false, historyDetailError = "Não foi possível consultar a comanda.")
+            }
         }
     }
 
@@ -821,8 +843,15 @@ class OperationsViewModel(
             reasonCode = command.reasonCode,
             reasonText = command.reasonText.takeIf(String::isNotBlank),
             replacementProductId = command.replacementProductId,
+            quantity = command.quantity,
         )
-        if (!preserveIntent(intent, session)) return
+        val original = runCatching { pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId == command.itemId } }
+            .getOrElse { showFailure(it, "Confira a correção guardada antes de continuar."); return }
+        if (original != null && original.copy(createdAtMillis = intent.createdAtMillis, state = intent.state) != intent) {
+            showFailure(IllegalStateException("Correction intent pending"), "Há uma correção sem confirmação. Confira a intenção original antes de enviar outra.")
+            return
+        }
+        if (!preserveIntent(original ?: intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {

@@ -73,3 +73,10 @@ Validation (2026-10-12): 108 PostgreSQL tests, two real Web/API/PostgreSQL journ
 ## Release verification 2026-10-09
 
 Checkboxes above track implementation only. Per-criterion evidence and remaining modifier/transfer/device gaps are in `docs/development/closure-native-2026-10-09.json`. Served-item corrections preserve PICKED_UP/DELIVERED facts; remake/replacement creates separate work. Corrected modifier selections and allocation-aware transferred responsibility remain open.
+## Cancelar lançamento indevido Android — 2026-10-17
+
+- [x] Especificar autorização, quantidade, legado, ledger e bloqueios.
+- [x] API delega reversão parcial e resolve dispatch integral atomicamente.
+- [x] Android mantém motivo/PIN, revisão explícita e intenção congelada.
+- [x] API40 PostgreSQL, Android99 JVM, build/lint e revisão independente.
+- [x] Dois testes Compose e quatro cenários de tamanho/fonte aprovados; evidência local registrada.

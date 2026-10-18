@@ -43,8 +43,14 @@ class LedgerPaymentTests(TestCase):
         partial = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1000, "method": "CARD", "idempotency_key": "p1"}, format="json")
         self.assertEqual(partial.status_code, 201)
         self.assertEqual(partial.json()["exposure_cents"], 1400)
+        self.assertEqual(self.client.get(f"/tabs/{tab['id']}/").json()["state"], "OPEN")
         final = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1400, "method": "CARD", "idempotency_key": "p2"}, format="json")
         self.assertEqual(final.json()["exposure_cents"], 0)
+        self.assertEqual(self.client.get(f"/tabs/{tab['id']}/").json()["state"], "CLOSED")
+        self.assertEqual(AuditEvent.objects.filter(event_type="tab.closed", entity_id=tab['id']).count(), 1)
+        replay = self.client.post(f"/tabs/{tab['id']}/payments/", {"amount_cents": 1400, "method": "CARD", "idempotency_key": "p2"}, format="json")
+        self.assertEqual(replay.json()["id"], final.json()["id"])
+        self.assertEqual(AuditEvent.objects.filter(event_type="tab.closed", entity_id=tab['id']).count(), 1)
         closed = self.client.post(f"/tabs/{tab['id']}/close/", {}, format="json")
         self.assertEqual(closed.status_code, 200)
         self.assertEqual(closed.json()["state"], TabState.CLOSED)
@@ -314,6 +320,9 @@ class LedgerPaymentTests(TestCase):
         self.assertEqual(payment.status_code, 201, payment.json())
         _, manager = self.manager_client()
         self.assertEqual(manager.post("/auth/reauthenticate/", {"pin": "4321"}, format="json").status_code, 200)
+        # Refund fixture represents the separately authorized reopened state.
+        from modules.ordering.models import Tab
+        Tab.objects.filter(pk=tab['id']).update(state=TabState.OPEN)
         endpoint = f"/payments/{payment.json()['id']}/refunds/"
         payload = {"amount_cents": 400, "idempotency_key": "refund-lost-response",
                    "reason": "Cliente devolveu item", "cash_point_id": str(primary.id)}

@@ -147,6 +147,7 @@ def cancel_before_fulfillment(
     financial_reversal_hook: OpenResponsibilityReversal | None,
     record_paid_request: bool = False,
     quantity: int | None = None,
+    authorized_wrong_entry: bool = False,
 ) -> OrderCorrection:
     """Cancel a NEW/ACCEPTED item without erasing its snapshot or charge.
 
@@ -162,6 +163,10 @@ def cancel_before_fulfillment(
     reason_code = reason_code.strip()
     reason_text = reason_text.strip()
     idempotency_key = idempotency_key.strip()
+    if authorized_wrong_entry:
+        if kind != CorrectionKind.WRONG_ITEM_ENTERED or quantity is None or not reason_text:
+            raise CorrectionServiceError("INVALID_CORRECTION_REQUEST", "Informe motivo e quantidade do lançamento indevido.")
+        _manager_approval_required(actor)
     if not reason_code or not idempotency_key:
         raise CorrectionServiceError(
             "INVALID_CORRECTION_REQUEST",
@@ -199,7 +204,8 @@ def cancel_before_fulfillment(
         existing._idempotency_replay = True
         return existing
 
-    if item.state not in _CANCELLABLE_STATES:
+    cancellable_states = _CANCELLABLE_STATES | _POST_PRODUCTION_STATES if authorized_wrong_entry else _CANCELLABLE_STATES
+    if item.state not in cancellable_states:
         existing_terminal = (
             OrderCorrection.objects.filter(
                 original_order_item=item,
@@ -227,6 +233,8 @@ def cancel_before_fulfillment(
     if requested_quantity > remaining or remaining < 1:
         raise CorrectionServiceError("INVALID_CANCELLATION_QUANTITY", "Quantidade superior aos itens restantes. Atualize a comanda.", 409)
 
+    if authorized_wrong_entry and item.state in _POST_PRODUCTION_STATES and _has_confirmed_money(tab_id=item.order.tab_id):
+        raise CorrectionServiceError("PAID_CORRECTION_REQUIRES_REFUND", "Lançamento com pagamento confirmado exige revisão gerencial e fluxo de estorno.", 409)
     if _has_confirmed_money(tab_id=item.order.tab_id):
         if requested_quantity < remaining:
             raise CorrectionServiceError("PARTIAL_PAID_CORRECTION_REQUIRES_REVIEW", "Este item envolve pagamento. A remoção parcial exige revisão da gerência.", 409)
@@ -325,6 +333,8 @@ def cancel_before_fulfillment(
         item.state = OrderItemState.CANCELLED
         item.cancelled_at = now
         item.save(update_fields=["state", "cancelled_at"])
+        if authorized_wrong_entry:
+            _cancel_active_delivery(item=item, actor=actor, correction=correction)
     if adjustment is None:
         from django.db.models import F
         Tab.objects.filter(pk=item.order.tab_id).update(version=F("version") + 1)
@@ -363,6 +373,7 @@ def create_post_production_correction(
     idempotency_key: str,
     actor: ActorContext,
     replacement_product_id=None,
+    quantity: int | None = None,
 ) -> OrderCorrection:
     """Apply a manager-authorized remake or replacement without rewriting history.
 
@@ -393,6 +404,16 @@ def create_post_production_correction(
         raise CorrectionServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
     if item.order.tab.state == TabState.CLOSED:
         raise CorrectionServiceError("TAB_CLOSED", "Reabra a comanda antes de registrar uma correção.", 409)
+    if quantity is not None:
+        if kind != CorrectionKind.WRONG_ITEM_ENTERED:
+            raise CorrectionServiceError("INVALID_CORRECTION_KIND", "Quantidade parcial exige lançamento indevido.")
+        from modules.ledger.services import reverse_open_responsibility
+        return cancel_before_fulfillment(
+            item_id=item_id, kind=kind, reason_code=reason_code, reason_text=reason_text,
+            idempotency_key=idempotency_key, actor=actor, quantity=quantity,
+            financial_reversal_hook=reverse_open_responsibility, record_paid_request=True,
+            authorized_wrong_entry=True,
+        )
     fingerprint = _replacement_fingerprint(
         kind=kind,
         reason_code=reason_code,

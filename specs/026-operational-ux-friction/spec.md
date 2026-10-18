@@ -1,5 +1,29 @@
 # Spec 026 — Redução de fricção operacional
 
+## Bar: disponibilidade por categorias — 2026-10-17
+
+Substituir a lista integral de produtos na tela inicial do Bar por
+Indisponibilizar item. Abrir seletor com busca, categorias e Todos primeiro;
+contagens e produtos limitados à estação BAR e ao estado elegível. Categoria
+abre grade de produtos; escolher produto abre confirmação pelo nome, sem
+quantidade ou carrinho. Cancelar/Voltar/Escape preserva dados e retorna uma camada.
+Confirmar usa o comando existente, versão capturada e intenção durável original.
+Somente recibo APPLIED após readback bem-sucedido fecha o seletor e retorna
+scroll/foco ao início do Bar. Falha, rejeição e resultado ambíguo permanecem
+visíveis; replay reutiliza a mesma intenção. Produto removido, inativado ou com
+estado/versão alterados bloqueia a confirmação antiga, exigindo nova seleção.
+Na compatibilidade preexistente sem availability_version, manter HTTP OK seguido
+de leitura canônica bem-sucedida; não atribuir a esse caminho prova de recibo ou
+replay versionado. A API atual fornece versão; não remover o fallback da Cozinha.
+Reativar item permanece como ação compacta no mesmo seletor, sem lista inicial.
+Loading/vazio/sem resultados e indisponibilidade de conexão têm feedback real.
+Reutilizar ActionDialog, ProductIcon, grade e tokens do Cardápio, alvos >=44px,
+foco contido/restaurado e mobile 360/390/430. Cozinha, API, permissões, auditoria,
+ledger, catálogo persistido e pedidos confirmados estão fora desta mudança.
+Risco R3 pelo retorno dependente de confirmação/recovery: revisão independente
+antes de recomendar integração. Sem publicação, deploy ou mutations de teste
+na base compartilhada; fixtures isoladas comprovam apenas UI/contrato cliente.
+
 Estado: execução incremental com recortes locais documentados até T10b; próxima implementação T10c. Critérios amplos e gates globais permanecem abertos.
 Data: 2026-10-12. Base documental: main em 0a2038d.
 
