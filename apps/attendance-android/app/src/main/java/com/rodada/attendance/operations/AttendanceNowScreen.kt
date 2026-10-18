@@ -1,5 +1,7 @@
 package com.rodada.attendance.operations
 
+import androidx.compose.runtime.LaunchedEffect
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,8 +35,10 @@ internal fun AttendanceNowScreen(
     state: OperationsUiState,
     onOpenService: (ServiceRequest) -> Unit,
     onOpenDelivery: (DeliveryTask) -> Unit,
+    initiallyShowDeliveries: Boolean = false,
 ) {
-    var deliveries by rememberSaveable { mutableStateOf(false) }
+    var deliveries by rememberSaveable { mutableStateOf(initiallyShowDeliveries) }
+    LaunchedEffect(initiallyShowDeliveries) { if (initiallyShowDeliveries) deliveries = true }
     val servicesScroll = rememberLazyListState()
     val deliveriesScroll = rememberLazyListState()
     val servicesKnown = state.serviceRequestsFresh && state.connectivity == ConnectivityState.ONLINE

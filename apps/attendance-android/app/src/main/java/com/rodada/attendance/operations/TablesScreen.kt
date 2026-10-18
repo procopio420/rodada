@@ -73,6 +73,7 @@ fun TablesScreen(
     requestedTarget: StaffTaskTarget.Table? = null,
     onTargetConsumed: () -> Unit = {},
     onDetailVisibility: (Boolean) -> Unit = {},
+    onViewDeliveries: () -> Unit = {},
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var showHistory by rememberSaveable { mutableStateOf(false) }
@@ -194,7 +195,9 @@ fun TablesScreen(
             TableCard(
                 table = table,
                 balances = state.tabs.associate { it.id to it.exposureCents },
-                busy = state.submitting || state.pendingTableService != null,
+                pendingDeliveries = state.deliveryTasks.count { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOf(table)) != null },
+                onViewDeliveries = onViewDeliveries,
+                busy = locked,
                 canManage = canManageTables,
                 onOccupy = { if (table.tableServiceEnabled) onStartService(table.id) else occupyingTableId = table.id },
                 staffId = staffId,
@@ -204,7 +207,7 @@ fun TablesScreen(
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
-                    table.activeOccupancy?.let {
+                    table.activeOccupancy?.takeIf { occupancy -> occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOf(table)) != null } }?.let {
                         releasingTableId = table.id
                         releasingOccupancyId = it.id
                         releasingGeneration = it.generation
@@ -321,6 +324,8 @@ fun TablesScreen(
 private fun TableCard(
     table: TableSummary,
     balances: Map<String, Long>,
+    pendingDeliveries: Int,
+    onViewDeliveries: () -> Unit,
     busy: Boolean,
     canManage: Boolean,
     onOccupy: () -> Unit,
@@ -370,7 +375,10 @@ private fun TableCard(
         if (table.status == "OCCUPIED") {
             Text("Saída do grupo", style = AttendanceUx2.text(18, 800))
             if (openTabs > 0) Text("$openTabs comanda(s) abertas. Encerre cada uma para liberar a mesa.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber, modifier = Modifier.background(RodadaVisual.Surface, RoundedCornerShape(10.dp)).padding(14.dp))
-            else if (canManage) {
+            else if (pendingDeliveries > 0) {
+                Text("$pendingDeliveries entrega(s) ainda prontas. Resolva as entregas antes de liberar.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber)
+                Ux2Action("Ver entregas prontas", !busy, onViewDeliveries)
+            } else if (canManage) {
                 Ux2Action("Grupo saiu · Liberar mesa", !busy, onRelease, true)
                 Text("A mesa passará para Aguardando limpeza e o QR desta ocupação perderá o acesso.", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
             }

@@ -123,6 +123,7 @@ fun AttendanceScreen(
         }
     }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
+    var requestedDeliveries by rememberSaveable { mutableStateOf(false) }
     var tableDetailVisible by remember { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     val contextStates = rememberSaveableStateHolder()
@@ -279,13 +280,14 @@ fun AttendanceScreen(
                 null -> {
                     when (section) {
                         FrontlineSection.NOW -> contextStates.SaveableStateProvider("now:${session.sessionId}") {
-                            AttendanceNowScreen(state, onOpenService = ::openService, onOpenDelivery = { openDelivery(it) })
+                            AttendanceNowScreen(state, onOpenService = ::openService, onOpenDelivery = { openDelivery(it) }, initiallyShowDeliveries = requestedDeliveries)
                         }
                         FrontlineSection.TABS, FrontlineSection.TABLES -> contextStates.SaveableStateProvider("tables:${session.sessionId}") { TablesScreen(
                             state = state,
                             requestedTarget = targetTableId?.let { tableId -> targetOccupancyId?.let { occupancyId -> targetGeneration?.let { generation -> StaffTaskTarget.Table(tableId, occupancyId, generation) } } },
                             onTargetConsumed = { targetTableId = null; targetOccupancyId = null; targetGeneration = null },
                             onDetailVisibility = { tableDetailVisible = it },
+                            onViewDeliveries = { requestedDeliveries = true; section = FrontlineSection.NOW },
                             canManageTables = "table.manage" in session.capabilities,
                             staffId = session.staffId,
                             canOpenTabs = "tab.open" in session.capabilities,
@@ -363,7 +365,7 @@ fun AttendanceScreen(
             }
             }
             if (state.selectedTab == null && !tableDetailVisible && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
-                FrontlineNavigation(section = section, onSelect = { section = it; choosingOrderDestination = false; targetTableId = null; targetOccupancyId = null; targetGeneration = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null },
+                FrontlineNavigation(section = section, onSelect = { requestedDeliveries = false; section = it; choosingOrderDestination = false; targetTableId = null; targetOccupancyId = null; targetGeneration = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null },
                     onOrder = { serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null; choosingOrderDestination = true }, busy = state.loading || state.submitting || readingTask || state.pendingTableService != null)
             }
 

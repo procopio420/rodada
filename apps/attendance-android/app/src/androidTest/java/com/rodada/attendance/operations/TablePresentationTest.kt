@@ -83,4 +83,23 @@ class TablePresentationInstrumentedTest {
         org.junit.Assert.assertEquals("closed", selected)
     }
 
+    @Test fun readyDeliveryUsesCurrentOccupancyAndOpeningQueueDoesNotCompleteIt() {
+        val table = TableSummary("table", "08", "OCCUPIED", "DIRECT", false, null, TableOccupancy("current", 3, emptyList()))
+        fun delivery(id: String, occupancy: String, generation: Int) = DeliveryTask(id, "OPEN", "Mesa 08", "Água", 1, "", 0,
+            StaffTaskTarget.Table("table", occupancy, generation))
+        val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasks = listOf(delivery("old", "old", 2))))
+        var opens = 0
+        compose.setContent { RodadaTheme { Surface {
+            TablesScreen(state.value, true, { _, _ -> }, {}, {}, {}, onViewDeliveries = { opens++ })
+        } } }
+        compose.onNodeWithTag("table-table").performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").assertExists()
+        compose.onNodeWithText("Ver entregas prontas").assertDoesNotExist()
+        compose.runOnIdle { state.value = state.value.copy(deliveryTasks = state.value.deliveryTasks + delivery("current-task", "current", 3)) }
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").assertDoesNotExist()
+        compose.onNodeWithText("Ver entregas prontas").performScrollTo().performClick()
+        org.junit.Assert.assertEquals(1, opens)
+        org.junit.Assert.assertEquals(listOf("OPEN", "OPEN"), state.value.deliveryTasks.map { it.state })
+    }
+
 }
