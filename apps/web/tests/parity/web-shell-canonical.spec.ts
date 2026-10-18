@@ -25,7 +25,7 @@ for (const width of [360, 390, 430, 1280]) test(`canonical shell journey and con
     return response.json();
   });
   expect(detail).toMatchObject({ id: 'e4766bd9-05cd-43d8-ae49-c3f8712a66f1', display_label: 'Marina', exposure_cents: 5600, effective_limit_cents: 20000 });
-  const out = '../../docs/development/evidence/spec033-web-canonical-shell';
+  const out = '../../docs/development/evidence/spec033-web-table-page';
   await mkdir(out, { recursive: true });
   const capture = async (state: string) => page.screenshot({ path: `${out}/web-${state}-${width}.png`, fullPage: true });
   await capture('now');
@@ -34,6 +34,12 @@ for (const width of [360, 390, 430, 1280]) test(`canonical shell journey and con
   await capture('tables');
   await page.getByRole('button', { name: /Mesa 08 Ocupada/ }).click();
   await expect(page.getByRole('heading', { name: 'Mesa 08', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Comandas desta mesa', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Saída do grupo', exact: true })).toBeVisible();
+  await expect(page.getByText('2 comanda(s) abertas.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Grupo saiu · Liberar mesa', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '＋ Abrir nova comanda', exact: true })).toBeEnabled();
+  await expect(page.locator('button[data-tab-id="e4766bd9-05cd-43d8-ae49-c3f8712a66f1"]')).toContainText('R$ 56,00');
   await capture('table');
   await page.locator('button[data-tab-id="e4766bd9-05cd-43d8-ae49-c3f8712a66f1"]').click();
   const workspace = page.getByRole('region', { name: 'Comanda selecionada', exact: true });
