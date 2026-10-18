@@ -1,7 +1,6 @@
 package com.rodada.attendance.operations
 
 import androidx.test.platform.app.InstrumentationRegistry
-import com.rodada.attendance.auth.AuthApiException
 import com.rodada.attendance.auth.AuthHttpClient
 import com.rodada.attendance.auth.LoginRequest
 import org.json.JSONObject
@@ -49,7 +48,7 @@ class LiveTableReleaseFenceTest {
         try {
             client.releaseTable(token, original)
             fail("An operation confirmed for A cannot release B")
-        } catch (error: AuthApiException) {
+        } catch (error: OperationsApiException) {
             assertEquals(409, error.status); assertEquals("STALE_OCCUPANCY", error.code)
         }
         val preserved = current()
