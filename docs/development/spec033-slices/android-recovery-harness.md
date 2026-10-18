@@ -14,3 +14,15 @@ real e mede layout/viewport/callback único, sem substituir teste por simulaçã
 Quatro testes Python reexecutadosPASS pelo root. Sem findings bloqueantes no
 harness; compilação e execução Android do método novo/force-stop corrigido
 continuam pendentes e não são provadas pelo CI de PR que pula esse job.
+
+
+Execução real posterior em3a71a7fa: o método novo detectou clipping horizontal
+real a360/font1.5. Corrigidas métricas Archivo UX2 e largura interna disponível
+no Text de Nova comanda; não se removeu a asserção de overflow/viewport/callback.
+Três larguras passaram isoladamente e o script completo terminou exit0 com
+3fases persistência+4TableService+3Navigation+3fit. Display restaurado a1170×2532,
+density480,font1. Logs anteriores com falha estão preservados em
+`docs/development/evidence/spec033-android-recovery-harness/`.
+Review independente R2 root das duas correções: sem findings bloqueantes;
+revisor não executou emulador. Lint final PASS(0errors/14warnings/1hint),116JVM/build/AndroidTestPASS;
+conferir manifesto final. Não demonstra POST real ou PSP.

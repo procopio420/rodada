@@ -1,0 +1,52 @@
+{
+  "source_commit": "3a71a7fa",
+  "base_commit": "cf18af8b413f40ec56bbba15484260d58c04ffa0",
+  "device": "emulator-5558 API36",
+  "jvm": {
+    "tests": 116,
+    "failures": 0,
+    "errors": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 14,
+    "hints": 1
+  },
+  "full_script_exit": 0,
+  "full_script_test_counts": [
+    1,
+    1,
+    1,
+    4,
+    3,
+    1,
+    1,
+    1
+  ],
+  "production_label_widths_dp": [
+    360,
+    390,
+    430
+  ],
+  "production_label_font_scale": 1.5,
+  "restored_display": {
+    "pixels": "1170x2532",
+    "density": 480,
+    "font_scale": 1
+  },
+  "scope": "Real process termination and encrypted synthetic intent persistence, no real backend POST or provider payment",
+  "review": "Independent root R2 no blocking findings, did not rerun emulator",
+  "files": {
+    "README.md": "997866401568f7c5771bc2334bf95cc27174323456f0ec440e2dfb4fe703a10f",
+    "build-label-fix.log": "78b3fc691e438f2db4ff0cb7fc1e7d8ee4a4ad2576ff7820f971ae944d8586ef",
+    "build-test-lint.log": "05794f667971b43c8ec891eb6d1d699f8ac6d0557fc93a3f29671b2f8cc9b9e6",
+    "build-test.log": "27a826e8b3c31d95f58f79125515c40b30373d1d6f7cf7b0ad7baaf3502b6b01",
+    "force-stop-run.log": "2b4eb39f5217bd215d472e53d8c3abd26d0757a0086d3065b8e06d731021c38c",
+    "label360.log": "f394a6cfd13b9215fdb4bada7cf73d0c84f3b75388976fda71bbe8674320bc98",
+    "label390.log": "9b08f00b9ede98b2622e47667e2b680dc0a959606e89085861aed587379fbc16",
+    "label430.log": "1a2c8a1f5b8afa875e5060366ab18b27c19badb62beee90b4b6583a86c246524",
+    "parser-tests.log": "457fca5a4328cf7b769ae31d1f332e31bcb8f9e102899779ee6b950737d5b69b",
+    "prior-intrinsic-width-overflow.log": "3c12b75449713636d5b2ea1608539337155e3d247e0619b8a52f7f86ac5983e3",
+    "prior-label-overflow.log": "1ca697be482b62f1c3f30b1f1eec915c820f404cef74674e4d37ab3d78b2e0bf"
+  }
+}
