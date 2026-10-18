@@ -28,5 +28,16 @@ branch de especificação. Evidência parcial de AC-04/05/15/20, sem aceite glob
 Logs adjacentes registram os comandos e resultados. Não houve alteração de
 assertions financeiras ou de recuperação, timeout ou retry. A regressão
 completa de 143 cenários e o aceite visual global continuam com o integrador;
-este teste isolado não comprova ambos. Revisão independente pendente de
-handoff ao integrador. Sem merge/deploy.
+este teste isolado não comprova ambos. Revisão independente registrada abaixo. Sem merge/deploy.
+
+
+## Revisão independente
+
+Em 18/10/2026, contexto integrador `/root` revisou o diff de `71eb83bf`
+contra `0f37fb03` e os logs executados. Resultado: **NO_FINDINGS_WITH_GAPS**.
+Confirmou UUID canônica da fixture na abertura/reload e preservação de todas
+as assertions financeiras e de ACK. Classificação R3 pelo contrato de teste
+de recuperação/financeiro; nenhum código novo de produto. A regressão ampla
+ainda estava ativa e não foi aceita com base neste resultado. Esta revisão
+é técnica e independente do autor, sem representar aprovação de GitHub,
+aceite operacional ou autorização para merge/deploy.
