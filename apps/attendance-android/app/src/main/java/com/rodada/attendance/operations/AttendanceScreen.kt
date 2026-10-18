@@ -601,7 +601,7 @@ internal fun TabList(
         if (!showDeliveries) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (choosingOrderDestination) Text("Escolha a comanda para pedir", style = MaterialTheme.typography.titleLarge)
-                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda") }
+                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda", style = com.rodada.attendance.ui.AttendanceUx2.text(15, 800)) }
             }
         }
         if (showDeliveries) item {
