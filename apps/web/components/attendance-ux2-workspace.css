@@ -29,3 +29,6 @@
 .ux2ProductName::after{content:"";position:absolute;inset:50% 0 auto;min-height:44px;transform:translateY(-50%)}
 
 .ux2FixedDestination{text-transform:uppercase;font-size:11px;letter-spacing:.06em;font-weight:800}
+
+/* PR212 delivery detail: same page hierarchy; production supplies every state. */
+.ux2DeliveryContext{border-left:3px solid var(--color-accent);background:var(--color-surface-1);padding:13px 15px;margin-bottom:18px;border-radius:0 8px 8px 0}.ux2DeliveryContext strong{display:block;font-size:14px}.ux2DeliveryContext p{color:var(--color-text-muted);font-size:12px;margin:5px 0 8px}.ux2DeliveryPage .ux2ReviewRow>span{flex-shrink:0}
