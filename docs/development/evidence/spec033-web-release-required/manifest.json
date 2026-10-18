@@ -1,0 +1,13 @@
+{
+  "web_source_sha": "914095f7",
+  "api_source_sha": "ebd22333",
+  "api_pr": 242,
+  "tests_sha": "aba5733b/3f94a059",
+  "scope": "Mandatory occupancy release contract, no compatibility fallback",
+  "hashes": {
+    "visual-3-pass.log": "0226cb20e4eff3a1b988328cce408ace92c100eb4755a311cae253919c50f4eb",
+    "README.md": "7d304a87419f970f3c7c1c8dbd8d88e90f04b1aa757b327d8eb5bfae0fd1c1c5",
+    "real-callers-5-pass.log": "2bba1e6aa169ec655a4776de06bedb3decdf0d073b9743813f420752c832a628",
+    "real-2-pass.log": "b2b944d8780fe043e2d02ffb17118921b73eb7d71b1011ab3d40016296e94ed3"
+  }
+}

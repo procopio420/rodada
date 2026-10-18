@@ -1,0 +1,15 @@
+[2m[WebServer] [22m(node:3532190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [18/Oct/2026 10:23:56] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 3 tests using 1 worker
+
+(node:3532324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3532324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true (1.5s)
+  ✓  2 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false (2.0s)
+  ✓  3 tests/visual/ux2-table-release-context.spec.ts:49:6 › release sends the confirmed occupancy identity without a compatibility fallback (1.2s)
+
+  3 passed (10.5s)
