@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { tabReference } from "@/lib/client/tab-identity";
+import { tabReference, tableLocationLabel } from "@/lib/client/tab-identity";
 import { attendanceCategory, normalizeCatalogSearch } from "@/lib/client/attendance-catalog";
 import { AttendanceOrderStatus } from "./attendance-order-status";
 import { CustomizationText, money, unitPrice, type OrderingProduct, type Selection } from "./product-customization";
@@ -32,13 +32,13 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
   const categories = ["Todos", ...new Set(products.filter(product => product.active).map(attendanceCategory))];
   const filtered = products.filter(product => product.active && (category === "Todos" || attendanceCategory(product) === category) && normalizeCatalogSearch(product.name).includes(normalizeCatalogSearch(query)));
   const reference = tabReference(tab);
-  const destination = `${tab.display_label || reference} · ${tab.table_label ? `Mesa ${tab.table_label}` : "Sem mesa"}`;
+  const destination = `${tab.display_label || reference} · ${tableLocationLabel(tab.table_label)}`;
   const latest = tab.orders?.at(-1);
   return <section hidden={hidden} ref={surfaceRef} className="ux2Workspace" aria-label="Comanda selecionada">
     <button className="ux2Back" disabled={locked} onClick={() => surface === "tab" ? onBack() : onSurface(surface === "draft" ? "catalog" : "tab")}><span aria-hidden="true">‹</span> Voltar</button>
     {surface === "tab" ? <>
       <div className="ux2Eyebrow">{reference}</div>
-      <div className="ux2Context"><div><h1 tabIndex={-1}>{tab.display_label || reference}</h1><p>{tab.table_label ? `Mesa ${tab.table_label} · ` : "Sem mesa · "}{closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
+      <div className="ux2Context"><div><h1 tabIndex={-1}>{tab.display_label || reference}</h1><p>{tableLocationLabel(tab.table_label)} · {closed ? "Encerrada" : "Comanda aberta"}</p></div><span className="ux2Tag">{closed ? "Encerrada" : "Em consumo"}</span></div>
     </> : <><div className="ux2Eyebrow">{surface === "catalog" ? `Pedido para ${reference}` : surface === "draft" ? "Resumo opcional" : surface === "limit" ? "Conta da casa · perfil da comanda" : `Conta · ${reference}`}</div><h1 tabIndex={-1}>{surface === "catalog" ? "Adicionar itens." : surface === "draft" ? "Resumo do pedido." : surface === "limit" ? "Limite e garantias." : closed ? "Conta encerrada." : "Fechar a conta."}</h1><p className="ux2Lede">{surface === "draft" ? "Conferência opcional: itens e destino antes do envio." : <>{destination}{surface === "catalog" && <span className="ux2FixedDestination"> · Destino fixo</span>}</>}</p></>}
     {success && <p className="ux2Toast" role="status">{success}</p>}
     {message}
@@ -61,11 +61,11 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
       <div className="ux2SectionHead"><h2>Cardápio</h2><small>{filtered.length} ITENS</small></div>
       {filtered.map(product => { const quantity = lines.filter(line => line.product.id === product.id).reduce((sum, line) => sum + line.quantity, 0); return <div className="ux2CatalogLine" key={product.id}><div><button className="ux2ProductName" aria-label={`Personalizar ${product.name}`} disabled={locked || !fresh || product.availability !== "AVAILABLE"} onClick={() => onCustomize(product)}><strong>{product.name}</strong></button><small>{money(product.price_cents)}{product.availability !== "AVAILABLE" && " · Indisponível"}</small></div><div className="ux2Quantity"><button aria-label={`Remover ${product.name}`} disabled={locked || !quantity} onClick={() => onReduce(product)}>−</button><output aria-label={`Quantidade de ${product.name}`}>{quantity}</output><button aria-label={`Adicionar ${product.name}`} disabled={locked || !fresh || product.availability !== "AVAILABLE" || quantity >= 99} onClick={() => onAdd(product)}>+</button></div></div>; })}
       {!filtered.length && <div className="ux2Empty">Nenhum produto corresponde à pesquisa. Limpe a busca para ver o cardápio inteiro.</div>}
-      {count > 0 && <div className="ux2DraftSummary"><span><strong>{count} item(ns) · {money(total)}</strong><small>Destino: {reference}{tab.table_label ? ` · Mesa ${tab.table_label}` : " · Balcão"}</small></span><button className="ux2Button ghost" disabled={locked} onClick={() => onSurface("draft")}>Ver resumo</button></div>}
+      {count > 0 && <div className="ux2DraftSummary"><span><strong>{count} item(ns) · {money(total)}</strong><small>Destino: {reference}{tab.table_label ? ` · ${tableLocationLabel(tab.table_label)}` : " · Balcão"}</small></span><button className="ux2Button ghost" disabled={locked} onClick={() => onSurface("draft")}>Ver resumo</button></div>}
       <p className="ux2Notice">O pedido é enviado somente ao tocar em <strong>Enviar</strong>. Valores e itens são revalidados pela API.</p>
     </>}
     {surface === "draft" && <>
-      <div className="ux2CardNote"><strong>{tab.display_label || reference} · {reference}</strong><p>{tab.table_label ? `Mesa ${tab.table_label}` : "Sem mesa"} · Rascunho ainda não enviado</p></div>
+      <div className="ux2CardNote"><strong>{tab.display_label || reference} · {reference}</strong><p>{tableLocationLabel(tab.table_label)} · Rascunho ainda não enviado</p></div>
       {lines.map((line, index) => <div className="ux2ReviewRow" key={index}><div><strong>{line.quantity}× {line.product.name}</strong><CustomizationText snapshot={{ variant: line.product.variants?.find(value => value.id === line.selection.variant_id), modifiers: line.product.modifier_groups?.flatMap(group => group.options.filter(value => line.selection.modifier_option_ids.includes(value.id)).map(value => ({ ...value, group_name: group.name }))), special_instructions: line.selection.special_instructions }} /><small>{money(unitPrice(line.product, line.selection))} cada</small>{(line.product.variants?.length || line.product.modifier_groups?.length || line.selection.special_instructions || line.selection.modifier_option_ids.length || line.selection.variant_id) ? <button className="ux2Inline" disabled={locked} onClick={() => onEdit(index)}>Editar</button> : null}{(!line.product.active || line.product.availability !== "AVAILABLE") && <p>Indisponível. Retire ou revise o item.</p>}</div><div><span>{money(unitPrice(line.product, line.selection) * line.quantity)}</span><div className="ux2Quantity"><button aria-label={`Reduzir ${line.product.name}`} disabled={locked} onClick={() => onQuantity(index, -1)}>−</button><button aria-label={`Aumentar ${line.product.name}`} disabled={locked || !fresh || line.quantity >= 99 || !line.product.active || line.product.availability !== "AVAILABLE"} onClick={() => onQuantity(index, 1)}>+</button></div></div></div>)}
       {!count && <div className="ux2Empty">O pedido está vazio.</div>}
       <div className="ux2AmountLine"><small>Total do novo pedido</small><strong>{money(total)}</strong></div>{credit}
