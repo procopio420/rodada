@@ -30,6 +30,12 @@ for (const ready of [true, false]) test(`table release requires resolved canonic
     await page.clock.runFor(16000);
     await expect(dialog.getByRole('button', { name: 'Confirmar liberação', exact: true })).toBeDisabled();
     await expect(dialog.getByText('Há comandas abertas ou entregas prontas. Cancele e confira a mesa.')).toBeVisible();
+    currentReady = false;
+    table.active_occupancy.id = 'occupancy-replacement';
+    table.active_occupancy.generation = 8;
+    await page.clock.runFor(16000);
+    await expect(dialog.getByRole('button', { name: 'Confirmar liberação', exact: true })).toBeDisabled();
+    await expect(dialog.getByText('A ocupação mudou. Cancele e confira a mesa novamente.')).toBeVisible();
     await dialog.getByRole('button', { name: 'Voltar', exact: true }).click();
     await page.locator('button[data-tab-id="closed-tab"]').click();
     await expect(page.getByRole('heading', { name: 'Marina', exact: true })).toBeVisible();
