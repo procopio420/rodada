@@ -69,4 +69,5 @@
 - [x] Corrigir Escape aninhado e retorno/foco do histórico externo.
 - [x] Ajustar alvos de toque na conferência de rodada com tokens existentes.
 - [x] Migrar regressões para categorias/popups sem perder payload/replay e isolamento de rascunho.
-- [ ] Concluir suíte visual global, registrar limites e revisar SHA final antes da integração.
+- [x] Executar suíte visual global e reexecutar falhas corrigidas, registrando limites e revisão do delta.
+- [ ] Obter checks do SHA final e aprovação qualificada GitHub antes da integração.

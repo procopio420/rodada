@@ -106,7 +106,7 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
   await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
   await closeAttendanceTab(page);
-  await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
+  if (!await page.getByRole("dialog", { name: "Mesa 12", exact: true }).isVisible()) await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   expect(starts).toHaveLength(2); expect(starts[0]).toEqual(starts[1]);
   await page.getByRole("button", { name: "Nova comanda nesta mesa" }).click();

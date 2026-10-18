@@ -30,7 +30,7 @@ for (const surface of ["attendance", "pos"] as const) for (const width of [360,3
    await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeVisible();
    failAttendanceRead = false; await page.getByRole("button", { name: "Atualizar", exact: true }).click();
    await expect(page.getByRole("button", { name: /Comanda SAME-A/ })).toBeEnabled();
-   await search.fill("");
+   await search.fill(""); await openOtherTabs(page);
    await expect(page.getByRole("button", { name: /Comanda UNNAMED/ })).toBeVisible();
    await selectAttendanceTab(page, /^Page 0 ·/); await attendanceDraft(page);
    await expect(page.getByText("1× Fritas", { exact: true })).toBeVisible(); await layoutAndA11y(page);

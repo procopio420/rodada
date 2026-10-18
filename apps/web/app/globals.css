@@ -550,3 +550,6 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 @media (max-width: 390px) { .repeatOrderQuantity { justify-content: flex-start; } }
 
 .actions > .managementHistoryTrigger { flex: 0 0 var(--touch-min); width: var(--touch-min); padding: var(--space-2); display: grid; place-items: center; }
+
+.printingRouteChoice { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-min); }
+.printingRouteChoice > input { min-width: var(--touch-min); min-height: var(--touch-min); flex-shrink: 0; accent-color: var(--color-accent); }

@@ -5,6 +5,8 @@ for (const width of [360, 390, 1280]) {
   test(`printing management readable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await fixture(page);
+    await page.route("**/api/pos/printing/agents/v1/", route => route.fulfill({ json: { enabled: false, results: [] } }));
+    await page.route("**/api/pos/printing/agents/v1/routes/", route => route.fulfill({ json: { printers: [], routes: [] } }));
     await page.route("**/api/pos/printing/endpoints/", route => route.fulfill({ json: { results: [{ id: "printer-1", label: "Cozinha / computador local", adapter: "SPOOL", width_mm: 80, connection_ref: "kitchen-local", cut_supported: false, stations: ["KITCHEN"], enabled: true, health: "UNKNOWN", health_at: null, bridge_status: "OFFLINE" }] } }));
     await page.route("**/api/pos/printing/jobs/**", route => route.fulfill({ json: { results: [{ id: "11111111-1111-4111-8111-111111111111", state: "DELIVERY_UNCERTAIN", last_error: "Envio interrompido; pode haver impressão parcial.", reason: "", reprint_of: null, document_id: "document-1", attempts: [{ number: 1, outcome: "DELIVERY_UNCERTAIN", detail: "Conferir papel e fila local." }] }] } }));
     await page.goto("/manage/printing");

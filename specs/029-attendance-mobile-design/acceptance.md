@@ -289,3 +289,5 @@ Evidência local do diálogo: [histórico da noite](night-history-evidence.md).
 
 ## Manutenção das regressões Web — PR237 (2026-10-18)
 Os testes legados devem percorrer Mesas e comandas/Outras comandas → Tab → Cardápio/Pedido atual/Conta, respeitando categorias e popup de quantidade. Preservar cobertura de busca/global/Todos/inativo/indisponível, quantidade/draft e resumo financeiro separado; não restaurar navegação monolítica nem remover cenários de erro/recovery para obter CI verde. Sem alteração da intenção do produto.
+
+Evidência: visual global595 (586PASS/9FAIL), seguido de reexecuções corrigidas1/16/28PASS que cobrem todas as nove falhas. Build/typecheck/lint focado PASS; revisão dos deltas sem achados reproduzíveis. Não equivale a nova execução global limpa nem aprovação GitHub. Ver docs/development/pr237-ci-followup-2026-10-18.md.
