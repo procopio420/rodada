@@ -158,3 +158,19 @@ RevisãorootsemnovoP0/P1apósfix; nãoaceitarREADYmockcomomutaçãoAPIreal.
 CIamploaindapendente. Gate236force-stopcorrigidoemexecuçãoseparada;
 fonte2shell/TalkBack/aparelho/PSP/piloto/paridadeintegralcontinuamgates.
 NenhumépicoouACglobalencerrado, semmerge/deploy.
+
+### Diretriz do responsável — produto ainda não lançado
+
+Compatibilidade legada deixou de ser requisito por orientação explícita do
+usuário em18/10. Não preservar fallback de liberação sem identidade. PR242
+a4164856 (contratoebd22333) exigeexpected_occupancy_id+expected_generation
+noPOST/serviço. Omissão/parincompleto400; ocupação substituída409STALE_OCCUPANCY
+soblocksTable→Occupancyanteswrites;54/54PostgreSQLPASS78,28s, R3root.
+ClientWeb914095f7+aba5733bprova2/2DjangoPGPASS15,5s: happyDIRTY e
+raceA→Breal409comBintacta. AdoçãoAndroidemexecução, mergegatednosdois.
+Isso não modifica políticas de pagamento/ledger/permissões.
+
+HarnessPR23627f2631e corrigidolayoutlabelNovaComanda(font1,5)enãoapenas
+contagens: fullscriptEXIT0[1,1,1,4,3,1,1,1],116JVM/build/lint/compilePASS
+e3fitsstandalonePASS. Force-stopprovaapenaspersistênciasintética, nãoPOST
+financeiroreal. Falhasanterioresretidas;R2rootreviewsemfindingsbloqueantes.
