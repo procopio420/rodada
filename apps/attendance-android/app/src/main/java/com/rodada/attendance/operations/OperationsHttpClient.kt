@@ -110,7 +110,7 @@ class OperationsHttpClient(baseUrl: String) {
                     destinationLabel = it.optString("destination_label"),
                     productName = it.optString("product_name", "Item pronto"),
                     quantity = it.optInt("quantity", 1),
-                    tabLabel = it.optString("tab_label"),
+                    tabLabel = it.optString("tab_display_label").takeUnless { value -> value == "null" }.orEmpty(),
                     ageSeconds = it.optLong("age_seconds", 0),
                     target = StaffTaskTarget.fromPayload(it),
                     fulfillmentStation = it.optString("fulfillment_station").takeIf { value -> value.isNotBlank() && value != "null" },
@@ -118,6 +118,7 @@ class OperationsHttpClient(baseUrl: String) {
                     orderId = it.optString("order_id").takeIf { value -> value.isNotBlank() && value != "null" },
                     claimedById = it.optString("claimed_by_id").takeIf { value -> value.isNotBlank() && value != "null" },
                     itemState = it.optString("item_state").takeIf { value -> value.isNotBlank() && value != "null" },
+                    tabReference = it.optString("tab_display_reference").takeIf { value -> value.isNotBlank() && value != "null" },
                 )
             }
 

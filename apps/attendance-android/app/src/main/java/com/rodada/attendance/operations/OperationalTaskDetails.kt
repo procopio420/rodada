@@ -60,7 +60,7 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
             if (task == null) {
                 Text("Tarefa ausente da fila atual. Isso não comprova entrega; confira o histórico original.", color = RodadaVisual.Muted)
             } else {
-                Text(listOf(task.destinationLabel.ifBlank { "Destino não informado" }, task.tabLabel).filter { it.isNotBlank() }.joinToString(" · "),
+                Text(listOf(task.destinationLabel.ifBlank { "Destino não informado" }, task.tabLabel, task.tabReference.orEmpty()).filter { it.isNotBlank() }.joinToString(" · "),
                     style = com.rodada.attendance.ui.AttendanceUx2.text(14), color = RodadaVisual.Muted)
                 Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)).drawBehind { drawLine(RodadaVisual.Amber, Offset(1.5.dp.toPx(), 0f), Offset(1.5.dp.toPx(), size.height), 3.dp.toPx()) }.padding(horizontal = 15.dp, vertical = 13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(if (task.itemState == "READY") "Pronto para entrega" else "Confira o estado da entrega", style = com.rodada.attendance.ui.AttendanceUx2.text(14, 800), color = RodadaVisual.Paper)
