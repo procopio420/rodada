@@ -13,20 +13,21 @@ test("attendance requires a tab name and selects an available table before openi
     return route.fulfill({ status: 201, json: { tab_id: "tab-test", table_id: "table-test", table_label: "12" } });
   });
   await page.goto("/attendance");
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
-  const open = page.getByRole("button", { name: "Abrir comanda", exact: true });
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
+  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Nova comanda · Mesa 12" });
+  const open = dialog.getByRole("button", { name: "Abrir e pedir", exact: true });
   await expect(open).toBeDisabled();
-  await page.getByLabel("Nome ou apelido").fill("João");
+  await dialog.getByLabel("Nome ou apelido", { exact: true }).fill("João");
   await expect(open).toBeEnabled();
   await open.click();
-  await expect(page.getByRole("dialog", { name: "Qual mesa o cliente está?" })).toBeVisible();
-  await page.getByRole("button", { name: "Mesa 12", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Comanda de teste", exact: true })).toBeVisible();
   await expect(page.locator('.notice[data-state="info"]')).toHaveCount(0);
   await layoutAndA11y(page);
 });
 
-test("global opening adds a tab to an occupied table and excludes unavailable tables", async ({ page }) => {
+test("contextual opening adds a tab to an occupied table and excludes unavailable tables", async ({ page }) => {
   await fixture(page, "normal", true);
   await page.route("**/api/auth/me", route => route.fulfill({ json: { staff: { id: "operator-test", display_name: "Ana" }, venue: { id: "venue-test", name: "Bar" }, session: { id: "session-test" }, capabilities: ["table.manage", "tab.open"] } }));
   await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ json: { table_service_enabled: true, results: [
@@ -40,12 +41,15 @@ test("global opening adds a tab to an occupied table and excludes unavailable ta
     return route.fulfill({ json: { tab_id: "tab-test", table_label: "12" } });
   });
   await page.goto("/attendance");
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByLabel("Nome ou apelido").fill("João");
-  await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: "Qual mesa o cliente está?" });
-  await expect(dialog.getByRole("button", { name: /Mesa 13/ })).toHaveCount(0);
-  await dialog.getByRole("button", { name: "Mesa 12 · Em uso", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 13 Aguardando limpeza/ }).click();
+  await expect(page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.getByRole("button", { name: /Mesa 12 Ocupada/ }).click();
+  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Nova comanda · Mesa 12" });
+  await dialog.getByLabel("Nome ou apelido", { exact: true }).fill("João");
+  await dialog.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
   await expect.poll(() => opens).toBe(1);
   await expect(dialog).toHaveCount(0);
 });
@@ -60,7 +64,8 @@ test("attendance preserves named opening without table when contextual service i
     return route.fallback();
   });
   await page.goto("/attendance");
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.getByRole("button", { name: "Abrir comanda sem mesa", exact: true }).click();
   await page.getByLabel("Nome ou apelido").fill("João");
   await page.getByRole("button", { name: "Abrir comanda", exact: true }).click();
   await expect.poll(() => opens).toBe(1);
@@ -90,16 +95,20 @@ for (const width of [360, 390, 430]) test(`table service start/open recovery and
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 12 Disponível/ }).click();
-  await page.getByRole("button", { name: "Iniciar atendimento · Mesa 12", exact: true }).click();
+  // UX2 opens the first Tab directly; recover existing Spec027 start envelopes.
+  const originalStart = { path: "hospitality/tables/table-test/service/start/", payload: { idempotency_key: "f2bbca08-9f28-4458-b75e-a3b9c1c3c6ab" } };
+  await page.evaluate(intent => localStorage.setItem("rodada:table-service:venue-test:operator-test:session-test", JSON.stringify(intent)), originalStart);
+  await page.reload();
+  await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.getByRole("button", { name: "Verificar mesma intenção" }).click();
   await expect(page.getByText("Atendimento: você", { exact: true })).toBeVisible();
   expect(starts).toHaveLength(2); expect(starts[0]).toEqual(starts[1]);
+  expect(starts[0]).toEqual(originalStart.payload);
   await page.getByRole("button", { name: "Nova comanda nesta mesa" }).click();
-  await page.getByText("Adicionar nome ou apelido (opcional)", { exact: true }).click();
-  await page.getByLabel("Nome ou apelido (opcional)").fill("João");
+  await page.getByLabel("Nome ou apelido", { exact: true }).fill("João");
   await page.getByRole("button", { name: "Abrir e pedir" }).click();
   await expect(page.getByRole("button", { name: "Verificar mesma intenção" })).toBeVisible();
   await page.reload();
@@ -144,19 +153,23 @@ test("draft and committed order with lost response retain original Tab and paylo
     return confirmations.length === 1 ? route.abort() : route.fulfill({ json: { id: "order-test", tab_id: "tab-test" } });
   });
   await page.goto("/attendance");
-  await page.getByRole("button", { name: "Contas", exact: true }).click();
-  await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
-  await page.getByRole("button", { name: /Fritas.*R\$/ }).click();
-  await expect(page.getByRole("button", { name: /Confirmar pedido ·/ })).toBeEnabled();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
+  await page.locator('button[data-tab-id="tab-test"]').click();
+  await page.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await page.getByRole("button", { name: "Adicionar Fritas", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Enviar 1 item ·/ })).toBeEnabled();
   await page.reload();
-  await expect(page.getByText("Rascunho recuperado na comanda original.")).toBeVisible();
-  await page.getByRole("button", { name: /Confirmar pedido ·/ }).click();
+  await expect(page.getByRole("button", { name: /Enviar 1 item ·/ })).toBeEnabled();
+  await page.getByRole("button", { name: /Enviar 1 item ·/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeDisabled();
+  // Context pages hide the footer; every available route away stays locked.
+  await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
-  await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: /^Pedido confirmado\.$/ })).toBeVisible();
   expect(confirmations).toHaveLength(2);
   expect(confirmations[0]).toEqual(confirmations[1]);
   await expect.poll(() => page.evaluate(() => localStorage.getItem("rodada:order-draft:venue-test:operator-test:session-test"))).toBeNull();
