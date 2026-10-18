@@ -34,7 +34,7 @@ for (const width of [360, 390, 430]) test(`real service queue conflict, stale an
   await page.unroute("**/api/attendance/dispatch/requests/");
   const label = `Acceptance queue ${width} para atendimento com referência operacional longa`;
   const table = await api(page, "hospitality/tables/", { label, guest_ordering_mode: "DIRECT" });
-  await api(page, `hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(page, `hospitality/tables/${table.id}/occupy/`, {});
   const task = await api(page, "dispatch/requests/", { request_id: crypto.randomUUID(), task_type: "SERVICE_REQUEST", table_id: table.id });
   await page.getByRole("button", { name: "Atualizar chamadas" }).click();
   const panel = page.getByRole("region", { name: "Chamados e pedidos de conta" });
@@ -100,6 +100,6 @@ for (const width of [360, 390, 430]) test(`real service queue conflict, stale an
   const out = path.resolve(__dirname, "../../../../visual-artifacts/spec023-024/runtime");
   await mkdir(out, { recursive: true });
   await page.screenshot({ path: path.join(out, `queue-${width}.png`), fullPage: true });
-  await api(page, `hospitality/tables/${table.id}/release/`, {});
+  await api(page, `hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   await otherContext.close();
 });
