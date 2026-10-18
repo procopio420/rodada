@@ -1109,8 +1109,8 @@ class OperationsViewModel(
         "Comanda associada à ocupação."
     }
 
-    fun releaseTable(session: StoredSession, tableId: String) = tableAction(session, showNotice = false) {
-        repository.releaseTable(session, tableId)
+    fun releaseTable(session: StoredSession, target: TableReleaseTarget) = tableAction(session, showNotice = false) {
+        repository.releaseTable(session, target)
         "Mesa liberada para limpeza."
     }
 

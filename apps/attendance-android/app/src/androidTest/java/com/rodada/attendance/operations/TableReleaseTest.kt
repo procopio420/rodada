@@ -17,12 +17,13 @@ class TableReleaseTest {
     private val state = mutableStateOf(OperationsUiState(tables = listOf(table)))
     private val allowed = mutableStateOf(true)
     private val released = mutableListOf<String>()
+    private val releasedTargets = mutableListOf<TableReleaseTarget>()
 
     private fun render() {
         compose.setContent { RodadaTheme { Surface {
             TablesScreen(state = state.value, canManageTables = allowed.value,
                 onOccupy = { _, _ -> }, onAttachTab = { _, _ -> },
-                onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
+                onRelease = { released.add(it.tableId); releasedTargets.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
         compose.onNodeWithTag("table-table-a").performClick()
         compose.onNodeWithText("Grupo saiu · Liberar mesa").performScrollTo().performClick()
@@ -39,6 +40,7 @@ class TableReleaseTest {
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)
+        assertEquals(listOf(TableReleaseTarget("table-a", "visit-a", 1)), releasedTargets)
     }
 
     @Test fun changedOccupancyNeverAdoptsNewVisit() {

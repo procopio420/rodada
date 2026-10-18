@@ -234,3 +234,11 @@ fun serviceOrderAgeLabel(timestamp: String?): String = runCatching {
 /** Canonical table projections may already include their human-readable prefix. */
 internal fun attendanceTableLocation(label: String): String =
     if (label.startsWith("Mesa ", ignoreCase = true)) label else "Mesa $label"
+
+/** Immutable release precondition captured by the confirmation dialog, never rebound on retry. */
+data class TableReleaseTarget(val tableId: String, val occupancyId: String, val generation: Int) {
+    init { require(generation > 0) }
+    fun body(): org.json.JSONObject = org.json.JSONObject()
+        .put("expected_occupancy_id", occupancyId)
+        .put("expected_generation", generation)
+}
