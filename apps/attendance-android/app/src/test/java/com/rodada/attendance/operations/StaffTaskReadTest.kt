@@ -23,4 +23,17 @@ class StaffTaskReadTest {
         val delivery = payload().put("task_type", "DELIVERY").put("item_state", "DELIVERED").put("order_item_id", "item")
         assertThrows(IllegalStateException::class.java) { StaffTaskRead.fromJson(delivery, "task", "DELIVERY") }
     }
+    @Test fun `canonical ready and picked up remain deliverable with exact item station and authorized label`() {
+        for (itemState in listOf("READY", "PICKED_UP")) {
+            val delivery = payload().put("task_type", "DELIVERY").put("item_state", itemState)
+                .put("order_item_id", "original-item").put("order_id", "original-order")
+                .put("product_name", "Chopp Pilsen").put("quantity", 2).put("fulfillment_station", "BAR")
+                .put("tab_display_label", "Rafael").put("tab_display_reference", "#1049")
+            val read = requireNotNull(StaffTaskRead.fromJson(delivery, "task", "DELIVERY").delivery)
+            assertEquals(itemState, read.itemState); assertEquals("original-item", read.orderItemId)
+            assertEquals("BAR", read.fulfillmentStation); assertEquals("Rafael", read.tabLabel)
+            assertEquals("#1049", read.tabReference)
+        }
+    }
+
 }
