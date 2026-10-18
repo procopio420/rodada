@@ -15,3 +15,9 @@ formata apenas apresentação e não participa de seleção financeira.
 24capturas finais; pasta before-location-fix preserva capturas anteriores,
 antes de Rafael e do ajuste do prefixo. Não representam pagamento/envio de
 pedido/Guest/produção/force-stop ou aceite integral. Androidfullshell emvalidação.
+
+Revisão independente NO_FINDINGS_WITH_GAPS: helper só texto, IDs/payload
+inalterados. Corrigido gap da capturaMesas: espera explícita pelo botãoMesa08
+antes de screenshot. Quatro jornadas novamentePASS semretries. Comparação
+observada mostrou páginaMesa ainda legada; correção visual em slice posterior,
+sem aceitar paridade pela suíte de navegação.
