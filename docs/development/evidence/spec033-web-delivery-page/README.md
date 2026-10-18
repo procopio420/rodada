@@ -19,7 +19,7 @@ Textos de simulação e “EXEMPLO” não são apresentados como operação rea
 Validação:
 
 - `npm run build`: PASS; `npm run typecheck`: PASS; ESLint dos arquivos modificados: PASS.
-- `npm run test:visual -- ux2-delivery-page.spec.ts`: 9 PASS (14.0s): quatro larguras, readonly back, ACK perdido, rival, mudança de destino, unknown/readback. Interceptações são fixtures visuais, não integração.
+- `npm run test:visual -- ux2-delivery-page.spec.ts`: 9 PASS (16.6s): quatro larguras, readonly back, ACK perdido, rival, mudança de destino, unknown/readback. Interceptações são fixtures visuais, não integração.
 - PostgreSQL17.6 dedicado, loopback55644, database `rodada_web_e2e`, API8144/Web3144. `attendance.spec.ts`: 1 PASS (20.9s), lifecycle existente adaptado ao novo destino e estado canônico.
 - `attendance-delivery-page.spec.ts`: 4 PASS (32.5s), widths360/390/430/1280. CASH e Close reais via API no banco descartável; então entrega READY em Tab CLOSED, retorno readonly, completion commit real com perda injetada apenas no ACK, GETs canônicos e ledger preservado. Capturas `real-closed-delivered-*` são integração real, dados distintos da fixture do comparador.
 
