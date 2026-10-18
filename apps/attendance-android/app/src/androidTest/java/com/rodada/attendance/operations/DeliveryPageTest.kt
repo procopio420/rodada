@@ -14,14 +14,14 @@ import org.junit.Assert.assertEquals
 
 class DeliveryPageTest {
     @get:Rule val compose = createComposeRule()
-    private val task = DeliveryTask("original-task", "OPEN", "Mesa 08", "Água sem gás", 1, "Marina · C-008", 30,
-        StaffTaskTarget.Unavailable, "BAR", "original-item", "original-order", itemState = "READY")
+    private val task = DeliveryTask("original-task", "OPEN", "Mesa 08", "Chopp Pilsen", 2, "Rafael", 30,
+        StaffTaskTarget.Unavailable, "BAR", "original-item", "original-order", itemState = "READY", tabReference = "#1049")
     @Test fun openingAndBackNeverCompleteWhileClosedTabTargetIsNotRequired() {
         var back = 0; var completed = 0
         compose.setContent { RodadaTheme { Surface { Column(Modifier.fillMaxSize()) { com.rodada.attendance.ui.AttendanceHeader("Lucas", ConnectivityState.ONLINE, false, false, {}, {}, {})
 Box(Modifier.weight(1f)) { DeliveryTaskDetail(task, false, "staff", { back++ }, {}, { completed++ }) } } } } }
         compose.onNodeWithText("Levar pedido.").assertIsDisplayed()
-        compose.onNodeWithText("1× Água sem gás").assertExists()
+        compose.onNodeWithText("2× Chopp Pilsen").assertExists()
         compose.onNodeWithText("Origem · Bar").assertExists()
         assertEquals(0, completed)
         captureCriticalEvidence(compose, "ux2-delivery-page", compose.onRoot())
