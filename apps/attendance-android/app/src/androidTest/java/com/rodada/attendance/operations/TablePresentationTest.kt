@@ -86,7 +86,7 @@ class TablePresentationInstrumentedTest {
     @Test fun readyDeliveryUsesCurrentOccupancyAndOpeningQueueDoesNotCompleteIt() {
         val table = TableSummary("table", "08", "OCCUPIED", "DIRECT", false, null, TableOccupancy("current", 3, emptyList()))
         fun delivery(id: String, occupancy: String, generation: Int) = DeliveryTask(id, "OPEN", "Mesa 08", "Água", 1, "", 0,
-            StaffTaskTarget.Table("table", occupancy, generation))
+            StaffTaskTarget.Tab("closed-tab", StaffTaskTarget.Table("table", occupancy, generation)))
         val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasks = listOf(delivery("old", "old", 2))))
         var opens = 0
         compose.setContent { RodadaTheme { Surface {

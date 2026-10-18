@@ -195,7 +195,7 @@ fun TablesScreen(
             TableCard(
                 table = table,
                 balances = state.tabs.associate { it.id to it.exposureCents },
-                pendingDeliveries = state.deliveryTasks.count { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOf(table)) != null },
+                pendingDeliveries = state.deliveryTasks.count { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null },
                 onViewDeliveries = onViewDeliveries,
                 busy = locked,
                 canManage = canManageTables,
@@ -207,7 +207,7 @@ fun TablesScreen(
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
-                    table.activeOccupancy?.takeIf { occupancy -> occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOf(table)) != null } }?.let {
+                    table.activeOccupancy?.takeIf { occupancy -> occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null } }?.let {
                         releasingTableId = table.id
                         releasingOccupancyId = it.id
                         releasingGeneration = it.generation
@@ -236,7 +236,7 @@ fun TablesScreen(
             current.activeOccupancy?.id == releasingOccupancyId &&
             current.activeOccupancy?.generation == releasingGeneration
         val releaseReady = sameOccupancy && current?.activeOccupancy?.tabs.orEmpty().none { it.state !in setOf("CLOSED", "CANCELLED") } &&
-            state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && (task.target as? StaffTaskTarget.Table)?.currentTable(listOfNotNull(current)) != null }
+            state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOfNotNull(current)) != null }
         AlertDialog(
             onDismissRequest = { releasingTableId = null },
             title = { Text("Liberar mesa $releasingLabel?") },
