@@ -30,6 +30,7 @@ for (const width of [360, 390, 430, 1280]) test(`canonical shell journey and con
   const capture = async (state: string) => page.screenshot({ path: `${out}/web-${state}-${width}.png`, fullPage: true });
   await capture('now');
   await page.getByRole('button', { name: 'Mesas', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Mesa 08 Ocupada/ })).toBeVisible();
   await capture('tables');
   await page.getByRole('button', { name: /Mesa 08 Ocupada/ }).click();
   await expect(page.getByRole('heading', { name: 'Mesa 08', exact: true })).toBeVisible();
