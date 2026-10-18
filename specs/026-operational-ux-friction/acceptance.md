@@ -500,3 +500,6 @@ conferidos sem confirmar mutation. Capturas determinísticas em
 apps/web/test-results/bar-availability-{categories,confirm}-*.png.
 Fixtures não comprovam API/PostgreSQL real, dispositivo físico ou produção.
 Sem alteração de API/permissões/banco, sem commit/push/merge/deploy.
+
+## Regressões CI PR237 — 2026-10-18
+Validar contratos existentes após quitação automática: estorno/mudança pós-quitação exigem REOPEN gerencial auditado; corrida de recebimentos integrais termina CLOSED sem cobrança excessiva, pedido concorrente não reabre Tab. Integração do Bar percorre categorias/Todos e confirmação explícita, com recibo/readback e replay original após resposta perdida. Não enfraquecer regras do domínio para satisfazer fixtures antigas.

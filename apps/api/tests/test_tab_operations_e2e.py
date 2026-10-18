@@ -63,6 +63,9 @@ class TabOperationHttpE2E(OperationFixture, LiveServerTestCase):
             "idempotency_key": "consumption", "lines": [{"product_id": str(self.product.id), "quantity": 1}]}, expected=201)
         self.http(self.cashier, f"/tabs/{source}/payments/", {
             "idempotency_key": "paid", "amount_cents": 1000, "method": "EXTERNAL_TERMINAL"}, expected=201)
+        assert Tab.objects.get(pk=source).state == "CLOSED"
+        self.http(self.manager, "/auth/reauthenticate/", {"pin": "0420"})
+        self.http(self.manager, f"/tabs/{source}/operations/", command(source, "REOPEN", "reopen-before-move", reason="Revisar localização após quitação"))
         moved = self.http(self.staff, f"/tabs/{source}/operations/", command(source, "MOVE_LOCATION", "move", occupancy_id=occupancies[1]["id"]))
         assert moved["source"]["occupancy_id"] == occupancies[1]["id"]
         assert moved["source"]["exposure_cents"] == 0

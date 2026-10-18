@@ -67,15 +67,19 @@ class ReleaseConcurrencyTests(TransactionTestCase):
 
     def test_distinct_manual_payments_cannot_overcollect_same_balance(self):
         results = self.race([lambda: self.pay("a"), lambda: self.pay("b")])
-        self.assertCountEqual(results, ["committed", "PAYMENT_EXCEEDS_EXPOSURE"])
+        self.assertCountEqual(results, ["committed", "TAB_CLOSED"])
         self.assertEqual(Payment.objects.count(), 1)
+        self.tab.refresh_from_db()
+        self.assertEqual(self.tab.state, "CLOSED")
         self.assertEqual(totals(self.tab)["exposure_cents"], 0)
 
-    def test_order_and_partial_shift_payment_preserve_limit_and_ledger(self):
+    def test_order_and_full_settlement_preserve_limit_and_closed_tab(self):
         results = self.race([lambda: self.order("next"), lambda: self.pay("pay")])
         self.assertEqual(results[1], "committed")
-        self.assertIn(results[0], ["committed", "SPENDING_LIMIT_EXCEEDED"])
-        expected = 1000 if results[0] == "committed" else 0
+        self.assertIn(results[0], ["TAB_NOT_OPEN", "SPENDING_LIMIT_EXCEEDED"])
+        self.tab.refresh_from_db()
+        self.assertEqual(self.tab.state, "CLOSED")
+        expected = 0
         self.assertEqual(totals(self.tab)["exposure_cents"], expected)
         self.assertEqual(Payment.objects.count(), 1)
         self.assertEqual(Charge.objects.count(), 2 if expected else 1)
