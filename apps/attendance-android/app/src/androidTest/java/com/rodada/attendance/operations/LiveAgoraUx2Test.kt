@@ -57,11 +57,12 @@ class LiveAgoraUx2Test {
             compose.waitUntil(10_000) { compose.onAllNodesWithText("Resumo do pedido.").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("1× Chopp Pilsen").assertExists()
             captureCriticalEvidence(compose, "live-shell-review", compose.onRoot())
-            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
             compose.onNodeWithText("Adicionar itens.").assertExists()
-            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+            compose.waitUntil(10_000) { compose.onAllNodesWithText("Marina", substring = false).fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Marina", substring = false).assertExists()
-            compose.onNodeWithText("‹  Voltar").performClick()
+            compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
             compose.onNodeWithText("Mesa 08").assertExists()
             compose.onNodeWithText("Voltar").performClick()
             compose.onNodeWithTag("tables-list").assertExists()
