@@ -14,7 +14,7 @@ data class StaffTaskRead(val service: ServiceRequest, val delivery: DeliveryTask
                 DeliveryTask(expectedId, service.state, service.destination, json.getString("product_name"),
                     json.getInt("quantity"), json.optString("tab_label"), service.ageSeconds ?: 0,
                     service.target, json.optString("fulfillment_station").takeIf { it.isNotBlank() && it != "null" },
-                    json.getString("order_item_id"), json.optString("order_id").takeIf { it.isNotBlank() && it != "null" }, service.claimedById)
+                    json.getString("order_item_id"), json.optString("order_id").takeIf { it.isNotBlank() && it != "null" }, service.claimedById, json.getString("item_state"))
             } else null
             return StaffTaskRead(service, delivery)
         }
