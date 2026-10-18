@@ -17,5 +17,14 @@ Tenant próprio, oito produtos, Marina/Mesa08, limite200 e pedido canônico56
 confirmado pelo serviço de domínio; rascunho14 criado pela própria UI.
 LiveAgoraUx2Test usa MainActivity, login e repositórios reais (opt-in).
 
-Gate aberto: capturas matched360/390/430, revisão independente, CI e comparação
+Revisão R3 root encontrou descarte da localização canônica em target TAB;
+corrigido bebcd273 preservando tableId/occupancyId/generation opcionais e
+validando a ocupação vigente. Label nunca seleciona destino. READY de Tab
+financeiramente encerrada continua impedindo liberação visual até resolução;
+Ver entregas prontas apenas navega à fila, sem assumir/concluir a tarefa.
+Uma entrega que chega com diálogo de liberação aberto desabilita confirmação.
+
+Primeira jornada MainActivity real passou 360/390/430; evidência final sobre
+bebcd273 passou117JVM/build/lint,12Compose e3jornadasAPI(360/390/430).
+Gate aberto: revisão final dos resultados, CI e comparação
 tríplice com o mesmo backend. Não aceita épico/AC global, piloto ou dispositivo.
