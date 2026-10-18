@@ -136,6 +136,8 @@ class PostProductionCorrectionView(APIView):
     required_capability = Capability.ORDER_CORRECT
 
     def post(self, request, item_id):
+        if "quantity" in request.data and request.data["quantity"] is None:
+            return Response({"code": "INVALID_CANCELLATION_QUANTITY", "message": "Quantidade inválida."}, status=400)
         try:
             correction = create_post_production_correction(
                 item_id=item_id,
@@ -144,8 +146,11 @@ class PostProductionCorrectionView(APIView):
                 reason_text=request.data.get("reason_text", ""),
                 idempotency_key=request.data.get("idempotency_key", ""),
                 replacement_product_id=request.data.get("replacement_product_id"),
+                quantity=request.data.get("quantity"),
                 actor=request.actor_context,
             )
+        except LedgerServiceError as error:
+            return Response({"code": error.code, "message": error.message}, status=error.status_code)
         except CorrectionServiceError as error:
             payload = {"code": error.code, "message": error.message}
             if error.details:
@@ -177,10 +182,14 @@ class PostProductionCorrectionView(APIView):
                 "original_line_total_cents": original_total_cents,
                 "replacement_line_total_cents": replacement_total_cents,
                 "financial_delta_cents": (
-                    replacement_total_cents - original_total_cents
+                    (correction.financial_adjustment.amount_cents if correction.financial_adjustment_id else 0)
+                    if correction.quantity_cancelled is not None
+                    else replacement_total_cents - original_total_cents
                     if replacement_total_cents is not None
                     else -original_total_cents
                 ),
+                "quantity_cancelled": correction.quantity_cancelled,
+                "remaining_quantity": item.remaining_quantity,
                 **totals(item.order.tab),
             },
             status=200 if getattr(correction, "_idempotency_replay", False) else 201,

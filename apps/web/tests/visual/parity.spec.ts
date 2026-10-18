@@ -7,6 +7,7 @@ import { kitchenScenario, kitchenFixture, normalizeKitchenReference, kitchenBatc
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { fixture, layoutAndA11y, stable, widths, viewports, type State } from "./fixtures";
+import { chooseBarAvailability, closeBarAvailability } from "./station-availability-actions";
 
 const artifactRoot = path.resolve(process.cwd(), "../../visual-artifacts");
 const prototypeUrl = pathToFileURL(path.resolve(process.cwd(), "../../prototype/index.html")).href;
@@ -258,19 +259,23 @@ test("management prioritizes current work and distinguishes preparation from rea
 for (const route of ["/bar", "/kitchen"]) {
   test(`${route}: saving and stale failure never invent success`, async ({ page }) => {
     await fixture(page); await page.goto(route);
-    const button = page.getByRole("button", { name: /Indisponibilizar/ }).first();
+    if (route === "/bar") await chooseBarAvailability(page, "Bebida de teste");
+    const button = route === "/bar" ? page.getByRole("dialog").locator(".buttonPrimary") : page.getByRole("button", { name: /Indisponibilizar/ }).first();
     await expect(button).toBeVisible();
     let release!: () => void;
     const held = new Promise<void>(resolve => { release = resolve; });
     await page.route("**/availability/", async request => { await held; await request.fulfill({ status: 503, json: { code: "UPSTREAM_UNAVAILABLE", message: "API indisponível." } }); });
     await button.click();
-    await expect(button).toHaveText("Salvando…"); await expect(button).toBeDisabled();
+    await expect(button).toHaveText(route === "/bar" ? "Confirmando…" : "Salvando…"); await expect(button).toBeDisabled();
     await stable(page); await page.screenshot({ path: path.join(artifactRoot, `${route.slice(1)}-saving.png`), fullPage: true });
     release();
-    await expect(page.locator(".notice[role=alert]")).toContainText("Último estado confirmado");
+    await expect(page.locator(".notice[role=alert]").filter({ hasText: "Último estado confirmado" })).toBeVisible();
     await expect(button).toBeDisabled();
+    if (route === "/bar") await closeBarAvailability(page);
     await page.getByRole("button", { name: "Tentar atualizar" }).click();
-    await expect(page.locator(".notice[role=alert]")).toHaveCount(0); await expect(button).toBeEnabled();
+    await expect(page.locator(".notice[role=alert]")).toHaveCount(0);
+    if (route === "/bar") await expect(page.getByRole("button", { name: "Indisponibilizar item", exact: true })).toBeEnabled();
+    else await expect(button).toBeEnabled();
   });
 }
 

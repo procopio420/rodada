@@ -9,11 +9,14 @@ import java.net.URL
 class OperationsHttpClient(baseUrl: String) {
     private val baseUrl = baseUrl.trimEnd('/')
 
-    fun tabs(accessToken: String, includeClosed: Boolean = false): List<TabSummary> {
+    fun tabs(accessToken: String, includeClosed: Boolean = false, currentNight: Boolean = false): List<TabSummary> {
         val tabs = mutableListOf<TabSummary>()
         var offset = 0
+        var historyDay = "current"
         while (true) {
-            val page = request("GET", "/tabs/?active=${!includeClosed}&offset=$offset", accessToken = accessToken)
+            val historyQuery = if (currentNight) "&history_day=$historyDay" else ""
+            val page = request("GET", "/tabs/?active=${!includeClosed}&offset=$offset$historyQuery", accessToken = accessToken)
+            if (currentNight) historyDay = page.getString("history_business_date")
             tabs += page.getJSONArray("results").toObjects().map(::tabSummary)
             if (page.isNull("next_offset")) return tabs.distinctBy { it.id }
             offset = page.getInt("next_offset")

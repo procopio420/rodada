@@ -1,3 +1,4 @@
+import { openOtherTabs } from "./attendance-actions";
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 for (const width of [360, 390, 430]) test(`Attendance history is separate and read-only at ${width}`, async ({ page }) => {
@@ -7,14 +8,13 @@ for (const width of [360, 390, 430]) test(`Attendance history is separate and re
  await page.route("**/api/attendance/tabs/", route => route.fulfill({ json: { results: [closed] } }));
  await page.route("**/api/attendance/tabs/closed-tab/", route => route.fulfill({ json: closed }));
  await page.goto("/attendance");
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await openOtherTabs(page);
  await expect(page.getByRole("button", { name: /Ver histórico de comandas/ })).toHaveCount(0);
  await expect(page.getByRole("button", { name: /Comanda encerrada ·/ })).toHaveCount(0);
  const trigger = page.getByRole("button", { name: "Histórico", exact: true });
- await expect(trigger.locator("xpath=ancestor::section[1]").getByRole("heading", { name: "Abrir comanda", exact: true })).toBeVisible();
+ await expect(page.getByRole("heading", { name: "Mesas e comandas", exact: true })).toBeVisible();
  await expect(trigger).toHaveText("");
- const heading = page.locator(".attendanceOpenHeading");
- await expect(heading.getByRole("heading", { name: "Abrir comanda" })).toBeVisible();
+
  const target = await trigger.boundingBox();
  expect(target!.width).toBeGreaterThanOrEqual(44);
  expect(target!.height).toBeGreaterThanOrEqual(44);

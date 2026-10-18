@@ -472,6 +472,13 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 
 .removalDialog { width: calc(100% - var(--space-6)); max-width: 520px; max-height: calc(100dvh - var(--space-6)); overflow: auto; margin: auto; padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface-1); color: var(--color-text); }
 .removalDialog::backdrop { background: color-mix(in srgb, var(--color-bg) 80%, transparent); }
+.productionShell .attendanceCategoryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.productionShell .attendanceCategoryGrid > button { display: flex; flex-direction: column; align-items: flex-start; min-height: var(--touch-primary); padding: var(--space-3); overflow-wrap: anywhere; }
+.productionShell .attendanceCategoryGrid small { color: var(--color-text-muted); }
+.productionShell .attendanceCategoryDialog[open] { display: flex; flex-direction: column; gap: var(--space-2); }
+.productionShell .attendanceCategoryDialog > .posProducts { min-height: 0; overflow-y: auto; align-content: start; overscroll-behavior: contain; }
+.productionShell .attendanceCategoryDialog .posProduct { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
+.productionShell .attendanceCategoryDialog .productIcon { width: var(--touch-primary); height: var(--touch-primary); }
 
 .attendanceTabOption { width: 100%; margin-bottom: var(--space-2); text-align: left; }
 .attendanceTabOptionActive { border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-2)); }
@@ -531,13 +538,18 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .repeatOrderList { display: grid; gap: var(--space-2); }
 .repeatOrderLine { padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
 .repeatOrderChoice { display: flex; gap: var(--space-3); align-items: center; min-height: var(--touch-min); cursor: pointer; }
-.repeatOrderChoice > input { width: 22px; height: 22px; flex-shrink: 0; accent-color: var(--color-accent); }
+.repeatOrderChoice > input { width: var(--touch-min); height: var(--touch-min); flex-shrink: 0; accent-color: var(--color-accent); }
 .repeatOrderChoice > span { display: grid; gap: var(--space-1); min-width: 0; }
 .repeatOrderChoice .muted { font-variant-numeric: tabular-nums; }
 .repeatOrderQuantity { display: flex; align-items: end; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
 .repeatOrderQuantity > button { min-width: var(--touch-min); min-height: var(--touch-min); font-size: var(--text-lg); padding: var(--space-2); }
-.repeatOrderQuantity .field { width: 86px; margin: 0; }
+.repeatOrderQuantity .field { width: 86px; min-width: var(--touch-min); flex: 0 0 86px; margin: 0; }
 .repeatOrderQuantity .field label { font-size: var(--text-sm); }
-.repeatOrderQuantity input { text-align: center; font-variant-numeric: tabular-nums; }
+.repeatOrderQuantity input { min-width: var(--touch-min); min-height: var(--touch-min); text-align: center; font-variant-numeric: tabular-nums; }
 .repeatOrderTotal { font-weight: 800; font-variant-numeric: tabular-nums; }
 @media (max-width: 390px) { .repeatOrderQuantity { justify-content: flex-start; } }
+
+.actions > .managementHistoryTrigger { flex: 0 0 var(--touch-min); width: var(--touch-min); padding: var(--space-2); display: grid; place-items: center; }
+
+.printingRouteChoice { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-min); }
+.printingRouteChoice > input { min-width: var(--touch-min); min-height: var(--touch-min); flex-shrink: 0; accent-color: var(--color-accent); }

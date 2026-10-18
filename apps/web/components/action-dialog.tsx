@@ -15,7 +15,7 @@ export function ActionDialog({ title, children, locked = false, onClose, closeBu
   element?.showModal();
   return () => { element?.close(); requestAnimationFrame(() => previous?.focus()); };
  }, [open, returnFocus]);
- return <dialog ref={ref} className={`removalDialog ${dialogClassName}`} aria-labelledby={titleId} onPointerDown={event => { backdropPress.current = event.target === event.currentTarget && isOutside(event.currentTarget, event.clientX, event.clientY); }} onClick={event => { const outside = backdropPress.current && event.target === event.currentTarget && isOutside(event.currentTarget, event.clientX, event.clientY); backdropPress.current = false; if (dismissOnBackdrop && !locked && outside) onClose(); }} onCancel={event => { event.preventDefault(); if (!locked) onClose(); }}>
+ return <dialog ref={ref} className={`removalDialog ${dialogClassName}`} aria-labelledby={titleId} onPointerDown={event => { backdropPress.current = event.target === event.currentTarget && isOutside(event.currentTarget, event.clientX, event.clientY); }} onClick={event => { const outside = backdropPress.current && event.target === event.currentTarget && isOutside(event.currentTarget, event.clientX, event.clientY); backdropPress.current = false; if (dismissOnBackdrop && !locked && outside) onClose(); }} onCancel={event => { event.preventDefault(); event.stopPropagation(); if (!locked) onClose(); }}>
   <h2 id={titleId}>{title}</h2>{children}
   <button className={closeButtonClassName} disabled={locked} onClick={onClose}>Voltar</button>
  </dialog>;

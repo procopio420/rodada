@@ -53,3 +53,23 @@ após reload, flag contextual desligada, ausência de capability e produto esgot
 3. Adição local de múltiplas unidades com limite e revalidação; API inalterada.
 4. Testar cancelamento, quantidade3, personalização, indisponibilidade, A/B/A,
    Back/foco e larguras360/390/430 com fonte1/2. Instalar debug para teste local.
+
+
+## Categoria Todos — Android, 2026-10-17
+Adicionar agrupamento virtual antes das categorias reais, reutilizar busca,
+popup e callbacks; validar agregação/busca em Compose e instalar debug local.
+
+## Ajuste cromático Android
+Conferir Web/Android reais, reutilizar receitas de mistura sRGB no tema/controles,
+aplicar aos estados existentes de mesas/comandas/catalogo, validar build/lint e
+capturas com fixtures existentes. Preservar todas as regras e os callbacks.
+## Conta Android — 2026-10-17
+1. Capturar fixture real antes; reutilizar tokens e separar apresentação da conta.
+2. Compactar resumo, disclosure de ações e linhas históricas sem mudar contratos.
+3. Validar capturas, guards/callbacks, fonte ampliada, build/lint e revisão.
+
+Histórico da noite Android: extender leitura GET tabs com history_day=current/data e metadata history_business_date; fixar data entre páginas. Separar historyDetail de selectedTab, geração de leitura para respostas fora de ordem. Diálogo com componentes/tokens existentes e nenhuma mutation. Reutilizar endpoints de detalhe autenticados.
+
+
+## Manutenção Web PR237
+Reutilizar catálogo por categorias e ActionDialog; restaurar somente contratos perdidos na migração (Todos, Escape/foco, retorno do histórico). Migrar testes de navegação para as superfícies reais, preservando cenários de pendência e comandos idempotentes. Alvos de toque usam touch-min. Validar build, lint proporcional, regressões de catálogo/draft/histórico/removals, fluxos de mesa e suíte visual global. Não alterar ledger/API, CI ou tolerâncias/baselines.

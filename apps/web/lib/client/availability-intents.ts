@@ -100,6 +100,7 @@ export function useAvailabilityIntents(station: "BAR" | "KITCHEN", onReadback: (
       await onReadback(); assertStorage();
       const bag = { ...intents.current }; delete bag[id]; save(bag);
       setErrors(previous => { const next = { ...previous }; delete next[id]; return next; }); setResult(response.body);
+      return response.body;
     } catch {
       // Storage/session failures block every new command; a retry never adopts a new actor.
       try {

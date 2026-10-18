@@ -1,5 +1,16 @@
 # Critérios e evidência
 
+## Conta Android — limpeza visual 2026-10-17
+- Saldo canônico destacado, detalhes completos, ações secundárias em disclosure.
+- Alertas visíveis, callbacks/guards originais e histórico/preços preservados.
+- Pagar/Fechar, ajustes, limite, rodada, correção e estorno continuam acessíveis.
+- Conferir fixture antes/depois, 360/390/430dp/fonte200%, build/lint e regressões.
+
+Validação local e limites em [account-evidence.md](account-evidence.md): build,
+97 unitários, lint, 16 casos Compose após repetição de uma captura instável e
+matriz de quatro cenários PASS. Revisão independente sem achados. TalkBack,
+aparelho físico e aceite de produção não verificados.
+
 ## Aceite Android nativo (port posterior)
 - [x] Entrada unificada, busca/filtros e Outras comandas; permissões preservadas.
 - [x] Cardápio/Pedido atual/Conta separados; saldo exclui draft e histórico usa API.
@@ -249,3 +260,34 @@ baselines ou timeout, sem reset da demonstração.
 Evidência e limites em [category-evidence.md](category-evidence.md). Aceite local
 do fluxo; sem homologação PostgreSQL integrada/produção e sem PASS da suíte
 visual legada completa.
+
+
+## Cores Android — aceite do recorte
+Comparar controles neutros, mesa ocupada, comanda e atalho selecionado, produto no
+rascunho e busca com foco com o Web. Fundo e borda usam as receitas documentadas;
+estados de mesa conservam faixa/texto semânticos e disabled permanece legível.
+Sem alegar igualdade de layout ou disponibilidade da conexão a partir das cores.
+Evidência local e limites em [colors-evidence.md](colors-evidence.md).
+
+## Categoria Todos — Android, 2026-10-17
+
+- Todos aparece primeiro com contagem dos produtos correspondentes à busca.
+- Popup reúne produtos de categorias distintas e preserva categorias individuais.
+- Busca restringe Todos; vazio mantém o feedback existente; indisponibilidade e
+  seleção de quantidade continuam respeitando os bloqueios atuais.
+
+Evidência local 2026-10-17: base fb3ea55d, branch codex/android-attendance-colors,
+alterações locais preservadas. assembleDebug/assembleDebugAndroidTest, 97 testes
+unitários e lintDebug PASS. CategoryCatalogTest: 3 testes Compose PASS no emulador,
+incluindo agregação de categorias/busca, quantidade/personalização e indisponível.
+APK instalado e MainActivity reaberta. Web e dispositivo físico não testados;
+sem publicação Git, merge ou deploy. Revisão do diff pelo autor, escopo R2.
+
+Histórico da noite Android: ícone em Mesas e comandas abre diálogo; seleção abre detalhe somente leitura com pedidos/totais/pagamentos; voltar preserva lista e contexto. Dia operacional do Venue, timezone/cutoff e tenant corretos; paginação201; resposta antiga ignorada após voltar/reabrir/retry. Validar loading/vazio/erro, fonte200% e alvos48dp. Gerência Web fora deste slice.
+
+Evidência local do diálogo: [histórico da noite](night-history-evidence.md).
+
+## Manutenção das regressões Web — PR237 (2026-10-18)
+Os testes legados devem percorrer Mesas e comandas/Outras comandas → Tab → Cardápio/Pedido atual/Conta, respeitando categorias e popup de quantidade. Preservar cobertura de busca/global/Todos/inativo/indisponível, quantidade/draft e resumo financeiro separado; não restaurar navegação monolítica nem remover cenários de erro/recovery para obter CI verde. Sem alteração da intenção do produto.
+
+Evidência: visual global595 (586PASS/9FAIL), seguido de reexecuções corrigidas1/16/28PASS que cobrem todas as nove falhas. Build/typecheck/lint focado PASS; revisão dos deltas sem achados reproduzíveis. Não equivale a nova execução global limpa nem aprovação GitHub. Ver docs/development/pr237-ci-followup-2026-10-18.md.

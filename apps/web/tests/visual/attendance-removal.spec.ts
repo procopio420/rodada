@@ -1,3 +1,4 @@
+import { openOtherTabs } from "./attendance-actions";
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance removal handles ${outcome}`, async ({ page }) => {
@@ -18,8 +19,9 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
   return route.fulfill({ json: { status: "APPLIED", financial_disposition: "REVERSED", order_item_state: "CANCELLED" } });
  });
  await page.goto("/attendance");
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await openOtherTabs(page);
  await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
  const bill = page.getByRole("region", { name: "Valores da comanda" });
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 7,50")).toBeVisible();
  const removalButton = page.getByRole("button", { name: "Remover 1× Item confirmado", exact: true });
@@ -41,7 +43,7 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
  await form.getByRole("button", { name: "Confirmar remoção" }).click();
  if (outcome === "lost") {
   await expect(form.getByRole("button", { name: "Verificar mesma remoção" })).toBeEnabled();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true, includeHidden: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true, includeHidden: true })).toBeDisabled();
   await expect(page.getByLabel("Motivo da remoção")).toBeDisabled();
   await form.getByRole("button", { name: "Verificar mesma remoção" }).click();
   await expect(form).toHaveCount(0);
@@ -78,10 +80,11 @@ for (const width of [360, 390, 430]) test(`Attendance removes selected units and
   return route.fulfill({ json: { status: "APPLIED", order_item_state: item.state, quantity_cancelled: body.quantity, remaining_quantity: remaining } });
  });
  await page.goto("/attendance");
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await openOtherTabs(page);
  await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
  await page.getByRole("button", { name: "Remover 3× Item confirmado", exact: true }).click();
- let dialog = page.getByRole("dialog");
+ let dialog = page.getByRole("dialog", { name: /^Remover / });
  const count = dialog.getByRole("group", { name: "Quantidade a remover" }).locator("output");
  await expect(count).toHaveText("1");
  await expect(dialog.getByRole("button", { name: "Diminuir quantidade a remover" })).toBeDisabled();
@@ -100,14 +103,14 @@ for (const width of [360, 390, 430]) test(`Attendance removes selected units and
   await dialog.getByRole("button", { name: "Verificar mesma remoção" }).click();
   expect(requests[0]).toBe(requests[1]);
  }
- await expect(page.getByRole("dialog")).toHaveCount(0);
+ await expect(page.getByRole("dialog", { name: /^Remover / })).toHaveCount(0);
  await expect(page.getByText("2× Item confirmado", { exact: true })).toBeVisible();
  expect(remaining).toBe(2);
  await page.getByRole("button", { name: "Remover 2× Item confirmado", exact: true }).click();
- dialog = page.getByRole("dialog");
+ dialog = page.getByRole("dialog", { name: /^Remover / });
  await dialog.getByRole("button", { name: "Aumentar quantidade a remover" }).click();
  await dialog.getByRole("button", { name: "Confirmar remoção" }).click();
- await expect(page.getByRole("dialog")).toHaveCount(0);
+ await expect(page.getByRole("dialog", { name: /^Remover / })).toHaveCount(0);
  await expect(page.getByText("Item confirmado", { exact: false })).toHaveCount(0);
  expect(remaining).toBe(0);
  const order = await page.locator(".attendanceSelectedTab").evaluate(element => {
@@ -124,8 +127,9 @@ for (const width of [360, 390, 430]) test(`Wrong-entry removal is absent from bi
  await page.route("**/api/attendance/tabs/", route => route.fulfill({ json: { results: [tab] } }));
  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: tab }));
  await page.goto("/attendance");
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await openOtherTabs(page);
  await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
  const bill = page.getByRole("region", { name: "Valores da comanda" });
  await bill.getByText("Mais detalhes", { exact: true }).click();
  await expect(bill.getByText("Correções", { exact: true })).toHaveCount(0);
@@ -133,8 +137,9 @@ for (const width of [360, 390, 430]) test(`Wrong-entry removal is absent from bi
  await expect(bill.getByText("R$ 24,00", { exact: true }).first()).toBeVisible();
  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: { ...tab, corrections_cents: -1400, payable_cents: 2200, exposure_cents: 2200 } }));
  await page.reload();
- await page.getByRole("button", { name: "Contas", exact: true }).click();
+ await openOtherTabs(page);
  await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
+ await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
  await bill.getByText("Mais detalhes", { exact: true }).click();
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Correções", { exact: true }) }).getByText("-R$ 2,00", { exact: true })).toBeVisible();
  await layoutAndA11y(page);

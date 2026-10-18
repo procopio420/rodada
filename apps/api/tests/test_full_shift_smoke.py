@@ -218,6 +218,14 @@ class FullShiftSmokeTests(TestCase):
             f"/tabs/{joao['id']}/payments/",
             {"amount_cents": 2400, "method": "CARD", "idempotency_key": "joao-card"},
         )
+        # Full settlement completes the Tab; a post-payment exception reopens it explicitly.
+        completed = self.staff.get(f"/tabs/{joao['id']}/").json()
+        self.assertEqual(completed["state"], "CLOSED")
+        self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
+        self.post(self.staff, f"/tabs/{joao['id']}/operations/", {
+            "kind": "REOPEN", "expected_version": completed["version"],
+            "idempotency_key": "post-settlement-review", "reason": "Revisar correção após quitação",
+        })
         # A later paid mistake does not rewrite either the card payment or the
         # item. It first becomes an explicit refund-required correction, then
         # a recently reauthenticated manager settles its refund and reversal.

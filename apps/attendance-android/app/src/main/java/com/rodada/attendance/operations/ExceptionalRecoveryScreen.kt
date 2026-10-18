@@ -26,6 +26,7 @@ internal fun ExceptionalRecoveryScreen(context: ExceptionalRecoveryContext, busy
             when (original) {
                 is RecoveryIntent.Correction -> {
                     Text("Ação guardada: ${when (original.action) { CorrectionRecoveryAction.CANCEL -> "Cancelar item"; CorrectionRecoveryAction.REMAKE -> "Refazer item"; CorrectionRecoveryAction.REPLACEMENT -> "Substituir item" }}")
+                    original.quantity?.let { Text("Quantidade guardada: $it") }
                     original.reasonText?.takeIf { it.isNotBlank() }?.let { Text(it) }
                 }
                 is RecoveryIntent.Refund -> {

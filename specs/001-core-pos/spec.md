@@ -365,3 +365,7 @@ Não alterar pedidos confirmados, snapshots, ledger, Payments ou autorização.
 Abertura pela API staff exige nome/apelido nao vazio de ate120 caracteres. Isso
 nao exige Customer nem identificacao civil e nao muda abertura interna/guest.
 Comandas existentes sem nome e recibos antigos permanecem preservados.
+
+## Quitação conclui comanda — 2026-10-17
+
+Pagamento confirmado que reduz exposição a zero conclui a Tab na mesma transação, com closed_at e auditoria vinculada ao Payment. Pagamento parcial ou pendente não conclui. Nenhuma TableOccupancy é liberada e produção confirmada continua. Retry recupera o Payment original sem novo fechamento; não concluir retroativamente Tabs antigas em leituras. Clientes exibem CLOSED apenas no histórico. Não alterar regras de estorno, transferências ou reabertura explícita.

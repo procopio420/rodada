@@ -217,3 +217,63 @@ rolagem da lista ativa, grade2colunas no telefone/1com fonte ampliada, ações44
 e IME sem esconder confirmação. POS/Caixa/Guest fora desta mudança. Sem API, banco,
 auth, ledger, providers ou alteração de idempotência/persistência. RiscoR3 no draft:
 revisão independente antes de recomendar integração; sem push/merge/deploy neste pedido.
+
+
+## Cores do Atendimento Android — 2026-10-16
+A referência é o Atendimento Web executável, preservando a paleta canônica.
+Controles secundários usam Surface2 e BorderStrong; não usar fundo transparente
+ou o contorno violeta padrão do Material. Comandas da mesa usam âmbar12% sobre
+Surface2 e borda Amber. Atalho ativo da comanda usa a mesma receita; produto no
+rascunho usa âmbar8% sobre Surface2. Ações contextuais de mesa usam âmbar8% sobre
+Surface1 e borda40% sobre Border. Mesa ocupada mantém faixa/ícone Info e borda
+externa âmbar45% sobre Border. Demais status preservam semântica/texto existentes.
+Campo de busca usa Surface2, BorderStrong e foco Amber. Primário continua Paper/Ink;
+âmbar não significa pagamento ou sucesso. Navegação principal pode marcar destino
+ativo com Paper/Ink, como o Web, sem alterar destinos/callbacks. Painéis e modais
+reutilizam Surface1/Border; não mudar a jornada ou persistência para copiar layout.
+Aceite visual por capturas dos mesmos estados antes/depois, em360/390/430dp e
+fonte ampliada; acessibilidade continua exigindo texto/seleção e estados disabled.
+Sem API/banco/financeiro/auth/recovery/Web ou dependências novas. Sem publicação
+Git/deploy neste pedido. Identificar separadamente diferença de estado de conexão.
+
+## Categoria Todos no Android — 2026-10-17
+
+O Cardápio oferece Todos como primeiro card, com a contagem de produtos da busca
+atual. Abre o mesmo popup de produtos, reunindo todas as categorias sem duplicar
+itens. Busca vazia reúne o catálogo completo; sem resultados ou catálogo vazio,
+mantém o estado vazio existente. Categorias reais, inclusive uma chamada Todos,
+continuam independentes. Seleção, disponibilidade, quantidade e draft não mudam.
+Sem alteração de Web, API, classificação persistida ou dados financeiros.
+
+## Simplificação do popup Android — 16/10
+O popup da mesa não exibe Pessoas na ocupação. Preservar comandas, vínculo e liberação; sem alteração nos dados de ocupação ou API.
+
+## Conta Android: limpeza visual — 2026-10-17
+
+Na aba Conta, destacar saldo canônico em Paper e fonte numérica; painel discreto
+com borda e sem elevação. Pagar/Fechar mantêm os mesmos callbacks e condições.
+Detalhes financeiros continuam em disclosure com rótulos/valores alinhados,
+incluindo todos os componentes anteriores do saldo e limite. Ajuste, operações
+e solicitação/aprovação de limite ficam em Ações da conta, fechado inicialmente;
+avisos de limite, serviço e pendências permanecem visíveis fora desse disclosure.
+Histórico usa painéis discretos, referência da Order, nome/quantidade e subtotal
+históricos; Mais uma rodada e Corrigir ficam como ações secundárias compactas.
+Pagamentos e estornos mantêm todos os estados, valores e ações existentes.
+Não somar rascunho ao saldo nem alterar guards de conexão/busy/fechamento/estorno.
+Reutilizar tokens, tipografia e controles de Cardápio/Pedido atual, alvos48dp;
+fonte ampliada empilha valor/ações para preservar texto integral. Loading/vazio,
+offline, fechada, parcial, erro e pendências não recebem sucesso visual fictício.
+Fora de escopo: Web, API, regras/permissões, ledger, auth e recovery. Aceite:
+capturas antes/depois na mesma fixture, 360/390/430dp e fonte200%, jornada sem
+mutation, testes de callbacks/guards e revisão independente da apresentação.
+
+## Histórico da noite em diálogo — Android (2026-10-17)
+
+Garçom acessa ícone discreto com alvo48dp em Mesas e comandas. Um diálogo mostra apenas Tabs concluídas/canceladas no dia operacional atual do Venue (timezone/cutoff), independente de quem recebeu o pagamento. Cada linha abre detalhes somente leitura no mesmo diálogo: identificação/mesa histórica, totais canônicos, pedidos e pagamentos. Voltar retorna à lista; fechar retorna às mesas sem trocar contexto ou rascunho. Estados loading/vazio/erro/retry reais, scroll com fonte ampliada e sem ações financeiras. Paginação fixa a business date da primeira resposta. Tenant/autenticação existentes preservados; fora de escopo gerência Web, relatórios e alteração de permissões financeiras.
+
+## Regressões do catálogo Web — PR237
+A migração do catálogo para popups preserva Todos como primeiro agrupamento virtual: reúne produtos ativos de todas as categorias, respeita busca e disponibilidade e não duplica produtos. Categoria real chamada Todos continua distinta. Pedido/Conta são superfícies separadas, com rascunho preservado ao alternar/fechar/reabrir; não se exige presença simultânea de catálogo e financeiro na mesma tela. Restaurar o agrupamento ausente, sem mudar API/preços/drafts.
+
+Diálogos aninhados: Escape fecha somente a camada superior e devolve foco ao acionador. Histórico aberto pelo ícone da lista retorna à lista ao fechar, sem deixar workspace vazio; histórico aberto dentro de comanda retorna a ela. Preservar bloqueios de pendências.
+
+Na conferência de rodada, seleção e quantidade mantêm alvos mínimos de 44px, usando o token existente. Auditorias de controles em modal consideram a camada ativa; controles de fundo inertes são auditados quando sua própria tela estiver ativa.

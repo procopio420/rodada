@@ -147,6 +147,40 @@ class PaymentProviderServiceTests(TestCase):
         assert reconciled_attempt.status == PaymentAttemptStatus.CONFIRMED
         assert totals(self.tab)["payments_cents"] == 3000
         assert totals(self.tab)["exposure_cents"] == 0
+        self.tab.refresh_from_db()
+        assert self.tab.state == "CLOSED"
+        assert self.tab.closed_at is not None
+
+    def test_confirmed_provider_money_survives_stale_service_without_closing(self):
+        from modules.ledger.models import LedgerAdjustment, AdjustmentAllocation
+        from modules.audit.models import AuditEvent
+        charge = self.tab.charges.get()
+        assessment = LedgerAdjustment.objects.create(tab=self.tab, kind="SERVICE_CHARGE",
+            amount_cents=0, idempotency_key="service-assessment", reason_code="TEST",
+            created_by=self.staff)
+        AdjustmentAllocation.objects.create(adjustment=assessment, charge=charge,
+            amount_cents=0, basis_cents=3000)
+        provider = DeterministicPaymentProvider(start_result=ProviderResult(
+            status=PaymentStatus.PENDING, provider_payment_id="stale-service-payment"))
+        payment, _, _ = self.initiate(provider)
+        provider.lookup_results[str(payment.id)] = ProviderResult(
+            status=PaymentStatus.CONFIRMED, provider_payment_id="stale-service-payment")
+        # New confirmed consumption plus a compensating reversal keeps the total
+        # while changing the per-charge service basis after provider initiation.
+        other = OrderItem.objects.create(order=charge.order_item.order, product=charge.order_item.product,
+            product_name_snapshot="Outro item", unit_price_cents=100, quantity=1)
+        Charge.objects.create(tab=self.tab, order_item=other, amount_cents=100)
+        adjustment = LedgerAdjustment.objects.create(tab=self.tab, kind="COURTESY",
+            amount_cents=-100, idempotency_key="basis-change", reason_code="TEST", created_by=self.staff)
+        AdjustmentAllocation.objects.create(adjustment=adjustment, charge=charge,
+            amount_cents=-100, basis_cents=3000)
+        assert totals(self.tab)["service_assessment_stale"]
+        confirmed, _ = reconcile_provider_payment(payment_id=payment.id, provider=provider, actor=self.actor)
+        self.tab.refresh_from_db()
+        assert confirmed.status == PaymentStatus.CONFIRMED
+        assert totals(self.tab)["exposure_cents"] == 0
+        assert self.tab.state == "OPEN"
+        assert not AuditEvent.objects.filter(event_type="tab.closed", entity_id=str(self.tab.id)).exists()
 
     def test_duplicate_and_reordered_provider_events_are_safe(self):
         provider = DeterministicPaymentProvider(
@@ -174,6 +208,12 @@ class PaymentProviderServiceTests(TestCase):
         assert duplicate
         assert duplicate_event.id == event.id
         assert ProviderEvent.objects.count() == 1
+        from modules.audit.models import AuditEvent
+        self.tab.refresh_from_db()
+        assert self.tab.state == "CLOSED"
+        closed = AuditEvent.objects.get(event_type="tab.closed", entity_id=str(self.tab.id))
+        assert closed.metadata["payment_id"] == str(payment.id)
+        assert closed.actor_staff_id is None
 
         failed_payload = self.webhook_payload(
             payment, event_id="provider-event-late-failure", status=PaymentStatus.FAILED

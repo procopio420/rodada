@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y, products, queue } from "./fixtures";
+import { chooseBarAvailability, closeBarAvailability } from "./station-availability-actions";
 
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) {
   test(`Production peak region navigation ${station} ${width}`, async ({ page }) => {
@@ -31,9 +32,17 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) {
     expect(mutations).toHaveLength(0);
     await layoutAndA11y(page);
     await page.screenshot({ path: `test-results/production-regions-${station}-${width}.png` });
-    await availability.getByRole("button", { name: "Indisponibilizar Fritas", exact: true }).click();
-    await expect(page.getByRole("alert").filter({ hasText: "CAPABILITY_REQUIRED" })).toContainText("Ação não autorizada");
-    await expect(availability.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
+    if (station === "BAR") {
+      await chooseBarAvailability(page, "Fritas");
+      await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+      await expect(page.getByRole("dialog").getByRole("alert")).toContainText("Ação não autorizada");
+      await expect(page.getByRole("button", { name: "Sim, indisponibilizar", exact: true })).toBeDisabled();
+      await closeBarAvailability(page);
+    } else {
+      await availability.getByRole("button", { name: "Indisponibilizar Fritas", exact: true }).click();
+      await expect(page.getByRole("alert").filter({ hasText: "CAPABILITY_REQUIRED" })).toContainText("Ação não autorizada");
+      await expect(availability.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
+    }
     await nav.getByRole("button", { name: "Fila 30", exact: true }).click();
     await expect(page.getByRole("region", { name: "Fila de pedidos" })).toBeFocused();
     await expect(page.getByRole("button", { name: /^Iniciar preparo:/ }).first()).toBeDisabled();

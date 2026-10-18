@@ -1,5 +1,6 @@
 package com.rodada.attendance.operations
 
+import com.rodada.attendance.ui.rodadaTextFieldColors
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -80,7 +81,7 @@ fun ProductCustomizationSheet(product: Product, initial: Customization = product
                 }
                 val unavailableIds = selection.optionIds.filter { id -> product.modifierGroups.flatMap { it.options }.none { it.id == id && it.available } }
                 if (unavailableIds.isNotEmpty()) OutlinedButton(onClick = { selection = selection.copy(optionIds = selection.optionIds - unavailableIds.toSet()) }, modifier = Modifier.fillMaxWidth()) { Text("Remover escolhas indisponíveis") }
-                OutlinedTextField(value = selection.note, onValueChange = { selection = selection.copy(note = it.take(500)) }, label = { Text("Pedido especial (opcional)") }, enabled = !locked, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = selection.note, onValueChange = { selection = selection.copy(note = it.take(500)) }, label = { Text("Pedido especial (opcional)") }, enabled = !locked, modifier = Modifier.fillMaxWidth())
                 }
                 if (!quantityValid) Text("Máximo de 99 unidades por configuração. Revise a quantidade.", color = MaterialTheme.colorScheme.error)
                 if (!canSubmit) Text("Produto indisponível ou catálogo desatualizado.", color = MaterialTheme.colorScheme.error)

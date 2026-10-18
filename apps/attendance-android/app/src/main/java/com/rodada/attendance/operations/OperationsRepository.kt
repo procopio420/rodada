@@ -33,7 +33,7 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     // GET /tabs/ is readable by authenticated venue staff; tab.reopen authorizes mutation, not history reads.
     suspend fun tabHistory(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
-        client.tabs(it, includeClosed = true).filter { tab -> tab.state in setOf("CLOSED", "CANCELLED") }
+        client.tabs(it, includeClosed = true, currentNight = true).filter { tab -> tab.state in setOf("CLOSED", "CANCELLED") }
     }
 
     suspend fun openTab(session: StoredSession, label: String, customerId: String? = null) =

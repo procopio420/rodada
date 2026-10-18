@@ -39,3 +39,35 @@
 - [x] Validar quantidade, cancelamento, limites, atualização e isolamento.
 - [x] Conferir UI real e acessibilidade; instalar Android e atualizar Web local.
 - [x] Revisão independente e documentação de evidência/limites.
+
+
+## Categoria Todos — Android, 2026-10-17
+- [x] Definir agrupamento virtual com busca e sem alterar cadastro.
+- [x] Implementar card e popup reutilizando os controles existentes.
+- [x] Validar build/lint, agregação/busca em Compose e instalar no emulador.
+
+## Cores Android — 16/10
+- [x] Comparar pixels reais e registrar referência antes do código.
+- [x] Reutilizar tokens/controles para fundo, borda, seleção e foco.
+- [x] Build/lint e regressões Compose existentes; capturas antes/depois.
+- [x] Instalar APK atualizado e registrar evidências/limites.
+
+## Conta Android — 2026-10-17
+- [x] Definir apresentação e aceite sem mudar regras financeiras.
+- [x] Comparar fixture antes/depois e implementar apresentação compacta.
+- [x] Validar regressões/visual/fonte ampliada, revisão e instalar APK local.
+
+## Histórico da noite Android — 2026-10-17
+- [x] Definir contrato de período, estados, leitura e escopo Android.
+- [x] Implementar recorte do dia operacional e detalhe separado.
+- [x] Validar API3, tenant, cutoff e paginação; revisão independente com proteção de geração.
+- [x] Compose2 + quatro cenários de tela/fonte, instalação e evidência em night-history-evidence.md.
+
+
+## Regressões Web — PR237 (2026-10-18)
+- [x] Restaurar Todos virtual e preservar categoria real homônima, busca e disponibilidade.
+- [x] Corrigir Escape aninhado e retorno/foco do histórico externo.
+- [x] Ajustar alvos de toque na conferência de rodada com tokens existentes.
+- [x] Migrar regressões para categorias/popups sem perder payload/replay e isolamento de rascunho.
+- [x] Executar suíte visual global e reexecutar falhas corrigidas, registrando limites e revisão do delta.
+- [ ] Obter checks do SHA final e aprovação qualificada GitHub antes da integração.

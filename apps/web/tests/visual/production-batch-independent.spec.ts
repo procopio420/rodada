@@ -1,6 +1,7 @@
 import type { Intent, BatchLine } from "@/lib/client/production-batch-intent";
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
+import { expectBarAvailabilityBlocked } from "./station-availability-actions";
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Independent item beside batch ${station} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await fixture(page, "normal", true);
   const snapshot = { product_id: "fries", product_name: "Fritas", fulfillment_station: station, variant: null, modifiers: [], special_instructions: "" };
@@ -25,7 +26,8 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
   await expect(page.getByRole("button", { name: "Verificar mesmo lote", exact: true })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Iniciar preparo: 1 Fritas, A", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Iniciar preparo: 1 Fritas, legacy", exact: true })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
+  if (station === "BAR") await expectBarAvailabilityBlocked(page, "Fritas");
+  else await expect(page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Iniciar preparo: 1 Fritas, C", exact: true }).dblclick();
   await expect(page.getByRole("button", { name: "Verificar mesmo item: C", exact: true })).toBeEnabled();
   expect(attempts).toHaveLength(2); await page.reload(); await layoutAndA11y(page);

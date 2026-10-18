@@ -8,7 +8,8 @@ from django.db import transaction
 from django.utils import timezone
 
 from modules.access.context import ActorContext
-from modules.access.models import StaffMember, StaffRole, VenueStaffMembership
+from modules.access.models import StaffMember, StaffRole, StaffSession, VenueStaffMembership
+from modules.access.services import revoke_session
 from modules.cash.services import (
     close_cash_shift,
     create_cash_point,
@@ -30,6 +31,7 @@ from modules.ledger.models import PaymentMethod
 from modules.ledger.services import close_tab, collect_payment, reverse_open_responsibility
 from modules.ordering.models import OrderItemState, OrderSource
 from modules.ordering.services import confirm_order, open_tab, transition_order_item
+from modules.tab_operations.services import execute as execute_tab_operation
 from modules.venue.models import Venue
 
 
@@ -56,7 +58,7 @@ class Command(BaseCommand):
         if not manager.pin_hash:
             manager.set_pin("0420")
             manager.save(update_fields=["pin_hash"])
-        VenueStaffMembership.objects.get_or_create(
+        membership, _ = VenueStaffMembership.objects.get_or_create(
             venue=venue,
             staff_member=manager,
             defaults={"role": StaffRole.MANAGER},
@@ -154,6 +156,25 @@ class Command(BaseCommand):
             idempotency_key="restore-card-payment",
             actor=actor,
         )
+        # Full settlement closes the Tab; post-close exceptions require an audited reopen.
+        tab.refresh_from_db()
+        rehearsal_session = StaffSession.objects.create(
+            venue=venue,
+            staff_member=manager,
+            membership=membership,
+            expires_at=timezone.now() + timedelta(minutes=5),
+        )
+        execute_tab_operation(
+            tab_id=tab.id,
+            data={
+                "kind": "REOPEN",
+                "expected_version": tab.version,
+                "idempotency_key": "restore-paid-correction-reopen",
+                "reason": "Backup rehearsal post-payment correction",
+            },
+            actor=ActorContext.from_session(rehearsal_session),
+        )
+        revoke_session(rehearsal_session, "Restore rehearsal operation completed")
         paid_correction = cancel_before_fulfillment(
             item_id=items[kitchen.id].id,
             kind="CUSTOMER_CHANGED_MIND",

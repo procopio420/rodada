@@ -51,3 +51,8 @@
 - [x] tests fechamento
 - [ ] tests cash summary
 - [x] seed demo
+
+- [x] Especificar fechamento na quitação confirmada.
+- [x] Implementar helper transacional compartilhado e auditoria.
+- [x] Revisão independente e correção do bloqueio de taxa desatualizada.
+- [x] Registrar testes PostgreSQL, revisão independente e reload local em payment-completion-evidence.md.

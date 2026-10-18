@@ -1,3 +1,4 @@
+import { chooseBarAvailability, closeBarAvailability } from "../visual/station-availability-actions";
 import { expect, test } from "./fixtures";
 
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Real production region access ${station} ${width}`, async ({ page }) => {
@@ -22,12 +23,26 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
   await nav.getByRole("button", { name: /^Disponibilidade/ }).click();
   const availability = page.getByRole("region", { name: "Disponibilidade agora" }); await expect(availability).toBeFocused();
   const untouched = await api(`tabs/${tab.id}/`); expect(untouched).toEqual(before);
-  await availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true }).click();
-  await expect(availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
+  if (station === "BAR") {
+    await chooseBarAvailability(page, product.name);
+    await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+    await chooseBarAvailability(page, product.name, true);
+    await expect(page.getByRole("button", { name: "Sim, reativar", exact: true })).toBeEnabled();
+    await closeBarAvailability(page);
+  } else await availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true }).click();
+  if (station !== "BAR") await expect(availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
   expect((await api("catalog/products/")).results.find((p: { id: string }) => p.id === product.id).availability).toBe("UNAVAILABLE");
   expect(await api(`tabs/${tab.id}/`)).toEqual(before);
-  await availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
-  await expect(availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
+  if (station === "BAR") {
+    await chooseBarAvailability(page, product.name, true);
+    await page.getByRole("button", { name: "Sim, reativar", exact: true }).click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+  } else {
+    await availability.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
+    await expect(availability.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
+  }
+  expect((await api("catalog/products/")).results.find((p: { id: string }) => p.id === product.id).availability).toBe("AVAILABLE");
   await nav.getByRole("button", { name: /^Fila/ }).click(); await expect(page.getByRole("region", { name: "Fila de pedidos" })).toBeFocused();
   const start = page.getByRole("button", { name: `Iniciar preparo: 1 ${product.name}, ${label}`, exact: true }).first(); await start.click();
   const finish = page.getByRole("button", { name: `Pronto: 1 ${product.name}, ${label}`, exact: true }); await expect(finish).toBeEnabled(); await finish.click();

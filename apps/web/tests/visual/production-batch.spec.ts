@@ -1,6 +1,7 @@
 import type { Intent, BatchLine } from "@/lib/client/production-batch-intent";
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y, products } from "./fixtures";
+import { expectBarAvailabilityBlocked } from "./station-availability-actions";
 const key = "rodada.intent.production-batch.v1";
 async function setup(page: Page, station = "KITCHEN") {
   await fixture(page, "normal", true);
@@ -36,7 +37,8 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
   await layoutAndA11y(page); await page.screenshot({ path: `test-results/production-batch-review-${station}-${width}.png` });
   await dialog.getByRole("button", { name: "Iniciar preparo selecionado", exact: true }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo lote", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
+  if (station === "BAR") await expectBarAvailabilityBlocked(page, "Fritas");
+  else await expect(page.getByRole("button", { name: "Indisponibilizar Fritas", exact: true })).toBeDisabled();
   await page.reload(); await page.getByRole("button", { name: "Verificar mesmo lote", exact: true }).click();
   await expect(page.getByText("Lote confirmado.", { exact: true })).toBeVisible(); expect(requests[1]).toEqual(requests[0]); expect(effects).toBe(1);
   expect(await page.evaluate(key => sessionStorage.getItem(key), key)).toBeNull();

@@ -26,12 +26,22 @@ class CorrectionModelsTest {
     }
 
     @Test
-    fun `served items offer new work without cancellation and terminal items offer none`() {
-        val served = listOf(CorrectionAction.REMAKE, CorrectionAction.REPLACEMENT)
+    fun `served items allow authorized wrong entry correction and terminal items offer none`() {
+        val served = CorrectionAction.entries
         assertEquals(served, correctionActionsFor("PICKED_UP"))
         assertEquals(served, correctionActionsFor("DELIVERED"))
         assertTrue(correctionActionsFor("CANCELLED").isEmpty())
         assertTrue(correctionActionsFor("UNKNOWN").isEmpty())
+    }
+
+    @Test fun `explicit cancellation quantity uses authorized wrong entry endpoint without changing legacy`() {
+        val original = CorrectionCommand("item", "NEW", CorrectionAction.CANCEL, "WRONG_ENTRY", "Motivo", "key")
+        assertFalse(original.requiresPostProductionEndpoint())
+        assertEquals("CANCEL_ITEM", original.apiKind)
+        val selected = original.copy(quantity = 2)
+        assertTrue(selected.requiresPostProductionEndpoint())
+        assertEquals("WRONG_ITEM_ENTERED", selected.apiKind)
+        assertEquals(2, selected.quantity)
     }
 
     @Test

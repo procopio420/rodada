@@ -259,6 +259,7 @@ sealed interface RecoveryIntent {
         val reasonCode: String,
         val reasonText: String?,
         val replacementProductId: String?,
+        val quantity: Int? = null,
     ) : RecoveryIntent {
         override fun toJson() =
             baseJson("CORRECTION")
@@ -268,6 +269,7 @@ sealed interface RecoveryIntent {
                 .put("reason_code", reasonCode)
                 .apply { if (reasonText != null) put("reason_text", reasonText) }
                 .apply { if (replacementProductId != null) put("replacement_product_id", replacementProductId) }
+                .apply { if (quantity != null) put("quantity", quantity) }
     }
 
     /** A refund is recovered by checking the original payment/correction, never by creating a new key. */
@@ -392,6 +394,7 @@ sealed interface RecoveryIntent {
                     common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,
                     json.getString("order_item_id"), json.getString("item_state"), CorrectionRecoveryAction.valueOf(json.getString("action")),
                     json.getString("reason_code"), json.optString("reason_text").ifBlank { null }, json.optString("replacement_product_id").ifBlank { null },
+                    if (json.has("quantity")) json.get("quantity").let { value -> require(value is Int && value > 0); value } else null,
                 )
                 "REFUND" -> Refund(
                     common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,

@@ -497,3 +497,11 @@ estado desatualizado explícito; falha nunca significa operação sem exceções
 T12a/026: fechamento diário usa justificativas independentes por proposta e rótulos
 humanos de estado. Preserva versão/fingerprint, fatos financeiros e proibição de
 autoaprovação; projeção agregada e deep links permanecem recortes posteriores.
+
+## Histórico de comandas em diálogo — 2026-10-17
+
+Ícone discreto de histórico no cabeçalho da Gerência abre popup somente leitura, usando tokens/componentes existentes. Padrão: encerradas no dia operacional atual do Venue; gerência pode selecionar outra data e buscar comanda. API history_day e paginação200 existentes, fixando business date entre páginas. Cada linha abre detalhe no mesmo diálogo, com identificação/mesa histórica, totais canônicos, itens e pagamentos. Voltar retorna à lista e depois à gerência com foco no ícone. Loading, vazio, erro/retry, sessão negada e respostas fora de ordem devem ser explícitos; fechar invalida leituras pendentes. Nenhuma mutation, credencial no cliente, reabertura ou alteração financeira; autenticação/BFF/tenant existentes preservados. Fora de escopo exportação, relatórios novos e mudanças Android/API.
+
+### Extrato de comanda concluída — 2026-10-17
+
+No histórico, substituir resumo de cobrança por extrato: Total da conta em destaque e selo Paga somente para CLOSED/exposiçãozero/totalpositivo coberto por recebimentos confirmados líquidos dos estornos, com Payment confirmado verificável. Simulação deve ser explicitamente rotulada. Concluída sem pagamento (transferência/cortesia) não é Paga. Omitir saldozero e parcelas sem efeito; manter ajustes, transferências, recebimentos e estornos relevantes. Nenhuma mudança de ledger ou fluxo operacional de pagamento.

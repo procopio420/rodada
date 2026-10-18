@@ -22,13 +22,14 @@ class CorrectionsHttpClient(baseUrl: String) {
                 path,
                 accessToken,
                 JSONObject()
-                    .put("kind", command.action.apiKind)
+                    .put("kind", command.apiKind)
                     .put("reason_code", command.reasonCode)
                     .put("reason_text", command.reasonText)
                     .put("idempotency_key", command.idempotencyKey)
-                    .apply { command.replacementProductId?.let { put("replacement_product_id", it) } },
+                    .apply { command.replacementProductId?.let { put("replacement_product_id", it) } }
+                    .apply { command.quantity?.let { put("quantity", it) } },
             )
-        return correctionResult(response, command.action.apiKind)
+        return correctionResult(response, command.apiKind)
     }
 
     private fun correctionResult(json: JSONObject, defaultKind: String) =

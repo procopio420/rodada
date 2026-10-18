@@ -20,7 +20,11 @@ data class CorrectionCommand(
     val reasonText: String,
     val idempotencyKey: String,
     val replacementProductId: String? = null,
+    val quantity: Int? = null,
 )
+
+val CorrectionCommand.apiKind: String
+    get() = if (action == CorrectionAction.CANCEL && quantity != null) "WRONG_ITEM_ENTERED" else action.apiKind
 
 data class CorrectionResult(
     val id: String,
@@ -40,14 +44,14 @@ data class CorrectionResult(
 
 /** `cancel/` is deliberately restricted to early states by the server contract. */
 fun CorrectionCommand.requiresPostProductionEndpoint(): Boolean =
-    action != CorrectionAction.CANCEL || itemState !in setOf("NEW", "ACCEPTED")
+    action != CorrectionAction.CANCEL || quantity != null || itemState !in setOf("NEW", "ACCEPTED")
 
 /** Actions that the published correction contract can accept for this item state. */
 fun correctionActionsFor(itemState: String): List<CorrectionAction> =
     when (itemState) {
         "NEW", "ACCEPTED" -> listOf(CorrectionAction.CANCEL)
         "PREPARING", "READY" -> CorrectionAction.entries
-        "PICKED_UP", "DELIVERED" -> listOf(CorrectionAction.REMAKE, CorrectionAction.REPLACEMENT)
+        "PICKED_UP", "DELIVERED" -> CorrectionAction.entries
         else -> emptyList()
     }
 
