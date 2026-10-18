@@ -45,3 +45,20 @@ for (const ready of [true, false]) test(`table release requires resolved canonic
     expect(writes).toEqual([]);
   }
 });
+
+ test('release sends the confirmed occupancy identity without a compatibility fallback', async ({page}) => {
+  await fixture(page,'normal',true);
+  await page.route('**/api/auth/me',r=>r.fulfill({json:{staff:{id:'operator-test'},venue:{id:'venue-test'},session:{id:'session-test'},capabilities:['table.manage','tab.open']}}));
+  const occupancy={id:'18a56bf8-3043-4ed5-a5de-33bab1407df6',generation:7,tabs:[]};
+  const table={id:'table-fenced',label:'08',status:'OCCUPIED',active_occupancy:occupancy};
+  await page.route('**/api/attendance/hospitality/tables/',r=>r.fulfill({json:{table_service_enabled:true,results:[table]}}));
+  await page.route('**/api/attendance/dispatch/delivery/',r=>r.fulfill({json:{results:[]}}));
+  const bodies:unknown[]=[];
+  await page.route('**/api/attendance/hospitality/tables/table-fenced/release/',r=>{bodies.push(r.request().postDataJSON());return r.fulfill({status:409,json:{code:'STALE_OCCUPANCY',message:'A ocupação mudou. Confira a mesa.'}});});
+  await page.goto('/attendance'); await page.getByRole('button',{name:'Mesas',exact:true}).click();await page.getByRole('button',{name:/Mesa 08 Ocupada/}).click();
+  await page.getByRole('button',{name:'Grupo saiu · Liberar mesa',exact:true}).click();
+  await page.getByRole('button',{name:'Confirmar liberação',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'Liberar mesa 08?',exact:true}).getByRole('alert')).toContainText('A ocupação mudou. Confira a mesa.');
+  expect(bodies).toEqual([{expected_occupancy_id:occupancy.id,expected_generation:7}]);
+  await expect(page.getByRole('heading',{name:'Mesa 08',exact:true})).toBeVisible();
+ });
