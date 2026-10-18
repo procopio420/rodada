@@ -238,6 +238,13 @@ class ByodClosureTests(TestCase):
         assert (
             client.post("/auth/reauthenticate/", {"pin": "2468"}, format="json").status_code == 200
         )
+        # Settlement now closes the Tab; privileged refund requires explicit reopening.
+        current = client.get(f"/tabs/{self.tab.pk}/").json()
+        reopened = client.post(f"/tabs/{self.tab.pk}/operations/", {
+            "kind": "REOPEN", "expected_version": current["version"],
+            "idempotency_key": "refund-review-reopen", "reason": "Revisar devolução",
+        }, format="json")
+        assert reopened.status_code == 200, reopened.json()
         first = client.post(path, body, format="json")
         replay = client.post(path, body, format="json")
         assert first.status_code == 201 and replay.status_code == 200

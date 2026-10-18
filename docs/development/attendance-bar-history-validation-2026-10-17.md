@@ -26,3 +26,9 @@ Evidências detalhadas: specs/001-core-pos/payment-completion-evidence.md; specs
 Revisões locais independentes por etapa corrigiram achados de dispatch, erros de transferência, avaliação de serviço desatualizada, respostas fora de ordem e revogação de sessão. Essas revisões não são aprovação GitHub qualificada. Conferir os checks do SHA final e o gate R3 antes de merge; não contornar proteção ou registrar aprovação do próprio autor.
 
 Suite API completa, auditorias de linhas adicionadas e CI do PR: pendentes na preparação deste registro; resultados finais devem ser consultados no PR e nos checks vinculados ao SHA. Revisão/aceite externo de provedor, rede com perda real de resposta, TalkBack e aparelho físico continuam não verificados. Sem alegação de produção ou autorização implícita de deploy/Play/migration. Merge na main foi solicitado pelo usuário, condicionado aos gates reais.
+
+## Preparação do PR #237
+
+Candidato inicial3a15d3adc6d568a13f180f2ce68bc1fab63477c5 revisado em contexto independente, sem novos achados. Gates locais de linhas adicionadas: Ruff0; Web589 linhas/0; auditoria ESLint23 diagnósticos legados/0 novos ou fatais; KB49 documentos/297 links PASS. O check Android do GitHub nesse SHA passou.
+
+A suíte API completa revelou o teste legado test_refund_direct_denial_reauthentication_and_exact_retry: quitação agora fecha a Tab, portanto o teste foi adaptado para executar REOPEN autorizado/versionado antes do estorno. Regressão isolada em PostgreSQL:1PASS, preservando negativas de capability e reautenticação. A execução completa do candidato anterior contém essa falha conhecida e não é PASS; CI do novo HEAD é o gate final. Sem modificação das regras de estorno.
