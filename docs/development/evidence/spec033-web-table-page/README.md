@@ -41,3 +41,11 @@ Buildfinal e2/2PASS5,8s. Semfindingsreproduzíveisapósfix. Concorrênciaentre
 ComposiçãoPR239:12/12focused+releasePASS25,6s após migração dosseletores
 paraNovaComanda/Opções, sem removerUUID/payload/reload/moveassertions.
 Regressão ampla real PostgreSQL emexecução, não aceita pelorecorte12.
+
+Integraçãodirigidaapósmigraçãohelper:5PASS/1FAIL(4largurasstatusreal+
+movimentação), falharemanescenteeraassertlimpezadiretalegada. Migradapara
+DIRTY→CLEANING→AVAILABLE comassertseação explícita; lifecycleisoladoPASS
+14,1s (run23,5s). Movimentação deTababertabloqueialiberação, volta explícita
+paraocupaçãooriginalpreservaexposição2000/pagamentos0antesliberarmesa
+agoravazia. Suíte141foiinterrompidaapósfalhassistemáticasdoseletorantigo;
+138casosnãoexecutadosnaquelarodada. NãoéPASSdesuítecompleta.

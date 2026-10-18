@@ -46,7 +46,7 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
     await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
     await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Atualizar", exact: true }).click();
     await page.getByRole("button", { name: new RegExp(`^Mesa ${tableLabel}`) }).click();
-    await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+    await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: new RegExp(`Nova comanda · Mesa ${tableLabel}`) });
     await dialog.getByLabel("Nome ou apelido").fill(label);
     await dialog.getByRole("button", { name: "Abrir e pedir", exact: true }).click();
