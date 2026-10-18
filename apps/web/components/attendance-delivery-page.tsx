@@ -95,7 +95,7 @@ export function AttendanceDeliveryPage({ initialTask, staffId, request, onBack, 
   const done = isDone(task);
   const ready = ["OPEN", "CLAIMED"].includes(task.state) && ["READY", "PICKED_UP"].includes(task.item_state || "");
   const station = task.fulfillment_station === "BAR" ? "Bar" : task.fulfillment_station === "KITCHEN" ? "Cozinha" : "Estação não informada";
-  return <section className="ux2Workspace ux2DeliveryPage" aria-labelledby="delivery-title">
+  return <section className="ux2DeliveryPage" aria-labelledby="delivery-title"><div className="ux2Workspace">
     <button className="ux2Back" disabled={busy} onClick={onBack}><span aria-hidden="true">‹</span> Voltar</button>
     <div className="ux2Eyebrow">Produção · pedido pronto</div>
     <h1 id="delivery-title" ref={heading} tabIndex={-1}>Levar pedido.</h1>
@@ -109,6 +109,7 @@ export function AttendanceDeliveryPage({ initialTask, staffId, request, onBack, 
     {error && <p className="ux2Notice" role="alert">{error}</p>}
     {unknown && <p className="ux2Notice" role="status">Resultado desconhecido. Confira a mesma tarefa antes de repetir.</p>}
     <button className="ux2Button ghost block" disabled={busy} onClick={onBack}>{done ? "Voltar à fila" : "Voltar sem concluir"}</button>
+    </div>
     {!done && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={busy || (!unknown && fresh && (!ready || rival))} onClick={() => void (unknown || !fresh ? verify() : complete())}>{busy ? "Verificando entrega…" : unknown || !fresh ? "Verificar entrega" : "Registrar entrega por exceção"}</button></div>}
   </section>;
 }
