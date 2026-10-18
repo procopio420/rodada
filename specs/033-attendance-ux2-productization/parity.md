@@ -113,3 +113,25 @@ PR232HEAD75ffdaac (fonted8b7e92a): composição224/225/230 reconciliada,
 17/17visuais e8/8financeiros reais PostgreSQL passaram após buildestável;
 falhas anteriores preservadas, CIamplo ainda pendente. Comparadores antes/
 depois em after-web/index.html e after-android/index.html no pacotePR232.
+
+### Jornada canônica compartilhada e gaps comprovados
+
+PR238 (produto98a641ec, teste7caa33e5): WebcontraDjango18132/PG55501,
+mesmo tenant isolado/IDs do ensaio nativo, Marina56/200 eRafael14/Mesa08.
+4/4jornadas360/390/430/1280,24capturas, semHTTPmock e zero escritas de
+domínio assertadas. Corrigida apresentação MesaMesa08, sem alterarIDs.
+Build/typecheck/ESLint/3identityPASS, revisão independente sem findings
+bloqueantes após esperarMesa08antescaptura. Evidência não prova liquidação,
+envio,Guest ou paridadepixel. CapturaMesa revelou layoutlegadoWeb; nova
+slice proprietária deve corrigir, não aceitar paridade com testesnavegação.
+
+PR235 produto2af3b32d: caixa explícito removido exige nova seleção; intenção
+pendente recupera mesmo envelope/UUID/caixa original.17adjacentes+2dirigidos
+PASS e3financeiros reaisPGPASS25s; R3sem findingscomgapsCashShiftconcorrente.
+CIamploWebfalhou/timeout e focused027temseletoreslegados; migração emcurso.
+
+PR236 produto5658d686: harnessforce-stop exigia3testesquandohá4 e chamava
+métodoinexistente. Corrigidos parser/targetcomtesteproduçãolabel;4PythonPASS
+e revisão root. CIunit/build/lintPASS, mas jobforce-stopéSKIPPEDnasPRs.
+Ensaioexplícitoanterior passou fasesforcestop e falhounoharness; gatecorrigido
+com emulador ainda pendente, não considerar aceito. Nativefullshell emcurso.
