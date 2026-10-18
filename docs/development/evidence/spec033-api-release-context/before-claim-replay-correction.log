@@ -1,0 +1,59 @@
+............................................F.........                   [100%]
+=================================== FAILURES ===================================
+_ TableServiceTests.test_unassigned_attention_canonical_aggregation_and_constant_queries _
+
+self = <tests.test_table_service.TableServiceTests testMethod=test_unassigned_attention_canonical_aggregation_and_constant_queries>
+
+    def test_unassigned_attention_canonical_aggregation_and_constant_queries(self):
+        from modules.catalog.models import Product
+    
+        self.table.status = "OCCUPIED"
+        self.table.save()
+        occupancy = TableOccupancy.objects.create(table=self.table, generation=1)
+        tab = Tab.objects.create(venue=self.venue)
+        TabOccupancyAssignment.objects.create(occupancy=occupancy, tab=tab)
+        def listing():
+            return self.client.get("/hospitality/tables/").json()["results"][0][
+                "active_occupancy"
+            ]
+        assert listing()["unassigned_service_attention"] == "UNASSIGNED_NO_ORDER"
+        product = Product.objects.create(
+            venue=self.venue, name="Beer", price_cents=100, fulfillment_station="BAR"
+        )
+        for _ in range(2):
+            order = Order.objects.create(tab=tab, source="GUEST")
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                product_name_snapshot="Beer",
+                unit_price_cents=100,
+                quantity=1,
+                state="NEW",
+            )
+        projection = listing()
+        assert projection["unassigned_service_attention"] == "UNASSIGNED_GUEST_ORDER"
+        assert projection["unassigned_guest_order_count"] == 2
+        item = OrderItem.objects.first()
+        item.state = "READY"
+        item.save()
+        assert listing()["unassigned_service_attention"] == "UNASSIGNED_READY"
+        with CaptureQueriesContext(connection) as small:
+            self.client.get("/hospitality/tables/")
+        for i in range(8):
+            table = Table.objects.create(venue=self.venue, label=f"X{i}", status="OCCUPIED")
+            TableOccupancy.objects.create(table=table, generation=1)
+        with CaptureQueriesContext(connection) as large:
+            self.client.get("/hospitality/tables/")
+        assert len(large) == len(small), (len(small), len(large))
+        assert self.claim(occupancy).status_code == 201
+        assert listing()["unassigned_service_attention"] == "NONE"
+>       assert self.claim(occupancy).status_code == 201
+E       assert 200 == 201
+E        +  where 200 = <Response status_code=200, "application/json">.status_code
+E        +    where <Response status_code=200, "application/json"> = claim(<TableOccupancy: TableOccupancy object (a3f9cef2-adca-4c06-b340-ff36d6d46a3a)>)
+E        +      where claim = <tests.test_table_service.TableServiceTests testMethod=test_unassigned_attention_canonical_aggregation_and_constant_queries>.claim
+
+tests/test_table_service.py:315: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_table_service.py::TableServiceTests::test_unassigned_attention_canonical_aggregation_and_constant_queries
+1 failed, 53 passed in 107.66s (0:01:47)

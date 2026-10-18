@@ -312,7 +312,9 @@ class TableServiceTests(TestCase):
         assert len(large) == len(small), (len(small), len(large))
         assert self.claim(occupancy).status_code == 201
         assert listing()["unassigned_service_attention"] == "NONE"
-        assert self.claim(occupancy).status_code == 201
+        replay = self.claim(occupancy)
+        assert replay.status_code == 200 and replay.json()["replayed"] is True
+        assert AuditEvent.objects.filter(event_type="occupancy.responsibility_assigned").count() == 1
         assert listing()["unassigned_service_attention"] == "NONE"
 
     def test_real_direct_qr_replay_claim_preserves_guest_and_cycle_revokes(self):
