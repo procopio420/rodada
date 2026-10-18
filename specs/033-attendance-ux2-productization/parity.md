@@ -8,19 +8,19 @@ de laboratório da superfície operacional: requer aprovação antes de aceite d
 
 | Tela/estado | Protótipo | Web | Android | Diferenças atuais | Resultado |
 |---|---|---|---|---|---|
-| Agora/Atendimentos | now-service | Shell #221; conexão de ações contextuais em correção | Shell e readback exato; matriz nativa em execução | Integração/retorno e revisão de pixels completos | PENDING |
-| Agora/Entregas | alternância nowMode | Fila separada #221; projeções #218/#222/#226 | Fila tipada; ownership depende #226 | Jornada READY/entrega e pares mesmos estados | PENDING |
-| Mesas | tables | Página/tiles em #224 | Grade legada; novo recorte em implementação | Paridade Compose e regressões antigas | PENDING |
-| Mesa multi-Tab | table-multi-tab | Contexto de página #224 | Diálogo legado; alvo canônico implementado | Layout Compose e Back | PENDING |
-| Comanda | tab | Página/CTA/barra em #224 | Página fiel em implementação | Mesma jornada Web/Compose e fonte ampliada | PENDING |
-| Cardápio/rascunho | catalog-draft | Lista/quantidade/envio direto #224 | Recorte nativo em implementação, motor reutilizado | Pixels/rascunho/foco/fontes por plataforma | PENDING |
-| Resumo opcional | review | Página opcional #224; testes reais quatro larguras | Página nativa implementada; validação de paridade em execução | Paridade e regressão completa | PENDING |
-| Pedido confirmado | order-confirmed | #219/#224: ID/estação/estado reais persistentes | Nova apresentação usa snapshot histórico; prova nativa real em execução | Evidência nativa pareada e reinício | PENDING |
-| Mais uma rodada | repeat | Página #224 com zero para excluir e envio único | Editor existente; adaptação visual em curso | Paridade nativa e rascunho prévio | PENDING |
-| Envio incerto/recovery | cenário lostACK | #224: POST commit/ACK perdido/reload/payload igual em PG | Stores026/029 reutilizados; piloto de recuperação pendente | Restart/forçar parada e matriz de falhas conjunta | PENDING |
-| Conta/parcial/encerrar | jornadas settlement | #225: página manual CASH, recovery Payment/Close e readback | Pagamentos existentes; página fiel ainda pendente | Caixa canônico, métodos não homologados indisponíveis; diferenças sem aprovação | PENDING |
-| Limite/perfil | creditbar compact | #224: compacto/expandido e projeção; nove testes em página real | Parser corrigido e barra nativa implementada; runtime/paridade pendentes | ENFORCE atual até031; paridade Compose | PENDING |
-| Liberação/limpeza | table release | #225: DIRTY→CLEANING→AVAILABLE; PG com atores/horários | Operações existentes; jornada visual conjunta pendente | Release/Guest e limpeza nativa no mesmo ensaio | PENDING |
+| Agora/Atendimentos | now-service | #221: origem canônica e retorno; integração negativa A409→B | #228/#241: leitura exata e contexto nativo | Matriz conjunta de estados e reconexão ainda parcial | PENDING |
+| Agora/Entregas | alternância nowMode + viewDelivery | Fila #221; página real #246, fonte cca4e61a e capturas pareadas | Página nativa em validação; recuperação sob correção independente | Aceite de recuperação/reinício, paridade final e isolamento de falha da fila pendentes | PENDING |
+| Mesas | tables | #240: grade e página Mesa; quatro jornadas canônicas | #241: shell real, três larguras e 18 capturas | Fontes ampliadas no shell completo e matriz final conjunta | PENDING |
+| Mesa multi-Tab | table-multi-tab | #240: linhas, saldos canônicos e abertura contextual | #241: página nativa e IDs de ocupação preservados | Fluxos completos de giro/READY nas duas plataformas | PENDING |
+| Comanda | tab | #224/#232: página e ajustes pareados | #229/#234/#241: página, ajustes e shell real | Estados adicionais e comparação final no conjunto integrado | PENDING |
+| Cardápio/rascunho | catalog-draft | #224/#232: envio direto e draft; #238: dados reais compartilhados | #229/#234: fluxo e matriz Compose; #241: shell real | Recuperação operacional após processo encerrado ainda precisa aceite completo | PENDING |
+| Resumo opcional | review | #224/#232: página, identidade e controles ajustados | #229/#234: resumo nativo e matriz visual | Revisão conjunta de todos os estados e fontes ampliadas | PENDING |
+| Pedido confirmado | order-confirmed | #219/#224: ID, estação e estado reais persistentes | #229: snapshot canônico; matrizes #234/#241 | Reinício real e matriz de falhas integrada | PENDING |
+| Mais uma rodada | repeat | #224: seleção, quantidades e envio único | #229/#234: editor nativo e apresentação ajustada | Regressão completa e coexistência com rascunhos | PENDING |
+| Envio incerto/recovery | cenário lostACK | #224: commit/ACK perdido/reload/payload igual; #245 corrige apenas seletor de navegação | Stores 026/029; #236 prova persistência sintética após force-stop | Force-stop sintético não comprova POST/ledger real | PENDING |
+| Conta/parcial/encerrar | jornadas settlement | #225/#230/#232/#235: CASH, Close recuperável, zero direto e contexto de caixa | #233: conta/parcial/Close reais; #234: ajustes visuais | PSP, dispositivo físico e matriz final; diferenças sem aprovação global | PENDING |
+| Limite/perfil | creditbar compact | #224/#232: compacto/expandido e projeção | #229/#234/#241: barra e capturas reais | WARN_ONLY depende 031; preservar ENFORCE canônico | PENDING |
+| Liberação/limpeza | table release | #240/#243: dois estágios e contrato obrigatório, corrida real A→B | #241/#244: target imutável e teste API real A→B | Guest/limpeza/READY e giro completo no mesmo ensaio conjunto | PENDING |
 
 Capturas de pagamento pareadas e versionadas em
 [PR225 — evidências](https://github.com/procopio420/rodada/tree/impl/033-web-account/docs/development/evidence/spec033-payment).
@@ -190,3 +190,29 @@ Nãoreintroduziromissãodecamposporcompatibilidade. Backend242+clientes
 243/244devemintegrarjuntos, semmerge/deployautorizados. SUITEWeb143
 emexecuçãoparaHEADcomposto, nãorepresentadapelosrecortesacima.
 ParidadeentregasWeb/Androidépróximoslicereal, ACglobaisaindaabertos.
+
+
+### Continuação de validação — 18/10, rodada de entregas
+
+A matriz inicial acima foi atualizada para remover descrições de implementação
+que já estavam superadas; todos os resultados globais continuam PENDING.
+PR245 `36f3444f` (teste `71eb83bf`) seleciona a Tab por UUID da fixture em
+vez da ordem textual antiga da linha. Seis cenários reais PostgreSQL passam,
+sem alterar assertions de pedido, exposição, pagamento ou payload de recuperação;
+revisão independente root: NO_FINDINGS_WITH_GAPS. Base PR243.
+
+A regressão ampla de 143 testes no HEAD imutável `0f37fb03` permanece em
+execução. As quatro falhas de navegação identificadas usam o seletor corrigido
+pela PR245; a execução original deve terminar e sua evidência deve ser preservada.
+O recorte dirigido verde não substitui a futura execução ampla no HEAD corrigido.
+
+Web entrega: PR246 `ffa959b6`, fonte `cca4e61a`, nove testes browser PASS;
+quatro jornadas PostgreSQL reais confirmam Tab CLOSED com entrega READY,
+abertura/Back sem mutação e perda de ACK reconciliada em DONE/DELIVERED
+com um POST e pagamentos inalterados. Não é aceite global ou aprovação de
+alterações intencionais do texto de simulação. Android: página nativa em
+validação; auditoria independente identificou lacunas preexistentes no motor
+completeDelivery (resposta tardia após troca de sessão e ausência de terminal
+readback na recuperação). Correções em slice separada, ainda sem aceite.
+Falha da fila de entregas também não deve bloquear pedidos disponíveis:
+separação de freshness Web registrada como próximo delta E03-07.
