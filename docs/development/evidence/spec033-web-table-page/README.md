@@ -25,3 +25,9 @@ Limites: menuOpçõesécompatibilidadelegadaadicional, nãoaceiteimplícitode
 diferença; headerscanônicos/referênciasdiferemdadosfictícios212. Paridade
 integral/TalkBack/PSP/dispositivofísico/piloto permanecemgates. CIamplo
 penderámigraçãodosseletoresdeMesaantigos; nãoenfraquecerinvariantes.
+
+Confirmação de liberação revalida chegada de Tababerta/READY e capability
+também com diálogo aberto. Build e2/2dirigidosPASS6,3s: refreshcanônico
+injetado mostra aviso e desabilitaConfirmar, semescritas; depoisclosedTab
+continua legível. Não altera APIrelease nem garante atomicidade nofrontend;
+o backend mantém autoridade no instante da operação.
