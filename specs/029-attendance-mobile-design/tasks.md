@@ -71,3 +71,12 @@ Mesas ocupadas com ocupação ativa abrem uma Tab separada pelo comando existent
 
 ### Retorno após pedido confirmado
 Sinal explícito emitido somente após ACK/readback; consumir após fim do envio/leitura e retornar a Mesas e comandas via clearSelection. Validar rascunho, pendências, outro contexto e ausência de sucesso; preservar confirmação/recovery.
+
+
+## Regressões Web — PR237 (2026-10-18)
+- [x] Restaurar Todos virtual e preservar categoria real homônima, busca e disponibilidade.
+- [x] Corrigir Escape aninhado e retorno/foco do histórico externo.
+- [x] Ajustar alvos de toque na conferência de rodada com tokens existentes.
+- [x] Migrar regressões para categorias/popups sem perder payload/replay e isolamento de rascunho.
+- [x] Executar suíte visual global e reexecutar falhas corrigidas, registrando limites e revisão do delta.
+- [ ] Obter checks do SHA final e aprovação qualificada GitHub antes da integração.

@@ -140,3 +140,7 @@ Implementation/review: [PR #149](https://github.com/procopio420/rodada/pull/149)
 CI is tracked on the PR and must pass before recommending merge. No Windows
 service, pairing, claims, physical print, installation or production acceptance
 is inferred from these results.
+
+
+## Regressão visual Web (2026-10-18)
+A tela de impressoras mantém simulação explícita de agentes desabilitados e inventário vazio no teste legado. Seletores RAW/habilitar rota usam os alvos mínimos de 44px do design system em 360/390/1280px. Não alterar pareamento, rotas, POSTs, confirmação física ou semântica de papel impresso.

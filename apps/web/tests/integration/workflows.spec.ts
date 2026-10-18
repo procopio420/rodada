@@ -1,3 +1,4 @@
+import { chooseBarAvailability } from "../visual/station-availability-actions";
 import { expect, test, type Page } from "./fixtures";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
@@ -44,8 +45,12 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   for (const [route, product] of [["/kitchen", kitchen], ["/bar", bar]] as const) {
     await page.goto(route);
     await expect(page.getByText(product.name, { exact: true }).first()).toBeVisible();
-    await page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true }).click();
-    await expect(page.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
+    if (route === "/bar") {
+      await chooseBarAvailability(page, product.name);
+      await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    } else await page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true }).click();
+    if (route !== "/bar") await expect(page.getByRole("button", { name: `Reativar ${product.name}`, exact: true })).toBeEnabled();
     const catalog = await api(page, "/api/pos/catalog/products/");
     expect(catalog.results.find((p: { id: string }) => p.id === product.id).availability).toBe("UNAVAILABLE");
     await page.goto("/pos");
@@ -53,8 +58,12 @@ test("real staff, production, guest ordering, management and cash/refund workflo
     await expect(page.getByRole("button", { name: new RegExp(`${product.name}.*Indisponível`) })).toBeDisabled();
     await evidence(page, "pos-unavailable");
     await page.goto(route);
-    await page.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
-    await expect(page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
+    if (route === "/bar") {
+      await chooseBarAvailability(page, product.name, true);
+      await page.getByRole("button", { name: "Sim, reativar", exact: true }).click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    } else await page.getByRole("button", { name: `Reativar ${product.name}`, exact: true }).click();
+    if (route !== "/bar") await expect(page.getByRole("button", { name: `Indisponibilizar ${product.name}`, exact: true })).toBeEnabled();
     const pending = (await api(page, `/api/pos/tabs/${tab.id}/`)).orders[0].items.find((i: { product_id: string }) => i.product_id === product.id);
     expect(pending.state).toBe("NEW");
     await expect(page.getByRole("button", { name: /^Iniciar preparo:.*Real Web E2E tab$/ })).toBeVisible();

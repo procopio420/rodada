@@ -80,6 +80,12 @@ class FourTrackShiftTests(TransactionTestCase):
             payment = self.call(manager, f"/tabs/{tab['id']}/payments/", {
                 "amount_cents": 3000, "amount_tendered_cents": 3000, "cash_point_id": str(point.pk),
                 "method": "CASH", "idempotency_key": "test-payment"}, 201)
+            completed = self.call(manager, f"/tabs/{tab['id']}/")
+            self.assertEqual(completed["state"], "CLOSED")
+            self.call(manager, "/auth/reauthenticate/", {"pin": "2468"})
+            self.call(manager, f"/tabs/{tab['id']}/operations/", {
+                "kind": "REOPEN", "expected_version": completed["version"],
+                "idempotency_key": "refund-review-reopen", "reason": "Revisar estorno do turno de teste"})
             # Audited manual refund and replacement receipt preserve original payment.
             self.call(manager, f"/payments/{payment['id']}/refunds/", {
                 "amount_cents": 100, "cash_point_id": str(point.pk), "idempotency_key": "test-refund",

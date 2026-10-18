@@ -78,3 +78,7 @@ Mesas ocupadas com ocupação ativa abrem uma Tab separada pelo comando existent
 
 ### Retorno após pedido confirmado
 Sinal explícito emitido somente após ACK/readback; consumir após fim do envio/leitura e retornar a Mesas e comandas via clearSelection. Validar rascunho, pendências, outro contexto e ausência de sucesso; preservar confirmação/recovery.
+
+
+## Manutenção Web PR237
+Reutilizar catálogo por categorias e ActionDialog; restaurar somente contratos perdidos na migração (Todos, Escape/foco, retorno do histórico). Migrar testes de navegação para as superfícies reais, preservando cenários de pendência e comandos idempotentes. Alvos de toque usam touch-min. Validar build, lint proporcional, regressões de catálogo/draft/histórico/removals, fluxos de mesa e suíte visual global. Não alterar ledger/API, CI ou tolerâncias/baselines.

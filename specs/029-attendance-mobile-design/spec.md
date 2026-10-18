@@ -280,3 +280,10 @@ O seletor também inclui OCCUPIED com ocupação ativa, identificando Livre/Ocup
 
 ## Retorno após pedido confirmado — Android (2026-10-18)
 Após ACK e releitura canônica bem-sucedidos do pedido da Tab selecionada, com rascunho enviado consumido, retornar a Mesas e comandas. Não navegar no clique, 4xx, timeout, readback falho, outra Tab ou recuperação de pedido que preserva rascunho. Usar sinal explícito consumido uma vez, independente do texto de sucesso; aguardar fim de submitting e respeitar clearSelection/pendências existentes. Sem mudar comando, payload, chave, ledger ou fluxo de pagamento. Aceite: sucesso válido volta; ambiguidade, erro, rascunho restante e outro contexto ficam; seleção não sai se outra pendência impede.
+
+## Regressões do catálogo Web — PR237
+A migração do catálogo para popups preserva Todos como primeiro agrupamento virtual: reúne produtos ativos de todas as categorias, respeita busca e disponibilidade e não duplica produtos. Categoria real chamada Todos continua distinta. Pedido/Conta são superfícies separadas, com rascunho preservado ao alternar/fechar/reabrir; não se exige presença simultânea de catálogo e financeiro na mesma tela. Restaurar o agrupamento ausente, sem mudar API/preços/drafts.
+
+Diálogos aninhados: Escape fecha somente a camada superior e devolve foco ao acionador. Histórico aberto pelo ícone da lista retorna à lista ao fechar, sem deixar workspace vazio; histórico aberto dentro de comanda retorna a ela. Preservar bloqueios de pendências.
+
+Na conferência de rodada, seleção e quantidade mantêm alvos mínimos de 44px, usando o token existente. Auditorias de controles em modal consideram a camada ativa; controles de fundo inertes são auditados quando sua própria tela estiver ativa.

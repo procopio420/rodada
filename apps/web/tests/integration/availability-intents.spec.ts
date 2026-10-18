@@ -1,3 +1,4 @@
+import { chooseBarAvailability, closeBarAvailability } from "../visual/station-availability-actions";
 import { expect, test } from "./fixtures";
 for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) test(`Real availability recovery ${station} ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 }); await page.goto("/staff");
@@ -23,8 +24,22 @@ for (const station of ["KITCHEN", "BAR"]) for (const width of [360, 390, 430]) t
   });
   try {
     await page.goto(station === "KITCHEN" ? "/kitchen" : "/bar");
-    await page.getByRole("button", { name: `Indisponibilizar ${name}`, exact: true }).click(); await expect.poll(() => receipts.length).toBe(1);
-    await page.getByRole("button", { name: `Indisponibilizar ${name} other`, exact: true }).click();
+    if (station === "BAR") {
+      await chooseBarAvailability(page, name);
+      await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+      await expect.poll(() => receipts.length).toBe(1);
+      release();
+      await expect(page.getByRole("dialog").getByRole("button", { name: "Verificar mesma disponibilidade", exact: true })).toBeEnabled();
+      await closeBarAvailability(page);
+    } else {
+      await page.getByRole("button", { name: `Indisponibilizar ${name}`, exact: true }).click();
+      await expect.poll(() => receipts.length).toBe(1);
+    }
+    if (station === "BAR") {
+      await chooseBarAvailability(page, `${name} other`);
+      await page.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    } else await page.getByRole("button", { name: `Indisponibilizar ${name} other`, exact: true }).click();
     await expect(page.getByText(`Disponibilidade confirmada. · ${other.id.slice(0, 8)}`, { exact: true })).toBeVisible();
     await page.getByRole("button", { name: `Iniciar preparo: 2 ${name}, ${name}`, exact: true }).click(); await expect(page.getByText(`Item confirmado. · ${item.id.slice(0, 8)}`, { exact: true })).toBeVisible();
     release(); const retry = page.getByRole("button", { name: `Verificar mesma disponibilidade: ${product.id.slice(0, 8)}`, exact: true });

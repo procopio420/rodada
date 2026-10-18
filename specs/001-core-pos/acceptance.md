@@ -184,3 +184,6 @@ UX23/T10d amplo e gates aparelho/tempo humano/piloto/publicação permanecem abe
   a successful browser click alone is not evidence that the item persisted as READY.
 
 Quitação automática (2026-10-17): pagamento confirmado integral fecha Tab com closed_at e um audit tab.closed vinculado ao Payment; parcial/pendente mantém aberta; replay não duplica; webhook sem ator não impersona staff; taxa desatualizada preserva dinheiro confirmado sem fechar. Mesa e produção permanecem independentes.
+
+## Regressões CI PR237 — 2026-10-18
+Validar contratos existentes após quitação automática: estorno/mudança pós-quitação exigem REOPEN gerencial auditado; corrida de recebimentos integrais termina CLOSED sem cobrança excessiva, pedido concorrente não reabre Tab. Integração do Bar percorre categorias/Todos e confirmação explícita, com recibo/readback e replay original após resposta perdida. Não enfraquecer regras do domínio para satisfazer fixtures antigas.
