@@ -32,10 +32,11 @@ class TableServiceNavigationTest {
                     activeOccupancy = TableOccupancy("visit", 3, emptyList(), "staff", "Ana", 1))))
             }, onOpenTableTab = { occupancy, name -> opened = occupancy.id to name }) } }
         compose.onNodeWithTag("table-table").performClick()
+        compose.onNodeWithText("Opções da mesa").performScrollTo().performClick()
         compose.onNodeWithText("Iniciar atendimento sem comanda").performScrollTo().performClick()
         assertEquals(listOf("table"), starts)
-        compose.onNodeWithText("Atendimento: você").assertExists()
-        compose.onNodeWithText("Nova comanda nesta mesa").performScrollTo().performClick()
+        compose.onNodeWithText("Comandas desta mesa").assertExists()
+        compose.onNodeWithText("＋ Abrir nova comanda").performScrollTo().performClick()
         compose.onNodeWithText("Ocultar nome").assertDoesNotExist()
         compose.onNodeWithText("Nome ou apelido").assertExists()
         compose.onNodeWithText("Abrir e pedir").assertIsNotEnabled()
@@ -56,11 +57,12 @@ class TableServiceNavigationTest {
         compose.setContent { RodadaTheme { TablesScreen(state.value, true, { _, _ -> }, {}, {}, {},
             staffId = "staff", onSelectTab = { selected = it }) } }
         compose.onNodeWithTag("table-table").performClick()
-        compose.onNodeWithText("João · Comanda B").performScrollTo().performClick()
+        compose.onNodeWithText("Comanda B · Mesa 12").performScrollTo().performClick()
         assertEquals("b", selected)
         compose.runOnIdle { state.value = state.value.copy(pendingTableService = RecoveryIntent.TableService(
             "id", "staff", "venue", "device", "key", 1, RecoveryState.CHECKING,
             "/hospitality/occupancies/visit/responsibility/claim/", "{}")) }
+        compose.onNodeWithText("Opções da mesa").performScrollTo().performClick()
         compose.onNodeWithText("Assumir atendimento").performScrollTo().assertIsNotEnabled()
     }
     @Test fun moveLinkedTabRequiresOriginDestinationConfirmation() {
@@ -74,6 +76,7 @@ class TableServiceNavigationTest {
         compose.setContent { RodadaTheme { TablesScreen(state, true, { _, _ -> error("Linked Tab must not use assign") }, {}, {}, {},
             canMoveTabs = true, onMoveTab = { visit, chosen -> moved = visit to chosen.id }) } }
         compose.onNodeWithTag("table-destination").performClick()
+        compose.onNodeWithText("Opções da mesa").performScrollTo().performClick()
         compose.onAllNodesWithText("Vincular comanda existente")[0].performScrollTo().performClick()
         compose.onNodeWithText("João · linked · Mesa 12 · Mover").performClick()
         assertEquals(null, moved)
