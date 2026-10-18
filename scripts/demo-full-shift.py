@@ -397,7 +397,7 @@ assert (
     ]
     == "OCCUPIED"
 )
-api(f"/hospitality/tables/{table['id']}/release/", {})
+api(f"/hospitality/tables/{table['id']}/release/", {"expected_occupancy_id": occupancy["id"], "expected_generation": occupancy["generation"]})
 api(f"/hospitality/tables/{table['id']}/cleaning/start/", {})
 api(f"/hospitality/tables/{table['id']}/cleaning/complete/", {})
 count = api(f"/cash/shifts/{shift['id']}/count/start/", {})
