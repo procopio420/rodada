@@ -1,0 +1,8 @@
+{
+  "tests": 133,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "source": "4cb441f1 production; instrumented source 5196cf27; Kotlin frozen throughout gate",
+  "api_base_url": "http://10.0.2.2:18140/"
+}

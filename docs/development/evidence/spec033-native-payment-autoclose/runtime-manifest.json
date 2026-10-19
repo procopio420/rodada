@@ -1,0 +1,10 @@
+{
+  "source_sha": "6145cade",
+  "backend_sha": "02d63ae8",
+  "backend_main_ancestor": "20828711",
+  "device": "emulator-5558 API36;1170x2532 density480 font1",
+  "apk_sha256": {
+    "apps/attendance-android/app/build/outputs/apk/debug/app-debug.apk": "110bc873514b66a010dc7077858a507e63bcf4c85a43e0c156f87b998ecd0ed0",
+    "apps/attendance-android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "3b4ca8551176fdd8c0760ef7e2964810ca654aada5b06208d0f8756a57894171"
+  }
+}

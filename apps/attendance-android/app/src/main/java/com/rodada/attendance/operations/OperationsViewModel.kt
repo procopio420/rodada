@@ -335,17 +335,17 @@ class OperationsViewModel(
 
     /** History is intentionally fetched only on request, not with every SSE/foreground refresh. */
     fun loadTabHistory(session: StoredSession) {
-        if (state.historyLoading) return
-        val scope = loadedSessionKey
+        val guard = sessionActionGuard(session)
+        if (state.historyLoading || !guard.isCurrent()) return
         state = state.copy(historyLoading = true, historyError = null)
         viewModelScope.launch {
-            runCatching { repository.tabHistory(session) }
+            runCatching { guard.awaitCurrent { repository.tabHistory(session) } }
                 .onSuccess { rows ->
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyTabs = rows, historyLoading = false, historyLoaded = true, historyError = null)
                 }
                 .onFailure {
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyLoading = false, historyLoaded = false,
                         historyError = "Não foi possível carregar o histórico. Tente novamente.")
                 }
@@ -353,17 +353,18 @@ class OperationsViewModel(
     }
 
     fun inspectHistory(session: StoredSession, tabId: String?) {
+        val guard = sessionActionGuard(session)
+        if (!guard.isCurrent()) return
         val read = historyDetailReads.start()
-        val scope = loadedSessionKey
         state = state.copy(historyDetailId = tabId, historyDetail = null,
             historyDetailLoading = tabId != null, historyDetailError = null)
         if (tabId == null) return
         viewModelScope.launch {
-            runCatching { repository.tabDetail(session, tabId) }.onSuccess { detail ->
-                if (scope == loadedSessionKey && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+            runCatching { guard.awaitCurrent { repository.tabDetail(session, tabId) } }.onSuccess { detail ->
+                if (guard.isCurrent() && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
                     historyDetail = detail, historyDetailLoading = false)
             }.onFailure {
-                if (scope == loadedSessionKey && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+                if (guard.isCurrent() && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
                     historyDetailLoading = false, historyDetailError = "Não foi possível consultar a comanda.")
             }
         }
@@ -380,8 +381,9 @@ class OperationsViewModel(
     private suspend fun readServiceRequests(session: StoredSession, guard: FinancialResponseFence.Guard = sessionActionGuard(session)) {
         if (!guard.isCurrent()) return
         state = state.copy(serviceRequestsFresh = false)
-        runCatching { guard.awaitCurrent { repository.serviceRequests(session) } }
-            .onSuccess { state = state.copy(serviceRequests = it, serviceRequestsFresh = true, serviceRequestsError = null) }
+        val result = runCatching { guard.awaitCurrent { repository.serviceRequests(session) } }
+        coroutineContext.ensureActive()
+        result.onSuccess { state = state.copy(serviceRequests = it, serviceRequestsFresh = true, serviceRequestsError = null) }
             .onFailure {
                 if (guard.isCurrent()) state = state.copy(serviceRequestsFresh = false, serviceRequestsError = "Chamadas desatualizadas. Atualize antes de agir.")
             }
