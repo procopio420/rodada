@@ -13,7 +13,7 @@ class Ux2AccountPagesTest {
     @get:Rule val compose = createComposeRule()
     private val tab = TabDetail(TabSummary("1048", "Marina", "OPEN", 1, 2400, 0, 2400, tableLabel = "08", effectiveLimitCents = 20000, remainingCapacityCents = 17600, relationshipSnapshot = "REGULAR"), emptyList())
 
-    @Test fun fullReceiptOffersCloseAndKeepOpenWithOriginalCashPoint() {
+    @Test fun fullReceiptClosesWithOriginalCashPointWithoutKeepOpenPromise() {
         var command: List<Any?>? = null
         compose.setContent { RodadaTheme { Surface {
             Ux2ReceiptPage(OperationsUiState(cashPoints = listOf(CashPoint("cash", "Caixa principal", "shift"))), tab, {},
@@ -21,10 +21,24 @@ class Ux2AccountPagesTest {
         } } }
         compose.onNodeWithText("Receber conta.").assertIsDisplayed()
         captureCriticalEvidence(compose, "ux2-receipt-full", compose.onRoot())
-        compose.onNodeWithText("Só registrar; manter comanda aberta").performScrollTo().performClick()
-        assertEquals(listOf(2400L, PaymentMethod.CASH, "cash", false), command)
+        compose.onNodeWithText("Só registrar; manter comanda aberta").assertDoesNotExist()
         compose.onNodeWithText("Receber e encerrar comanda").performScrollTo().performClick()
         assertEquals(listOf(2400L, PaymentMethod.CASH, "cash", true), command)
+    }
+
+
+    @Test fun draftBlocksFullSettlementButPartialRemainsAvailable() {
+        var command: Long? = null
+        val product = Product("draft", "Água", 500, true, "BAR", "AVAILABLE")
+        compose.setContent { RodadaTheme { Surface {
+            Ux2ReceiptPage(OperationsUiState(cart = listOf(CartLine(product, 1)),
+                cashPoints = listOf(CashPoint("cash", "Caixa", "shift"))), tab, {},
+                { amount, _, _, _ -> command = amount }, {}, {})
+        } } }
+        compose.onNodeWithText("Receber e encerrar comanda").performScrollTo().assertIsNotEnabled()
+        compose.onNode(hasSetTextAction()).performTextReplacement("12,00")
+        compose.onNodeWithText("Registrar recebimento").performScrollTo().assertIsEnabled().performClick()
+        assertEquals(1200L, command)
     }
 
     @Test fun partialAndUnknownReceiptUseDistinctActions() {

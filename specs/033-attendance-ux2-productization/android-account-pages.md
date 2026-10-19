@@ -78,3 +78,17 @@ asserções dos envelopes/contexto B. Instrumentação versionada3/3PASS.
 Revisor não executou Gradle. Não cobre troca real de operador pela UI,
 force-stop, Pix/Tap reais ou callbacks dessas modalidades. Não representa
 aprovação de merge/deploy nem aceite integral E04/E06.
+
+## Reconciliação com encerramento canônico automático (2026-10-19)
+
+O pagamento integral pode encerrar a Tab no servidor, independentemente da opção
+local de Close. A página não oferece manter aberta após receber todo o saldo.
+Antes de preparar uma nova intenção integral, UI e ViewModel exigem ausência de
+rascunho, pedido submetido desconhecido e fila de pedido da Tab atual. Parcial
+permanece disponível; pedido pendente de outra Tab não substitui esse contexto.
+Recuperar uma intenção já persistida conserva UUID/payload e consulta o estado
+canônico mesmo quando há rascunho restaurado; o bloqueio não reescreve replays.
+Aceite: integral com draft/fila é bloqueado antes de persistir/enviar; parcial e
+integral sem draft seguem disponíveis; replay original permanece reconciliável.
+JVM/Compose validam a política e apresentação; backend real e processo/dispositivo
+continuam gates separados da integração final.

@@ -893,6 +893,11 @@ class OperationsViewModel(
         cashPointId: String?,
         closeRequested: Boolean = false,
     ) {
+        val currentTab = state.selectedTab?.summary ?: return
+        if (state.blocksNewFullPayment(currentTab, amountCents)) {
+            state = state.copy(errorMessage = "Resolva o pedido não enviado antes de receber todo o saldo. O recebimento integral encerra a comanda.")
+            return
+        }
         if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
             startTapSimulation(session, amountCents, method)
             return

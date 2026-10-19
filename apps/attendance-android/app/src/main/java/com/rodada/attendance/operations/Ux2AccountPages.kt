@@ -90,8 +90,9 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
     val selectedCashPoint = openCashPoints.singleOrNull()?.id ?: cashPoint
     var paymentDetails by rememberSaveable(summary.id) { mutableStateOf(false) }
     val amount = parseCents(raw)
-    val full = method in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL) && amount == summary.exposureCents && state.cart.isEmpty() && state.orderIntentId == null
-    val valid = amount != null && amount > 0 && amount <= summary.exposureCents && !state.submitting && pending == null &&
+    val full = method in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL) && amount == summary.exposureCents
+    val blockedByOrder = amount?.let { state.blocksNewFullPayment(summary, it) } == true
+    val valid = amount != null && amount > 0 && amount <= summary.exposureCents && !blockedByOrder && !state.submitting && pending == null &&
         summary.state !in setOf("CLOSED", "CANCELLED") && !summary.serviceAssessmentStale &&
         (method != PaymentMethod.CASH || state.cashPoints.any { it.id == selectedCashPoint && it.activeShiftId != null })
     BackHandler { if (!state.submitting && pending == null) onBack() }
@@ -144,8 +145,7 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
             Text("Informe o valor recebido, sem incluir troco.", style = AttendanceUx2.text(12))
             Ux2Action(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
                 { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, full) }, true)
-            if (full) Ux2Action("Só registrar; manter comanda aberta", valid,
-                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, false) })
+            if (blockedByOrder) Text("Resolva o pedido não enviado antes de receber todo o saldo. O recebimento integral encerra a comanda.", color = MaterialTheme.colorScheme.error)
             if (method == PaymentMethod.CASH && openCashPoints.size == 1)
                 Text("Caixa: ${openCashPoints.single().label}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
             TextButton({ paymentDetails = !paymentDetails }, enabled = !state.submitting,
