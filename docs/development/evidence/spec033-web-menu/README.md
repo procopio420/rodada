@@ -34,8 +34,11 @@ cluster55648 had an unknown role. It did not seed or reset that cluster. The
 successful run uses the new cluster identified above. Earlier failed legacy-UI
 iterations are not counted as passes.
 
-Independent review is pending the integrator's separate context. Formal GitHub
-approval and candidate CI remain separate gates. AC-20/22/24 and the complete
+Independent review: `/root`, separate from author `/root/finish_menu_and_ci_review`,
+examined source4bbc5d64, helpers, fixture/reset semantics and every retained
+business assertion. Outcome `NO_FINDINGS_WITH_GAPS`, sem achados reproduzíveis.
+This agent review is not a GitHub approval. Candidate CI, updated-main integration
+and formal GitHub approval remain separate gates. AC-20/22/24 and the complete
 E06-03 task stay pending: this slice proves Web/Bar/Kitchen only, without native
 Android, financial settlement, Guest QR, physical hardware or pilot sign-off.
 No merge/deploy was performed.
