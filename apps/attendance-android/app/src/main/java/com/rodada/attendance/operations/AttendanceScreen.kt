@@ -15,6 +15,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import com.rodada.attendance.ui.rodadaTextFieldColors
+import com.rodada.attendance.ui.RodadaButtonTone
 import com.rodada.attendance.ui.RodadaVisual
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -313,6 +315,7 @@ fun AttendanceScreen(
                             onOpenFirstTab = { tableId, label -> viewModel.openFirstTableTab(session, tableId, label) },
                             onLoadHistory = { viewModel.loadTabHistory(session) },
                             partySizeEditor = { occupancyId -> PartySizeEditor(load = { viewModel.readPartySize(session, occupancyId) }, save = { viewModel.recordPartySize(session, occupancyId, it) }) },
+                            onInspectHistory = { viewModel.inspectHistory(session, it) },
                         )
                         }
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
@@ -398,8 +401,15 @@ fun AttendanceScreen(
     if (choosingOrderDestination && state.selectedTab == null) {
         QuickOrderDestinationDialog(
             tabs = state.tabs,
+            tables = state.tables,
+            canOpenTableTabs = "tab.open" in session.capabilities && "table.manage" in session.capabilities,
+            onNewTableTab = { table, label ->
+                choosingOrderDestination = false
+                table.activeOccupancy?.let { viewModel.openTableTab(session, it, label) }
+                    ?: viewModel.openFirstTableTab(session, table.id, label)
+            },
             canOpenTabs = "tab.open" in session.capabilities,
-            busy = state.loading || state.submitting || state.pendingTableService != null,
+            busy = state.loading || state.submitting || state.pendingTableService != null || state.connectivity != ConnectivityState.ONLINE || state.orderIntentId != null || state.cart.isNotEmpty(),
             onSelect = { tabId -> choosingOrderDestination = false; viewModel.selectTab(session, tabId) },
             onNewTab = { choosingOrderDestination = false; openingTab = true },
             onDismiss = { choosingOrderDestination = false },
@@ -505,15 +515,62 @@ internal fun QuickOrderDestinationDialog(
     onSelect: (String) -> Unit,
     onNewTab: () -> Unit,
     onDismiss: () -> Unit,
+    tables: List<TableSummary> = emptyList(),
+    canOpenTableTabs: Boolean = false,
+    onNewTableTab: (TableSummary, String) -> Unit = { _, _ -> },
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    var choosingTable by rememberSaveable { mutableStateOf(false) }
+    var tableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var label by rememberSaveable { mutableStateOf("") }
+    var occupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var occupancyGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
+    val availableTables = tables.filter { it.tableServiceEnabled &&
+        ((it.status == "AVAILABLE" && it.activeOccupancy == null) || (it.status == "OCCUPIED" && it.activeOccupancy != null)) }
+    val selectedTable = availableTables.firstOrNull { it.id == tableId &&
+        it.activeOccupancy?.id == occupancyId && it.activeOccupancy?.generation == occupancyGeneration }
+    if (choosingTable) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) onDismiss() },
+            title = { Text(if (tableId == null) "Escolha uma mesa" else "Nova comanda · Mesa ${tables.firstOrNull { it.id == tableId }?.label.orEmpty()}") },
+            text = {
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(enabled = !busy, onClick = { if (tableId != null) tableId = null else choosingTable = false },
+                        modifier = Modifier.heightIn(min = 48.dp)) { Text("Voltar") }
+                    if (tableId == null) {
+                        if (availableTables.isEmpty()) Text("Nenhuma mesa disponível no momento.")
+                        availableTables.forEach { table ->
+                            OutlinedButton(onClick = { tableId = table.id; occupancyId = table.activeOccupancy?.id; occupancyGeneration = table.activeOccupancy?.generation; label = "" }, enabled = !busy && canOpenTableTabs,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("quick-order-table-${table.id}")) {
+                                Text("Mesa ${table.label} · ${if (table.activeOccupancy == null) "Livre" else "Ocupada"}")
+                            }
+                        }
+                    } else {
+                        OutlinedTextField(value = label, onValueChange = { label = it.take(120) }, colors = rodadaTextFieldColors(),
+                            label = { Text("Nome ou apelido") }, enabled = !busy && canOpenTableTabs,
+                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                        if (selectedTable == null) Text("A mesa não está mais disponível. Volte e escolha outra mesa.")
+                    }
+                }
+            },
+            confirmButton = {
+                if (tableId != null) Button(enabled = !busy && canOpenTableTabs && selectedTable != null && label.isNotBlank(), onClick = {
+                    selectedTable?.takeIf { !busy && canOpenTableTabs && label.isNotBlank() }?.let { onNewTableTab(it, label.trim()) }
+                }) { Text("Abrir e pedir") }
+            },
+            dismissButton = {
+                TextButton(enabled = !busy, onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) { Text("Cancelar") }
+            },
+        )
+        return
+    }
     val choices = tabs.filter { it.state in setOf("OPEN", "REQUIRES_ACTION") && it.matchesOperationalQuery(query.trim()) }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("Pedir · escolha a comanda") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(query, { query = it }, label = { Text("Buscar comanda ou mesa") },
+                OutlinedTextField(query, { query = it }, colors = rodadaTextFieldColors(), label = { Text("Buscar comanda ou mesa") },
                     modifier = Modifier.fillMaxWidth(), singleLine = true)
                 Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -528,9 +585,15 @@ internal fun QuickOrderDestinationDialog(
             }
         },
         confirmButton = {
-            if (canOpenTabs) Button(onClick = onNewTab, enabled = !busy) { Text("Nova comanda sem mesa") }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (canOpenTableTabs) Button(onClick = { choosingTable = true }, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Nova comanda em mesa") }
+                if (canOpenTabs) OutlinedButton(onClick = onNewTab, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Nova comanda sem mesa") }
+                TextButton(onClick = onDismiss, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Cancelar") }
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }
 
@@ -725,47 +788,6 @@ internal fun TabWorkspace(
 }
 
 @Composable
-internal fun BalanceCard(
-    tab: TabSummary,
-    onPay: () -> Unit,
-    onClose: () -> Unit,
-    busy: Boolean,
-    canInitiatePayment: Boolean,
-) {
-    var expanded by rememberSaveable(tab.id) { mutableStateOf(false) }
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Saldo em aberto", style = MaterialTheme.typography.labelLarge)
-            Text(formatCents(tab.exposureCents), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            TextButton(onClick = { expanded = !expanded }) {
-                Text(if (expanded) "Recolher detalhes da conta" else "Ver detalhes da conta")
-            }
-            if (expanded) {
-                Text("Subtotal original ${formatCents(tab.originalSubtotalCents)}")
-                Text("Descontos ${formatCents(tab.discountsCents)} · cortesias ${formatCents(tab.courtesyCents)}")
-                if (tab.correctionsCents != 0L) Text("Correções ${formatCents(tab.correctionsCents)}")
-                Text("Taxa de serviço ${formatCents(tab.serviceChargeCents)}")
-                Text("Total a pagar ${formatCents(tab.payableCents)}")
-                Text("Pagamentos recebidos ${formatCents(tab.paymentsCents)} · estornos ${formatCents(tab.refundsCents)}")
-                if (tab.transfersCents != 0L) Text("Responsabilidade transferida: ${formatCents(tab.transfersCents)}")
-                Text("Limite ${formatCents(tab.effectiveLimitCents)} · disponível ${formatCents(tab.remainingCapacityCents)}")
-                tab.percentageUsed?.let { Text("$it% do limite utilizado") }
-            }
-            if (tab.serviceAssessmentStale) Text("Atualize a taxa de serviço no caixa antes de receber.")
-            if (tab.actionReasons.any { it != "SPENDING_LIMIT" }) Text("Há outras ações pendentes na comanda.")
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Button(onClick = onPay, enabled = !tab.serviceAssessmentStale && tab.exposureCents > 0 && tab.state != "CLOSED" && !busy && canInitiatePayment, modifier = Modifier.weight(1f)) {
-                    Text("Pagar")
-                }
-                OutlinedButton(onClick = onClose, enabled = !tab.serviceAssessmentStale && tab.exposureCents == 0L && tab.state != "CLOSED" && !busy, modifier = Modifier.weight(1f)) {
-                    Text(if (tab.state == "CLOSED") "Fechada" else "Fechar")
-                }
-            }
-        }
-    }
-}
-
-@Composable
 internal fun LimitResolutionDialog(
     tab: TabSummary,
     canApprove: Boolean,
@@ -790,11 +812,11 @@ internal fun LimitResolutionDialog(
                 message?.let { Text(it) }
                 if (canApprove) {
                     Text("Aprovação operacional válida por uma hora. Não registra pagamento ou garantia financeira.")
-                    OutlinedTextField(value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Novo limite total (R$)") })
+                    OutlinedTextField(colors = rodadaTextFieldColors(), value = amount, onValueChange = { amount = it }, enabled = !busy && !submitted, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Novo limite total (R$)") })
                     if (amount.isNotBlank() && (cents == null || cents <= tab.effectiveLimitCents)) Text("Informe um limite válido maior que ${formatCents(tab.effectiveLimitCents)}.", color = MaterialTheme.colorScheme.error)
-                    OutlinedTextField(value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
+                    OutlinedTextField(colors = rodadaTextFieldColors(), value = pin, onValueChange = { pin = it }, enabled = !busy, label = { Text("Seu PIN") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
                 } else Text("A gerência receberá a solicitação. Para pagar, volte à comanda e toque em Pagar; um operador autorizado confirma o recebimento.")
-                OutlinedTextField(value = reason, onValueChange = { reason = it.take(240) }, enabled = !busy && !submitted, label = { Text("Motivo") })
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = reason, onValueChange = { reason = it.take(240) }, enabled = !busy && !submitted, label = { Text("Motivo") })
                 if (submitted) Text("Confira a mensagem na comanda. Em caso de perda de conexão, repita esta mesma solicitação após atualizar.")
             }
         },
@@ -861,7 +883,7 @@ internal fun OpenTabDialog(busy: Boolean, customers: List<CustomerSummary>, mess
         title = { Text("Nova comanda · Sem mesa") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = label, onValueChange = { label = it.take(120); customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = label, onValueChange = { label = it.take(120); customerId = null; searched = false }, enabled = !busy, label = { Text("Nome ou apelido") }, modifier = Modifier.fillMaxWidth())
                 TextButton(enabled = !busy && label.isNotBlank(), onClick = { searched = true; onSearch(label) }) { Text(if (busy) "Buscando…" else "Buscar cliente existente") }
                 if (searched && !busy) {
                     if (customers.isEmpty()) Text("Nenhum cliente encontrado. Você pode abrir sem cadastro.")
@@ -915,7 +937,7 @@ internal fun PaymentDialog(
                 Text("Serviço: ${formatCents(tab.serviceChargeCents)} · Total: ${formatCents(tab.payableCents)}")
                 Text("Recebido: ${formatCents(tab.paymentsCents)} · Estornado: ${formatCents(tab.refundsCents)}")
                 Text("Saldo restante: ${formatCents(tab.exposureCents)}")
-                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 PaymentMethod.entries.filter { (it != PaymentMethod.PIX || pixEnabled) && (it !in setOf(PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT) || tapSimulationEnabled) }.forEach { candidate ->
                     OutlinedButton(onClick = { method = candidate }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
                         Text(if (method == candidate) "✓ ${candidate.label}" else candidate.label)
@@ -950,7 +972,7 @@ internal fun PaymentDialog(
 
 /** A correction dialog deliberately collects an operational reason but leaves policy to the API. */
 @Composable
-private fun CorrectionDialog(
+internal fun CorrectionDialog(
     item: OrderItem,
     products: List<Product>,
     busy: Boolean,
@@ -958,48 +980,77 @@ private fun CorrectionDialog(
     onSubmit: (CorrectionCommand, String?) -> Unit,
 ) {
     val availableActions = correctionActionsFor(item.state)
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     var action by remember(item.id, item.state) { mutableStateOf(availableActions.firstOrNull() ?: CorrectionAction.CANCEL) }
     var reason by remember(item.id) { mutableStateOf("") }
     var pin by remember(item.id) { mutableStateOf("") }
     var replacementId by remember(item.id) { mutableStateOf("") }
+    var quantityText by remember(item.id, item.quantity) { mutableStateOf("1") }
+    var reviewingQuantity by remember(item.id) { mutableStateOf(false) }
+    var submitted by remember(item.id) { mutableStateOf(false) }
+    val selectedQuantity = if (action == CorrectionAction.CANCEL) quantityText.toIntOrNull() else null
+    val validQuantity = action != CorrectionAction.CANCEL || (selectedQuantity != null && selectedQuantity in 1..item.quantity)
     // Retain this key while the dialog remains open. A timeout retry is therefore the same command.
-    val idempotencyKey = remember(item.id, action, replacementId) { UUID.randomUUID().toString() }
+    val idempotencyKey = remember(item.id, action, replacementId, quantityText, reason) { UUID.randomUUID().toString() }
     // The canonical post-production command intentionally rejects remake and
     // replacement before work begins. Do not offer an action that the server
     // can never accept for a NEW/ACCEPTED item.
     val replacementProducts = products.filter { it.active && it.availability == "AVAILABLE" && it.id != replacementId }
-    val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }).requiresPostProductionEndpoint()
+    val requiresReauth = CorrectionCommand(item.id, item.state, action, "OPERATIONAL", reason, idempotencyKey, replacementId.ifBlank { null }, if (action == CorrectionAction.CANCEL) selectedQuantity ?: 1 else null).requiresPostProductionEndpoint()
     val replacementValid = action != CorrectionAction.REPLACEMENT || replacementId.isNotBlank()
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("Corrigir ${item.productName}") },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("${item.quantity}× ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
-                availableActions.forEach { candidate ->
-                    OutlinedButton(onClick = { action = candidate }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                Text("${item.quantity} unidades · Total ${formatCents(item.lineTotalCents)} · ${itemStateLabel(item.state)}")
+                if (reviewingQuantity) Text("Confirmar cancelamento de $selectedQuantity de ${item.quantity} unidades de ${item.productName}.", style = MaterialTheme.typography.titleMedium)
+                if (action == CorrectionAction.CANCEL) Text("Cancelar lançamento indevido preserva o histórico. Não registra pagamento nem estorno automático.", style = MaterialTheme.typography.bodySmall)
+                if (!reviewingQuantity) availableActions.forEach { candidate ->
+                    OutlinedButton(onClick = { action = candidate; reviewingQuantity = false }, enabled = !busy && !reviewingQuantity && !submitted, modifier = Modifier.fillMaxWidth()) {
                         Text(if (action == candidate) "✓ ${candidate.label}" else candidate.label)
                     }
+                }
+                if (action == CorrectionAction.CANCEL && !reviewingQuantity) {
+                    if (item.quantity > 1) {
+                        Text("Quantidade a cancelar", style = MaterialTheme.typography.labelLarge)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween) {
+                            OutlinedButton(onClick = { quantityText = ((selectedQuantity ?: 1) - 1).coerceAtLeast(1).toString() },
+                                enabled = !busy && !submitted && (selectedQuantity ?: 1) > 1,
+                                modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Diminuir quantidade" }) { Text("−") }
+                            Text(quantityText, style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.semantics { contentDescription = "Quantidade: $quantityText" })
+                            OutlinedButton(onClick = { quantityText = ((selectedQuantity ?: 1) + 1).coerceAtMost(item.quantity).toString() },
+                                enabled = !busy && !submitted && (selectedQuantity ?: 1) < item.quantity,
+                                modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Aumentar quantidade" }) { Text("+") }
+                        }
+                        Text("Até ${item.quantity} unidades restantes", style = MaterialTheme.typography.bodySmall)
+                    }
+                    else Text("Quantidade a cancelar: 1", style = MaterialTheme.typography.bodySmall)
                 }
                 if (action == CorrectionAction.REPLACEMENT) {
                     Text("Novo item", style = MaterialTheme.typography.labelLarge)
                     replacementProducts.forEach { product ->
-                        OutlinedButton(onClick = { replacementId = product.id }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                        OutlinedButton(onClick = { replacementId = product.id }, enabled = !busy && !submitted, modifier = Modifier.fillMaxWidth()) {
                             Text(if (replacementId == product.id) "✓ ${product.name} · ${formatCents(product.priceCents)}" else "${product.name} · ${formatCents(product.priceCents)}")
                         }
                     }
                     if (replacementProducts.isEmpty()) Text("Não há item disponível para troca.", color = MaterialTheme.colorScheme.error)
                 }
-                OutlinedTextField(
+                if (reviewingQuantity) Text("Motivo: ${reason.trim()}", style = MaterialTheme.typography.bodyMedium)
+                else OutlinedTextField(
+                        colors = rodadaTextFieldColors(),
                     value = reason,
                     onValueChange = { reason = it },
                     label = { Text("Motivo") },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !busy,
+                    enabled = !busy && !reviewingQuantity && !submitted,
                 )
                 if (requiresReauth) {
                     Text("Esta ação preserva o histórico de produção e requer a confirmação do operador autorizado.", color = MaterialTheme.colorScheme.error)
                     OutlinedTextField(
+                        colors = rodadaTextFieldColors(),
                         value = pin,
                         onValueChange = { pin = it },
                         label = { Text("Seu PIN") },
@@ -1016,6 +1067,12 @@ private fun CorrectionDialog(
         confirmButton = {
             Button(
                 onClick = {
+                    keyboard?.hide()
+                    if (action == CorrectionAction.CANCEL && item.quantity > 1 && !reviewingQuantity) {
+                        reviewingQuantity = true
+                        return@Button
+                    }
+                    submitted = true
                     onSubmit(
                         CorrectionCommand(
                             itemId = item.id,
@@ -1025,13 +1082,14 @@ private fun CorrectionDialog(
                             reasonText = reason.trim(),
                             idempotencyKey = idempotencyKey,
                             replacementProductId = replacementId.ifBlank { null },
+                            quantity = selectedQuantity,
                         ),
                         pin.takeIf { requiresReauth },
                     )
                     pin = ""
                 },
-                enabled = !busy && action in availableActions && reason.isNotBlank() && replacementValid && (!requiresReauth || pin.isNotBlank()),
-            ) { Text(action.label) }
+                enabled = !busy && validQuantity && action in availableActions && reason.isNotBlank() && replacementValid && (!requiresReauth || pin.isNotBlank()),
+            ) { Text(if (reviewingQuantity) "Confirmar cancelamento" else action.label) }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Voltar") } },
     )
@@ -1105,9 +1163,9 @@ internal fun RefundDialog(
                         }
                     }
                 } else selectedPayment?.let { Text("Pagamento: ${paymentMethodLabel(it.method)}") }
-                OutlinedTextField(value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor do estorno") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = rawAmount, onValueChange = { rawAmount = it }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), label = { Text("Valor do estorno") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy)
                 if (target is RefundTarget.Payment) {
-                    OutlinedTextField(value = reason, onValueChange = { reason = it }, label = { Text("Motivo") }, modifier = Modifier.fillMaxWidth(), enabled = !busy)
+                    OutlinedTextField(colors = rodadaTextFieldColors(), value = reason, onValueChange = { reason = it }, label = { Text("Motivo") }, modifier = Modifier.fillMaxWidth(), enabled = !busy)
                 }
                 if (cashPoints.any { it.activeShiftId != null }) {
                     Text("Caixa para devolução em dinheiro", style = MaterialTheme.typography.labelLarge)
@@ -1118,7 +1176,7 @@ internal fun RefundDialog(
                     }
                 }
                 Text("Confirme sua identidade como operador autorizado; o PIN não é salvo.", color = MaterialTheme.colorScheme.error)
-                OutlinedTextField(value = pin, onValueChange = { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
+                OutlinedTextField(colors = rodadaTextFieldColors(), value = pin, onValueChange = { pin = it }, label = { Text("Seu PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !busy, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation())
                 if (!valid) Text("Informe um valor válido e um pagamento disponível.", color = MaterialTheme.colorScheme.error)
             }
         },
