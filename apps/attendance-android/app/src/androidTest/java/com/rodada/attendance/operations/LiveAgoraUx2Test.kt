@@ -23,7 +23,18 @@ class LiveAgoraUx2Test {
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
-        compose.onNodeWithText("Entrar").performClick()
+        // Dismiss a visible IME, then tap the real button after its viewport settles.
+        if (androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) == true) {
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+            compose.waitUntil(10_000) {
+                androidx.core.view.ViewCompat.getRootWindowInsets(compose.activity.window.decorView)?.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()) != true
+            }
+        }
+        compose.waitForIdle()
+        if (compose.onAllNodes(hasText("Entrar") and hasAnyAncestor(hasScrollAction())).fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithText("Entrar").performScrollTo()
+        }
+        compose.onNodeWithText("Entrar").assertIsDisplayed().performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("now-queue-Atendimentos").assertIsSelected()
@@ -39,6 +50,13 @@ class LiveAgoraUx2Test {
                 val files = InstrumentationRegistry.getInstrumentation().targetContext.filesDir
                 java.io.File(files, "task-readback-ready").writeText("ready")
                 compose.waitUntil(60_000) { java.io.File(files, "task-readback-revoked").exists() }
+                if (args.getString("refreshBeforeTask") == "true") {
+                    compose.onNodeWithTag("attendance-options").performClick()
+                    compose.onNodeWithText("Atualizar").performClick()
+                    compose.onNodeWithTag("attendance-options").performClick()
+                    compose.onNodeWithText("Atualizar").assertIsNotEnabled()
+                    InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK)
+                }
                 compose.onNodeWithTag("service-$id").performScrollTo().performClick()
                 compose.waitUntil(30_000) { compose.onAllNodes(hasText("Em uso ·", substring = true)).fetchSemanticsNodes().isNotEmpty() }
                 compose.onNodeWithTag("workspace-Conta").assertDoesNotExist()
@@ -49,6 +67,23 @@ class LiveAgoraUx2Test {
                     compose.waitUntil(30_000) { compose.onAllNodesWithText("Saldo em aberto").fetchSemanticsNodes().isNotEmpty() }
                     compose.onNodeWithText("Assumir chamada").assertExists()
                     compose.onNodeWithText("Concluir chamada").assertExists()
+                    captureCriticalEvidence(compose, "live-agora-explicit-fallback", compose.onRoot())
+                    listOf("Assumir chamada", "Concluir chamada").forEach { label ->
+                        val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+                        compose.onNodeWithText(label, useUnmergedTree = true).performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
+                        check(layouts.single().lineCount <= 2) { "Action label must remain readable: $label" }
+                        check(!layouts.single().hasVisualOverflow) { "Action label overflow: $label lines=${layouts.single().lineCount} size=${layouts.single().size} width=${layouts.single().didOverflowWidth} height=${layouts.single().didOverflowHeight}" }
+                        compose.onNodeWithText(label).assertHeightIsAtLeast(androidx.compose.ui.unit.Dp(48f))
+                    }
+                    // Leaving the workspace ends the task-origin navigation. Reopening the
+                    // same Tab manually must not restore the old call.
+                    compose.onNodeWithText("← Mesas e comandas").performClick()
+                    compose.onNode(hasText("$name ·", substring = true) and hasClickAction()).performScrollTo().performClick()
+                    compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() }
+                    compose.onNodeWithText("Assumir chamada").assertDoesNotExist()
+                    compose.onNodeWithText("Concluir chamada").assertDoesNotExist()
+                    captureCriticalEvidence(compose, "live-agora-manual-return", compose.onRoot())
+
                 }
                 return
             }
