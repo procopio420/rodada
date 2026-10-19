@@ -1,3 +1,4 @@
+import { chooseBarAvailability } from "../visual/station-availability-actions";
 import { addCatalogItem } from "../visual/category-actions";
 import { expect, test } from "@playwright/test";
 import { execFileSync } from "node:child_process";
@@ -40,7 +41,8 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     await expect(dialog.getByRole("button", { name: /^Confirmar pedido/ })).toBeEnabled();
 
     await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {
-      await station.getByRole("button", { name: "Indisponibilizar " + product.name, exact: true }).click();
+      await chooseBarAvailability(station, product.name);
+      await station.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
       await expect.poll(async () => {
         const catalog = await api("catalog/products/");
         return catalog.results.find((entry: { id: string }) => entry.id === product.id)?.availability;
