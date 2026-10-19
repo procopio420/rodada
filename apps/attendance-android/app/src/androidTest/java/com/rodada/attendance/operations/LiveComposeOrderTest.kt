@@ -97,8 +97,17 @@ class LiveComposeOrderTest {
             return
         }
         waitText("Pedido confirmado pelo servidor.")
-        compose.onNodeWithTag("workspace-Conta").performClick()
-        compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
+        // UX2 can expose the account as a page instead of the legacy workspace tab.
+        compose.waitUntil(30_000) {
+            compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodes(hasText("Conta") and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithTag("workspace-Conta").performClick()
+        } else {
+            compose.onNode(hasText("Conta") and hasClickAction()).performClick()
+        }
+        waitText("Saldo em aberto")
         // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
     private fun evidence(message: String) {
