@@ -1,0 +1,31 @@
+{
+  "backend_sha": "02d63ae8",
+  "main_ancestor": "20828711",
+  "tenant": "spec033-native-autoclose-current",
+  "tabs": [
+    {
+      "tab_id": "f16370ca-4a89-4a8c-ac43-901684486d34",
+      "state": "CLOSED",
+      "exposure_cents": 0,
+      "charge_total_cents": 1000,
+      "payments": [
+        {
+          "id": "f38abba1-91fc-4bc7-bdf5-bd8857744885",
+          "amount_cents": 500,
+          "status": "CONFIRMED"
+        },
+        {
+          "id": "96b62f9b-0693-4e87-9f3e-9b52279ba3d9",
+          "amount_cents": 500,
+          "status": "CONFIRMED"
+        }
+      ]
+    }
+  ],
+  "cash_shifts": [
+    {
+      "id": "aa6bff87-fddb-4d07-9f38-42ed92e671b9",
+      "state": "OPEN"
+    }
+  ]
+}
