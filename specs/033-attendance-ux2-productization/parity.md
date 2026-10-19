@@ -216,3 +216,37 @@ completeDelivery (resposta tardia após troca de sessão e ausência de terminal
 readback na recuperação). Correções em slice separada, ainda sem aceite.
 Falha da fila de entregas também não deve bloquear pedidos disponíveis:
 separação de freshness Web registrada como próximo delta E03-07.
+
+
+### Estado posterior verificável — 18/10, composição de entregas
+
+Esta atualização substitui os estados “em execução” anteriores apenas nos recortes abaixo;
+os registros anteriores permanecem históricos. Nenhum épico ou AC global foi encerrado.
+
+| Tela/estado | Protótipo | Web | Android | Diferenças e resultado |
+|---|---|---|---|---|
+| Detalhe de entrega | PR212, página completa | PR246 `ffa959b6`: nove browser + quatro jornadas PostgreSQL PASS | PR250 `3a77d0a5`: 36 Compose/font1 e2, 120 JVM | Página completa e comparação versionadas; aceite global pendente |
+| Fila indisponível | Fluxos operacionais separados | PR248 `5b9e7f97`: 18 browser + quatro jornadas PostgreSQL PASS | Slice própria em execução | Pedir continua disponível quando apenas Dispatch falha; liberação bloqueada enquanto fila desconhecida |
+| ACK perdido e reinício em entrega | Recuperação segura | Readback real sem repetir POST coberto na PR246; processo Web ainda pendente | PR251 `24096637`: readback DONE/DELIVERED e force-stop real PASS | Mesmo task/item/intent, um POST; sessão revogada e A→B→A real pendentes |
+| Navegação em regressão ampla | Contexto e retorno aprovados | PR249 `87306a67`: cenários migrados para navegação atual | Não aplicável a esse teste Web | Regressores de seleção usam UUID; sem relaxar assertions de domínio |
+
+PR250 executou **120 JVM**, 36 verificações
+Compose e uma jornada MainActivity/API real somente leitura. Os **128 JVM**
+pertencem à composição de recuperação PR251, não à página isolada. A prova real
+de página usa fixture própria e não comprova recebimento/pagamento.
+
+A execução ampla Web em `05666768` terminou com **146 PASS, duas falhas e três
+skips**, em 21,9 minutos. Traces das duas falhas em rascunhos demonstram expiração
+do orçamento total de 30s, interrompendo a expectativa final após 175/258ms;
+não demonstram falha no prazo local de 5s. Revisão independente recomendou
+90s apenas para a jornada de três Tabs, mantendo expectativas locais e zero
+retries. Nova execução de 151 testes em `87306a67` está em andamento; ainda
+não é evidência verde. Os três skips são o menu CSV opt-in, cuja migração e
+execução real acontecem em worktree/PG próprios, sem dispensar esse gate.
+
+PR251 inclui revisão independente R3: reconciliação sem achados reproduzíveis;
+P2 do harness (aceitar assumption skip/config reservado) corrigido em `b8267334`,
+reavaliado e repetido no emulador com códigos reais de sucesso. Dez regressões
+Python PASS. Aprovação GitHub qualificada e gates de integração continuam abertos.
+Spec031 não integrada: preservar enforcement canônico; WARN_ONLY não simulado.
+Sem merge/deploy e sem aceite de diferenças intencionais por inferência.
