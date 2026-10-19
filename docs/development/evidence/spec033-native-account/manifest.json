@@ -1,0 +1,59 @@
+{
+  "production_source_sha": "8991c2ba",
+  "financial_fix_sha": "4003b726",
+  "storage_feedback_fix_sha": "8991c2ba",
+  "gates": {
+    "result": "PASS,1m19s",
+    "jvm_tests": 116,
+    "jvm_failures": 0,
+    "command": "ANDROID_HOME=/home/lucas/Android/Sdk ./gradlew -ProdadaApiBaseUrl=http://10.0.2.2:18131/ testDebugUnitTest assembleDebug lintDebug assembleDebugAndroidTest --max-workers=1"
+  },
+  "real_financial_tests": {
+    "result": "PASS (3 tests),20.429s",
+    "cash": true,
+    "postgres_port": 55501,
+    "database": "rodada_android_post_drop",
+    "api_upstream_port": 18132,
+    "fault_proxy_port": 18131,
+    "restart": "ViewModel only, not process force-stop",
+    "tests": [
+      "partial receipt remains OPEN; second cash receipt keeps OPEN at zero; Close preserves Payment IDs and active cash shift",
+      "Payment/Close committed response loss, same durable intent and canonical Payment ID after controller restart",
+      "real canonical Tab response delayed across ensureLoaded(session B), old Job fully completed before assertions; B context, pending intent and prior A checkpoint preserved"
+    ]
+  },
+  "visual": {
+    "production_source_sha": "512b7edc",
+    "test_source_sha": "a35af825",
+    "width_dp": 390,
+    "font_scale": 1,
+    "fixture": "Ana, R$24,00, no table; account screenshot is zero balance",
+    "scope": "isolated Compose pages, without application shell",
+    "parity": "NOT ACCEPTED",
+    "previous_matrix_sha": "a35af825",
+    "previous_matrix_result": "18/18 UI tests across 360/390/430 dp and font 1/2; predates the 512 visual correction"
+  },
+  "device": {
+    "avd": "rodada-api-36",
+    "serial": "emulator-5558",
+    "physical_device": false
+  },
+  "pending": [
+    "independent R3 final review",
+    "process force-stop receipt recovery",
+    "complete current width/font matrix and same-fixture full-app prototype comparison",
+    "TalkBack/IME/physical-device evidence",
+    "PSP certification and explicit approval of intentional operational differences"
+  ],
+  "apk_sha256": {
+    "app-debug.apk": "38242ee2914d9ff03f701f1c6627d5bb95ec51224f7bc346aaa66d63813b3c24",
+    "app-debug-androidTest.apk": "2f18764db0c1252f4f6e757b1330221500c4912a67ec35ff5d182b23a8fd3b69"
+  },
+  "evidence_sha256": {
+    "account-zero-512-390.png": "24090d8dff5a3c7256c185b6a7928b0308836f1838d329df5e7345bdb795d756",
+    "payment-512-390.png": "1f82d03de96c4018487c5ea92300133b06ce441d6cc584c92ba4440cc8c9ec20",
+    "build-8991.txt": "c09556787d7d526deda2ea72c91c822bf20b3d7886c08f01331f140060d83982",
+    "live-receipt-8991.txt": "e3527908bb3ecf46118da1b187564280fcc9e2594032cf246af5a5a97c5b7f2b",
+    "payment-pending-512-390.png": "c1acbad6d5afa29fa9568a2565eb16c1447b53c9f2404cb7466771303cc8809a"
+  }
+}

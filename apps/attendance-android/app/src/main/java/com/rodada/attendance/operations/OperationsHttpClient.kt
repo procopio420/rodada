@@ -259,7 +259,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
         json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
-        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"), json.getString("method"),
     )
 
     fun closeTab(accessToken: String, tabId: String) {
