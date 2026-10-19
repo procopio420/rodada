@@ -1,0 +1,19 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test attendance-history.spec.ts
+
+[2m[WebServer] [22m(node:3131857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [19/Oct/2026 01:48:31] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 3 tests using 1 worker
+
+(node:3132033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3132033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 360 (3.2s)
+  ✓  2 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 390 (2.9s)
+  ✓  3 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 430 (3.3s)
+
+  3 passed (13.5s)
