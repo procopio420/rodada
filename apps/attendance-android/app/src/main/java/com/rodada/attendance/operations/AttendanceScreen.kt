@@ -660,8 +660,11 @@ internal fun TabWorkspace(
     val cartScroll = rememberLazyListState()
     var catalogIndex by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
     var catalogOffset by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
-    LaunchedEffect(tab.summary.id, reviewingCart) {
-        if (!reviewingCart) catalogScroll.scrollToItem(catalogIndex, catalogOffset)
+    LaunchedEffect(tab.summary.id, workspaceSection) {
+        when (workspaceSection) {
+            "Cardápio" -> catalogScroll.scrollToItem(catalogIndex, catalogOffset)
+            "Conta" -> catalogScroll.scrollToItem(0)
+        }
     }
     var configuring by remember(tab.summary.id) { mutableStateOf<Product?>(null) }
     var editing by remember(tab.summary.id) { mutableStateOf<CartLine?>(null) }
