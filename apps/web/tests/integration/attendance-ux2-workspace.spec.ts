@@ -4,7 +4,7 @@ import {resolve} from "node:path";
 for(const width of [360,390,430,1280]) test(`UX2 direct catalog order and reload canonical ${width}`,async({page})=>{
  await page.setViewportSize({width,height:844});
  const label=`UX2 Canonical ${width}`;
- execFileSync(process.env.RODADA_TEST_PYTHON!,["-c",`import os,sys
+ const tabId=execFileSync(process.env.RODADA_TEST_PYTHON!,["-c",`import os,sys
 os.environ['DJANGO_SETTINGS_MODULE']='rodada_api.settings'
 import django;django.setup()
 from django.conf import settings
@@ -18,9 +18,10 @@ table=Table.objects.create(venue=venue,label=sys.argv[1],status='OCCUPIED')
 occupancy=TableOccupancy.objects.create(table=table,generation=table.access_generation)
 tab=Tab.objects.create(venue=venue,display_label=sys.argv[1],operating_limit_cents=20000)
 TabOccupancyAssignment.objects.create(tab=tab,occupancy=occupancy)
-`,label],{cwd:resolve("../api"),env:process.env});
+print(tab.pk)
+`,label],{cwd:resolve("../api"),env:process.env}).toString().trim();
  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
- const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.getByRole("button",{name:new RegExp(`^${label} · Comanda`)}).click();};
+ const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.locator(`button[data-tab-id="${tabId}"]`).click();};
  await open();const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});await expect(workspace.getByRole("heading",{name:label,exact:true})).toBeVisible();
  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
  for(const product of ["Kitchen E2E item","Bar E2E item"]) await workspace.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();

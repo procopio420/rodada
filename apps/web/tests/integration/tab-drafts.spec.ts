@@ -11,6 +11,8 @@ async function api(page: Page, path: string) {
 }
 
 for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts across fullpage table journeys at ${width}`, async ({ page }) => {
+  // Three real contextual openings plus draft restoration; local expectations retain 5s.
+  test.setTimeout(90_000);
   await page.setViewportSize({ width, height: 900 });
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
@@ -57,10 +59,14 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
   await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+  await popup.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).click();
+  await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+  await popup.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
   await popup.getByRole("button", { name: "Descartar rascunho", exact: true }).click();
   const discard = page.getByRole("dialog", { name: "Descartar rascunho?", exact: true });
   await discard.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(discard).not.toBeVisible();
+  await popup.getByRole("button", { name: "Voltar ao pedido pendente", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
   await popup.getByRole("button", { name: /^Enviar / }).click();
   await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();

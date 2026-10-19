@@ -251,3 +251,15 @@ Runner captures are isolated per invocation and preserve previous evidence.
 Repository workflows inspected on 2026-10-15 contain a Railway Docker build/smoke
 job, not an application deploy action. This does not verify Railway's external
 GitHub autodeploy setting; no merge/deploy is authorized by those checks.
+
+
+### Spec033 Web integration runtime
+
+The ordinary Web job has a 40-minute budget; explicitly requested full visual
+runs retain 45 minutes. Run39179515354 exceeded its previous 20-minute maximum
+inside `Real Web BFF API workflows` (GitHub annotation), while the local composed
+151-case suite took 21.9 minutes for integration alone. Installation, static
+checks and build also consume the job budget. This changes only the overall
+job deadline: test selection, per-assertion deadlines, retries, path filters,
+concurrency and required checks remain unchanged. No new automatic heavy gate
+is added; this does not turn a cancelled run into a pass or waive rerunning it.

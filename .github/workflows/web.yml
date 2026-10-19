@@ -34,8 +34,9 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       RODADA_TEST_PYTHON: python
-    # Give extra time only to deliberately requested visual checks.
-    timeout-minutes: ${{ ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) && 45 || 20 }}
+    # The real integration suite alone takes ~22m; include install/build time.
+    # Keep the explicit visual gate at its existing 45m budget.
+    timeout-minutes: ${{ ((github.event_name == 'workflow_dispatch' && inputs.run_visual) || (github.event_name == 'pull_request' && github.event.pull_request.number == 118)) && 45 || 40 }}
     services:
       postgres:
         image: mirror.gcr.io/library/postgres:17
