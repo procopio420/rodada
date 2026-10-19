@@ -1,0 +1,7 @@
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1080-f100.png: 1 file pulled, 0 skipped. 52.7 MB/s (164393 bytes in 0.003s)
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1080-f200.png: 1 file pulled, 0 skipped. 32.5 MB/s (234259 bytes in 0.007s)
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1170-f100.png: 1 file pulled, 0 skipped. 5.2 MB/s (167090 bytes in 0.030s)
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1170-f200.png: 1 file pulled, 0 skipped. 31.3 MB/s (245276 bytes in 0.007s)
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1290-f100.png: 1 file pulled, 0 skipped. 27.9 MB/s (166970 bytes in 0.006s)
+/data/local/tmp/rodada-critical-evidence/ux2-delivery-page-w1290-f200.png: 1 file pulled, 0 skipped. 42.6 MB/s (253673 bytes in 0.006s)
+MATRIX_PASS 36 Compose checks across six configurations
