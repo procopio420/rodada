@@ -42,11 +42,8 @@ foram alterados aqui.
 
 Testes JVM cobrem ACK perdido/reconstrução, readback indisponível, terminal
 incoerente, troca de item, tarefa cancelada/desconhecida, PICKED_UP e respostas
-sucesso/falha tardias após mudança de sessão. Execução e contagem serão
-registradas após o build terminar. Não equivalem a force-stop, teste real de
-PostgreSQL/rede, sessão revogada ou validação visual no emulador. Esses gates,
-revisão independente, aparelho físico e aceite operacional continuam pendentes.
-Sem PR, merge ou deploy neste estágio.
+sucesso/falha tardias após mudança de sessão. Contagens e integração real estão registradas abaixo. JVM isolada não equivale a
+processo/rede real; os gaps não demonstrados continuam pendentes. Sem merge/deploy.
 
 Limitação de UI: se a leitura exata retorna OPEN/CLAIMED mas a tarefa não
 aparece na lista (paginação/falha auxiliar), a pendência continua disponível
@@ -78,3 +75,12 @@ Ensaio adicional de force-stop real: método committedDeliverySurvivesActualForc
 **PASS**: POST com commit real/ACK perdido → intenção e sessão cifradas → processo encerrado → novo PID → fingerprint original idêntico → leitura exata DONE/DELIVERED → mesmo task/item/completed_at, um único POST total. Logs das duas fases e process-proof.json adjacentes. A sessão usa operador sintético exclusivo e o backend loopback18134/PG55501. O marcador contém somente IDs/hash/PID, nunca tokens ou PIN.
 
 Esse ensaio prova processo real de entrega, não force-stop de pagamento ou pedido. A→B→A continua prova JVM; A→B é prova ViewModel/API real. Aparelho físico, sessão revogada nessa jornada, matriz de rede completa, revisão independente do novo ensaio escrito pelo integrador e aprovação GitHub continuam pendentes. O produto foi escrito por outro contexto e revisado independentemente pelo root; o novo teste/harness tem SELF_REVIEW, sem simular aprovação R3.
+
+
+## Revisão independente e correção do harness
+
+Contexto reviewer /root/review_delivery_recovery_current, sem autoria: R3 base74643eb6→033a083e. Produto de reconciliação sem achados reproduzíveis; P2 detectado no harness poderia aceitar assumption skip-4 e argumentoscontroladores injetados no config com marcador residual. Os logs originais executaram STATUS_CODE0, portanto não eram falsosPASS.
+
+Fix b8267334 reserva config a venue/operator/testPin, reutiliza checker permanente da PR236 (27f2631e), exige método correto e códigos[1,0], valida marcador novo antesprepare e removido apósrecover. **10 testes Python PASS**, incluindo transcriptreal, skip-4, override, falhaapósOK e métodoerrado. Re-review independente executou novamente10testes e declarou NO_FINDINGS_WITH_GAPS no b8267334.
+
+Reensaio real com o harness corrigido também PASS: logs/processproof em force-stop-validated, prepare/recoverSTATUS_CODE0, umPOST. Nenhum dado do app foi limpo. Gaps de sessão revogada, A→B→A real, falha de armazenamento e aparelho físico continuam explícitos. Revisão de agente não equivale a aprovação GitHub/R3qualificada ou autorização de merge/deploy.
