@@ -16,3 +16,19 @@ Reviewer /root/review_navigation_and_delivery_pixels, contexto novo sem autoria,
 Traces revisados independentemente: preparaçãoisolatedFile7,688s em360 e10,329s em390; expectativa final da terceira abertura foi interrompida após175ms/258ms pelo deadline GLOBAL30000ms, antes de seus5s locais.430 passou29,4s. Não há evidência de falha do contrato local de abertura em5s nem causalidade comprovada doSDK.
 
 Ajuste exclusivamente test.setTimeout(90000) no cenário de três comandas, igual ao cenário de repetição real. Preserva limites locais, assertions, número de etapas e zero retries. Nova execução obrigatória; não declarar green a partir do ajuste isolado. Não substituir jornadas por fixtures diretas para contornar o deadline. Aprovação GitHub/aceite global continuam gates separados.
+
+
+## Regressão composta final — fonte87306a67
+
+Execução real Django/PostgreSQL55634/API8134/Web3134 terminou: **148 PASS,
+três skips, 19,5 minutos**, zero retries. Log completo sanitizado de códigos ANSI
+em composed-final-pass.log. Os três skips são exclusivamente venue-menu-acceptance,
+opt-in RODADA_E2E_MENU; execução separada permanece obrigatória e não é dispensada.
+O orçamento de90s aplica-se somente à jornada de três Tabs; expectativas locais
+continuam5s. As duas falhas anteriores por prazo global permanecem no log histórico.
+
+Revisão independente /root/review_navigation_and_delivery_pixels inspecionou
+mudança de navegação e traces, sem achados reproduzíveis no delta e concordou com
+orçamento restrito sem relaxar assertions. Esta revisão não é aprovação GitHub.
+Resultado prova a composição87306a67, não main posterior nem aceite global/paridade
+integral. Reconciliar mudanças concorrentes e repetir gates pertinentes antes do piloto.
