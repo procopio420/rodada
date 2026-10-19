@@ -40,6 +40,11 @@ The first final-run startup encountered the already seeded disposable Venue and
 terminated before tests; only after authoritative server termination was this
 own DB flushed and the successful final run started. No failure counted as PASS.
 
-Independent integrator review pending. Candidate CI, composition with newer main,
+Independent R3 review: `/root`, separate from author `/root/finish_menu_and_ci_review`,
+examined source0eae420a/evidencefce9dee7, fixture DB guards/transaction, existing
+READY service reuse, UUID reads, HTTP503-only injection and strict domain snapshots.
+All four proof JSONs were independently revalidated:100 tasks/five zones,
+before==after, zero writes. Outcome `NO_FINDINGS_WITH_GAPS`, sem achados
+reproduzíveis. This is not GitHub approval. Candidate CI, composition with newer main,
 Android matching50+50 proof, physical/TalkBack, full parity and pilot remain gates.
 E03-07/AC-08..11/AC-20..24 are not globally marked complete. No merge/deploy.
