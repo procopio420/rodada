@@ -110,8 +110,8 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   await page.getByRole("button", { name: "Confirmar abertura" }).click();
   await expect(page.getByRole("heading", { name: "Caixa aberto" })).toBeVisible();
   await evidence(page, "cash");
-  await page.goto("/manage#gestao");
-  await page.getByRole("link", { name: "Estornos", exact: true }).click();
+  await page.goto("/manage#financeiro");
+  await page.getByRole("link", { name: "Correções e estornos", exact: true }).click();
   await page.getByLabel("Comanda", { exact: true }).selectOption(tab.id);
   await expect(page.getByText("Restante reembolsável")).toHaveCount(0); // No payment invented.
   await expect(page.getByRole("button", { name: "Confirmar estorno" })).toBeDisabled();
