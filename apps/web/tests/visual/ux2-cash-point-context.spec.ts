@@ -50,7 +50,7 @@ for (const lostAck of [false, true]) test(`UX2 keeps cash context after point re
   await page.clock.runFor(16000);
   await expect(receipt.getByLabel('Caixa aberto', { exact: true }).getByRole('option', { name: 'Caixa B', exact: true })).toHaveCount(0);
   await expect(receipt.getByRole('button', { name: 'Receber e encerrar comanda', exact: true })).toBeDisabled();
-  await expect(receipt.getByRole('button', { name: 'Só registrar; manter comanda aberta', exact: true })).toBeDisabled();
+  await expect(receipt.getByRole('button', { name: 'Só registrar; manter comanda aberta', exact: true })).toHaveCount(0);
   expect(requests).toHaveLength(firstAttempts);
   await receipt.getByLabel('Caixa aberto', { exact: true }).selectOption('point-a');
   await receipt.getByLabel('Valor recebido (R$)', { exact: true }).fill('4,00');
