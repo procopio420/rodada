@@ -10,7 +10,7 @@ Fonte operacional `a3236515`; teste VM real `b0c4e1f5`; runner regressions `d59e
 
 ## Revisão e limites
 
-Risco R3. Revisão independente do integrador ainda pendente; autor não declara aprovação própria. Nenhum AC global concluído. A→B→A JVM testa geração; a prova real deverá observar coroutine antiga terminal enquanto a ação atual continua busy. Não há modificação visual, endpoint, ledger ou política financeira. Aparelho físico, revogação e force-stop desta ação não executados.
+Risco R3. Revisão independente R3 registrada abaixo; autor não declara aprovação própria. Nenhum AC global concluído. A→B→A JVM testa geração; a prova real deverá observar coroutine antiga terminal enquanto a ação atual continua busy. Não há modificação visual, endpoint, ledger ou política financeira. Aparelho físico, revogação e force-stop desta ação não executados.
 
 ## Reprodução e limites
 
@@ -19,3 +19,9 @@ Com Django preparado no DB sintético local, executar `manage.py shell < scripts
 Os operadores são diferentes e usam sessões válidas reais. A troca é aplicada ao SecureSessionStore e a `ensureLoaded`, sem simular resposta do repositório; revogação de tokens pelo endpoint de troca não faz parte deste ensaio. O snapshot cifrado é preservado, mas não contém uma nova intenção financeira criada pelo teste; a preservação de intenção A não vazia é coberta pelo teste determinístico da fronteira, não por esta evidência de claim. Nenhum pagamento/pedido/mesa foi criado ou modificado por esta fixture.
 
 Tentativa inicial de execução sem SDK no PATH falhou antes de instalar/rodar instrumentação; foi corrigida adicionando platform-tools e só a execução terminal registrada conta como PASS.
+
+## Revisão independente R3
+
+Contexto revisor `/root`, distinto da autoria desta slice, inspecionou a3236515 (produção), b0c4e1f5 (VM real), d59e6ee7 (runner) e a saída terminal da execução real de48.138s. Resultado `NO_FINDINGS_WITH_GAPS` no escopo: guard valida sucesso/falha antes de publicar/remover, origem da pendência e geração do outcome corretas; teste real confirma estado/busy e claims X,Y sem skips. Isso é revisão independente de código/evidência, não aprovação formal do GitHub, CI ou GO de piloto.
+
+Gaps separados: callbacks de `loadTabHistory` ainda usam apenas igualdade da chave e exigem auditoria A→B→A; refresh/freshness está em outra slice; autoClose financeiro alterado em main exige integração própria. Não foram silenciosamente aceitos ou resolvidos por este PR.
