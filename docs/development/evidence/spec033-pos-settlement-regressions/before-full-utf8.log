@@ -1,0 +1,430 @@
+[WebServer] (node:3175443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 155 tests using 1 worker
+
+(node:3175499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3175499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓    1 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 360 (9.5s)
+
+  ✓    2 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 390 (5.8s)
+
+  ✓    3 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 430 (5.8s)
+
+  ✓    4 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 1280 (5.4s)
+  ✓    5 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 360 (7.7s)
+  ✓    6 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 390 (4.4s)
+  ✓    7 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 430 (4.5s)
+  ✓    8 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 1280 (4.5s)
+
+  ✓    9 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (24.2s)
+
+  ✓   10 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (20.9s)
+
+  ✓   11 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (20.8s)
+
+  ✓   12 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (20.8s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Conflict: /dispatch/requests/f2644810-8af3-4781-91e8-464a21d0cd33/claim/
+[WebServer] Forbidden: /cash/points/
+  ✓   13 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 360 (19.0s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Conflict: /dispatch/requests/bf216345-dd3c-4d8b-ac54-ffb5fa35f9b6/claim/
+[WebServer] Forbidden: /cash/points/
+  ✓   14 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 390 (19.0s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Conflict: /dispatch/requests/8859adad-a69e-4bc2-987b-5797d00b752c/claim/
+[WebServer] Forbidden: /cash/points/
+  ✓   15 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 430 (19.2s)
+  ✓   16 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (5.5s)
+[WebServer] Conflict: /hospitality/tables/f74e9598-b00f-4eb7-827d-691b324a7ac4/release/
+  ✓   17 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (2.5s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /cash/points/
+  ✓   18 tests/integration/attendance-removal.spec.ts:4:5 › Attendance cancels a confirmed unpaid item through canonical financial reversal (9.0s)
+  ✓   19 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance lost Payment ACK reads canonical automatic settlement without another Close (7.3s)
+  ✓   20 tests/integration/attendance-settlement-recovery.spec.ts:64:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (4.9s)
+  ✓   21 tests/integration/attendance-settlement-recovery.spec.ts:91:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (4.1s)
+  ✓   22 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 1 without Close or another Payment (3.6s)
+  ✓   23 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 2 without Close or another Payment (3.7s)
+  ✓   24 tests/integration/attendance-settlement-recovery.spec.ts:137:51 › Confirmed receipt preserves intent on canonical CLOSED identity mismatch (3.6s)
+  ✓   25 tests/integration/attendance-settlement-recovery.spec.ts:137:51 › Confirmed receipt preserves intent on canonical CLOSED balance mismatch (4.1s)
+
+  ✓   26 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 (7.4s)
+
+  ✓   27 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 (4.1s)
+
+  ✓   28 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 (4.1s)
+
+  ✓   29 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 (4.3s)
+  ✓   30 tests/integration/attendance-ux2-workspace.spec.ts:37:5 › UX2 real committed order lost ACK reload reconciles one intent and ledger (3.4s)
+
+  ✓   31 tests/integration/attendance-ux2-workspace.spec.ts:53:5 › UX2 real cleaning records both canonical lifecycle transitions (3.9s)
+  ✓   32 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (6.1s)
+  ✓   33 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (2.7s)
+  ✓   34 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (2.6s)
+  ✓   35 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (2.9s)
+  ✓   36 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (2.7s)
+[WebServer] Conflict: /tabs/2ceb4817-120a-42ce-8afa-f152351641a3/close/
+  ✓   37 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (13.5s)
+  ✓   38 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery KITCHEN 360 (8.1s)
+  ✓   39 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery KITCHEN 390 (4.7s)
+  ✓   40 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery KITCHEN 430 (6.8s)
+  ✓   41 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery BAR 360 (5.3s)
+  ✓   42 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery BAR 390 (5.2s)
+  ✓   43 tests/integration/availability-intents.spec.ts:3:84 › Real availability recovery BAR 430 (5.3s)
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+  ✓   44 tests/integration/blocked-tenant-hosts.spec.ts:22:5 › inactive A/B and unknown hosts reject every Web method/path before auth or Guest dispatch (7.0s)
+  ✓   45 tests/integration/correction-without-refund.spec.ts:14:5 › Manager resolves 38/10/8 correction with no refund through real Web and PostgreSQL (9.1s)
+[WebServer] Unauthorized: /auth/me/
+  ✓   46 tests/integration/developer-staff.spec.ts:2:5 › DEV provisions an operator, edits role and revokes access with canonical readback (9.0s)
+  ✓   47 tests/integration/frontend-pilot.spec.ts:11:5 › pilot setup and service queue use real canonical API and occupancy covers (8.9s)
+
+  ✓   48 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 360 (9.0s)
+
+  ✓   49 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 390 (6.0s)
+
+  ✓   50 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 430 (5.4s)
+  ✓   51 tests/integration/guest-customer-identity.spec.ts:3:5 › Guest optional Customer login, HttpOnly BFF continuity and revocation, real PostgreSQL (9.7s)
+  ✓   52 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 360 (8.0s)
+  ✓   53 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 390 (4.7s)
+  ✓   54 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 430 (4.7s)
+  ✓   55 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 1280 (4.6s)
+  ✓   56 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 360 (7.6s)
+  ✓   57 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 390 (4.2s)
+  ✓   58 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 430 (4.2s)
+[WebServer] Forbidden: /guest/context/
+  ✓   59 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery revoked (3.5s)
+  ✓   60 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 360 (7.6s)
+  ✓   61 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 390 (4.9s)
+  ✓   62 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 430 (4.4s)
+  ✓   63 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 360 (8.9s)
+  ✓   64 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 390 (5.7s)
+  ✓   65 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 430 (5.6s)
+  ✓   66 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit blocked (4.4s)
+  ✓   67 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (8.2s)
+  ✓   68 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 360 (8.5s)
+  ✓   69 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 390 (5.2s)
+  ✓   70 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 430 (5.3s)
+  ✓   71 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 360 (5.4s)
+  ✓   72 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 390 (5.4s)
+  ✓   73 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 430 (5.4s)
+
+  ✓   74 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 360 (8.5s)
+
+  ✓   75 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 390 (4.8s)
+
+  ✓   76 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 430 (5.2s)
+  ✓   77 tests/integration/pos-cash-receipt.spec.ts:14:5 › POS lost cash response after PostgreSQL commit survives reload with one drawer effect (7.6s)
+  ✘   78 tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt resumes close after reload without reposting confirmed Payment (8.0s)
+(node:3226713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3226713) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /tabs/a7161f45-0b07-4189-896b-f64aadd1a45d/payments/
+  ✓   79 tests/integration/pos-cash-receipt.spec.ts:137:5 › Attendance CASH gateway preserves server capability guard (5.0s)
+[WebServer] Conflict: /tabs/ba548067-7cef-4b1f-a4f9-e407fa1b6a77/orders/confirm/
+  ✘   80 tests/integration/pos-cash-receipt.spec.ts:160:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again (2.4s)
+(node:3227395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3227395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   81 tests/integration/pos-cash-receipt.spec.ts:208:5 › UX2 Account receives partial CASH then settles and closes from real page (8.2s)
+
+  ✓   82 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 360 (11.9s)
+
+  ✓   83 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 390 (8.5s)
+
+  ✓   84 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 430 (8.7s)
+  ✓   85 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 360px (25.9s)
+  ✓   86 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 390px (22.0s)
+  ✓   87 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 430px (22.2s)
+  ✓   88 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 1280px (22.2s)
+[WebServer] Unauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   89 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 360px (15.8s)
+[WebServer] Unauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   90 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 390px (12.4s)
+[WebServer] Unauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   91 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 430px (12.5s)
+[WebServer] Unauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   92 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 1280px (12.5s)
+[WebServer] Not Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓   93 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (10.9s)
+  ✓   94 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 360 (9.2s)
+  ✓   95 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 390 (5.7s)
+  ✓   96 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 430 (5.9s)
+  ✓   97 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 360 (5.6s)
+  ✓   98 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 390 (5.7s)
+  ✓   99 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 430 (5.7s)
+  ✓  100 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 360 (7.2s)
+  ✓  101 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 390 (4.3s)
+  ✓  102 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 430 (4.2s)
+  ✓  103 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 360 (4.2s)
+  ✓  104 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 390 (4.4s)
+  ✓  105 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 430 (4.2s)
+  ✓  106 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 360 (8.4s)
+  ✓  107 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 390 (5.3s)
+  ✓  108 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 430 (5.3s)
+  ✓  109 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 360 (5.2s)
+  ✓  110 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 390 (5.3s)
+  ✓  111 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 430 (5.3s)
+  ✓  112 tests/integration/production-regions.spec.ts:4:84 › Real production region access KITCHEN 360 (8.8s)
+  ✓  113 tests/integration/production-regions.spec.ts:4:84 › Real production region access KITCHEN 390 (5.7s)
+  ✓  114 tests/integration/production-regions.spec.ts:4:84 › Real production region access KITCHEN 430 (5.7s)
+  ✓  115 tests/integration/production-regions.spec.ts:4:84 › Real production region access BAR 360 (6.1s)
+  ✓  116 tests/integration/production-regions.spec.ts:4:84 › Real production region access BAR 390 (6.8s)
+  ✓  117 tests/integration/production-regions.spec.ts:4:84 › Real production region access BAR 430 (6.7s)
+[WebServer] /home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[WebServer]   async for part in content:
+  ✓  118 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (7.1s)
+
+  ✓  119 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (13.0s)
+
+  ✓  120 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 (9.6s)
+
+  ✓  121 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 (9.7s)
+[WebServer] Forbidden: /guest/service-requests/
+[WebServer] Conflict: /guest/qr/resolve/
+  ✓  122 tests/integration/service-requests.spec.ts:4:5 › guest service calls persist in Dispatch and revoke with the visit (10.1s)
+  ✓  123 tests/integration/staff-screen.spec.ts:23:5 › personal device offers simple account controls without disabled switch form (507ms)
+  ✓  124 tests/integration/staff-screen.spec.ts:37:5 › shared trusted terminal reveals fast switch only when requested (449ms)
+  ✓  125 tests/integration/staff-screen.spec.ts:50:5 › logout and lock are tucked under deliberate security controls (428ms)
+
+  ✓  126 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 (15.7s)
+
+  ✓  127 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 (12.8s)
+
+  ✓  128 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 430 (12.9s)
+
+  ✓  129 tests/integration/tab-location-move.spec.ts:29:5 › real location movement preserves finance and recovers without duplicate effects at mobile widths (20.0s)
+
+  ✓  130 tests/integration/tab-pagination.spec.ts:7:5 › Real PostgreSQL Attendance finds the 201st Tab and retains an unsent draft (18.1s)
+
+  ✓  131 tests/integration/tab-search.spec.ts:7:5 › PostgreSQL global homonym search finds older Tabs and preserves contextual page drafts (10.2s)
+
+  ✓  132 tests/integration/table-entry.spec.ts:9:5 › real table entry opens an older Tab and confirms only its draft at mobile widths (17.2s)
+  ✓  133 tests/integration/table-groups.spec.ts:3:5 › TableGroups physical UI keeps Tabs separate and allows reversible grouping on mobile and desktop (6.9s)
+  ✓  134 tests/integration/table-turnover.spec.ts:3:5 › Table turnover real PostgreSQL report shows canonical coverage at mobile and desktop widths (5.9s)
+  ✓  135 tests/integration/tenant-home.spec.ts:16:5 › Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive (3.8s)
+  ✓  136 tests/integration/tenant-home.spec.ts:90:5 › Spec 025: venue hub heading comes from the verified host, not a hardcoded pilot name (427ms)
+[WebServer] Misdirected Request: /venue/context/
+[WebServer] Misdirected Request: /venue/context/
+  ✓  137 tests/integration/tenant-hosts.spec.ts:9:5 › Spec 025 P1: two real venue hosts have distinct branding and canonical aliases (4.2s)
+[WebServer] Forbidden: /auth/me/
+[WebServer] Forbidden: /tabs/
+[WebServer] Forbidden: /auth/refresh/
+[WebServer] Forbidden: /auth/me/
+[WebServer] Forbidden: /tabs/
+[WebServer] Forbidden: /realtime/snapshot/
+[WebServer] Not Found: /guest/qr/resolve/
+[WebServer] Not Found: /guest/context/
+[WebServer] Not Found: /guest/qr/resolve/
+[WebServer] Not Found: /guest/context/
+  ✓  138 tests/integration/tenant-hosts.spec.ts:39:5 › Spec 025 P1: cross-venue credential, replay and QR isolation via real Next BFF and Django (2.1s)
+  ✓  139 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 360 (5.2s)
+  ✓  140 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 390 (2.0s)
+  ✓  141 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 430 (2.0s)
+  ✓  142 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 1280 (2.1s)
+  ✓  143 tests/integration/ux2-now.spec.ts:35:5 › canonical call opens explicit table choice without claiming or completing (2.3s)
+  ✓  144 tests/integration/ux2-now.spec.ts:60:5 › failed contextual Tab read cannot attach the previous call to another Tab (2.9s)
+  -  145 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 360
+  -  146 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 390
+  -  147 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 430
+[WebServer] Forbidden: /cash/shifts/3c62276d-d0fd-4dd7-8bb3-3ef926cd8c64/review/
+[WebServer] Forbidden: /guest/context/
+[WebServer] Conflict: /guest/qr/resolve/
+  ✓  148 tests/integration/workflows.spec.ts:30:5 › real staff, production, guest ordering, management and cash/refund workflows (19.9s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /cash/points/
+  ✓  149 tests/integration/workflows.spec.ts:156:5 › real authorization failure is visible and never becomes an empty success (2.6s)
+[WebServer] Unauthorized: /auth/me/
+  ✓  150 tests/integration/workflows.spec.ts:169:5 › real expired session clears privileged cookies (372ms)
+  ✓  151 tests/integration/workflows.spec.ts:183:5 › canonical and compatibility hosts select the correct surface and manifest (196ms)
+[WebServer] Forbidden: /cash/shifts/ce19c410-6de1-4daf-8be4-ccc57bf049e5/review/
+  ✓  152 tests/integration/workflows.spec.ts:198:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (11.4s)
+[WebServer] Unauthorized: /auth/me/
+[WebServer] Unauthorized: /auth/me/
+[WebServer] Unauthorized: /auth/me/
+  ✓  153 tests/integration/workflows.spec.ts:276:5 › parallel Web refresh preserves all operational screens and still enforces revocation (2.9s)
+  ✓  154 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (7.6s)
+  ✓  155 tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation (5.8s)
+
+
+  1) tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt resumes close after reload without reposting confirmed Payment 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/Recebimento confirmado; encerramento pendente/)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText(/Recebimento confirmado; encerramento pendente/)
+
+
+      110 |   expect(paymentPosts).toBe(1);
+      111 |   await verify.click();
+    > 112 |   await expect(page.getByText(/Recebimento confirmado; encerramento pendente/)).toBeVisible();
+          |                                                                                 ^
+      113 |   expect(paymentPosts).toBe(2); expect(closePosts).toBe(1);
+      114 |   expect(bodies[1]).toBe(bodies[0]);
+      115 |   const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("rodada.intent.pos-cash.v1")!));
+        at /home/lucas/projects/rodada/ux2-current-main/apps/web/tests/integration/pos-cash-receipt.spec.ts:112:81
+
+    Error Context: test-results/integration/pos-cash-receipt-Attendanc-68f96-reposting-confirmed-Payment/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/pos-cash-receipt-Attendanc-68f96-reposting-confirmed-Payment/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/pos-cash-receipt-Attendanc-68f96-reposting-confirmed-Payment/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/pos-cash-receipt.spec.ts:160:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again 
+
+    Error: page.evaluate: Error: 409 {"code":"TAB_NOT_OPEN","message":"Esta comanda não aceita novos pedidos.","state":"CLOSED"}
+        at eval (eval at evaluate (:290:30), <anonymous>:13:29)
+        at async <anonymous>:316:30
+        at eval (eval at evaluate (:290:30), <anonymous>:13:29)
+        at async <anonymous>:316:30
+        at api (/home/lucas/projects/rodada/ux2-current-main/apps/web/tests/integration/pos-cash-receipt.spec.ts:4:15)
+        at /home/lucas/projects/rodada/ux2-current-main/apps/web/tests/integration/pos-cash-receipt.spec.ts:180:9
+
+    Error Context: test-results/integration/pos-cash-receipt-Confirmed-16254-open-without-charging-again/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/pos-cash-receipt-Confirmed-16254-open-without-charging-again/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/pos-cash-receipt-Confirmed-16254-open-without-charging-again/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt resumes close after reload without reposting confirmed Payment 
+    tests/integration/pos-cash-receipt.spec.ts:160:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again 
+  3 skipped
+  150 passed (19.7m)
