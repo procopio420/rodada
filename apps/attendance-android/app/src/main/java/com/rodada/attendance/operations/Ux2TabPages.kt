@@ -190,7 +190,9 @@ internal fun Ux2TabPages(
         if (!closed && count > 0 && !pending) {
             val withinLimit = !summary.consumptionBlocked && total <= summary.remainingCapacityCents
             val valid = cart.all { it.product.active && it.product.availability == "AVAILABLE" && it.product.customizationError(it.customization) == null }
-            Ux2Action("Enviar $count ${if (count == 1) "item" else "itens"} · ${formatCents(total)}", !locked && valid && withinLimit && state.connectivity == ConnectivityState.ONLINE, onConfirm, true)
+            val saveLocally = state.connectivity == ConnectivityState.OFFLINE
+            Ux2Action(if (saveLocally) "Guardar pedido neste aparelho" else "Enviar $count ${if (count == 1) "item" else "itens"} · ${formatCents(total)}",
+                !locked && valid && withinLimit && (saveLocally || state.connectivity == ConnectivityState.ONLINE), onConfirm, true)
         }
     }
 }

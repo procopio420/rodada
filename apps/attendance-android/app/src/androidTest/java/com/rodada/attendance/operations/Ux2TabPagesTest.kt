@@ -40,6 +40,19 @@ class Ux2TabPagesTest {
         assertEquals(1, sends)
     }
 
+    @Test fun offlineDraftOnlySavesOriginalIntentWithoutClaimingConfirmation() {
+        var saves = 0
+        compose.setContent { RodadaTheme { Surface {
+            Ux2TabPages(OperationsUiState(products = listOf(product), cart = listOf(CartLine(product, 2)), connectivity = ConnectivityState.OFFLINE), tab,
+                "Pedido atual", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, { saves++ }, { _, _ -> }, {})
+        } } }
+        compose.onNodeWithText("Enviar 2 itens · ${formatCents(1000)}").assertDoesNotExist()
+        compose.onNodeWithText("Guardar pedido neste aparelho").assertIsEnabled().performClick()
+        assertEquals(1, saves)
+        compose.onNodeWithText("Pedido confirmado pelo servidor.").assertDoesNotExist()
+        compose.onNodeWithText("2× Água").assertExists()
+    }
+
     @Test fun pendingLocksEditingAndOnlyReplaysOriginalCallback() {
         var sends = 0
         compose.setContent { RodadaTheme { Surface {

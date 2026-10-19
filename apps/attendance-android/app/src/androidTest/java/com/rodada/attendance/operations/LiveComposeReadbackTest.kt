@@ -29,22 +29,24 @@ class LiveComposeReadbackTest {
         val tableTag = "table-${args.getString("tableId") ?: error("Missing table") }"
         for (key in listOf("tabOne", "tabTwo")) {
             waitFor(hasTestTag("tables-list"))
-            compose.onNodeWithText("Buscar mesa ou comanda").performTextClearance()
-            compose.onNodeWithText("Buscar mesa ou comanda").performTextInput(args.getString("tableLabel") ?: error("Missing table label"))
+            compose.onNodeWithContentDescription("Buscar mesa ou comanda").performTextClearance()
+            compose.onNodeWithContentDescription("Buscar mesa ou comanda").performTextInput(args.getString("tableLabel") ?: error("Missing table label"))
             compose.onNodeWithTag("tables-list").performScrollToNode(hasTestTag(tableTag))
             compose.onNodeWithTag(tableTag).performClick()
-            val tab = hasText(args.getString(key) ?: error("Missing Tab label"), substring = true) and hasClickAction() and hasAnyAncestor(isDialog())
+            val tab = hasText(args.getString(key) ?: error("Missing Tab label"), substring = true) and hasClickAction()
             waitFor(tab and isEnabled())
             compose.onNode(tab).performClick()
-            waitFor(hasTestTag("workspace-Conta") and isEnabled())
-            compose.onNodeWithTag("workspace-Conta").performClick()
-            waitFor(hasTestTag("workspace-list"))
-            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Pronto"))
+            waitFor(hasText("Conferir / fechar conta") and isEnabled())
+            compose.onNodeWithText("Conferir / fechar conta").performScrollTo().performClick()
+            compose.onNodeWithText("Ver detalhes da conta").performScrollTo().performClick()
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pronto").fetchSemanticsNodes().size == 2 }
-            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Saldo em aberto"))
-            compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
-            compose.onNodeWithText("R$ 17,00").assertIsDisplayed()
-            compose.onNodeWithText("← Mesas e comandas").performClick()
+            compose.onAllNodesWithText("Pronto").onFirst().performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Falta receber").performScrollTo().assertIsDisplayed()
+            compose.onNode(hasText("R$ 17,00") and hasAnySibling(hasText("Falta receber"))).assertIsDisplayed()
+            compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+            compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+            compose.onNodeWithText("Voltar", substring = false).performScrollTo().performClick()
+
         }
         // No confirm/payment/fulfillment action, direct HTTP client or seeded Compose state.
     }
