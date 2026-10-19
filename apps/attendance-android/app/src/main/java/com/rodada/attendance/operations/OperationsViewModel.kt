@@ -22,6 +22,8 @@ import com.rodada.attendance.refunds.refundStatusLabel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlin.coroutines.coroutineContext
 import com.rodada.attendance.BuildConfig
 import com.rodada.attendance.realtime.SseOperationalRealtime
 import com.rodada.attendance.realtime.RealtimeSignal
@@ -55,6 +57,9 @@ data class OperationsUiState(
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
     val deliveryTasks: List<DeliveryTask> = emptyList(),
+    val deliveryTasksFresh: Boolean = false,
+    val deliveryTasksLoading: Boolean = false,
+    val deliveryTasksError: String? = null,
     val serviceRequests: List<ServiceRequest> = emptyList(),
     val serviceRequestsFresh: Boolean = false,
     val serviceRequestsError: String? = null,
@@ -94,13 +99,16 @@ class OperationsViewModel(
         private set
 
     private var loadedSessionKey: String? = null
+    private var refreshGeneration = 0L
     private val financialResponses = FinancialResponseFence()
     private val tabDrafts = TabDraftContexts()
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
     private val historyDetailReads = LatestHistoryRead()
+    private var deliveryRefreshJob: Job? = null
     private var orderReplayJob: Job? = null
     private var streamConnected = false
+    private var coreReadHealthy = false
     private var invalidationJob: Job? = null
     private var refreshRequested = false
 
@@ -111,7 +119,7 @@ class OperationsViewModel(
                 when (signal) {
                     RealtimeSignal.Connected -> {
                         streamConnected = true
-                        if (state.connectivity != ConnectivityState.OFFLINE && state.lastSyncedAtMillis != null) state = state.copy(connectivity = ConnectivityState.ONLINE)
+                        if (coreReadHealthy && state.connectivity != ConnectivityState.OFFLINE && state.lastSyncedAtMillis != null) state = state.copy(connectivity = ConnectivityState.ONLINE)
                     }
                     RealtimeSignal.Reconnecting -> {
                         streamConnected = false
@@ -244,11 +252,17 @@ class OperationsViewModel(
             orderReplayJob = null
             refreshJob?.cancel()
             refreshJob = null
+            deliveryRefreshJob?.cancel()
+            deliveryRefreshJob = null
             stopRealtime()
             // Never leave a prior operator's draft cart or Tab context on a shared device.
+            coreReadHealthy = false
             state = OperationsUiState()
         }
-        if (loadedSessionKey != key) financialResponses.invalidate()
+        if (loadedSessionKey != key) {
+            refreshGeneration++
+            financialResponses.invalidate()
+        }
         loadedSessionKey = key
         tabDrafts.enterSession(key)
         loadOrderQueue(session)
@@ -256,9 +270,15 @@ class OperationsViewModel(
     }
 
     fun refresh(session: StoredSession) {
+        val expectedSession = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
+        if (loadedSessionKey != null && loadedSessionKey != expectedSession) return
         if (refreshJob?.isActive == true || state.submitting) return
+        coreReadHealthy = false
+        val generation = refreshGeneration
         state = state.copy(
             loading = true,
+            deliveryTasksFresh = false,
+            deliveryTasksLoading = true,
             errorMessage = null,
             noticeMessage = pendingMutationIntentStore.reviewMessage(session),
             connectivity = if (state.tabs.isEmpty()) ConnectivityState.RECONNECTING else ConnectivityState.STALE,
@@ -269,30 +289,35 @@ class OperationsViewModel(
                     pendingMutationIntentStore.blockedFor(session).map { it.evidence(reviewOnly = true) }
             }.onSuccess { state = state.copy(recoveryEvidence = it.sortedBy { row -> row.capturedAtMillis }, recoveryEvidenceReadable = true) }
                 .onFailure { state = state.copy(recoveryEvidence = emptyList(), recoveryEvidenceReadable = false, noticeMessage = pendingMutationIntentStore.reviewMessage(session)) }
+            if (deliveryRefreshJob?.isActive != true) {
+                deliveryRefreshJob = viewModelScope.launch { readDeliveryTasks(session) }
+            }
             readServiceRequests(session)
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
+                coroutineContext.ensureActive()
                 state = state.copy(pixEnabled = caps.pix, paymentProviderSimulated = caps.simulated, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
-                val deliveries = repository.deliveryTasks(session)
                 val cashPoints = runCatching { repository.cashPoints(session) }.getOrDefault(emptyList())
                 val tables = runCatching { repository.tables(session) }.getOrDefault(emptyList())
                 val detail = state.selectedTab?.summary?.id?.let { id ->
                     repository.tabDetail(session, id)
                 }
-                RefreshSnapshot(tabs, products, cashPoints, deliveries, tables, detail)
+                RefreshSnapshot(tabs, products, cashPoints, tables, detail)
             }.onSuccess { snapshot ->
+                coroutineContext.ensureActive()
+                if (generation != refreshGeneration) return@launch
+                coreReadHealthy = true
                 state = state.copy(
                     loading = false,
                     tabs = snapshot.tabs,
                     products = snapshot.products,
                     cashPoints = snapshot.cashPoints,
-                    deliveryTasks = snapshot.deliveryTasks,
                     tables = snapshot.tables,
                     pendingTableService = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().firstOrNull(),
                     selectedTab = snapshot.detail ?: state.selectedTab,
-                    connectivity = if (streamConnected) ConnectivityState.ONLINE else ConnectivityState.STALE,
+                    connectivity = ConnectivityState.ONLINE,
                     lastSyncedAtMillis = System.currentTimeMillis(),
                     contextRecoveryPending = snapshot.detail?.let { detail -> pendingMutationIntentStore.loadFor(session).any { it.targetsContext(detail) } } ?: false,
                 )
@@ -300,6 +325,8 @@ class OperationsViewModel(
                 loadOrderQueue(session)
                 resumePendingOrders(session)
             }.onFailure {
+                coroutineContext.ensureActive()
+                if (generation != refreshGeneration) return@launch
                 state = state.copy(loading = false)
                 showFailure(it)
             }
@@ -342,6 +369,15 @@ class OperationsViewModel(
         }
     }
 
+    private suspend fun readDeliveryTasks(session: StoredSession) {
+        val result = runCatching { repository.deliveryTasks(session) }
+        coroutineContext.ensureActive()
+        result.onSuccess { state = state.copy(deliveryTasks = it, deliveryTasksFresh = true, deliveryTasksLoading = false, deliveryTasksError = null) }
+            .onFailure { state = state.copy(deliveryTasksFresh = false, deliveryTasksLoading = false,
+                deliveryTasksError = "Entregas desatualizadas. Atualize para conferir. Pedidos continuam disponíveis com a conexão atualizada.") }
+    
+    }
+
     private suspend fun readServiceRequests(session: StoredSession, guard: FinancialResponseFence.Guard = sessionActionGuard(session)) {
         if (!guard.isCurrent()) return
         state = state.copy(serviceRequestsFresh = false)
@@ -376,7 +412,8 @@ class OperationsViewModel(
     suspend fun recordPartySize(session: StoredSession, occupancyId: String, command: PartySizeCommand) = repository.partySize(session, occupancyId, command)
 
     fun markConnectionStale() {
-        viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE, serviceRequestsFresh = false) }
+        coreReadHealthy = false
+        viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE, serviceRequestsFresh = false, deliveryTasksFresh = false) }
     }
 
     fun openTab(session: StoredSession, label: String, customerId: String? = null) = action(session) {
@@ -1111,17 +1148,22 @@ class OperationsViewModel(
                     read = { repository.deliveryRecoveryRead(session, intent.deliveryTaskId) },
                     submit = { repository.completeDelivery(session, intent.deliveryTaskId) }, checkCurrent = guard::check)
                 guard.check()
-                val deliveries = runCatching { repository.deliveryTasks(session) }.getOrElse {
+                val deliveryRead = runCatching { repository.deliveryTasks(session) }
+                val deliveries = deliveryRead.getOrElse {
                     state.deliveryTasks.filterNot { task -> read.confirmed && task.id == intent.deliveryTaskId }
                 }
                 guard.check()
                 if (read.confirmed) {
                     pendingMutationIntentStore.remove(intent.id)
                     state = state.copy(submitting = false, deliveryTasks = deliveries,
+                        deliveryTasksFresh = deliveryRead.isSuccess,
+                        deliveryTasksError = if (deliveryRead.isSuccess) null else "Entregas desatualizadas. Atualize para conferir.",
                         recoveryEvidence = state.recoveryEvidence.filterNot { it.id == intent.id },
                         recoveryDeliveryTaskId = null, noticeMessage = "Entrega concluída.")
                 } else {
                     state = state.copy(submitting = false, deliveryTasks = deliveries,
+                        deliveryTasksFresh = deliveryRead.isSuccess,
+                        deliveryTasksError = if (deliveryRead.isSuccess) null else "Entregas desatualizadas. Atualize para conferir.",
                         recoveryDeliveryTaskId = intent.deliveryTaskId,
                         noticeMessage = "Entrega consultada. A intenção original continua pendente; confira o estado antes de agir.")
                 }
@@ -1192,6 +1234,7 @@ class OperationsViewModel(
     }
 
     fun releaseTable(session: StoredSession, target: TableReleaseTarget) = tableAction(session, showNotice = false) {
+        check(state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE) { "Atualize as entregas antes de liberar a mesa." }
         repository.releaseTable(session, target)
         "Mesa liberada para limpeza."
     }
@@ -1301,7 +1344,6 @@ class OperationsViewModel(
         val tabs: List<TabSummary>,
         val products: List<Product>,
         val cashPoints: List<CashPoint>,
-        val deliveryTasks: List<DeliveryTask>,
         val tables: List<TableSummary>,
         val detail: TabDetail?,
     )

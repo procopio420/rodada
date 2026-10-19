@@ -14,7 +14,7 @@ class TableReleaseTest {
     @get:Rule val compose = createComposeRule()
     private val table = TableSummary("table-a", "A", "OCCUPIED", "ENABLED", false, null,
         TableOccupancy("visit-a", 1, emptyList()))
-    private val state = mutableStateOf(OperationsUiState(tables = listOf(table)))
+    private val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE))
     private val allowed = mutableStateOf(true)
     private val released = mutableListOf<String>()
     private val releasedTargets = mutableListOf<TableReleaseTarget>()
@@ -41,6 +41,16 @@ class TableReleaseTest {
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)
         assertEquals(listOf(TableReleaseTarget("table-a", "visit-a", 1)), releasedTargets)
+    }
+
+    @Test fun staleDispatchWhileDialogOpenBlocksRelease() {
+        render()
+        compose.runOnIdle { state.value = state.value.copy(deliveryTasksFresh = false) }
+        compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
+        compose.onAllNodesWithText("Entregas desatualizadas. Atualize antes de liberar a mesa.").onFirst().assertExists()
+        captureCriticalEvidence(compose, "table-release-stale-dispatch", compose.onNode(isDialog()))
+        compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(emptyList<String>(), released)
     }
 
     @Test fun changedOccupancyNeverAdoptsNewVisit() {

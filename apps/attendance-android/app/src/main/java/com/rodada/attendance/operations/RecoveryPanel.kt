@@ -46,7 +46,7 @@ internal fun RecoveryPanel(state: OperationsUiState, onOpen: (String) -> Unit, o
 enum class NowQueue(val label: String) { READY("Prontos"), CALLS("Chamadas"), PENDING("Pendências") }
 
 fun nowQueueCounts(state: OperationsUiState): Map<NowQueue, String> = mapOf(
-    NowQueue.READY to if (!state.loading && state.lastSyncedAtMillis != null && state.connectivity == ConnectivityState.ONLINE) state.deliveryTasks.size.toString() else "—",
+    NowQueue.READY to if (state.deliveryTasksFresh && !state.loading && state.connectivity == ConnectivityState.ONLINE) state.deliveryTasks.size.toString() else "—",
     NowQueue.CALLS to if (state.serviceRequestsFresh && state.connectivity == ConnectivityState.ONLINE) state.serviceRequests.size.toString() else "—",
     NowQueue.PENDING to if (state.recoveryEvidenceReadable) state.pendingEvidence().size.toString() else "—")
 

@@ -195,6 +195,7 @@ fun TablesScreen(
             TableCard(
                 table = table,
                 balances = state.tabs.associate { it.id to it.exposureCents },
+                deliveryTasksFresh = state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE,
                 pendingDeliveries = state.deliveryTasks.count { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null },
                 onViewDeliveries = onViewDeliveries,
                 busy = locked,
@@ -207,7 +208,7 @@ fun TablesScreen(
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
-                    table.activeOccupancy?.takeIf { occupancy -> occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null } }?.let {
+                    table.activeOccupancy?.takeIf { occupancy -> state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE && occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null } }?.let {
                         releasingTableId = table.id
                         releasingOccupancyId = it.id
                         releasingGeneration = it.generation
@@ -234,7 +235,7 @@ fun TablesScreen(
         val sameOccupancy = current?.status == "OCCUPIED" &&
             current.activeOccupancy?.id == releasingOccupancyId &&
             current.activeOccupancy?.generation == releasingGeneration
-        val releaseReady = sameOccupancy && current?.activeOccupancy?.tabs.orEmpty().none { it.state !in setOf("CLOSED", "CANCELLED") } &&
+        val releaseReady = state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE && sameOccupancy && current?.activeOccupancy?.tabs.orEmpty().none { it.state !in setOf("CLOSED", "CANCELLED") } &&
             state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOfNotNull(current)) != null }
         AlertDialog(
             onDismissRequest = { releasingTableId = null },
@@ -244,7 +245,8 @@ fun TablesScreen(
                     Text("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.")
                     Text("As comandas e seus saldos permanecem. Esta ação não recebe pagamentos nem fecha comandas.")
                     if (!sameOccupancy) Text("A ocupação mudou. Cancele e confira a mesa novamente.", color = MaterialTheme.colorScheme.error)
-                    if (sameOccupancy && !releaseReady) Text("Há comandas abertas ou entregas prontas. Cancele e confira a mesa.", color = MaterialTheme.colorScheme.error)
+                    if (!state.deliveryTasksFresh || state.connectivity != ConnectivityState.ONLINE) Text("Entregas desatualizadas. Atualize antes de liberar a mesa.", color = MaterialTheme.colorScheme.error)
+                    if (state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE && sameOccupancy && !releaseReady) Text("Há comandas abertas ou entregas prontas. Cancele e confira a mesa.", color = MaterialTheme.colorScheme.error)
                     if (!canManageTables) Text("Seu acesso atual não permite liberar a mesa.")
                 }
             },
@@ -328,6 +330,7 @@ private fun TableCard(
     table: TableSummary,
     balances: Map<String, Long>,
     pendingDeliveries: Int,
+    deliveryTasksFresh: Boolean,
     onViewDeliveries: () -> Unit,
     busy: Boolean,
     canManage: Boolean,
@@ -377,6 +380,9 @@ private fun TableCard(
         if (table.status == "OCCUPIED") {
             Text("Saída do grupo", style = AttendanceUx2.text(18, 800))
             if (openTabs > 0) Text("$openTabs comanda(s) abertas. Encerre cada uma para liberar a mesa.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber, modifier = Modifier.background(RodadaVisual.Surface, RoundedCornerShape(10.dp)).padding(14.dp))
+            else if (!deliveryTasksFresh) {
+                Text("Entregas desatualizadas. Atualize antes de liberar a mesa.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber)
+            }
             else if (pendingDeliveries > 0) {
                 Text("$pendingDeliveries entrega(s) ainda prontas. Resolva as entregas antes de liberar.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber)
                 Ux2Action("Ver entregas prontas", !busy, onViewDeliveries)
