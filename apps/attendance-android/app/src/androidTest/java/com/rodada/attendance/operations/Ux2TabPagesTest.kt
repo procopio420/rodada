@@ -119,7 +119,7 @@ class Ux2TabPagesTest {
         compose.onNode(hasSetTextAction()).performTextInput("inexistente")
         compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
         compose.onNodeWithText("Conferir / fechar conta").performScrollTo().performClick()
-        compose.onNodeWithText("← Voltar à comanda").performClick()
+        compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
         compose.onNodeWithText("＋ Adicionar itens").performScrollTo().performClick()
         compose.onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.EditableText, androidx.compose.ui.text.AnnotatedString("inexistente")))
         compose.onNode(hasSetTextAction()).performTextClearance()
