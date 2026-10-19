@@ -1,0 +1,39 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test attendance-history.spec.ts ux2-table-release-context.spec.ts ux2-delivery-page.spec.ts ux2-delivery-freshness.spec.ts ux2-cash-point-context.spec.ts
+
+[2m[WebServer] [22m(node:3383738) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [19/Oct/2026 02:32:30] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 23 tests using 1 worker
+
+(node:3383897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3383897) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 360 (3.2s)
+  ✓   2 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 390 (3.8s)
+  ✓   3 tests/visual/attendance-history.spec.ts:3:42 › Attendance history is separate and read-only at 430 (4.4s)
+  ✓   4 tests/visual/ux2-cash-point-context.spec.ts:4:42 › UX2 keeps cash context after point removal, lost ACK false (2.6s)
+  ✓   5 tests/visual/ux2-cash-point-context.spec.ts:4:42 › UX2 keeps cash context after point removal, lost ACK true (2.3s)
+  ✓   6 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 360 (2.7s)
+  ✓   7 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 390 (3.2s)
+  ✓   8 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 430 (2.2s)
+  ✓   9 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 1280 (1.6s)
+  ✓  10 tests/visual/ux2-delivery-freshness.spec.ts:23:5 › initial Dispatch failure is unknown rather than an empty queue (1.0s)
+  ✓  11 tests/visual/ux2-delivery-freshness.spec.ts:24:5 › core outage blocks mutations even when Dispatch is fresh (1.7s)
+  ✓  12 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 360 (1.4s)
+  ✓  13 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 390 (869ms)
+  ✓  14 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 430 (914ms)
+  ✓  15 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 1280 (1.0s)
+  ✓  16 tests/visual/ux2-delivery-page.spec.ts:22:5 › lost ACK confirmed by same-task readback without replay (881ms)
+  ✓  17 tests/visual/ux2-delivery-page.spec.ts:23:5 › rival prevents completion (692ms)
+  ✓  18 tests/visual/ux2-delivery-page.spec.ts:24:5 › destination change stops mutation (756ms)
+  ✓  19 tests/visual/ux2-delivery-page.spec.ts:25:5 › unknown response verified without resubmitting (916ms)
+  ✓  20 tests/visual/ux2-delivery-page.spec.ts:27:5 › desktop delivery footer uses the full shell width (928ms)
+  ✓  21 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true (849ms)
+  ✓  22 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false (1.3s)
+  ✓  23 tests/visual/ux2-table-release-context.spec.ts:49:6 › release sends the confirmed occupancy identity without a compatibility fallback (865ms)
+
+  23 passed (45.3s)
