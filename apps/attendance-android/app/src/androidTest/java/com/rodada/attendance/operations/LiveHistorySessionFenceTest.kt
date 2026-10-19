@@ -25,7 +25,7 @@ class LiveHistorySessionFenceTest {
     private fun login(operator: String,pin: String) = AuthHttpClient(upstream).login(LoginRequest(
         args.getString("venue")!!,operator,pin,"history-fence-${UUID.randomUUID()}"))
     private fun control(action: String,mode: String="success"): JSONObject {
-        val connection=URL("http://10.0.2.2:18138/__history_fence/$action").openConnection() as HttpURLConnection
+        val connection=URL("http://10.0.2.2:18140/__history_fence/$action").openConnection() as HttpURLConnection
         connection.requestMethod="POST";connection.doOutput=true;connection.connectTimeout=5000;connection.readTimeout=5000
         connection.outputStream.use { it.write(JSONObject().put("mode",mode).toString().toByteArray()) }
         return try { JSONObject(connection.inputStream.bufferedReader().readText()) } finally { connection.disconnect() }
@@ -33,7 +33,7 @@ class LiveHistorySessionFenceTest {
     private fun loaded(vm: OperationsViewModel)=compose.waitUntil(30_000) { !vm.state.loading && vm.state.lastSyncedAtMillis != null }
     @Test fun lateHistorySuccessAndFailureCannotFinishNewHistoryAcrossSessionGenerations() {
         assumeTrue(args.getString("liveHistorySessionFence")=="true")
-        check(BuildConfig.RODADA_API_BASE_URL=="http://10.0.2.2:18138/")
+        check(BuildConfig.RODADA_API_BASE_URL=="http://10.0.2.2:18140/")
         for(returnToA in listOf(false,true)) for(failure in listOf(false,true)) {
             val a=login(args.getString("operator")!!,args.getString("testPin")!!)
             val sessions=SecureSessionStore(context);sessions.save(a)
@@ -41,9 +41,13 @@ class LiveHistorySessionFenceTest {
             val vm=OperationsViewModel(OperationsRepository(auth),PendingMutationIntentStore(context),auth,CorrectionsRepository(auth),RefundsRepository(auth))
             compose.runOnUiThread { vm.ensureLoaded(a) };loaded(vm)
             control("arm",if(failure) "failure" else "success")
-            compose.runOnUiThread { vm.loadTabHistory(a) }
+            lateinit var oldJob: Job
+            compose.runOnUiThread {
+                val existing=vm.viewModelScope.coroutineContext[Job]!!.children.toSet()
+                vm.loadTabHistory(a)
+                oldJob=vm.viewModelScope.coroutineContext[Job]!!.children.single { it !in existing }
+            }
             compose.waitUntil(20_000) { control("status").getBoolean("heldOld") }
-            val oldJob=vm.viewModelScope.coroutineContext[Job]!!.children.single { it.isActive }
             val b=login(args.getString("operatorB")!!,args.getString("testPinB")!!)
             sessions.save(b);compose.runOnUiThread { vm.ensureLoaded(b) };loaded(vm)
             val beforeForeignCall=vm.state
