@@ -60,7 +60,7 @@ test("POS lost cash response after PostgreSQL commit survives reload with one dr
 // This exercises the reusable component's persisted attendance flow while the
 // workspace's opt-in presentation is integrated separately. All domain effects
 // use the real BFF, Django and PostgreSQL; only transport failures are injected.
-test("Attendance full receipt resumes close after reload without reposting confirmed Payment", async ({ page }) => {
+test("Attendance full receipt recovers canonical close readback without reposting confirmed Payment", async ({ page }) => {
   await page.goto("/staff");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
   await page.getByLabel("Operador", { exact: true }).fill("test-manager");
@@ -83,7 +83,7 @@ test("Attendance full receipt resumes close after reload without reposting confi
       expected_version: bill.version, method: "CASH", cash_point_id: point.id,
       idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id } };
   await page.evaluate(intent => sessionStorage.setItem("rodada.intent.pos-cash.v1", JSON.stringify(intent)), intent);
-  let paymentPosts = 0, closePosts = 0, rejectClose = true;
+  let paymentPosts = 0, closePosts = 0;
   const bodies: string[] = [];
   await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`), async route => {
     paymentPosts++; bodies.push(route.request().postData()!);
@@ -91,13 +91,8 @@ test("Attendance full receipt resumes close after reload without reposting confi
     expect(response.status()).toBe(201);
     if (paymentPosts === 1) await route.abort(); else await route.fulfill({ response });
   });
-  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`), async route => {
-    closePosts++;
-    if (rejectClose) return route.fulfill({ status: 503, json: { code: "UNAVAILABLE", message: "Encerramento indisponível." } });
-    const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
-    expect(response.status()).toBe(200);
-    // Commit happened but the acknowledgement is lost.
-    await route.abort();
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`), route => {
+    closePosts++; return route.abort();
   });
   await page.goto("/pos");
   const verify = page.getByRole("button", { name: "Verificar mesmo recebimento" });
@@ -108,27 +103,25 @@ test("Attendance full receipt resumes close after reload without reposting confi
   expect((await api(page, `tabs/${tab.id}/`)).payments).toHaveLength(1);
   await page.reload(); await expect(verify).toBeEnabled();
   expect(paymentPosts).toBe(1);
+  let readbackUnavailable = true;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/?$`), route => readbackUnavailable
+    ? route.fulfill({ status:503,json:{code:"UNAVAILABLE",message:"Canonical receipt readback unavailable"} })
+    : route.continue());
   await verify.click();
-  await expect(page.getByText(/Recebimento confirmado; encerramento pendente/)).toBeVisible();
-  expect(paymentPosts).toBe(2); expect(closePosts).toBe(1);
+  await expect(page.getByText(/Recebimento registrado; verificação/)).toBeVisible();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(0);
   expect(bodies[1]).toBe(bodies[0]);
   const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("rodada.intent.pos-cash.v1")!));
   expect(saved.phase).toBe("PAYMENT_CONFIRMED"); expect(saved.payment_id).toBeTruthy();
   expect(saved.payload).toEqual(intent.payload);
+  readbackUnavailable = false;
   const received = await api(page, `tabs/${tab.id}/`);
-  expect(received.payments).toHaveLength(1); expect(received.state).toBe("OPEN"); expect(received.exposure_cents).toBe(0);
-  rejectClose = false;
+  expect(received.payments).toHaveLength(1); expect(received.state).toBe("CLOSED"); expect(received.exposure_cents).toBe(0);
   await page.reload(); await expect(verify).toBeEnabled();
-  expect(paymentPosts).toBe(2); expect(closePosts).toBe(1);
-  await verify.click(); await expect(verify).toBeEnabled();
-  expect(paymentPosts).toBe(2); expect(closePosts).toBe(2);
-  expect((await api(page, `tabs/${tab.id}/`)).state).toBe("CLOSED");
-  await page.reload(); await verify.click();
-  // POS hides collection controls for a closed Tab; canonical readback and
-  // envelope retirement prove completion, rather than a transient toast.
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(0);
+  await verify.click();
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
-  expect(paymentPosts).toBe(2); expect(closePosts).toBe(2); expect(bodies).toHaveLength(2);
-  expect(await page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(0); expect(bodies).toHaveLength(2);
   const after = await api(page, `cash/shifts/${shift.id}/`);
   expect(after.expected_cents - before.expected_cents).toBe(bill.exposure_cents);
   expect(after.movements.filter((m: { payment_id: string }) => m.payment_id === saved.payment_id)).toHaveLength(1);
@@ -173,10 +166,10 @@ test("Confirmed receipt with concurrent new consumption can explicitly keep Tab 
   await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-before", lines: [{ product_id: product.id, quantity: 1 }] });
   const bill = await api(page, `tabs/${tab.id}/`);
   const auth = await page.evaluate(async () => (await fetch("/api/auth/me")).json());
-  const payload = { amount_cents: bill.exposure_cents, expected_version: bill.version, method: "CASH",
+  const payload = { amount_cents: Math.floor(bill.exposure_cents/2), expected_version: bill.version, method: "CASH",
     cash_point_id: point.id, idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id };
   const receipt = await api(page, `tabs/${tab.id}/payments/`, payload);
-  // Another canonical order arrives after receipt, before the close readback.
+  // A genuine partial receipt keeps OPEN; another canonical order then changes its balance.
   await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-after", lines: [{ product_id: product.id, quantity: 1 }] });
   const before = await api(page, `cash/shifts/${shift.id}/`);
   await page.evaluate(intent => sessionStorage.setItem("rodada.intent.pos-cash.v1", JSON.stringify(intent)), {
@@ -197,7 +190,7 @@ test("Confirmed receipt with concurrent new consumption can explicitly keep Tab 
   await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
   expect(mutationAttempts).toBe(0);
   const current = await api(page, `tabs/${tab.id}/`);
-  expect(current.state).toBe("OPEN"); expect(current.exposure_cents).toBe(product.price_cents);
+  expect(current.state).toBe("OPEN"); expect(current.exposure_cents).toBe(bill.exposure_cents-payload.amount_cents+product.price_cents);
   expect(current.payments).toHaveLength(1); expect(current.payments[0].id).toBe(receipt.id);
   const after = await api(page, `cash/shifts/${shift.id}/`);
   expect(after.expected_cents).toBe(before.expected_cents);
