@@ -58,7 +58,11 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     expect(response.status()).toBe(409);
     expect((await response.json()).code).toBe("PRODUCTS_NOT_CONFIRMABLE");
     await expect(page.getByRole("alert").filter({ hasText: /não podem mais ser confirmados/ })).toBeVisible();
-    await expect(dialog.getByText(product.name).first()).toBeVisible();
+    // Restoring the pending intent reveals the Tab page. Reopen its retained
+    // draft through UX2 before checking the original rejected line.
+    await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+    await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
+    await expect(dialog.getByText(`1× ${product.name}`, { exact: true })).toBeVisible();
 
     const tableRow = (await api("hospitality/tables/")).results.find((entry: { id: string }) => entry.id === table.id);
     const tabId = tableRow.active_occupancy.tabs[0].id;
