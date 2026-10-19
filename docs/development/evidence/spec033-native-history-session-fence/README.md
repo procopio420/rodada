@@ -13,3 +13,5 @@ Base composta bc07c3f6 (PRs256/257); produção4cb441f1, teste/runner5196cf27. A
 Proxy loopback18140→18134 segura duas leituras canônicas de histórico independentemente. Uma é iniciada antes da troca de operador, a atual depois; somente a primeira retorna 503 nos casos negativos. Os quatro casos A→B/A→B→A×sucesso/falha aguardam o Job antigo terminal e verificam que ele não encerra o loading nem altera o estado da leitura atual, que depois conclui com o histórico canônico. Chamador de sessão divergente não altera o estado.
 
 São os dois staff exclusivos de teste da PR256, mesmo Venue sintético e sessões válidas. Este recorte é somente leitura; não cria nem altera Tab, Task, Order, Payment, mesa ou fixture financeira. Não prova dois Venues, revogação, force-stop, aparelho físico ou visual. Os resultados podem ser vazios: a prova de regressão é a preservação do estado e loading enquanto a leitura atual está retida, não a existência de linhas fictícias.
+
+A leitura de histórico não modifica dados operacionais/financeiros. Os logins reais usados no ensaio criam sessões e auditoria de autenticação; “somente leitura” não significa zero escritas dessas tabelas de auth.
