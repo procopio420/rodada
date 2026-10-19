@@ -30,7 +30,10 @@ class LiveHistorySessionFenceTest {
         connection.outputStream.use { it.write(JSONObject().put("mode",mode).toString().toByteArray()) }
         return try { JSONObject(connection.inputStream.bufferedReader().readText()) } finally { connection.disconnect() }
     }
-    private fun loaded(vm: OperationsViewModel)=compose.waitUntil(30_000) { !vm.state.loading && vm.state.lastSyncedAtMillis != null }
+    private fun loaded(vm: OperationsViewModel,pending: Job?=null)=compose.waitUntil(30_000) {
+        !vm.state.loading && vm.state.lastSyncedAtMillis != null &&
+            vm.viewModelScope.coroutineContext[Job]!!.children.none { it.isActive && it !== pending }
+    }
     @Test fun lateHistorySuccessAndFailureCannotFinishNewHistoryAcrossSessionGenerations() {
         assumeTrue(args.getString("liveHistorySessionFence")=="true")
         check(BuildConfig.RODADA_API_BASE_URL=="http://10.0.2.2:18140/")
@@ -49,13 +52,13 @@ class LiveHistorySessionFenceTest {
             }
             compose.waitUntil(20_000) { control("status").getBoolean("heldOld") }
             val b=login(args.getString("operatorB")!!,args.getString("testPinB")!!)
-            sessions.save(b);compose.runOnUiThread { vm.ensureLoaded(b) };loaded(vm)
+            sessions.save(b);compose.runOnUiThread { vm.ensureLoaded(b) };loaded(vm,oldJob)
             val beforeForeignCall=vm.state
             compose.runOnUiThread { vm.loadTabHistory(a) }
             compose.waitForIdle()
             assertEquals(beforeForeignCall,vm.state)
             assertEquals(1,control("status").getInt("historyReads"))
-            val current=if(returnToA) { sessions.save(a);compose.runOnUiThread { vm.ensureLoaded(a) };loaded(vm);a } else b
+            val current=if(returnToA) { sessions.save(a);compose.runOnUiThread { vm.ensureLoaded(a) };loaded(vm,oldJob);a } else b
             control("captureCurrent")
             compose.runOnUiThread { vm.loadTabHistory(current) }
             compose.waitUntil(20_000) { control("status").getBoolean("heldCurrent") }
