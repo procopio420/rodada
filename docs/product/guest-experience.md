@@ -204,6 +204,10 @@ Mostrar:
 
 Quando houver identidade suficiente para atribuir itens a participantes, a UX pode apresentar **minha parte** e o total do grupo. Split avançado e pagamento mobile entram em specs próprias sem mudar o princípio Tab-first.
 
+## Confirmação de entrega pelo cliente — proposta
+
+Considerar uma pergunta **opcional** e não bloqueante em Pedidos ("Seu pedido chegou?") com opções de confirmação, entrega parcial, "ainda não" e "veio errado". Sem resposta não significa entregue nem atrasado; a hora do toque não é automaticamente a hora física da entrega. Nenhuma confirmação é obrigatória para continuar consumindo. **Ainda não implementado**; comportamento/segurança/aceite estão em [Spec 031](../../specs/031-guest-delivery-feedback/spec.md).
+
 ## Segurança da sessão
 
 QR permanente não significa autorização permanente.

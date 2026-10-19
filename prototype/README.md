@@ -7,3 +7,7 @@ Os cinco ZIPs são preservados; exports e assets locais ficam em `references/`, 
 A referência anterior em [index.html](index.html) continua navegável (PDV, Dispatch, Da Casa etc.) e compartilha os tokens em `design-system.css` com o Web.
 
 Contrato visual e diferenças de domínio: [KB](../docs/design/prototype-integration.md), [design system](../docs/design/system.md), [Spec 021](../specs/021-prototype-design-integration/spec.md).
+
+## Laboratório UX 2.0 (16/10/2026)
+
+[Protótipo navegável de Atendimento](ux-2-0/index.html) — fluxo task-first de mesas, comandas, catálogo, revisão, repetição e interrupção. Dados simulados, sem API, pagamento, autorização ou persistência. Leia [decisões e critérios do experimento](../docs/design/ux-2-0/README.md). Não substituir a experiência publicada por este experimento sem validação.

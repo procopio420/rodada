@@ -160,6 +160,8 @@ O produto é bom se o Aderlan conseguir perceber, numa noite cheia:
 
 ## Métrica norte
 
+**Detalhamento canônico e hipóteses de instrumentação:** [North Star e KPIs operacionais](north-star-operational-metrics.md). A proposta de [feedback opcional de entrega pelo cliente](../../specs/031-guest-delivery-feedback/spec.md) complementa a telemetria passiva, sem equivaler automaticamente a entrega física comprovada.
+
 > **Aumentar pedidos entregues e pagos por hora sem piorar a experiência.**
 
 Métricas auxiliares:
