@@ -89,7 +89,7 @@ class LiveComposeOrderTest {
         if (offlineFault) compose.waitUntil(30_000) {
             compose.onAllNodes(hasTestTag("attendance-connectivity") and hasText("sem sinal", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
-        val confirmation = compose.onNodeWithText(if (offlineFault) "Guardar pedido neste aparelho" else "Enviar 2 itens · R$ 17,00").assertIsEnabled().performScrollTo()
+        val confirmation = compose.onNodeWithText(if (offlineFault) "Guardar pedido neste aparelho" else "Enviar 2 itens · R$ 17,00").assertIsEnabled().assertIsDisplayed()
         if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
         if (offlineFault) {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
