@@ -1,0 +1,13 @@
+# E03 / E06 — página de entrega nativa
+
+Produto fe7bf025 + bb136adb, ajuste visual final74643eb6. Base PR244 db62c7f9. Antes a entrega abria AlertDialog; agora é página Compose sob o header, com Back, contexto canônico, item/quantidade/estação, estado real e CTA explícita fixa no rodapé. Abrir e voltar não concluem nem assumem. PICKED_UP e READY seguem estados do backend; rival/ausência/estado alterado impedem ação indevida.
+
+Capturas de referência: PR212 ec26e26b, viewDelivery, copiadas/inspecionadas no pacote Web docs/development/evidence/spec033-web-delivery-page. Fixtures pareadas Rafael/#1049/Mesa08/2Chopp na matriz Compose são visuais, não transações financeiras. Os dados reais continuam sendo lidos da API.
+
+Fonte final74643eb6 corrige linha divisória adicional e título30sp em360dp conforme protótipo. Assemble/compilação da instrumentação PASS47s. JVM120/120 e lint final PASS3min. Matriz final **36 checks PASS**, 6 casos×360/390/430×fontes1/2, seis PNGs e logs adjacentes. Estado de tela preservado nos testes de abertura/Back, rival, tarefa ausente, produção alterada, operação ocupada e PICKED_UP. Nenhum teste sintético é apresentado como E2E real.
+
+Revisão independente root do produto escrito por finish_native_required_release: achado P2 de estado de produção inferido pelo estado da tarefa corrigido com item_state canônico. Sem outro achado reproduzível no escopo examinado. Ajuste visual final74643eb6 (divisor e título responsivo com semântica de heading) foi revisto em contexto independente /root/review_navigation_and_delivery_pixels, incluindo diff bb136adb→74643eb6 e capturas: NO_FINDINGS_WITH_GAPS. Comparação completa de todos os estados e aceite global permanecem gates; revisão de agente não é aprovação GitHub.
+
+Jornada MainActivity real: **1/1 PASS em15,611s**, API18134/PostgreSQL55501, task próprio3f212bbf-c688-4e87-8d21-2a8a62c85da6. Abriu a página sem diálogo, preservou header/ocultou navegação e voltou à fila. Readback PostgreSQL antes/depois idêntico para task/item/claim e Tab CLOSED; PNG e JSON adjacentes. Fixture financeira zerada foi preparada diretamente no banco, portanto isso comprova navegação/leitura e ausência de mutação, não uma cobrança ou produção real. O ensaio ocorreu após System UI ANR resolvido sem limpar os dados do aplicativo.
+
+Motor de recuperação mantém lacunas registradas no spec android-delivery-page.md na base desta PR; tratadas na PR251 (fonte86162c01, HEAD24096637), com dois testes reais próprios, force-stop real e composição obrigatória. Backend depende#218/#226/#242. Aceite global, paridade final, TalkBack, aparelho físico e revisão GitHub continuam pendentes. Sem merge/deploy.

@@ -123,6 +123,8 @@ data class DeliveryTask(
     val orderItemId: String? = null,
     val orderId: String? = null,
     val claimedById: String? = null,
+    val itemState: String? = null,
+    val tabReference: String? = null,
 )
 
 data class CartLine(

@@ -70,6 +70,18 @@ class LiveAgoraUx2Test {
         }
         compose.onNodeWithTag("now-queue-Entregas").performClick().assertIsSelected()
         captureCriticalEvidence(compose, "live-agora-delivery", compose.onRoot())
+        args.getString("deliveryPageTaskId")?.let { id ->
+            compose.onNodeWithTag("delivery-$id").performScrollTo().performClick()
+            compose.waitUntil(30_000) { compose.onAllNodesWithText("Levar pedido.").fetchSemanticsNodes().isNotEmpty() }
+            compose.onAllNodes(isDialog()).assertCountEquals(0)
+            compose.onNodeWithTag("attendance-header").assertIsDisplayed()
+            compose.onNodeWithTag("attendance-order").assertDoesNotExist()
+            captureCriticalEvidence(compose, "live-delivery-page", compose.onRoot())
+            compose.onNodeWithText("Voltar sem concluir").performScrollTo().performClick()
+            compose.onNodeWithTag("delivery-$id").assertExists()
+            return
+        }
+
         compose.onNodeWithTag("attendance-tables").performClick()
         compose.onNodeWithTag("attendance-now").performClick()
         compose.onNodeWithTag("now-queue-Entregas").assertIsSelected()
