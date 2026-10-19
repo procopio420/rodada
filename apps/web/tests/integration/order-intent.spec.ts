@@ -11,11 +11,11 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
 
   const label = `Order recovery ${width}`;
   await openNamedAttendanceTab(page, label);
-  await expect(page.locator(".attendanceOrderDialog")).toContainText(`Mesa Fixture ${label}`);
-  await page.getByLabel("Buscar item no cardápio").fill("Kitchen E2E item");
+  await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true })).toContainText(`Mesa Fixture ${label}`);
+  await page.getByLabel("Buscar produto").fill("Kitchen E2E item");
   await addCatalogItem(page, "Kitchen E2E item");
-  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
-  await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
+  await page.getByRole("region", { name: "Comanda selecionada", exact: true }).getByRole("button", { name: "Ver resumo", exact: true }).click();
+  await page.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
   const attempts: string[] = []; let orderId = "", tabId = "";
   await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {
     attempts.push(route.request().postData()!);
@@ -25,7 +25,7 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
     if (!orderId) { orderId = body.id; tabId = body.tab_id; } else expect(body.id).toBe(orderId);
     if (attempts.length === 1) await route.abort(); else await route.fulfill({ response });
   });
-  await page.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await page.getByRole("button", { name: /^Enviar 2 itens/ }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   await page.reload();
   if (width === 390) await page.goto("/pos");
@@ -36,5 +36,5 @@ for (const width of [360, 390, 430]) test(`Staff order committed without respons
   const detail = await page.evaluate(async id => (await fetch(`/api/pos/tabs/${id}/`)).json(), tabId);
   expect(detail.orders).toHaveLength(1); expect(detail.orders[0].id).toBe(orderId);
   expect(detail.orders[0].items[0].quantity).toBe(2); expect(detail.exposure_cents).toBe(2000); expect(detail.payments).toHaveLength(0);
-  expect(await page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"))).toBeNull();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"))).toBeNull();
 });

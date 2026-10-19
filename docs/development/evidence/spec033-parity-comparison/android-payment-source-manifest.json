@@ -1,0 +1,15 @@
+{
+  "production_source_sha": "512b7edc",
+  "test_source_sha": "a35af825 (Ux2AccountPagesTest unchanged at512b7edc)",
+  "width_dp": 390,
+  "font_scale": 1,
+  "scope": "Isolated native Compose financial pages without app shell; fixtures Ana R$24,00, no table; account fixture zero balance. Not proof of end-to-end visual parity.",
+  "artifacts": {
+    "app-debug.apk": "48d87b80d295b5752dc4702aed82a4229e0fad75b182e33dee90cffe182eb17f",
+    "app-test.apk": "8c9294a694cc3d7372a5f3c3c98a5c76d9a731abbeaae39de6ad868dda791d69",
+    "account-zero-390.png": "24090d8dff5a3c7256c185b6a7928b0308836f1838d329df5e7345bdb795d756",
+    "payment-pending-390.png": "c1acbad6d5afa29fa9568a2565eb16c1447b53c9f2404cb7466771303cc8809a",
+    "payment-390.png": "1f82d03de96c4018487c5ea92300133b06ce441d6cc584c92ba4440cc8c9ec20",
+    "instrumentation.txt": "21e767abfa38e50bcd8c2f33e52b9b026573259d2834a601daa4a71774858a22"
+  }
+}

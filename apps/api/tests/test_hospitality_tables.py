@@ -107,7 +107,14 @@ class HospitalityTableApiTests(TestCase):
         table.refresh_from_db()
         assert table.status == TableStatus.OCCUPIED
 
-        released = self.client.post(f"/hospitality/tables/{table.id}/release/", format="json")
+        released = self.client.post(
+            f"/hospitality/tables/{table.id}/release/",
+            {
+                "expected_occupancy_id": str(table.occupancies.get(released_at__isnull=True).id),
+                "expected_generation": table.occupancies.get(released_at__isnull=True).generation,
+            },
+            format="json",
+        )
         assert released.status_code == 200, released.json()
         assert released.json()["released_at"] is not None
         table.refresh_from_db()
@@ -145,11 +152,23 @@ class HospitalityTableApiTests(TestCase):
 
     def test_direct_cleaning_preserves_tabs_and_unknown_start_and_rejects_duplicate(self):
         from modules.hospitality.models import TableOccupancy
+
         table = self.table()
         tab = self.tab()
-        self.client.post(f"/hospitality/tables/{table.id}/occupy/", {"tab_id": str(tab.id)}, format="json")
-        self.client.post(f"/hospitality/tables/{table.id}/release/", format="json")
-        response = self.client.post(f"/hospitality/tables/{table.id}/cleaning/complete/", format="json")
+        self.client.post(
+            f"/hospitality/tables/{table.id}/occupy/", {"tab_id": str(tab.id)}, format="json"
+        )
+        self.client.post(
+            f"/hospitality/tables/{table.id}/release/",
+            {
+                "expected_occupancy_id": str(table.occupancies.get(released_at__isnull=True).id),
+                "expected_generation": table.occupancies.get(released_at__isnull=True).generation,
+            },
+            format="json",
+        )
+        response = self.client.post(
+            f"/hospitality/tables/{table.id}/cleaning/complete/", format="json"
+        )
         assert response.status_code == 200, response.json()
         table.refresh_from_db()
         assert table.status == TableStatus.AVAILABLE
@@ -166,7 +185,9 @@ class HospitalityTableApiTests(TestCase):
         assert completed.actor_staff_id == self.staff.id
         assert completed.metadata["previous_status"] == "DIRTY"
         assert completed.metadata["cleaning_start_recorded"] is False
-        again = self.client.post(f"/hospitality/tables/{table.id}/cleaning/complete/", format="json")
+        again = self.client.post(
+            f"/hospitality/tables/{table.id}/cleaning/complete/", format="json"
+        )
         assert again.status_code == 409
         table.refresh_from_db()
         assert table.access_generation == 2

@@ -52,7 +52,7 @@ release_id = f["race_tables"]["release"]
 pre = api(f"/hospitality/tables/{release_id}/service/start/", {"idempotency_key": str(uuid4())}, tokens[0])
 assert pre["status"] == 201
 occupancy_id = pre["body"]["active_occupancy"]["id"]
-released = race(lambda: api(f"/hospitality/tables/{release_id}/release/", {}, tokens[0]), lambda: api(f"/hospitality/occupancies/{occupancy_id}/tabs/open/", {"idempotency_key":str(uuid4()),"expected_generation":1,"display_label":"Race open"}, tokens[1]))
+released = race(lambda: api(f"/hospitality/tables/{release_id}/release/", {"expected_occupancy_id":occupancy_id,"expected_generation":pre["body"]["active_occupancy"]["generation"]}, tokens[0]), lambda: api(f"/hospitality/occupancies/{occupancy_id}/tabs/open/", {"idempotency_key":str(uuid4()),"expected_generation":1,"display_label":"Race open"}, tokens[1]))
 assert released[0]["status"] == 200
 assert released[1]["status"] in (201,409)
 if released[1]["status"] == 409:

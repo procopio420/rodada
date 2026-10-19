@@ -1,0 +1,55 @@
+[2m[WebServer] [22m(node:864642) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:864773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:864773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance pending Payment survives lost ACK and close 503/ACK loss across reload with no selection (14.9s)
+  ✓  2 tests/integration/attendance-settlement-recovery.spec.ts:70:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (6.0s)
+  ✓  3 tests/integration/attendance-settlement-recovery.spec.ts:95:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (7.1s)
+  ✓  4 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (6.9s)
+  ✘  5 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (30.1s)
+(node:868438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:868438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (7.0s)
+  ✓  7 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (3.8s)
+  ✓  8 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (3.3s)
+
+
+  1) tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('Estabelecimento')[22m
+
+
+      3 | async function setup(page: Page) {
+      4 |   await page.goto("/attendance");
+    > 5 |   await page.getByLabel("Estabelecimento").fill("web-e2e");
+        |                                            ^
+      6 |   await page.getByLabel("Operador", {exact:true}).fill("test-manager");
+      7 |   await page.getByLabel("PIN", {exact:true}).fill("2468");
+      8 |   await page.getByRole("button", {name:"Entrar",exact:true}).click();
+        at setup (/home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/integration/attendance-zero-close.spec.ts:5:44)
+        at /home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/integration/attendance-zero-close.spec.ts:24:13
+
+    Error Context: test-results/integration/attendance-zero-close-zero-70e21-ical-readback-lost-ACK-true/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-zero-close-zero-70e21-ical-readback-lost-ACK-true/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-zero-close-zero-70e21-ical-readback-lost-ACK-true/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true 
+  7 passed (1.5m)

@@ -111,7 +111,12 @@ def test_release_open(setup_service):
     start_table_service(table_id=setup.table.id, idempotency_key="start", actor=actors[0])
     occupancy = TableOccupancy.objects.get(table=setup.table)
     results = race(
-        lambda: release_table(table_id=setup.table.id, actor=actors[0]),
+        lambda: release_table(
+            table_id=setup.table.id,
+            actor=actors[0],
+            expected_occupancy_id=occupancy.id,
+            expected_generation=occupancy.generation,
+        ),
         lambda: open_tab_in_occupancy(
             display_label="Comanda de teste",
             occupancy_id=occupancy.id,
@@ -134,10 +139,22 @@ def test_release_open(setup_service):
 
 def test_direct_cleaning_concurrent_completion_changes_generation_once(setup_service):
     from modules.hospitality.services import complete_cleaning
+
     setup, actors = setup_service
     start_table_service(table_id=setup.table.id, idempotency_key="cleaning-race", actor=actors[0])
-    release_table(table_id=setup.table.id, actor=actors[0])
-    results = race(*(lambda actor=actor: complete_cleaning(table_id=setup.table.id, actor=actor) for actor in actors))
+    occupancy = TableOccupancy.objects.get(table=setup.table)
+    release_table(
+        table_id=setup.table.id,
+        actor=actors[0],
+        expected_occupancy_id=occupancy.id,
+        expected_generation=occupancy.generation,
+    )
+    results = race(
+        *(
+            lambda actor=actor: complete_cleaning(table_id=setup.table.id, actor=actor)
+            for actor in actors
+        )
+    )
     assert sum(isinstance(result, TableOccupancy) for result in results) == 1
     assert "INVALID_TABLE_TRANSITION" in results
     setup.table.refresh_from_db()

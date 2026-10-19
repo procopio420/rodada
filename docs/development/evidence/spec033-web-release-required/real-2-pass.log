@@ -1,0 +1,14 @@
+[2m[WebServer] [22m(node:3535899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:3535947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3535947) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (5.8s)
+[2m[WebServer] [22mConflict: /hospitality/tables/a688ff6b-183a-428d-85be-b9ec7b0068e4/release/
+  ✓  2 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (2.6s)
+
+  2 passed (15.5s)

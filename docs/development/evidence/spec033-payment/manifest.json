@@ -1,0 +1,80 @@
+{
+  "prototype_sha": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
+  "implementation_sha": "05f5c25a",
+  "fixture": "Marina / Mesa08 / balance2400 cents. Prototype reached through simulated partial receipt3200 from5600; Web routes mocked for visual tests only. Real ledger evidence is separate.",
+  "result": "PARTIAL_PARITY_NOT_ACCEPTED",
+  "differences_pending": [
+    "canonical Tab reference instead of prototype #1048",
+    "live operator/Venue header",
+    "cash-point selection required by real CASH contract",
+    "Pix/Card disabled pending real provider",
+    "simulation copy removed",
+    "Android same-state and font2 page captures pending"
+  ],
+  "captures": [
+    {
+      "surface": "prototype",
+      "width_px": 360,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "prototype-360.png",
+      "sha256": "a811f97f8ef1e37c1602b66e7221d6e68cf5810af92e153d2ebae3d9c2f52147"
+    },
+    {
+      "surface": "web",
+      "width_px": 360,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "web-360.png",
+      "sha256": "771d475822c12b564bfa176b875ed7641a4c56428d53735f812cf5086c78effa"
+    },
+    {
+      "surface": "prototype",
+      "width_px": 390,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "prototype-390.png",
+      "sha256": "09613cdfb42f173a725b0cd2e9e2d601793dfb178a6f4322ea338f6b4e37daae"
+    },
+    {
+      "surface": "web",
+      "width_px": 390,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "web-390.png",
+      "sha256": "2c4fcf0eab5531ca47004b155c8ec0e5ddf0902b7dcfc77cddfdfe548bbb253b"
+    },
+    {
+      "surface": "prototype",
+      "width_px": 430,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "prototype-430.png",
+      "sha256": "6c5cbabb73b9aa18f34c04521a57c175e84026d7cdccca005cb03c3d76473c0b"
+    },
+    {
+      "surface": "web",
+      "width_px": 430,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "web-430.png",
+      "sha256": "c3106afc15815259d39f855bfd1f745b3f7735f10bdfff73d413586870a08f07"
+    },
+    {
+      "surface": "prototype",
+      "width_px": 1280,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "prototype-1280.png",
+      "sha256": "a38b02518e96d42f3318e7ceddb681a78e22f0b27d653d6289e155810b583f6a"
+    },
+    {
+      "surface": "web",
+      "width_px": 1280,
+      "height_viewport_px": 844,
+      "font_scale": 1,
+      "file": "web-1280.png",
+      "sha256": "421d954e51e3bdf95085a6434bce778b5ec6f6b454770aa0dc1be0ffe2ae154b"
+    }
+  ]
+}

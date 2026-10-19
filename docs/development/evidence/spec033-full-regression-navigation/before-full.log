@@ -1,0 +1,559 @@
+[2m[WebServer] [22m(node:3542008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 143 tests using 1 worker
+
+(node:3542058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3542058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓    1 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (24.0s)
+
+  ✓    2 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (20.8s)
+
+  ✓    3 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (20.8s)
+
+  ✓    4 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (20.8s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/a5432569-0362-488b-860f-9e2269cd23df/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓    5 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 360 (19.0s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/e4b1397a-15ad-4e45-8873-848fc7c3ad07/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓    6 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 390 (19.2s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/ff0a83d9-c647-4994-a531-75aab55f90fe/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓    7 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 430 (21.8s)
+  ✓    8 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (8.2s)
+[2m[WebServer] [22mConflict: /hospitality/tables/54c8bb3a-0017-42dd-8a51-178a1a3636ec/release/
+  ✓    9 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (3.7s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   10 tests/integration/attendance-removal.spec.ts:4:5 › Attendance cancels a confirmed unpaid item through canonical financial reversal (10.8s)
+  ✓   11 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance pending Payment survives lost ACK and close 503/ACK loss across reload with no selection (8.9s)
+  ✓   12 tests/integration/attendance-settlement-recovery.spec.ts:70:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (4.9s)
+  ✓   13 tests/integration/attendance-settlement-recovery.spec.ts:95:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (6.1s)
+
+  ✘   14 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 (30.1s)
+(node:3548849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3548849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘   15 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 (30.2s)
+(node:3550416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3550416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘   16 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 (30.2s)
+(node:3551569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3551569) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘   17 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 (30.2s)
+(node:3553648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3553648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   18 tests/integration/attendance-ux2-workspace.spec.ts:36:5 › UX2 real committed order lost ACK reload reconciles one intent and ledger (6.7s)
+
+  ✓   19 tests/integration/attendance-ux2-workspace.spec.ts:52:5 › UX2 real cleaning records both canonical lifecycle transitions (3.8s)
+  ✓   20 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (5.8s)
+  ✓   21 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (2.7s)
+  ✓   22 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (2.5s)
+  ✓   23 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (2.8s)
+  ✓   24 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (2.6s)
+[2m[WebServer] [22mConflict: /tabs/86ef3f47-b62b-4a97-9696-9eec9a48c181/close/
+[2m[WebServer] [22mConflict: /tabs/86ef3f47-b62b-4a97-9696-9eec9a48c181/
+  ✓   25 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (15.3s)
+  ✓   26 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 360 (7.9s)
+  ✓   27 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 390 (4.5s)
+  ✓   28 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 430 (6.7s)
+  ✓   29 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 360 (4.7s)
+  ✓   30 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 390 (4.7s)
+  ✓   31 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 430 (4.6s)
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+  ✓   32 tests/integration/blocked-tenant-hosts.spec.ts:22:5 › inactive A/B and unknown hosts reject every Web method/path before auth or Guest dispatch (9.0s)
+  ✓   33 tests/integration/correction-without-refund.spec.ts:14:5 › Manager resolves 38/10/8 correction with no refund through real Web and PostgreSQL (9.3s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓   34 tests/integration/developer-staff.spec.ts:2:5 › DEV provisions an operator, edits role and revokes access with canonical readback (10.8s)
+  ✓   35 tests/integration/frontend-pilot.spec.ts:11:5 › pilot setup and service queue use real canonical API and occupancy covers (9.7s)
+
+  ✓   36 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 360 (9.0s)
+
+  ✓   37 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 390 (6.1s)
+
+  ✓   38 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 430 (5.5s)
+  ✓   39 tests/integration/guest-customer-identity.spec.ts:3:5 › Guest optional Customer login, HttpOnly BFF continuity and revocation, real PostgreSQL (10.8s)
+  ✓   40 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 360 (8.3s)
+  ✓   41 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 390 (5.4s)
+  ✓   42 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 430 (5.5s)
+  ✓   43 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 1280 (5.6s)
+  ✓   44 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 360 (8.1s)
+  ✓   45 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 390 (4.2s)
+  ✓   46 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 430 (4.2s)
+[2m[WebServer] [22mForbidden: /guest/context/
+  ✓   47 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery revoked (3.4s)
+  ✓   48 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 360 (7.4s)
+  ✓   49 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 390 (4.8s)
+  ✓   50 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 430 (4.3s)
+  ✓   51 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 360 (8.9s)
+  ✓   52 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 390 (6.3s)
+  ✓   53 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 430 (5.9s)
+  ✓   54 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit blocked (4.6s)
+  ✓   55 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (8.8s)
+  ✓   56 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 360 (9.6s)
+  ✓   57 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 390 (5.8s)
+  ✓   58 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 430 (6.5s)
+  ✓   59 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 360 (6.7s)
+  ✓   60 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 390 (6.9s)
+  ✓   61 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 430 (8.1s)
+
+  ✓   62 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 360 (10.1s)
+
+  ✓   63 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 390 (8.6s)
+
+  ✓   64 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 430 (8.6s)
+  ✓   65 tests/integration/pos-cash-receipt.spec.ts:14:5 › POS lost cash response after PostgreSQL commit survives reload with one drawer effect (11.2s)
+  ✓   66 tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt resumes close after reload without reposting confirmed Payment (6.7s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /tabs/f867657a-ab77-4075-9314-6267d98c95e7/payments/
+  ✓   67 tests/integration/pos-cash-receipt.spec.ts:137:5 › Attendance CASH gateway preserves server capability guard (2.1s)
+  ✓   68 tests/integration/pos-cash-receipt.spec.ts:160:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again (5.0s)
+  ✓   69 tests/integration/pos-cash-receipt.spec.ts:208:5 › UX2 Account receives partial CASH then settles and closes from real page (6.3s)
+
+  ✓   70 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 360 (18.2s)
+
+  ✓   71 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 390 (12.2s)
+
+  ✓   72 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 430 (10.9s)
+  ✓   73 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 360px (25.4s)
+  ✓   74 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 390px (22.2s)
+  ✓   75 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 430px (22.8s)
+  ✓   76 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 1280px (23.0s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   77 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 360px (16.1s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   78 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 390px (13.0s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   79 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 430px (13.5s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   80 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 1280px (13.6s)
+[2m[WebServer] [22mNot Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓   81 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (21.9s)
+  ✓   82 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 360 (16.4s)
+  ✓   83 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 390 (12.9s)
+  ✓   84 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 430 (14.8s)
+  ✓   85 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 360 (13.1s)
+  ✓   86 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 390 (11.4s)
+  ✓   87 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 430 (9.3s)
+  ✓   88 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 360 (9.4s)
+  ✓   89 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 390 (5.0s)
+  ✓   90 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 430 (5.1s)
+  ✓   91 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 360 (5.6s)
+  ✓   92 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 390 (6.2s)
+  ✓   93 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 430 (6.5s)
+  ✓   94 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 360 (11.1s)
+  ✓   95 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 390 (6.8s)
+  ✓   96 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 430 (6.9s)
+  ✓   97 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 360 (7.5s)
+  ✓   98 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 390 (7.4s)
+  ✓   99 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 430 (9.1s)
+  ✓  100 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 360 (13.2s)
+  ✓  101 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 390 (7.8s)
+  ✓  102 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 430 (8.7s)
+  ✓  103 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 360 (8.0s)
+  ✓  104 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 390 (6.0s)
+  ✓  105 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 430 (6.2s)
+[2m[WebServer] [22m/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[2m[WebServer] [22m  async for part in content:
+  ✓  106 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (7.5s)
+
+  ✘  107 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (1.5m)
+(node:3598829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3598829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  108 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 (1.5m)
+(node:3600365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3600365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  109 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 (1.5m)
+(node:3604416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3604416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mForbidden: /guest/service-requests/
+[2m[WebServer] [22mConflict: /guest/qr/resolve/
+  ✓  110 tests/integration/service-requests.spec.ts:4:5 › guest service calls persist in Dispatch and revoke with the visit (9.6s)
+  ✓  111 tests/integration/staff-screen.spec.ts:23:5 › personal device offers simple account controls without disabled switch form (509ms)
+  ✓  112 tests/integration/staff-screen.spec.ts:37:5 › shared trusted terminal reveals fast switch only when requested (461ms)
+  ✓  113 tests/integration/staff-screen.spec.ts:50:5 › logout and lock are tucked under deliberate security controls (428ms)
+
+  ✘  114 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 (30.4s)
+[31mTesting stopped early after 8 maximum allowed failures.[39m
+
+
+  1) tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /^UX2 Canonical 360 · Comanda/ })[22m
+
+
+      21 | `,label],{cwd:resolve("../api"),env:process.env});
+      22 |  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+    > 23 |  const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.getByRole("button",{name:new RegExp(`^${label} · Comanda`)}).click();};
+         |                                                                                                                                                                                                                                                                                                      ^
+      24 |  await open();const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});await expect(workspace.getByRole("heading",{name:label,exact:true})).toBeVisible();
+      25 |  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+      26 |  for(const product of ["Kitchen E2E item","Bar E2E item"]) await workspace.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();
+        at open (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:23:294)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:24:2
+
+    Error Context: test-results/integration/attendance-ux2-workspace-U-da65b-er-and-reload-canonical-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-ux2-workspace-U-da65b-er-and-reload-canonical-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-ux2-workspace-U-da65b-er-and-reload-canonical-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /^UX2 Canonical 390 · Comanda/ })[22m
+
+
+      21 | `,label],{cwd:resolve("../api"),env:process.env});
+      22 |  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+    > 23 |  const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.getByRole("button",{name:new RegExp(`^${label} · Comanda`)}).click();};
+         |                                                                                                                                                                                                                                                                                                      ^
+      24 |  await open();const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});await expect(workspace.getByRole("heading",{name:label,exact:true})).toBeVisible();
+      25 |  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+      26 |  for(const product of ["Kitchen E2E item","Bar E2E item"]) await workspace.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();
+        at open (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:23:294)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:24:2
+
+    Error Context: test-results/integration/attendance-ux2-workspace-U-3ca4f-er-and-reload-canonical-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-ux2-workspace-U-3ca4f-er-and-reload-canonical-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-ux2-workspace-U-3ca4f-er-and-reload-canonical-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /^UX2 Canonical 430 · Comanda/ })[22m
+
+
+      21 | `,label],{cwd:resolve("../api"),env:process.env});
+      22 |  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+    > 23 |  const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.getByRole("button",{name:new RegExp(`^${label} · Comanda`)}).click();};
+         |                                                                                                                                                                                                                                                                                                      ^
+      24 |  await open();const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});await expect(workspace.getByRole("heading",{name:label,exact:true})).toBeVisible();
+      25 |  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+      26 |  for(const product of ["Kitchen E2E item","Bar E2E item"]) await workspace.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();
+        at open (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:23:294)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:24:2
+
+    Error Context: test-results/integration/attendance-ux2-workspace-U-29a8c-er-and-reload-canonical-430/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-ux2-workspace-U-29a8c-er-and-reload-canonical-430/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-ux2-workspace-U-29a8c-er-and-reload-canonical-430/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /^UX2 Canonical 1280 · Comanda/ })[22m
+
+
+      21 | `,label],{cwd:resolve("../api"),env:process.env});
+      22 |  await page.goto("/attendance");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();
+    > 23 |  const open=async()=>{await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill(label);await page.getByRole("button",{name:new RegExp(`Mesa ${label}`)}).click();await page.getByRole("button",{name:new RegExp(`^${label} · Comanda`)}).click();};
+         |                                                                                                                                                                                                                                                                                                      ^
+      24 |  await open();const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});await expect(workspace.getByRole("heading",{name:label,exact:true})).toBeVisible();
+      25 |  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+      26 |  for(const product of ["Kitchen E2E item","Bar E2E item"]) await workspace.getByRole("button",{name:`Adicionar ${product}`,exact:true}).click();
+        at open (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:23:294)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-ux2-workspace.spec.ts:24:2
+
+    Error Context: test-results/integration/attendance-ux2-workspace-U-99136-r-and-reload-canonical-1280/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-ux2-workspace-U-99136-r-and-reload-canonical-1280/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-ux2-workspace-U-99136-r-and-reload-canonical-1280/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Repetir rodada' }).getByRole('button', { name: '← Voltar', exact: true })[22m
+
+
+      54 |   const dialog = page.getByRole("region", { name: "Repetir rodada" });
+      55 |   await expect(dialog.getByText(/Preço ou descrição mudou/)).toContainText("10,00"); await expect(dialog.getByText("R$ 12,00 por unidade", { exact: true })).toBeVisible();
+    > 56 |   await dialog.getByRole("button", { name: "← Voltar", exact: true }).click();
+         |                                                                       ^
+      57 |   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+      58 |   await draft.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+      59 |   await draft.getByRole("button", { name: "Ver resumo", exact: true }).click();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/repeat-order.spec.ts:56:71
+
+    Error Context: test-results/integration/repeat-order-Real-repeated-0e079-lost-response-replay-at-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/repeat-order-Real-repeated-0e079-lost-response-replay-at-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/repeat-order-Real-repeated-0e079-lost-response-replay-at-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Repetir rodada' }).getByRole('button', { name: '← Voltar', exact: true })[22m
+
+
+      54 |   const dialog = page.getByRole("region", { name: "Repetir rodada" });
+      55 |   await expect(dialog.getByText(/Preço ou descrição mudou/)).toContainText("10,00"); await expect(dialog.getByText("R$ 12,00 por unidade", { exact: true })).toBeVisible();
+    > 56 |   await dialog.getByRole("button", { name: "← Voltar", exact: true }).click();
+         |                                                                       ^
+      57 |   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+      58 |   await draft.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+      59 |   await draft.getByRole("button", { name: "Ver resumo", exact: true }).click();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/repeat-order.spec.ts:56:71
+
+    Error Context: test-results/integration/repeat-order-Real-repeated-d4902-lost-response-replay-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/repeat-order-Real-repeated-d4902-lost-response-replay-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/repeat-order-Real-repeated-d4902-lost-response-replay-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Repetir rodada' }).getByRole('button', { name: '← Voltar', exact: true })[22m
+
+
+      54 |   const dialog = page.getByRole("region", { name: "Repetir rodada" });
+      55 |   await expect(dialog.getByText(/Preço ou descrição mudou/)).toContainText("10,00"); await expect(dialog.getByText("R$ 12,00 por unidade", { exact: true })).toBeVisible();
+    > 56 |   await dialog.getByRole("button", { name: "← Voltar", exact: true }).click();
+         |                                                                       ^
+      57 |   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+      58 |   await draft.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+      59 |   await draft.getByRole("button", { name: "Ver resumo", exact: true }).click();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/repeat-order.spec.ts:56:71
+
+    Error Context: test-results/integration/repeat-order-Real-repeated-7696f-lost-response-replay-at-430/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/repeat-order-Real-repeated-7696f-lost-response-replay-at-430/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/repeat-order-Real-repeated-7696f-lost-response-replay-at-430/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('.ux2Workspace').getByRole('button', { name: 'Descartar rascunho', exact: true })[22m
+
+
+      58 |   await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
+      59 |   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+    > 60 |   await popup.getByRole("button", { name: "Descartar rascunho", exact: true }).click();
+         |                                                                                ^
+      61 |   const discard = page.getByRole("dialog", { name: "Descartar rascunho?", exact: true });
+      62 |   await discard.getByRole("button", { name: "Voltar", exact: true }).click();
+      63 |   await expect(discard).not.toBeVisible();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/tab-drafts.spec.ts:60:80
+
+    Error Context: test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 
+    tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 
+    tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 
+    tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 
+    tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 
+    tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 
+    tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 
+    tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+  29 did not run
+  106 passed (23.9m)
+  1 error was not a part of any test, see above for details

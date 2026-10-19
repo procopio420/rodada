@@ -106,7 +106,18 @@ export async function layoutAndA11y(page: Page, receiptPreview = false) {
     const dialogs = [...document.querySelectorAll("dialog:modal")];
     const focused = document.activeElement?.closest("dialog:modal");
     const top = focused ?? dialogs.at(-1); if (top && !top.contains(el)) return false;
-    const box = el.getBoundingClientRect(); return box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44);
+    const box = el.getBoundingClientRect();
+    if (!(box.width > 0 && box.height > 0 && (box.width < 44 || box.height < 44))) return false;
+    // Painted prototype controls may extend their pointer target with ::after.
+    // Require the full target size and verify hit ownership when it is in view.
+    const target = getComputedStyle(el, "::after");
+    if (target.content === "none" || target.position !== "absolute" || !(parseFloat(target.width) >= 44) || !(parseFloat(target.height) >= 44)) return true;
+    const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    if (x < 22 || x > innerWidth - 22 || y < 22 || y > innerHeight - 22) return false;
+    return [[x-21.9,y],[x+21.9,y],[x,y-21.9],[x,y+21.9]].some(([px,py]) => {
+      const hit = document.elementFromPoint(px,py);
+      return hit !== el && !el.contains(hit);
+    });
   }).map(el => el.outerHTML));
   expect(smallControls, "important controls must be at least 44 × 44 px").toEqual([]);
   const builder = new AxeBuilder({ page });

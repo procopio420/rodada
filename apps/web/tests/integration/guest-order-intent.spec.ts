@@ -15,7 +15,7 @@ for (const scenario of [360, 390, 430, "revoked"] as const) test(`Guest committe
     return response.json();
   }, { path, body });
   const table = await api("hospitality/tables/", { label: `Guest recovery ${scenario}`, guest_ordering_mode: "DIRECT" });
-  await api(`hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(`hospitality/tables/${table.id}/occupy/`, {});
   const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}`,
     viewport: { width: typeof scenario === "number" ? scenario : 390, height: 900 } });
   try {
@@ -39,7 +39,7 @@ for (const scenario of [360, 390, 430, "revoked"] as const) test(`Guest committe
     await expect(guest.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
     const storageKey = `rodada.intent.guest-order.v1.${table.public_token}`;
     const saved = await guest.evaluate(k => sessionStorage.getItem(k), storageKey); expect(saved).toBeTruthy();
-    if (scenario === "revoked") await api(`hospitality/tables/${table.id}/release/`, {});
+    if (scenario === "revoked") await api(`hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
     await guest.reload();
     const verify = guest.getByRole("button", { name: "Verificar mesmo pedido" }); await expect(verify).toBeEnabled();
     expect(attempts).toHaveLength(1);

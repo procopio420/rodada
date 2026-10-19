@@ -1,0 +1,29 @@
+[2m[WebServer] [22m(node:867901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [17/Oct/2026 20:30:18] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 17 tests using 1 worker
+
+(node:867938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:867938) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 360 (3.8s)
+  ✓   2 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 390 (3.4s)
+  ✓   3 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 430 (3.5s)
+  ✓   4 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 1280 (3.5s)
+  ✓   5 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 360 (3.0s)
+  ✓   6 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 390 (3.2s)
+  ✓   7 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 430 (2.5s)
+  ✓   8 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 1280 (3.0s)
+  ✓   9 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 360 (3.2s)
+  ✓  10 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 390 (3.1s)
+  ✓  11 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 430 (3.1s)
+  ✓  12 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 1280 (2.8s)
+  ✓  13 tests/visual/attendance-ux2-workspace.spec.ts:133:5 › UX2 payment form retains an exit after a concurrent canonical close (1.3s)
+  ✓  14 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 360 (2.0s)
+  ✓  15 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 390 (1.7s)
+  ✓  16 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 430 (1.8s)
+  ✓  17 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 1280 (2.1s)
+
+  17 passed (51.9s)

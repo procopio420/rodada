@@ -1,0 +1,15 @@
+{
+  "source_sha": "a7e9c4ae",
+  "parent_contract_sha": "ebd22333",
+  "files": {
+    "before-claim-replay-correction.log": "e2a80e65c4e9200260a7c6ba541c24f68bc8f116d8e38c6832d96b9c56f36af0",
+    "check.log": "1e3e63f221bde88816c4a4ef7367691607b20cc1d194028a02ec9ae0586cf9b1",
+    "pytest.log": "342d7bb6415869c41aac813c8c0fb42af3c6c0e5397a6948d3fa07a7c97da43e",
+    "review.md": "9521d8349eb8754945c229075e70bc482dc8856c7c241a19052159b101a2badc",
+    "postgres.log": "9c4d39db310de7fc4223bfa8c36090cd32754fb91b9a9eadd0918d2a9b8b608d",
+    "contract.md": "e5de0913ea78e9f24175b247565b38cfa734418687d3f05ddb5ce4bb31247688",
+    "README.md": "3697ef019a69eed8ac414a150492198f88e5a921be9d32c17de53fcf84d5f18a",
+    "migrations.log": "a2bfa7b376c38062f77ce2b1e703876aaa04662f96355cdf5dc9d0d075302b05",
+    "lint.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  }
+}
