@@ -3,6 +3,8 @@ import { openNamedAttendanceTab, selectExistingAttendanceTab } from "./attendanc
 import { addCatalogItem } from "../visual/category-actions";
 
 for (const width of [360, 390, 430, 1280]) test(`real order reference and historical station survive reload ${width}`, async ({ page }) => {
+  // Real login/setup plus the 15s polling cycle must fit independently of the 25s assertion.
+  test.setTimeout(60_000);
   await page.setViewportSize({ width, height: 844 });
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");

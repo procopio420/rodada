@@ -160,6 +160,7 @@ for(const mismatch of ["identity","balance"]) test(`Confirmed receipt preserves 
 });
 
 for (const width of [360, 390, 430]) test(`Attendance draft blocks a new full receipt and preserves partial lost-ACK recovery ${width}`, async ({page}) => {
+  test.setTimeout(90_000);
   await page.setViewportSize({width, height:844});
   const {tab, product, intent}=await setup(page);
   const detail=await api<Tab & {display_label:string}>(page,`tabs/${tab.id}/`);
@@ -209,4 +210,18 @@ for (const width of [360, 390, 430]) test(`Attendance draft blocks a new full re
   await workspace.getByRole("button",{name:"Ver resumo",exact:true}).click();
   await expect(workspace.getByRole("heading",{name:"Resumo do pedido.",exact:true})).toBeVisible();
   await expect(workspace.getByText(product.name,{exact:true})).toBeVisible();
+  if(width===390) {
+    // A receipt frozen before a later draft must still reconcile its original payload.
+    // Recovery cannot silently turn an already ambiguous full receipt into a partial one.
+    const frozenFull={...intent,payload:{...intent.payload,amount_cents:paid.exposure_cents,expected_version:paid.version,idempotency_key:crypto.randomUUID()}};
+    await page.evaluate(({key,intent})=>sessionStorage.setItem(key,JSON.stringify(intent)),{key,intent:frozenFull});
+    await page.reload();
+    await page.getByRole("button",{name:"Verificar mesmo recebimento",exact:true}).click();
+    await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+    expect(bodies).toHaveLength(3);expect(bodies[2]).toBe(JSON.stringify(frozenFull.payload));
+    expect(closes).toBe(0);
+    const recovered=await api(page,`tabs/${tab.id}/`);
+    expect(recovered.state).toBe("CLOSED");expect(recovered.exposure_cents).toBe(0);
+    expect(recovered.payments).toHaveLength(2);
+  }
 });
