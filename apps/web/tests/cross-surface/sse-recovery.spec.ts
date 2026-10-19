@@ -28,15 +28,17 @@ test("SSE-only interruption leaves real HTTP order usable and station polling re
     const station = await context.newPage(); await station.goto("/kitchen");
     await expect.poll(() => cuts).toBeGreaterThan(0);
     await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
     await page.getByRole("button", { name: new RegExp(`^Mesa ${label}`) }).click();
-    await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+    await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
     await page.getByRole("dialog").getByRole("textbox").fill(label);
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
-    const dialog = page.locator(".attendanceOrderDialog");
+    const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     await addCatalogItem(page, "Android Compose Test Meal");
-    await dialog.getByRole("button", { name: /Pedido atual/ }).click();
-    await dialog.getByRole("button", { name: /^Confirmar pedido/ }).click();
-    await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
+    await dialog.getByRole("button", { name: /^Enviar / }).click();
+    await expect(page.getByRole("region", { name: "Último pedido confirmado", exact: true })).toBeVisible();
     // No station reload: production HTTP fallback must discover the committed order.
     const action = station.getByRole("button", { name: new RegExp(`^Iniciar preparo:.*${label}$`) });
     await expect(action).toBeVisible({ timeout: 35_000 });

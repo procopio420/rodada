@@ -12,15 +12,17 @@ test("concurrent commands are visible canonically in the shared Attendance UI", 
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   for (const kind of ["start", "claim"]) {
     await page.getByRole("button", { name: new RegExp(`^Mesa Race ${kind}`) }).click();
-    const popup = page.locator(".attendanceTableDialog");
+    const popup = page.locator(".ux2TablePage");
+    await popup.getByText("Opções da mesa", { exact: true }).click();
     await expect(popup).toContainText(/Atendimento:/);
     await popup.getByRole("button", { name: "Voltar", exact: true }).click();
     await expect(popup).not.toBeVisible();
   }
   await page.getByRole("button", { name: /^Mesa Race release/ }).click();
-  await expect(page.getByRole("button", { name: "Concluir limpeza", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Iniciar limpeza", exact: true })).toBeVisible();
   expect(r.start.map((x: { status: number }) => x.status).sort()).toEqual([201, 409]);
   expect(r.claim.map((x: { status: number }) => x.status).sort()).toEqual([201, 409]);
   await writeFile("../../artifacts/concurrency-browser.json", JSON.stringify({

@@ -31,14 +31,16 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     const station = await stationContext.newPage();
     await station.goto("/bar");
     await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
     await page.getByRole("button", { name: new RegExp("^Mesa " + table.label) }).click();
-    await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+    await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
     await page.getByRole("dialog").getByRole("textbox").fill("E2E05 staff");
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
-    const dialog = page.locator(".attendanceOrderDialog");
+    const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     await addCatalogItem(page, product.name);
-    await dialog.getByRole("button", { name: /Pedido atual/ }).click();
-    await expect(dialog.getByRole("button", { name: /^Confirmar pedido/ })).toBeEnabled();
+    await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
+    await expect(dialog.getByRole("button", { name: /^Enviar / })).toBeEnabled();
 
     await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {
       await chooseBarAvailability(station, product.name);
@@ -51,7 +53,7 @@ test("E2E-05: Attendance Web stale cart rejects actual Bar availability flip", a
     });
     const responsePromise = page.waitForResponse(response =>
       /\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/.test(response.url()) && response.request().method() === "POST");
-    await dialog.getByRole("button", { name: /^Confirmar pedido/ }).click();
+    await dialog.getByRole("button", { name: /^Enviar / }).click();
     const response = await responsePromise;
     expect(response.status()).toBe(409);
     expect((await response.json()).code).toBe("PRODUCTS_NOT_CONFIRMABLE");
