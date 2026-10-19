@@ -53,7 +53,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();
   const dialog = page.getByRole("region", { name: "Repetir rodada" });
   await expect(dialog.getByText(/Preço ou descrição mudou/)).toContainText("10,00"); await expect(dialog.getByText("R$ 12,00 por unidade", { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "← Voltar", exact: true }).click();
+  await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
   await draft.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await draft.getByRole("button", { name: "Ver resumo", exact: true }).click();
