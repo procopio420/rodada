@@ -89,3 +89,8 @@ class TableCountSerializer(serializers.Serializer):
     retire_ids = serializers.ListField(
         child=serializers.UUIDField(), required=False, default=list, max_length=500
     )
+
+
+class TableReleaseSerializer(serializers.Serializer):
+    expected_occupancy_id = serializers.UUIDField()
+    expected_generation = serializers.IntegerField(min_value=1)
