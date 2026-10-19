@@ -1,0 +1,88 @@
+[2m[WebServer] [22m(node:2005812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:2005845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2005845) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (13.3s)
+
+  ✓  2 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 (9.8s)
+
+  ✓  3 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 (10.5s)
+
+  ✘  4 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 (30.5s)
+(node:2007807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2007807) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  5 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 (31.2s)
+[31mTesting stopped early after 2 maximum allowed failures.[39m
+
+
+  1) tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('.ux2Workspace').getByRole('button', { name: 'Ver resumo', exact: true })[22m
+
+
+      66 |   await expect(discard).not.toBeVisible();
+      67 |   await popup.getByRole("button", { name: "Voltar ao pedido pendente", exact: true }).click();
+    > 68 |   await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
+         |                                                                        ^
+      69 |   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+      70 |   await popup.getByRole("button", { name: /^Enviar / }).click();
+      71 |   await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/tab-drafts.spec.ts:68:72
+
+    Error Context: test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('.ux2Workspace').getByRole('button', { name: 'Ver resumo', exact: true })[22m
+
+
+      66 |   await expect(discard).not.toBeVisible();
+      67 |   await popup.getByRole("button", { name: "Voltar ao pedido pendente", exact: true }).click();
+    > 68 |   await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
+         |                                                                        ^
+      69 |   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+      70 |   await popup.getByRole("button", { name: /^Enviar / }).click();
+      71 |   await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/tab-drafts.spec.ts:68:72
+
+    Error Context: test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+    tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 
+  1 did not run
+  3 passed (1.8m)
+  1 error was not a part of any test, see above for details

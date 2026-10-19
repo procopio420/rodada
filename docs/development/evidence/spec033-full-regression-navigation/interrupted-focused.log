@@ -1,0 +1,42 @@
+[2m[WebServer] [22m(node:2003786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:2003818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2003818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  1 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (1.0m)
+
+
+  1) tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Comanda selecionada' }).getByRole('button', { name: 'Conferir / fechar conta', exact: true })[22m
+
+
+      62 |   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+      63 |   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+    > 64 |   await draft.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+         |                                                                                     ^
+      65 |   await repeat.click();
+      66 |   const add = dialog.getByRole("button", { name: "Repetir rodada · enviar" });
+      67 |   await dialog.getByRole("button", { name: "Reduzir Kitchen E2E item", exact: true }).click();
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/repeat-order.spec.ts:64:85
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/repeat-order-Real-repeated-0e079-lost-response-replay-at-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/repeat-order-Real-repeated-0e079-lost-response-replay-at-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 interrupted
+    tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 
+  5 did not run

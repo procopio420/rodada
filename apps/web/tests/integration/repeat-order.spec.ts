@@ -53,12 +53,12 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   const repeat = page.getByRole("button", { name: "Repetir rodada 1", exact: true }); await repeat.click();
   const dialog = page.getByRole("region", { name: "Repetir rodada" });
   await expect(dialog.getByText(/Preço ou descrição mudou/)).toContainText("10,00"); await expect(dialog.getByText("R$ 12,00 por unidade", { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "← Voltar", exact: true }).click();
+  await dialog.getByRole("button", { name: "Voltar", exact: true }).click();
   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
   await draft.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await draft.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(draft.locator(".ux2ReviewRow")).toHaveCount(1);
-  await draft.getByRole("button", { name: "Voltar", exact: true }).click();
+  await draft.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).click();
   await draft.getByRole("button", { name: "Voltar", exact: true }).click();
   await draft.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
   await repeat.click();
@@ -68,7 +68,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await expect(add).toBeDisabled();
   await dialog.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
   await dialog.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
-  await expect(dialog.locator(".ux2AmountLine")).toContainText("24,00");
+  await expect(dialog.getByLabel("Quantidade de Kitchen E2E item", { exact: true })).toHaveText("2");
   const beforeSend = await api(page, `tabs/${tab.id}/`); expect(beforeSend.orders).toHaveLength(1); expect(beforeSend.exposure_cents).toBe(1000);
   const attempts: string[] = []; let newOrderId = "";
   const endpoint = `**/api/attendance/tabs/${tab.id}/orders/confirm/`;
@@ -84,6 +84,7 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await expect(draft).toContainText("1 item(ns) não enviados.");
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   expect(JSON.parse(attempts[0]).idempotency_key).not.toBe(`historical-${width}`);
+  expect(JSON.parse(attempts[0]).lines[0].quantity).toBe(2);
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).dblclick();
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
   expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]); expect(newOrderId).not.toBe(original.id);

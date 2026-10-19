@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 async function leaveAttendanceContext(page: Page) {
   const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
   for (let step = 0; step < 3 && await workspace.isVisible(); step++) {
+    const continueCatalog = workspace.getByRole("button", { name: "← Continuar escolhendo itens", exact: true });
+    if (await continueCatalog.isVisible()) await continueCatalog.click();
     await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
   }
   await expect(workspace).not.toBeVisible();
