@@ -1,0 +1,18 @@
+[WebServer] (node:2940676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:2940792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2940792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/pos-cash-receipt.spec.ts:14:5 › POS lost cash response after PostgreSQL commit survives reload with one drawer effect (12.2s)
+  ✓  2 tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt recovers canonical close readback without reposting confirmed Payment (6.8s)
+[WebServer] Forbidden: /cash/points/
+[WebServer] Forbidden: /tabs/be506419-2ab4-4c9a-b1a6-663f6586f923/payments/
+  ✓  3 tests/integration/pos-cash-receipt.spec.ts:130:5 › Attendance CASH gateway preserves server capability guard (2.3s)
+  ✓  4 tests/integration/pos-cash-receipt.spec.ts:153:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again (5.1s)
+  ✓  5 tests/integration/pos-cash-receipt.spec.ts:201:5 › UX2 Account receives partial CASH then settles and closes from real page (9.5s)
+
+  5 passed (47.9s)
