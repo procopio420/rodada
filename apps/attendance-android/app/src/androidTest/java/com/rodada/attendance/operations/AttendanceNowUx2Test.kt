@@ -15,7 +15,7 @@ import org.junit.Test
 
 class AttendanceNowUx2Test {
     @get:Rule val compose = createComposeRule()
-    private val state = OperationsUiState(serviceRequestsFresh = true, connectivity = ConnectivityState.ONLINE,
+    private val state = OperationsUiState(serviceRequestsFresh = true, deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE,
         lastSyncedAtMillis = 42, serviceRequests = listOf(ServiceRequest("call-a", "BILL_REQUEST", "OPEN", "Mesa 12", null, 120,
             StaffTaskTarget.Tab("11111111-1111-4111-8111-111111111111"))),
         deliveryTasks = listOf(DeliveryTask("delivery-a", "OPEN", "Mesa 12", "Água", 2, "Ana", 180,
@@ -39,6 +39,21 @@ class AttendanceNowUx2Test {
         compose.onNodeWithTag("now-queue-Atendimentos").performClick()
         compose.onNodeWithTag("service-call-a").assertExists()
     }
+    @Test fun queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt() {
+        val shown = mutableStateOf(state)
+        compose.setContent { RodadaTheme { Surface { AttendanceNowScreen(shown.value, {}, {}, initiallyShowDeliveries = true) } } }
+        compose.onNodeWithTag("delivery-delivery-a").assertExists()
+        captureCriticalEvidence(compose, "delivery-queue-fresh", compose.onRoot())
+        compose.runOnIdle { shown.value = state.copy(deliveryTasksFresh = false, deliveryTasksError = "Entregas desatualizadas. Atualize para conferir.") }
+        compose.onNodeWithTag("now-queue-freshness").assertIsDisplayed()
+        compose.onNodeWithTag("delivery-delivery-a").assertExists()
+        compose.onNodeWithText(" —").assertExists()
+        captureCriticalEvidence(compose, "delivery-queue-stale", compose.onRoot())
+        compose.runOnIdle { shown.value = state }
+        compose.onNodeWithTag("now-queue-freshness").assertDoesNotExist()
+        compose.onNodeWithTag("delivery-delivery-a").assertExists()
+    }
+
     @Test fun unknownFreshnessNeverClaimsZeroTasksAndNeverDropsVisibleWork() {
         compose.setContent { RodadaTheme { Surface {
             AttendanceNowScreen(state.copy(serviceRequestsFresh = false, connectivity = ConnectivityState.OFFLINE), {}, {})
@@ -84,11 +99,11 @@ class AttendanceNowUx2Test {
                 requestedTarget = target.value, onTargetConsumed = { consumed++; target.value = null },
                 onSelectTab = { selected = it })
         } } }
-        compose.onNodeWithText("Bia · B").performScrollTo().performClick()
+        compose.onNodeWithText("Bia").performScrollTo().performClick()
         assertEquals("tab-b", selected); assertEquals(0, mutations); assertEquals(1, consumed)
         compose.onNodeWithText("Voltar", useUnmergedTree = true).performClick()
         compose.runOnIdle { tablesState.value = tablesState.value.copy(tables = listOf(table.copy(label = "12 atualizada"))) }
-        compose.onNodeWithText("Bia · B").assertDoesNotExist()
+        compose.onNodeWithText("Bia").assertDoesNotExist()
         assertEquals(0, mutations); assertEquals(1, consumed)
     }
 }

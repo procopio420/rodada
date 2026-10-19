@@ -639,7 +639,10 @@ internal fun TabList(
             }
             HorizontalDivider(color = RodadaVisual.Border)
         }
-        if (showDeliveries && queue == NowQueue.READY && !state.loading && state.lastSyncedAtMillis != null && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries && queue == NowQueue.READY && state.deliveryTasksFresh && !state.loading && state.deliveryTasks.isEmpty()) item { Text("Nenhuma entrega aguardando no último estado consultado.", modifier = Modifier.padding(20.dp)) }
+        if (showDeliveries && queue == NowQueue.READY && !state.deliveryTasksFresh) item {
+            Text(state.deliveryTasksError ?: "Entregas desatualizadas. Atualize para conferir.", color = RodadaVisual.Amber, modifier = Modifier.padding(20.dp))
+        }
         if (showDeliveries && queue == NowQueue.READY) items(state.deliveryTasks.sortedByDescending { it.ageSeconds }, key = { it.id }) { task ->
             Column(modifier = Modifier.fillMaxWidth().heightIn(min = 112.dp)) {
                 Column(modifier = Modifier.background(RodadaVisual.Control).padding(horizontal = 10.dp, vertical = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {

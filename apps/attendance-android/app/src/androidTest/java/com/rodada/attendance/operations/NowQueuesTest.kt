@@ -15,7 +15,7 @@ class NowQueuesTest {
         RecoveryState.PENDING, "tab", listOf(PendingOrderLine("product", 2)))
     private val state = OperationsUiState(
         serviceRequests = (1..30).map { ServiceRequest("call-$it", "SERVICE_REQUEST", "OPEN", "Destino $it", null, it.toLong()) },
-        serviceRequestsFresh = true, connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = 42,
+        serviceRequestsFresh = true, deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = 42,
         deliveryTasks = listOf(DeliveryTask("task", "OPEN", "Destino da entrega", "Produto pronto", 2, "Comanda de teste", 120)),
         queuedOrders = listOf(order), recoveryEvidence = listOf(order.evidence()), recoveryEvidenceReadable = true)
 

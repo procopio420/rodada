@@ -38,7 +38,7 @@ class TablePresentationInstrumentedTest {
     }
     @Test fun releaseAndSequentialCleaningFollowCanonicalStatus() {
         val occupied = TableSummary("flow", "8", "OCCUPIED", "DIRECT", false, null, TableOccupancy("visit", 1, emptyList()))
-        val state = mutableStateOf(OperationsUiState(tables = listOf(occupied), connectivity = ConnectivityState.ONLINE))
+        val state = mutableStateOf(OperationsUiState(tables = listOf(occupied), deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE))
         var released = false
         var started = false
         var completed = false
@@ -87,7 +87,7 @@ class TablePresentationInstrumentedTest {
         val table = TableSummary("table", "08", "OCCUPIED", "DIRECT", false, null, TableOccupancy("current", 3, emptyList()))
         fun delivery(id: String, occupancy: String, generation: Int) = DeliveryTask(id, "OPEN", "Mesa 08", "Água", 1, "", 0,
             StaffTaskTarget.Tab("closed-tab", StaffTaskTarget.Table("table", occupancy, generation)))
-        val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasks = listOf(delivery("old", "old", 2))))
+        val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE, deliveryTasks = listOf(delivery("old", "old", 2))))
         var opens = 0
         compose.setContent { RodadaTheme { Surface {
             TablesScreen(state.value, true, { _, _ -> }, {}, {}, {}, onViewDeliveries = { opens++ })

@@ -42,7 +42,7 @@ internal fun AttendanceNowScreen(
     val servicesScroll = rememberLazyListState()
     val deliveriesScroll = rememberLazyListState()
     val servicesKnown = state.serviceRequestsFresh && state.connectivity == ConnectivityState.ONLINE
-    val deliveriesKnown = !state.loading && state.lastSyncedAtMillis != null && state.connectivity == ConnectivityState.ONLINE
+    val deliveriesKnown = state.deliveryTasksFresh && !state.loading && state.connectivity == ConnectivityState.ONLINE
     val horizontalInset = if (LocalConfiguration.current.screenWidthDp <= 375) 15.dp else 20.dp
     LazyColumn(state = if (deliveries) deliveriesScroll else servicesScroll,
         modifier = Modifier.fillMaxSize().testTag("attendance-now-content"),
@@ -79,8 +79,8 @@ internal fun AttendanceNowScreen(
             }
             val fresh = if (deliveries) deliveriesKnown else servicesKnown
             if (!fresh) {
-                Text(if (state.loading) "Atualizando fila…" else if (!deliveries) state.serviceRequestsError ?: "Chamados desatualizados. Atualize para conferir."
-                    else "Entregas desatualizadas. Atualize para conferir.", style = AttendanceUx2.text(12), color = RodadaVisual.Amber,
+                Text(if (state.loading || (deliveries && state.deliveryTasksLoading)) "Atualizando fila…" else if (!deliveries) state.serviceRequestsError ?: "Chamados desatualizados. Atualize para conferir."
+                    else state.deliveryTasksError ?: "Entregas desatualizadas. Atualize para conferir.", style = AttendanceUx2.text(12), color = RodadaVisual.Amber,
                     modifier = Modifier.padding(vertical = 8.dp).testTag("now-queue-freshness"))
             }
         }
