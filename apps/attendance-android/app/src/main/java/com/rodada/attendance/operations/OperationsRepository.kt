@@ -63,6 +63,10 @@ class OperationsRepository(private val authRepository: AuthRepository) {
 
     suspend fun deliveryTasks(session: StoredSession) = authRepository.withAuthorizedAccess(session, client::deliveryTasks)
 
+    suspend fun staffTask(session: StoredSession, id: String, type: String) = authRepository.withAuthorizedAccess(session) {
+        StaffTaskRead.fromJson(client.request("GET", "/dispatch/tasks/$id/", accessToken = it), id, type)
+    }
+
     suspend fun serviceRequests(session: StoredSession) = authRepository.withAuthorizedAccess(session) {
         val rows = client.request("GET", "/dispatch/requests/", accessToken = it).getJSONArray("results")
         List(rows.length()) { index -> ServiceRequest.fromJson(rows.getJSONObject(index)) }
@@ -95,14 +99,19 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun attachTabToOccupancy(session: StoredSession, occupancyId: String, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.attachTabToOccupancy(it, occupancyId, tabId) }
 
-    suspend fun releaseTable(session: StoredSession, command: TableReleaseCommand) =
-        authRepository.withAuthorizedAccess(session) { client.releaseTable(it, command) }
+    suspend fun releaseTable(session: StoredSession, target: TableReleaseCommand) =
+        authRepository.withAuthorizedAccess(session) { client.releaseTable(it, target) }
 
     suspend fun startTableCleaning(session: StoredSession, tableId: String) =
         authRepository.withAuthorizedAccess(session) { client.startTableCleaning(it, tableId) }
 
     suspend fun completeTableCleaning(session: StoredSession, tableId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeTableCleaning(it, tableId) }
+
+    internal suspend fun deliveryRecoveryRead(session: StoredSession, taskId: String) =
+        authRepository.withAuthorizedAccess(session) {
+            DeliveryRecoveryRead.fromJson(client.request("GET", "/dispatch/tasks/$taskId/", accessToken = it), taskId)
+        }
 
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }

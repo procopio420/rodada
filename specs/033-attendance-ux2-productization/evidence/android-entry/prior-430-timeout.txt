@@ -1,0 +1,21 @@
+
+com.rodada.attendance.operations.LiveComposeOrderTest:
+Error in confirmThroughProductionCompose(com.rodada.attendance.operations.LiveComposeOrderTest):
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 30000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at com.rodada.attendance.operations.LiveComposeOrderTest.waitText(LiveComposeOrderTest.kt:22)
+	at com.rodada.attendance.operations.LiveComposeOrderTest.confirmThroughProductionCompose(LiveComposeOrderTest.kt:124)
+
+
+Time: 48.228
+There was 1 failure:
+1) confirmThroughProductionCompose(com.rodada.attendance.operations.LiveComposeOrderTest)
+androidx.compose.ui.test.ComposeTimeoutException: Condition still not satisfied after 30000 ms
+	at androidx.compose.ui.test.AndroidComposeUiTestEnvironment$AndroidComposeUiTestImpl.waitUntil(ComposeUiTest.android.kt:901)
+	at androidx.compose.ui.test.junit4.AndroidComposeTestRule.waitUntil(AndroidComposeTestRule.android.kt:500)
+	at com.rodada.attendance.operations.LiveComposeOrderTest.waitText(LiveComposeOrderTest.kt:22)
+	at com.rodada.attendance.operations.LiveComposeOrderTest.confirmThroughProductionCompose(LiveComposeOrderTest.kt:124)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

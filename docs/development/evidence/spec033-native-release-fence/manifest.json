@@ -1,0 +1,14 @@
+{
+  "production_sha": "90b0290c",
+  "test_sha": "b313edc2",
+  "jvm_tests": 119,
+  "instrumentation_tests": 5,
+  "physical_device": "pending",
+  "files_sha256": {
+    "instrumentation-final.log": "e5ca469211eafee86f132bc8d60e4841d90ae355e65a5c9f3853ea463793a1bb",
+    "README.md": "4e607e85cec66f2e0d0f9b2ec03d26342de803b82421c12fdcbe634e74d6b506",
+    "gradle-final.log": "98c38316a6adc82d0e2a6d4aa8abb3472f4dfdb41520c05c51872e0fe9ddce5e",
+    "prior/wrong-exception-type.log": "4ae8af8d10e4206845c4d68ce32b39434a88b5529ccaa576603fc7b26d6de5c0",
+    "prior/wrong-runner-class.log": "45fdf7de381d372772cc9bf2fa7683f4a6733fea7f10611cfee1465b43b76490"
+  }
+}

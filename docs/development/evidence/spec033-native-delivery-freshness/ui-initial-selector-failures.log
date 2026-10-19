@@ -1,0 +1,321 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TableReleaseTest:
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.AttendanceNowUx2Test:
+INSTRUMENTATION_STATUS: test=deliveryDetailDoesNotCompleteOnOpeningAndProtectsOtherOperators
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=deliveryDetailDoesNotCompleteOnOpeningAndProtectsOtherOperators
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unknownFreshnessNeverClaimsZeroTasksAndNeverDropsVisibleWork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unknownFreshnessNeverClaimsZeroTasksAndNeverDropsVisibleWork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Bia · B' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.AttendanceNowUx2Test.typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh(AttendanceNowUx2Test.kt:102)
+
+INSTRUMENTATION_STATUS: stream=
+Error in typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh(com.rodada.attendance.operations.AttendanceNowUx2Test):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Bia · B' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.AttendanceNowUx2Test.typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh(AttendanceNowUx2Test.kt:102)
+
+INSTRUMENTATION_STATUS: test=typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=twoQueuesPreserveSelectionAndOpeningOnlyRoutesTheExactTask
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=twoQueuesPreserveSelectionAndOpeningOnlyRoutesTheExactTask
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=prototypeShellKeepsPrimaryFooterVisibleAndMovesCapabilityActionsToOptions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=prototypeShellKeepsPrimaryFooterVisibleAndMovesCapabilityActionsToOptions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.NowQueuesTest:
+INSTRUMENTATION_STATUS: test=recoveryOpensOnlyOriginalRecordWithoutCheckingOrSubmitting
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recoveryOpensOnlyOriginalRecordWithoutCheckingOrSubmitting
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=blockedSessionNeverOffersRecoveryAndBusyDisablesOpening
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=blockedSessionNeverOffersRecoveryAndBusyDisablesOpening
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=filtersExposeSelectionAndUnknownCountsWithoutMutations
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=filtersExposeSelectionAndUnknownCountsWithoutMutations
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=peakShowsReadyFirstAndFiltersNeverSubmitCommands
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=peakShowsReadyFirstAndFiltersNeverSubmitCommands
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TablePresentationTest:
+INSTRUMENTATION_STATUS: test=initializationError
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.RuntimeException: Failed loading specified test class 'com.rodada.attendance.operations.TablePresentationTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2597)
+Caused by: java.lang.ClassNotFoundException: com.rodada.attendance.operations.TablePresentationTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:597)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "com.rodada.attendance.operations.TablePresentationTest" on path: DexPathList[[zip file "/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk", zip file "/data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk"],nativeLibraryDirectories=[/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/lib/x86_64, /data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk!/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in initializationError(com.rodada.attendance.operations.TablePresentationTest):
+java.lang.RuntimeException: Failed loading specified test class 'com.rodada.attendance.operations.TablePresentationTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2597)
+Caused by: java.lang.ClassNotFoundException: com.rodada.attendance.operations.TablePresentationTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:597)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "com.rodada.attendance.operations.TablePresentationTest" on path: DexPathList[[zip file "/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk", zip file "/data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk"],nativeLibraryDirectories=[/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/lib/x86_64, /data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk!/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+INSTRUMENTATION_STATUS: test=initializationError
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 51.992
+There were 2 failures:
+1) typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh(com.rodada.attendance.operations.AttendanceNowUx2Test)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Bia · B' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.AttendanceNowUx2Test.typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh(AttendanceNowUx2Test.kt:102)
+2) initializationError(com.rodada.attendance.operations.TablePresentationTest)
+java.lang.RuntimeException: Failed loading specified test class 'com.rodada.attendance.operations.TablePresentationTest'
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:50)
+	at androidx.test.internal.runner.TestLoader.getRunnersFor(TestLoader.java:64)
+	at androidx.test.internal.runner.TestRequestBuilder.build(TestRequestBuilder.java:842)
+	at androidx.test.runner.AndroidJUnitRunner.buildRequest(AndroidJUnitRunner.java:672)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:453)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2597)
+Caused by: java.lang.ClassNotFoundException: com.rodada.attendance.operations.TablePresentationTest
+	at java.lang.Class.classForName(Native Method)
+	at java.lang.Class.forName(Class.java:597)
+	at androidx.test.internal.runner.DirectTestLoader.doCreateRunner(DirectTestLoader.java:44)
+	... 5 more
+Caused by: java.lang.ClassNotFoundException: Didn't find class "com.rodada.attendance.operations.TablePresentationTest" on path: DexPathList[[zip file "/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk", zip file "/data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk"],nativeLibraryDirectories=[/data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/lib/x86_64, /data/app/~~D5QLHumEOEJLOE05oXV47g==/com.rodada.attendance.test-D_lvdGVgUDv-G2YKzx68aQ==/base.apk!/lib/x86_64, /data/app/~~V-PkJzpjnyf2vVT8EYwTKw==/com.rodada.attendance-lZOZ3Dv1BfBRwaudUlxt8w==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+	... 8 more
+
+FAILURES!!!
+Tests run: 16,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

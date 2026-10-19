@@ -58,6 +58,7 @@ class OperationsHttpClient(baseUrl: String) {
                                 customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
                                 productId = item.optString("product_id").takeIf { it.isNotBlank() },
                                 customization = historicalCustomization(item.optJSONObject("customization_snapshot")),
+                                fulfillmentStationSnapshot = item.optString("fulfillment_station_snapshot").takeIf { it.isNotBlank() && it != "null" },
                             )
                         },
                 )
@@ -112,8 +113,15 @@ class OperationsHttpClient(baseUrl: String) {
                     destinationLabel = it.optString("destination_label"),
                     productName = it.optString("product_name", "Item pronto"),
                     quantity = it.optInt("quantity", 1),
-                    tabLabel = it.optString("tab_label"),
+                    tabLabel = it.optString("tab_display_label").takeUnless { value -> value == "null" }.orEmpty(),
                     ageSeconds = it.optLong("age_seconds", 0),
+                    target = StaffTaskTarget.fromPayload(it),
+                    fulfillmentStation = it.optString("fulfillment_station").takeIf { value -> value.isNotBlank() && value != "null" },
+                    orderItemId = it.optString("order_item_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    orderId = it.optString("order_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    claimedById = it.optString("claimed_by_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    itemState = it.optString("item_state").takeIf { value -> value.isNotBlank() && value != "null" },
+                    tabReference = it.optString("tab_display_reference").takeIf { value -> value.isNotBlank() && value != "null" },
                 )
             }
 
@@ -172,8 +180,8 @@ class OperationsHttpClient(baseUrl: String) {
         request("POST", "/hospitality/occupancies/$occupancyId/tabs/", JSONObject().put("tab_id", tabId), accessToken)
     }
 
-    fun releaseTable(accessToken: String, command: TableReleaseCommand) {
-        request("POST", "/hospitality/tables/${command.tableId}/release/", command.toJson(), accessToken)
+    fun releaseTable(accessToken: String, target: TableReleaseCommand) {
+        request("POST", "/hospitality/tables/${target.tableId}/release/", target.toJson(), accessToken)
     }
 
     fun startTableCleaning(accessToken: String, tableId: String) {
@@ -256,7 +264,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
         json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
-        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"), json.getString("method"),
     )
 
     fun closeTab(accessToken: String, tabId: String) {
@@ -289,6 +297,7 @@ class OperationsHttpClient(baseUrl: String) {
             actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
             tableLabel = if (json.isNull("table_label")) null else json.optString("table_label").ifBlank { null },
             lastTableLabel = if (json.isNull("last_table_label")) null else json.optString("last_table_label").ifBlank { null },
+            relationshipSnapshot = if (json.isNull("relationship_snapshot")) null else json.optString("relationship_snapshot").ifBlank { null },
         )
 
     fun requestApproval(accessToken: String, tabId: String, reason: String, key: String) {

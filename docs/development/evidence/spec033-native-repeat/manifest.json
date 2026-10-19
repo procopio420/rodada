@@ -1,0 +1,20 @@
+{
+  "product_sha": "20e86b4f0f4992a7e5a31075e3cd84ffaea9275a",
+  "device": "emulator API36,390dp,font1",
+  "api": "Django/PostgreSQL isolated localhost18132/55501",
+  "result": "PASS1,14.742s",
+  "scope": "Native Compose TabWorkspace + production ViewModel/repositories, real committed POST lost ACK; not MainActivity navigation or restart",
+  "limitations": [
+    "Physical device/TalkBack pending",
+    "360/430/font2 fullpages pending",
+    "Unknown-state screenshot retains stale Enviando notice; wording/parity correction pending",
+    "Test/proxy review pending; production P1/P2 independently reviewed"
+  ],
+  "hashes": {
+    "ux2-repeat-unknown-empty-cart-w390-f100.png": "30332e4eea3e6d62cad15104dcebb52b095e30d6442517a7cac38d1ca9609a14",
+    "proxy-proof-streaming.json": "51318cb62d7c0e322627e2262e40a813169fb3fbceb0ad5e800d5d6255f5bbac",
+    "instrumentation-streaming.txt": "2b8e88356f7969356b618ee33fa5bc8ea222629922ca1a9d682d0690fd2f2a6f",
+    "canonical-proof.json": "37386982e039b5fcaec39aece24ee0afa668f1f361a78c7d807af31c631892db",
+    "ux2-repeat-reconciled-empty-cart-w390-f100.png": "a3fb7dddf25460902e3d123260301b3472309577eb9ed5c03ac9b12774c50548"
+  }
+}

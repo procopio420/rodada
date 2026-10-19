@@ -37,6 +37,16 @@ class PendingMutationIntentStore(context: Context) {
                 "Verifique o atendimento pendente antes de iniciar outra intenção."
             }
         }
+        if (original != null && intent is RecoveryIntent.StartPayment) {
+            val prior = original.intent as? RecoveryIntent.StartPayment
+            require(prior != null && prior.copy(state = intent.state,
+                confirmedPaymentId = intent.confirmedPaymentId) == intent) {
+                "Um recebimento não pode trocar payload, chave ou identidade."
+            }
+            require(prior.confirmedPaymentId == null || prior.confirmedPaymentId == intent.confirmedPaymentId) {
+                "Um recebimento confirmado não pode voltar à cobrança."
+            }
+        }
         if (original != null && intent is RecoveryIntent.ConfirmOrder) {
             // Data-class equality deliberately ignores only state; JSON key order does
             // not carry meaning and must not decide whether a financial fact is safe.
@@ -237,8 +247,10 @@ sealed interface RecoveryIntent {
         val method: PaymentMethod,
         val cashPointId: String?,
         val expectedVersion: Int? = null,
+        val closeRequested: Boolean = false,
+        val confirmedPaymentId: String? = null,
     ) : RecoveryIntent {
-        override fun toJson() = baseJson("START_PAYMENT").put("tab_id", tabId).put("amount_cents", amountCents).put("method", method.name).apply { if (cashPointId != null) put("cash_point_id", cashPointId); if (expectedVersion != null) put("expected_version", expectedVersion) }
+        override fun toJson() = baseJson("START_PAYMENT").put("close_requested", closeRequested).apply { confirmedPaymentId?.let { put("confirmed_payment_id", it) } }.put("tab_id", tabId).put("amount_cents", amountCents).put("method", method.name).apply { if (cashPointId != null) put("cash_point_id", cashPointId); if (expectedVersion != null) put("expected_version", expectedVersion) }
     }
 
     /**
@@ -388,7 +400,7 @@ sealed interface RecoveryIntent {
                     ConfirmOrder(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), List(lines.length()) { index -> lines.getJSONObject(index).let { PendingOrderLine(it.getString("product_id"), it.getInt("quantity"), Customization(if (it.isNull("variant_id")) null else it.optString("variant_id").ifBlank { null }, it.optJSONArray("modifier_option_ids")?.let { ids -> List(ids.length()) { i -> ids.getString(i) } }.orEmpty(), it.optString("special_instructions"))) } }, json.optBoolean("clear_cart_on_confirmation", true))
                 }
                 "START_PAYMENT" -> {
-                    StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null }, if (json.has("expected_version")) json.getInt("expected_version") else null)
+                    StartPayment(common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state, json.getString("tab_id"), json.getLong("amount_cents"), PaymentMethod.valueOf(json.getString("method")), json.optString("cash_point_id").ifBlank { null }, if (json.has("expected_version")) json.getInt("expected_version") else null, json.optBoolean("close_requested"), json.optString("confirmed_payment_id").ifBlank { null })
                 }
                 "CORRECTION" -> Correction(
                     common.id, common.staffId, common.venueId, common.deviceId, common.idempotencyKey, common.createdAtMillis, common.state,

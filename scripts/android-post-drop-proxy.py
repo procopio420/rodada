@@ -28,8 +28,9 @@ class Proxy(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, handler, evidence, hold_response=False):
+    def __init__(self, address, handler, evidence, hold_response=False, upstream_port=8101):
         super().__init__(address, handler)
+        self.upstream_port = upstream_port
         self.lock = threading.Lock()
         self.armed = True
         self.mode = "order"
@@ -40,11 +41,14 @@ class Proxy(ThreadingHTTPServer):
         self.holding = 0
         self.release_signal = threading.Event()
         self.release_after_cut = False
+        self.read_path = None
+        self.read_holding = False
+        self.read_release = threading.Event()
 
     def snapshot(self):
         return {"mode": self.mode, "armed": self.armed, "events": self.events, "replays": self.replays,
                 "hold_response": self.hold_response, "holding": self.holding,
-                "released_after_cut": self.release_after_cut}
+                "released_after_cut": self.release_after_cut, "read_path": self.read_path, "read_holding": self.read_holding}
 
     def persist(self):
         parent = os.path.dirname(self.evidence) or "."
@@ -70,6 +74,23 @@ class Handler(BaseHTTPRequestHandler):
         self.proxy("GET")
 
     def do_POST(self):
+        held = re.fullmatch(r"/__fault/hold-tab-read/([0-9a-fA-F-]+)", self.path)
+        if held or self.path == "/__fault/release-tab-read":
+            with self.server.lock:
+                if held:
+                    self.server.read_path = f"/tabs/{held.group(1)}/"
+                    self.server.read_holding = False
+                    self.server.read_release.clear()
+                else:
+                    self.server.read_path = None
+                    self.server.read_release.set()
+                self.server.persist()
+            payload = b'{"ok":true}'
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+            return
         if self.path == "/__fault/release-after-cut":
             with self.server.lock:
                 if not self.server.hold_response or not self.server.holding:
@@ -85,9 +106,10 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
             return
-        if self.path in ("/__fault/arm-table-start", "/__fault/arm-table-open"):
+        if self.path in ("/__fault/arm-table-start", "/__fault/arm-table-open", "/__fault/arm-payment", "/__fault/arm-close"):
             with self.server.lock:
-                self.server.mode = "start" if self.path.endswith("start") else "open"
+                self.server.mode = {"/__fault/arm-table-start": "start", "/__fault/arm-table-open": "open",
+                                    "/__fault/arm-payment": "payment", "/__fault/arm-close": "close"}[self.path]
                 self.server.armed = True
                 self.server.events = []
                 self.server.replays = []
@@ -121,19 +143,48 @@ class Handler(BaseHTTPRequestHandler):
             return
         body = self.rfile.read(size) if size else None
         headers = {key: value for key, value in self.headers.items() if key.lower() not in HOP}
-        headers["Host"] = "127.0.0.1:8101"
-        conn = http.client.HTTPConnection("127.0.0.1", 8101, timeout=30)
+        headers["Host"] = f"127.0.0.1:{self.server.upstream_port}"
+        conn = http.client.HTTPConnection("127.0.0.1", self.server.upstream_port, timeout=30)
         try:
             conn.request(method, self.path, body=body, headers=headers)
             upstream = conn.getresponse()
+            if method == "GET" and self.path.startswith("/realtime/stream/"):
+                self.send_response(upstream.status)
+                for key, value in upstream.getheaders():
+                    if key.lower() not in HOP:
+                        self.send_header(key, value)
+                self.send_header("Connection", "close")
+                self.end_headers()
+                while True:
+                    line = upstream.readline()
+                    if not line:
+                        break
+                    self.wfile.write(line)
+                    self.wfile.flush()
+                self.close_connection = True
+                return
             response_body = upstream.read()  # upstream response => transaction committed
             status = upstream.status
             response_headers = upstream.getheaders()
             mode = self.server.mode
             route = urlsplit(self.path).path
-            matches = MATCH.fullmatch(route) if mode == "order" else re.fullmatch(
-                r"/hospitality/tables/[0-9a-fA-F-]+/service/start/" if mode == "start" else
-                r"/hospitality/occupancies/[0-9a-fA-F-]+/tabs/open/", route)
+            hold_read = method == "GET" and route == self.server.read_path and 200 <= status < 300
+            if hold_read:
+                with self.server.lock:
+                    self.server.read_holding = True
+                    self.server.persist()
+                # Return only this actual canonical snapshot after the session test releases it.
+                if not self.server.read_release.wait(timeout=45):
+                    raise TimeoutError("Disposable Tab read barrier timed out")
+                with self.server.lock:
+                    self.server.read_holding = False
+                    self.server.persist()
+            pattern = {"order": MATCH.pattern,
+                       "start": r"/hospitality/tables/[0-9a-fA-F-]+/service/start/",
+                       "open": r"/hospitality/occupancies/[0-9a-fA-F-]+/tabs/open/",
+                       "payment": r"/tabs/[0-9a-fA-F-]+/payments/",
+                       "close": r"/tabs/[0-9a-fA-F-]+/close/"}[mode]
+            matches = re.fullmatch(pattern, route)
             if method == "POST" and matches and 200 <= status < 300:
                 original = json.loads(body or b"{}")
                 data = json.loads(response_body)
@@ -145,7 +196,7 @@ class Handler(BaseHTTPRequestHandler):
                     "tab_id": data.get("tab_id"),
                     "table_id": data.get("table_id"),
                     "occupancy_id": data.get("occupancy_id") or data.get("active_occupancy", {}).get("id"),
-                    "idempotency_key": original["idempotency_key"],
+                    "idempotency_key": original.get("idempotency_key"),
                     "body_sha256": hashlib.sha256(body or b"").hexdigest(),
                 }
                 with self.server.lock:
@@ -214,12 +265,14 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", required=True)
+    parser.add_argument("--listen-port", type=int, default=8000)
+    parser.add_argument("--upstream-port", type=int, default=8101)
     parser.add_argument("--hold-response", action="store_true",
                         help="Pause a committed POST until externally verified Android uplink cut")
     args = parser.parse_args()
-    app = Proxy(("0.0.0.0", 8000), Handler, args.evidence, hold_response=args.hold_response)
+    app = Proxy(("0.0.0.0", args.listen_port), Handler, args.evidence, hold_response=args.hold_response, upstream_port=args.upstream_port)
     app.persist()
-    print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :8000 => Django :8101", flush=True)
+    print(f"POST_DROP_PROXY_READY hold_response={args.hold_response} at :{args.listen_port} => Django :{args.upstream_port}", flush=True)
     app.serve_forever()
 
 

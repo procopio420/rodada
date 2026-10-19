@@ -67,8 +67,9 @@ class RecoveryPresentationTest {
 
     @Test fun `unknown and stale reads do not invent measured queue counts`() {
         assertEquals("—", nowQueueCounts(OperationsUiState())[NowQueue.READY])
-        val fresh = OperationsUiState(lastSyncedAtMillis = 42, connectivity = ConnectivityState.ONLINE, serviceRequestsFresh = true)
+        val fresh = OperationsUiState(lastSyncedAtMillis = 42, connectivity = ConnectivityState.ONLINE, serviceRequestsFresh = true, deliveryTasksFresh = true)
         assertEquals("0", nowQueueCounts(fresh)[NowQueue.READY])
+        assertEquals("—", nowQueueCounts(fresh.copy(deliveryTasksFresh = false))[NowQueue.READY])
         assertEquals("0", nowQueueCounts(fresh)[NowQueue.CALLS])
         assertEquals("—", nowQueueCounts(fresh.copy(connectivity = ConnectivityState.STALE))[NowQueue.READY])
         assertEquals("—", nowQueueCounts(fresh.copy(connectivity = ConnectivityState.OFFLINE))[NowQueue.CALLS])

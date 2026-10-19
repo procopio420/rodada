@@ -8,6 +8,7 @@ data class TableReleaseCommand(
     val expectedOccupancyId: String,
     val expectedGeneration: Int,
 ) {
+    init { require(expectedGeneration > 0) }
     fun toJson(): JSONObject = JSONObject()
         .put("expected_occupancy_id", expectedOccupancyId)
         .put("expected_generation", expectedGeneration)

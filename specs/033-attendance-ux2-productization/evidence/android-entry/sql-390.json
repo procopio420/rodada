@@ -1,0 +1,29 @@
+{
+  "sha": "27ed61f25526b5ece1198367d282df3f9fac8143",
+  "database_instance_id": "8d24718c8b4f3a2aa078ef32f554cb64d1fbe9491c12ef278d79a130c4873c84",
+  "database": "rodada_android_post_drop",
+  "venue_id": "752ac504-2614-4b14-a60f-0caf8f42796a",
+  "venue_slug": "android-post-drop-ci",
+  "result": "PASS",
+  "native_ui": "production MainActivity Compose",
+  "original_order_id": "bc149d46-3747-453f-9e82-aa805bb48013",
+  "original_tab_id": "89d5d37f-01b8-4255-bb41-c38c6cde1726",
+  "original_order_item_ids": [
+    "4ee1f1fe-01bd-41df-bbc0-1b5c5928ecc4",
+    "47b682b5-ace9-44d2-8059-e2fe23dbc832"
+  ],
+  "charge_ids": [
+    "a6ea8cc2-243d-4db4-80cd-a1e01aa1a4bf",
+    "ce7ee802-6a28-43ed-9dc3-7ce1a9a18c9d"
+  ],
+  "product_ids": {
+    "BAR": "bc968474-0098-40ab-93b0-54250475be2f",
+    "KITCHEN": "1a697af1-b7c7-4c43-9d03-ffa11d09c623"
+  },
+  "orders": 1,
+  "order_items": 2,
+  "charges": 2,
+  "payments": 0,
+  "tab_label": "Android-033-entry-27ed61f2-390",
+  "initial_state": "NEW"
+}

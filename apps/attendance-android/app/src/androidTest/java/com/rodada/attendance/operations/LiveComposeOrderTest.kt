@@ -22,15 +22,34 @@ class LiveComposeOrderTest {
         compose.waitUntil(30_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().isNotEmpty() }
     }
 
+    private fun waitForEnabledCatalog(matcher: SemanticsMatcher) {
+        var stableSince: Long? = null
+        compose.waitUntil(30_000) {
+            val now = android.os.SystemClock.uptimeMillis()
+            if (compose.onAllNodes(matcher and isEnabled()).fetchSemanticsNodes().isEmpty()) {
+                stableSince = null
+                false
+            } else {
+                if (stableSince == null) stableSince = now
+                now - checkNotNull(stableSince) >= 1_000
+            }
+        }
+    }
+
     @Test fun confirmThroughProductionCompose() {
         assumeTrue("Disposable runner only", InstrumentationRegistry.getArguments().getString("liveCompose") == "true")
-        check(BuildConfig.RODADA_API_BASE_URL == "http://10.0.2.2:8101/")
+        val expectedApi = InstrumentationRegistry.getArguments().getString("expectedApiBaseUrl")
+            ?: "http://10.0.2.2:8101/"
+        check(expectedApi.matches(Regex("http://10\\.0\\.2\\.2:[0-9]{4,5}/")))
+        check(BuildConfig.RODADA_API_BASE_URL == expectedApi)
         waitText("Estabelecimento")
         compose.onNodeWithText("Estabelecimento").performTextInput("android-post-drop-ci")
         compose.onNodeWithText("Operador").performTextInput("android-post-drop-operator")
         compose.onNodeWithText("PIN").performTextInput("2468")
         compose.onNodeWithText("Entrar").performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("attendance-now").assertIsSelected()
+        compose.onNodeWithTag("attendance-tables").assertIsNotSelected()
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val session = SecureSessionStore(context).load() ?: error("Missing real UI session")
         val operations = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
@@ -42,24 +61,21 @@ class LiveComposeOrderTest {
         waitText("Nome ou apelido")
         compose.onNodeWithText("Nome ou apelido").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
-        compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(30_000) { compose.onAllNodesWithTag("ux2-tab-pages").fetchSemanticsNodes().isNotEmpty() }
         // Only Compose creates the Tab; identify its canonical readback by the new ID,
         // independent of labels and ordering in this disposable runner.
         val originalTabId = operations.tabs(session.tokens.accessToken)
             .single { it.id !in existingTabIds }.id
         check(operations.tabDetail(session.tokens.accessToken, originalTabId).summary.exposureCents == 0L)
+        compose.onNodeWithText("＋ Adicionar itens").performScrollTo().performClick()
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
-            // PR #195: select category, product, quantity; the old flat "Adicionar" action no longer exists.
-            compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
-            compose.onNodeWithText("Buscar no catálogo").performTextReplacement(product)
-            compose.onNodeWithTag("catalog-category-Outros").assertIsEnabled().performClick()
-            compose.onNode(hasText(product) and hasClickAction() and hasAnyAncestor(hasTestTag("category-products"))).assertIsEnabled().performClick()
-            compose.onNode(hasText("Adicionar ·", substring = true) and hasClickAction()).assertIsEnabled().performScrollTo().performClick()
-            compose.onNodeWithText("Voltar às categorias").performClick()
+            val productChoice = hasContentDescription("Adicionar $product")
+            compose.onNode(productChoice).performScrollTo()
+            waitForEnabledCatalog(productChoice)
+            compose.onNode(productChoice).assertIsEnabled().performClick()
         }
-        waitText("Ver pedido atual · 2 itens · R$ 17,00")
-        compose.onNodeWithTag("workspace-Pedido atual").performClick()
-        waitText("Confirmar pedido")
+        compose.onNodeWithText("Ver resumo · 2 itens · R$ 17,00").performScrollTo().performClick()
+        waitText("Resumo do pedido.")
         val fault = InstrumentationRegistry.getArguments().getString("catalogFault") == "true"
         val revokedFault = InstrumentationRegistry.getArguments().getString("revocationFault") == "true"
         val offlineFault = InstrumentationRegistry.getArguments().getString("offlineFault") == "true"
@@ -70,8 +86,10 @@ class LiveComposeOrderTest {
             java.io.File(files, "catalog-cart-ready").writeText("ready")
             compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
         }
-        if (offlineFault) waitText("SEM SINAL")
-        val confirmation = compose.onNodeWithText("Confirmar pedido").assertIsEnabled().performScrollTo()
+        if (offlineFault) compose.waitUntil(30_000) {
+            compose.onAllNodesWithText(ConnectivityState.OFFLINE.label()).fetchSemanticsNodes().isNotEmpty()
+        }
+        val confirmation = compose.onNodeWithText(if (offlineFault) "Guardar pedido neste aparelho" else "Enviar 2 itens · R$ 17,00").assertIsEnabled().assertIsDisplayed()
         if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
         if (offlineFault) {
             val context = InstrumentationRegistry.getInstrumentation().targetContext
@@ -91,7 +109,7 @@ class LiveComposeOrderTest {
             val rejected = queue.orderQueue(session).single()
             check(rejected == originalPending!!.copy(state = RecoveryState.ACTION_REQUIRED))
             // A dependent confirmation cannot create a new key or resubmit an ACTION_REQUIRED record.
-            compose.onNodeWithText("Confirmar pedido").performScrollTo().performClick()
+            compose.onNodeWithText("Verificar mesmo pedido").performScrollTo().performClick()
             check(queue.orderQueue(session).single() == rejected)
             // Recovery is asynchronous: ACTION_REQUIRED in durable native storage is
             // authoritative. The immediate online catalog 409 uses a separate UI toast.
@@ -102,36 +120,31 @@ class LiveComposeOrderTest {
         if (fault) {
             compose.waitUntil(30_000) { compose.onAllNodesWithText("Pedido confirmado pelo servidor.").fetchSemanticsNodes().isEmpty() &&
                 compose.onAllNodes(hasText("Um ou mais itens não podem mais ser confirmados.", substring = true)).fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithTag("workspace-Pedido atual").assertExists()
+            compose.onNodeWithText("Resumo do pedido.").assertExists()
             return
         }
         waitText("Pedido confirmado pelo servidor.")
-        // Confirmation returns to the table list by design; reopen the original Tab.
-        compose.waitUntil(30_000) { compose.onAllNodesWithText("Outras comandas", substring = true).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNode(hasText("Outras comandas", substring = true) and hasClickAction()).performClick()
+        // Return through the UX2 pages, then reopen the exact canonical Tab.
+        repeat(3) {
+            if (compose.onAllNodesWithTag("ux2-tab-pages").fetchSemanticsNodes().isNotEmpty()) {
+                compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+                compose.waitForIdle()
+            }
+        }
+        compose.onNodeWithTag("attendance-tables").performClick()
         val originalTab = hasTestTag("other-tab-$originalTabId")
         compose.onNodeWithTag("tables-list").performScrollToNode(originalTab)
         compose.waitUntil(30_000) {
             compose.onAllNodes(originalTab and isEnabled()).fetchSemanticsNodes().size == 1
         }
         compose.onNode(originalTab).assertIsEnabled().performClick()
-        // UX2 can expose the account as a page instead of the legacy workspace tab.
-        compose.waitUntil(30_000) {
-            compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() ||
-                compose.onAllNodes(hasText("Conta") and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
-        }
-        if (compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty()) {
-            compose.onNodeWithTag("workspace-Conta").performClick()
-        } else {
-            compose.onNode(hasText("Conta") and hasClickAction()).performClick()
-        }
-        compose.waitUntil(30_000) { compose.onAllNodesWithTag("account-balance").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithTag("account-balance").assertIsDisplayed()
-        compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
+        compose.onNodeWithText("Conferir / fechar conta").performScrollTo().performClick()
+        waitText("Falta receber")
+        compose.onNodeWithText("Falta receber").assertIsDisplayed()
         val confirmed = operations.tabDetail(session.tokens.accessToken, originalTabId)
         check(confirmed.orders.size == 1) { "Expected exactly one canonical Order" }
         check(confirmed.summary.chargesCents == 1700L && confirmed.summary.exposureCents == 1700L)
-        compose.onNode(hasText(formatCents(1700L)) and hasAnyAncestor(hasTestTag("account-balance")))
+        compose.onNode(hasText(formatCents(1700L)) and hasAnySibling(hasText("Falta receber")))
             .assertIsDisplayed()
         // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
@@ -210,7 +223,8 @@ class LiveComposeOrderTest {
         check(auth.me(refreshed.accessToken).venueId == foreign.venueId)
         evidence("NATIVE_EXPIRED_ACCESS_401_REFRESH_200")
         compose.onNodeWithTag("attendance-now").performClick()
-        val pending = hasText("Pendências", substring = true) and hasClickAction()
+        compose.onNodeWithTag("attendance-options").performClick()
+        val pending = hasText("Pendências locais ·", substring = true) and hasClickAction()
         compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(pending).performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasText("outra sessão", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty() }
