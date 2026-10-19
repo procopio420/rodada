@@ -72,9 +72,10 @@ try {
     await click("toggle-lost-ack");
     await click("submit");
     await expect(page.getByText("Envio sem confirmação")).toBeVisible();
-    await expect(page.locator('button[data-action="reconcile-order"]')).toBeVisible();
+    const reconcile = page.getByRole("button", { name: "Verificar envio · mesma intenção", exact: true });
+    await expect(reconcile).toBeVisible();
     await capture("order-uncertain");
-    await click("reconcile-order");
+    await reconcile.click();
     await expect(page.getByText(/Pedido SIM-2002 confirmado/)).toBeVisible();
     await expect(page.getByText(/Cozinha · Na fila/)).toBeVisible();
     await capture("order-reconciled");

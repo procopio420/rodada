@@ -218,3 +218,12 @@ Pedido deixa de depender de toast: **comanda exibe confirmação persistente da 
 No Catálogo há envio **direto** com identidade/destino da Tab fixos; **Ver resumo** virou opcional. **Mais uma rodada** envia após seleção/ajuste, sem segunda revisão, e não mistura silenciosamente rascunho anterior. Voltar do pedido confirmado retorna à mesa correta. A comanda mantém **Adicionar itens** como ação primária acima do status compacto.
 
 Validação no modelo JS/DOM: **27/27** cenários PASS (envio, contexto, erro incerto, reconciliação, repetição, modo WARN_ONLY/ENFORCE, recebimento, limpeza), sem browser real. Foi adicionado \`scripts/ux2-prototype-smoke.mjs\` para capturas/responsividade mobile 360/390/430 e tratamento de overflow, **ainda não executado**. Contrato de integração e riscos em [P0/P1 de confirmação e fricção](p0-p1-operational-hardening.md). Sem alterações de API/Android/Web de produção, banco ou deploy.
+
+### Revalidação de integração — 2026-10-19
+
+O smoke `node scripts/ux2-prototype-smoke.mjs` passou em 360/390/430 px,
+com seis capturas por largura, sem overflow horizontal nem erros de browser.
+O seletor de reconciliação usa o nome acessível da ação de envio, pois há dois
+botões com `data-action="reconcile-order"`. A referência normativa de pagamentos
+foi corrigida para `specs/006-payments-tap-on-phone/`. Este ensaio usa somente
+fixture HTML local: não valida API, ledger, Android, dispositivo ou produção.
