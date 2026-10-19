@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.rodada.attendance.ui.RodadaVisual
 
 /** Explicit existing mutations remain separate from opening the operational context. */
@@ -57,7 +60,8 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
             }
             Spacer(Modifier.height(8.dp))
             Ux2Eyebrow("Produção · pedido pronto")
-            Ux2Title("Levar pedido.")
+            val titleSize = if (LocalConfiguration.current.screenWidthDp <= 375) 30 else 34
+            Text("Levar pedido.", style = com.rodada.attendance.ui.AttendanceUx2.text(titleSize, 900, titleSize * 1.05f).copy(letterSpacing = (-titleSize * .055f).sp), modifier = Modifier.semantics { heading() })
             if (task == null) {
                 Text("Tarefa ausente da fila atual. Isso não comprova entrega; confira o histórico original.", color = RodadaVisual.Muted)
             } else {
@@ -68,7 +72,6 @@ internal fun DeliveryTaskDetail(task: DeliveryTask?, busy: Boolean, staffId: Str
                     Text(if (task.itemState in setOf("READY", "PICKED_UP")) if (task.itemState == "READY") "Os itens abaixo estão marcados como prontos na produção. Abrir a tarefa não conclui a entrega." else "Os itens abaixo estão em entrega. Abrir a tarefa não conclui a entrega." else "O estado de produção mudou ou não foi informado. Atualize antes de agir; abrir não conclui a entrega.", style = com.rodada.attendance.ui.AttendanceUx2.text(13), color = RodadaVisual.Muted)
                 }
                 Text("O que levar", style = com.rodada.attendance.ui.AttendanceUx2.text(18, 800))
-                HorizontalDivider(color = RodadaVisual.StrongBorder)
                 Row(Modifier.fillMaxWidth().padding(vertical = 18.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Text("${task.quantity}× ${task.productName}", style = com.rodada.attendance.ui.AttendanceUx2.text(16, 800))
