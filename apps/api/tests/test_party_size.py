@@ -86,7 +86,12 @@ class PartySizeTests(Fixture, TestCase):
 
     def test_post_release_manager_reason_and_snapshot(self):
         first = self.record(5)
-        release_table(table_id=self.table.id, actor=self.actor)
+        release_table(
+            table_id=self.table.id,
+            actor=self.actor,
+            expected_occupancy_id=self.occupancy.id,
+            expected_generation=self.occupancy.generation,
+        )
         snapshot = AuditEvent.objects.get(event_type="table.released").metadata["party_size"]
         with self.assertRaises(HospitalityServiceError) as error:
             self.record(6, 1, "later")
@@ -291,7 +296,12 @@ class PartySizeApiTests(Fixture, TestCase):
             )
             corrected = client.post(
                 url,
-                {"covers_count": 5, "expected_version": 1, "idempotency_key": "api-staff", "reason": "Private staff correction"},
+                {
+                    "covers_count": 5,
+                    "expected_version": 1,
+                    "idempotency_key": "api-staff",
+                    "reason": "Private staff correction",
+                },
                 format="json",
             )
             assert corrected.status_code == 200, corrected.json()
@@ -302,13 +312,21 @@ class PartySizeApiTests(Fixture, TestCase):
             )
             assert stale.status_code == 409, stale.json()
             assert set(stale.json()["current"]) == {
-                "covers_count", "version", "source", "observation_id"
+                "covers_count",
+                "version",
+                "source",
+                "observation_id",
             }
             assert "Private staff correction" not in str(stale.json())
             history = client.get(url).json()["history"]
             assert [row["covers_count"] for row in history] == [5, 4]
             assert history[0]["source"] == "STAFF"
-            release_table(table_id=self.table.id, actor=self.actor)
+            release_table(
+                table_id=self.table.id,
+                actor=self.actor,
+                expected_occupancy_id=self.occupancy.id,
+                expected_generation=self.occupancy.generation,
+            )
             response = guest.post(
                 "/guest/party-size/",
                 {"covers_count": 6, "expected_version": 2, "idempotency_key": "api-after-release"},
