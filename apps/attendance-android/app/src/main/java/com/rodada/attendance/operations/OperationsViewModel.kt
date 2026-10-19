@@ -31,6 +31,7 @@ import java.util.UUID
 
 data class OperationsUiState(
     val pixEnabled: Boolean = false,
+    val paymentProviderSimulated: Boolean = false,
     val tapSimulationEnabled: Boolean = false,
     val tapPhase: String? = null,
     val integratedPayment: com.rodada.attendance.payments.IntegratedPayment? = null,
@@ -88,6 +89,7 @@ class OperationsViewModel(
         private set
 
     private var loadedSessionKey: String? = null
+    private val financialResponses = FinancialResponseFence()
     private val tabDrafts = TabDraftContexts()
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
@@ -240,6 +242,7 @@ class OperationsViewModel(
             // Never leave a prior operator's draft cart or Tab context on a shared device.
             state = OperationsUiState()
         }
+        if (loadedSessionKey != key) financialResponses.invalidate()
         loadedSessionKey = key
         tabDrafts.enterSession(key)
         loadOrderQueue(session)
@@ -263,7 +266,7 @@ class OperationsViewModel(
             readServiceRequests(session)
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
-                state = state.copy(pixEnabled = caps.pix, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
+                state = state.copy(pixEnabled = caps.pix, paymentProviderSimulated = caps.simulated, tapSimulationEnabled = caps.tapToPay && caps.simulated && com.rodada.attendance.BuildConfig.DEBUG)
                 val tabs = repository.tabs(session)
                 val products = repository.products(session)
                 val deliveries = repository.deliveryTasks(session)
@@ -649,6 +652,27 @@ class OperationsViewModel(
         }
     }
 
+    /** A suspended read may finish after a new operator has acquired this ViewModel. */
+    private fun financialGuard(session: StoredSession, original: RecoveryIntent.StartPayment? = null): FinancialResponseFence.Guard {
+        var expected = original
+        return financialResponses.capture(
+            current = {
+                val pending = state.pendingPayment
+                (loadedSessionKey == null || loadedSessionKey == "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}") &&
+                pending == expected && (expected == null ||
+                    (expected!!.staffId == session.staffId && expected!!.venueId == session.venueId &&
+                        expected!!.deviceId == session.deviceId))
+            },
+            checkpoint = { updated -> expected = updated },
+            verify = {
+                check(expected == null || pendingMutationIntentStore.loadFor(session)
+                    .filterIsInstance<RecoveryIntent.StartPayment>().any { it == expected }) {
+                    "A intenção financeira durável mudou. Confira a recuperação original."
+                }
+            },
+        )
+    }
+
     private fun startTapSimulation(session: StoredSession, amountCents: Long, method: PaymentMethod) {
         val tab = state.selectedTab?.summary ?: return
         if (!state.tapSimulationEnabled || state.submitting || state.connectivity != ConnectivityState.ONLINE) return
@@ -659,22 +683,28 @@ class OperationsViewModel(
         if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key,
             tapPhase = "SIMULAÇÃO — preparando tentativa no servidor")
+        val guard = financialGuard(session, intent)
         viewModelScope.launch {
             runCatching {
+                guard.check()
                 val prepared = repository.integratedPayment(session, tab.id, amountCents, key, "TAP_TO_PAY", tab.version)
                 require(prepared.simulated) // Never run fake capture against a real merchant.
+                guard.check()
                 state = state.copy(integratedPayment = prepared)
                 val provider = com.rodada.attendance.payments.SumUpTapToPayProvider(
                     com.rodada.attendance.payments.TapDeviceCapabilities(30, true, true, true), true,
                     com.rodada.attendance.payments.DeterministicSumUpSdk(), simulated = true,
-                    onEvent = { event -> state = state.copy(tapPhase = com.rodada.attendance.payments.tapEventMessage(event, true)) },
+                    onEvent = { event -> if (guard.isCurrent()) state = state.copy(tapPhase = com.rodada.attendance.payments.tapEventMessage(event, true)) },
                 )
                 provider.cardProcessing = if (method == PaymentMethod.TAP_DEBIT) com.rodada.attendance.payments.CardProcessing.DEBIT else com.rodada.attendance.payments.CardProcessing.CREDIT
                 provider.initialize()
+                guard.check()
                 provider.collect(com.rodada.attendance.payments.TapPaymentRequest(prepared.id, prepared.amountCents))
                 provider.tearDown()
+                guard.check()
                 repository.reconcileIntegrated(session, prepared.id)
-            }.onSuccess { acceptIntegrated(session, it) }.onFailure {
+            }.mapCatching { acceptIntegrated(session, it, intent, guard) }.onFailure {
+                if (!guard.isCurrent()) return@onFailure
                 state = state.copy(submitting = false, tapPhase = "SIMULAÇÃO — resultado desconhecido; reconcilie sem cobrar novamente")
                 showFailure(it)
             }
@@ -693,10 +723,12 @@ class OperationsViewModel(
             tab.id, amountCents, PaymentMethod.PIX, null, tab.version)
         if (!preserveIntent(intent, session)) return
         state = state.copy(submitting = true, pendingPayment = intent, paymentIntentId = key, errorMessage = null)
+        val guard = financialGuard(session, intent)
         viewModelScope.launch {
-            runCatching { repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
-                .onSuccess { acceptIntegrated(session, it) }
+            runCatching { guard.check(); repository.integratedPayment(session, tab.id, amountCents, key, expectedVersion = intent.expectedVersion) }
+                .mapCatching { acceptIntegrated(session, it, intent, guard) }
                 .onFailure {
+                    if (!guard.isCurrent()) return@onFailure
                     state = state.copy(submitting = false)
                     showFailure(it, "Confirmando Pix. Verifique a mesma intenção; não cobre novamente.")
                 }
@@ -705,45 +737,68 @@ class OperationsViewModel(
 
     fun reconcilePix(session: StoredSession) {
         if (state.submitting) return
-        val payment = state.integratedPayment
-        if (payment == null) {
-            val pending = state.pendingPayment
-            val persisted = state.selectedTab?.payments?.lastOrNull { it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED") }
-            if (persisted != null) {
-                reconcilePixId(session, persisted.id)
-            } else if (pending != null) {
-                state = state.copy(submitting = true)
-                viewModelScope.launch {
-                    runCatching { repository.integratedPayment(session, pending.tabId, pending.amountCents,
-                        pending.idempotencyKey, pending.method.apiValue, pending.expectedVersion) }
-                        .onSuccess { acceptIntegrated(session, it) }
-                        .onFailure { state = state.copy(submitting = false); showFailure(it) }
-                }
+        val original = state.pendingPayment
+        if (original != null) {
+            if (original.method !in setOf(PaymentMethod.PIX, PaymentMethod.TAP_CREDIT, PaymentMethod.TAP_DEBIT)) return
+            state = state.copy(submitting = true)
+            val guard = financialGuard(session, original)
+            viewModelScope.launch {
+                runCatching {
+                    recoverIntegratedIntent(original,
+                        replay = { command -> guard.check(); repository.integratedPayment(session, command.tabId, command.amountCents,
+                            command.idempotencyKey, command.method.apiValue, command.expectedVersion) },
+                        reconcile = { guard.check(); repository.reconcileIntegrated(session, it) })
+                }.mapCatching { acceptIntegrated(session, it, original, guard) }
+                    .onFailure { if (guard.isCurrent()) { state = state.copy(submitting = false); showFailure(it) } }
             }
             return
         }
-        reconcilePixId(session, payment.id)
+        val paymentId = state.integratedPayment?.id ?: state.selectedTab?.payments?.lastOrNull {
+            it.method in setOf("PIX", "TAP_TO_PAY") && it.status !in setOf("FAILED", "CANCELLED", "EXPIRED")
+        }?.id ?: return
+        reconcilePixId(session, paymentId)
     }
 
     private fun reconcilePixId(session: StoredSession, id: String) {
+        if (state.pendingPayment != null) { reconcilePix(session); return }
         state = state.copy(submitting = true, errorMessage = null)
+        val guard = financialGuard(session)
         viewModelScope.launch {
-            runCatching { repository.reconcileIntegrated(session, id) }
-                .onSuccess { acceptIntegrated(session, it) }
+            runCatching { guard.check(); repository.reconcileIntegrated(session, id).also { check(it.id == id) } }
+                .mapCatching { acceptIntegrated(session, it, guard = guard) }
                 .onFailure {
+                    if (!guard.isCurrent()) return@onFailure
                     state = state.copy(submitting = false)
                     showFailure(it, "Pagamento ainda não verificado. Não cobre novamente.")
                 }
         }
     }
 
-    private suspend fun acceptIntegrated(session: StoredSession, payment: com.rodada.attendance.payments.IntegratedPayment) {
-        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message)
-        if (!payment.blocksNewCharge) {
-            state.pendingPayment?.let { pendingMutationIntentStore.remove(it.id) }
-            state = state.copy(pendingPayment = null, paymentIntentId = null)
+    private suspend fun acceptIntegrated(session: StoredSession,
+        payment: com.rodada.attendance.payments.IntegratedPayment,
+        source: RecoveryIntent.StartPayment? = null,
+        guard: FinancialResponseFence.Guard,
+    ) {
+        guard.check()
+        val pending = state.pendingPayment
+        if (pending != null) {
+            check(source == pending) { "A resposta não pertence à intenção de pagamento original." }
+            validateIntegratedIntent(pending, payment)
         }
-        runCatching { repository.tabDetail(session, payment.tabId) }.onSuccess(::replaceDetail)
+        val detail = repository.tabDetail(session, payment.tabId)
+        guard.check()
+        check(detail.summary.id == payment.tabId)
+        if (!payment.blocksNewCharge) {
+            check(detail.payments.any { it.id == payment.id && it.amountCents == payment.amountCents &&
+                it.method == payment.method && it.status == payment.status && it.simulated == payment.simulated }) {
+                "Pagamento ainda não corresponde ao histórico canônico."
+            }
+            pending?.let { pendingMutationIntentStore.remove(it.id) }
+        }
+        replaceDetail(detail)
+        state = state.copy(submitting = false, integratedPayment = payment, noticeMessage = payment.message,
+            pendingPayment = if (payment.blocksNewCharge) pending else null,
+            paymentIntentId = if (payment.blocksNewCharge) state.paymentIntentId else null)
     }
 
     fun collectPayment(
@@ -751,62 +806,118 @@ class OperationsViewModel(
         amountCents: Long,
         method: PaymentMethod,
         cashPointId: String?,
+        closeRequested: Boolean = false,
     ) {
         if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
             startTapSimulation(session, amountCents, method)
             return
         }
-        if (method == PaymentMethod.PIX) {
-            startPix(session, amountCents)
+        if (method == PaymentMethod.PIX) { startPix(session, amountCents); return }
+        val tab = state.selectedTab?.summary ?: return
+        if (state.submitting) return
+        val existing = state.pendingPayment
+        if (existing == null && (amountCents <= 0 || amountCents > tab.exposureCents)) return
+        if (existing != null && (existing.tabId != tab.id || existing.amountCents != amountCents ||
+            existing.method != method || existing.cashPointId != cashPointId)) {
+            state = state.copy(errorMessage = "Reconcilie o recebimento original antes de iniciar outro.")
             return
         }
-        val tab = state.selectedTab?.summary ?: return
-        if (amountCents <= 0 || amountCents > tab.exposureCents || state.submitting) return
-        state.pendingPayment?.let { pending ->
-            if (pending.amountCents != amountCents || pending.method != method || pending.cashPointId != cashPointId) {
-                state = state.copy(errorMessage = "Há um pagamento pendente nesta comanda. Refaça somente a mesma cobrança de ${formatCents(pending.amountCents)}.")
-                return
-            }
-        }
         val key = state.paymentIntentId ?: UUID.randomUUID().toString()
-        val intent = state.pendingPayment ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId, session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING, tab.id, amountCents, method, cashPointId, tab.version)
+        val intent = existing ?: RecoveryIntent.StartPayment(key, session.staffId, session.venueId,
+            session.deviceId, key, System.currentTimeMillis(), RecoveryState.CHECKING,
+            tab.id, amountCents, method, cashPointId, tab.version, closeRequested)
         if (!preserveIntent(intent, session)) return
-        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, paymentIntentId = key, pendingPayment = intent)
+        state = state.copy(submitting = true, errorMessage = null, noticeMessage = null,
+            paymentIntentId = intent.idempotencyKey, pendingPayment = intent)
+        val guard = financialGuard(session, intent)
         viewModelScope.launch {
             runCatching {
-                repository.collectPayment(session, tab.id, amountCents, method, key, cashPointId, intent.expectedVersion)
-                repository.tabDetail(session, tab.id)
-            }.onSuccess { detail ->
-                replaceDetail(detail)
-                state = state.copy(
-                    submitting = false,
-                    paymentIntentId = null,
-                    pendingPayment = null,
-                    noticeMessage = "Pagamento registrado.",
-                    connectivity = ConnectivityState.ONLINE,
-                    lastSyncedAtMillis = System.currentTimeMillis(),
-                )
+                val detail = settleReceipt(intent,
+                    collect = { command -> repository.collectPayment(session, command.tabId, command.amountCents,
+                        command.method, command.idempotencyKey, command.cashPointId, command.expectedVersion).id },
+                    persist = { confirmed ->
+                        guard.check()
+                        pendingMutationIntentStore.save(confirmed, session)
+                        state = state.copy(pendingPayment = confirmed)
+                        guard.checkpoint(confirmed)
+                    },
+                    read = { repository.tabDetail(session, it) },
+                    close = { repository.closeTab(session, it) },
+                    observed = ::replaceDetail,
+                    checkCurrent = guard::check)
+                guard.check()
+                val remaining = pendingMutationIntentStore.loadFor(session).filterNot { it.id == intent.id }
                 pendingMutationIntentStore.remove(intent.id)
+                state = state.copy(contextRecoveryPending = remaining.any { it.targetsContext(detail) },
+                    recoveryEvidence = remaining.map { it.evidence() }, paymentIntentId = null, pendingPayment = null, submitting = false,
+                    noticeMessage = if (detail.summary.state == "CLOSED") "Comanda encerrada." else "Pagamento registrado.",
+                    connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
             }.onFailure { error ->
-                // Retrying this same action uses the same idempotency key and is safe server-side.
-                state = state.copy(submitting = false)
-                showFailure(error, "Verificando pagamento. Não tente cobrar novamente até reconciliar esta mesma cobrança.")
+                if (!guard.isCurrent()) return@onFailure
+                showFailure(error, if (state.pendingPayment?.confirmedPaymentId != null)
+                    "Recebido; encerramento pendente. Confira a comanda, sem cobrar novamente."
+                    else "Verificando pagamento. Reconcilie somente a cobrança original.")
             }
+            if (guard.isCurrent()) state = state.copy(submitting = false)
+        }
+    }
+
+    fun recoverReceipt(session: StoredSession) {
+        val original = state.pendingPayment ?: return
+        if (original.method !in setOf(PaymentMethod.CASH, PaymentMethod.EXTERNAL_TERMINAL)) {
+            reconcilePix(session)
+            return
+        }
+        collectPayment(session, original.amountCents, original.method, original.cashPointId, original.closeRequested)
+    }
+
+    fun keepPaidTabOpen(session: StoredSession) {
+        val original = state.pendingPayment ?: return
+        if (original.confirmedPaymentId == null || state.submitting) return
+        state = state.copy(submitting = true)
+        val guard = financialGuard(session, original)
+        viewModelScope.launch {
+            runCatching {
+                guard.check()
+                val detail = repository.tabDetail(session, original.tabId)
+                guard.check()
+                check(detail.summary.id == original.tabId && detail.payments.any { receiptMatches(original, original.confirmedPaymentId, it) })
+                replaceDetail(detail)
+                val remaining = pendingMutationIntentStore.loadFor(session).filterNot { it.id == original.id }
+                pendingMutationIntentStore.remove(original.id)
+                state = state.copy(contextRecoveryPending = remaining.any { it.targetsContext(detail) },
+                    recoveryEvidence = remaining.map { it.evidence() }, pendingPayment = null, paymentIntentId = null, submitting = false,
+                    noticeMessage = "Recebimento confirmado; comanda mantida no estado canônico.")
+            }.onFailure { if (guard.isCurrent()) showFailure(it) }
+            if (guard.isCurrent()) state = state.copy(submitting = false)
         }
     }
 
     fun closeTab(session: StoredSession) {
         val tab = state.selectedTab?.summary ?: return
-        if (state.submitting) return
+        if (state.submitting || state.pendingPayment != null || state.orderIntentId != null || state.cart.isNotEmpty()) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
+        val guard = financialGuard(session)
         viewModelScope.launch {
             runCatching {
-                repository.closeTab(session, tab.id)
-                repository.tabDetail(session, tab.id)
+                guard.check()
+                val current = repository.tabDetail(session, tab.id)
+                guard.check()
+                check(current.summary.id == tab.id)
+                check(current.summary.exposureCents == 0L) { "A conta possui saldo atualizado; confira antes de encerrar." }
+                if (current.summary.state == "CLOSED") current else {
+                    check(current.summary.exposureCents == 0L) { "A conta possui saldo atualizado; confira antes de encerrar." }
+                    repository.closeTab(session, tab.id)
+                    repository.tabDetail(session, tab.id).also {
+                        check(it.summary.id == tab.id && it.summary.state == "CLOSED" && it.summary.exposureCents == 0L) { "Encerramento ainda não confirmado." }
+                    }
+                }
             }.onSuccess { detail ->
+                if (!guard.isCurrent()) return@onSuccess
                 replaceDetail(detail)
                 state = state.copy(submitting = false, noticeMessage = "Comanda fechada.")
             }.onFailure { error ->
+                if (!guard.isCurrent()) return@onFailure
                 state = state.copy(submitting = false)
                 showFailure(error)
             }

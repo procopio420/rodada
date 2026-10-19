@@ -1,0 +1,21 @@
+{
+  "product_and_test_sha": "fa1a859f",
+  "real_recovery": "PASS1/14.525s,390dp,font1,Django/PostgreSQL55501",
+  "compose_fixture": "6 cases PASS each:360/390/430dp \u00d7 font1/2; fixture Compose, not backend matrix",
+  "review": "independent R3 NO_FINDINGS_WITH_GAPS; new assertions reviewed, R2 notice suppression reviewed",
+  "gates": "102 JVM,assembleDebug,assembleDebugAndroidTest,lintDebug PASS3m26s",
+  "scope": "unknown repeat with empty cart, original UUID/payload/OrderID checked automatically from permanent proxy; no restart/MainActivity/device/TalkBack acceptance",
+  "hashes": {
+    "ux2-repeat-unknown-empty-cart-w390-f100.png": "a4f020787cfd94e738098cab167c2e6991f4531303b34b083f0ece5aed421622",
+    "proxy-proof-assertions.json": "3e21d52af682c6c23ca2e3510877cecaa7377659785fb630779a74a948df2ee0",
+    "pages-w360-f1.txt": "bd97fec37caf8bcc722ad579231e101b6a9f248e13571885352441a1b41d028d",
+    "pages-w390-f2.txt": "cb7f308c6eed33b3e8fcea8a54a2837c3d712ea13b341dbfc2471339281a4074",
+    "pages-w360-f2.txt": "3df9ef1c3edb4218b41cb2dec51d8c9e188e3d7f938981041e21a888e34bcdea",
+    "pages-assertions-390.txt": "2dd3333cf31c90a1204ef1edcda5be79de76982d650ff745430cda4b1bbad3b2",
+    "pages-w430-f2.txt": "1385bf437143519414edcc564579f184455ff617a2e41815851f8edfe762d308",
+    "pages-w430-f1.txt": "fafab7471fd7e82eab1453fd26463ed0651b83c254070bbc76ac9a7ee7bd9042",
+    "instrumentation-assertions.txt": "09dd3a5ef5d343e0e9666dd84d8139620674e7f350c148bf57bc55e66a3bb1ae",
+    "canonical-proof-assertions.json": "25fd906a2e81d160b62a22d749b241b4155c16a3acdd36bfca195c5875525b10",
+    "ux2-repeat-reconciled-empty-cart-w390-f100.png": "f4c869cef91bddf13fa55c2cbe80bee6dad4c13b702a12830638bba22eb7061d"
+  }
+}

@@ -55,6 +55,7 @@ class OperationsHttpClient(baseUrl: String) {
                                 customizationText = snapshotText(item.optJSONObject("customization_snapshot")),
                                 productId = item.optString("product_id").takeIf { it.isNotBlank() },
                                 customization = historicalCustomization(item.optJSONObject("customization_snapshot")),
+                                fulfillmentStationSnapshot = item.optString("fulfillment_station_snapshot").takeIf { it.isNotBlank() && it != "null" },
                             )
                         },
                 )
@@ -258,7 +259,7 @@ class OperationsHttpClient(baseUrl: String) {
 
     private fun parseIntegrated(json: JSONObject) = com.rodada.attendance.payments.IntegratedPayment(
         json.getString("id"), json.getString("tab_id"), json.getLong("amount_cents"),
-        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"),
+        json.getString("status"), json.optString("pix_copy_paste"), json.optString("pix_qr_code"), json.optBoolean("simulated"), json.optString("expires_at"), json.getString("method"),
     )
 
     fun closeTab(accessToken: String, tabId: String) {
@@ -291,6 +292,7 @@ class OperationsHttpClient(baseUrl: String) {
             actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
             tableLabel = if (json.isNull("table_label")) null else json.optString("table_label").ifBlank { null },
             lastTableLabel = if (json.isNull("last_table_label")) null else json.optString("last_table_label").ifBlank { null },
+            relationshipSnapshot = if (json.isNull("relationship_snapshot")) null else json.optString("relationship_snapshot").ifBlank { null },
         )
 
     fun requestApproval(accessToken: String, tabId: String, reason: String, key: String) {
