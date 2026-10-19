@@ -1,0 +1,11 @@
+{
+  "source_sha": "2af3b32d",
+  "scope": "E04/E06 partial, cash point selection only",
+  "hashes": {
+    "adjacent-17-pass.log": "b069c079711cda118bf832a91fcbfd15b35e505391d2564a44ee9dd8c720d5e5",
+    "context-2-pass.log": "2ebda4ac85c9c5e845e43e53989c6fccece17d269dc268f42d350dd51116b6ae",
+    "real-3-pass.log": "87aba6b4c26ca09251bf7f473c9ba382192175ec73d8a3c450e3a504fdc133a1",
+    "before.log": "1540491638470a68a098955ef8a22b9bb62d9d149ab9334b5fb6a1573c77c637",
+    "README.md": "1926efaff23bd234746894d5144538e31573b781fda72a57248866bec38f4dc1"
+  }
+}

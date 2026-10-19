@@ -1,0 +1,29 @@
+[2m[WebServer] [22m(node:881060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [17/Oct/2026 20:36:30] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 17 tests using 1 worker
+
+(node:881117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:881117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 360 (3.0s)
+  ✓   2 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 390 (2.6s)
+  ✓   3 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 430 (2.6s)
+  ✓   4 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 1280 (2.6s)
+  ✓   5 tests/visual/attendance-ux2-workspace.spec.ts:133:5 › UX2 payment form retains an exit after a concurrent canonical close (1.1s)
+  ✓   6 tests/visual/pos-cash-receipt.spec.ts:25:42 › POS cash double tap, lost response and reload at 360 (4.7s)
+  ✓   7 tests/visual/pos-cash-receipt.spec.ts:25:42 › POS cash double tap, lost response and reload at 390 (4.2s)
+  ✓   8 tests/visual/pos-cash-receipt.spec.ts:25:42 › POS cash double tap, lost response and reload at 430 (4.1s)
+  ✓   9 tests/visual/pos-cash-receipt.spec.ts:56:79 › Initial VERSION_CONFLICT rejection allows correction with a new explicit intention (879ms)
+  ✓  10 tests/visual/pos-cash-receipt.spec.ts:56:79 › Initial SERVICE_REASSESSMENT_REQUIRED rejection allows correction with a new explicit intention (850ms)
+  ✓  11 tests/visual/pos-cash-receipt.spec.ts:72:5 › Canonical receipt without readback remains pending and retries the same payload (965ms)
+  ✓  12 tests/visual/pos-cash-receipt.spec.ts:89:34 › Cash schema 1: changed or revoked session preserves envelope and never adopts or resends (991ms)
+  ✓  13 tests/visual/pos-cash-receipt.spec.ts:89:34 › Cash schema 2: changed or revoked session preserves envelope and never adopts or resends (1.0s)
+  ✓  14 tests/visual/pos-cash-receipt.spec.ts:113:61 › Receipt storage unavailable fails closed (472ms)
+  ✓  15 tests/visual/pos-cash-receipt.spec.ts:113:61 › Receipt storage corrupt fails closed (568ms)
+  ✓  16 tests/visual/pos-cash-receipt.spec.ts:136:5 › A 5xx then fingerprint conflict never releases the pending identity (768ms)
+  ✓  17 tests/visual/ux2-cash-point-context.spec.ts:4:5 › UX2 keeps explicit cash selection and invalidates a removed point before a new receipt (1.2s)
+
+  17 passed (37.4s)

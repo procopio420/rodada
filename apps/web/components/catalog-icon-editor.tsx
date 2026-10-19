@@ -26,8 +26,8 @@ export function CatalogIconEditor() {
         if ([401, 403].includes(result.response.status)) { denied.current = true; setAllowed(false); setOpen(false); setProducts([]); setSelected(""); }
         throw new Error(asApiError(result.body).message);
       }
-      setProducts((result.body as { results: CatalogProduct[] }).results); setLoadError("");
-    } catch (error) { if (request === generation.current) setLoadError(error instanceof Error ? error.message : "Não foi possível consultar o cardápio."); }
+      setProducts((result.body as { results: CatalogProduct[] }).results); setLoadError(""); return true;
+    } catch (error) { if (request === generation.current) setLoadError(error instanceof Error ? error.message : "Não foi possível consultar o cardápio."); return false; }
     finally { if (request === generation.current) setLoading(false); }
   }, []);
   useEffect(() => {
@@ -75,7 +75,7 @@ export function CatalogIconEditor() {
       setMessage("Nome confirmado. Pedidos anteriores conservam seu histórico.");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Resultado não confirmado; consulte o produto antes de tentar novamente."); }
     finally {
-      try { await load(); }
+      try { if (!await load()) setMessage("Resultado não confirmado; não foi possível consultar o produto. Atualize antes de tentar novamente."); }
       catch { setMessage("Resultado não confirmado; não foi possível consultar o produto. Atualize antes de tentar novamente."); }
       finally { setBusy(false); }
     }

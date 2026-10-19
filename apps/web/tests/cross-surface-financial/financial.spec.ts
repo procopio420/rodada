@@ -32,8 +32,9 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   expect(readyItems).toHaveLength(7); expect(readyItems.every(i => i.state === "READY")).toBe(true);
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Agora", exact: true }).click();
-  const readySection = page.locator("section").filter({ has: page.getByRole("heading", { name: "Entregas prontas", exact: true }) });
-  await expect(readySection.getByRole("button", { name: "Concluir entrega", exact: true })).toHaveCount(7);
+  await page.getByRole("group", { name: "Tipo de trabalho", exact: true }).getByRole("button", { name: /^Entregas/ }).click();
+  const readySection = page.locator("section").filter({ has: page.getByRole("heading", { name: "Prontos para levar", exact: true }) });
+  await expect(readySection.getByRole("button", { name: "Ver entrega ›", exact: true })).toHaveCount(7);
   await expect(readySection.locator("article").filter({ hasText: native.tab_label })).toHaveCount(2);
   await page.goto("/manage#operacao");
   await expect(page.getByRole("heading", { name: "Produção e entrega", exact: true })).toBeVisible();

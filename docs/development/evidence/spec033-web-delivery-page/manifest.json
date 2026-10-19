@@ -1,0 +1,68 @@
+{
+  "prototype_sha": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
+  "base_sha": "0f37fb03",
+  "viewport_widths": [
+    360,
+    390,
+    430,
+    1280
+  ],
+  "height": 844,
+  "fixture": "Rafael #1049 / Mesa08 / 2Chopp Pilsen / BAR READY",
+  "captures": [
+    {
+      "path": "prototype-delivery-1280.png",
+      "sha256": "a6811c3b6cbb0fcb8406134df79970db75b633de9bf275a7d0cdfb26c3f9d31e"
+    },
+    {
+      "path": "prototype-delivery-360.png",
+      "sha256": "41b414cafa330105bac14862529b505081109cdeee0c4daace9fbdfd9ab3a0e6"
+    },
+    {
+      "path": "prototype-delivery-390.png",
+      "sha256": "2f3bf05ddc2d67bfc241eefaaf65bac96857e7e4f396b62f45b505409de9cc30"
+    },
+    {
+      "path": "prototype-delivery-430.png",
+      "sha256": "dd8d1d0ef3b4466ad033296f9064fe582aef2cd200973b0de3c9132485e7de22"
+    },
+    {
+      "path": "real-closed-delivered-1280.png",
+      "sha256": "6a528ae233a52198d53c1f8f2c89f2054d320047bf5fef641abb226be0fa9607"
+    },
+    {
+      "path": "real-closed-delivered-360.png",
+      "sha256": "13219d32701659f0cce84e79d0bdd7378d80bd9ab410c3b6cc39243bebaf36b0"
+    },
+    {
+      "path": "real-closed-delivered-390.png",
+      "sha256": "f961c867acd73ee78eaacc92d5abbdf859a487f2d8df96fffb9eb86960b0500b"
+    },
+    {
+      "path": "real-closed-delivered-430.png",
+      "sha256": "a06b9b26f003173fb302470fbacf8e3cae46e93567c65bb899176db564d96147"
+    },
+    {
+      "path": "web-delivery-1280.png",
+      "sha256": "700c5c5d1d153340889420e174b11ed709eeb8fbc1279b4cc6984e56de59d236"
+    },
+    {
+      "path": "web-delivery-360.png",
+      "sha256": "3281b09757e382bc0c845b58d7a045ff41078abd8c6ce021bcb1b9ab4761d49b"
+    },
+    {
+      "path": "web-delivery-390.png",
+      "sha256": "5afd83b1111a1674bb43fcbdf2ac1464a6d1f0799f3b2911383a2023d1dc1c19"
+    },
+    {
+      "path": "web-delivery-430.png",
+      "sha256": "9c0101d09f155e7744e903d960d6bbac04d2404be585b80456ff13b6a94f0bb6"
+    }
+  ],
+  "limitations": [
+    "Visual browser fixture is synthetic, not integration proof.",
+    "Android, physical device, full process restart not covered here.",
+    "Production copy and exception CTA replace prototype simulation; no claim of approved visual difference."
+  ],
+  "web_source_sha": "cca4e61a"
+}

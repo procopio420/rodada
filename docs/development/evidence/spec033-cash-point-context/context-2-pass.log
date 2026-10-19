@@ -1,0 +1,14 @@
+[2m[WebServer] [22m(node:882130) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [17/Oct/2026 20:37:14] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 2 tests using 1 worker
+
+(node:882161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:882161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/ux2-cash-point-context.spec.ts:4:42 › UX2 keeps cash context after point removal, lost ACK false (1.6s)
+  ✓  2 tests/visual/ux2-cash-point-context.spec.ts:4:42 › UX2 keeps cash context after point removal, lost ACK true (1.4s)
+
+  2 passed (7.0s)

@@ -1,0 +1,25 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test ux2-delivery-page.spec.ts
+
+[2m[WebServer] [22m(node:3578614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [18/Oct/2026 10:47:23] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 9 tests using 1 worker
+
+(node:3578690) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3578690) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 360 (1.8s)
+  ✓  2 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 390 (1.4s)
+  ✓  3 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 430 (1.2s)
+  ✓  4 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 1280 (1.4s)
+  ✓  5 tests/visual/ux2-delivery-page.spec.ts:22:5 › lost ACK confirmed by same-task readback without replay (1.0s)
+  ✓  6 tests/visual/ux2-delivery-page.spec.ts:23:5 › rival prevents completion (852ms)
+  ✓  7 tests/visual/ux2-delivery-page.spec.ts:24:5 › destination change stops mutation (993ms)
+  ✓  8 tests/visual/ux2-delivery-page.spec.ts:25:5 › unknown response verified without resubmitting (948ms)
+  ✓  9 tests/visual/ux2-delivery-page.spec.ts:27:5 › desktop delivery footer uses the full shell width (952ms)
+
+  9 passed (16.6s)

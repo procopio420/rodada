@@ -1,0 +1,21 @@
+[2m[WebServer] [22m(node:856235) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [17/Oct/2026 20:23:11] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 9 tests using 1 worker
+
+(node:856281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:856281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 360 (3.5s)
+  ✓  2 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 390 (2.7s)
+  ✓  3 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 430 (2.6s)
+  ✓  4 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 1280 (2.6s)
+  ✓  5 tests/visual/attendance-ux2-workspace.spec.ts:133:5 › UX2 payment form retains an exit after a concurrent canonical close (1.2s)
+  ✓  6 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 360 (1.7s)
+  ✓  7 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 390 (1.7s)
+  ✓  8 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 430 (1.8s)
+  ✓  9 tests/visual/ux2-parity-capture.spec.ts:4:44 › UX2 comparison captures 1280 (1.8s)
+
+  9 passed (24.0s)

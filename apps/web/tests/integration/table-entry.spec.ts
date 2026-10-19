@@ -28,34 +28,38 @@ TabOccupancyAssignment.objects.create(occupancy=o,tab=a)
 TabOccupancyAssignment.objects.create(occupancy=o,tab=b)
 `], { cwd: resolve("../api"), env: process.env });
  await page.goto("/attendance"); await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador", { exact: true }).fill("test-manager"); await page.getByLabel("PIN", { exact: true }).fill("2468");
- await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true })).toBeVisible();
+ await page.getByRole("button", { name: "Entrar", exact: true }).click(); await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
  const table = (await read(page,"hospitality/tables/")).results[0], tabs = table.active_occupancy.tabs;
  const a = tabs.find((t: {display_label:string}) => t.display_label === "Table entry A"), b = tabs.find((t: {display_label:string}) => t.display_label === "Table entry B");
  const firstPage = (await read(page,"tabs/")).results; expect(firstPage.some((t: {id:string}) => t.id === a.id || t.id === b.id)).toBe(false);
  await page.getByLabel("Buscar mesa ou comanda").fill("mesa patio 24");
  await page.getByRole("button", {name:/^Mesa Pátio 24/}).click();
- for (const [index,width] of [360,390,430].entries()) {
+ for (const width of [360,390,430]) {
   await page.setViewportSize({width,height:900});
   await page.locator(`button[data-tab-id="${a.id}"]`).click();
-  await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
-  await page.locator(".attendanceOrderDialog").getByLabel("Buscar item no cardápio").fill("Kitchen E2E item"); await addCatalogItem(page, "Kitchen E2E item");
-  await page.locator(".attendanceOrderDialog").getByRole("button", {name:"Voltar",exact:true}).click();
-  await expect(page.locator(`#attendance-table-${table.id}`)).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
+  await expect(page.locator(".ux2Workspace")).toBeVisible();
+  await page.locator(".ux2Workspace").getByRole("button", {name:"＋ Adicionar itens",exact:true}).click();
+  await page.locator(".ux2Workspace").getByLabel("Buscar produto").fill("Kitchen E2E item"); await addCatalogItem(page, "Kitchen E2E item");
+  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
+  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
+  await expect(page.locator(".ux2TablePage").getByRole("heading",{name:`Mesa ${table.label}`,exact:true})).toBeVisible(); await expect(page.getByLabel("Buscar mesa ou comanda")).toHaveValue("mesa patio 24");
   await page.locator(`button[data-tab-id="${b.id}"]`).click();
-  await page.locator(".attendanceOrderDialog").getByRole("button", {name:/Pedido atual/}).click();
-  await expect(page.locator(".attendanceOrderDialog").locator(".attendanceDraftLine")).toHaveCount(0);
-  await page.locator(".attendanceOrderDialog").getByRole("button", {name:"Voltar",exact:true}).click();
+  await expect(page.locator(".ux2Workspace")).not.toContainText("item(ns) não enviados");
+  await expect(page.locator(".ux2Workspace").getByRole("button", {name:/^Enviar /})).toHaveCount(0);
+  await page.locator(".ux2Workspace").getByRole("button", {name:"Voltar",exact:true}).click();
   await expect(page.locator(`button[data-tab-id="${a.id}"]`)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
  }
  await page.locator(`button[data-tab-id="${a.id}"]`).click();
  const before = await read(page,`tabs/${a.id}/`); expect(before.orders).toHaveLength(0); expect(before.payments).toHaveLength(0); expect(before.version).toBe(1);
- await page.locator(".attendanceOrderDialog").getByRole("button", {name:/Pedido atual/}).click();
- await expect(page.locator(".attendanceOrderDialog").getByText("3× Kitchen E2E item", {exact:true})).toBeVisible(); const confirmation = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === `/api/attendance/tabs/${a.id}/orders/confirm` && (response.status() < 300 || response.status() >= 400) && response.request().method() === "POST");
+ await page.locator(".ux2Workspace").getByRole("button", {name:"＋ Adicionar itens",exact:true}).click();
+ await page.locator(".ux2Workspace").getByRole("button", {name: "Ver resumo", exact: true}).click();
+ await expect(page.locator(".ux2Workspace").getByText("3× Kitchen E2E item", {exact:true})).toBeVisible(); const confirmation = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === `/api/attendance/tabs/${a.id}/orders/confirm` && (response.status() < 300 || response.status() >= 400) && response.request().method() === "POST");
  let readbackStart = Infinity;
  const readback = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === `/api/attendance/tabs/${a.id}` && (response.status() < 300 || response.status() >= 400) && response.request().method() === "GET").then(response => { readbackStart = response.request().timing().startTime; return response; });
  const listRefresh = page.waitForResponse(response => new URL(response.url()).pathname.replace(/\/$/, "") === "/api/attendance/tabs" && response.request().timing().startTime >= readbackStart && (response.status() < 300 || response.status() >= 400) && response.request().method() === "GET");
- await page.locator(".attendanceOrderDialog").getByRole("button", {name:/^Confirmar pedido/}).click();
+ await page.locator(".ux2Workspace").getByRole("button", {name:/^Enviar /}).click();
  expect((await confirmation).status()).toBe(201); expect((await readback).status()).toBe(200); expect((await listRefresh).status()).toBe(200);
  await expect(page.getByText("Pedido confirmado.",{exact:true})).toBeVisible();
  const after = await read(page,`tabs/${a.id}/`), untouched = await read(page,`tabs/${b.id}/`);

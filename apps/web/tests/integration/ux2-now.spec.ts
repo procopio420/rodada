@@ -1,0 +1,103 @@
+import {test,expect} from './fixtures';
+import {mkdir} from 'node:fs/promises';
+for (const width of [360,390,430,1280]) test(`UX2 Agora canonical queues and contextual navigation ${width}`,async({page})=>{
+  await page.setViewportSize({width,height:844});
+  await page.goto('/attendance');
+  await page.getByLabel('Estabelecimento').fill('web-e2e');
+  await page.getByLabel('Operador',{exact:true}).fill('test-manager');
+  await page.getByLabel('PIN',{exact:true}).fill('2468');
+  await page.getByRole('button',{name:'Entrar',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Agora',exact:true})).toBeVisible();
+  const requests:string[]=[];
+  page.on('request',request=>{if(request.method()!=='GET') requests.push(new URL(request.url()).pathname)});
+  await page.getByRole('button',{name:/^Entregas /}).click();
+  await expect(page.getByRole('heading',{name:'Prontos para levar'})).toBeVisible();
+  await page.getByRole('button',{name:/^Atendimentos /}).click();
+  await expect(page.getByRole('heading',{name:'Chamados e pedidos de conta'})).toBeVisible();
+  await page.getByRole('button',{name:'Mesas',exact:true}).click();
+  await expect(page.getByLabel('Buscar mesa ou comanda')).toBeVisible();
+  await page.getByLabel('Buscar mesa ou comanda').fill('QR-A');
+  await page.getByRole('button',{name:'Agora',exact:true}).click();
+  await page.getByRole('button',{name:'Mesas',exact:true}).click();
+  await expect(page.getByLabel('Buscar mesa ou comanda')).toHaveValue('QR-A');
+  await mkdir('test-results/ux2-parity',{recursive:true});
+  await page.screenshot({path:`test-results/ux2-parity/web-tables-${width}.png`,fullPage:true});
+  await page.getByRole('button',{name:'Pedir',exact:true}).click();
+  await expect(page.getByRole('dialog',{name:'Onde vamos pedir?'})).toBeVisible();
+  await page.getByRole('button',{name:'Escolher mesa ou comanda'}).click();
+  expect(requests).toEqual([]);
+  await page.getByRole('button',{name:'Agora',exact:true}).click();
+  await mkdir('test-results/ux2-parity',{recursive:true});
+  await expect(page.getByText('Carregando chamadas…')).not.toBeVisible();
+  await page.screenshot({path:`test-results/ux2-parity/web-now-${width}.png`,fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('canonical call opens explicit table choice without claiming or completing',async({page})=>{
+  await page.goto('/attendance');
+  await page.getByLabel('Estabelecimento').fill('web-e2e');
+  await page.getByLabel('Operador',{exact:true}).fill('test-manager');
+  await page.getByLabel('PIN',{exact:true}).fill('2468');
+  await page.getByRole('button',{name:'Entrar',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Agora',exact:true})).toBeVisible();
+  const label=`UX2 call ${Date.now()}`;
+  const task=await page.evaluate(async(label)=>{
+    async function post(path:string,body:object){const response=await fetch('/api/pos/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok)throw new Error(path+':'+response.status);return response.json()}
+    const table=await post('hospitality/tables/',{label});
+    await post(`hospitality/tables/${table.id}/occupy/`,{});
+    return post('dispatch/requests/',{table_id:table.id,task_type:'SERVICE_REQUEST',request_id:crypto.randomUUID()});
+  },label);
+  await page.reload();
+  const row=page.getByRole('article').filter({hasText:`Mesa ${label}`});
+  await expect(row.getByRole('button',{name:/Escolher comanda/})).toBeVisible();
+  const writes:string[]=[];page.on('request',r=>{if(r.method()!=='GET')writes.push(r.url())});
+  await row.getByRole('button',{name:/Escolher comanda/}).click();
+  await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true})).toBeVisible();
+  expect(writes).toEqual([]);
+  const canonical=await page.evaluate(async()=> (await fetch('/api/attendance/dispatch/requests/')).json());
+  expect(canonical.results.find((row:{id:string})=>row.id===task.id)).toMatchObject({state:'OPEN',claimed_by_id:null});
+});
+
+test('failed contextual Tab read cannot attach the previous call to another Tab',async({page})=>{
+  await page.goto('/attendance');
+  await page.getByLabel('Estabelecimento').fill('web-e2e');
+  await page.getByLabel('Operador',{exact:true}).fill('test-manager');
+  await page.getByLabel('PIN',{exact:true}).fill('2468');
+  await page.getByRole('button',{name:'Entrar',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Agora',exact:true})).toBeVisible();
+  const label=`Origin failure ${Date.now()}`;
+  const fixture=await page.evaluate(async label=>{
+    async function post(path:string,body:object){
+      const response=await fetch('/api/pos/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(!response.ok)throw new Error(path+':'+response.status+':'+await response.text());
+      return response.json();
+    }
+    const table=await post('hospitality/tables/',{label});
+    const first=await post(`hospitality/tables/${table.id}/service/open-tab/`,{display_label:'Origin A',idempotency_key:crypto.randomUUID()});
+    const tables=await (await fetch('/api/pos/hospitality/tables/')).json();
+    const occupancy=tables.results.find((row:{id:string})=>row.id===table.id).active_occupancy;
+    const second=await post(`hospitality/occupancies/${occupancy.id}/tabs/open/`,{display_label:'Manual B',expected_generation:occupancy.generation,idempotency_key:crypto.randomUUID()});
+    const task=await post('dispatch/requests/',{table_id:table.id,task_type:'SERVICE_REQUEST',request_id:crypto.randomUUID()});
+    return {table,first,second,task};
+  },label);
+  await page.reload();
+  const row=page.getByRole('article').filter({hasText:`Mesa ${label}`});
+  await row.getByRole('button',{name:/Escolher comanda/}).click();
+  await expect(page.getByRole('complementary',{name:'Chamado de origem'})).toBeVisible();
+  const firstId=fixture.first.tab_id;
+  const secondId=fixture.second.tab_id;
+  expect(firstId).toBeTruthy(); expect(secondId).toBeTruthy();
+  await page.route(new RegExp(`/api/attendance/tabs/${firstId}/?(?:\\?.*)?$`),route=>route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({code:'conflict',message:'Comanda indisponível para este teste'})}));
+  const writes:string[]=[];
+  page.on('request',request=>{if(request.method()!=='GET')writes.push(new URL(request.url()).pathname)});
+  await page.locator(`button[data-tab-id="${firstId}"]`).click();
+  await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true}).getByText('Comanda indisponível para este teste',{exact:true})).toBeVisible();
+  await expect(page.getByRole('complementary',{name:'Chamado de origem'})).toHaveCount(0);
+  await page.locator(`button[data-tab-id="${secondId}"]`).click();
+  await expect(page.getByRole('region',{name:'Comanda selecionada',exact:true})).toContainText('Manual B');
+  await expect(page.getByRole('complementary',{name:'Chamado de origem'})).toHaveCount(0);
+  await page.getByRole('region',{name:'Comanda selecionada',exact:true}).getByRole('button',{name:'Voltar',exact:true}).click();
+  await expect(page.getByRole('region',{name:`Mesa ${label}`,exact:true})).toBeVisible();
+  expect(writes).toEqual([]);
+  const canonical=await page.evaluate(async id=>(await (await fetch(`/api/attendance/dispatch/tasks/${id}/`)).json()),fixture.task.id);
+  expect(canonical).toMatchObject({state:'OPEN',claimed_by_id:null});
+});

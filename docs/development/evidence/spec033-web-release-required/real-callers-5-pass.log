@@ -1,0 +1,20 @@
+[2m[WebServer] [22m(node:3537718) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:3537750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3537750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (5.9s)
+[2m[WebServer] [22mConflict: /hospitality/tables/60d2a47e-8634-4cbc-8eb4-4b4784c9073f/release/
+  ✓  2 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (2.6s)
+[2m[WebServer] [22mForbidden: /guest/context/
+  ✓  3 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery revoked (6.8s)
+[2m[WebServer] [22mForbidden: /guest/service-requests/
+[2m[WebServer] [22mConflict: /guest/qr/resolve/
+  ✓  4 tests/integration/service-requests.spec.ts:4:5 › guest service calls persist in Dispatch and revoke with the visit (9.8s)
+  ✓  5 tests/integration/table-turnover.spec.ts:3:5 › Table turnover real PostgreSQL report shows canonical coverage at mobile and desktop widths (6.1s)
+
+  5 passed (38.8s)

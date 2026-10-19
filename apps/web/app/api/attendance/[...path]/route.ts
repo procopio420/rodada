@@ -1,20 +1,29 @@
 import { NextRequest } from "next/server";
 import { forwardAuthenticated } from "@/lib/server/auth-gateway";
 
-// This companion deliberately has no payment or refund command path.
-const reads = /^(tabs|tabs\/[^/]+|catalog\/products|dispatch\/(delivery|requests)|hospitality\/tables|hospitality\/zones|hospitality\/occupancies\/[^/]+\/party-size)$/;
-const commands = /^(order-items\/[^/]+\/corrections\/cancel|tabs|tabs\/[^/]+\/(orders\/confirm|close|operations)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|service\/(start|open-tab)|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|tabs\/open|responsibility\/claim|party-size))$/;
+// Spec033 permits only manual CASH receipt; backend retains capability/session/ledger authority.
+const reads = /^(cash\/points|tabs|tabs\/[^/]+|catalog\/products|dispatch\/(delivery|requests|tasks\/[^/]+)|hospitality\/tables|hospitality\/zones|hospitality\/occupancies\/[^/]+\/party-size)$/;
+const commands = /^(order-items\/[^/]+\/corrections\/cancel|tabs|tabs\/[^/]+\/(orders\/confirm|close|operations|payments)|dispatch\/delivery\/[^/]+\/complete|dispatch\/requests\/[^/]+\/(claim|complete)|hospitality\/tables\/[^/]+\/(occupy|service\/(start|open-tab)|release|location|cleaning\/(start|complete))|hospitality\/occupancies\/[^/]+\/(tabs|tabs\/open|responsibility\/claim|party-size))$/;
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   if (path.some(segment => !/^[a-zA-Z0-9_-]+$/.test(segment))) return Response.json({ code: "INVALID_PATH", message: "Rota inválida." }, { status: 400 });
   const route = path.join("/");
   const locationMove = request.method === "POST" && /^tabs\/[^/]+\/operations$/.test(route);
   if (!locationMove && !(request.method === "GET" ? reads : commands).test(route)) {
-    return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Esta operação não está disponível no Atendimento Web sem pagamentos." }, { status: 403 });
+    return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Esta operação não está disponível no Atendimento Web." }, { status: 403 });
   }
   let body: Record<string, unknown> | undefined;
   if (request.method === "POST") {
     try { body = await request.json(); } catch { return Response.json({ code: "INVALID_JSON", message: "Pedido inválido." }, { status: 400 }); }
+    if (/^tabs\/[^/]+\/payments$/.test(route) && (!body || Array.isArray(body) || body.method !== "CASH"
+      || Object.keys(body).some(key => !["amount_cents", "expected_version", "method", "cash_point_id", "idempotency_key", "originating_session_id"].includes(key))
+      || !Number.isSafeInteger(body.amount_cents) || Number(body.amount_cents) < 1 || Number(body.amount_cents) > 2147483647
+      || !Number.isSafeInteger(body.expected_version) || Number(body.expected_version) < 1
+      || typeof body.cash_point_id !== "string" || !body.cash_point_id
+      || typeof body.idempotency_key !== "string" || !body.idempotency_key || body.idempotency_key.length > 120
+      || typeof body.originating_session_id !== "string" || !body.originating_session_id)) {
+      return Response.json({ code: "ATTENDANCE_OPERATION_DISABLED", message: "Somente recebimento efetivo em dinheiro está disponível." }, { status: 403 });
+    }
     if (locationMove && (!body || Array.isArray(body) || body.kind !== "MOVE_LOCATION"
       || Object.keys(body).some(key => !["kind", "expected_version", "occupancy_id", "table_id", "reason", "idempotency_key"].includes(key))
       || !Number.isSafeInteger(body.expected_version) || Number(body.expected_version) < 1

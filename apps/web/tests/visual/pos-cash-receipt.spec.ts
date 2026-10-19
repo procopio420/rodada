@@ -86,14 +86,21 @@ test("Canonical receipt without readback remains pending and retries the same pa
   expect(bodies[1]).toBe(bodies[0]);
 });
 
-test("Changed or revoked session preserves envelope and never adopts or resends", async ({ page }) => {
+for (const schema of [1, 2]) test(`Cash schema ${schema}: changed or revoked session preserves envelope and never adopts or resends`, async ({ page }) => {
   await setup(page); let sends = 0;
   await page.route("**/api/pos/tabs/tab-test/payments/", route => { sends++; return route.abort(); });
+  await page.route("**/api/attendance/tabs/tab-test/**", route => { sends++; return route.abort(); });
   await choose(page);
   const auth = await page.evaluate(async () => (await fetch("/api/auth/me")).json());
   await page.getByRole("button", { name: "Receber em dinheiro", exact: true }).click();
   const verify = page.getByRole("button", { name: "Verificar mesmo recebimento" });
-  await expect(verify).toBeEnabled(); const original = await saved(page);
+  await expect(verify).toBeEnabled();
+  if (schema === 2) await page.evaluate(key => {
+    const pending = JSON.parse(sessionStorage.getItem(key)!);
+    sessionStorage.setItem(key, JSON.stringify({ ...pending, schema: 2, api_root: "/api/attendance",
+      phase: "PAYMENT_CONFIRMED", payment_id: "canonical-payment-for-session-negative", close_requested: true }));
+  }, storageKey);
+  const original = await saved(page);
   await page.route("**/api/auth/me", route => route.fulfill({ json: { ...auth, session: { ...auth.session, id: "another-session" } } }));
   await page.reload(); await verify.click();
   await expect(page.getByText(/ele não será enviado nesta sessão/)).toBeVisible();

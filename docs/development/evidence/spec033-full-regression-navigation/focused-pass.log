@@ -1,0 +1,23 @@
+[2m[WebServer] [22m(node:2008873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:2008914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2008914) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (17.3s)
+
+  ✓  2 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 (10.5s)
+
+  ✓  3 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 (12.7s)
+
+  ✓  4 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 (22.4s)
+
+  ✓  5 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 (19.1s)
+
+  ✓  6 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 430 (13.5s)
+
+  6 passed (1.8m)
