@@ -108,6 +108,11 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun completeTableCleaning(session: StoredSession, tableId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeTableCleaning(it, tableId) }
 
+    internal suspend fun deliveryRecoveryRead(session: StoredSession, taskId: String) =
+        authRepository.withAuthorizedAccess(session) {
+            DeliveryRecoveryRead.fromJson(client.request("GET", "/dispatch/tasks/$taskId/", accessToken = it), taskId)
+        }
+
     suspend fun completeDelivery(session: StoredSession, taskId: String) =
         authRepository.withAuthorizedAccess(session) { client.completeDelivery(it, taskId) }
 

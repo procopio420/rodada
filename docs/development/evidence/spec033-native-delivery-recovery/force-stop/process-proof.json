@@ -1,0 +1,9 @@
+{
+  "prepare_pid": 4484,
+  "running_pid_before_force_stop": "4566",
+  "process_absent_after_force_stop": true,
+  "task_id": "7abcf2ca-ca2e-4dd9-b90f-16b3f9a64e11",
+  "intent_fingerprint": "3f56c29ae9f3aad8d0d0c463f4781069ff27da847abd056c5cd90296bb4d48e2",
+  "item_id": "3e63734c-ef35-4fdc-9522-a6dceab1441a",
+  "result": "PASS; canonical DONE/DELIVERED, same encrypted intent and one POST"
+}

@@ -1,0 +1,70 @@
+{
+  "tasks": [
+    {
+      "id": "44144f3e-2a53-4971-9e1b-02f8df784ec6",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:49:56.621946+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "61e81209-21a3-46d8-bb5c-564391f8f483",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:50:07.296689+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "6e63262b-f482-4bbb-9ff3-212b8d523a4c",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:50:22.424737+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "9a5ba363-ce30-4e1c-815a-59b3eaeb33d2",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:50:34.971239+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "b0287cf2-2f90-46dc-a7f1-95fff7f12fcd",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:50:30.391760+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "bee954e3-b2c9-4f7c-a51e-d153c16f1709",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "30e167d3-c728-4be0-a80b-89a12528dd90",
+      "claimed_at": "2026-10-19 04:49:59.189195+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "c35bd853-1edf-44ca-9e99-565206ee159d",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "30e167d3-c728-4be0-a80b-89a12528dd90",
+      "claimed_at": "2026-10-19 04:50:09.900322+00:00",
+      "completed_at": null
+    },
+    {
+      "id": "e65e6760-318b-4858-8328-cba503c57d98",
+      "task_type": "SERVICE_REQUEST",
+      "state": "CLAIMED",
+      "claimed_by_id": "7502581c-d28b-43fb-84dd-5a8e68e45ce0",
+      "claimed_at": "2026-10-19 04:50:17.857078+00:00",
+      "completed_at": null
+    }
+  ],
+  "count": 8,
+  "scope": "Synthetic local tenant; no financial transaction asserted"
+}

@@ -1,0 +1,1 @@
+PASS: real committed delivery survived ACK loss and actual force-stop; one POST.
