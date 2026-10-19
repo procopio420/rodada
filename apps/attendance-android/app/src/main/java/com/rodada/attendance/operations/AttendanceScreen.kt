@@ -122,6 +122,9 @@ fun AttendanceScreen(
     }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
     var section by rememberSaveable { mutableStateOf(FrontlineSection.TABLES) }
+    LaunchedEffect(state.completedOrderTabId, state.submitting, state.loading) {
+        if (viewModel.returnAfterConfirmedOrder(session)) section = FrontlineSection.TABLES
+    }
     val contextStates = rememberSaveableStateHolder()
     var peak by rememberSaveable { mutableStateOf(false) }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
@@ -277,8 +280,15 @@ fun AttendanceScreen(
     if (choosingOrderDestination && state.selectedTab == null) {
         QuickOrderDestinationDialog(
             tabs = state.tabs,
+            tables = state.tables,
+            canOpenTableTabs = "tab.open" in session.capabilities && "table.manage" in session.capabilities,
+            onNewTableTab = { table, label ->
+                choosingOrderDestination = false
+                table.activeOccupancy?.let { viewModel.openTableTab(session, it, label) }
+                    ?: viewModel.openFirstTableTab(session, table.id, label)
+            },
             canOpenTabs = "tab.open" in session.capabilities,
-            busy = state.loading || state.submitting || state.pendingTableService != null,
+            busy = state.loading || state.submitting || state.pendingTableService != null || state.connectivity != ConnectivityState.ONLINE || state.orderIntentId != null || state.cart.isNotEmpty(),
             onSelect = { tabId -> choosingOrderDestination = false; viewModel.selectTab(session, tabId) },
             onNewTab = { choosingOrderDestination = false; openingTab = true },
             onDismiss = { choosingOrderDestination = false },
@@ -387,11 +397,58 @@ internal fun QuickOrderDestinationDialog(
     onSelect: (String) -> Unit,
     onNewTab: () -> Unit,
     onDismiss: () -> Unit,
+    tables: List<TableSummary> = emptyList(),
+    canOpenTableTabs: Boolean = false,
+    onNewTableTab: (TableSummary, String) -> Unit = { _, _ -> },
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    var choosingTable by rememberSaveable { mutableStateOf(false) }
+    var tableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var label by rememberSaveable { mutableStateOf("") }
+    var occupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var occupancyGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
+    val availableTables = tables.filter { it.tableServiceEnabled &&
+        ((it.status == "AVAILABLE" && it.activeOccupancy == null) || (it.status == "OCCUPIED" && it.activeOccupancy != null)) }
+    val selectedTable = availableTables.firstOrNull { it.id == tableId &&
+        it.activeOccupancy?.id == occupancyId && it.activeOccupancy?.generation == occupancyGeneration }
+    if (choosingTable) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) onDismiss() },
+            title = { Text(if (tableId == null) "Escolha uma mesa" else "Nova comanda · Mesa ${tables.firstOrNull { it.id == tableId }?.label.orEmpty()}") },
+            text = {
+                Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(enabled = !busy, onClick = { if (tableId != null) tableId = null else choosingTable = false },
+                        modifier = Modifier.heightIn(min = 48.dp)) { Text("Voltar") }
+                    if (tableId == null) {
+                        if (availableTables.isEmpty()) Text("Nenhuma mesa disponível no momento.")
+                        availableTables.forEach { table ->
+                            OutlinedButton(onClick = { tableId = table.id; occupancyId = table.activeOccupancy?.id; occupancyGeneration = table.activeOccupancy?.generation; label = "" }, enabled = !busy && canOpenTableTabs,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("quick-order-table-${table.id}")) {
+                                Text("Mesa ${table.label} · ${if (table.activeOccupancy == null) "Livre" else "Ocupada"}")
+                            }
+                        }
+                    } else {
+                        OutlinedTextField(value = label, onValueChange = { label = it.take(120) }, colors = rodadaTextFieldColors(),
+                            label = { Text("Nome ou apelido") }, enabled = !busy && canOpenTableTabs,
+                            singleLine = true, modifier = Modifier.fillMaxWidth())
+                        if (selectedTable == null) Text("A mesa não está mais disponível. Volte e escolha outra mesa.")
+                    }
+                }
+            },
+            confirmButton = {
+                if (tableId != null) Button(enabled = !busy && canOpenTableTabs && selectedTable != null && label.isNotBlank(), onClick = {
+                    selectedTable?.takeIf { !busy && canOpenTableTabs && label.isNotBlank() }?.let { onNewTableTab(it, label.trim()) }
+                }) { Text("Abrir e pedir") }
+            },
+            dismissButton = {
+                TextButton(enabled = !busy, onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp)) { Text("Cancelar") }
+            },
+        )
+        return
+    }
     val choices = tabs.filter { it.state in setOf("OPEN", "REQUIRES_ACTION") && it.matchesOperationalQuery(query.trim()) }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("Pedir · escolha a comanda") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -410,9 +467,15 @@ internal fun QuickOrderDestinationDialog(
             }
         },
         confirmButton = {
-            if (canOpenTabs) Button(onClick = onNewTab, enabled = !busy) { Text("Nova comanda sem mesa") }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (canOpenTableTabs) Button(onClick = { choosingTable = true }, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Nova comanda em mesa") }
+                if (canOpenTabs) OutlinedButton(onClick = onNewTab, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Nova comanda sem mesa") }
+                TextButton(onClick = onDismiss, enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Cancelar") }
+            }
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("Cancelar") } },
     )
 }
 

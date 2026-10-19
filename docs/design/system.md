@@ -374,7 +374,7 @@ Prioridade durante o serviço: **exceção → contexto → próxima ação → 
 
 Gerência é mobile-first de verdade:
 - baseline 360–430 px;
-- bottom navigation: **Agora / Operação / Vendas / Gestão / Mais**;
+- bottom navigation: **Agora / Operação / Financeiro / Cardápio / Gestão**;
 - números grandes e poucos por viewport;
 - um gráfico por contexto no celular, não mosaico de mini-gráficos;
 - alertas acionáveis aparecem antes de analytics histórico;
@@ -465,7 +465,7 @@ Relatórios seguem o mesmo padrão de Field para datas, Button para consulta/CSV
 
 Na estação, fila e passe precedem disponibilidade/cadastro. `SectionHeader` combina título e contagem de linhas do snapshot; loading/erro inicial não recebem contagem zero. Nomes/quantidades de produção usam `text-lg`, sem truncar contexto. A partir de 768 px, `AppShell` da estação expande até 1280 px e apresenta fila/passe em duas colunas; mobile conserva a mesma ordem em coluna única. Escalas, cores e controles existentes permanecem.
 
-Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão, após caixa/salão. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.
+Gerência apresenta exceções, pulso e produção antes dos formulários de relacionamento/políticas. Conta da Casa permanece em Gestão junto de clientes; caixa fica em Financeiro e salão em Operação. Rótulos operacionais usam português; itens prontos não contam como "em preparo". Revisão adjacente: Bar/Cozinha/produção gerencial e Caixa/Gestão.
 
 ## V02 parcial — Field confortável e limites de StatusBadge
 
@@ -501,7 +501,7 @@ Descoberta na fixture 360 dp/fontScale2: CONTAS quebra e labels têm overflow. P
 
 OperationalIcon é SVG decorativo com viewBox24, stroke2.2, round caps/joins, currentColor e aria-hidden/focusable=false; size padrão24 para navegação e20 para sectionHeader. Agora reutiliza os paths do export night; operation/sales/settings/more/printer/wallet são extensões explícitas do mesmo vocabulário, sem alegação de referência literal. Label textual obrigatório; nunca usar este componente para substituir ProductIcon.
 
-SurfaceNav da Gerência tem exatamente cinco destinos, altura mínima84 + safe area, ícone acima do label14/800 com gap4 e marcador ativo3px. Fonte ampliada pode aumentar altura; reserva de conteúdo usa medida real da barra (ResizeObserver), mantendo mínimo84 e safe area. Impressoras fica em Mais. A seção usa sectionHeader existente, título20/800 e ícone20 em accent. Região financialMetric ocupa largura total no grid e valor34px/money; números auxiliares28px.
+SurfaceNav da Gerência tem exatamente cinco destinos, altura mínima84 + safe area, ícone acima do label14/800 com gap4 e marcador ativo3px. Fonte ampliada pode aumentar altura; reserva de conteúdo usa medida real da barra (ResizeObserver), mantendo mínimo84 e safe area. Impressoras fica em Gestão. A seção usa sectionHeader existente, título20/800 e ícone20 em accent. Região financialMetric ocupa largura total no grid e valor34px/money; números auxiliares28px.
 
 Token --shadow-operational: 0 4px 12px rgb(0 0 0 / .2), para camada financeira; --shadow-navigation: 0 -4px 12px rgb(0 0 0 / .2), para limite de navegação. Sombras são extensões funcionais discretas, não copiadas do artboard. Cor/espaçamento/raios seguem tokens atuais. Sem alterar estilos das estações, caixa ou demais métricas globais.
 
@@ -525,7 +525,7 @@ Resultado login: sem teclado a tela360/font200 já cabe; não alterar sua compos
 Gerência monta uma única seção da navegação por vez. Agora prioriza exceções,
 comandas abertas e exposição; detalhes auxiliares ficam em details/summary com
 alvo mínimo44, sem retirar a indicação de pendências. Cadastros têm páginas
-próprias e retorno para Mais. Histórico encerrado é disclosure explícito no PDV.
+próprias e retorno para sua área (Cardápio ou Gestão). Histórico encerrado é disclosure explícito no PDV.
 DEV reutiliza os mesmos Field, panel, OperationalHeading e botões; confirmação
 local informa revogação de sessões e preservação de histórico.
 buttonDangerReadable conserva borda/tinta danger e usa color-text no label para
@@ -628,3 +628,11 @@ sem substituir faixa/íconeInfo. Misturas sRGB com tokens canônicos, sem novas 
 hexadecimais independentes. Campos Surface2/BorderStrong/focoAmber; primárioPaper/Ink.
 
 Gerência: histórico usa botão quiet apenas com ícone history20, alvo touch-min e nome acessível. No grupo actions, o controle mantém largura touch-min e o botão textual ocupa o espaço restante. O diálogo reutiliza ActionDialog, campos, dataRow, BillSummary e dialogReturn; sem paleta ou escala paralela.
+
+## Gerência — navegação por tarefa (2026-10-18)
+
+Cinco abas: Agora (exceções/pulso), Operação (salão/mesas/produção/entregas), Financeiro (caixa/fechamentos/estornos/aprovações/relatórios), Cardápio (produtos/variações), Gestão (estabelecimento/equipe/clientes/configurações/acesso). Cabeçalho identifica a aba. Links relacionados usam panel e managementLinkList em coluna com gap space-2 e botões existentes; sem novos tokens. Cada função tem destino principal único, com atalhos contextuais de exceção permitidos em Agora. Retornos preservam área; aliases vendas/mais continuam válidos. Histórico discreto no cabeçalho permanece disponível.
+
+## Cardápio gerencial — editor progressivo (2026-10-18)
+
+Adicionar produto é uma ação única; estação é selecionada no QuickCatalog. Editar produto e ícone é botão secundário visível, seguido de ActionDialog com categorias/Todos e produtos em grade antes do formulário. CSS Module do editor reutiliza tokens/duas colunas/geometria do seletor do Bar, com linhas max-content e rolagem interna para catálogos extensos. Foco retorna ao produto de origem e ao botão inicial; gravação/leitura de upload trava o retorno. Sem novos tokens, cores ou identidade visual.

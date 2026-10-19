@@ -10,6 +10,30 @@ const historyTab = {
   payments: [{ id: "payment", method: "CASH", status: "CONFIRMED", amount_cents: 1600 }],
 };
 
+test("Management cancelled history preserves items without a paid label", async ({ page }) => {
+  await fixture(page, "normal", true);
+  const cancelled = { ...historyTab, display_label: "Conta cancelada", state: "CANCELLED", payable_cents: 0,
+    payments_cents: 0, payments: [], corrections_cents: -1600,
+    orders: [{ id: "order", items: [{ ...historyTab.orders[0].items[0], state: "CANCELLED" }] }],
+  };
+  await page.route("**/api/pos/tabs/**", route => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith("/history-fixture/")) return route.fulfill({ json: cancelled });
+    if (url.searchParams.has("history_day")) return route.fulfill({ json: { results: [cancelled], history_business_date: "2026-10-17", next_offset: null } });
+    return route.fallback();
+  });
+  await page.goto("/manage");
+  await page.getByRole("button", { name: "Histórico de comandas", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  const row = dialog.getByRole("button", { name: /Conta cancelada/ });
+  await expect(row).toContainText("Cancelada");
+  await row.click();
+  await expect(dialog.getByText(/2× Item do catálogo · Cancelado/)).toBeVisible();
+  await expect(dialog.getByText("Sem pagamentos registrados.")).toBeVisible();
+  await expect(dialog.getByText("Paga", { exact: true })).toHaveCount(0);
+  await layoutAndA11y(page);
+});
+
 for (const [width, fontPercent] of [[360, 100], [390, 100], [430, 100], [1280, 100], [360, 200]]) test(`Management history read-only popup ${width} font${fontPercent}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await fixture(page, "normal", true);

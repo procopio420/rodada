@@ -429,6 +429,8 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 .metricLabel { display: flex; gap: var(--space-2); align-items: center; }
 .metricLabel .operationalIcon { color: var(--color-money); }
 .managementUtilityLink { display: flex; align-items: center; gap: var(--space-2); }
+.managementLinkList { display: grid; gap: var(--space-2); }
+.managementLinkList > a { justify-content: flex-start; text-align: start; }
 .managementShell [id] { scroll-margin-top: var(--space-4); }
 
 .managementNavigation a span { max-width: 100%; overflow-wrap: anywhere; }

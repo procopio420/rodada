@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StaffAuthScreen } from "@/components/staff-auth-screen";
 import { OperationalHeading } from "@/components/operational-heading";
@@ -77,7 +76,7 @@ function Tables({ session }: { session: StaffSessionView }) {
   finally { await load(); setIntent(null); sending.current = false; setBusy(false); }
  }
  return <main className="appShell managementShell">
-  <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="table">Mesas</OperationalHeading><Link className="backLink" href="/manage#gestao">Voltar à Gestão</Link></header>
+  <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="table">Mesas</OperationalHeading><a className="backLink" href="/manage#operacao">Voltar à Operação</a></header>
   {error && <p className="notice" data-state="danger" role="alert">{error}</p>}{notice && <p className="notice" role="status">{notice}</p>}
   <button className="buttonSecondary" disabled={busy} onClick={()=>{setError("");void load();}}>Atualizar mesas</button>
   {!loaded && <p role="status">Carregando mesas…</p>}

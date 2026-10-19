@@ -32,3 +32,7 @@ internal fun RecoveryIntent.targetsContext(tab: TabDetail): Boolean = when (this
     is RecoveryIntent.Refund -> tab.payments.any { it.id == paymentId } || tab.refundRequiredCorrections.any { it.id == correctionId }
     else -> evidence().tabId == tab.summary.id
 }
+
+internal fun OperationsUiState.shouldReturnAfterConfirmedOrder(): Boolean =
+    completedOrderTabId != null && completedOrderTabId == selectedTab?.summary?.id &&
+        cart.isEmpty() && canLeaveTabContext()

@@ -69,7 +69,7 @@ function Setup({ session }: { session: StaffSessionView }) {
     finally { setPin(""); await load(false); sending.current = false; setBusy(false); }
   }
   return <main className="appShell managementShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="settings">Preparar estabelecimento</OperationalHeading><Link className="backLink" href="/manage">Voltar à gerência</Link></header>
+    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="settings">Preparar estabelecimento</OperationalHeading><a className="backLink" href="/manage#gestao">Voltar à gerência</a></header>
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}{notice && <p className="notice" role="status">{notice}</p>}
     {!fresh && <p className="notice" data-state="warning">Dados ainda não confirmados. Atualize antes de alterar.</p>}
     <button className="buttonSecondary" disabled={busy} onClick={() => void load()}>Atualizar configuração</button>

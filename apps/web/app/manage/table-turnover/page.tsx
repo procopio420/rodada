@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { OperationalHeading } from "@/components/operational-heading";
@@ -86,7 +85,7 @@ export default function TableTurnoverPage() {
       <div className="eyebrow">RODADA / GERÊNCIA</div>
       <OperationalHeading as="h1" icon="table">Giro e limpeza das mesas</OperationalHeading>
       <p className="muted">Medição direta do ciclo da mesa. Sem estimar presença, limpeza ou disponibilidade que não foi registrada.</p>
-      <Link className="backLink" href="/manage#vendas">← Voltar à gerência</Link>
+      <a className="backLink" href="/manage#operacao">← Voltar à Operação</a>
     </header>
     {error && <div className="notice" data-state="danger" role="alert">{error}{report && " Dados anteriores exibidos; atualize antes de tomar decisões."}</div>}
     {loading && <p className="loadingState" role="status">Atualizando métricas…</p>}
