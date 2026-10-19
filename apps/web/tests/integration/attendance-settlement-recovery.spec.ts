@@ -41,34 +41,30 @@ async function mountRecovery(page: Page, intent: unknown) {
   await expect(page.getByRole("button",{name:"Verificar mesmo recebimento"})).toBeEnabled();
 }
 
-test("Attendance pending Payment survives lost ACK and close 503/ACK loss across reload with no selection", async ({page})=>{
+test("Attendance lost Payment ACK reads canonical automatic settlement without another Close", async ({page})=>{
   const {tab,intent}=await setup(page); const bodies:string[]=[]; let closes=0;
   await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`),async route=>{
     bodies.push(route.request().postData()!);
     const r=await route.fetch({url:route.request().url().replace(/\/$/,""),headers:await route.request().allHeaders()});
     expect(r.status()).toBe(201); if(bodies.length===1) await route.abort(); else await route.fulfill({response:r});
   });
-  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),async route=>{
-    closes++; if(closes===1) return route.fulfill({status:503,json:{code:"UNAVAILABLE",message:"Injected close unavailable"}});
-    const r=await route.fetch({url:route.request().url().replace(/\/$/,""),headers:await route.request().allHeaders()}); expect(r.status()).toBe(200); await route.abort();
-  });
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
   await mountRecovery(page,intent);
   const verify=page.getByRole("button",{name:"Verificar mesmo recebimento"});
   await verify.click(); await expect(page.getByText(/Resultado ainda não confirmado/)).toBeVisible();
-  await page.reload(); await verify.click(); await expect(page.getByText(/Injected close unavailable/)).toBeVisible();
-  expect(bodies).toHaveLength(2); expect(bodies[0]).toBe(bodies[1]);
-  const saved=await page.evaluate(key=>JSON.parse(sessionStorage.getItem(key)!),key);
-  expect(saved.phase).toBe("PAYMENT_CONFIRMED"); expect(saved.payment_id).toBeTruthy();
-  await page.reload(); await verify.click(); await expect(verify).toBeEnabled();
-  expect((await api(page,`tabs/${tab.id}/`)).state).toBe("CLOSED");
+  const committed=await api(page,`tabs/${tab.id}/`);
+  expect(committed.state).toBe("CLOSED"); expect(committed.exposure_cents).toBe(0); expect(committed.payments).toHaveLength(1);
   await page.reload(); await verify.click();
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
-  const bill=await api(page,`tabs/${tab.id}/`); expect(bill.payments).toHaveLength(1); expect(bill.payments[0].id).toBe(saved.payment_id); expect(bill.exposure_cents).toBe(0);
-  expect(bodies).toHaveLength(2); expect(closes).toBe(2);
+  const bill=await api(page,`tabs/${tab.id}/`); expect(bill.payments).toHaveLength(1);
+  expect(bill.payments[0].id).toBe(committed.payments[0].id); expect(bill.exposure_cents).toBe(0);
+  expect(bodies).toHaveLength(2); expect(bodies[0]).toBe(bodies[1]); expect(closes).toBe(0);
 });
 
 test("Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback",async({page})=>{
   const {tab,product,intent}=await setup(page);
+  // A genuine partial receipt keeps OPEN; new consumption can then change its balance.
+  intent.payload.amount_cents=Math.floor(intent.payload.amount_cents/2);
   const payment=await api(page,`tabs/${tab.id}/payments/`,intent.payload);
   await api(page,`tabs/${tab.id}/orders/confirm/`,{idempotency_key:crypto.randomUUID(),lines:[{product_id:product.id,quantity:1}]});
   let mutations=0, reads=0;
@@ -87,7 +83,7 @@ test("Attendance confirmed Payment permits keep open after concurrent consumptio
   await page.reload(); await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
   expect(mutations).toBe(0); const bill=await api(page,`tabs/${tab.id}/`);
-  expect(bill.state).toBe("OPEN");expect(bill.exposure_cents).toBe(product.price_cents);expect(bill.payments).toHaveLength(1);
+  expect(bill.state).toBe("OPEN");expect(bill.exposure_cents).toBe(2*product.price_cents-intent.payload.amount_cents);expect(bill.payments).toHaveLength(1);
   await page.getByRole("region",{name:"Recebimento em dinheiro",exact:true}).getByRole("button",{name:/^Receber R/}).click();
   await expect(page.getByLabel("Valor recebido (R$)",{exact:true})).toBeEnabled();
 });
@@ -113,4 +109,50 @@ test("Attendance preserves original pending identity when confirmed phase cannot
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
   expect(bodies).toHaveLength(2);expect(bodies[0]).toBe(bodies[1]);
   const bill=await api(page,`tabs/${tab.id}/`);expect(bill.payments).toHaveLength(1);expect(bill.state).toBe("CLOSED");
+});
+
+
+for (const schema of [1,2]) test(`Canonical CLOSED receipt clears schema ${schema} without Close or another Payment`,async({page})=>{
+  const {tab,intent}=await setup(page);
+  const payment=await api(page,`tabs/${tab.id}/payments/`,intent.payload);
+  const committed=await api(page,`tabs/${tab.id}/`);expect(committed.state).toBe("CLOSED");
+  let payments=0,closes=0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`),route=>{payments++;return route.continue();});
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
+  if(schema===1){
+    const legacy={venue:intent.venue,staff:intent.staff,session:intent.session,tab:intent.tab,captured_at:intent.captured_at,payload:intent.payload};
+    // Schema1 is the POS envelope, so recovery uses its original POS route.
+    await page.route(new RegExp(`/api/pos/tabs/${tab.id}/payments/?$`),route=>{payments++;return route.continue();});
+    await page.route(new RegExp(`/api/pos/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
+    await mountRecovery(page,{...legacy,schema:1});
+  } else await mountRecovery(page,{...intent,phase:"PAYMENT_CONFIRMED",payment_id:payment.id,close_requested:false});
+  await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
+  await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+  expect(payments).toBe(schema===1?1:0);expect(closes).toBe(0);
+  const final=await api(page,`tabs/${tab.id}/`);expect(final.state).toBe("CLOSED");
+  expect(final.payments).toHaveLength(1);expect(final.payments[0].id).toBe(payment.id);expect(final.exposure_cents).toBe(0);
+});
+
+
+for(const mismatch of ["identity","balance"]) test(`Confirmed receipt preserves intent on canonical CLOSED ${mismatch} mismatch`,async({page})=>{
+  const {tab,intent}=await setup(page);
+  const payment=await api(page,`tabs/${tab.id}/payments/`,intent.payload);
+  const canonical=await api(page,`tabs/${tab.id}/`);
+  expect(canonical.state).toBe("CLOSED");expect(canonical.payments).toHaveLength(1);
+  let mutations=0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/(payments|close)/?$`),route=>{mutations++;return route.abort();});
+  await mountRecovery(page,{...intent,phase:"PAYMENT_CONFIRMED",payment_id:payment.id,close_requested:false});
+  const original=await page.evaluate(key=>sessionStorage.getItem(key),key);
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/?$`),async route=>{
+    const response=await route.fetch();const detail=await response.json();
+    await route.fulfill({response,json:{...detail,...(mismatch==="identity"?{id:crypto.randomUUID()}:{exposure_cents:1})}});
+  });
+  await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
+  await expect(page.getByText(/Recebimento registrado; verificação/)).toBeVisible();
+  expect(await page.evaluate(key=>sessionStorage.getItem(key),key)).toBe(original);expect(mutations).toBe(0);
+  await page.unroute(new RegExp(`/api/attendance/tabs/${tab.id}/?$`));
+  await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
+  await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+  expect(mutations).toBe(0);const final=await api(page,`tabs/${tab.id}/`);
+  expect(final.payments).toHaveLength(1);expect(final.payments[0].id).toBe(payment.id);expect(final.exposure_cents).toBe(0);
 });

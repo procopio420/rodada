@@ -1,0 +1,16 @@
+[WebServer] (node:3131825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:3131962) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3131962) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance lost Payment ACK reads canonical automatic settlement without another Close (8.9s)
+  ✓  2 tests/integration/attendance-settlement-recovery.spec.ts:64:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (5.6s)
+  ✓  3 tests/integration/attendance-settlement-recovery.spec.ts:91:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (4.7s)
+  ✓  4 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 1 without Close or another Payment (4.8s)
+  ✓  5 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 2 without Close or another Payment (4.5s)
+
+  5 passed (1.0m)
