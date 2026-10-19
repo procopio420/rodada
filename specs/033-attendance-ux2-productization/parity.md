@@ -273,3 +273,31 @@ revisão próprios em andamento. Os resultados anteriores não comprovam essa no
 composição. Novo achado E06-06 em callbacks nativos após troca de sessão está em
 correção isolada, não aceito apenas por inspeção/testehelper. Nenhum gate global
 fechado; sem merge/deploy pelo executor.
+
+
+### Slices e gates posteriores — 19/10
+
+- PR257 fonte db94ec3a/HEAD848dca43: Dispatch nativo separado do core,
+  stale/count—/releaseguard;128JVM,2realPG,19UI e12matrixchecks PASS,
+  18capturas. Revisão independente root NFG. Chamadas ainda awaited e rótulo
+  Atendimentos quebra emfont2/360; gaps explícitos, não aceite global.
+- PR256 fonte a3236515/HEAD780fb3e4: callbacks genéricos com geração/sessão,
+  pendênciaServiceRequest vinculada ao original.133JVM/build/lintPASS;
+  um método real48.138s cobre quatro combinações sucesso/falha×A→B/A→B→A,
+  dois operadores/oitoTasks, estado/busy/intents preservados e claims canônicos.
+  Revisão independente root NFG; históricoA→B→A em slice separada.
+- Composição nativa403d956e preserva ambos; revisão semântica root NFG,
+  gates de build e mainAndroid concorrente continuam abertos.
+- PR260 histórico (fontefae2dbb7/HEAD8d3a85e4): retorno Mesas/foco mesmo após
+  origemAgora,3browserPASS/0writes. PR261 recebimento (fonte6ac9ab90/testa58259ec,
+  HEAD53966656):7realPG+13browserPASS; auto-close canônico da main reconhecido,
+  fullkeepOpen impossível removido, IDdivergente/CLOSEDsaldo!=0 preservamintent.
+  Backend intacto, readback e umPayment/0Close comprovados. R3 independente NFG.
+  PR258/259 foram marcadas integradas pelo GitHub após publicação da composição
+  em sua base mutável; PR260/261 republicam os deltas contra base fixa02d63ae8.
+  Main não foi alterada pelo executor; organização corrigida para revisão explícita.
+- Composição Web2fa7d535 (main20828711+stack+correções) buildPASS, regressão ampla
+  em execução PG55650/API8150/Web3150. Não transferir148PASS da fonte antiga para
+  essa composição. Auto-close UI nativa ainda P1 em correção; engine já reconhece
+  CLOSED, não será reimplementada. CI/aprovação qualificada/paridade integral/piloto
+  continuam pendentes; nenhum AC global encerrado.
