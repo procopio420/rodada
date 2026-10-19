@@ -32,10 +32,10 @@ Current main's canonical history detail/read-only dialog remains reachable;
 party-size editor remains wired through the new contextual table page. Both
 main's history read tracker and #257 delivery refresh job are retained.
 
-No API or Web files differ from the main baseline: canonical delivery ownership
-from #252 is preserved. The required API release contract from #253 must be
-integrated before this native candidate is released; no compatibility fallback
-or latest-occupancy reselection was introduced. Spec033 root contract/audit PRs
+Parent #253 `94a4349e` is merged at `1e12fe2d`; API and Web files match that
+parent exactly, preserving main #252 canonical delivery ownership and the required
+release pair. Android conflict resolutions retain the native product source
+unchanged. No compatibility fallback or latest-occupancy reselection was introduced. Spec033 root contract/audit PRs
 #216/#217 remain separate integration dependencies. Native slice specs and
 historical evidence retain their original scope and dates.
 
@@ -44,6 +44,18 @@ historical evidence retain their original scope and dates.
 Android harness unit tests: `python3 -m unittest discover -s scripts/tests -p
  'test_android*'`: 10 PASS. `python3 scripts/check_agent_kb.py`: PASS.
 
-Candidate Gradle and emulator results will be recorded after execution.
+Independent review found a P1: full settlement could close a Tab with an unsent
+order, and the UI promised an impossible full-payment keep-open option. Fix
+`95a68829` blocks preparing a new full receipt with a draft/current order intent
+or queue, preserves partial and immutable payment recovery, and removes that
+option. Two JVM policy cases and a Compose full-blocked/partial-allowed case
+cover the correction. The slice contract was amended before implementation.
+
+Local JVM: 140 tests, zero failures/errors/skips. Debug app/test APK assembly
+passed. API36 360dp/font1 emulator: release/history/destination/navigation 14/14
+PASS (93.927s). Account/tab-pages 12/13 PASS, including the new draft policy;
+one existing round-trip test used an obsolete back label. `074306bd` updates
+that selector; rerun and lint are pending at this checkpoint. No historical
+artifact is presented as a rerun on the union.
 Physical device, TalkBack, provider/payment homologation and pilot sign-off are
 not established by JVM, build, lint or emulator gates.
