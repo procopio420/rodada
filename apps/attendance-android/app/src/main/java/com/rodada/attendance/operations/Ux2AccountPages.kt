@@ -144,8 +144,6 @@ internal fun Ux2ReceiptPage(state: OperationsUiState, tab: TabDetail, onBack: ()
             Text("Informe o valor recebido, sem incluir troco.", style = AttendanceUx2.text(12))
             Ux2Action(if (method == PaymentMethod.PIX) "Gerar cobrança Pix" else if (full) "Receber e encerrar comanda" else "Registrar recebimento", valid,
                 { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, full) }, true)
-            if (full) Ux2Action("Só registrar; manter comanda aberta", valid,
-                { onPay(amount ?: 0, method, if (method == PaymentMethod.CASH) selectedCashPoint else null, false) })
             if (method == PaymentMethod.CASH && openCashPoints.size == 1)
                 Text("Caixa: ${openCashPoints.single().label}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
             TextButton({ paymentDetails = !paymentDetails }, enabled = !state.submitting,
