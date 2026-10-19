@@ -1,0 +1,80 @@
+{
+  "source_commit": "bebcd2733260bf7f48422c833719ab96daa42fe1",
+  "prototype_commit": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
+  "device": "emulator-5558 API36",
+  "font_scale": 1,
+  "jvm": {
+    "tests": 117,
+    "failures": 0,
+    "errors": 0
+  },
+  "compose_regression": {
+    "tests": 12,
+    "failures": 0,
+    "seconds": 31.462
+  },
+  "live_main_activity": [
+    {
+      "width_dp": 360,
+      "seconds": 21.228,
+      "pass": true
+    },
+    {
+      "width_dp": 390,
+      "seconds": 23.801,
+      "pass": true
+    },
+    {
+      "width_dp": 430,
+      "seconds": 23.723,
+      "pass": true
+    }
+  ],
+  "fixture": {
+    "database": "rodada_android_post_drop",
+    "venue_slug": "spec033-native-shell-parity",
+    "marina_balance_cents": 5600,
+    "marina_limit_cents": 20000,
+    "draft_cents": 1400,
+    "rafael_balance_cents": 1400
+  },
+  "limitations": [
+    "No physical device, TalkBack or shell fontScale2 acceptance",
+    "No new payment/order submission in live shell journey",
+    "READY/closed-table guards tested by canonical-shape JVM/Compose fixtures",
+    "Global parity and pilot not accepted"
+  ],
+  "files": {
+    "README.md": "f08e3f5a09c70f8cf296e27f82d8a55457af4f9f8c674579ad67791c47abbc74",
+    "build-test-lint.log": "1f4190c8319d1c7255cdde6db401a6eb67cba874787b9b8d48dae007e6df7d80",
+    "first-build-test-lint.log": "96c473eb7290117eb35075f7d00e4d1ebf93f3d77bcc45b69216dfbc904b3073",
+    "live-360.txt": "89a2df513384e33372918615d006acc68901a5b311c0ad8de8cdaff614c64583",
+    "live-390.txt": "d378296459f5f2b3c4b2bcb3e387b888f0377e244506f4aa99aa89181ab4ef81",
+    "live-430.txt": "fb254a9f94b64387f782eb2530c530f8f6ba0611b2f18cc5842af020fbf2b593",
+    "live-agora-service-w1080-f100.png": "212c27b43dd4f3824d96887a000e5698a6de8b9e0599bf819af7a0de5e9a2261",
+    "live-agora-service-w1170-f100.png": "ee6d55b3573b7f1f1fb5dc677aabbefddd478b91a6035b5d69a518de8bd67916",
+    "live-agora-service-w1290-f100.png": "4129c953b95d245568e3c3ac418d9c6a60703b6e6757d47c3986e47c194bdb7e",
+    "live-shell-catalog-w1080-f100.png": "3f0c9ec0942e573f5ec98f1171610240fb99170b895d028cab975e2860cddbf0",
+    "live-shell-catalog-w1170-f100.png": "825b2ba185967d8f537ae7c59d6f4286ba6ae032d8e02fa27ef81cd7167e66bb",
+    "live-shell-catalog-w1290-f100.png": "ab0e6374baa5f8458a15ee0baadd5c694be2a013f24d367697e7aabaf6ca2c4b",
+    "live-shell-review-w1080-f100.png": "9dfa60deb14e0ae08f9749b0949348c0dbee99bd2479860379cd3e256b1e8ddb",
+    "live-shell-review-w1170-f100.png": "9dde96e3c010802926f8557efa344c627f14e1ea94b5bde3dd6a548d294b5905",
+    "live-shell-review-w1290-f100.png": "2ce57bb67cee31013bc4e34aadac9eed32278cb650f5f6f7a872484f357fad29",
+    "live-shell-tab-w1080-f100.png": "8d8e37f6bd20b5bc7c340817de46948c2f835b2029609e5f6caa23d699a8142a",
+    "live-shell-tab-w1170-f100.png": "c8bbf5448e73912d046b27ae76975049c13297d46785dc235cdbcadf81e86917",
+    "live-shell-tab-w1290-f100.png": "8076ab9a4d9f3110f369169c000eab4cddf934cce71c8fe76178592b68981c8b",
+    "live-shell-table-w1080-f100.png": "92ae634ad802607ad7d823f7cb77dfe01b6c4c2174f04187a3cc82e4bfc30686",
+    "live-shell-table-w1170-f100.png": "ac032c05907d32c5e2fc89cb200876fea4c13761d2e654ce41fe58692fb090d6",
+    "live-shell-table-w1290-f100.png": "dc035e6f80565ef4e6f642394688d1a64ba4966ffe3924f4c529da70c625bdb7",
+    "live-shell-tables-w1080-f100.png": "fcbddbe2480250e18a07e22417d2eeedc8bdd1fa92189b67f1f491b77055d960",
+    "live-shell-tables-w1170-f100.png": "18e36d1edcb9cc51076abb1155748fd96bebb1c61dbd45de9327859a5c6fa286",
+    "live-shell-tables-w1290-f100.png": "7292e1cd3ae69d98cc174837fa77fe6117e248ab0226e79a293ac66df063b622",
+    "prior/back-offscreen-live390.txt": "6f80c1e39919ad1eda89b738a146cfc86a888ce7a83aa8c33e0a1e88bb78471e",
+    "prior/first-successful-matrix.txt": "62195c8e5d64206863ab42a0933451a4761e1d105663321cccc5c24fde393378",
+    "prior/intermediate-snapshot-regression.txt": "b875b17a81dbceeddc257f847b6ca2f02515e499ca9e64b8f9e5b45cbde1fdf7",
+    "prior/systemui-anr-live390.txt": "d4fb9a49c3d4c70b5b29394108b26f4300caabee72094e28e6250e9e9f6d5b67",
+    "prior/systemui-anr.png": "828f966fec4aed7f9082307826af172eecb2c4a6adb2c38532451472e1e3659c",
+    "run-live-matrix.py": "f056d7f49ee5ba1c5e33ac2f08b1c6e4317307b249d0a5257befbcdec1d2c8a2",
+    "table-regression.txt": "63c9ac8769262da7b7065ef681a9ccd0b5f5c2e41501813009fdf8e2abd89ae5"
+  }
+}

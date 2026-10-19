@@ -25,7 +25,7 @@ class TableReleaseTest {
                 onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
         compose.onNodeWithTag("table-table-a").performClick()
-        compose.onNodeWithText("Liberar mesa").performScrollTo().performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performScrollTo().performClick()
     }
 
     @Test fun cancellationHasNoMutationAndConfirmationUsesOriginalTable() {
@@ -35,7 +35,7 @@ class TableReleaseTest {
         captureCriticalEvidence(compose, "table-release", compose.onNode(isDialog()))
         compose.onNodeWithText("Cancelar").assertHeightIsAtLeast(44.dp).performClick()
         assertEquals(emptyList<String>(), released)
-        compose.onNodeWithText("Liberar mesa").performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performClick()
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)
@@ -59,4 +59,15 @@ class TableReleaseTest {
         compose.onNodeWithText("Cancelar").assertIsEnabled().performClick()
         assertEquals(emptyList<String>(), released)
     }
+    @Test fun readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork() {
+        render()
+        compose.runOnIdle { state.value = state.value.copy(deliveryTasks = listOf(
+            DeliveryTask("ready", "OPEN", "A", "Água", 1, "", 0, StaffTaskTarget.Table("table-a", "visit-a", 1))
+        )) }
+        compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
+        compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(emptyList<String>(), released)
+        assertEquals("OPEN", state.value.deliveryTasks.single().state)
+    }
+
 }
