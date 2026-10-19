@@ -250,3 +250,26 @@ reavaliado e repetido no emulador com códigos reais de sucesso. Dez regressões
 Python PASS. Aprovação GitHub qualificada e gates de integração continuam abertos.
 Spec031 não integrada: preservar enforcement canônico; WARN_ONLY não simulado.
 Sem merge/deploy e sem aceite de diferenças intencionais por inferência.
+
+
+### Continuação 19/10 — evidência terminal e main concorrente
+
+PR249 fonte87306a67, evidência7d7f0c1e: regressão real terminou **148PASS,
+3skips menu opt-in,19.5min**, zero retries. PR255 fonte4bbc5d64/HEAD893746a5
+executou separadamente os três cenários menu CSV: **3/3PASS**,360/390/430,
+143 produtos/112BAR/31KITCHEN, dois itens reais/preços1200+350,exposição1550,
+pagamentos0, preparoNEW→PREPARING→READY. Nove capturas e logs versionados;
+revisão independente root sem achados no delta. Assim, o skip não é dispensado:
+foi executado em ambiente PostgreSQL próprio55649, sem substituir o teste real.
+
+PR254 fonte4884ed72/evidência1213420d corrige somente deadline global Web20→40min,
+visual45 intacto. GitHub annotation117829074552 confirma expiração20m; testes,
+expectativas, retries/triggers/concurrency não mudam. Revisão R3 independente
+NO_FINDINGS_WITH_GAPS; execução CI candidata ainda pendente.
+
+Main avançou para20828711 (inclui218/252 e mudanças concorrentes Android/Gerência).
+Composição local02d63ae8 preserva as duas linhas; build/typecheckPASS, testes e
+revisão próprios em andamento. Os resultados anteriores não comprovam essa nova
+composição. Novo achado E06-06 em callbacks nativos após troca de sessão está em
+correção isolada, não aceito apenas por inspeção/testehelper. Nenhum gate global
+fechado; sem merge/deploy pelo executor.
