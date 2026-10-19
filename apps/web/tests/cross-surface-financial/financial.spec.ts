@@ -127,7 +127,8 @@ test("test-only partial cash on Compose Tab, residual close guard and audited dr
   expect(paid.payments_cents).toBe(before.exposure_cents + 100);
   // Full confirmed settlement closes the Tab automatically; do not issue a second close.
   await expect.poll(async () => (await read(`tabs/${native.original_tab_id}/`)).state).toBe("CLOSED");
-  await expect(page.getByRole("button", { name: "Fechar comanda", exact: true })).toBeDisabled();
+  // The automatically closed Tab no longer exposes the manual close action.
+  await expect(page.getByRole("button", { name: "Fechar comanda", exact: true })).toHaveCount(0);
   await page.goto("/cash");
   await page.getByLabel("Ponto de caixa", { exact: true }).selectOption(fixture.cash_point_id);
   await page.getByRole("button", { name: "Conferir caixa", exact: true }).click();
