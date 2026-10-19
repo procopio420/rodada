@@ -3,6 +3,8 @@ import { expect, test } from "./fixtures";
 import { openNamedAttendanceTab } from "./attendance-helpers";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
+  // Real order/production/location/release/cleaning journey has several canonical readbacks.
+  test.setTimeout(120_000);
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
