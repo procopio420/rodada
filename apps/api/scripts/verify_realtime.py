@@ -92,6 +92,12 @@ auth = {"Authorization": "Bearer " + login["access_token"]}
 guest = api("/guest/qr/resolve/", {"token": table.public_token})
 guest_auth = {"X-Guest-Session": guest["guest_session_token"]}
 tab = api("/guest/tabs/", {"display_label": "Smoke guest"}, guest_auth)
+# Capture the original visit before the release/revocation scenario.
+occupancy = next(
+    row["active_occupancy"]
+    for row in api("/hospitality/tables/", headers=auth)["results"]
+    if row["id"] == str(table.id)
+)
 baseline = api("/guest/realtime/snapshot/", headers=guest_auth)["cursor"]
 with stream("/guest/realtime/stream/", baseline, guest_auth) as live:
     until(live, "ready")
@@ -136,7 +142,11 @@ with stream("/guest/realtime/stream/", "invalid", guest_auth) as gap:
 # A connected session is revoked on the next authenticated read, without a new request.
 with stream("/guest/realtime/stream/", snapshot["cursor"], guest_auth) as revoked:
     until(revoked, "ready")
-    api(f"/hospitality/tables/{table.id}/release/", {}, auth)
+    api(
+        f"/hospitality/tables/{table.id}/release/",
+        {"expected_occupancy_id": occupancy["id"], "expected_generation": occupancy["generation"]},
+        auth,
+    )
     until(revoked, "revoked")
 assert Tab.objects.get(pk=tab["id"]).charges.count() == 1
 print(
