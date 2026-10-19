@@ -19,6 +19,12 @@ internal class FinancialResponseFence {
             if (!isCurrent()) throw CancellationException("A sessão ou intenção financeira original mudou.")
             verify()
         }
+        suspend fun <T> awaitCurrent(block: suspend () -> T): T {
+            check()
+            val result = try { block() } catch (failure: Throwable) { check(); throw failure }
+            check()
+            return result
+        }
         fun checkpoint(intent: RecoveryIntent.StartPayment) { update(intent) }
     }
 }
