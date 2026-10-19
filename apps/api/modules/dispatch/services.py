@@ -149,6 +149,10 @@ def complete_delivery_task(*, task_id, actor: ActorContext) -> DispatchTask:
         return task
     if task.state == DispatchTaskState.CANCELLED:
         raise DispatchServiceError("DELIVERY_TASK_CANCELLED", "Entrega cancelada.", 409)
+    if task.claimed_by_id is not None and task.claimed_by_id != actor.staff_id:
+        raise DispatchServiceError(
+            "DELIVERY_TASK_ALREADY_CLAIMED", "Entrega tem responsável.", 409,
+        )
     if item is None:
         raise DispatchServiceError("ORDER_ITEM_NOT_FOUND", "Item não encontrado.", 404)
     if item.state not in (
