@@ -1,0 +1,9 @@
+test_actual_ci_four_test_success (test_android_instrumentation_result.InstrumentationResultTest.test_actual_ci_four_test_success) ... ok
+test_failure_or_crash_cannot_hide_behind_success_marker (test_android_instrumentation_result.InstrumentationResultTest.test_failure_or_crash_cannot_hide_behind_success_marker) ... ok
+test_singular_crlf_output (test_android_instrumentation_result.InstrumentationResultTest.test_singular_crlf_output) ... ok
+test_zero_and_partial_class_never_pass (test_android_instrumentation_result.InstrumentationResultTest.test_zero_and_partial_class_never_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.110s
+
+OK
