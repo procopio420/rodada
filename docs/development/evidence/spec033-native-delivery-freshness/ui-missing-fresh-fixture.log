@@ -1,0 +1,308 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TableReleaseTest:
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.AttendanceNowUx2Test:
+INSTRUMENTATION_STATUS: test=deliveryDetailDoesNotCompleteOnOpeningAndProtectsOtherOperators
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=deliveryDetailDoesNotCompleteOnOpeningAndProtectsOtherOperators
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unknownFreshnessNeverClaimsZeroTasksAndNeverDropsVisibleWork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unknownFreshnessNeverClaimsZeroTasksAndNeverDropsVisibleWork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=typedTableNavigationIsConsumedOnceAndBackDoesNotReopenOnRefresh
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=twoQueuesPreserveSelectionAndOpeningOnlyRoutesTheExactTask
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=twoQueuesPreserveSelectionAndOpeningOnlyRoutesTheExactTask
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=prototypeShellKeepsPrimaryFooterVisibleAndMovesCapabilityActionsToOptions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=prototypeShellKeepsPrimaryFooterVisibleAndMovesCapabilityActionsToOptions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.NowQueuesTest:
+INSTRUMENTATION_STATUS: test=recoveryOpensOnlyOriginalRecordWithoutCheckingOrSubmitting
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recoveryOpensOnlyOriginalRecordWithoutCheckingOrSubmitting
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=blockedSessionNeverOffersRecoveryAndBusyDisablesOpening
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=blockedSessionNeverOffersRecoveryAndBusyDisablesOpening
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=filtersExposeSelectionAndUnknownCountsWithoutMutations
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=filtersExposeSelectionAndUnknownCountsWithoutMutations
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=peakShowsReadyFirstAndFiltersNeverSubmitCommands
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.NowQueuesTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=peakShowsReadyFirstAndFiltersNeverSubmitCommands
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TablePresentationInstrumentedTest:
+INSTRUMENTATION_STATUS: test=releaseAndSequentialCleaningFollowCanonicalStatus
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
+
+INSTRUMENTATION_STATUS: stream=
+Error in releaseAndSequentialCleaningFollowCanonicalStatus(com.rodada.attendance.operations.TablePresentationInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
+
+INSTRUMENTATION_STATUS: test=releaseAndSequentialCleaningFollowCanonicalStatus
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readyDeliveryUsesCurrentOccupancyAndOpeningQueueDoesNotCompleteIt
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=readyDeliveryUsesCurrentOccupancyAndOpeningQueueDoesNotCompleteIt
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=allStatesRemainReadableAndTableOpensAsPageWithBusyProtection
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=allStatesRemainReadableAndTableOpensAsPageWithBusyProtection
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=closedTabRemainsReadableAndBlockedQrIsVisibleWithoutManagement
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=19
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=closedTabRemainsReadableAndBlockedQrIsVisibleWithoutManagement
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 58.253
+There was 1 failure:
+1) releaseAndSequentialCleaningFollowCanonicalStatus(com.rodada.attendance.operations.TablePresentationInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
+	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
+
+FAILURES!!!
+Tests run: 19,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

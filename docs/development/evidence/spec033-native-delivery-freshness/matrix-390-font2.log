@@ -1,0 +1,38 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.AttendanceNowUx2Test:
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.AttendanceNowUx2Test
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=queueFailureKeepsLastWorkWithUnknownCountAndRecoveryRestoresIt
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TableReleaseTest:
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=staleDispatchWhileDialogOpenBlocksRelease
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 21.813
+
+OK (2 tests)
+
+
+INSTRUMENTATION_CODE: -1
