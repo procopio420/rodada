@@ -26,4 +26,9 @@ data class ServiceRequest(
     }
 }
 
-data class ServiceRequestAction(val taskId: String, val complete: Boolean)
+data class ServiceRequestAction(val taskId: String, val complete: Boolean, val originatingSessionKey: String? = null) {
+    fun belongsToSession(key: String) = originatingSessionKey == key
+}
+
+internal fun serviceRequestActionForSession(pending: ServiceRequestAction?, key: String, taskId: String, complete: Boolean) =
+    pending?.takeIf { it.belongsToSession(key) } ?: ServiceRequestAction(taskId, complete, key)
