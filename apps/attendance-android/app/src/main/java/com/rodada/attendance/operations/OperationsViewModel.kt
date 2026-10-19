@@ -329,17 +329,17 @@ class OperationsViewModel(
 
     /** History is intentionally fetched only on request, not with every SSE/foreground refresh. */
     fun loadTabHistory(session: StoredSession) {
-        if (state.historyLoading) return
-        val scope = loadedSessionKey
+        val guard = sessionActionGuard(session)
+        if (state.historyLoading || !guard.isCurrent()) return
         state = state.copy(historyLoading = true, historyError = null)
         viewModelScope.launch {
-            runCatching { repository.tabHistory(session) }
+            runCatching { guard.awaitCurrent { repository.tabHistory(session) } }
                 .onSuccess { rows ->
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyTabs = rows, historyLoading = false, historyLoaded = true, historyError = null)
                 }
                 .onFailure {
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyLoading = false, historyLoaded = false,
                         historyError = "Não foi possível carregar o histórico. Tente novamente.")
                 }
