@@ -97,6 +97,12 @@ class LiveComposeOrderTest {
             return
         }
         waitText("Pedido confirmado pelo servidor.")
+        // Confirmation returns to the table list by design; reopen the original Tab.
+        compose.waitUntil(30_000) { compose.onAllNodesWithText("Outras comandas", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText("Outras comandas", substring = true) and hasClickAction()).performClick()
+        val originalLabel = InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label")
+        compose.waitUntil(30_000) { compose.onAllNodes(hasText(originalLabel, substring = true) and hasClickAction()).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText(originalLabel, substring = true) and hasClickAction()).performClick()
         // UX2 can expose the account as a page instead of the legacy workspace tab.
         compose.waitUntil(30_000) {
             compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() ||
