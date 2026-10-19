@@ -8,6 +8,8 @@ class DeliveryCompleteSerializer(serializers.Serializer):
 class DispatchTaskSerializer(serializers.Serializer):
     id = serializers.UUIDField(read_only=True)
     state = serializers.CharField(read_only=True)
+    claimed_by_id = serializers.UUIDField(read_only=True, allow_null=True)
+    claimed_at = serializers.DateTimeField(read_only=True, allow_null=True)
     priority = serializers.IntegerField(read_only=True)
     destination_label = serializers.CharField(read_only=True)
     destination_table_id = serializers.UUIDField(read_only=True, allow_null=True)

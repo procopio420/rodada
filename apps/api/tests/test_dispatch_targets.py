@@ -170,6 +170,58 @@ class DispatchTargetTests(TestCase):
         task = ensure_delivery_task_for_ready_order_item(item_id=item.id, actor=self.actor)
         assert self.detail(task)["fulfillment_station"] is None
 
+    def test_delivery_reads_preserve_canonical_ownership_without_mutation(self):
+        from modules.dispatch.services import complete_delivery_task
+
+        task = ensure_delivery_task_for_ready_order_item(item_id=self.ready_item().id, actor=self.actor)
+        claimed_at = timezone.now() - timedelta(minutes=2)
+        for state, owner, timestamp in (
+            ("OPEN", None, None),
+            ("CLAIMED", self.staff, claimed_at),
+        ):
+            DispatchTask.objects.filter(pk=task.id).update(
+                state=state, claimed_by=owner, claimed_at=timestamp,
+            )
+            audits = AuditEvent.objects.count()
+            detail = self.detail(task)
+            queue = self.client.get("/dispatch/delivery/").json()["results"]
+            assert len(queue) == 1
+            for payload in (detail, queue[0]):
+                assert payload["state"] == state
+                assert payload["claimed_by_id"] == (str(owner.id) if owner else None)
+                assert payload["claimed_at"] == (timestamp.isoformat().replace("+00:00", "Z") if timestamp else None)
+            task.refresh_from_db()
+            assert task.state == state and task.claimed_by_id == (owner.id if owner else None)
+            assert task.claimed_at == timestamp
+            assert AuditEvent.objects.count() == audits
+
+        complete_delivery_task(task_id=task.id, actor=self.actor)
+        audits = AuditEvent.objects.count()
+        payload = self.detail(task)
+        assert payload["state"] == "DONE"
+        assert payload["claimed_by_id"] == str(self.staff.id)
+        assert payload["claimed_at"] == claimed_at.isoformat().replace("+00:00", "Z")
+        assert self.client.get("/dispatch/delivery/").json()["results"] == []
+        assert AuditEvent.objects.count() == audits
+
+    def test_delivery_ownership_is_scoped_to_authenticated_venue(self):
+        from modules.access.models import StaffSession
+
+        foreign = ensure_delivery_task_for_ready_order_item(
+            item_id=self.ready_item(venue=self.other_venue).id,
+        )
+        DispatchTask.objects.filter(pk=foreign.id).update(
+            state="CLAIMED", claimed_by=self.staff, claimed_at=timezone.now(),
+        )
+        assert self.client.get(f"/dispatch/tasks/{foreign.id}/").status_code == 404
+        assert self.client.get("/dispatch/delivery/").json()["results"] == []
+        own = ensure_delivery_task_for_ready_order_item(item_id=self.ready_item().id, actor=self.actor)
+        for client in (APIClient(), self.client):
+            if client is self.client:
+                StaffSession.objects.filter(pk=self.actor.session_id).update(revoked_at=timezone.now())
+            assert client.get(f"/dispatch/tasks/{own.id}/").status_code == 401
+            assert client.get("/dispatch/delivery/").status_code == 401
+
     def test_delivery_target_tracks_valid_current_assignment_not_snapshot(self):
         table, occupancy = self.visit()
         tab = Tab.objects.create(venue=self.venue)
