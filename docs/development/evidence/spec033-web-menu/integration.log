@@ -1,0 +1,17 @@
+[2m[WebServer] [22m(node:3102513) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:3102679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3102679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 360 (18.4s)
+
+  ✓  2 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 390 (14.2s)
+
+  ✓  3 tests/integration/venue-menu-acceptance.spec.ts:8:42 › canonical photographed menu orders reach BAR and KITCHEN at 430 (15.4s)
+
+  3 passed (1.4m)
