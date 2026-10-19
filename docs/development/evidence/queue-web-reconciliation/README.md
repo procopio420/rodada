@@ -33,3 +33,26 @@ No CI, GitHub approval, physical-device parity, pilot sign-off or production GO 
 Current final Web source82bc4ca6 had build/typecheck and57-file focused ESLint PASS; visual23/23 final pass (see visual-final.log). Initial real15-case run had13PASS/2 explicit global30s timeouts; budgets now status60s/lifecycle120s without retries or assertion changes. Final integration startup failed on retained synthetic slug because ordinary startup assumes an empty disposable DB. This failure is preserved in integration-final.log; container-only reset and composed final integration are pending.
 
 Independent reviewer identified the draft guard issue; fix source480b3824 and frozen-full follow-up08f5b5c9 supplied for re-review. Final merge417f3a9a resolution review/current CI remain pending.
+
+## Follow-up after full validation — 2026-10-19
+
+The initial composed integration reported three draft-summary selector failures
+and two obsolete full-payment/open-Tab assumptions. Tests now inspect the actual
+`1× product` summary, canonical automatic closure after lost POST response and
+failed readback, original persisted payment phase, a single drawer movement and
+zero redundant close calls. The concurrent-consumption fixture uses a genuinely
+partial first receipt so the second Order is valid while the Tab is OPEN.
+
+The full pre-reconciliation visual run had623 PASS and one stale catalog picker
+selector. Reproducing it through the current category/product picker exposed a
+real swallowed readback failure: `load` handled the exception without notifying
+`rename`. The read now returns success/failure, and rename explicitly reports an
+unconfirmed result when revalidation fails. The original negative success and
+released-busy-state assertions remain. Focused catalog browser regression PASS;
+typecheck/build PASS. Five financial PostgreSQL cases and full final visual
+suite remain running when this entry was committed.
+
+Independent read-only review `/root/review_253` examined this source/test delta:
+NO_FINDINGS_WITH_GAPS; final gates still required. Generated pip egg-info changes
+were excluded. Parent25312f8e2f6 test-only follow-ups are inherited without
+changing reviewed Web product behavior.

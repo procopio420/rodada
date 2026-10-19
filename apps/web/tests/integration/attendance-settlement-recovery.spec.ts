@@ -209,7 +209,7 @@ for (const width of [360, 390, 430]) test(`Attendance draft blocks a new full re
   await expect(workspace.getByRole("button",{name:/^Enviar 1 item/})).toBeEnabled();
   await workspace.getByRole("button",{name:"Ver resumo",exact:true}).click();
   await expect(workspace.getByRole("heading",{name:"Resumo do pedido.",exact:true})).toBeVisible();
-  await expect(workspace.getByText(product.name,{exact:true})).toBeVisible();
+  await expect(workspace.getByText(`1× ${product.name}`,{exact:true})).toBeVisible();
   if(width===390) {
     // A receipt frozen before a later draft must still reconcile its original payload.
     // Recovery cannot silently turn an already ambiguous full receipt into a partial one.
