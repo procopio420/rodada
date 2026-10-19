@@ -314,6 +314,7 @@ fun AttendanceScreen(
                             onOpenStandaloneTab = { openingTab = true },
                             onOpenFirstTab = { tableId, label -> viewModel.openFirstTableTab(session, tableId, label) },
                             onLoadHistory = { viewModel.loadTabHistory(session) },
+                            partySizeEditor = { occupancyId -> PartySizeEditor(load = { viewModel.readPartySize(session, occupancyId) }, save = { viewModel.recordPartySize(session, occupancyId, it) }) },
                             onInspectHistory = { viewModel.inspectHistory(session, it) },
                         )
                         }

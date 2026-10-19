@@ -83,7 +83,7 @@ class LiveDeliveryFreshnessTest {
         assertNotNull(vm.state.errorMessage)
         compose.runOnUiThread { vm.startRealtime(s) };compose.waitForIdle()
         assertNotEquals(ConnectivityState.ONLINE,vm.state.connectivity) // Connected signal cannot bless a failed core read
-        compose.runOnUiThread { vm.releaseTable(s,TableReleaseTarget(UUID.randomUUID().toString(),UUID.randomUUID().toString(),1)) }
+        compose.runOnUiThread { vm.releaseTable(s,TableReleaseCommand(UUID.randomUUID().toString(),UUID.randomUUID().toString(),1)) }
         compose.waitUntil(10_000) { !vm.state.submitting }
         assertTrue(vm.state.errorMessage!!.contains("Atualize as entregas"))
         control();refresh(vm,s)

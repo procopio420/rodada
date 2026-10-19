@@ -56,7 +56,7 @@ fun TablesScreen(
     state: OperationsUiState,
     canManageTables: Boolean,
     onAttachTab: (occupancyId: String, tabId: String) -> Unit,
-    onRelease: (TableReleaseTarget) -> Unit,
+    onRelease: (TableReleaseCommand) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
     onOccupy: (String, String?) -> Unit = { _, _ -> },
@@ -71,6 +71,8 @@ fun TablesScreen(
     onOpenStandaloneTab: () -> Unit = {},
     onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
     onLoadHistory: () -> Unit = {},
+    onInspectHistory: (String?) -> Unit = {},
+    partySizeEditor: @Composable (String) -> Unit = {},
     requestedTarget: StaffTaskTarget.Table? = null,
     onTargetConsumed: () -> Unit = {},
     onDetailVisibility: (Boolean) -> Unit = {},
@@ -130,7 +132,7 @@ fun TablesScreen(
                     Ux2Title("Mesas e\ncomandas.")
                     Text("Uma busca, sem filtros de status nem formulários na lista.", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
                 }
-                TextButton(onClick = { showHistory = !showHistory; if (showHistory) onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = if (showHistory) "Voltar às mesas" else "Histórico de comandas" }) { Text(if (showHistory) "Voltar" else "↶") }
+                TextButton(onClick = { showHistory = true; onInspectHistory(null); onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Histórico de comandas" }) { Text("↶") }
             }
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(search, { search = it }, placeholder = { Text("Mesa, nome ou comanda") }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Buscar mesa ou comanda" }, singleLine = true)
@@ -167,10 +169,8 @@ fun TablesScreen(
         }
 
         item {
-            Text(if (showHistory) "Histórico de comandas" else "Comandas sem mesa", style = AttendanceUx2.text(18, 800))
-            if (showHistory && state.historyLoading) Text("Carregando histórico…")
-            if (showHistory && state.historyError != null) Text(state.historyError, color = MaterialTheme.colorScheme.error)
-            if (otherTabs.isEmpty() && (!showHistory || state.historyLoaded && !state.historyLoading)) Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
+            Text("Comandas sem mesa", style = AttendanceUx2.text(18, 800))
+            if (otherTabs.isEmpty()) Text(if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
         }
         items(otherTabs, key = { "tab:${it.id}" }) { tab ->
             OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !locked, modifier = Modifier.fillMaxWidth().testTag("other-tab-${tab.id}")) {
@@ -178,7 +178,7 @@ fun TablesScreen(
             }
         }
         item {
-            if (canOpenTabs && !showHistory) Ux2Action("Abrir comanda sem mesa", !locked, onOpenStandaloneTab)
+            if (canOpenTabs) Ux2Action("Abrir comanda sem mesa", !locked, onOpenStandaloneTab)
             Spacer(Modifier.height(12.dp))
         }
     }
@@ -206,6 +206,7 @@ fun TablesScreen(
                 onNewTab = { newLabel = ""; openingOccupancy = it.id },
                 onClaim = { if (it.responsibleStaffId != null && it.responsibleStaffId != staffId) takingOccupancy = it.id else onClaim(it) },
                 onSelectTab = onSelectTab,
+                partySizeEditor = partySizeEditor,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
                     table.activeOccupancy?.takeIf { occupancy -> state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE && occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null } }?.let {
@@ -259,7 +260,7 @@ fun TablesScreen(
                             releasingTableId = null
                             returnTableId = tableId
                             returnStatus = "DIRTY"
-                            onRelease(TableReleaseTarget(tableId, checkNotNull(releasingOccupancyId), checkNotNull(releasingGeneration)))
+                            onRelease(TableReleaseCommand(tableId, checkNotNull(releasingOccupancyId), checkNotNull(releasingGeneration)))
                         }
                     },
                 ) { Text("Confirmar liberação") }
@@ -345,6 +346,7 @@ private fun TableCard(
     onClaim: (TableOccupancy) -> Unit,
     onSelectTab: (String) -> Unit,
     onNewFirstTab: () -> Unit,
+    partySizeEditor: @Composable (String) -> Unit,
 ) {
     var managementExpanded by rememberSaveable(table.id) { mutableStateOf(false) }
     val openTabs = table.activeOccupancy?.tabs?.count { it.state !in setOf("CLOSED", "CANCELLED") } ?: 0

@@ -180,8 +180,8 @@ class OperationsHttpClient(baseUrl: String) {
         request("POST", "/hospitality/occupancies/$occupancyId/tabs/", JSONObject().put("tab_id", tabId), accessToken)
     }
 
-    fun releaseTable(accessToken: String, target: TableReleaseTarget) {
-        request("POST", "/hospitality/tables/${target.tableId}/release/", target.body(), accessToken)
+    fun releaseTable(accessToken: String, target: TableReleaseCommand) {
+        request("POST", "/hospitality/tables/${target.tableId}/release/", target.toJson(), accessToken)
     }
 
     fun startTableCleaning(accessToken: String, tableId: String) {

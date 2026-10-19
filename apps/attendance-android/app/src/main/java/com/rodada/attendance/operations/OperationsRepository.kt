@@ -99,7 +99,7 @@ class OperationsRepository(private val authRepository: AuthRepository) {
     suspend fun attachTabToOccupancy(session: StoredSession, occupancyId: String, tabId: String) =
         authRepository.withAuthorizedAccess(session) { client.attachTabToOccupancy(it, occupancyId, tabId) }
 
-    suspend fun releaseTable(session: StoredSession, target: TableReleaseTarget) =
+    suspend fun releaseTable(session: StoredSession, target: TableReleaseCommand) =
         authRepository.withAuthorizedAccess(session) { client.releaseTable(it, target) }
 
     suspend fun startTableCleaning(session: StoredSession, tableId: String) =

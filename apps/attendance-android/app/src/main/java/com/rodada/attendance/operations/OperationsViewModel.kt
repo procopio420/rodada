@@ -375,7 +375,6 @@ class OperationsViewModel(
         result.onSuccess { state = state.copy(deliveryTasks = it, deliveryTasksFresh = true, deliveryTasksLoading = false, deliveryTasksError = null) }
             .onFailure { state = state.copy(deliveryTasksFresh = false, deliveryTasksLoading = false,
                 deliveryTasksError = "Entregas desatualizadas. Atualize para conferir. Pedidos continuam disponíveis com a conexão atualizada.") }
-    
     }
 
     private suspend fun readServiceRequests(session: StoredSession, guard: FinancialResponseFence.Guard = sessionActionGuard(session)) {
@@ -1233,7 +1232,7 @@ class OperationsViewModel(
         "Comanda associada à ocupação."
     }
 
-    fun releaseTable(session: StoredSession, target: TableReleaseTarget) = tableAction(session, showNotice = false) {
+    fun releaseTable(session: StoredSession, target: TableReleaseCommand) = tableAction(session, showNotice = false) {
         check(state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE) { "Atualize as entregas antes de liberar a mesa." }
         repository.releaseTable(session, target)
         "Mesa liberada para limpeza."

@@ -37,7 +37,7 @@ class LiveTableReleaseFenceTest {
         fun current() = client.tables(token).single { it.id == tableId }
         client.occupyTable(token, tableId, null)
         val first = checkNotNull(current().activeOccupancy)
-        val original = TableReleaseTarget(tableId, first.id, first.generation)
+        val original = TableReleaseCommand(tableId, first.id, first.generation)
         client.releaseTable(token, original)
         assertEquals("DIRTY", current().status)
         client.startTableCleaning(token, tableId)
@@ -55,7 +55,7 @@ class LiveTableReleaseFenceTest {
         assertEquals("OCCUPIED", preserved.status)
         assertEquals(second.id, preserved.activeOccupancy?.id)
         assertEquals(second.generation, preserved.activeOccupancy?.generation)
-        client.releaseTable(token, TableReleaseTarget(tableId, second.id, second.generation))
+        client.releaseTable(token, TableReleaseCommand(tableId, second.id, second.generation))
         assertEquals("DIRTY", current().status)
         println("LIVE_RELEASE_FENCE_PASS original occupancy rejected; replacement preserved; explicit replacement released")
     }

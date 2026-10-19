@@ -141,8 +141,6 @@ class LiveComposeOrderTest {
             }
         }
         compose.onNodeWithTag("attendance-tables").performClick()
-        compose.waitUntil(30_000) { compose.onAllNodesWithText("Outras comandas", substring = true).fetchSemanticsNodes().isNotEmpty() }
-        compose.onNode(hasText("Outras comandas", substring = true) and hasClickAction()).performClick()
         val originalTab = hasTestTag("other-tab-$originalTabId")
         compose.onNodeWithTag("tables-list").performScrollToNode(originalTab)
         compose.waitUntil(30_000) {

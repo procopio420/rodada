@@ -17,7 +17,7 @@ class TableReleaseTest {
     private val state = mutableStateOf(OperationsUiState(tables = listOf(table), deliveryTasksFresh = true, connectivity = ConnectivityState.ONLINE))
     private val allowed = mutableStateOf(true)
     private val released = mutableListOf<String>()
-    private val releasedTargets = mutableListOf<TableReleaseTarget>()
+    private val releasedTargets = mutableListOf<TableReleaseCommand>()
 
     private fun render() {
         compose.setContent { RodadaTheme { Surface {
@@ -40,7 +40,7 @@ class TableReleaseTest {
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)
-        assertEquals(listOf(TableReleaseTarget("table-a", "visit-a", 1)), releasedTargets)
+        assertEquals(listOf(TableReleaseCommand("table-a", "visit-a", 1)), releasedTargets)
     }
 
     @Test fun staleDispatchWhileDialogOpenBlocksRelease() {
