@@ -11,6 +11,7 @@ from modules.hospitality.serializers import (
     OccupyTableSerializer,
     TableCreateSerializer,
     TableLocationSerializer,
+    TableReleaseSerializer,
     ZoneCreateSerializer,
 )
 from modules.hospitality.services import (
@@ -239,8 +240,12 @@ class TableReleaseView(APIView):
     required_capability = Capability.TABLE_MANAGE
 
     def post(self, request, table_id):
+        serializer = TableReleaseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         try:
-            occupancy = release_table(table_id=table_id, actor=request.actor_context)
+            occupancy = release_table(
+                table_id=table_id, actor=request.actor_context, **serializer.validated_data
+            )
         except HospitalityServiceError as error:
             return _error_response(error)
         return Response(_occupancy_payload(occupancy))
