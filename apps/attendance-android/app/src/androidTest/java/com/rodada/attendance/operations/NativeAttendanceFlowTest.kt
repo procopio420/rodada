@@ -170,24 +170,28 @@ class NativeAttendanceFlowTest {
     @Test fun unifiedTablesSearchFindsTabAndSelectingDoesNotCreateAnything() {
         var selected = ""
         var created = 0
+        var inspected = ""
         val table = TableSummary("table", "12", "OCCUPIED", "DIRECT", false, null,
             TableOccupancy("visit", 1, listOf(TableOccupancyTab("tab-a", "Comanda A", displayReference = "REF-A"))))
         compose.setContent { RodadaTheme { Surface {
             TablesScreen(OperationsUiState(tables = listOf(table), tabs = listOf(tab),
                 historyTabs = listOf(tab.copy(id = "closed-tab", displayLabel = "Comanda encerrada", state = "CLOSED")),
                 historyLoaded = true), true, { _, _ -> }, {}, {}, {},
-                canOpenTabs = true, onSelectTab = { selected = it }, onOpenStandaloneTab = { created++ })
+                canOpenTabs = true, onSelectTab = { selected = it }, onOpenStandaloneTab = { created++ },
+                onInspectHistory = { inspected = it.orEmpty() })
         } } }
-        compose.onNodeWithText("Buscar mesa ou comanda").performTextInput("REF-A")
+        compose.onNodeWithContentDescription("Buscar mesa ou comanda").performTextInput("REF-A")
         compose.onNodeWithTag("table-table").performScrollTo().performClick()
-        compose.onNodeWithText("Comanda A · REF-A").performScrollTo().performClick()
+        compose.onNodeWithText("Comanda A").performScrollTo().performClick()
         assertEquals("tab-a", selected)
         assertEquals(0, created)
         compose.onNodeWithText("Voltar", useUnmergedTree = true).performClick()
         captureCriticalEvidence(compose, "native-tables", compose.onRoot())
-        compose.onNodeWithText("Buscar mesa ou comanda").performTextClearance()
+        compose.onNodeWithContentDescription("Buscar mesa ou comanda").performTextClearance()
         compose.onNodeWithContentDescription("Histórico de comandas").performClick()
-        compose.onNodeWithTag("other-tab-closed-tab").performScrollTo().performClick()
-        assertEquals("closed-tab", selected)
+        compose.onNodeWithText("Comanda encerrada").performScrollTo().performClick()
+        assertEquals("closed-tab", inspected)
+        assertEquals("tab-a", selected)
+        assertEquals(0, created)
     }
 }
