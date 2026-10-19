@@ -54,7 +54,7 @@ fun TablesScreen(
     state: OperationsUiState,
     canManageTables: Boolean,
     onAttachTab: (occupancyId: String, tabId: String) -> Unit,
-    onRelease: (tableId: String) -> Unit,
+    onRelease: (TableReleaseTarget) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
     onOccupy: (String, String?) -> Unit = { _, _ -> },
@@ -258,7 +258,7 @@ fun TablesScreen(
                             releasingTableId = null
                             returnTableId = tableId
                             returnStatus = "DIRTY"
-                            onRelease(tableId)
+                            onRelease(TableReleaseTarget(tableId, checkNotNull(releasingOccupancyId), checkNotNull(releasingGeneration)))
                         }
                     },
                 ) { Text("Confirmar liberação") }

@@ -110,13 +110,15 @@ class OperationsHttpClient(baseUrl: String) {
                     destinationLabel = it.optString("destination_label"),
                     productName = it.optString("product_name", "Item pronto"),
                     quantity = it.optInt("quantity", 1),
-                    tabLabel = it.optString("tab_label"),
+                    tabLabel = it.optString("tab_display_label").takeUnless { value -> value == "null" }.orEmpty(),
                     ageSeconds = it.optLong("age_seconds", 0),
                     target = StaffTaskTarget.fromPayload(it),
                     fulfillmentStation = it.optString("fulfillment_station").takeIf { value -> value.isNotBlank() && value != "null" },
                     orderItemId = it.optString("order_item_id").takeIf { value -> value.isNotBlank() && value != "null" },
                     orderId = it.optString("order_id").takeIf { value -> value.isNotBlank() && value != "null" },
                     claimedById = it.optString("claimed_by_id").takeIf { value -> value.isNotBlank() && value != "null" },
+                    itemState = it.optString("item_state").takeIf { value -> value.isNotBlank() && value != "null" },
+                    tabReference = it.optString("tab_display_reference").takeIf { value -> value.isNotBlank() && value != "null" },
                 )
             }
 
@@ -175,8 +177,8 @@ class OperationsHttpClient(baseUrl: String) {
         request("POST", "/hospitality/occupancies/$occupancyId/tabs/", JSONObject().put("tab_id", tabId), accessToken)
     }
 
-    fun releaseTable(accessToken: String, tableId: String) {
-        request("POST", "/hospitality/tables/$tableId/release/", JSONObject(), accessToken)
+    fun releaseTable(accessToken: String, target: TableReleaseTarget) {
+        request("POST", "/hospitality/tables/${target.tableId}/release/", target.body(), accessToken)
     }
 
     fun startTableCleaning(accessToken: String, tableId: String) {

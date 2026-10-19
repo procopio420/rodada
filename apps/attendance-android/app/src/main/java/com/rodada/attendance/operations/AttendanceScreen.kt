@@ -276,7 +276,14 @@ fun AttendanceScreen(
                 OutlinedButton(enabled = !state.submitting && !state.loading, onClick = { viewModel.retryTableService(session) }) { Text("Verificar mesma intenção") }
             }
             Box(modifier = Modifier.weight(1f)) {
-            when (val selected = state.selectedTab) {
+            if (deliveryTaskId != null) {
+                val id = requireNotNull(deliveryTaskId)
+                DeliveryTaskDetail(state.deliveryTasks.firstOrNull { it.id == id },
+                    busy = state.loading || state.submitting || readingTask || state.connectivity != ConnectivityState.ONLINE,
+                    staffId = session.staffId, onDismiss = { deliveryTaskId = null },
+                    onOpenTab = { state.deliveryTasks.firstOrNull { it.id == id }?.let { openDelivery(it, openTab = true) } },
+                    onComplete = { viewModel.completeDelivery(session, id) })
+            } else when (val selected = state.selectedTab) {
                 null -> {
                     when (section) {
                         FrontlineSection.NOW -> contextStates.SaveableStateProvider("now:${session.sessionId}") {
@@ -364,7 +371,7 @@ fun AttendanceScreen(
                 }
             }
             }
-            if (state.selectedTab == null && !tableDetailVisible && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+            if (deliveryTaskId == null && state.selectedTab == null && !tableDetailVisible && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
                 FrontlineNavigation(section = section, onSelect = { requestedDeliveries = false; section = it; choosingOrderDestination = false; targetTableId = null; targetOccupancyId = null; targetGeneration = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null },
                     onOrder = { serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null; choosingOrderDestination = true }, busy = state.loading || state.submitting || readingTask || state.pendingTableService != null)
             }
@@ -387,11 +394,6 @@ fun AttendanceScreen(
         }
     }
     taskNotice?.let { MessageDialog("Destino indisponível", it) { taskNotice = null } }
-    deliveryTaskId?.let { id ->
-        DeliveryTaskDetail(state.deliveryTasks.firstOrNull { it.id == id }, busy = state.loading || state.submitting || readingTask || state.connectivity != ConnectivityState.ONLINE, staffId = session.staffId,
-            onDismiss = { deliveryTaskId = null }, onOpenTab = { state.deliveryTasks.firstOrNull { it.id == id }?.let { openDelivery(it, openTab = true) } },
-            onComplete = { viewModel.completeDelivery(session, id) })
-    }
 
     if (choosingOrderDestination && state.selectedTab == null) {
         QuickOrderDestinationDialog(
@@ -601,7 +603,7 @@ internal fun TabList(
         if (!showDeliveries) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (choosingOrderDestination) Text("Escolha a comanda para pedir", style = MaterialTheme.typography.titleLarge)
-                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda") }
+                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = com.rodada.attendance.ui.AttendanceUx2.text(15, 800)) }
             }
         }
         if (showDeliveries) item {
