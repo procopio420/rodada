@@ -67,3 +67,14 @@ não provam reconstrução real do processo ou sessão de outro operador.
 - Revisão independente do produto: root, autor do código em outro contexto (finish_web_page_regressions); diff, DTO, guard, callers, testes e resultado real conferidos. NO_FINDINGS_WITH_GAPS; sem achados reproduzíveis no escopo. Execução dos testes pelo integrador não substitui aprovação GitHub.
 - JVM A→B→A usa fence real; instrumentação cobre A→B. Reconstrução de ViewModel não equivale a force-stop do processo. Force-stop real, aparelho físico, sessões revogadas e ensaio manual completo do workflow continuam gates pendentes.
 - Lint final PASS em 3m29s; log adjacente. Nenhum check desabilitado.
+
+
+## Composição e processo real
+
+Composição bcd00ded inclui página nativa final74643eb6. Build/assemble/compileAndroidTest/lint PASS3m39s e JVM128/128. Os dois cenários ViewModel/API reais foram repetidos nesse conjunto: **2/2 PASS41,144s**, nenhum skip.
+
+Ensaio adicional de force-stop real: método committedDeliverySurvivesActualForceStop executado em duas fases, com scripts/android-delivery-force-stop.py. Reutiliza o padrão de processo vivo da infraestrutura issue106 (android-force-stop-recovery.sh): inicia MainActivity, exige PID existente, executa am force-stop e exige ausência do processo antes da fase seguinte. Não há pm clear nem reinstalação entre fases.
+
+**PASS**: POST com commit real/ACK perdido → intenção e sessão cifradas → processo encerrado → novo PID → fingerprint original idêntico → leitura exata DONE/DELIVERED → mesmo task/item/completed_at, um único POST total. Logs das duas fases e process-proof.json adjacentes. A sessão usa operador sintético exclusivo e o backend loopback18134/PG55501. O marcador contém somente IDs/hash/PID, nunca tokens ou PIN.
+
+Esse ensaio prova processo real de entrega, não force-stop de pagamento ou pedido. A→B→A continua prova JVM; A→B é prova ViewModel/API real. Aparelho físico, sessão revogada nessa jornada, matriz de rede completa, revisão independente do novo ensaio escrito pelo integrador e aprovação GitHub continuam pendentes. O produto foi escrito por outro contexto e revisado independentemente pelo root; o novo teste/harness tem SELF_REVIEW, sem simular aprovação R3.

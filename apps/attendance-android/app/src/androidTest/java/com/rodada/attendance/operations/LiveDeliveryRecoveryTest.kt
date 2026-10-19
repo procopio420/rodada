@@ -96,4 +96,49 @@ class LiveDeliveryRecoveryTest {
             control("arm")
         }
     }
+
+    /** Two explicitly selected instrumentation runs, separated by external am force-stop. */
+    @Test fun committedDeliverySurvivesActualForceStop() {
+        requireRunner()
+        val phase = args.getString("forceStopPhase")
+        assumeTrue("Explicit two-phase process runner only", phase != null)
+        val marker = java.io.File(context.filesDir, "delivery-real-force-stop.json")
+        fun fingerprint(intent: RecoveryIntent.CompleteDelivery): String = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(intent.toString().toByteArray()).joinToString("") { "%02x".format(it) }
+        if (phase == "prepare") {
+            check(!marker.exists()) { "Existing process evidence must be recovered, not overwritten." }
+            val session = login("process"); sessions.save(session)
+            val task = fixture(session); val vm = model()
+            compose.runOnUiThread { vm.ensureLoaded(session) }; waitLoaded(vm)
+            control("arm", task, "drop")
+            compose.runOnUiThread { vm.completeDelivery(session, task) }
+            compose.waitUntil(30_000) { !vm.state.submitting && vm.state.errorMessage != null }
+            val original = store.loadFor(session).filterIsInstance<RecoveryIntent.CompleteDelivery>().single { it.deliveryTaskId == task }
+            val canonical = api.request("GET", "/dispatch/tasks/$task/", accessToken = session.tokens.accessToken)
+            assertEquals("DONE", canonical.getString("state")); assertEquals("DELIVERED", canonical.getString("item_state"))
+            assertEquals(1, control("status").getInt("posts"))
+            marker.writeText(JSONObject().put("task", task).put("intent", original.id)
+                .put("fingerprint", fingerprint(original)).put("item", canonical.getString("order_item_id"))
+                .put("completed_at", canonical.getString("completed_at")).put("pid", android.os.Process.myPid()).toString())
+            return
+        }
+        check(phase == "recover") { "Unsupported process proof phase." }
+        val proof = JSONObject(marker.readText())
+        assertNotEquals("Recovery must run in another process", proof.getInt("pid"), android.os.Process.myPid())
+        val session = requireNotNull(sessions.load()) { "Original encrypted session missing after restart." }
+        val original = store.loadFor(session).filterIsInstance<RecoveryIntent.CompleteDelivery>().single { it.id == proof.getString("intent") }
+        assertEquals(proof.getString("task"), original.deliveryTaskId)
+        assertEquals(proof.getString("fingerprint"), fingerprint(original))
+        val vm = model(); compose.runOnUiThread { vm.ensureLoaded(session) }; waitLoaded(vm)
+        compose.runOnUiThread { vm.openRecovery(session, original.id) }
+        compose.waitUntil(30_000) { !vm.state.submitting && store.loadFor(session).none { it.id == original.id } }
+        assertEquals("Entrega concluída.", vm.state.noticeMessage)
+        assertEquals(1, control("status").getInt("posts"))
+        val after = api.request("GET", "/dispatch/tasks/${original.deliveryTaskId}/", accessToken = session.tokens.accessToken)
+        assertEquals("DONE", after.getString("state")); assertEquals("DELIVERED", after.getString("item_state"))
+        assertEquals(proof.getString("item"), after.getString("order_item_id"))
+        assertEquals(proof.getString("completed_at"), after.getString("completed_at"))
+        check(marker.delete()); control("arm")
+    }
+
 }
