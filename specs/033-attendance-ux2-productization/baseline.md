@@ -90,3 +90,14 @@ Nenhum aparelho adb conectado; AVDs36/37 disponíveis. Aparelho físico/PSP/fisc
 
 Todos AC01..24 permanecem PENDING até execução e revisão por SHA. Não confundir
 inspeção, código, testes sintéticos, integração real e homologação no bar.
+
+## Reconciliação da fila — 2026-10-19
+
+Snapshot de integração: `main@20828711208ec3e991d5dca8808b37eacd07c81f`;
+PR #253 em validação no SHA `aff4fffc9e350626bb051939423f015d79ea265e`.
+Este PR #217 preserva os requisitos do #216 e acrescenta inventário/paridade.
+Os snapshots e resultados anteriores são históricos e não representam a fila atual.
+O #253 exige contexto original de ocupação na liberação em API/Web/Android;
+os gates remotos e o merge ainda não estavam concluídos nesta anotação.
+As reconciliações de implementação UX2 seguem separadas. Não marcar AC global,
+homologação de aparelho, piloto ou produção como PASS por integração documental.
