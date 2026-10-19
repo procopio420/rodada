@@ -158,10 +158,12 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
       const expectedAmount = intent.payload.amount_cents;
       const detail = await apiCall<Bill>(`${root}/tabs/${intent.tab}/`);
       if (!detail.response.ok || !detail.body || !("payments" in detail.body)
-        || (intent.schema === 2 && detail.body.id !== intent.tab)
+        || detail.body.id !== intent.tab
         || !detail.body.payments?.some(p => p.id === paymentId && p.method === "CASH" && p.amount_cents === expectedAmount && settledStatuses.includes(p.status)))
         throw new Error("Receipt readback unavailable");
-      if (keepOpen) {
+      let confirmedClosed = detail.body.state === "CLOSED";
+      if (confirmedClosed && detail.body.exposure_cents !== 0) throw new Error("Closed account balance mismatch");
+      if (keepOpen && !confirmedClosed) {
         if (intent.schema !== 2 || !intent.close_requested || !intent.payment_id || detail.body.state === "CLOSED")
           throw new Error("Receipt cannot remain open");
         // An explicit operator decision can withdraw the unexecuted close;
@@ -185,13 +187,14 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
           if (!readback.response.ok || !readback.body || !("id" in readback.body)
             || readback.body.id !== intent.tab || readback.body.state !== "CLOSED" || readback.body.exposure_cents !== 0)
             throw new Error("Close readback unavailable");
+          confirmedClosed = true;
         } else if (detail.body.exposure_cents !== 0) throw new Error("Closed account balance mismatch");
       }
       await onConfirmed(intent.tab);
-      if (intent.schema === 2 && intent.close_requested) await onClosed?.(intent.tab);
+      if (confirmedClosed) await onClosed?.(intent.tab);
       clearIntent(intent); intentRef.current = null; setPending(null); setAmount("");
       setPaymentOpen(false); onPaymentSurfaceChange?.(false);
-      setMessage(intent.schema === 2 && intent.close_requested ? "Recebimento e encerramento confirmados." : "Recebimento confirmado. Saldo atualizado.");
+      setMessage(confirmedClosed ? "Recebimento e encerramento confirmados." : "Recebimento confirmado. Saldo atualizado.");
     } catch {
       if (!attempted && !intentRef.current) {
         setMessage("Não foi possível preparar o recebimento. Verifique a sessão e o armazenamento antes de tentar novamente.");
@@ -226,8 +229,7 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
           <div className="field"><label htmlFor="attendance-cash-amount">Valor recebido (R$)</label><input id="attendance-cash-amount" inputMode="decimal" autoComplete="off" value={amount} disabled={busy || locked} onChange={e=>setAmount(e.target.value)} aria-describedby="attendance-cash-help" /></div>
           <p id="attendance-cash-help" className="ux2PaymentHelp">Informe o valor recebido, sem incluir troco.</p>
           <button type="submit" className="ux2Button primary block" disabled={busy || locked || terminal || !activePoint || !amount}>{busy?"Verificando…":full?"Receber e encerrar comanda":"Registrar recebimento"}</button>
-          {full && <button type="button" className="ux2Button ghost block" disabled={busy || locked || !activePoint} onClick={()=>void collect()}>Só registrar; manter comanda aberta</button>}
-        </form>{points.length === 1 && points[0].id === activePoint && <p className="ux2PaymentHelp" aria-label="Caixa do recebimento">Caixa: {points[0].label}</p>}<p className="ux2Notice">Registre somente dinheiro efetivamente recebido. O servidor confirma o recebimento antes do encerramento.</p>
+        </form>{points.length === 1 && points[0].id === activePoint && <p className="ux2PaymentHelp" aria-label="Caixa do recebimento">Caixa: {points[0].label}</p>}<p className="ux2Notice">Registre somente dinheiro efetivamente recebido. A quitação confirmada encerra a comanda; pagamentos parciais preservam o saldo aberto.</p>
       </> : <button className="ux2Button ghost block" onClick={()=>void initialize()}>Verificar armazenamento</button>}
     </section>;
   }
