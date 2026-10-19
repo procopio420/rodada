@@ -120,7 +120,7 @@ for (const schema of [1,2]) test(`Canonical CLOSED receipt clears schema ${schem
   await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`),route=>{payments++;return route.continue();});
   await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
   if(schema===1){
-    const {api_root,phase,payment_id,close_requested,...legacy}=intent;
+    const legacy={venue:intent.venue,staff:intent.staff,session:intent.session,tab:intent.tab,captured_at:intent.captured_at,payload:intent.payload};
     // Schema1 is the POS envelope, so recovery uses its original POS route.
     await page.route(new RegExp(`/api/pos/tabs/${tab.id}/payments/?$`),route=>{payments++;return route.continue();});
     await page.route(new RegExp(`/api/pos/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
@@ -130,5 +130,29 @@ for (const schema of [1,2]) test(`Canonical CLOSED receipt clears schema ${schem
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
   expect(payments).toBe(schema===1?1:0);expect(closes).toBe(0);
   const final=await api(page,`tabs/${tab.id}/`);expect(final.state).toBe("CLOSED");
+  expect(final.payments).toHaveLength(1);expect(final.payments[0].id).toBe(payment.id);expect(final.exposure_cents).toBe(0);
+});
+
+
+for(const mismatch of ["identity","balance"]) test(`Confirmed receipt preserves intent on canonical CLOSED ${mismatch} mismatch`,async({page})=>{
+  const {tab,intent}=await setup(page);
+  const payment=await api(page,`tabs/${tab.id}/payments/`,intent.payload);
+  const canonical=await api(page,`tabs/${tab.id}/`);
+  expect(canonical.state).toBe("CLOSED");expect(canonical.payments).toHaveLength(1);
+  let mutations=0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/(payments|close)/?$`),route=>{mutations++;return route.abort();});
+  await mountRecovery(page,{...intent,phase:"PAYMENT_CONFIRMED",payment_id:payment.id,close_requested:false});
+  const original=await page.evaluate(key=>sessionStorage.getItem(key),key);
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/?$`),async route=>{
+    const response=await route.fetch();const detail=await response.json();
+    await route.fulfill({response,json:{...detail,...(mismatch==="identity"?{id:crypto.randomUUID()}:{exposure_cents:1})}});
+  });
+  await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
+  await expect(page.getByText(/Recebimento registrado; verificação/)).toBeVisible();
+  expect(await page.evaluate(key=>sessionStorage.getItem(key),key)).toBe(original);expect(mutations).toBe(0);
+  await page.unroute(new RegExp(`/api/attendance/tabs/${tab.id}/?$`));
+  await page.getByRole("button",{name:"Verificar mesmo recebimento"}).click();
+  await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+  expect(mutations).toBe(0);const final=await api(page,`tabs/${tab.id}/`);
   expect(final.payments).toHaveLength(1);expect(final.payments[0].id).toBe(payment.id);expect(final.exposure_cents).toBe(0);
 });
