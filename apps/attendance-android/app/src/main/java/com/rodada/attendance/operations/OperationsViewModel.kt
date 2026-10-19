@@ -49,6 +49,10 @@ data class OperationsUiState(
     val historyLoading: Boolean = false,
     val historyLoaded: Boolean = false,
     val historyError: String? = null,
+    val historyDetailId: String? = null,
+    val historyDetail: TabDetail? = null,
+    val historyDetailLoading: Boolean = false,
+    val historyDetailError: String? = null,
     val customers: List<CustomerSummary> = emptyList(),
     val products: List<Product> = emptyList(),
     val cashPoints: List<CashPoint> = emptyList(),
@@ -77,6 +81,7 @@ data class OperationsUiState(
     val queuedOrders: List<RecoveryIntent.ConfirmOrder> = emptyList(),
     /** Lets the composable close only the correction sheet that the server accepted. */
     val completedCorrectionItemId: String? = null,
+    val completedOrderTabId: String? = null,
     val connectivity: ConnectivityState = ConnectivityState.RECONNECTING,
     val lastSyncedAtMillis: Long? = null,
     val contextRecoveryPending: Boolean = false,
@@ -99,6 +104,7 @@ class OperationsViewModel(
     private val tabDrafts = TabDraftContexts()
     private var realtimeJob: Job? = null
     private var refreshJob: Job? = null
+    private val historyDetailReads = LatestHistoryRead()
     private var deliveryRefreshJob: Job? = null
     private var orderReplayJob: Job? = null
     private var streamConnected = false
@@ -161,27 +167,27 @@ class OperationsViewModel(
         streamConnected = false
     }
 
-    fun loadTabOperations(session: StoredSession) = action {
+    fun loadTabOperations(session: StoredSession) = action(session) {
         state = state.copy(operationState = null, operationPreview = null, operationCompleted = false)
         val id = state.selectedTab?.summary?.id ?: return@action
         val pending = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TabStructure>().firstOrNull { it.tabId == id }
-        val points = repository.servicePoints(session).getJSONArray("results")
-        state = state.copy(operationState = repository.operationState(session, id),
+        val points = awaitCurrent { repository.servicePoints(session) }.getJSONArray("results")
+        state = state.copy(operationState = awaitCurrent { repository.operationState(session, id) },
             operationPoints = List(points.length()) { points.getJSONObject(it).let { p -> p.getString("id") to p.getString("label") } },
             operationPreview = null, pendingTabOperation = pending, operationCompleted = false,
-            tabs = repository.tabs(session), tables = repository.tables(session), connectivity = ConnectivityState.ONLINE,
+            tabs = awaitCurrent { repository.tabs(session) }, tables = awaitCurrent { repository.tables(session) }, connectivity = ConnectivityState.ONLINE,
             lastSyncedAtMillis = System.currentTimeMillis())
     }
 
     fun clearOperationPreview() { state = state.copy(operationPreview = null) }
 
-    fun previewTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+    fun previewTabOperation(session: StoredSession, command: org.json.JSONObject) = action(session) {
         if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
         val id = state.selectedTab?.summary?.id ?: return@action
-        state = state.copy(operationPreview = repository.tabOperation(session, id, command, preview = true))
+        state = state.copy(operationPreview = awaitCurrent { repository.tabOperation(session, id, command, preview = true) })
     }
 
-    fun commitTabOperation(session: StoredSession, command: org.json.JSONObject) = action {
+    fun commitTabOperation(session: StoredSession, command: org.json.JSONObject) = action(session) {
         if (state.connectivity != ConnectivityState.ONLINE) error("Atualize a conexão antes de continuar.")
         val id = state.selectedTab?.summary?.id ?: return@action
         val pending = state.pendingTabOperation
@@ -192,7 +198,7 @@ class OperationsViewModel(
         pendingMutationIntentStore.save(intent, session)
         state = state.copy(pendingTabOperation = intent)
         try {
-            repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson))
+            awaitCurrent { repository.tabOperation(session, id, org.json.JSONObject(intent.commandJson)) }
         } catch (error: OperationsApiException) {
             // Deterministic server rejection means no commit. Network ambiguity retains the exact command.
             if (error.status in setOf(400, 404, 409, 422)) {
@@ -200,8 +206,8 @@ class OperationsViewModel(
                 state = state.copy(pendingTabOperation = null, operationPreview = null,
                     operationState = null, connectivity = ConnectivityState.STALE)
                 refreshAfterTabOperationRejection(error) {
-                    val canonical = repository.operationState(session, id)
-                    val tabs = repository.tabs(session)
+                    val canonical = awaitCurrent { repository.operationState(session, id) }
+                    val tabs = awaitCurrent { repository.tabs(session) }
                     state = state.copy(operationState = canonical, tabs = tabs,
                         connectivity = ConnectivityState.ONLINE)
                 }
@@ -211,8 +217,8 @@ class OperationsViewModel(
         pendingMutationIntentStore.remove(intent.id)
         state = state.copy(pendingTabOperation = null, operationPreview = null, operationCompleted = true,
             operationState = null, noticeMessage = "Operação confirmada pelo servidor.")
-        replaceDetail(repository.tabDetail(session, id))
-        state = state.copy(tabs = repository.tabs(session), tables = repository.tables(session))
+        replaceDetail(awaitCurrent { repository.tabDetail(session, id) })
+        state = state.copy(tabs = awaitCurrent { repository.tabs(session) }, tables = awaitCurrent { repository.tables(session) })
     }
 
     fun pendingPricing(session: StoredSession, tabId: String) = pendingMutationIntentStore.loadFor(session)
@@ -329,20 +335,38 @@ class OperationsViewModel(
 
     /** History is intentionally fetched only on request, not with every SSE/foreground refresh. */
     fun loadTabHistory(session: StoredSession) {
-        if (state.historyLoading) return
-        val scope = loadedSessionKey
+        val guard = sessionActionGuard(session)
+        if (state.historyLoading || !guard.isCurrent()) return
         state = state.copy(historyLoading = true, historyError = null)
         viewModelScope.launch {
-            runCatching { repository.tabHistory(session) }
+            runCatching { guard.awaitCurrent { repository.tabHistory(session) } }
                 .onSuccess { rows ->
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyTabs = rows, historyLoading = false, historyLoaded = true, historyError = null)
                 }
                 .onFailure {
-                    if (scope == loadedSessionKey) state = state.copy(
+                    if (guard.isCurrent()) state = state.copy(
                         historyLoading = false, historyLoaded = false,
                         historyError = "Não foi possível carregar o histórico. Tente novamente.")
                 }
+        }
+    }
+
+    fun inspectHistory(session: StoredSession, tabId: String?) {
+        val guard = sessionActionGuard(session)
+        if (!guard.isCurrent()) return
+        val read = historyDetailReads.start()
+        state = state.copy(historyDetailId = tabId, historyDetail = null,
+            historyDetailLoading = tabId != null, historyDetailError = null)
+        if (tabId == null) return
+        viewModelScope.launch {
+            runCatching { guard.awaitCurrent { repository.tabDetail(session, tabId) } }.onSuccess { detail ->
+                if (guard.isCurrent() && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+                    historyDetail = detail, historyDetailLoading = false)
+            }.onFailure {
+                if (guard.isCurrent() && historyDetailReads.isCurrent(read) && state.historyDetailId == tabId) state = state.copy(
+                    historyDetailLoading = false, historyDetailError = "Não foi possível consultar a comanda.")
+            }
         }
     }
 
@@ -354,26 +378,31 @@ class OperationsViewModel(
                 deliveryTasksError = "Entregas desatualizadas. Atualize para conferir. Pedidos continuam disponíveis com a conexão atualizada.") }
     }
 
-    private suspend fun readServiceRequests(session: StoredSession) {
+    private suspend fun readServiceRequests(session: StoredSession, guard: FinancialResponseFence.Guard = sessionActionGuard(session)) {
+        if (!guard.isCurrent()) return
         state = state.copy(serviceRequestsFresh = false)
-        val result = runCatching { repository.serviceRequests(session) }
+        val result = runCatching { guard.awaitCurrent { repository.serviceRequests(session) } }
         coroutineContext.ensureActive()
         result.onSuccess { state = state.copy(serviceRequests = it, serviceRequestsFresh = true, serviceRequestsError = null) }
-            .onFailure { state = state.copy(serviceRequestsFresh = false, serviceRequestsError = "Chamadas desatualizadas. Atualize antes de agir.") }
+            .onFailure {
+                if (guard.isCurrent()) state = state.copy(serviceRequestsFresh = false, serviceRequestsError = "Chamadas desatualizadas. Atualize antes de agir.")
+            }
     }
 
-    fun updateServiceRequest(session: StoredSession, taskId: String, complete: Boolean) = action {
+    fun updateServiceRequest(session: StoredSession, taskId: String, complete: Boolean) = action(session) {
         if (!state.serviceRequestsFresh) error("Atualize as chamadas antes de agir.")
-        val intent = state.pendingServiceAction ?: ServiceRequestAction(taskId, complete)
+        val key = sessionKey(session)
+        val intent = serviceRequestActionForSession(state.pendingServiceAction, key, taskId, complete)
         try {
-            repository.serviceRequestAction(session, intent)
+            awaitCurrent { repository.serviceRequestAction(session, intent) }
             state = state.copy(pendingServiceAction = null, noticeMessage = if (intent.complete) "Chamada concluída." else "Chamada assumida.")
         } catch (failure: Exception) {
+            check()
             val ambiguous = failure is IOException || (failure is OperationsApiException && failure.status >= 500)
             state = state.copy(pendingServiceAction = if (ambiguous) intent else null)
             if (ambiguous) error("Resultado não confirmado. Verifique a mesma chamada antes de executar outra ação.")
             throw failure
-        } finally { readServiceRequests(session) }
+        } finally { if (isCurrent()) readServiceRequests(session, this) }
     }
 
     fun revalidateConnection(session: StoredSession) {
@@ -388,10 +417,10 @@ class OperationsViewModel(
         viewModelScope.launch { state = state.copy(connectivity = ConnectivityState.STALE, serviceRequestsFresh = false, deliveryTasksFresh = false) }
     }
 
-    fun openTab(session: StoredSession, label: String, customerId: String? = null) = action {
+    fun openTab(session: StoredSession, label: String, customerId: String? = null) = action(session) {
         check(state.cart.isEmpty() && state.orderIntentId == null && state.pendingTableService == null) { "Conclua o rascunho ou verifique o atendimento pendente antes de abrir outra comanda." }
-        val opened = repository.openTab(session, label, customerId)
-        val detail = repository.tabDetail(session, opened.id)
+        val opened = awaitCurrent { repository.openTab(session, label, customerId) }
+        val detail = awaitCurrent { repository.tabDetail(session, opened.id) }
         state = state.copy(
             tabs = listOf(opened) + state.tabs.filterNot { it.id == opened.id },
             selectedTab = detail,
@@ -400,16 +429,16 @@ class OperationsViewModel(
         )
     }
 
-    fun searchCustomers(session: StoredSession, query: String) = action {
-        state = state.copy(customers = repository.customers(session, query))
+    fun searchCustomers(session: StoredSession, query: String) = action(session) {
+        state = state.copy(customers = awaitCurrent { repository.customers(session, query) })
     }
 
     fun selectTab(session: StoredSession, tabId: String) {
         if (!state.canLeaveTabContext()) return
-        action {
+        action(session) {
             val records = pendingMutationIntentStore.loadFor(session)
             check(state.selectedTab == null || records.none { it.targetsContext(state.selectedTab!!) }) { "Verifique a pendência original antes de trocar de comanda." }
-            loadTabContext(session, tabId)
+            loadTabContext(session, tabId, guard = this)
         }
     }
 
@@ -436,7 +465,7 @@ class OperationsViewModel(
         openOtherRecovery(session, intentId)
     }
 
-    private fun openOtherRecovery(session: StoredSession, intentId: String) = action {
+    private fun openOtherRecovery(session: StoredSession, intentId: String) = action(session) {
         val refreshingOriginal = state.exceptionalRecoveryContext?.original?.id == intentId
         check(refreshingOriginal || state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }
         state = state.copy(exceptionalRecoveryContext = null)
@@ -445,17 +474,17 @@ class OperationsViewModel(
         val destination = original.evidence()
         check(destination.canOpenContext) { "Este registro exige revisão do contexto original pela gerência." }
         if (destination.needsExceptionalContext) {
-            val target = repository.exceptionalRecoveryTarget(session, original)
-            val detail = repository.tabDetail(session, target.tabId)
+            val target = awaitCurrent { repository.exceptionalRecoveryTarget(session, original) }
+            val detail = awaitCurrent { repository.tabDetail(session, target.tabId) }
             target.validate(detail)
-            authRepository.withAuthorizedAccess(session) { Unit }
+            awaitCurrent { authRepository.withAuthorizedAccess(session) { Unit } }
             check(pendingMutationIntentStore.loadFor(session).any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
             state = state.copy(exceptionalRecoveryContext = ExceptionalRecoveryContext(original, target, detail))
         }
-        destination.tabId?.let { tabId -> loadTabContext(session, tabId, original) }
+        destination.tabId?.let { tabId -> loadTabContext(session, tabId, original, this) }
         destination.taskId?.let { taskId ->
-            val deliveries = repository.deliveryTasks(session)
-            authRepository.withAuthorizedAccess(session) { Unit }
+            val deliveries = awaitCurrent { repository.deliveryTasks(session) }
+            awaitCurrent { authRepository.withAuthorizedAccess(session) { Unit } }
             check(pendingMutationIntentStore.loadFor(session).any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
             state = state.copy(deliveryTasks = deliveries, recoveryDeliveryTaskId = taskId,
                 noticeMessage = if (deliveries.none { it.id == taskId }) "Entrega ausente da fila atual. Isso não comprova conclusão; peça revisão do histórico original." else null)
@@ -479,12 +508,13 @@ class OperationsViewModel(
             exceptionalRecoveryContext = null, integratedPayment = null)
     }
 
-    private suspend fun loadTabContext(session: StoredSession, tabId: String, original: RecoveryIntent? = null) {
+    private suspend fun loadTabContext(session: StoredSession, tabId: String, original: RecoveryIntent? = null, guard: FinancialResponseFence.Guard = sessionActionGuard(session)) {
+        guard.check()
         val scopeBeforeRead = loadedSessionKey
         check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de selecionar outra comanda." }
-        val detail = repository.tabDetail(session, tabId)
+        val detail = guard.awaitCurrent { repository.tabDetail(session, tabId) }
         check(detail.summary.id == tabId) { "A comanda retornada não corresponde à selecionada." }
-        authRepository.withAuthorizedAccess(session) { Unit }
+        guard.awaitCurrent { authRepository.withAuthorizedAccess(session) { Unit } }
         check(loadedSessionKey == scopeBeforeRead) { "A sessão mudou durante a leitura. Selecione a comanda novamente." }
         val records = pendingMutationIntentStore.loadFor(session)
         if (original != null) check(records.any { it == original }) { "A pendência mudou durante a leitura. Atualize antes de continuar." }
@@ -516,6 +546,15 @@ class OperationsViewModel(
                 else -> null
             },
         )
+    }
+
+    fun returnAfterConfirmedOrder(session: StoredSession): Boolean {
+        if (state.submitting || state.loading || state.completedOrderTabId == null) return false
+        val shouldReturn = state.shouldReturnAfterConfirmedOrder()
+        state = state.copy(completedOrderTabId = null)
+        if (!shouldReturn) return false
+        clearSelection(session)
+        return state.selectedTab == null
     }
 
     fun clearSelection(session: StoredSession? = null) {
@@ -672,7 +711,8 @@ class OperationsViewModel(
                     if (state.selectedTab?.summary?.id == now.tabId) {
                         replaceDetail(canonical)
                         state = state.copy(cart = if (now.clearCartOnConfirmation) emptyList() else state.cart,
-                            orderIntentId = null)
+                            orderIntentId = null,
+                            completedOrderTabId = if (now.clearCartOnConfirmation) now.tabId else null)
                     }
                     state = state.copy(noticeMessage = "Pedido confirmado pelo servidor.",
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
@@ -855,6 +895,11 @@ class OperationsViewModel(
         cashPointId: String?,
         closeRequested: Boolean = false,
     ) {
+        val currentTab = state.selectedTab?.summary ?: return
+        if (state.blocksNewFullPayment(currentTab, amountCents)) {
+            state = state.copy(errorMessage = "Resolva o pedido não enviado antes de receber todo o saldo. O recebimento integral encerra a comanda.")
+            return
+        }
         if (method == PaymentMethod.TAP_CREDIT || method == PaymentMethod.TAP_DEBIT) {
             startTapSimulation(session, amountCents, method)
             return
@@ -992,8 +1037,15 @@ class OperationsViewModel(
             reasonCode = command.reasonCode,
             reasonText = command.reasonText.takeIf(String::isNotBlank),
             replacementProductId = command.replacementProductId,
+            quantity = command.quantity,
         )
-        if (!preserveIntent(intent, session)) return
+        val original = runCatching { pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.Correction>().firstOrNull { it.orderItemId == command.itemId } }
+            .getOrElse { showFailure(it, "Confira a correção guardada antes de continuar."); return }
+        if (original != null && original.copy(createdAtMillis = intent.createdAtMillis, state = intent.state) != intent) {
+            showFailure(IllegalStateException("Correction intent pending"), "Há uma correção sem confirmação. Confira a intenção original antes de enviar outra.")
+            return
+        }
+        if (!preserveIntent(original ?: intent, session)) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null, completedCorrectionItemId = null)
         viewModelScope.launch {
             runCatching {
@@ -1150,7 +1202,7 @@ class OperationsViewModel(
 
     fun retryTableService(session: StoredSession) = tableServiceCommand(session, "", org.json.JSONObject())
 
-    private fun tableServiceCommand(session: StoredSession, path: String, payload: org.json.JSONObject) = action {
+    private fun tableServiceCommand(session: StoredSession, path: String, payload: org.json.JSONObject) = action(session) {
         check(state.cart.isEmpty() && state.orderIntentId == null) { "Conclua o rascunho antes de alterar a mesa." }
         val pending = pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.TableService>().firstOrNull()
         val key = pending?.idempotencyKey ?: UUID.randomUUID().toString()
@@ -1160,19 +1212,20 @@ class OperationsViewModel(
         if (!preserveIntent(intent, session)) return@action
         state = state.copy(pendingTableService = intent, noticeMessage = null)
         val result = try {
-            repository.tableService(session, intent.path, org.json.JSONObject(intent.commandJson))
+            awaitCurrent { repository.tableService(session, intent.path, org.json.JSONObject(intent.commandJson)) }
         } catch (error: OperationsApiException) {
+            check()
             if (error.status in setOf(400, 404, 409, 422)) {
                 pendingMutationIntentStore.remove(intent.id)
-                state = state.copy(pendingTableService = null, tables = repository.tables(session))
+                state = state.copy(pendingTableService = null, tables = awaitCurrent { repository.tables(session) })
             }
             throw error
         }
         pendingMutationIntentStore.remove(intent.id)
-        state = state.copy(pendingTableService = null, tables = repository.tables(session),
-            tabs = repository.tabs(session), noticeMessage = null)
+        state = state.copy(pendingTableService = null, tables = awaitCurrent { repository.tables(session) },
+            tabs = awaitCurrent { repository.tabs(session) }, noticeMessage = null)
         result.optString("tab_id").takeIf { it.isNotBlank() }?.let { id ->
-            state = state.copy(selectedTab = repository.tabDetail(session, id), cart = emptyList())
+            state = state.copy(selectedTab = awaitCurrent { repository.tabDetail(session, id) }, cart = emptyList())
         }
     }
 
@@ -1186,7 +1239,7 @@ class OperationsViewModel(
         "Comanda associada à ocupação."
     }
 
-    fun releaseTable(session: StoredSession, target: TableReleaseTarget) = tableAction(session, showNotice = false) {
+    fun releaseTable(session: StoredSession, target: TableReleaseCommand) = tableAction(session, showNotice = false) {
         check(state.deliveryTasksFresh && state.connectivity == ConnectivityState.ONLINE) { "Atualize as entregas antes de liberar a mesa." }
         repository.releaseTable(session, target)
         "Mesa liberada para limpeza."
@@ -1207,14 +1260,14 @@ class OperationsViewModel(
     }
 
     fun resolveLimit(session: StoredSession, limitCents: Long?, reason: String, pin: String,
-                     expiresAt: String, key: String) = action {
+                     expiresAt: String, key: String) = action(session) {
         val tabId = state.selectedTab?.summary?.id ?: return@action
-        if (limitCents == null) repository.requestApproval(session, tabId, reason, key)
+        if (limitCents == null) awaitCurrent { repository.requestApproval(session, tabId, reason, key) }
         else {
-            authRepository.reauthenticate(session, pin)
-            repository.approveLimit(session, tabId, limitCents, reason, expiresAt, key)
+            awaitCurrent { authRepository.reauthenticate(session, pin) }
+            awaitCurrent { repository.approveLimit(session, tabId, limitCents, reason, expiresAt, key) }
         }
-        replaceDetail(repository.tabDetail(session, tabId))
+        replaceDetail(awaitCurrent { repository.tabDetail(session, tabId) })
         state = state.copy(noticeMessage = if (limitCents == null) "Solicitação enviada à gerência." else "Limite temporário aprovado.")
     }
 
@@ -1230,23 +1283,27 @@ class OperationsViewModel(
         )
     }
 
-    private fun action(block: suspend () -> Unit) {
-        if (state.submitting) return
+    private fun sessionKey(session: StoredSession) = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
+
+    private fun sessionActionGuard(session: StoredSession) = financialResponses.capture(
+        current = { loadedSessionKey == sessionKey(session) },
+    )
+
+    private fun action(session: StoredSession, block: suspend FinancialResponseFence.Guard.() -> Unit) {
+        val guard = sessionActionGuard(session)
+        if (state.submitting || !guard.isCurrent()) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
-            runCatching { block() }
-                .onSuccess { state = state.copy(submitting = false) }
-                .onFailure {
-                    state = state.copy(submitting = false)
-                    showFailure(it)
-                }
+            runSessionAction(guard, block,
+                onSuccess = { state = state.copy(submitting = false) },
+                onFailure = { state = state.copy(submitting = false); showFailure(it) })
         }
     }
 
-    private fun tableAction(session: StoredSession, showNotice: Boolean = true, block: suspend () -> String) = action {
+    private fun tableAction(session: StoredSession, showNotice: Boolean = true, block: suspend () -> String) = action(session) {
         check(state.pendingTableService == null) { "Verifique o atendimento pendente antes de alterar a mesa." }
-        val notice = block()
-        state = state.copy(tables = repository.tables(session), noticeMessage = if (showNotice) notice else null)
+        val notice = awaitCurrent { block() }
+        state = state.copy(tables = awaitCurrent { repository.tables(session) }, noticeMessage = if (showNotice) notice else null)
     }
 
     private fun showFailure(error: Throwable, suffix: String = "") {
