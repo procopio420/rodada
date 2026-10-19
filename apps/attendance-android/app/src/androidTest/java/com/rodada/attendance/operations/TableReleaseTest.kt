@@ -17,15 +17,16 @@ class TableReleaseTest {
     private val state = mutableStateOf(OperationsUiState(tables = listOf(table)))
     private val allowed = mutableStateOf(true)
     private val released = mutableListOf<String>()
+    private val releasedTargets = mutableListOf<TableReleaseTarget>()
 
     private fun render() {
         compose.setContent { RodadaTheme { Surface {
             TablesScreen(state = state.value, canManageTables = allowed.value,
                 onOccupy = { _, _ -> }, onAttachTab = { _, _ -> },
-                onRelease = { released.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
+                onRelease = { released.add(it.tableId); releasedTargets.add(it) }, onStartCleaning = {}, onCompleteCleaning = {})
         } } }
         compose.onNodeWithTag("table-table-a").performClick()
-        compose.onNodeWithText("Liberar mesa").performScrollTo().performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performScrollTo().performClick()
     }
 
     @Test fun cancellationHasNoMutationAndConfirmationUsesOriginalTable() {
@@ -35,10 +36,11 @@ class TableReleaseTest {
         captureCriticalEvidence(compose, "table-release", compose.onNode(isDialog()))
         compose.onNodeWithText("Cancelar").assertHeightIsAtLeast(44.dp).performClick()
         assertEquals(emptyList<String>(), released)
-        compose.onNodeWithText("Liberar mesa").performClick()
+        compose.onNodeWithText("Grupo saiu · Liberar mesa").performClick()
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
         assertEquals(listOf("table-a"), released)
+        assertEquals(listOf(TableReleaseTarget("table-a", "visit-a", 1)), releasedTargets)
     }
 
     @Test fun changedOccupancyNeverAdoptsNewVisit() {
@@ -59,4 +61,15 @@ class TableReleaseTest {
         compose.onNodeWithText("Cancelar").assertIsEnabled().performClick()
         assertEquals(emptyList<String>(), released)
     }
+    @Test fun readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork() {
+        render()
+        compose.runOnIdle { state.value = state.value.copy(deliveryTasks = listOf(
+            DeliveryTask("ready", "OPEN", "A", "Água", 1, "", 0, StaffTaskTarget.Table("table-a", "visit-a", 1))
+        )) }
+        compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
+        compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(emptyList<String>(), released)
+        assertEquals("OPEN", state.value.deliveryTasks.single().state)
+    }
+
 }

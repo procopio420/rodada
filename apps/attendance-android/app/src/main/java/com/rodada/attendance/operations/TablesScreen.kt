@@ -1,11 +1,15 @@
 package com.rodada.attendance.operations
 
+import androidx.activity.compose.BackHandler
+import com.rodada.attendance.ui.AttendanceUx2
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -52,7 +56,7 @@ fun TablesScreen(
     state: OperationsUiState,
     canManageTables: Boolean,
     onAttachTab: (occupancyId: String, tabId: String) -> Unit,
-    onRelease: (tableId: String) -> Unit,
+    onRelease: (TableReleaseTarget) -> Unit,
     onStartCleaning: (tableId: String) -> Unit,
     onCompleteCleaning: (tableId: String) -> Unit,
     onOccupy: (String, String?) -> Unit = { _, _ -> },
@@ -67,12 +71,22 @@ fun TablesScreen(
     onOpenStandaloneTab: () -> Unit = {},
     onOpenFirstTab: (String, String) -> Unit = { _, _ -> },
     onLoadHistory: () -> Unit = {},
-    onInspectHistory: (String?) -> Unit = {},
+    requestedTarget: StaffTaskTarget.Table? = null,
+    onTargetConsumed: () -> Unit = {},
+    onDetailVisibility: (Boolean) -> Unit = {},
+    onViewDeliveries: () -> Unit = {},
 ) {
     var search by rememberSaveable { mutableStateOf("") }
     var showHistory by rememberSaveable { mutableStateOf(false) }
-    var otherExpanded by rememberSaveable { mutableStateOf(false) }
     var expandedTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(requestedTarget, state.tables) {
+        if (requestedTarget != null) {
+            expandedTableId = requestedTarget.currentTable(state.tables)?.id
+            onTargetConsumed()
+        }
+    }
+    LaunchedEffect(expandedTableId) { onDetailVisibility(expandedTableId != null) }
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { onDetailVisibility(false) } }
     var returnTableId by rememberSaveable { mutableStateOf<String?>(null) }
     var returnStatus by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(state.tables, returnTableId, returnStatus) {
@@ -103,19 +117,24 @@ fun TablesScreen(
     val otherTabs = state.tabs.filter { it.id !in attachedTabIds && it.state !in setOf("CLOSED", "CANCELLED") && it.matchesOperationalQuery(search) }
     val locked = state.loading || state.submitting || state.pendingTableService != null
 
-    Card(Modifier.padding(horizontal = 16.dp).fillMaxWidth(), border = BorderStroke(1.dp, RodadaVisual.Border), colors = CardDefaults.cardColors(containerColor = RodadaVisual.Surface)) {
+    BackHandler(enabled = expandedTableId != null) { if (!locked) expandedTableId = null }
+    if (expandedTableId == null) {
     LazyColumn(
-        modifier = Modifier.padding(12.dp).testTag("tables-list"),
+        modifier = Modifier.padding(horizontal = 20.dp).testTag("tables-list"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("Mesas e comandas", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                TextButton(onClick = { showHistory = true; onInspectHistory(null); onLoadHistory() }, enabled = !locked,
-                    modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = "Histórico de comandas" }) { Text("↶") }
+                Column(Modifier.weight(1f).padding(top = 27.dp)) {
+                    Ux2Eyebrow("Encontrar destino")
+                    Ux2Title("Mesas e\ncomandas.")
+                    Text("Uma busca, sem filtros de status nem formulários na lista.", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+                }
+                TextButton(onClick = { showHistory = !showHistory; if (showHistory) onLoadHistory() }, enabled = !locked, modifier = Modifier.heightIn(min = 48.dp).semantics { contentDescription = if (showHistory) "Voltar às mesas" else "Histórico de comandas" }) { Text(if (showHistory) "Voltar" else "↶") }
             }
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(search, { search = it }, colors = rodadaTextFieldColors(), label = { Text("Buscar mesa ou comanda") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(search, { search = it }, placeholder = { Text("Mesa, nome ou comanda") }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Buscar mesa ou comanda" }, singleLine = true)
+            Text("Mesas", style = AttendanceUx2.text(18, 800), modifier = Modifier.padding(top = 16.dp))
 
         }
         if (!canManageTables) {
@@ -130,13 +149,16 @@ fun TablesScreen(
                     Card(onClick = { expandedTableId = table.id }, enabled = !locked,
                         shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, if (table.status == "OCCUPIED") RodadaVisual.OccupiedBorder else RodadaVisual.Border),
                         colors = CardDefaults.cardColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper),
-                        modifier = Modifier.weight(1f).heightIn(min = 132.dp).testTag("table-${table.id}")) {
-                        Box(Modifier.fillMaxWidth().height(4.dp).background(tableStatusColor(table.status)))
-                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TableStatusIcon(tableStatusColor(table.status))
-                            Text("Mesa ${table.label}", style = MaterialTheme.typography.titleLarge)
-                            Text("${table.status.tableStatusLabel()} · ${table.activeOccupancy?.tabs?.count { it.state !in setOf("CLOSED", "CANCELLED") } ?: 0} comandas abertas", style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
-                            table.zone?.let { Text(it.label, style = MaterialTheme.typography.bodySmall) }
+                        modifier = Modifier.weight(1f).heightIn(min = 115.dp).testTag("table-${table.id}")) {
+                        Column(Modifier.padding(horizontal = 13.dp, vertical = 15.dp), verticalArrangement = Arrangement.spacedBy(17.dp)) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Mesa ${table.label}", style = AttendanceUx2.text(21, 850))
+                                Text("${table.activeOccupancy?.tabs?.count { it.state !in setOf("CLOSED", "CANCELLED") } ?: 0}", style = AttendanceUx2.text(11, 750), color = RodadaVisual.Muted)
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                TableStatusIcon(tableStatusColor(table.status))
+                                Text(table.status.tableStatusLabel(), style = AttendanceUx2.text(11), color = RodadaVisual.Muted)
+                            }
                         }
                     }
                 }
@@ -145,16 +167,20 @@ fun TablesScreen(
         }
 
         item {
-            OutlinedButton(onClick = { otherExpanded = !otherExpanded }, modifier = Modifier.fillMaxWidth()) { Text("Outras comandas (${otherTabs.size})") }
-            if (otherExpanded && canOpenTabs) OutlinedButton(onClick = onOpenStandaloneTab, enabled = !locked, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda sem mesa") }
-            if (otherExpanded && otherTabs.isEmpty()) Text("Nenhuma comanda aberta fora das mesas.")
+            Text(if (showHistory) "Histórico de comandas" else "Comandas sem mesa", style = AttendanceUx2.text(18, 800))
+            if (showHistory && state.historyLoading) Text("Carregando histórico…")
+            if (showHistory && state.historyError != null) Text(state.historyError, color = MaterialTheme.colorScheme.error)
+            if (otherTabs.isEmpty() && (!showHistory || state.historyLoaded && !state.historyLoading)) Text(if (showHistory) "Nenhuma comanda no histórico disponível." else if (search.isBlank()) "Nenhuma comanda aberta fora das mesas." else "Nenhuma outra comanda encontrada.")
         }
-        items(if (otherExpanded) otherTabs else emptyList(), key = { "tab:${it.id}" }) { tab ->
+        items(otherTabs, key = { "tab:${it.id}" }) { tab ->
             OutlinedButton(onClick = { onSelectTab(tab.id) }, enabled = !locked, modifier = Modifier.fillMaxWidth().testTag("other-tab-${tab.id}")) {
                 Column(Modifier.fillMaxWidth()) { Text(tab.operationalLabel()); Text(tab.operationalSubtitle(), style = MaterialTheme.typography.bodySmall) }
             }
         }
-        item { Spacer(Modifier.height(12.dp)) }
+        item {
+            if (canOpenTabs && !showHistory) Ux2Action("Abrir comanda sem mesa", !locked, onOpenStandaloneTab)
+            Spacer(Modifier.height(12.dp))
+        }
     }
     }
 
@@ -162,12 +188,16 @@ fun TablesScreen(
         onDismiss = { showHistory = false; onInspectHistory(null) })
 
     state.tables.firstOrNull { it.id == expandedTableId }?.let { table ->
-        Dialog(onDismissRequest = { if (!locked) expandedTableId = null }) {
-            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = RodadaVisual.Surface)) {
-                Column(Modifier.verticalScroll(rememberScrollState()).padding(8.dp)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
+            TextButton(onClick = { expandedTableId = null }, enabled = !locked, modifier = Modifier.heightIn(min = 44.dp)) { Text("Voltar") }
+            Text(table.zone?.label.orEmpty().uppercase(), style = AttendanceUx2.text(11, 800), color = RodadaVisual.Amber)
+            Column {
             TableCard(
                 table = table,
-                busy = state.submitting || state.pendingTableService != null,
+                balances = state.tabs.associate { it.id to it.exposureCents },
+                pendingDeliveries = state.deliveryTasks.count { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null },
+                onViewDeliveries = onViewDeliveries,
+                busy = locked,
                 canManage = canManageTables,
                 onOccupy = { if (table.tableServiceEnabled) onStartService(table.id) else occupyingTableId = table.id },
                 staffId = staffId,
@@ -177,7 +207,7 @@ fun TablesScreen(
                 onSelectTab = onSelectTab,
                 onAttach = { attachingOccupancyId = it },
                 onRelease = {
-                    table.activeOccupancy?.let {
+                    table.activeOccupancy?.takeIf { occupancy -> occupancy.tabs.none { it.state !in setOf("CLOSED", "CANCELLED") } && state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOf(table)) != null } }?.let {
                         releasingTableId = table.id
                         releasingOccupancyId = it.id
                         releasingGeneration = it.generation
@@ -188,8 +218,6 @@ fun TablesScreen(
                 onCompleteCleaning = { returnTableId = table.id; returnStatus = "AVAILABLE"; onCompleteCleaning(table.id) },
                 onNewFirstTab = { newLabel = ""; openingTableId = table.id },
             )
-                    OutlinedButton(onClick = { expandedTableId = null }, enabled = !locked, modifier = Modifier.fillMaxWidth()) { Text("Voltar") }
-                }
             }
         }
     }
@@ -206,6 +234,8 @@ fun TablesScreen(
         val sameOccupancy = current?.status == "OCCUPIED" &&
             current.activeOccupancy?.id == releasingOccupancyId &&
             current.activeOccupancy?.generation == releasingGeneration
+        val releaseReady = sameOccupancy && current?.activeOccupancy?.tabs.orEmpty().none { it.state !in setOf("CLOSED", "CANCELLED") } &&
+            state.deliveryTasks.none { task -> task.state in setOf("OPEN", "CLAIMED") && task.target.currentDeliveryTable(listOfNotNull(current)) != null }
         AlertDialog(
             onDismissRequest = { releasingTableId = null },
             title = { Text("Liberar mesa $releasingLabel?") },
@@ -214,19 +244,20 @@ fun TablesScreen(
                     Text("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.")
                     Text("As comandas e seus saldos permanecem. Esta ação não recebe pagamentos nem fecha comandas.")
                     if (!sameOccupancy) Text("A ocupação mudou. Cancele e confira a mesa novamente.", color = MaterialTheme.colorScheme.error)
+                    if (sameOccupancy && !releaseReady) Text("Há comandas abertas ou entregas prontas. Cancele e confira a mesa.", color = MaterialTheme.colorScheme.error)
                     if (!canManageTables) Text("Seu acesso atual não permite liberar a mesa.")
                 }
             },
             confirmButton = {
                 TextButton(
                     modifier = Modifier.heightIn(min = 44.dp),
-                    enabled = sameOccupancy && canManageTables && !state.submitting,
+                    enabled = releaseReady && canManageTables && !locked,
                     onClick = {
-                        if (releasingTableId == tableId && sameOccupancy && canManageTables && !state.submitting) {
+                        if (releasingTableId == tableId && releaseReady && canManageTables && !locked) {
                             releasingTableId = null
                             returnTableId = tableId
                             returnStatus = "DIRTY"
-                            onRelease(tableId)
+                            onRelease(TableReleaseTarget(tableId, checkNotNull(releasingOccupancyId), checkNotNull(releasingGeneration)))
                         }
                     },
                 ) { Text("Confirmar liberação") }
@@ -249,7 +280,7 @@ fun TablesScreen(
 
     state.tables.mapNotNull { it.activeOccupancy }.firstOrNull { it.id == openingOccupancy }?.let { occupancy ->
         AlertDialog(onDismissRequest = { if (!state.submitting && state.pendingTableService == null) openingOccupancy = null },
-            title = { Text("Nova comanda nesta mesa") }, text = {
+            title = { Text("＋ Abrir nova comanda") }, text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Informe o nome ou apelido para identificar a comanda.")
                     androidx.compose.material3.OutlinedTextField(
@@ -295,6 +326,9 @@ fun TablesScreen(
 @Composable
 private fun TableCard(
     table: TableSummary,
+    balances: Map<String, Long>,
+    pendingDeliveries: Int,
+    onViewDeliveries: () -> Unit,
     busy: Boolean,
     canManage: Boolean,
     onOccupy: () -> Unit,
@@ -309,46 +343,61 @@ private fun TableCard(
     onSelectTab: (String) -> Unit,
     onNewFirstTab: () -> Unit,
 ) {
-    Card(modifier = Modifier.fillMaxWidth(), border = BorderStroke(1.dp, RodadaVisual.Border),
-        colors = CardDefaults.cardColors(containerColor = RodadaVisual.Surface, contentColor = RodadaVisual.Paper)) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Mesa ${table.label}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                Text(table.status.tableStatusLabel(), fontWeight = FontWeight.Bold)
+    var managementExpanded by rememberSaveable(table.id) { mutableStateOf(false) }
+    val openTabs = table.activeOccupancy?.tabs?.count { it.state !in setOf("CLOSED", "CANCELLED") } ?: 0
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(Modifier.weight(1f)) {
+                Ux2Title("Mesa ${table.label}")
+                Text(table.status.tableStatusLabel(), style = AttendanceUx2.text(13), color = RodadaVisual.Muted)
             }
-            if (table.status in setOf("DIRTY", "CLEANING")) {
-                if (canManage) Button(onClick = onCompleteCleaning, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Concluir limpeza") }
-                return@Column
-            }
-            table.activeOccupancy?.let { occupancy ->
-                Text("Em uso · ${occupancy.tabs.size} comanda${if (occupancy.tabs.size == 1) "" else "s"}")
-                Text(if (occupancy.responsibleStaffId == staffId) "Atendimento: você" else occupancy.responsibleStaffName?.let { "Atendimento: $it" } ?: "Sem responsável")
-                if (occupancy.serviceAttention in setOf("UNASSIGNED_GUEST_ORDER", "UNASSIGNED_READY")) {
-                    Text("Pedido via QR · Sem responsável", fontWeight = FontWeight.Bold)
-                    Text("${occupancy.guestOrderCount} pedido(s) · ${if (occupancy.serviceAttention == "UNASSIGNED_READY") "Pedido pronto" else "Confirmado"}")
-                    Text(serviceOrderAgeLabel(occupancy.oldestGuestOrderAt))
-                }
-                occupancy.tabs.forEach { tab -> OutlinedButton(onClick = { onSelectTab(tab.id) }, tone = RodadaButtonTone.SELECTED, enabled = !busy && tab.state !in setOf("CLOSED", "CANCELLED"), modifier = Modifier.fillMaxWidth()) { Text("${tab.displayLabel.takeUnless { it.isBlank() || it == "Comanda sem nome" }?.let { "$it · " } ?: ""}${tab.displayReference.ifBlank { "Comanda ${tab.id.take(8)}" }}") } }
-                if (canOpenTabs) Button(onClick = { onNewTab(occupancy) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
-                if (canManage && table.tableServiceEnabled && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, tone = RodadaButtonTone.CONTEXT, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
-            } ?: Text("Sem ocupação ativa")
-            if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
-            if (!canManage) return@Column
-            when (table.status) {
-                "AVAILABLE" -> {
-                    if (table.tableServiceEnabled && canOpenTabs) Button(onClick = onNewFirstTab, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda nesta mesa") }
-                    OutlinedButton(onClick = onOccupy, tone = RodadaButtonTone.CONTEXT, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (table.tableServiceEnabled) "Iniciar atendimento sem comanda" else "Ocupar mesa") }
-                }
-                "OCCUPIED" -> {
-                    table.activeOccupancy?.let { occupancy ->
-                        OutlinedButton(onClick = { onAttach(occupancy.id) }, tone = RodadaButtonTone.CONTEXT, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                            Text("Vincular comanda existente")
-                        }
+            Text("$openTabs aberta(s)", style = AttendanceUx2.text(11, 750), modifier = Modifier.background(RodadaVisual.Control, RoundedCornerShape(5.dp)).padding(8.dp))
+        }
+        if (table.status in setOf("DIRTY", "CLEANING")) {
+            Text(if (table.status == "DIRTY") "Aguardando limpeza" else "Em limpeza", style = AttendanceUx2.text(16, 800))
+            Text(if (table.status == "DIRTY") "A mesa está liberada, mas ainda não está pronta para outro grupo." else "Quando terminar, marque a mesa como pronta.", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+            if (canManage) Ux2Action(if (table.status == "DIRTY") "Iniciar limpeza" else "Mesa limpa · Disponibilizar", !busy, if (table.status == "DIRTY") onStartCleaning else onCompleteCleaning, table.status == "CLEANING")
+        }
+        Text("Comandas desta mesa", style = AttendanceUx2.text(18, 800))
+        val tabs = table.activeOccupancy?.tabs.orEmpty()
+        if (tabs.isEmpty()) Text("Sem ocupação ativa", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+        tabs.forEach { tab ->
+            Column {
+                HorizontalDivider(color = RodadaVisual.Border)
+                Row(Modifier.fillMaxWidth().clickable(enabled = !busy && tab.state != "CANCELLED", role = androidx.compose.ui.semantics.Role.Button) { onSelectTab(tab.id) }.heightIn(min = 72.dp).padding(vertical = 14.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(tab.displayLabel.ifBlank { tab.displayReference }, style = AttendanceUx2.text(17, 800))
+                        Text("${tab.displayReference} · ${if (tab.state == "CLOSED") "Encerrada" else "Mesa ${table.label}"}", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
                     }
-                    OutlinedButton(onClick = onRelease, tone = RodadaButtonTone.CONTEXT, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Liberar mesa") }
+                    Text("${balances[tab.id]?.let(::formatCents) ?: "Ver conta"}  ›", style = AttendanceUx2.text(15, 800).copy(fontFamily = RodadaVisual.Number))
                 }
-                "DIRTY" -> Button(onClick = onStartCleaning, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Iniciar limpeza") }
-                "CLEANING" -> Button(onClick = onCompleteCleaning, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Concluir limpeza") }
+                HorizontalDivider(color = RodadaVisual.Border)
+            }
+        }
+        if (table.status == "OCCUPIED") {
+            Text("Saída do grupo", style = AttendanceUx2.text(18, 800))
+            if (openTabs > 0) Text("$openTabs comanda(s) abertas. Encerre cada uma para liberar a mesa.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber, modifier = Modifier.background(RodadaVisual.Surface, RoundedCornerShape(10.dp)).padding(14.dp))
+            else if (pendingDeliveries > 0) {
+                Text("$pendingDeliveries entrega(s) ainda prontas. Resolva as entregas antes de liberar.", style = AttendanceUx2.text(14), color = RodadaVisual.Amber)
+                Ux2Action("Ver entregas prontas", !busy, onViewDeliveries)
+            } else if (canManage) {
+                Ux2Action("Grupo saiu · Liberar mesa", !busy, onRelease, true)
+                Text("A mesa passará para Aguardando limpeza e o QR desta ocupação perderá o acesso.", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            }
+        }
+        if (canOpenTabs) Ux2Action("＋ Abrir nova comanda", !busy && table.status in setOf("AVAILABLE", "OCCUPIED"), {
+            table.activeOccupancy?.let(onNewTab) ?: onNewFirstTab()
+        })
+        if (table.guestOrderingBlocked) Text("Pedidos por QR bloqueados", color = MaterialTheme.colorScheme.error)
+        if (canManage) {
+            TextButton(onClick = { managementExpanded = !managementExpanded }) { Text("Opções da mesa") }
+            if (managementExpanded) {
+                table.activeOccupancy?.let { occupancy ->
+                    androidx.compose.runtime.key(occupancy.id) { partySizeEditor(occupancy.id) }
+                    OutlinedButton(onClick = { onAttach(occupancy.id) }, enabled = !busy) { Text("Vincular comanda existente") }
+                    if (table.tableServiceEnabled && occupancy.responsibleStaffId != staffId) OutlinedButton(onClick = { onClaim(occupancy) }, enabled = !busy) { Text("Assumir atendimento${occupancy.responsibleStaffName?.let { " de $it" } ?: ""}") }
+                }
+                if (table.status == "AVAILABLE") OutlinedButton(onClick = onOccupy, enabled = !busy) { Text(if (table.tableServiceEnabled) "Iniciar atendimento sem comanda" else "Ocupar mesa") }
             }
         }
     }

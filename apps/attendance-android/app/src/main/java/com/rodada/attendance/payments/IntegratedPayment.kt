@@ -10,6 +10,7 @@ data class IntegratedPayment(
     val qrCode: String = "",
     val simulated: Boolean = false,
     val expiresAt: String = "",
+    val method: String = "",
 ) {
     val blocksNewCharge: Boolean get() = status !in setOf("CONFIRMED", "PARTIALLY_REFUNDED", "REFUNDED", "FAILED", "CANCELLED", "EXPIRED")
     val confirmed: Boolean get() = status in setOf("CONFIRMED", "PARTIALLY_REFUNDED", "REFUNDED")

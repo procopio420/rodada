@@ -6,6 +6,10 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import com.rodada.attendance.ui.RodadaTheme
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +47,22 @@ class OrderDestinationTest {
         compose.onNodeWithText("Nova comanda").performScrollTo().assertHeightIsAtLeast(44.dp).performClick()
         assertEquals(1, created)
         assertEquals("aaaaaaaa-1", selected)
+    }
+
+    @Test fun productionNewTabLabelFitsAndOpensOnce() {
+        state.value = OperationsUiState()
+        render()
+        val label = compose.onNodeWithText("Nova comanda", useUnmergedTree = true)
+        label.performScrollTo().assertIsDisplayed()
+        val layouts = mutableListOf<TextLayoutResult>()
+        label.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        assertTrue("Production label must expose its text layout", layouts.isNotEmpty())
+        layouts.forEach { assertFalse("Nova comanda must fit without clipping: size=${it.size}, lines=${it.lineCount}, width=${it.didOverflowWidth}, height=${it.didOverflowHeight}", it.hasVisualOverflow) }
+        val bounds = label.fetchSemanticsNode().boundsInRoot
+        val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        assertTrue("Entire production label must remain in the viewport", root.contains(bounds.topLeft) && root.contains(bounds.bottomRight))
+        compose.onNodeWithText("Nova comanda").performClick()
+        compose.runOnIdle { assertEquals(1, created); assertEquals(null, selected) }
     }
 
     @Test fun emptyInventoryDoesNotCreateAutomatically() {

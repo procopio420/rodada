@@ -25,8 +25,11 @@ class AttendanceHeaderTest {
         compose.setContent { RodadaTheme { Surface { AttendanceHeader("Operador de teste com nome completo e sobrenomes", ConnectivityState.STALE, false, false, { peaks++ }, { accounts++ }, { refreshes++ }) } } }
         capture("header-long")
         assertTextFits()
-        compose.onNodeWithContentDescription("Ativar modo pico").assertHeightIsAtLeast(44.dp).assertWidthIsAtLeast(44.dp).performClick()
+        compose.onNodeWithTag("attendance-options").performClick()
+        compose.onNodeWithText("Ativar modo pico").assertHeightIsAtLeast(44.dp).assertWidthIsAtLeast(44.dp).performClick()
+        compose.onNodeWithTag("attendance-options").performClick()
         compose.onNodeWithText("Atualizar").assertHeightIsAtLeast(44.dp).assertWidthIsAtLeast(44.dp).performClick()
+        compose.onNodeWithTag("attendance-options").performClick()
         compose.onNodeWithText("Conta").assertHeightIsAtLeast(44.dp).assertWidthIsAtLeast(44.dp).performClick()
         assertEquals(1, peaks); assertEquals(1, accounts); assertEquals(1, refreshes)
     }
@@ -35,12 +38,13 @@ class AttendanceHeaderTest {
         compose.setContent { RodadaTheme { Surface { AttendanceHeader("Operador teste", ConnectivityState.RECONNECTING, true, true, { peaks++ }, { accounts++ }, { refreshes++ }) } } }
         capture("header-busy")
         assertTextFits()
+        compose.onNodeWithTag("attendance-options").performClick()
         compose.onNodeWithText("Atualizar").assertIsNotEnabled()
         compose.onNodeWithText("Conta").assertIsNotEnabled()
-        compose.onNodeWithContentDescription("Sair do modo pico").performClick()
+        compose.onNodeWithText("Sair do modo pico").performClick()
         assertEquals(1, peaks); assertEquals(0, accounts); assertEquals(0, refreshes)
-        compose.onNodeWithText("VERIFICANDO").assertExists()
-        compose.onNodeWithText("ONLINE").assertDoesNotExist()
+        compose.onNodeWithText("Operador teste · verificando").assertExists()
+        compose.onNodeWithText("online", substring = true).assertDoesNotExist()
     }
     private fun assertTextFits() {
         compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult), useUnmergedTree = true).fetchSemanticsNodes().forEach { node ->

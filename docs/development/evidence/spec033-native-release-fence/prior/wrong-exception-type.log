@@ -1,0 +1,98 @@
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.TableReleaseTest:
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=changedOccupancyNeverAdoptsNewVisit
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=readyDeliveryArrivingDuringConfirmationBlocksReleaseWithoutCompletingWork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellationHasNoMutationAndConfirmationUsesOriginalTable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TableReleaseTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=busyOrLostPermissionBlocksConfirmationButAllowsCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.LiveTableReleaseFenceTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stream=
+com.rodada.attendance.operations.LiveTableReleaseFenceTest:
+INSTRUMENTATION_STATUS: test=originalAndroidCommandCannotReleaseReplacementOccupancy
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.LiveTableReleaseFenceTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=5
+INSTRUMENTATION_STATUS: stack=com.rodada.attendance.operations.OperationsApiException: A ocupação mudou. Confira a mesa novamente.
+	at com.rodada.attendance.operations.OperationsHttpClient.request$app(OperationsHttpClient.kt:372)
+	at com.rodada.attendance.operations.OperationsHttpClient.releaseTable(OperationsHttpClient.kt:179)
+	at com.rodada.attendance.operations.LiveTableReleaseFenceTest.originalAndroidCommandCannotReleaseReplacementOccupancy(LiveTableReleaseFenceTest.kt:50)
+
+INSTRUMENTATION_STATUS: stream=
+Error in originalAndroidCommandCannotReleaseReplacementOccupancy(com.rodada.attendance.operations.LiveTableReleaseFenceTest):
+com.rodada.attendance.operations.OperationsApiException: A ocupação mudou. Confira a mesa novamente.
+	at com.rodada.attendance.operations.OperationsHttpClient.request$app(OperationsHttpClient.kt:372)
+	at com.rodada.attendance.operations.OperationsHttpClient.releaseTable(OperationsHttpClient.kt:179)
+	at com.rodada.attendance.operations.LiveTableReleaseFenceTest.originalAndroidCommandCannotReleaseReplacementOccupancy(LiveTableReleaseFenceTest.kt:50)
+
+INSTRUMENTATION_STATUS: test=originalAndroidCommandCannotReleaseReplacementOccupancy
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 11.314
+There was 1 failure:
+1) originalAndroidCommandCannotReleaseReplacementOccupancy(com.rodada.attendance.operations.LiveTableReleaseFenceTest)
+com.rodada.attendance.operations.OperationsApiException: A ocupação mudou. Confira a mesa novamente.
+	at com.rodada.attendance.operations.OperationsHttpClient.request$app(OperationsHttpClient.kt:372)
+	at com.rodada.attendance.operations.OperationsHttpClient.releaseTable(OperationsHttpClient.kt:179)
+	at com.rodada.attendance.operations.LiveTableReleaseFenceTest.originalAndroidCommandCannotReleaseReplacementOccupancy(LiveTableReleaseFenceTest.kt:50)
+
+FAILURES!!!
+Tests run: 5,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

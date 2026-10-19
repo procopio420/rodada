@@ -30,6 +30,7 @@ data class TabSummary(
     val actionReasons: List<String> = emptyList(),
     val tableLabel: String? = null,
     val lastTableLabel: String? = null,
+    val relationshipSnapshot: String? = null,
 )
 
 /** Mesa atual é uma projeção operacional; nunca substitui o ID da comanda. */
@@ -64,6 +65,7 @@ data class OrderItem(
     val customizationText: String = "",
     val productId: String? = null,
     val customization: Customization? = null,
+    val fulfillmentStationSnapshot: String? = null,
 )
 
 data class TabOrder(
@@ -116,6 +118,13 @@ data class DeliveryTask(
     val quantity: Int,
     val tabLabel: String,
     val ageSeconds: Long,
+    val target: StaffTaskTarget = StaffTaskTarget.Unavailable,
+    val fulfillmentStation: String? = null,
+    val orderItemId: String? = null,
+    val orderId: String? = null,
+    val claimedById: String? = null,
+    val itemState: String? = null,
+    val tabReference: String? = null,
 )
 
 data class CartLine(
@@ -223,3 +232,15 @@ fun serviceOrderAgeLabel(timestamp: String?): String = runCatching {
     val seconds = java.time.Duration.between(java.time.Instant.parse(timestamp), java.time.Instant.now()).seconds.coerceAtLeast(0)
     if (seconds < 60) "Há menos de 1 min" else "Há ${seconds / 60} min"
 }.getOrDefault("Tempo não informado")
+
+/** Canonical table projections may already include their human-readable prefix. */
+internal fun attendanceTableLocation(label: String): String =
+    if (label.startsWith("Mesa ", ignoreCase = true)) label else "Mesa $label"
+
+/** Immutable release precondition captured by the confirmation dialog, never rebound on retry. */
+data class TableReleaseTarget(val tableId: String, val occupancyId: String, val generation: Int) {
+    init { require(generation > 0) }
+    fun body(): org.json.JSONObject = org.json.JSONObject()
+        .put("expected_occupancy_id", occupancyId)
+        .put("expected_generation", generation)
+}

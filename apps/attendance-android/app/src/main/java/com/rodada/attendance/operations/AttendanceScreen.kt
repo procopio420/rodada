@@ -52,7 +52,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,6 +80,8 @@ import com.rodada.attendance.refunds.SettleCorrectionRefundCommand
 import java.util.UUID
 import java.time.Instant
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 @Composable
 fun AttendanceScreen(
@@ -121,12 +125,106 @@ fun AttendanceScreen(
         }
     }
     var resolvingLimit by rememberSaveable { mutableStateOf(false) }
-    var section by rememberSaveable { mutableStateOf(FrontlineSection.TABLES) }
-    LaunchedEffect(state.completedOrderTabId, state.submitting, state.loading) {
-        if (viewModel.returnAfterConfirmedOrder(session)) section = FrontlineSection.TABLES
-    }
+    var requestedDeliveries by rememberSaveable { mutableStateOf(false) }
+    var tableDetailVisible by remember { mutableStateOf(false) }
+    var section by rememberSaveable { mutableStateOf(FrontlineSection.NOW) }
     val contextStates = rememberSaveableStateHolder()
     var peak by rememberSaveable { mutableStateOf(false) }
+    var showingRecovery by rememberSaveable { mutableStateOf(false) }
+    var serviceTaskId by rememberSaveable { mutableStateOf<String?>(null) }
+    var deliveryTaskId by rememberSaveable { mutableStateOf<String?>(null) }
+    var targetTableId by rememberSaveable { mutableStateOf<String?>(null) }
+    var targetOccupancyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var targetGeneration by rememberSaveable { mutableStateOf<Int?>(null) }
+    var taskNotice by rememberSaveable { mutableStateOf<String?>(null) }
+    var requestedWorkspaceSection by rememberSaveable { mutableStateOf<String?>(null) }
+    var serviceContextTabId by rememberSaveable { mutableStateOf<String?>(null) }
+    var serviceTableTarget by rememberSaveable(stateSaver = listSaver<StaffTaskTarget.Table?, Any>(
+        save = { it?.let { target -> listOf(target.tableId, target.occupancyId, target.generation) } ?: emptyList() },
+        restore = { if (it.isEmpty()) null else StaffTaskTarget.Table(it[0] as String, it[1] as String, it[2] as Int) },
+    )) { mutableStateOf<StaffTaskTarget.Table?>(null) }
+    var readingTask by remember { mutableStateOf(false) }
+    val taskScope = rememberCoroutineScope()
+    val canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }
+    fun leaveTaskWorkspace() {
+        viewModel.clearSelection(session)
+        if (viewModel.state.selectedTab == null) {
+            serviceTaskId = null
+            serviceContextTabId = null
+            serviceTableTarget = null
+            requestedWorkspaceSection = null
+            targetTableId = null
+            targetOccupancyId = null
+            targetGeneration = null
+        }
+    }
+    fun openService(task: ServiceRequest) {
+        if (readingTask) return
+        readingTask = true
+        taskScope.launch { try {
+        val current = viewModel.readOperationalTask(session, task.id, task.type).service
+        serviceTaskId = current.id
+        serviceContextTabId = null
+        serviceTableTarget = null
+        when (val target = current.target) {
+            is StaffTaskTarget.Tab -> {
+                serviceContextTabId = target.tabId
+                requestedWorkspaceSection = if (current.type == "BILL_REQUEST") "Conta" else null
+                viewModel.selectTab(session, target.tabId)
+            }
+            is StaffTaskTarget.Table -> {
+                val freshState = viewModel.state
+                val table = target.currentTable(freshState.tables)
+                if (table == null || freshState.loading || freshState.connectivity != ConnectivityState.ONLINE) {
+                    taskNotice = "Vínculo desatualizado. Atualize a fila e confira a ocupação; nenhuma comanda foi escolhida."
+                    viewModel.refresh(session)
+                } else {
+                    serviceTableTarget = target
+                    targetTableId = table.id; targetOccupancyId = target.occupancyId; targetGeneration = target.generation
+                    section = FrontlineSection.TABLES
+                }
+            }
+            StaffTaskTarget.Unavailable -> taskNotice = "Destino autorizado indisponível. Atualize a fila; não escolha uma comanda pelo texto da mesa."
+        }
+        } catch (error: Exception) {
+            if (error is CancellationException) throw error
+            taskNotice = "Não foi possível revalidar esta tarefa. Atualize a fila antes de abrir o contexto."
+        } finally { readingTask = false } }
+    }
+    fun openTableTab(tabId: String) {
+        val originalTable = serviceTableTarget
+        val id = serviceTaskId
+        if (originalTable == null || id == null) { viewModel.selectTab(session, tabId); return }
+        if (readingTask) return
+        readingTask = true
+        taskScope.launch { try {
+            val task = viewModel.readOperationalTask(session, id,
+                viewModel.state.serviceRequests.firstOrNull { it.id == id }?.type ?: error("Chamada indisponível")).service
+            check(task.target == originalTable && originalTable.currentTable(viewModel.state.tables)?.activeOccupancy?.tabs?.any { it.id == tabId } == true)
+            serviceContextTabId = tabId
+            requestedWorkspaceSection = if (task.type == "BILL_REQUEST") "Conta" else null
+            viewModel.selectTab(session, tabId)
+        } catch (error: Exception) {
+            if (error is CancellationException) throw error
+            taskNotice = "A chamada ou ocupação mudou. Atualize e selecione novamente; nenhuma comanda foi aberta."
+        } finally { readingTask = false } }
+    }
+    fun openDelivery(task: DeliveryTask, openTab: Boolean = false) {
+        if (readingTask) return
+        readingTask = true
+        taskScope.launch { try {
+            val current = viewModel.readOperationalTask(session, task.id, "DELIVERY")
+            if (openTab) {
+                val target = current.service.target as? StaffTaskTarget.Tab ?: error("Destino indisponível")
+                deliveryTaskId = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null
+                requestedWorkspaceSection = null
+                viewModel.selectTab(session, target.tabId)
+            } else deliveryTaskId = task.id
+        } catch (error: Exception) {
+            if (error is CancellationException) throw error
+            taskNotice = "A entrega mudou ou não pôde ser revalidada. Atualize antes de abrir."
+        } finally { readingTask = false } }
+    }
     var correctionItemId by remember { mutableStateOf<String?>(null) }
     var refundTarget by remember { mutableStateOf<RefundTarget?>(null) }
     val correctionItem = correctionItemId?.let { itemId ->
@@ -161,45 +259,44 @@ fun AttendanceScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = com.rodada.attendance.ui.RodadaVisual.Ground) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header(
-                session = session,
+            com.rodada.attendance.ui.AttendanceHeader(
+                venueName = session.venueName,
+                staffName = session.staffDisplayName,
                 connectivity = state.connectivity,
-                busy = state.loading || state.submitting,
+                busy = state.loading || state.submitting || readingTask,
                 peak = peak,
                 onTogglePeak = { peak = !peak },
                 onOpenAccount = onOpenAccount,
-            ) { viewModel.refresh(session) }
+                onRefresh = { viewModel.refresh(session) },
+                canUseCash = canUseCash,
+                onOpenCash = { section = FrontlineSection.CASH },
+                onOpenRecovery = { showingRecovery = true },
+                pendingCount = state.pendingEvidence().size,
+            )
             state.pendingTableService?.let {
                 Text("Verificando atendimento. Intenção original preservada.")
                 OutlinedButton(enabled = !state.submitting && !state.loading, onClick = { viewModel.retryTableService(session) }) { Text("Verificar mesma intenção") }
             }
-            if (state.selectedTab == null && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
-                FrontlineNavigation(section = section, canUseCash = session.capabilities.any { it in setOf("cash.shift.open", "cash.adjustment.create", "cash.review") }, onSelect = { section = it; choosingOrderDestination = false }, onOrder = { choosingOrderDestination = true }, busy = state.loading || state.submitting || state.pendingTableService != null)
-            }
             Box(modifier = Modifier.weight(1f)) {
-            when (val selected = state.selectedTab) {
+            if (deliveryTaskId != null) {
+                val id = requireNotNull(deliveryTaskId)
+                DeliveryTaskDetail(state.deliveryTasks.firstOrNull { it.id == id },
+                    busy = state.loading || state.submitting || readingTask || state.connectivity != ConnectivityState.ONLINE,
+                    staffId = session.staffId, onDismiss = { deliveryTaskId = null },
+                    onOpenTab = { state.deliveryTasks.firstOrNull { it.id == id }?.let { openDelivery(it, openTab = true) } },
+                    onComplete = { viewModel.completeDelivery(session, id) })
+            } else when (val selected = state.selectedTab) {
                 null -> {
                     when (section) {
-                        FrontlineSection.NOW -> TabList(
-                            state = state,
-                            showDeliveries = true,
-                            peak = peak,
-                            onOpenTab = { if (state.pendingTableService == null) openingTab = true },
-                            onSelect = { viewModel.selectTab(session, it) },
-                            onCompleteDelivery = { viewModel.completeDelivery(session, it) },
-                            staffId = session.staffId,
-                            onViewTable = { section = FrontlineSection.TABLES },
-                            onClaimTable = { viewModel.claimTableService(session, it) },
-                            canClaimTable = "table.manage" in session.capabilities,
-                            onServiceAction = { id, complete -> viewModel.updateServiceRequest(session, id, complete) },
-                            onOpenRecovery = { id ->
-                                if (state.pendingEvidence().any { it.id == id && it.shiftId != null && it.canOpenContext }) cashShiftViewModel.openRecovery(session, id)
-                                else viewModel.openRecovery(session, id)
-                            },
-                            onCheckOrders = { viewModel.revalidateConnection(session) },
-                        )
+                        FrontlineSection.NOW -> contextStates.SaveableStateProvider("now:${session.sessionId}") {
+                            AttendanceNowScreen(state, onOpenService = ::openService, onOpenDelivery = { openDelivery(it) }, initiallyShowDeliveries = requestedDeliveries)
+                        }
                         FrontlineSection.TABS, FrontlineSection.TABLES -> contextStates.SaveableStateProvider("tables:${session.sessionId}") { TablesScreen(
                             state = state,
+                            requestedTarget = targetTableId?.let { tableId -> targetOccupancyId?.let { occupancyId -> targetGeneration?.let { generation -> StaffTaskTarget.Table(tableId, occupancyId, generation) } } },
+                            onTargetConsumed = { targetTableId = null; targetOccupancyId = null; targetGeneration = null },
+                            onDetailVisibility = { tableDetailVisible = it },
+                            onViewDeliveries = { requestedDeliveries = true; section = FrontlineSection.NOW },
                             canManageTables = "table.manage" in session.capabilities,
                             staffId = session.staffId,
                             canOpenTabs = "tab.open" in session.capabilities,
@@ -207,7 +304,7 @@ fun AttendanceScreen(
                             onStartService = { id -> if (state.tables.firstOrNull { it.id == id }?.tableServiceEnabled == true) viewModel.startTableService(session, id) else viewModel.occupyTable(session, id, null) },
                             onOpenTableTab = { occupancy, label -> viewModel.openTableTab(session, occupancy, label) },
                             onClaim = { viewModel.claimTableService(session, it) },
-                            onSelectTab = { viewModel.selectTab(session, it) },
+                            onSelectTab = ::openTableTab,
                             canMoveTabs = "tab.move" in session.capabilities,
                             onMoveTab = { occupancyId, tab -> viewModel.moveTableTab(session, occupancyId, tab) },
                             onAttachTab = { occupancyId, tabId -> viewModel.attachTabToOccupancy(session, occupancyId, tabId) },
@@ -223,29 +320,32 @@ fun AttendanceScreen(
                         FrontlineSection.CASH -> CashShiftScreen(session, cashShiftViewModel)
                     }
                 }
-                else -> Dialog(
-                    onDismissRequest = { viewModel.clearSelection(session) },
-                    properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
-                ) { Surface(Modifier.fillMaxSize().safeDrawingPadding()) {
+                else -> Surface(Modifier.fillMaxSize(), color = RodadaVisual.Ground) {
                     val recovery = state.exceptionalRecoveryContext
                     if (recovery != null) ExceptionalRecoveryScreen(recovery, state.submitting,
                         onRefresh = { viewModel.openRecovery(session, recovery.original.id) },
                         onBack = { viewModel.leaveForExceptionalRecovery(session); section = FrontlineSection.NOW })
                     else Column {
-                    state.tables.firstOrNull { table -> table.activeOccupancy?.tabs?.any { it.id == selected.summary.id } == true }?.let { Text("Mesa ${it.label} · ${selected.summary.displayLabel}") }
                     if (state.orderIntentId != null) Text("Pedido pendente. Verifique a intenção original antes de sair.")
                     if (state.contextRecoveryPending && state.orderIntentId == null && state.paymentIntentId == null) {
                         OutlinedButton(onClick = { viewModel.leaveForExceptionalRecovery(session); if (viewModel.state.selectedTab == null) section = FrontlineSection.NOW }, enabled = !state.submitting && !state.loading) { Text("Conferir pendências") }
                     }
+                    serviceTaskId?.let { id -> state.serviceRequests.firstOrNull { it.id == id && serviceContextTabId == selected.summary.id } }?.let { task ->
+                        ServiceTaskContext(task, session.staffId, state,
+                            onAction = { complete -> viewModel.updateServiceRequest(session, task.id, complete) })
+                    }
                     contextStates.SaveableStateProvider("tab:${session.sessionId}:${selected.summary.id}") { TabWorkspace(
+                    requestedSection = requestedWorkspaceSection,
+                    onRequestedSectionConsumed = { requestedWorkspaceSection = null },
                     state = state,
                     tab = selected,
-                    onBack = { viewModel.clearSelection(session) },
+                    onBack = ::leaveTaskWorkspace,
                     onAdd = { product, selection -> viewModel.addProduct(product, selection) },
                     onAddQuantity = { product, selection, quantity -> viewModel.addProduct(product, selection, quantity) },
                     onEdit = viewModel::editCartLine,
                     onQuantity = viewModel::changeCartQuantity,
                     onConfirmOrder = { viewModel.confirmOrder(session) },
+                    onVerifyPending = { viewModel.revalidateConnection(session) },
                     onAdjustPricing = { adjustingPricing = true },
                     onPay = { takingPayment = true },
                     onClose = { viewModel.closeTab(session) },
@@ -256,7 +356,7 @@ fun AttendanceScreen(
                     onSettleCorrection = { refundTarget = RefundTarget.Correction(it) },
                     onRepeatOrder = { review, quantities -> viewModel.repeatOrder(session, selected.summary.id, review, quantities) },
                 ) }
-                } } }
+                } }
             }
             if (cashShiftViewModel.recoveryContext.intentId != null) {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -273,9 +373,29 @@ fun AttendanceScreen(
                 }
             }
             }
+            if (deliveryTaskId == null && state.selectedTab == null && !tableDetailVisible && cashShiftViewModel.recoveryContext.intentId == null && state.exceptionalRecoveryContext == null) {
+                FrontlineNavigation(section = section, onSelect = { requestedDeliveries = false; section = it; choosingOrderDestination = false; targetTableId = null; targetOccupancyId = null; targetGeneration = null; serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null },
+                    onOrder = { serviceTaskId = null; serviceContextTabId = null; serviceTableTarget = null; choosingOrderDestination = true }, busy = state.loading || state.submitting || readingTask || state.pendingTableService != null)
+            }
 
         }
     }
+
+    if (showingRecovery) Dialog(onDismissRequest = { showingRecovery = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize().safeDrawingPadding()) {
+            Column {
+                TextButton(onClick = { showingRecovery = false }) { Text("← Voltar ao atendimento") }
+                Box(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                    RecoveryPanel(state, onOpen = { id ->
+                        showingRecovery = false
+                        if (state.pendingEvidence().any { it.id == id && it.shiftId != null && it.canOpenContext }) cashShiftViewModel.openRecovery(session, id)
+                        else viewModel.openRecovery(session, id)
+                    }, onCheckOrders = { viewModel.revalidateConnection(session) })
+                }
+            }
+        }
+    }
+    taskNotice?.let { MessageDialog("Destino indisponível", it) { taskNotice = null } }
 
     if (choosingOrderDestination && state.selectedTab == null) {
         QuickOrderDestinationDialog(
@@ -320,24 +440,21 @@ fun AttendanceScreen(
             },
         )
     }
-    if (takingPayment && state.selectedTab != null) {
-        PaymentDialog(
-            tab = state.selectedTab.summary,
-            cashPoints = state.cashPoints,
-            busy = state.submitting,
-            pixEnabled = state.pixEnabled,
-            tapSimulationEnabled = state.tapSimulationEnabled,
-            onCheckPix = {
-                viewModel.reconcilePix(session)
-                viewingIntegrated = true
-                takingPayment = false
-            },
-            onDismiss = { takingPayment = false },
-            onPay = { amount, method, cashPointId ->
-                viewModel.collectPayment(session, amount, method, cashPointId)
-                takingPayment = false
-            },
-        )
+    LaunchedEffect(state.noticeMessage, state.submitting, state.pendingPayment) {
+        if (!state.submitting && state.pendingPayment == null && state.noticeMessage in setOf(
+            "Pagamento registrado.", "Comanda encerrada.", "Recebimento confirmado; comanda mantida no estado canônico.")) takingPayment = false
+    }
+    if ((takingPayment || state.pendingPayment != null) && state.selectedTab != null) {
+        Dialog(onDismissRequest = { if (!state.submitting && state.pendingPayment == null) takingPayment = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)) {
+            Surface(Modifier.fillMaxSize().safeDrawingPadding()) {
+                Ux2ReceiptPage(state, state.selectedTab,
+                    onBack = { takingPayment = false },
+                    onPay = { amount, method, cashPoint, close -> viewModel.collectPayment(session, amount, method, cashPoint, close) },
+                    onRecover = { viewModel.recoverReceipt(session) },
+                    onKeepOpen = { viewModel.keepPaidTabOpen(session) })
+            }
+        }
     }
     if (viewingIntegrated && !state.submitting && state.integratedPayment != null) {
         com.rodada.attendance.payments.IntegratedPaymentPanel(
@@ -482,10 +599,9 @@ internal fun QuickOrderDestinationDialog(
 private enum class FrontlineSection(val label: String) { NOW("Agora"), TABS("Comandas"), TABLES("Mesas"), CASH("Caixa") }
 
 @Composable
-private fun FrontlineNavigation(section: FrontlineSection, canUseCash: Boolean, onSelect: (FrontlineSection) -> Unit, onOrder: () -> Unit, busy: Boolean) {
+private fun FrontlineNavigation(section: FrontlineSection, onSelect: (FrontlineSection) -> Unit, onOrder: () -> Unit, busy: Boolean) {
     com.rodada.attendance.ui.AttendanceNavigation(
         selected = com.rodada.attendance.ui.AttendanceDestination.valueOf(section.name),
-        canUseCash = canUseCash,
         busy = busy,
         onSelect = { onSelect(FrontlineSection.valueOf(it.name)) },
         onOrder = onOrder,
@@ -549,7 +665,7 @@ internal fun TabList(
         if (!showDeliveries) item {
             Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (choosingOrderDestination) Text("Escolha a comanda para pedir", style = MaterialTheme.typography.titleLarge)
-                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda") }
+                OutlinedButton(onClick = onOpenTab, enabled = !state.loading && !state.submitting, modifier = Modifier.fillMaxWidth()) { Text("Nova comanda", modifier = Modifier.fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = com.rodada.attendance.ui.AttendanceUx2.text(15, 800)) }
             }
         }
         if (showDeliveries) item {
@@ -641,150 +757,30 @@ internal fun TabWorkspace(
     onRefundPayment: (TabPayment) -> Unit,
     onSettleCorrection: (RefundRequiredCorrection) -> Unit,
     onRepeatOrder: (RepeatOrderReview, Map<String, Int>) -> Unit = { _, _ -> },
+    requestedSection: String? = null,
+    onRequestedSectionConsumed: () -> Unit = {},
     onAddQuantity: (Product, Customization, Int) -> Unit = { product, selection, quantity -> repeat(quantity) { onAdd(product, selection) } },
+    onVerifyPending: () -> Unit = onConfirmOrder,
 ) {
-    var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Cardápio") }
-    val reviewingCart = workspaceSection == "Pedido atual"
-    val viewingAccount = workspaceSection == "Conta"
-    var repeatReview by remember(tab.summary.id) { mutableStateOf<RepeatOrderReview?>(null) }
-    val repeatEnabled = !state.loading && !state.submitting && state.orderIntentId == null &&
-        state.queuedOrders.none { it.tabId == tab.summary.id } && tab.summary.state != "CLOSED" && state.connectivity == ConnectivityState.ONLINE
-    repeatReview?.let { review ->
-        val unchanged = tab.orders.firstOrNull { it.id == review.orderId }?.let { reviewRepeatedOrder(it, state.products) == review } == true
-        RepeatOrderDialog(review, repeatEnabled && unchanged, { repeatReview = null }) { quantities ->
-            repeatReview = null
-            onRepeatOrder(review, quantities)
+    var workspaceSection by rememberSaveable(tab.summary.id) { mutableStateOf(if (tab.summary.state == "CLOSED") "Conta" else "Comanda") }
+    LaunchedEffect(requestedSection) {
+        if (requestedSection != null) {
+            workspaceSection = requestedSection
+            onRequestedSectionConsumed()
         }
     }
-    val catalogScroll = rememberLazyListState()
-    val cartScroll = rememberLazyListState()
-    var catalogIndex by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
-    var catalogOffset by rememberSaveable(tab.summary.id) { mutableStateOf(0) }
-    LaunchedEffect(tab.summary.id, reviewingCart) {
-        if (!reviewingCart) catalogScroll.scrollToItem(catalogIndex, catalogOffset)
+    val pagesState = rememberSaveableStateHolder()
+    if (workspaceSection != "Conta") {
+        pagesState.SaveableStateProvider("pages") {
+            Ux2TabPages(state, tab, workspaceSection, { workspaceSection = it }, onBack,
+                onAdd, onEdit, onQuantity, onConfirmOrder, onRepeatOrder, onResolveLimit, onVerifyPending)
+        }
+        return
     }
-    var configuring by remember(tab.summary.id) { mutableStateOf<Product?>(null) }
-    var editing by remember(tab.summary.id) { mutableStateOf<CartLine?>(null) }
-    var previous by remember(tab.summary.id) { mutableStateOf<Map<String, Customization>>(emptyMap()) }
-    configuring?.let { selected ->
-        val current = state.products.firstOrNull { it.id == selected.id } ?: selected
-        ProductCustomizationSheet(current, editing?.customization ?: previous[current.id] ?: current.defaults(), onDismiss = { configuring = null; editing = null },
-            validationQuantity = editing?.quantity,
-            capacity = { selection -> draftQuantityCapacity(state.cart.filterNot { it.lineId == editing?.lineId }, current.id, selection) },
-            locked = !state.canLeaveTabContext()) { selection ->
-            if (editing != null) onEdit(editing!!.lineId, selection) else onAdd(current, selection)
-            previous = previous + (current.id to selection); configuring = null; editing = null
-        }
-    }
-    val currentCart = state.cart.map { line -> line.copy(product = state.products.firstOrNull { it.id == line.product.id } ?: line.product.copy(active = false)) }
-    val cartTotal = currentCart.sumOf { it.unitPriceCents * it.quantity }
-
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        TextButton(onClick = onBack, enabled = state.canLeaveTabContext(), modifier = Modifier.heightIn(min = 48.dp)) { Text("← Mesas e comandas") }
-        Text(tab.summary.operationalLabel(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Text(tab.summary.operationalSubtitle(), style = MaterialTheme.typography.bodySmall, color = RodadaVisual.Muted)
-        Text(state.connectivity.label(), style = MaterialTheme.typography.labelSmall)
-        val taskRows = if (androidx.compose.ui.platform.LocalDensity.current.fontScale > 1.3f) listOf(listOf("Cardápio", "Conta"), listOf("Pedido atual")) else listOf(listOf("Cardápio", "Pedido atual", "Conta"))
-        taskRows.forEach { destinations ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                destinations.forEach { destination ->
-                    OutlinedButton(onClick = { workspaceSection = destination },
-                        tone = if (workspaceSection == destination) RodadaButtonTone.SELECTED else RodadaButtonTone.NEUTRAL, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("workspace-$destination"),
-                        enabled = !state.loading && !state.submitting) { Text(if (workspaceSection == destination) "• $destination" else destination, style = MaterialTheme.typography.bodySmall, textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
-                }
-            }
-        }
-        key(tab.summary.id, workspaceSection) {
-            LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth().testTag("workspace-list"),
-                state = if (reviewingCart) cartScroll else catalogScroll,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                if (reviewingCart) {
-                    item {
-                        Text(tab.summary.displayLabel, style = MaterialTheme.typography.titleLarge)
-                        if (tab.summary.consumptionBlocked || tab.summary.limitWarning) {
-                            Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error)
-                        }
-                        if (tab.summary.serviceAssessmentStale) Text("Atualize a taxa de serviço no caixa antes de receber.")
-                        OrderCart(currentCart, cartTotal, state.submitting, state.orderIntentId != null, onQuantity, onConfirmOrder) { line -> editing = line; configuring = line.product }
-                    }
-                }
-                if (viewingAccount) {
-                    item {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            BalanceCard(tab.summary, onPay, onClose, state.submitting, state.connectivity == ConnectivityState.ONLINE)
-                            if (tab.summary.consumptionBlocked || tab.summary.limitWarning) Text(if (tab.summary.consumptionBlocked) "Limite atingido. Receba um parcial ou solicite aprovação para continuar." else "Comanda próxima do limite.", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                            AccountActions(tab.summary, state.submitting, state.connectivity == ConnectivityState.ONLINE, onAdjustPricing, onOperations, onResolveLimit)
-                        }
-                    }
-                }
-                if (!reviewingCart && !viewingAccount) {
-                    item {
-                        CategoryCatalog(state, tab.summary.id, tab.summary.state in setOf("CLOSED", "CANCELLED"),
-                            onAddQuantity, onReview = { workspaceSection = "Pedido atual" })
-                    }
-                }
-                if (viewingAccount && tab.orders.isNotEmpty()) {
-                    item { Text("Pedidos confirmados", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp)) }
-                    items(tab.orders, key = { it.id }) { order ->
-                        ConfirmedOrderCard(order, repeatEnabled, !state.submitting && tab.summary.state != "CLOSED",
-                            onRepeat = { repeatReview = reviewRepeatedOrder(order, state.products) }, onCorrect = onCorrectItem)
-                    }
-                }
-                if (viewingAccount && tab.payments.isNotEmpty()) {
-                    item { Text("Pagamentos", style = MaterialTheme.typography.titleMedium) }
-                    items(tab.payments, key = { it.id }) { payment ->
-                        AccountPanel {
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text((if (payment.simulated) "SIMULAÇÃO · " else "") + paymentMethodLabel(payment.method), fontWeight = FontWeight.Bold)
-                                Text("${formatCents(payment.amountCents)} · ${paymentStatusLabel(payment.status)}")
-                                if (payment.refundedCents > 0) Text("Já estornado: ${formatCents(payment.refundedCents)}")
-                                val available = (payment.amountCents - payment.refundedCents).coerceAtLeast(0)
-                                if (available > 0) {
-                                    OutlinedButton(
-                                        onClick = { onRefundPayment(payment) },
-                                        enabled = !state.submitting,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    ) { Text("Estornar ${formatCents(available)}") }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (viewingAccount && tab.refundRequiredCorrections.isNotEmpty()) {
-                    item { Text("Estorno necessário", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.error) }
-                    items(tab.refundRequiredCorrections, key = { it.id }) { correction ->
-                        AccountPanel {
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                Text(correction.itemName, fontWeight = FontWeight.Bold)
-                                Text("A correção ainda precisa de ${formatCents(correction.refundRequiredCents)} em estorno.")
-                                OutlinedButton(
-                                    onClick = { onSettleCorrection(correction) },
-                                    enabled = tab.payments.any { it.amountCents > it.refundedCents } && !state.submitting,
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) { Text("Resolver estorno") }
-                            }
-                        }
-                    }
-                }
-                item { Spacer(Modifier.height(24.dp)) }
-            }
-        }
-        OutlinedButton(
-            onClick = {
-                if (!reviewingCart) {
-                    catalogIndex = catalogScroll.firstVisibleItemIndex
-                    catalogOffset = catalogScroll.firstVisibleItemScrollOffset
-                }
-                workspaceSection = if (reviewingCart) "Cardápio" else "Pedido atual"
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            val count = currentCart.sumOf { it.quantity }
-            Text(if (reviewingCart) "Voltar ao catálogo" else "Ver pedido atual · $count ${if (count == 1) "item" else "itens"} · ${formatCents(cartTotal)}")
-        }
-    }
+    Ux2AccountPage(state, tab, onBack = { workspaceSection = "Comanda" },
+        onPay = onPay, onClose = onClose, onReturn = onBack,
+        onAdjustPricing = onAdjustPricing, onRefund = onRefundPayment, onSettleCorrection = onSettleCorrection,
+        onOperations = onOperations, onCorrectItem = onCorrectItem)
 }
 
 @Composable

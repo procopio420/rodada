@@ -1,0 +1,53 @@
+{
+  "source_commit": "a7298ee2676219e5a98767c98aa2333cf554c208",
+  "prototype_commit": "ec26e26b164692b1e22e0fc1b7c7c45d401a7ca0",
+  "device": "emulator-5558 API36",
+  "widths_dp": [
+    360,
+    390,
+    430
+  ],
+  "font_scales": [
+    1,
+    2
+  ],
+  "jvm": {
+    "tests": 116,
+    "failures": 0,
+    "errors": 0
+  },
+  "instrumentation_tests": 24,
+  "instrumentation_failures": 0,
+  "scope": "Isolated Compose fixtures, no shell/API/PSP/physical-device acceptance",
+  "files": {
+    "build-test-lint.log": "a7ca5a61ed4ec5bf8ae6b80f47631823b5360d994e6ac56b3b9e65ba7fa3b821",
+    "README.md": "1c74e210d4c8128c5db8888eadbb4d6c9d4c7a994d796de28a69aa31a7bac2e7",
+    "run-matrix.py": "85cd062578c7a9abf774bb2afb444563e23cea65f54d67c14025df5c6a411d8b",
+    "results.json": "3796a773566b6d7582c1f410fe81f72dc1efabc3c845e20e24c557e72b0a6cfb",
+    "prior-test-compile-failure.log": "f50af857ac8f7afab1a79c2a29d2524897fe3018023adc99f6a7419a16d750ce",
+    "w390-f2.0/prototype-marina-summary-w390-f200.png": "102a9253cb0384dd4c1868a68f2284a36763c00af78653b9eb4a774ca49919f6",
+    "w390-f2.0/prototype-marina-catalog-w390-f200.png": "ee80dab6de13120996ed77b7857b7b90dcaad37c2274e1031dd6892307280f00",
+    "w390-f2.0/instrumentation.txt": "a9272fafb760495214c0bdadccbc46adc68d62ff7a01e7623e7a7d53a82f0e86",
+    "w390-f2.0/ux2-receipt-full-w390-f200.png": "7d258c66ecacf9cf46207c38b3b3525184b78702f133b34143dd8b4f735d8646",
+    "w430-f1.0/prototype-marina-summary-w430-f100.png": "65695664715c91b7baf4aef8434a66c9b656edad2f7916a37c7340369d001bcd",
+    "w430-f1.0/ux2-receipt-full-w430-f100.png": "e3bde9fcaed6d3d633008a2b1fe2274253fc3725469fee7427654bb2a68437e7",
+    "w430-f1.0/prototype-marina-catalog-w430-f100.png": "6975949e9dbd6fa2e23c824aba608256f079f71289f0e47a5a96fc951506a1e1",
+    "w430-f1.0/instrumentation.txt": "4ff614861b379dc7b500a48e6ece4cf9f8b5cabce481a2662257bb8f490982cd",
+    "w360-f2.0/prototype-marina-catalog-w360-f200.png": "2420f7020cd5e7404725d26d4493c7eb970084739cae241ccf09a8957ccabb9b",
+    "w360-f2.0/ux2-receipt-full-w360-f200.png": "b0d2cff27cbba771817b5420a41042724314a46086d954a9800fdd96de779d56",
+    "w360-f2.0/prototype-marina-summary-w360-f200.png": "5b9bce232aae5f9d06049775654ec0296ee7e80b375f4ad49a1b5bcf69d24b62",
+    "w360-f2.0/instrumentation.txt": "f3ca79f385c2871ad77a30a25d2a7a924f02eb4a978d29fd22278222971cf39f",
+    "w430-f2.0/prototype-marina-summary-w430-f200.png": "3c54c710223358dfcda6805739810479a678197fd787dcaa6763f65768d3f33b",
+    "w430-f2.0/ux2-receipt-full-w430-f200.png": "b73105e27941fbd22979c427c7bd8f793fe4276968fc14b5dfbe0384cb5cb0a9",
+    "w430-f2.0/instrumentation.txt": "c8591a16bbc338e2416ca24ead8ffd8c4bed0e31e88a4e8a138dae27d67ad3d5",
+    "w430-f2.0/prototype-marina-catalog-w430-f200.png": "d6d5f7474189562f0f4244b27e97eec632a86b2b0076bf3d20eea1c572eaaaee",
+    "w360-f1.0/prototype-marina-catalog-w360-f100.png": "1233968ac1cf17e283050b0aa173eea7d4d479be98bb28bf3eb55ac0443d06af",
+    "w360-f1.0/prototype-marina-summary-w360-f100.png": "acf275693fbca4cfa40d988fab24b7a5468eb2f231a6b94545270e5bb88eb19d",
+    "w360-f1.0/ux2-receipt-full-w360-f100.png": "d92c14b87103fa6059dc7973446c63130d4039814f7ecd9ee4332b73fb5ee254",
+    "w360-f1.0/instrumentation.txt": "47810cd8ac75722509d33dc6947e8d0874d708ce363cc698863f9c5e6acb0b9c",
+    "w390-f1.0/ux2-receipt-full-w390-f100.png": "8b6b2af91245c7639d782e3aa26f93de929132a1743fcc668e1c629e26a53f10",
+    "w390-f1.0/prototype-marina-catalog-w390-f100.png": "d9aaa76299173117cebff61a131fe2a0779f3fcdc5df84dc54ee77c8f0495c9d",
+    "w390-f1.0/prototype-marina-summary-w390-f100.png": "4036366e30c5ba6378c52d0bc4607cb75b9fd8d27fe40bf6f711c38492f12546",
+    "w390-f1.0/instrumentation.txt": "4b421e1b8d758a80a42e22b682afb0e2a808a36a4a289f4311df5236a489b71b"
+  }
+}
