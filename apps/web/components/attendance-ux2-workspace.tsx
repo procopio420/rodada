@@ -11,7 +11,7 @@ import "./attendance-ux2-workspace.css";
 type Product = OrderingProduct & { active: boolean; availability: string; category?: string };
 type Line = { product: Product; quantity: number; selection: Selection };
 export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
-export function AttendanceUx2Workspace({ hidden = false, tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat }: {
+export function AttendanceUx2Workspace({ hidden = false, tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
   hidden?: boolean; tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
   pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode; catalogState?: {query: string; category: string}; onCatalogState?: (state: {query:string;category:string}) => void;
