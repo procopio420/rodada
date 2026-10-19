@@ -1,0 +1,21 @@
+{
+  "before": {
+    "claimed_by": null,
+    "item_id": "962dcbaa-4905-4858-823e-a7690bfdcfd4",
+    "item_state": "READY",
+    "tab_id": "26ce0ef7-b78d-4f2b-85c0-82a51eebc531",
+    "tab_state": "CLOSED",
+    "task_id": "3f212bbf-c688-4e87-8d21-2a8a62c85da6",
+    "task_state": "OPEN"
+  },
+  "after": {
+    "task_id": "3f212bbf-c688-4e87-8d21-2a8a62c85da6",
+    "task_state": "OPEN",
+    "claimed_by": null,
+    "item_id": "962dcbaa-4905-4858-823e-a7690bfdcfd4",
+    "item_state": "READY",
+    "tab_id": "26ce0ef7-b78d-4f2b-85c0-82a51eebc531",
+    "tab_state": "CLOSED"
+  },
+  "equal": true
+}
