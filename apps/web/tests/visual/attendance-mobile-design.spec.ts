@@ -436,3 +436,34 @@ for (const readbackFails of [false, true]) test(`release and direct cleaning ret
   await expect(page.getByRole("button", { name: /Mesa 02 Disponível/ })).toBeVisible();
   expect(paths).toEqual(["release", "complete"]);
 });
+
+for (const responseLost of [false, true]) test(`release retains confirmed occupancy across refresh: lost response=${responseLost}`, async ({ page }) => {
+  const { tables } = await setup(page);
+  await page.clock.pauseAt(new Date("2026-10-08T21:01:00Z"));
+  const original = structuredClone(tables[1].active_occupancy!);
+  const payloads: unknown[] = [];
+  await page.route("**/api/attendance/hospitality/tables/occupied/release/", route => {
+    payloads.push(route.request().postDataJSON());
+    if (responseLost && payloads.length === 1) return route.abort();
+    return route.fulfill({ status: 409, json: { code: "STALE_OCCUPANCY", message: "Ocupação original alterada." } });
+  });
+  await page.goto("/attendance");
+  await page.getByRole("button", { name: /Mesa 02 Ocupada/ }).click();
+  await page.getByRole("button", { name: "Liberar mesa 02", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Liberar mesa 02?", exact: true });
+  const confirm = dialog.getByRole("button", { name: "Confirmar liberação", exact: true });
+  if (responseLost) {
+    await confirm.click();
+    await expect.poll(() => payloads.length).toBe(1);
+    await expect(confirm).toBeEnabled();
+  }
+  tables[1].active_occupancy = { ...original, id: "replacement-occupancy", generation: original.generation + 1 };
+  const refreshed = page.waitForResponse(response => response.url().endsWith("/api/attendance/hospitality/tables/"));
+  await page.clock.runFor(15000);
+  await refreshed;
+  await expect(page.getByText("Atualizando…", { exact: true })).toHaveCount(0);
+  await confirm.click();
+  await expect(dialog.getByRole("alert")).toContainText("Ocupação original alterada");
+  expect(payloads).toEqual(Array(responseLost ? 2 : 1).fill({ expected_occupancy_id: original.id, expected_generation: original.generation }));
+  expect(tables[1].active_occupancy.id).toBe("replacement-occupancy");
+});

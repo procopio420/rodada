@@ -16,7 +16,7 @@ class TableReleaseTest {
         TableOccupancy("visit-a", 1, emptyList()))
     private val state = mutableStateOf(OperationsUiState(tables = listOf(table)))
     private val allowed = mutableStateOf(true)
-    private val released = mutableListOf<String>()
+    private val released = mutableListOf<TableReleaseCommand>()
 
     private fun render() {
         compose.setContent { RodadaTheme { Surface {
@@ -34,11 +34,11 @@ class TableReleaseTest {
         compose.onNodeWithText("A ocupação será encerrada e o acesso atual dos clientes pelo QR será revogado. A mesa ficará aguardando limpeza.").assertIsDisplayed()
         captureCriticalEvidence(compose, "table-release", compose.onNode(isDialog()))
         compose.onNodeWithText("Cancelar").assertHeightIsAtLeast(44.dp).performClick()
-        assertEquals(emptyList<String>(), released)
+        assertEquals(emptyList<TableReleaseCommand>(), released)
         compose.onNodeWithText("Liberar mesa").performClick()
         compose.onNodeWithText("Confirmar liberação").assertHeightIsAtLeast(44.dp).performClick()
         compose.onNodeWithText("Confirmar liberação").assertDoesNotExist()
-        assertEquals(listOf("table-a"), released)
+        assertEquals(listOf(TableReleaseCommand("table-a", "visit-a", 1)), released)
     }
 
     @Test fun changedOccupancyNeverAdoptsNewVisit() {
@@ -47,7 +47,7 @@ class TableReleaseTest {
         compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
         compose.onNodeWithText("A ocupação mudou. Cancele e confira a mesa novamente.").assertIsDisplayed()
         compose.onNodeWithText("Cancelar").performClick()
-        assertEquals(emptyList<String>(), released)
+        assertEquals(emptyList<TableReleaseCommand>(), released)
     }
 
     @Test fun busyOrLostPermissionBlocksConfirmationButAllowsCancellation() {
@@ -57,6 +57,6 @@ class TableReleaseTest {
         compose.runOnIdle { state.value = state.value.copy(submitting = false); allowed.value = false }
         compose.onNodeWithText("Confirmar liberação").assertIsNotEnabled()
         compose.onNodeWithText("Cancelar").assertIsEnabled().performClick()
-        assertEquals(emptyList<String>(), released)
+        assertEquals(emptyList<TableReleaseCommand>(), released)
     }
 }

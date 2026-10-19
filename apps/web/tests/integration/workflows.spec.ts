@@ -80,7 +80,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   }
 
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Web E2E 24", guest_ordering_mode: "DIRECT" });
-  await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
   const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   guest.on("pageerror", error => errors.push(error.message));
@@ -139,7 +139,7 @@ test("real staff, production, guest ordering, management and cash/refund workflo
   expect(guestCookies[0].sameSite).toBe("Lax");
   expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
   expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
-  await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
+  await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   const revoked = await guest.evaluate(async qrSelector => {
     const result = await fetch("/api/guest/context/", { headers: { "X-Guest-Session": qrSelector } });
     return { status: result.status, body: await result.json() };
@@ -216,7 +216,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   await page.getByRole("option", { name: new RegExp(name.replace("=", "")) }).click();
   await expect(page.getByText("Item disponível no catálogo existente.")).toBeVisible();
   const table = await api(page, "/api/pos/hospitality/tables/", { label: "Tracking E2E", guest_ordering_mode: "DIRECT" });
-  await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(page, `/api/pos/hospitality/tables/${table.id}/occupy/`, {});
   const guestContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await guestContext.newPage();
   await guest.goto(`/guest/${table.public_token}`);
@@ -266,7 +266,7 @@ test("completed catalog, persistent guest tracking, historical cash review and r
   const downloaded = page.waitForEvent("download"); await page.getByRole("button", { name: "Exportar CSV" }).click();
   const download = await downloaded; const csv = await readFile((await download.path())!, "utf8");
   expect(csv).toContain('"\'=Teste CSV real"'); expect(csv).toContain("valores monetários em centavos");
-  await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, {});
+  await api(page, `/api/pos/hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   await expect(guest.getByText("Esta visita terminou.", { exact: false })).toBeVisible({ timeout: 10000 });
   await expect(guest.getByText("1× =Teste CSV real", { exact: true })).toHaveCount(0);
   await guestContext.close();

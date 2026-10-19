@@ -355,9 +355,13 @@ do acesso guest atual e encaminhamento para limpeza. Não fecha nem paga comanda
 Cancelar, voltar ou tocar fora não chamam a mutation. Confirmar exige permissão,
 nenhuma submissão em curso e a mesma ocupação ativa do inventário local; mudança
 local de ocupação/status invalida a revisão, sem substituir seu alvo. O servidor
-mantém autorização e regras existentes. Este recorte não acrescenta precondição
-transacional ao endpoint: disputa após a última atualização local e recuperação
-durável de resposta ambígua continuam gates separados, sem alegar proteção nova.
+mantém autorização e exige `expected_occupancy_id` e `expected_generation`
+capturados na revisão original. Sob locks Table → TableOccupancy, compara ambos
+antes de qualquer escrita; divergência retorna 409 `STALE_OCCUPANCY`, sem afetar
+a ocupação substituta. Campos ausentes/inválidos retornam 400. Web e Android não
+substituem esse par após refresh ou retry de resposta perdida. Recuperação durável
+e idempotência de liberação continuam fora deste recorte; não alegar homologação
+de aparelho a partir de CI/emulador.
 
 ### T08c / UX-13 — repetir rodada guest
 Repetir rodada por pedido histórico lê contexto e catálogo autorizados com o token

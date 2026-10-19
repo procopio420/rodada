@@ -1,3 +1,4 @@
+import { chooseBarAvailability } from "../visual/station-availability-actions";
 import { expect, test } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
@@ -34,7 +35,8 @@ test("E2E-05: Guest cart rejected after operational availability changes", async
     await guest.getByRole("button", { name: new RegExp("^" + product.name) }).click();
     await expect(guest.getByRole("region", { name: "Pedido atual" })).toContainText(product.name);
     await guest.route("**/api/guest/orders/confirm/", async route => {
-      await station.getByRole("button", { name: "Indisponibilizar " + product.name, exact: true }).click();
+      await chooseBarAvailability(station, product.name);
+      await station.getByRole("button", { name: "Sim, indisponibilizar", exact: true }).click();
       await expect.poll(async () => {
         const catalog = await api("catalog/products/");
         return catalog.results.find((entry: { id: string }) => entry.id === product.id)?.availability;

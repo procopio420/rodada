@@ -133,3 +133,11 @@ Checklists permanecem abertos até execução verificável; código adicionado n
 - [ ] Duas rotações da mesma credencial em Venues distintos serializam por credencial: uma vence e a outra recebe autorização revogada, sem deadlock/500. Sessões anteriores ficam revogadas e visitas anônimas permanecem válidas.
 - [ ] Cookie HttpOnly não entrega auth token à JS; CSRF/Host/cabeçalhos forjados testados com BFF real.
 - [ ] UI Guest responsive 360/390/430/desktop, acessibilidade, testes PostgreSQL/CI e revisor independente R3 aprovados; merge depois de aceite.
+
+### Reconciliação #253 — contexto obrigatório da liberação
+- [ ] Web e Android enviam o ID e a geração capturados ao abrir a revisão.
+- [ ] Refresh A→B e retry com resposta perdida nunca enviam o contexto de B.
+- [ ] API rejeita omissão/par parcial/inválido e `STALE_OCCUPANCY` sem escritas;
+  liberação válida revoga o guest original, preservando ledger e isolamento Venue.
+- Evidências anteriores permanecem históricas; validação do SHA reconciliado em
+  `docs/development/evidence/spec033-api-release-context/mission-2026-10-19.md`.

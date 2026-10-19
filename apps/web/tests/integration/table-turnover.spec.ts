@@ -20,8 +20,8 @@ test("Table turnover real PostgreSQL report shows canonical coverage at mobile a
   const table = await call("hospitality/tables/", "POST", {
     label: "Giro E2E", guest_ordering_mode: "DIRECT",
   });
-  await call(`hospitality/tables/${table.id}/occupy/`, "POST", {});
-  await call(`hospitality/tables/${table.id}/release/`, "POST", {});
+  const originalOccupancy = await call(`hospitality/tables/${table.id}/occupy/`, "POST", {});
+  await call(`hospitality/tables/${table.id}/release/`, "POST", { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   await call(`hospitality/tables/${table.id}/cleaning/start/`, "POST", {});
   await call(`hospitality/tables/${table.id}/cleaning/complete/`, "POST", {});
   const calendar = await call("management/calendar/");

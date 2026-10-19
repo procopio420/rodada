@@ -59,7 +59,10 @@ with transaction.atomic():
             raise ValueError("Comandas mudaram desde o manifesto; revisar antes de aplicar.")
         results[slug]=reset_test_tabs(tab_ids=ids,actor=actor)
         for table in Table.objects.filter(venue=venue):
-            if table.status=="OCCUPIED": release_table(table_id=table.pk,actor=actor); table.refresh_from_db()
+            if table.status=="OCCUPIED":
+                occupancy = table.occupancies.get(released_at__isnull=True)
+                release_table(table_id=table.pk,actor=actor,expected_occupancy_id=occupancy.pk,expected_generation=occupancy.generation)
+                table.refresh_from_db()
             if table.status=="DIRTY": start_cleaning(table_id=table.pk,actor=actor); table.refresh_from_db()
             if table.status=="CLEANING": complete_cleaning(table_id=table.pk,actor=actor)
         evaluate_alerts(venue)
