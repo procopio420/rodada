@@ -13,7 +13,7 @@ A jornada do Rodada não termina na entrega: o atendente/caixa precisa conferir 
 - **Liberar mesa:** encerra a ocupação e revoga acesso guest da geração anterior, mudando para DIRTY. Não equivale a fechar uma Tab.
 - **Concluir limpeza:** torna a mesa AVAILABLE e incrementa access_generation; não altera consumo passado.
 
-Referências normativas: \`specs/001-core-pos/spec.md\` (POS-008/009/012), \`specs/004-table-guest-ordering/spec.md\` (TABLE-003/004 e guest revocation), \`specs/006-payments/\` quando aplicável, \`specs/012-cash-management/spec.md\`, \`docs/domain/model.md\`, \`docs/product/principles.md\`.
+Referências normativas: \`specs/001-core-pos/spec.md\` (POS-008/009/012), \`specs/004-table-guest-ordering/spec.md\` (TABLE-003/004 e guest revocation), \`specs/006-payments-tap-on-phone/\` quando aplicável, \`specs/012-cash-management/spec.md\`, \`docs/domain/model.md\`, \`docs/product/principles.md\`.
 
 ## Fluxo aprovado para avaliação — fechamento rápido (sem revisões redundantes)
 
