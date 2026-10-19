@@ -1,0 +1,7 @@
+{
+  "source": "a3236515; instrumented source b0c4e1f5 unchanged during gate",
+  "tests": 133,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+}
