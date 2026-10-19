@@ -1,0 +1,73 @@
+[2m[WebServer] [22m(node:1763397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [18/Oct/2026 00:18:20] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 3 tests using 1 worker
+
+(node:1763427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1763427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/attendance-ux2-workspace.spec.ts:115:5 › UX2 cleaning requires canonical DIRTY then CLEANING then AVAILABLE (1.2s)
+  ✘  2 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true (784ms)
+(node:1763602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1763602) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false (902ms)
+
+
+  1) tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true 
+
+    Error: Missing visual fixture: GET /api/pos/tabs/closed-tab/
+
+       at fixtures.ts:92
+
+      90 |       cash_shifts: state === "empty" ? [] : [{ ...(state === "warnings" ? pending : shift), cash_point_label: state === "long" ? longName : "Caixa de teste", business_date: "2026-10-08" }],
+      91 |     };
+    > 92 |     else throw new Error(`Missing visual fixture: ${route.request().method()} ${url.pathname}`);
+         |                ^
+      93 |     await route.fulfill({ json: body });
+      94 |   });
+      95 | }
+        at /home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/visual/fixtures.ts:92:16
+
+    Error Context: test-results/visual/ux2-table-release-context--337c5-nical-deliveries-ready-true/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/ux2-table-release-context--337c5-nical-deliveries-ready-true/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/ux2-table-release-context--337c5-nical-deliveries-ready-true/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false 
+
+    Error: Missing visual fixture: GET /api/pos/tabs/closed-tab/
+
+       at fixtures.ts:92
+
+      90 |       cash_shifts: state === "empty" ? [] : [{ ...(state === "warnings" ? pending : shift), cash_point_label: state === "long" ? longName : "Caixa de teste", business_date: "2026-10-08" }],
+      91 |     };
+    > 92 |     else throw new Error(`Missing visual fixture: ${route.request().method()} ${url.pathname}`);
+         |                ^
+      93 |     await route.fulfill({ json: body });
+      94 |   });
+      95 | }
+        at /home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/visual/fixtures.ts:92:16
+
+    Error Context: test-results/visual/ux2-table-release-context--addd5-ical-deliveries-ready-false/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/ux2-table-release-context--addd5-ical-deliveries-ready-false/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/ux2-table-release-context--addd5-ical-deliveries-ready-false/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true 
+    tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false 
+  1 passed (9.3s)

@@ -56,6 +56,7 @@ def _order_payload(order) -> dict:
                 "id": str(item.id),
                 "product_id": str(item.product_id),
                 "product_name": item.product_name_snapshot,
+                "fulfillment_station_snapshot": item.fulfillment_station_snapshot,
                 "customization_snapshot": item.customization_snapshot,
                 "unit_price_cents": item.unit_price_cents,
                 "quantity": item.quantity if item.state == "CANCELLED" else item.remaining_quantity,

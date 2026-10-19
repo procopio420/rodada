@@ -123,6 +123,37 @@ class OrderingFoundationTests(TestCase):
         saved_tab = Tab.objects.get(pk=tab["id"])
         assert saved_tab.version == 2
 
+    def test_order_readback_preserves_station_snapshot_after_catalog_rerouting(self):
+        tab = self.open_tab()
+        product = self.product(station=FulfillmentStation.BAR)
+        payload = {"idempotency_key": "station-readback", "lines": [
+            {"product_id": str(product.id), "quantity": 1},
+        ]}
+        confirmed = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", payload, format="json")
+        assert confirmed.status_code == 201, confirmed.json()
+        assert confirmed.json()["items"][0]["fulfillment_station_snapshot"] == "BAR"
+        product.fulfillment_station = FulfillmentStation.KITCHEN
+        product.save(update_fields=["fulfillment_station"])
+        detail = self.client.get(f"/tabs/{tab['id']}/")
+        assert detail.status_code == 200
+        assert detail.json()["orders"][0]["items"][0]["fulfillment_station_snapshot"] == "BAR"
+        replay = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", payload, format="json")
+        assert replay.status_code == 200
+        assert replay.json()["id"] == confirmed.json()["id"]
+        assert replay.json()["items"][0]["fulfillment_station_snapshot"] == "BAR"
+        assert Tab.objects.get(pk=tab["id"]).orders.count() == 1
+
+    def test_legacy_empty_station_snapshot_does_not_infer_catalog_route(self):
+        tab = self.open_tab()
+        product = self.product()
+        response = self.client.post(f"/tabs/{tab['id']}/orders/confirm/", {
+            "idempotency_key": "legacy-station", "lines": [{"product_id": str(product.id), "quantity": 1}],
+        }, format="json")
+        assert response.status_code == 201
+        OrderItem.objects.filter(pk=response.json()["items"][0]["id"]).update(fulfillment_station_snapshot="")
+        detail = self.client.get(f"/tabs/{tab['id']}/")
+        assert detail.json()["orders"][0]["items"][0]["fulfillment_station_snapshot"] == ""
+
     def test_unavailable_product_blocks_whole_order(self):
         tab = self.open_tab()
         available = self.product(name="Água", price_cents=500)

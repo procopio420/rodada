@@ -129,7 +129,9 @@ class FullShiftSmokeTests(TestCase):
         self.post(self.staff, f"/order-items/{bar_item['id']}/transition/", {"state": "READY"})
         deliveries = self.staff.get("/dispatch/delivery/")
         self.assertEqual(deliveries.status_code, 200, deliveries.json())
-        delivery = next(row for row in deliveries.json()["results"] if row["order_item_id"] == bar_item["id"])
+        delivery = next(
+            row for row in deliveries.json()["results"] if row["order_item_id"] == bar_item["id"]
+        )
         self.assertEqual(delivery["destination_label"], "Mesa 24")
         completed = self.post(self.staff, f"/dispatch/delivery/{delivery['id']}/complete/")
         self.assertEqual(completed["state"], "DONE")
@@ -138,8 +140,12 @@ class FullShiftSmokeTests(TestCase):
         # operational and financial history. It requires manager reauth and
         # does not pretend the work never happened.
         prepared_item = staff_items[str(self.post_production.id)]
-        self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "ACCEPTED"})
-        self.post(self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "PREPARING"})
+        self.post(
+            self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "ACCEPTED"}
+        )
+        self.post(
+            self.staff, f"/order-items/{prepared_item['id']}/transition/", {"state": "PREPARING"}
+        )
         self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
         post_production_cancel = self.post(
             self.staff,
@@ -266,12 +272,21 @@ class FullShiftSmokeTests(TestCase):
         self.post(self.staff, f"/tabs/{ana['id']}/close/")
 
         # Closing tabs never releases a physical table; staff releases/cleans it explicitly.
-        released = self.post(self.staff, f"/hospitality/tables/{table['id']}/release/")
+        released = self.post(
+            self.staff,
+            f"/hospitality/tables/{table['id']}/release/",
+            {
+                "expected_occupancy_id": occupancy["id"],
+                "expected_generation": occupancy["generation"],
+            },
+        )
         self.assertIsNotNone(released["released_at"])
         self.post(self.staff, f"/hospitality/tables/{table['id']}/cleaning/start/")
         self.post(self.staff, f"/hospitality/tables/{table['id']}/cleaning/complete/")
         listed = self.staff.get("/hospitality/tables/").json()["results"]
-        self.assertEqual(next(row for row in listed if row["id"] == table["id"])["status"], TableStatus.AVAILABLE)
+        self.assertEqual(
+            next(row for row in listed if row["id"] == table["id"])["status"], TableStatus.AVAILABLE
+        )
 
         # Cash custody is append-only as well. Supply and withdrawal happen
         # before the independent physical count; the deliberate difference is
@@ -284,7 +299,11 @@ class FullShiftSmokeTests(TestCase):
         self.post(
             self.staff,
             f"/cash/shifts/{shift['id']}/withdrawal/",
-            {"amount_cents": 200, "reason": "Envio ao cofre", "idempotency_key": "shift-withdrawal"},
+            {
+                "amount_cents": 200,
+                "reason": "Envio ao cofre",
+                "idempotency_key": "shift-withdrawal",
+            },
         )
         counting = self.post(self.staff, f"/cash/shifts/{shift['id']}/count/start/")
         closed = self.post(

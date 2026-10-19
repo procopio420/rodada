@@ -211,7 +211,9 @@ def assign_tab(*, occupancy_id, tab_id, actor: ActorContext) -> TabOccupancyAssi
 
 
 @transaction.atomic
-def release_table(*, table_id, actor: ActorContext) -> TableOccupancy:
+def release_table(
+    *, table_id, actor: ActorContext, expected_occupancy_id, expected_generation
+) -> TableOccupancy:
     table = _table_for_actor(table_id, actor)
     if table.status != TableStatus.OCCUPIED:
         raise HospitalityServiceError(
@@ -221,6 +223,20 @@ def release_table(*, table_id, actor: ActorContext) -> TableOccupancy:
             {"status": table.status},
         )
     occupancy = _active_occupancy(table)
+    # Check under the same Table -> Occupancy locks used by lifecycle commands.
+    # An intention may never target the replacement group that happens to
+    # occupy the same physical table.
+    if expected_occupancy_id is None or expected_generation is None:
+        raise HospitalityServiceError(
+            "INVALID_RELEASE_CONTEXT", "Informe ocupação e geração juntas.", 400
+        )
+    if (
+        str(occupancy.id) != str(expected_occupancy_id)
+        or occupancy.generation != expected_generation
+    ):
+        raise HospitalityServiceError(
+            "STALE_OCCUPANCY", "A ocupação mudou. Confira a mesa novamente.", 409
+        )
     now = timezone.now()
     occupancy.released_at = now
     occupancy.released_by_id = actor.staff_id

@@ -1,0 +1,65 @@
+[2m[WebServer] [22m(node:3529482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:3529521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3529521) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (25.2s)
+
+  ✓  2 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (23.2s)
+
+  ✓  3 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (21.2s)
+
+  ✓  4 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (23.2s)
+[2m[WebServer] [22mConflict: /tabs/5b4cd4ec-d709-42ec-a8f5-69a2639872c8/close/
+  ✘  5 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (29.7s)
+(node:3533540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3533540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  6 tests/integration/tab-location-move.spec.ts:29:5 › real location movement preserves finance and recovers without duplicate effects at mobile widths (27.6s)
+
+
+  1) tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Iniciar limpeza' })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Iniciar limpeza' })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      82 |   await expect(page.locator(".ux2TablePage")).not.toBeVisible();
+      83 |   await page.getByRole("button", { name: /^Mesa Attendance test Aguardando limpeza/ }).click();
+    > 84 |   await expect(page.getByRole("button", { name: "Iniciar limpeza" })).toHaveCount(0);
+         |                                                                       ^
+      85 |   await page.getByRole("button", { name: "Mesa limpa · Disponibilizar" }).click();
+      86 |   await expect(page.locator(".ux2TablePage")).not.toBeVisible();
+      87 |   await expect(page.getByRole("button", { name: /^Mesa Attendance test Disponível/ })).toBeVisible();
+        at /home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/integration/attendance.spec.ts:84:71
+
+    Error Context: test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+  5 passed (2.7m)

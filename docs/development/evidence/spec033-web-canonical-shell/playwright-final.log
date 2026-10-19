@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:1753156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1753156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/parity/web-shell-canonical.spec.ts:7:48 › canonical shell journey and contextual return 360 (5.8s)
+  ✓  2 tests/parity/web-shell-canonical.spec.ts:7:48 › canonical shell journey and contextual return 390 (6.8s)
+  ✓  3 tests/parity/web-shell-canonical.spec.ts:7:48 › canonical shell journey and contextual return 430 (5.4s)
+  ✓  4 tests/parity/web-shell-canonical.spec.ts:7:48 › canonical shell journey and contextual return 1280 (5.9s)
+
+  4 passed (31.2s)

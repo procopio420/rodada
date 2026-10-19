@@ -56,3 +56,162 @@ test("POS lost cash response after PostgreSQL commit survives reload with one dr
   expect(afterShift.expected_cents - beforeShift.expected_cents).toBe(1000);
   expect(afterShift.movements.filter((m: { payment_id: string }) => m.payment_id === paymentId)).toHaveLength(1);
 });
+
+// This exercises the reusable component's persisted attendance flow while the
+// workspace's opt-in presentation is integrated separately. All domain effects
+// use the real BFF, Django and PostgreSQL; only transport failures are injected.
+test("Attendance full receipt resumes close after reload without reposting confirmed Payment", async ({ page }) => {
+  await page.goto("/staff");
+  await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-manager");
+  await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
+  const point = (await api(page, "cash/points/")).results[0];
+  const shift = point.active_shift ?? await api(page, "cash/shifts/", {
+    cash_point_id: point.id, opening_float_cents: 0, business_date: "2026-10-16", idempotency_key: "033-full-shift",
+  });
+  const before = await api(page, `cash/shifts/${shift.id}/`);
+  const product = (await api(page, "catalog/products/")).results.find((p: { name: string }) => p.name === "Kitchen E2E item");
+  const tab = await api(page, "tabs/", { display_label: "UX2 full recovery" });
+  await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-full-order", lines: [{ product_id: product.id, quantity: 1 }] });
+  const bill = await api(page, `tabs/${tab.id}/`);
+  const auth = await page.evaluate(async () => (await fetch("/api/auth/me")).json());
+  const intent = { schema: 2, api_root: "/api/attendance", phase: "PAYMENT_PENDING", payment_id: null,
+    close_requested: true, venue: auth.venue.id, staff: auth.staff.id, session: auth.session.id,
+    tab: tab.id, captured_at: new Date().toISOString(), payload: { amount_cents: bill.exposure_cents,
+      expected_version: bill.version, method: "CASH", cash_point_id: point.id,
+      idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id } };
+  await page.evaluate(intent => sessionStorage.setItem("rodada.intent.pos-cash.v1", JSON.stringify(intent)), intent);
+  let paymentPosts = 0, closePosts = 0, rejectClose = true;
+  const bodies: string[] = [];
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`), async route => {
+    paymentPosts++; bodies.push(route.request().postData()!);
+    const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
+    expect(response.status()).toBe(201);
+    if (paymentPosts === 1) await route.abort(); else await route.fulfill({ response });
+  });
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`), async route => {
+    closePosts++;
+    if (rejectClose) return route.fulfill({ status: 503, json: { code: "UNAVAILABLE", message: "Encerramento indisponível." } });
+    const response = await route.fetch({ url: route.request().url().replace(/\/$/, ""), headers: await route.request().allHeaders() });
+    expect(response.status()).toBe(200);
+    // Commit happened but the acknowledgement is lost.
+    await route.abort();
+  });
+  await page.goto("/pos");
+  const verify = page.getByRole("button", { name: "Verificar mesmo recebimento" });
+  await expect(verify).toBeEnabled();
+  await verify.click();
+  await expect(page.getByText(/Resultado ainda não confirmado/)).toBeVisible();
+  expect(paymentPosts).toBe(1); expect(closePosts).toBe(0);
+  expect((await api(page, `tabs/${tab.id}/`)).payments).toHaveLength(1);
+  await page.reload(); await expect(verify).toBeEnabled();
+  expect(paymentPosts).toBe(1);
+  await verify.click();
+  await expect(page.getByText(/Recebimento confirmado; encerramento pendente/)).toBeVisible();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(1);
+  expect(bodies[1]).toBe(bodies[0]);
+  const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("rodada.intent.pos-cash.v1")!));
+  expect(saved.phase).toBe("PAYMENT_CONFIRMED"); expect(saved.payment_id).toBeTruthy();
+  expect(saved.payload).toEqual(intent.payload);
+  const received = await api(page, `tabs/${tab.id}/`);
+  expect(received.payments).toHaveLength(1); expect(received.state).toBe("OPEN"); expect(received.exposure_cents).toBe(0);
+  rejectClose = false;
+  await page.reload(); await expect(verify).toBeEnabled();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(1);
+  await verify.click(); await expect(verify).toBeEnabled();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(2);
+  expect((await api(page, `tabs/${tab.id}/`)).state).toBe("CLOSED");
+  await page.reload(); await verify.click();
+  // POS hides collection controls for a closed Tab; canonical readback and
+  // envelope retirement prove completion, rather than a transient toast.
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
+  expect(paymentPosts).toBe(2); expect(closePosts).toBe(2); expect(bodies).toHaveLength(2);
+  expect(await page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
+  const after = await api(page, `cash/shifts/${shift.id}/`);
+  expect(after.expected_cents - before.expected_cents).toBe(bill.exposure_cents);
+  expect(after.movements.filter((m: { payment_id: string }) => m.payment_id === saved.payment_id)).toHaveLength(1);
+});
+
+test("Attendance CASH gateway preserves server capability guard", async ({ page }) => {
+  await page.goto("/staff");
+  await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-staff");
+  await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
+  const tab = await api(page, "tabs/", { display_label: "Capability test no receipt" });
+  const result = await page.evaluate(async tabId => {
+    const auth = await (await fetch("/api/auth/me")).json();
+    const point = await fetch("/api/attendance/cash/points/");
+    const payment = await fetch(`/api/attendance/tabs/${tabId}/payments/`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ method: "CASH", amount_cents: 100, expected_version: 1,
+        cash_point_id: crypto.randomUUID(), idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id }),
+    });
+    return { pointStatus: point.status, paymentStatus: payment.status, body: await payment.json() };
+  }, tab.id);
+  expect(result.pointStatus).toBe(403); expect(result.paymentStatus).toBe(403);
+  expect(result.body.code).toBe("CAPABILITY_REQUIRED");
+  expect((await api(page, `tabs/${tab.id}/`)).payments).toEqual([]);
+});
+
+test("Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again", async ({ page }) => {
+  await page.goto("/staff");
+  await page.getByLabel("Estabelecimento").fill("web-e2e");
+  await page.getByLabel("Operador", { exact: true }).fill("test-manager");
+  await page.getByLabel("PIN", { exact: true }).fill("2468");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await expect(page.getByRole("link", { name: /Continuar trabalhando/ })).toBeVisible();
+  const point = (await api(page, "cash/points/")).results[0];
+  const shift = point.active_shift ?? await api(page, "cash/shifts/", {
+    cash_point_id: point.id, opening_float_cents: 0, business_date: "2026-10-16", idempotency_key: "033-race-shift",
+  });
+  const product = (await api(page, "catalog/products/")).results.find((p: { name: string }) => p.name === "Kitchen E2E item");
+  const tab = await api(page, "tabs/", { display_label: "Concurrent consumption after receipt" });
+  await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-before", lines: [{ product_id: product.id, quantity: 1 }] });
+  const bill = await api(page, `tabs/${tab.id}/`);
+  const auth = await page.evaluate(async () => (await fetch("/api/auth/me")).json());
+  const payload = { amount_cents: bill.exposure_cents, expected_version: bill.version, method: "CASH",
+    cash_point_id: point.id, idempotency_key: crypto.randomUUID(), originating_session_id: auth.session.id };
+  const receipt = await api(page, `tabs/${tab.id}/payments/`, payload);
+  // Another canonical order arrives after receipt, before the close readback.
+  await api(page, `tabs/${tab.id}/orders/confirm/`, { idempotency_key: "033-race-after", lines: [{ product_id: product.id, quantity: 1 }] });
+  const before = await api(page, `cash/shifts/${shift.id}/`);
+  await page.evaluate(intent => sessionStorage.setItem("rodada.intent.pos-cash.v1", JSON.stringify(intent)), {
+    schema: 2, api_root: "/api/attendance", phase: "PAYMENT_CONFIRMED", payment_id: receipt.id,
+    close_requested: true, venue: auth.venue.id, staff: auth.staff.id, session: auth.session.id,
+    tab: tab.id, captured_at: new Date().toISOString(), payload,
+  });
+  let mutationAttempts = 0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/(payments|close)/?$`), route => {
+    mutationAttempts++; return route.abort();
+  });
+  await page.goto("/pos");
+  await page.getByRole("button", { name: "Verificar mesmo recebimento" }).click();
+  await expect(page.getByText(/O saldo mudou/)).toBeVisible();
+  const keep = page.getByRole("button", { name: "Manter comanda aberta", exact: true });
+  await expect(keep).toBeEnabled();
+  await keep.click();
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();
+  expect(mutationAttempts).toBe(0);
+  const current = await api(page, `tabs/${tab.id}/`);
+  expect(current.state).toBe("OPEN"); expect(current.exposure_cents).toBe(product.price_cents);
+  expect(current.payments).toHaveLength(1); expect(current.payments[0].id).toBe(receipt.id);
+  const after = await api(page, `cash/shifts/${shift.id}/`);
+  expect(after.expected_cents).toBe(before.expected_cents);
+  expect(after.movements.filter((m: { payment_id: string }) => m.payment_id === receipt.id)).toHaveLength(1);
+  await expect(page.getByLabel("Valor do pagamento")).toBeEnabled();
+});
+
+test("UX2 Account receives partial CASH then settles and closes from real page", async ({page}) => {
+ await page.goto("/staff");await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();await expect(page.getByRole("link",{name:/Continuar trabalhando/})).toBeVisible();
+ const point=(await api(page,"cash/points/")).results[0];const shift=point.active_shift??await api(page,"cash/shifts/",{cash_point_id:point.id,opening_float_cents:0,business_date:"2026-10-17",idempotency_key:"ux2-page-shift"});
+ const tab=await api(page,"tabs/",{display_label:"UX2 account real page"});const product=(await api(page,"catalog/products/")).results.find((p:{name:string})=>p.name==="Kitchen E2E item");await api(page,`tabs/${tab.id}/orders/confirm/`,{idempotency_key:"ux2-page-order",lines:[{product_id:product.id,quantity:2}]});
+ await page.goto("/attendance");if(await page.getByLabel("Estabelecimento").isVisible()){await page.getByLabel("Estabelecimento").fill("web-e2e");await page.getByLabel("Operador",{exact:true}).fill("test-manager");await page.getByLabel("PIN",{exact:true}).fill("2468");await page.getByRole("button",{name:"Entrar",exact:true}).click();}
+ await page.getByRole("button",{name:"Mesas",exact:true}).click();await page.getByLabel("Buscar mesa ou comanda").fill("UX2 account real page");await page.locator(`button[data-tab-id="${tab.id}"]`).click();await page.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();
+ const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});await receipt.getByRole("button",{name:/^Receber R/}).click();await receipt.getByLabel("Valor recebido (R$)",{exact:true}).fill("5,00");await receipt.getByRole("button",{name:"Registrar recebimento",exact:true}).click();await expect(receipt.getByText("Recebimento confirmado. Saldo atualizado.",{exact:true})).toBeVisible();
+ const read=()=>page.evaluate(async id=>(await fetch(`/api/attendance/tabs/${id}/`)).json(),tab.id);const partial=await read();expect(partial.payments).toHaveLength(1);expect(partial.exposure_cents).toBe(1500);
+ await receipt.getByRole("button",{name:/^Receber R/}).click();await receipt.getByRole("button",{name:"Receber e encerrar comanda",exact:true}).click();await expect.poll(async()=>(await read()).state).toBe("CLOSED");const final=await read();expect(final.exposure_cents).toBe(0);expect(final.payments).toHaveLength(2);expect(final.payments.reduce((n:number,p:{amount_cents:number})=>n+p.amount_cents,0)).toBe(2000);await expect.poll(()=>page.evaluate(()=>sessionStorage.getItem("rodada.intent.pos-cash.v1"))).toBeNull();expect(shift.id).toBeTruthy();
+});

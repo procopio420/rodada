@@ -1,0 +1,34 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test ux2-delivery-freshness.spec.ts ux2-delivery-page.spec.ts ux2-table-release-context.spec.ts
+
+[2m[WebServer] [22m(node:3592880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [18/Oct/2026 10:53:01] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 18 tests using 1 worker
+
+(node:3593081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3593081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 360 (1.7s)
+  ✓   2 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 390 (1.4s)
+  ✓   3 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 430 (2.0s)
+  ✓   4 tests/visual/ux2-delivery-freshness.spec.ts:16:43 › dispatch outage preserves queue and core navigation 1280 (2.0s)
+  ✓   5 tests/visual/ux2-delivery-freshness.spec.ts:23:5 › initial Dispatch failure is unknown rather than an empty queue (1.1s)
+  ✓   6 tests/visual/ux2-delivery-freshness.spec.ts:24:5 › core outage blocks mutations even when Dispatch is fresh (1.6s)
+  ✓   7 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 360 (1.5s)
+  ✓   8 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 390 (2.1s)
+  ✓   9 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 430 (1.1s)
+  ✓  10 tests/visual/ux2-delivery-page.spec.ts:14:43 › delivery page prototype hierarchy 1280 (1.4s)
+  ✓  11 tests/visual/ux2-delivery-page.spec.ts:22:5 › lost ACK confirmed by same-task readback without replay (1.1s)
+  ✓  12 tests/visual/ux2-delivery-page.spec.ts:23:5 › rival prevents completion (996ms)
+  ✓  13 tests/visual/ux2-delivery-page.spec.ts:24:5 › destination change stops mutation (1.1s)
+  ✓  14 tests/visual/ux2-delivery-page.spec.ts:25:5 › unknown response verified without resubmitting (837ms)
+  ✓  15 tests/visual/ux2-delivery-page.spec.ts:27:5 › desktop delivery footer uses the full shell width (1.4s)
+  ✓  16 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready true (1.5s)
+  ✓  17 tests/visual/ux2-table-release-context.spec.ts:3:40 › table release requires resolved canonical deliveries, ready false (2.4s)
+  ✓  18 tests/visual/ux2-table-release-context.spec.ts:49:6 › release sends the confirmed occupancy identity without a compatibility fallback (1.4s)
+
+  18 passed (33.6s)

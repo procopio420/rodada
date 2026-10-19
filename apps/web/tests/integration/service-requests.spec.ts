@@ -18,7 +18,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
     return result.json();
   }, { url, body });
   const table = await api("hospitality/tables/", { label: "Service request E2E", guest_ordering_mode: "DIRECT" });
-  await api(`hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(`hospitality/tables/${table.id}/occupy/`, {});
   const context = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await context.newPage();
   await guest.goto(`/guest/${table.public_token}`);
@@ -35,22 +35,25 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   expect(requests.map((task: { task_type: string }) => task.task_type).sort()).toEqual(["BILL_REQUEST", "SERVICE_REQUEST"]);
   await page.goto("/attendance");
   await page.getByRole("button", { name: "Agora", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Chamadas de atendimento" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Atendimento · Mesa Service request E2E", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Pedido de conta · Mesa Service request E2E", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Chamados e pedidos de conta" })).toBeVisible();
   for (const request of requests) {
-    const title = request.task_type === "BILL_REQUEST" ? "Pedido de conta" : "Atendimento";
-    const destination = request.destination_label;
-    const item = page.getByRole("article").filter({ has: page.getByRole("heading", { name: `${title} · ${destination}`, exact: true }) });
-    const claim = item.getByRole("button", { name: "Assumir chamada", exact: true });
-    await expect(claim).toBeVisible();
-    await claim.click();
-    await expect(item.getByText("Você está responsável")).toBeVisible();
-    const complete = item.getByRole("button", { name: "Concluir chamada", exact: true });
-    await expect(complete).toBeVisible();
-    await complete.click();
-    // Completion includes the asynchronous command and canonical queue refresh.
-    await expect(complete).toHaveCount(0);
+    const item = page.getByRole("article").filter({ hasText: request.destination_label }).filter({ hasText: request.task_type === "BILL_REQUEST" ? "PEDIDO DE CONTA" : "ATENDIMENTO" });
+    const writes: string[] = [];
+    const record = (r: import("@playwright/test").Request) => { if (r.method() !== "GET") writes.push(r.url()); };
+    page.on("request", record);
+    await item.getByRole("button", { name: /Escolher comanda/ }).click();
+    const context = page.getByRole("complementary", { name: "Chamado de origem" });
+    await expect(context).toBeVisible();
+    expect(writes).toEqual([]);
+    page.off("request", record);
+    if (request.task_type === "SERVICE_REQUEST") {
+      await context.getByRole("button", { name: "Assumir chamado", exact: true }).click();
+      await expect(context.getByRole("button", { name: "Atendimento resolvido" })).toBeVisible();
+    }
+    await context.getByRole("button", { name: request.task_type === "BILL_REQUEST" ? "Apenas concluir pedido de conta" : "Atendimento resolvido", exact: true }).click();
+    await expect(context.getByText("Chamada concluída no servidor.")).toBeVisible();
+    await context.getByRole("button", { name: "Voltar à fila →" }).click();
+    await page.reload();
   }
   const completedQueue = await api("dispatch/requests/");
   expect(completedQueue.results.filter((task: { destination_label: string }) => task.destination_label === "Mesa Service request E2E")).toHaveLength(0);
@@ -65,7 +68,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   expect(guestCookies[0].sameSite).toBe("Lax");
   expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
   expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
-  await api(`hospitality/tables/${table.id}/release/`, {});
+  await api(`hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   const revoked = await guest.evaluate(async qrSelector => {
     const response = await fetch("/api/guest/service-requests/", {
       method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": qrSelector },

@@ -22,3 +22,10 @@ export function tabSearchText(tab: TabIdentity): string {
   return [tab.display_label, tab.table_label, tab.last_table_label, tabReference(tab)]
     .filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
 }
+
+/** Format a human location only. Never use this label to select a Tab. */
+export function tableLocationLabel(label?: string | null): string {
+  const text = label?.trim();
+  if (!text) return "Sem mesa";
+  return /^mesa(?:\s|$)/i.test(text) ? text : `Mesa ${text}`;
+}

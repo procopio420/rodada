@@ -152,3 +152,15 @@ commands, with Agora, Contas and Mesas. Its restricted gateway excludes all paym
 refund and cash commands. The native Android application remains the surface for
 NFC and provider SDKs. Browser orders accrue real canonical test balances; this
 companion does not manufacture settlements or bypass zero-balance closure.
+
+## 2026-10-16 — Spec033 E04 manual CASH in Atendimento Web
+
+The explicit Spec033 implementation mission extends the browser companion to
+canonical manual CASH receipts, partial or full, reusing PosCashReceipt and
+payment.collect. This supersedes only the earlier blanket exclusion of payments
+for this scope. Card/Pix/provider integration and cash administration remain
+excluded. Native Android owns NFC/provider SDK integration. Full receipt plus
+close is a recoverable two-command sequence with canonical readbacks and a
+session-bound durable phase; closing never repeats an already identified Payment
+and never releases the occupancy. No deployment or pilot approval follows from
+this contract change.

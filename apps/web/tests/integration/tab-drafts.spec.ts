@@ -10,7 +10,9 @@ async function api(page: Page, path: string) {
   }, path);
 }
 
-for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts across unified table dialogs at ${width}`, async ({ page }) => {
+for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts across fullpage table journeys at ${width}`, async ({ page }) => {
+  // Three real contextual openings plus draft restoration; local expectations retain 5s.
+  test.setTimeout(90_000);
   await page.setViewportSize({ width, height: 900 });
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
@@ -20,31 +22,33 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
 
   const aLabel = `Draft A ${width}`, bLabel = `Draft B ${width}`, cLabel = `Draft C ${width}`;
   await openNamedAttendanceTab(page, aLabel);
-  const popup = page.locator(".attendanceOrderDialog");
+  const popup = page.locator(".ux2Workspace");
   await addCatalogItem(page, "Kitchen E2E item");
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
-  await popup.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
+  await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
+  await popup.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
   await expect(popup.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
 
   await openNamedAttendanceTab(page, bLabel);
   await addCatalogItem(page, "Bar E2E item");
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
 
   const aId = await selectExistingAttendanceTab(page, aLabel);
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(popup.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toHaveCount(0);
 
   await openNamedAttendanceTab(page, cLabel);
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
-  await expect(popup.locator(".attendanceDraftLine")).toHaveCount(0);
+  await expect(popup.getByRole("button", { name: "Adicione itens para enviar", exact: true })).toBeDisabled();
+  await expect(popup.getByRole("button", { name: "Ver resumo", exact: true })).toHaveCount(0);
   await selectExistingAttendanceTab(page, aLabel);
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(popup.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
-  await popup.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await popup.getByRole("button", { name: /^Enviar / }).click();
   await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
-  await expect(popup.locator(".attendanceDraftLine")).toHaveCount(0);
+  await expect(popup.locator(".ux2ReviewRow")).toHaveCount(0);
   const afterA = await api(page, `tabs/${aId}/`);
   expect(afterA.orders).toHaveLength(1);
   expect(afterA.orders[0].items[0].quantity).toBe(2);
@@ -52,13 +56,21 @@ for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts acros
   expect(afterA.payments).toHaveLength(0);
 
   const bId = await selectExistingAttendanceTab(page, bLabel);
-  await popup.getByRole("button", { name: /Pedido atual/ }).click();
+  await popup.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  await popup.getByRole("button", { name: "Ver resumo", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
+  await popup.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).click();
+  await popup.getByRole("button", { name: "Voltar", exact: true }).click();
+  await popup.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
   await popup.getByRole("button", { name: "Descartar rascunho", exact: true }).click();
-  await page.getByRole("dialog", { name: "Descartar rascunho?", exact: true }).getByRole("button", { name: "Voltar", exact: true }).click();
+  const discard = page.getByRole("dialog", { name: "Descartar rascunho?", exact: true });
+  await discard.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(discard).not.toBeVisible();
+  await popup.getByRole("button", { name: "Voltar ao pedido pendente", exact: true }).click();
   await expect(popup.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
-  await popup.getByRole("button", { name: /^Confirmar pedido/ }).click();
-  await expect(popup.locator(".attendanceDraftLine")).toHaveCount(0);
+  await popup.getByRole("button", { name: /^Enviar / }).click();
+  await expect(popup.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+  await expect(popup.locator(".ux2ReviewRow")).toHaveCount(0);
   const afterB = await api(page, `tabs/${bId}/`);
   expect(afterB.orders).toHaveLength(1);
   expect(afterB.orders[0].items[0].product_name).toBe("Bar E2E item");
