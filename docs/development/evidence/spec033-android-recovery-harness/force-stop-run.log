@@ -1,0 +1,55 @@
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.165
+
+OK (1 test)
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.144
+
+OK (1 test)
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.11
+
+OK (1 test)
+PASS: encrypted original-session pending order survived forced termination, offline start, and ambiguous retry.
+NOTE: This validates persistence, not a live backend POST. Full-shift API idempotency has separate PostgreSQL tests.
+
+com.rodada.attendance.operations.TableServiceNavigationTest:....
+
+Time: 14.661
+
+OK (4 tests)
+PASS: Spec 027 one-tap start, contextual optional-name open, homonyms and pending-intent gates.
+
+com.rodada.attendance.ui.AttendanceNavigationTest:...
+
+Time: 4.894
+
+OK (3 tests)
+
+com.rodada.attendance.operations.OrderDestinationTest:.
+
+Time: 2.491
+
+OK (1 test)
+
+com.rodada.attendance.operations.OrderDestinationTest:.
+
+Time: 2.738
+
+OK (1 test)
+
+com.rodada.attendance.operations.OrderDestinationTest:.
+
+Time: 2.645
+
+OK (1 test)

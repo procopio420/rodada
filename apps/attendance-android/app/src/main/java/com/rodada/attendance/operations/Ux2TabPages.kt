@@ -28,6 +28,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rodada.attendance.ui.AttendanceUx2
@@ -78,12 +81,12 @@ internal fun Ux2TabPages(
             { repeat = null }) { quantities -> repeat = null; onRepeat(review, quantities) }
         return
     }
-    Column(Modifier.fillMaxSize().padding(horizontal = 20.dp).testTag("ux2-tab-pages")) {
+    Column(Modifier.fillMaxSize().background(RodadaVisual.Ground).padding(horizontal = 20.dp).testTag("ux2-tab-pages")) {
         Column(Modifier.weight(1f).verticalScroll(pageScroll), verticalArrangement = Arrangement.spacedBy(13.dp)) {
             TextButton(onClick = back, enabled = !locked, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("‹  Voltar", style = AttendanceUx2.text(14), color = RodadaVisual.Muted) }
             Ux2Eyebrow(if (section == "Comanda") summary.operationalReference() else if (section == "Pedido atual") "Resumo opcional" else "Pedido para ${summary.operationalReference()}")
             Ux2Title(when (section) { "Comanda" -> label; "Pedido atual" -> "Resumo do pedido."; else -> "Adicionar itens." })
-            Text(if (section == "Comanda") "${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else "${label} · ${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · destino fixo", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+            Text(if (section == "Comanda") "${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · ${if (closed) "Encerrada" else "Comanda aberta"}" else if (section == "Pedido atual") "Conferência opcional: itens e destino antes do envio." else "${label} · ${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · DESTINO FIXO", style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
             if (state.connectivity != ConnectivityState.ONLINE) Text(state.connectivity.label(), style = AttendanceUx2.text(12), color = RodadaVisual.Amber)
             state.errorMessage?.let { Text(it, color = RodadaVisual.Danger, style = AttendanceUx2.text(14)) }
             if (!pending) state.noticeMessage?.let { Text(it, style = AttendanceUx2.text(14)) }
@@ -127,16 +130,18 @@ internal fun Ux2TabPages(
                 Ux2Action("Trocar de mesa ou comanda", !locked, onBack)
             } else {
                 if (section == "Pedido atual") {
-                    Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(10.dp)).border(1.dp, RodadaVisual.Border, RoundedCornerShape(10.dp)).padding(14.dp)) {
+                    Column(Modifier.fillMaxWidth().background(RodadaVisual.Surface).drawBehind { drawRect(RodadaVisual.Amber, size = Size(2.dp.toPx(), size.height)) }.padding(horizontal = 14.dp, vertical = 10.dp)) {
                         Text("$label · ${summary.operationalReference()}", style = AttendanceUx2.text(14, 800))
-                        Text("${summary.tableLabel?.let { "Mesa $it" } ?: "Sem mesa"} · Rascunho ainda não enviado", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+                        Text("${summary.tableLabel?.let(::attendanceTableLocation) ?: "Sem mesa"} · Rascunho ainda não enviado", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
                     }
                     if (cart.isEmpty()) Text("O pedido está vazio.")
                     cart.forEach { line ->
                         Ux2DraftRow(line, !locked, onQuantity) { editing = line; configuring = line.product }
                     }
-                    Text("Total do novo pedido", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
-                    Text(formatCents(total), style = AttendanceUx2.text(24, 800).copy(fontFamily = RodadaVisual.Number))
+                    Row(Modifier.fillMaxWidth().padding(vertical = 18.dp), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Total do novo pedido", modifier = Modifier.weight(1f), style = AttendanceUx2.text(14), color = RodadaVisual.Muted)
+                        Text(formatCents(total), style = AttendanceUx2.text(23, 800).copy(fontFamily = RodadaVisual.Number))
+                    }
                     Ux2CreditBar(summary, total, onLimit, !locked)
                     Ux2Action("Continuar escolhendo itens", !locked, { onSection("Cardápio") })
                 } else {
@@ -148,17 +153,19 @@ internal fun Ux2TabPages(
                         }
                     })
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        (listOf("Todos") + state.products.map { it.category.ifBlank { "Outros" } }.distinct().sorted()).forEach { name ->
-                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 15.dp, vertical = 8.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
+                        (listOf("Todos") + state.products.map { it.category.ifBlank { "Outros" } }.distinct()).forEach { name ->
+                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = 40.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
                         }
                     }
-                    Text("Cardápio", style = AttendanceUx2.text(18, 800))
                     val products = state.products.filter { (category == "Todos" || it.category.ifBlank { "Outros" } == category) && it.name.contains(query.trim(), true) }
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Cardápio", style = AttendanceUx2.text(18, 800))
+                        Text("${products.size} ITENS", style = AttendanceUx2.text(11, 750).copy(letterSpacing = 1.sp), color = RodadaVisual.Muted)
+                    }
                     if (products.isEmpty()) Text(if (state.loading) "Carregando catálogo…" else "Nenhum produto corresponde à pesquisa.")
                     products.forEach { product ->
                         val lines = cart.filter { it.product.id == product.id }
                         val selectable = !locked && !closed && product.active && product.availability == "AVAILABLE" && state.connectivity == ConnectivityState.ONLINE
-                        HorizontalDivider(color = RodadaVisual.Border)
                         Column(Modifier.fillMaxWidth()) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
@@ -172,6 +179,7 @@ internal fun Ux2TabPages(
                             if (!product.active || product.availability != "AVAILABLE") Text("Indisponível", color = RodadaVisual.Amber, style = AttendanceUx2.text(12))
                             if (lines.size > 1) TextButton(onClick = { onSection("Pedido atual") }, enabled = !locked) { Text("${lines.size} configurações · editar no resumo") }
                         }
+                        HorizontalDivider(color = RodadaVisual.Border)
                     }
                     if (count > 0) Ux2Action("Ver resumo · $count itens · ${formatCents(total)}", !locked, { onSection("Pedido atual") })
                 }
@@ -195,9 +203,9 @@ internal fun Ux2TabPages(
 }
 @Composable internal fun Ux2Quantity(count: Int, minus: Boolean, plus: Boolean, onMinus: () -> Unit, onPlus: () -> Unit, name: String) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        OutlinedButton(onMinus, enabled = minus && count > 0, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(44.dp).semantics { contentDescription = "Reduzir $name" }) { Text("−", style = AttendanceUx2.text(22)) }
+        OutlinedButton(onMinus, enabled = minus && count > 0, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Paper), contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().size(width = 39.dp, height = 42.dp).semantics { contentDescription = "Reduzir $name" }) { Text("−", style = AttendanceUx2.text(22)) }
         Text("$count", modifier = Modifier.widthIn(min = 22.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center, style = AttendanceUx2.text(14, 780).copy(fontFamily = RodadaVisual.Number))
-        OutlinedButton(onPlus, enabled = plus && count < 99, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Amber), contentPadding = PaddingValues(0.dp), modifier = Modifier.size(44.dp).semantics { contentDescription = "Adicionar $name" }) { Text("+", style = AttendanceUx2.text(22)) }
+        OutlinedButton(onPlus, enabled = plus && count < 99, shape = RoundedCornerShape(8.dp), border = androidx.compose.foundation.BorderStroke(1.dp, RodadaVisual.StrongBorder), colors = ButtonDefaults.outlinedButtonColors(containerColor = RodadaVisual.Control, contentColor = RodadaVisual.Amber), contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().size(width = 39.dp, height = 42.dp).semantics { contentDescription = "Adicionar $name" }) { Text("+", style = AttendanceUx2.text(22)) }
     }
 }
 @Composable private fun Ux2DraftRow(line: CartLine, enabled: Boolean, onQuantity: (String, Int) -> Unit, onEdit: () -> Unit) {
@@ -208,7 +216,9 @@ internal fun Ux2TabPages(
             val configuration = line.product.configurationText(line.customization)
             if (configuration.isNotBlank()) Text(configuration, style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
             Text("${formatCents(line.unitPriceCents)} cada", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
-            TextButton(onEdit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("Editar configuração", style = AttendanceUx2.text(13)) }
+            if (line.product.variants.isNotEmpty() || line.product.modifierGroups.isNotEmpty() ||
+                line.customization.variantId != null || line.customization.optionIds.isNotEmpty() || line.customization.note.isNotBlank())
+                TextButton(onEdit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("Editar configuração", style = AttendanceUx2.text(13)) }
         }
         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Text(formatCents(line.unitPriceCents * line.quantity), style = AttendanceUx2.text(13, 700).copy(fontFamily = RodadaVisual.Number))
@@ -224,8 +234,8 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
     val excess = (summary.exposureCents + draftCents - limit).coerceAtLeast(0)
     val warning = summary.limitWarning || (limit > 0 && summary.exposureCents + draftCents >= limit * .8)
     val color = if (summary.consumptionBlocked || excess > 0) RodadaVisual.Danger else if (warning) RodadaVisual.Amber else RodadaVisual.Success
-    val relationship = summary.relationshipSnapshot?.let { when (it) { "VISITOR" -> "Visitante"; "KNOWN" -> "Conhecido"; "REGULAR" -> "Recorrente"; "HOUSE" -> "Cliente da casa"; "RESTRICTED" -> "Restrito"; else -> it } }
-    val caption = when { excess > 0 -> "Pedido excede o limite em ${formatCents(excess)} · bloqueio ativo"; summary.consumptionBlocked -> "Consumo bloqueado · resolva o limite"; limit == 0L -> "Limite zero · bloqueio ativo"; warning -> "Próximo do limite operacional"; else -> "${formatCents(summary.remainingCapacityCents)} disponíveis" }
+    val relationship = summary.relationshipSnapshot?.let { when (it) { "VISITOR" -> "Visitante"; "KNOWN" -> "Conhecido"; "REGULAR" -> "Regular"; "HOUSE" -> "Cliente da casa"; "RESTRICTED" -> "Restrito"; else -> it } }
+    val caption = when { excess > 0 -> "Pedido excede o limite em ${formatCents(excess)} · bloqueio ativo"; summary.consumptionBlocked -> "Consumo bloqueado · resolva o limite"; limit == 0L -> "Limite zero · bloqueio ativo"; warning -> "Próximo do limite operacional"; else -> if (compact) "${formatCents(summary.remainingCapacityCents)} disponíveis" else "Dentro da referência" }
     val frame = if (compact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(11.dp)).border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(11.dp)).drawBehind { drawRect(color, size = Size(3.dp.toPx(), size.height)) }.padding(14.dp)
     Column(frame, verticalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 10.dp)) {
         if (compact) {
@@ -237,8 +247,22 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
             val profile = @Composable { relationship?.let { Text(it, style = AttendanceUx2.text(11, 720), color = RodadaVisual.Muted) } }
             if (LocalDensity.current.fontScale > 1.3f) { heading(); profile() }
             else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { heading(); profile() }
-            Text("${formatCents(summary.exposureCents)} de ${formatCents(limit)} usados", style = AttendanceUx2.text(18, 830).copy(fontFamily = RodadaVisual.Number))
-            Text("${formatCents(summary.remainingCapacityCents)} disponíveis", style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            val used = @Composable { modifier: Modifier ->
+                Text(buildAnnotatedString {
+                    withStyle(SpanStyle(fontFamily = RodadaVisual.Number, fontSize = 18.sp, fontWeight = FontWeight(830), letterSpacing = (-.81).sp)) { append(formatCents(summary.exposureCents)) }
+                    withStyle(SpanStyle(fontSize = 12.sp, color = RodadaVisual.Muted)) { append(" de ${formatCents(limit)} usados") }
+                }, modifier = modifier, style = AttendanceUx2.text(12), color = RodadaVisual.Paper)
+            }
+            val available = @Composable { modifier: Modifier ->
+                Text("${formatCents(summary.remainingCapacityCents)} disponíveis", modifier = modifier, style = AttendanceUx2.text(12), color = RodadaVisual.Muted)
+            }
+            if (LocalDensity.current.fontScale > 1.3f) {
+                used(Modifier.fillMaxWidth())
+                available(Modifier.fillMaxWidth())
+            } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Bottom) {
+                used(Modifier.weight(1.7f))
+                available(Modifier.weight(1f))
+            }
         }
         val current = if (limit > 0) (summary.exposureCents.toFloat() / limit).coerceIn(0f, 1f) else 0f
         val draft = if (limit > 0) (draftCents.toFloat() / limit).coerceIn(0f, 1f - current) else 0f
@@ -255,12 +279,14 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
             drawLine(RodadaVisual.Paper, Offset(size.width * .8f, 0f), Offset(size.width * .8f, size.height), strokeWidth = 2.dp.toPx())
         }
         if (!compact) {
-            Text(if (limit > 0) "${((summary.exposureCents.toDouble() / limit) * 100).toInt()}% utilizado${if (draftCents > 0) " · pedido em listras" else ""}" else "Limite zero", style = AttendanceUx2.text(11), color = RodadaVisual.Muted)
-            if (draftCents > 0) Text("＋ ${formatCents(draftCents)} no pedido", style = AttendanceUx2.text(11, 800), color = RodadaVisual.Amber)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                Text(if (limit > 0) "${((summary.exposureCents.toDouble() / limit) * 100).toInt()}% utilizado${if (draftCents > 0) " · pedido em listras" else ""}" else "Limite zero", modifier = Modifier.weight(1f), style = AttendanceUx2.text(11), color = RodadaVisual.Muted)
+                if (draftCents > 0) Text("＋ ${formatCents(draftCents)} no pedido", modifier = Modifier.weight(.7f), style = AttendanceUx2.text(11, 800), color = RodadaVisual.Amber)
+            }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(caption, modifier = Modifier.weight(1f), style = AttendanceUx2.text(if (compact) 11 else 12), color = if (excess > 0) RodadaVisual.Danger else RodadaVisual.Muted)
-            TextButton(onLimit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.heightIn(min = 44.dp)) { Text("Detalhes ›", style = AttendanceUx2.text(11, 700), color = RodadaVisual.Muted) }
+            TextButton(onLimit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = if (compact) 28.dp else 36.dp)) { Text(if (compact) "Detalhes ›" else "Ver detalhes ›", style = AttendanceUx2.text(if (compact) 11 else 12, if (compact) 700 else 800), color = if (compact) RodadaVisual.Muted else RodadaVisual.Amber) }
         }
     }
 }

@@ -1,0 +1,9 @@
+
+com.rodada.attendance.operations.Ux2TabPagesTest:...
+com.rodada.attendance.operations.Ux2AccountPagesTest:.
+
+Time: 10.472
+
+OK (4 tests)
+
+

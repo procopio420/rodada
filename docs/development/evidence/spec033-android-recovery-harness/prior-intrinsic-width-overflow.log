@@ -1,0 +1,59 @@
+Performing Streamed Install
+Success
+Performing Streamed Install
+Success
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.125
+
+OK (1 test)
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.11
+
+OK (1 test)
+
+com.rodada.attendance.operations.ForceStopOrderRecoveryTest:.
+
+Time: 0.145
+
+OK (1 test)
+PASS: encrypted original-session pending order survived forced termination, offline start, and ambiguous retry.
+NOTE: This validates persistence, not a live backend POST. Full-shift API idempotency has separate PostgreSQL tests.
+
+com.rodada.attendance.operations.TableServiceNavigationTest:....
+
+Time: 12.698
+
+OK (4 tests)
+PASS: Spec 027 one-tap start, contextual optional-name open, homonyms and pending-intent gates.
+
+com.rodada.attendance.ui.AttendanceNavigationTest:...
+
+Time: 4.417
+
+OK (3 tests)
+
+com.rodada.attendance.operations.OrderDestinationTest:
+Error in productionNewTabLabelFitsAndOpensOnce(com.rodada.attendance.operations.OrderDestinationTest):
+java.lang.AssertionError: Nova comanda must fit without clipping: size=166 x 25, lines=1, width=true, height=false
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at com.rodada.attendance.operations.OrderDestinationTest.productionNewTabLabelFitsAndOpensOnce(OrderDestinationTest.kt:60)
+
+
+Time: 2.054
+There was 1 failure:
+1) productionNewTabLabelFitsAndOpensOnce(com.rodada.attendance.operations.OrderDestinationTest)
+java.lang.AssertionError: Nova comanda must fit without clipping: size=166 x 25, lines=1, width=true, height=false
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at com.rodada.attendance.operations.OrderDestinationTest.productionNewTabLabelFitsAndOpensOnce(OrderDestinationTest.kt:60)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+FAILED Nova comanda at 360 px / font 1.5

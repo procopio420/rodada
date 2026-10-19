@@ -11,7 +11,7 @@ class StaffTaskTargetTest {
     private fun payload(kind: String, version: Int = 1) = JSONObject().put("target_version", version).put("target",
         JSONObject().put("kind", kind).put("tab_id", tab).put("table_id", table).put("occupancy_id", occupancy).put("generation", 7))
     @Test fun `only versioned server projection yields a routable target`() {
-        assertEquals(StaffTaskTarget.Tab(tab), StaffTaskTarget.fromPayload(payload("TAB")))
+        assertEquals(StaffTaskTarget.Tab(tab, StaffTaskTarget.Table(table, occupancy, 7)), StaffTaskTarget.fromPayload(payload("TAB")))
         assertEquals(StaffTaskTarget.Table(table, occupancy, 7), StaffTaskTarget.fromPayload(payload("TABLE")))
         for (bad in listOf(JSONObject().put("destination_label", "Mesa $tab"), payload("UNAVAILABLE"), payload("TAB", 2), payload("FUTURE"))) {
             assertEquals(StaffTaskTarget.Unavailable, StaffTaskTarget.fromPayload(bad))
@@ -39,4 +39,15 @@ class StaffTaskTargetTest {
         assertNull(target.currentTable(listOf(live.copy(status = "DIRTY"))))
         assertNull(target.currentTable(listOf(live.copy(id = tab, label = "08"))))
     }
+    @Test fun `delivery retains optional typed location for closed or open Tabs`() {
+        val target = StaffTaskTarget.fromPayload(payload("TAB"))
+        val live = TableSummary(table, "08", "OCCUPIED", "DIRECT", false, null,
+            TableOccupancy(occupancy, 7, listOf(TableOccupancyTab(tab, "Closed", "CLOSED"))))
+        assertEquals(live, target.currentDeliveryTable(listOf(live)))
+        assertNull(target.currentDeliveryTable(listOf(live.copy(activeOccupancy = live.activeOccupancy!!.copy(generation = 8)))))
+        val partial = payload("TAB"); partial.getJSONObject("target").remove("generation")
+        assertEquals(StaffTaskTarget.Tab(tab), StaffTaskTarget.fromPayload(partial))
+        assertNull(StaffTaskTarget.fromPayload(partial).currentDeliveryTable(listOf(live)))
+    }
+
 }

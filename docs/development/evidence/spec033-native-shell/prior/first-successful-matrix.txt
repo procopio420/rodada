@@ -1,0 +1,33 @@
+390 TATUS: test=authenticatedQueuesAndReturnKeepTheOriginalContext
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 22.562
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+360 TATUS: test=authenticatedQueuesAndReturnKeepTheOriginalContext
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 20.674
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
+430 TATUS: test=authenticatedQueuesAndReturnKeepTheOriginalContext
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 23.467
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1
+
