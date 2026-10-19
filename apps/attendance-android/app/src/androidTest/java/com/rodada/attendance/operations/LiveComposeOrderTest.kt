@@ -50,6 +50,10 @@ class LiveComposeOrderTest {
         compose.waitUntil(30_000) { compose.onAllNodes(hasTestTag("attendance-order") and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithTag("attendance-now").assertIsSelected()
         compose.onNodeWithTag("attendance-tables").assertIsNotSelected()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val session = SecureSessionStore(context).load() ?: error("Missing real UI session")
+        val operations = OperationsHttpClient(BuildConfig.RODADA_API_BASE_URL)
+        val existingTabIds = operations.tabs(session.tokens.accessToken).map { it.id }.toSet()
         compose.onNodeWithTag("attendance-order").assertIsEnabled().performClick()
         val newTab = hasText("Nova comanda sem mesa") and hasAnyAncestor(isDialog())
         compose.waitUntil(30_000) { compose.onAllNodes(newTab and isEnabled()).fetchSemanticsNodes().isNotEmpty() }
@@ -58,6 +62,11 @@ class LiveComposeOrderTest {
         compose.onNodeWithText("Nome ou apelido").performTextInput(InstrumentationRegistry.getArguments().getString("tabLabel") ?: error("Missing isolated run label"))
         compose.onNodeWithText("Abrir", useUnmergedTree = false).performClick()
         compose.waitUntil(30_000) { compose.onAllNodesWithTag("workspace-list").fetchSemanticsNodes().isNotEmpty() }
+        // Only Compose creates the Tab; identify its canonical readback by the new ID,
+        // independent of labels and ordering in this disposable runner.
+        val originalTabId = operations.tabs(session.tokens.accessToken)
+            .single { it.id !in existingTabIds }.id
+        check(operations.tabDetail(session.tokens.accessToken, originalTabId).summary.exposureCents == 0L)
         for (product in listOf("Android Compose Test Meal", "Android Post Drop Test Soda")) {
             // PR #195: select category, product, quantity; the old flat "Adicionar" action no longer exists.
             compose.onNodeWithTag("workspace-list").performScrollToNode(hasText("Buscar no catálogo"))
@@ -124,8 +133,40 @@ class LiveComposeOrderTest {
             return
         }
         waitText("Pedido confirmado pelo servidor.")
-        compose.onNodeWithTag("workspace-Conta").performClick()
+        // Return through the UX2 pages, then reopen the exact canonical Tab.
+        repeat(3) {
+            if (compose.onAllNodesWithTag("ux2-tab-pages").fetchSemanticsNodes().isNotEmpty()) {
+                compose.onNodeWithText("‹  Voltar").performScrollTo().performClick()
+                compose.waitForIdle()
+            }
+        }
+        compose.onNodeWithTag("attendance-tables").performClick()
+        compose.waitUntil(30_000) { compose.onAllNodesWithText("Outras comandas", substring = true).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNode(hasText("Outras comandas", substring = true) and hasClickAction()).performClick()
+        val originalTab = hasTestTag("other-tab-$originalTabId")
+        compose.onNodeWithTag("tables-list").performScrollToNode(originalTab)
+        compose.waitUntil(30_000) {
+            compose.onAllNodes(originalTab and isEnabled()).fetchSemanticsNodes().size == 1
+        }
+        compose.onNode(originalTab).assertIsEnabled().performClick()
+        // UX2 can expose the account as a page instead of the legacy workspace tab.
+        compose.waitUntil(30_000) {
+            compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodes(hasText("Conta") and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("workspace-Conta").fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithTag("workspace-Conta").performClick()
+        } else {
+            compose.onNode(hasText("Conta") and hasClickAction()).performClick()
+        }
+        compose.waitUntil(30_000) { compose.onAllNodesWithTag("account-balance").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("account-balance").assertIsDisplayed()
         compose.onNodeWithText("Saldo em aberto").assertIsDisplayed()
+        val confirmed = operations.tabDetail(session.tokens.accessToken, originalTabId)
+        check(confirmed.orders.size == 1) { "Expected exactly one canonical Order" }
+        check(confirmed.summary.chargesCents == 1700L && confirmed.summary.exposureCents == 1700L)
+        compose.onNode(hasText(formatCents(1700L)) and hasAnyAncestor(hasTestTag("account-balance")))
+            .assertIsDisplayed()
         // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
     private fun evidence(message: String) {
