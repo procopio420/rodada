@@ -87,7 +87,7 @@ class LiveComposeOrderTest {
             compose.waitUntil(60_000) { java.io.File(files, "catalog-fault-applied").exists() }
         }
         if (offlineFault) compose.waitUntil(30_000) {
-            compose.onAllNodes(hasTestTag("attendance-connectivity") and hasText("sem sinal", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            compose.onAllNodesWithText(ConnectivityState.OFFLINE.label()).fetchSemanticsNodes().isNotEmpty()
         }
         val confirmation = compose.onNodeWithText(if (offlineFault) "Guardar pedido neste aparelho" else "Enviar 2 itens · R$ 17,00").assertIsEnabled().assertIsDisplayed()
         if (fault) confirmation.performClick() else confirmation.performTouchInput { doubleClick() }
@@ -223,7 +223,8 @@ class LiveComposeOrderTest {
         check(auth.me(refreshed.accessToken).venueId == foreign.venueId)
         evidence("NATIVE_EXPIRED_ACCESS_401_REFRESH_200")
         compose.onNodeWithTag("attendance-now").performClick()
-        val pending = hasText("Pendências", substring = true) and hasClickAction()
+        compose.onNodeWithTag("attendance-options").performClick()
+        val pending = hasText("Pendências locais ·", substring = true) and hasClickAction()
         compose.waitUntil(30_000) { compose.onAllNodes(pending).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(pending).performClick()
         compose.waitUntil(30_000) { compose.onAllNodes(hasText("outra sessão", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty() }
