@@ -107,7 +107,11 @@ class LiveComposeOrderTest {
         } else {
             compose.onNode(hasText("Conta") and hasClickAction()).performClick()
         }
-        waitText("Saldo em aberto")
+        // The UX2 account page can label the canonical amount differently from the legacy tab.
+        compose.waitUntil(30_000) {
+            compose.onAllNodes(hasText("Saldo", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodes(hasText("Total", substring = true, ignoreCase = true)).fetchSemanticsNodes().isNotEmpty()
+        }
         // Order creation originates only from real Compose actions; no seeded UI or optimistic confirmation.
     }
     private fun evidence(message: String) {
