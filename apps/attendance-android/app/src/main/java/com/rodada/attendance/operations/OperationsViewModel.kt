@@ -389,7 +389,17 @@ class OperationsViewModel(
         return read
     }
 
-    fun openRecovery(session: StoredSession, intentId: String) = action {
+    fun openRecovery(session: StoredSession, intentId: String) {
+        val delivery = runCatching { pendingMutationIntentStore.loadFor(session).firstOrNull { it.id == intentId } }
+            .getOrElse { state = state.copy(errorMessage = "Registro ilegível. Preserve a evidência original."); return }
+        if (delivery is RecoveryIntent.CompleteDelivery) {
+            recoverDelivery(session, delivery, allowSubmit = false)
+            return
+        }
+        openOtherRecovery(session, intentId)
+    }
+
+    private fun openOtherRecovery(session: StoredSession, intentId: String) = action {
         val refreshingOriginal = state.exceptionalRecoveryContext?.original?.id == intentId
         check(refreshingOriginal || state.selectedTab == null && state.cart.isEmpty()) { "Volte à fila sem abandonar um rascunho para abrir esta pendência." }
         state = state.copy(exceptionalRecoveryContext = null)
@@ -1028,7 +1038,7 @@ class OperationsViewModel(
     }
 
     fun completeDelivery(session: StoredSession, taskId: String) {
-        if (state.submitting) return
+        if (state.submitting || loadedSessionKey != "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}") return
         val retained = runCatching { pendingMutationIntentStore.loadFor(session).filterIsInstance<RecoveryIntent.CompleteDelivery>().firstOrNull { it.deliveryTaskId == taskId } }
             .getOrElse { state = state.copy(errorMessage = "Registro de entrega ilegível. Preserve a evidência para revisão."); return }
         val key = retained?.idempotencyKey ?: UUID.randomUUID().toString()
@@ -1037,17 +1047,42 @@ class OperationsViewModel(
             System.currentTimeMillis(), RecoveryState.CHECKING, taskId,
         )
         if (!preserveIntent(intent, session)) return
+        recoverDelivery(session, intent, allowSubmit = true)
+    }
+
+    private fun recoverDelivery(session: StoredSession, intent: RecoveryIntent.CompleteDelivery, allowSubmit: Boolean) {
+        if (state.submitting) return
+        val expectedSession = "${session.staffId}:${session.venueId}:${session.deviceId}:${session.sessionId}"
+        val guard = financialResponses.capture(
+            current = { loadedSessionKey == expectedSession },
+            verify = { check(pendingMutationIntentStore.loadFor(session).any { it == intent }) { "A intenção original de entrega mudou." } },
+        )
+        if (!guard.isCurrent()) return
         state = state.copy(submitting = true, errorMessage = null, noticeMessage = null)
         viewModelScope.launch {
             runCatching {
-                repository.completeDelivery(session, taskId)
-                repository.deliveryTasks(session)
-            }.onSuccess { deliveries ->
-                state = state.copy(submitting = false, deliveryTasks = deliveries, noticeMessage = "Entrega concluída.")
-                pendingMutationIntentStore.remove(intent.id)
+                val read = reconcileDelivery(intent.deliveryTaskId, allowSubmit,
+                    read = { repository.deliveryRecoveryRead(session, intent.deliveryTaskId) },
+                    submit = { repository.completeDelivery(session, intent.deliveryTaskId) }, checkCurrent = guard::check)
+                guard.check()
+                val deliveries = runCatching { repository.deliveryTasks(session) }.getOrElse {
+                    state.deliveryTasks.filterNot { task -> read.confirmed && task.id == intent.deliveryTaskId }
+                }
+                guard.check()
+                if (read.confirmed) {
+                    pendingMutationIntentStore.remove(intent.id)
+                    state = state.copy(submitting = false, deliveryTasks = deliveries,
+                        recoveryEvidence = state.recoveryEvidence.filterNot { it.id == intent.id },
+                        recoveryDeliveryTaskId = null, noticeMessage = "Entrega concluída.")
+                } else {
+                    state = state.copy(submitting = false, deliveryTasks = deliveries,
+                        recoveryDeliveryTaskId = intent.deliveryTaskId,
+                        noticeMessage = "Entrega consultada. A intenção original continua pendente; confira o estado antes de agir.")
+                }
             }.onFailure { error ->
+                if (!guard.isCurrent()) return@onFailure
                 state = state.copy(submitting = false)
-                showFailure(error, "Verificando entrega. Atualize antes de tentar concluir novamente.")
+                showFailure(error, "Entrega sem confirmação. Consulte a mesma intenção original nas pendências.")
             }
         }
     }
