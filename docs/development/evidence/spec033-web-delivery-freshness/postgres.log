@@ -1,0 +1,23 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts attendance-delivery-freshness.spec.ts
+
+[2m[WebServer] [22m(node:3591228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:3591305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3591305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  1 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 360 (14.2s)
+
+  ✓  2 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 390 (8.9s)
+
+  ✓  3 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 430 (7.7s)
+
+  ✓  4 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 1280 (10.4s)
+
+  4 passed (51.9s)
