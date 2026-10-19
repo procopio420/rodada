@@ -223,28 +223,9 @@ INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentation
 INSTRUMENTATION_STATUS: current=16
 INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
 INSTRUMENTATION_STATUS: numtests=19
-INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Action performScrollTo() failed.
-Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
-
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
-	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
-	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
-
-INSTRUMENTATION_STATUS: stream=
-Error in releaseAndSequentialCleaningFollowCanonicalStatus(com.rodada.attendance.operations.TablePresentationInstrumentedTest):
-java.lang.AssertionError: Action performScrollTo() failed.
-Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
-
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
-	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
-	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
-
+INSTRUMENTATION_STATUS: stream=.
 INSTRUMENTATION_STATUS: test=releaseAndSequentialCleaningFollowCanonicalStatus
-INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_STATUS: class=com.rodada.attendance.operations.TablePresentationInstrumentedTest
 INSTRUMENTATION_STATUS: current=17
 INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
@@ -289,20 +270,9 @@ INSTRUMENTATION_STATUS: test=closedTabRemainsReadableAndBlockedQrIsVisibleWithou
 INSTRUMENTATION_STATUS_CODE: 0
 INSTRUMENTATION_RESULT: stream=
 
-Time: 58.253
-There was 1 failure:
-1) releaseAndSequentialCleaningFollowCanonicalStatus(com.rodada.attendance.operations.TablePresentationInstrumentedTest)
-java.lang.AssertionError: Action performScrollTo() failed.
-Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Grupo saiu · Liberar mesa' (ignoreCase: false))
+Time: 41.782
 
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
-	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
-	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:82)
-	at com.rodada.attendance.operations.TablePresentationInstrumentedTest.releaseAndSequentialCleaningFollowCanonicalStatus(TablePresentationTest.kt:49)
-
-FAILURES!!!
-Tests run: 19,  Failures: 1
+OK (19 tests)
 
 
 INSTRUMENTATION_CODE: -1

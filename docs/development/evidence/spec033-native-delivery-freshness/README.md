@@ -63,8 +63,8 @@ These are native component captures with deterministic task fixtures; they
 are not screenshots of the real backend journey and do not prove full parity.
 `live.log` separately proves canonical HTTP behavior using Django/PostgreSQL.
 
-UI broad rerun currently pending: corrected release fixture requires a rebuilt
-AndroidTest APK after the separate session-fence Gradle lease terminates.
-The retained `ui.log` has18/19 PASS and one missing-fresh-fixture failure; it
-must not be reported as a green broad UI gate. Live and matrix gates above
-are terminal PASS with no skips.
+Final broad UI rerun:19/19 PASS,41.782s, terminal exit0. All38
+start/success status records are alternating1/0; no failures or skips.
+`fixture-test-apk-build.log` proves corrected test APK build PASS4s.
+The production APK is unchanged from the native-gates build. Earlier failed
+runs remain separately preserved for review; final `ui.log` is the passing run.
