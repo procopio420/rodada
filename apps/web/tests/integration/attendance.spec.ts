@@ -3,6 +3,8 @@ import { expect, test } from "./fixtures";
 import { openNamedAttendanceTab } from "./attendance-helpers";
 
 test("real Atendimento login, order, production, table lifecycle and logout without payments", async ({ page }) => {
+  // Real order/production/location/release/cleaning journey has several canonical readbacks.
+  test.setTimeout(120_000);
   const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");
@@ -10,16 +12,19 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await page.getByLabel("PIN", { exact: true }).fill("2468");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.getByRole("button", { name: "Agora", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Entregas prontas" })).toBeVisible();
+  await page.getByRole("button", { name: /^Entregas / }).click();
+  await expect(page.getByRole("heading", { name: "Prontos para levar" })).toBeVisible();
   await openNamedAttendanceTab(page, "Atendimento browser test");
-  await expect(page.locator(".attendanceOrderDialog")).toContainText("Mesa Fixture Atendimento browser test");
+  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await expect(workspace).toContainText("Mesa Fixture Atendimento browser test");
   await addCatalogItem(page, "Kitchen E2E item");
-  await page.locator(".attendanceOrderDialog").getByRole("button", { name: /Pedido atual/ }).click();
-  await page.getByRole("button", { name: "Aumentar quantidade de Kitchen E2E item", exact: true }).click();
-  await page.getByRole("button", { name: /Confirmar pedido/ }).click();
-  await expect(page.getByRole("button", { name: /Confirmar pedido/ })).toBeDisabled();
-  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
-  await expect(page.getByText("2× Kitchen E2E item", { exact: true })).toBeVisible();
+  await workspace.getByRole("button", { name: "Ver resumo", exact: true }).click();
+  await page.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
+  await workspace.getByRole("button", { name: /^Enviar 2 itens/ }).click();
+  await expect(workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true })).toBeVisible();
+  await expect(workspace.getByRole("button", { name: /^Enviar / })).toHaveCount(0);
+  await workspace.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+  await expect(workspace.getByRole("region", { name: "Pedidos confirmados", exact: true }).getByText(/^2× Kitchen E2E item · Novo$/)).toBeVisible();
   const browserRequest = {
     get: (path: string) => call(path),
     post: (path: string, options: { data: unknown }) => call(path, options.data),
@@ -42,30 +47,57 @@ test("real Atendimento login, order, production, table lifecycle and logout with
     const r = await browserRequest.post(`/api/pos/order-items/${detail.orders[0].items[0].id}/transition/`, { data: { state } });
     expect(r.ok()).toBeTruthy();
   }
-  await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Voltar", exact: true }).click();
-  await page.locator(".attendanceTableDialog").getByRole("button", { name: "Voltar", exact: true }).click();
+  await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(workspace.getByRole("heading", { name: "Atendimento browser test", exact: true })).toBeVisible();
+  await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
+  await page.locator(".ux2TablePage").getByRole("button", { name: "Voltar", exact: true }).click();
   await page.getByRole("button", { name: "Agora", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Concluir entrega" })).toBeVisible();
-  await page.getByRole("button", { name: "Concluir entrega" }).click();
-  await expect(page.getByRole("button", { name: "Concluir entrega" })).toHaveCount(0);
+  await page.getByRole("button", { name: /^Entregas / }).click();
+  await page.getByRole("button", { name: "Ver entrega ›" }).click();
+  const delivery = page.getByRole("region", { name: "Levar pedido.", exact: true });
+  const readyBefore = (await (await browserRequest.get("/api/attendance/dispatch/delivery/")).json()).results[0];
+  expect(readyBefore.state).toBe("OPEN");
+  expect(readyBefore.item_state).toBe("READY");
+  await expect(delivery.getByText("2× Kitchen E2E item")).toBeVisible();
+  await delivery.getByRole("button", { name: "Registrar entrega por exceção" }).click();
+  await expect(delivery.getByText("Entrega concluída", {exact:true})).toBeVisible();
+  const completed = await (await browserRequest.get(`/api/attendance/dispatch/tasks/${readyBefore.id}/`)).json();
+  expect(completed.id).toBe(readyBefore.id); expect(completed.order_item_id).toBe(readyBefore.order_item_id);
+  expect(completed.state).toBe("DONE"); expect(completed.item_state).toBe("DELIVERED");
+  await delivery.getByRole("button", { name: "Voltar à fila", exact: true }).click();
+  expect((await (await browserRequest.get("/api/attendance/dispatch/delivery/")).json()).results).toHaveLength(0);
   const tableResult = await browserRequest.post("/api/pos/hospitality/tables/", { data: { label: "Attendance test", guest_ordering_mode: "DIRECT" } });
   expect(tableResult.ok()).toBeTruthy();
   await browserRequest.post(`/api/pos/hospitality/tables/${tableResult.ok() ? (await tableResult.json()).id : ""}/occupy/`, { data: {} });
-  await page.getByRole("button", { name: "Mesas e comandas", exact: true }).click();
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /^Mesa Attendance test/ }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await page.getByRole("button", { name: "Organizar mesa Attendance test" }).click();
   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
   await page.getByRole("dialog", { name: "Mover comanda?" }).getByRole("button", { name: "Confirmar mudança de mesa" }).click();
-  await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
-  await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
+  await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Grupo saiu · Liberar mesa", exact: true })).toHaveCount(0);
+  // The occupied destination must keep its open financial Tab until explicitly moved.
+  await page.getByRole("button", { name: /^Mover comanda · Atendimento browser test/ }).click();
+  const destination = page.getByLabel("Mesa de destino");
+  await expect(destination).toBeEnabled();
+  await destination.selectOption({ label: "Mesa Fixture Atendimento browser test · Em uso" });
+  await page.getByRole("button", { name: "Confirmar movimento", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Mover comanda", exact: true })).not.toBeVisible();
+  const movedBack = await (await browserRequest.get(`/api/attendance/tabs/${tab.id}/`)).json();
+  expect(movedBack.exposure_cents).toBe(2000); expect(movedBack.payments_cents).toBe(0);
+  await page.getByRole("button", { name: "Grupo saiu · Liberar mesa", exact: true }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
-  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
+  await expect(page.locator(".ux2TablePage")).not.toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Aguardando limpeza/ }).click();
-  await expect(page.getByRole("button", { name: "Iniciar limpeza" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Concluir limpeza" }).click();
-  await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Mesa limpa · Disponibilizar" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Iniciar limpeza", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true }).click();
+  await expect(page.locator(".ux2TablePage")).not.toBeVisible();
   await expect(page.getByRole("button", { name: /^Mesa Attendance test Disponível/ })).toBeVisible();
-  await page.getByRole("button", { name: "Sair", exact: true }).click();
+  await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
+  await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Sair", exact: true }).click();
   await expect(page.getByRole("button", { name: "Entrar", exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });

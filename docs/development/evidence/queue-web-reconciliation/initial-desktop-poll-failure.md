@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - alert [ref=e2]
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - img "Rodada" [ref=e5]
+      - button "Opções do atendimento" [ref=e6] [cursor=pointer]:
+        - generic [ref=e7]: Web E2E — test only
+        - generic [ref=e8]: test-manager
+    - region "Comanda selecionada" [ref=e10]:
+      - button "Voltar" [ref=e11]:
+        - generic [ref=e12]: ‹
+        - text: Voltar
+      - generic [ref=e13]: Comanda EA651068
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - heading "Canonical order status 1280" [active] [level=1] [ref=e16]
+          - paragraph [ref=e17]: Mesa Fixture Canonical order status 1280 · Comanda aberta
+        - generic [ref=e18]: Em consumo
+      - generic [ref=e19]:
+        - button "＋ Adicionar itens" [ref=e20] [cursor=pointer]
+        - generic [ref=e21]:
+          - button "↻ Mais uma rodada" [ref=e22] [cursor=pointer]
+          - button "Conferir / fechar conta" [ref=e23] [cursor=pointer]
+      - region "Último pedido confirmado" [ref=e24]:
+        - strong [ref=e25]: "Pedido #eb4456e6-cc79-45cc-b995-f3ad581099d1 confirmado"
+        - paragraph [ref=e26]: 1× Kitchen E2E item · 1× Bar E2E item
+        - generic [ref=e27]:
+          - generic [ref=e28]: Cozinha · Na fila
+          - generic [ref=e29]: Bar · Na fila
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: Saldo em aberto
+          - generic [ref=e33]: Sem incluir rascunhos não enviados
+        - strong [ref=e34]: R$ 15,00
+      - region "Referência de consumo da comanda" [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]: Limite · Visitante
+          - strong [ref=e38]: R$ 15,00 / R$ 30,00
+        - 'progressbar "Consumo R$ 15,00 de R$ 30,00; R$ 15,00 disponíveis. Regra do estabelecimento: Bloquear (ENFORCE)." [ref=e39]'
+        - generic [ref=e42]:
+          - generic [ref=e43]: R$ 15,00 disponíveis
+          - button "Detalhes ›" [ref=e44] [cursor=pointer]
+      - button "Trocar de mesa ou comanda" [ref=e45] [cursor=pointer]
+```

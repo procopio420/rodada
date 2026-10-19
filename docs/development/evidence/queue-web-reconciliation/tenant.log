@@ -1,0 +1,30 @@
+
+> rodada-web@0.1.0 test:tenant
+> node --experimental-strip-types --test tests/tenant-routing.test.mjs tests/backend-fetch.test.mjs
+
+(node:3387701) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/lucas/projects/rodada/mission-web/apps/web/lib/backend-fetch.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/lucas/projects/rodada/mission-web/apps/web/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ 421 JSON POSTs preserve status and body with exactly one backend request (1890.601636ms)
+✔ successful and forbidden JSON POSTs preserve Unicode payloads (51.477032ms)
+✔ 307 cannot replay a JSON mutation to another URL (96.777355ms)
+✔ real connection failures remain rejected transport errors (24.508775ms)
+✔ response streaming and caller cancellation remain intact (20.119866ms)
+✔ an already cancelled mutation never reaches the backend (18.239442ms)
+✔ streamed JSON retains the exact UTF8 Content-Length required by DRF (102.945599ms)
+(node:3387707) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/lucas/projects/rodada/mission-web/apps/web/lib/tenant-host.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/lucas/projects/rodada/mission-web/apps/web/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ P1 aliases preserve suffix, do not rewrite other modules and reject malformed QR (2.965073ms)
+✔ candidate hostname is not derived from venue slug and excludes platform hosts (1.210685ms)
+✔ tenant rewrites use internal loopback HTTP listener behind TLS proxy (0.767202ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2854.453962

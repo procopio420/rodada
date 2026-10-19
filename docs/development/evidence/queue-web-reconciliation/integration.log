@@ -1,0 +1,119 @@
+
+> rodada-web@0.1.0 test:integration
+> playwright test --config playwright.integration.config.ts attendance-settlement-recovery.spec.ts attendance-release-occupancy.spec.ts attendance-order-status.spec.ts attendance.spec.ts attendance-removal.spec.ts
+
+[2m[WebServer] [22m(node:3389886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:3389979) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3389979) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓   1 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (28.5s)
+
+  ✓   2 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (23.3s)
+
+  ✓   3 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (25.9s)
+
+  ✘   4 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (31.6s)
+(node:3401792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3401792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (15.0s)
+[2m[WebServer] [22mConflict: /hospitality/tables/50e675ad-078d-4780-9995-d3fbad16969b/release/
+  ✓   6 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (8.9s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   7 tests/integration/attendance-removal.spec.ts:4:5 › Attendance cancels a confirmed unpaid item through canonical financial reversal (30.1s)
+  ✓   8 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance lost Payment ACK reads canonical automatic settlement without another Close (20.9s)
+  ✓   9 tests/integration/attendance-settlement-recovery.spec.ts:64:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (10.0s)
+  ✓  10 tests/integration/attendance-settlement-recovery.spec.ts:91:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (13.5s)
+  ✓  11 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 1 without Close or another Payment (9.9s)
+  ✓  12 tests/integration/attendance-settlement-recovery.spec.ts:115:33 › Canonical CLOSED receipt clears schema 2 without Close or another Payment (9.5s)
+  ✓  13 tests/integration/attendance-settlement-recovery.spec.ts:137:51 › Confirmed receipt preserves intent on canonical CLOSED identity mismatch (12.5s)
+  ✓  14 tests/integration/attendance-settlement-recovery.spec.ts:137:51 › Confirmed receipt preserves intent on canonical CLOSED balance mismatch (12.0s)
+[2m[WebServer] [22mConflict: /tabs/164181c9-00ff-450d-b04e-807ef6855930/close/
+  ✘  15 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (31.4s)
+
+
+  1) tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Último pedido confirmado' })
+    Expected substring: [32m"Bar · Pronto"[39m
+    Received string:    [31m"Pedido #eb4456e6-cc79-45cc-b995-f3ad581099d1 confirmado1× Kitchen E2E item · 1× Bar E2E itemCozinha · Na filaBar · Na fila"[39m
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 25000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Último pedido confirmado' })[22m
+    [2m    14 × locator resolved to <section class="attendanceOrderStatus" aria-label="Último pedido confirmado">…</section>[22m
+    [2m       - unexpected value "Pedido #eb4456e6-cc79-45cc-b995-f3ad581099d1 confirmado1× Kitchen E2E item · 1× Bar E2E itemCozinha · Na filaBar · Na fila"[22m
+
+
+      45 |   }, item.id);
+      46 |   expect(result).toBe(200);
+    > 47 |   await expect(status).toContainText("Bar · Pronto", { timeout: 25000 });
+         |                        ^
+      48 |   await expect(status).toContainText("Cozinha · Na fila");
+      49 | });
+      50 |
+        at /home/lucas/projects/rodada/mission-web/apps/web/tests/integration/attendance-order-status.spec.ts:47:24
+
+    Error Context: test-results/integration/attendance-order-status-re-ac218-station-survive-reload-1280/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-order-status-re-ac218-station-survive-reload-1280/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-order-status-re-ac218-station-survive-reload-1280/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('button[data-tab-id="164181c9-00ff-450d-b04e-807ef6855930"]')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('button[data-tab-id="164181c9-00ff-450d-b04e-807ef6855930"]')[22m
+
+
+      74 |   await page.getByLabel("Associar comanda à mesa Attendance test").selectOption(tab.id);
+      75 |   await page.getByRole("dialog", { name: "Mover comanda?" }).getByRole("button", { name: "Confirmar mudança de mesa" }).click();
+    > 76 |   await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
+         |                                                                 ^
+      77 |   await expect(page.getByRole("button", { name: "Grupo saiu · Liberar mesa", exact: true })).toHaveCount(0);
+      78 |   // The occupied destination must keep its open financial Tab until explicitly moved.
+      79 |   await page.getByRole("button", { name: /^Mover comanda · Atendimento browser test/ }).click();
+        at /home/lucas/projects/rodada/mission-web/apps/web/tests/integration/attendance.spec.ts:76:65
+
+    Error Context: test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/attendance-real-Atendiment-72532-and-logout-without-payments/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 
+    tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments 
+  13 passed (5.6m)

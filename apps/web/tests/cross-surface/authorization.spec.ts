@@ -66,19 +66,21 @@ test("revoked Web session cannot replay captured UI intent and new login require
   await login(page);
   const table = (await api(page, "hospitality/tables/", { label: `Revocation ${Date.now()}`, guest_ordering_mode: "DIRECT" })).body;
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
-  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
   await page.getByRole("dialog").getByRole("textbox").fill(table.label);
   await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
-  const dialog = page.locator(".attendanceOrderDialog");
+  const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await addCatalogItem(page, "Android Post Drop Test Soda");
-  await dialog.getByRole("button", { name: /Pedido atual/ }).click();
+  await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
   let payload = "", target = "";
   await page.route(/\/api\/attendance\/tabs\/[^/]+\/orders\/confirm\/$/, async route => {
     payload = route.request().postData()!; target = route.request().url();
     await route.abort(); // Real connectivity failure BEFORE server receives the captured UI command.
   });
-  await dialog.getByRole("button", { name: /^Confirmar pedido/ }).click();
+  await dialog.getByRole("button", { name: /^Enviar / }).click();
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   const saved = await page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"));
   expect(saved).toBeTruthy();

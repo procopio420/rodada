@@ -68,7 +68,8 @@ test("catalog name lost response and failed read never confirm success or leave 
   await page.route("**/api/pos/catalog/products/fries/", route => route.abort("failed"));
   await page.goto("/manage/products");
   await page.getByText("Editar produto e ícone", { exact: true }).click();
-  await page.getByLabel("Produto", { exact: true }).selectOption("fries");
+  await page.getByRole("dialog").getByRole("button", { name: /Todos/ }).click();
+  await page.getByRole("button", { name: "Editar Fritas", exact: true }).click();
   await page.getByLabel("Nome do produto").fill("Fritas revisadas");
   await page.getByRole("button", { name: "Salvar nome" }).click();
   await expect(page.getByRole("status")).toContainText("Resultado não confirmado; não foi possível consultar o produto.");

@@ -25,6 +25,25 @@ test('table-service gateway requires authentication and rejects financial paths'
       assert.equal(response.status, status, route);
       assert.equal((await response.json()).code, code, route);
     }
+    const cashPayload = { method: 'CASH', amount_cents: 100, expected_version: 2,
+      cash_point_id: '11111111-1111-4111-8111-111111111111',
+      originating_session_id: '22222222-2222-4222-8222-222222222222', idempotency_key: '033-gateway' };
+    for (const [body, status] of [
+      [cashPayload, 401],
+      [{ ...cashPayload, method: 'PIX' }, 403],
+      [{ ...cashPayload, method: 'CARD' }, 403],
+      [{ ...cashPayload, amount_cents: 0 }, 403],
+      [{ ...cashPayload, amount_cents: 1.1 }, 403],
+      [{ ...cashPayload, expected_version: 0 }, 403],
+      [{ ...cashPayload, provider: 'fake' }, 403],
+      [{ ...cashPayload, cash_point_id: null }, 403],
+    ]) {
+      const response = await fetch(`http://127.0.0.1:${port}/api/attendance/tabs/tab-test/payments/`, {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+      });
+      assert.equal(response.status, status);
+    }
+    assert.equal((await fetch(`http://127.0.0.1:${port}/api/attendance/cash/points/`)).status, 401);
     for (const body of [
       { kind: 'MOVE_LOCATION', expected_version: 1, occupancy_id: '11111111-1111-4111-8111-111111111111', idempotency_key: 'move' },
       { kind: 'MERGE', expected_version: 1 },

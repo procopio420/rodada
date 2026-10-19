@@ -37,7 +37,7 @@ for width in (360,390,430):
   if side=='A': TabOccupancyAssignment.objects.create(tab=tab,occupancy=occ)
 Table.objects.create(venue=v,label='Available move destination')`);
   await page.goto("/attendance"); await page.getByLabel("Estabelecimento").fill("web-e2e"); await page.getByLabel("Operador",{exact:true}).fill("test-manager"); await page.getByLabel("PIN",{exact:true}).fill("2468"); await page.getByRole("button",{name:"Entrar",exact:true}).click();
-  await expect(page.getByRole("button",{name:"Mesas e comandas",exact:true})).toBeEnabled();
+  await expect(page.getByRole("button",{name:"Mesas",exact:true})).toBeEnabled();
   const tabs=(await api(page,"tabs/")).results, tables=(await api(page,"hospitality/tables/",undefined,"attendance")).results;
   const product=(await api(page,"catalog/products/")).results.find((p:{name:string})=>p.name==="Kitchen E2E item");
   for(const width of [360,390,430]) {
@@ -51,9 +51,10 @@ Table.objects.create(venue=v,label='Available move destination')`);
       const cases=[...['SPLIT','MERGE','MOVE_ITEMS','CANCEL_EMPTY','REOPEN'].map(kind=>({...base,kind})),...['lines','destination_tab_id','service_point_id','amount_cents'].map(key=>({...base,[key]:"forbidden"})),null,{...base,occupancy_id:"invalid"}];
       return Promise.all(cases.map(async body=>(await fetch(`/api/attendance/tabs/${id}/operations`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})).status));
     },{id:tab.id,base}); expect(disabled.every((s:number)=>s===403)).toBe(true);
-    await page.getByRole("button",{name:"Mesas e comandas",exact:true}).click();
+    await page.getByRole("button",{name:"Mesas",exact:true}).click();
     await page.getByRole("button",{name:new RegExp(`^Mesa A-${width}`)}).click();
-    await page.locator(".attendanceTableDialog").getByRole("button",{name:"Mover comanda",exact:true}).click();
+    await page.getByText("Opções da mesa", {exact:true}).click();
+    await page.locator(".ux2TablePage").getByRole("button",{name:/^Mover comanda ·/}).click();
     await expect(page.getByLabel("Mesa de destino")).toBeEnabled();
     await expect(page.getByLabel("Mesa de destino").locator("option", { hasText: "Mesa Available move destination" })).toHaveCount(1);
     await page.getByLabel("Mesa de destino").selectOption(destination.active_occupancy.id); await page.getByLabel("Motivo (opcional)").fill("Mudança de lugar");
@@ -69,7 +70,7 @@ Table.objects.create(venue=v,label='Available move destination')`);
     await page.getByRole("button",{name:"Confirmar movimento",exact:true}).click();
     if(width!==360) {
       await expect(page.getByRole("button",{name:"Verificar mesmo movimento",exact:true})).toBeEnabled();
-      await expect(page.getByRole("button",{name:"Sair",exact:true})).toBeDisabled(); await page.reload();
+      await expect(page.getByRole("button",{name:"Opções do atendimento",exact:true,includeHidden:true})).toBeDisabled(); await page.reload();
       await expect(page.getByRole("button",{name:"Verificar mesmo movimento",exact:true})).toBeEnabled(); expect(requests).toHaveLength(1);
       if(width===430) {
         failReadback=true; await page.getByRole("button",{name:"Verificar mesmo movimento",exact:true}).click(); await expect(page.getByText(/Resultado ainda não confirmado/)).toBeVisible(); failReadback=false;
@@ -87,13 +88,13 @@ event=AuditEvent.objects.get(entity_id=str(tab.id),event_type='tab.location_chan
 print(json.dumps({'assignments':assignments,'reason':event.reason,'actor':str(event.actor_staff_id),'events':AuditEvent.objects.filter(entity_id=str(tab.id),event_type='tab.location_changed').count(),'operations':TabOperation.objects.filter(source_tab=tab).count(),'transfers':TabTransferLine.objects.count(),'origin_released':TableOccupancy.objects.get(pk='${origin.active_occupancy.id}').released_at},cls=DjangoJSONEncoder))`));
     expect(facts.operations).toBe(1); expect(facts.events).toBe(1); expect(facts.transfers).toBe(0); expect(facts.reason).toBe("Mudança de lugar"); expect(facts.actor).not.toBe("None"); expect(facts.origin_released).toBeNull();
     expect(facts.assignments).toHaveLength(2); expect(facts.assignments[0].released_at).not.toBeNull(); expect(facts.assignments[1]).toEqual({occupancy_id:destination.active_occupancy.id,released_at:null});
-    if (await page.locator(".attendanceTableDialog").isVisible()) await page.locator(".attendanceTableDialog").getByRole("button", { name: "Voltar", exact: true }).click();
-    await page.getByRole("button",{name:"Mesas e comandas",exact:true}).click();
+    if (await page.locator(".ux2TablePage").isVisible()) await page.locator(".ux2TablePage").getByRole("button", { name: "Voltar", exact: true }).click();
+    await page.getByRole("button",{name:"Mesas",exact:true}).click();
     await expect(page.locator(`#attendance-table-${origin.id}`)).toBeVisible();
     await page.getByRole("button",{name:new RegExp(`^Mesa B-${width}`)}).click();
     await expect(page.locator(`button[data-tab-id="${tab.id}"]`)).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-    await page.locator(".attendanceTableDialog").getByRole("button", { name: "Voltar", exact: true }).click();
+    await page.locator(".ux2TablePage").getByRole("button", { name: "Voltar", exact: true }).click();
     await page.unroute(endpoint);
   }
 });

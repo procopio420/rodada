@@ -15,6 +15,11 @@ export async function chooseCatalogItem(page: Page, name: string) {
   return item;
 }
 export async function addCatalogItem(page: Page, name: string, quantity = 1) {
+  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+  if (await workspace.isVisible()) {
+    for (let count = 0; count < quantity; count++) await workspace.getByRole("button", { name: `Adicionar ${name}`, exact: true }).click();
+    return;
+  }
   const item = await chooseCatalogItem(page, name);
   for (let count = 1; count < quantity; count++) await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
   await item.getByRole("button", { name: /^Adicionar ·/ }).click();

@@ -1,0 +1,29 @@
+Creating test database for alias 'default'...
+..Conflict: /tabs/223a0bb3-61dc-4721-a046-e9a4895f5644/orders/confirm/
+.Bad Request: /tabs/
+..Conflict: /tabs/150060e7-d949-4dc8-a8a5-8b595689bd9e/orders/confirm/
+...Conflict: /tabs/ea999078-ca7e-4360-9c49-4b1205c23067/orders/confirm/
+...Conflict: /tabs/b376b5fd-1069-41e0-8549-f8e03b303f41/orders/confirm/
+....Conflict: /tabs/99ec79be-b7c2-42f1-a9ef-8ca46a03f76b/orders/confirm/
+.Conflict: /order-items/0d9084f8-bd3e-413c-bb18-faf3d4c2c7e1/transition/
+Conflict: /order-items/0d9084f8-bd3e-413c-bb18-faf3d4c2c7e1/transition/
+..Bad Request: /tabs/
+.Conflict: /tabs/e3842a30-94a4-41a9-9f72-aa57c98056cd/orders/confirm/
+..Not Found: /hospitality/tables/55f29466-f1e1-4df5-8f3b-bf81b63107d7/release/
+.Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+Bad Request: /hospitality/tables/bbb733eb-154a-41a6-89fe-2fc36b30dac0/release/
+..Bad Request: /hospitality/tables/c8db21bf-ce95-4c53-9e91-c58c3c20d8e2/release/
+.Conflict: /hospitality/tables/9f68bf97-50f9-47a6-bd99-e683da2268d8/release/
+Conflict: /hospitality/tables/9f68bf97-50f9-47a6-bd99-e683da2268d8/release/
+.
+----------------------------------------------------------------------
+Ran 26 tests in 50.953s
+
+OK
+Destroying test database for alias 'default'...
+Found 26 test(s).
+System check identified no issues (0 silenced).

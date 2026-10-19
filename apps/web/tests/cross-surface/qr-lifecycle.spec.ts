@@ -33,14 +33,16 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   expect(initial.active_occupancy.responsible_staff_id).toBeNull();
   expect(initial.active_occupancy.tabs).toHaveLength(1);
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
+  await page.getByText("Opções da mesa", { exact: true }).click();
   await page.getByRole("button", { name: "Assumir atendimento", exact: true }).click();
   await expect.poll(async () => (await snapshot()).active_occupancy.responsible_staff_id).toBeTruthy();
   const claimed = await snapshot();
   expect(claimed.active_occupancy.id).toBe(initial.active_occupancy.id);
   expect(claimed.access_generation).toBe(initial.access_generation);
   expect(claimed.active_occupancy.tabs).toEqual(initial.active_occupancy.tabs);
-  await page.getByRole("button", { name: "Nova comanda nesta mesa", exact: true }).click();
+  await page.getByRole("button", { name: "＋ Abrir nova comanda", exact: true }).click();
   // This uses the table-specific creation dialog, not standalone Tab setup.
   await page.getByRole("dialog").getByRole("textbox").fill("QR-first staff");
   await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
@@ -51,17 +53,18 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   // Close both empty ledgers through the authorized UI; closing last Tab is not release.
   for (const tab of tabs) {
     await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
     await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
     await page.locator(`button[data-tab-id="${tab.id}"]`).click();
-    await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
-    await page.getByRole("button", { name: "Fechar comanda", exact: true }).click();
-    await page.getByRole("button", { name: "Confirmar fechamento", exact: true }).click();
+    await page.getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+    await page.getByRole("button", { name: "Encerrar comanda", exact: true }).click();
     await expect.poll(async () => (await read(`tabs/${tab.id}/`)).state).toBe("CLOSED");
   }
   expect((await snapshot()).status).toBe("OCCUPIED");
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
-  await page.getByRole("button", { name: `Liberar mesa ${table.label}`, exact: true }).click();
+  await page.getByRole("button", { name: "Grupo saiu · Liberar mesa", exact: true }).click();
   await page.getByRole("button", { name: "Confirmar liberação", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("DIRTY");
   const revoked = await guest.evaluate(async selector => {
@@ -77,9 +80,10 @@ test("QR-first, explicit claim, independent Tabs and explicit release revoke onl
   // the intermediate step is triggered through the authenticated real BFF.
   await read(`hospitality/tables/${table.id}/cleaning/start/`, {});
   await page.goto("/attendance");
+  await page.getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: new RegExp(`^Mesa ${table.label}`) }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("CLEANING");
-  await page.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
+  await page.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true }).click();
   await expect.poll(async () => (await snapshot()).status).toBe("AVAILABLE");
   const final = await snapshot();
   expect(final.public_token).toBe(table.public_token);

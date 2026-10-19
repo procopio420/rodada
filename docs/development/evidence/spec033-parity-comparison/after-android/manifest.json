@@ -1,0 +1,27 @@
+{
+  "source_sha": "a7298ee2676219e5a98767c98aa2333cf554c208",
+  "evidence_sha": "5a1efec5",
+  "pr": "https://github.com/procopio420/rodada/pull/234",
+  "tests": "116JVM/build/lint and24/24Compose",
+  "scope": "Isolated pages without shell/API/PSP; not global parity acceptance",
+  "hashes": {
+    "android-catalog-390-f200.png": "ee80dab6de13120996ed77b7857b7b90dcaad37c2274e1031dd6892307280f00",
+    "android-catalog-360-f100.png": "1233968ac1cf17e283050b0aa173eea7d4d479be98bb28bf3eb55ac0443d06af",
+    "android-review-430-f200.png": "3c54c710223358dfcda6805739810479a678197fd787dcaa6763f65768d3f33b",
+    "android-catalog-360-f200.png": "2420f7020cd5e7404725d26d4493c7eb970084739cae241ccf09a8957ccabb9b",
+    "android-payment-430-f100.png": "e3bde9fcaed6d3d633008a2b1fe2274253fc3725469fee7427654bb2a68437e7",
+    "android-payment-360-f100.png": "d92c14b87103fa6059dc7973446c63130d4039814f7ecd9ee4332b73fb5ee254",
+    "android-review-360-f100.png": "acf275693fbca4cfa40d988fab24b7a5468eb2f231a6b94545270e5bb88eb19d",
+    "android-catalog-430-f200.png": "d6d5f7474189562f0f4244b27e97eec632a86b2b0076bf3d20eea1c572eaaaee",
+    "android-catalog-430-f100.png": "6975949e9dbd6fa2e23c824aba608256f079f71289f0e47a5a96fc951506a1e1",
+    "android-payment-430-f200.png": "b73105e27941fbd22979c427c7bd8f793fe4276968fc14b5dfbe0384cb5cb0a9",
+    "android-review-390-f200.png": "102a9253cb0384dd4c1868a68f2284a36763c00af78653b9eb4a774ca49919f6",
+    "android-review-360-f200.png": "5b9bce232aae5f9d06049775654ec0296ee7e80b375f4ad49a1b5bcf69d24b62",
+    "android-review-430-f100.png": "65695664715c91b7baf4aef8434a66c9b656edad2f7916a37c7340369d001bcd",
+    "android-payment-390-f100.png": "8b6b2af91245c7639d782e3aa26f93de929132a1743fcc668e1c629e26a53f10",
+    "android-payment-390-f200.png": "7d258c66ecacf9cf46207c38b3b3525184b78702f133b34143dd8b4f735d8646",
+    "android-review-390-f100.png": "4036366e30c5ba6378c52d0bc4607cb75b9fd8d27fe40bf6f711c38492f12546",
+    "android-payment-360-f200.png": "b0d2cff27cbba771817b5420a41042724314a46086d954a9800fdd96de779d56",
+    "android-catalog-390-f100.png": "d9aaa76299173117cebff61a131fe2a0779f3fcdc5df84dc54ee77c8f0495c9d"
+  }
+}

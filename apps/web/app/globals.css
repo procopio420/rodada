@@ -555,3 +555,14 @@ summary:focus-visible { outline: 3px solid var(--color-info); }
 
 .printingRouteChoice { display: flex; align-items: center; gap: var(--space-3); min-height: var(--touch-min); }
 .printingRouteChoice > input { min-width: var(--touch-min); min-height: var(--touch-min); flex-shrink: 0; accent-color: var(--color-accent); }
+
+/* Spec033 / PR212 order-status: canonical readback, persistent within the Tab. */
+.attendanceOrderStatus {
+  background: var(--color-surface-1); border: 1px solid var(--color-border-strong);
+  border-left: 3px solid var(--color-success); padding: 15px var(--space-4);
+  margin: 13px 0 17px; border-radius: var(--radius-md); overflow-wrap: anywhere;
+}
+.attendanceOrderStatus > strong { display: block; font-size: 15px; margin-bottom: 5px; }
+.attendanceOrderStatus p { margin: var(--space-1) 0; color: var(--color-text-muted); font-size: var(--text-xs); line-height: 1.5; }
+.attendanceOrderRoutes { display: flex; flex-wrap: wrap; gap: 7px; margin: var(--space-2) 0; }
+.attendanceOrderRoutes > span { font-size: 11px; font-weight: 800; background: var(--color-surface-2); border: 1px solid var(--color-border-strong); border-radius: 5px; padding: 5px var(--space-2); }

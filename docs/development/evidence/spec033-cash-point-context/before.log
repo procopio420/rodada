@@ -1,0 +1,50 @@
+[2m[WebServer] [22m(node:878753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [17/Oct/2026 20:35:29] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 1 test using 1 worker
+
+(node:878797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:878797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/visual/ux2-cash-point-context.spec.ts:4:5 › UX2 keeps explicit cash selection and invalidates a removed point before a new receipt (6.8s)
+
+
+  1) tests/visual/ux2-cash-point-context.spec.ts:4:5 › UX2 keeps explicit cash selection and invalidates a removed point before a new receipt 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeDisabled[2m([22m[2m)[22m failed
+
+    Locator:  getByRole('region', { name: 'Recebimento em dinheiro', exact: true }).getByRole('button', { name: 'Receber e encerrar comanda', exact: true })
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeDisabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Recebimento em dinheiro', exact: true }).getByRole('button', { name: 'Receber e encerrar comanda', exact: true })[22m
+    [2m    9 × locator resolved to <button type="submit" class="ux2Button primary block">Receber e encerrar comanda</button>[22m
+    [2m      - unexpected value "enabled"[22m
+
+
+      32 |   await page.clock.runFor(16000);
+      33 |   await expect(receipt.getByLabel('Caixa aberto', { exact: true }).getByRole('option', { name: 'Caixa B', exact: true })).toHaveCount(0);
+    > 34 |   await expect(receipt.getByRole('button', { name: 'Receber e encerrar comanda', exact: true })).toBeDisabled();
+         |                                                                                                  ^
+      35 |   await expect(receipt.getByRole('button', { name: 'Só registrar; manter comanda aberta', exact: true })).toBeDisabled();
+      36 |   expect(requests).toHaveLength(1);
+      37 |   await receipt.getByLabel('Caixa aberto', { exact: true }).selectOption('point-a');
+        at /home/lucas/projects/rodada/ux2-web-workspace/apps/web/tests/visual/ux2-cash-point-context.spec.ts:34:98
+
+    Error Context: test-results/visual/ux2-cash-point-context-UX2-29d61--point-before-a-new-receipt/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/ux2-cash-point-context-UX2-29d61--point-before-a-new-receipt/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/ux2-cash-point-context-UX2-29d61--point-before-a-new-receipt/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/visual/ux2-cash-point-context.spec.ts:4:5 › UX2 keeps explicit cash selection and invalidates a removed point before a new receipt 
