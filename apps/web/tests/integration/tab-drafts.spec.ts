@@ -11,6 +11,8 @@ async function api(page: Page, path: string) {
 }
 
 for (const width of [360, 390, 430]) test(`Real Attendance isolates drafts across fullpage table journeys at ${width}`, async ({ page }) => {
+  // Three real contextual openings plus draft restoration; local expectations retain 5s.
+  test.setTimeout(90_000);
   await page.setViewportSize({ width, height: 900 });
   await page.goto("/attendance");
   await page.getByLabel("Estabelecimento").fill("web-e2e");

@@ -1,0 +1,447 @@
+[2m[WebServer] [22m(node:2014453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 151 tests using 1 worker
+
+(node:2014485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2014485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓    1 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 360 (9.8s)
+
+  ✓    2 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 390 (7.0s)
+
+  ✓    3 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 430 (5.7s)
+
+  ✓    4 tests/integration/attendance-delivery-freshness.spec.ts:5:43 › real ordering continues during Dispatch503 and queue reconnects 1280 (7.1s)
+  ✓    5 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 360 (9.5s)
+  ✓    6 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 390 (6.3s)
+  ✓    7 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 430 (6.2s)
+  ✓    8 tests/integration/attendance-delivery-page.spec.ts:4:43 › closed financial Tab retains real READY delivery and lost ACK recovery 1280 (6.3s)
+
+  ✓    9 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 360 (27.7s)
+
+  ✓   10 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 390 (22.1s)
+
+  ✓   11 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 430 (21.9s)
+
+  ✓   12 tests/integration/attendance-order-status.spec.ts:5:48 › real order reference and historical station survive reload 1280 (25.5s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/c655eef7-c07a-4aa2-b60f-479ebe6bc963/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   13 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 360 (22.0s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/92f9f4a6-44e2-4831-aaff-f346709bf3a2/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   14 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 390 (20.0s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mConflict: /dispatch/requests/1ab2d131-ef3b-4af4-b9e0-0f9c9b739b52/claim/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   15 tests/integration/attendance-queue-acceptance.spec.ts:24:42 › real service queue conflict, stale and committed response loss at 430 (21.2s)
+  ✓   16 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement false (7.7s)
+[2m[WebServer] [22mConflict: /hospitality/tables/80c68299-23cb-491e-87b0-b79fcc9ba0ea/release/
+  ✓   17 tests/integration/attendance-release-occupancy.spec.ts:8:44 › release fences the originally confirmed occupancy, replacement true (3.7s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓   18 tests/integration/attendance-removal.spec.ts:4:5 › Attendance cancels a confirmed unpaid item through canonical financial reversal (12.7s)
+  ✓   19 tests/integration/attendance-settlement-recovery.spec.ts:44:5 › Attendance pending Payment survives lost ACK and close 503/ACK loss across reload with no selection (10.3s)
+  ✓   20 tests/integration/attendance-settlement-recovery.spec.ts:70:5 › Attendance confirmed Payment permits keep open after concurrent consumption and failed canonical callback (5.2s)
+  ✓   21 tests/integration/attendance-settlement-recovery.spec.ts:95:5 › Attendance preserves original pending identity when confirmed phase cannot be persisted (4.3s)
+
+  ✓   22 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 360 (8.1s)
+
+  ✓   23 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 390 (5.1s)
+
+  ✓   24 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 430 (4.7s)
+
+  ✓   25 tests/integration/attendance-ux2-workspace.spec.ts:4:44 › UX2 direct catalog order and reload canonical 1280 (4.9s)
+  ✓   26 tests/integration/attendance-ux2-workspace.spec.ts:37:5 › UX2 real committed order lost ACK reload reconciles one intent and ledger (3.4s)
+
+  ✓   27 tests/integration/attendance-ux2-workspace.spec.ts:53:5 › UX2 real cleaning records both canonical lifecycle transitions (4.0s)
+  ✓   28 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK false (6.2s)
+  ✓   29 tests/integration/attendance-zero-close.spec.ts:23:41 › zero balance closes directly with canonical readback, lost ACK true (2.9s)
+  ✓   30 tests/integration/attendance-zero-close.spec.ts:43:5 › new canonical consumption blocks zero-balance close without collecting payment (3.0s)
+  ✓   31 tests/integration/attendance-zero-close.spec.ts:59:5 › lost close and unavailable readback recover by reading the same Tab without another Close (3.5s)
+  ✓   32 tests/integration/attendance-zero-close.spec.ts:81:5 › delayed Close keeps the original account and blocks contextual Back (3.2s)
+[2m[WebServer] [22mConflict: /tabs/3d511f27-bdc3-4b86-af62-17025218007a/close/
+[2m[WebServer] [22mConflict: /tabs/3d511f27-bdc3-4b86-af62-17025218007a/
+  ✓   33 tests/integration/attendance.spec.ts:5:5 › real Atendimento login, order, production, table lifecycle and logout without payments (15.4s)
+  ✓   34 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 360 (7.9s)
+  ✓   35 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 390 (4.5s)
+  ✓   36 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery KITCHEN 430 (5.7s)
+  ✓   37 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 360 (4.6s)
+  ✓   38 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 390 (5.6s)
+  ✓   39 tests/integration/availability-intents.spec.ts:2:84 › Real availability recovery BAR 430 (5.7s)
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+  ✓   40 tests/integration/blocked-tenant-hosts.spec.ts:22:5 › inactive A/B and unknown hosts reject every Web method/path before auth or Guest dispatch (6.9s)
+  ✓   41 tests/integration/correction-without-refund.spec.ts:14:5 › Manager resolves 38/10/8 correction with no refund through real Web and PostgreSQL (9.0s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓   42 tests/integration/developer-staff.spec.ts:2:5 › DEV provisions an operator, edits role and revokes access with canonical readback (9.1s)
+  ✓   43 tests/integration/frontend-pilot.spec.ts:11:5 › pilot setup and service queue use real canonical API and occupancy covers (9.3s)
+
+  ✓   44 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 360 (8.9s)
+
+  ✓   45 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 390 (6.4s)
+
+  ✓   46 tests/integration/guest-catalog.spec.ts:5:42 › Guest catalog filters draft and committed replay 430 (5.6s)
+  ✓   47 tests/integration/guest-customer-identity.spec.ts:3:5 › Guest optional Customer login, HttpOnly BFF continuity and revocation, real PostgreSQL (9.7s)
+  ✓   48 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 360 (7.8s)
+  ✓   49 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 390 (4.5s)
+  ✓   50 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 430 (4.5s)
+  ✓   51 tests/integration/guest-navigation.spec.ts:3:48 › Spec004 Guest multiple orders and persistent regions 1280 (5.1s)
+  ✓   52 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 360 (7.7s)
+  ✓   53 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 390 (4.5s)
+  ✓   54 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery 430 (4.5s)
+[2m[WebServer] [22mForbidden: /guest/context/
+  ✓   55 tests/integration/guest-order-intent.spec.ts:3:65 › Guest committed order recovery revoked (3.6s)
+  ✓   56 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 360 (8.6s)
+  ✓   57 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 390 (5.4s)
+  ✓   58 tests/integration/guest-quantity.spec.ts:3:42 › Guest quantities grouping and committed replay 430 (5.2s)
+  ✓   59 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 360 (8.7s)
+  ✓   60 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 390 (5.6s)
+  ✓   61 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit 430 (5.6s)
+  ✓   62 tests/integration/guest-repeat-order.spec.ts:3:65 › Guest repeat real visit blocked (4.3s)
+  ✓   63 tests/integration/management-alerts.spec.ts:3:5 › real API alert policy, acknowledgement and canonical resolution (8.1s)
+  ✓   64 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 360 (8.5s)
+  ✓   65 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 390 (5.1s)
+  ✓   66 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL manual refund lost committed response recovers at 430 (5.1s)
+  ✓   67 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 360 (5.3s)
+  ✓   68 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 390 (5.3s)
+  ✓   69 tests/integration/manual-refund-intent.spec.ts:14:82 › PostgreSQL correction lost committed response recovers at 430 (5.3s)
+
+  ✓   70 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 360 (8.3s)
+
+  ✓   71 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 390 (4.8s)
+
+  ✓   72 tests/integration/order-intent.spec.ts:5:42 › Staff order committed without response recovers after reload once 430 (5.2s)
+  ✓   73 tests/integration/pos-cash-receipt.spec.ts:14:5 › POS lost cash response after PostgreSQL commit survives reload with one drawer effect (7.4s)
+  ✓   74 tests/integration/pos-cash-receipt.spec.ts:63:5 › Attendance full receipt resumes close after reload without reposting confirmed Payment (5.2s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /tabs/1245ced3-d129-44b3-a502-279c32684cae/payments/
+  ✓   75 tests/integration/pos-cash-receipt.spec.ts:137:5 › Attendance CASH gateway preserves server capability guard (1.6s)
+  ✓   76 tests/integration/pos-cash-receipt.spec.ts:160:5 › Confirmed receipt with concurrent new consumption can explicitly keep Tab open without charging again (4.0s)
+  ✓   77 tests/integration/pos-cash-receipt.spec.ts:208:5 › UX2 Account receives partial CASH then settles and closes from real page (4.6s)
+
+  ✓   78 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 360 (12.0s)
+
+  ✓   79 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 390 (8.9s)
+
+  ✓   80 tests/integration/pos-repeat-order.spec.ts:24:42 › Real POS repeated round current price new intent and lost-response replay at 430 (9.2s)
+  ✓   81 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 360px (25.5s)
+  ✓   82 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 390px (22.1s)
+  ✓   83 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 430px (21.9s)
+  ✓   84 tests/integration/print-agent-routes.spec.ts:5:48 › printer route CAS and changed-driver attestation at 1280px (22.2s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   85 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 360px (15.8s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   86 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 390px (12.7s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   87 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 430px (12.5s)
+[2m[WebServer] [22mUnauthorized: /printing/agents/v1/me/heartbeat/
+  ✓   88 tests/integration/print-agents.spec.ts:6:7 › printer computer pairing and revocation through real BFF at 1280px (12.5s)
+[2m[WebServer] [22mNot Found: /receipts/[REDACTED_RECEIPT_TOKEN]/
+  ✓   89 tests/integration/printing.spec.ts:13:5 › canonical order, station ticket, partial receipt, final bill and audited copy (10.9s)
+  ✓   90 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 360 (8.8s)
+  ✓   91 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 390 (5.6s)
+  ✓   92 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery KITCHEN 430 (5.7s)
+  ✓   93 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 360 (5.6s)
+  ✓   94 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 390 (5.7s)
+  ✓   95 tests/integration/production-batch.spec.ts:2:84 › Real production batch recovery BAR 430 (5.7s)
+  ✓   96 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 360 (7.2s)
+  ✓   97 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 390 (4.3s)
+  ✓   98 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations KITCHEN 430 (4.3s)
+  ✓   99 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 360 (4.0s)
+  ✓  100 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 390 (4.3s)
+  ✓  101 tests/integration/production-configuration.spec.ts:3:84 › Real confirmed production configurations BAR 430 (4.4s)
+  ✓  102 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 360 (8.3s)
+  ✓  103 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 390 (5.3s)
+  ✓  104 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production KITCHEN 430 (5.2s)
+  ✓  105 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 360 (5.5s)
+  ✓  106 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 390 (5.7s)
+  ✓  107 tests/integration/production-item-intents.spec.ts:2:84 › Real independent production BAR 430 (5.7s)
+  ✓  108 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 360 (11.0s)
+  ✓  109 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 390 (9.1s)
+  ✓  110 tests/integration/production-regions.spec.ts:3:84 › Real production region access KITCHEN 430 (6.6s)
+  ✓  111 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 360 (6.2s)
+  ✓  112 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 390 (6.3s)
+  ✓  113 tests/integration/production-regions.spec.ts:3:84 › Real production region access BAR 430 (6.5s)
+[2m[WebServer] [22m/home/lucas/projects/rodada/venv/lib/python3.13/site-packages/django/core/handlers/asgi.py:336: Warning: StreamingHttpResponse must consume synchronous iterators in order to serve them asynchronously. Use an asynchronous iterator instead.
+[2m[WebServer] [22m  async for part in content:
+  ✓  114 tests/integration/quick-catalog.spec.ts:4:5 › quick create, exact reuse and manager icon lifecycle (8.1s)
+
+  ✓  115 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 360 (17.3s)
+
+  ✓  116 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 390 (20.1s)
+
+  ✓  117 tests/integration/repeat-order.spec.ts:26:42 › Real repeated round current price new intent and lost-response replay at 430 (17.4s)
+[2m[WebServer] [22mForbidden: /guest/service-requests/
+[2m[WebServer] [22mConflict: /guest/qr/resolve/
+  ✓  118 tests/integration/service-requests.spec.ts:4:5 › guest service calls persist in Dispatch and revoke with the visit (18.1s)
+  ✓  119 tests/integration/staff-screen.spec.ts:23:5 › personal device offers simple account controls without disabled switch form (1.6s)
+  ✓  120 tests/integration/staff-screen.spec.ts:37:5 › shared trusted terminal reveals fast switch only when requested (1.7s)
+  ✓  121 tests/integration/staff-screen.spec.ts:50:5 › logout and lock are tucked under deliberate security controls (2.1s)
+
+  ✘  122 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 (33.3s)
+(node:2042522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2042522) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✘  123 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 (31.5s)
+(node:2043170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2043170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+  ✓  124 tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 430 (29.4s)
+
+  ✓  125 tests/integration/tab-location-move.spec.ts:29:5 › real location movement preserves finance and recovers without duplicate effects at mobile widths (24.6s)
+
+  ✓  126 tests/integration/tab-pagination.spec.ts:7:5 › Real PostgreSQL Attendance finds the 201st Tab and retains an unsent draft (19.7s)
+
+  ✓  127 tests/integration/tab-search.spec.ts:7:5 › PostgreSQL global homonym search finds older Tabs and preserves contextual page drafts (10.7s)
+
+  ✓  128 tests/integration/table-entry.spec.ts:9:5 › real table entry opens an older Tab and confirms only its draft at mobile widths (17.5s)
+  ✓  129 tests/integration/table-groups.spec.ts:3:5 › TableGroups physical UI keeps Tabs separate and allows reversible grouping on mobile and desktop (7.3s)
+  ✓  130 tests/integration/table-turnover.spec.ts:3:5 › Table turnover real PostgreSQL report shows canonical coverage at mobile and desktop widths (6.2s)
+  ✓  131 tests/integration/tenant-home.spec.ts:16:5 › Spec 025: tenant hub is branded, navigable and 2/3/4-column responsive (4.5s)
+  ✓  132 tests/integration/tenant-home.spec.ts:90:5 › Spec 025: venue hub heading comes from the verified host, not a hardcoded pilot name (546ms)
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+[2m[WebServer] [22mMisdirected Request: /venue/context/
+  ✓  133 tests/integration/tenant-hosts.spec.ts:9:5 › Spec 025 P1: two real venue hosts have distinct branding and canonical aliases (4.7s)
+[2m[WebServer] [22mForbidden: /auth/me/
+[2m[WebServer] [22mForbidden: /tabs/
+[2m[WebServer] [22mForbidden: /auth/refresh/
+[2m[WebServer] [22mForbidden: /auth/me/
+[2m[WebServer] [22mForbidden: /tabs/
+[2m[WebServer] [22mForbidden: /realtime/snapshot/
+[2m[WebServer] [22mNot Found: /guest/qr/resolve/
+[2m[WebServer] [22mNot Found: /guest/context/
+[2m[WebServer] [22mNot Found: /guest/qr/resolve/
+[2m[WebServer] [22mNot Found: /guest/context/
+  ✓  134 tests/integration/tenant-hosts.spec.ts:39:5 › Spec 025 P1: cross-venue credential, replay and QR isolation via real Next BFF and Django (2.4s)
+  ✓  135 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 360 (6.2s)
+  ✓  136 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 390 (2.3s)
+  ✓  137 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 430 (2.3s)
+  ✓  138 tests/integration/ux2-now.spec.ts:3:45 › UX2 Agora canonical queues and contextual navigation 1280 (2.3s)
+  ✓  139 tests/integration/ux2-now.spec.ts:35:5 › canonical call opens explicit table choice without claiming or completing (2.5s)
+  ✓  140 tests/integration/ux2-now.spec.ts:60:5 › failed contextual Tab read cannot attach the previous call to another Tab (3.9s)
+  -  141 tests/integration/venue-menu-acceptance.spec.ts:6:42 › canonical photographed menu orders reach BAR and KITCHEN at 360
+  -  142 tests/integration/venue-menu-acceptance.spec.ts:6:42 › canonical photographed menu orders reach BAR and KITCHEN at 390
+  -  143 tests/integration/venue-menu-acceptance.spec.ts:6:42 › canonical photographed menu orders reach BAR and KITCHEN at 430
+[2m[WebServer] [22mForbidden: /cash/shifts/fb5c841b-ccde-4bbb-8fe6-2b3f8a0bc222/review/
+[2m[WebServer] [22mForbidden: /guest/context/
+[2m[WebServer] [22mConflict: /guest/qr/resolve/
+  ✓  144 tests/integration/workflows.spec.ts:29:5 › real staff, production, guest ordering, management and cash/refund workflows (23.9s)
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+[2m[WebServer] [22mForbidden: /cash/points/
+  ✓  145 tests/integration/workflows.spec.ts:147:5 › real authorization failure is visible and never becomes an empty success (2.8s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓  146 tests/integration/workflows.spec.ts:160:5 › real expired session clears privileged cookies (524ms)
+  ✓  147 tests/integration/workflows.spec.ts:174:5 › canonical and compatibility hosts select the correct surface and manifest (299ms)
+[2m[WebServer] [22mForbidden: /cash/shifts/b909761e-eccf-4502-b5dd-717247e6b20a/review/
+  ✓  148 tests/integration/workflows.spec.ts:189:5 › completed catalog, persistent guest tracking, historical cash review and report export use real APIs (18.8s)
+[2m[WebServer] [22mUnauthorized: /auth/me/
+[2m[WebServer] [22mUnauthorized: /auth/me/
+[2m[WebServer] [22mUnauthorized: /auth/me/
+  ✓  149 tests/integration/workflows.spec.ts:267:5 › parallel Web refresh preserves all operational screens and still enforces revocation (2.9s)
+  ✓  150 tests/integration/z-customization.spec.ts:10:5 › manager configures real persisted customization; guest prices and kitchen snapshot survive unavailability (7.5s)
+  ✓  151 tests/integration/zz-pricing.spec.ts:10:5 › cashier bill shows canonical discount service partial payment correction and final reconciliation (5.7s)
+
+
+  1) tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Comanda selecionada', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Comanda selecionada', exact: true })[22m
+
+
+       at attendance-helpers.ts:63
+
+      61 |   }
+      62 |   const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+    > 63 |   await expect(workspace).toBeVisible();
+         |                           ^
+      64 |   await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+      65 |   await expect(workspace.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
+      66 | }
+        at openNamedAttendanceTab (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-helpers.ts:63:27)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/tab-drafts.spec.ts:40:3
+
+    Error Context: test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/tab-drafts-Real-Attendance-048d8-lpage-table-journeys-at-360/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Comanda selecionada', exact: true })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Comanda selecionada', exact: true })[22m
+
+
+       at attendance-helpers.ts:63
+
+      61 |   }
+      62 |   const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+    > 63 |   await expect(workspace).toBeVisible();
+         |                           ^
+      64 |   await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+      65 |   await expect(workspace.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
+      66 | }
+        at openNamedAttendanceTab (/home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/attendance-helpers.ts:63:27)
+        at /home/lucas/projects/rodada/ux2-web-release-occupancy/apps/web/tests/integration/tab-drafts.spec.ts:40:3
+
+    Error Context: test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/integration/tab-drafts-Real-Attendance-33930-lpage-table-journeys-at-390/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 360 
+    tests/integration/tab-drafts.spec.ts:13:42 › Real Attendance isolates drafts across fullpage table journeys at 390 
+  3 skipped
+  146 passed (21.9m)
