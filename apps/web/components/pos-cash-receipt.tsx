@@ -116,6 +116,12 @@ export function PosCashReceipt({ tab, points, locked, onPendingChange, onConfirm
         if (!positiveInteger(cents) || !positiveInteger(tab.version)) {
           setMessage("Confira o valor e atualize a comanda antes de receber."); return;
         }
+        // Full settlement auto-closes canonically, even without a Close request.
+        // Guard only new Attendance intents; frozen recovery must retain its payload.
+        if (presentation === "attendance" && !allowCloseAfterReceipt
+          && (!positiveInteger(tab.exposure_cents) || cents >= tab.exposure_cents!)) {
+          setMessage("Envie ou descarte o rascunho antes de quitar a comanda. Para receber só uma parte, informe um valor menor que o saldo."); return;
+        }
         intent = { schema: 1, venue: session.venue.id, staff: session.staff.id, session: session.session.id,
           tab: tab.id, captured_at: new Date().toISOString(), payload: { amount_cents: cents, expected_version: tab.version,
             method: "CASH", cash_point_id: activePoint, idempotency_key: crypto.randomUUID(), originating_session_id: session.session.id } };

@@ -28,9 +28,11 @@ export function ServiceRequestQueue({ staffId, ux2 = false, onCountChange, onOpe
     } finally { reading.current = false; if (active.current) { setLoading(false); setRefreshing(false); } }
   }, [onCountChange]);
   useEffect(() => {
-    active.current = true; void refresh();
+    active.current = true;
+    let cancelled = false;
+    queueMicrotask(() => { if (!cancelled) void refresh(); });
     const timer = setInterval(() => void refresh(), 15000);
-    return () => { active.current = false; clearInterval(timer); };
+    return () => { cancelled = true; active.current = false; clearInterval(timer); };
   }, [refresh]);
 
   async function act(intent: PendingAction) {

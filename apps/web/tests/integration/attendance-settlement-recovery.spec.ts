@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "./fixtures";
+import { selectExistingAttendanceTab } from "./attendance-helpers";
+import { addCatalogItem } from "../visual/category-actions";
 
 // Independent regression authorship: review_e04_final, base 3fc2ac55.
 // Domain effects use real Attendance BFF/Django/PostgreSQL; routes inject transport faults only.
@@ -155,4 +157,56 @@ for(const mismatch of ["identity","balance"]) test(`Confirmed receipt preserves 
   await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
   expect(mutations).toBe(0);const final=await api(page,`tabs/${tab.id}/`);
   expect(final.payments).toHaveLength(1);expect(final.payments[0].id).toBe(payment.id);expect(final.exposure_cents).toBe(0);
+});
+
+for (const width of [360, 390, 430]) test(`Attendance draft blocks a new full receipt and preserves partial lost-ACK recovery ${width}`, async ({page}) => {
+  await page.setViewportSize({width, height:844});
+  const {tab, product, intent}=await setup(page);
+  const detail=await api<Tab & {display_label:string}>(page,`tabs/${tab.id}/`);
+  await selectExistingAttendanceTab(page,detail.display_label);
+  const workspace=page.getByRole("region",{name:"Comanda selecionada",exact:true});
+  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+  await addCatalogItem(page,product.name);
+  await expect(workspace.getByRole("button",{name:/^Enviar 1 item/})).toBeEnabled();
+  await workspace.getByRole("button",{name:"Voltar",exact:true}).click();
+  await workspace.getByRole("button",{name:"Conferir / fechar conta",exact:true}).click();
+  const receipt=page.getByRole("region",{name:"Recebimento em dinheiro",exact:true});
+  await receipt.getByRole("button",{name:/^Receber R/}).click();
+  const bodies:string[]=[];let closes=0;
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/payments/?$`),async route=>{
+    bodies.push(route.request().postData()!);
+    const response=await route.fetch({url:route.request().url().replace(/\/$/,""),headers:await route.request().allHeaders()});
+    expect([200,201]).toContain(response.status());
+    if(bodies.length===1)await route.abort();else await route.fulfill({response});
+  });
+  await page.route(new RegExp(`/api/attendance/tabs/${tab.id}/close/?$`),route=>{closes++;return route.abort();});
+  for(const cents of [intent.payload.amount_cents,intent.payload.amount_cents+100]) {
+    await receipt.getByLabel("Valor recebido (R$)",{exact:true}).fill((cents/100).toFixed(2));
+    await receipt.getByRole("button",{name:"Registrar recebimento",exact:true}).click();
+    await expect(receipt.getByText(/^Envie ou descarte o rascunho/)).toBeVisible();
+    expect(bodies).toHaveLength(0);
+    expect(await page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+    const unchanged=await api(page,`tabs/${tab.id}/`);
+    expect(unchanged.state).toBe("OPEN");expect(unchanged.payments).toHaveLength(0);
+    expect(unchanged.exposure_cents).toBe(intent.payload.amount_cents);
+  }
+  const partial=Math.floor(intent.payload.amount_cents/2);
+  await receipt.getByLabel("Valor recebido (R$)",{exact:true}).fill((partial/100).toFixed(2));
+  await receipt.getByRole("button",{name:"Registrar recebimento",exact:true}).click();
+  await expect(receipt.getByRole("button",{name:"Verificar mesmo recebimento",exact:true})).toBeEnabled();
+  const frozen=await page.evaluate(key=>JSON.parse(sessionStorage.getItem(key)!),key);
+  expect(frozen.payload.amount_cents).toBe(partial);
+  await page.reload();
+  await page.getByRole("button",{name:"Verificar mesmo recebimento",exact:true}).click();
+  await expect.poll(()=>page.evaluate(key=>sessionStorage.getItem(key),key)).toBeNull();
+  expect(bodies).toHaveLength(2);expect(bodies[1]).toBe(bodies[0]);expect(closes).toBe(0);
+  const paid=await api(page,`tabs/${tab.id}/`);
+  expect(paid.state).toBe("OPEN");expect(paid.payments).toHaveLength(1);
+  expect(paid.exposure_cents).toBe(intent.payload.amount_cents-partial);
+  await selectExistingAttendanceTab(page,detail.display_label);
+  await workspace.getByRole("button",{name:"＋ Adicionar itens",exact:true}).click();
+  await expect(workspace.getByRole("button",{name:/^Enviar 1 item/})).toBeEnabled();
+  await workspace.getByRole("button",{name:"Ver resumo",exact:true}).click();
+  await expect(workspace.getByRole("heading",{name:"Resumo do pedido.",exact:true})).toBeVisible();
+  await expect(workspace.getByText(product.name,{exact:true})).toBeVisible();
 });
