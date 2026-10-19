@@ -18,7 +18,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
     return result.json();
   }, { url, body });
   const table = await api("hospitality/tables/", { label: "Service request E2E", guest_ordering_mode: "DIRECT" });
-  await api(`hospitality/tables/${table.id}/occupy/`, {});
+  const originalOccupancy = await api(`hospitality/tables/${table.id}/occupy/`, {});
   const context = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const guest = await context.newPage();
   await guest.goto(`/guest/${table.public_token}`);
@@ -65,7 +65,7 @@ test("guest service calls persist in Dispatch and revoke with the visit", async 
   expect(guestCookies[0].sameSite).toBe("Lax");
   expect(await guest.evaluate(token => sessionStorage.getItem(`rodada.guest.session.${token}`), table.public_token)).toBeNull();
   expect(await guest.evaluate(() => document.cookie)).not.toContain("rodada_guest_");
-  await api(`hospitality/tables/${table.id}/release/`, {});
+  await api(`hospitality/tables/${table.id}/release/`, { expected_occupancy_id: originalOccupancy.id, expected_generation: originalOccupancy.generation });
   const revoked = await guest.evaluate(async qrSelector => {
     const response = await fetch("/api/guest/service-requests/", {
       method: "POST", headers: { "Content-Type": "application/json", "X-Guest-Session": qrSelector },

@@ -68,11 +68,16 @@ class TabLocationSafetyTests(LocationFixture, TestCase):
         assert self.commit(source, body, 409)["code"] == "OCCUPANCY_NOT_ACTIVE"
         table.venue = self.venue
         table.save(update_fields=["venue"])
-        release_table(table_id=table.id, actor=self.actor())
+        release_table(
+            table_id=table.id,
+            actor=self.actor(),
+            expected_occupancy_id=destination.id,
+            expected_generation=destination.generation,
+        )
         assert self.commit(source, body, 409)["code"] == "OCCUPANCY_NOT_ACTIVE"
-        VenueStaffMembership.objects.filter(
-            staff_member__login_identifier="house-cashier"
-        ).update(capability_overrides={"deny": ["tab.move"]})
+        VenueStaffMembership.objects.filter(staff_member__login_identifier="house-cashier").update(
+            capability_overrides={"deny": ["tab.move"]}
+        )
         assert self.commit(source, body, 403)["code"] == "CAPABILITY_REQUIRED"
         assert self.detail(source) == before
         assert TabOperation.objects.count() == self.events().count() == 0
@@ -116,14 +121,19 @@ class TabLocationSafetyTests(LocationFixture, TestCase):
         table, destination = self.location("B")
         body = self.command(source, kind="MOVE_LOCATION", occupancy_id=str(destination.id))
         original = self.commit(source, body)
-        release_table(table_id=table.id, actor=self.actor())
+        release_table(
+            table_id=table.id,
+            actor=self.actor(),
+            expected_occupancy_id=destination.id,
+            expected_generation=destination.generation,
+        )
         assert self.commit(source, body) == original
         assert not TabOccupancyAssignment.objects.filter(
             tab_id=source, released_at__isnull=True
         ).exists()
-        VenueStaffMembership.objects.filter(
-            staff_member__login_identifier="house-cashier"
-        ).update(capability_overrides={"deny": ["tab.move"]})
+        VenueStaffMembership.objects.filter(staff_member__login_identifier="house-cashier").update(
+            capability_overrides={"deny": ["tab.move"]}
+        )
         assert self.commit(source, body, 403)["code"] == "CAPABILITY_REQUIRED"
         assert TabOperation.objects.count() == self.events().count() == 1
 
@@ -179,7 +189,12 @@ class TabLocationSafetyConcurrency(LocationFixture, TransactionTestCase):
                 return error.code
 
         def release():
-            release_table(table_id=table.id, actor=actor)
+            release_table(
+                table_id=table.id,
+                actor=actor,
+                expected_occupancy_id=destination.id,
+                expected_generation=destination.generation,
+            )
             return "RELEASED"
 
         result = self.race((move, release))
@@ -191,4 +206,6 @@ class TabLocationSafetyConcurrency(LocationFixture, TransactionTestCase):
             occupancy=destination, released_at__isnull=True
         ).exists()
         assert TabOperation.objects.count() == self.events().count() == (result[0] == "MOVED")
-        assert Tab.objects.get(pk=source).version == body["expected_version"] + (result[0] == "MOVED")
+        assert Tab.objects.get(pk=source).version == body["expected_version"] + (
+            result[0] == "MOVED"
+        )
