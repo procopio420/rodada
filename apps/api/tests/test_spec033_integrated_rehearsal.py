@@ -4,6 +4,7 @@ import uuid
 
 import pytest
 from django.db import connection
+from django.db.models import Sum
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -91,7 +92,9 @@ class IntegratedAttendanceRehearsal(TestCase):
             assert table.status == "OCCUPIED"  # Includes the last Tab: never auto-release.
         assert len(set(tab_ids)) == 3
         assert Order.objects.filter(tab_id__in=tab_ids).count() == 3
-        assert Charge.objects.filter(tab_id__in=tab_ids).count() == 3
+        assert Charge.objects.filter(tab_id__in=tab_ids).count() == 6
+        assert all(Charge.objects.filter(tab_id=tab_id).count() == 2 for tab_id in tab_ids)
+        assert all(Charge.objects.filter(tab_id=tab_id).aggregate(total=Sum("amount_cents"))["total"] == 2400 for tab_id in tab_ids)
         assert Payment.objects.filter(tab_id__in=tab_ids).count() == 6
         assert self.client.get("/dispatch/delivery/").json()["results"] == []
         foreign = self.client.post(
