@@ -95,6 +95,7 @@ export function RepeatOrderDialog({ review, enabled, busy = false, message, pres
     })}
     {!review.lines.length && <p className="ux2Empty">Nenhum item para repetir.</p>}
     <p className="ux2Notice">Repetir <strong>prepara um novo pedido</strong>; nunca reaproveita a confirmação anterior. Disponibilidade e preços são revalidados.</p>
+    <div className="ux2AmountLine"><small>Total da nova rodada · {units} unidade(s)</small><strong>{money(total)}</strong></div>
     <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canEdit || !selected} onClick={() => {if(selected)onAdd(quantities);}}>{busy ? "Enviando rodada…" : "Repetir rodada · enviar"}</button></div>
   </section>;
 
