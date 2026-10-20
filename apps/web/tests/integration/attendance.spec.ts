@@ -71,10 +71,9 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Aguardando limpeza/ }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Mesa Attendance test Em limpeza/ })).toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Em limpeza/ }).click();
   await page.getByRole("button", { name: "Concluir limpeza" }).click();
-  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Mesa Attendance test Disponível/ })).toBeVisible();
   await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
   await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Sair", exact: true }).click();
