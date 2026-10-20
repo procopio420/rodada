@@ -80,11 +80,11 @@ class IntegratedAttendanceRehearsal(TestCase):
                        "idempotency_key": f"partial-{tab_id}"}
             receipt = self.command(f"/tabs/{tab_id}/payments/", partial, status=201,
                                    client=manager)
-            assert self.command(f"/tabs/{tab_id}/payments/", partial, client=manager)["id"] == receipt["id"]
+            assert self.command(f"/tabs/{tab_id}/payments/", partial, status=201, client=manager)["id"] == receipt["id"]
             assert self.client.get(f"/tabs/{tab_id}/").json()["state"] == "OPEN"
             final = {**partial, "amount_cents": 1400, "idempotency_key": f"final-{tab_id}"}
             paid = self.command(f"/tabs/{tab_id}/payments/", final, status=201, client=manager)
-            assert self.command(f"/tabs/{tab_id}/payments/", final, client=manager)["id"] == paid["id"]
+            assert self.command(f"/tabs/{tab_id}/payments/", final, status=201, client=manager)["id"] == paid["id"]
             settled = self.client.get(f"/tabs/{tab_id}/").json()
             assert settled["state"] == "CLOSED" and settled["exposure_cents"] == 0
             table.refresh_from_db()
