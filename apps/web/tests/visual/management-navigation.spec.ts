@@ -9,6 +9,35 @@ const areas = [
   { name: "Gestão", title: "Gestão", hash: "gestao", links: ["Mesas, zonas e equipe", "Clientes e conta da casa", "Alertas e prazos", "Impressoras", "Minha sessão"] },
 ];
 
+for (const width of [360, 390, 430, 1280]) test(`management settings descriptive links and keyboard ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  const writes: string[] = [];
+  page.on("request", request => { if (!["GET", "HEAD"].includes(request.method()) && request.url().includes("/api/")) writes.push(request.url()); });
+  await page.goto("/manage#gestao");
+  const settings = page.locator("#gestao");
+  const rows = settings.locator(".managementDestination");
+  await expect(rows).toHaveCount(5);
+  for (const row of await rows.all()) {
+    await expect(row).toHaveAccessibleDescription(/\S+/);
+    const box = await row.boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+  }
+  const first = rows.first();
+  await first.focus();
+  await page.keyboard.press("Tab");
+  await expect(rows.nth(1)).toBeFocused();
+  await page.getByRole("heading", { level: 1 }).click();
+  await layoutAndA11y(page);
+  await stable(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034/after-${width}.png`, fullPage: true });
+  await page.addStyleTag({ content: ".managementSettings { zoom: 2; }" });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034/after-${width}-zoom200.png`, fullPage: true });
+  expect(writes).toEqual([]);
+});
+
 for (const width of [360, 390, 430, 1280]) test(`management task groups ${width}`, async ({ page }) => {
   await page.setViewportSize({ width, height: 932 });
   await fixture(page);

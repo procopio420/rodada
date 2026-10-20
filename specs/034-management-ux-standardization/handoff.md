@@ -31,3 +31,20 @@ de merge/deploy ou mutação de dados de ambiente compartilhado.
 - `git diff --check`: PASS; revisão de autoria do conteúdo e escopo documental.
 - Build, lint de produto, typecheck, testes visuais/API/Android e integração: NOT_RUN, nenhuma implementação modificada.
 - GO somente para revisão da proposta documental. Produto, piloto, merge e deploy não aprovados por esta evidência.
+
+## Continuidade S1a — 2026-10-19
+
+Branch `codex/management-ux-gestao`, base documental `da644241`. Entrada de Gestão
+implementada em componente próprio e CSS escopado, cinco destinos preservados,
+header compacto e descrição acessível. Spec/design system, teste gerencial e
+[evidência S1a](s1a-evidence.md) atualizados; oito capturas antes/depois versionadas.
+
+Build webpack PASS,18 testes focados PASS31,5s após corrigir alvo do histórico.
+Suíte visual ampla FAIL/incompleta:8PASS/5FAIL/676NOT_RUN, falhas de Atendimento
+fora do recorte, sem contraprova de baseline. Falha intermediária de alvo registrada.
+Prévia Web local3001/API8000, navegação Impressoras→Gestão real sem gravação;
+não substituir processo/checkout principal de outra sessão. Sem merge/deploy.
+
+Próximo passo: revisão humana da S1a; tratar subpáginas e retorno/foco em slice
+separada, sem marcar S1 completo. Gate visual global e CI do novo SHA pendentes.
+Revisão de autoria R2; não alegar aprovação independente. Ver Git/PR para HEAD.

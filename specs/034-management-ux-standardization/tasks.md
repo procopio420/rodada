@@ -5,12 +5,15 @@ evidência da composição testada e ligação ao [aceite](acceptance.md).
 
 ## S0 — Baseline
 
-- [ ] S0.1 Conferir main, PRs concorrentes, ownership e o inventário de rotas.
-- [ ] S0.2 Capturar cinco áreas e páginas tocadas em fixture isolada, com SHA.
+- [x] S0.1 Conferir main, PRs concorrentes, ownership e o inventário de rotas (baseline de S1a).
+- [x] S0.2 Capturar cinco áreas e página tocada em fixture isolada, com SHA (S1a: somente entrada Gestão).
 - [ ] S0.3 Inventariar tokens/primitives, CSS compartilhado, capacidades e estados.
 - [ ] S0.4 Registrar composição proposta para Gestão, tarefas de avaliação e decisão.
 
 ## S1 — Gestão
+
+Recorte S1a implementa somente a entrada, sem fechar a etapa inteira. Subpáginas,
+restauração de foco entre rotas e pesquisa com operador permanecem pendentes.
 
 - [ ] S1.1 Implementar hierarquia/header/utilitários e linha de navegação reutilizável quando necessário.
 - [ ] S1.2 Preservar todos os destinos, labels acessíveis e contexto de retorno.
