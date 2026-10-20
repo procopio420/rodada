@@ -121,3 +121,15 @@ O acesso DEV mantém seu componente e gate existentes, separado visualmente.
 Utilitários do header ficam compactos somente nesta área; outras abas preservam layout.
 Formulários internos e restauração de foco entre rotas ficam para sub-slice própria;
 esta entrega não declara AC03 completo. Conteúdo mantém estados/rede existentes.
+
+## S1b — cabeçalhos e retorno de páginas internas
+
+Continuidade autorizada: setup, clientes, alertas e impressoras passam a usar
+cabeçalho comum com retorno “Voltar à Gestão”, contexto e descrição da tarefa.
+Títulos existentes são preservados. Formulários e comandos não são reorganizados.
+Na entrada, a navegação guarda apenas origem enumerada e posição de rolagem,
+sem identidade ou dados operacionais. Retorno explícito e Back do navegador
+restauram foco ao link original depois de carregar a entrada. Armazenamento
+indisponível não bloqueia links. Acesso direto às subpáginas continua funcionando.
+Sessão `/staff` fica fora por ser compartilhada. Bloqueios de saída dos módulos
+não são substituídos por esse mecanismo; não alegar aceite integral de AC03.

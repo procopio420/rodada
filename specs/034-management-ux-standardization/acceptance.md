@@ -1,7 +1,11 @@
 # Aceite — Spec 034
 
-**Estado de todos os critérios:** NOT_RUN — planejamento documental apenas.
+**Estado original do planejamento:** NOT_RUN. Evidências incrementais de S1a/S1b
+estão nos relatórios próprios; nenhum aceite global é declarado por esta tabela.
 Fixtures controladas são evidência visual, não prova de integração/produção.
+
+S1b cobre cabeçalho/retorno nas quatro rotas de configuração; AC03 tem evidência
+de foco e navegação, mas não aprovação de todos os bloqueios/recovery dos módulos.
 
 | ID | Critério verificável | Evidência exigida na implementação |
 | --- | --- | --- |

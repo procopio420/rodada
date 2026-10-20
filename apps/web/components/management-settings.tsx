@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { consumeManagementReturn, rememberManagementOrigin, type ManagementOrigin } from "@/lib/client/management-return";
 import { DeveloperLink } from "./developer-link";
 import { OperationalIcon, type OperationalIconName } from "./operational-icon";
 
@@ -17,11 +21,27 @@ const groups: { id: string; title: string; links: { id: string; title: string; d
 ];
 
 export function ManagementSettings() {
+  useEffect(() => {
+    const saved = consumeManagementReturn();
+    if (!saved) return;
+    const frame = requestAnimationFrame(() => {
+      const origin = document.getElementById(`management-destination-${saved.id}`);
+      if (!origin) return;
+      window.scrollTo({ top: saved.scroll, behavior: "instant" });
+      origin.focus({ preventScroll: true });
+      const bounds = origin.getBoundingClientRect();
+      const nav = document.querySelector(".managementNavigation")?.getBoundingClientRect();
+      if (bounds.top < 0 || bounds.bottom > (nav?.top ?? innerHeight)) origin.scrollIntoView({ block: "center", behavior: "instant" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return <div id="gestao" className="managementSettings">
     {groups.map(group => <section className="managementSettingsGroup" key={group.id} aria-labelledby={`settings-${group.id}`}>
       <h2 id={`settings-${group.id}`}>{group.title}</h2>
       <div className="managementSettingsList">
-        {group.links.map(link => <Link className="managementDestination" key={link.id} href={link.href} aria-labelledby={`settings-${link.id}-title`} aria-describedby={`settings-${link.id}-description`}>
+        {group.links.map(link => <Link className="managementDestination" key={link.id} id={`management-destination-${link.id}`} href={link.href} aria-labelledby={`settings-${link.id}-title`} aria-describedby={`settings-${link.id}-description`} onClick={event => {
+          if (link.id !== "session" && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) rememberManagementOrigin(link.id as ManagementOrigin);
+        }}>
           <span className="managementDestinationIcon"><OperationalIcon name={link.icon} /></span>
           <span className="managementDestinationCopy">
             <strong id={`settings-${link.id}-title`}>{link.title}</strong>

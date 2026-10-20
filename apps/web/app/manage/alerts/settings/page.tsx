@@ -1,6 +1,7 @@
 "use client";
 
 import { OperationalHeading } from "@/components/operational-heading";
+import { ManagementSubpageHeader } from "@/components/management-subpage-header";
 import { FormEvent, useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { useRealtime } from "@/lib/client/use-realtime";
@@ -47,7 +48,7 @@ export default function AlertSettings() {
     finally { setSaving(false); }
   }
   return <main className="appShell managementShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GESTÃO</div><OperationalHeading as="h1" icon="warning">Alertas e SLAs</OperationalHeading><a className="backLink" href="/manage#gestao">Voltar à operação →</a></header>
+    <ManagementSubpageHeader origin="alerts" title="Alertas e SLAs" description="Defina quando a operação precisa de atenção." icon="warning" />
     <ConnectivityNotice {...connectivity} />
     {message && <p className="notice" role="status">{message}</p>}
     {policy && draft && <form className="panel" onSubmit={event => void save(event)}>

@@ -25,6 +25,12 @@ mínimo44px, foco visível e conteúdo sem altura fixa. Header dessa área mant�
 Atualizar/histórico compactos. Este padrão não altera formulários, outras abas,
 freshness, permissões ou estados de domínio. Validação: Spec034 S1a.
 
+Páginas internas de Gestão (Spec034 S1b) compartilham retorno textual com chevron
+antes do título, contexto “RODADA / GESTÃO” e descrição curta da tarefa. O título
+operacional e os formulários permanecem. Retorno explícito/Back restaura foco na
+origem quando o navegador permite guardar a posição de navegação; storage bloqueado
+mantém o link funcional. Nenhum dado de conta/sessão é guardado por esse padrão.
+
 O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para manter **PDV, Cozinha/Bar, Dispatch, Conta da Casa e Guest Ordering** reconhecíveis como o mesmo produto durante operação de bar cheio.
 
 ## Princípios
