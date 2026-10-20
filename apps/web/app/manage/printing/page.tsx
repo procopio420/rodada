@@ -3,6 +3,7 @@
 import { PrintAgentRoutes } from "@/components/print-agent-routes";
 import { PrintAgents } from "@/components/print-agents";
 import { OperationalHeading } from "@/components/operational-heading";
+import { ManagementSubpageHeader } from "@/components/management-subpage-header";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -29,7 +30,7 @@ export default function PrintingManagement() {
   function edit(endpoint?: Endpoint) {
     setEditing(endpoint?.id ?? ""); setLabel(endpoint?.label ?? ""); setAdapter(endpoint?.adapter ?? "BROWSER"); setWidth(endpoint?.width_mm ?? 80); setReference(endpoint?.connection_ref ?? ""); setStations(endpoint?.stations ?? []); setEnabled(endpoint?.enabled ?? true); setCut(endpoint?.cut_supported ?? false);
   }
-  return <main className="appShell"><header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="printer">Impressoras e trabalhos</OperationalHeading><a className="backLink" href="/manage#gestao">Voltar à Gerência</a></header>
+  return <main className="appShell"><ManagementSubpageHeader origin="printing" title="Impressoras e trabalhos" description="Acompanhe computadores, destinos e trabalhos de impressão." icon="printer" />
     {message && <p className="notice" data-state="danger" role="alert">{message}</p>}
     <PrintAgents /><PrintAgentRoutes endpoints={endpoints} />
     <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>{endpoints.map(endpoint => <div className="dataRow" key={endpoint.id}><div><strong>{endpoint.label}</strong><p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"} · {endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p>{endpoint.adapter !== "AGENT" && <p>Bridge: {endpoint.bridge_status}</p>}<p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p></div><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button></div>)}<button className="buttonSecondary" onClick={() => edit()}>Novo destino</button></section>

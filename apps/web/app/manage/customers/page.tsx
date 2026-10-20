@@ -1,5 +1,5 @@
-import { OperationalHeading } from "@/components/operational-heading";
+import { ManagementSubpageHeader } from "@/components/management-subpage-header";
 import { HouseAccount } from "@/components/house-account";
 export default function CustomersPage() {
-  return <main className="appShell managementShell"><header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="people">Clientes e conta da casa</OperationalHeading><a className="backLink" href="/manage#gestao">Voltar à Gerência →</a></header><HouseAccount /></main>;
+  return <main className="appShell managementShell"><ManagementSubpageHeader origin="customers" title="Clientes e conta da casa" description="Consulte clientes, relacionamento e políticas de consumo." icon="people" /><HouseAccount /></main>;
 }

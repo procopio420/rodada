@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StaffAuthScreen } from "@/components/staff-auth-screen";
 import { OperationalHeading } from "@/components/operational-heading";
+import { ManagementSubpageHeader } from "@/components/management-subpage-header";
 import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-auth";
 
 type Member = { id: string; staff: { display_name: string; login_identifier: string }; role: string; status: string; version: number };
@@ -69,7 +70,7 @@ function Setup({ session }: { session: StaffSessionView }) {
     finally { setPin(""); await load(false); sending.current = false; setBusy(false); }
   }
   return <main className="appShell managementShell">
-    <header className="productHeader"><div className="eyebrow">RODADA / GERÊNCIA</div><OperationalHeading as="h1" icon="settings">Preparar estabelecimento</OperationalHeading><a className="backLink" href="/manage#gestao">Voltar à gerência</a></header>
+    <ManagementSubpageHeader origin="setup" title="Preparar estabelecimento" description="Organize mesas, zonas e os vínculos da equipe." icon="settings" />
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}{notice && <p className="notice" role="status">{notice}</p>}
     {!fresh && <p className="notice" data-state="warning">Dados ainda não confirmados. Atualize antes de alterar.</p>}
     <button className="buttonSecondary" disabled={busy} onClick={() => void load()}>Atualizar configuração</button>
