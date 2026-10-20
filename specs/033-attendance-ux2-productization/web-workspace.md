@@ -129,3 +129,17 @@ pendingaindanãotemregressãoprópria. Nãoalegar8/8numúnicorun.
 Capturaspareadasversionadasemdocs/development/evidence/spec033-payment comSHAs,
 hashes, mesmosaldo2400,quatrolargurase diferenças explícitas. ParidadefinalE04
 permanecependente(Android/2x/aprovaçãodiferenças/CI/regressãocompleta).
+
+## Integration follow-up — 2026-10-20
+
+Main `e82d36c4` contains the reconciled Web/native stack. Later residuals from
+#230/#239/#245 restore the UX2 repeat review's live total and wire the existing
+confirmed draft-discard action into the draft summary. Neither change creates a
+new order/payment policy. The real repeat regression now checks zero/two-unit
+current-price totals and confirmed discard with unchanged canonical ledger.
+
+The queue acceptance trace from run39299275822 showed its canonical list read
+starting before completion committed. Wait for the recovery action to become
+enabled after the lost response is handled; preserve completion, recovery and
+exactly-one-mutation assertions. Candidate CI is required; local typecheck/lint/
+build are separate from PostgreSQL/browser evidence and pilot acceptance.

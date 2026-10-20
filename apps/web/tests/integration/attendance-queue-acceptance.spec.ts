@@ -81,6 +81,9 @@ for (const width of [360, 390, 430]) test(`real service queue conflict, stale an
     await route.abort();
   });
   await otherTask.getByRole("button", { name: "Atendimento resolvido", exact: true }).click();
+  // Pending is persisted before POST: wait until the committed response has
+  // actually been lost and handled before asserting canonical server state.
+  await expect(otherTask.getByRole("button", { name: "Verificar mesma chamada", exact: true })).toBeEnabled();
   await expect(otherTask.getByText("Ação sem confirmação preservada nesta chamada.")).toBeVisible();
   await expect(otherTask.getByText("Chamada concluída no servidor.")).toHaveCount(0);
   expect((await api(other, "dispatch/requests/")).results.some((r: { id: string }) => r.id === task.id)).toBe(false);
