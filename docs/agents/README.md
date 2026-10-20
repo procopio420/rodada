@@ -6,6 +6,9 @@ A KB versionada do Rodada é o conjunto `docs/`, `specs/`, `AGENTS.md`, ADRs e t
 
 ## Entrada rápida — abra apenas o necessário
 
+Planejamento da evolução visual da Gerência: [Spec 034 — UX e padronização](../../specs/034-management-ux-standardization/spec.md).
+Proposta documental por etapas, complementar à Spec 007; não comprova implementação ou aceite.
+
 | Preciso decidir/alterar | Fonte de intenção | Fonte de implementação/evidência |
 | --- | --- | --- |
 | Produto, postura e domínio | [Visão](../product/vision.md), [princípios](../product/principles.md), [modelo](../domain/model.md) | Código API, testes de domínio |
