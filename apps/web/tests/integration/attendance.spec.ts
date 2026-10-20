@@ -68,13 +68,13 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await expect(page.getByRole("button", { name: /Atendimento browser test · Comanda/ }).last()).toBeVisible();
   await page.getByRole("button", { name: "Liberar mesa Attendance test" }).click();
   await page.getByRole("button", { name: "Confirmar liberação" }).click();
-  await expect(page.locator(".ux2TablePage")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Aguardando limpeza/ }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
-  await expect(page.locator(".ux2TablePage")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Em limpeza/ }).click();
   await page.getByRole("button", { name: "Concluir limpeza" }).click();
-  await expect(page.locator(".ux2TablePage")).not.toBeVisible();
+  await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Mesa Attendance test Disponível/ })).toBeVisible();
   await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
   await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Sair", exact: true }).click();
