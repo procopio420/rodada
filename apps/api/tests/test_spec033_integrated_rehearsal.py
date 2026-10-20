@@ -28,6 +28,8 @@ class IntegratedAttendanceRehearsal(TestCase):
         # Never mistake SQLite's lack of locks for the PostgreSQL integration gate.
         if connection.vendor != "postgresql":
             pytest.skip("E06 integrated rehearsal requires real PostgreSQL")
+        self.venue.table_service_enabled = True
+        self.venue.save(update_fields=["table_service_enabled"])
         manager = self.manager_client()
         table = Table.objects.create(
             venue=self.venue, label="Same label", guest_ordering_mode="JOIN_ACTIVE"
