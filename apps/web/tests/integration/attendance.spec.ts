@@ -71,8 +71,9 @@ test("real Atendimento login, order, production, table lifecycle and logout with
   await expect(page.getByRole("button", { name: "Mesas", exact: true })).toBeVisible();
   await page.getByRole("button", { name: /^Mesa Attendance test Aguardando limpeza/ }).click();
   await page.getByRole("button", { name: "Iniciar limpeza" }).click();
-  await expect(page.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true })).toBeEnabled();
-  await page.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true }).click();
+  const cleaningTable = page.locator("article.attendanceTable[data-state=\"CLEANING\"] .ux2TablePage");
+  await expect(cleaningTable).toBeVisible();
+  await cleaningTable.getByRole("button", { name: "Concluir limpeza", exact: true }).click();
   await expect(page.getByRole("button", { name: /^Mesa Attendance test Disponível/ })).toBeVisible();
   await page.getByRole("button", { name: "Opções do atendimento", exact: true }).click();
   await page.getByRole("dialog", { name: "Opções do atendimento", exact: true }).getByRole("button", { name: "Sair", exact: true }).click();
