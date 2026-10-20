@@ -12,7 +12,7 @@ import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { OperationalAlerts } from "@/components/operational-alerts";
 import { ManagementSectionHeader, OperationalIcon } from "@/components/operational-icon";
 import { ManagementNav, managementSections, useManagementSection } from "@/components/management-nav";
-import { DeveloperLink } from "@/components/developer-link";
+import { ManagementSettings } from "@/components/management-settings";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { ManagementTabHistory } from "@/components/management-tab-history";
 
@@ -121,7 +121,7 @@ export default function ManagementPage() {
   const pendingCash = cashPoints.filter(point => point.pending_review_shift);
   const attentionTabs = openTabs.filter(tab => tab.state === "REQUIRES_ACTION");
 
-  return <main className="appShell managementShell">
+  return <main className={`appShell managementShell${section === "gestao" ? " managementSettingsShell" : ""}`}>
     <header className="productHeader">
       <div className="eyebrow">RODADA / GESTÃO</div>
       <OperationalHeading as="h1" icon={currentSection.icon}>{currentSection.title}</OperationalHeading>
@@ -181,11 +181,7 @@ export default function ManagementPage() {
     {section === "cardapio" && <div id="cardapio">
       <section className="panel"><ManagementSectionHeader icon="receipt">Produtos do cardápio</ManagementSectionHeader><p className="muted">Nomes, preços e publicação dos produtos.</p><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link><Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link></div></section>
     </div>}
-    {section === "gestao" && <div id="gestao">
-      <section className="panel"><ManagementSectionHeader icon="people">Estabelecimento e pessoas</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/setup">Mesas, zonas e equipe</Link><Link className="buttonSecondary" href="/manage/customers">Clientes e conta da casa</Link></div></section>
-      <section className="panel"><ManagementSectionHeader icon="settings">Configurações da operação</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/alerts/settings">Alertas e prazos</Link><Link className="buttonSecondary managementUtilityLink" href="/manage/printing"><OperationalIcon name="printer" size={20} />Impressoras</Link></div></section>
-      <section className="panel"><ManagementSectionHeader icon="lock">Acesso</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/staff">Minha sessão</Link><DeveloperLink /></div></section>
-    </div>}
+    {section === "gestao" && <ManagementSettings />}
     </>}
   </main>;
 }

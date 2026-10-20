@@ -14,6 +14,17 @@ estação. Reativação usa o mesmo padrão. Ver Spec026, adendo de 2026-10-17.
 
 Este documento é a fonte de verdade visual e de interação para todas as superfícies do Rodada.
 
+### Entrada de Gestão — Spec 034, S1a
+
+A entrada `/manage#gestao` usa grupos de navegação com heading secundário Muted,
+superfície única e divisórias internas. Cada linha tem um link inteiro, ícone
+operacional âmbar em Surface2, título Paper, descrição Muted e chevron decorativo.
+Título é o nome acessível; descrição é associada separadamente. Não aninhar botões
+nem representar disponibilidade por decoração. Escala e raios existentes, alvo
+mínimo44px, foco visível e conteúdo sem altura fixa. Header dessa área mantém
+Atualizar/histórico compactos. Este padrão não altera formulários, outras abas,
+freshness, permissões ou estados de domínio. Validação: Spec034 S1a.
+
 O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para manter **PDV, Cozinha/Bar, Dispatch, Conta da Casa e Guest Ordering** reconhecíveis como o mesmo produto durante operação de bar cheio.
 
 ## Princípios

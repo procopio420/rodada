@@ -111,3 +111,13 @@ troca de marca, auth/BFF, deploy, merge e alteração de CI/baselines para masca
 
 Autorizado nesta entrega: planejar e publicar PR documental. As etapas seguintes
 são backlog proposto, sem declaração de UX aprovada ou implantação.
+
+## S1a — entrada Gestão, continuidade autorizada em 2026-10-19
+
+Primeira slice de implementação: apenas `/manage#gestao`, com três grupos e cinco
+destinos preservados. Linhas inteiras têm ícone decorativo, título como nome
+acessível, descrição associada e chevron decorativo. Sem novos dados ou contadores.
+O acesso DEV mantém seu componente e gate existentes, separado visualmente.
+Utilitários do header ficam compactos somente nesta área; outras abas preservam layout.
+Formulários internos e restauração de foco entre rotas ficam para sub-slice própria;
+esta entrega não declara AC03 completo. Conteúdo mantém estados/rede existentes.
