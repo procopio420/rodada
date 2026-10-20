@@ -66,9 +66,12 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await dialog.getByRole("button", { name: "Reduzir Kitchen E2E item", exact: true }).click();
   await expect(dialog.getByLabel("Quantidade de Kitchen E2E item", { exact: true })).toHaveText("0");
   await expect(add).toBeDisabled();
+  await expect(dialog.locator(".ux2AmountLine")).toContainText("R$ 0,00");
   await dialog.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
   await dialog.getByRole("button", { name: "Aumentar Kitchen E2E item", exact: true }).click();
   await expect(dialog.getByLabel("Quantidade de Kitchen E2E item", { exact: true })).toHaveText("2");
+  await expect(dialog.locator(".ux2AmountLine")).toContainText("2 unidade(s)");
+  await expect(dialog.locator(".ux2AmountLine")).toContainText("R$ 24,00");
   const beforeSend = await api(page, `tabs/${tab.id}/`); expect(beforeSend.orders).toHaveLength(1); expect(beforeSend.exposure_cents).toBe(1000);
   const attempts: string[] = []; let newOrderId = "";
   const endpoint = `**/api/attendance/tabs/${tab.id}/orders/confirm/`;
@@ -100,5 +103,13 @@ for (const width of [360, 390, 430]) test(`Real repeated round current price new
   await expect(draft.getByText("1× Bar E2E item", { exact: true })).toBeVisible();
   const untouched = await api(page, `tabs/${other.id}/`); expect(untouched.orders).toHaveLength(0); expect(untouched.exposure_cents).toBe(0);
   await page.screenshot({ path: `test-results/repeat-order-real-${width}.png`, fullPage: true });
+  await draft.getByRole("button", { name: "Descartar rascunho", exact: true }).click();
+  await page.getByRole("dialog", { name: "Descartar rascunho?", exact: true }).getByRole("button", { name: "Confirmar descarte", exact: true }).click();
+  await expect(draft.getByText("O pedido está vazio.", { exact: true })).toBeVisible();
+  await expect(draft.getByRole("button", { name: "Descartar rascunho", exact: true })).toHaveCount(0);
+  const afterDiscard = await api(page, `tabs/${other.id}/`);
+  expect(afterDiscard.orders).toEqual(untouched.orders);
+  expect(afterDiscard.exposure_cents).toBe(untouched.exposure_cents);
+  expect(afterDiscard.payments).toEqual(untouched.payments);
   await page.unroute(endpoint);
 });
