@@ -1,4 +1,4 @@
-"""Single-route delivery on the existing fenced PrintJob lifecycle (S3)."""
+"""Multiagent delivery on the existing fenced PrintJob lifecycle (S3)."""
 
 import base64
 import hashlib
@@ -62,7 +62,10 @@ def discover(agent, credential_id, printers):
     if len(incoming | known) > 500:
         raise ValidationError("Installation inventory limit reached.")
     now = timezone.now()
-    # Missing entries become stale through their timestamp; never delete route history.
+    # Retain identity/history, but absent queues must immediately stop claiming.
+    DiscoveredPrinter.objects.filter(agent=agent).exclude(local_id__in=incoming).update(
+        health="OFFLINE"
+    )
     for row in printers:
         old = DiscoveredPrinter.objects.filter(agent=agent, local_id=row["local_id"]).first()
         if old and old.transport != row["transport"]:
@@ -190,13 +193,6 @@ def save_route(session, values):
         raise ValidationError("RAW requires explicit tested compatibility on this route.")
     if route.transport != "TCP_LAN" and route.destination != printer.queue_name:
         raise ValidationError("Route must use the observed service queue.")
-    if (
-        route.enabled
-        and AgentPrinterRoute.objects.filter(endpoint=endpoint, enabled=True)
-        .exclude(pk=route.pk)
-        .exists()
-    ):
-        raise ValidationError("S3 supports one enabled route per endpoint.")
     route.full_clean()
     route.save()
     record_audit_event(
@@ -225,7 +221,8 @@ def claim(agent, credential_id):
             endpoint__enabled=True,
             printer__last_seen_at__gt=timezone.now() - timedelta(seconds=90),
         )
-        .order_by("id")
+        .exclude(printer__health="OFFLINE")
+        .order_by("priority", "id")
     )
     for route in routes:
         if route.profile_id not in PROFILES or (
