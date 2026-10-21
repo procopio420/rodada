@@ -1,0 +1,54 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test attendance-catalog.spec.ts --grep virtual Todos
+
+[2m[WebServer] [22m(node:2723029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [20/Oct/2026 22:44:13] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 1 test using 1 worker
+
+(node:2723959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2723959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/visual/attendance-catalog.spec.ts:54:5 › virtual Todos remains separate from a real Todos category and respects search (6.2s)
+
+
+  1) tests/visual/attendance-catalog.spec.ts:54:5 › virtual Todos remains separate from a real Todos category and respects search 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('region', { name: 'Comanda selecionada', exact: true }).locator('.ux2CatalogLine')
+    Expected: [32m1[39m
+    Received: [31m2[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Comanda selecionada', exact: true }).locator('.ux2CatalogLine')[22m
+    [2m    9 × locator resolved to 2 elements[22m
+    [2m      - unexpected value "2"[22m
+
+
+      68 |   if (await realCategory.count()) await realCategory.click();
+      69 |   else await categories.getByRole("button", { name: "Todos", exact: true }).nth(1).click();
+    > 70 |   await expect(workspace.locator(".ux2CatalogLine")).toHaveCount(1);
+         |                                                      ^
+      71 |   await expect(workspace.getByRole("button", { name: "Adicionar Item da categoria Todos", exact: true })).toBeVisible();
+      72 |   await categories.locator('button[data-category=""]').click();
+      73 |   await expect(workspace.locator(".ux2CatalogLine")).toHaveCount(2);
+        at /home/lucas/projects/rodada/spec033-visual-navigation/apps/web/tests/visual/attendance-catalog.spec.ts:70:54
+
+    Error Context: test-results/visual/attendance-catalog-virtual-52140-ategory-and-respects-search/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/visual/attendance-catalog-virtual-52140-ategory-and-respects-search/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/visual/attendance-catalog-virtual-52140-ategory-and-respects-search/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/visual/attendance-catalog.spec.ts:54:5 › virtual Todos remains separate from a real Todos category and respects search 
