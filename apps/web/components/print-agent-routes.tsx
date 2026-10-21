@@ -13,6 +13,7 @@ export function PrintAgentRoutes({ endpoints }: { endpoints: Endpoint[] }) {
   const [inspected, setInspected] = useState("");
   const [editing, setEditing] = useState<Route | null>(null);
   const [endpoint, setEndpoint] = useState(""), [printer, setPrinter] = useState("");
+  const [profile, setProfile] = useState("escpos-ascii-v1");
   const [raw, setRaw] = useState(false), [verified, setVerified] = useState(false), [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [message, setMessage] = useState("");
   const load = useCallback(async () => {
@@ -35,7 +36,7 @@ export function PrintAgentRoutes({ endpoints }: { endpoints: Endpoint[] }) {
   function edit(route: Route | null) {
     setInspected(data.printers.find(row => row.id === route?.printer_id)?.config_fingerprint ?? "");
     setEditing(route); setEndpoint(route?.endpoint_id ?? ""); setPrinter(route?.printer_id ?? "");
-    setRaw(route?.profile_id === "escpos-ascii-v1"); setVerified(route?.raw_escpos_verified ?? false); setEnabled(route?.enabled ?? false);
+    setProfile(route?.profile_id.startsWith("escpos-") ? route.profile_id : "escpos-ascii-v1"); setRaw(route?.profile_id.startsWith("escpos-") ?? false); setVerified(route?.raw_escpos_verified ?? false); setEnabled(route?.enabled ?? false);
   }
   async function save() {
     if (!selected || busy || changed) return;
@@ -46,7 +47,7 @@ export function PrintAgentRoutes({ endpoints }: { endpoints: Endpoint[] }) {
         ...(editing ? { id: editing.id } : {}), expected_version: editing?.version ?? 0,
         endpoint_id: endpoint, printer_id: printer, printer_fingerprint: inspected, enabled,
         transport: tcp ? "TCP_LAN" : raw ? "WINDOWS_RAW" : "WINDOWS_DRIVER",
-        profile_id: raw || tcp ? "escpos-ascii-v1" : "windows-driver-v1",
+        profile_id: raw || tcp ? profile : "windows-driver-v1",
         destination: selected.queue_name, port: 9100, raw_escpos_verified: verified,
       }) });
       if (!response.response.ok) throw new Error(asApiError(response.body).message);
@@ -69,7 +70,8 @@ export function PrintAgentRoutes({ endpoints }: { endpoints: Endpoint[] }) {
       {selected && <p>Fila: {selected.queue_name} · Driver: {selected.driver_name || "não informado"}</p>}
       {changed && <><p role="alert" className="notice" data-state="warning">A fila ou o driver mudou. Revise os dados e confirme a compatibilidade novamente.</p><button className="buttonSecondary" type="button" disabled={busy} onClick={inspectPrinter}>Revisar dados da impressora</button></>}
       <label className="printingRouteChoice"><input type="checkbox" checked={raw} disabled={busy || selected?.transport === "TCP_LAN"} onChange={event => { setRaw(event.target.checked); setVerified(false); }} /> Usar ESC/POS RAW em vez do driver Windows</label>
-      {(raw || selected?.transport === "TCP_LAN") && <label className="printingRouteChoice"><input type="checkbox" checked={verified && !changed} disabled={busy || changed} onChange={event => setVerified(event.target.checked)} /> Confirmei em teste físico que esta conexão aceita ESC/POS RAW. Corte, QR e status permanecem desativados.</label>}
+      {(raw || selected?.transport === "TCP_LAN") && <div className="field"><label>Perfil ESC/POS<select value={profile} disabled={busy || changed} onChange={event => { setProfile(event.target.value); setVerified(false); }}><option value="escpos-ascii-v1">ASCII sem acentos · sem corte</option><option value="escpos-pc860-v1">Português PC860 · sem corte</option><option value="escpos-pc860-cut-v1">Português PC860 · corte completo</option></select></label><p>PC860 requer agente 0.5.0. Caracteres sem representação viram ?. Bematech MP-4200 TH: validar este perfil na impressora real.</p></div>}
+      {(raw || selected?.transport === "TCP_LAN") && <label className="printingRouteChoice"><input type="checkbox" checked={verified && !changed} disabled={busy || changed} onChange={event => setVerified(event.target.checked)} /> Confirmei em teste físico que esta conexão aceita o perfil ESC/POS RAW selecionado, seus acentos e a opção de corte. QR e status permanecem desativados.</label>}
       <label className="printingRouteChoice"><input type="checkbox" checked={enabled} disabled={busy} onChange={event => setEnabled(event.target.checked)} /> Habilitar esta rota</label>
       <button className="buttonPrimary" disabled={busy || changed || !endpoint || !selected || ((raw || selected.transport === "TCP_LAN") && !verified)}>Salvar rota</button>
       {editing && <button className="buttonQuiet" type="button" disabled={busy} onClick={() => edit(null)}>Nova rota</button>}

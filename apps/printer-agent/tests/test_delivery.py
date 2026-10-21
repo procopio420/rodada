@@ -290,3 +290,21 @@ def test_failed_journal_persistence_never_enters_spool():
         cycle.tick(Api(), store.state, store, True)
     windows.rendered.assert_not_called()
     windows.raw.assert_not_called()
+
+
+@pytest.mark.parametrize("cut", [False, True])
+def test_pc860_accents_and_exact_cut_command_envelope(cut):
+    task = job("WINDOWS_RAW")
+    task["profile_id"] = "escpos-pc860-cut-v1" if cut else "escpos-pc860-v1"
+    payload = b"\x1b@\x1bt\x03" + "Açúcar, pão, limão e café\n".encode("cp860")
+    payload += b"\x1dV\x00" if cut else b""
+    task["content"] = base64.b64encode(payload).decode()
+    task["sha256"] = hashlib.sha256(payload).hexdigest()
+    transport = Transports(MagicMock())
+    assert transport.prepare(task) == payload
+    # Embedded commands remain forbidden even with a valid hash/attestation.
+    bad = payload.replace(b"\n", b"\x1bp\x00\n")
+    task["content"] = base64.b64encode(bad).decode()
+    task["sha256"] = hashlib.sha256(bad).hexdigest()
+    with pytest.raises(ValueError):
+        transport.prepare(task)
