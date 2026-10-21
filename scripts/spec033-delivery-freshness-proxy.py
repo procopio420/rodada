@@ -22,9 +22,24 @@ class Handler(BaseHTTPRequestHandler):
   with lock:queue_path='/dispatch/requests/' if state['service'] else '/dispatch/delivery/'
   queue=self.command=='GET' and self.path==queue_path
   with lock:fail=state['queue'] if queue else state['core'] and self.command=='GET' and self.path.startswith('/tabs/?');hold=queue and state['hold']
+  if hold and not fail:
+   conn=http.client.HTTPConnection('127.0.0.1',18134,timeout=20)
+   headers={k:v for k,v in self.headers.items() if k.lower() not in ('host','connection','content-length')}
+   conn.request(self.command,self.path,body,headers);res=conn.getresponse();held_data=res.read();held_status=res.status;conn.close()
   if hold:
+   # Stream harmless JSON whitespace so the real client's read timeout stays
+   # unchanged. Only explicit release completes the retained response.
+   self.send_response(503 if fail else held_status);self.send_header('Content-Type','application/json');self.end_headers()
    with lock:state['held']=True
-   release.wait(20)
+   try:
+    while not release.wait(0.5):
+     self.wfile.write(b' ');self.wfile.flush()
+    data=b'{"code":"TEST_READ_UNAVAILABLE","message":"Synthetic read failure"}' if fail else held_data
+    self.wfile.write(data)
+   except (BrokenPipeError,ConnectionResetError):pass
+   finally:
+    with lock:state['held']=False
+   return
   if fail:self.reply(503,b'{"code":"TEST_READ_UNAVAILABLE","message":"Synthetic read failure"}');return
   conn=http.client.HTTPConnection('127.0.0.1',18134,timeout=20)
   headers={k:v for k,v in self.headers.items() if k.lower() not in ('host','connection','content-length')}

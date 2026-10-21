@@ -145,6 +145,7 @@ class LiveDeliveryFreshnessTest {
         compose.runOnUiThread { vm.refresh(a) }
         compose.waitUntil(10_000) { !vm.state.loading && vm.state.tabs.any { it.id == added.id } }
         assertFalse(vm.state.serviceRequestsFresh)
+        assertTrue(control(action = "status").getBoolean("held")) // actual response is still in flight
         control(service = true, action = "configure")
         val b = login(); SecureSessionStore(context).save(b)
         compose.runOnUiThread { vm.ensureLoaded(b) }
