@@ -12,6 +12,7 @@ const groups: { id: string; title: string; links: { id: string; title: string; d
     { id: "customers", title: "Clientes e conta da casa", description: "Consulte clientes e políticas de relacionamento.", href: "/manage/customers", icon: "people" },
   ] },
   { id: "operation", title: "Configurações da operação", links: [
+    { id: "spending", title: "Políticas de consumo", description: "Escolha entre alertar ou bloquear por limite operacional.", href: "/manage/spending-policy", icon: "receipt" },
     { id: "alerts", title: "Alertas e prazos", description: "Ajuste os prazos de atenção da operação.", href: "/manage/alerts/settings", icon: "now" },
     { id: "printing", title: "Impressoras", description: "Configure a impressão e acompanhe os agentes.", href: "/manage/printing", icon: "printer" },
   ] },

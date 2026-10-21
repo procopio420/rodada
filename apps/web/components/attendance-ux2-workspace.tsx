@@ -12,7 +12,7 @@ type Product = OrderingProduct & { active: boolean; availability: string; catego
 type Line = { product: Product; quantity: number; selection: Selection };
 export type AttendanceSurface = "tab" | "catalog" | "draft" | "bill" | "limit";
 export function AttendanceUx2Workspace({ hidden = false, tab, surface, products, lines, total, locked, canSend, fresh, pending, confirming, message, success, bill, credit, contextualTaskNode, catalogState, onCatalogState, onSurface, onBack, onAdd, onCustomize, onReduce, onEdit, onQuantity, onSend, onRepeat, onDiscard }: {
-  hidden?: boolean; tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[] };
+  hidden?: boolean; tab: { id: string; display_label: string; table_label?: string | null; state: string; exposure_cents: number; orders?: HistoricalOrder[]; spending_limit_mode?: "WARN_ONLY" | "ENFORCE" };
   surface: AttendanceSurface; products: Product[]; lines: Line[]; total: number; locked: boolean; canSend: boolean; fresh: boolean;
   pending: boolean; confirming: boolean; message: ReactNode; success: string; bill: ReactNode; credit?: ReactNode; contextualTaskNode?: ReactNode; catalogState?: {query: string; category: string}; onCatalogState?: (state: {query:string;category:string}) => void;
   onSurface: (surface: AttendanceSurface) => void; onBack: () => void;
@@ -73,7 +73,7 @@ export function AttendanceUx2Workspace({ hidden = false, tab, surface, products,
       <button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("catalog")}>← Continuar escolhendo itens</button>
     </>}
     {surface === "bill" && bill}
-    {surface === "limit" && <>{credit}<div className="ux2SectionHead"><h2>Regra do estabelecimento</h2></div><p className="ux2Notice">Bloquear pedidos (ENFORCE). Somente a Gerência altera a política canônica. Excesso exige recebimento parcial ou aprovação autorizada.</p><div className="ux2SectionHead"><h2>Garantia financeira</h2></div><p className="ux2Notice">Nenhuma garantia verificada foi informada. Limite operacional e aprovação não representam caução, Pix ou cartão confirmado.</p><button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("bill")}>Conferir conta</button></>}
+    {surface === "limit" && <>{credit}<div className="ux2SectionHead"><h2>Regra do estabelecimento</h2></div><p className="ux2Notice">{tab.spending_limit_mode === "WARN_ONLY" ? "Só alertar (WARN_ONLY). Ultrapassar a referência gera aviso; o servidor continua validando o pedido e demais regras." : "Bloquear pedidos (ENFORCE). Excesso exige recebimento parcial ou aprovação autorizada."} Somente a Gerência altera a política canônica.</p><div className="ux2SectionHead"><h2>Garantia financeira</h2></div><p className="ux2Notice">Nenhuma garantia verificada foi informada. Limite operacional e aprovação não representam caução, Pix ou cartão confirmado.</p><button className="ux2Button ghost block" disabled={locked} onClick={() => onSurface("bill")}>Conferir conta</button></>}
     {!closed && !pending && (surface === "catalog" || surface === "draft" || (surface === "tab" && count > 0)) && <div className="ux2TaskFoot"><button className="ux2Button primary block" disabled={!canSend || locked} onClick={onSend}>{confirming ? "Confirmando…" : count ? `Enviar ${count} ${count === 1 ? "item" : "itens"} · ${money(total)}` : "Adicione itens para enviar"}</button></div>}
   </section>;
 }

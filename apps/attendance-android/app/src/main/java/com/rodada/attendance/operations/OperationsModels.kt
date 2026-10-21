@@ -31,6 +31,8 @@ data class TabSummary(
     val tableLabel: String? = null,
     val lastTableLabel: String? = null,
     val relationshipSnapshot: String? = null,
+    val spendingLimitMode: String = "ENFORCE",
+    val spendingLimitPolicyVersion: Int? = null,
 )
 
 /** Mesa atual é uma projeção operacional; nunca substitui o ID da comanda. */

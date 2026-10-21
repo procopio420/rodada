@@ -6,6 +6,8 @@ export type AttendanceCreditPosition = {
   exposure_cents: number;
   remaining_capacity_cents: number;
   relationship_snapshot: string;
+  spending_limit_mode?: "ENFORCE" | "WARN_ONLY";
+  spending_limit_policy_version?: number | null;
 };
 const relationships: Record<string, string> = {
   VISITOR: "Visitante", KNOWN: "Conhecido", REGULAR: "Regular", HOUSE: "Da casa", RESTRICTED: "Restrito",
@@ -28,16 +30,19 @@ export function AttendanceCreditBar({ position, draftCents = 0, compact = false,
   const orderPct = limit > 0 ? Math.min(100 - usedPct, 100 * draftCents / limit) : 0;
   const percent = limit > 0 ? Math.round(100 * Math.max(0, exposure) / limit) : null;
   const excess = Math.max(0, projected - limit);
+  const warnOnly = position.spending_limit_mode === "WARN_ONLY";
   const level = limit === 0 || exposure >= limit || projected > limit ? "exceeded" : projected >= limit * .8 ? "warning" : "ok";
-  const stateLabel = excess > 0 ? `${draftCents > 0 ? "Pedido excede a referência" : "Consumo acima da referência"} em ${money(excess)} · bloqueio ativo`
-    : limit === 0 ? "Referência zero · trava ativa" : projected >= limit * .8 ? "Próximo do limite de referência" : "Dentro da referência";
-  const label = `Consumo ${money(exposure)} de ${money(limit)}; ${money(position.remaining_capacity_cents)} disponíveis${draftCents > 0 ? `; novo pedido ${money(draftCents)}${excess ? `; excesso ${money(excess)}` : ""}` : ""}. Regra do estabelecimento: Bloquear (ENFORCE).`;
+  const consequence = warnOnly ? "só alertar" : "bloqueio ativo";
+  const stateLabel = excess > 0 ? `${draftCents > 0 ? "Pedido excede a referência" : "Consumo acima da referência"} em ${money(excess)} · ${consequence}`
+    : limit === 0 ? `Referência zero · ${warnOnly ? "só alertar" : "trava ativa"}` : projected >= limit * .8 ? "Próximo do limite de referência" : "Dentro da referência";
+  const modeLabel = warnOnly ? "Só alertar (WARN_ONLY)" : "Bloquear (ENFORCE)";
+  const label = `Consumo ${money(exposure)} de ${money(limit)}; ${money(position.remaining_capacity_cents)} disponíveis${draftCents > 0 ? `; novo pedido ${money(draftCents)}${excess ? `; excesso ${money(excess)}` : ""}` : ""}. Regra do estabelecimento: ${modeLabel}.`;
   const bar = limit > 0 ? <div className={styles.progress} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(usedPct)} aria-valuetext={label}>
     <span className={styles.current} style={{ width: `${usedPct}%` }} />
     {draftCents > 0 && <span className={styles.pending} style={{ width: `${orderPct}%` }} />}
     <span className={styles.threshold} aria-hidden="true" />
-  </div> : compact ? <div className={styles.progress} aria-hidden="true" /> : <div className={styles.zero}>Referência de consumo R$ 0,00 · bloqueio ativo</div>;
-  return <section className={`${styles.creditbar} ${compact ? styles.compact : ""}`} data-level={level} aria-label="Referência de consumo da comanda">
+  </div> : compact ? <div className={styles.progress} aria-hidden="true" /> : <div className={styles.zero}>Referência de consumo R$ 0,00 · {consequence}</div>;
+  return <section className={`${styles.creditbar} ${compact ? styles.compact : ""}`} data-level={warnOnly && level === "exceeded" ? "warning" : level} aria-label="Referência de consumo da comanda">
     {compact ? <>
       <div className={styles.slimHead}><span>Limite · {relationships[position.relationship_snapshot] ?? "Sem perfil"}</span><strong>{money(exposure)} / {money(limit)}</strong></div>
       {bar}
