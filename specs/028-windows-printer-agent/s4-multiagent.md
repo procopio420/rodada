@@ -22,3 +22,7 @@ existing cross-Venue, pairing, route CAS, confirmed pipeline and legacy regressi
 Rollback: before reversing migration 0014, explicitly disable extra enabled routes
 until each endpoint has at most one. Reverse migration fails closed if that is not
 satisfied; it must not silently discard assignments or select a physical printer.
+
+Post-review validation adds manager API/CAS coverage for enabling a second route
+and observation reappearance restoring only its explicitly assigned queue. These
+are real PostgreSQL cases, not simulated database locking.

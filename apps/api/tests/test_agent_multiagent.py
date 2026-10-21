@@ -127,3 +127,28 @@ class MultiagentTests(TransactionTestCase):
         with pytest.raises(Http404):
             self.report(first, "SPOOL_ACCEPTED", self.b, self.cb)
         assert self.report(first, "SPOOL_ACCEPTED")["accepted"]
+
+    def test_manager_can_enable_second_route_through_cas_api(self):
+        from rest_framework.test import APIClient
+
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION="Bearer rat_synthetic")
+        values = agent_delivery.route_payload(self.rb)
+        values.pop("version")
+        values.update(expected_version=1, printer_fingerprint=agent_delivery.printer_fingerprint(self.rb.printer))
+        response = client.post("/printing/agents/v1/routes/", values, format="json")
+        assert response.status_code == 200, response.data
+        assert response.data["version"] == 2
+        assert AgentPrinterRoute.objects.filter(endpoint=self.route.endpoint, enabled=True).count() == 2
+
+    def test_discovery_reappearance_restores_only_its_assigned_queue(self):
+        agent_delivery.discover(self.a, self.ca, [])
+        assert self.claim() is None
+        printer = self.route.printer
+        agent_delivery.discover(self.a, self.ca, [{
+            "local_id": printer.local_id, "label": printer.label,
+            "queue_name": printer.queue_name, "transport": printer.transport,
+            "driver_name": printer.driver_name, "health": "UNKNOWN",
+        }])
+        assert self.claim() is not None
+        assert self.claim(self.b, self.cb) is None
