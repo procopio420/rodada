@@ -6,6 +6,7 @@ import ipaddress
 import socket
 import time
 from collections.abc import Callable
+from contextlib import suppress
 from typing import Any, Protocol, cast
 
 from .contracts import SubmissionOutcome, SubmissionResult
@@ -151,6 +152,11 @@ class NativeWindows:
             win32print.EndPagePrinter(handle)
             win32print.EndDocPrinter(handle)
             return str(spool_id)
+        except Exception:
+            # Best effort cleanup cannot prove no paper; callers retain UNCERTAIN.
+            with suppress(Exception):
+                win32print.AbortPrinter(handle)
+            raise
         finally:
             win32print.ClosePrinter(handle)
 
@@ -216,6 +222,10 @@ class NativeWindows:
             win32print.EndPage(dc)
             win32print.EndDoc(dc)
             return str(spool_id)
+        except Exception:
+            with suppress(Exception):
+                win32print.AbortDoc(dc)
+            raise
         finally:
             if previous is not None:
                 win32gui.SelectObject(dc, previous)
