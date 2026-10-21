@@ -71,7 +71,6 @@ test("Guest and Attendance Web orders share occupancy, survive response loss and
     await page.getByRole("dialog").getByRole("textbox").fill(`${label}-web`);
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
-  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     for (const product of products) await addCatalogItem(page, product);
     await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
     await dialog.getByRole("button", { name: /^Enviar / }).click();
