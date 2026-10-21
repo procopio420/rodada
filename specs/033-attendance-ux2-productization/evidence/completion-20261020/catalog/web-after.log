@@ -1,0 +1,42 @@
+
+> rodada-web@0.1.0 test:visual
+> playwright test attendance-catalog.spec.ts attendance-draft.spec.ts attendance-ux2-workspace.spec.ts
+
+[2m[WebServer] [22m(node:2775022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m127.0.0.1 - - [20/Oct/2026 22:51:11] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 26 tests using 1 worker
+
+(node:2775180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2775180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/visual/attendance-catalog.spec.ts:14:42 › Attendance categories and compact bill at 360 (5.0s)
+  ✓   2 tests/visual/attendance-catalog.spec.ts:14:42 › Attendance categories and compact bill at 390 (6.2s)
+  ✓   3 tests/visual/attendance-catalog.spec.ts:14:42 › Attendance categories and compact bill at 430 (5.4s)
+  ✓   4 tests/visual/attendance-catalog.spec.ts:54:5 › virtual Todos remains separate from a real Todos category and respects search (1.2s)
+  ✓   5 tests/visual/attendance-draft.spec.ts:5:42 › Attendance draft quantity and context at 360 (4.5s)
+  ✓   6 tests/visual/attendance-draft.spec.ts:5:42 › Attendance draft quantity and context at 390 (5.8s)
+  ✓   7 tests/visual/attendance-draft.spec.ts:5:42 › Attendance draft quantity and context at 430 (4.2s)
+  ✓   8 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 360 (2.8s)
+  ✓   9 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 390 (2.7s)
+  ✓  10 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 430 (2.8s)
+  ✓  11 tests/visual/attendance-ux2-workspace.spec.ts:4:45 › UX2 pages preserve destination and direct send 1280 (2.9s)
+  ✓  12 tests/visual/attendance-ux2-workspace.spec.ts:40:49 › UX2 called task retains explicit actions for TAB target (1.0s)
+  ✓  13 tests/visual/attendance-ux2-workspace.spec.ts:40:49 › UX2 called task retains explicit actions for TABLE target (1.0s)
+  ✓  14 tests/visual/attendance-ux2-workspace.spec.ts:60:5 › UX2 task readback identity mismatch cannot navigate (573ms)
+  ✓  15 tests/visual/attendance-ux2-workspace.spec.ts:66:5 › UX2 preserves table search without hiding a task destination or leaking task to next Tab (1.1s)
+  ✓  16 tests/visual/attendance-ux2-workspace.spec.ts:86:5 › UX2 unknown order reload verifies the original payload without duplicate or false success (1.5s)
+  ✓  17 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 360 (2.3s)
+  ✓  18 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 390 (2.4s)
+  ✓  19 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 430 (2.4s)
+  ✓  20 tests/visual/attendance-ux2-workspace.spec.ts:102:44 › UX2 repeat page edits selection and sends once 1280 (2.3s)
+  ✓  21 tests/visual/attendance-ux2-workspace.spec.ts:115:5 › UX2 cleaning requires canonical DIRTY then CLEANING then AVAILABLE (905ms)
+  ✓  22 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 360 (2.6s)
+  ✓  23 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 390 (2.6s)
+  ✓  24 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 430 (2.6s)
+  ✓  25 tests/visual/attendance-ux2-workspace.spec.ts:123:43 › UX2 receipt page matches manual settlement flow 1280 (2.7s)
+  ✓  26 tests/visual/attendance-ux2-workspace.spec.ts:133:5 › UX2 payment form retains an exit after a concurrent canonical close (1.1s)
+
+  26 passed (1.3m)

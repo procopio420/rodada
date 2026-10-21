@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rodada-printer-agent"
-version = "0.3.0"
+version = "0.5.0"
 requires-python = ">=3.12"
 dependencies = ["pywin32>=311,<312; sys_platform == 'win32'"]
 

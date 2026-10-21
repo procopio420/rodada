@@ -249,3 +249,6 @@ Validação conjunta local:296casosPASS/0falhas/7,3min em uma execução complet
 
 ### Validação integrada — executor Windows,2026-10-21
 Módulo guard importa em Windows; leitor aguarda reset de outro processo e liberação ocorre após exceção; erro de lock não reconhecido falha fechado. Restrições de banco/host e retrySQLSTATE intactas. Revisão independenteR3 antes de recomendações.
+
+### Reconciliação da main para PR
+Preservar teste de impressão e sua chave após readback falho introduzidos na main. Cabeçalho do destino AGENT não comprime título no celular: ações abaixo do nome em360/390/430 e leitura acessível com ampliação200%.

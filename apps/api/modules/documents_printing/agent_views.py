@@ -29,7 +29,7 @@ class AgentContractView(APIView):
                     "venue_id": request.user.venue_id,
                     "scope": PRINT_SCOPE,
                     "operations": ["contract", "activate", "heartbeat"]
-                    + (["discovery", "claim", "result"] if request.user.version == "0.3.0" else []),
+                    + (["discovery", "claim", "result"] if request.user.version in ("0.3.0", "0.5.0") else []),
                     "delivery_enabled": agent_delivery.delivery_enabled(request.user),
                 }
             ).data

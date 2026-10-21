@@ -53,3 +53,18 @@ conservative TTL) do not enter the transport. Spool/network acceptance is not pa
 Inspect DELIVERY_UNCERTAIN before an explicit audited reprint. Drivers already
 entered can block beyond a lease; fencing cannot retract bytes already submitted.
 Installer, updates and signed stable distribution remain S6; physical checks S7.
+
+## S5 compatibility and S6 unsigned packaging
+
+Agent 0.5.0 accepts explicit PC860 profiles, optionally full cut after route-level
+physical approval; unrepresentable characters become `?`. WindowsDriver retains
+Unicode and is the first candidate for the Bematech MP-4200 TH. Neither model nor
+profile name is evidence of physical certification.
+
+`packaging/requirements-build.txt`, `entry.py` and `installer.iss` build a universal
+Windows 11 x64 installer in CI, no installed Python required. All generated setup
+artifacts are **unsigned pilot only**. Manual reinstall preserves DPAPI identity
+and journal; uninstall retains ProgramData for authorized recovery. Do not delete
+that journal to resolve an uncertain ticket. No unattended update is enabled.
+Signed distribution, distinct-version rollback and physical pilot are external
+NO-GO gates; see Spec028 s6-distribution.md and S7 pilot procedure.

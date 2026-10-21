@@ -46,7 +46,7 @@ class InventoryView(PrintManagerView):
             transport = serializers.ChoiceField(
                 choices=["WINDOWS_DRIVER", "WINDOWS_RAW", "TCP_LAN"]
             )
-            profile_id = serializers.ChoiceField(choices=agent_delivery.PROFILES)
+            profile_id = serializers.ChoiceField(choices=list(agent_delivery.PROFILES))
             destination = serializers.CharField(max_length=240)
             port = serializers.IntegerField(min_value=1, max_value=65535, default=9100)
             enabled = serializers.BooleanField(default=False)
@@ -87,3 +87,17 @@ class ResultView(AgentContractView):
         return Response(
             agent_delivery.result(request.user, request.auth.id, job_id, data.validated_data)
         )
+
+
+class TestPrintView(PrintManagerView):
+    def post(self, request, endpoint_id):
+        from .diagnostics import request_test
+        from .views import job_payload
+
+        class Input(StrictInput):
+            idempotency_key = serializers.UUIDField()
+
+        data = Input(data=request.data)
+        data.is_valid(raise_exception=True)
+        job = request_test(request.auth, endpoint_id, data.validated_data["idempotency_key"])
+        return Response(job_payload(job), status=201)

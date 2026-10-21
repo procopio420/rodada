@@ -8,7 +8,7 @@ a full release/homologation suite on every commit.
 | Landing | PR/push changing `apps/landing/**`, `specs/030-marketing-landing/**` or its static tests | No | Python stdlib checks for brand copies, HTML/SEO links, local screenshots and pilot disclaimers |
 | API | PR/push changing `apps/api/**` or `scripts/quality/**` | Yes | Ruff new-line gate + full diagnostic count; Django checks, migration drift and one full PostgreSQL pytest run |
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
-| Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL; no installer/release |
+| Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL + unsigned bundled setup install/repair/uninstall; no public release |
 | Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
 | Android real POST disconnect | PRs changing its workflow, cross-surface config/tests/verifiers or shared fixture guard | Yes | Native emulator transport/recovery → Web Bar on the same PostgreSQL; separate manual uplink cut |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
@@ -267,3 +267,11 @@ is added; this does not turn a cancelled run into a pass or waive rerunning it.
 ### Executor local Windows de integração —2026-10-21
 
 O guard de reset E2E mantémflock noLinux e usa bloqueio debyte0msvcrt noWindows. NoWindows leitores também serializam:menor paralelismo,sem dispensar exclusão durante reset. Banco continua restrito aPostgreSQLloopbackrodada_web_e2e;usar clusterdescartável separado dosdados deinspeção. DiretórioTEMP compartilhado entre processos é precondição;execuções entre usuários/TEMPdiferentes não foram validadas. Espera por contenção não tem timeout interno;runner permanece responsável pelo prazo externo. Semmudança deworkflow/seleçãoCI. Evidência localfocada:[Spec034](../specs/034-management-ux-standardization/integration-focused-evidence.md).
+
+### Spec 028 Windows packaging
+
+Printer Agent now builds PyInstaller + Inno Setup on the same Windows runner,
+smokes install/reinstall/uninstall, and retains SHA-256/dependency inventory with
+the **unsigned pilot** artifact. No GitHub release is published. Authenticode,
+SmartScreen/antivirus, distinct-version rollback and physical pilot remain blocked
+before any public stable manifest or rollout. See Spec028 s6-distribution.md.

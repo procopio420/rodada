@@ -6,6 +6,7 @@ import ipaddress
 import socket
 import time
 from collections.abc import Callable
+from contextlib import suppress
 from typing import Any, Protocol, cast
 
 from .contracts import SubmissionOutcome, SubmissionResult
@@ -65,11 +66,18 @@ class Transports:
                 raise ValueError("Unexpected rendered control.")
         elif (
             transport in ("WINDOWS_RAW", "TCP_LAN")
-            and profile == "escpos-ascii-v1"
+            and profile in ("escpos-ascii-v1", "escpos-pc860-v1", "escpos-pc860-cut-v1")
             and job.get("raw_escpos_verified") is True
         ):
-            if not content.startswith(b"\x1b@") or any(c < 32 and c != 10 for c in content[2:]):
-                raise ValueError("Unexpected RAW controls; cut/QR/status unsupported.")
+            prefix = b"\x1b@" if profile == "escpos-ascii-v1" else b"\x1b@\x1bt\x03"
+            suffix = b"\x1dV\x00" if profile == "escpos-pc860-cut-v1" else b""
+            if not content.startswith(prefix) or (suffix and not content.endswith(suffix)):
+                raise ValueError("Invalid profile command envelope.")
+            body = content[len(prefix):len(content) - len(suffix) if suffix else None]
+            if any(c < 32 and c != 10 or c == 127 for c in body):
+                raise ValueError("Unexpected RAW controls.")
+            if profile == "escpos-ascii-v1" and any(c > 127 for c in body):
+                raise ValueError("ASCII profile requires explicit transliteration.")
         else:
             raise ValueError("Driver/transport/compatibility mismatch.")
         if transport == "TCP_LAN":
@@ -151,6 +159,11 @@ class NativeWindows:
             win32print.EndPagePrinter(handle)
             win32print.EndDocPrinter(handle)
             return str(spool_id)
+        except Exception:
+            # Best effort cleanup cannot prove no paper; callers retain UNCERTAIN.
+            with suppress(Exception):
+                win32print.AbortPrinter(handle)
+            raise
         finally:
             win32print.ClosePrinter(handle)
 
@@ -216,6 +229,10 @@ class NativeWindows:
             win32print.EndPage(dc)
             win32print.EndDoc(dc)
             return str(spool_id)
+        except Exception:
+            with suppress(Exception):
+                win32print.AbortDoc(dc)
+            raise
         finally:
             if previous is not None:
                 win32gui.SelectObject(dc, previous)

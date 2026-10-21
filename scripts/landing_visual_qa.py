@@ -174,12 +174,33 @@ async def audit(browser,name,width,height):
     await page.close()
     return result
 
+async def audit_downloads(browser, width):
+    page = await browser.new_page(viewport={"width": width, "height": 900}, reduced_motion="reduce")
+    response = await page.goto(URL.rstrip("/") + "/downloads.html", wait_until="networkidle")
+    assert response and response.status == 200
+    assert await page.locator("h1").inner_text() == "Rodada Impressoras"
+    assert "Ainda não há versão estável pública" in await page.get_by_role("status").inner_text()
+    assert await page.locator('a[href$=".exe"]').count() == 0
+    assert await page.locator("html").evaluate("el => el.scrollWidth <= innerWidth")
+    manifest = await page.request.get(URL.rstrip("/") + "/windows-stable.json")
+    assert manifest.status == 200 and (await manifest.json())["available"] is False
+    await page.keyboard.press("Tab")
+    assert await page.locator(":focus").get_attribute("href") == "/"
+    for link in await page.locator("a").all():
+        box = await link.bounding_box()
+        assert box and box["height"] >= 44
+    await page.screenshot(path=str(OUT / f"downloads-{width}.png"), full_page=True)
+    await page.close()
+    print(f"downloads-{width}: PASS", flush=True)
+
 async def main():
     async with async_playwright() as p:
       browser=await p.chromium.launch(headless=True,args=["--no-sandbox"])
       results=[]
       for name,width,height in VIEWPORTS:
           results.append(await audit(browser,name,width,height))
+      for width in (360, 390, 430, 1280):
+          await audit_downloads(browser, width)
       await browser.close()
     summary={"passed":sum(x["pass"] for x in results),"total":len(results),"failed":[x["vw"] for x in results if not x["pass"]]}
     (OUT/"summary.json").write_text(json.dumps(summary,indent=2),encoding="utf-8")

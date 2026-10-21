@@ -28,6 +28,13 @@ for (const width of [360, 390, 430, 1280]) test(`print destinations hierarchy ${
   await expect(agent).toContainText("Desativado");
   await expect(agent).toContainText("Documentos de cliente");
   await expect(agent).not.toContainText("Bridge:");
+  if (width < 768) {
+    const heading = await agent.getByRole("heading", { level: 3 }).boundingBox();
+    const article = await agent.boundingBox();
+    expect(heading!.width).toBeGreaterThan(article!.width / 2);
+    const testButton = await agent.getByRole("button", { name: "Testar Computador de teste", exact: true }).boundingBox();
+    expect(testButton!.y).toBeGreaterThanOrEqual(heading!.y + heading!.height);
+  }
   await layoutAndA11y(page);
   await destination.getByRole("button", { name: "Configurar", exact: true }).click();
   await expect(page.getByLabel("Nome", { exact: true })).toHaveValue(endpoint.label);

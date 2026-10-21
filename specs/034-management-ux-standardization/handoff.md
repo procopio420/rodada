@@ -512,3 +512,9 @@ Web3001 deste worktree sessão27690,API8000 checkoutprincipal sessão97838/PID29
 ### Integração focada —2026-10-21
 Branch/HEADpreservados. Adaptadoe2e_db_guardWindowsmsvcrt(safetyserial),Linuxflockintacto,allowlistintacta;test_e2e_db_guard6PASS eRuffPASS.13integraçõesPASS1,8minemNOVOcluster55479DBrodada_web_e2e isolado deinspeção55460. RunnerWeb3110/API8100encerrados;cluster55479parado,arquivospreservados. Web3001/API8000inspeçãoconfirmados200. Reviewlocalfinalsemachados,gapsEACCESindefinido/multiTEMP/Linuxregistrados. Próximo:conferênciamanual/gatesremotos/reviewautenticado,semalegar13como suíteglobal. Semcommit/push/merge/deploy;NO-GOrelease/piloto;REVIEW_BLOCKEDautenticado.
 [Evidência](integration-focused-evidence.md).
+
+### Publicação solicitada para revisão — 2026-10-21
+
+Usuário autorizou criar PR e documentar. Trabalho consolidado em 8fc61618; origin/main@59ab4099 reconciliada somente na branch codex/management-ux-alerts. Spec034 inicial já integrada por squash; preservadas extensões locais e novas funções Spec028 de impressão. Conflitos resolvidos semanticamente, sem substituir testPrint/readback da main. Regressão de título comprimido por duas ações AGENT reproduzida e corrigida com layout mobile em uma coluna.
+
+Build/tipos/lint global zero passaram; 72 regressões PASS2min e 21 finais de impressão PASS37,3s após CSS; auth4/tenant10 PASS. Revisão independente local final sem achados, com gaps. Relatório consolidado pr-summary.md. Próximo responsável: acompanhar CI/review do PR, conferir manualmente e homologar hardware quando aplicável. PR rascunho, sem autorização de merge/deploy. next-env.d.ts gerado pelo dev permanece local e não faz parte do commit de autoria.

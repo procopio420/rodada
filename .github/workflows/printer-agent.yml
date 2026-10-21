@@ -16,7 +16,7 @@ concurrency:
 jobs:
   windows-service:
     runs-on: windows-2025
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,3 +35,23 @@ jobs:
         run: python -m pytest apps/printer-agent/tests -q
       - name: Noninteractive Windows service, DPAPI and ACL
         run: python apps/printer-agent/tests/windows_smoke.py
+      - name: Build self-contained unsigned pilot installer
+        shell: pwsh
+        run: |
+          python -m pip install -r apps/printer-agent/packaging/requirements-build.txt
+          python -m PyInstaller --noconfirm --clean --name rodada-impressoras --paths apps/printer-agent --hidden-import win32timezone --hidden-import rodada_printer_agent.service apps/printer-agent/packaging/entry.py
+          & "${env:ProgramFiles(x86)}/Inno Setup 6/ISCC.exe" apps/printer-agent/packaging/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw "Installer build failed" }
+          python -m pip freeze | Out-File -Encoding utf8 dist/dependencies.txt
+          Get-FileHash dist/*unsigned-pilot.exe -Algorithm SHA256 | Format-List | Out-File -Encoding utf8 dist/SHA256SUMS.txt
+      - name: Install repair upgrade and uninstall bundled pilot
+        shell: pwsh
+        run: python apps/printer-agent/tests/installer_smoke.py dist/rodada-impressoras-0.5.0-unsigned-pilot.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rodada-impressoras-unsigned-pilot-${{ github.sha }}
+          path: |
+            dist/*unsigned-pilot.exe
+            dist/SHA256SUMS.txt
+            dist/dependencies.txt
+          if-no-files-found: error

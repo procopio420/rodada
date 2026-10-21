@@ -46,3 +46,15 @@ not a promise that a remote fence can cancel an already-running Windows call.
 Local evidence so far:28agent fault/native-API tests, mypy strict10files;15PostgreSQL
 API/race/pipeline tests;80printing/foundation/pairing regressions before final review
 corrections. Full final-head CI, responsive screenshots and R3 re-review pending.
+
+## S3 recovery follow-up (2026-10-20)
+
+Confirmed main baseline: `4652b3013e69fa8e4f08a5a3a4e1f8c3a2720cfe`.
+A partial RAW/GDI failure previously closed the handle without explicitly aborting
+its open spool document. Best-effort AbortPrinter/AbortDoc now releases that
+unfinished document; outcome remains DELIVERY_UNCERTAIN even if abort succeeds.
+Abort cannot retract paper or authorize retry. Regression also verifies that a
+failed durable journal write prevents any spool call. Existing service, discovery,
+DPAPI journal, authenticated API and conservative lease semantics are reused.
+Local Linux: 30 agent tests PASS; actual Windows service/native gate requires CI.
+No physical validation, installer or slice-wide final acceptance is claimed here.

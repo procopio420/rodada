@@ -408,3 +408,10 @@ Atualização do checkpoint: JSON global foi encontrado após encerramento e par
 - [x]Revisãoindependentelocalsemachados;serviçosinspeçãopreservados200.
 - [ ]Suíteintegraçãointegral/Linux/CI/reviewautenticado/manualpendentes.
 [Evidência](integration-focused-evidence.md).
+
+### Preparação do PR — 2026-10-21
+- [x] Consolidar alterações e evidências, conferir ausência de caminhos privados na documentação nova.
+- [x] Reconciliar main@59ab4099 na branch de trabalho preservando funções novas de impressão.
+- [x] 72 regressões e 21 finais PASS; build/tipos/lint global/auth/tenant PASS conforme pr-summary.md.
+- [x] Revisão independente local dos conflitos e da correção responsiva sem achados.
+- [ ] CI e revisão autenticada do commit publicado; conferência manual e hardware pendentes.
