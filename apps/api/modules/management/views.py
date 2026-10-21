@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import UTC, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from django.db import transaction
 from django.db.models import Sum, Count
@@ -322,6 +322,11 @@ class AttendanceMetricsView(APIView):
             def validate(self, attrs):
                 if not 0 <= (attrs["end"] - attrs["start"]).days <= 30:
                     raise serializers.ValidationError("Escolha até 31 dias em ordem cronológica.")
+                try:
+                    business_boundary(request.auth.venue, attrs["start"]).astimezone(UTC)
+                    business_boundary(request.auth.venue, attrs["end"] + timedelta(days=1)).astimezone(UTC)
+                except (OverflowError, ValueError):
+                    raise serializers.ValidationError("Período fora dos limites do calendário.") from None
                 return attrs
 
         period = Period(data=request.query_params)

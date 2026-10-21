@@ -100,5 +100,9 @@ class AttendanceMetricsTests(TestCase):
     def test_period_validation_and_no_write_methods(self):
         for values in ({"end": "2026-10-20"}, {"end": "2026-11-21"}, {"start": "oops"}):
             assert self.report(**values).status_code == 400
+        assert self.report(start="9999-12-31", end="9999-12-31").status_code == 400
+        self.venue.timezone = "Asia/Tokyo"
+        self.venue.save(update_fields=["timezone"])
+        assert self.report(start="0001-01-01", end="0001-01-01").status_code == 400
         assert self.report(end="2026-11-20").status_code == 200
         assert self.client.post("/management/attendance-metrics/", {}, format="json").status_code == 405
