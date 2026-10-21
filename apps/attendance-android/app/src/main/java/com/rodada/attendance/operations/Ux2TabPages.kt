@@ -55,7 +55,7 @@ internal fun Ux2TabPages(
     val count = cart.sumOf { it.quantity }
     val pending = state.orderIntentId != null || state.queuedOrders.any { it.tabId == summary.id }
     var query by rememberSaveable(summary.id) { mutableStateOf("") }
-    var category by rememberSaveable(summary.id) { mutableStateOf("Todos") }
+    var category by rememberSaveable(summary.id) { mutableStateOf("") }
     val homeScroll = rememberScrollState()
     val catalogScroll = rememberScrollState()
     val reviewScroll = rememberScrollState()
@@ -153,11 +153,11 @@ internal fun Ux2TabPages(
                         }
                     })
                     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        (listOf("Todos") + state.products.map { it.category.ifBlank { "Outros" } }.distinct()).forEach { name ->
-                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = 40.dp)) { Text(name, style = AttendanceUx2.text(13, 750)) }
+                        (listOf("") + state.products.filter { it.active }.map { it.category.ifBlank { "Outros" } }.distinct()).forEach { name ->
+                            OutlinedButton(onClick = { category = name }, enabled = !locked, shape = RoundedCornerShape(7.dp), border = androidx.compose.foundation.BorderStroke(1.dp, if (category == name) RodadaVisual.Paper else RodadaVisual.Border), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (category == name) RodadaVisual.Paper else RodadaVisual.Ground, contentColor = if (category == name) RodadaVisual.Ink else RodadaVisual.Muted), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), modifier = Modifier.testTag("ux2-category:$name").minimumInteractiveComponentSize().heightIn(min = 40.dp)) { Text(if (name.isEmpty()) "Todos" else if (name == "Todos") "Todos (categoria)" else name, style = AttendanceUx2.text(13, 750)) }
                         }
                     }
-                    val products = state.products.filter { (category == "Todos" || it.category.ifBlank { "Outros" } == category) && it.name.contains(query.trim(), true) }
+                    val products = state.products.filter { it.active && (category == "" || it.category.ifBlank { "Outros" } == category) && it.name.contains(query.trim(), true) }
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Cardápio", style = AttendanceUx2.text(18, 800))
                         Text("${products.size} ITENS", style = AttendanceUx2.text(11, 750).copy(letterSpacing = 1.sp), color = RodadaVisual.Muted)

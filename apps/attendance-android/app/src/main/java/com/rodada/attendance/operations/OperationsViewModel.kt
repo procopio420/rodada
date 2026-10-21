@@ -106,6 +106,7 @@ class OperationsViewModel(
     private var refreshJob: Job? = null
     private val historyDetailReads = LatestHistoryRead()
     private var deliveryRefreshJob: Job? = null
+    private var serviceRefreshJob: Job? = null
     private var orderReplayJob: Job? = null
     private var streamConnected = false
     private var coreReadHealthy = false
@@ -254,6 +255,8 @@ class OperationsViewModel(
             refreshJob = null
             deliveryRefreshJob?.cancel()
             deliveryRefreshJob = null
+            serviceRefreshJob?.cancel()
+            serviceRefreshJob = null
             stopRealtime()
             // Never leave a prior operator's draft cart or Tab context on a shared device.
             coreReadHealthy = false
@@ -292,7 +295,9 @@ class OperationsViewModel(
             if (deliveryRefreshJob?.isActive != true) {
                 deliveryRefreshJob = viewModelScope.launch { readDeliveryTasks(session) }
             }
-            readServiceRequests(session)
+            if (serviceRefreshJob?.isActive != true) {
+                serviceRefreshJob = viewModelScope.launch { readServiceRequests(session) }
+            }
             runCatching {
                 val caps = runCatching { repository.paymentCapabilities(session) }.getOrDefault(com.rodada.attendance.payments.PaymentCapabilities())
                 coroutineContext.ensureActive()
