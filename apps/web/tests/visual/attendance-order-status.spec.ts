@@ -1,3 +1,4 @@
+import { openAttendanceTable } from "./attendance-actions";
 import { expect, test, type Page } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 
@@ -16,9 +17,9 @@ async function setup(page: Page) {
     ? { status: 503, json: { code: "READ_FAILED", message: "Leitura indisponível" } }
     : { json: tab }));
   const open = async () => {
-    await page.getByRole("button", { name: /Mesa 08 Ocupada/ }).click();
+    await openAttendanceTable(page, "table-test");
     await page.locator('button[data-tab-id="tab-test"]').click();
-    await expect(page.locator(".attendanceOrderDialog")).toBeVisible();
+    await expect(page.getByRole("region", { name: "Comanda selecionada", exact: true })).toBeVisible();
   };
   await page.goto("/attendance"); await open();
   return { orders, open, fail: () => { failed = true; }, recover: () => { failed = false; } };
@@ -74,7 +75,7 @@ test('old A poll cannot replace new A after A-B-A',async({page})=>{
  await page.route(/\/api\/attendance\/tabs\/tab-a\/(\?.*)?$/,async r=>{ if(hold&&!r.request().url().includes('?')){hold=false;held=r;signal();}else await r.fulfill({json:a}); });
  await page.route(/\/api\/attendance\/tabs\/tab-b\/(\?.*)?$/,r=>r.fulfill({json:b}));
  await page.goto('/attendance');
- await page.getByRole('button',{name:/Mesa 08 Ocupada/}).click();
+ await openAttendanceTable(page, "table-test");
  await page.locator('button[data-tab-id="tab-a"]').click();
  await expect(page.getByRole('region',{name:'Último pedido confirmado'})).toContainText('Bar · Na fila');
  hold=true;await page.clock.runFor(15000);await captured;
@@ -104,7 +105,7 @@ test('poll started during same A selection cannot override canonical selection',
   else if(holdSelection&&!r.request().url().includes('?')){poll=r;pollSignal();}
   else await r.fulfill({json:a});
  });
- await page.goto('/attendance');await page.getByRole('button',{name:/Mesa 08 Ocupada/}).click();await page.locator('button[data-tab-id="tab-a"]').click();
+ await page.goto('/attendance');await openAttendanceTable(page, "table-test");await page.locator('button[data-tab-id="tab-a"]').click();
  const status=page.getByRole('region',{name:'Último pedido confirmado'});await expect(status).toContainText('Bar · Na fila');
  await page.keyboard.press('Escape');holdSelection=true;
  await page.locator('button[data-tab-id="tab-a"]').click();await selCaptured;
