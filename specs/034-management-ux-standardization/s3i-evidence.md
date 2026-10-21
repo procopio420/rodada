@@ -1,0 +1,9 @@
+# S3i — formulário de estorno e caixa
+
+2026-10-20. Branch codex/management-ux-alerts,HEADbase860b25d93da486d2416c6ddaccfdccd9605f8953. Workingtree semcommit. Spec034/S3i,R3conservador.
+
+FieldsetPreparar estorno/labelsvisíveis/IDsassociados para correçãoopcional,valor,motivo,caixa. Mesmosaria-labels,handlers,valores,condições,disabled,refund,locks,journal e regras de correçãoexata. Nenhuma escrita operacional real.
+
+Baseline4PASS. Buildwebpack/tiposPASS;linttestePASS;1lintpáginaherdado react-hooks/set-state-in-effect55,inalterado. DiffcheckPASS. Rodadafinal pnpm run test:visual management-refund-form.spec.ts management-refund-payment.spec.ts management-refund-entry.spec.ts refund-labels.spec.ts manual-refund-intent.spec.ts correction-without-refund.spec.ts:31PASS41.5s. Quatro larguras,axe/CSSzoom2,labels/alvos,teclado,payload500centavos/caixa/motivo e403preservandorascunho;regressõesrespostaperdida/reload/duplotap/readback/PIN/conflito/revogação/storage/correçãoexata e semdevolução.12PNG e3fontes comSHA256SUMS em docs/development/evidence/spec034-refund-form.
+
+Reviewindependente source/pixels390/1280/360CSSzoomNO_FINDINGS_WITH_GAPS. Revisor não executou testes e revisou antes do fim31casos; resultado31PASS acima é doautor. Campo de motivo de linhaúnica preservado; na ampliação exibe parte do texto, leitura simultânea de justificativas longas não comprovada. Integração/recovery reais,zoomnativo/leitor de tela/humanoNOT_RUN. Auth/tenantnão repetidos/códigoinalterado. GateR3autenticadoREVIEW_BLOCKED/globalvisual anteriorFAILnão repetido. GOinspeçãolocal;NO-GOmerge/release/piloto. Semcommit/push/merge/deploy. Preservar todas slices anteriores. PróximoS3j: apresentação do aviso/ação de estorno pendente e composiçãoEstornos, sem alterar intent/recovery. Preview3001reiniciado/APIpreservada.

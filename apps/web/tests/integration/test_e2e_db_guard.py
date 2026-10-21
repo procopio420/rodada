@@ -1,11 +1,11 @@
 """Stdlib regressions for the test-only PostgreSQL reset coordinator."""
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from e2e_db_guard import _sqlstate, file_lock, retry_transient_reset
@@ -28,6 +28,7 @@ class ResetGuardTests(unittest.TestCase):
                 "from pathlib import Path\n"
                 f"sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\n"
                 "from e2e_db_guard import file_lock\n"
+                "print('attempting', flush=True)\n"
                 "with file_lock(Path(sys.argv[1]), exclusive=False):\n"
                 "    print('acquired', flush=True)\n"
             )
@@ -39,6 +40,7 @@ class ResetGuardTests(unittest.TestCase):
                     text=True,
                 )
                 try:
+                    self.assertEqual(process.stdout.readline().strip(), "attempting")
                     time.sleep(0.15)
                     self.assertIsNone(process.poll(), "Reader must block while reset holds lock")
                 finally:
@@ -48,11 +50,29 @@ class ResetGuardTests(unittest.TestCase):
             self.assertEqual(process.returncode, 0, stderr)
             self.assertEqual(stdout.strip(), "acquired")
 
+    def test_lock_is_released_after_operation_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "reset.lock"
+            with self.assertRaisesRegex(RuntimeError, "operation failed"), file_lock(path, exclusive=True):
+                raise RuntimeError("operation failed")
+            with file_lock(path, exclusive=True):
+                self.assertTrue(path.exists())
+
+    @unittest.skipUnless(os.name == "nt", "Windows lock backend")
+    def test_windows_unknown_lock_error_fails_closed(self):
+        with (
+            tempfile.TemporaryDirectory() as temp,
+            patch("e2e_db_guard.msvcrt.locking", side_effect=OSError(22, "invalid lock")),
+            self.assertRaises(OSError),
+            file_lock(Path(temp) / "reset.lock", exclusive=True),
+        ):
+            self.fail("Unknown lock errors must not enter the operation")
+
     def test_retries_deadlock_or_lock_timeout_only(self):
         for problem in (FakePsycopgDeadlock(), FakePsycopgLockTimeout()):
             calls = []
 
-            def operation():
+            def operation(calls=calls, problem=problem):
                 calls.append(True)
                 if len(calls) < 3:
                     raise RuntimeError("Django wrapper") from problem
@@ -65,11 +85,10 @@ class ResetGuardTests(unittest.TestCase):
     def test_unknown_or_persistent_db_errors_fail_closed(self):
         with self.assertRaisesRegex(RuntimeError, "unknown"):
             retry_transient_reset(lambda: (_ for _ in ()).throw(RuntimeError("unknown")))
-        with patch("e2e_db_guard.time.sleep"):
-            with self.assertRaises(FakePsycopgDeadlock):
-                retry_transient_reset(
-                    lambda: (_ for _ in ()).throw(FakePsycopgDeadlock()), max_attempts=2
-                )
+        with patch("e2e_db_guard.time.sleep"), self.assertRaises(FakePsycopgDeadlock):
+            retry_transient_reset(
+                lambda: (_ for _ in ()).throw(FakePsycopgDeadlock()), max_attempts=2
+            )
 
     def test_extracts_nested_psycopg_sqlstate(self):
         try:

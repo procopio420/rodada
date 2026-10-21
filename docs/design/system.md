@@ -35,6 +35,48 @@ O objetivo não é criar uma biblioteca bonita por si só. O sistema existe para
 
 ## Princípios
 
+Resultados de Clientes (Spec034 S1j): article nomeado, identificação e ações
+separadas, ações em coluna mobile/grade desktop com alvos44px. Não comprimir
+ações ao lado do nome em reflow. ConsultasGET atualizam conteúdo sem anunciar
+mutação; confirmação de alteração permanece nas mutações existentes.
+
+Clientes (Spec034 S1i): busca e cadastro/relacionamento em fieldsets separados;
+busca com ação próxima, nome/relacionamento em coluna mobile/duas desktop.
+Campos usam minmax(0,1fr) e labels quebram palavras quando necessário para reflow.
+Mesmos controles, PIN compartilhado, gates e comandos; limites/políticas intactos.
+
+Equipe existente (Spec034 S1h): estado atual em Surface2, alterações de função/
+situação em fieldset nomeado e confirmação em grupo próprio com motivo/PIN.
+Aviso sobre encerramento de sessões visível antes da ação, sem esconder controles
+de risco; coluna mobile/duas desktop. Mesmos labels, gates e comandos existentes.
+
+Setup (Spec034 S1g): Mesas/Zonas confirmadas são listas nomeadas, com divisórias
+leves e nomes completos; não mostrar vazio antes de confirmação. Novo cadastro
+fica em fieldset próprio, coluna mobile/duas desktop, com os mesmos campos e
+estados. CSS Module local; equipe, QR e recuperação mantêm seus controles/regras.
+
+Trabalhos de impressão (Spec034 S1f): lista com divisórias em vez de painéis
+aninhados; estado canônico em h3, IDmono, erro explícito em Surface2, tentativas
+visíveis. Ações em coluna mobile/duas colunas desktop; nunca ocultar incerteza,
+motivo de cópia ou confirmação física por estética. Mesmos comandos/condicionais.
+
+Lista de destinos de impressão (Spec034 S1e): article nomeado pelo títuloh3,
+ação Configurar no cabeçalho com largura própria, saída/papel/ativação em linha
+e leitura de hardware/bridge em metadados separados. Divisórias leves, nome longo
+com quebra de linha, sem cartão aninhado. Estados canônicos preservados, sem
+atribuir confirmação de papel à conexão ou saúde. CSS Module da página.
+
+Destino de impressão (Spec034 S1d) mantém o formulário existente em grupos
+Identificação, Conexão e papel, Uso na operação. Fieldsets com divisórias leves,
+campos em coluna no mobile e conexão em duas colunas desktop; opções operacionais
+em grade2/4 com alvo mínimo44px. CSS Module local, mesmos tokens e condicionais;
+não transformar estado do computador ou envio aceito em confirmação de papel.
+
+Alertas gerenciais (Spec034 S1c): prazos usam fieldsets nomeados por contexto e
+divisórias leves; confirmação ocupa grupo próprio. Campos em coluna no mobile,
+duas colunas a partir de768px. CSS Module reutiliza tokens; unidade segundos,
+labels, validação e política versionada permanecem. Não ocultar avisos/reautenticação.
+
 1. **Operacional antes de ornamental.** Informação acionável deve ganhar de decoração.
 2. **Uma semântica, várias superfícies.** Cor, estado, botão e hierarquia significam a mesma coisa em todos os módulos.
 3. **Mobile-first real.** O baseline é 360–430 px, uso com uma mão, movimento e baixa atenção disponível.
@@ -683,3 +725,61 @@ necessária à operação real CASH. Pix/cartão permanecem indisponíveis até 
 real homologado; a diferença funcional é registrada no gate de paridade. Valores
 preenchidos não são recebimentos confirmados. Formulário aberto bloqueia troca de
 Tab; Back sem intenção pendente volta à Conta. Recuperação mantém a mesma origem.
+
+Spec034/S2a: resumo de Agora e acessos rápidos usam grade de uma coluna mobile e duas a partir de768px, tokens existentes e alvos44px. Exceções ficam antes dos indicadores; indicador financeiro preserva prioridade visual. CSS local em app/manage/now.module.css.
+
+Spec034/S2b: produção e entregas usam contadores Surface2, lista semântica com nomes quebráveis e tempo em mono; uma coluna mobile e detalhes em duas colunas desktop. Atalhos das estações com alvo44px. Estilos restritos a operation.module.css.
+
+Spec034/S2c: resumo Salão reutiliza contadores Surface2 e grade de atalhos de Operação, uma coluna mobile/duas desktop. Itens indisponíveis permanecem em details, lista semântica com nomes completos e quebra de linha. Sem novos tokens.
+
+Spec034/S3a: entrada Financeiro reutiliza managementDestination/managementSettingsList para cinco links descritivos, mantendo três grupos nomeados. Resumo de caixa empilha texto/valor no mobile e alinha em duas colunas desktop; fonte mono nos valores. IDs de destinos finance-link-* separados das regiões; sem novos tokens.
+
+Recuperação de sessão Gerência: Surface1/borda forte/radiuslg, lockâmbar emSurface2, título20px/texto14px neutros e linkâmbar56px sem sublinhado; empilhado mobile/inline desktop. Tokens existentes, escopo session-notice.module.css.
+
+Spec034/S3b: cabeçalho do fechamento diário usa retornoFinanceiro com ícone e alvo44px; Dia operacional agrupa campo/ações em fieldset com tokens existentes, ações em uma coluna mobile/duas desktop. CSSModule local; revisões/correções sem alterações nesta slice.
+
+Spec034/S3c: revisão imutável usa resumoSurface2, separadores de métodos/caixas/bloqueios e lista semântica de pendências. Valoresmono empilhados mobile/alinhados desktop, link de turno44px; estados financeiros e confirmações não mudam.
+
+Spec034/S3d: solicitar ajuste de caixa usa fieldset/legend, campos separados e textareaSurface2/borda/radius existentes. Ação separada, sem mudanças financeiras; estilos restritos a correctionRequest.
+
+Spec034/S3e: propostas em artigosSurface2 nomeados pelo caixa; valor mono e estado textual, motivo/ação separados. Ações empilhadas mobile e duas colunas desktop,textareaSurface1. Restrição de autoria própria e decisões preservadas.
+
+Spec034/S3f: confirmaçãoPIN do fechamento usa região/fieldset nomeados e ações locais empilhadas mobile/duas colunas desktop, tokens existentes. Input mascarado e fluxo de reauth/replay preservados; capturas apenas comPINvazio.
+
+Spec034/S3g: entradaEstornos usa retornoFinanceiro, fieldsetidentidade/labelPINvisível e regiãoSelecionarcomanda comlabelComanda. Evitar nome de região idêntico ao campo; CSSlocalentry preserva workspaceLock/journal.
+
+Spec034/S3h: resumoSaldo do pagamento emSurface2 com três valoresmono e histórico em lista nomeada. RegiãoConsultar pagamento distinta do campoPagamento elegível; CSSlocalpreserva cálculo/locks.
+
+Spec034/S3i: Preparar estorno emfieldset comlabelsvisíveis/IDspara valor,motivo,correção ecaixa; açãoseparada eCSSlocalcommand. Sem alterar input/seleção/handlers/locks/journal.
+
+Spec034/S3j: estorno pendente com heading/íconewarning, bordaâmbar e açãoVerificar mesmo estorno ocupando largura disponível. Texto/cálculo/locks/replay preservados; nunca indicar confirmação antes de readback.
+
+Spec034/S3k: política de cobrança agrupaRegras eConfirmar alteração; camposuma coluna mobile/duasdesktop,checkbox44px/accentâmbar. CSSlocalpreserva labels/percentuais/versão/PIN.
+
+Spec034/S3l: solicitações emartigosSurface2 nomeados pelacomanda/fallbackexistente,préviaAntes/Depois comvaloresmono eaçãoPINseparada. Uma coluna mobile/duasnapréviadesktop; comandos eformatovalorespreservados.
+
+Spec034/S3m: relatórios usamretornoFinanceiro/fieldsetSelecionar período comdatas/ações agrupadas,espaçamento quepreservadata completa emCSSzoom2mobile. Dados/totais/CSV/calendárioinalterados;CSSlocalperiod.
+
+Spec034/S3n: resumo financeiro emgruposNo período/Estado atual(duas métricasatuais),semperda/fallback. Gradeuma coluna mobile/duasdesktop,mono nosvalores,paddingreduzidopara evitar quebradedígitos emCSSzoom2. Nenhumcálculonovo.
+
+Spec034/S3o: relatóriosdiários emartigosnomeados/data eprodutos/métodos/pedidos emlistasnomeadas; valoresmono/linhasempilhadasmobile/alinhadasdesktop,nomesquebráveis,tokenslocais. Paresajustes/estornos e labelsinalterados.
+
+Spec034/S3p: fechamentoscaixa emartigosnomeados/paresvaloresmono e links44px separados; calendárioemdetailscomfieldsetnomeado,campos/ação agrupados. CSSlocal,preservar—/sinalnegativo/fuso/corte/handlers.
+
+### Spec034 S4a — entrada de produtos
+Cardápio reutiliza destinos com título e descrição acessíveis. Produtos usa retorno explícito à aba, cabeçalho em grade com espaçamento por tokens e ações de 56 px: uma coluna no celular, duas a partir de 48 rem. Formulário de criação aberto ocupa a linha inteira. Sem mudanças nos diálogos e comandos.
+
+### Spec034 S4b — seleção de produto
+Variações e adicionais reutiliza cabeçalho com retorno à aba Cardápio e link de nomes com alvo mínimo44px. Seleção tem seção nomeada, instrução associada por aria-describedby e select nativo preservado. Espaçamento usa tokens em CSS local.
+
+### Spec034 S4c — listas de configuração do catálogo
+Variações e grupos têm regiões nomeadas, linhas em uma coluna no celular e duas a partir de48rem, nomes com quebra e ações de mínimo44px. Grupos usam borda/radius/superfície existentes e ações em grade. Preservar preço, flags e intervalos junto ao nome sem reinterpretar os valores.
+
+### Spec034 S4d — formulário do catálogo
+Formulários de configuração possuem título acessível e fieldset com legend. Campos mantêm labels/regras e valores em centavos; ações em grade de uma coluna no celular/duas no desktop. Checkboxes44px e labels com quebra permitem ampliação sem overflow; inputs nativos de uma linha preservam o valor completo.
+
+### Spec034 S4e — disponibilidade na Gerência
+Lista de disponibilidade na Gerência usa região nomeada, linhas em uma coluna no celular e duas a partir de48rem, nomes com quebra e ações44px. O layout é opt-in: Bar/Cozinha conservam apresentação anterior. Rótulos e estado vêm do mesmo contrato, sem confirmação otimista.
+
+### Spec034 — retorno de foco no Cardápio
+Links de produtos e variações lembram origem e scroll pelo helper de navegação existente. Voltar ao Cardápio restaura foco visível no destino correspondente; entrada direta define origem padrão. Storage indisponível mantém href/navegação. Cliques modificados não sobrescrevem o contexto da aba atual. Não armazenar catálogo, credenciais ou dados de negócio nesse mecanismo.

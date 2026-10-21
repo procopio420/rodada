@@ -454,7 +454,7 @@ export function OrderWorkspace({ presentation = "legacy", requestedSurface = "ta
     return <>{attendanceReceipt}
       <AttendanceUx2Workspace hidden={receiptSurface || cashPending} key={selected.id} tab={selected} surface={dialogView} products={products} lines={rows} total={total} locked={uxLocked} canSend={sendable} fresh={orderFresh && fresh} pending={!!orderIntent.pending} confirming={orderIntent.busy || confirming}
         message={<>{message && <p className="ux2Notice" role="alert">{message}</p>}{orderIntent.message && <p className="ux2Notice" role="alert">{orderIntent.message}</p>}{draftFeedback && <p className="ux2Notice" role="status">{draftFeedback}</p>}</>}
-        catalogState={uxCatalogs[selected.id] ?? {query:"",category:"Todos"}} onCatalogState={state => setUxCatalogs(current => ({...current,[selected.id]:state}))}
+        catalogState={uxCatalogs[selected.id] ?? {query:"",category:""}} onCatalogState={state => setUxCatalogs(current => ({...current,[selected.id]:state}))}
         credit={<AttendanceCreditBar position={selected as AttendanceCreditPosition} draftCents={dialogView === "tab" || dialogView === "bill" ? 0 : total} compact={dialogView === "tab"} onDetails={() => setDialogView("limit")} />}
         contextualTaskNode={contextualTaskNode} success={success} onSurface={setDialogView} onBack={() => { if (uxLocked) return; setDialogOpen(false); onDialogClose?.(); requestAnimationFrame(() => returnFocus?.focus()); }}
         onAdd={product => { const current = products.find(value => value.id === product.id); if (!current || uxLocked) return; if (current.variants?.length || current.modifier_groups?.length) { setEditing(null); setConfiguring(current); } else addDraftLine(current, defaults(current)); }}

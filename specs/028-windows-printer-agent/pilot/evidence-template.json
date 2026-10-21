@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "commit": "",
+  "operator": "",
+  "mode": "NOT_RUN",
+  "windows_build": "",
+  "printer_model": "Bematech MP-4200 TH (inventariar)",
+  "driver_version": "",
+  "connection": "",
+  "profile_id": "",
+  "owner_rollout_authorized": false,
+  "release_gates": {
+    "authenticode": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "antivirus_smartscreen": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "signed_installer_sha256": {
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  },
+  "scenarios": {
+    "pairing": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "station_routing": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "accents_width_cut": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "connection_loss": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "computer_restart": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "printer_disconnect": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "duplicate_job": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "two_agents": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "printer_replacement": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "revocation": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "spooler_failure": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "operator_recovery": {
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    "upgrade_rollback": {
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  }
+}

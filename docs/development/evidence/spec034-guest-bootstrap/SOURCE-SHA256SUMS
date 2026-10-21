@@ -1,0 +1,6 @@
+d87f9dbdb439078ff0c32e9550a0da5dffa89944621d1d990679b92fdc5029b0  apps/web/components/guest-ordering.tsx
+c61c1b5d365c5149c0d182fcf5e9b215806e22a8b4a6d4baaf5c051c83f576ab  apps/web/tests/visual/guest-order-intent.spec.ts
+6455121e4d309600274d578a6a6fd10dd38b35b72fd9387f54298dad80c29c36  apps/web/tests/visual/guest-quantity.spec.ts
+22dd03a6e73ea465d29814905025990ebaa56da13ccce8562760d8f93d48cb5b  apps/web/tests/visual/guest-repeat-order.spec.ts
+5b29f0c6bda16ab0a72c24251c9b759c9e6a36c742bb02d28c77508c6466b20b  apps/web/tests/visual/guest-navigation.spec.ts
+60ce27492e9bc48856ffdf1094fe71892ef5e4dffcf26f1feb749a3d1aa71e6f  apps/web/tests/visual/guest-catalog.spec.ts

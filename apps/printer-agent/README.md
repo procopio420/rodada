@@ -1,11 +1,17 @@
 # Rodada Impressoras
 
-Version 0.3.0 includes the S2 Windows service, persistent installation identity,
-manager-approved pairing, machine DPAPI storage with a service SID ACL, heartbeat
-and revocation, plus S3 discovery and fenced delivery. The optional local diagnostic
-window reads only public status and pairing code. Protocol v1 enables delivery only
-for approved routes; S2 clients (0.2.0) continue with delivery disabled.
-Installer and public stable release remain pending for S6/S7.
+Version 0.5.0 includes the Windows service, persistent installation identity,
+manager-approved one-time pairing, machine DPAPI storage with service SID ACL,
+heartbeat/revocation, discovery, fenced multiagent delivery and explicit printer
+profiles. The optional local diagnostic window reads public status and pairing
+code. Protocol v1 enables delivery only for approved routes; S2 clients (0.2.0)
+continue with delivery disabled and 0.3.0 clients cannot claim PC860 profiles.
+
+A universal self-contained Windows installer is built and smoke-tested in CI as
+**unsigned pilot only**. Install/repair/reinstall/uninstall are implemented; public
+signed stable distribution and physical certification remain blocked. There is no
+unattended updater. See [mission evidence](../../specs/028-windows-printer-agent/completion-20261020.md)
+and [pilot procedure](../../specs/028-windows-printer-agent/s7-pilot.md).
 
 Service configuration and operational instructions: see
 `../../specs/028-windows-printer-agent/s2-pairing.md`.
@@ -13,7 +19,8 @@ Service configuration and operational instructions: see
 Development checks:
 
 ```sh
-python -m pytest apps/printer-agent/tests/test_worker.py -q
+python -m pip install -e "apps/printer-agent[dev]"
+python -m pytest apps/printer-agent/tests -q
 python -m mypy --strict apps/printer-agent/rodada_printer_agent
 python -m ruff check apps/printer-agent
 ```
@@ -52,4 +59,19 @@ Restart reconciles that result without resubmitting. Expired claims (monotonic
 conservative TTL) do not enter the transport. Spool/network acceptance is not paper.
 Inspect DELIVERY_UNCERTAIN before an explicit audited reprint. Drivers already
 entered can block beyond a lease; fencing cannot retract bytes already submitted.
-Installer, updates and signed stable distribution remain S6; physical checks S7.
+Packaged installation/upgrade is described below; signed stable distribution and physical checks remain gated by S6/S7.
+
+## S5 compatibility and S6 unsigned packaging
+
+Agent 0.5.0 accepts explicit PC860 profiles, optionally full cut after route-level
+physical approval; unrepresentable characters become `?`. WindowsDriver retains
+Unicode and is the first candidate for the Bematech MP-4200 TH. Neither model nor
+profile name is evidence of physical certification.
+
+`packaging/requirements-build.txt`, `entry.py` and `installer.iss` build a universal
+Windows 11 x64 installer in CI, no installed Python required. All generated setup
+artifacts are **unsigned pilot only**. Manual reinstall preserves DPAPI identity
+and journal; uninstall retains ProgramData for authorized recovery. Do not delete
+that journal to resolve an uncertain ticket. No unattended update is enabled.
+Signed distribution, distinct-version rollback and physical pilot are external
+NO-GO gates; see Spec028 s6-distribution.md and S7 pilot procedure.

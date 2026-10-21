@@ -9,6 +9,7 @@ Procedimentos **operacionais**, não autorização para agir. Leia [AGENTS](../.
 | Criar funcionário, mudar função ou revogar acesso | [Acesso de staff](staff-access.md) | Gestão de vínculos/dispositivos/sessões via API; criação inicial supervisionada |
 | Erro 5xx, deploy falho, TLS, isolamento de tenant | [Incidentes e recuperação](incident-response.md) | Read-only diagnosis no Railway; rollback sob decisão humana |
 | Importar cardápio de um bar | [Catálogo CSV](catalog-import.md) | Management command com preview por padrão, `--apply` explícito |
+| Homologar Rodada Impressoras no Windows | [Piloto Spec 028](../../specs/028-windows-printer-agent/s7-pilot.md) e [evidências](../../specs/028-windows-printer-agent/completion-20261020.md) | Serviço/setup testados em CI; assinatura, hardware e rollout ainda NO-GO |
 | Proteger dados / ensaio de restore | [Backup & restore](backup-restore.md) | Scripts existentes, somente em ambiente isolado e autorizado |
 
 ## Contrato do agente

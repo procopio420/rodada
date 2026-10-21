@@ -1,0 +1,7 @@
+f2053813cdc40c295b2387bdb8896fcb9acee11dad7212c6706460a65ac37a82  apps/web/app/manage/page.tsx
+8092095b713864254d6382db6bf1b0b8aa14175554189e5a729a0ddf4509c1c4  apps/web/app/manage/products/page.tsx
+ae7a2e9cbf2d90d1843658b9c8a83975d6d661a4aa66836fc68036ad6edebe03  apps/web/app/manage/products/products.module.css
+1455e48f0080836dfd595fcca762be39f3ae5976bb38641f0917e0c3c277cc49  apps/web/components/catalog-icon-editor.tsx
+340bbc3735b09838dd5b46d5b39744086872e41da5d89a0fc718b917bbf3f385  apps/web/components/catalog-icon-editor.module.css
+19ed02ca8913e271501ab4c5f42d18dcce67f42405e927d61a64fa6c8c045010  apps/web/tests/visual/management-menu-entry.spec.ts
+3e08e2156000dfb9f022d7fb3dcc14b64fb190dd910b6d5982643ace66d302b4  apps/web/tests/visual/management-navigation.spec.ts

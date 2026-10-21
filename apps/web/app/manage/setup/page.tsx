@@ -7,6 +7,7 @@ import { StaffAuthScreen } from "@/components/staff-auth-screen";
 import { OperationalHeading } from "@/components/operational-heading";
 import { ManagementSubpageHeader } from "@/components/management-subpage-header";
 import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-auth";
+import styles from "./setup.module.css";
 
 type Member = { id: string; staff: { display_name: string; login_identifier: string }; role: string; status: string; version: number };
 type Resource = { id: string; label: string };
@@ -16,6 +17,14 @@ async function call<T>(path: string, body?: object, method = "POST"): Promise<T>
   const result = await apiCall<T>(path, body === undefined ? undefined : { method, body: JSON.stringify(body) });
   if (!result.response.ok || !result.body) throw new Error(asApiError(result.body).message);
   return result.body as T;
+}
+
+function readSetup(canManage: boolean) {
+  return Promise.all([
+    call<{ results: Resource[] }>("/api/pos/hospitality/tables/"),
+    call<{ results: Resource[] }>("/api/pos/hospitality/zones/"),
+    canManage ? call<{ results: Member[] }>("/api/pos/manage/access/memberships/") : Promise.resolve({ results: [] as Member[] }),
+  ]);
 }
 
 export default function SetupPage() {
@@ -29,18 +38,29 @@ function Setup({ session }: { session: StaffSessionView }) {
   const [selectedId, setSelectedId] = useState(""), [role, setRole] = useState("STAFF"), [status, setStatus] = useState("ACTIVE"), [reason, setReason] = useState(""), [pin, setPin] = useState("");
   const sending = useRef(false);
   const selected = members.find(member => member.id === selectedId);
+  const [resourceAccess, setResourceAccess] = useState(canManage);
+  if (resourceAccess !== canManage) {
+    setResourceAccess(canManage); setFresh(false); setError("");
+  }
+  const applyResources = useCallback(([tableRows, zoneRows, memberRows]: Awaited<ReturnType<typeof readSetup>>) => {
+    setTables(tableRows.results); setZones(zoneRows.results); setMembers(memberRows.results);
+    setFresh(true);
+  }, []);
   const load = useCallback(async (clearError = true) => {
     setFresh(false); if (clearError) setError("");
-    try {
-      const [tableRows, zoneRows, memberRows] = await Promise.all([
-        call<{ results: Resource[] }>("/api/pos/hospitality/tables/"),
-        call<{ results: Resource[] }>("/api/pos/hospitality/zones/"),
-        canManage ? call<{ results: Member[] }>("/api/pos/manage/access/memberships/") : Promise.resolve({ results: [] as Member[] }),
-      ]);
-      setTables(tableRows.results); setZones(zoneRows.results); setMembers(memberRows.results); setFresh(true);
-    } catch (failure) { setError(failure instanceof Error ? failure.message : "Configuração indisponível."); }
-  }, [canManage]);
-  useEffect(() => { void load(); }, [load]);
+    try { applyResources(await readSetup(canManage)); }
+    catch (failure) { setError(failure instanceof Error ? failure.message : "Configuração indisponível."); }
+  }, [applyResources, canManage]);
+  useEffect(() => {
+    let active = true;
+    void readSetup(canManage).then(rows => {
+      if (!active) return;
+      applyResources(rows);
+    }).catch(failure => {
+      if (active) setError(failure instanceof Error ? failure.message : "Configuração indisponível.");
+    });
+    return () => { active = false; };
+  }, [applyResources, canManage]);
   async function create() {
     if (sending.current || !fresh || uncertainCreate || !label.trim()) return;
     sending.current = true; setBusy(true); setError(""); setNotice("");
@@ -76,26 +96,43 @@ function Setup({ session }: { session: StaffSessionView }) {
     <button className="buttonSecondary" disabled={busy} onClick={() => void load()}>Atualizar configuração</button>
     {canConfigure && <TableServiceRollout scope={`${session.venue.id}:${session.staff.id}:${session.session.id}`} />}
     <section className="panel"><OperationalHeading as="h2" icon="table">Mesas e zonas</OperationalHeading>
-      {fresh && <><p>Mesas: {tables.length ? tables.map(table => table.label).join(" · ") : "nenhuma cadastrada"}</p><p>Zonas: {zones.length ? zones.map(zone => zone.label).join(" · ") : "nenhuma cadastrada"}</p></>}
-      {canConfigure ? <>
+      {fresh && <div className={styles.resources}>
+        <section aria-labelledby="setup-tables-heading"><h3 id="setup-tables-heading">Mesas</h3>
+          {tables.length ? <ul className={styles.resourceList} aria-label="Mesas cadastradas">{tables.map(table => <li key={table.id}>{table.label}</li>)}</ul> : <p className="muted">Nenhuma mesa cadastrada.</p>}
+        </section>
+        <section aria-labelledby="setup-zones-heading"><h3 id="setup-zones-heading">Zonas</h3>
+          {zones.length ? <ul className={styles.resourceList} aria-label="Zonas cadastradas">{zones.map(zone => <li key={zone.id}>{zone.label}</li>)}</ul> : <p className="muted">Nenhuma zona cadastrada.</p>}
+        </section>
+      </div>}
+      {canConfigure ? <fieldset className={styles.creation}><legend>Novo cadastro</legend>
+        <div className={styles.fields}>
         <div className="field"><label htmlFor="setup-kind">Cadastrar</label><select id="setup-kind" value={kind} disabled={busy || uncertainCreate} onChange={event => setKind(event.target.value)}><option value="table">Mesa</option><option value="zone">Zona</option></select></div>
         <div className="field"><label htmlFor="setup-label">Nome ou identificação</label><input id="setup-label" maxLength={80} value={label} disabled={busy || uncertainCreate} onChange={event => setLabel(event.target.value)} /></div>
         {kind === "table" && <div className="field"><label htmlFor="setup-guest">Pedidos pelo QR</label><select id="setup-guest" value={mode} disabled={busy || uncertainCreate} onChange={event => setMode(event.target.value)}><option value="DISABLED">Desabilitados</option><option value="DIRECT">Pedido direto</option><option value="JOIN_ACTIVE">Somente ocupação ativa</option></select></div>}
+        </div>
         <button className="buttonPrimary" disabled={busy || !fresh || !label.trim() || uncertainCreate} onClick={() => void create()}>Cadastrar {kind === "table" ? "mesa" : "zona"}</button>
         {uncertainCreate && <div className="notice" data-state="warning"><p>Resultado não confirmado. Verifique os cadastros acima para evitar duplicação.</p><button className="buttonSecondary" disabled={busy || !fresh} onClick={() => { setUncertainCreate(false); setLabel(""); }}>Conferi a lista; liberar novo cadastro</button></div>}
-      </> : <p>Seu acesso não permite configurar mesas ou zonas.</p>}
+      </fieldset> : <p>Seu acesso não permite configurar mesas ou zonas.</p>}
       <Link className="backLink" href="/attendance">Operar mesas e ajustar localização →</Link>
     </section>
     <section className="panel"><OperationalHeading as="h2" icon="people">Equipe existente</OperationalHeading>
       <p className="muted">Novos operadores dependem do provisionamento pela administração. Esta tela altera somente vínculos existentes.</p>
       {canManage ? <>
         <div className="field"><label htmlFor="setup-member">Operador</label><select id="setup-member" value={selectedId} disabled={busy || !fresh} onChange={event => { setSelectedId(event.target.value); const member = members.find(row => row.id === event.target.value); if (member) { setRole(member.role); setStatus(member.status); } }}><option value="">Selecionar operador</option>{members.map(member => <option key={member.id} value={member.id}>{member.staff.display_name} · {states[member.status]}</option>)}</select></div>
-        {selected && <><p>Atual: {roles[selected.role]} · {states[selected.status]}</p>
+        {selected && <><p className={styles.currentMember}>Atual: {roles[selected.role]} · {states[selected.status]}</p>
+          <fieldset className={styles.creation}><legend>Alterar vínculo</legend>
+          <div className={styles.fields}>
           <div className="field"><label htmlFor="setup-role">Nova função</label><select id="setup-role" value={role} disabled={busy} onChange={event => setRole(event.target.value)}>{Object.entries(roles).map(([value, title]) => <option key={value} value={value}>{title}</option>)}</select></div>
           <div className="field"><label htmlFor="setup-status">Nova situação</label><select id="setup-status" value={status} disabled={busy} onChange={event => setStatus(event.target.value)}>{Object.entries(states).map(([value, title]) => <option key={value} value={value}>{title}</option>)}</select></div>
+          </div>
+          </fieldset>
+          <fieldset className={styles.creation}><legend>Confirmar alteração</legend>
+          <div className={styles.fields}>
           <div className="field"><label htmlFor="setup-reason">Motivo (opcional)</label><input id="setup-reason" maxLength={240} value={reason} disabled={busy} onChange={event => setReason(event.target.value)} /></div>
           <div className="field"><label htmlFor="setup-pin">Seu PIN para confirmar</label><input id="setup-pin" type="password" autoComplete="off" value={pin} disabled={busy} onChange={event => setPin(event.target.value)} /></div>
+          </div>
           <p className="muted">Aplicar suspensão ou revogação pode encerrar sessões do operador.</p><button className="buttonPrimary" disabled={busy || !fresh || !pin} onClick={() => void saveMember()}>Aplicar função e situação</button>
+          </fieldset>
         </>}
       </> : <p>Seu acesso não permite administrar a equipe.</p>}
     </section>

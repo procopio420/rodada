@@ -1,6 +1,6 @@
-export type ManagementOrigin = "setup" | "customers" | "alerts" | "printing" | "spending";
+export type ManagementOrigin = "setup" | "customers" | "alerts" | "printing" | "products" | "customizations" | "spending";
 const key = "rodada.management.return.v1";
-const origins = new Set(["setup", "customers", "alerts", "printing", "spending"]);
+const origins = new Set(["setup", "customers", "alerts", "printing", "products", "customizations", "spending"]);
 
 export function rememberManagementOrigin(id: ManagementOrigin) {
   try { sessionStorage.setItem(key, JSON.stringify({ id, scroll: window.scrollY })); } catch { /* Navigation remains available without storage. */ }
@@ -10,7 +10,7 @@ export function requestManagementReturn(id: ManagementOrigin) {
   try {
     const previous = JSON.parse(sessionStorage.getItem(key) ?? "null");
     if (previous?.id !== id) sessionStorage.setItem(key, JSON.stringify({ id, scroll: 0 }));
-  } catch { /* A direct link still returns to Gestão. */ }
+  } catch { /* A direct link still returns to its management area. */ }
 }
 
 export function consumeManagementReturn(): { id: ManagementOrigin; scroll: number } | null {

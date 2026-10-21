@@ -17,3 +17,14 @@ replay; exibir ambos corretamente e não substituir estado canônico pelo receip
 Gates: dois Venues WARN/ENFORCE, pedido excedente/rejeitado, versão stale e ACK
 perdido na configuração, revogação/troca de sessão, Web/Guest/Compose e fonte2.
 Sem alterar defaults ou configurar Venue de produção nesta execução.
+
+## Reconciliação de 21/10/2026
+
+Backend #281 integrado em `047807cb8008e009b3ac26cb00ebfe9a7b9d92ca`.
+Composição preserva as regressões Compose de categoria Todos, offline e os três
+casos de modo; navegação gerencial mantém products/customizations e spending.
+O ensaio de fila com dois operadores inclui o fallback HTTP real de 15 segundos:
+seu orçamento total passa a 60s, mantendo expectativas locais, zero retries,
+claim concorrente/409 e exatamente um POST após ACK perdido. Não muda produto.
+Revisão independente do delta original `f65660c6`: NO_FINDINGS_WITH_GAPS;
+revisão da reconciliação, CI e validação no candidato ainda pendentes.

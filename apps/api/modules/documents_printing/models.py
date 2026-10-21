@@ -46,7 +46,7 @@ class ReceiptDocument(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
-    tab = models.ForeignKey("ordering.Tab", on_delete=models.PROTECT)
+    tab = models.ForeignKey("ordering.Tab", on_delete=models.PROTECT, null=True)
     kind = models.CharField(max_length=32)
     station = models.CharField(max_length=16, blank=True)
     source_id = models.UUIDField()
@@ -65,6 +65,11 @@ class ReceiptDocument(models.Model):
             models.UniqueConstraint(
                 fields=("venue", "kind", "source_id", "station", "source_version"),
                 name="printing_document_source_unique",
+            ),
+            models.CheckConstraint(
+                condition=(models.Q(kind="DIAGNOSTIC_TEST", tab__isnull=True)
+                           | (~models.Q(kind="DIAGNOSTIC_TEST") & models.Q(tab__isnull=False))),
+                name="printing_document_tab_or_diagnostic",
             )
         ]
 

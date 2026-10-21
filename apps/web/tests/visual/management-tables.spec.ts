@@ -35,5 +35,5 @@ test("Lost create response requires readback and explicit review",async({page})=
  await expect(page.locator(".tableInventoryRow").getByText("Terraço")).toBeVisible(); await expect(page.getByRole("button",{name:"Adicionar mesa",exact:true})).toBeDisabled(); await expect(page.getByRole("button",{name:"Conferi as mesas"})).toBeVisible();
 });
 test("Failed initial read never displays fabricated zero inventory",async({page})=>{
- await fixture(page,"normal",true); await page.route("**/api/pos/hospitality/tables/",route=>route.abort()); await page.goto("/manage/tables"); await expect(page.getByRole("alert")).toBeVisible(); await expect(page.getByRole("region",{name:"Resumo das mesas"})).toHaveCount(0); await expect(page.getByRole("button",{name:"Revisar quantidade"})).toBeDisabled();
+ await fixture(page,"normal",true); await page.route("**/api/pos/hospitality/tables/",route=>route.abort()); await page.goto("/manage/tables"); await expect(page.getByRole("main").getByRole("alert")).toBeVisible(); await expect(page.getByRole("region",{name:"Resumo das mesas"})).toHaveCount(0); await expect(page.getByRole("button",{name:"Revisar quantidade"})).toBeDisabled();
 });

@@ -8,6 +8,12 @@ import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-a
 type Member = { id: string; staff: { id: string; display_name: string; login_identifier: string }; role: string; status: string; version: number };
 const roles: Record<string, string> = { STAFF: "Atendente", CASHIER: "Caixa", MANAGER: "Gerente", OWNER: "Proprietário" };
 const states: Record<string, string> = { ACTIVE: "Ativo", SUSPENDED: "Suspenso", REVOKED: "Removido" };
+async function readStaffMembers(): Promise<Member[]> {
+  const result = await apiCall<{ results: Member[] }>("/api/pos/developer/staff/");
+  if (!result.response.ok || !result.body || !("results" in result.body)) throw new Error(asApiError(result.body).message);
+  return result.body.results;
+}
+
 type Intent = { path: string; method: string; body: object };
 export function DeveloperStaff() {
   return <StaffAuthScreen renderSession={session => <StaffTools key={session.session.id} session={session} />} />;
@@ -20,15 +26,30 @@ function StaffTools({ session }: { session: StaffSessionView }) {
   const intent = useRef<Intent | null>(null), sending = useRef(false);
   const allowed = session.capabilities.includes("staff.manage");
   const selected = members.find(member => member.id === selectedId);
+  const [resourceAccess, setResourceAccess] = useState(allowed);
+  if (resourceAccess !== allowed) {
+    setResourceAccess(allowed); setFresh(false);
+  }
+  const applyMembers = useCallback((nextMembers: Member[]) => {
+    setMembers(nextMembers); setFresh(true);
+  }, []);
+  const applyReadFailure = useCallback((failure: unknown) => {
+    setFresh(false); setError(failure instanceof Error ? failure.message : "Equipe indisponível.");
+  }, []);
   const load = useCallback(async () => {
     setFresh(false);
-    try {
-      const result = await apiCall<{ results: Member[] }>("/api/pos/developer/staff/");
-      if (!result.response.ok || !result.body || !("results" in result.body)) throw new Error(asApiError(result.body).message);
-      setMembers(result.body.results); setFresh(true);
-    } catch (failure) { setError(failure instanceof Error ? failure.message : "Equipe indisponível."); }
-  }, []);
-  useEffect(() => { if (allowed) void load(); }, [allowed, load]);
+    try { applyMembers(await readStaffMembers()); }
+    catch (failure) { applyReadFailure(failure); }
+  }, [applyMembers, applyReadFailure]);
+  useEffect(() => {
+    if (!allowed) return;
+    let active = true;
+    void readStaffMembers().then(
+      nextMembers => { if (active) applyMembers(nextMembers); },
+      failure => { if (active) applyReadFailure(failure); },
+    );
+    return () => { active = false; };
+  }, [allowed, applyMembers, applyReadFailure]);
   async function send(next: Intent) {
     if (sending.current || !fresh || !actorPin) return;
     sending.current = true; setBusy(true); setError(""); setNotice("");

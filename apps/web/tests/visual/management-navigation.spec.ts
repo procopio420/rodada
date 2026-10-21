@@ -66,7 +66,7 @@ test("management legacy links, browser history and contextual return", async ({ 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Gestão");
   await page.getByRole("link", { name: "Cardápio", exact: true }).click();
   await page.getByRole("link", { name: "Cardápio e nomes dos produtos", exact: true }).click();
-  const back = page.getByRole("link", { name: "Voltar à Gerência →", exact: true });
+  const back = page.getByRole("link", { name: "Voltar ao Cardápio", exact: true });
   await expect(back).toHaveAttribute("href", "/manage#cardapio");
   await back.click();
   await expect(page).toHaveURL(/\/manage#cardapio$/);

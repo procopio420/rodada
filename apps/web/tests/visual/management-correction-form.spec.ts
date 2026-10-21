@@ -1,0 +1,35 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y, stable } from "./fixtures";
+
+for (const width of [360, 390, 430, 1280]) test(`correction request form ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  await page.route("**/api/pos/management/daily-closes/**", route => route.fulfill({ json: { results: [] } }));
+  await page.route("**/api/pos/management/correction-requests/**", route => route.fulfill({ json: { results: [] } }));
+  await page.route("**/api/pos/management/reports/**", route => route.fulfill({ json: { cash_shifts: [{ id: "shift-test", cash_point_label: "Caixa de teste", status: "CLOSED" }] } }));
+  await page.goto("/manage/daily-close");
+  const submit = page.getByRole("button", { name: "Solicitar correção", exact: true });
+  await expect(submit).toBeVisible();
+  await expect(submit).toBeDisabled();
+  await page.getByLabel("Caixa fechado", { exact: true }).selectOption("shift-test");
+  await page.getByLabel("Ajuste em R$ (positivo ou negativo)").fill("-10,00");
+  await page.getByLabel("Justificativa da proposta").fill("Conferência de teste");
+  await stable(page);
+  const phase = process.env.RODADA_S3D_BASELINE === "1" ? "before" : "after";
+  await page.screenshot({ path: `../../visual-artifacts/spec034-correction-form/${phase}-${width}.png`, fullPage: true });
+  if (phase === "before") return;
+  await expect(page.getByRole("group", { name: "Solicitar ajuste de caixa", exact: true })).toBeVisible();
+  await layoutAndA11y(page);
+  await page.addStyleTag({ content: "#correction-request { zoom: 2; }" });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-correction-form/after-${width}-zoom200.png`, fullPage: true });
+  const commands: unknown[] = [];
+  await page.route("**/api/pos/cash/shifts/shift-test/correction-requests/", route => { commands.push(route.request().postDataJSON()); return route.fulfill({ status: 403, json: { code: "CAPABILITY_REQUIRED", message: "Sem permissão para solicitar correção." } }); });
+  await submit.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText("Sem permissão");
+  expect(commands).toHaveLength(1);
+  expect(commands[0]).toMatchObject({ amount_cents: -1000, reason: "Conferência de teste" });
+  await expect(page.getByLabel("Justificativa da proposta")).toHaveValue("Conferência de teste");
+  await expect(page.getByText(/Correção solicitada\./)).toHaveCount(0);
+});

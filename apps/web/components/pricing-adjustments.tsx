@@ -7,24 +7,34 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 type History = { id: string; kind: string; amount_cents: number; reason_code: string };
 type Pricing = { version: number; policy: { service_basis_points: number }; history: History[]; charges: { charge_id: string; product_name?: string; gross: number }[] };
 type Preview = { before_payable_cents: number; after_payable_cents: number; after_remaining_cents: number; approval_required: boolean };
+async function readPricing(tabId: string) {
+  return apiCall<Pricing>(`/api/pos/tabs/${tabId}/pricing/`);
+}
 const labels: Record<string, string> = { TAB_DISCOUNT: "Desconto na comanda", ITEM_DISCOUNT: "Desconto no item", COURTESY: "Cortesia", SERVICE_CHARGE: "Calcular / atualizar serviço", SERVICE_CHARGE_REDUCTION: "Reduzir / remover serviço", REVERSAL: "Reverter ajuste" };
 const money = (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v / 100);
 export function PricingAdjustments({ tabId, version, onChanged }: { tabId: string; version: number; onChanged: () => Promise<void> }) {
   const [pricing, setPricing] = useState<Pricing | null>(null), [kind, setKind] = useState("TAB_DISCOUNT"), [calculation, setCalculation] = useState("FIXED"), [value, setValue] = useState(""), [charge, setCharge] = useState(""), [adjustment, setAdjustment] = useState(""), [reason, setReason] = useState(""), [pin, setPin] = useState(""), [message, setMessage] = useState(""), [preview, setPreview] = useState<Preview | null>(null), [busy, setBusy] = useState(false), [awaiting, setAwaiting] = useState(false);
   const intent = useRef<Record<string, unknown> | null>(null);
   const recoveryKey = useRef<string | null>(null);
-  const load = useCallback(async () => { const r = await apiCall<Pricing>(`/api/pos/tabs/${tabId}/pricing/`); if (r.response.ok) {
+  const applyPricing = useCallback(async (r: Awaited<ReturnType<typeof readPricing>>, active: () => boolean = () => true) => { if (!active()) return; if (r.response.ok) {
       setPricing(r.body as Pricing);
       if (!recoveryKey.current) {
         const me = await apiCall<{ staff: { id: string }; venue: { id: string } }>("/api/auth/me");
-        if (me.response.ok) {
+        if (active() && me.response.ok) {
           const actor = me.body as { staff: { id: string }; venue: { id: string } };
           recoveryKey.current = `rodada-pricing:${actor.venue.id}:${actor.staff.id}:${tabId}`;
           try { const saved = sessionStorage.getItem(recoveryKey.current); if (saved) { const recovered = JSON.parse(saved) as { command: Record<string, unknown>; preview: Preview }; intent.current = recovered.command; setAwaiting(true); setPreview(recovered.preview); setMessage("Há um ajuste aguardando confirmação. Verifique esta mesma operação."); } } catch { setMessage("Confira os ajustes anteriores antes de continuar."); }
         }
       }
     } else setMessage(asApiError(r.body).message); }, [tabId]);
-  useEffect(() => { void load(); }, [load, version]);
+  const load = useCallback(async () => { await applyPricing(await readPricing(tabId)); }, [tabId, applyPricing]);
+  useEffect(() => {
+    let active = true;
+    void readPricing(tabId).then(result => applyPricing(result, () => active)).catch(() => {
+      if (active) setMessage("Não foi possível consultar os ajustes. Tente novamente.");
+    });
+    return () => { active = false; };
+  }, [tabId, applyPricing, version]);
   const clear = () => { setAwaiting(false); setPreview(null); intent.current = null; if (recoveryKey.current) sessionStorage.removeItem(recoveryKey.current); };
   const prepare = async () => {
     if (!pricing || busy) return;

@@ -9,3 +9,6 @@ COPY apps/landing/privacidade.html /usr/share/nginx/html/privacidade.html
 COPY apps/landing/termos.html /usr/share/nginx/html/termos.html
 COPY apps/landing/exclusao-de-conta.html /usr/share/nginx/html/exclusao-de-conta.html
 EXPOSE 8080
+
+COPY apps/landing/downloads.html /usr/share/nginx/html/downloads.html
+COPY apps/landing/windows-stable.json /usr/share/nginx/html/windows-stable.json

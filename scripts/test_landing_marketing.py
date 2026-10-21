@@ -95,3 +95,21 @@ class LandingMarketingTest(unittest.TestCase):
 
 if __name__=="__main__":
     unittest.main()
+
+
+class PrinterDownloadTest(unittest.TestCase):
+    def test_no_unsigned_stable_and_manage_uses_same_distribution(self):
+        import json
+        manifest = json.loads((LANDING / "windows-stable.json").read_text())
+        self.assertFalse(manifest["available"])
+        self.assertIsNone(manifest["sha256"])
+        self.assertEqual(manifest["latest_url"], "https://rodada.bar/downloads/rodada-impressoras/windows/latest")
+        html = (LANDING / "downloads.html").read_text()
+        self.assertIn("Ainda não há versão estável pública", html)
+        self.assertIn('/downloads/rodada-impressoras/windows/manifest.json', html)
+        self.assertNotIn('.exe"', html)
+        manage = (ROOT / "apps/web/components/print-agents.tsx").read_text()
+        self.assertIn('href="https://rodada.bar/downloads"', manage)
+        nginx = (LANDING / "nginx.conf").read_text()
+        self.assertIn("location = /downloads", nginx)
+        self.assertIn("return 503", nginx)

@@ -14,6 +14,8 @@ import {
   asApiError,
 } from "@/lib/client/staff-auth";
 
+function readSession() { return apiCall<StaffSessionView>("/api/auth/me"); }
+
 function Field({
   label,
   value,
@@ -61,37 +63,32 @@ export function StaffAuthScreen({ renderSession }: { renderSession?: (session: S
   const [sessionChecked, setSessionChecked] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
-  const loadSession = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await apiCall<StaffSessionView>("/api/auth/me");
-      if (result.response.ok && result.body) {
-        setSession(result.body as StaffSessionView);
-        return;
-      }
-
-      if (result.response.status === 401 || result.response.status === 403) {
-        setSession(null);
-        return;
-      }
-
-      setError(asApiError(result.body));
-    } catch {
-      setError({
-        code: "NETWORK_ERROR",
-        message: "Não foi possível falar com o Rodada.",
-      });
-    } finally {
-      setLoading(false);
-      setSessionChecked(true);
-    }
+  const applySession = useCallback((result: Awaited<ReturnType<typeof readSession>>) => {
+    if (result.response.ok && result.body) setSession(result.body as StaffSessionView);
+    else if (result.response.status === 401 || result.response.status === 403) setSession(null);
+    else setError(asApiError(result.body));
   }, []);
+  const sessionReadFailed = useCallback(() => {
+    setError({ code: "NETWORK_ERROR", message: "Não foi possível falar com o Rodada." });
+  }, []);
+  const finishSessionRead = useCallback(() => {
+    setLoading(false); setSessionChecked(true);
+  }, []);
+  const loadSession = useCallback(async () => {
+    setLoading(true); setError(null);
+    try { applySession(await readSession()); }
+    catch { sessionReadFailed(); }
+    finally { finishSessionRead(); }
+  }, [applySession, sessionReadFailed, finishSessionRead]);
 
   useEffect(() => {
-    void loadSession();
-  }, [loadSession]);
+    let active = true;
+    void readSession().then(
+      result => { if (active) applySession(result); },
+      () => { if (active) sessionReadFailed(); },
+    ).finally(() => { if (active) finishSessionRead(); });
+    return () => { active = false; };
+  }, [applySession, sessionReadFailed, finishSessionRead]);
 
   const sessionId = session?.session.id ?? null;
 

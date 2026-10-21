@@ -1,4 +1,4 @@
-"""S2 polling lifecycle only. No spooler, claims or local work queue."""
+"""Pairing and authenticated polling; durable results never replay physical work."""
 
 import secrets
 import uuid
@@ -7,7 +7,7 @@ from typing import Any, Protocol
 
 from .client import AgentHttpError
 
-VERSION = "0.3.0"
+VERSION = "0.5.0"
 
 
 @dataclass

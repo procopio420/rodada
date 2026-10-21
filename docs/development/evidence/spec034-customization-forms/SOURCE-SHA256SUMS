@@ -1,0 +1,3 @@
+ebdd1781e9ad259441eb0c37946853ef0b8301de737561ea0ccf97d7e90a03f6  apps/web/components/catalog-customization-editor.tsx
+345a33e34654d6f6bda874654c421fe566a4c55c6b2a05bd1b9aefc0658c8609  apps/web/components/catalog-customization-editor.module.css
+dc4c14943c501ef8bdce5ee73c367d3d36c8ad70c9bc69540235faf6644ef838  apps/web/tests/visual/management-customization-forms.spec.ts

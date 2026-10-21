@@ -19,7 +19,8 @@ export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange
   return () => { element?.close(); requestAnimationFrame(() => previous?.focus()); };
  }, []);
  useEffect(() => { onPendingChange(true); return () => onPendingChange(false); }, [onPendingChange]);
- useEffect(() => { if (!busy && !uncertain && !applied) setQuantity(current => Math.max(1, Math.min(current, item.quantity))); }, [item.quantity, busy, uncertain, applied]);
+ const availableQuantity = Math.max(1, Math.min(quantity, item.quantity));
+ if (!busy && !uncertain && !applied && quantity !== availableQuantity) setQuantity(availableQuantity);
  async function refresh() { await onRefresh(); onClose(); }
  async function remove() {
   if (sending.current) return;

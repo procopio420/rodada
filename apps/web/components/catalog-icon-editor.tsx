@@ -82,7 +82,7 @@ export function CatalogIconEditor() {
   }
   if (!allowed) return null;
   return <section className="panel managementCatalog"><OperationalHeading as="h2" icon="cart">Gerenciar cardápio</OperationalHeading>
-    <div className="actions"><QuickCatalog station="BAR" chooseStation onResolved={() => void load()} /><button className="buttonSecondary" aria-haspopup="dialog" onClick={() => { setSelected(""); setLastPicked(""); setCategory(null); setQuery(""); setMessage(""); setOpen(true); }}>Editar produto e ícone</button></div>
+    <div className={styles.entryActions}><QuickCatalog station="BAR" chooseStation onResolved={() => void load()} /><button className="buttonSecondary" aria-haspopup="dialog" onClick={() => { setSelected(""); setLastPicked(""); setCategory(null); setQuery(""); setMessage(""); setOpen(true); }}>Editar produto e ícone</button></div>
     {open && <ActionDialog title={product ? `Editar ${product.name}` : category === null ? "Escolha uma categoria" : category || "Todos"} dialogClassName={styles.dialog} locked={busy} onClose={closeLayer} dismissOnBackdrop>
       {loading && <p role="status">Carregando cardápio…</p>}
       {loadError && <div className="notice" role="alert">{loadError}<button className="buttonQuiet" disabled={busy} onClick={() => void load()}>Tentar novamente</button></div>}

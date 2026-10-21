@@ -1,0 +1,37 @@
+[
+  {
+    "path": "apps/web/app/manage/pricing/page.tsx",
+    "line": 15,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/app/manage/printing/page.tsx",
+    "line": 24,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/app/manage/setup/page.tsx",
+    "line": 44,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/app/refunds/page.tsx",
+    "line": 55,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/components/catalog-customization-editor.tsx",
+    "line": 27,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/components/house-account.tsx",
+    "line": 108,
+    "rule": "react-hooks/set-state-in-effect"
+  },
+  {
+    "path": "apps/web/components/house-account.tsx",
+    "line": 115,
+    "rule": "react-hooks/set-state-in-effect"
+  }
+]

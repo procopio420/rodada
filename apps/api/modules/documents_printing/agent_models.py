@@ -173,11 +173,6 @@ class AgentPrinterRoute(models.Model):
     class Meta:
         constraints: ClassVar = [
             models.UniqueConstraint(fields=("endpoint", "printer"), name="printing_route_unique"),
-            models.UniqueConstraint(
-                fields=("endpoint",),
-                condition=models.Q(enabled=True),
-                name="printing_single_active_route",
-            ),
             models.CheckConstraint(
                 condition=models.Q(version__gte=1), name="printing_route_version"
             ),
