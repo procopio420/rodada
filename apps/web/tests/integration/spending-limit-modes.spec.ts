@@ -8,7 +8,7 @@ async function login(page: Page) {
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Agora", exact: true })).toBeVisible();
   await page.goto("/manage/spending-policy");
-  await expect(page.getByRole("region", { name: "Política de consumo atual" })).toContainText("Bloquear pedidos");
+  await expect(page.getByRole("region", { name: "Política de consumo atual" })).toBeVisible();
 }
 
 test("manager changes canonical policy; lost ACK reload reuses the original intent", async ({ page }) => {
@@ -70,4 +70,74 @@ test("manager changes canonical policy; lost ACK reload reuses the original inte
   expect(consumption.detail).toMatchObject({ spending_limit_mode: "WARN_ONLY", exposure_cents: 4000, consumption_blocked: false });
   expect(consumption.detail.orders).toHaveLength(1);
 
+});
+
+test("cookie swap after editor session read cannot change another Venue", async ({ page }) => {
+  await login(page);
+  let arm = false, captured = false, release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  let write: { status: number; code?: string } | undefined;
+  page.on("response", response => {
+    if (response.url().endsWith("/api/auth/reauthenticate") && response.ok()) arm = true;
+  });
+  await page.route("**/api/auth/me", async route => {
+    if (!arm || captured) return route.continue();
+    const response = await route.fetch();
+    captured = true;
+    await held;
+    await route.fulfill({ response });
+  });
+  await page.route("**/api/pos/house-account/enforcement/", async route => {
+    if (route.request().method() !== "PUT") return route.continue();
+    const response = await route.fetch();
+    write = { status: response.status(), code: (await response.json()).code };
+    await route.fulfill({ response });
+  });
+  await page.getByLabel("Modo do limite operacional").selectOption("ENFORCE");
+  await page.getByLabel("Motivo da alteração").fill("Synthetic captured A intent");
+  await page.getByLabel("Confirme seu PIN").fill("2468");
+  await page.getByRole("button", { name: "Confirmar alteração da política", exact: true }).click();
+  await expect.poll(() => captured).toBe(true);
+  try {
+    const statuses = await page.evaluate(async () => {
+      const login = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ venue_slug: "other-e2e", login_identifier: "test-other", pin: "2468" }) });
+      const reauth = await fetch("/api/auth/reauthenticate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin: "2468" }) });
+      return { login: login.status, reauth: reauth.status };
+    });
+    expect(statuses).toEqual({ login: 200, reauth: 200 });
+  } finally { release(); }
+  await expect.poll(() => write).toEqual({ status: 409, code: "ACTOR_CONTEXT_CHANGED" });
+  const foreign = await page.evaluate(async () => (await fetch("/api/pos/house-account/enforcement/")).json());
+  expect(foreign).toMatchObject({ mode: "ENFORCE", version: 1 });
+  expect(await page.evaluate(() => Object.keys(sessionStorage).filter(key => key.startsWith("rodada.spending-policy.v1:")))).toHaveLength(1);
+});
+
+test("Guest uses the same WARN_ONLY ledger and labels excess without claiming a block", async ({ page, browser }) => {
+  await login(page);
+  const api = (path: string, body?: unknown) => page.evaluate(async ({ path, body }) => {
+    const response = await fetch(`/api/pos/${path}`, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined);
+    if (!response.ok) throw new Error(`${path}: ${response.status}`);
+    return response.json();
+  }, { path, body });
+  const table = await api("hospitality/tables/", { label: "Guest WARN synthetic", guest_ordering_mode: "DIRECT" });
+  await api(`hospitality/tables/${table.id}/occupy/`, {});
+  const guestContext = await browser.newContext({ baseURL: new URL(page.url()).origin });
+  try {
+    const guest = await guestContext.newPage();
+    await guest.goto(`/guest/${table.public_token}`);
+    await guest.getByRole("button", { name: "Abrir minha comanda", exact: true }).click();
+    const bar = guest.getByRole("button", { name: /^Bar E2E item/ });
+    for (let i = 0; i < 8; i++) await bar.click();
+    let tabId = "";
+    guest.on("response", async response => {
+      if (response.url().includes("/api/guest/orders/confirm") && response.ok()) tabId = (await response.json()).tab_id;
+    });
+    await guest.getByRole("button", { name: /^Enviar ·/ }).click();
+    await expect(guest.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
+    await expect.poll(() => tabId).not.toBe("");
+    const detail = await api(`tabs/${tabId}/`);
+    expect(detail).toMatchObject({ spending_limit_mode: "WARN_ONLY", exposure_cents: 4000, limit_exceeded: true, consumption_blocked: false });
+    expect(detail.orders).toHaveLength(1);
+    await expect(guest.getByText("Consumo acima da referência. O estabelecimento utiliza o modo Só alertar.", { exact: true })).toBeVisible();
+  } finally { await guestContext.close(); }
 });
