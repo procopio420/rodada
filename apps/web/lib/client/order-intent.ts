@@ -28,7 +28,7 @@ function assertSaved(i: Intent) {
   if (sessionStorage.getItem(storageKey) !== JSON.stringify(i)) throw new Error("Order envelope changed");
 }
 
-export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>) {
+export function useOrderIntent(onConfirmed: (tab: string, order: string, origin: "draft" | "repeat") => Promise<() => void>, measureUx2: boolean) {
   const [ready, setReady] = useState(false), [pending, setPending] = useState<Intent | null>(null);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState("");
   const intentRef = useRef<Intent | null>(null), sending = useRef(false);
@@ -50,7 +50,7 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
     const recovering = !!intentRef.current;
-    let observation = intentRef.current ? beginOrderObservation(intentRef.current, true) : undefined;
+    let observation = measureUx2 && intentRef.current ? beginOrderObservation(intentRef.current, true) : undefined;
     try {
       const auth = await apiCall<StaffSessionView>("/api/auth/me");
       if (!auth.response.ok || !auth.body || !("session" in auth.body)) {
@@ -71,8 +71,10 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
         intentRef.current = i; setPending(i);
       }
       assertSaved(i);
-      if (!recovering) observeOrderIntentSaved(i);
-      observation ??= beginOrderObservation(i, false);
+      if (measureUx2) {
+        if (!recovering) observeOrderIntentSaved(i);
+        observation ??= beginOrderObservation(i, false);
+      }
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
         const error = asApiError(result.body);

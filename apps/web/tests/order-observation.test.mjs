@@ -4,7 +4,14 @@ import { beginOrderObservation, observeOrderIntentSaved } from '../lib/client/or
 
 const origin = { api_root: '/api/attendance', venue: 'fixture-venue', session: 'original-session',
   payload: { idempotency_key: 'a-random-financial-intent', lines: [{ note: 'never transmit' }] } };
-const drain = () => new Promise(resolve => setTimeout(resolve, 30));
+const drain = () => new Promise(resolve => setImmediate(resolve));
+async function until(predicate) {
+  const deadline = Date.now() + 5000;
+  while (!predicate()) {
+    assert.ok(Date.now() < deadline, 'observation did not complete');
+    await drain();
+  }
+}
 
 test('passive observations redact financial data and correlate a replay without sharing its key', async () => {
   const originalFetch = globalThis.fetch;
@@ -15,7 +22,7 @@ test('passive observations redact financial data and correlate a replay without 
     beginOrderObservation(origin, false).finish('UNKNOWN', 'UNCERTAIN');
     const replay = beginOrderObservation(origin, true);
     replay.finish('CONFIRMED'); replay.finish('UNKNOWN', 'UNCERTAIN');
-    await drain();
+    await until(() => sent.length === 3);
     assert.equal(sent.length, 3);
     assert.equal(new Set(sent.map(x => x.body.events[0].intent_ref)).size, 1);
     assert.ok(sent.every(x => /^[a-f0-9]{64}$/.test(x.body.events[0].intent_ref)));
@@ -38,11 +45,28 @@ test('unavailable telemetry is bounded and lossy, while legacy POS is not labell
   try {
     observeOrderIntentSaved({ ...origin, api_root: '/api/pos' });
     for (let count = 0; count < 40; count++) beginOrderObservation(origin, true).finish('UNKNOWN', 'UNCERTAIN');
-    await drain();
+    await until(() => requests === 8);
     assert.equal(requests, 8);
     release(); await drain();
     beginOrderObservation(origin, true).finish('CONFIRMED');
-    await drain();
+    await until(() => requests === 9);
     assert.equal(requests, 9);
   } finally { release(); globalThis.fetch = originalFetch; }
+});
+
+
+test('hash failure drops the observation without changing context or throwing', async () => {
+  const originalDigest = crypto.subtle.digest;
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  crypto.subtle.digest = async () => { throw new Error('hash unavailable'); };
+  globalThis.fetch = async () => { calls += 1; throw new Error('must not send'); };
+  try {
+    const copy = JSON.stringify(origin);
+    assert.doesNotThrow(() => observeOrderIntentSaved(origin));
+    assert.doesNotThrow(() => beginOrderObservation(origin, false).finish('UNKNOWN', 'UNCERTAIN'));
+    await drain();
+    assert.equal(calls, 0);
+    assert.equal(JSON.stringify(origin), copy);
+  } finally { crypto.subtle.digest = originalDigest; globalThis.fetch = originalFetch; }
 });

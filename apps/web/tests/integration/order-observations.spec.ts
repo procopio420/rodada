@@ -44,21 +44,35 @@ for (const unavailable of [false, true]) test(`Passive order observations preser
   await expect(page.getByRole("button", { name: "Verificar mesmo pedido" })).toBeEnabled();
   await expect.poll(() => observations.filter(e => e.kind === "ATTEMPT_FINISHED").length).toBe(1);
   expect(observations.find(e => e.kind === "ATTEMPT_FINISHED")?.outcome).toBe("UNKNOWN");
+  const saved = await page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"));
   await page.reload();
+  if (!unavailable) await page.route(/\/api\/attendance\/tabs\/[^/]+\/$/, async route => {
+    const response = await route.fetch();
+    if (attempts.length === 2) {
+      const body = await response.json();
+      await route.fulfill({ response, json: { ...body, orders: [] } });
+    } else await route.fulfill({ response });
+  });
   await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
+  if (!unavailable) {
+    await expect.poll(() => observations.filter(e => e.kind === "ATTEMPT_FINISHED").length).toBe(2);
+    expect(observations.filter(e => e.kind === "ATTEMPT_FINISHED")[1].outcome).toBe("UNKNOWN");
+    expect(await page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"))).toBe(saved);
+    await page.getByRole("button", { name: "Verificar mesmo pedido" }).click();
+  }
   await expect(page.getByText("Pedido confirmado.", { exact: true })).toBeVisible();
-  await expect.poll(() => observations.filter(e => e.kind === "ATTEMPT_FINISHED").length).toBe(2);
+  await expect.poll(() => observations.filter(e => e.kind === "ATTEMPT_FINISHED").length).toBe(unavailable ? 2 : 3);
   const finished = observations.filter(e => e.kind === "ATTEMPT_FINISHED");
-  expect(finished.map(e => [e.outcome, e.recovery])).toEqual([["UNKNOWN", false], ["CONFIRMED", true]]);
+  expect(finished.map(e => [e.outcome, e.recovery])).toEqual(unavailable ? [["UNKNOWN", false], ["CONFIRMED", true]] : [["UNKNOWN", false], ["UNKNOWN", true], ["CONFIRMED", true]]);
   expect(new Set(observations.map(e => e.intent_ref)).size).toBe(1);
-  expect(new Set(finished.map(e => e.attempt_id)).size).toBe(2);
+  expect(new Set(finished.map(e => e.attempt_id)).size).toBe(unavailable ? 2 : 3);
   expect(observations.filter(e => e.kind === "INTENT_SAVED")).toHaveLength(1);
   expect(observations.every(e => /^[a-f0-9]{64}$/.test(String(e.intent_ref)))).toBe(true);
-  expect(attempts).toHaveLength(2); expect(attempts[1]).toBe(attempts[0]);
+  expect(attempts).toHaveLength(unavailable ? 2 : 3); expect(new Set(attempts).size).toBe(1);
   const key = JSON.parse(attempts[0]).idempotency_key;
   expect(JSON.stringify(observations)).not.toContain(key);
   expect(observations.every(e => !["lines", "tab", "product_id", "message"].some(k => k in e))).toBe(true);
-  if (!unavailable) await expect.poll(() => observationStatuses).toEqual([204, 204, 204]);
+  if (!unavailable) await expect.poll(() => observationStatuses).toEqual([204, 204, 204, 204]);
   const detail = await page.evaluate(async id => (await fetch(`/api/pos/tabs/${id}/`)).json(), tabId);
   expect(detail.orders).toHaveLength(1); expect(detail.exposure_cents).toBe(1000); expect(detail.payments).toHaveLength(0);
   expect(await page.evaluate(() => sessionStorage.getItem("rodada.intent.staff-order.v1"))).toBeNull();
