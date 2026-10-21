@@ -28,10 +28,10 @@ class LiveDeliveryFreshnessTest {
     private val direct = OperationsHttpClient("http://10.0.2.2:18134/")
     private fun login() = AuthHttpClient("http://10.0.2.2:18134/").login(LoginRequest(
         args.getString("venue")!!, args.getString("operator")!!, args.getString("testPin")!!, "freshness-${UUID.randomUUID()}"))
-    private fun control(queue: Boolean = false, core: Boolean = false, hold: Boolean = false, action: String = "arm"): JSONObject {
+    private fun control(queue: Boolean = false, core: Boolean = false, hold: Boolean = false, action: String = "arm", service: Boolean = false): JSONObject {
         val c = URL("http://10.0.2.2:18136/__freshness/$action").openConnection() as HttpURLConnection
         c.requestMethod = "POST"; c.doOutput = true
-        c.outputStream.use { it.write(JSONObject().put("queue",queue).put("core",core).put("hold",hold).toString().toByteArray()) }
+        c.outputStream.use { it.write(JSONObject().put("queue",queue).put("core",core).put("hold",hold).put("service",service).toString().toByteArray()) }
         return try { JSONObject(c.inputStream.bufferedReader().readText()) } finally { c.disconnect() }
     }
     private fun model(): OperationsViewModel {
@@ -119,4 +119,55 @@ class LiveDeliveryFreshnessTest {
         assertEquals(ConnectivityState.ONLINE,vm.state.connectivity)
         assertNull(vm.state.deliveryTasksError);assertNull(vm.state.errorMessage)
     }
+    @Test fun heldServiceQueueDoesNotBlockCoreOrdersOrPublishAcrossABA() {
+        requireRunner(); control()
+        val a = login(); SecureSessionStore(context).save(a); val vm = model()
+        compose.runOnUiThread { vm.ensureLoaded(a) }
+        compose.waitUntil(30_000) { !vm.state.loading && vm.state.serviceRequestsFresh }
+        val original = vm.state.serviceRequests
+        val product = direct.products(a.tokens.accessToken).first { it.active && it.availability == "AVAILABLE" && it.priceCents in 1..1500 && it.variants.isEmpty() && it.modifierGroups.isEmpty() }
+        val tab = direct.openTab(a.tokens.accessToken, "Slow service ${UUID.randomUUID()}")
+        control(queue = true, hold = true, service = true)
+        compose.runOnUiThread { vm.refresh(a) }
+        compose.waitUntil(20_000) { control(action = "status").getBoolean("held") }
+        compose.waitUntil(10_000) { !vm.state.loading && vm.state.tabs.any { it.id == tab.id } }
+        assertEquals(ConnectivityState.ONLINE, vm.state.connectivity)
+        assertFalse(vm.state.serviceRequestsFresh)
+        assertEquals(original, vm.state.serviceRequests)
+        compose.runOnUiThread { vm.selectTab(a, tab.id) }
+        compose.waitUntil(15_000) { !vm.state.submitting && vm.state.selectedTab?.summary?.id == tab.id }
+        compose.runOnUiThread { vm.addProduct(product); vm.confirmOrder(a) }
+        compose.waitUntil(15_000) { !vm.state.submitting && vm.state.queuedOrders.isEmpty() }
+        val after = direct.tabDetail(a.tokens.accessToken, tab.id)
+        assertEquals(1, after.orders.size)
+        assertEquals(product.priceCents, after.summary.chargesCents)
+        val added = direct.openTab(a.tokens.accessToken, "Second core refresh ${UUID.randomUUID()}")
+        compose.runOnUiThread { vm.refresh(a) }
+        compose.waitUntil(10_000) { !vm.state.loading && vm.state.tabs.any { it.id == added.id } }
+        assertFalse(vm.state.serviceRequestsFresh)
+        assertTrue(control(action = "status").getBoolean("held")) // actual response is still in flight
+        control(service = true, action = "configure")
+        val b = login(); SecureSessionStore(context).save(b)
+        compose.runOnUiThread { vm.ensureLoaded(b) }
+        SecureSessionStore(context).save(a)
+        compose.runOnUiThread { vm.ensureLoaded(a) }
+        control(action = "release")
+        compose.waitUntil(30_000) { !vm.state.loading && vm.state.serviceRequestsFresh }
+        compose.waitUntil(30_000) { vm.viewModelScope.coroutineContext[Job]!!.children.none { it.isActive } }
+        assertNull(vm.state.serviceRequestsError)
+        assertNull(vm.state.errorMessage)
+        assertEquals(ConnectivityState.ONLINE, vm.state.connectivity)
+        control(queue = true, service = true)
+        compose.runOnUiThread { vm.refresh(a) }
+        compose.waitUntil(15_000) { !vm.state.loading && vm.state.serviceRequestsError != null }
+        assertFalse(vm.state.serviceRequestsFresh)
+        assertEquals(ConnectivityState.ONLINE, vm.state.connectivity)
+        compose.runOnUiThread { vm.updateServiceRequest(a, UUID.randomUUID().toString(), false) }
+        compose.waitUntil(10_000) { !vm.state.submitting }
+        assertTrue(vm.state.errorMessage!!.contains("Atualize as chamadas"))
+        control(); compose.runOnUiThread { vm.refresh(a) }
+        compose.waitUntil(15_000) { !vm.state.loading && vm.state.serviceRequestsFresh }
+        assertNull(vm.state.serviceRequestsError)
+    }
+
 }
