@@ -61,7 +61,10 @@ if sys.argv[2]=='0': TableOccupancy.objects.create(table=table,generation=table.
   }
   const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
   await expect(workspace).toBeVisible();
-  await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  // Contextual Abrir e pedir enters the catalog directly. Standalone fallback
+  // may still return the Tab home; its explicit Add action remains available.
+  const addItems = workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true });
+  if (!contextual && await addItems.isVisible()) await addItems.click();
   await expect(workspace.getByRole("heading", { name: "Adicionar itens.", exact: true })).toBeVisible();
 }
 

@@ -29,6 +29,7 @@ export async function selectAttendanceTab(page: Page, name: RegExp) {
 
 export async function attendanceDraft(page: Page) {
   const workspace = attendanceWorkspace(page);
+  await expect(workspace).toBeVisible();
   if (await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).isVisible())
     await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   await workspace.getByRole("button", { name: "Ver resumo", exact: true }).click();

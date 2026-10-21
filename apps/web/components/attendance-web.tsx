@@ -92,6 +92,8 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const [tableOpening, setTableOpening] = useState(false);
   const openingTableRequest = useRef(0);
   const [workspaceReturnFocus, setWorkspaceReturnFocus] = useState<HTMLElement | null>(null);
+  const returningTabFocus = useRef<{ tabId: string; ready: boolean } | null>(null);
+  const [returnFocusRead, setReturnFocusRead] = useState(0);
   const tableOpeningLock = useRef(false);
 
   const [screen, setScreen] = useState("now"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
@@ -155,7 +157,18 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     setScreen("tables");
   }, [failOrderOpen, setScreen]);
   const revealOrder = useCallback(() => setScreen("tables"), [setScreen]);
-  const closeOrder = useCallback(() => { clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh, clearTaskOrigin]);
+  const closeOrder = useCallback(() => { const target = orderContext ? { tabId: orderContext.tabId, ready: false } : null; returningTabFocus.current = target; clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh().finally(() => { if (target && returningTabFocus.current === target) { target.ready = true; setReturnFocusRead(value => value + 1); } }); }, [refresh, clearTaskOrigin, orderContext]);
+  useEffect(() => {
+    const target = returningTabFocus.current;
+    if (orderContext || loading || !online || !target?.ready) return;
+    const frame = requestAnimationFrame(() => {
+      if (returningTabFocus.current !== target) return;
+      const row = [...document.querySelectorAll<HTMLButtonElement>("button[data-tab-id]")].find(button => button.dataset.tabId === target.tabId);
+      if (row?.isConnected && !row.disabled) { row.focus(); returningTabFocus.current = null; }
+      else if (!row) returningTabFocus.current = null;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [orderContext, loading, online, tables, returnFocusRead]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);
   const visibleTables = tables.filter(table => (normalizeTable(table.label).includes(tableQuery) || table.active_occupancy?.tabs?.some(tab => normalizeCatalogSearch(`${tab.display_label} ${tab.display_reference || tabReference(tab)}`).includes(normalizeCatalogSearch(tableSearch)))));
@@ -180,7 +193,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       localStorage.setItem(storageKey, JSON.stringify(next)); setIntent(next);
       const result = await request<{ tab_id?: string; table_id?: string; table_label?: string }>(next.path, next.payload);
       localStorage.removeItem(storageKey); setIntent(null); setMessage("Operação confirmada.");
-      if (result.tab_id) { clearTaskOrigin(); setRequestedSurface("tab"); orderOrigin.current = {screen:"tables",tableId:result.table_id || null}; setRequestedTab(current => ({ id: result.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: result.table_label ? `Mesa ${result.table_label}` : "Comanda" })); setScreen("tables"); if (result.table_id) setSelectedTable(result.table_id); setOpeningAt(null); }
+      if (result.tab_id) { clearTaskOrigin(); setRequestedSurface(next.path.endsWith("/tabs/open/") || next.path.endsWith("/service/open-tab/") ? "catalog" : "tab"); orderOrigin.current = {screen:"tables",tableId:result.table_id || null}; setRequestedTab(current => ({ id: result.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: result.table_label ? `Mesa ${result.table_label}` : "Comanda" })); setScreen("tables"); if (result.table_id) setSelectedTable(result.table_id); setOpeningAt(null); }
       else if (result.table_id) { setSelectedTable(result.table_id); setScreen("tables"); }
       setTakeoverAt(null); setMoving(null); await refresh(undefined, true);
     } catch (failure) {

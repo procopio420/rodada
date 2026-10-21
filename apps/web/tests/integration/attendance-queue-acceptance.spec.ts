@@ -50,6 +50,7 @@ for (const width of [360, 390, 430]) test(`real service queue conflict, stale an
 
   const otherContext = await browser.newContext({ baseURL: `http://127.0.0.1:${process.env.RODADA_E2E_WEB_PORT ?? 3110}` });
   const other = await otherContext.newPage();
+  await other.clock.install();
   await login(other, "test-staff");
   const otherRow = other.getByRole("article").filter({ hasText: `Mesa ${label}` });
   await otherRow.getByRole("button", { name: /Escolher comanda/ }).click();
@@ -76,6 +77,9 @@ for (const width of [360, 390, 430]) test(`real service queue conflict, stale an
   await context.getByRole("button", { name: "Verificar mesma chamada" }).click();
   await expect(context.getByRole("button", { name: "Verificar mesma chamada" })).toHaveCount(0);
 
+  // Freeze only this browser after the real polling-fallback proof above.
+  // A background poll must not consume the lost-ACK recovery before its click.
+  await other.clock.pauseAt(new Date(Date.now() + 1000));
   const attempts: { url: string; body: string | null }[] = [];
   await other.route(`**/api/attendance/dispatch/requests/${task.id}/complete/`, async route => {
     attempts.push({ url: new URL(route.request().url()).pathname, body: route.request().postData() });

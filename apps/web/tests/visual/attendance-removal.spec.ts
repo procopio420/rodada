@@ -1,4 +1,4 @@
-import { openOtherTabs } from "./attendance-actions";
+import { openAttendanceTab, attendanceWorkspace } from "./attendance-actions";
 import { expect, test } from "@playwright/test";
 import { fixture, layoutAndA11y } from "./fixtures";
 for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance removal handles ${outcome}`, async ({ page }) => {
@@ -19,17 +19,13 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
   return route.fulfill({ json: { status: "APPLIED", financial_disposition: "REVERSED", order_item_state: "CANCELLED" } });
  });
  await page.goto("/attendance");
- await openOtherTabs(page);
- await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
- const bill = page.getByRole("region", { name: "Valores da comanda" });
+ await openAttendanceTab(page);
+ await attendanceWorkspace(page).getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+ const bill = page.getByLabel("Resumo da conta", { exact: true });
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Subtotal", { exact: true }) }).getByText("R$ 7,50")).toBeVisible();
- const removalButton = page.getByRole("button", { name: "Remover 1× Item confirmado", exact: true });
- await expect(removalButton).toHaveText("");
- await expect(removalButton.locator("svg")).toHaveAttribute("aria-hidden", "true");
- const removalTarget = await removalButton.boundingBox();
- expect(removalTarget!.width).toBeGreaterThanOrEqual(44);
- expect(removalTarget!.height).toBeGreaterThanOrEqual(44);
+ const removalButton = page.getByRole("button", { name: "Remover Item confirmado", exact: true });
+ await expect(removalButton).toHaveText("Remover Item confirmado");
+ await layoutAndA11y(page);
  await page.screenshot({ path: `../../visual-artifacts/pilot-cohesion/attendance-sections-${width}.png`, fullPage: true });
  await removalButton.click();
  const form = page.getByRole("dialog", { name: "Remover 1× Item confirmado?" });
@@ -43,7 +39,10 @@ for (const outcome of ["lost", "paid", "preparing"] as const) test(`Attendance r
  await form.getByRole("button", { name: "Confirmar remoção" }).click();
  if (outcome === "lost") {
   await expect(form.getByRole("button", { name: "Verificar mesma remoção" })).toBeEnabled();
-  await expect(page.getByRole("button", { name: "Mesas e comandas", exact: true, includeHidden: true })).toBeDisabled();
+  await expect(attendanceWorkspace(page).getByRole("button", { name: "Voltar", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true })).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(form).toBeVisible();
   await expect(page.getByLabel("Motivo da remoção")).toBeDisabled();
   await form.getByRole("button", { name: "Verificar mesma remoção" }).click();
   await expect(form).toHaveCount(0);
@@ -80,10 +79,9 @@ for (const width of [360, 390, 430]) test(`Attendance removes selected units and
   return route.fulfill({ json: { status: "APPLIED", order_item_state: item.state, quantity_cancelled: body.quantity, remaining_quantity: remaining } });
  });
  await page.goto("/attendance");
- await openOtherTabs(page);
- await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
- await page.getByRole("button", { name: "Remover 3× Item confirmado", exact: true }).click();
+ await openAttendanceTab(page);
+ await attendanceWorkspace(page).getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+ await page.getByRole("button", { name: "Remover Item confirmado", exact: true }).click();
  let dialog = page.getByRole("dialog", { name: /^Remover / });
  const count = dialog.getByRole("group", { name: "Quantidade a remover" }).locator("output");
  await expect(count).toHaveText("1");
@@ -104,21 +102,17 @@ for (const width of [360, 390, 430]) test(`Attendance removes selected units and
   expect(requests[0]).toBe(requests[1]);
  }
  await expect(page.getByRole("dialog", { name: /^Remover / })).toHaveCount(0);
- await expect(page.getByText("2× Item confirmado", { exact: true })).toBeVisible();
+ await expect(page.getByText("2× Item confirmado · Novo", { exact: true })).toBeVisible();
  expect(remaining).toBe(2);
- await page.getByRole("button", { name: "Remover 2× Item confirmado", exact: true }).click();
+ await page.getByRole("button", { name: "Remover Item confirmado", exact: true }).click();
  dialog = page.getByRole("dialog", { name: /^Remover / });
  await dialog.getByRole("button", { name: "Aumentar quantidade a remover" }).click();
  await dialog.getByRole("button", { name: "Confirmar remoção" }).click();
  await expect(page.getByRole("dialog", { name: /^Remover / })).toHaveCount(0);
  await expect(page.getByText("Item confirmado", { exact: false })).toHaveCount(0);
  expect(remaining).toBe(0);
- const order = await page.locator(".attendanceSelectedTab").evaluate(element => {
-  const summary = element.querySelector('[aria-label="Valores da comanda"]')!;
-  const close = element.querySelector(".attendanceCloseTab")!;
-  return summary.nextElementSibling === close && !close.nextElementSibling;
- });
- expect(order).toBe(true);
+ await expect(page.getByLabel("Resumo da conta", { exact: true }).getByText("R$ 0,00", { exact: true }).first()).toBeVisible();
+ await expect(attendanceWorkspace(page).getByRole("button", { name: "Encerrar comanda", exact: true })).toBeEnabled();
 });
 for (const width of [360, 390, 430]) test(`Wrong-entry removal is absent from bill details at ${width}`, async ({ page }) => {
  await fixture(page, "normal", true);
@@ -127,19 +121,17 @@ for (const width of [360, 390, 430]) test(`Wrong-entry removal is absent from bi
  await page.route("**/api/attendance/tabs/", route => route.fulfill({ json: { results: [tab] } }));
  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: tab }));
  await page.goto("/attendance");
- await openOtherTabs(page);
- await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
- const bill = page.getByRole("region", { name: "Valores da comanda" });
+ await openAttendanceTab(page);
+ await attendanceWorkspace(page).getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
+ const bill = page.getByLabel("Resumo da conta", { exact: true });
  await bill.getByText("Mais detalhes", { exact: true }).click();
  await expect(bill.getByText("Correções", { exact: true })).toHaveCount(0);
  await expect(bill.getByText("Itens retirados por engano", { exact: true })).toHaveCount(0);
  await expect(bill.getByText("R$ 24,00", { exact: true }).first()).toBeVisible();
  await page.route("**/api/attendance/tabs/tab-test/", route => route.fulfill({ json: { ...tab, corrections_cents: -1400, payable_cents: 2200, exposure_cents: 2200 } }));
  await page.reload();
- await openOtherTabs(page);
- await page.getByRole("button", { name: /Comanda de teste ·/ }).click();
- await page.locator(".attendanceOrderDialog").getByRole("button", { name: "Conta", exact: true }).click();
+ await openAttendanceTab(page);
+ await attendanceWorkspace(page).getByRole("button", { name: "Conferir / fechar conta", exact: true }).click();
  await bill.getByText("Mais detalhes", { exact: true }).click();
  await expect(bill.locator(".dataRow").filter({ has: page.getByText("Correções", { exact: true }) }).getByText("-R$ 2,00", { exact: true })).toBeVisible();
  await layoutAndA11y(page);
