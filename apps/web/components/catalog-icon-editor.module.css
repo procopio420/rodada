@@ -31,3 +31,15 @@
 
 .products > button { width: 100%; justify-content: flex-start; overflow-wrap: anywhere; }
 .products :global(.productIcon) { width: var(--touch-primary); height: var(--touch-primary); }
+.entryActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.entryActions > button { width: 100%; min-height: var(--touch-primary); white-space: normal; }
+@media (min-width: 48rem) {
+  .entryActions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.entryActions > :global(.quickCatalog) { margin: 0; min-width: 0; }
+.entryActions > :global(.quickCatalog) > button { width: 100%; min-height: var(--touch-primary); white-space: normal; }
+.entryActions > :global(.quickCatalog):has(:global(.quickCatalogPanel)) { grid-column: 1 / -1; }

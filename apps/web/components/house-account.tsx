@@ -1,6 +1,7 @@
 "use client";
 
 import { OperationalHeading } from "@/components/operational-heading";
+import styles from "./house-account.module.css";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError, StaffSessionView } from "@/lib/client/staff-auth";
@@ -60,10 +61,14 @@ async function activeTabs(): Promise<Tab[]> {
   return [...new Map(tabs.map(tab => [tab.id, tab])).values()];
 }
 
+function readHouseResources() {
+  return Promise.all([call<StaffSessionView>("/api/auth/me"), activeTabs()]);
+}
+
 export function HouseAccount() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [session, setSession] = useState<StaffSessionView | null>(null);
-  const [selected, setSelected] = useState<Tab | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [history, setHistory] = useState<Audit[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
@@ -88,44 +93,48 @@ export function HouseAccount() {
   const canApprove = session?.capabilities.includes("tab.limit.override");
   const canManage = session?.capabilities.includes("customer.manage");
 
+  const selected = tabs.find(tab => tab.id === selectedId) ?? null;
+  const applyResources = useCallback(([me, data]: Awaited<ReturnType<typeof readHouseResources>>) => {
+    const key = `${me.venue.id}:${me.staff.id}:${me.session.id}`;
+    if (actorContext.current && actorContext.current !== key) {
+      setPin(""); setSelectedId(null); setHistory([]); setCustomers([]); setVisits([]);
+      overrideIntent.current = null;
+      setOverrideIntentPending(false);
+    }
+    actorContext.current = key;
+    setSession(me); setTabs(data);
+    setSelectedId(current => data.some(tab => tab.id === current) ? current : null);
+    setStale(false); setError("");
+  }, []);
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const [me, data] = await Promise.all([call<StaffSessionView>("/api/auth/me"), activeTabs()]);
-      const key = `${me.venue.id}:${me.staff.id}:${me.session.id}`;
-      if (actorContext.current && actorContext.current !== key) {
-        setPin(""); setSelected(null); setHistory([]); setCustomers([]); setVisits([]);
-        overrideIntent.current = null;
-        setOverrideIntentPending(false);
-      }
-      actorContext.current = key;
-      setSession(me); setTabs(data); setStale(false); setError("");
-    } catch (failure) { setStale(true); setError(failure instanceof Error ? failure.message : "Falha ao atualizar comandas."); }
+    try { applyResources(await readHouseResources()); }
+    catch (failure) { setStale(true); setError(failure instanceof Error ? failure.message : "Falha ao atualizar comandas."); }
     finally { setLoading(false); }
-  }, []);
+  }, [applyResources]);
   useEffect(() => {
-    void load();
+    let active = true;
+    void readHouseResources().then(results => { if (active) applyResources(results); }).catch(failure => {
+      if (active) { setStale(true); setError(failure instanceof Error ? failure.message : "Falha ao atualizar comandas."); }
+    }).finally(() => { if (active) setLoading(false); });
     const offline = () => setStale(true);
     const timer = window.setInterval(() => { if (document.visibilityState === "visible") void load(); }, 15000);
     window.addEventListener("online", load); window.addEventListener("focus", load); window.addEventListener("offline", offline);
-    return () => { clearInterval(timer); window.removeEventListener("online", load); window.removeEventListener("focus", load); window.removeEventListener("offline", offline); };
-  }, [load]);
-  useEffect(() => {
-    if (selected) setSelected(tabs.find(t => t.id === selected.id) ?? null);
-  }, [tabs, selected]);
+    return () => { active = false; clearInterval(timer); window.removeEventListener("online", load); window.removeEventListener("focus", load); window.removeEventListener("offline", offline); };
+  }, [applyResources, load]);
 
-  async function action(work: () => Promise<void>) {
+  async function action(work: () => Promise<void>, successMessage: string | null = "Alteração confirmada. Estado atualizado.") {
     setBusy(true); setError(""); setNotice("");
-    try { await work(); setNotice("Alteração confirmada. Estado atualizado."); await load(); }
+    try { await work(); if (successMessage) setNotice(successMessage); await load(); }
     catch (failure) { setError(failure instanceof Error ? failure.message : "Falha na operação. Atualize antes de repetir."); }
     finally { setBusy(false); setPin(""); }
   }
   async function reauth() { await call("/api/auth/reauthenticate", { pin }); }
   async function inspect(tab: Tab) {
-    setSelected(tab); setHistory([]); setReason(""); setAmount("");
+    setSelectedId(tab.id); setHistory([]); setReason(""); setAmount("");
     overrideIntent.current = null;
     setOverrideIntentPending(false);
-    await action(async () => { const data = await call<{ results: Audit[] }>(`/api/pos/tabs/${tab.id}/house-history/`); setHistory(data.results); });
+    await action(async () => { const data = await call<{ results: Audit[] }>(`/api/pos/tabs/${tab.id}/house-history/`); setHistory(data.results); }, null);
   }
   async function approve() {
     if (!selected) return;
@@ -183,22 +192,30 @@ export function HouseAccount() {
     </>}
     {canManage && <>
       <h3>Clientes e relacionamento</h3>
+      <fieldset className={styles.group}><legend>Buscar cliente</legend>
+      <div className={styles.search}>
       <div className="field"><label htmlFor="house-search">Buscar nome ou telefone</label><input id="house-search" value={query} onChange={e => setQuery(e.target.value)} /></div>
-      <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const data = await call<{ results: Customer[] }>(`/api/pos/customers/?q=${encodeURIComponent(query)}`); setCustomers(data.results); })}>Buscar</button>
+      <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const data = await call<{ results: Customer[] }>(`/api/pos/customers/?q=${encodeURIComponent(query)}`); setCustomers(data.results); }, null)}>Buscar</button>
+      </div>
+      </fieldset>
+      <fieldset className={styles.group}><legend>Cadastro e relacionamento</legend>
+      <div className={styles.fields}>
       <div className="field"><label htmlFor="house-name">Nome do novo cliente</label><input id="house-name" value={customerName} onChange={e => setCustomerName(e.target.value)} /></div>
       <div className="field"><label htmlFor="house-kind">Relacionamento</label><select id="house-kind" value={kind} onChange={e => setKind(e.target.value)}>{kinds.map(k => <option value={k} key={k}>{labels[k]}</option>)}</select></div>
+      </div>
       <div className="field"><label htmlFor="house-customer-pin">Seu PIN para alterar relacionamento/política</label><input id="house-customer-pin" type="password" autoComplete="off" value={pin} disabled={busy || stale} onChange={e => setPin(e.target.value)} /></div>
       <button className="buttonPrimary" disabled={busy || stale || !customerName} onClick={() => void action(async () => { const customer = await call<Customer>("/api/pos/customers/", { display_name: customerName, kind }); setCustomers([...customers, customer]); setCustomerName(""); })}>Criar cliente</button>
-      {customers.map(customer => <div className="movement" key={customer.id}><div><strong>{customer.display_name}</strong><small>{labels[customer.kind]} · {customer.phone}</small></div><div className="actions">
+      </fieldset>
+      {customers.map(customer => <article className={styles.customerRow} aria-label={customer.display_name} key={customer.id}><div><strong>{customer.display_name}</strong><small>{labels[customer.kind]} · {customer.phone}</small></div><div className={styles.customerActions}>
         <button className="buttonQuiet" disabled={busy || stale || !pin} onClick={() => void action(async () => { await reauth(); const updated = await call<Customer>(`/api/pos/customers/${customer.id}/`, { kind }, "PATCH"); setCustomers(customers.map(c => c.id === updated.id ? updated : c)); })}>Aplicar {labels[kind]}</button>
         {selected && <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { await call(`/api/pos/tabs/${selected.id}/customer/`, { customer_id: customer.id }); })}>Associar à comanda</button>}
-        <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const detail = await call<Customer & { tabs: Tab[] }>(`/api/pos/customers/${customer.id}/`); setVisits(detail.tabs); })}>Ver visitas</button>
-      </div></div>)}
+        <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const detail = await call<Customer & { tabs: Tab[] }>(`/api/pos/customers/${customer.id}/`); setVisits(detail.tabs); }, null)}>Ver visitas</button>
+      </div></article>)}
       {visits.map(t => <div className="dataRow" key={t.id}><span>{t.display_label || t.id} · {t.state}</span><strong>{money(t.exposure_cents)}</strong></div>)}
       <p className="muted">Alterar relacionamento afeta novas comandas. Reavalie uma comanda aberta explicitamente para aplicar a nova política.</p>
       <h3>Políticas do estabelecimento</h3>
       <div className="field"><label htmlFor="house-policy-limit">Limite da categoria (centavos)</label><input id="house-policy-limit" type="number" min="0" value={policyAmount} disabled={busy || stale} onChange={e => setPolicyAmount(e.target.value)} /></div>
-      <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const data = await call<{ results: Policy[] }>("/api/pos/house-account/policies/"); setPolicies(data.results); })}>Ver políticas</button>
+      <button className="buttonQuiet" disabled={busy || stale} onClick={() => void action(async () => { const data = await call<{ results: Policy[] }>("/api/pos/house-account/policies/"); setPolicies(data.results); }, null)}>Ver políticas</button>
       {policies.map(p => <div className="dataRow" key={p.kind}><span>{labels[p.kind]} · versão {p.version}</span><strong>{money(p.limit_cents)}</strong></div>)}
       {session?.capabilities.includes("venue.configure") && <button className="buttonQuiet" disabled={busy || stale || !pin || !policyAmount} onClick={() => void action(async () => { await reauth(); await call("/api/pos/house-account/policies/", { kind, limit_cents: Number(policyAmount) }, "PUT"); const data = await call<{ results: Policy[] }>("/api/pos/house-account/policies/"); setPolicies(data.results); })}>Salvar limite em centavos para {labels[kind]}</button>}
     </>}

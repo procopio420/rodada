@@ -5,12 +5,17 @@ separate seed subprocess issues PostgreSQL TRUNCATE between spec files. A
 shared/exclusive POSIX flock prevents that publisher from querying half-reset
 tables or deadlocking TRUNCATE. Normal API processes never import this module.
 """
-from contextlib import contextmanager
-import fcntl
+import errno
 import os
-from pathlib import Path
 import tempfile
 import time
+from contextlib import contextmanager
+from pathlib import Path
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
 
 
 @contextmanager
@@ -18,11 +23,31 @@ def file_lock(path: Path, *, exclusive: bool):
     """Cross-process lock held for the *entire* operation, not just acquisition."""
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     with path.open("a+b") as lock_file:
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
-        try:
-            yield
-        finally:
-            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        if os.name == "nt":
+            # Windows readers serialize too: stronger exclusion, same reset safety.
+            if path.stat().st_size == 0:
+                lock_file.write(b"0")
+                lock_file.flush()
+            lock_file.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError as error:
+                    if error.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
+                        raise
+                    time.sleep(0.05)
+            try:
+                yield
+            finally:
+                lock_file.seek(0)
+                msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 @contextmanager
@@ -43,7 +68,8 @@ def e2e_database_guard(*, exclusive: bool):
         raise RuntimeError("E2E database lock requires local PostgreSQL rodada_web_e2e")
 
     # One lock for every subprocess sharing this disposable DB, across test runs.
-    private_dir = Path(tempfile.gettempdir()) / f"rodada-e2e-{os.getuid()}"
+    identity = "windows" if os.name == "nt" else str(os.getuid())
+    private_dir = Path(tempfile.gettempdir()) / f"rodada-e2e-{identity}"
     with file_lock(private_dir / "rodada_web_e2e.lock", exclusive=exclusive):
         yield
 

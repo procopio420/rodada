@@ -1,0 +1,19 @@
+.group { min-width: 0; margin: var(--space-4) 0; padding: var(--space-4) 0 0; border: 0; border-top: 1px solid var(--color-border); }
+.group legend { padding: 0 var(--space-3) 0 0; color: var(--color-text); font-weight: 800; }
+.fields, .search { display: grid; gap: var(--space-3); }
+.group :global(.field) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.group label { overflow-wrap: anywhere; }
+.fields :global(.field), .search :global(.field) { min-width: 0; margin: 0; }
+.fields { margin-bottom: var(--space-3); }
+.search input, .fields input, .fields select { width: 100%; min-width: 0; min-height: var(--touch-min); }
+.search button { min-height: var(--touch-min); }
+.customerRow { display: grid; gap: var(--space-3); padding-block: var(--space-4); border-top: 1px solid var(--color-border); overflow-wrap: anywhere; }
+.customerRow > div { min-width: 0; }
+.customerRow small { display: block; margin-top: var(--space-1); color: var(--color-text-muted); font-size: var(--text-sm); }
+.customerActions { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.customerActions button { min-width: 0; min-height: var(--touch-min); }
+@media (min-width: 768px) {
+  .customerActions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .search { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+}

@@ -3,8 +3,9 @@
 import { OperationalHeading } from "@/components/operational-heading";
 import { useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
+import styles from "./customization-availability.module.css";
 import type { OrderingProduct } from "./product-customization";
-export function CustomizationAvailability({ products, onChanged }: { products: OrderingProduct[]; onChanged: () => Promise<void> }) {
+export function CustomizationAvailability({ products, onChanged, managementLayout = false }: { products: OrderingProduct[]; onChanged: () => Promise<void>; managementLayout?: boolean }) {
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
   async function change(productId: string, kind: string, id: string, availability: string, version: number) {
@@ -17,5 +18,5 @@ export function CustomizationAvailability({ products, onChanged }: { products: O
     finally { setPending(false); }
   }
   if (!products.some(p => p.variants?.length || p.modifier_groups?.length)) return null;
-  return <section className="panel"><OperationalHeading as="h2" icon="cart">Variações e opções disponíveis</OperationalHeading>{message && <p className="notice" data-state="danger" role="alert">{message}</p>}{products.map(p => <div key={p.id}>{(p.variants ?? []).map(v => <div className="dataRow" key={v.id}><span>{p.name} · {v.name}</span><button className="buttonSecondary" disabled={pending} onClick={() => void change(p.id, "variant", v.id, v.availability, v.version)}>{v.availability === "AVAILABLE" ? "Indisponibilizar" : "Reativar"} {v.name}</button></div>)}{(p.modifier_groups ?? []).map(g => <div key={g.id}>{g.options.map(o => <div className="dataRow" key={o.id}><span>{p.name} · {g.name} · {o.name}</span><button className="buttonSecondary" disabled={pending} onClick={() => void change(p.id, "option", o.id, o.availability, o.version)}>{o.availability === "AVAILABLE" ? "Indisponibilizar" : "Reativar"} {o.name}</button></div>)}</div>)}</div>)}</section>;
+  return <section className={managementLayout ? `panel ${styles.panel}` : "panel"} aria-label={managementLayout ? "Variações e opções disponíveis" : undefined} data-management-availability={managementLayout || undefined}><OperationalHeading as="h2" icon="cart">Variações e opções disponíveis</OperationalHeading>{message && <p className="notice" data-state="danger" role="alert">{message}</p>}{products.map(p => <div key={p.id}>{(p.variants ?? []).map(v => <div className={managementLayout ? styles.row : "dataRow"} key={v.id}><span>{p.name} · {v.name}</span><button className="buttonSecondary" disabled={pending} onClick={() => void change(p.id, "variant", v.id, v.availability, v.version)}>{v.availability === "AVAILABLE" ? "Indisponibilizar" : "Reativar"} {v.name}</button></div>)}{(p.modifier_groups ?? []).map(g => <div key={g.id}>{g.options.map(o => <div className={managementLayout ? styles.row : "dataRow"} key={o.id}><span>{p.name} · {g.name} · {o.name}</span><button className="buttonSecondary" disabled={pending} onClick={() => void change(p.id, "option", o.id, o.availability, o.version)}>{o.availability === "AVAILABLE" ? "Indisponibilizar" : "Reativar"} {o.name}</button></div>)}</div>)}</div>)}</section>;
 }

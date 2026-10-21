@@ -1,0 +1,3 @@
+68a5b480963eeff869fa31be3a8f4e2b8126c4e87d6070b01aadb2318b285a71  apps/web/components/pricing-adjustments.tsx
+2195c997634c35b45063253c54effcd5d77ea9d93288bbacbe8b665bab8df11b  apps/web/tests/visual/pricing-read-recovery.spec.ts
+ab27031c56b0efcc78ffe437779c49e2b727c5d79c1db84b570fbcf19457fac5  apps/web/tests/visual/pricing.spec.ts

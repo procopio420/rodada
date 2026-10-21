@@ -50,6 +50,18 @@ function messageFor(error: ApiError, fallback: string) {
   return error.message || fallback;
 }
 
+async function readGuestStart(qrToken: string, storageKey: string) {
+  let cached: { products: Product[]; fetchedAt: number } | null = null;
+  try { cached = JSON.parse(sessionStorage.getItem(`rodada.guest.catalog.${qrToken}`) || "null"); } catch {}
+  let recovering: boolean;
+  try { sessionStorage.removeItem(storageKey); recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
+  catch { return { cached, result: null, storageError: true }; }
+  const result = recovering ? await guestApi<Context>("context/", qrToken) : await guestApi<Context>("qr/resolve/", qrToken, {
+    method: "POST", body: JSON.stringify({ token: qrToken }),
+  });
+  return { cached, result, storageError: false };
+}
+
 export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const [catalogSearch, setCatalogSearch] = useState("");
   const [category, setCategory] = useState("Todos");
@@ -72,7 +84,10 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
   const [label, setLabel] = useState("");
   const [receipt, setReceipt] = useState("");
   const [receiptError, setReceiptError] = useState("");
-  useEffect(() => { setReceipt(""); setReceiptError(""); }, [guestToken, context?.tab?.id]);
+  const [receiptScope, setReceiptScope] = useState({ token: guestToken, tabId: context?.tab?.id });
+  if (receiptScope.token !== guestToken || receiptScope.tabId !== context?.tab?.id) {
+    setReceiptScope({ token: guestToken, tabId: context?.tab?.id }); setReceipt(""); setReceiptError("");
+  }
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -122,8 +137,9 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     }
   }
 
-  const loadCatalog = useCallback(async (token: string) => {
+  const loadCatalog = useCallback(async (token: string, active: () => boolean = () => true) => {
     const result = await guestApi<{ results: Product[] }>("catalog/", token);
+    if (!active()) return false;
     if (result.ok) {
       const next = (result.body as { results: Product[] }).results;
       setProducts(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
@@ -134,17 +150,12 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     return false;
   }, [qrToken]);
 
-  const resolve = useCallback(async () => {
-    setLoading(true);
-    setNotice("");
-    try { const cached = JSON.parse(sessionStorage.getItem(`rodada.guest.catalog.${qrToken}`) || "null"); if (cached) { setProducts(cached.products); setCatalogCachedAt(cached.fetchedAt); } } catch {}
+  const applyGuestStart = useCallback(async (start: Awaited<ReturnType<typeof readGuestStart>>, active: () => boolean = () => true) => {
+    if (!active()) return;
+    if (start.cached) { setProducts(start.cached.products); setCatalogCachedAt(start.cached.fetchedAt); }
+    if (start.storageError || !start.result) { setNotice("Não foi possível acessar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
+    const result = start.result;
     const stored = qrToken;
-    let recovering: boolean;
-    try { sessionStorage.removeItem(storageKey); recovering = sessionStorage.getItem(guestOrderStorageKey(qrToken)) !== null; }
-    catch { setNotice("Não foi possível acessar sua sessão. Peça ajuda à equipe."); setLoading(false); return; }
-    const result = recovering ? await guestApi<Context>("context/", stored) : await guestApi<Context>("qr/resolve/", stored, {
-      method: "POST", body: JSON.stringify({ token: qrToken }),
-    });
     if (!result.ok) {
       if ((result.body as ApiError).code === "GUEST_SESSION_REVOKED") sessionStorage.removeItem(storageKey);
       setNotice(messageFor(result.body as ApiError, "Não foi possível abrir esta mesa."));
@@ -161,11 +172,19 @@ export function GuestOrdering({ qrToken }: { qrToken: string }) {
     // Authorization stays in a host-only HttpOnly cookie, never sessionStorage.
     setGuestToken(token);
     setContext(body);
-    await loadCatalog(token);
-    setLoading(false);
+    await loadCatalog(token, active);
+    if (active()) setLoading(false);
   }, [loadCatalog, qrToken, storageKey]);
 
-  useEffect(() => { void resolve(); }, [resolve]);
+  const resolve = useCallback(async () => {
+    setLoading(true); setNotice("");
+    await applyGuestStart(await readGuestStart(qrToken, storageKey));
+  }, [applyGuestStart, qrToken, storageKey]);
+  useEffect(() => {
+    let active = true;
+    void readGuestStart(qrToken, storageKey).then(start => applyGuestStart(start, () => active));
+    return () => { active = false; };
+  }, [applyGuestStart, qrToken, storageKey]);
 
   const refresh = useCallback(async () => {
     if (!guestToken) return;

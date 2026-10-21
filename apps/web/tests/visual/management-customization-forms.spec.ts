@@ -1,0 +1,34 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y, stable } from "./fixtures";
+for (const width of [360, 390, 430, 1280]) for (const kind of ["variação", "grupo", "opção"]) test(`customization form ${kind} ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  await page.route("**/api/pos/catalog/products/*/customization/", route => route.fulfill({ json: { variants: [], modifier_groups: [{ id: "group-test", name: "Grupo de teste", active: true, selection_mode: "MULTI", min_selections: 0, max_selections: 3, version: 1, sort_order: 0, options: [] }], reusable_groups: [] } }));
+  const writes: string[] = [];
+  page.on("request", r => { if (r.url().includes("/api/") && !["GET", "HEAD"].includes(r.method())) writes.push(r.url()); });
+  await page.goto("/manage/catalog");
+  await expect(page.getByLabel("Produto", { exact: true }).locator("option")).not.toHaveCount(1);
+  await page.getByLabel("Produto", { exact: true }).selectOption({ index: 1 });
+  await page.getByRole("button", { name: kind === "opção" ? "Criar opção em Grupo de teste" : `Criar ${kind}`, exact: true }).click();
+  await page.getByLabel("Nome", { exact: true }).fill("Configuração de teste");
+  if (kind !== "grupo") await page.getByLabel(kind === "variação" ? "Preço em centavos" : "Adicional em centavos", { exact: true }).fill("1250");
+  await stable(page);
+  const phase = process.env.RODADA_S4D_BASELINE === "1" ? "before" : "after";
+  await page.locator("form").screenshot({ path: `../../visual-artifacts/spec034-customization-forms/${phase}-${kind}-${width}.png` });
+  if (phase === "before") return;
+  await expect(page.getByRole("form", { name: `Criar ${kind}`, exact: true })).toBeVisible();
+  if (kind === "grupo") {
+    await expect(page.getByLabel("Máximo", { exact: true })).toBeDisabled();
+    await page.getByLabel("Seleção", { exact: true }).selectOption("MULTI");
+    await expect(page.getByLabel("Máximo", { exact: true })).toBeEnabled();
+    await page.getByLabel("Máximo", { exact: true }).fill("3");
+  } else await expect(page.getByLabel("Prioridade do grupo neste produto", { exact: true })).toBeDisabled();
+  await layoutAndA11y(page);
+  await page.addStyleTag({ content: 'form { zoom: 2; }' });
+  await layoutAndA11y(page);
+  await page.locator("form").screenshot({ path: `../../visual-artifacts/spec034-customization-forms/after-${kind}-${width}-zoom200.png` });
+  await expect(page.getByLabel("Nome", { exact: true })).toHaveValue("Configuração de teste");
+  await page.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.locator("form")).toHaveCount(0);
+  expect(writes).toEqual([]);
+});

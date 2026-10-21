@@ -1,0 +1,32 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y, stable } from "./fixtures";
+
+for (const width of [360, 390, 430, 1280]) test(`pending refund recovery ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  const commands: string[] = [];
+  await page.route("**/api/pos/payments/payment-test/refunds/", route => { commands.push(route.request().postData()!); return route.abort(); });
+  await page.goto("/refunds");
+  await page.getByLabel("Comanda", { exact: true }).selectOption("tab-test");
+  await page.getByLabel("Valor a estornar", { exact: true }).fill("5,00");
+  await page.getByLabel("Motivo do estorno", { exact: true }).fill("Devolução de teste");
+  await page.getByRole("button", { name: "Confirmar estorno", exact: true }).click();
+  const verify = page.getByRole("button", { name: "Verificar mesmo estorno", exact: true });
+  await expect(verify).toBeEnabled();
+  await expect(page.getByLabel("Comanda", { exact: true })).toBeDisabled();
+  await stable(page);
+  const phase = process.env.RODADA_S3J_BASELINE === "1" ? "before" : "after";
+  await page.screenshot({ path: `../../visual-artifacts/spec034-refund-pending/${phase}-${width}.png`, fullPage: true });
+  if (phase === "before") return;
+  const pending = page.getByRole("region", { name: "Estorno pendente", exact: true });
+  await expect(pending.getByRole("heading", { name: "Estorno pendente", exact: true })).toBeVisible();
+  expect((await verify.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await layoutAndA11y(page);
+  await page.addStyleTag({ content: "#refund-pending { zoom: 2; }" });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-refund-pending/after-${width}-zoom200.png`, fullPage: true });
+  await verify.focus(); await page.keyboard.press("Enter");
+  await expect(verify).toBeEnabled();
+  expect(commands).toHaveLength(2); expect(commands[1]).toBe(commands[0]);
+  await expect(page.getByLabel("Comanda", { exact: true })).toBeDisabled();
+});

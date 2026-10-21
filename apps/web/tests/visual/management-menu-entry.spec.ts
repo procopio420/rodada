@@ -1,0 +1,32 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y, stable } from "./fixtures";
+
+for (const width of [360, 390, 430, 1280]) test(`management menu entry ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  await page.route("**/api/auth/me", route => route.fulfill({ json: { capabilities: ["catalog.icon.manage", "catalog.product.create"] } }));
+  const writes: string[] = [];
+  page.on("request", request => { if (request.url().includes("/api/") && !["GET", "HEAD"].includes(request.method())) writes.push(request.url()); });
+  const phase = process.env.RODADA_S4A_BASELINE === "1" ? "before" : "after";
+  await page.goto("/manage#cardapio");
+  await expect(page.getByRole("link", { name: "Cardápio e nomes dos produtos", exact: true })).toBeVisible();
+  await stable(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-menu-entry/${phase}-entry-${width}.png`, fullPage: true });
+  if (phase === "after") for (const name of ["Cardápio e nomes dos produtos", "Variações e adicionais"]) await expect(page.getByRole("link", { name, exact: true })).toHaveAccessibleDescription(/\S+/);
+  await page.goto("/manage/products");
+  await expect(page.getByRole("button", { name: "Editar produto e ícone", exact: true })).toBeVisible();
+  await stable(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-menu-entry/${phase}-products-${width}.png`, fullPage: true });
+  if (phase === "before") return;
+  await expect(page.getByRole("link", { name: "Voltar ao Cardápio", exact: true })).toHaveAttribute("href", "/manage#cardapio");
+  await expect(page.getByRole("button", { name: "Adicionar produto", exact: true })).toHaveCount(1);
+  await layoutAndA11y(page);
+  await page.addStyleTag({ content: ".managementCatalog { zoom: 2; }" });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-menu-entry/after-products-${width}-zoom200.png`, fullPage: true });
+  await page.getByRole("button", { name: "Editar produto e ícone", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Editar produto e ícone", exact: true })).toBeFocused();
+  expect(writes).toEqual([]);
+});

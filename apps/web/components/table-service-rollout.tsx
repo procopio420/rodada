@@ -6,21 +6,33 @@ import { OperationalHeading } from "@/components/operational-heading";
 
 type Policy = { enabled: boolean; version: number };
 type Command = { enabled: boolean; expected_version: number; idempotency_key: string };
+const path = "/api/pos/management/table-service-rollout/";
+async function readPolicy() {
+  const result = await apiCall<Policy>(path);
+  if (!result.response.ok) throw new Error(asApiError(result.body).message);
+  return result.body as Policy;
+}
 export function TableServiceRollout({ scope }: { scope: string }) {
   const key = `rodada:table-service-rollout:${scope}`;
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [pending, setPending] = useState<Command | null>(null);
   const [busy, setBusy] = useState(false), [blocked, setBlocked] = useState(false), [message, setMessage] = useState("");
-  const path = "/api/pos/management/table-service-rollout/";
-  async function refresh() {
-    const result = await apiCall<Policy>(path);
-    if (!result.response.ok) throw new Error(asApiError(result.body).message);
-    setPolicy(result.body as Policy);
-  }
+  async function refresh() { setPolicy(await readPolicy()); }
   useEffect(() => {
-    try { const raw = localStorage.getItem(key); if (raw) setPending(JSON.parse(raw)); }
-    catch { setBlocked(true); setMessage("Configuração pendente indisponível. Confira o histórico antes de alterar."); }
-    void refresh().catch(error => setMessage(error.message));
+    let active = true;
+    let recovered: Command | null = null;
+    let unreadable = false;
+    try { const raw = localStorage.getItem(key); if (raw) recovered = JSON.parse(raw); }
+    catch { unreadable = true; }
+    const restore = () => {
+      if (recovered) setPending(recovered);
+      if (unreadable) { setBlocked(true); setMessage("Configuração pendente indisponível. Confira o histórico antes de alterar."); }
+    };
+    void readPolicy().then(
+      current => { if (active) { restore(); setPolicy(current); } },
+      error => { if (active) { restore(); setMessage(error.message); } },
+    );
+    return () => { active = false; };
   }, [key]);
   async function apply() {
     if (busy || blocked || !policy) return;

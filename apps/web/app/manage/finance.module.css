@@ -1,0 +1,8 @@
+.group { min-width: 0; }
+.cashPoints { margin-bottom: var(--space-4); }
+.cashPoints > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.cashPoints span { overflow-wrap: anywhere; }
+.cashPoints strong { font-family: var(--font-mono); }
+@media (min-width: 768px) {
+  .cashPoints > div { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); }
+}
