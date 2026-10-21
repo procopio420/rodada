@@ -194,3 +194,31 @@ class OrderItem(models.Model):
             for correction in self.corrections.all()
             if correction.status == "APPLIED"
         )
+
+
+class OrderClientObservation(models.Model):
+    """Untrusted best-effort client measurements; never a financial receipt."""
+
+    id = models.BigAutoField(primary_key=True)
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    event_id = models.UUIDField()
+    fingerprint = models.CharField(max_length=64)
+    intent_ref = models.CharField(max_length=64)
+    attempt_id = models.UUIDField(null=True)
+    kind = models.CharField(max_length=24)
+    channel = models.CharField(max_length=8)
+    ux_version = models.CharField(max_length=24)
+    app_version = models.CharField(max_length=40)
+    outcome = models.CharField(max_length=16, blank=True)
+    reason = models.CharField(max_length=24, blank=True)
+    recovery = models.BooleanField(default=False)
+    duration_ms = models.PositiveIntegerField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints: ClassVar[list] = [models.UniqueConstraint(
+            fields=("venue", "event_id"), name="ordering_observation_event_unique")]
+        indexes: ClassVar[list] = [
+            models.Index(fields=("venue", "created_at"), name="ordering_obs_venue_time_idx"),
+            models.Index(fields=("created_at",), name="ordering_obs_retention_idx"),
+        ]
