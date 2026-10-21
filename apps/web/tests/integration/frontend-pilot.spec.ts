@@ -17,11 +17,11 @@ test("pilot setup and service queue use real canonical API and occupancy covers"
   await expect(page.getByRole("heading", { name: "Preparar estabelecimento" })).toBeVisible();
   await page.getByLabel("Nome ou identificação").fill("Pilot frontend table");
   await page.getByRole("button", { name: "Cadastrar mesa", exact: true }).click();
-  await expect(page.getByText("Mesas:", { exact: false })).toContainText("Pilot frontend table");
+  await expect(page.getByRole("list", { name: "Mesas cadastradas", exact: true })).toContainText("Pilot frontend table");
   await page.getByLabel("Cadastrar", { exact: true }).selectOption("zone");
   await page.getByLabel("Nome ou identificação").fill("Pilot frontend zone");
   await page.getByRole("button", { name: "Cadastrar zona", exact: true }).click();
-  await expect(page.getByText("Zonas:", { exact: false })).toContainText("Pilot frontend zone");
+  await expect(page.getByRole("list", { name: "Zonas cadastradas", exact: true })).toContainText("Pilot frontend zone");
   await page.getByLabel("Operador", { exact: true }).selectOption({ label: "test-staff · Ativo" });
   await page.getByLabel("Nova função").selectOption("CASHIER");
   await page.getByLabel("Seu PIN para confirmar").fill("2468");
