@@ -1,7 +1,7 @@
 # Acceptance — Spec 028
 
-**Progresso:** S1 integrada no PR #149 e S2 integrada no PR #155 (974e0bc), ambas com autorização. S3 em implementação e validação; ver [contrato e evidências](s3-printing-mvp.md). S4–S7 pendentes. Sem instalador ou homologação física.
-**Status:** S1/S2 merged; S3 implementation/testing in progress. S4–S7 pending; no public installer or physical certification.
+**Progresso atual (20/10/2026):** S1/S2 integradas; S3–S6 integradas pelos PRs #274, #275, #276 e #278; QA downloads integrado por #282. Protocolo, verificador e preparação automatizada de S7 incluídos nesta entrega (#280). Distribuição stable e homologação física permanecem NO-GO. Ver [evidências e pendências](completion-20261020.md).
+**Status:** S3–S6 software integrated; S7 preparation delivered; signed stable release and physical pilot not accepted.
 
 ## Matriz de cobertura por slice
 
