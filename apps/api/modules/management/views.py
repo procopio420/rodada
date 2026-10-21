@@ -306,3 +306,25 @@ class TableServiceRolloutView(APIView):
                 return Response(_finish(row, after))
         except HospitalityServiceError as error:
             return Response({"code": error.code, "message": error.message}, status=error.status_code)
+
+
+class AttendanceMetricsView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request):
+        from modules.management.attendance_metrics import attendance_metrics
+
+        class Period(serializers.Serializer):
+            start = serializers.DateField()
+            end = serializers.DateField()
+
+            def validate(self, attrs):
+                if not 0 <= (attrs["end"] - attrs["start"]).days <= 30:
+                    raise serializers.ValidationError("Escolha até 31 dias em ordem cronológica.")
+                return attrs
+
+        period = Period(data=request.query_params)
+        period.is_valid(raise_exception=True)
+        return Response(attendance_metrics(venue=request.auth.venue,
+            start=period.validated_data["start"], end=period.validated_data["end"]))
