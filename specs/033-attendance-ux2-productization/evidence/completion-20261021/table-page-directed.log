@@ -1,0 +1,20 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> rodada-web@0.1.0 test:visual
+> playwright test attendance-tables-mobile.spec.ts
+
+[WebServer] (node:32) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] 127.0.0.1 - - [21/Oct/2026 21:44:11] "GET /prototype/references/ HTTP/1.1" 200 -
+
+Running 3 tests using 1 worker
+
+(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/visual/attendance-tables-mobile.spec.ts:4:42 › table pages preserve move targets on touch at 360 (1.6s)
+  ✓  2 tests/visual/attendance-tables-mobile.spec.ts:4:42 › table pages preserve move targets on touch at 390 (1.6s)
+  ✓  3 tests/visual/attendance-tables-mobile.spec.ts:4:42 › table pages preserve move targets on touch at 430 (1.5s)
+
+  3 passed (6.6s)

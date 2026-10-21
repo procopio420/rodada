@@ -16,3 +16,11 @@
 **Gate:** AC-20..24 PASS + todas AC-01..19 aplicáveis PASS; execução real exige autorização de merge/deploy separada. Capturas do protótipo não contam como validação integrada.
 
 Inventário E06-01: [matriz atual](../../e06-current-evidence.md), baseline `b824d2e2`, CI Web39484200340. Conclusão do inventário não encerra ACs; demais gates permanecem abertos.
+
+
+21/10: [evidência terminal e matriz](../../completion-20261021.md),
+[tempos observados — slice1](../../observed-metrics.md) e
+[recibo API reproduzível](../../rehearsal-receipt.md). API1069/1065 nos candidatos
+respectivos, Web162 e visual97PASS; pico Web50READY+50chamados passou em quatro
+larguras. E06-07 permanece parcial (cliente/comparativo) e E06-10 sem flag UX/
+rollback ensaiado; Android instrumental atual/aparelho/piloto permanecem gates.

@@ -39,9 +39,9 @@
 
 ## E05 — Limites e relacionamento
 
-- [ ] E05-01 Reusar financial_position/Spec 002, sem novo motor de crédito ou garantias.
+- [x] E05-01 Reusar financial_position/Spec 002, sem novo motor de crédito ou garantias.
 - [ ] E05-02 Barra compacta nas Tabs e projeção do rascunho com 80%, estado textual e limite zero.
-- [ ] E05-03 Integrar modos efetivos/versão **somente após** implementação da Spec 031.
+- [x] E05-03 Integrar modos efetivos/versão **somente após** implementação da Spec 031.
 - [ ] E05-04 Validar WARN_ONLY vs ENFORCE, overrides, parciais, concorrência e erros de servidor.
 - [ ] E05-05 Acessibilidade e confirmação de que a barra não ocupa a primeira dobra do CTA.
 
@@ -65,3 +65,9 @@ E06-01: [inventário por SHA](e06-current-evidence.md). E06-02..06 seguem aberto
 mergeados; dependência031 implementada em backend/Web/Compose. CI288162PASS,
 3SKIP; não equivale a aceite global. Instrumentação, flag UX/rollback, pacote
 Android atual, paridade completa, aparelho e piloto continuam abertos.
+
+
+E05-01/E05-03 (master): integração efetiva031 aprovada nos recortes API/Web e
+unit/build/lint Android, PRs281/284; API1069/Web162 na composição posterior.
+Reuso do motor financeiro e modo/versão server-side testados, sem novo motor.
+[Fontes e limites](completion-20261021.md). Não encerra E05 inteiro nem AC17..19.

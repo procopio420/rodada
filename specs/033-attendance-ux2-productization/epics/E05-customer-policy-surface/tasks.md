@@ -4,10 +4,17 @@
 
 - [ ] **E05-01 Gap atual:** verificar DTO financial_position e relação snapshot; mapear campos existentes em Web e Android (limite, saldo, capacidade, warning, consumo bloqueado). Não inferir capability pelo valor.
 - [ ] **E05-02 Barra compacta:** componente nativo/Web equivalente: exposto o usado/limite e restante, faixa fina com 80%, rascunho listrado, zero e >100% com textos. Não tomar a primeira dobra nem adicionar toque obrigatório.
-- [ ] **E05-03 Segurança do modo:** usar effective policy do servidor e version. Até a Spec 031 pronta, **mostrar ENFORCE existente**; não expor botão WARN_ONLY funcional que a API rejeitaria.
+- [x] **E05-03 Segurança do modo:** usar effective policy do servidor e version. Até a Spec 031 pronta, **mostrar ENFORCE existente**; não expor botão WARN_ONLY funcional que a API rejeitaria.
 - [ ] **E05-04 Recovery:** em ENFORCE, mostrar pagamento parcial/gerência sem confundir limite com garantia; em WARN_ONLY, permitir Enviar sem modal apenas quando API permite; guardar draft em erro definitivo.
-- [ ] **E05-05 R3 da Spec 031:** integrar feature/migration/settings/capabilities apenas após requisitos e PR próprios; validar dois Venues, client stale, versão alterada e PIN de gerente.
+- [x] **E05-05 R3 da Spec 031:** integrar feature/migration/settings/capabilities apenas após requisitos e PR próprios; validar dois Venues, client stale, versão alterada e PIN de gerente.
 - [ ] **E05-06 Tests UI/a11y:** 320/360/390/430 e texto ampliado, progresso acessível 0..100/over, aviso sem bloquear CTA, sem garantir cartão.
 - [ ] **E05-07 Gate:** AC-17..19 PASS; verificar que alterar relação do cliente não muda snapshot de Tab aberta e que texto de garantia só deriva de evento real.
 
 **PRs sugeridas:** E05-a barra sob ENFORCE; E05-b integração Spec031 após backend feito. A Spec 031 continua dona de persistência/mode.
+
+
+Integração verificada21/10: PR281/284, fonte backend61221f7/clientf0405107,
+merges047807cb/29f6a10a. API atual1069PASS, Web162PASS; CI Android unit/build/lint
+PASS no clientf0405107. E05-03/E05-05 aprovam modo/versão canônicos, persistência,
+CAS/replay/PIN/duas Venues e revisão independente; não aprovam force-stop,
+Compose integrado corrente, garantia/PSP ou AC17..19 global. [Evidência](../../completion-20261021.md).

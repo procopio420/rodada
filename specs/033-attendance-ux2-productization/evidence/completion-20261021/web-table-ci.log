@@ -1,0 +1,7 @@
+2026-10-21T18:54:55.4744679Z   ✓   80 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 360 (22.4s)
+2026-10-21T18:55:15.1507710Z   ✓   81 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 390 (19.7s)
+2026-10-21T18:55:35.0148098Z   ✓   82 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 430 (19.9s)
+2026-10-21T18:55:55.1763395Z   ✓   83 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 1280 (20.1s)
+2026-10-21T19:03:30.1274864Z   3 skipped
+2026-10-21T19:03:30.1275339Z   162 passed (16.3m)
+

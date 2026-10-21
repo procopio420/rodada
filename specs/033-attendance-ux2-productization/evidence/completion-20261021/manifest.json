@@ -1,0 +1,77 @@
+{
+  "web_tree": "1ce18e80272c7799ec88a7211eec2b37013cb386",
+  "visual_source_local": "f6580e309ff3003aa610b20653fed2101b4a373b",
+  "visual_pr_head": "8cef607cce04a4eba004cb0c76731061c8dc69b3",
+  "result": "97 PASS, 0 SKIP, 0 retries; 3.1min",
+  "scope": "Fixture browser visual/accessibility; not API/Compose/hardware or full pixel parity",
+  "files": [
+    {
+      "file": "api-metrics-ci.log",
+      "sha256": "457878ce0734e65a3f103d6acae665e82c4a678d3c48bdc5fd79451ca0126098",
+      "bytes": 387
+    },
+    {
+      "file": "api-rehearsal-ci.log",
+      "sha256": "2482d1366afc8a17ddefe5f7bee5f7c844b36ee2839afe2a257312fed12b9b88",
+      "bytes": 319
+    },
+    {
+      "file": "metrics-local.log",
+      "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+      "bytes": 80
+    },
+    {
+      "file": "prior-visual-interrupted.log",
+      "sha256": "56d2bf1dcd3d63acefe8a9e3cc638167dbc35acded40c77c53e60d9ef5e34914",
+      "bytes": 11096
+    },
+    {
+      "file": "table-move-360.png",
+      "sha256": "0a6ceb50117bc53ae358608b74743809a84afd6d21465b0bb649c27ee6fa9c67",
+      "bytes": 43737
+    },
+    {
+      "file": "table-move-390.png",
+      "sha256": "5db1dbd0ba7b25876500adce4f4e7fcbb8d4b42a6b9758527815c786f8784dc9",
+      "bytes": 44330
+    },
+    {
+      "file": "table-move-430.png",
+      "sha256": "e2d86c08d4a6cf71006eacd4448d09bcaa87a834ce486aca42d56d63a1e8245c",
+      "bytes": 43532
+    },
+    {
+      "file": "table-page-directed.log",
+      "sha256": "289e684a1eae0e24df70778f63ea5ae984dc1219a6df8186987031b0e6c62367",
+      "bytes": 1198
+    },
+    {
+      "file": "web-metrics-ci.log",
+      "sha256": "0f23683bd8b9af4cfb0ca83bd2d3c49566781fa1ff90af94710473f16ba58852",
+      "bytes": 832
+    },
+    {
+      "file": "web-table-ci.log",
+      "sha256": "6ca149dda62a85940246439be0f10aab9340bd1e86f215d1755bd40bc125f2d3",
+      "bytes": 765
+    },
+    {
+      "file": "web-visual.log",
+      "sha256": "2f2c9fa3904d240bce4c1a268326f74c604bb00b672459cdfb58dcfc494a9194",
+      "bytes": 13099
+    }
+  ],
+  "environment": {
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "playwright": "1.58.2",
+    "chromium": "145.0.7632.6",
+    "viewport_widths": [
+      360,
+      390,
+      430,
+      1280
+    ],
+    "physical_device": false
+  }
+}

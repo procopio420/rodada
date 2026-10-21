@@ -86,3 +86,68 @@ substitui latência de intenção nem comparativo antes/depois.
 Gates externos: aparelho físico S24-class, TalkBack/toque, PSP/hardware quando
 aplicável, operador/bar/piloto e GO humano; deploy de produção exige autorização.
 Não afirmar que somente homologação física resta ou que a Spec033 foi concluída.
+
+## Resultado posterior — evidência terminal e cortes adicionais
+
+Esta seção complementa o registro anterior, mantendo a distinção entre recortes
+aprovados e aceite global. **NO-GO global permanece; nenhum AC inteiro foi
+fechado pela soma de execuções parciais de plataformas distintas.**
+
+- PR292, candidato `22724f3524c0720e1c0c4fb532c09f235375280c`, squash
+  `f1b512f249363c9323e007bbaae894039451da99`: relatório readonly de tempos
+  canônicos, 31dias, capability MANAGEMENT_REPORTS_READ, Venue autenticado,
+  cobertura missing/invalid/unverified e médias somente observadas. Não deriva
+  intenção nem recebimento visual de produção; sem novos taps ou persistência.
+  API **1069 PASS/546,98s**, PostgreSQL17; Web **162 PASS/3 SKIP/16,8min**.
+  [API](https://github.com/procopio420/rodada/actions/runs/39654479066/job/119411731874)
+  e [Web](https://github.com/procopio420/rodada/actions/runs/39654478748/job/119411754432).
+  R3 independente sem achados após corrigir datas extremas fora do UTC.
+- PR293, squash `bdb9cbee94dec83c8b2ae1f40d964a9b002eb927`: migração de três testes de mesa para a página atual, IDs determinísticos
+  e foco no heading; preserva preview de destino ocupado/livre e a11y. Nenhuma
+  mudança de produto/ledger. Três dirigidos **PASS/6,6s**; conjunto Attendance
+  **97/97 PASS/3,1min**, sem skips/retries, fonte local `f6580e3`, Web tree
+  `1ce18e80272c7799ec88a7211eec2b37013cb386` (mesma árvore Web do candidato
+  `8cef607cce04a4eba004cb0c76731061c8dc69b3`). Node24.19, npm11.9,
+  Playwright1.58.2, Chromium145.0.7632.6. Fixture browser, sem API real nesse
+  comando. CI Web terminal **162 PASS/3 SKIP/16,3min**,
+  [job119414702388](https://github.com/procopio420/rodada/actions/runs/39655550965/job/119414702388).
+  A rodada anterior teve duas falhas de seletor legado e foi interrompida
+  (exit130); seu log está preservado e não foi contabilizado como PASS.
+- PR294, candidato `a3b42fd68f9f7aa77b11cc3e03844df0f74d2856`, squash
+  `b0ad7eb126b9eccf979509e2d8de76f74eff08bf`: runner reutiliza o rehearsal original inteiro, com DB reservado de teste
+  PostgreSQL loopback. Recibo somente após PASS/cardinalidades/estados terminais,
+  sem segredos ou dados do bar. Artefato `spec033-api-rehearsal`, run
+  [39656356004](https://github.com/procopio420/rodada/actions/runs/39656356004),
+  [artefato12371028318](https://github.com/procopio420/rodada/actions/runs/39656356004/artifacts/12371028318), digest ZIP
+  `fb5de6c0cf2b46a8988b77eb9197a47563e1db1b67d4d88feae47e54fa2de557`,
+  expira em19/01/2027. Contém SHA/tree/ambiente e IDs de três Tabs/três Orders/
+  seis itens/Charges/Payments/tasks, estados CLOSED/DELIVERED/CONFIRMED/DONE,
+  mesa/ocupações/gerações. Consulte também o resultado terminal do workflow;
+  upload isolado não aceita regressão posterior. Runner reproduzível em
+  `scripts/spec033-rehearsal-receipt.py`. Três guards negativos locais PASS;
+  R3 independente sem achados após incluir o runner nos dois filtros de CI.
+  CI API terminal **1065 PASS/592,52s**, rehearsal1 PASS/2,221s (mais setup).
+  Esse candidato partiu da base7cb; os quatro testes novos do relatório foram
+  aprovados no candidato292 (1069), preservados pelo merge não sobreposto.
+
+Evidência local versionada em [completion-20261021](evidence/completion-20261021/):
+logs sanitizados, `manifest.json` com SHA256 e capturas fixture360/390/430 do
+movimento de mesa. Capturas não equivalem a paridade pixel completa/aparelho.
+
+### Delta da matriz AC
+
+| AC | Evidência adicional aprovada | Gate integral restante |
+|---|---|---|
+| 02 | 97visuais; foco na linha após refresh e no título da Mesa | Compose atual/Back/fontes e pacote conjunto |
+| 08 | CI288 também executou quatro casos peak-dispatch:50READY+50chamados persistidos,360/390/430/1280 | Pico/fonte/tempo nativo e operação de campo; não reimplementar o pico Web |
+| 14/15/20 | Recibo PostgreSQL com IDs/estados após jornada original e giro explícito | Mesmo pacote completo Web+Compose/QR/caixa, não apenas API |
+| 17/18 | Modos031 em main, testes concorrentes e Web162; sem motor financeiro novo | Instrumentação/paridade nativa atual |
+| 22 | 97browser; três capturas de movimento e fonte2 nos casos existentes | Matriz pareada completa, TalkBack/toque/aparelho |
+| 23 | Endpoint agregado canônico e quatro regressões PG novos | Início de intenção, passos, tentativas/erros e versãoUX Web/Compose; comparativo medido |
+| 24 | PRs pequenos com CI crítico e revisão independente | Flag UX por Venue/role, destino e ensaio de rollback, GO de operador/piloto |
+
+Correção do inventário anterior: pico Web50 existe e passou no CI288; não é gap de
+implementação Web. O que falta é a composição nativa/operacional e medição de SLA.
+`table_service_enabled` continua sendo política de serviço contextual, não flag
+separada de apresentação/rollback033. Os gates técnicos remanescentes não devem
+ser apresentados como se dependessem somente de aparelho físico.

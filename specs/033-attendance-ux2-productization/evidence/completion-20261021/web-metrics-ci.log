@@ -1,0 +1,8 @@
+2026-10-21T18:41:29.7950465Z ##[group]Run npm run test:integration
+2026-10-21T18:49:18.6560329Z   ✓   80 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 360 (22.4s)
+2026-10-21T18:49:38.3455294Z   ✓   81 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 390 (19.7s)
+2026-10-21T18:49:58.2688579Z   ✓   82 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 430 (19.9s)
+2026-10-21T18:50:18.8488279Z   ✓   83 tests/integration/peak-dispatch.spec.ts:10:48 › 50 persisted READY and 50 calls retain navigation and fallback at 1280 (20.6s)
+2026-10-21T18:58:19.0249444Z   3 skipped
+2026-10-21T18:58:19.0249992Z   162 passed (16.8m)
+

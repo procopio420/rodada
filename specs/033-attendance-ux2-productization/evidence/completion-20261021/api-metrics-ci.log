@@ -1,0 +1,6 @@
+2026-10-21T18:40:07.3159809Z System check identified no issues (0 silenced).
+2026-10-21T18:40:07.9537617Z No changes detected
+2026-10-21T18:40:08.0314661Z ##[group]Run pytest --ds=rodada_api.settings -q -rs tests/test_spec033_integrated_rehearsal.py
+2026-10-21T18:40:17.0248245Z ##[group]Run pytest --ds=rodada_api.settings
+2026-10-21T18:49:24.6768978Z 1069 passed in 546.98s (0:09:06)
+
