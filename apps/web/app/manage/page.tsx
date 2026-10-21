@@ -11,6 +11,12 @@ import { projectionCache } from "@/lib/client/projection-cache";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
 import { OperationalAlerts } from "@/components/operational-alerts";
 import { ManagementSectionHeader, OperationalIcon } from "@/components/operational-icon";
+import styles from "./now.module.css";
+import operationStyles from "./operation.module.css";
+import financeStyles from "./finance.module.css";
+import sessionStyles from "./session-notice.module.css";
+import { ManagementCatalogLinks } from "@/components/management-catalog-navigation";
+import { ManagementFinanceLinks } from "@/components/management-finance-links";
 import { ManagementNav, managementSections, useManagementSection } from "@/components/management-nav";
 import { ManagementSettings } from "@/components/management-settings";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
@@ -130,7 +136,11 @@ export default function ManagementPage() {
     </header>
     <ManagementNav />
     <ConnectivityNotice {...connectivity} syncedAt={connectivity.syncedAt ?? cachedAt} />
-    {message ? <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
+    {message ? historyRevoked ? <div className={sessionStyles.notice} role="alert">
+      <span className={sessionStyles.icon}><OperationalIcon name="lock" /></span>
+      <div className={sessionStyles.copy}><h2>Sessão encerrada</h2><p>Entre novamente para acompanhar a operação.</p></div>
+      <Link className={sessionStyles.login} href="/staff">Entrar novamente<OperationalIcon name="chevron-right" size={20} /></Link>
+    </div> : <div className="notice" data-state="danger" role="alert">{message}{hasSnapshot ? " Último estado confirmado; atualize para conferir a operação." : ""}</div> : null}
     {loading && <div className="loadingState" role="status">Atualizando operação…</div>}
     {hasSnapshot && section === "" && <OperationalAlerts maxVisible={3} />}
     {hasSnapshot && <>
@@ -147,39 +157,41 @@ export default function ManagementPage() {
       {attentionTabs.map(tab => <div className="movement" key={tab.id}><div><strong>{tabPrimaryLabel(tab)}</strong><small>{tabSecondaryLabel(tab)} · Ação da equipe necessária · em aberto</small></div><strong>{money(tab.exposure_cents)}</strong></div>)}
       <Link className="backLink" href="/pos">Abrir comandas →</Link>
     </section>}
-    <section className="panel"><ManagementSectionHeader icon="now">Agora</ManagementSectionHeader>
-      <div className="metricGrid">
+    <section className={`panel ${styles.pulse}`} aria-labelledby="now-summary-title"><ManagementSectionHeader icon="now" id="now-summary-title">Agora</ManagementSectionHeader>
+      <div className={`metricGrid ${styles.metrics}`}>
         <div className="operationalMetric"><span>Comandas abertas</span><strong>{openTabs.length}</strong></div>
         <div className="operationalMetric financialMetric"><div className="metricLabel"><OperationalIcon name="wallet" size={20} /><span>Exposição em aberto</span></div><strong>{money(exposure)}</strong></div>
 
       </div>
     </section>
 
-    <details className="panel"><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><a className="backLink" href="/manage#operacao">Ver operação →</a></details>
-    <div className="actions"><Link className="buttonSecondary" href="/attendance">Abrir Atendimento</Link><Link className="buttonSecondary" href="/cash">Abrir Caixa</Link></div>
+    <details className={`panel ${styles.details}`}><summary>Ver mais do resumo</summary><div className="dataRow"><span>Estornos aguardando decisão</span><strong>{refunds.length}</strong></div><div className="dataRow"><span>Itens indisponíveis</span><strong>{unavailable.length}</strong></div><a className="backLink" href="/manage#operacao">Ver operação →</a></details>
+    <nav className={styles.shortcuts} aria-labelledby="now-shortcuts-title"><h2 id="now-shortcuts-title">Acessos rápidos</h2><div className={styles.links}><Link className="buttonSecondary" href="/attendance">Abrir Atendimento</Link><Link className="buttonSecondary" href="/cash">Abrir Caixa</Link></div></nav>
     </>}
     {section === "operacao" && <>
-    <section className="panel" id="operacao"><ManagementSectionHeader icon="operation">Produção e entrega</ManagementSectionHeader>
+    <section className={`panel ${operationStyles.production}`} id="operacao" aria-labelledby="production-delivery-title"><ManagementSectionHeader icon="operation" id="production-delivery-title">Produção e entrega</ManagementSectionHeader>
+      <div className={operationStyles.counts}>
       <div className="dataRow"><span>Bar em preparo</span><strong>{bar.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Cozinha em preparo</span><strong>{kitchen.filter(item => item.state !== "READY").length}</strong></div>
       <div className="dataRow"><span>Prontos para entrega</span><strong className={deliveries.length ? "cashDifference" : ""}>{deliveries.length}</strong></div>
-      <details><summary>Ver mais das entregas ({deliveries.length})</summary>{deliveries.map((task) => <div className="movement" key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></div>)}</details>
-      <div className="actions"><Link className="backLink" href="/bar">Abrir Bar</Link><Link className="backLink" href="/kitchen">Abrir Cozinha</Link></div>
+      </div>
+      <details className={operationStyles.deliveries}><summary>Ver mais das entregas ({deliveries.length})</summary>{!deliveries.length && <p className="muted">Nenhuma entrega no último estado consultado.</p>}<ul aria-label="Entregas prontas">{deliveries.map((task) => <li key={task.id}><div><strong>{task.destination_label || "Sem destino"}</strong><small>{task.product_name}</small></div><strong className={operationStyles.age}>{task.age_seconds < 60 ? "agora" : `${Math.floor(task.age_seconds / 60)} min`}</strong></li>)}</ul></details>
+      <div className={operationStyles.links}><Link className="buttonSecondary" href="/bar">Abrir Bar</Link><Link className="buttonSecondary" href="/kitchen">Abrir Cozinha</Link></div>
     </section>
 
-    <section className="panel"><ManagementSectionHeader icon="table">Salão</ManagementSectionHeader><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter(table => table.status === "CLEANING").length}</strong></div><div className="managementLinkList"><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/manage/tables">Organizar mesas</Link><Link className="buttonSecondary" href="/manage/table-turnover">Giro e limpeza das mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
-    {unavailable.length ? <details className="panel"><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary>{unavailable.map(product => <div className="dataRow" key={product.id}>{product.name}</div>)}</details> : null}
+    <section className={`panel ${operationStyles.production}`} id="hall-summary" aria-labelledby="hall-summary-title"><ManagementSectionHeader icon="table" id="hall-summary-title">Salão</ManagementSectionHeader><div className={`${operationStyles.counts} ${operationStyles.hallCounts}`}><div className="dataRow"><span>Mesas ocupadas</span><strong>{activeTables.length}</strong></div><div className="dataRow"><span>Mesas em limpeza</span><strong>{tables.filter(table => table.status === "CLEANING").length}</strong></div></div><div className={operationStyles.links}><Link className="buttonSecondary" href="/attendance">Atendimento e mesas</Link><Link className="buttonSecondary" href="/manage/tables">Organizar mesas</Link><Link className="buttonSecondary" href="/manage/table-turnover">Giro e limpeza das mesas</Link><Link className="buttonSecondary" href="/pos">Comandas e pedidos</Link></div></section>
+    {unavailable.length ? <details className={`panel ${operationStyles.unavailable}`} data-management-unavailable><summary>Ver mais dos itens indisponíveis ({unavailable.length})</summary><ul aria-label="Itens indisponíveis">{unavailable.map(product => <li key={product.id}>{product.name}</li>)}</ul></details> : null}
     </>}
     {section === "financeiro" && <div id="financeiro">
-      <section className="panel"><ManagementSectionHeader icon="wallet">Caixa e fechamento</ManagementSectionHeader>
+      <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-cash-title"><ManagementSectionHeader icon="wallet" id="finance-cash-title">Caixa e fechamento</ManagementSectionHeader><div className={financeStyles.cashPoints}>
         {!activeCash.length ? <p className="muted">Nenhum caixa com turno ativo.</p> : activeCash.map((point) => <div className="dataRow" key={point.id}><span>{point.label} · {point.active_shift?.status === "OPEN" ? "Aberto" : point.active_shift?.status === "COUNTING" ? "Em contagem" : "Fechado"}</span><strong>{point.active_shift?.expected_cents === undefined ? "Ver caixa" : money(point.active_shift.expected_cents)}</strong></div>)}
-        <div className="managementLinkList"><Link className="buttonSecondary" href="/cash">Caixa e turnos</Link><Link className="buttonSecondary" href="/manage/daily-close">Fechamento diário e aprovações</Link></div>
+        </div><ManagementFinanceLinks group="cash" />
       </section>
-      <section className="panel"><ManagementSectionHeader icon="receipt">Ajustes e aprovações</ManagementSectionHeader><div className="managementLinkList"><Link className="buttonSecondary" href="/refunds">Correções e estornos</Link><Link className="buttonSecondary" href="/manage/pricing">Serviço, descontos e aprovações</Link></div></section>
-      <section className="panel"><ManagementSectionHeader icon="sales">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos e produtos por período operacional.</p><div className="managementLinkList"><Link className="buttonSecondary" href="/reports">Relatórios de vendas e recebimentos</Link></div></section>
+      <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-adjustments-title"><ManagementSectionHeader icon="receipt" id="finance-adjustments-title">Ajustes e aprovações</ManagementSectionHeader><ManagementFinanceLinks group="adjustments" /></section>
+      <section className={`panel ${financeStyles.group}`} aria-labelledby="finance-reports-title"><ManagementSectionHeader icon="sales" id="finance-reports-title">Vendas e relatórios</ManagementSectionHeader><p className="muted">Vendas, recebimentos e produtos por período operacional.</p><ManagementFinanceLinks group="reports" /></section>
     </div>}
     {section === "cardapio" && <div id="cardapio">
-      <section className="panel"><ManagementSectionHeader icon="receipt">Produtos do cardápio</ManagementSectionHeader><p className="muted">Nomes, preços e publicação dos produtos.</p><div className="managementLinkList"><Link className="buttonSecondary" href="/manage/products">Cardápio e nomes dos produtos</Link><Link className="buttonSecondary" href="/manage/catalog">Variações e adicionais</Link></div></section>
+      <section className="panel"><ManagementSectionHeader icon="receipt">Produtos do cardápio</ManagementSectionHeader><p className="muted">Escolha o que deseja organizar no cardápio.</p><ManagementCatalogLinks /></section>
     </div>}
     {section === "gestao" && <ManagementSettings />}
     </>}

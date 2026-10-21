@@ -1,0 +1,53 @@
+.day { min-width: 0; padding: var(--space-3); }
+.selection { min-width: 0; padding: var(--space-3) 0 0; margin: 0; border: 0; border-top: 1px solid var(--color-border); }
+.selection legend { padding-inline: var(--space-2); font-weight: 800; color: var(--color-text); }
+.selection :global(.field) { min-width: 0; margin-top: 0; grid-template-columns: minmax(0, 1fr); }
+.selection input { width: 100%; min-width: 0; min-height: var(--touch-min); padding-inline: var(--space-2); }
+.actions { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
+.actions button { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+@media (min-width: 768px) {
+  .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.revisions { min-width: 0; }
+.revisions :global(.field) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.revisions select { width: 100%; min-width: 0; }
+.revisions :global(.dataRow) { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.revisions :global(.dataRow) span, .revisions :global(.reportGroup) { overflow-wrap: anywhere; }
+.revisions :global(.dataRow) strong { font-family: var(--font-mono); }
+.summary { margin-block: var(--space-4); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-2); }
+.summary h3 { margin-top: 0; }
+.summary p { margin-bottom: 0; }
+.reviewSection { margin-block: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+.reviewSection h3 { margin-top: 0; }
+.blockers { list-style: none; margin: 0; padding: 0; }
+.blockers li { overflow-wrap: anywhere; }
+.blockers a { display: inline-flex; align-items: center; min-height: var(--touch-min); }
+@media (min-width: 768px) {
+  .revisions :global(.dataRow) { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); }
+}
+
+.correctionRequest { min-width: 0; margin-block: var(--space-5); padding: var(--space-4) 0; border: 0; border-block: 1px solid var(--color-border); }
+.correctionRequest legend { padding-right: var(--space-3); font-weight: 800; }
+.correctionRequest :global(.field) { min-width: 0; grid-template-columns: minmax(0, 1fr); margin: 0 0 var(--space-4); }
+.correctionRequest label { overflow-wrap: anywhere; }
+.correctionRequest input, .correctionRequest select, .correctionRequest textarea { width: 100%; min-width: 0; min-height: var(--touch-min); }
+.correctionRequest textarea { min-height: calc(var(--touch-min) * 2); padding: var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-2); color: var(--color-text); resize: vertical; }
+.correctionRequest > button { width: 100%; white-space: normal; }
+
+.proposals { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
+.proposal { min-width: 0; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2); overflow-wrap: anywhere; }
+.proposalHeader { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.proposalHeader h3 { margin: 0; }
+.proposalHeader > strong { font-family: var(--font-mono); }
+.decision { min-width: 0; grid-template-columns: minmax(0, 1fr); padding-top: var(--space-4); border-top: 1px solid var(--color-border-strong); }
+.decision textarea { min-width: 0; width: 100%; min-height: calc(var(--touch-min) * 2); padding: var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-1); color: var(--color-text); resize: vertical; }
+@media (min-width: 768px) {
+  .proposalHeader { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); }
+}
+
+.reauth { min-width: 0; }
+.identity { min-width: 0; margin-top: var(--space-5); padding: var(--space-4) 0 0; border: 0; border-top: 1px solid var(--color-border); }
+.identity legend { padding-right: var(--space-3); font-weight: 800; }
+.identity :global(.field) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.identity input { width: 100%; min-width: 0; min-height: var(--touch-min); }

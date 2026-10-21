@@ -1,0 +1,4 @@
+61e9d4c54fd3a204f355cd8da82f779fb178b0ec658e90459f6e74a665bb3b5a  apps/web/components/customization-availability.tsx
+fa64cb3f1b4c03482184174db5488e692b914d03e3b98c4f60839310f8fafb66  apps/web/components/customization-availability.module.css
+9cb1e96a92eb714f7092e9f4fbf395ec8c2a902583ce8de26d8aa97473b84fd7  apps/web/components/catalog-customization-editor.tsx
+8f5a3ffa8c644e31f183adfcfd1d9a2a51890aa13b69001dff862bba916bd760  apps/web/tests/visual/management-customization-availability.spec.ts

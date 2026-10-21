@@ -36,3 +36,11 @@ from Aderlan before choosing adapters or replacing equipment.
 
 Acceptance record: no physical printer tested in this implementation. Automated TCP mocks,
 spool mocks, HTML files and generated PDF are software evidence only.
+
+## Spec 028 Windows agent pilot
+
+For the agent use [S7 procedure](../../specs/028-windows-printer-agent/s7-pilot.md)
+and its NOT_RUN evidence template. It replaces no historical physical result.
+The cloud never connects to printer LAN; only the authorized local Windows agent
+does so. Verify LocalService queues, distinct-agent fencing, service reboot,
+installer/signing and rollback in addition to the legacy bridge cases above.

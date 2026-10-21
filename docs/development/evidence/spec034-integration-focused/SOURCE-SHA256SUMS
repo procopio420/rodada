@@ -1,0 +1,7 @@
+6f3d950d90308915576e079e9ef7cfec84f4df6ee9b7c0ef6dcd76b9c6ae65b9  apps/web/tests/integration/e2e_db_guard.py
+eb51994632a0c0ff08355e678556ca3b52ee57b0da5a74054d408a5d76f8b4a6  apps/web/tests/integration/test_e2e_db_guard.py
+e033701f7da933b3c2697a786f1175da4c2978ada181c0be96c2c5335d287fa4  apps/web/tests/integration/developer-staff.spec.ts
+89396a7db27e2b4cfa97018344a43bdf707463944f5baff0058405c17d725e49  apps/web/tests/integration/guest-order-intent.spec.ts
+621847105b8d36cf47535970cf68500059db5ad401701d9e0a82172b81691cd9  apps/web/tests/integration/management-alerts.spec.ts
+fc523bbb2a57c9cae4421bc2b90d22079ae6cd6b4c9db3572017abc4f6e0b833  apps/web/tests/integration/manual-refund-intent.spec.ts
+3551ce2ab5f0edcc644db8a348824e1c200167c6c5d5fb2edc89dc39a9601fdd  apps/web/tests/integration/zz-pricing.spec.ts

@@ -58,6 +58,8 @@ export function PrintAgents() {
   return <section className="panel" aria-label="Computadores de impressão">
     <OperationalHeading as="h2" icon="printer">Computadores de impressão</OperationalHeading>
     <p className="muted">Instale o Rodada Impressoras no computador e autorize o código abaixo. Não informe seu PIN no computador.</p>
+    <p><a className="backLink" href="https://rodada.bar/downloads">Instalador para Windows · consultar disponibilidade</a></p>
+    <p className="muted">O instalador está em validação; ainda não há versão estável pública. A página de downloads e esta tela usam a mesma distribuição.</p>
     {message && <p className="notice" role="status">{message}</p>}
     {error && <p className="notice" data-state="danger" role="alert">{error}</p>}
     {!data && !error && <p role="status">Carregando computadores…</p>}

@@ -70,12 +70,13 @@ test("occupancy covers stay out of the simplified table popup without issuing co
   const requests: string[] = [];
   page.on("request", request => { if (request.url().includes("/party-size/")) requests.push(request.method()); });
   await page.goto("/attendance");
+  await page.getByRole("navigation", { name: "Navegação principal" }).getByRole("button", { name: "Mesas", exact: true }).click();
   await page.getByRole("button", { name: /Mesa 24 Ocupada/ }).click();
-  const dialog = page.getByRole("dialog", { name: "Mesa 24", exact: true });
+  const dialog = page.getByRole("region", { name: "Mesa 24", exact: true });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByLabel("Quantidade de pessoas", { exact: true })).toHaveCount(0);
   await expect(dialog.getByText("Pessoas na ocupação", { exact: true })).toHaveCount(0);
-  await expect(dialog.getByRole("button", { name: "Liberar mesa 24", exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Grupo saiu · Liberar mesa", exact: true })).toBeVisible();
   await layoutAndA11y(page);
   expect(requests).toEqual([]);
   // Real canonical read/write/replay remains in integration/frontend-pilot.spec.ts

@@ -1,0 +1,52 @@
+.period { min-width: 0; padding: var(--space-3); }
+.selection { min-width: 0; margin-top: var(--space-5); padding: var(--space-3) 0 0; border: 0; border-top: 1px solid var(--color-border); }
+.selection legend { padding-right: var(--space-3); font-weight: 800; }
+.dates { display: grid; gap: var(--space-3); }
+.dates :global(.field) { min-width: 0; margin: 0; grid-template-columns: minmax(0, 1fr); }
+.dates input { min-width: 0; width: 100%; min-height: var(--touch-min); padding-inline: var(--space-2); }
+.actions { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
+.actions button { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+@media (min-width: 768px) {
+  .dates, .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.summary { min-width: 0; padding: var(--space-3); }
+.totalGroup { margin-block: var(--space-5); }
+.totalGroup + .totalGroup { padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+.totalGroup h3 { margin-top: 0; }
+.summary .metrics { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+.metrics > div { overflow-wrap: anywhere; padding: var(--space-2); }
+.metrics strong { font-family: var(--font-mono); }
+@media (min-width: 768px) {
+  .summary .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.results { min-width: 0; padding: var(--space-3); }
+.dayResult { min-width: 0; margin-top: var(--space-4); padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2); }
+.dayResult h3 { margin-top: 0; }
+.results :global(.dataRow) { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.results span { min-width: 0; overflow-wrap: anywhere; }
+.results strong { font-family: var(--font-mono); overflow-wrap: anywhere; }
+.resultList { margin: 0; padding: 0; list-style: none; }
+@media (min-width: 768px) {
+  .results :global(.dataRow) { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); }
+}
+
+.cash { min-width: 0; padding: var(--space-3); }
+.cashShift { min-width: 0; margin-top: var(--space-4); padding: var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-2); overflow-wrap: anywhere; }
+.cashShift h3 { margin-top: 0; }
+.cash :global(.dataRow) { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.cash strong { font-family: var(--font-mono); overflow-wrap: normal; }
+.cashLinks { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.cashLinks a { display: inline-flex; align-items: center; min-height: var(--touch-min); }
+.calendar { min-width: 0; padding: var(--space-3); }
+.calendar summary { font-weight: 800; }
+.calendarFields { min-width: 0; margin-top: var(--space-5); padding: var(--space-3) 0 0; border: 0; border-top: 1px solid var(--color-border); }
+.calendarFields legend { padding-right: var(--space-3); font-weight: 800; }
+.calendarFields :global(.field) { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.calendarFields input { min-width: 0; width: 100%; min-height: var(--touch-min); }
+.calendarFields > button { width: 100%; white-space: normal; }
+@media (min-width: 768px) {
+  .cash :global(.dataRow) { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4); }
+  .cashLinks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

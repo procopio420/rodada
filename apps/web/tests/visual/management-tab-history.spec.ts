@@ -148,7 +148,8 @@ test("Management history closes and clears when session is revoked", async ({ pa
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(trigger).toHaveCount(0);
-  await expect(page.getByText("Sessão encerrada. Entre novamente.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sessão encerrada", exact: true })).toBeVisible();
+  await expect(page.getByRole("alert").getByRole("link", { name: "Entrar novamente", exact: true })).toHaveAttribute("href", "/staff");
 });
 
 for (const scenario of ["transfer", "pending", "courtesy", "simulated", "refunded", "stale"] as const) test(`Management statement payment label ${scenario}`, async ({ page }) => {

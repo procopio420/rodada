@@ -6,6 +6,12 @@ import { apiCall, asApiError } from "@/lib/client/staff-auth";
 type Observation = { covers_count: number | null; version: number; source: string | null };
 type Intent = { covers_count: number; expected_version: number; reason: string; idempotency_key: string };
 
+async function readPartySize(path: string): Promise<Observation> {
+  const result = await apiCall<{ current: Observation }>(path);
+  if (!result.response.ok || !result.body || !("current" in result.body)) throw new Error(asApiError(result.body).message);
+  return result.body.current;
+}
+
 export function PartySizeEditor({ occupancyId }: { occupancyId: string }) {
   const path = `/api/attendance/hospitality/occupancies/${occupancyId}/party-size/`;
   const id = useId();
@@ -15,14 +21,24 @@ export function PartySizeEditor({ occupancyId }: { occupancyId: string }) {
   const [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [pending, setPending] = useState<Intent | null>(null);
   const sending = useRef(false);
+  const applyObservation = useCallback((observation: Observation) => {
+    setCurrent(observation); setFresh(true); setError("");
+  }, []);
+  const applyReadFailure = useCallback((failure: unknown) => {
+    setFresh(false); setError(failure instanceof Error ? failure.message : "Não foi possível consultar pessoas.");
+  }, []);
   const load = useCallback(async () => {
-    try {
-      const result = await apiCall<{ current: Observation }>(path);
-      if (!result.response.ok || !result.body || !("current" in result.body)) throw new Error(asApiError(result.body).message);
-      setCurrent(result.body.current); setFresh(true); setError("");
-    } catch (failure) { setFresh(false); setError(failure instanceof Error ? failure.message : "Não foi possível consultar pessoas."); }
-  }, [path]);
-  useEffect(() => { void load(); }, [load]);
+    try { applyObservation(await readPartySize(path)); }
+    catch (failure) { applyReadFailure(failure); }
+  }, [path, applyObservation, applyReadFailure]);
+  useEffect(() => {
+    let active = true;
+    void readPartySize(path).then(
+      observation => { if (active) applyObservation(observation); },
+      failure => { if (active) applyReadFailure(failure); },
+    );
+    return () => { active = false; };
+  }, [path, applyObservation, applyReadFailure]);
   const valid = /^\d+$/.test(count) && Number(count) > 0 && Number(count) <= 2147483647;
   async function save() {
     if (sending.current || !fresh || !current || (!pending && !valid)) return;

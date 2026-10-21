@@ -1,0 +1,3 @@
+019026681220e46547e0dd6be371de6b2544f12354578a4444872a327299dfad  apps/web/components/production-board.tsx
+31031e2eff0f6f0111695a9da8529b59c1d06ab251551da7e6e88526f2c7c76c  apps/web/tests/visual/production-clock.spec.ts
+c367a797ef6be7de4c3cf89966aeefe6087c24675d8657ed524e26cbd84fc98e  apps/web/tests/visual/production-batch-independent.spec.ts

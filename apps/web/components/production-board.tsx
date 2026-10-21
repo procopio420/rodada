@@ -85,6 +85,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
       setProducts(previous => JSON.stringify(previous) === JSON.stringify(nextProducts) ? previous : nextProducts);
       cache.save({ items: nextItems.map(item => ({ ...item, tab_label: "", table_label: null })), products: nextProducts });
       setHasSnapshot(true);
+      setNow(Date.now());
       setMessage("");
     } catch (error) {
       if (version === snapshotVersion.current) setMessage("Não foi possível atualizar a estação. Confira a conexão e tente novamente.");
@@ -118,7 +119,7 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
 
   useEffect(() => {
     void cache.restore().then(cached => {
-      if (cached) { setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
+      if (cached) { setNow(Date.now()); setItems(cached.data.items); setProducts(cached.data.products); setCachedAt(cached.fetchedAt); setHasSnapshot(true); setLoading(false); }
     });
   }, [cache]);
   const connectivity = useRealtime(() => load(true), {
@@ -126,7 +127,6 @@ export function ProductionBoard({ station, title }: { station: "BAR" | "KITCHEN"
     onRevoked: (error) => { cache.clear(); setItems([]); setProducts([]); setHasSnapshot(false); setLoading(false); setMessage(apiMessage(error ?? { code: "AUTH_REVOKED", message: "Sessão encerrada." })); },
   });
   useEffect(() => {
-    setNow(Date.now());
     // Local age display only; canonical reads are driven by realtime/fallback.
     const timer = window.setInterval(() => setNow(Date.now()), 15000);
     return () => window.clearInterval(timer);

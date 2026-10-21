@@ -1,0 +1,21 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y } from "./fixtures";
+for (const failure of ["network", "server"] as const) test(`pricing initial read ${failure}`, async ({ page }) => {
+  await fixture(page);
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  const writes: string[] = [];
+  page.on("request", request => { if (request.url().includes("/api/") && !["GET", "HEAD"].includes(request.method())) writes.push(request.url()); });
+  await page.route("**/api/pos/pricing/policy/", route => failure === "network" ? route.abort("failed") : route.fulfill({ status: 503, json: { code: "UNAVAILABLE", message: "Política indisponível." } }));
+  await page.route("**/api/pos/pricing/approvals/", route => route.fulfill({ json: { results: [] } }));
+  await page.goto("/manage/pricing");
+  await expect(page.getByRole("main").getByRole("status")).toHaveText(failure === "network" ? "Não foi possível carregar preços e serviço. Confira a conexão e atualize a página." : "Política indisponível.");
+  await page.getByLabel("PIN da gerência", { exact: true }).fill("0000");
+  await expect(page.getByRole("button", { name: "Salvar política", exact: true })).toBeDisabled();
+  await expect(page.getByRole("group", { name: "Regras de cobrança", exact: true })).toHaveCount(0);
+  await page.getByLabel("PIN da gerência", { exact: true }).fill("");
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-pricing-read/after-${failure}.png`, fullPage: true });
+  expect(errors).toEqual([]);
+  expect(writes).toEqual([]);
+});

@@ -1,0 +1,131 @@
+{
+  "base_head": "860b25d93da486d2416c6ddaccfdccd9605f8953",
+  "branch": "codex/management-ux-alerts",
+  "state": "working-tree-not-committed",
+  "files": [
+    {
+      "path": "apps/web/app/globals.css",
+      "sha256": "877a1076f2ffd5611227f87d771d058090c0ad6bcf41078c409360bcbda8bfc2"
+    },
+    {
+      "path": "apps/web/app/manage/alerts/settings/page.tsx",
+      "sha256": "0715e46575e114ab8fce1f34bef32cd6be1776cd0f8eb5885e72e5fbdef90c9f"
+    },
+    {
+      "path": "apps/web/app/manage/alerts/settings/settings.module.css",
+      "sha256": "532452ebaeded4da6d602e4dcdc165728f638b584b43e5faab3461caf7587184"
+    },
+    {
+      "path": "apps/web/app/manage/page.tsx",
+      "sha256": "b8835bd4a62c7b1ecff66bb4e71d234927763d38e9b02f04c37981f571d1b069"
+    },
+    {
+      "path": "apps/web/app/manage/printing/page.tsx",
+      "sha256": "5519c74e0685d7879665d2b4bf8c94f4f45a7fbcfff63c4f33b6084973171c2c"
+    },
+    {
+      "path": "apps/web/app/manage/printing/printing.module.css",
+      "sha256": "c6b26dbf1ad9dbb954b6b258b3fc20b0fd31cb129fa48c9081cf843d74aeb006"
+    },
+    {
+      "path": "apps/web/app/manage/setup/page.tsx",
+      "sha256": "b8285dfeacf8c8dc8f72766051757fd912c780d968bd7bd1b4b2d45b7a033836"
+    },
+    {
+      "path": "apps/web/app/manage/setup/setup.module.css",
+      "sha256": "093cc595e02a6ce8990dfcef3475ac2959d259ec504fe3c42a5f63588ddd7bb3"
+    },
+    {
+      "path": "apps/web/components/house-account.module.css",
+      "sha256": "aabdc840c384622e6e3b32dce81c062a755872bde3486f405dd30c697eaf91cf"
+    },
+    {
+      "path": "apps/web/components/house-account.tsx",
+      "sha256": "80b0858579d93f0de2c1a1bc850b941ba932a083b5067fe6bea88e9498f3f9e7"
+    },
+    {
+      "path": "apps/web/components/management-settings.tsx",
+      "sha256": "361c03d0661a5dfd9228e5630e3e273b5f70931152882592ecb6588e1b1739d0"
+    },
+    {
+      "path": "apps/web/components/management-subpage-header.tsx",
+      "sha256": "687ad0c6103ed530dafd75610590207916ad3cb1544792f5b5475eb1789ce3b2"
+    },
+    {
+      "path": "apps/web/lib/client/management-return.ts",
+      "sha256": "363bdf209815ae22abd51d14050bcbdda69e3f41cce2f1b64591e0dc0efcafc0"
+    },
+    {
+      "path": "apps/web/playwright.config.ts",
+      "sha256": "a095558728f65384fc3c054a2ffb93e37aae01c62f0997d40da93b1db04da2b2"
+    },
+    {
+      "path": "apps/web/tests/visual/fixtures.ts",
+      "sha256": "0a98f8cf26ce5097e5867880c0531c699257deb855a4ffb0c5bd62a6ca444c4a"
+    },
+    {
+      "path": "apps/web/tests/visual/management-alert-settings.spec.ts",
+      "sha256": "5558305e61cd249ebcbebea9d384579e683f885dc21ce38e10963368ae01d86c"
+    },
+    {
+      "path": "apps/web/tests/visual/management-alerts.spec.ts",
+      "sha256": "00c75ff9b3c8321d6196fb91c6182947229d85ca93a17331862fe2ba03a37678"
+    },
+    {
+      "path": "apps/web/tests/visual/management-catalog-editor.spec.ts",
+      "sha256": "c4b79d3610332a345638f32895c98db888db65c5dff08ccd8a42ef9f6fd470b6"
+    },
+    {
+      "path": "apps/web/tests/visual/management-customer-layout.spec.ts",
+      "sha256": "1e0c483ea131c84bfe7f75c3efd396cc87d052ea538cf4b872027eaf4114ec2f"
+    },
+    {
+      "path": "apps/web/tests/visual/management-customer-results.spec.ts",
+      "sha256": "ccacd79bcbebaa117c7e40cb0c6a0da0b5a8ef4525b1421afa7b94e1ece12408"
+    },
+    {
+      "path": "apps/web/tests/visual/management-navigation.spec.ts",
+      "sha256": "629cc4a4fa6b6a44735bc28bfa78245855d4a4e353522dc5a7f0a0ac1ac58a0c"
+    },
+    {
+      "path": "apps/web/tests/visual/management-print-destination.spec.ts",
+      "sha256": "97a9dfb4b8326ca41253de1a4eb7301e067e428c6d8c97df11c8b4162108bf1f"
+    },
+    {
+      "path": "apps/web/tests/visual/management-print-endpoints.spec.ts",
+      "sha256": "6b6a8bee3fbf0364ec58a7c5f5b18a6682ff28a400880b15c2f4a3b4b80b651e"
+    },
+    {
+      "path": "apps/web/tests/visual/management-print-jobs.spec.ts",
+      "sha256": "eb73c421caad4bd558d2fe051784fc303bc3688266a1234e35e526208c2a6cbd"
+    },
+    {
+      "path": "apps/web/tests/visual/management-setup-layout.spec.ts",
+      "sha256": "c85c6413eb692a5234b4487df45a107d4b63adf91f4669f09a0f4888c0a441f9"
+    },
+    {
+      "path": "apps/web/tests/visual/management-subpages.spec.ts",
+      "sha256": "5cc3fc91d59e37c49a15662c0ffc999f06094a1d5eae5e1edbfdf1922ff11811"
+    },
+    {
+      "path": "apps/web/tests/visual/management-tab-history.spec.ts",
+      "sha256": "f55451104de607f13788abaa0f96a3761d883d7215261635af6c2f854a74f314"
+    },
+    {
+      "path": "apps/web/tests/visual/management-tables.spec.ts",
+      "sha256": "fe160247821eeb00ef74bbec77ce3fa76f665f5b0657beee573d93b734555d86"
+    },
+    {
+      "path": "apps/web/tests/visual/management-team-layout.spec.ts",
+      "sha256": "4bbcc6e5f73bcf8308449fa27e782418f94ea061e6b692f0f3c9f0eacc6ed55a"
+    },
+    {
+      "path": "apps/web/tests/visual/printing.spec.ts",
+      "sha256": "608e3be96c3e31bac4cc230e7162ea7696e908621be214e3e61288c7d136d667"
+    },
+    {
+      "path": "apps/web/tests/visual/setup.spec.ts",
+      "sha256": "766bf1138b191f9c2619bab52c14821c3a5d0b437b3490d4ae731c2dea3aafc2"
+    }
+  ]
+}

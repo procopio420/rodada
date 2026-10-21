@@ -1,0 +1,31 @@
+import { test, expect } from "@playwright/test";
+import { fixture, layoutAndA11y, stable } from "./fixtures";
+
+for (const width of [360, 390, 430, 1280]) test(`refund form and cash point ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 932 });
+  await fixture(page);
+  await page.goto("/refunds");
+  await page.getByLabel("Comanda", { exact: true }).selectOption("tab-test");
+  await page.getByLabel("Valor a estornar", { exact: true }).fill("5,00");
+  await page.getByLabel("Motivo do estorno", { exact: true }).fill("Justificativa de teste");
+  await stable(page);
+  const phase = process.env.RODADA_S3I_BASELINE === "1" ? "before" : "after";
+  await page.screenshot({ path: `../../visual-artifacts/spec034-refund-form/${phase}-${width}.png`, fullPage: true });
+  if (phase === "before") return;
+  const form = page.getByRole("group", { name: "Preparar estorno", exact: true });
+  await expect(form).toBeVisible();
+  await expect(form.getByLabel("Caixa que devolverá o dinheiro", { exact: true })).toHaveValue("cash-test");
+  await layoutAndA11y(page);
+  await page.addStyleTag({ content: "#refund-command-fields { zoom: 2; }" });
+  await layoutAndA11y(page);
+  await page.screenshot({ path: `../../visual-artifacts/spec034-refund-form/after-${width}-zoom200.png`, fullPage: true });
+  const commands: unknown[] = [];
+  await page.route("**/api/pos/payments/payment-test/refunds/", route => { commands.push(route.request().postDataJSON()); return route.fulfill({ status: 403, json: { code: "CAPABILITY_REQUIRED", message: "Sem permissão para estornar." } }); });
+  const button = page.getByRole("button", { name: "Confirmar estorno", exact: true });
+  expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await button.focus(); await page.keyboard.press("Enter");
+  await expect(page.getByRole("main").getByRole("status").filter({ hasText: "Sem permissão" })).toBeVisible();
+  expect(commands).toHaveLength(1);
+  expect(commands[0]).toMatchObject({ amount_cents: 500, reason: "Justificativa de teste", cash_point_id: "cash-test" });
+  await expect(page.getByLabel("Motivo do estorno", { exact: true })).toHaveValue("Justificativa de teste");
+});

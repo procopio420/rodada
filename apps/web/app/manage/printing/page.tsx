@@ -8,41 +8,98 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { printState } from "@/components/receipt-printing";
+import styles from "./printing.module.css";
 type Endpoint = { id: string; label: string; adapter: string; width_mm: number; connection_ref: string; cut_supported: boolean; stations: string[]; enabled: boolean; health: string; health_at: string | null; bridge_status: string };
 type Job = { id: string; state: string; last_error: string; reason: string; reprint_of: string | null; document_id: string; attempts: { number: number; outcome: string; detail: string }[] };
+function readPrinting(failedOnly: boolean, offset: number) {
+  return Promise.all([apiCall<{ results: Endpoint[] }>("/api/pos/printing/endpoints/"), apiCall<{ results: Job[]; next_offset: number | null }>(`/api/pos/printing/jobs/?failed_only=${failedOnly}&offset=${offset}`)]);
+}
 export default function PrintingManagement() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]), [jobs, setJobs] = useState<Job[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(""), [label, setLabel] = useState(""), [adapter, setAdapter] = useState("BROWSER"), [width, setWidth] = useState(80), [reference, setReference] = useState(""), [stations, setStations] = useState<string[]>([]), [enabled, setEnabled] = useState(true), [cut, setCut] = useState(false), [reason, setReason] = useState("");
   const [failedOnly, setFailedOnly] = useState(false), [offset, setOffset] = useState(0), [nextOffset, setNextOffset] = useState<number | null>(null);
+  const testIntent = useRef(new Map<string, string>());
   const copyIntent = useRef<{ jobId: string; key: string } | null>(null);
+  const applyResults = useCallback((results: Awaited<ReturnType<typeof readPrinting>>) => {
+    if (!results[0].response.ok || !results[1].response.ok) { setMessage(asApiError(!results[0].response.ok ? results[0].body : results[1].body).message); return false; }
+    setEndpoints((results[0].body as { results: Endpoint[] }).results); setJobs((results[1].body as { results: Job[] }).results); setNextOffset((results[1].body as { next_offset?: number | null }).next_offset ?? null); return true;
+  }, []);
   const load = useCallback(async () => {
-    const results = await Promise.all([apiCall<{ results: Endpoint[] }>("/api/pos/printing/endpoints/"), apiCall<{ results: Job[]; next_offset: number | null }>(`/api/pos/printing/jobs/?failed_only=${failedOnly}&offset=${offset}`)]);
-    if (!results[0].response.ok || !results[1].response.ok) { setMessage(asApiError(!results[0].response.ok ? results[0].body : results[1].body).message); return; }
-    setEndpoints((results[0].body as { results: Endpoint[] }).results); setJobs((results[1].body as { results: Job[] }).results); setNextOffset((results[1].body as { next_offset?: number | null }).next_offset ?? null);
-  }, [failedOnly, offset]);
-  useEffect(() => { void load().catch(() => setMessage("Impressão indisponível. Confira a conexão.")); const timer = window.setInterval(() => { void load().catch(() => setMessage("Não foi possível atualizar os trabalhos.")); }, 5000); return () => window.clearInterval(timer); }, [load]);
+    return applyResults(await readPrinting(failedOnly, offset));
+  }, [applyResults, failedOnly, offset]);
+  useEffect(() => {
+    let active = true;
+    const refresh = (failureMessage: string) => {
+      void readPrinting(failedOnly, offset).then(results => {
+        if (active) applyResults(results);
+      }).catch(() => { if (active) setMessage(failureMessage); });
+    };
+    refresh("Impressão indisponível. Confira a conexão.");
+    const timer = window.setInterval(() => refresh("Não foi possível atualizar os trabalhos."), 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [applyResults, failedOnly, offset]);
   async function mutate(path: string, data: object) {
     if (busy) return;
     setBusy(true); setMessage("");
     try { const result = await apiCall(`/api/pos/printing/${path}`, { method: "POST", body: JSON.stringify(data) }); if (!result.response.ok) { setMessage(asApiError(result.body).message); return; } copyIntent.current = null; await load(); }
     catch { setMessage("Resultado indisponível. Atualize antes de tentar novamente."); } finally { setBusy(false); }
   }
+  async function testPrint(endpointId: string) {
+    if (busy) return;
+    const key = testIntent.current.get(endpointId) ?? crypto.randomUUID();
+    testIntent.current.set(endpointId, key);
+    setBusy(true); setMessage("");
+    try {
+      const response = await apiCall(`/api/pos/printing/endpoints/${endpointId}/test/`, { method: "POST", body: JSON.stringify({ idempotency_key: key }) });
+      if (!response.response.ok) { setMessage(asApiError(response.body).message); return; }
+      if (!(await load())) {
+        setMessage("Teste enfileirado, mas não foi possível atualizar os trabalhos. Confira o papel; a mesma tentativa será preservada.");
+        return;
+      }
+      testIntent.current.delete(endpointId);
+      setMessage("Teste enfileirado. Confira o trabalho e o papel; isso não é um pedido.");
+    } catch { setMessage("Resultado do teste indisponível. Atualize os trabalhos antes de repetir; a mesma tentativa será preservada."); }
+    finally { setBusy(false); }
+  }
   function edit(endpoint?: Endpoint) {
     setEditing(endpoint?.id ?? ""); setLabel(endpoint?.label ?? ""); setAdapter(endpoint?.adapter ?? "BROWSER"); setWidth(endpoint?.width_mm ?? 80); setReference(endpoint?.connection_ref ?? ""); setStations(endpoint?.stations ?? []); setEnabled(endpoint?.enabled ?? true); setCut(endpoint?.cut_supported ?? false);
   }
   return <main className="appShell"><ManagementSubpageHeader origin="printing" title="Impressoras e trabalhos" description="Acompanhe computadores, destinos e trabalhos de impressão." icon="printer" />
-    {message && <p className="notice" data-state="danger" role="alert">{message}</p>}
+    {message && <p id="printing-message" className="notice" data-state="danger" role="alert">{message}</p>}
     <PrintAgents /><PrintAgentRoutes endpoints={endpoints} />
-    <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>{endpoints.map(endpoint => <div className="dataRow" key={endpoint.id}><div><strong>{endpoint.label}</strong><p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"} · {endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p>{endpoint.adapter !== "AGENT" && <p>Bridge: {endpoint.bridge_status}</p>}<p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p></div><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button></div>)}<button className="buttonSecondary" onClick={() => edit()}>Novo destino</button></section>
-    <form className="panel" onSubmit={event => { event.preventDefault(); void mutate("endpoints/", { ...(editing ? { id: editing } : {}), label, adapter, width_mm: width, connection_ref: reference, stations, enabled, cut_supported: adapter === "AGENT" ? false : cut }); }}>
-      <OperationalHeading as="h2" icon="printer">{editing ? "Configurar destino" : "Novo destino"}</OperationalHeading><div className="field"><label>Nome<input required value={label} maxLength={120} onChange={e => setLabel(e.target.value)} /></label></div>
+    <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>
+      <div className={styles.destinations}>{endpoints.map(endpoint => <article className={styles.destination} aria-labelledby={`destination-${endpoint.id}`} key={endpoint.id}>
+        <div className={styles.destinationHeader}><h3 id={`destination-${endpoint.id}`}>{endpoint.label}</h3><div className="actions"><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button>{endpoint.adapter === "AGENT" && <button className="buttonSecondary" disabled={busy} onClick={() => void testPrint(endpoint.id)}>Testar {endpoint.label}</button>}</div></div>
+        <p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"}</p>
+        <p className="muted">{endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p>
+        {endpoint.adapter !== "AGENT" && <p className="muted">Bridge: {endpoint.bridge_status}</p>}
+        <p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p>
+      </article>)}</div>
+      <button className="buttonSecondary" onClick={() => edit()}>Novo destino</button>
+    </section>
+    <form className={`panel ${styles.form}`} onSubmit={event => { event.preventDefault(); void mutate("endpoints/", { ...(editing ? { id: editing } : {}), label, adapter, width_mm: width, connection_ref: reference, stations, enabled, cut_supported: adapter === "AGENT" ? false : cut }); }}>
+      <OperationalHeading as="h2" icon="printer">{editing ? "Configurar destino" : "Novo destino"}</OperationalHeading>
+      <fieldset className={styles.group}><legend>Identificação</legend>
+      <div className="field"><label>Nome<input required value={label} maxLength={120} onChange={e => setLabel(e.target.value)} /></label></div>
+      </fieldset>
+      <fieldset className={styles.group}><legend>Conexão e papel</legend>
+      <div className={styles.fields}>
       <div className="field"><label>Saída<select value={adapter} onChange={e => setAdapter(e.target.value)}><option value="BROWSER">Navegador / Salvar PDF</option><option value="FILE">Arquivo HTML (sem papel)</option><option value="NETWORK">ESC/POS pela rede local</option><option value="SPOOL">USB / fila do bridge legado</option><option value="AGENT">Computador Rodada Impressoras</option></select></label></div>
       <div className="field"><label>Papel<select value={width} onChange={e => setWidth(Number(e.target.value))}><option value={58}>58 mm</option><option value={80}>80 mm</option></select></label></div>
       {!["BROWSER", "AGENT"].includes(adapter) && <div className="field"><label>Referência da conexão local<input value={reference} maxLength={80} onChange={e => setReference(e.target.value)} /></label><p className="muted">Use a mesma referência na configuração do bridge do computador.</p></div>}
-      <div className="actions">{["BAR", "KITCHEN"].map(station => <button type="button" className="buttonSecondary" aria-pressed={stations.includes(station)} key={station} onClick={() => setStations(current => current.includes(station) ? current.filter(s => s !== station) : [...current, station])}>{station === "BAR" ? "Bar" : "Cozinha"}</button>)}<button type="button" className="buttonSecondary" aria-pressed={enabled} onClick={() => setEnabled(!enabled)}>{enabled ? "Ativo" : "Desativado"}</button><button type="button" className="buttonSecondary" aria-pressed={adapter !== "AGENT" && cut} disabled={adapter === "AGENT"} onClick={() => setCut(!cut)}>{adapter !== "AGENT" && cut ? "Corte habilitado" : "Sem corte"}</button></div>
+      </div>
+      </fieldset>
+      <fieldset className={styles.group}><legend>Uso na operação</legend>
+      <div className={`actions ${styles.choices}`}>{["BAR", "KITCHEN"].map(station => <button type="button" className="buttonSecondary" aria-pressed={stations.includes(station)} key={station} onClick={() => setStations(current => current.includes(station) ? current.filter(s => s !== station) : [...current, station])}>{station === "BAR" ? "Bar" : "Cozinha"}</button>)}<button type="button" className="buttonSecondary" aria-pressed={enabled} onClick={() => setEnabled(!enabled)}>{enabled ? "Ativo" : "Desativado"}</button><button type="button" className="buttonSecondary" aria-pressed={adapter !== "AGENT" && cut} disabled={adapter === "AGENT"} onClick={() => setCut(!cut)}>{adapter !== "AGENT" && cut ? "Corte habilitado" : "Sem corte"}</button></div>
+      </fieldset>
       <button className="buttonPrimary" disabled={busy || !label.trim()}>Salvar destino</button>
     </form>
-    <section className="panel"><OperationalHeading as="h2" icon="printer">Trabalhos recentes / falhas</OperationalHeading><div className="actions"><button className="buttonSecondary" aria-pressed={failedOnly} onClick={() => { setFailedOnly(!failedOnly); setOffset(0); }}>{failedOnly ? "Mostrar todos" : "Somente falhas"}</button>{offset > 0 && <button className="buttonSecondary" onClick={() => setOffset(Math.max(0, offset - 100))}>Página anterior</button>}{nextOffset !== null && <button className="buttonSecondary" onClick={() => setOffset(nextOffset)}>Próxima página</button>}</div><div className="field"><label>Motivo para reimpressão<input value={reason} maxLength={240} onChange={e => setReason(e.target.value)} /></label></div>{jobs.map(job => <article className="panel" key={job.id}><strong>{printState[job.state] ?? job.state}</strong><p>{job.id}</p>{job.last_error && <p>{job.last_error}</p>}{job.reprint_of && <p>REIMPRESSÃO de {job.reprint_of} · {job.reason}</p>}{job.attempts.map(attempt => <p key={attempt.number}>Tentativa {attempt.number}: {printState[attempt.outcome] ?? attempt.outcome} · {attempt.detail}</p>)}<div className="actions">
+    <section className="panel"><OperationalHeading as="h2" icon="printer">Trabalhos recentes / falhas</OperationalHeading><div className="actions"><button className="buttonSecondary" aria-pressed={failedOnly} onClick={() => { setFailedOnly(!failedOnly); setOffset(0); }}>{failedOnly ? "Mostrar todos" : "Somente falhas"}</button>{offset > 0 && <button className="buttonSecondary" onClick={() => setOffset(Math.max(0, offset - 100))}>Página anterior</button>}{nextOffset !== null && <button className="buttonSecondary" onClick={() => setOffset(nextOffset)}>Próxima página</button>}</div><div className="field"><label>Motivo para reimpressão<input value={reason} maxLength={240} onChange={e => setReason(e.target.value)} /></label></div>{jobs.map(job => <article className={styles.job} aria-label={job.id} key={job.id}>
+      <h3>{printState[job.state] ?? job.state}</h3><p className={styles.jobReference}>{job.id}</p>
+      {job.last_error && <p className={styles.jobError}>{job.last_error}</p>}
+      {job.reprint_of && <p>REIMPRESSÃO de {job.reprint_of} · {job.reason}</p>}
+      {job.attempts.map(attempt => <p className="muted" key={attempt.number}>Tentativa {attempt.number}: {printState[attempt.outcome] ?? attempt.outcome} · {attempt.detail}</p>)}
+      <div className={styles.jobActions}>
       <Link className="backLink" href={`/printing/jobs/${job.id}`}>Ver documento</Link>
       {job.state === "FAILED_RETRYABLE" && <button className="buttonSecondary" disabled={busy} onClick={() => void mutate(`jobs/${job.id}/`, { action: "retry" })}>Tentar agora</button>}
       {["OUTPUT_READY", "SPOOL_ACCEPTED", "DELIVERY_UNCERTAIN"].includes(job.state) && <button className="buttonSecondary" disabled={busy} onClick={() => void mutate(`jobs/${job.id}/`, { action: "confirm" })}>Confirmar que vi o papel</button>}

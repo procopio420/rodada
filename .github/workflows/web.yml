@@ -115,6 +115,17 @@ jobs:
         working-directory: apps/web
         run: npm run test:visual -- table-service.spec.ts
 
+      - name: Printer setup focused responsive and accessibility gate
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        working-directory: apps/web
+        env:
+          PRINTING_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          git -C ../.. diff --name-only "$PRINTING_BASE_SHA" HEAD -- apps/web/components/print-agent-routes.tsx apps/web/components/print-agents.tsx apps/web/app/manage/printing apps/web/tests/visual/printing.spec.ts apps/api/modules/documents_printing apps/api/tests/test_agent_multiagent.py .github/workflows/web.yml > "$RUNNER_TEMP/printing-changed-paths"
+          if test -s "$RUNNER_TEMP/printing-changed-paths"; then
+            npm run test:visual -- printing.spec.ts
+          fi
+
       - name: E2E PostgreSQL reset coordination regressions
         run: python -m unittest discover -s apps/web/tests/integration -p 'test_e2e_db_guard.py' -v
 

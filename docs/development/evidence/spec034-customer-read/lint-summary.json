@@ -1,0 +1,82 @@
+[
+  {
+    "path": "apps/web/app/manage/alerts/settings/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/daily-close/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/pricing/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/printing/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/products/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/manage/setup/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/refunds/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/app/reports/page.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/catalog-customization-editor.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/catalog-icon-editor.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/customization-availability.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/house-account.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/management-catalog-navigation.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/components/management-finance-links.tsx",
+    "errors": 0,
+    "warnings": 0
+  },
+  {
+    "path": "apps/web/lib/client/management-return.ts",
+    "errors": 0,
+    "warnings": 0
+  }
+]
