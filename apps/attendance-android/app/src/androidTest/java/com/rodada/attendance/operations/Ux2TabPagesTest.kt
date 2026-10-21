@@ -18,6 +18,27 @@ class Ux2TabPagesTest {
     private val product = Product("p", "Água", 500, true, "BAR", "AVAILABLE")
     private val tab = TabDetail(TabSummary("tab", "Teste", "OPEN", 1, 1000, 0, 1000, relationshipSnapshot = "HOUSE"), emptyList())
 
+    @Test fun actualTodosCategoryDoesNotSelectGlobalCatalog() {
+        val actual = product.copy(id = "real", name = "Item categoria Todos", category = "Todos")
+        val other = product.copy(id = "other", name = "Item bebidas", category = "Bebidas")
+        val inactive = product.copy(id = "inactive", name = "Item retirado", category = "Todos", active = false)
+        compose.setContent { RodadaTheme { Surface {
+            Ux2TabPages(OperationsUiState(products = listOf(actual, other, inactive), connectivity = ConnectivityState.ONLINE), tab,
+                "Cardápio", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {})
+        } } }
+        compose.onNodeWithTag("ux2-category:Todos").performScrollTo().performClick()
+        compose.onNodeWithText("Todos (categoria)").assertExists()
+        compose.onNodeWithText(inactive.name).assertDoesNotExist()
+        compose.onNodeWithText(actual.name).assertExists()
+        compose.onNodeWithText(other.name).assertDoesNotExist()
+        compose.onNodeWithTag("ux2-category:").performScrollTo().performClick()
+        compose.onNodeWithText(other.name).assertExists()
+        compose.onNode(hasSetTextAction()).performTextInput("bebidas")
+        compose.onNodeWithText(actual.name).assertDoesNotExist()
+        compose.onNodeWithText(other.name).assertExists()
+        captureCriticalEvidence(compose, "ux2-real-todos-category", compose.onRoot())
+    }
+
     @Test fun homeOpensCatalogAndReviewIgnoresSearch() {
         var sends = 0
         compose.setContent {
