@@ -47,7 +47,7 @@
 
 ## E06 — QA, observabilidade e rollout
 
-- [ ] E06-01 Baseline real, status Specs 026/029/#106 e cobertura existente; mapear aceites.
+- [x] E06-01 Baseline real, status Specs 026/029/#106 e cobertura existente; mapear aceites.
 - [ ] E06-02 Contratos e E2E integrados Web/Android/Guest/Bar/Cozinha/Caixa em PostgreSQL.
 - [ ] E06-03 Capturas 360/390/430 + S24-class/desktop, fonte ampliada, teclado, TalkBack.
 - [ ] E06-04 Ensaiar turno vazio/normal/pico com timeout, session swap e dispositivo reiniciado.
@@ -55,3 +55,5 @@
 - [ ] E06-06 Revisão independente R3, flags Venue/role, rollback, GO/NO-GO e homologação do bar.
 
 A checklist de cada epic decompõe essas tarefas em subtarefas e oferece aceites objetivos. Não marcar concluídas sem teste no mesmo SHA e evidência revisável.
+
+E06-01: [inventário por SHA](e06-current-evidence.md). E06-02..06 seguem abertos; esta marcação aceita somente o inventário.
