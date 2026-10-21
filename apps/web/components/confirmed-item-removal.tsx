@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
-export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange }: {
+export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange, returnFocus }: {
  item: { id: string; product_name: string; quantity: number };
- onRefresh: () => Promise<void>; onClose: () => void; onPendingChange: (pending: boolean) => void;
+ onRefresh: () => Promise<void>; onClose: () => void; onPendingChange: (pending: boolean) => void; returnFocus?: HTMLElement | null;
 }) {
  const [reason, setReason] = useState("WRONG_ITEM_ENTERED");
  const [quantity, setQuantity] = useState(1);
@@ -14,10 +14,10 @@ export function ConfirmedItemRemoval({ item, onRefresh, onClose, onPendingChange
  const dialog = useRef<HTMLDialogElement>(null);
  useEffect(() => {
   const element = dialog.current;
-  const previous = document.activeElement as HTMLElement | null;
+  const previous = returnFocus ?? document.activeElement as HTMLElement | null;
   element?.showModal();
   return () => { element?.close(); requestAnimationFrame(() => previous?.focus()); };
- }, []);
+ }, [returnFocus]);
  useEffect(() => { onPendingChange(true); return () => onPendingChange(false); }, [onPendingChange]);
  const availableQuantity = Math.max(1, Math.min(quantity, item.quantity));
  if (!busy && !uncertain && !applied && quantity !== availableQuantity) setQuantity(availableQuantity);
