@@ -34,3 +34,10 @@ export async function attendanceDraft(page: Page) {
   await workspace.getByRole("button", { name: "Ver resumo", exact: true }).click();
   return workspace;
 }
+
+export async function openAttendanceTable(page: Page, id: string) {
+  const tables = page.getByRole("button", { name: "Mesas", exact: true });
+  await tables.click();
+  await page.locator(`#attendance-table-${id} button`).click();
+  await expect(page.locator(".ux2TablePage")).toBeVisible();
+}

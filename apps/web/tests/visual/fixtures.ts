@@ -20,7 +20,7 @@ const shift = { id: "shift-test", cash_point_id: "cash-test", business_date: "20
 const session = {
   staff: { id: "operator-test", display_name: "Operador de teste" }, venue: { id: "venue-test", slug: "web-test", name: "Estabelecimento de teste" },
   membership: { id: "member-test", role: "MANAGER", status: "ACTIVE", version: 1 },
-  capabilities: ["cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create", "tab.limit.override", "customer.manage", "venue.configure", "catalog.product.create", "management.reports.read"],
+  capabilities: ["table.manage", "tab.open", "tab.move", "order.confirm", "cash.shift.open", "cash.adjustment.create", "cash.review", "refund.create", "tab.limit.override", "customer.manage", "venue.configure", "catalog.product.create", "management.reports.read"],
   session: { id: "session-test", expires_at: "2026-10-09T08:00:00Z", access_expires_at: "2026-10-08T21:15:00Z" }, device: null,
 };
 export type State = "normal" | "empty" | "loading" | "error" | "long" | "warnings";
