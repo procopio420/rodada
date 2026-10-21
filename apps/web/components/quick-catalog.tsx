@@ -19,6 +19,7 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   const [creating, setCreating] = useState(false), [saving, setSaving] = useState(false), [message, setMessage] = useState("");
   const [selected, setSelected] = useState<CatalogProduct | null>(null), [active, setActive] = useState(-1);
   const input = useRef<HTMLInputElement>(null), trigger = useRef<HTMLButtonElement>(null);
+  const startSearch = () => { setSearching(true); setSearchOk(false); setActive(-1); };
   useEffect(() => { let live = true; void apiCall<StaffSessionView>("/api/auth/me").then(({ response, body }) => {
     if (!live || !response.ok) return;
     const capabilities = (body as StaffSessionView).capabilities;
@@ -30,7 +31,6 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   useEffect(() => {
     if (!open || creating || selected) return;
     const abort = new AbortController();
-    setSearching(true); setSearchOk(false); setActive(-1);
     const timer = setTimeout(async () => {
       try {
         const result = await apiCall<{ results: CatalogProduct[] }>(`/api/pos/catalog/suggestions/?q=${encodeURIComponent(name)}`, { signal: abort.signal });
@@ -69,10 +69,10 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
   };
   if (!authorized) return null;
   return <section className="quickCatalog" aria-label={chooseStation ? "Cadastro de produto" : `Catálogo rápido ${station === "BAR" ? "Bar" : "Cozinha"}`}>
-    <button ref={trigger} className="buttonSecondary" onClick={() => { setOpen(true); setTimeout(() => input.current?.focus(), 0); }}>{chooseStation ? "Adicionar produto" : "+ Item"}</button>
+    <button ref={trigger} className="buttonSecondary" onClick={() => { if (!open) { startSearch(); setOpen(true); } setTimeout(() => input.current?.focus(), 0); }}>{chooseStation ? "Adicionar produto" : "+ Item"}</button>
     {open && <div className="panel quickCatalogPanel"><div className="catalogHeading"><OperationalHeading as="h2" icon="cart">{creating ? `Criar “${name.trim()}”` : "Item do catálogo"}</OperationalHeading><button className="buttonQuiet" disabled={saving} onClick={close}>Fechar</button></div>
       {chooseStation && !selected ? <div className="field"><label htmlFor={`${id}-station`}>Preparar em</label><select id={`${id}-station`} value={creationStation} disabled={saving} onChange={event => setCreationStation(event.target.value as "BAR" | "KITCHEN")}>{allowedStations.map(value => <option key={value} value={value}>{value === "BAR" ? "Bar" : "Cozinha"}</option>)}</select></div> : <p className="muted">Estação: {(selected?.fulfillment_station ?? creationStation) === "BAR" ? "Bar" : "Cozinha"}</p>}
-      {!selected && !creating && <><div className="field fieldComfortable"><label htmlFor={id}>Nome do produto</label><input ref={input} id={id} maxLength={160} autoComplete="off" role="combobox" aria-expanded={searchOk} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined} value={name} onChange={e => { setName(e.target.value); setSearchOk(false); }} onKeyDown={e => {
+      {!selected && !creating && <><div className="field fieldComfortable"><label htmlFor={id}>Nome do produto</label><input ref={input} id={id} maxLength={160} autoComplete="off" role="combobox" aria-expanded={searchOk} aria-controls={`${id}-list`} aria-autocomplete="list" aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined} value={name} onChange={e => { setName(e.target.value); startSearch(); }} onKeyDown={e => {
         if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); setActive(current => options ? (current + (e.key === "ArrowDown" ? 1 : options - 1) + options) % options : -1); }
         if (e.key === "Enter" && searchOk && !searching) { e.preventDefault(); if (active >= 0) choose(active); else if (exact) resolve(exact); }
         if (e.key === "Escape") close();
@@ -81,7 +81,7 @@ export function QuickCatalog({ station, chooseStation = false, onResolved, onCha
       <div id={`${id}-list`} role="listbox" aria-label="Produtos existentes" className="catalogOptions">{searchOk && !searching && results.map((product, index) => <button type="button" role="option" aria-selected={active === index} id={`${id}-option-${index}`} className="catalogOption" key={product.id} onClick={() => resolve(product)}><ProductIcon icon={product.icon} /><span><strong>{product.name}</strong><small>{money(product.price_cents)} · {product.fulfillment_station === "BAR" ? "Bar" : "Cozinha"}</small><span className="statusBadge" data-state={product.active && product.availability === "AVAILABLE" ? "success" : "danger"}>{!product.active ? "Não publicado" : product.availability === "AVAILABLE" ? "Disponível" : "Indisponível"}</span></span></button>)}
       {canCreate && <button role="option" aria-selected={active === results.length} id={`${id}-option-${results.length}`} className="buttonSecondary" onClick={() => choose(results.length)}>Criar “{name.trim()}”</button>}</div>
       {searchOk && !searching && !results.length && <p className="muted">Nenhum produto encontrado.</p>}</>}
-      {creating && <form onSubmit={e => { e.preventDefault(); void save(); }}><div className="field fieldComfortable"><label htmlFor={`${id}-price`}>Preço (R$)</label><input id={`${id}-price`} autoFocus inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} disabled={saving} placeholder="12,50" /></div><div className="actions"><button type="button" className="buttonQuiet" disabled={saving} onClick={() => setCreating(false)}>Voltar</button><button className="buttonPrimary" disabled={saving}>{saving ? "Salvando…" : "Criar item"}</button></div></form>}
+      {creating && <form onSubmit={e => { e.preventDefault(); void save(); }}><div className="field fieldComfortable"><label htmlFor={`${id}-price`}>Preço (R$)</label><input id={`${id}-price`} autoFocus inputMode="decimal" value={price} onChange={e => setPrice(e.target.value)} disabled={saving} placeholder="12,50" /></div><div className="actions"><button type="button" className="buttonQuiet" disabled={saving} onClick={() => { startSearch(); setCreating(false); }}>Voltar</button><button className="buttonPrimary" disabled={saving}>{saving ? "Salvando…" : "Criar item"}</button></div></form>}
       {selected && <div className="catalogOption"><ProductIcon icon={selected.icon} /><span><strong>{selected.name}</strong><small>{money(selected.price_cents)}</small><IconStatus icon={selected.icon} /></span></div>}
       {message && <p className="notice" role="status">{message}</p>}
     </div>}

@@ -6,6 +6,7 @@ import { FormEvent, useCallback, useState } from "react";
 import { apiCall, asApiError } from "@/lib/client/staff-auth";
 import { useRealtime } from "@/lib/client/use-realtime";
 import { ConnectivityNotice } from "@/components/connectivity-notice";
+import styles from "./settings.module.css";
 type Policy = { version: number; fulfillment_warning_seconds: number; fulfillment_danger_seconds: number; payment_pending_seconds: number; guest_request_warning_seconds: number; guest_request_danger_seconds: number };
 export default function AlertSettings() {
   const [policy, setPolicy] = useState<Policy>();
@@ -51,18 +52,32 @@ export default function AlertSettings() {
     <ManagementSubpageHeader origin="alerts" title="Alertas e SLAs" description="Defina quando a operação precisa de atenção." icon="warning" />
     <ConnectivityNotice {...connectivity} />
     {message && <p className="notice" role="status">{message}</p>}
-    {policy && draft && <form className="panel" onSubmit={event => void save(event)}>
+    {policy && draft && <form className={`panel ${styles.form}`} onSubmit={event => void save(event)}>
       <OperationalHeading as="h2" icon="warning">Limites operacionais</OperationalHeading><p className="muted">Versão {draft.version}. Entra em vigor agora após confirmação. Não altera estados ou timestamps dos pedidos.</p>
       {([
-        ["fulfillment_warning_seconds", "Produção: atenção após (segundos)"],
-        ["fulfillment_danger_seconds", "Produção: crítico após (segundos)"],
-        ["payment_pending_seconds", "Pagamento sem confirmação após (segundos)"],
-        ["guest_request_warning_seconds", "Atendimento: atenção após (segundos)"],
-        ["guest_request_danger_seconds", "Atendimento: crítico após (segundos)"],
-      ] as const).map(([key, label]) => <label className="field" key={key}><span>{label}</span><input type="number" min={1} max={key.endsWith("danger_seconds") ? 172800 : 86400} required value={draft[key]} disabled={saving} onChange={event => setDraft({ ...draft, [key]: Number(event.target.value) })} /></label>)}
+        { title: "Produção", fields: [
+          ["fulfillment_warning_seconds", "Produção: atenção após (segundos)"],
+          ["fulfillment_danger_seconds", "Produção: crítico após (segundos)"],
+        ] },
+        { title: "Pagamento", fields: [
+          ["payment_pending_seconds", "Pagamento sem confirmação após (segundos)"],
+        ] },
+        { title: "Atendimento", fields: [
+          ["guest_request_warning_seconds", "Atendimento: atenção após (segundos)"],
+          ["guest_request_danger_seconds", "Atendimento: crítico após (segundos)"],
+        ] },
+      ] as const).map(group => <fieldset className={styles.group} key={group.title}>
+        <legend>{group.title}</legend>
+        <div className={styles.fields}>{group.fields.map(([key, label]) => <label className="field" key={key}><span>{label}</span><input type="number" min={1} max={key.endsWith("danger_seconds") ? 172800 : 86400} required value={draft[key]} disabled={saving} onChange={event => setDraft({ ...draft, [key]: Number(event.target.value) })} /></label>)}</div>
+      </fieldset>)}
+      <fieldset className={styles.group}>
+      <legend>Confirmar alteração</legend>
+      <div className={styles.fields}>
       <label className="field"><span>Motivo da alteração</span><input maxLength={240} value={reason} disabled={saving} onChange={event => setReason(event.target.value)} /></label>
       <label className="field"><span>Confirme seu PIN</span><input type="password" inputMode="numeric" autoComplete="off" maxLength={12} value={pin} disabled={saving} onChange={event => setPin(event.target.value)} required /></label>
+      </div>
       <button className="buttonPrimary" type="submit" disabled={saving || connectivity.state === "OFFLINE"}>{saving ? "Confirmando…" : "Salvar política"}</button>
+      </fieldset>
     </form>}
   </main>;
 }

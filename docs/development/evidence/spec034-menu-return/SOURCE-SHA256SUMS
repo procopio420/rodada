@@ -1,0 +1,6 @@
+e2bffa923ea468812c1080f024c9dc40a163742a02cd3957ff1c344d883c3e6a  apps/web/lib/client/management-return.ts
+d3e77fa507f1cca5199dc708fab94135a1a40d500c1e820ddfca89c1e2c3be16  apps/web/components/management-catalog-navigation.tsx
+64409d25a24234ad652c0cb46d78991892ee27973a28bd3d1eac5ba895fed4b7  apps/web/app/manage/page.tsx
+0cabae89ae981f9ac2bc4aff5791b481e7a122a69520ed4bf57948d0ea6728d3  apps/web/app/manage/products/page.tsx
+a7956a80e847ba326434a44d33b6ec78f17cec522444559215fe1d405da27981  apps/web/components/catalog-customization-editor.tsx
+586e3873c850e362ee1cd3ea6efd89bde890ec16899f4cfc76b29af19f02bfb3  apps/web/tests/visual/management-menu-return.spec.ts

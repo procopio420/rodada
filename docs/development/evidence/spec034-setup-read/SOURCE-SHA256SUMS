@@ -1,0 +1,3 @@
+d8cfbe447643ea0e00bf2b18d69a184c086fca00464ab69c027f1c8f0a0b1541  apps/web/app/manage/setup/page.tsx
+3b366afe5e6e1e8fb8056b057f8f03d9e17f26faf075bc4fa2e3139231e5d457  apps/web/tests/visual/management-setup-read.spec.ts
+fd671bdab351d84d4cc544b3b41aa921b11b363d4b8180cd546fa36bd3b1c663  apps/web/tests/visual/management-tables.spec.ts

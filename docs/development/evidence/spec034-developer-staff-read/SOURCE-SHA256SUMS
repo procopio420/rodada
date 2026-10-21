@@ -1,0 +1,3 @@
+aeb31f592af20da0235ea56ed6d55c2f9d2ec98bfed783879f10de4d274ba7a5  apps/web/components/developer-staff.tsx
+219183a9a7e48130074397ada2c157a826216032f10c7f0f9b51eabefeb5e9e7  apps/web/tests/visual/developer-staff-read.spec.ts
+6eaa4a8705372847cd2ec77467a7de4533852b6b0fc91a7e4849a17444f768c7  apps/web/tests/visual/pilot-cohesion.spec.ts

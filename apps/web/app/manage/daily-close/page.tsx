@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { paymentMethodLabel, closeStatusLabel, cashStatusLabel, cashReviewLabel, proposalStatusLabel } from "@/lib/presentation-labels";
 
 import { OperationalHeading } from "@/components/operational-heading";
+import { OperationalIcon } from "@/components/operational-icon";
+import styles from "./daily-close.module.css";
 import { apiCall, asApiError, type StaffSessionView } from "@/lib/client/staff-auth";
 
 type Method = { method: string; paid_cents: number; refunds_cents: number; net_received_cents: number };
@@ -205,21 +207,23 @@ export default function DailyCloseManagement() {
   }
 
   return <main className="appShell">
-    <header className="productHeader">
+    <header className="productHeader managementSubpageHeader">
+      <Link className="backLink managementSubpageBack" href="/manage#financeiro"><OperationalIcon name="chevron-left" size={20} />Voltar ao Financeiro</Link>
       <div className="eyebrow">RODADA / GERÊNCIA / CAIXA</div>
       <OperationalHeading as="h1" icon="wallet">Fechamento diário</OperationalHeading>
       <p className="muted">Recebimentos, gavetas e correções são fatos distintos. Revisões antigas nunca são reescritas.</p>
-      <a className="backLink" href="/manage#financeiro">← Voltar à Gerência</a>
     </header>
 
-    <section className="panel">
-      <OperationalHeading as="h2" icon="sales">Dia operacional</OperationalHeading>
+    <section className={`panel ${styles.day}`} id="daily-close-day" aria-labelledby="daily-close-day-title">
+      <OperationalHeading as="h2" icon="sales" id="daily-close-day-title">Dia operacional</OperationalHeading>
+      <fieldset className={styles.selection}><legend>Selecionar dia</legend>
       <div className="field"><label htmlFor="daily-close-date">Data do fechamento</label>
         <input id="daily-close-date" type="date" value={day} disabled={busy || !!pendingAction} onChange={event => setDay(event.target.value)} /></div>
-      <div className="actions">
+      <div className={styles.actions}>
         <button className="buttonSecondary" disabled={!day || busy || !!pendingAction || loading} onClick={() => void load(day)}>Consultar</button>
         <button className="buttonPrimary" disabled={!canReview || !day || busy || !!pendingAction || loading} onClick={generate}>Gerar revisão do dia</button>
       </div>
+      </fieldset>
       {!canReview && <p className="muted">Gerar e revisar exige a permissão de gerente e confirmação recente do PIN.</p>}
     </section>
 
@@ -227,8 +231,8 @@ export default function DailyCloseManagement() {
     {notice && <div className="notice" role="status" data-state="success">{notice}</div>}
     {loading && <p role="status">Carregando dados canônicos…</p>}
 
-    {!loading && <section className="panel">
-      <OperationalHeading as="h2" icon="receipt">Revisões imutáveis</OperationalHeading>
+    {!loading && <section className={`panel ${styles.revisions}`} id="daily-close-revisions" aria-labelledby="daily-close-revisions-title">
+      <OperationalHeading as="h2" icon="receipt" id="daily-close-revisions-title">Revisões imutáveis</OperationalHeading>
       {!closes.length && <p className="muted">Nenhuma revisão gerada para esta data.</p>}
       {!!closes.length && <>
         <div className="field"><label htmlFor="daily-close-version">Histórico de revisões</label>
@@ -237,24 +241,29 @@ export default function DailyCloseManagement() {
           </select></div>
         {selected && <>
           <span className="statusBadge" data-state={selected.status === "REVIEWED" ? "success" : selected.status === "INCOMPLETE" ? "danger" : "warning"}>{closeStatusLabel(selected.status)}</span>
+          <div className={styles.summary} role="group" aria-labelledby="close-financial-summary-title"><h3 id="close-financial-summary-title">Resumo financeiro</h3>
           <div className="dataRow"><span>Vendas líquidas</span><strong>{money(selected.original.financial.net_sales_cents)}</strong></div>
           <div className="dataRow"><span>Recebimentos confirmados</span><strong>{money(selected.original.receipts.paid_cents)}</strong></div>
           <div className="dataRow"><span>Estornos confirmados</span><strong>{money(selected.original.receipts.refunds_cents)}</strong></div>
           <div className="dataRow"><span>Recebimento líquido</span><strong>{money(selected.original.receipts.net_received_cents)}</strong></div>
           <p className="muted">Recebimentos totais do estabelecimento não equivalem ao saldo físico do caixa.</p>
-          <h3>Métodos de recebimento</h3>
+          </div>
+          <div className={styles.reviewSection}><h3>Métodos de recebimento</h3>
           {selected.original.receipts.methods.map(row => <div className="dataRow" key={row.method}><span>{paymentMethodLabel(row.method)}</span><strong>{money(row.net_received_cents)}</strong></div>)}
-          <h3>Caixas físicos</h3>
+          </div>
+          <div className={styles.reviewSection}><h3>Caixas físicos</h3>
           {selected.original.cash_shifts.map(shift => <div className="reportGroup" key={shift.id}>
             <strong>{shift.label}</strong><p className="muted">{cashStatusLabel(shift.status)} · {cashReviewLabel(shift.review_status)}</p>
             <div className="dataRow"><span>Contado</span><strong>{money(shift.counted_amount_cents)}</strong></div>
             <div className="dataRow"><span>Diferença</span><strong>{money(shift.discrepancy_cents)}</strong></div>
           </div>)}
-          <h3>Bloqueios da revisão</h3>
+          </div>
+          <div className={styles.reviewSection}><h3 id="close-blockers-title">Bloqueios da revisão</h3>
           {!selected.original.blockers.length ? <p className="muted">Nenhum bloqueio no snapshot.</p>
-            : selected.original.blockers.map((blocker, index) => <p key={`${blocker.kind}-${blocker.id ?? index}`} className="notice" data-state="danger">{blockerName(blocker.kind)}{blocker.id ? ` · ${blocker.id.slice(0, 8)}` : ""}
+            : <ul className={styles.blockers} aria-labelledby="close-blockers-title">{selected.original.blockers.map((blocker, index) => <li key={`${blocker.kind}-${blocker.id ?? index}`} className="notice" data-state="danger">{blockerName(blocker.kind)}{blocker.id ? ` · ${blocker.id.slice(0, 8)}` : ""}
               {blocker.id && ["CASH_SHIFT", "OVERDUE_CASH_SHIFT"].includes(blocker.kind) && <><br /><Link className="backLink" href={`/cash?shift=${encodeURIComponent(blocker.id)}&from=${encodeURIComponent("/manage/daily-close")}`}>Revisar este turno →</Link></>}
-            </p>)}
+            </li>)}</ul>}
+          </div>
           {selected.status === "READY_FOR_REVIEW" && !selected.review && <div className="field">
             <label htmlFor="daily-close-review-reason">Justificativa da revisão</label>
             <textarea id="daily-close-review-reason" value={reviewReason} maxLength={240} onChange={event => setReviewReason(event.target.value)} />
@@ -271,46 +280,52 @@ export default function DailyCloseManagement() {
     {!loading && <section className="panel">
       <OperationalHeading as="h2" icon="wallet">Correções depois do fechamento</OperationalHeading>
       <p className="muted">O solicitante não pode aprovar a própria correção. A proposta não altera valores até outra pessoa autorizada decidir.</p>
-      {canRequest && <div className="field">
+      {canRequest && <fieldset className={styles.correctionRequest} id="correction-request"><legend>Solicitar ajuste de caixa</legend>
+        <div className="field">
         <label htmlFor="correction-shift">Caixa fechado</label>
         <select id="correction-shift" value={requestShift} onChange={event => setRequestShift(event.target.value)}>
           <option value="">Selecione o caixa</option>
           {closedShifts.map(shift => <option key={shift.id} value={shift.id}>{shift.cash_point_label} · {shift.id.slice(0, 8)}</option>)}
         </select>
+        </div><div className="field">
         <label htmlFor="correction-amount">Ajuste em R$ (positivo ou negativo)</label>
         <input id="correction-amount" value={requestAmount} onChange={event => setRequestAmount(event.target.value)} placeholder="Ex.: -10,00" inputMode="decimal" />
+        </div><div className="field">
         <label htmlFor="correction-reason">Justificativa da proposta</label>
         <textarea id="correction-reason" value={requestReason} onChange={event => setRequestReason(event.target.value)} maxLength={240} />
+        </div>
         <button className="buttonSecondary" onClick={propose} disabled={busy || !!pendingAction || !requestShift || !requestReason.trim()}>Solicitar correção</button>
-      </div>}
+      </fieldset>}
       {!canRequest && <p className="muted">Este operador não pode propor movimentos de caixa.</p>}
       <h3>Pendentes ({pending.length})</h3>
       {!proposals.length && <p className="muted">Nenhuma proposta nesta data.</p>}
-      {proposals.map(row => <div className="reportGroup" key={row.id}>
-        <div className="dataRow"><strong>{row.cash_point_label}</strong><strong>{money(row.amount_cents)}</strong></div>
+      <div className={styles.proposals} data-correction-proposals>{proposals.map(row => <article className={styles.proposal} key={row.id} aria-labelledby={`proposal-title-${row.id}`}>
+        <div className={styles.proposalHeader}><h3 id={`proposal-title-${row.id}`}>{row.cash_point_label}</h3><strong>{money(row.amount_cents)}</strong></div>
         <p>{row.reason}</p>
         <p className="muted">Solicitada em {stamp(row.requested_at)} · {proposalStatusLabel(row.status)}</p>
         {row.status === "PENDING" && canReview && <>
           {session?.staff.id === row.requested_by
             ? <p className="notice" data-state="warning">Solicitação própria: outro gerente precisa decidir.</p>
-            : <div className="field">
+            : <div className={`field ${styles.decision}`}>
               <label htmlFor={`decision-${row.id}`}>Motivo da decisão</label>
               <textarea id={`decision-${row.id}`} value={decisionReasons[row.id] ?? ""} disabled={busy || !!pendingAction} onChange={event => setDecisionReasons(current => ({ ...current, [row.id]: event.target.value }))} maxLength={240} />
-              <div className="actions"><button className="buttonPrimary" disabled={busy || !!pendingAction || !(decisionReasons[row.id] ?? "").trim()} onClick={() => decide(row, "APPROVED")}>Aprovar</button>
+              <div className={styles.actions}><button className="buttonPrimary" disabled={busy || !!pendingAction || !(decisionReasons[row.id] ?? "").trim()} onClick={() => decide(row, "APPROVED")}>Aprovar</button>
                 <button className="buttonSecondary" disabled={busy || !!pendingAction || !(decisionReasons[row.id] ?? "").trim()} onClick={() => decide(row, "REJECTED")}>Rejeitar</button></div>
             </div>}
         </>}
         {row.status !== "PENDING" && <p className="muted">Decisão: {row.decision_reason}{row.movement_id ? ` · Movimento ${row.movement_id.slice(0, 8)}` : ""}</p>}
-      </div>)}
+      </article>)}</div>
     </section>}
 
-    {pendingAction && <section className="panel reauthPanel">
-      <OperationalHeading as="h2" icon="lock">Confirmar PIN do gerente</OperationalHeading>
+    {pendingAction && <section className={`panel reauthPanel ${styles.reauth}`} id="daily-close-reauth" aria-labelledby="daily-close-reauth-title">
+      <OperationalHeading as="h2" icon="lock" id="daily-close-reauth-title">Confirmar PIN do gerente</OperationalHeading>
       <p className="muted">Confirmação de segurança necessária; a mesma operação será repetida com a chave original.</p>
+      <fieldset className={styles.identity}><legend>Confirmar identidade</legend>
       <div className="field"><label htmlFor="daily-close-pin">Seu PIN</label>
         <input id="daily-close-pin" type="password" inputMode="numeric" autoComplete="current-password" value={pin} onChange={event => setPin(event.target.value)} /></div>
-      <div className="actions"><button className="buttonPrimary" disabled={!pin || busy} onClick={() => void reauthenticate()}>Confirmar e continuar</button>
+      <div className={styles.actions}><button className="buttonPrimary" disabled={!pin || busy} onClick={() => void reauthenticate()}>Confirmar e continuar</button>
         <button className="buttonSecondary" disabled={busy} onClick={() => { setPendingAction(null); setPin(""); }}>Cancelar</button></div>
+      </fieldset>
     </section>}
     <p><Link className="backLink" href="/cash">Abrir turnos individuais de caixa →</Link></p>
   </main>;

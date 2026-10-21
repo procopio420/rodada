@@ -263,3 +263,7 @@ checks and build also consume the job budget. This changes only the overall
 job deadline: test selection, per-assertion deadlines, retries, path filters,
 concurrency and required checks remain unchanged. No new automatic heavy gate
 is added; this does not turn a cancelled run into a pass or waive rerunning it.
+
+### Executor local Windows de integração —2026-10-21
+
+O guard de reset E2E mantémflock noLinux e usa bloqueio debyte0msvcrt noWindows. NoWindows leitores também serializam:menor paralelismo,sem dispensar exclusão durante reset. Banco continua restrito aPostgreSQLloopbackrodada_web_e2e;usar clusterdescartável separado dosdados deinspeção. DiretórioTEMP compartilhado entre processos é precondição;execuções entre usuários/TEMPdiferentes não foram validadas. Espera por contenção não tem timeout interno;runner permanece responsável pelo prazo externo. Semmudança deworkflow/seleçãoCI. Evidência localfocada:[Spec034](../specs/034-management-ux-standardization/integration-focused-evidence.md).
