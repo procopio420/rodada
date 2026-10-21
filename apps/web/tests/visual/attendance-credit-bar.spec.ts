@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { fixture } from "./fixtures";
+import { fixture, layoutAndA11y } from "./fixtures";
 
 test.beforeEach(async({page})=>{await page.addInitScript(()=>{for(const key of Object.keys(localStorage))if(key.startsWith("rodada:order-draft:"))localStorage.removeItem(key);});});
 
@@ -29,6 +29,6 @@ for(const width of [360,390,430,1280])for(const scale of [1,2])test(`credit proj
 });
 test("canonical capacity is not recalculated and invalid financial DTO is explicit",async({page})=>{
  const position={effective_limit_cents:10000,exposure_cents:7900,remaining_capacity_cents:1234,relationship_snapshot:"HOUSE"};
- const panel=await showCredit(page,position);await expect(panel.getByText(/12,34 disponíveis/)).toBeVisible();await expect(panel.getByRole("progressbar")).toHaveAttribute("aria-valuenow","79");const details=panel.getByRole("button",{name:"Detalhes ›"});await details.focus();await expect(details).toBeFocused();expect((await details.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+ const panel=await showCredit(page,position);await expect(panel.getByText(/12,34 disponíveis/)).toBeVisible();await expect(panel.getByRole("progressbar")).toHaveAttribute("aria-valuenow","79");const details=panel.getByRole("button",{name:"Detalhes ›"});await details.focus();await expect(details).toBeFocused();await layoutAndA11y(page);
  for(const invalid of [null,{...position,effective_limit_cents:-1},{...position,exposure_cents:0.5}]){const invalidPanel=await showCredit(page,invalid);await expect(invalidPanel.getByText(/indisponível/)).toBeVisible();await expect(invalidPanel.getByRole("progressbar")).toHaveCount(0);}
 });

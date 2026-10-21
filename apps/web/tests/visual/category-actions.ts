@@ -3,6 +3,7 @@ import { attendanceWorkspace } from "./attendance-actions";
 
 export async function openProductCategory(page: Page, name: string) {
   const workspace = attendanceWorkspace(page);
+  await expect(workspace).toBeVisible();
   if (await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).isVisible())
     await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
   else if (await workspace.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).isVisible())
@@ -20,6 +21,7 @@ export async function chooseCatalogItem(page: Page, name: string) {
 }
 export async function addCatalogItem(page: Page, name: string, quantity = 1) {
   const catalog = attendanceWorkspace(page);
+  await expect(catalog).toBeVisible();
   if (!await catalog.getByRole("button", { name: `Adicionar ${name}`, exact: true }).isVisible())
     await openProductCategory(page, name);
   for (let count = 0; count < quantity; count++)

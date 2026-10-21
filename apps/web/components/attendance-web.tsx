@@ -92,6 +92,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const [tableOpening, setTableOpening] = useState(false);
   const openingTableRequest = useRef(0);
   const [workspaceReturnFocus, setWorkspaceReturnFocus] = useState<HTMLElement | null>(null);
+  const returningTabFocus = useRef<string | null>(null);
   const tableOpeningLock = useRef(false);
 
   const [screen, setScreen] = useState("now"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
@@ -155,7 +156,17 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     setScreen("tables");
   }, [failOrderOpen, setScreen]);
   const revealOrder = useCallback(() => setScreen("tables"), [setScreen]);
-  const closeOrder = useCallback(() => { clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh, clearTaskOrigin]);
+  const closeOrder = useCallback(() => { returningTabFocus.current = orderContext?.tabId ?? null; clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh, clearTaskOrigin, orderContext?.tabId]);
+  useEffect(() => {
+    if (orderContext || loading || !returningTabFocus.current) return;
+    const tabId = returningTabFocus.current;
+    const frame = requestAnimationFrame(() => {
+      returningTabFocus.current = null;
+      const row = [...document.querySelectorAll<HTMLButtonElement>("button[data-tab-id]")].find(button => button.dataset.tabId === tabId);
+      row?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [orderContext, loading]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);
   const visibleTables = tables.filter(table => (normalizeTable(table.label).includes(tableQuery) || table.active_occupancy?.tabs?.some(tab => normalizeCatalogSearch(`${tab.display_label} ${tab.display_reference || tabReference(tab)}`).includes(normalizeCatalogSearch(tableSearch)))));
@@ -180,7 +191,7 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
       localStorage.setItem(storageKey, JSON.stringify(next)); setIntent(next);
       const result = await request<{ tab_id?: string; table_id?: string; table_label?: string }>(next.path, next.payload);
       localStorage.removeItem(storageKey); setIntent(null); setMessage("Operação confirmada.");
-      if (result.tab_id) { clearTaskOrigin(); setRequestedSurface("tab"); orderOrigin.current = {screen:"tables",tableId:result.table_id || null}; setRequestedTab(current => ({ id: result.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: result.table_label ? `Mesa ${result.table_label}` : "Comanda" })); setScreen("tables"); if (result.table_id) setSelectedTable(result.table_id); setOpeningAt(null); }
+      if (result.tab_id) { clearTaskOrigin(); setRequestedSurface(next.path.endsWith("/tabs/open/") || next.path.endsWith("/service/open-tab/") ? "catalog" : "tab"); orderOrigin.current = {screen:"tables",tableId:result.table_id || null}; setRequestedTab(current => ({ id: result.tab_id!, sequence: (current?.sequence ?? 0) + 1, destination: result.table_label ? `Mesa ${result.table_label}` : "Comanda" })); setScreen("tables"); if (result.table_id) setSelectedTable(result.table_id); setOpeningAt(null); }
       else if (result.table_id) { setSelectedTable(result.table_id); setScreen("tables"); }
       setTakeoverAt(null); setMoving(null); await refresh(undefined, true);
     } catch (failure) {
