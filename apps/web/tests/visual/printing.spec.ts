@@ -61,3 +61,57 @@ for (const width of [360, 390, 768]) {
     await page.screenshot({ path: `../../visual-artifacts/spec023-all-web/document-${width}.png`, fullPage: true });
   });
 }
+
+for (const width of [360, 390, 430, 1280]) {
+  test(`explicit printer profile and renewed attestation at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await page.route("**/api/pos/printing/agents/v1/", route => route.fulfill({ json: { enabled: true, results: [] } }));
+    await page.route("**/api/pos/printing/agents/v1/routes/", route => route.fulfill({ json: {
+      printers: [{ id: "queue1", agent_id: "pc1", label: "Bematech candidata", queue_name: "Fila Windows de teste", transport: "WINDOWS_DRIVER", driver_name: "Driver instalado", health: "UNKNOWN", config_fingerprint: "test" }], routes: [],
+    } }));
+    await page.route("**/api/pos/printing/endpoints/", route => route.fulfill({ json: { results: [{ id: "printer1", label: "Bar", adapter: "AGENT", width_mm: 80, stations: ["BAR"], enabled: true, health: "UNKNOWN" }] } }));
+    await page.route("**/api/pos/printing/jobs/**", route => route.fulfill({ json: { results: [] } }));
+    await page.goto("/manage/printing");
+    const panel = page.getByRole("region", { name: "Rotas dos computadores" });
+    await panel.getByLabel("Destino lógico").selectOption("printer1");
+    await panel.getByLabel("Fila descoberta").selectOption("queue1");
+    await panel.getByLabel("Usar ESC/POS RAW em vez do driver Windows").check();
+    const confirmation = panel.getByLabel(/Confirmei em teste físico/);
+    await confirmation.check();
+    await panel.locator("#printing-profile").selectOption("escpos-pc860-cut-v1");
+    await expect(confirmation).not.toBeChecked();
+    await expect(panel.getByRole("button", { name: "Salvar rota", exact: true })).toBeDisabled();
+    await expect(page.getByRole("link", { name: /Instalador para Windows/ })).toHaveAttribute("href", "https://rodada.bar/downloads");
+    await stable(page);
+    await layoutAndA11y(page);
+    await panel.screenshot({ path: `../../visual-artifacts/print-profile-${width}.png` });
+  });
+}
+
+test("test-print keeps the same key after confirmed POST and failed readback", async ({ page }) => {
+  await fixture(page);
+  const keys: { endpoint: string; key: string }[] = [];
+  let failed = false;
+  await page.route("**/api/pos/printing/agents/v1/", route => route.fulfill({ json: { enabled: false, results: [] } }));
+  await page.route("**/api/pos/printing/agents/v1/routes/", route => route.fulfill({ json: { printers: [], routes: [] } }));
+  await page.route("**/api/pos/printing/endpoints/", route => route.fulfill(failed ? { status: 503, json: { message: "Synthetic unavailable" } } : { json: { results: [{ id: "printer1", label: "Bar", adapter: "AGENT", width_mm: 80, stations: ["BAR"], enabled: true, health: "UNKNOWN" }, { id: "printer2", label: "Cozinha", adapter: "AGENT", width_mm: 58, stations: ["KITCHEN"], enabled: true, health: "UNKNOWN" }] } }));
+  await page.route("**/api/pos/printing/jobs/**", route => route.fulfill({ json: { results: [] } }));
+  await page.route("**/api/pos/printing/endpoints/*/test/", route => {
+    keys.push({ endpoint: route.request().url(), key: route.request().postDataJSON().idempotency_key });
+    failed = true;
+    return route.fulfill({ status: 201, json: { id: "same-diagnostic-job", state: "QUEUED" } });
+  });
+  await page.goto("/manage/printing");
+  const button = page.getByRole("button", { name: "Testar Bar", exact: true });
+  await button.click();
+  await expect(page.locator("#printing-message")).toContainText("mesma tentativa será preservada");
+  await page.getByRole("button", { name: "Testar Cozinha", exact: true }).click();
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect(button).toBeEnabled();
+  expect(keys).toHaveLength(3);
+  expect(keys[2]).toEqual(keys[0]);
+  expect(keys[1].endpoint).not.toBe(keys[0].endpoint);
+  expect(keys[1].key).not.toBe(keys[0].key);
+});

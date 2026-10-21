@@ -87,3 +87,17 @@ class ResultView(AgentContractView):
         return Response(
             agent_delivery.result(request.user, request.auth.id, job_id, data.validated_data)
         )
+
+
+class TestPrintView(PrintManagerView):
+    def post(self, request, endpoint_id):
+        from .diagnostics import request_test
+        from .views import job_payload
+
+        class Input(StrictInput):
+            idempotency_key = serializers.UUIDField()
+
+        data = Input(data=request.data)
+        data.is_valid(raise_exception=True)
+        job = request_test(request.auth, endpoint_id, data.validated_data["idempotency_key"])
+        return Response(job_payload(job), status=201)
