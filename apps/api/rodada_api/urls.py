@@ -6,7 +6,7 @@ from modules.hospitality.group_views import TableGroupListCreateView, TableGroup
 from modules.tab_operations.views import OperationView, PreviewView, ServicePointView
 from modules.documents_printing.views import SharedReceiptView, GuestReceiptView
 from modules.ledger.pricing_views import (PricingView, PricingPreviewView, PricingPolicyView, PricingRequestApprovalView, PricingApproveView, RefundItemPreviewView)
-from modules.management.views import TableServiceRolloutView
+from modules.management.views import AttendanceMetricsView, TableServiceRolloutView
 from modules.access.developer import DeveloperStaffListView, DeveloperStaffDetailView
 
 from modules.cash.daily_close_views import DailyCloseListView, DailyCloseDetailView, DailyCloseReviewView
@@ -152,6 +152,7 @@ urlpatterns = [
     path("management/alert-policy/", AlertPolicyView.as_view()),
     path("management/calendar/", CalendarView.as_view()),
     path("management/reports/", ReportView.as_view()),
+    path("management/attendance-metrics/", AttendanceMetricsView.as_view()),
     path("management/table-turnover/", TableTurnoverReportView.as_view(), name="table-turnover-report"),
     path("venue/context/", VenueHostContextView.as_view(), name="venue-host-context"),
     path("health/", health, name="health"),

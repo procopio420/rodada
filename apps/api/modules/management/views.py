@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import UTC, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from django.db import transaction
 from django.db.models import Sum, Count
@@ -306,3 +306,30 @@ class TableServiceRolloutView(APIView):
                 return Response(_finish(row, after))
         except HospitalityServiceError as error:
             return Response({"code": error.code, "message": error.message}, status=error.status_code)
+
+
+class AttendanceMetricsView(APIView):
+    permission_classes = [IsAuthenticated, RequireCapability]
+    required_capability = Capability.MANAGEMENT_REPORTS_READ
+
+    def get(self, request):
+        from modules.management.attendance_metrics import attendance_metrics
+
+        class Period(serializers.Serializer):
+            start = serializers.DateField()
+            end = serializers.DateField()
+
+            def validate(self, attrs):
+                if not 0 <= (attrs["end"] - attrs["start"]).days <= 30:
+                    raise serializers.ValidationError("Escolha até 31 dias em ordem cronológica.")
+                try:
+                    business_boundary(request.auth.venue, attrs["start"]).astimezone(UTC)
+                    business_boundary(request.auth.venue, attrs["end"] + timedelta(days=1)).astimezone(UTC)
+                except (OverflowError, ValueError):
+                    raise serializers.ValidationError("Período fora dos limites do calendário.") from None
+                return attrs
+
+        period = Period(data=request.query_params)
+        period.is_valid(raise_exception=True)
+        return Response(attendance_metrics(venue=request.auth.venue,
+            start=period.validated_data["start"], end=period.validated_data["end"]))
