@@ -16,12 +16,12 @@ class ImportCatalogCsvTests(TestCase):
         self.venue = Venue.objects.create(name="Bar do Aderlan", slug="bar-do-aderlan")
         self.other = Venue.objects.create(name="Outro bar", slug="outro-bar")
 
-    def run_import(self, content, *flags):
+    def run_import(self, content, *flags, venue_slug=None):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "catalog.csv"
             path.write_text(content, encoding="utf-8")
             output = io.StringIO()
-            call_command("import_catalog_csv", "--file", str(path), "--venue-slug", self.venue.slug,
+            call_command("import_catalog_csv", "--file", str(path), "--venue-slug", venue_slug or self.venue.slug,
                          *flags, stdout=output)
             return output.getvalue()
 
@@ -114,9 +114,10 @@ class ImportCatalogCsvTests(TestCase):
         assert Product.objects.filter(venue=self.venue).count() == 2
 
     def test_missing_venue_cannot_create_products(self):
-        self.venue.delete()
+        missing = "missing-csv-fixture"
+        assert not Venue.objects.filter(slug=missing).exists()
         with self.assertRaisesMessage(CommandError, "Venue não encontrado"):
-            self.run_import('name,category,price_brl,station\nÁgua,Bebidas,"5,00",BAR\n', "--apply")
+            self.run_import('name,category,price_brl,station\nÁgua,Bebidas,"5,00",BAR\n', "--apply", venue_slug=missing)
         assert not Product.objects.exists()
 
     def test_database_failure_rolls_back_prior_update_and_creation(self):

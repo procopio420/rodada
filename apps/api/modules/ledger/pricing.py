@@ -563,10 +563,11 @@ def apply(*, tab_id, data, actor, approver=None):
         raise PricingError("REASON_REQUIRED", "Informe o motivo para aprovação.", 400)
     from modules.house_account.services import financial_position
 
-    if (
-        result["after_remaining_cents"] > financial_position(tab)["effective_limit_cents"]
-        and result["effect_cents"] > 0
-    ):
+    from modules.house_account.spending import audit_excess, increment_exceeds_limit
+    position = financial_position(tab, lock_policy=True)
+    if result["effect_cents"] > 0 and position["spending_limit_mode"] == "WARN_ONLY" and position["action_reasons"]:
+        raise PricingError("TAB_REQUIRES_ACTION", "Resolva a pendência da comanda antes de aumentar consumo.")
+    if increment_exceeds_limit(position, result["effect_cents"]):
         raise PricingError(
             "SPENDING_LIMIT_EXCEEDED", "Taxa/ajuste excede o limite. Autorize o limite primeiro."
         )
@@ -593,6 +594,8 @@ def apply(*, tab_id, data, actor, approver=None):
             )
     response = {**result, "version": tab.version + 1}
     fact = write_fact(tab, proposed, data, actor, policy, approver=approver, response=response)
+    audit_excess(tab=tab, position=position, increment_cents=result["effect_cents"],
+                 entity_type="Adjustment", entity_id=fact.id, actor=approver or actor)
     tab.version += 1
     tab.save(update_fields=["version"])
     sync_attention(tab, approver or actor)
