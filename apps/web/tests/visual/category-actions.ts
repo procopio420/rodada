@@ -1,39 +1,31 @@
 import { expect, type Page } from "@playwright/test";
+import { attendanceWorkspace } from "./attendance-actions";
 
 export async function openProductCategory(page: Page, name: string) {
-  const category = page.locator(".attendanceCategoryDialog");
-  if (await category.isVisible()) await category.locator(":scope > button").last().click();
-  await page.getByLabel("Buscar item no cardápio", { exact: true }).fill(name);
-  await page.getByRole("navigation", { name: "Categorias do cardápio" }).getByRole("button").first().click();
-  return category;
+  const workspace = attendanceWorkspace(page);
+  if (await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).isVisible())
+    await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+  else if (await workspace.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).isVisible())
+    await workspace.getByRole("button", { name: "← Continuar escolhendo itens", exact: true }).click();
+  await workspace.getByLabel("Buscar produto", { exact: true }).fill(name);
+  await workspace.getByRole("group", { name: "Categorias", exact: true }).locator('button[data-category=""]').click();
+  return workspace;
 }
 export async function chooseCatalogItem(page: Page, name: string) {
-  const category = await openProductCategory(page, name);
-  await category.getByRole("button", { name: `Escolher ${name}`, exact: true }).click();
-  const item = page.getByRole("dialog", { name: `Adicionar ${name}`, exact: true });
+  const catalog = await openProductCategory(page, name);
+  await catalog.getByRole("button", { name: `Personalizar ${name}`, exact: true }).click();
+  const item = page.getByRole("dialog", { name: `Personalizar ${name}`, exact: true });
   await expect(item).toBeVisible();
   return item;
 }
 export async function addCatalogItem(page: Page, name: string, quantity = 1) {
-  const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
-  if (await workspace.isVisible()) {
-    for (let count = 0; count < quantity; count++) await workspace.getByRole("button", { name: `Adicionar ${name}`, exact: true }).click();
-    return;
-  }
-  const item = await chooseCatalogItem(page, name);
-  for (let count = 1; count < quantity; count++) await item.getByRole("button", { name: "Aumentar quantidade escolhida", exact: true }).click();
-  await item.getByRole("button", { name: /^Adicionar ·/ }).click();
-  await expect(item).not.toBeVisible();
-  await page.locator(".attendanceCategoryDialog").locator(":scope > button").last().click();
-  await expect(page.locator(".attendanceCategoryDialog")).not.toBeVisible();
-  await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeEnabled();
+  const catalog = attendanceWorkspace(page);
+  if (!await catalog.getByRole("button", { name: `Adicionar ${name}`, exact: true }).isVisible())
+    await openProductCategory(page, name);
+  for (let count = 0; count < quantity; count++)
+    await catalog.getByRole("button", { name: `Adicionar ${name}`, exact: true }).click();
 }
 export async function expectCatalogQuantity(page: Page, name: string, quantity: number) {
-  const category = await openProductCategory(page, name);
-  const card = category.getByRole("button", { name: `Escolher ${name}`, exact: true });
-  await expect(card).toHaveAttribute("data-selected", quantity ? "true" : "false");
-  if (quantity) await expect(card.getByRole("status")).toHaveText(`${quantity} no pedido`);
-  await category.locator(":scope > button").last().click();
-  await expect(category).not.toBeVisible();
-  await expect(page.locator(".attendanceOrderDialog").locator(":scope > button").last()).toBeEnabled();
+  const catalog = await openProductCategory(page, name);
+  await expect(catalog.getByRole("status", { name: `Quantidade de ${name}`, exact: true })).toHaveText(String(quantity));
 }
