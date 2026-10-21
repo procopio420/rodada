@@ -45,7 +45,7 @@ for (const width of [360, 390, 430, 1280]) test(`printer route CAS and changed-d
   await expect(save).toBeDisabled();
   // Synthetic authorization fixture only: no physical compatibility certification.
   await attestation.check();
-  await panel.getByLabel("Perfil ESC/POS").selectOption("escpos-pc860-v1");
+  await panel.locator("#printing-profile").selectOption("escpos-pc860-v1");
   await expect(attestation).not.toBeChecked();
   await expect(save).toBeDisabled();
   await attestation.check();
@@ -57,7 +57,7 @@ for (const width of [360, 390, 430, 1280]) test(`printer route CAS and changed-d
   const route = inventory.routes.find((row: { printer_id: string }) => row.printer_id === observed.id);
   expect(route).toMatchObject({ profile_id: "escpos-pc860-v1", transport: "WINDOWS_RAW", enabled: true, raw_escpos_verified: true, version: 1 });
   await page.getByRole("button", { name: `Testar Destino sintético ${width}`, exact: true }).click();
-  await expect(page.getByRole("alert")).toContainText("Teste enfileirado");
+  await expect(page.locator("#printing-message")).toContainText("Teste enfileirado");
   expect((await request.post(api + "me/discovery/", { headers, data: { protocol_version: 1, printers: [{ ...printer, driver_name: "Synthetic Driver B" }] } })).status()).toBe(200);
   await expect(panel.getByRole("alert")).toContainText("A fila ou o driver mudou", { timeout: 15000 });
   await expect(save).toBeDisabled();

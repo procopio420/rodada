@@ -79,7 +79,7 @@ for (const width of [360, 390, 430, 1280]) {
     await panel.getByLabel("Usar ESC/POS RAW em vez do driver Windows").check();
     const confirmation = panel.getByLabel(/Confirmei em teste físico/);
     await confirmation.check();
-    await panel.getByLabel("Perfil ESC/POS").selectOption("escpos-pc860-cut-v1");
+    await panel.locator("#printing-profile").selectOption("escpos-pc860-cut-v1");
     await expect(confirmation).not.toBeChecked();
     await expect(panel.getByRole("button", { name: "Salvar rota", exact: true })).toBeDisabled();
     await expect(page.getByRole("link", { name: /Instalador para Windows/ })).toHaveAttribute("href", "https://rodada.bar/downloads");
@@ -105,7 +105,7 @@ test("test-print keeps the same key after confirmed POST and failed readback", a
   await page.goto("/manage/printing");
   const button = page.getByRole("button", { name: "Testar Bar", exact: true });
   await button.click();
-  await expect(page.getByRole("alert")).toContainText("mesma tentativa será preservada");
+  await expect(page.locator("#printing-message")).toContainText("mesma tentativa será preservada");
   await button.click();
   await expect(button).toBeEnabled();
   expect(keys).toHaveLength(2);
