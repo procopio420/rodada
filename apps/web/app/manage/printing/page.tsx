@@ -14,7 +14,7 @@ export default function PrintingManagement() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]), [jobs, setJobs] = useState<Job[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(""), [label, setLabel] = useState(""), [adapter, setAdapter] = useState("BROWSER"), [width, setWidth] = useState(80), [reference, setReference] = useState(""), [stations, setStations] = useState<string[]>([]), [enabled, setEnabled] = useState(true), [cut, setCut] = useState(false), [reason, setReason] = useState("");
   const [failedOnly, setFailedOnly] = useState(false), [offset, setOffset] = useState(0), [nextOffset, setNextOffset] = useState<number | null>(null);
-  const testIntent = useRef<{ endpointId: string; key: string } | null>(null);
+  const testIntent = useRef(new Map<string, string>());
   const copyIntent = useRef<{ jobId: string; key: string } | null>(null);
   const load = useCallback(async () => {
     const results = await Promise.all([apiCall<{ results: Endpoint[] }>("/api/pos/printing/endpoints/"), apiCall<{ results: Job[]; next_offset: number | null }>(`/api/pos/printing/jobs/?failed_only=${failedOnly}&offset=${offset}`)]);
@@ -30,16 +30,17 @@ export default function PrintingManagement() {
   }
   async function testPrint(endpointId: string) {
     if (busy) return;
-    if (testIntent.current?.endpointId !== endpointId) testIntent.current = { endpointId, key: crypto.randomUUID() };
+    const key = testIntent.current.get(endpointId) ?? crypto.randomUUID();
+    testIntent.current.set(endpointId, key);
     setBusy(true); setMessage("");
     try {
-      const response = await apiCall(`/api/pos/printing/endpoints/${endpointId}/test/`, { method: "POST", body: JSON.stringify({ idempotency_key: testIntent.current.key }) });
+      const response = await apiCall(`/api/pos/printing/endpoints/${endpointId}/test/`, { method: "POST", body: JSON.stringify({ idempotency_key: key }) });
       if (!response.response.ok) { setMessage(asApiError(response.body).message); return; }
       if (!(await load())) {
         setMessage("Teste enfileirado, mas não foi possível atualizar os trabalhos. Confira o papel; a mesma tentativa será preservada.");
         return;
       }
-      testIntent.current = null;
+      testIntent.current.delete(endpointId);
       setMessage("Teste enfileirado. Confira o trabalho e o papel; isso não é um pedido.");
     } catch { setMessage("Resultado do teste indisponível. Atualize os trabalhos antes de repetir; a mesma tentativa será preservada."); }
     finally { setBusy(false); }
