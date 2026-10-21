@@ -316,3 +316,40 @@ class SpendingPolicySecurityTests(HouseFixture, TestCase):
             ).status_code
             == 403
         )
+
+    def test_editor_context_is_bound_at_server_before_receipt_or_write(self):
+        import uuid
+
+        from modules.access.models import StaffSession
+        from modules.house_account.models import SpendingLimitPolicyCommand
+
+        self.reauth()
+        session = StaffSession.objects.get(staff_member__login_identifier="house-manager")
+        body = {
+            "mode": "WARN_ONLY",
+            "expected_version": 1,
+            "reason": "Bound editor",
+            "idempotency_key": "bound",
+            "expected_venue_id": str(self.venue.id),
+            "expected_session_id": str(session.id),
+        }
+        for field in ("expected_venue_id", "expected_session_id"):
+            response = self.manager.put(
+                self.path, {**body, field: str(uuid.uuid4())}, format="json"
+            )
+            assert (
+                response.status_code == 409 and response.json()["code"] == "ACTOR_CONTEXT_CHANGED"
+            )
+        partial = dict(body)
+        partial.pop("expected_session_id")
+        assert self.manager.put(self.path, partial, format="json").status_code == 409
+        assert SpendingLimitPolicyCommand.objects.count() == 0
+        assert self.staff.get(self.path).json()["mode"] == "ENFORCE"
+        assert self.manager.put(self.path, body, format="json").status_code == 200
+        assert (
+            self.manager.put(
+                self.path, {**body, "expected_session_id": str(uuid.uuid4())}, format="json"
+            ).status_code
+            == 409
+        )
+        assert SpendingLimitPolicyCommand.objects.count() == 1

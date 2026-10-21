@@ -205,6 +205,8 @@ class SpendingLimitPolicyView(APIView):
             expected_version = serializers.IntegerField(min_value=1)
             reason = serializers.CharField(max_length=240)
             idempotency_key = serializers.CharField(max_length=120)
+            expected_venue_id = serializers.UUIDField(required=False)
+            expected_session_id = serializers.UUIDField(required=False)
 
         serializer = Input(data=request.data)
         serializer.is_valid(raise_exception=True)

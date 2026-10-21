@@ -77,10 +77,29 @@ def audit_excess(*, tab, position, increment_cents, entity_type, entity_id, acto
 
 
 @transaction.atomic
-def update_spending_policy(*, actor, mode, expected_version, reason, idempotency_key):
+def update_spending_policy(
+    *,
+    actor,
+    mode,
+    expected_version,
+    reason,
+    idempotency_key,
+    expected_venue_id=None,
+    expected_session_id=None,
+):
     from .services import authorize
 
     authorize(actor, Capability.VENUE_CONFIGURE, privileged=True)
+    # A browser can switch cookies while a configuration command is in flight.
+    # Clients with a captured editor context bind it here, before any receipt/write.
+    captured = expected_venue_id is not None or expected_session_id is not None
+    matches = str(expected_venue_id) == str(actor.venue_id) and str(expected_session_id) == str(
+        actor.session_id
+    )
+    if captured and not matches:
+        raise OrderingServiceError(
+            "ACTOR_CONTEXT_CHANGED", "A sessão mudou. Reabra a configuração.", 409
+        )
     session = StaffSession.objects.select_related("membership").get(pk=actor.session_id)
     if session.membership.role not in ("MANAGER", "OWNER"):
         raise AccessPermissionDenied("MANAGER_REQUIRED", "A configuração exige gerência.")

@@ -22,3 +22,9 @@ Excesso registra modo, versão e exposição antes/depois, sem Payment fictício
 Gates: migração forward/backward, schema, PostgreSQL real, concorrência, replay,
 isolamento/auth, canais Web/Compose, R3 e CI no SHA candidato. Nenhum AC aceito
 pela existência de código; rollback de schema requer retirar clientes/escritas.
+
+O editor Web envia também `expected_venue_id` + `expected_session_id` capturados
+na intenção. Se o browser trocar cookies durante PIN/PUT, o serviço rejeita
+`ACTOR_CONTEXT_CHANGED` antes de receipt/write/replay. Par parcial também rejeita;
+chamadores diretos sem contexto de editor continuam autorizados pela sessão atual.
+Estes IDs são precondições, jamais fonte de autorização ou seleção de Venue.
