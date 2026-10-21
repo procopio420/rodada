@@ -709,8 +709,9 @@ class OperationsViewModel(
                     repository.tabDetail(session, now.tabId)
                     val products = repository.products(session)
                     pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
-                    repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
+                    val receipt = repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
                     val canonical = repository.tabDetail(session, now.tabId)
+                    receipt.requireReadback(canonical)
                     pendingMutationIntentStore.remove(now.id)
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {

@@ -201,7 +201,7 @@ class OperationsHttpClient(baseUrl: String) {
         tabId: String,
         lines: List<CartLine>,
         intentId: String,
-    ) {
+    ): OrderConfirmationReceipt {
         val lineJson = JSONArray()
         lines.forEach { line ->
             lineJson.put(
@@ -214,12 +214,13 @@ class OperationsHttpClient(baseUrl: String) {
             )
         }
         // The backend persists this UUID per Tab and returns the existing Order on a retry.
-        request(
+        val receipt = request(
             "POST",
             "/tabs/$tabId/orders/confirm/",
             JSONObject().put("lines", lineJson).put("idempotency_key", intentId),
             accessToken,
         )
+        return OrderConfirmationReceipt.fromJson(receipt, tabId)
     }
 
     fun collectPayment(
