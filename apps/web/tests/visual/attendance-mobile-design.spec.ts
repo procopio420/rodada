@@ -83,6 +83,17 @@ test("quantity and configuration edits cannot exceed 99 units", async ({ page })
   await expect(draft.locator(".ux2ReviewRow")).toHaveCount(2);
   await expect(draft.getByText("60× Fritas", { exact: true })).toBeVisible();
   await expect(draft.getByText("40× Fritas", { exact: true })).toBeVisible();
+  await separate.getByRole("button", { name: "Reduzir Fritas", exact: true }).click();
+  await separate.getByRole("button", { name: "Editar", exact: true }).click();
+  await edit.getByLabel("Pedido especial (opcional)").fill("");
+  await expect(edit.getByRole("button", { name: /^Adicionar ·/ })).toBeEnabled();
+  await edit.getByRole("button", { name: /^Adicionar ·/ }).click();
+  await expect(edit).not.toBeVisible();
+  const equivalent = draft.locator(".ux2ReviewRow").filter({ has: page.getByText("39× Fritas", { exact: true }) });
+  await equivalent.getByRole("button", { name: "Aumentar Fritas", exact: true }).click();
+  await expect(draft.getByText("60× Fritas", { exact: true })).toBeVisible();
+  await expect(draft.getByText("39× Fritas", { exact: true })).toBeVisible();
+  await expect(draft.getByText("40× Fritas", { exact: true })).toHaveCount(0);
 });
 
 test("quantity popup remains usable with doubled text", async ({ page }) => {
@@ -419,11 +430,11 @@ for (const readbackFails of [false, true]) test(`release and direct cleaning ret
   await expect(page.locator(".attendanceTableDialog")).not.toBeVisible();
   await page.getByRole("button", { name: /Mesa 02 Aguardando limpeza/ }).click();
   const dirty = page.locator(".ux2TablePage");
-  await expect(dirty.getByRole("button", { name: "Mesa pronta", exact: true })).toHaveCount(0);
+  await expect(dirty.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true })).toHaveCount(0);
   await dirty.getByRole("button", { name: "Iniciar limpeza", exact: true }).click();
   await expect(dirty.getByText("Em limpeza", { exact: true }).first()).toBeVisible();
-  await dirty.getByRole("button", { name: "Mesa pronta", exact: true }).click();
-  await dirty.getByRole("button", { name: "Voltar", exact: true }).click();
+  await dirty.getByRole("button", { name: "Mesa limpa · Disponibilizar", exact: true }).click();
+  await expect(dirty).not.toBeVisible();
   await expect(page.getByRole("button", { name: /Mesa 02 Disponível/ })).toBeVisible();
   expect(paths).toEqual(["release", "start", "complete"]);
 });
@@ -457,4 +468,28 @@ for (const responseLost of [false, true]) test(`release retains confirmed occupa
   await expect(dialog.getByRole("alert").filter({ hasText: "A ocupação mudou" })).toBeVisible();
   expect(payloads).toEqual(Array(responseLost ? 1 : 0).fill({ expected_occupancy_id: original.id, expected_generation: original.generation }));
   expect(tables[1].active_occupancy.id).toBe("replacement-occupancy");
+});
+
+
+test("return focus waits for the held core refresh to recover online", async ({ page }) => {
+  const { tables } = await setup(page);
+  await page.goto("/attendance"); await page.getByRole("button", { name: "Mesas", exact: true }).click(); await openTable(page);
+  await addCatalogItem(page, "Fritas");
+  await page.route("**/api/attendance/hospitality/tables/", route => route.fulfill({ status: 503, json: { message: "Core temporariamente indisponível" } }));
+  await page.clock.runFor(15_000);
+  await expect(page.getByRole("button", { name: "Opções do atendimento", exact: true })).toContainText("Desatualizado");
+  let release!: () => void, reads = 0;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/attendance/hospitality/tables/", async route => {
+    reads++; await held;
+    await route.fulfill({ json: { table_service_enabled: true, results: tables } });
+  });
+  try {
+    await closeAttendanceTab(page);
+    await expect.poll(() => reads).toBe(1);
+    await expect(page.locator('button[data-tab-id="tab-test"]')).toBeDisabled();
+    await expect(page.locator('button[data-tab-id="tab-test"]')).not.toBeFocused();
+  } finally { release(); }
+  await expect(page.locator('button[data-tab-id="tab-test"]')).toBeEnabled();
+  await expect(page.locator('button[data-tab-id="tab-test"]')).toBeFocused();
 });

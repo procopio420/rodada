@@ -92,7 +92,8 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
   const [tableOpening, setTableOpening] = useState(false);
   const openingTableRequest = useRef(0);
   const [workspaceReturnFocus, setWorkspaceReturnFocus] = useState<HTMLElement | null>(null);
-  const returningTabFocus = useRef<string | null>(null);
+  const returningTabFocus = useRef<{ tabId: string; ready: boolean } | null>(null);
+  const [returnFocusRead, setReturnFocusRead] = useState(0);
   const tableOpeningLock = useRef(false);
 
   const [screen, setScreen] = useState("now"), [busy, setBusy] = useState(false), [online, setOnline] = useState(false), [loading, setLoading] = useState(true);
@@ -156,17 +157,18 @@ function Workspace({ session, logout }: { session: StaffSessionView; logout: () 
     setScreen("tables");
   }, [failOrderOpen, setScreen]);
   const revealOrder = useCallback(() => setScreen("tables"), [setScreen]);
-  const closeOrder = useCallback(() => { returningTabFocus.current = orderContext?.tabId ?? null; clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh(); }, [refresh, clearTaskOrigin, orderContext?.tabId]);
+  const closeOrder = useCallback(() => { const target = orderContext ? { tabId: orderContext.tabId, ready: false } : null; returningTabFocus.current = target; clearTaskOrigin(); setScreen(orderOrigin.current.screen); setSelectedTable(orderOrigin.current.tableId); void refresh().finally(() => { if (target && returningTabFocus.current === target) { target.ready = true; setReturnFocusRead(value => value + 1); } }); }, [refresh, clearTaskOrigin, orderContext]);
   useEffect(() => {
-    if (orderContext || loading || !returningTabFocus.current) return;
-    const tabId = returningTabFocus.current;
+    const target = returningTabFocus.current;
+    if (orderContext || loading || !online || !target?.ready) return;
     const frame = requestAnimationFrame(() => {
-      returningTabFocus.current = null;
-      const row = [...document.querySelectorAll<HTMLButtonElement>("button[data-tab-id]")].find(button => button.dataset.tabId === tabId);
-      row?.focus();
+      if (returningTabFocus.current !== target) return;
+      const row = [...document.querySelectorAll<HTMLButtonElement>("button[data-tab-id]")].find(button => button.dataset.tabId === target.tabId);
+      if (row?.isConnected && !row.disabled) { row.focus(); returningTabFocus.current = null; }
+      else if (!row) returningTabFocus.current = null;
     });
     return () => cancelAnimationFrame(frame);
-  }, [orderContext, loading]);
+  }, [orderContext, loading, online, tables, returnFocusRead]);
   const normalizeTable = (value: string) => normalizeCatalogSearch(value).replace(/^mesa\s*/, "").replace(/\s+/g, " ");
   const tableQuery = normalizeTable(tableSearch);
   const visibleTables = tables.filter(table => (normalizeTable(table.label).includes(tableQuery) || table.active_occupancy?.tabs?.some(tab => normalizeCatalogSearch(`${tab.display_label} ${tab.display_reference || tabReference(tab)}`).includes(normalizeCatalogSearch(tableSearch)))));
