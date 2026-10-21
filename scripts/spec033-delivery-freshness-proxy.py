@@ -1,7 +1,7 @@
 """Loopback-only read fault proxy for isolated Spec033 native freshness tests."""
 import http.client,json,threading
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
-state={'queue':False,'core':False,'hold':False,'held':False};lock=threading.Lock();release=threading.Event()
+state={'queue':False,'core':False,'hold':False,'held':False,'service':False};lock=threading.Lock();release=threading.Event()
 class Handler(BaseHTTPRequestHandler):
  def log_message(self,*args):pass
  def do_GET(self):self.handle_request()
@@ -15,11 +15,12 @@ class Handler(BaseHTTPRequestHandler):
      if state['hold']:release.clear()
      else:release.set()
     if self.path.endswith('/configure'):
-     settings=json.loads(body);state.update(queue=settings['queue'],core=settings['core'],hold=settings['hold'])
+     settings=json.loads(body);state.update(queue=settings['queue'],core=settings['core'],hold=settings['hold'],service=settings.get('service',False))
     if self.path.endswith('/release'):release.set()
     data=json.dumps(state).encode()
    self.reply(200,data);return
-  queue=self.command=='GET' and self.path=='/dispatch/delivery/'
+  with lock:queue_path='/dispatch/requests/' if state['service'] else '/dispatch/delivery/'
+  queue=self.command=='GET' and self.path==queue_path
   with lock:fail=state['queue'] if queue else state['core'] and self.command=='GET' and self.path.startswith('/tabs/?');hold=queue and state['hold']
   if hold:
    with lock:state['held']=True
