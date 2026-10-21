@@ -188,7 +188,7 @@ internal fun Ux2TabPages(
         }
         if (!closed && count == 0 && section == "Cardápio" && !pending) Ux2Action("Adicione itens para enviar", false, onConfirm, true)
         if (!closed && count > 0 && !pending) {
-            val withinLimit = !summary.consumptionBlocked && total <= summary.remainingCapacityCents
+            val withinLimit = !summary.consumptionBlocked && (summary.spendingLimitMode == "WARN_ONLY" || total <= summary.remainingCapacityCents)
             val valid = cart.all { it.product.active && it.product.availability == "AVAILABLE" && it.product.customizationError(it.customization) == null }
             val saveLocally = state.connectivity == ConnectivityState.OFFLINE
             Ux2Action(if (saveLocally) "Guardar pedido neste aparelho" else "Enviar $count ${if (count == 1) "item" else "itens"} · ${formatCents(total)}",
@@ -233,11 +233,13 @@ internal fun Ux2TabPages(
 @Composable
 internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> Unit, enabled: Boolean, compact: Boolean = false) {
     val limit = summary.effectiveLimitCents
+    val warnOnly = summary.spendingLimitMode == "WARN_ONLY"
     val excess = (summary.exposureCents + draftCents - limit).coerceAtLeast(0)
     val warning = summary.limitWarning || (limit > 0 && summary.exposureCents + draftCents >= limit * .8)
-    val color = if (summary.consumptionBlocked || excess > 0) RodadaVisual.Danger else if (warning) RodadaVisual.Amber else RodadaVisual.Success
+    val color = if (summary.consumptionBlocked || (!warnOnly && excess > 0)) RodadaVisual.Danger else if (warning || (warnOnly && excess > 0)) RodadaVisual.Amber else RodadaVisual.Success
     val relationship = summary.relationshipSnapshot?.let { when (it) { "VISITOR" -> "Visitante"; "KNOWN" -> "Conhecido"; "REGULAR" -> "Regular"; "HOUSE" -> "Cliente da casa"; "RESTRICTED" -> "Restrito"; else -> it } }
-    val caption = when { excess > 0 -> "Pedido excede o limite em ${formatCents(excess)} · bloqueio ativo"; summary.consumptionBlocked -> "Consumo bloqueado · resolva o limite"; limit == 0L -> "Limite zero · bloqueio ativo"; warning -> "Próximo do limite operacional"; else -> if (compact) "${formatCents(summary.remainingCapacityCents)} disponíveis" else "Dentro da referência" }
+    val consequence = if (warnOnly) "só alertar" else "bloqueio ativo"
+    val caption = when { summary.consumptionBlocked -> "Consumo bloqueado · resolva o limite"; excess > 0 -> "Pedido excede o limite em ${formatCents(excess)} · $consequence"; limit == 0L -> "Limite zero · $consequence"; warning -> "Próximo do limite operacional"; else -> if (compact) "${formatCents(summary.remainingCapacityCents)} disponíveis" else "Dentro da referência" }
     val frame = if (compact) Modifier.fillMaxWidth() else Modifier.fillMaxWidth().background(RodadaVisual.Surface, RoundedCornerShape(11.dp)).border(1.dp, RodadaVisual.StrongBorder, RoundedCornerShape(11.dp)).drawBehind { drawRect(color, size = Size(3.dp.toPx(), size.height)) }.padding(14.dp)
     Column(frame, verticalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 10.dp)) {
         if (compact) {
@@ -268,7 +270,7 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
         }
         val current = if (limit > 0) (summary.exposureCents.toFloat() / limit).coerceIn(0f, 1f) else 0f
         val draft = if (limit > 0) (draftCents.toFloat() / limit).coerceIn(0f, 1f - current) else 0f
-        Canvas(Modifier.fillMaxWidth().height(if (compact) 5.dp else 10.dp).clip(RoundedCornerShape(100.dp)).semantics { contentDescription = "Consumo ${formatCents(summary.exposureCents)} de ${formatCents(limit)}; novo pedido ${formatCents(draftCents)}"; progressBarRangeInfo = ProgressBarRangeInfo(current, 0f..1f) }) {
+        Canvas(Modifier.fillMaxWidth().height(if (compact) 5.dp else 10.dp).clip(RoundedCornerShape(100.dp)).semantics { contentDescription = "Consumo ${formatCents(summary.exposureCents)} de ${formatCents(limit)}; novo pedido ${formatCents(draftCents)}; regra ${if (warnOnly) "Só alertar (WARN_ONLY)" else "Bloquear (ENFORCE)"}"; progressBarRangeInfo = ProgressBarRangeInfo(current, 0f..1f) }) {
             drawRect(RodadaVisual.Border)
             drawRect(color, size = Size(size.width * current, size.height))
             val start = size.width * current
@@ -287,7 +289,7 @@ internal fun Ux2CreditBar(summary: TabSummary, draftCents: Long, onLimit: () -> 
             }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(caption, modifier = Modifier.weight(1f), style = AttendanceUx2.text(if (compact) 11 else 12), color = if (excess > 0) RodadaVisual.Danger else RodadaVisual.Muted)
+            Text(caption, modifier = Modifier.weight(1f), style = AttendanceUx2.text(if (compact) 11 else 12), color = if (excess > 0) color else RodadaVisual.Muted)
             TextButton(onLimit, enabled = enabled, contentPadding = PaddingValues(0.dp), modifier = Modifier.minimumInteractiveComponentSize().heightIn(min = if (compact) 28.dp else 36.dp)) { Text(if (compact) "Detalhes ›" else "Ver detalhes ›", style = AttendanceUx2.text(if (compact) 11 else 12, if (compact) 700 else 800), color = if (compact) RodadaVisual.Muted else RodadaVisual.Amber) }
         }
     }

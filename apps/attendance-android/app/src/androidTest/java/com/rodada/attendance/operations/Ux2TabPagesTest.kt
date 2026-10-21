@@ -18,6 +18,22 @@ class Ux2TabPagesTest {
     private val product = Product("p", "Água", 500, true, "BAR", "AVAILABLE")
     private val tab = TabDetail(TabSummary("tab", "Teste", "OPEN", 1, 1000, 0, 1000, relationshipSnapshot = "HOUSE"), emptyList())
 
+    private fun assertSpendingMode(mode: String, blocked: Boolean, enabled: Boolean) {
+        val selected = tab.copy(summary = tab.summary.copy(
+            spendingLimitMode = mode, consumptionBlocked = blocked,
+            remainingCapacityCents = 0,
+        ))
+        compose.setContent { RodadaTheme { Surface {
+            Ux2TabPages(OperationsUiState(products = listOf(product), cart = listOf(CartLine(product, 2)), connectivity = ConnectivityState.ONLINE), selected,
+                "Pedido atual", {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, { _, _ -> }, {})
+        } } }
+        val send = compose.onNodeWithText("Enviar 2 itens · ${formatCents(1000)}")
+        if (enabled) send.assertIsEnabled() else send.assertIsNotEnabled()
+    }
+    @Test fun warnAllowsAboveCapacity() = assertSpendingMode("WARN_ONLY", false, true)
+    @Test fun enforceBlocksAboveCapacity() = assertSpendingMode("ENFORCE", false, false)
+    @Test fun warnPreservesIndependentCanonicalBlock() = assertSpendingMode("WARN_ONLY", true, false)
+
     @Test fun homeOpensCatalogAndReviewIgnoresSearch() {
         var sends = 0
         compose.setContent {
