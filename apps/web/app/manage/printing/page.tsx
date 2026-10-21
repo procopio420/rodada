@@ -14,6 +14,7 @@ export default function PrintingManagement() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]), [jobs, setJobs] = useState<Job[]>([]), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(""), [label, setLabel] = useState(""), [adapter, setAdapter] = useState("BROWSER"), [width, setWidth] = useState(80), [reference, setReference] = useState(""), [stations, setStations] = useState<string[]>([]), [enabled, setEnabled] = useState(true), [cut, setCut] = useState(false), [reason, setReason] = useState("");
   const [failedOnly, setFailedOnly] = useState(false), [offset, setOffset] = useState(0), [nextOffset, setNextOffset] = useState<number | null>(null);
+  const testIntent = useRef<{ endpointId: string; key: string } | null>(null);
   const copyIntent = useRef<{ jobId: string; key: string } | null>(null);
   const load = useCallback(async () => {
     const results = await Promise.all([apiCall<{ results: Endpoint[] }>("/api/pos/printing/endpoints/"), apiCall<{ results: Job[]; next_offset: number | null }>(`/api/pos/printing/jobs/?failed_only=${failedOnly}&offset=${offset}`)]);
@@ -27,13 +28,26 @@ export default function PrintingManagement() {
     try { const result = await apiCall(`/api/pos/printing/${path}`, { method: "POST", body: JSON.stringify(data) }); if (!result.response.ok) { setMessage(asApiError(result.body).message); return; } copyIntent.current = null; await load(); }
     catch { setMessage("Resultado indisponível. Atualize antes de tentar novamente."); } finally { setBusy(false); }
   }
+  async function testPrint(endpointId: string) {
+    if (busy) return;
+    if (testIntent.current?.endpointId !== endpointId) testIntent.current = { endpointId, key: crypto.randomUUID() };
+    setBusy(true); setMessage("");
+    try {
+      const response = await apiCall(`/api/pos/printing/endpoints/${endpointId}/test/`, { method: "POST", body: JSON.stringify({ idempotency_key: testIntent.current.key }) });
+      if (!response.response.ok) { setMessage(asApiError(response.body).message); return; }
+      testIntent.current = null;
+      await load();
+      setMessage("Teste enfileirado. Confira o trabalho e o papel; isso não é um pedido.");
+    } catch { setMessage("Resultado do teste indisponível. Atualize os trabalhos antes de repetir; a mesma tentativa será preservada."); }
+    finally { setBusy(false); }
+  }
   function edit(endpoint?: Endpoint) {
     setEditing(endpoint?.id ?? ""); setLabel(endpoint?.label ?? ""); setAdapter(endpoint?.adapter ?? "BROWSER"); setWidth(endpoint?.width_mm ?? 80); setReference(endpoint?.connection_ref ?? ""); setStations(endpoint?.stations ?? []); setEnabled(endpoint?.enabled ?? true); setCut(endpoint?.cut_supported ?? false);
   }
   return <main className="appShell"><ManagementSubpageHeader origin="printing" title="Impressoras e trabalhos" description="Acompanhe computadores, destinos e trabalhos de impressão." icon="printer" />
     {message && <p className="notice" data-state="danger" role="alert">{message}</p>}
     <PrintAgents /><PrintAgentRoutes endpoints={endpoints} />
-    <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>{endpoints.map(endpoint => <div className="dataRow" key={endpoint.id}><div><strong>{endpoint.label}</strong><p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"} · {endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p>{endpoint.adapter !== "AGENT" && <p>Bridge: {endpoint.bridge_status}</p>}<p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p></div><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button></div>)}<button className="buttonSecondary" onClick={() => edit()}>Novo destino</button></section>
+    <section className="panel"><OperationalHeading as="h2" icon="printer">Destinos</OperationalHeading><p className="muted">Estado desconhecido é válido. Envio aceito não confirma papel.</p>{endpoints.map(endpoint => <div className="dataRow" key={endpoint.id}><div><strong>{endpoint.label}</strong><p>{endpoint.adapter} · {endpoint.width_mm} mm · {endpoint.enabled ? "Ativo" : "Desativado"} · {endpoint.health}{endpoint.health_at ? ` · ${new Date(endpoint.health_at).toLocaleString("pt-BR")}` : " · sem leitura de hardware"}</p>{endpoint.adapter !== "AGENT" && <p>Bridge: {endpoint.bridge_status}</p>}<p>{endpoint.stations.join(" / ") || "Documentos de cliente"}</p></div><button className="buttonSecondary" onClick={() => edit(endpoint)}>Configurar</button>{endpoint.adapter === "AGENT" && <button className="buttonSecondary" disabled={busy} onClick={() => void testPrint(endpoint.id)}>Testar {endpoint.label}</button>}</div>)}<button className="buttonSecondary" onClick={() => edit()}>Novo destino</button></section>
     <form className="panel" onSubmit={event => { event.preventDefault(); void mutate("endpoints/", { ...(editing ? { id: editing } : {}), label, adapter, width_mm: width, connection_ref: reference, stations, enabled, cut_supported: adapter === "AGENT" ? false : cut }); }}>
       <OperationalHeading as="h2" icon="printer">{editing ? "Configurar destino" : "Novo destino"}</OperationalHeading><div className="field"><label>Nome<input required value={label} maxLength={120} onChange={e => setLabel(e.target.value)} /></label></div>
       <div className="field"><label>Saída<select value={adapter} onChange={e => setAdapter(e.target.value)}><option value="BROWSER">Navegador / Salvar PDF</option><option value="FILE">Arquivo HTML (sem papel)</option><option value="NETWORK">ESC/POS pela rede local</option><option value="SPOOL">USB / fila do bridge legado</option><option value="AGENT">Computador Rodada Impressoras</option></select></label></div>

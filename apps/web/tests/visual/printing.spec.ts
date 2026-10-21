@@ -61,3 +61,30 @@ for (const width of [360, 390, 768]) {
     await page.screenshot({ path: `../../visual-artifacts/spec023-all-web/document-${width}.png`, fullPage: true });
   });
 }
+
+for (const width of [360, 390, 430, 1280]) {
+  test(`explicit printer profile and renewed attestation at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await fixture(page);
+    await page.route("**/api/pos/printing/agents/v1/", route => route.fulfill({ json: { enabled: true, results: [] } }));
+    await page.route("**/api/pos/printing/agents/v1/routes/", route => route.fulfill({ json: {
+      printers: [{ id: "queue1", agent_id: "pc1", label: "Bematech candidata", queue_name: "Fila Windows de teste", transport: "WINDOWS_DRIVER", driver_name: "Driver instalado", health: "UNKNOWN", config_fingerprint: "test" }], routes: [],
+    } }));
+    await page.route("**/api/pos/printing/endpoints/", route => route.fulfill({ json: { results: [{ id: "printer1", label: "Bar", adapter: "AGENT", width_mm: 80, stations: ["BAR"], enabled: true, health: "UNKNOWN" }] } }));
+    await page.route("**/api/pos/printing/jobs/**", route => route.fulfill({ json: { results: [] } }));
+    await page.goto("/manage/printing");
+    const panel = page.getByRole("region", { name: "Rotas dos computadores" });
+    await panel.getByLabel("Destino lógico").selectOption("printer1");
+    await panel.getByLabel("Fila descoberta").selectOption("queue1");
+    await panel.getByLabel("Usar ESC/POS RAW em vez do driver Windows").check();
+    const confirmation = panel.getByLabel(/Confirmei em teste físico/);
+    await confirmation.check();
+    await panel.getByLabel("Perfil ESC/POS").selectOption("escpos-pc860-cut-v1");
+    await expect(confirmation).not.toBeChecked();
+    await expect(panel.getByRole("button", { name: "Salvar rota", exact: true })).toBeDisabled();
+    await expect(page.getByRole("link", { name: /Instalador para Windows/ })).toHaveAttribute("href", "https://rodada.bar/downloads");
+    await stable(page);
+    await layoutAndA11y(page);
+    await panel.screenshot({ path: `../../visual-artifacts/print-profile-${width}.png` });
+  });
+}
