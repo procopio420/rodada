@@ -88,8 +88,9 @@ jobs:
           rm -f "$RUNNER_TEMP/ci-play-upload.jks"
 
   forced-stop-recovery:
-    # Heavy emulator verification is part of explicit release/recovery checks.
-    if: github.event_name == 'workflow_dispatch'
+    # Verify recovery on Android PRs as well as explicit manual runs.
+    # A green unit/build/lint job alone does not prove persistence after force-stop.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
