@@ -1,4 +1,4 @@
-export type Bill = { original_subtotal_cents?: number; charges_cents?: number; discounts_cents?: number; courtesy_cents?: number; corrections_cents?: number; wrong_entry_removals_cents?: number; service_charge_cents?: number; payable_cents?: number; payments_cents?: number; refunds_cents?: number; exposure_cents: number; service_assessment_stale?: boolean };
+export type Bill = { original_subtotal_cents?: number; charges_cents?: number; discounts_cents?: number; courtesy_cents?: number; corrections_cents?: number; wrong_entry_removals_cents?: number; service_charge_cents?: number; payable_cents?: number; payments_cents?: number; refunds_cents?: number; exposure_cents: number; spending_limit_mode?: "ENFORCE" | "WARN_ONLY"; spending_limit_policy_version?: number | null; limit_exceeded?: boolean; service_assessment_stale?: boolean };
 const money = (value = 0) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value / 100);
 export function BillSummary({ bill, compact = false }: { bill: Bill; compact?: boolean }) {
   const mistaken = compact ? bill.wrong_entry_removals_cents ?? 0 : 0;
@@ -8,5 +8,5 @@ export function BillSummary({ bill, compact = false }: { bill: Bill; compact?: b
   return <div className="billSummary" aria-label="Resumo da conta">{compact ? <>
     <div className="dataRow"><span>Subtotal</span><strong>{bill.payable_cents === undefined ? "Indisponível" : money(bill.payable_cents)}</strong></div>
     <details><summary className="buttonQuiet billDetailsToggle">Mais detalhes</summary>{breakdown}</details>
-  </> : breakdown}</div>;
+  </> : breakdown}{bill.spending_limit_mode === "WARN_ONLY" && bill.limit_exceeded && <p className="notice" data-state="warning" role="status">Consumo acima da referência. O estabelecimento utiliza o modo Só alertar.</p>}</div>;
 }

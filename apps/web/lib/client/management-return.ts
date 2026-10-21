@@ -1,6 +1,6 @@
-export type ManagementOrigin = "setup" | "customers" | "alerts" | "printing" | "products" | "customizations";
+export type ManagementOrigin = "setup" | "customers" | "alerts" | "printing" | "products" | "customizations" | "spending";
 const key = "rodada.management.return.v1";
-const origins = new Set(["setup", "customers", "alerts", "printing", "products", "customizations"]);
+const origins = new Set(["setup", "customers", "alerts", "printing", "products", "customizations", "spending"]);
 
 export function rememberManagementOrigin(id: ManagementOrigin) {
   try { sessionStorage.setItem(key, JSON.stringify({ id, scroll: window.scrollY })); } catch { /* Navigation remains available without storage. */ }

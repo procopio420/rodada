@@ -27,15 +27,3 @@ um toque indevido. Após readback do comando de abertura (inclusive replay da
 intenção original), entrar no catálogo da Tab retornada. Outros comandos que
 retornam tab_id conservam seu destino de comanda; identificar o caso pela rota
 canônica original, sem alterar envelope, UUID, payload, sessão ou ledger.
-
-Remoção confirmada: a linha UX2 também era desabilitada antes de o diálogo
-capturar o botão de origem. Passar esse alvo já capturado ao ConfirmedItemRemoval,
-sem mudar intenção, quantidade, preço, autorização ou recuperação financeira.
-Os testes de remoção preservam estorno, replay byte-a-byte, estágio autorizado,
-remoção parcial e exclusão de lançamento incorreto do resumo da conta.
-
-O ensaio de dois operadores verificava fallback de polling real e depois podia
-perder o botão de recuperação para o próprio polling. Instalar clock no segundo
-browser e pausá-lo somente após a prova de stale/fallback do primeiro conserva
-perda pós-commit, intenção original, readback e um único POST; não aumenta retries
-nem muda timers do produto. Essa corrida não deve virar um timeout maior.

@@ -294,6 +294,8 @@ class OperationsHttpClient(baseUrl: String) {
             percentageUsed = if (json.isNull("percentage_used")) null else json.getInt("percentage_used"),
             consumptionBlocked = json.getBoolean("consumption_blocked"),
             limitWarning = json.getBoolean("limit_warning"),
+            spendingLimitMode = json.optString("spending_limit_mode").takeIf { it in setOf("ENFORCE", "WARN_ONLY") } ?: "ENFORCE",
+            spendingLimitPolicyVersion = if (json.isNull("spending_limit_policy_version")) null else json.optInt("spending_limit_policy_version").takeIf { it > 0 },
             actionReasons = json.getJSONArray("action_reasons").let { array -> List(array.length()) { array.getString(it) } },
             tableLabel = if (json.isNull("table_label")) null else json.optString("table_label").ifBlank { null },
             lastTableLabel = if (json.isNull("last_table_label")) null else json.optString("last_table_label").ifBlank { null },

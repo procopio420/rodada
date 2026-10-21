@@ -166,13 +166,18 @@ def selected_lines(source, destination, data):
     source_balance = totals(source)["exposure_cents"]
     if amount > source_balance:
         raise OperationError("INSUFFICIENT_TRANSFERABLE_BALANCE", "Saldo transferível insuficiente.")
+    from modules.house_account.spending import spending_policy, increment_exceeds_limit
+    mode = spending_policy(source.venue_id, lock=True)
     if destination:
         position = financial_position(destination)
     else:
         from modules.house_account.services import snapshot
-        position = {"exposure_cents": 0, "effective_limit_cents": snapshot(source.venue_id)["operating_limit_cents"]}
+        position = {"exposure_cents": 0, "effective_limit_cents": snapshot(source.venue_id)["operating_limit_cents"],
+                    "spending_limit_mode": mode["mode"], "action_reasons": []}
+    if position["spending_limit_mode"] == "WARN_ONLY" and position["action_reasons"]:
+        raise OperationError("TAB_REQUIRES_ACTION", "Resolva a pendência da comanda de destino.")
     destination_balance = position["exposure_cents"] + amount
-    if destination_balance > position["effective_limit_cents"]:
+    if increment_exceeds_limit(position, amount):
         raise OperationError("SPENDING_LIMIT_EXCEEDED", "Destino excede o limite. Solicite autorização de limite primeiro.")
     return {"lines": result, "amount_cents": amount, "source_after_cents": source_balance - amount,
             "destination_after_cents": destination_balance}
@@ -289,10 +294,14 @@ def execute(*, tab_id, data, actor):
         if not destination:
             from modules.ordering.services import open_tab
             destination = open_tab(actor=actor, display_label=data.get("destination_label", ""))
+        spending_position = financial_position(destination)
         transfer = TabTransfer.objects.create(operation=operation, venue_id=actor.venue_id, source_tab=source,
             destination_tab=destination, kind=kind, reason=reason, source_version=source.version, destination_version=destination.version)
         for line in result["lines"]:
             TabTransferLine.objects.create(transfer=transfer, source_charge_id=line["charge_id"], amount_cents=line["amount_cents"], quantity=line["quantity"], components=line["components"])
+        from modules.house_account.spending import audit_excess
+        audit_excess(tab=destination, position=spending_position, increment_cents=result["amount_cents"],
+                     entity_type="TabTransfer", entity_id=transfer.id, actor=actor)
         result["transfer_id"] = str(transfer.id)
         if kind == "MERGE":
             source.state, source.cancel_reason, source.merged_into = TabState.CANCELLED, "MERGED_INTO", destination

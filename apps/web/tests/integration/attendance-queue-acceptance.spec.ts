@@ -22,6 +22,9 @@ async function api(page: Page, url: string, body?: unknown) {
 }
 
 for (const width of [360, 390, 430]) test(`real service queue conflict, stale and committed response loss at ${width}`, async ({ page, browser }) => {
+  // Two operators and the real 15-second stale-read fallback are one journey.
+  // Keep local expectations unchanged; allow the whole recovery sequence to finish.
+  test.setTimeout(60_000);
   await page.setViewportSize({ width, height: 844 });
   let initialReadFailed = true;
   await page.route("**/api/attendance/dispatch/requests/", route => initialReadFailed

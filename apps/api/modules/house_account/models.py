@@ -67,3 +67,33 @@ class LimitOverride(models.Model):
             )
         ]
         ordering = ["created_at", "id"]
+
+
+class SpendingLimitMode(models.TextChoices):
+    ENFORCE = "ENFORCE", "Bloquear pedidos"
+    WARN_ONLY = "WARN_ONLY", "Só alertar"
+
+
+class VenueSpendingLimitPolicy(models.Model):
+    venue = models.OneToOneField("venue.Venue", on_delete=models.PROTECT, primary_key=True)
+    mode = models.CharField(max_length=16, choices=SpendingLimitMode.choices, default=SpendingLimitMode.ENFORCE)
+    version = models.PositiveIntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(mode__in=SpendingLimitMode.values), name="house_spending_mode_valid"),
+            models.CheckConstraint(condition=models.Q(version__gte=1), name="house_spending_version_positive"),
+        ]
+
+
+class SpendingLimitPolicyCommand(models.Model):
+    """Immutable command receipt; replay must return the original policy version."""
+    venue = models.ForeignKey("venue.Venue", on_delete=models.PROTECT)
+    idempotency_key = models.CharField(max_length=120)
+    request = models.JSONField()
+    response = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["venue", "idempotency_key"], name="house_spending_command_unique")]
