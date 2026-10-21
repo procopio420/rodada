@@ -27,6 +27,7 @@ class SpendingLimitModesTests(HouseFixture, TestCase):
             format="json",
         )
         assert response.status_code == 200, response.json()
+        assert response.json()["venue_id"] == str(self.venue.id)
         return response.json()
 
     def test_default_warn_and_replay_after_mode_change_share_one_ledger(self):
@@ -215,6 +216,7 @@ class SpendingBoundaryTests(HouseFixture, TestCase):
         tab = self.tab()
         assert not VenueSpendingLimitPolicy.objects.filter(venue=self.venue).exists()
         current = self.staff.get(self.path).json()
+        assert current["venue_id"] == str(self.venue.id)
         assert current["mode"] == "ENFORCE" and current["version"] is None and current["fallback"]
         assert self.order(tab, quantity=4, status=409)["code"] == "SPENDING_LIMIT_EXCEEDED"
         self.reauth()

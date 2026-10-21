@@ -23,12 +23,14 @@ def spending_policy(venue_id, *, lock=False):
     if value is None:
         logger.error("spending_limit_policy_missing", extra={"venue_id": str(venue_id)})
         return {
+            "venue_id": str(venue_id),
             "mode": SpendingLimitMode.ENFORCE,
             "version": None,
             "updated_at": None,
             "fallback": True,
         }
     return {
+        "venue_id": str(venue_id),
         "mode": value.mode,
         "version": value.version,
         "updated_at": value.updated_at.isoformat(),
