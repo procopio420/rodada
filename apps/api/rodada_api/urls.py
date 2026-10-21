@@ -23,7 +23,7 @@ from django.urls import include, path
 
 from modules.ordering.views import OrderConfirmView, OrderItemTransitionView, ProductionBatchView, ProductionQueueView, TabDetailView, TabListCreateView
 from modules.ledger.views import PaymentCollectView, PaymentRefundView, TabCloseView
-from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView,
+from modules.house_account.views import (CustomerListView, CustomerDetailView, PolicyView, SpendingLimitPolicyView,
     TabLimitOverrideView, TabCustomerView, TabReassessView, TabApprovalRequestView, TabHouseHistoryView)
 from modules.corrections.views import (
     CorrectionRefundSettlementView,
@@ -176,6 +176,7 @@ urlpatterns = [
     path("tabs/", TabListCreateView.as_view(), name="tab-list-create"),
     path("customers/", CustomerListView.as_view(), name="house-customers"),
     path("customers/<uuid:customer_id>/", CustomerDetailView.as_view(), name="house-customer-detail"),
+    path("house-account/enforcement/", SpendingLimitPolicyView.as_view(), name="house-enforcement"),
     path("house-account/policies/", PolicyView.as_view(), name="house-policies"),
     path("tabs/<uuid:tab_id>/limit-override/", TabLimitOverrideView.as_view(), name="tab-limit-override"),
     path("tabs/<uuid:tab_id>/customer/", TabCustomerView.as_view(), name="tab-customer"),

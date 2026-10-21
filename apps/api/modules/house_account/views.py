@@ -188,6 +188,32 @@ class PolicyView(APIView):
         )
 
 
+class SpendingLimitPolicyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from .spending import spending_policy
+        return Response(spending_policy(request.auth.venue_id))
+
+    def put(self, request):
+        authorize(request.actor_context, Capability.VENUE_CONFIGURE, privileged=True)
+        from .models import SpendingLimitMode
+        from .spending import update_spending_policy
+
+        class Input(serializers.Serializer):
+            mode = serializers.ChoiceField(choices=SpendingLimitMode.choices)
+            expected_version = serializers.IntegerField(min_value=1)
+            reason = serializers.CharField(max_length=240)
+            idempotency_key = serializers.CharField(max_length=120)
+
+        serializer = Input(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            return Response(update_spending_policy(actor=request.actor_context, **serializer.validated_data))
+        except OrderingServiceError as error:
+            return _error_response(error)
+
+
 class TabLimitOverrideView(APIView):
     permission_classes = [IsAuthenticated, RequireCapability, RequireRecentReauthentication]
     required_capability = Capability.LIMIT_OVERRIDE

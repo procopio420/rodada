@@ -65,7 +65,9 @@ def snapshot(venue_id, customer_id=None):
     }
 
 
-def financial_position(tab):
+def financial_position(tab, *, lock_policy=False):
+    from .spending import spending_policy
+    mode = spending_policy(tab.venue_id, lock=lock_policy)
     ledger = totals(tab)
     latest = tab.limit_overrides.order_by("-created_at", "-id").first()
     active = latest if latest and latest.expires_at > timezone.now() else None
@@ -88,7 +90,7 @@ def financial_position(tab):
             reasons.append("REFUND_REQUIRED")
     else:
         reasons = [r for r in reasons if r != "REFUND_REQUIRED"]
-    if exposure >= limit:
+    if exposure >= limit and mode["mode"] == "ENFORCE":
         reasons.append("SPENDING_LIMIT")
     state = tab.state
     if state in (TabState.OPEN, TabState.REQUIRES_ACTION):
@@ -115,10 +117,13 @@ def financial_position(tab):
         "policy_version_snapshot": tab.policy_version_snapshot,
         "operating_limit_cents": tab.operating_limit_cents,
         "effective_limit_cents": limit,
+        "spending_limit_mode": mode["mode"],
+        "spending_limit_policy_version": mode["version"],
+        "limit_exceeded": exposure > limit,
         "remaining_capacity_cents": max(0, limit - exposure),
         "percentage_used": max(0, exposure) * 100 // limit if limit else None,
-        "limit_warning": limit > 0 and max(0, exposure) * 100 >= limit * 80,
-        "consumption_blocked": exposure >= limit,
+        "limit_warning": (limit > 0 and max(0, exposure) * 100 >= limit * 80) or (limit == 0 and exposure > 0),
+        "consumption_blocked": mode["mode"] == "ENFORCE" and exposure >= limit,
         "override_expires_at": active.expires_at if active else None,
         "approval_requested": bool(
             request and not approved and state in (TabState.OPEN, TabState.REQUIRES_ACTION)

@@ -165,11 +165,15 @@ def confirm_order(
                                    409, {"stations": disabled})
 
     from modules.house_account.services import financial_position, sync_attention
-    position = financial_position(tab)
+    from modules.house_account.spending import audit_excess, increment_exceeds_limit
+    position = financial_position(tab, lock_policy=True)
+    if position["spending_limit_mode"] == "WARN_ONLY" and position["action_reasons"]:
+        raise OrderingServiceError("TAB_REQUIRES_ACTION", "Resolva a pendência da comanda antes de consumir.",
+                                   409, position)
     from modules.catalog.customization import price_customization
     snapshots = [price_customization(locked_products[line["product_id"]], line) for line in normalized_lines]
     order_total = sum(snapshot["line_total_cents"] for snapshot in snapshots)
-    if position["exposure_cents"] + order_total > position["effective_limit_cents"]:
+    if increment_exceeds_limit(position, order_total):
         raise OrderingServiceError("SPENDING_LIMIT_EXCEEDED",
             "Consumo acima do limite. Receba um pagamento parcial ou solicite aprovação da gerência.",
             409, {**position, "requested_cents": order_total})
@@ -217,6 +221,8 @@ def confirm_order(
     # a mutable catalog price. One-to-one Charge makes retries exactly-once.
     from modules.ledger.services import create_charges_for_order
     create_charges_for_order(order, actor)
+    audit_excess(tab=tab, position=position, increment_cents=order_total,
+                 entity_type="Order", entity_id=order.id, actor=actor)
     from modules.realtime.services import emit_event
     emit_event(venue_id=tab.venue_id, event_type="order.confirmed", aggregate_type="Order",
                aggregate_id=order.id, tab_id=tab.id)
