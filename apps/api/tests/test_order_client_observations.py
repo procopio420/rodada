@@ -99,6 +99,23 @@ class OrderClientObservationTests(TestCase):
         assert OrderClientObservation.objects.count() == 2
         assert "Deleted 1" in output.getvalue()
 
+    def test_report_truncation_capability_and_revoked_session(self):
+        OrderClientObservation.objects.bulk_create([
+            OrderClientObservation(venue=self.venue, event_id=uuid.uuid4(), fingerprint="b" * 64,
+                intent_ref="a" * 64, kind="INTENT_SAVED", channel="WEB", ux_version="033-ux2",
+                app_version=f"build-{index}") for index in range(501)])
+        report = self.client.get("/management/attendance-observations/")
+        assert report.status_code == 200
+        assert report.json()["truncated"] is True
+        assert len(report.json()["groups"]) == 500
+        self.membership.capability_overrides = {"deny": ["management.reports.read"]}
+        self.membership.save(update_fields=["capability_overrides"])
+        assert self.client.get("/management/attendance-observations/").status_code == 403
+        from modules.access.models import StaffSession
+        StaffSession.objects.filter(pk=self.session).update(revoked_at=timezone.now())
+        assert self.post().status_code in (401, 403)
+        assert OrderClientObservation.objects.count() == 501
+
     def test_attempt_coverage_unknown_preflight_and_throttle(self):
         events = [self.event(kind="ATTEMPT_FINISHED", attempt_id=str(uuid.uuid4()),
                     outcome="UNKNOWN", reason="UNCERTAIN", duration_ms=None),
@@ -149,4 +166,8 @@ class OrderObservationConcurrencyTests(TransactionTestCase):
         other = {**self.batch, "events": [{**event, "app_version": "another-build"}]}
         assert sorted(run_pair([first, other])) == [204, 409]
         assert OrderClientObservation.objects.count() == 2
+        events = [self.event(), self.event()]
+        assert run_pair([{**self.batch, "events": events},
+            {**self.batch, "events": list(reversed(events))}]) == [204, 204]
+        assert OrderClientObservation.objects.count() == 4
         assert Order.objects.count() == Tab.objects.count() == 0

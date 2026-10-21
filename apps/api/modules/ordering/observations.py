@@ -84,7 +84,7 @@ class ObservationIntakeView(APIView):
         # This transaction touches only observation rows. A conflict rolls back
         # the batch; it can never commit/rollback an Order or a ledger posting.
         with transaction.atomic():
-            for event in batch["events"]:
+            for event in sorted(batch["events"], key=lambda item: str(item["event_id"])):
                 fingerprint = hashlib.sha256(json.dumps(event, sort_keys=True, default=str).encode()).hexdigest()
                 obj, created = OrderClientObservation.objects.get_or_create(
                     venue_id=request.auth.venue_id, event_id=event["event_id"],
