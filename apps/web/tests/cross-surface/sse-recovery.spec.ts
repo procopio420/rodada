@@ -34,7 +34,6 @@ test("SSE-only interruption leaves real HTTP order usable and station polling re
     await page.getByRole("dialog").getByRole("textbox").fill(label);
     await page.getByRole("dialog").getByRole("button", { name: /Abrir/ }).click();
     const dialog = page.getByRole("region", { name: "Comanda selecionada", exact: true });
-  await dialog.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
     await addCatalogItem(page, "Android Compose Test Meal");
     await dialog.getByRole("button", { name: "Ver resumo", exact: true }).click();
     await dialog.getByRole("button", { name: /^Enviar / }).click();
