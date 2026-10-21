@@ -301,3 +301,11 @@ fechado; sem merge/deploy pelo executor.
   essa composição. Auto-close UI nativa ainda P1 em correção; engine já reconhece
   CLOSED, não será reimplementada. CI/aprovação qualificada/paridade integral/piloto
   continuam pendentes; nenhum AC global encerrado.
+
+
+## Integração verificada — 21/10/2026
+
+[Estado e matriz AC-01..24 por SHA](completion-20261021.md). PRs281/284/286/288
+mergeados; dependência031 implementada em backend/Web/Compose. CI288162PASS,
+3SKIP; não equivale a aceite global. Instrumentação, flag UX/rollback, pacote
+Android atual, paridade completa, aparelho e piloto continuam abertos.

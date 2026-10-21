@@ -39,3 +39,11 @@
 - [ ] AC-24 CI, revisão independente R3, feature rollout por Venue/role e rollback comprovado; nenhum P0/P1 aberto; aceite humano do operador/piloto antes do GO.
 
 **GO global exige AC-01..24 PASS e dependências críticas aceitas.** É permitido liberar cortes menores sem declararem “Atendimento 2.0 concluído”, desde que gates próprios de cada slice estejam satisfeitos.
+
+
+## Integração verificada — 21/10/2026
+
+[Estado e matriz AC-01..24 por SHA](completion-20261021.md). PRs281/284/286/288
+mergeados; dependência031 implementada em backend/Web/Compose. CI288162PASS,
+3SKIP; não equivale a aceite global. Instrumentação, flag UX/rollback, pacote
+Android atual, paridade completa, aparelho e piloto continuam abertos.

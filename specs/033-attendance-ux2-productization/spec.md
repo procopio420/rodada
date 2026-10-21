@@ -12,7 +12,7 @@ Um garçom deve abrir uma tarefa, chegar à comanda correta, lançar pedidos, ac
 - Operação financeira, status de pedidos e movimentação de mesas só mudam após confirmação do servidor e readback. Não inventar pagamento, garantia, aceitação do Bar ou entrega.
 - Navegação não executa claim, complete, payment, close, release ou delivery; ações positivas/destrutivas explicitam sua consequência.
 - Pedido em resposta incerta mantém a intenção/fingerprint/chave originais; nunca gerar segundo Order silencioso. Erros definitivos mostram correção executável.
-- Limite de consumo é política por Venue: somente o modo canônico WARN_ONLY permite aviso sem bloqueio por esse motivo isolado. A Spec 031 ainda é contrato pendente; preservar ENFORCE existente até rollout autorizado.
+- Limite de consumo é política por Venue: somente o modo canônico WARN_ONLY permite aviso sem bloqueio por esse motivo isolado. A Spec 031 foi integrada nas PRs281/284; o modo efetivo e sua versão vêm do servidor. ENFORCE continua padrão seguro; rollout de produção exige autorização.
 - Não exigir etapa extra de revisão antes de cada pedido; destaque para Adicionar itens, envio direto com resumo opcional, confirmação de destino e mais uma rodada de um toque após seleção.
 - Atendimento, conta e entregas são áreas de trabalho distintas; o mesmo cliente pode aparecer em várias tarefas, sem que uma tarefa concluída feche outra.
 - Não transformar ausência de confirmação de entrega ou inferência fraca em DELIVERED; preservar proveniência/correção por exceção. Dispatch falhando não bloqueia venda.
