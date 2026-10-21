@@ -271,3 +271,8 @@ smokes install/reinstall/uninstall, and retains SHA-256/dependency inventory wit
 the **unsigned pilot** artifact. No GitHub release is published. Authenticode,
 SmartScreen/antivirus, distinct-version rollback and physical pilot remain blocked
 before any public stable manifest or rollout. See Spec028 s6-distribution.md.
+
+Printer changes run the focused `npm run test:visual -- printing.spec.ts` in the
+existing Web job after build. This covers setup/profile/readback at mobile/desktop
+widths without enabling the unrelated full visual suite on every PR. Triggered by
+printing API, agent or setup UI paths; artifacts use the existing evidence upload.
