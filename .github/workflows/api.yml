@@ -6,6 +6,7 @@ on:
     paths:
       - "apps/api/**"
       - ".github/workflows/api.yml"
+      - "scripts/spec033-rehearsal-receipt.py"
       - "scripts/quality/**"
       - "scripts/tests/test_quality_added_lines.py"
   push:
@@ -13,6 +14,7 @@ on:
     paths:
       - "apps/api/**"
       - ".github/workflows/api.yml"
+      - "scripts/spec033-rehearsal-receipt.py"
 
 concurrency:
   # Only cancel superseded PR commits, never a manually requested gate or main push.
@@ -69,7 +71,16 @@ jobs:
         run: python manage.py makemigrations --check --dry-run --settings=rodada_api.settings
 
       - name: Spec 033 E06 integrated rehearsal on PostgreSQL
-        run: pytest --ds=rodada_api.settings -q -rs tests/test_spec033_integrated_rehearsal.py
+        env:
+          POSTGRES_DB: rodada033_evidence
+        run: python ../../scripts/spec033-rehearsal-receipt.py "$RUNNER_TEMP/spec033-rehearsal.json"
+
+      - name: Preserve synthetic Spec 033 rehearsal IDs
+        uses: actions/upload-artifact@v4
+        with:
+          name: spec033-api-rehearsal
+          path: ${{ runner.temp }}/spec033-rehearsal.json
+          if-no-files-found: error
 
       - name: Tests on PostgreSQL (including concurrency)
         run: pytest --ds=rodada_api.settings
