@@ -9,7 +9,7 @@ a full release/homologation suite on every commit.
 | API | PR/push changing `apps/api/**` or `scripts/quality/**` | Yes | Ruff new-line gate + full diagnostic count; Django checks, migration drift and one full PostgreSQL pytest run |
 | Web | PR/push changing web, API, prototype, quality script or this workflow | Yes | Next.js build, typecheck, **ESLint 9 + Next 16 full scan with new-line gate**, Web security guard, auth, visual and real BFF integration tests |
 | Printer Agent | PR/push changing printer agent or its workflow | Yes | Strict types, worker fault tests and real Windows session-0 service/DPAPI/ACL + unsigned bundled setup install/repair/uninstall; no public release |
-| Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; release AAB smoke on main/manual only |
+| Android | PR/push changing Android | Yes | Unit tests and debug build; `lintDebug` **blocking**, upload report; force-stop emulator recovery on Android PRs/manual; release AAB smoke on main/manual only |
 | Android real POST disconnect | PRs changing its workflow, cross-surface config/tests/verifiers or shared fixture guard | Yes | Native emulator transport/recovery → Web Bar on the same PostgreSQL; separate manual uplink cut |
 | Aderlan isolated pilot shift acceptance | No | Yes | Full disposable PostgreSQL shift |
 | Railway Aderlan demo Docker smoke | PR changing Railway deployment or staging smoke script | Yes | Build full Railway container and smoke runtime |
@@ -33,7 +33,7 @@ See [Quality Gates](agents/QUALITY-GATES.md) for exact blocking vs advisory stat
   is a cost control, not an exemption from the release gate; no ruleset is changed.
 - Run **Aderlan isolated pilot shift acceptance** and/or **Integrated release demo**
   manually before a high-impact release or operational homologation.
-- For Android releases, run **Android** manually (including force-stop recovery) and
+- Android PRs run the existing force-stop emulator recovery gate; this verifies encrypted queue persistence, not real POST/ledger replay or physical-device homologation. For Android releases, run **Android** manually (including force-stop recovery) and
   **Android real POST disconnect** when payment/offline/network recovery logic changes.
   **Play Store internal release** remains explicitly dispatched; it is never invoked
   by ordinary PR/push and uploading to Play remains opt-in.
