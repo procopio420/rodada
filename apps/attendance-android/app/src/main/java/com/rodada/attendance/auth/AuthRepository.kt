@@ -12,6 +12,13 @@ class AuthRepository internal constructor(context: Context, private val client: 
     private val installationIdStore = InstallationIdStore(appContext)
     private val rotationLock = Any()
 
+    /** Passive observers cannot refresh, rotate or clear the financial session. */
+    internal fun observationAccessToken(venueId: String, staffId: String, deviceId: String, sessionId: String): String? {
+        val current = secureStore.load() ?: return null
+        if (current.venueId != venueId || current.staffId != staffId || current.deviceId != deviceId || current.sessionId != sessionId) return null
+        return current.tokens.accessToken
+    }
+
     suspend fun restoreSession(): StoredSession? =
         withContext(Dispatchers.IO) {
             val stored = secureStore.load() ?: return@withContext null

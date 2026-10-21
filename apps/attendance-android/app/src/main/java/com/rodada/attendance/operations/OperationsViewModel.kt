@@ -98,6 +98,14 @@ class OperationsViewModel(
     var state by mutableStateOf(OperationsUiState())
         private set
 
+    private val orderObservations by lazy {
+        PassiveOrderObservations(BuildConfig.RODADA_API_BASE_URL, BuildConfig.VERSION_NAME) { origin ->
+            authRepository.observationAccessToken(origin.venueId, origin.staffId, origin.deviceId, origin.sessionId)
+        }
+    }
+    private fun observationOrigin(session: StoredSession) =
+        ObservationOrigin(session.venueId, session.staffId, session.deviceId, session.sessionId)
+
     private var loadedSessionKey: String? = null
     private var refreshGeneration = 0L
     private val financialResponses = FinancialResponseFence()
@@ -653,6 +661,7 @@ class OperationsViewModel(
             tabId = tabId, lines = lines, clearCartOnConfirmation = clearCartOnConfirmation,
         )
         if (!preserveIntent(intent, session)) return
+        runCatching { orderObservations.intentSaved(observationOrigin(session), intent.idempotencyKey) }
         loadOrderQueue(session)
         state = state.copy(orderIntentId = key, errorMessage = null,
             noticeMessage = if (state.connectivity == ConnectivityState.OFFLINE)
@@ -704,14 +713,19 @@ class OperationsViewModel(
                 }
                 state = state.copy(submitting = true,
                     noticeMessage = OrderSubmissionStatus.message(now.state))
+                val observation = runCatching { orderObservations.begin(observationOrigin(session), now.idempotencyKey,
+                    now.state != RecoveryState.PENDING) }.getOrNull()
+                var commandStarted = false
                 try {
                     // Revalidate authentication, Tab and Catalog before using the exact saved command.
                     repository.tabDetail(session, now.tabId)
                     val products = repository.products(session)
                     pendingMutationIntentStore.updateOrderState(now, session, RecoveryState.CHECKING)
+                    commandStarted = true
                     val receipt = repository.confirmOrder(session, now.tabId, now.toCart(products), now.idempotencyKey)
                     val canonical = repository.tabDetail(session, now.tabId)
                     receipt.requireReadback(canonical)
+                    observation?.finish(PassiveOrderObservations.Outcome.CONFIRMED)
                     pendingMutationIntentStore.remove(now.id)
                     loadOrderQueue(session)
                     if (state.selectedTab?.summary?.id == now.tabId) {
@@ -724,6 +738,12 @@ class OperationsViewModel(
                         connectivity = ConnectivityState.ONLINE, lastSyncedAtMillis = System.currentTimeMillis())
                 } catch (error: Exception) {
                     if (error is kotlinx.coroutines.CancellationException) throw error
+                    observation?.finish(when {
+                        !commandStarted && error is com.rodada.attendance.auth.AuthApiException -> PassiveOrderObservations.Outcome.AUTH_UNAVAILABLE
+                        !commandStarted -> PassiveOrderObservations.Outcome.PREPARATION_FAILED
+                        error is OperationsApiException && error.status in 400..499 -> PassiveOrderObservations.Outcome.REJECTED
+                        else -> PassiveOrderObservations.Outcome.UNKNOWN
+                    })
                     if (error is OperationsApiException && error.status in 400..499) {
                         // A stale price, disabled product, closed Tab or lost authority is not
                         // silently retried on reconnect. Preserve evidence for reconciliation.
