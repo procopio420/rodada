@@ -23,9 +23,6 @@ Source: "..\..\..\dist\rodada-impressoras\*"; DestDir: "{app}"; Flags: ignorever
 Name: "{group}\Rodada Impressoras"; Filename: "{app}\rodada-impressoras.exe"; Parameters: "status"
 [Run]
 Filename: "{app}\rodada-impressoras.exe"; Parameters: "status"; Description: "Mostrar código e estado do computador"; Flags: postinstall nowait skipifsilent runasoriginaluser
-[UninstallRun]
-Filename: "{app}\rodada-impressoras.exe"; Parameters: "quiesce"; Flags: runhidden waituntilterminated; RunOnceId: StopAgent
-Filename: "{app}\rodada-impressoras.exe"; Parameters: "service remove"; Flags: runhidden waituntilterminated; RunOnceId: RemoveAgent
 [Code]
 procedure RunChecked(Args: String);
 var Code: Integer;
@@ -52,5 +49,27 @@ begin
     RunChecked('install-service');
     RunChecked('configure --api-origin https://api.rodada.bar');
     RunChecked('service start');
+  end;
+end;
+
+function InitializeUninstall(): Boolean;
+var Code: Integer;
+begin
+  Result := False;
+  if not Exec(ExpandConstant('{app}\rodada-impressoras.exe'), 'quiesce', '', SW_HIDE, ewWaitUntilTerminated, Code) then begin
+    MsgBox('Não foi possível parar o serviço. A desinstalação foi interrompida.', mbError, MB_OK);
+    exit;
+  end;
+  if Code <> 0 then begin
+    MsgBox('O serviço ainda está ocupado. Confira a impressora e tente novamente.', mbError, MB_OK);
+    exit;
+  end;
+  Result := True;
+end;
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usUninstall then begin
+    RunChecked('quiesce');
+    RunChecked('service remove');
   end;
 end;
