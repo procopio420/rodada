@@ -121,7 +121,8 @@ jobs:
         env:
           PRINTING_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          if git -C ../.. diff --name-only "$PRINTING_BASE_SHA" HEAD -- apps/web/components/print-agent-routes.tsx apps/web/components/print-agents.tsx apps/web/app/manage/printing apps/web/tests/visual/printing.spec.ts apps/api/modules/documents_printing apps/api/tests/test_agent_multiagent.py apps/printer-agent | grep -q .; then
+          git -C ../.. diff --name-only "$PRINTING_BASE_SHA" HEAD -- apps/web/components/print-agent-routes.tsx apps/web/components/print-agents.tsx apps/web/app/manage/printing apps/web/tests/visual/printing.spec.ts apps/api/modules/documents_printing apps/api/tests/test_agent_multiagent.py .github/workflows/web.yml > "$RUNNER_TEMP/printing-changed-paths"
+          if test -s "$RUNNER_TEMP/printing-changed-paths"; then
             npm run test:visual -- printing.spec.ts
           fi
 
