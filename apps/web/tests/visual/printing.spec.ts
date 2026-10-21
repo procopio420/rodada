@@ -91,14 +91,14 @@ for (const width of [360, 390, 430, 1280]) {
 
 test("test-print keeps the same key after confirmed POST and failed readback", async ({ page }) => {
   await fixture(page);
-  const keys: string[] = [];
+  const keys: { endpoint: string; key: string }[] = [];
   let failed = false;
   await page.route("**/api/pos/printing/agents/v1/", route => route.fulfill({ json: { enabled: false, results: [] } }));
   await page.route("**/api/pos/printing/agents/v1/routes/", route => route.fulfill({ json: { printers: [], routes: [] } }));
-  await page.route("**/api/pos/printing/endpoints/", route => route.fulfill(failed ? { status: 503, json: { message: "Synthetic unavailable" } } : { json: { results: [{ id: "printer1", label: "Bar", adapter: "AGENT", width_mm: 80, stations: ["BAR"], enabled: true, health: "UNKNOWN" }] } }));
+  await page.route("**/api/pos/printing/endpoints/", route => route.fulfill(failed ? { status: 503, json: { message: "Synthetic unavailable" } } : { json: { results: [{ id: "printer1", label: "Bar", adapter: "AGENT", width_mm: 80, stations: ["BAR"], enabled: true, health: "UNKNOWN" }, { id: "printer2", label: "Cozinha", adapter: "AGENT", width_mm: 58, stations: ["KITCHEN"], enabled: true, health: "UNKNOWN" }] } }));
   await page.route("**/api/pos/printing/jobs/**", route => route.fulfill({ json: { results: [] } }));
-  await page.route("**/api/pos/printing/endpoints/printer1/test/", route => {
-    keys.push(route.request().postDataJSON().idempotency_key);
+  await page.route("**/api/pos/printing/endpoints/*/test/", route => {
+    keys.push({ endpoint: route.request().url(), key: route.request().postDataJSON().idempotency_key });
     failed = true;
     return route.fulfill({ status: 201, json: { id: "same-diagnostic-job", state: "QUEUED" } });
   });
@@ -106,8 +106,12 @@ test("test-print keeps the same key after confirmed POST and failed readback", a
   const button = page.getByRole("button", { name: "Testar Bar", exact: true });
   await button.click();
   await expect(page.locator("#printing-message")).toContainText("mesma tentativa será preservada");
+  await page.getByRole("button", { name: "Testar Cozinha", exact: true }).click();
+  await expect(button).toBeEnabled();
   await button.click();
   await expect(button).toBeEnabled();
-  expect(keys).toHaveLength(2);
-  expect(keys[1]).toBe(keys[0]);
+  expect(keys).toHaveLength(3);
+  expect(keys[2]).toEqual(keys[0]);
+  expect(keys[1].endpoint).not.toBe(keys[0].endpoint);
+  expect(keys[1].key).not.toBe(keys[0].key);
 });
