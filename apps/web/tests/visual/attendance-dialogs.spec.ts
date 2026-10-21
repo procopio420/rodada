@@ -54,3 +54,28 @@ test("Escape dismisses personalization and restores its trigger", async ({ page 
  await workspace.getByRole("button", { name: "Voltar", exact: true }).click();
  await expect(workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true })).toBeVisible();
 });
+
+test("each personalization entry restores its own catalog or draft trigger", async ({ page }) => {
+ await fixture(page, "normal", true);
+ await page.route("**/api/attendance/catalog/products/", route => route.fulfill({ json: { results: ["A", "B"].map(id => ({
+  id, name: `Produto ${id}`, price_cents: 100, active: true, availability: "AVAILABLE",
+  variants: [{ id: `variant-${id}`, name: "Padrão", price_cents: 100, active: true, availability: "AVAILABLE", is_default: true, version: 1 }],
+ })) } }));
+ await page.goto("/attendance"); await openAttendanceTab(page);
+ const workspace = page.getByRole("region", { name: "Comanda selecionada", exact: true });
+ await workspace.getByRole("button", { name: "＋ Adicionar itens", exact: true }).click();
+ await workspace.getByRole("button", { name: "Personalizar Produto A", exact: true }).click();
+ await page.keyboard.press("Escape");
+ await expect(workspace.getByRole("button", { name: "Personalizar Produto A", exact: true })).toBeFocused();
+ const plus = workspace.getByRole("button", { name: "Adicionar Produto B", exact: true });
+ await plus.click();
+ const dialog = page.getByRole("dialog", { name: "Personalizar Produto B", exact: true });
+ await expect(dialog).toBeVisible(); await page.keyboard.press("Escape");
+ await expect(plus).toBeFocused();
+ await plus.click(); await dialog.getByRole("button", { name: /^Adicionar ·/ }).click();
+ await workspace.getByRole("button", { name: "Ver resumo", exact: true }).click();
+ const edit = workspace.getByRole("button", { name: "Editar", exact: true });
+ await edit.click(); await expect(dialog).toBeVisible(); await page.keyboard.press("Escape");
+ await expect(edit).toBeFocused();
+ await expect(workspace.getByText("1× Produto B", { exact: true })).toBeVisible();
+});
