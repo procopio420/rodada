@@ -46,7 +46,7 @@ class InventoryView(PrintManagerView):
             transport = serializers.ChoiceField(
                 choices=["WINDOWS_DRIVER", "WINDOWS_RAW", "TCP_LAN"]
             )
-            profile_id = serializers.ChoiceField(choices=agent_delivery.PROFILES)
+            profile_id = serializers.ChoiceField(choices=list(agent_delivery.PROFILES))
             destination = serializers.CharField(max_length=240)
             port = serializers.IntegerField(min_value=1, max_value=65535, default=9100)
             enabled = serializers.BooleanField(default=False)

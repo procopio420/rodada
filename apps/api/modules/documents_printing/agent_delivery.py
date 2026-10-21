@@ -23,10 +23,8 @@ from .models import (
     PrinterEndpoint,
     PrintJob,
 )
-from .renderers import render_escpos, render_text
+from .profiles import PROFILES, render_profile, supports
 from .services import claim_job, finish_attempt, recover_expired
-
-PROFILES = ("windows-driver-v1", "escpos-ascii-v1")
 
 
 def locked_identity(agent, credential_id):
@@ -45,7 +43,7 @@ def locked_identity(agent, credential_id):
 
 def delivery_enabled(agent):
     return (
-        agent.version == "0.3.0"
+        agent.version in ("0.3.0", "0.5.0")
         and AgentPrinterRoute.objects.filter(
             printer__agent=agent, endpoint__adapter="AGENT", endpoint__enabled=True, enabled=True
         ).exists()
@@ -186,7 +184,7 @@ def save_route(session, values):
         setattr(route, key, values[key])
     if route.profile_id not in PROFILES:
         raise ValidationError("Unsupported v1 driver.")
-    if route.profile_id == "windows-driver-v1":
+    if not PROFILES[route.profile_id].raw:
         if route.transport != "WINDOWS_DRIVER":
             raise ValidationError("Rendered driver requires Windows rendering.")
     elif not route.raw_escpos_verified or route.transport not in ("WINDOWS_RAW", "TCP_LAN"):
@@ -209,7 +207,7 @@ def save_route(session, values):
 def claim(agent, credential_id):
     agent = locked_identity(agent, credential_id)
     recover_expired()
-    if agent.state != "ONLINE" or agent.version != "0.3.0":
+    if agent.state != "ONLINE" or agent.version not in ("0.3.0", "0.5.0"):
         return {"protocol_version": 1, "job": None}
     routes = (
         AgentPrinterRoute.objects.select_for_update(of=("self",))
@@ -225,8 +223,8 @@ def claim(agent, credential_id):
         .order_by("priority", "id")
     )
     for route in routes:
-        if route.profile_id not in PROFILES or (
-            route.profile_id == "escpos-ascii-v1" and not route.raw_escpos_verified
+        if not supports(agent.version, route.profile_id) or (
+            PROFILES[route.profile_id].raw and not route.raw_escpos_verified
         ):
             continue
         job = claim_job([route.endpoint_id], agent_delivery=True)
@@ -235,13 +233,8 @@ def claim(agent, credential_id):
         attempt = PrintAttempt.objects.get(job=job, token=job.attempt_token)
         attempt.agent, attempt.route, attempt.route_version = agent, route, route.version
         attempt.save(update_fields=["agent", "route", "route_version"])
-        raw = route.profile_id == "escpos-ascii-v1"
-        content = (
-            render_escpos(job.document, route.endpoint.width_mm, bool(job.reprint_of_id), cut=False)
-            if raw
-            else render_text(job.document, route.endpoint.width_mm, bool(job.reprint_of_id)).encode(
-                "utf-8"
-            )
+        content = render_profile(
+            route.profile_id, job.document, route.endpoint.width_mm, bool(job.reprint_of_id)
         )
         if len(content) > 262144:
             finish_attempt(
