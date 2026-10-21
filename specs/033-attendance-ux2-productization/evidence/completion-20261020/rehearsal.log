@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.15, pytest-8.4.2, pluggy-1.6.0
+django: version: 5.2.17, settings: rodada_api.settings (from option)
+rootdir: /home/lucas/projects/rodada/spec033-completion/apps/api
+configfile: pyproject.toml
+plugins: django-4.14.0
+collected 1 item
+
+tests/test_spec033_integrated_rehearsal.py .                             [100%]
+
+============================== 1 passed in 23.59s ==============================

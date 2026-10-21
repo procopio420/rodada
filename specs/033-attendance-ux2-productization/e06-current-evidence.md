@@ -69,3 +69,32 @@ subcenários aprovados não aceitam automaticamente a paridade Web/Android.
    do tracking aberto. Conferir CI e regressões antes de expandir para S4–S7.
 
 **Decisão: NO-GO global.** E06-01 é inventário, não aceite de produto/release.
+
+## Execução atual — missão autorizada 20/10/2026
+
+Base limpa executada: `4652b301` (PR #273). Ambiente local exclusivo:
+PostgreSQL 17, UTF-8, loopback `127.0.0.1:55660`, database `rodada033`;
+Python 3.13.15, Django 5.2.17. Nenhum banco remoto ou demo foi usado.
+
+```sh
+cd apps/api
+POSTGRES_HOST=127.0.0.1 POSTGRES_PORT=55660 POSTGRES_DB=rodada033 \
+  python -m pytest --ds=rodada_api.settings tests/test_spec033_integrated_rehearsal.py -v
+```
+
+**PASS: 1 teste, 23.59s, zero skips**, [log](evidence/completion-20261020/rehearsal.log).
+Composição comprova três Tabs homônimas por UUID, duas estações reais, três
+Orders/seis Charges, replay idempotente, seis Payments, parcial OPEN e integral
+CLOSED/zero, Table OCCUPIED inclusive após última Tab CLOSED, release explícito,
+Guest revogado, DIRTY→CLEANING→AVAILABLE e nova geração. Negativos: release
+cross-Venue 404 e leitura sem sessão negada.
+
+Delta por AC: **04/07/10/12/13/14/15/16/20 têm subcenários API/DB PASS** neste SHA.
+Não cobre reload/rede/Compose/PSP; não fecha nenhum AC global por inferência.
+AC-14 tem agora a prova integrada de três Tabs/última CLOSED antes pendente.
+Revisão desta atualização: SELF_REVIEW/R1, apenas documentação e log de teste
+já existente. Não é revisão independente R3 de implementação financeira.
+
+A missão atual autoriza branches, commits, PRs e squash merges elegíveis;
+substitui as restrições históricas “sem merge autorizado” para esta execução.
+Deploy de produção, aparelho físico e aceite humano permanecem gates externos.
