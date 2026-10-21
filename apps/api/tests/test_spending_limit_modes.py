@@ -229,3 +229,90 @@ class SpendingBoundaryTests(HouseFixture, TestCase):
             format="json",
         )
         assert denied.status_code == 409 and denied.json()["code"] == "POLICY_MISSING"
+
+
+class SpendingPolicySecurityTests(HouseFixture, TestCase):
+    path = SpendingLimitModesTests.path
+    mode = SpendingLimitModesTests.mode
+
+    def test_non_manager_with_capability_and_pin_cannot_change_policy(self):
+        from modules.access.models import VenueStaffMembership
+
+        VenueStaffMembership.objects.filter(
+            venue=self.venue, staff_member__login_identifier="house-staff"
+        ).update(capability_overrides={"allow": ["venue.configure"]})
+        self.post(self.staff, "/auth/reauthenticate/", {"pin": "0420"})
+        response = self.staff.put(
+            self.path,
+            {
+                "mode": "WARN_ONLY",
+                "expected_version": 1,
+                "reason": "Test",
+                "idempotency_key": "role-denied",
+            },
+            format="json",
+        )
+        assert response.status_code == 403 and response.json()["code"] == "MANAGER_REQUIRED"
+        assert self.staff.get(self.path).json()["mode"] == "ENFORCE"
+
+    def test_revoked_manager_cannot_read_or_replay_policy_write(self):
+        from django.utils import timezone
+
+        from modules.access.models import StaffSession
+
+        self.mode("WARN_ONLY")
+        StaffSession.objects.filter(staff_member__login_identifier="house-manager").update(
+            revoked_at=timezone.now()
+        )
+        assert self.manager.get(self.path).status_code in (401, 403)
+        response = self.manager.put(
+            self.path,
+            {
+                "mode": "WARN_ONLY",
+                "expected_version": 1,
+                "reason": "Synthetic policy test",
+                "idempotency_key": "policy",
+            },
+            format="json",
+        )
+        assert response.status_code in (401, 403)
+        assert AuditEvent.objects.filter(event_type="spending_limit_policy.updated").count() == 1
+
+    def test_query_and_body_cannot_select_foreign_policy(self):
+        from modules.venue.models import Venue
+
+        original = self.venue
+        foreign = Venue.objects.create(name="Other policy", slug="other-policy")
+        self.venue = foreign
+        other = self.login("foreign-manager", "MANAGER")
+        self.venue = original
+        self.reauth()
+        result = self.manager.put(
+            self.path,
+            {
+                "mode": "WARN_ONLY",
+                "expected_version": 1,
+                "reason": "Own policy",
+                "idempotency_key": "own",
+                "venue_id": str(foreign.id),
+            },
+            format="json",
+        )
+        assert result.status_code == 200
+        assert (
+            self.staff.get(self.path, {"venue_id": str(foreign.id)}).json()["mode"] == "WARN_ONLY"
+        )
+        assert other.get(self.path, {"venue_id": str(original.id)}).json()["mode"] == "ENFORCE"
+        assert (
+            other.put(
+                self.path,
+                {
+                    "mode": "WARN_ONLY",
+                    "expected_version": 1,
+                    "reason": "Own policy",
+                    "idempotency_key": "own",
+                },
+                format="json",
+            ).status_code
+            == 403
+        )

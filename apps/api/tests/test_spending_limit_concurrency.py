@@ -81,3 +81,50 @@ class SpendingConcurrencyTests(HouseFixture, TransactionTestCase):
         assert Charge.objects.filter(tab_id=tab_id).count() == 1
         assert self.detail(tab_id)["exposure_cents"] == 4000
         assert Tab.objects.get(pk=tab_id).operating_limit_cents == 3000
+
+    def policy_race(self, same_key):
+        from threading import Barrier
+
+        from modules.audit.models import AuditEvent
+        from modules.house_account.models import SpendingLimitPolicyCommand
+
+        self.reauth()
+        actor = ActorContext.from_session(
+            StaffSession.objects.select_related("membership", "staff_member").get(
+                staff_member__login_identifier="house-manager"
+            )
+        )
+        barrier = Barrier(2)
+
+        def update(index):
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                try:
+                    return update_spending_policy(
+                        actor=actor,
+                        mode="WARN_ONLY",
+                        expected_version=1,
+                        reason="Concurrent write",
+                        idempotency_key="same" if same_key else str(index),
+                    )
+                except OrderingServiceError as error:
+                    return error.code
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(update, range(2)))
+        assert VenueSpendingLimitPolicy.objects.get(venue=self.venue).version == 2
+        assert AuditEvent.objects.filter(event_type="spending_limit_policy.updated").count() == 1
+        assert SpendingLimitPolicyCommand.objects.count() == 1
+        if same_key:
+            assert results[0] == results[1] and results[0]["mode"] == "WARN_ONLY"
+        else:
+            assert sum(value == "POLICY_VERSION_CONFLICT" for value in results) == 1
+
+    def test_concurrent_policy_writes_compare_versions_under_lock(self):
+        self.policy_race(same_key=False)
+
+    def test_concurrent_identical_policy_replay_has_one_receipt_and_audit(self):
+        self.policy_race(same_key=True)
