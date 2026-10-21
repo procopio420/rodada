@@ -45,7 +45,7 @@ for (const width of [360, 390, 430, 1280]) test(`printer route CAS and changed-d
   await expect(save).toBeDisabled();
   // Synthetic authorization fixture only: no physical compatibility certification.
   await attestation.check();
-  await panel.getByLabel("Perfil ESC/POS").selectOption("escpos-pc860-v1");
+  await panel.locator("#printing-profile").selectOption("escpos-pc860-v1");
   await expect(attestation).not.toBeChecked();
   await expect(save).toBeDisabled();
   await attestation.check();
