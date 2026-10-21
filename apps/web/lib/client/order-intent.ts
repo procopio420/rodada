@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { apiCall, asApiError, type StaffSessionView } from "./staff-auth";
 
+import { beginOrderObservation, observeOrderIntentSaved } from "./order-observation";
+
 const storageKey = "rodada.intent.staff-order.v1";
 type Line = { product_id: string; quantity: number; variant_id: string | null; modifier_option_ids: string[]; special_instructions: string };
 type Intent = { schema: 1 | 2; origin?: "repeat"; api_root: "/api/attendance" | "/api/pos"; venue: string; staff: string; session: string; tab: string; captured_at: string;
@@ -48,14 +50,17 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
     if (sending.current || !ready || (!intentRef.current && !draft)) return;
     sending.current = true; setBusy(true);
     const recovering = !!intentRef.current;
+    let observation = intentRef.current ? beginOrderObservation(intentRef.current, true) : undefined;
     try {
       const auth = await apiCall<StaffSessionView>("/api/auth/me");
       if (!auth.response.ok || !auth.body || !("session" in auth.body)) {
+        observation?.finish("PREFLIGHT", "AUTH_UNAVAILABLE");
         setMessage("Confira sua sessão antes de retomar. O pedido pendente foi preservado."); return;
       }
       const s = auth.body;
       let i = intentRef.current;
       if (i && (i.venue !== s.venue.id || i.staff !== s.staff.id || i.session !== s.session.id)) {
+        observation?.finish("PREFLIGHT", "SESSION_CHANGED");
         setMessage("Este pedido pertence à sessão original. Solicite revisão à gerência; ele não será enviado nesta sessão."); return;
       }
       if (!i) {
@@ -66,19 +71,25 @@ export function useOrderIntent(onConfirmed: (tab: string, order: string, origin:
         intentRef.current = i; setPending(i);
       }
       assertSaved(i);
+      if (!recovering) observeOrderIntentSaved(i);
+      observation ??= beginOrderObservation(i, false);
       const result = await apiCall<{ id: string; tab_id: string }>(`${i.api_root}/tabs/${i.tab}/orders/confirm/`, { method: "POST", body: JSON.stringify(i.payload) });
       if (!result.response.ok) {
         const error = asApiError(result.body);
         if (!recovering && [400, 409].includes(result.response.status) && initialRejections.has(error.code)) {
           assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
         }
+        observation?.finish(result.response.status >= 400 && result.response.status < 500 ? "REJECTED" : "UNKNOWN",
+          result.response.status >= 400 && result.response.status < 500 ? "SERVER_REJECTION" : "UNCERTAIN");
         setMessage(error.message); return;
       }
       if (!result.body || !("id" in result.body) || !result.body.id || result.body.tab_id !== i.tab) throw new Error("Missing canonical order");
       const applyConfirmed = await onConfirmed(i.tab, result.body.id, i.schema === 2 ? "repeat" : "draft");
       assertSaved(i); sessionStorage.removeItem(storageKey); intentRef.current = null; setPending(null);
+      observation?.finish("CONFIRMED");
       applyConfirmed(); setMessage("");
     } catch {
+      observation?.finish("UNKNOWN", "UNCERTAIN");
       setMessage(intentRef.current ? "Resultado ainda não confirmado. Verifique este mesmo pedido; não envie outro."
         : "Não foi possível preparar o pedido. Verifique a sessão e o armazenamento antes de continuar.");
       if (!intentRef.current) setReady(false);

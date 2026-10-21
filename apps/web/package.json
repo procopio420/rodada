@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:auth": "node --experimental-strip-types --test tests/session-refresh.test.mjs",
+    "test:auth": "node --experimental-strip-types --test tests/session-refresh.test.mjs tests/order-observation.test.mjs",
     "test:tenant": "node --experimental-strip-types --test tests/tenant-routing.test.mjs tests/backend-fetch.test.mjs",
     "test:realtime": "node --experimental-strip-types --test tests/realtime.test.mjs",
     "test:production": "node --experimental-strip-types --test tests/production-groups.test.mjs",

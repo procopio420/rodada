@@ -395,3 +395,16 @@ export async function forwardAuthenticated(
 
   return response;
 }
+
+
+/** Fixed passive endpoint: it must never rotate or clear financial auth cookies. */
+export async function forwardAttendanceObservation(request: NextRequest, body: JsonObject): Promise<NextResponse> {
+  const rejected = rejectCrossOriginMutation(request);
+  if (rejected) return rejected;
+  const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
+  if (!accessToken) return new NextResponse(null, { status: 401 });
+  const result = await backendRequest(request, "/attendance-observations/", {
+    method: "POST", body, accessToken, signal: AbortSignal.timeout(1500),
+  });
+  return new NextResponse(null, { status: result.response.ok ? 204 : result.response.status });
+}
