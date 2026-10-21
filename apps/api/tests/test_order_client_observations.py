@@ -1,11 +1,15 @@
 """Best-effort telemetry must never become order authority or leak another Venue."""
 import io
 import uuid
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from unittest import skipUnless
 from datetime import timedelta
 
 from django.core.cache import cache
 from django.core.management import call_command
-from django.test import TestCase
+from django.db import close_old_connections, connection
+from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -129,12 +133,6 @@ class OrderClientObservationTests(TestCase):
 
 
 # Actual PostgreSQL only: unique-index races cannot be proven on SQLite.
-from concurrent.futures import ThreadPoolExecutor
-from threading import Barrier
-from unittest import skipUnless
-
-from django.db import close_old_connections, connection
-from django.test import TransactionTestCase
 
 
 @skipUnless(connection.vendor == "postgresql", "PostgreSQL concurrency gate")
